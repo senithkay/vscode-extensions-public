@@ -1138,3 +1138,18 @@ export interface GetConnectorConnectionsRequest {
 export interface GetConnectorConnectionsResponse {
     connections?: ConnectorConnection[]
 }
+
+export interface GetAllRegistryPathsRequest {
+    path: string;
+}
+
+export interface GetAllRegistryPathsResponse {
+    registryPaths: string[];
+}
+export interface GetAllArtifactsRequest {
+    path: string;
+}
+
+export interface GetAllArtifactsResponse {
+    artifacts: string[]
+}

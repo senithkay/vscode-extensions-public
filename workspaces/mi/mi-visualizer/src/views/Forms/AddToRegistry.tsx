@@ -56,7 +56,7 @@ export async function getArtifactNamesAndRegistryPaths(path: string, rpcClient: 
     for (let i = 0; i < artifacts.length; i++) {
         tempArtifactNames.push(artifacts[i].name);
     }
-    const res = await rpcClient.getMiVisualizerRpcClient().getAllRegistryPaths({
+    const res = await rpcClient.getMiDiagramRpcClient().getAllRegistryPaths({
         path: path,
     });
     return { artifactNamesArr: tempArtifactNames, registryPaths: res.registryPaths };

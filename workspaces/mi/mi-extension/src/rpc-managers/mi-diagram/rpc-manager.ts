@@ -148,6 +148,10 @@ import {
     WriteContentToFileResponse,
     getSTRequest,
     getSTResponse,
+    GetAllRegistryPathsRequest,
+    GetAllRegistryPathsResponse,
+    GetAllArtifactsRequest,
+    GetAllArtifactsResponse,
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
 import { error } from "console";
@@ -2844,12 +2848,12 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
     async getUserAccessToken(): Promise<GetUserAccessTokenResponse> {
         const token = await extension.context.secrets.get('MIAIUser');
-        if (token){
+        if (token) {
             return { token: token };
-        }else{
+        } else {
             throw new Error('User access token not found');
         }
-        
+
     }
 
     async createConnection(params: CreateConnectionRequest): Promise<CreateConnectionResponse> {
@@ -2858,7 +2862,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             const localEntryPath = directory;
 
             const xmlData =
-                    `<?xml version="1.0" encoding="UTF-8"?>
+                `<?xml version="1.0" encoding="UTF-8"?>
     <localEntry key="${connectionName}" xmlns="http://ws.apache.org/ns/synapse">
         ${keyValuesXML}
     </localEntry>`;
@@ -2885,6 +2889,22 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         });
     }
 
+    async getAllRegistryPaths(params: GetAllRegistryPathsRequest): Promise<GetAllRegistryPathsResponse> {
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            const res = await langClient.getRegistryFiles(params.path);
+            resolve({ registryPaths: res });
+        });
+    }
+
+    async getAllArtifacts(params: GetAllArtifactsRequest): Promise<GetAllArtifactsResponse> {
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            const res = await langClient.getArifactFiles(params.path);
+            resolve({ artifacts: res });
+        });
+    }
+  
     getEndpointsList(endpointList: any, filePath: string) {
         const endpoints: any[] = [];
         const endpointRegex = /<endpoint(.*?)>(.*?)<\/endpoint>/gs;
@@ -2917,7 +2937,6 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         }
         return endpoints;
     }
-}
 
 export async function askProjectPath() {
     return await window.showOpenDialog({

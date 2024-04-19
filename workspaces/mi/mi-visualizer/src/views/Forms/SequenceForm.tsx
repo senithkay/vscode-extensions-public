@@ -14,6 +14,7 @@ import { yupResolver } from "@hookform/resolvers/yup"
 import * as yup from "yup";
 import { useForm } from "react-hook-form";
 import AddToRegistry, { getArtifactNamesAndRegistryPaths, formatRegistryPath, saveToRegistry } from "./AddToRegistry";
+import { FormKeylookup } from "@wso2-enterprise/mi-diagram-2";
 
 export interface SequenceWizardProps {
     path: string;
@@ -49,21 +50,19 @@ export function SequenceWizard(props: SequenceWizardProps) {
 
     const { rpcClient } = useVisualizerContext();
     const [endpoints, setEndpoints] = useState([]);
-    // sequence file names
     const [sequences, setSequences] = useState([]);
-    // sequence artifact names
-    const [seqArtifactNames, setSeqArtifactNames] = useState([]);
     const [artifactNames, setArtifactNames] = useState([]);
     const [registryPaths, setRegistryPaths] = useState([]);
+    const [workspaceFileNames, setWorkspaceFileNames] = useState([]);
 
     const schema = yup.object({
         name: yup.string().required("Sequence name is required").matches(/^[a-zA-Z0-9]*$/, "Invalid characters in sequence name")
             .test('validateSequenceName',
-                'Sequence file name already exists', value => {
-                    return !sequences.includes(value)
-                }).test('validateSequenceName',
-                    'Sequence artifact name already exists', value => {
-                        return !seqArtifactNames.includes(value)
+                'An artifact with same name already exists', value => {
+                    return !workspaceFileNames.includes(value)
+                }).test('validateArtifactName',
+                    'A registry resource with this artifact name already exists', value => {
+                        return !artifactNames.includes(value)
                     }),
         endpoint: yup.string().notRequired(),
         onErrorSequence: yup.string().notRequired(),
@@ -78,7 +77,10 @@ export function SequenceWizard(props: SequenceWizardProps) {
                 yup.string().required("Artifact Name is required").test('validateArtifactName',
                     'Artifact name already exists', value => {
                         return !artifactNames.includes(value);
-                    }),
+                    }).test('validateFileName',
+                        'A file already exists in the workspace with this artifact name', value => {
+                            return !workspaceFileNames.includes(value);
+                        }),
         }),
         registryPath: yup.string().when('saveInReg', {
             is: false,
@@ -107,10 +109,6 @@ export function SequenceWizard(props: SequenceWizardProps) {
     });
 
     useEffect(() => {
-        console.log(errors);
-    }, [errors]);
-
-    useEffect(() => {
         (async () => {
             const response = await rpcClient.getMiDiagramRpcClient().getAvailableResources({
                 documentIdentifier: props.path,
@@ -119,9 +117,7 @@ export function SequenceWizard(props: SequenceWizardProps) {
             let sequenceNamesArr = [];
             if (response.resources) {
                 const sequenceNames = response.resources.map((resource) => resource.name);
-                setSeqArtifactNames(sequenceNames);
-                const seqPaths = response.resources.map((resource) => resource.artifactPath.replace(".xml", ""));
-                sequenceNamesArr.push(...seqPaths);
+                sequenceNamesArr.push(...sequenceNames);
             }
             if (response.registryResources) {
                 const registryKeys = response.registryResources.map((resource) => resource.registryKey);
@@ -134,18 +130,22 @@ export function SequenceWizard(props: SequenceWizardProps) {
             });
             // get endpoints from registry and workspace
             let endpointNames = [];
-            if (endpointResponse.registryResources) {
-                const registryKeys = endpointResponse.registryResources.map((resource) => resource.registryKey);
-                endpointNames.push(...registryKeys);
-            }
             if (endpointResponse.resources) {
                 const resources = endpointResponse.resources.map((resource) => resource.name);
                 endpointNames.push(...resources);
+            }
+            if (endpointResponse.registryResources) {
+                const registryKeys = endpointResponse.registryResources.map((resource) => resource.registryKey);
+                endpointNames.push(...registryKeys);
             }
             setEndpoints(endpointNames);
             const result = await getArtifactNamesAndRegistryPaths(props.path, rpcClient);
             setArtifactNames(result.artifactNamesArr);
             setRegistryPaths(result.registryPaths);
+            const artifactRes = await rpcClient.getMiDiagramRpcClient().getAllArtifacts({
+                path: props.path,
+            });
+            setWorkspaceFileNames(artifactRes.artifacts);
         })();
     }, []);
 
@@ -182,20 +182,22 @@ export function SequenceWizard(props: SequenceWizardProps) {
                 {...register("name")}
             />
             <FormGroup title="Advanced Configuration" isCollapsed={true}>
-                <FormAutoComplete
-                    label="Endpoint"
-                    required={false}
-                    isNullable={true}
-                    items={endpoints}
+                <FormKeylookup
                     control={control}
+                    label="Endpoint"
+                    name="endpoint"
+                    filterType="endpoint"
+                    path={props.path}
+                    errorMsg={errors.endpoint?.message.toString()}
                     {...register("endpoint")}
                 />
-                <FormAutoComplete
-                    label="On Error Sequence"
-                    required={false}
-                    isNullable={true}
-                    items={sequences}
+                <FormKeylookup
                     control={control}
+                    label="On Error Sequence"
+                    name="onErrorSequence"
+                    filterType="sequence"
+                    path={props.path}
+                    errorMsg={errors.onErrorSequence?.message.toString()}
                     {...register("onErrorSequence")}
                 />
                 <FormCheckBox

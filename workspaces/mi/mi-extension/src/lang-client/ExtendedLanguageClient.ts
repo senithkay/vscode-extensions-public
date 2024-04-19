@@ -106,6 +106,10 @@ export class ExtendedLanguageClient extends LanguageClient {
         return this.sendRequest("synapse/getRegistryFiles", { uri: Uri.parse(req).toString() });
     }
 
+    async getArifactFiles(req: string): Promise<string[]> {
+        return this.sendRequest("synapse/getArtifactFiles", { uri: Uri.parse(req).toString() });
+    }
+
     async getDefinition(params: GetDefinitionRequest): Promise<GetDefinitionResponse> {
         const doc = params.document;
         doc.uri = Uri.parse(doc.uri).toString();
@@ -159,7 +163,7 @@ export class ExtendedLanguageClient extends LanguageClient {
 
     async updateConnectors(req: UpdateConnectorRequest): Promise<void> {
         return this.sendNotification("synapse/updateConnectors", { uri: Uri.parse(req.documentUri).toString() });
-    } 
+    }
 
     async getConnectorConnections(req: GetConnectorConnectionsRequest): Promise<GetConnectorConnectionsResponse> {
         return this.sendRequest("synapse/connectorConnections", { documentIdentifier: { uri: Uri.parse(req.documentUri).toString() }, "connectorName": req.connectorName });
