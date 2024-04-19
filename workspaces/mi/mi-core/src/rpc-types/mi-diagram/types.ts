@@ -71,10 +71,12 @@ export interface UpdateLoadBalanceEPRequest {
     description: string;
     endpoints: { type: string; value: string; }[];
     properties: { name: string; value: string; scope: string; }[];
+    getContentOnly: boolean;
 }
 
 export interface UpdateLoadBalanceEPResponse {
     path: string;
+    content: string;
 }
 
 export interface GetLoadBalanceEPRequest {
@@ -152,10 +154,12 @@ export interface UpdateTemplateEPRequest {
     template: string;
     description: string;
     parameters: { name: string; value: string; }[];
+    getContentOnly: boolean;
 }
 
 export interface UpdateTemplateEPResponse {
     path: string;
+    content: string;
 }
 
 export interface GetTemplateEPRequest {
@@ -992,7 +996,7 @@ export interface BrowseFileRequest {
 export interface GetAvailableResourcesRequest {
     documentIdentifier: string;
     resourceType: "sequence" | "endpoint" | "messageStore" | "messageProcessor" | "task" | "sequenceTemplate" | "endpointTemplate" |
-    "dataService"| "dataSource" | "localEntry" | "dataMapper" | "js" | "json" | "smooksConfig" | "wsdl" | "ws_policy" | "xsd" | "xsl" | "xslt" | "yaml";
+    "dataService" | "dataSource" | "localEntry" | "dataMapper" | "js" | "json" | "smooksConfig" | "wsdl" | "ws_policy" | "xsd" | "xsl" | "xslt" | "yaml";
 }
 
 export interface GetAvailableResourcesResponse {

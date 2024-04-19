@@ -435,20 +435,21 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
     async updateLoadBalanceEndpoint(params: UpdateLoadBalanceEPRequest): Promise<UpdateLoadBalanceEPResponse> {
         return new Promise(async (resolve) => {
             const { directory, ...templateParams } = params;
-
             const xmlData = getLoadBalanceXmlWrapper(templateParams);
-
-            let filePath: string;
-
-            if (directory.endsWith('.xml')) {
-                filePath = directory;
-            } else {
-                filePath = path.join(directory, `${templateParams.name}.xml`);
+            if (params.getContentOnly) {
+                resolve({ path: "", content: xmlData });
             }
-
-            fs.writeFileSync(filePath, xmlData);
-            commands.executeCommand(COMMANDS.REFRESH_COMMAND);
-            resolve({ path: filePath });
+            else {
+                let filePath: string;
+                if (directory.endsWith('.xml')) {
+                    filePath = directory;
+                } else {
+                    filePath = path.join(directory, `${templateParams.name}.xml`);
+                }
+                fs.writeFileSync(filePath, xmlData);
+                commands.executeCommand(COMMANDS.REFRESH_COMMAND);
+                resolve({ path: filePath, content: "" });
+            }
         });
     }
 
@@ -735,20 +736,20 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
     async updateTemplateEndpoint(params: UpdateTemplateEPRequest): Promise<UpdateTemplateEPResponse> {
         return new Promise(async (resolve) => {
             const { directory, ...templateParams } = params;
-
             const xmlData = getTemplateEndpointXmlWrapper(templateParams);
-
-            let filePath: string;
-
-            if (directory.endsWith('.xml')) {
-                filePath = directory;
+            if (params.getContentOnly) {
+                resolve({ path: "", content: xmlData });
             } else {
-                filePath = path.join(directory, `${templateParams.name}.xml`);
+                let filePath: string;
+                if (directory.endsWith('.xml')) {
+                    filePath = directory;
+                } else {
+                    filePath = path.join(directory, `${templateParams.name}.xml`);
+                }
+                fs.writeFileSync(filePath, xmlData);
+                commands.executeCommand(COMMANDS.REFRESH_COMMAND);
+                resolve({ path: filePath, content: "" });
             }
-
-            fs.writeFileSync(filePath, xmlData);
-            commands.executeCommand(COMMANDS.REFRESH_COMMAND);
-            resolve({ path: filePath });
         });
     }
 
@@ -793,8 +794,8 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             if (filePath.includes('localEntries')) {
                 filePath = filePath.replace('localEntries', 'local-entries');
             }
-            if(filePath.endsWith('.xml')) {
-               filePath = directory;
+            if (filePath.endsWith('.xml')) {
+                filePath = directory;
             } else {
                 filePath = path.join(filePath, `${name}.xml`);
             }
@@ -864,11 +865,11 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
             const xmlData = getMessageStoreXmlWrapper(getTemplateParams);
             let filePath = params.directory;
-                  
+
             if (filePath.includes('messageStores')) {
                 filePath = filePath.replace('messageStores', 'message-stores');
             }
-            if(filePath.endsWith('.xml')) {
+            if (filePath.endsWith('.xml')) {
                 filePath = params.directory;
             } else {
                 filePath = path.join(filePath, `${params.name}.xml`);
