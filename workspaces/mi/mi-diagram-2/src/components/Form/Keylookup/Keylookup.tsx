@@ -21,7 +21,20 @@ type FilterType =
     | "messageProcessor"
     | "task"
     | "sequenceTemplate"
-    | "endpointTemplate";
+    | "endpointTemplate"
+    | "dataService"
+    | "dataSource"
+    | "localEntry"
+    | "dataMapper"
+    | "js"
+    | "json"
+    | "smooksConfig"
+    | "wsdl"
+    | "ws_policy"
+    | "xsd"
+    | "xsl"
+    | "xslt"
+    | "yaml";
 
 // Interfaces
 export interface IKeylookup {
@@ -134,9 +147,7 @@ export const Keylookup = (props: IKeylookup) => {
                 items={items}
                 allowItemCreate={allowItemCreate}
             />
-            {errorMsg && (
-                <ErrorBanner errorMsg={errorMsg} />
-            )}
+            {errorMsg && <ErrorBanner errorMsg={errorMsg} />}
         </Container>
     );
 };
