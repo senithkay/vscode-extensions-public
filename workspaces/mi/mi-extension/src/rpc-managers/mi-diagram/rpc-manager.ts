@@ -440,17 +440,25 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         return new Promise(async (resolve) => {
             const { directory, ...templateParams } = params;
             const xmlData = getLoadBalanceXmlWrapper(templateParams);
+            const sanitizedXmlData = xmlData.replace(/^\s*[\r\n]/gm, '');
             if (params.getContentOnly) {
-                resolve({ path: "", content: xmlData });
-            }
-            else {
+                resolve({path: "", content: sanitizedXmlData});
+            } else {
                 let filePath: string;
                 if (directory.endsWith('.xml')) {
                     filePath = directory;
                 } else {
                     filePath = path.join(directory, `${templateParams.name}.xml`);
                 }
-                fs.writeFileSync(filePath, xmlData);
+
+                fs.writeFileSync(filePath, sanitizedXmlData);
+                await this.rangeFormat({
+                    uri: filePath,
+                    range: {
+                        start: { line: 0, character: 0 },
+                        end: { line:  sanitizedXmlData.split('\n').length + 1, character: 0 }
+                    }
+                });
                 commands.executeCommand(COMMANDS.REFRESH_COMMAND);
                 resolve({ path: filePath, content: "" });
             }
@@ -460,55 +468,11 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
     async getLoadBalanceEndpoint(params: GetLoadBalanceEPRequest): Promise<GetLoadBalanceEPResponse> {
         return new Promise(async (resolve) => {
             const endpointSyntaxTree = await this.getSyntaxTree({ documentUri: params.path });
-            const options = {
-                ignoreAttributes: false,
-                attributeNamePrefix: "@_",
-                indentBy: '    ',
-                format: true,
-            };
-
-            const builder = new XMLBuilder(options);
             const filePath = params.path;
 
             if (filePath.includes('.xml') && fs.existsSync(filePath)) {
                 const { name, loadbalance, session, property, description } = endpointSyntaxTree.syntaxTree.endpoint;
-
-                const endpoints = loadbalance.endpointOrMember.map((member: any) => {
-                    const { address, name } = member.endpoint;
-
-                    let value = '';
-                    if (member.endpoint?.key) {
-                        value = member.endpoint.key;
-                    }
-                    else {
-                        value = builder.build({
-                            "endpoint": {
-                                "@_name": name,
-                                "address": {
-                                    "@_uri": address.uri,
-                                    "suspendOnFailure": {
-                                        "initialDuration": {
-                                            "#text": address.suspendOnFailure.initialDuration.textNode
-                                        },
-                                        "progressionFactor": {
-                                            "#text": address.suspendOnFailure.progressionFactor.textNode
-                                        }
-                                    },
-                                    "markForSuspension": {
-                                        "retriesBeforeSuspension": {
-                                            "#text": address.markForSuspension.retriesBeforeSuspension.textNode
-                                        }
-                                    }
-                                }
-                            }
-                        }).trim();
-                    }
-
-                    return {
-                        type: member.endpoint.key ? 'static' : 'inline',
-                        value,
-                    };
-                });
+                const endpoints = this.getEndpointsList(loadbalance.endpointOrMember, filePath);
 
                 const properties = property.map((prop: any) => ({
                     name: prop.name,
@@ -549,8 +513,9 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         return new Promise(async (resolve) => {
             const { directory, ...templateParams } = params;
             const xmlData = getFailoverXmlWrapper(templateParams);
+            const sanitizedXmlData = xmlData.replace(/^\s*[\r\n]/gm, '');
             if (params.getContentOnly) {
-                resolve({ path: "", content: xmlData });
+                resolve({path: "", content: sanitizedXmlData});
             } else {
                 let filePath: string;
                 if (directory.endsWith('.xml')) {
@@ -558,7 +523,15 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 } else {
                     filePath = path.join(directory, `${templateParams.name}.xml`);
                 }
-                fs.writeFileSync(filePath, xmlData);
+
+                fs.writeFileSync(filePath, sanitizedXmlData);
+                await this.rangeFormat({
+                    uri: filePath,
+                    range: {
+                        start: { line: 0, character: 0 },
+                        end: { line:  sanitizedXmlData.split('\n').length + 1, character: 0 }
+                    }
+                });
                 commands.executeCommand(COMMANDS.REFRESH_COMMAND);
                 resolve({ path: filePath, content: "" });
             }
@@ -568,55 +541,11 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
     async getFailoverEndpoint(params: GetFailoverEPRequest): Promise<GetFailoverEPResponse> {
         return new Promise(async (resolve) => {
             const endpointSyntaxTree = await this.getSyntaxTree({ documentUri: params.path });
-            const options = {
-                ignoreAttributes: false,
-                attributeNamePrefix: "@_",
-                indentBy: '    ',
-                format: true,
-            };
-
-            const builder = new XMLBuilder(options);
             const filePath = params.path;
 
             if (filePath.includes('.xml') && fs.existsSync(filePath)) {
                 const { name, failover, property, description } = endpointSyntaxTree.syntaxTree.endpoint;
-
-                const endpoints = failover.endpoint.map((member: any) => {
-                    const { address, name } = member;
-
-                    let value = '';
-                    if (member.key) {
-                        value = member.key;
-                    }
-                    else {
-                        value = builder.build({
-                            "endpoint": {
-                                "@_name": name,
-                                "address": {
-                                    "@_uri": address.uri,
-                                    "suspendOnFailure": {
-                                        "initialDuration": {
-                                            "#text": address.suspendOnFailure.initialDuration.textNode
-                                        },
-                                        "progressionFactor": {
-                                            "#text": address.suspendOnFailure.progressionFactor.textNode
-                                        }
-                                    },
-                                    "markForSuspension": {
-                                        "retriesBeforeSuspension": {
-                                            "#text": address.markForSuspension.retriesBeforeSuspension.textNode
-                                        }
-                                    }
-                                }
-                            }
-                        }).trim();
-                    }
-
-                    return {
-                        type: member.key ? 'static' : 'inline',
-                        value,
-                    };
-                });
+                const endpoints = this.getEndpointsList(failover.endpoint, filePath);
 
                 const properties = property.map((prop: any) => ({
                     name: prop.name,
@@ -647,8 +576,9 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         return new Promise(async (resolve) => {
             const { directory, ...templateParams } = params;
             const xmlData = getRecipientEPXml(templateParams);
+            const sanitizedXmlData = xmlData.replace(/^\s*[\r\n]/gm, '');
             if (params.getContentOnly) {
-                resolve({ path: '', content: xmlData });
+                resolve({path: "", content: sanitizedXmlData});
             } else {
                 let filePath: string;
                 if (directory.endsWith('.xml')) {
@@ -656,7 +586,15 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 } else {
                     filePath = path.join(directory, `${templateParams.name}.xml`);
                 }
-                fs.writeFileSync(filePath, xmlData);
+
+                fs.writeFileSync(filePath, sanitizedXmlData);
+                await this.rangeFormat({
+                    uri: filePath,
+                    range: {
+                        start: { line: 0, character: 0 },
+                        end: { line:  sanitizedXmlData.split('\n').length + 1, character: 0 }
+                    }
+                });
                 commands.executeCommand(COMMANDS.REFRESH_COMMAND);
                 resolve({ path: filePath, content: "" });
             }
@@ -666,53 +604,11 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
     async getRecipientEndpoint(params: GetRecipientEPRequest): Promise<GetRecipientEPResponse> {
         return new Promise(async (resolve) => {
             const endpointSyntaxTree = await this.getSyntaxTree({ documentUri: params.path });
-            const options = {
-                ignoreAttributes: false,
-                attributeNamePrefix: "@_",
-                indentBy: '    ',
-                format: true,
-            };
-
-            const builder = new XMLBuilder(options);
             const filePath = params.path;
 
             if (filePath.includes('.xml') && fs.existsSync(filePath)) {
                 const { name, recipientlist, property, description } = endpointSyntaxTree.syntaxTree.endpoint;
-
-                const endpoints = recipientlist.endpoint.map((member: any) => {
-                    const { _default, key } = member;
-
-                    let value = '';
-                    if (key) {
-                        value = key;
-                    }
-                    else {
-                        value = builder.build({
-                            "endpoint": {
-                                "default": {
-                                    "suspendOnFailure": {
-                                        "initialDuration": {
-                                            "#text": _default.suspendOnFailure.initialDuration.textNode
-                                        },
-                                        "progressionFactor": {
-                                            "#text": _default.suspendOnFailure.progressionFactor.textNode
-                                        }
-                                    },
-                                    "markForSuspension": {
-                                        "retriesBeforeSuspension": {
-                                            "#text": _default.markForSuspension.retriesBeforeSuspension.textNode
-                                        }
-                                    }
-                                }
-                            }
-                        }).trim();
-                    }
-
-                    return {
-                        type: member.key ? 'static' : 'inline',
-                        value,
-                    };
-                });
+                const endpoints = this.getEndpointsList(recipientlist.endpoint, filePath);
 
                 const properties = property.map((prop: any) => ({
                     name: prop.name,
@@ -741,8 +637,9 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         return new Promise(async (resolve) => {
             const { directory, ...templateParams } = params;
             const xmlData = getTemplateEndpointXmlWrapper(templateParams);
+            const sanitizedXmlData = xmlData.replace(/^\s*[\r\n]/gm, '');
             if (params.getContentOnly) {
-                resolve({ path: "", content: xmlData });
+                resolve({path: "", content: sanitizedXmlData});
             } else {
                 let filePath: string;
                 if (directory.endsWith('.xml')) {
@@ -750,7 +647,15 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 } else {
                     filePath = path.join(directory, `${templateParams.name}.xml`);
                 }
-                fs.writeFileSync(filePath, xmlData);
+
+                fs.writeFileSync(filePath, sanitizedXmlData);
+                await this.rangeFormat({
+                    uri: filePath,
+                    range: {
+                        start: { line: 0, character: 0 },
+                        end: { line:  sanitizedXmlData.split('\n').length + 1, character: 0 }
+                    }
+                });
                 commands.executeCommand(COMMANDS.REFRESH_COMMAND);
                 resolve({ path: filePath, content: "" });
             }
@@ -2978,6 +2883,39 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
             resolve(res);
         });
+    }
+
+    getEndpointsList(endpointList: any, filePath: string) {
+        const endpoints: any[] = [];
+        const endpointRegex = /<endpoint(.*?)>(.*?)<\/endpoint>/gs;
+        const options = {
+            ignoreAttributes: false,
+            allowBooleanAttributes: true,
+            attributeNamePrefix: "",
+            attributesGroupName: "@_",
+            indentBy: '    ',
+            format: true,
+        };
+        const parser = new XMLParser(options);
+        const builder = new XMLBuilder(options);
+
+        endpointList.map((member: any) => {
+            if (member.key) {
+                const value = member.key;
+                endpoints.push({type: 'static', value});
+            }
+        });
+
+        let xmlString = fs.readFileSync(filePath, "utf8");
+        xmlString = xmlString.slice(0, xmlString.indexOf("<endpoint")) +
+            xmlString.slice(xmlString.indexOf(">", xmlString.indexOf("<endpoint")) + 1);
+        xmlString = xmlString.replace(/<endpoint\s+[^>]*\/>/ig, "");
+
+        let match;
+        while ((match = endpointRegex.exec(xmlString)) !== null) {
+            endpoints.push({type: 'inline', value: builder.build(parser.parse(match[0])) as string});
+        }
+        return endpoints;
     }
 }
 

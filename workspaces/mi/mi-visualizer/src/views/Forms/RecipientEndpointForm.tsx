@@ -81,6 +81,7 @@ export function RecipientWizard(props: RecipientWizardProps) {
     const [artifactNames, setArtifactNames] = useState([]);
     const [registryPaths, setRegistryPaths] = useState([]);
     const [savedEPName, setSavedEPName] = useState<string>("");
+    const [endpointsUpdated, setEndpointsUpdated] = useState(false);
 
     const schema = yup.object({
         name: yup.string().required("Endpoint name is required").matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in Endpoint name")
@@ -213,6 +214,7 @@ export function RecipientWizard(props: RecipientWizardProps) {
         setEndpoints((prev: any) => [...prev, newEndpoint]);
         setShowAddNewEndpointView(false);
         setNewEndpoint(initialInlineEndpoint);
+        setEndpointsUpdated(true);
     }
 
     const handleParamChange = (config: any) => {
@@ -299,6 +301,7 @@ export function RecipientWizard(props: RecipientWizardProps) {
                         <EndpointList
                             endpoints={endpoints}
                             setEndpoints={setEndpoints}
+                            setEndpointUpdated={setEndpointsUpdated}
                         />
                     )}
                     {showAddNewEndpointView && (
@@ -334,7 +337,7 @@ export function RecipientWizard(props: RecipientWizardProps) {
                 <Button
                     appearance="primary"
                     onClick={handleSubmit(handleUpdateEndpoint)}
-                    disabled={!isDirty}
+                    disabled={!(isDirty || endpointsUpdated)}
                 >
                     {isNewEndpoint ? "Create" : "Save Changes"}
                 </Button>
