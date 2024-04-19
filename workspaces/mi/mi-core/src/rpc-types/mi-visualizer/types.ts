@@ -134,5 +134,5 @@ export interface GetAllRegistryPathsResponse {
 
 export interface GoToSourceRequest {
     filePath: string;
-    position: Range;
+    position?: Range;
 }

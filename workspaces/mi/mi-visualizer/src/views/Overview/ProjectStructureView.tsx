@@ -121,8 +121,8 @@ const ProjectStructureView = (props: { projectStructure: any, workspaceDir: stri
         rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view, documentUri, customProps: {type: type} }});
     };
 
-    const goToSource = async (path: string) => {
-        await rpcClient.getMiVisualizerRpcClient().goToSource({ path });
+    const goToSource = (filePath: string) => {
+        rpcClient.getMiVisualizerRpcClient().goToSource({ filePath });
     }
 
     const deleteArtifact = async (path: string) => {
@@ -174,7 +174,7 @@ const ProjectStructureView = (props: { projectStructure: any, workspaceDir: stri
                     {Object.entries(projectStructure.directoryMap.src.main.wso2mi.artifacts)
                         .filter(([key, value]) => artifactTypeMap.hasOwnProperty(key) && Array.isArray(value) && value.length > 0)
                         .map(([key, value]) => (
-                            <div style={{ marginBottom: '2em' }}>
+                            <div>
                                 <h3>{artifactTypeMap[key].title}</h3>
                                 {Object.entries(value).map(([_, entry]) => (
                                     <Entry

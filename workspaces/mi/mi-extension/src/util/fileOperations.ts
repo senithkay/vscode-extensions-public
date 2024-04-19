@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { Progress, window, ProgressLocation, commands, workspace, Uri, TextEditorRevealType, Selection, Range as VSCodeRange } from "vscode";
+import { Progress, window, ProgressLocation, commands, workspace, Uri, TextEditorRevealType, Selection, Range as VSCodeRange, ViewColumn, TextEditor } from "vscode";
 import * as fs from 'fs';
 import * as os from 'os';
 import axios from "axios";
@@ -632,37 +632,49 @@ export function changeRootPomPackaging(projectDir: string, packaging: string) {
 /**
  * Focus on the source file at the given position in the editor.
  * @param filePath   path of the file.
- * @param position     position to be focused.
+ * @param position   position to be focused.
  */
-export function goToSource(filePath: string, position: Range) {
+export function goToSource(filePath: string, position?: Range) {
     if (!existsSync(filePath)) {
         return;
     }
 
-    const { start : { line, column } } = position;
-    const range: VSCodeRange = new VSCodeRange(line, column, line!, column!);
     const openedDocument = window.visibleTextEditors.find((editor) => editor.document.fileName === filePath);
-    
-    if (openedDocument) {
-        focusTextEditor(openedDocument, range);
+    if (!position) {
+        openTextEditor(openedDocument, filePath);
     } else {
-        openAndFocusTextDocument(filePath, range);
+        const { start : { line, column } } = position;
+        const range: VSCodeRange = new VSCodeRange(line, column, line!, column!);
+        
+        if (openedDocument) {
+            focusTextEditor(openedDocument, range);
+        } else {
+            openAndFocusTextDocument(filePath, range);
+        }
     }
 
-    function focusTextEditor(editor, range) {
+    function openTextEditor(editor: TextEditor | undefined, filePath: string) {
+        if (editor) {
+            window.showTextDocument(editor.document, { viewColumn: editor.viewColumn });
+        } else {
+            commands.executeCommand('vscode.open', Uri.parse(filePath), { viewColumn: ViewColumn.Beside });
+        }
+    }
+
+    function focusTextEditor(editor: TextEditor, range: VSCodeRange) {
         window.visibleTextEditors[0].revealRange(range, TextEditorRevealType.InCenter);
         window.showTextDocument(editor.document, { preview: false, preserveFocus: false, viewColumn: editor.viewColumn })
             .then(textEditor => updateEditor(textEditor, range));
     }
     
-    function openAndFocusTextDocument(filePath, range) {
+    function openAndFocusTextDocument(filePath: string, range: VSCodeRange) {
         workspace.openTextDocument(filePath).then(sourceFile => {
             window.showTextDocument(sourceFile, { preview: false, preserveFocus: false })
                 .then(textEditor => updateEditor(textEditor, range));
         });
     }
 
-    function updateEditor(textEditor, range) {
+    function updateEditor(textEditor: TextEditor, range: VSCodeRange) {
         textEditor.revealRange(range, TextEditorRevealType.InCenter);
         textEditor.selection = new Selection(range.start, range.start);
     }
