@@ -15,7 +15,6 @@ import {
     GettingStartedData,
     GettingStartedSample,
     GoToSourceRequest,
-    GoToSourceRequest,
     HistoryEntry,
     HistoryEntryResponse,
     MIVisualizerAPI,
@@ -177,17 +176,5 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
 
     goToSource(params: GoToSourceRequest): void {
         goToSource(params.filePath, params.position);
-    }
-
-    async goToSource(params: GoToSourceRequest): Promise<void> {
-        const { path } = params;
-		if (path) {
-			const openedEditor = window.visibleTextEditors.find(editor => editor.document.uri.fsPath === path);
-			if (openedEditor) {
-				await window.showTextDocument(openedEditor.document, { viewColumn: openedEditor.viewColumn });
-			} else {
-				await commands.executeCommand('vscode.open', Uri.parse(path), { viewColumn: ViewColumn.Beside });
-			}
-		}
     }
 }

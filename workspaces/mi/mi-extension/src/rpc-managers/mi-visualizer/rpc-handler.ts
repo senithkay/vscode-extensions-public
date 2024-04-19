@@ -10,7 +10,6 @@
  */
 import {
     GoToSourceRequest,
-    GoToSourceRequest,
     HistoryEntry,
     OpenViewRequest,
     ProjectStructureRequest,
@@ -26,7 +25,6 @@ import {
     goBack,
     goHome,
     goSelected,
-    goToSource,
     openView,
     ToggleDisplayOverviewRequest,
     GetAllRegistryPathsRequest,
@@ -52,5 +50,4 @@ export function registerMiVisualizerRpcHandlers(messenger: Messenger) {
     messenger.onRequest(toggleDisplayOverview, (args: ToggleDisplayOverviewRequest) => rpcManger.toggleDisplayOverview(args));
     messenger.onRequest(getAllRegistryPaths, (args: GetAllRegistryPathsRequest) => rpcManger.getAllRegistryPaths(args));
     messenger.onNotification(goToSource, (args: GoToSourceRequest) => rpcManger.goToSource(args));
-    messenger.onRequest(goToSource, (args: GoToSourceRequest) => rpcManger.goToSource(args));
 }

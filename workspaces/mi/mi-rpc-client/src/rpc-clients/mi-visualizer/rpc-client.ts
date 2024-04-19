@@ -12,7 +12,6 @@ import {
     ColorThemeKind,
     GettingStartedData,
     GoToSourceRequest,
-    GoToSourceRequest,
     HistoryEntry,
     HistoryEntryResponse,
     MIVisualizerAPI,
@@ -33,7 +32,6 @@ import {
     goBack,
     goHome,
     goSelected,
-    goToSource,
     openView,
     GetAllRegistryPathsRequest,
     getAllRegistryPaths,
@@ -104,9 +102,5 @@ export class MiVisualizerRpcClient implements MIVisualizerAPI {
 
     goToSource(params: GoToSourceRequest): void {
         return this._messenger.sendNotification(goToSource, HOST_EXTENSION, params);
-    }
-
-    goToSource(params: GoToSourceRequest): Promise<void> {
-        return this._messenger.sendRequest(goToSource, HOST_EXTENSION, params);
     }
 }
