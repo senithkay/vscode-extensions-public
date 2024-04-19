@@ -7,15 +7,17 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useState, MouseEvent, useEffect, ReactNode } from 'react';
-import { Button, Codicon, ProgressRing } from '@wso2-enterprise/ui-toolkit';
+import React, { MouseEvent, ReactNode, useEffect, useState } from 'react';
+
 import { css } from '@emotion/css';
+import { Button, Codicon, ProgressRing } from '@wso2-enterprise/ui-toolkit';
 import classNames from "classnames";
 
-import { InputOutputPortModel } from '../Port';
-import { ExpressionLabelModel } from './ExpressionLabelModel';
-import { getEditorLineAndColumn } from '../utils/common-utils';
 import { DiagnosticWidget } from '../Diagnostic/DiagnosticWidget';
+import { InputOutputPortModel } from '../Port';
+import { getEditorLineAndColumn } from '../utils/common-utils';
+
+import { ExpressionLabelModel } from './ExpressionLabelModel';
 
 export interface EditableLabelWidgetProps {
     model: ExpressionLabelModel;
