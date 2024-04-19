@@ -67,7 +67,6 @@ const classes = {
 
 interface DataMapperDiagramProps {
 	nodes?: DataMapperNodeModel[];
-	links?: DataMapperLinkModel[];
 	hideCanvas?: boolean;
 	onError?: (kind: ErrorNodeKind) => void;
 }

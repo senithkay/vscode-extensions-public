@@ -12,8 +12,9 @@ import { Action, ActionEvent, InputType, State } from '@projectstorm/react-canva
 import { DiagramEngine, LinkModel, PortModel } from '@projectstorm/react-diagrams-core';
 
 import { ExpressionLabelModel } from "../Label";
-import { ObjectOutputNode, InputNode } from '../Node';
+import { ObjectOutputNode, InputNode, LinkConnectorNode } from '../Node';
 import { InputOutputPortModel } from '../Port/model/InputOutputPortModel';
+import { IntermediatePortModel } from '../Port/IntermediatePort';
 
 /**
  * This state is controlling the creation of a link.
@@ -79,7 +80,10 @@ export class CreateLinkState extends State<DiagramEngine> {
 							}
 						}
 					} else if (element instanceof PortModel && this.sourcePort && element !== this.sourcePort) {
-						if (element instanceof InputOutputPortModel) {
+						if ((element instanceof InputOutputPortModel)
+							|| (element instanceof IntermediatePortModel
+								&& element.getParent() instanceof LinkConnectorNode)
+						) {
 							if (element.portType === "IN") {
 								let isDisabled = false;
 								if (element instanceof InputOutputPortModel) {

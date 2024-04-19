@@ -12,7 +12,7 @@ import React, { useMemo, useState } from "react";
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import { Button, Codicon, ProgressRing } from "@wso2-enterprise/ui-toolkit";
 import { TypeKind } from "@wso2-enterprise/mi-core";
-import * as ts from "typescript";
+import { Node } from "ts-morph";
 
 import classnames from "classnames";
 
@@ -25,18 +25,18 @@ import { ValueConfigMenu, ValueConfigOption } from "../commons/DataManipulationW
 import { ValueConfigMenuItem } from "../commons/DataManipulationWidget/ValueConfigButton/ValueConfigMenuItem";
 import { useIONodesStyles } from "../../../styles";
 import { useDMCollapsedFieldsStore } from '../../../../store/store';
-import { getDefaultValue, isConnectedViaLink } from "../../utils/common-utils";
+import { getDefaultValue, getEditorLineAndColumn, isConnectedViaLink } from "../../utils/common-utils";
 
 export interface ObjectOutputFieldWidgetProps {
     parentId: string;
     field: DMTypeWithValue;
     engine: DiagramEngine;
     getPort: (portId: string) => InputOutputPortModel;
-    parentObjectLiteralExpr: ts.Node;
+    parentObjectLiteralExpr: Node;
     context: IDataMapperContext;
     fieldIndex?: number;
     treeDepth?: number;
-    deleteField?: (node: ts.Node) => Promise<void>;
+    deleteField?: (node: Node) => Promise<void>;
     hasHoveredParent?: boolean;
 }
 
@@ -46,7 +46,7 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
         field,
         getPort,
         engine,
-        parentObjectLiteralExpr: parentMappingConstruct,
+        parentObjectLiteralExpr,
         context,
         fieldIndex,
         treeDepth = 0,
@@ -73,23 +73,23 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
         : `${parentId}.${fieldName}`;
     const portIn = getPort(fieldId + ".IN");
 
-    const propertyAssignment = field.hasValue() && ts.isPropertyAssignment(field.value) && field.value;
-    const objectLiteralExpr = ts.isObjectLiteralExpression(parentMappingConstruct) && parentMappingConstruct;
+    const propertyAssignment = field.hasValue() && Node.isPropertyAssignment(field.value) && field.value;
+    const objectLiteralExpr = parentObjectLiteralExpr && Node.isObjectLiteralExpression(parentObjectLiteralExpr) && parentObjectLiteralExpr;
     const hasValue = propertyAssignment
-        && propertyAssignment.initializer
-        && !!propertyAssignment.initializer.getText();
+        && propertyAssignment.getInitializer()
+        && !!propertyAssignment.getInitializer().getText();
 
     const fields = isRecord && field.childrenTypes;
     const isWithinArray = fieldIndex !== undefined;
 
     const connectedViaLink = useMemo(() => {
         if (hasValue) {
-            return isConnectedViaLink(propertyAssignment.initializer);
+            return isConnectedViaLink(propertyAssignment.getInitializer());
         }
         return false;
     }, [field]);
 
-    const value: string = !isArray && !isRecord && hasValue && propertyAssignment.initializer.getText();
+    const value: string = !isArray && !isRecord && hasValue && propertyAssignment.getInitializer().getText();
 
     const handleAddValue = async () => {
         setIsLoading(true);
@@ -102,9 +102,10 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
     };
 
     const handleEditValue = () => {
-        if (field.value && ts.isPropertyAssignment(field.value)) {
-            const innerExpr = field.value.initializer;
-            // TODO: Implement editing source value
+        if (field.value && Node.isPropertyAssignment(field.value)) {
+            const initializer = field.value.getInitializer();
+            const range = getEditorLineAndColumn(initializer);
+            context.goToSource(range);
         }
     };
 

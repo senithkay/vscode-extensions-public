@@ -86,6 +86,7 @@ export class MILanguageClient {
                 // Options to control the language client
                 let clientOptions: LanguageClientOptions = {
                     initializationOptions: { "settings": getXMLSettings() },
+                    workspaceFolder: workspaceFolder,
                     synchronize: {
                         //preferences starting with these will trigger didChangeConfiguration
                         configurationSection: ['xml', '[SynapseXml]'],

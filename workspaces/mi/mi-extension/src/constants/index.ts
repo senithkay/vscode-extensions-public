@@ -65,3 +65,4 @@ export const COMMANDS = {
 
 export const SELECTED_SERVER_PATH = "selected-server-path";
 export const PORTS_TO_CHECK = [8290, 8253];
+export const DEFAULT_PROJECT_VERSION = "1.0.0";

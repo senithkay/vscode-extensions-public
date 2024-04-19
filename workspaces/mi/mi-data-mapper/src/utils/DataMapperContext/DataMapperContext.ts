@@ -6,20 +6,24 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { DMType } from "@wso2-enterprise/mi-core";
-import { VariableDeclaration } from "typescript";
+import { DMType, Range } from "@wso2-enterprise/mi-core";
+import { FunctionDeclaration } from "ts-morph";
 
 export interface IDataMapperContext {
-    functionST: VariableDeclaration;
+    functionST: FunctionDeclaration;
     inputTrees: DMType[];
     outputTree: DMType;
+    goToSource: (range: Range) => void;
+    applyModifications: () => void;
 }
 
 export class DataMapperContext implements IDataMapperContext {
 
     constructor(
-        public functionST: VariableDeclaration,
+        public functionST: FunctionDeclaration,
         public inputTrees: DMType[],
-        public outputTree: DMType
+        public outputTree: DMType,
+        public goToSource: (range: Range) => void,
+        public applyModifications: () => void
     ){}
 }
