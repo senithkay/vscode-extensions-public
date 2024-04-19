@@ -8,7 +8,7 @@
  */
 
 import React, { useEffect, useState } from "react";
-import { AutoComplete, ItemComponent } from "@wso2-enterprise/ui-toolkit";
+import { AutoComplete, ErrorBanner, ItemComponent } from "@wso2-enterprise/ui-toolkit";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import styled from "@emotion/styled";
 import { VSCodeTag } from "@vscode/webview-ui-toolkit/react";
@@ -35,6 +35,7 @@ export interface IKeylookup {
     allowItemCreate?: boolean;
     sx?: React.CSSProperties;
     borderBox?: boolean;
+    errorMsg?: string;
     onValueChange?: (item: string, index?: number) => void;
     name?: string;
     onBlur?: React.FocusEventHandler<HTMLInputElement>;
@@ -50,6 +51,12 @@ export interface IKeylookup {
 export type IFormKeylookup<T extends FieldValues> = IKeylookup & UseControllerProps<T>;
 
 // Styles
+const Container = styled.div({
+    display: "flex",
+    flexDirection: "column",
+    gap: "2px",
+});
+
 const ItemContainer = styled.div({
     display: "flex",
     alignItems: "center",
@@ -76,7 +83,7 @@ const getItemComponent = (item: string, type?: "reg:") => {
 };
 
 export const Keylookup = (props: IKeylookup) => {
-    const { filter, filterType, onValueChange, allowItemCreate = true, path, ...rest } = props;
+    const { filter, filterType, onValueChange, allowItemCreate = true, path, errorMsg, ...rest } = props;
     const [items, setItems] = useState<ItemComponent[]>([]);
     const [value, setValue] = useState<string | undefined>(undefined);
     const { rpcClient } = useVisualizerContext();
@@ -119,13 +126,18 @@ export const Keylookup = (props: IKeylookup) => {
     };
 
     return (
-        <AutoComplete
-            {...rest}
-            value={value}
-            onValueChange={handleValueChange}
-            items={items}
-            allowItemCreate={allowItemCreate}
-        />
+        <Container>
+            <AutoComplete
+                {...rest}
+                value={value}
+                onValueChange={handleValueChange}
+                items={items}
+                allowItemCreate={allowItemCreate}
+            />
+            {errorMsg && (
+                <ErrorBanner errorMsg={errorMsg} />
+            )}
+        </Container>
     );
 };
 
