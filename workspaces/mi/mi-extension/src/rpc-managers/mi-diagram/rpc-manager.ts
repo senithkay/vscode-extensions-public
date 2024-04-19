@@ -102,7 +102,7 @@ import {
     ImportProjectRequest,
     ImportProjectResponse,
     ListRegistryArtifactsRequest,
-    ListRegistryArtifactsResponse,
+    RegistryArtifactNamesResponse,
     MACHINE_VIEW,
     MiDiagramAPI,
     MigrateProjectRequest,
@@ -2787,9 +2787,15 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         return { url: ROOT_URL };
     }
 
-    async getAvailableRegistryResources(params: ListRegistryArtifactsRequest): Promise<ListRegistryArtifactsResponse> {
+    async getAvailableRegistryResources(params: ListRegistryArtifactsRequest): Promise<RegistryArtifactNamesResponse> {
         return new Promise(async (resolve) => {
-            resolve(getAvailableRegistryResources(params.path));
+            const response = await getAvailableRegistryResources(params.path);
+            const artifacts = response.artifacts;
+            var tempArtifactNames: string[] = [];
+            for (let i = 0; i < artifacts.length; i++) {
+                tempArtifactNames.push(artifacts[i].name);
+            }
+            resolve({ artifacts: tempArtifactNames });
         });
     }
 

@@ -1023,6 +1023,9 @@ export interface ListRegistryArtifactsRequest {
 export interface ListRegistryArtifactsResponse {
     artifacts: RegistryArtifact[];
 }
+export interface RegistryArtifactNamesResponse {
+    artifacts: string[];
+}
 export interface RegistryArtifact {
     name: string;
     file: string;
@@ -1110,7 +1113,7 @@ export interface GetIconPathUriResponse {
     uri: any;
 }
 
-export interface GetUserAccessTokenResponse{
+export interface GetUserAccessTokenResponse {
     token: string;
 }
 
