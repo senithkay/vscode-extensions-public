@@ -27,8 +27,6 @@ import {
     goSelected,
     openView,
     ToggleDisplayOverviewRequest,
-    GetAllRegistryPathsRequest,
-    getAllRegistryPaths,
     goToSource
 } from "@wso2-enterprise/mi-core";
 import { Messenger } from "vscode-messenger";
@@ -48,6 +46,5 @@ export function registerMiVisualizerRpcHandlers(messenger: Messenger) {
     messenger.onNotification(goHome, () => rpcManger.goHome());
     messenger.onNotification(goSelected, (args: number) => rpcManger.goSelected(args));
     messenger.onRequest(toggleDisplayOverview, (args: ToggleDisplayOverviewRequest) => rpcManger.toggleDisplayOverview(args));
-    messenger.onRequest(getAllRegistryPaths, (args: GetAllRegistryPathsRequest) => rpcManger.getAllRegistryPaths(args));
     messenger.onNotification(goToSource, (args: GoToSourceRequest) => rpcManger.goToSource(args));
 }
