@@ -142,6 +142,10 @@ import {
     CreateConnectionResponse,
     GetConnectorConnectionsRequest,
     GetConnectorConnectionsResponse,
+    GetAllRegistryPathsRequest,
+    GetAllRegistryPathsResponse,
+    GetAllArtifactsRequest,
+    GetAllArtifactsResponse,
 } from "./types";
 import { RequestType, NotificationType } from "vscode-messenger-common";
 
@@ -231,3 +235,5 @@ export const getIconPathUri: RequestType<GetIconPathUriRequest, GetIconPathUriRe
 export const getUserAccessToken: RequestType<void, GetUserAccessTokenResponse> = { method: `${_preFix}/getUserAccessToken` };
 export const createConnection: RequestType<CreateConnectionRequest, CreateConnectionResponse> = { method: `${_preFix}/createConnection` };
 export const getConnectorConnections: RequestType<GetConnectorConnectionsRequest, GetConnectorConnectionsResponse> = { method: `${_preFix}/getConnectorConnections` };
+export const getAllRegistryPaths: RequestType<GetAllRegistryPathsRequest, GetAllRegistryPathsResponse> = { method: `${_preFix}/getAllRegistryPaths` };
+export const getAllArtifacts: RequestType<GetAllArtifactsRequest, GetAllArtifactsResponse> = { method: `${_preFix}/getAllArtifacts` };

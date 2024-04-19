@@ -228,7 +228,13 @@ import {
     updateRecipientEndpoint,
     updateTemplateEndpoint,
     updateWsdlEndpoint,
-    writeContentToFile
+    writeContentToFile,
+    getAllArtifacts,
+    GetAllArtifactsRequest,
+    GetAllArtifactsResponse,
+    getAllRegistryPaths,
+    GetAllRegistryPathsRequest,
+    GetAllRegistryPathsResponse,
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -578,5 +584,12 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     getConnectorConnections(params: GetConnectorConnectionsRequest): Promise<GetConnectorConnectionsResponse> {
         return this._messenger.sendRequest(getConnectorConnections, HOST_EXTENSION, params);
+    }
+    getAllRegistryPaths(params: GetAllRegistryPathsRequest): Promise<GetAllRegistryPathsResponse> {
+        return this._messenger.sendRequest(getAllRegistryPaths, HOST_EXTENSION, params);
+    }
+
+    getAllArtifacts(params: GetAllArtifactsRequest): Promise<GetAllArtifactsResponse> {
+        return this._messenger.sendRequest(getAllArtifacts, HOST_EXTENSION, params);
     }
 }

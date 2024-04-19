@@ -141,6 +141,10 @@ import {
     CreateConnectionResponse,
     GetConnectorConnectionsRequest,
     GetConnectorConnectionsResponse,
+    GetAllRegistryPathsRequest,
+    GetAllRegistryPathsResponse,
+    GetAllArtifactsRequest,
+    GetAllArtifactsResponse,
 } from "./types";
 
 export interface MiDiagramAPI {
@@ -229,4 +233,6 @@ export interface MiDiagramAPI {
     getUserAccessToken: () => Promise<GetUserAccessTokenResponse>;
     createConnection: (params: CreateConnectionRequest) => Promise<CreateConnectionResponse>;
     getConnectorConnections: (params: GetConnectorConnectionsRequest) => Promise<GetConnectorConnectionsResponse>;
+    getAllRegistryPaths: (params: GetAllRegistryPathsRequest) => Promise<GetAllRegistryPathsResponse>;
+    getAllArtifacts: (params: GetAllArtifactsRequest) => Promise<GetAllArtifactsResponse>;
 }

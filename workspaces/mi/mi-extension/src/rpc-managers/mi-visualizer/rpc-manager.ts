@@ -26,8 +26,6 @@ import {
     WorkspaceFolder,
     WorkspacesResponse,
     ToggleDisplayOverviewRequest,
-    GetAllRegistryPathsResponse,
-    GetAllRegistryPathsRequest
 } from "@wso2-enterprise/mi-core";
 import fetch from 'node-fetch';
 import { workspace, window } from "vscode";
@@ -63,14 +61,6 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
             const projectUrl = params.documentUri ? params.documentUri : rootPath;
             const res = await langClient.getProjectStructure(projectUrl);
             resolve(res);
-        });
-    }
-
-    async getAllRegistryPaths(params: GetAllRegistryPathsRequest): Promise<GetAllRegistryPathsResponse> {
-        return new Promise(async (resolve) => {
-            const langClient = StateMachine.context().langClient!;
-            const res = await langClient.getRegistryFiles(params.path);
-            resolve({ registryPaths: res });
         });
     }
 
