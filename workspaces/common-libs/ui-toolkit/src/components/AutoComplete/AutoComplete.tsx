@@ -22,6 +22,7 @@ import { Control, Controller } from 'react-hook-form';
 
 export interface ComboboxOptionProps {
     active?: boolean;
+    display?: boolean;
 }
 
 export interface DropdownContainerProps {
@@ -167,7 +168,7 @@ export interface AutoCompleteProps {
     onChange?: React.ChangeEventHandler<HTMLInputElement>;
 } 
 
-const ComboboxOption: React.FC<any> = styled.div`
+const ComboboxOption: React.FC<ComboboxOptionProps> = styled.div`
     position: relative;
     cursor: default;
     user-select: none;
@@ -175,6 +176,7 @@ const ComboboxOption: React.FC<any> = styled.div`
     background-color: ${(props: ComboboxOptionProps) => (props.active ? 'var(--vscode-editor-selectionBackground)' :
         'var(--vscode-editor-background)')};
     list-style: none;
+    display: ${(props: ComboboxOptionProps) => (props.display === undefined ? 'block' : props.display ? 'block' : 'none')};
 `;
 
 const getItemKey = (item: string | ItemComponent) => {
@@ -237,6 +239,8 @@ export const AutoComplete = React.forwardRef<HTMLInputElement, AutoCompleteProps
                 const item = getItemKey(filteredItem);
                 return item.toLowerCase().replace(/\s+/g, '').includes(query.toLowerCase().replace(/\s+/g, ''))
             });
+    
+    const extactMatch = items.filter(item => getItemKey(item) === query);
 
     const ComboboxOptionContainer = ({ active }: ComboboxOptionProps) => {
         return active ? OptionContainer : ActiveOptionContainer;
@@ -313,21 +317,31 @@ export const AutoComplete = React.forwardRef<HTMLInputElement, AutoCompleteProps
                                         <NothingFound>{notItemsFoundMessage || "No options"}</NothingFound>
                                     )
                                 ) : (
-                                    filteredResults.map((filteredItem: string | ItemComponent, i: number) => {
-                                        const item = getItem(filteredItem);
-                                        const itemKey = getItemKey(filteredItem);
-                                        return (
-                                            <ComboboxOption key={i}>
-                                                <Combobox.Option
-                                                    className={ComboboxOptionContainer}
-                                                    value={itemKey}
-                                                    key={i}
-                                                >
-                                                    {item}
+                                    <Fragment>
+                                        {allowItemCreate && extactMatch.length === 0 && (
+                                            <ComboboxOption display={false} key={0}>
+                                                <Combobox.Option className={ComboboxOptionContainer} value={query} key={0}>
+                                                    {query}
                                                 </Combobox.Option>
                                             </ComboboxOption>
-                                        );
-                                    })
+                                        )}
+                                        {filteredResults.map((filteredItem: string | ItemComponent, i: number) => {
+                                            const item = getItem(filteredItem);
+                                            const itemKey = getItemKey(filteredItem);
+                                            const offset = allowItemCreate && extactMatch.length === 0 ? 1 : 0;
+                                            return (
+                                                <ComboboxOption key={i + offset}>
+                                                    <Combobox.Option
+                                                        className={ComboboxOptionContainer}
+                                                        value={itemKey}
+                                                        key={i}
+                                                    >
+                                                        {item}
+                                                    </Combobox.Option>
+                                                </ComboboxOption>
+                                            );
+                                        })}
+                                    </Fragment>
                                 )}
                             </Combobox.Options>
                         </DropdownContainer>
