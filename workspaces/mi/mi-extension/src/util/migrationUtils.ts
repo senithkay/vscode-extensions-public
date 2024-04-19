@@ -30,12 +30,12 @@ export function importProject(params: ImportProjectRequest): ImportProjectRespon
 
     const projectUuid = uuidv4();
 
-    let { projectName, groupId, artifactId } = getProjectDetails(source);
+    let { projectName, groupId, artifactId, version } = getProjectDetails(source);
 
-    if (projectName && groupId && artifactId) {
+    if (projectName && groupId && artifactId && version) {
         const folderStructure: FileStructure = {
             [projectName]: {
-                'pom.xml': rootPomXmlContent(projectName, groupId, artifactId, projectUuid, '1.0.0'),
+                'pom.xml': rootPomXmlContent(projectName, groupId, artifactId, projectUuid, version),
                 'src': {
                     'main': {
                         'wso2mi': {
@@ -92,6 +92,7 @@ export function getProjectDetails(filePath: string) {
     let projectName: string | undefined;
     let groupId: string | undefined;
     let artifactId: string | undefined;
+    let version: string | undefined;
     const pomContent = fs.readFileSync(path.join(filePath, "pom.xml"), 'utf8');
 
     parseString(pomContent, { explicitArray: false, ignoreAttrs: true }, (err, result) => {
@@ -103,9 +104,10 @@ export function getProjectDetails(filePath: string) {
         projectName = result?.project?.name;
         groupId = result?.project?.groupId;
         artifactId = result?.project?.artifactId;
+        version = result?.project?.version;
     });
 
-    return { projectName, groupId, artifactId };
+    return { projectName, groupId, artifactId, version };
 }
 
 export function migrateConfigs(source: string, target: string) {
