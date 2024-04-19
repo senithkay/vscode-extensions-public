@@ -25,6 +25,8 @@ import {
     CreateAPIResponse,
     CreateClassMediatorRequest,
     CreateClassMediatorResponse,
+    CreateConnectionRequest,
+    CreateConnectionResponse,
     CreateDataSourceResponse,
     CreateEndpointRequest,
     CreateEndpointResponse,
@@ -62,6 +64,8 @@ import {
     GetAvailableResourcesRequest,
     GetAvailableResourcesResponse,
     GetBackendRootUrlResponse,
+    GetConnectorConnectionsRequest,
+    GetConnectorConnectionsResponse,
     GetConnectorFormRequest,
     GetConnectorFormResponse,
     GetDataSourceRequest,
@@ -637,20 +641,20 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
     async updateRecipientEndpoint(params: UpdateRecipientEPRequest): Promise<UpdateRecipientEPResponse> {
         return new Promise(async (resolve) => {
             const { directory, ...templateParams } = params;
-
             const xmlData = getRecipientEPXml(templateParams);
-
-            let filePath: string;
-
-            if (directory.endsWith('.xml')) {
-                filePath = directory;
+            if (params.getContentOnly) {
+                resolve({ path: '', content: xmlData });
             } else {
-                filePath = path.join(directory, `${templateParams.name}.xml`);
+                let filePath: string;
+                if (directory.endsWith('.xml')) {
+                    filePath = directory;
+                } else {
+                    filePath = path.join(directory, `${templateParams.name}.xml`);
+                }
+                fs.writeFileSync(filePath, xmlData);
+                commands.executeCommand(COMMANDS.REFRESH_COMMAND);
+                resolve({ path: filePath, content: "" });
             }
-
-            fs.writeFileSync(filePath, xmlData);
-            commands.executeCommand(COMMANDS.REFRESH_COMMAND);
-            resolve({ path: filePath });
         });
     }
 
@@ -2538,7 +2542,6 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     }
                 });
 
-
                 const writer = fs.createWriteStream(
                     path.resolve(rootPath, 'src', 'main', 'wso2mi', 'resources', 'connectors', `${connector.replace(/\s+/g, '')}-${version}.zip`)
                 );
@@ -2569,10 +2572,11 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         const { uiSchemaPath, operation } = params;
         const operationSchema = path.join(uiSchemaPath, `${operation}.json`);
 
-        // Read the file synchronously
-        const rawData = fs.readFileSync(operationSchema, 'utf-8');
+        if (!fs.existsSync(operationSchema)) {
+            return { formJSON: '' };
+        }
 
-        // Parse the JSON
+        const rawData = fs.readFileSync(operationSchema, 'utf-8');
         const formJSON = JSON.parse(rawData);
 
         return { formJSON: formJSON };
@@ -2926,6 +2930,39 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 let iconUri = VisualizerWebview.currentPanel.getIconPath(params.path, params.name);
                 resolve({ uri: iconUri });
             }
+        });
+    }
+
+    async createConnection(params: CreateConnectionRequest): Promise<CreateConnectionResponse> {
+        return new Promise(async (resolve) => {
+            const { connectionName, keyValuesXML, directory } = params;
+            const localEntryPath = directory;
+
+            const xmlData =
+                `<?xml version="1.0" encoding="UTF-8"?>
+<localEntry key="${connectionName}" xmlns="http://ws.apache.org/ns/synapse">
+    ${keyValuesXML}
+</localEntry>`;
+
+            const filePath = path.join(localEntryPath, `${connectionName}.xml`);
+            if (!fs.existsSync(localEntryPath)) {
+                fs.mkdirSync(localEntryPath);
+            }
+
+            fs.writeFileSync(filePath, xmlData);
+            resolve({ name: connectionName });
+        });
+    }
+
+    async getConnectorConnections(params: GetConnectorConnectionsRequest): Promise<GetConnectorConnectionsResponse> {
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            const res = await langClient.getConnectorConnections({
+                documentUri: params.documentUri,
+                connectorName: params.connectorName
+            });
+
+            resolve(res);
         });
     }
 }

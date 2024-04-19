@@ -9,10 +9,12 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
-    FileContentRequest,
+    GetFileContentRequest,
     IOTypeRequest,
     getFileContent,
-    getIOTypes
+    getIOTypes,
+    updateFileContent,
+    UpdateFileContentRequest
 } from "@wso2-enterprise/mi-core";
 import { Messenger } from "vscode-messenger";
 import { MiDataMapperRpcManager } from "./rpc-manager";
@@ -20,5 +22,6 @@ import { MiDataMapperRpcManager } from "./rpc-manager";
 export function registerMiDataMapperRpcHandlers(messenger: Messenger) {
     const rpcManger = new MiDataMapperRpcManager();
     messenger.onRequest(getIOTypes, (args: IOTypeRequest) => rpcManger.getIOTypes(args));
-    messenger.onRequest(getFileContent, (args: FileContentRequest) => rpcManger.getFileContent(args));
+    messenger.onRequest(getFileContent, (args: GetFileContentRequest) => rpcManger.getFileContent(args));
+    messenger.onNotification(updateFileContent, (args: UpdateFileContentRequest) => rpcManger.updateFileContent(args));
 }

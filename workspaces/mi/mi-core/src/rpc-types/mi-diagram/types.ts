@@ -126,10 +126,12 @@ export interface UpdateRecipientEPRequest {
     description: string;
     endpoints: { type: string; value: string; }[];
     properties: { name: string; value: string; scope: string; }[];
+    getContentOnly: boolean;
 }
 
 export interface UpdateRecipientEPResponse {
     path: string;
+    content: string;
 }
 
 export interface GetRecipientEPRequest {
@@ -1101,4 +1103,29 @@ export interface GetIconPathUriRequest {
 
 export interface GetIconPathUriResponse {
     uri: any;
+}
+
+export interface CreateConnectionRequest {
+    connectionName: string;
+    keyValuesXML: string;
+    directory: string;
+}
+
+export interface CreateConnectionResponse {
+    name: string
+}
+
+export interface ConnectorConnection {
+    name: string;
+    path: string;
+    connectionType?: string;
+}
+
+export interface GetConnectorConnectionsRequest {
+    documentUri: string;
+    connectorName: string;
+}
+
+export interface GetConnectorConnectionsResponse {
+    connections?: ConnectorConnection[]
 }

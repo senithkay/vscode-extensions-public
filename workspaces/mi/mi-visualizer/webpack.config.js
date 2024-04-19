@@ -50,7 +50,7 @@ module.exports = {
                 },
             }
         ],
-        noParse: [require.resolve("typescript/lib/typescript.js")],
+        noParse: [require.resolve("@ts-morph/common/dist/typescript.js")],
     },
     devServer: {
         allowedHosts: 'all',

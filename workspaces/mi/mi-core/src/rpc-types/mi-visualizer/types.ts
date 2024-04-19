@@ -19,6 +19,17 @@ export interface WorkspaceFolder {
     fsPath: string;
 }
 
+export interface Range {
+    start: {
+        line: number;
+        column: number;
+    };
+    end: {
+        line: number;
+        column: number;
+    };
+}
+
 export interface ProjectStructureRequest {
     documentUri?: string;
 }
@@ -119,4 +130,9 @@ export interface GetAllRegistryPathsRequest {
 
 export interface GetAllRegistryPathsResponse {
     registryPaths: string[];
+}
+
+export interface GoToSourceRequest {
+    filePath: string;
+    position: Range;
 }

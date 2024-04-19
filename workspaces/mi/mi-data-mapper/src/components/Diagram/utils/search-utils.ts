@@ -10,7 +10,7 @@ import { DMType, TypeKind } from "@wso2-enterprise/mi-core";
 import { useDMSearchStore } from "../../../store/store";
 import { ArrayElement, DMTypeWithValue } from "../Mappings/DMTypeWithValue";
 import { MappingMetadata } from "../Mappings/FieldAccessToSpecificFied";
-import ts from "typescript";
+import { Node } from "ts-morph";
 
 export const getSearchFilteredInput = (dmType: DMType, varName?: string) => {
 	const searchValue = useDMSearchStore.getState().inputSearch;
@@ -142,8 +142,8 @@ export function getFilteredMappings(mappings: MappingMetadata[], searchValue: st
 	return mappings.filter(mapping => {
 		if (mapping) {
 			const lastField = mapping.fields[mapping.fields.length - 1];
-			const fieldName = ts.isPropertyAssignment(lastField)
-				? lastField.name.getText()
+			const fieldName = Node.isPropertyAssignment(lastField)
+				? lastField.getName()
 				: lastField.getText();
 			return searchValue === "" || fieldName.toLowerCase().includes(searchValue.toLowerCase());
 		}

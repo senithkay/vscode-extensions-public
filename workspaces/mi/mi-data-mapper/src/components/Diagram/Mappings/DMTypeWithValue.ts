@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { DMType } from "@wso2-enterprise/mi-core";
-import { Node } from "typescript";
+import { Node } from "ts-morph";
 
 export interface ArrayElement {
 	member: DMTypeWithValue;

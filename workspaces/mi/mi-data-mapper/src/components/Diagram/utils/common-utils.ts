@@ -6,18 +6,29 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { DMType, TypeKind } from "@wso2-enterprise/mi-core";
-import ts, { ArrowFunction, Node, ParameterDeclaration, PropertyAccessExpression } from "typescript";
+import { NodeModel } from "@projectstorm/react-diagrams";
+import { DMType, TypeKind, Range } from "@wso2-enterprise/mi-core";
+import {
+    ts,
+    ArrowFunction,
+    Identifier,
+    Node,
+    ObjectLiteralExpression,
+    ParameterDeclaration,
+    PropertyAccessExpression,
+    PropertyAssignment
+} from "ts-morph";
 
 import { PropertyAccessNodeFindingVisitor } from "../../Visitors/PropertyAccessNodeFindingVisitor";
 import { NodePosition, getPosition, isPositionsEquals, traversNode } from "./st-utils";
 import { DataMapperNodeModel } from "../Node/commons/DataMapperNode";
-import { InputNode } from "../Node";
+import { InputNode, ObjectOutputNode } from "../Node";
 import { InputOutputPortModel } from "../Port";
 import { ArrayElement, DMTypeWithValue } from "../Mappings/DMTypeWithValue";
 import { useDMSearchStore } from "../../../store/store";
+import { OBJECT_OUTPUT_TARGET_PORT_PREFIX, PRIMITIVE_TYPE_TARGET_PORT_PREFIX } from "./constants";
 
-export function getPropertyAccessNodes(node: Node) {
+export function getPropertyAccessNodes(node: Node): (Identifier | PropertyAccessExpression)[] {
     const propertyAccessNodeVisitor: PropertyAccessNodeFindingVisitor = new PropertyAccessNodeFindingVisitor();
     traversNode(node, propertyAccessNodeVisitor);
     return propertyAccessNodeVisitor.getPropertyAccessNodes();
@@ -28,19 +39,19 @@ export function findInputNode(expr: Node, dmNode: DataMapperNodeModel) {
     let paramType: InputNode;
     let paramNode: ParameterDeclaration;
 
-    if (ts.isIdentifier(expr)) {
+    if (Node.isIdentifier(expr)) {
         paramType = (dmNodes.find((node) => {
             if (node instanceof InputNode) {
-                return node?.value && expr.text === node.value.name.getText();
+                return node?.value && expr.getText() === node.value.getName();
             }
         }) as InputNode);
         paramNode = paramType?.value;
-    } else if (ts.isPropertyAccessExpression(expr)) {
+    } else if (Node.isPropertyAccessExpression(expr)) {
         const valueExpr = getInnerExpr(expr);
 
-        if (valueExpr && ts.isIdentifier(valueExpr)) {
-            paramNode = (dmNode.context.functionST.initializer as ArrowFunction).parameters.find((param) =>
-                param.name.getText() === valueExpr.text
+        if (valueExpr && Node.isIdentifier(valueExpr)) {
+            paramNode = (dmNode.context.functionST.getInitializer() as ArrowFunction).getParameters().find((param) =>
+                param.getName() === valueExpr.getText()
             );
         }
     }
@@ -51,11 +62,11 @@ export function findInputNode(expr: Node, dmNode: DataMapperNodeModel) {
 
 export function getInputPort(node: InputNode, expr: Node): InputOutputPortModel {
     let typeDesc = node.dmType;
-    let portIdBuffer = node?.value && node.value.name.getText();
+    let portIdBuffer = node?.value && node.value.getName();
 
     if (typeDesc && typeDesc.kind === TypeKind.Interface) {
 
-        if (ts.isPropertyAccessExpression(expr)) {
+        if (Node.isPropertyAccessExpression(expr)) {
             const fieldNames = getFieldNames(expr);
             let nextTypeNode = typeDesc;
 
@@ -85,10 +96,10 @@ export function getInputPort(node: InputNode, expr: Node): InputOutputPortModel 
                     }
                 }
             }
-        } else if (ts.isIdentifier(expr)) {
+        } else if (Node.isIdentifier(expr)) {
             return node.getPort(portIdBuffer + ".OUT") as InputOutputPortModel;
         }
-    } else if (ts.isIdentifier(expr)) {
+    } else if (Node.isIdentifier(expr)) {
         const portId = portIdBuffer + ".OUT";
         let port = node.getPort(portId) as InputOutputPortModel;
 
@@ -116,19 +127,19 @@ export function getOutputPort(
         const next = i + 1 < fields.length && fields[i + 1];
         const nextPosition: NodePosition = next ? getPosition(next) : getPosition(field);
 
-        if (ts.isPropertyAssignment(field) && ts.isPropertyAssignment(nextTypeNode.value)) {
+        if (Node.isPropertyAssignment(field) && Node.isPropertyAssignment(nextTypeNode.value)) {
             const isLastField = i === fields.length - 1;
             const targetPosition: NodePosition = isLastField
                 ? getPosition(nextTypeNode.value)
-                : field?.initializer && getPosition(nextTypeNode.value.initializer);
+                : field?.getInitializer() && getPosition(nextTypeNode.value.getInitializer());
 
             if (isPositionsEquals(targetPosition, nextPosition)
-                && field.initializer
-                && !ts.isObjectLiteralExpression(field.initializer)
+                && field.getInitializer()
+                && !Node.isObjectLiteralExpression(field.getInitializer())
             ) {
-                portIdBuffer = `${portIdBuffer}.${field.name.getText()}`;
+                portIdBuffer = `${portIdBuffer}.${field.getName()}`;
             }
-        } else if (ts.isArrayLiteralExpression(field) && nextTypeNode.elements) {
+        } else if (Node.isArrayLiteralExpression(field) && nextTypeNode.elements) {
             const [nextField, fieldIndex] = getNextField(nextTypeNode.elements, nextPosition);
 
             if (nextField && fieldIndex !== -1) {
@@ -183,10 +194,10 @@ export function findNodeByValueNode(value: Node, dmNode: DataMapperNodeModel): I
     let foundNode: InputNode;
     if (value) {
         dmNode.getModel().getNodes().find((node) => {
-            if (ts.isParameter(value)
+            if (value.getKind() === ts.SyntaxKind.Parameter
                 && node instanceof InputNode
                 && node?.value
-                && ts.isParameter(node.value)
+                && node.value.getKind() ===  ts.SyntaxKind.Parameter
                 && isPositionsEquals(getPosition(value), getPosition(node.value))
             ) {
                 foundNode = node;
@@ -199,18 +210,20 @@ export function findNodeByValueNode(value: Node, dmNode: DataMapperNodeModel): I
 export function getFieldNames(expr: PropertyAccessExpression) {
     const fieldNames: { name: string, isOptional: boolean }[] = [];
     let nextExp = expr;
-    while (nextExp && ts.isPropertyAccessExpression(nextExp)) {
+    while (nextExp && Node.isPropertyAccessExpression(nextExp)) {
         fieldNames.push({
-            name: nextExp.name.getText(),
-            isOptional: !!nextExp.questionDotToken
+            name: nextExp.getName(),
+            isOptional: !!nextExp.getQuestionDotTokenNode()
         });
-        if (ts.isIdentifier(nextExp.expression)) {
+        if (Node.isIdentifier(nextExp.getExpression())) {
             fieldNames.push({
-                name: nextExp.expression.getText(),
+                name: nextExp.getExpression().getText(),
                 isOptional: false
             });
         }
-        nextExp = ts.isPropertyAccessExpression(nextExp.expression) ? nextExp.expression : undefined;
+        nextExp = Node.isPropertyAccessExpression(nextExp.getExpression())
+            ? nextExp.getExpression() as PropertyAccessExpression
+            : undefined;
     }
     let isRestOptional = false;
     const processedFieldNames = fieldNames.reverse().map((item) => {
@@ -235,9 +248,9 @@ export const getOptionalField = (field: DMType): DMType | undefined => {
 export function isConnectedViaLink(field: Node) {
 	const inputNodes = getPropertyAccessNodes(field);
 
-	const isObjectLiteralExpr = ts.isObjectLiteralExpression(field);
-	const isArrayLiteralExpr = ts.isArrayLiteralExpression(field);
-	const isIdentifier = ts.isIdentifier(field);
+	const isObjectLiteralExpr = Node.isObjectLiteralExpression(field);
+	const isArrayLiteralExpr = Node.isArrayLiteralExpression(field);
+	const isIdentifier = Node.isIdentifier(field);
 
 	return (!!inputNodes.length || isIdentifier) && !isObjectLiteralExpr && !isArrayLiteralExpr;
 }
@@ -272,10 +285,89 @@ export function isEmptyValue(position: NodePosition): boolean {
 	return position.start === position.end;
 }
 
+export function isDefaultValue(fieldType: DMType, value: string): boolean {
+	const defaultValue = getDefaultValue(fieldType.kind);
+	return defaultValue === value?.trim().replace(/(\r\n|\n|\r|\s)/g, "");
+}
+
+export function getFieldIndexes(targetPort: InputOutputPortModel): number[] {
+	const fieldIndexes = [];
+    const parentPort = targetPort?.parentModel;
+
+	if (targetPort?.index !== undefined) {
+		fieldIndexes.push(targetPort.index);
+	}
+
+	if (parentPort) {
+		fieldIndexes.push(...getFieldIndexes(parentPort));
+	}
+
+	return fieldIndexes;
+}
+
+export function getFieldNameFromOutputPort(outputPort: InputOutputPortModel): string {
+	let fieldName = outputPort.field?.fieldName;
+	if (outputPort?.typeWithValue?.originalType) {
+		fieldName = outputPort.typeWithValue.originalType?.fieldName;
+	}
+	return fieldName;
+}
+
+export function getPropertyAssignment(objectLitExpr: ObjectLiteralExpression, targetFieldName: string) {
+	return objectLitExpr.getProperties()?.find((property) =>
+		Node.isPropertyAssignment(property) && property.getName() === targetFieldName
+	) as PropertyAssignment;
+}
+
+export function getLinebreak(){
+	if (navigator.userAgent.indexOf("Windows") !== -1){
+		return "\r\n";
+	}
+	return "\n";
+}
+
+export function isConditionalExpression (node: Node): boolean {
+	return Node.isConditionalExpression(node)
+			|| (Node.isBinaryExpression(node)
+                && (node.getOperatorToken().getKind() === ts.SyntaxKind.QuestionQuestionToken
+                    || node.getOperatorToken().getKind() === ts.SyntaxKind.AmpersandAmpersandEqualsToken
+                    || node.getOperatorToken().getKind() === ts.SyntaxKind.BarBarToken
+                ));
+}
+
+export function getTargetPortPrefix(node: NodeModel): string {
+	switch (true) {
+		case node instanceof ObjectOutputNode:
+			return OBJECT_OUTPUT_TARGET_PORT_PREFIX;
+        // TODO: Update cases for other node types
+		default:
+			return PRIMITIVE_TYPE_TARGET_PORT_PREFIX;
+	}
+}
+
+export function getEditorLineAndColumn(node: Node): Range {
+    const sourceFile = node.getSourceFile();
+
+    const { line: startLine, column: startColumn } = sourceFile.getLineAndColumnAtPos(node.getStart());
+    const { line: endLine, column: endColumn } = sourceFile.getLineAndColumnAtPos(node.getEnd());
+
+    // Subtract 1 from line and column values to match the editor line and column values
+    return {
+        start: {
+            line: startLine - 1,
+            column: startColumn - 1
+        },
+        end: {
+            line: endLine - 1,
+            column: endColumn - 1
+        }
+    };
+}
+
 function getInnerExpr(node: PropertyAccessExpression): Node {
-    let valueExpr = node.expression;
-    while (valueExpr && ts.isPropertyAccessExpression(valueExpr)) {
-        valueExpr = valueExpr.expression;
+    let valueExpr = node.getExpression();
+    while (valueExpr && Node.isPropertyAccessExpression(valueExpr)) {
+        valueExpr = valueExpr.getExpression();
     }
     return valueExpr;
 }

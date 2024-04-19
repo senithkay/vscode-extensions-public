@@ -58,7 +58,7 @@ export function getRecipientEPXml(data: GetRecipientEPTemplatesArgs) {
                 [endpoint.type]: true,
             };
         }),
-        properties: data.properties.length > 0 ? data.properties.map((property) => {
+        properties: data.properties && data.properties.length > 0 ? data.properties.map((property) => {
             return {
                 ...property,
                 scope: property.scope !== "default" ? property.scope : undefined,

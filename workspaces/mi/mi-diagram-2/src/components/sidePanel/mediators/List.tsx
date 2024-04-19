@@ -65,12 +65,15 @@ export function Mediators(props: MediatorProps) {
         let mediators;
         if (sidePanelContext.isEditing && sidePanelContext.operationName) {
             if (sidePanelContext.operationName === "connector") {
-                
-                const connecterForm = <AddConnector formData={sidePanelContext.formValues.form} nodePosition={sidePanelContext.nodeRange} documentUri={props.documentUri} />;
+                const connecterForm = <AddConnector
+                    formData={sidePanelContext.formValues.form}
+                    nodePosition={sidePanelContext.nodeRange}
+                    documentUri={props.documentUri}
+                    uiSchemaPath={sidePanelContext.formValues.uiSchemaPath} />;
                 setContent(connecterForm, FirstCharToUpperCase(sidePanelContext.formValues.title));
                 return <></>;
-            } 
-            
+            }
+
             const form = searchForm(sidePanelContext.operationName, false);
 
             if (form) {
