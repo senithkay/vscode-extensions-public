@@ -13,47 +13,46 @@ interface DrawerContainerProps {
     isOpen: boolean;
     isSelected: boolean;
     sx?: any;
+    width?: number;
 }
 
 export interface DrawerItemProps {
     id?: string;
     isOpen: boolean;
     isSelected: boolean;
+    width: number;
     children?: React.ReactNode;
     sx?: any;
 }
 
-const Drawer = styled.div<DrawerContainerProps>`
+const DrawerContainer = styled.div<DrawerContainerProps>`
     position: absolute;
     width: 200px;
     height: 100%;
     background-color: #fff;
     border: 1px solid #ddd;
+    top: 20px;
     right: 0;
     transform: translateX(${(props: DrawerContainerProps) => (props.isOpen ? '0' : '100%')});
     z-index: ${(props: DrawerContainerProps) => (props.isSelected ? 1 : 0)};
+    background-color: var(--vscode-editor-background);
+    color: var(--vscode-editor-foreground);
+    box-shadow: 0 5px 10px 0 var(--vscode-badge-background);
+    z-index: 201;
     transition: transform 0.4s ease;
+    width: ${(props: DrawerContainerProps) => `${props.width}px`};
     ${(props: DrawerContainerProps) => props.sx};
 `;
 
-export const DrawerItem: React.FC<DrawerItemProps> = (props: DrawerItemProps) => {
+export const Drawer: React.FC<DrawerItemProps> = (props: DrawerItemProps) => {
     const { isSelected, id, isOpen, sx, children } = props;
     const [open, setOpen] = useState(false);
-
-    // useEffect(() => {
-    //     // Trigger the transition after the component has mounted
-    //     const timer = setTimeout(() => {
-    //         setOpen(true);
-    //     }, 400); // Delay can be adjusted
-
-    //     return () => clearTimeout(timer); // Clean up the timer
-    // }, []);
     useEffect(() => {
         setOpen(isOpen);
     }, [isOpen]);
     return (
-        <Drawer id={id} isOpen={open} isSelected={isSelected} sx={sx}>
+        <DrawerContainer id={id} isOpen={open} isSelected={isSelected} sx={sx}>
             {children}
-        </Drawer>
+        </DrawerContainer>
     );
 };
