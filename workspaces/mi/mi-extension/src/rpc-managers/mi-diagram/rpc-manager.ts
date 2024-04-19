@@ -476,7 +476,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
             if (filePath.includes('.xml') && fs.existsSync(filePath)) {
                 const { name, loadbalance, session, property, description } = endpointSyntaxTree.syntaxTree.endpoint;
-                const endpoints = this.getEndpointsList(loadbalance.endpointOrMember, filePath);
+                const endpoints = await this.getEndpointsList(loadbalance.endpointOrMember, filePath);
 
                 const properties = property.map((prop: any) => ({
                     name: prop.name,
@@ -549,7 +549,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
             if (filePath.includes('.xml') && fs.existsSync(filePath)) {
                 const { name, failover, property, description } = endpointSyntaxTree.syntaxTree.endpoint;
-                const endpoints = this.getEndpointsList(failover.endpoint, filePath);
+                const endpoints = await this.getEndpointsList(failover.endpoint, filePath);
 
                 const properties = property.map((prop: any) => ({
                     name: prop.name,
@@ -612,7 +612,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
             if (filePath.includes('.xml') && fs.existsSync(filePath)) {
                 const { name, recipientlist, property, description } = endpointSyntaxTree.syntaxTree.endpoint;
-                const endpoints = this.getEndpointsList(recipientlist.endpoint, filePath);
+                const endpoints = await this.getEndpointsList(recipientlist.endpoint, filePath);
 
                 const properties = property.map((prop: any) => ({
                     name: prop.name,
@@ -2904,39 +2904,42 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             resolve({ artifacts: res });
         });
     }
-  
-    getEndpointsList(endpointList: any, filePath: string) {
-        const endpoints: any[] = [];
-        const endpointRegex = /<endpoint(.*?)>(.*?)<\/endpoint>/gs;
-        const options = {
-            ignoreAttributes: false,
-            allowBooleanAttributes: true,
-            attributeNamePrefix: "",
-            attributesGroupName: "@_",
-            indentBy: '    ',
-            format: true,
-        };
-        const parser = new XMLParser(options);
-        const builder = new XMLBuilder(options);
 
-        endpointList.map((member: any) => {
-            if (member.key) {
-                const value = member.key;
-                endpoints.push({type: 'static', value});
+    async getEndpointsList(endpointList: any, filePath: string): Promise<any[]> {
+        return new Promise(async (resolve) => {
+            const endpoints: any[] = [];
+            const endpointRegex = /<endpoint(.*?)>(.*?)<\/endpoint>/gs;
+            const options = {
+                ignoreAttributes: false,
+                allowBooleanAttributes: true,
+                attributeNamePrefix: "",
+                attributesGroupName: "@_",
+                indentBy: '    ',
+                format: true,
+            };
+            const parser = new XMLParser(options);
+            const builder = new XMLBuilder(options);
+
+            endpointList.map((member: any) => {
+                if (member.key) {
+                    const value = member.key;
+                    endpoints.push({type: 'static', value});
+                }
+            });
+
+            let xmlString = fs.readFileSync(filePath, "utf8");
+            xmlString = xmlString.slice(0, xmlString.indexOf("<endpoint")) +
+                xmlString.slice(xmlString.indexOf(">", xmlString.indexOf("<endpoint")) + 1);
+            xmlString = xmlString.replace(/<endpoint\s+[^>]*\/>/ig, "");
+
+            let match;
+            while ((match = endpointRegex.exec(xmlString)) !== null) {
+                endpoints.push({type: 'inline', value: builder.build(parser.parse(match[0])) as string});
             }
+            resolve(endpoints);
         });
-
-        let xmlString = fs.readFileSync(filePath, "utf8");
-        xmlString = xmlString.slice(0, xmlString.indexOf("<endpoint")) +
-            xmlString.slice(xmlString.indexOf(">", xmlString.indexOf("<endpoint")) + 1);
-        xmlString = xmlString.replace(/<endpoint\s+[^>]*\/>/ig, "");
-
-        let match;
-        while ((match = endpointRegex.exec(xmlString)) !== null) {
-            endpoints.push({type: 'inline', value: builder.build(parser.parse(match[0])) as string});
-        }
-        return endpoints;
     }
+}
 
 export async function askProjectPath() {
     return await window.showOpenDialog({
