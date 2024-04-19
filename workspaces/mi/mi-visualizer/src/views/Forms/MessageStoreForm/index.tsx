@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import React, { useEffect, useState } from "react";
-import { AutoComplete, Button, TextField, ParamManager, ParamConfig, FormView , FormGroup , FormActions } from "@wso2-enterprise/ui-toolkit";
+import { AutoComplete, Button, TextField, ParamManager, ParamConfig, FormView , FormGroup , FormActions, FormCheckBox } from "@wso2-enterprise/ui-toolkit";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import {preConfiguredProfiles,rdbmsTypes} from './types';
 import { rabbitMQInitialValues, jmsInitialValues, jdbcInitialValues, wso2MbInitialValues, resequenceInitialValues, poolInitialValues,carbonDatasourceInitialValues, sslInitialValues } from './typeValues';
@@ -16,6 +16,8 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { useForm } from "react-hook-form";
 import CardWrapper from "../Commons/CardWrapper";
+import { get, set } from "lodash";
+import { TypeChip } from "../Commons";
 
 export type CustomParameter={
     name: string,
@@ -26,81 +28,6 @@ export interface MessageStoreWizardProps{
     path:string
 }
 
-const schema = yup.
-    object({
-        name: yup.string().required("Task Name is required").matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in Message Store name"),
-        type: yup.string(),
-        connectionInformationType: yup.string(),
-        initialContextFactory: yup.string().required().when('type', {
-            is: "JMS Message Store",
-            then: (schema)=>schema.required("Initial Context Factory is required"),
-            otherwise: (schema)=>schema.notRequired()
-        }),
-        providerURL: yup.string().required().when('type', {
-            is: "JMS Message Store",
-            then: (schema)=>schema.required("Provide URL is required").matches(/^(https?:\/\/)?www\.[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$/i, "Provide URL should be a valid url"),
-            otherwise: (schema)=>schema.notRequired()
-        }),
-        providerClass: yup.string().required().when('type', {
-            is: "Custom Message Store",
-            then: (schema)=>schema.required("Provider Class is required").matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in Provider Class"),
-            otherwise: (schema)=>schema.notRequired()
-        }),
-        rabbitMQServerHostName: yup.string().required().when('type', {
-            is: "RabbitMQ Message Store",
-            then: (schema)=>schema.required("RabbitMQ Host Name is required").matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in RabbitMQ Host Name"),
-            otherwise: (schema)=>schema.notRequired()
-        }),
-        rabbitMQServerPort: yup.string().required().when('type', {
-            is: "RabbitMQ Message Store",
-            then: (schema)=>schema.required("Server Port is required").matches(/^[0-9]*$/, "Provide Port should be a number"),
-            otherwise: (schema)=>schema.notRequired()
-        }),
-        dataBaseTable: yup.string().required().when('type', {
-            is: "JDBC Message Store" || "Resequence Message Store",
-            then: (schema)=>schema.required("Data Base Table is required"),
-            otherwise: (schema)=>schema.notRequired()
-        }),
-        driver: yup.string().required().when('type', {
-            is: "JDBC Message Store" || "Resequence Message Store",
-            then: (schema)=>schema.required().when('connectionInformationType', {
-                is: "Pool",
-                then: (schema)=>schema.required("Driver is required"),
-                otherwise: (schema)=>schema.notRequired()
-            }),
-            otherwise: (schema)=>schema.notRequired()
-        }),
-        url: yup.string().required().when('type', {
-            is: "JDBC Message Store" || "Resequence Message Store",
-            then: (schema)=>schema.required().when('connectionInformationType', {
-                is: "Pool",
-                then: (schema)=>schema.required("JDBC URL is required").matches(/^(jdbc:)?[a-zA-Z0-9]+:\/\//, "URL should be a valid url"),
-                otherwise: (schema)=>schema.notRequired()
-            }),
-            otherwise: (schema)=>schema.notRequired()
-        }),
-        user: yup.string().required().when('type', {
-            is: "JDBC Message Store" || "Resequence Message Store",
-            then: (schema)=>schema.required().when('connectionInformationType', {
-                is: "Pool",
-                then: (schema)=>schema.required("User Name is required"),
-                otherwise: (schema)=>schema.notRequired()
-            }),
-            otherwise: (schema)=>schema.notRequired()
-        }),
-        queueConnectionFactory: yup.string().required().when('type', {
-            is: "WSO2 MB Message Store",
-            then: (schema)=>schema.required("Queue Connection Factory is required"),
-            otherwise: (schema)=>schema.notRequired()
-        }),
-        jndiQueueName: yup.string().required().when('type', {
-            is: "WSO2 MB Message Store",
-            then: (schema)=>schema.required("JNDI Queue Name is required").matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in Message Store name"),
-            otherwise: (schema)=>schema.notRequired()
-        }),
-
-    })
-
 type InputsFields = {
     name?: string;
     type?: string;
@@ -110,7 +37,7 @@ type InputsFields = {
     providerURL?: string;
     userName?: string;
     password?: string;
-    cacheConnection?: string;
+    cacheConnection?: boolean;
     jmsAPIVersion?: string;
     providerClass?: string;
     rabbitMQServerHostName?: string;
@@ -151,7 +78,7 @@ const initialMessageStore: InputsFields = {
     jndiQueueName: "",
     userName: "",
     password: "",
-    cacheConnection: "false",
+    cacheConnection: false,
     jmsAPIVersion: "1.1",
     rabbitMQServerHostName: "",
     rabbitMQServerPort: "",
@@ -189,6 +116,89 @@ const generateDisplayValue = (paramValues: any) => {
 
 export function MessageStoreWizard(props: MessageStoreWizardProps) {
     const { rpcClient } = useVisualizerContext();
+    const [messageStoreNames, setMessageStoreNames] = useState<string[]>([]);
+    const [messageStoreArtifactsNames, setMessageStoreArtifactsNames] = useState<string[]>([]);
+    const schema = yup.
+    object({
+        name: yup.string().required("Message Store Name is required").matches(/^[^@\\^+;:!%&,=*#[\]$\ ?'"<>{}() /]*$/, "Invalid characters in Message Store name")
+            .test('validateMessageStoreName',
+            'Message Store file name already exists', value => {
+                return !messageStoreNames.includes(value)
+            }).test('validateMessageStoreName',
+                'Message Store artifact name already exists', value => {
+                    return !messageStoreArtifactsNames.includes(value)
+                }),
+        type: yup.string(),
+        connectionInformationType: yup.string(),
+        initialContextFactory: yup.string().required().when('type', {
+            is: "JMS Message Store",
+            then: (schema)=>schema.required("Initial Context Factory is required"),
+            otherwise: (schema)=>schema.notRequired()
+        }),
+        providerURL: yup.string().required().when('type', {
+            is: "JMS Message Store",
+            then: (schema)=>schema.required("Provide URL is required").matches(/^(?:(conf)\/[^\s$.?#]+\.[^\s$.?#]|(?:https?|tcp):\/\/[^\s$.?#]+(:[0-9]{1,5})\.?[^\s]*$)/, "Provide URL should be a valid url"),
+            otherwise: (schema)=>schema.notRequired()
+        }),
+        providerClass: yup.string().required().when('type', {
+            is: "Custom Message Store",
+            then: (schema)=>schema.required("Provider Class is required").matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in Provider Class"),
+            otherwise: (schema)=>schema.notRequired()
+        }),
+        rabbitMQServerHostName: yup.string().required().when('type', {
+            is: "RabbitMQ Message Store",
+            then: (schema)=>schema.required("RabbitMQ Host Name is required").matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in RabbitMQ Host Name"),
+            otherwise: (schema)=>schema.notRequired()
+        }),
+        rabbitMQServerPort: yup.string().required().when('type', {
+            is: "RabbitMQ Message Store",
+            then: (schema)=>schema.required("Server Port is required").matches(/^[0-9]*$/, "Provide Port should be a number"),
+            otherwise: (schema)=>schema.notRequired()
+        }),
+        dataBaseTable: yup.string().required().when('type', {
+            is: "JDBC Message Store" || "Resequence Message Store",
+            then: (schema)=>schema.required("Data Base Table is required"),
+            otherwise: (schema)=>schema.notRequired()
+        }),
+        driver: yup.string().required().when('type', {
+            is: "JDBC Message Store" || "Resequence Message Store",
+            then: (schema)=>schema.required().when('connectionInformationType', {
+                is: "Pool",
+                then: (schema)=>schema.required("Driver is required"),
+                otherwise: (schema)=>schema.notRequired()
+            }),
+            otherwise: (schema)=>schema.notRequired()
+        }),
+        url: yup.string().required().when('type', {
+            is: "JDBC Message Store" || "Resequence Message Store",
+            then: (schema)=>schema.required().when('connectionInformationType', {
+                is: "Pool",
+                then: (schema)=>schema.required("JDBC URL is required").matches(/^(?:jdbc):[a-zA-Z]+:\/\/[^\s$?#.]+(:[0-9]{1,5})?\.?[^\s]*$/, "URL should be a valid url"),
+                otherwise: (schema)=>schema.notRequired()
+            }),
+            otherwise: (schema)=>schema.notRequired()
+        }),
+        user: yup.string().required().when('type', {
+            is: "JDBC Message Store" || "Resequence Message Store",
+            then: (schema)=>schema.required().when('connectionInformationType', {
+                is: "Pool",
+                then: (schema)=>schema.required("User Name is required"),
+                otherwise: (schema)=>schema.notRequired()
+            }),
+            otherwise: (schema)=>schema.notRequired()
+        }),
+        queueConnectionFactory: yup.string().required().when('type', {
+            is: "WSO2 MB Message Store",
+            then: (schema)=>schema.required("Queue Connection Factory is required"),
+            otherwise: (schema)=>schema.notRequired()
+        }),
+        jndiQueueName: yup.string().required().when('type', {
+            is: "WSO2 MB Message Store",
+            then: (schema)=>schema.required("JNDI Queue Name is required").matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in Message Store name"),
+            otherwise: (schema)=>schema.notRequired()
+        }),
+
+    });
     const {
         reset,
         register,
@@ -196,6 +206,8 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
         handleSubmit,
         getValues,
         watch,
+        trigger,
+        control,
         setValue
     } = useForm<InputsFields>({
         defaultValues: initialMessageStore,
@@ -213,7 +225,6 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
         isError: false,
         text: ""
     });
-    const [fallOverMessageStores, setFallOverMessageStores] = useState([]);
     const paramConfigs:ParamConfig = {
         paramValues: [],
         paramFields: [
@@ -274,39 +285,29 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
         if(isNewTask){
             switch(rdbmsType){
                 case "MySQL":
-                    reset({ ...getValues(), ...{
-                        driver: "com.mysql.jdbc.Driver",
-                        url: "jdbc:mysql://localhost:3306/test",
-                        user: "root"
-                    }});
+                    setValue("driver", "com.mysql.jdbc.Driver", { shouldValidate: true , shouldDirty: true });
+                    setValue("url", "jdbc:mysql://localhost:3306/test", { shouldValidate: true , shouldDirty: true });
+                    setValue("user", "root", { shouldValidate: true , shouldDirty: true });
                     break;
                 case "Oracle":
-                    reset({ ...getValues(), ...{
-                        driver: "oracle.jdbc.OracleDriver",
-                        url: "jdbc:oracle:thin:@localhost:1521:xe",
-                        user: "root"
-                    }})
+                    setValue("driver", "oracle.jdbc.driver.OracleDriver", { shouldValidate: true , shouldDirty: true });
+                    setValue("url", "jdbc:oracle:thin:@localhost:1521:xe", { shouldValidate: true , shouldDirty: true });
+                    setValue("user", "root", { shouldValidate: true , shouldDirty: true });
                     break;
                 case "MS SQL":
-                    reset({ ...getValues(), ...{
-                        driver: "com.microsoft.sqlserver.jdbc.SQLServerDriver",
-                        url: "jdbc:sqlserver://localhost:1433;databaseName=test",
-                        user: "root"
-                    }});
+                    setValue("driver", "com.microsoft.sqlserver.jdbc.SQLServerDriver", { shouldValidate: true , shouldDirty: true });
+                    setValue("url", "jdbc:sqlserver://localhost:1433;databaseName=test", { shouldValidate: true , shouldDirty: true });
+                    setValue("user", "root", { shouldValidate: true , shouldDirty: true });
                     break;
                 case "PostgreSQL":
-                    reset({ ...getValues(), ...{
-                        driver: "org.postgresql.Driver",
-                        url: "jdbc:postgresql://localhost:5432/test",
-                        user: "root"
-                    }});
+                    setValue("driver", "org.postgresql.Driver", { shouldValidate: true , shouldDirty: true });
+                    setValue("url", "jdbc:postgresql://localhost:5432/test", { shouldValidate: true , shouldDirty: true });
+                    setValue("user", "root", { shouldValidate: true , shouldDirty: true });
                     break;
                 case "Other":
-                    reset({ ...getValues(), ...{
-                        driver: "",
-                        url: "",
-                        user: ""
-                    }});
+                    setValue("driver", "", { shouldValidate: true , shouldDirty: true });
+                    setValue("url", "", { shouldValidate: true , shouldDirty: true });
+                    setValue("user", "", { shouldValidate: true , shouldDirty: true });
                     break;            
             }
         }    
@@ -330,8 +331,10 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                 documentIdentifier: props.path,
             });
             if(xmlFileNames.resources){
-                const failOverMessageStores = xmlFileNames.resources.map((resource: any) => resource.artifactPath.replace(".xml", ""));
-                setFallOverMessageStores(failOverMessageStores);
+                const messageStoreNames = xmlFileNames.resources.map((resource: any) => resource.name.replace(watch("name"), ""));
+                setMessageStoreNames(messageStoreNames);
+                const messageStoreArtifactsNames = xmlFileNames.resources.map((resource: any) => resource.artifactPath.replace(".xml", "").replace(watch("name"), ""));
+                setMessageStoreArtifactsNames(messageStoreArtifactsNames);
             }
         })();
     }, []);
@@ -382,25 +385,19 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
     useEffect(() => {
         if(isNewTask){
             if (preConfiguredProfile === "WSO2 MB") {
-                return reset({ ...getValues(), ...{
-                    initialContextFactory: "org.wso2.andes.jndi.PropertiesFileInitialContextFactory",
-                    providerURL: "conf/jndi.properties",
-                    connectionFactory: "QueueConnectionFactory",
-                }}); 
+                setValue("initialContextFactory", "org.wso2.andes.jndi.PropertiesFileInitialContextFactory" , { shouldValidate: true , shouldDirty: true });
+                setValue("providerURL", "conf/jndi.properties" , { shouldValidate: true , shouldDirty: true });
+                setValue("connectionFactory", "QueueConnectionFactory" , { shouldValidate: true , shouldDirty: true });
             }
-            if (preConfiguredProfile === "ActiveMQ") {
-                return reset({ ...getValues(), ...{
-                    initialContextFactory: "org.apache.activemq.jndi.ActiveMQInitialContextFactory",
-                    providerURL: "tcp://localhost:61616",
-                    connectionFactory: "QueueConnectionFactory",
-                }});
+            else if (preConfiguredProfile === "ActiveMQ") {
+                setValue("initialContextFactory", "org.apache.activemq.jndi.ActiveMQInitialContextFactory" , { shouldValidate: true , shouldDirty: true });
+                setValue("providerURL", "tcp://localhost:61616" , { shouldValidate: true , shouldDirty: true });
+                setValue("connectionFactory", "QueueConnectionFactory" , { shouldValidate: true , shouldDirty: true });
             }
-            if (preConfiguredProfile === "Other") {
-                return reset({ ...getValues(), ...{
-                    initialContextFactory: "",
-                    providerURL: "",
-                    connectionFactory: "",
-                }});
+            else if (preConfiguredProfile === "Other") {
+                setValue("initialContextFactory", "" , { shouldValidate: true , shouldDirty: true });
+                setValue("providerURL", "" , { shouldValidate: true , shouldDirty: true });
+                setValue("connectionFactory", "" , { shouldValidate: true , shouldDirty: true });
             }
         }
     }  , [preConfiguredProfile]);
@@ -431,12 +428,27 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
     }, [type]);
   
     useEffect(() => {
-        if (getValues("sslEnabled") === true) {
-            reset({ ...getValues(), ...sslInitialValues() });
-        }  
-        else{
-        }        
-    }, [watch("sslEnabled")]);
+        if(isNewTask || isDirty){
+            if (getValues("sslEnabled") === true ) {
+                setValue("trustStoreLocation", "", { shouldValidate: true , shouldDirty: true });
+                setValue("trustStoreType", "JKS", { shouldValidate: true , shouldDirty: true });
+                setValue("trustStorePassword", "", { shouldValidate: true , shouldDirty: true });
+                setValue("keyStoreLocation", "", { shouldValidate: true , shouldDirty: true });
+                setValue("keyStoreType", "PKC12", { shouldValidate: true , shouldDirty: true });
+                setValue("keyStorePassword", "", { shouldValidate: true , shouldDirty: true });
+                setValue("sslVersion", "SSL", { shouldValidate: true , shouldDirty: true });
+            }  
+            else{
+                setValue("trustStoreLocation", "", { shouldValidate: true , shouldDirty: true });
+                setValue("trustStoreType", "", { shouldValidate: true , shouldDirty: true });
+                setValue("trustStorePassword", "", { shouldValidate: true , shouldDirty: true });
+                setValue("keyStoreLocation", "", { shouldValidate: true , shouldDirty: true });
+                setValue("keyStoreType", "", { shouldValidate: true , shouldDirty: true });
+                setValue("keyStorePassword", "", { shouldValidate: true , shouldDirty: true });
+                setValue("sslVersion", "", { shouldValidate: true , shouldDirty: true });
+            } 
+        }       
+    }, [getValues("sslEnabled")]);
 
     const handleConnectionInformationTypeChange = (type: string) => {
         setConnectionInformationType(type);
@@ -486,7 +498,7 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
             providerClass: values.providerClass,
             rabbitMQServerHostName: values.rabbitMQServerHostName,
             rabbitMQServerPort: values.rabbitMQServerPort,
-            sslEnabled: values.sslEnabled.toString(),
+            sslEnabled: values.sslEnabled,
             trustStoreLocation: values.trustStoreLocation,
             trustStoreType: values.trustStoreType,
             trustStorePassword: values.trustStorePassword,
@@ -506,7 +518,7 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
             queueConnectionFactory: values.queueConnectionFactory,
             pollingCount: values.pollingCount,
             xPath: values.xPath,
-            enableProducerGuaranteedDelivery: values.enableProducerGuaranteedDelivery.toString(),
+            enableProducerGuaranteedDelivery: values.enableProducerGuaranteedDelivery,
             failOverMessageStore: values.failOverMessageStore,
             customParameters : removeDuplicateParameters(),   
         };
@@ -520,7 +532,11 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
     };
 
     const handleBackButtonClick = () => {
-      rpcClient.getMiVisualizerRpcClient().goBack();
+      setMessageStoreType("");
+    }
+
+    const handleOnClose = () => {
+        rpcClient.getMiVisualizerRpcClient().goBack();
     }
     
     const openOverview = () => {
@@ -528,9 +544,10 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
     };
 
     return (
-    <FormView title="Message Store" onClose={handleBackButtonClick}>
+    <FormView title="Message Store" onClose={handleOnClose}>
         {type === "" ? <CardWrapper cardsType="MESSAGE_STORE" setType={setMessageStoreType} /> :
             <>
+            <TypeChip type={type} onClick={handleBackButtonClick} showButton={isNewTask} />
             <TextField
                 label="Message Store Name"
                 placeholder="Name"
@@ -640,13 +657,12 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                         required
                         {...renderProps("rabbitMQServerPort")}
                     />
-                    <AutoComplete
+                    <FormCheckBox
                         label="SSL Enabled"
-                        items={["true", "false"]}
-                        sx={{ width: "100%" }}
-                        {...renderDropDownProps("sslEnabled")}  
+                        {...register("sslEnabled")}
+                        control={control}
                     />
-                    {getValues("sslEnabled") === true && (
+                    {watch("sslEnabled") === true && (
                         <FormGroup title="SSL Properties">
                             <TextField
                                 placeholder="Key Store Location"
@@ -837,11 +853,10 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                             sx={{ width: "100%" }}
                             {...renderProps("jmsAPIVersion")}
                         />
-                        <AutoComplete
+                        <FormCheckBox
                             label="Cache Connection"
-                            items={["true", "false"]}
-                            sx={{ width: "100%" }}
-                            {...renderProps("cacheConnection")}
+                            {...register("cacheConnection")}
+                            control={control}
                         />
                     </FormGroup>
                 </>
@@ -934,15 +949,14 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
 
             {getValues("type") !== "Custom Message Store" && getValues("type") !=="In Memory Message Store" && (
                 <FormGroup title="Guaranteed Properties">
-                    <AutoComplete
+                    <FormCheckBox
                         label="Enable Producer Guaranteed Delivery"
-                        items={["true", "false"]}
-                        sx={{ width: "100%" }}
-                        {...renderDropDownProps("enableProducerGuaranteedDelivery")}
+                        {...register("enableProducerGuaranteedDelivery")}
+                        control={control}
                     />
                     <AutoComplete
                         label="Fail Over Message Store"
-                        items={fallOverMessageStores}
+                        items={messageStoreNames}
                         sx={{ width: "100%" }}
                         {...renderDropDownProps("failOverMessageStore")}
                     />    

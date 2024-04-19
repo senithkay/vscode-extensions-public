@@ -26,7 +26,7 @@ export const jmsInitialValues=()=>({
     jndiQueueName: "",
     userName: "",
     password: "",
-    cacheConnection: "false",
+    cacheConnection: false,
     jmsAPIVersion: "1.1",
 });
 
@@ -39,7 +39,7 @@ export const wso2MbInitialValues=()=>({
     queueConnectionFactory: "amqp://admin:admin@clientID/carbon?brokerlist='tcp://localhost:5673'",
     jndiQueueName: "",
     jmsAPIVersion: "1.1",
-    cacheConnection: "false",
+    cacheConnection: false,
 });
 
 export const resequenceInitialValues=()=>({

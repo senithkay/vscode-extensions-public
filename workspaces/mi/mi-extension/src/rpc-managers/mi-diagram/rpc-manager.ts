@@ -808,9 +808,13 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 filePath = path.join(filePath, `${name}.xml`);
             }
 
-            writeXmlDataToFile(filePath, xmlData);
-            commands.executeCommand(COMMANDS.REFRESH_COMMAND);
-            resolve({ path: filePath });
+            if (params.getContentOnly) {
+                resolve({ filePath: "", fileContent: xmlData });
+            } else {
+                writeXmlDataToFile(filePath, xmlData);
+                commands.executeCommand(COMMANDS.REFRESH_COMMAND);
+                resolve({ filePath: filePath, fileContent: "" });
+            }
         });
     }
 
@@ -830,7 +834,6 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             if (fs.existsSync(filePath)) {
                 const xmlData = fs.readFileSync(filePath, "utf8");
                 const jsonData = parser.parse(xmlData);
-                console.log(jsonData);
                 const response: GetLocalEntryResponse = {
                     name: jsonData.localEntry["@_"]["key"],
                     type: "",
@@ -918,7 +921,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     jndiQueueName: '',
                     userName: '',
                     password: '',
-                    cacheConnection: '',
+                    cacheConnection: false,
                     jmsAPIVersion: '',
                     enableProducerGuaranteedDelivery: false,
                     rabbitMQServerHostName: '',
