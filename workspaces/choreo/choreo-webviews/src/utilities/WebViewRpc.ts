@@ -129,6 +129,7 @@ import {
     ViewBuildsLogs,
     ViewRuntimeLogs,
     ViewRuntimeLogsReq,
+    GetWebviewStoreState,
 } from "@wso2-enterprise/choreo-core";
 import { IChoreoProjectClient } from "@wso2-enterprise/choreo-client/lib/project/types";
 import { ChoreoProjectClientRPCWebView } from "@wso2-enterprise/choreo-client/lib/project/rpc";
@@ -200,6 +201,10 @@ export class ChoreoWebViewAPI {
 
     public async getLinkedDirState(): Promise<LinkedDirectoryState> {
         return this._messenger.sendRequest(GetLinkedDirState, HOST_EXTENSION, undefined);
+    }
+
+    public async getWebviewStoreState(): Promise<WebviewState> {
+        return this._messenger.sendRequest(GetWebviewStoreState, HOST_EXTENSION, undefined);
     }
 
     public refreshLinkedDirState() {

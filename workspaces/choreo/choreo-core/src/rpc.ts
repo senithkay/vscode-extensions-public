@@ -30,10 +30,12 @@ import {
    LinkedDirectoryState,
    ComponentKind,
    WebviewQuickPickItem,
+   WebviewState,
 } from './types';
 
 export const GetAuthState: RequestType<void, AuthState> = { method: 'getAuthState' };
 export const GetLinkedDirState: RequestType<void, LinkedDirectoryState> = { method: 'getLinkedState' };
+export const GetWebviewStoreState: RequestType<void, WebviewState> = { method: 'getWebviewStoreState' };
 export const OpenSubDialogRequest: RequestType<OpenDialogOptions, string[]> = { method: 'openDialog' };
 export const GetGetRemotes: RequestType<string[], string[]> = { method: 'getGitRemotes' };
 export const JoinFilePaths: RequestType<string[], string> = { method: 'joinFilePaths' };

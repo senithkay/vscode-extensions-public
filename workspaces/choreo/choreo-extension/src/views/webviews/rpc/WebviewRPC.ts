@@ -101,6 +101,7 @@ import {
     WebviewStateChangedNotification,
     ViewBuildsLogs,
     ViewRuntimeLogs,
+    GetWebviewStoreState,
 } from "@wso2-enterprise/choreo-core";
 import { registerChoreoProjectRPCHandlers, registerChoreoCellViewRPCHandlers } from "@wso2-enterprise/choreo-client";
 import { registerChoreoGithubRPCHandlers } from "@wso2-enterprise/choreo-client/lib/github/rpc";
@@ -135,6 +136,8 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
 
     messenger.onRequest(GetAuthState, ()=>authStore.getState().state);
     messenger.onRequest(GetLinkedDirState, async ()=>linkedDirectoryStore.getState().state);
+    messenger.onRequest(GetWebviewStoreState, async ()=>webviewStateStore.getState().state);
+    
     messenger.onNotification(RefreshLinkedDirState, () => {
         linkedDirectoryStore.getState().refreshState();
     });

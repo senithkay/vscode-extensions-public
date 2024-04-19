@@ -39,8 +39,6 @@ interface Props {
 export const LinkedDirContextProvider: FC<Props> = ({ children }) => {
     const queryClient = useQueryClient();
 
-    const [activeComponentPath, setActiveComponentPath] = useState("")
-
     const {
         data: linkedDirState,
         error: linkedDirStateError,
@@ -51,12 +49,24 @@ export const LinkedDirContextProvider: FC<Props> = ({ children }) => {
         refetchInterval: 10000,
     });
 
+    const {
+        data: activeComponentPath,
+    } = useQuery({
+        queryKey: ["active_component"],
+        queryFn: () => ChoreoWebViewAPI.getInstance().getWebviewStoreState(),
+        select: (data) => data.openedComponentPath,
+    });
+
+    console.log('activeComponentPath', activeComponentPath)
+
     useEffect(() => {
         ChoreoWebViewAPI.getInstance().refreshLinkedDirState();
         ChoreoWebViewAPI.getInstance().onLinkedDirStateChanged((linkedDirState) => {
             queryClient.setQueryData(["linked_dir_state"], linkedDirState);
         });
-        ChoreoWebViewAPI.getInstance().onWebviewStateChanged((webviewState) => setActiveComponentPath(webviewState.openedComponentPath));
+        ChoreoWebViewAPI.getInstance().onWebviewStateChanged((webviewState) => {
+            queryClient.setQueryData(["active_component"], webviewState);
+        });
     }, []);
 
     return (
