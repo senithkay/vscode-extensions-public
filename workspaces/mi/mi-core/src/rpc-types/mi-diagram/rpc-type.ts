@@ -103,8 +103,6 @@ import {
     RetrieveDefaultEndpointResponse,
     GetLocalEntryRequest,
     GetLocalEntryResponse,
-    FileListRequest,
-    FileListResponse,
     UpdateLoadBalanceEPRequest,
     UpdateLoadBalanceEPResponse,
     GetLoadBalanceEPRequest,
@@ -139,6 +137,10 @@ import {
     GetDataSourceRequest,
     GetIconPathUriRequest,
     GetIconPathUriResponse,
+    CreateConnectionRequest,
+    CreateConnectionResponse,
+    GetConnectorConnectionsRequest,
+    GetConnectorConnectionsResponse,
 } from "./types";
 import { RequestType, NotificationType } from "vscode-messenger-common";
 
@@ -170,7 +172,6 @@ export const getSequenceDirectory: RequestType<void, SequenceDirectoryResponse> 
 export const createSequence: RequestType<CreateSequenceRequest, CreateSequenceResponse> = { method: `${_preFix}/createSequence` };
 export const createMessageStore: RequestType<CreateMessageStoreRequest, CreateMessageStoreResponse> = { method: `${_preFix}/createMessageStore` };
 export const getMessageStore: RequestType<GetMessageStoreRequest, GetMessageStoreResponse> = { method: `${_preFix}/getMessageStore` };
-export const getXmlFileList: RequestType<FileListRequest, FileListResponse> = { method: `${_preFix}/getXmlFileList` };
 export const createInboundEndpoint: RequestType<CreateInboundEndpointRequest, CreateInboundEndpointResponse> = { method: `${_preFix}/createInboundEndpoint` };
 export const createMessageProcessor: RequestType<CreateMessageProcessorRequest, CreateMessageProcessorResponse> = { method: `${_preFix}/createMessageProcessor` };
 export const getMessageProcessor: RequestType<RetrieveMessageProcessorRequest, RetrieveMessageProcessorResponse> = { method: `${_preFix}/getMessageProcessor` };
@@ -226,3 +227,5 @@ export const getConnectorForm: RequestType<GetConnectorFormRequest, GetConnector
 export const createDataSource: RequestType<DataSourceTemplate, CreateDataSourceResponse> = { method: `${_preFix}/createDataSource` };
 export const getDataSource: RequestType<GetDataSourceRequest, DataSourceTemplate> = { method: `${_preFix}/getDataSource` };
 export const getIconPathUri: RequestType<GetIconPathUriRequest, GetIconPathUriResponse> = { method: `${_preFix}/getIconPathUri` };
+export const createConnection: RequestType<CreateConnectionRequest, CreateConnectionResponse> = { method: `${_preFix}/createConnection` };
+export const getConnectorConnections: RequestType<GetConnectorConnectionsRequest, GetConnectorConnectionsResponse> = { method: `${_preFix}/getConnectorConnections` };

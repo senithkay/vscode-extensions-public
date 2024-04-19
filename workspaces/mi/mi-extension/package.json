@@ -97,7 +97,7 @@
       },
       {
         "view": "MI.project-explorer",
-        "contents": "Welcome to Micro Integrator. You can open a folder containing a MI project or create a new project.\n[Open MI Project](command:MI.openProject)\n[Create New Project](command:MI.project-explorer.create-project)\nTo learn more about how to use Micro Integrator in VS Code, [read our docs](https://ei.docs.wso2.com).",
+        "contents": "Welcome to Micro Integrator. You can open a folder containing a MI project or create a new project.\n[Open MI Project](command:MI.openProject)\n[Create New Project](command:MI.openWelcome)\nTo learn more about how to use Micro Integrator in VS Code, [read our docs](https://ei.docs.wso2.com).",
         "when": "MI.status == 'unknownProject'"
       },
       {
@@ -468,7 +468,8 @@
     "@vscode/test-electron": "^2.3.4",
     "rimraf": "~5.0.5",
     "@wso2-enterprise/mi-visualizer": "workspace:*",
-    "@wso2-enterprise/mi-rpc-client": "workspace:*"
+    "@wso2-enterprise/mi-rpc-client": "workspace:*",
+    "ts-morph": "^22.0.0"
   },
   "dependencies": {
     "copyfiles": "^2.4.1",
@@ -499,8 +500,6 @@
     "unzipper": "~0.10.14",
     "vscode-debugadapter": "^1.51.0",
     "vscode-debugprotocol": "^1.51.0",
-    "tree-kill": "^1.2.2",
-    "keytar": "~7.9.0",
-    "node-loader": "~2.0.0"
+    "tree-kill": "^1.2.2"
   }
 }

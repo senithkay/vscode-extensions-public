@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import ts, { Identifier, Node, PropertyAccessExpression } from "typescript";
+import { Identifier, Node, PropertyAccessExpression } from "ts-morph";
 import { Visitor } from "../../ts/base-visitor";
 
 export class PropertyAccessNodeFindingVisitor implements Visitor {
@@ -17,18 +17,18 @@ export class PropertyAccessNodeFindingVisitor implements Visitor {
     }
 
     public beginVisitPropertyAccessExpression(node: PropertyAccessExpression, parent?: Node) {
-        if (!parent || !ts.isPropertyAccessExpression(parent)) {
+        if (!parent || !Node.isPropertyAccessExpression(parent)) {
             this.inputNodes.push(node)
         }
     }
 
     public beginVisitIdentifier(node: Identifier, parent?: Node) {
-        if (!parent || !ts.isPropertyAccessExpression(parent)) {
+        if (!parent || !Node.isPropertyAccessExpression(parent)) {
             this.inputNodes.push(node);
         }
     }
 
-    public getPropertyAccessNodes() {
+    public getPropertyAccessNodes(): (PropertyAccessExpression | Identifier)[] {
         return this.inputNodes
     }
 }

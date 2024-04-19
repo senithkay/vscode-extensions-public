@@ -75,6 +75,7 @@ export enum AI_EVENT_TYPE {
     CLEAR = "CLEAR",
     CLEAR_PROMPT = "CLEAR_PROMPT",
     DISPOSE = "DISPOSE",
+    CANCEL = "CANCEL",
 }
 
 export enum EVENT_TYPE {
@@ -96,6 +97,12 @@ export interface CommandProps {
     isService?: boolean
 }
 
+interface DataMapperProps {
+    filePath: string;
+    functionName: string;
+    fileContent: string;
+}
+
 // State Machine context values
 export interface VisualizerLocation {
     view: MACHINE_VIEW | null;
@@ -109,6 +116,7 @@ export interface VisualizerLocation {
     isMiProject?: boolean;
     displayOverview?: boolean;
     customProps?: any;
+    dataMapperProps?: DataMapperProps;
 }
 
 export interface AIVisualizerLocation {

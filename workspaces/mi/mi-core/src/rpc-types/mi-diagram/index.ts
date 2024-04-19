@@ -102,8 +102,6 @@ import {
     RetrieveDefaultEndpointResponse,
     GetLocalEntryRequest,
     GetLocalEntryResponse,
-    FileListRequest,
-    FileListResponse,
     UpdateLoadBalanceEPRequest,
     UpdateLoadBalanceEPResponse,
     GetLoadBalanceEPRequest,
@@ -138,6 +136,10 @@ import {
     GetDataSourceRequest,
     GetIconPathUriRequest,
     GetIconPathUriResponse,
+    CreateConnectionRequest,
+    CreateConnectionResponse,
+    GetConnectorConnectionsRequest,
+    GetConnectorConnectionsResponse,
 } from "./types";
 
 export interface MiDiagramAPI {
@@ -168,7 +170,6 @@ export interface MiDiagramAPI {
     createSequence: (params: CreateSequenceRequest) => Promise<CreateSequenceResponse>;
     createMessageStore: (params: CreateMessageStoreRequest) => Promise<CreateMessageStoreResponse>;
     getMessageStore: (params: GetMessageStoreRequest) => Promise<GetMessageStoreResponse>;
-    getXmlFileList: (params: FileListRequest) => Promise<FileListResponse>;
     createInboundEndpoint: (params: CreateInboundEndpointRequest) => Promise<CreateInboundEndpointResponse>;
     createMessageProcessor: (params: CreateMessageProcessorRequest) => Promise<CreateMessageProcessorResponse>;
     getMessageProcessor: (params: RetrieveMessageProcessorRequest) => Promise<RetrieveMessageProcessorResponse>;
@@ -224,4 +225,6 @@ export interface MiDiagramAPI {
     createDataSource: (params: DataSourceTemplate) => Promise<CreateDataSourceResponse>;
     getDataSource: (params: GetDataSourceRequest) => Promise<DataSourceTemplate>;
     getIconPathUri: (params: GetIconPathUriRequest) => Promise<GetIconPathUriResponse>;
+    createConnection: (params: CreateConnectionRequest) => Promise<CreateConnectionResponse>;
+    getConnectorConnections: (params: GetConnectorConnectionsRequest) => Promise<GetConnectorConnectionsResponse>;
 }

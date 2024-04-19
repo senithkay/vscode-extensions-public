@@ -71,10 +71,12 @@ export interface UpdateLoadBalanceEPRequest {
     description: string;
     endpoints: { type: string; value: string; }[];
     properties: { name: string; value: string; scope: string; }[];
+    getContentOnly: boolean;
 }
 
 export interface UpdateLoadBalanceEPResponse {
     path: string;
+    content: string;
 }
 
 export interface GetLoadBalanceEPRequest {
@@ -100,10 +102,12 @@ export interface UpdateFailoverEPRequest {
     description: string;
     endpoints: { type: string; value: string; }[];
     properties: { name: string; value: string; scope: string; }[];
+    getContentOnly: boolean;
 }
 
 export interface UpdateFailoverEPResponse {
     path: string;
+    content: string;
 }
 
 export interface GetFailoverEPRequest {
@@ -124,10 +128,12 @@ export interface UpdateRecipientEPRequest {
     description: string;
     endpoints: { type: string; value: string; }[];
     properties: { name: string; value: string; scope: string; }[];
+    getContentOnly: boolean;
 }
 
 export interface UpdateRecipientEPResponse {
     path: string;
+    content: string;
 }
 
 export interface GetRecipientEPRequest {
@@ -148,10 +154,12 @@ export interface UpdateTemplateEPRequest {
     template: string;
     description: string;
     parameters: { name: string; value: string; }[];
+    getContentOnly: boolean;
 }
 
 export interface UpdateTemplateEPResponse {
     path: string;
+    content: string;
 }
 
 export interface GetTemplateEPRequest {
@@ -277,7 +285,7 @@ export interface GetMessageStoreResponse {
     jmsAPIVersion: string;
     rabbitMQServerHostName: string;
     rabbitMQServerPort: string;
-    sslEnabled: string;
+    sslEnabled: boolean;
     trustStoreLocation: string;
     trustStoreType: string;
     trustStorePassword: string;
@@ -297,7 +305,7 @@ export interface GetMessageStoreResponse {
     queueConnectionFactory: string;
     pollingCount: string;
     xPath: string;
-    enableProducerGuaranteedDelivery: string;
+    enableProducerGuaranteedDelivery: boolean;
     providerClass: string;
     customParameters: Record[];
     failOverMessageStore: string;
@@ -307,20 +315,13 @@ export interface GetMessageStoreRequest {
     path: string;
 }
 
-export interface FileListRequest {
-    path: string;
-}
-
-export interface FileListResponse {
-    files: string[];
-}
-
 export interface CreateProjectRequest {
     directory: string;
     name: string;
     open: boolean;
     groupID?: string;
     artifactID?: string;
+    version?: string;
 }
 
 export interface ImportProjectRequest {
@@ -995,7 +996,8 @@ export interface BrowseFileRequest {
 
 export interface GetAvailableResourcesRequest {
     documentIdentifier: string;
-    resourceType: "sequence" | "endpoint" | "messageStore" | "messageProcessor" | "task" | "sequenceTemplate" | "endpointTemplate";
+    resourceType: "sequence" | "endpoint" | "messageStore" | "messageProcessor" | "task" | "sequenceTemplate" | "endpointTemplate" |
+    "dataService" | "dataSource" | "localEntry" | "dataMapper" | "js" | "json" | "smooksConfig" | "wsdl" | "ws_policy" | "xsd" | "xsl" | "xslt" | "yaml";
 }
 
 export interface GetAvailableResourcesResponse {
@@ -1106,4 +1108,29 @@ export interface GetIconPathUriRequest {
 
 export interface GetIconPathUriResponse {
     uri: any;
+}
+
+export interface CreateConnectionRequest {
+    connectionName: string;
+    keyValuesXML: string;
+    directory: string;
+}
+
+export interface CreateConnectionResponse {
+    name: string
+}
+
+export interface ConnectorConnection {
+    name: string;
+    path: string;
+    connectionType?: string;
+}
+
+export interface GetConnectorConnectionsRequest {
+    documentUri: string;
+    connectorName: string;
+}
+
+export interface GetConnectorConnectionsResponse {
+    connections?: ConnectorConnection[]
 }

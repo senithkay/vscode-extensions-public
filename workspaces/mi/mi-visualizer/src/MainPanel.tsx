@@ -171,12 +171,7 @@ const MainPanel = () => {
                     setViewComponent(<ServiceDesignerView syntaxTree={machineView.stNode} documentUri={machineView.documentUri} />);
                     break;
                 case MACHINE_VIEW.DataMapperView:
-                    setViewComponent(
-                        <DataMapper
-                            filePath={"TODO: Add file path"}
-                            functionName={"TODO: Add function name"}
-                        />
-                    );
+                    setViewComponent(<DataMapper {...machineView.dataMapperProps} />);
                     break;
                 case MACHINE_VIEW.APIForm:
                     setViewComponent(<APIWizard apiData={(machineView.customProps as APIWizardProps)?.apiData} path={machineView.documentUri} />);
@@ -248,7 +243,7 @@ const MainPanel = () => {
                     break;
                 case MACHINE_VIEW.DataSourceForm:
                     setViewComponent(<DataSourceWizard path={machineView.documentUri} />);
-                    break;
+                    break;    
                 default:
                     setViewComponent(null);
             }

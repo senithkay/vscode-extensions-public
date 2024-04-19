@@ -10,12 +10,10 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { createMachine, assign, interpret } from 'xstate';
 import * as vscode from 'vscode';
-import { EVENT_TYPE, MachineStateValue, AI_MACHINE_VIEW, webviewReady, AIVisualizerLocation, MACHINE_VIEW, AIMachineStateValue, AI_EVENT_TYPE } from '@wso2-enterprise/mi-core';
+import { EVENT_TYPE, AIVisualizerLocation, AIMachineStateValue, AI_EVENT_TYPE } from '@wso2-enterprise/mi-core';
 import { AiPanelWebview } from './webview';
-import { RPCLayer } from '../RPCLayer';
-import { StateMachine } from '../stateMachine';
-import * as keytar from 'keytar';
-import {getAuthUrl} from './auth';
+import { getAuthUrl } from './auth';
+import { extension } from '../MIExtensionContext';
 
 interface ChatEntry {
     role: string;
@@ -145,7 +143,7 @@ const aiStateMachine = createMachine<AiMachineContext>({
 async function checkToken(context, event) {
     return new Promise(async (resolve, reject) => {
         try {
-            const token = await keytar.getPassword('MI-AI', 'MIAIUser');
+            const token = await extension.context.secrets.get('MIAIUser');
             if (token) {
                 console.log("Token found: " + token);
                 resolve(token);

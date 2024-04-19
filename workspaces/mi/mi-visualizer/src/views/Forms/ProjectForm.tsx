@@ -6,81 +6,86 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import styled from "@emotion/styled";
 import React, { useEffect, useState } from "react";
-import { Button, Codicon, LinkButton, LocationSelector, TextField, Typography } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, FormActions, FormView, LinkButton, LocationSelector, TextField, Typography } from "@wso2-enterprise/ui-toolkit";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
-import { SectionWrapper } from "./Commons";
 import { EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
-
-const WizardContainer = styled.div`
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 95vw;
-    height: calc(100vh - 140px);
-    overflow: auto;
-`;
-
-const ActionContainer = styled.div`
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-end;
-    gap: 10px;
-    padding-bottom: 20px;
-`;
-
-const LocationText = styled.div`
-    max-width: 60vw;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-`;
-
-const Container = styled.div`
-    display: flex;
-    flex-direction: row;
-    height: 50px;
-    align-items: center;
-    justify-content: flex-start;
-`;
+import { yupResolver } from "@hookform/resolvers/yup"
+import * as yup from "yup";
+import { useForm } from "react-hook-form";
 
 export interface Region {
     label: string;
     value: string;
 }
 
+type InputsFields = {
+    name?: string;
+    directory?: string;
+    groupID?: string;
+    artifactID?: string;
+    version?: string;
+    viewMore?: boolean;
+};
+
+const initialEndpoint: InputsFields = {
+    name: '',
+    directory: '',
+    groupID: 'com.microintegrator.projects',
+    artifactID: 'Sample1',
+    version: '1.0.0',
+    viewMore: false,
+};
+
 export function ProjectWizard({ cancelView }: { cancelView: MACHINE_VIEW }) {
+
     const { rpcClient } = useVisualizerContext();
-    const [projectName, setProjectName] = useState("");
-    const [projectDir, setProjectDir] = useState("");
-    const [groupID, setGroupID] = useState("com.microintegrator.projects");
-    const [artifactID, setArtifactID] = useState("");
-    const [viewMore, setViewMore] = useState(false);
+
+    const schema = yup.object({
+        name: yup.string().required("Endpoint Name is required").matches(/^[a-zA-Z0-9]*$/, "Project name cannot contain spaces or special characters"),
+        directory: yup.string().required("Project Directory is required"),
+        groupID: yup.string().notRequired().default("com.microintegrator.projects").matches(/^[a-zA-Z0-9.]*$/, "Group id cannot contain spaces or special characters"),
+        artifactID: yup.string().notRequired().matches(/^[a-zA-Z0-9]*$/, "Artifact id cannot contain spaces or special characters"),
+        version: yup.string().notRequired().default("1.0.0").matches(/^[a-zA-Z0-9.]*$/, "Version cannot contain spaces or special characters"),
+        viewMore: yup.boolean().notRequired().default(false),
+    });
+
+    const {
+        register,
+        formState: { errors, isDirty },
+        handleSubmit,
+        watch,
+        getValues,
+        setValue,
+    } = useForm({
+        defaultValues: initialEndpoint,
+        resolver: yupResolver(schema),
+        mode: "onChange"
+    });
 
     useEffect(() => {
         (async () => {
             const currentDir = await rpcClient.getMiDiagramRpcClient().getWorkspaceRoot();
-            setProjectDir(currentDir.path);
+            setValue("directory", currentDir.path);
         })();
-
     }, []);
+
+    useEffect(() => {
+        setValue("artifactID", getValues("name"));
+    }, [watch("viewMore")]);
 
     const handleProjecDirSelection = async () => {
         const projectDirectory = await rpcClient.getMiDiagramRpcClient().askProjectDirPath();
-        setProjectDir(projectDirectory.path);
+        setValue("directory", projectDirectory.path);
     }
 
-    const handleCreateProject = async () => {
+    const handleCreateProject = async (values: any) => {
+        values.artifactId = values.artifactID ? values.artifactID : values.name;
         const createProjectParams = {
-            name: projectName,
-            directory: projectDir,
+            ...values,
             open: true,
-            groupID: groupID,
-            artifactID: artifactID || projectName
         }
         await rpcClient.getMiDiagramRpcClient().createProject(createProjectParams);
-        console.log("Project created");
     };
 
     const handleCancel = () => {
@@ -89,123 +94,68 @@ export function ProjectWizard({ cancelView }: { cancelView: MACHINE_VIEW }) {
 
     const handleBackButtonClick = () => {
         rpcClient.getMiVisualizerRpcClient().goBack();
-    }
-
-    const validateProjectName = (name: string) => {
-        // Check if the name is empty
-        if (!name.trim()) {
-            return "Project name is required";
-        }
-
-        // Check if the name contains spaces or special characters
-        if (/[\s~`!@#$%^&*()_+={}[\]:;'",.<>?/\\|]+/.test(name)) {
-            return "Project name cannot contain spaces or special characters";
-        }
-        return "";
     };
-
-    const validateGroupID = (name: string) => {
-        // Check if the name is empty
-        if (!name.trim()) {
-            return "ID cannot be empty";
-        }
-
-        // Check if the name contains spaces
-        if (/\s/.test(name)) {
-            return "ID cannot contain spaces";
-        }
-
-        return "";
-    };
-
-    const validateArtifactID = (name: string) => {
-        // Check if the name contains spaces
-        if (/\s/.test(name)) {
-            return "ID cannot contain spaces";
-        }
-
-        return "";
-    };
-
-    const isValid: boolean = !validateProjectName(projectName) && projectDir.length > 0 && !validateGroupID(groupID)
-        && !validateArtifactID(artifactID);
 
     return (
-        <WizardContainer>
-            <SectionWrapper>
-                <Container>
-                    <Codicon iconSx={{ marginTop: -3, fontWeight: "bold", fontSize: 22 }} name='arrow-left' onClick={handleBackButtonClick} />
-                    <div style={{ marginLeft: 30 }}>
-                        <Typography variant="h3">Create New Project</Typography>
-                    </div>
-                </Container>
-                <TextField
-                    value={projectName}
-                    id='name-input'
-                    label="Project Name"
-                    placeholder="Project Name"
-                    onTextChange={(text: string) => setProjectName(text)}
-                    errorMsg={validateProjectName(projectName)}
-                    size={46}
-                    autoFocus
-                    required
+        <FormView title="Create New Project" onClose={handleBackButtonClick}>
+            <TextField
+                id='name'
+                label="Project Name"
+                errorMsg={errors.name?.message.toString()}
+                {...register("name")}
+            />
+            <LocationSelector
+                label="Select Project Directory"
+                selectedFile={watch("directory")}
+                required
+                onSelect={handleProjecDirSelection}
+                {...register("directory")}
+            />
+            <LinkButton onClick={() => setValue("viewMore", !getValues("viewMore"))}>
+                {watch("viewMore") ? "Hide" : "More Options"}
+                <Codicon
+                    name={watch("viewMore") ? "chevron-up" : "add"}
+                    sx={{ borderRadius: "4px", height: "14px" }}
+                    iconSx={{ fontSize: "14px" }}
                 />
-                <LocationSelector
-                    label="Select Project Directory"
-                    selectionText="Project Location"
-                    selectedFile={projectDir}
-                    required
-                    onSelect={handleProjecDirSelection}
-                />
-                <LinkButton onClick={() => setViewMore(!viewMore)}>
-                    {viewMore ? "Hide" : "More Options"}
-                    <Codicon
-                        name={viewMore ? "chevron-up" : "add"}
-                        sx={{ borderRadius: "4px", height: "14px" }}
-                        iconSx={{ fontSize: "14px" }}
+            </LinkButton>
+            {watch("viewMore") && (
+                <React.Fragment>
+                    <TextField
+                        id='groupID'
+                        label="Group Id"
+                        errorMsg={errors.groupID?.message.toString()}
+                        {...register("groupID")}
                     />
-                </LinkButton>
-                {viewMore && (
-                    <React.Fragment>
-                        <TextField
-                            value={groupID}
-                            id='groupid-input'
-                            label="Group ID"
-                            placeholder="Group ID"
-                            onTextChange={(text: string) => setGroupID(text)}
-                            errorMsg={validateGroupID(groupID)}
-                            size={46}
-                            autoFocus
-                            required
-                        />
-                        <TextField
-                            value={artifactID}
-                            id='artifactID-input'
-                            label="Atrifact ID"
-                            placeholder="Artifact ID"
-                            onTextChange={(text: string) => setArtifactID(text)}
-                            errorMsg={validateArtifactID(artifactID)}
-                            size={46}
-                            autoFocus
-                        />
-                    </React.Fragment>
-                )}
-                <ActionContainer>
-                    <Button
-                        appearance="secondary"
-                        onClick={handleCancel}
-                    >
-                        Cancel
-                    </Button>
-                    <Button
-                        appearance="primary"
-                        onClick={handleCreateProject}
-                        disabled={!isValid}
-                    >
-                        Create
-                    </Button>
-                </ActionContainer>
-            </SectionWrapper>
-        </WizardContainer>
+                    <TextField
+                        id='artifactID'
+                        label="Artifact Id"
+                        errorMsg={errors.artifactID?.message.toString()}
+                        {...register("artifactID")}
+                    />
+                    <TextField
+                        id='version'
+                        label="Version"
+                        errorMsg={errors.version?.message.toString()}
+                        {...register("version")}
+                    />
+                </React.Fragment>
+            )}
+            <FormActions>
+                <Button
+                    appearance="secondary"
+                    onClick={handleCancel}
+                >
+                    Cancel
+                </Button>
+                <Button
+                    appearance="primary"
+                    onClick={handleSubmit(handleCreateProject)}
+                    disabled={!isDirty}
+                >
+                    Create
+                </Button>
+            </FormActions>
+        </FormView>
     );
 }

@@ -100,7 +100,9 @@ namespace S {
         position: absolute;
         left: ${NODE_DIMENSIONS.CALL.WIDTH + 35}px;
         top: ${NODE_DIMENSIONS.CALL.HEIGHT / 2 + 35}px;
-        max-width: 130px;
+        width: 100px;
+        max-width: 100px;
+        text-align: center;
     `;
 }
 

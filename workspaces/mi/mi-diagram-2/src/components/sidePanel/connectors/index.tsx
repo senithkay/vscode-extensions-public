@@ -130,7 +130,6 @@ export function ConnectorPage(props: ConnectorPageProps) {
         let operationsFiltered = [];
 
         setExpandedConnectors([]);
-        
 
         if (props.searchValue) {
             storeConnectorsFiltered = searchStoreConnectors(props.searchValue);
@@ -251,11 +250,16 @@ export function ConnectorPage(props: ConnectorPageProps) {
             // Retrieve form
             const formJSON = await rpcClient.getMiDiagramRpcClient().getConnectorForm({ uiSchemaPath: connectorData.uiSchemaPath, operation: operation });
 
-            const connecterForm = <AddConnector formData={(formJSON as any).formJSON} nodePosition={sidePanelContext.nodeRange} documentUri={props.documentUri} />;
+            const connecterForm = <AddConnector formData={(formJSON as any).formJSON}
+                nodePosition={sidePanelContext.nodeRange}
+                documentUri={props.documentUri}
+                uiSchemaPath={connectorData.uiSchemaPath}
+                connectorName={connector.name}
+                operationName={operation} />;
 
             props.setContent(connecterForm, `${sidePanelContext.isEditing ? "Edit" : "Add"} ${operation}`);
         }
-        
+
         setIsGeneratingForm(false);
     }
 

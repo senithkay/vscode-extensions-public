@@ -8,17 +8,26 @@
  */
 import { LinkModel, LinkModelGenerics, PortModel, PortModelGenerics } from "@projectstorm/react-diagrams";
 import { DMType } from "@wso2-enterprise/mi-core";
-import { isPropertyAssignment } from "typescript";
+import { Node } from "ts-morph";
 
 import { DataMapperLinkModel } from "../../Link";
 import { DMTypeWithValue } from "../../Mappings/DMTypeWithValue";
 import { IntermediatePortModel } from "../IntermediatePort";
+import { DataMapperNodeModel } from "../../Node/commons/DataMapperNode";
+import { isDefaultValue } from "../../utils/common-utils";
+import { createSourceForMapping, modifySourceForMultipleMappings } from "../../utils/modification-utils";
 
 export interface InputOutputPortModelGenerics {
 	PORT: InputOutputPortModel;
 }
 
-export const FORM_FIELD_PORT = "form-field-port";
+export const INPUT_OUTPUT_PORT = "input-output-port";
+
+enum ValueType {
+	Default,
+	Empty,
+	NonEmpty
+}
 
 export class InputOutputPortModel extends PortModel<PortModelGenerics & InputOutputPortModelGenerics> {
 
@@ -30,7 +39,7 @@ export class InputOutputPortModel extends PortModel<PortModelGenerics & InputOut
 		public portType: "IN" | "OUT",
 		public parentId: string,
 		public index?: number,
-		public editableRecordField?: DMTypeWithValue,
+		public typeWithValue?: DMTypeWithValue,
 		public fieldFQN?: string,
 		public parentModel?: InputOutputPortModel,
 		public collapsed?: boolean,
@@ -39,7 +48,7 @@ export class InputOutputPortModel extends PortModel<PortModelGenerics & InputOut
 		public ancestorHasValue?: boolean
 	) {
 		super({
-			type: FORM_FIELD_PORT,
+			type: INPUT_OUTPUT_PORT,
 			name: `${portName}.${portType}`
 		});
 		this.linkedPorts = [];
@@ -49,20 +58,34 @@ export class InputOutputPortModel extends PortModel<PortModelGenerics & InputOut
 	createLinkModel(): LinkModel {
 		const lm = new DataMapperLinkModel();
 		lm.registerListener({
-			sourcePortChanged: () => {
-				// lm.addLabel(evt.port.getName() + " = " + lm.getTargetPort().getName());
-			},
 			targetPortChanged: (async () => {
-				const targetPortHasLinks = Object.values(lm.getTargetPort().links)
+				const sourcePort = lm.getSourcePort();
+				const targetPort = lm.getTargetPort();
+				const targetPortHasLinks = Object.values(targetPort.links)
 					?.some(link => (link as DataMapperLinkModel)?.isActualLink);
-				const hasDefaultValue = this.isContainDefaultValue(lm);
 
-				if (hasDefaultValue) {
-					// replaceSpecificFieldValue(lm);
+				const targetNode = targetPort.getNode() as DataMapperNodeModel;
+				const valueType = this.getValueType(lm);
+
+				if (valueType === ValueType.Default) {
+					let sourceField = sourcePort && sourcePort instanceof InputOutputPortModel && sourcePort.fieldFQN;
+					
+					if (targetPort) {
+						const typeWithValue = (targetPort as InputOutputPortModel).typeWithValue;
+						const expr = typeWithValue.value;
+
+						if (Node.isPropertyAssignment(expr)) {
+							expr.setInitializer(sourceField);
+						} else {
+							expr.replaceWithText(sourceField);
+						}
+
+						targetNode.context.applyModifications();
+					}
 				} else if (targetPortHasLinks) {
-					// modifySpecificFieldSource(lm);
+					modifySourceForMultipleMappings(lm);
 				} else {
-					// lm.addLabel(await createSourceForMapping(lm));
+					createSourceForMapping(lm);
 				}
 			})
 		});
@@ -102,16 +125,21 @@ export class InputOutputPortModel extends PortModel<PortModelGenerics & InputOut
 				&& ((port instanceof IntermediatePortModel) || (!port.isDisabled()));
 	}
 
-	isContainDefaultValue(lm: DataMapperLinkModel): boolean {
-		const editableRecordField = (lm.getTargetPort() as InputOutputPortModel).editableRecordField;
+	getValueType(lm: DataMapperLinkModel): ValueType {
+		const { typeWithValue } = lm.getTargetPort() as InputOutputPortModel;
 
-		if (editableRecordField?.value) {
-			let expr = editableRecordField.value;
-			if (isPropertyAssignment(expr)) {
-				expr = expr.initializer;
+		if (typeWithValue?.value) {
+			let expr = typeWithValue.value;
+	
+			if (Node.isPropertyAssignment(expr)) {
+				expr = expr.getInitializer();
+			}
+			const value = expr?.getText();
+			if (value !== undefined) {
+				return isDefaultValue(typeWithValue.type, value) ? ValueType.Default : ValueType.NonEmpty;
 			}
 		}
 
-		return false;
+		return ValueType.Empty;
 	}
 }

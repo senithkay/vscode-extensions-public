@@ -8,9 +8,13 @@
  * 
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
-import { IOTypeRequest, IOTypeResponse, FileContentRequest, FileContentResponse } from "./types";
-import { RequestType } from "vscode-messenger-common";
+import {
+    IOTypeRequest,
+    IOTypeResponse,
+    UpdateFileContentRequest
+} from "./types";
+import { RequestType, NotificationType } from "vscode-messenger-common";
 
 const _preFix = "mi-data-mapper";
 export const getIOTypes: RequestType<IOTypeRequest, IOTypeResponse> = { method: `${_preFix}/getIOTypes` };
-export const getFileContent: RequestType<FileContentRequest, FileContentResponse> = { method: `${_preFix}/getFileContent` };
+export const updateFileContent: NotificationType<UpdateFileContentRequest> = { method: `${_preFix}/updateFileContent` };

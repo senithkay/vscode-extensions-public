@@ -244,6 +244,7 @@ export enum SequenceType {
 export const SERVICE = {
     EDIT_RESOURCE: "edit-resource",
     EDIT_SEQUENCE: "edit-sequence",
+    EDIT_PROXY: "edit-proxy",
 }
 
 export const ADD_NEW_SEQUENCE_TAG = "addNewSequence";
