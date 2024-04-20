@@ -6,51 +6,59 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { ExtensionContext, commands } from "vscode";
+import { ExtensionContext, commands, window } from "vscode";
 import { ext } from "../extensionVariables";
 import { CommandIds } from "@wso2-enterprise/choreo-core";
 import { authStore } from "../stores/auth-store";
 import { ComponentFormView } from "../views/webviews/ComponentFormView";
 import { resolveWorkspaceDirectory, selectOrg, selectProjectWithCreateNew } from "./cmd-utils";
-import { handlerError } from "../error-utils";
 
 let componentWizard: ComponentFormView;
 
 export function createNewComponentCommand(context: ExtensionContext) {
     context.subscriptions.push(
         commands.registerCommand(CommandIds.CreateNewComponent, async () => {
-            const userInfo = authStore.getState().state.userInfo;
-            if (!userInfo) {
-                throw new Error("You are not logged in. Please log in and retry.");
-            }
-
-            const workspaceDir = await resolveWorkspaceDirectory();
-
-            const selectedOrg = await selectOrg(userInfo, "Select organization (1/2)");
-
-            const selectedProject = await selectProjectWithCreateNew(
-                selectedOrg,
-                `Loading projects from '${selectedOrg.name}' (2/2)`,
-                `Select project from '${selectedOrg.name}' to create your component in (2/2)`
-            );
-
-            if (selectedProject === "new-project") {
-                if (componentWizard) {
-                    componentWizard.dispose();
+            try {
+                const userInfo = authStore.getState().state.userInfo;
+                if (!userInfo) {
+                    throw new Error("You are not logged in. Please log in and retry.");
                 }
-                componentWizard = new ComponentFormView(ext.context.extensionUri, workspaceDir.uri.path, selectedOrg);
-                componentWizard.getWebview()?.reveal();
-            } else {
-                if (componentWizard) {
-                    componentWizard.dispose();
-                }
-                componentWizard = new ComponentFormView(
-                    ext.context.extensionUri,
-                    workspaceDir.uri.path,
+
+                const workspaceDir = await resolveWorkspaceDirectory();
+
+                const selectedOrg = await selectOrg(userInfo, "Select organization (1/2)");
+
+                const selectedProject = await selectProjectWithCreateNew(
                     selectedOrg,
-                    selectedProject
+                    `Loading projects from '${selectedOrg.name}' (2/2)`,
+                    `Select project from '${selectedOrg.name}' to create your component in (2/2)`
                 );
-                componentWizard.getWebview()?.reveal();
+
+                if (selectedProject === "new-project") {
+                    if (componentWizard) {
+                        componentWizard.dispose();
+                    }
+                    componentWizard = new ComponentFormView(
+                        ext.context.extensionUri,
+                        workspaceDir.uri.path,
+                        selectedOrg
+                    );
+                    componentWizard.getWebview()?.reveal();
+                } else {
+                    if (componentWizard) {
+                        componentWizard.dispose();
+                    }
+                    componentWizard = new ComponentFormView(
+                        ext.context.extensionUri,
+                        workspaceDir.uri.path,
+                        selectedOrg,
+                        selectedProject
+                    );
+                    componentWizard.getWebview()?.reveal();
+                }
+            } catch (err: any) {
+                console.error("Failed to create component", err);
+                window.showErrorMessage(err?.message || "Failed to create component");
             }
         })
     );

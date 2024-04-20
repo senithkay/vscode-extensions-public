@@ -16,56 +16,61 @@ import { deleteLinkFile } from "../utils";
 export function deleteComponentCommand(context: ExtensionContext) {
     context.subscriptions.push(
         commands.registerCommand(CommandIds.DeleteComponent, async () => {
-            const userInfo = authStore.getState().state.userInfo;
-            if (!userInfo) {
-                throw new Error("You are not logged in. Please log in and retry.");
-            }
-
-            const selectedOrg = await selectOrg(userInfo, "Select organization (1/3)");
-
-            const selectedProject = await selectProject(
-                selectedOrg,
-                `Loading projects from '${selectedOrg.name}' (2/3)`,
-                `Select project from '${selectedOrg.name}' to delete (2/3)`
-            );
-
-            const selectedComponent = await selectComponent(
-                selectedOrg,
-                selectedProject,
-                `Loading components from '${selectedProject.name}' (3/3)`,
-                `Select component from '${selectedProject.name}' to delete (3/3)`
-            );
-
-            const accepted = await window.showInformationMessage(
-                "Are you sure you want to delete this Choreo component? This action will not affect any local files and will only delete the component created in Choreo. Please note that this action is not reversible.",
-                { modal: true },
-                "Delete"
-            );
-            if (accepted === "Delete") {
-                await window.withProgress(
-                    {
-                        title: `Deleting component ${selectedComponent.metadata.name}...`,
-                        location: ProgressLocation.Notification,
-                    },
-                    async () => {
-                        await ext.clients.rpcClient.deleteComponent({
-                            orgId: selectedOrg.id.toString(),
-                            orgHandler: selectedOrg.handle,
-                            projectId: selectedProject.id,
-                            compHandler: selectedComponent.metadata.name,
-                        });
-
-                        await deleteLinkFile(
-                            selectedOrg.handle,
-                            selectedProject.handler,
-                            selectedComponent.metadata.name
-                        );
-
-                        window.showInformationMessage(
-                            `Component ${selectedComponent.metadata.name} deleted successfully`
-                        );
-                    }
+            try{
+                const userInfo = authStore.getState().state.userInfo;
+                if (!userInfo) {
+                    throw new Error("You are not logged in. Please log in and retry.");
+                }
+    
+                const selectedOrg = await selectOrg(userInfo, "Select organization (1/3)");
+    
+                const selectedProject = await selectProject(
+                    selectedOrg,
+                    `Loading projects from '${selectedOrg.name}' (2/3)`,
+                    `Select project from '${selectedOrg.name}' to delete (2/3)`
                 );
+    
+                const selectedComponent = await selectComponent(
+                    selectedOrg,
+                    selectedProject,
+                    `Loading components from '${selectedProject.name}' (3/3)`,
+                    `Select component from '${selectedProject.name}' to delete (3/3)`
+                );
+    
+                const accepted = await window.showInformationMessage(
+                    "Are you sure you want to delete this Choreo component? This action will not affect any local files and will only delete the component created in Choreo. Please note that this action is not reversible.",
+                    { modal: true },
+                    "Delete"
+                );
+                if (accepted === "Delete") {
+                    await window.withProgress(
+                        {
+                            title: `Deleting component ${selectedComponent.metadata.name}...`,
+                            location: ProgressLocation.Notification,
+                        },
+                        async () => {
+                            await ext.clients.rpcClient.deleteComponent({
+                                orgId: selectedOrg.id.toString(),
+                                orgHandler: selectedOrg.handle,
+                                projectId: selectedProject.id,
+                                compHandler: selectedComponent.metadata.name,
+                            });
+    
+                            await deleteLinkFile(
+                                selectedOrg.handle,
+                                selectedProject.handler,
+                                selectedComponent.metadata.name
+                            );
+    
+                            window.showInformationMessage(
+                                `Component ${selectedComponent.metadata.name} deleted successfully`
+                            );
+                        }
+                    );
+                }
+            }catch(err: any){
+                console.error("Failed to delete component", err);
+                window.showErrorMessage(err?.message || "Failed to delete component");
             }
         })
     );

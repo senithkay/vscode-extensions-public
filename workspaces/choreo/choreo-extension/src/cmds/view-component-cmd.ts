@@ -20,43 +20,48 @@ import { webviewStateStore } from "../stores/webview-state-store";
 export function viewComponentCommand(context: ExtensionContext) {
     context.subscriptions.push(
         commands.registerCommand(CommandIds.ViewComponent, async () => {
-            const userInfo = authStore.getState().state.userInfo;
-            if (!userInfo) {
-                throw new Error("You are not logged in. Please log in and retry.");
-            }
-
-            const selectedOrg = await selectOrg(userInfo, "Select organization (1/3)");
-
-            const selectedProject = await selectProject(
-                selectedOrg,
-                `Loading projects from '${selectedOrg.name}' (2/3)`,
-                `Select project from '${selectedOrg.name}' (2/3)`
-            );
-
-            const selectedComponent = await selectComponent(
-                selectedOrg,
-                selectedProject,
-                `Loading components from '${selectedProject.name}' (3/3)`,
-                `Select component from '${selectedProject.name}' to view (3/3)`
-            );
-
-            const linkFiles = await workspace.findFiles("**/.choreo/link.yaml");
-
-            let matchingPath: string = "";
-
-            for (const linkFile of linkFiles) {
-                const parsedData: LinkFileContent = yaml.load(readFileSync(linkFile.fsPath, "utf8")) as any;
-                if (
-                    parsedData.component === selectedComponent.metadata.name &&
-                    parsedData.project === selectedProject.handler &&
-                    parsedData.org === selectedOrg.handle
-                ) {
-                    matchingPath = path.dirname(path.dirname(linkFile.path));
-                    break;
+            try {
+                const userInfo = authStore.getState().state.userInfo;
+                if (!userInfo) {
+                    throw new Error("You are not logged in. Please log in and retry.");
                 }
-            }
 
-            showComponentDetails(selectedOrg, selectedProject, selectedComponent, matchingPath);
+                const selectedOrg = await selectOrg(userInfo, "Select organization (1/3)");
+
+                const selectedProject = await selectProject(
+                    selectedOrg,
+                    `Loading projects from '${selectedOrg.name}' (2/3)`,
+                    `Select project from '${selectedOrg.name}' (2/3)`
+                );
+
+                const selectedComponent = await selectComponent(
+                    selectedOrg,
+                    selectedProject,
+                    `Loading components from '${selectedProject.name}' (3/3)`,
+                    `Select component from '${selectedProject.name}' to view (3/3)`
+                );
+
+                const linkFiles = await workspace.findFiles("**/.choreo/link.yaml");
+
+                let matchingPath: string = "";
+
+                for (const linkFile of linkFiles) {
+                    const parsedData: LinkFileContent = yaml.load(readFileSync(linkFile.fsPath, "utf8")) as any;
+                    if (
+                        parsedData.component === selectedComponent.metadata.name &&
+                        parsedData.project === selectedProject.handler &&
+                        parsedData.org === selectedOrg.handle
+                    ) {
+                        matchingPath = path.dirname(path.dirname(linkFile.path));
+                        break;
+                    }
+                }
+
+                showComponentDetails(selectedOrg, selectedProject, selectedComponent, matchingPath);
+            } catch (err: any) {
+                console.error("Failed to create component", err);
+                window.showErrorMessage(err?.message || "Failed to create component");
+            }
         })
     );
 }
@@ -87,7 +92,7 @@ export const showComponentDetails = (
         componentDetailsView.getWebview()?.onDidChangeViewState((event) => {
             if (event.webviewPanel.active) {
                 webviewStateStore.getState().setOpenedComponentPath(componentPath ?? "");
-            }else{
+            } else {
                 webviewStateStore.getState().onCloseComponentView(componentPath);
             }
         });
