@@ -38,7 +38,6 @@ export interface IChoreoRPCClient {
     getProjects(orgID: string): Promise<Project[]>;
     getComponentList(params: GetComponentsReq): Promise<ComponentKind[]>;
     createComponentLink(params: CreateLinkReq): Promise<void>;
-    createEpYaml(params: CreateComponentReq): Promise<{ success: boolean }>;
     createProject(params: CreateProjectReq): Promise<Project>;
     createComponent(params: CreateComponentReq): Promise<void>;
     getBuildPacks(params: BuildPackReq): Promise<Buildpack[]>;
@@ -86,11 +85,6 @@ export class ChoreoRpcWebview implements IChoreoRPCClient {
     deleteComponent(params: DeleteCompReq): Promise<void> {
         return this._messenger.sendRequest(ChoreoRpcDeleteComponentRequest, HOST_EXTENSION, params);
     }
-
-    createEpYaml(params: CreateComponentReq): Promise<{ success: boolean; }> {
-        return this._messenger.sendRequest(ChoreoRpcCreateEpYaml, HOST_EXTENSION, params);
-    }
-
     getBuilds(params:GetBuildsReq): Promise<BuildKind[]> {
         return this._messenger.sendRequest(ChoreoRpcGetBuildsRequest, HOST_EXTENSION, params);
     }
@@ -126,7 +120,6 @@ export const ChoreoRpcGetBuildPacksRequest: RequestType<BuildPackReq, Buildpack[
 export const ChoreoRpcGetBranchesRequest: RequestType<GetBranchesReq, string[]> = { method: 'rpc/repo/getBranches' };
 export const ChoreoRpcIsRepoAuthorizedRequest: RequestType<IsRepoAuthorizedReq, boolean> = { method: 'rpc/repo/isRepoAuthorized' };
 export const ChoreoRpcDeleteComponentRequest: RequestType<DeleteCompReq, void> = { method: 'rpc/component/delete' };
-export const ChoreoRpcCreateEpYaml: RequestType<CreateComponentReq, { success: boolean }> = { method: 'rpc/component/createComponentEpYaml' };
 export const ChoreoRpcCreateBuildRequest: RequestType<CreateBuildReq, BuildKind> = { method: 'rpc/build/create' };
 export const ChoreoRpcGetDeploymentTracksRequest: RequestType<GetDeploymentTracksReq, DeploymentTrack[]> = { method: 'rpc/component/getDeploymentTracks' };
 export const ChoreoRpcGetBuildsRequest: RequestType<GetBuildsReq, BuildKind[]> = { method: 'rpc/build/getList' };

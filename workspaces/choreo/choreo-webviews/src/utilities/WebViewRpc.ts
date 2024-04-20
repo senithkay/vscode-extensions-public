@@ -130,6 +130,8 @@ import {
     ViewRuntimeLogs,
     ViewRuntimeLogsReq,
     GetWebviewStoreState,
+    CreateEndpointYaml,
+    CreateEndpointReq,
 } from "@wso2-enterprise/choreo-core";
 import { IChoreoProjectClient } from "@wso2-enterprise/choreo-client/lib/project/types";
 import { ChoreoProjectClientRPCWebView } from "@wso2-enterprise/choreo-client/lib/project/rpc";
@@ -257,6 +259,10 @@ export class ChoreoWebViewAPI {
 
     public async readServiceEndpoints(componentPath: string): Promise<ReadEndpointsResp> {
         return this._messenger.sendRequest(ReadServiceEndpoints, HOST_EXTENSION, componentPath);
+    }
+
+    public async createEndpointYaml(params: CreateEndpointReq): Promise<void> {
+        return this._messenger.sendRequest(CreateEndpointYaml, HOST_EXTENSION, params);
     }
 
     public async showQuickPicks(params: ShowWebviewQuickPickItemsReq): Promise<WebviewQuickPickItem | undefined> {

@@ -46,7 +46,6 @@ import { initGit, } from "../git/main";
 import { getLogger } from "../logger/logger";
 import { ProgressLocation, Uri, window, workspace, WorkspaceFolder } from "vscode";
 import { executeWithTaskRetryPrompt } from "../retry";
-import { getComponentDirPath, makeURLSafe } from "../utils";
 import * as yaml from 'js-yaml';
 
 // Key to store the project locations in the global state
@@ -1274,3 +1273,39 @@ export class ProjectRegistry {
         }
     }
 }
+
+export const getComponentDirPath = (component: Component, projectLocation: string) => {
+    const repository = component.repository;
+    if (projectLocation && (repository?.appSubPath || repository?.byocBuildConfig)) {
+        const { organizationApp, nameApp, appSubPath, byocWebAppBuildConfig, byocBuildConfig } = repository;
+        if (appSubPath) {
+            return join(dirname(projectLocation), "repos", organizationApp, nameApp, appSubPath);
+        } else if (byocWebAppBuildConfig) {
+            if (byocWebAppBuildConfig?.dockerContext) {
+                return join(
+                    dirname(projectLocation),
+                    "repos",
+                    organizationApp,
+                    nameApp,
+                    byocWebAppBuildConfig?.dockerContext
+                );
+            } else if (byocWebAppBuildConfig?.outputDirectory) {
+                return join(
+                    dirname(projectLocation),
+                    "repos",
+                    organizationApp,
+                    nameApp,
+                    byocWebAppBuildConfig?.outputDirectory
+                );
+            }
+        } else if (byocBuildConfig) {
+            return join(dirname(projectLocation), "repos", organizationApp, nameApp, byocBuildConfig?.dockerContext);
+        }
+    }
+};
+
+// sanitize the component display name to make it url friendly
+export function makeURLSafe(input: string): string {
+    return input.trim().replace(/\s+/g, "-").toLowerCase();
+}
+

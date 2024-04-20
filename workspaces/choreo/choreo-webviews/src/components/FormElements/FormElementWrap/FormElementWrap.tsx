@@ -14,7 +14,7 @@ interface Props extends PropsWithChildren {
 export const FormElementWrap: FC<Props> = (props) => {
     const { label, required, errorMsg, loading, className, children } = props;
     return (
-        <div className={classNames("w-full flex flex-col ", className)}>
+        <div className={classNames("w-full flex flex-col", className)}>
             <div className="flex justify-between gap-1">
                 <span className="flex gap-1">
                     <label>{label}</label>
@@ -22,7 +22,7 @@ export const FormElementWrap: FC<Props> = (props) => {
                 </span>
                 {errorMsg && <label className="text-vsc-errorForeground line-clamp-1 text-right">{errorMsg}</label>}
             </div>
-            {children}
+            <div className="grid grid-cols-1">{children}</div>
             {loading && (
                 <div className="relative">
                     <ProgressIndicator />

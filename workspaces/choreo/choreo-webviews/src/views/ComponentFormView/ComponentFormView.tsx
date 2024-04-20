@@ -18,10 +18,16 @@ import { VSCodeLink } from "@vscode/webview-ui-toolkit/react";
 import { Banner } from "../../components/Banner";
 import { componentFormSchema } from "./componentFormSchema";
 import { Button } from "../../components/Button";
+import { makeURLSafe } from "../../utilities/helpers";
 
 type ComponentFormType = z.infer<typeof componentFormSchema>;
 
-export const ComponentFormView: FC<NewComponentWebviewProps> = ({ project, organization, directoryPath, gitInstallUrl }) => {
+export const ComponentFormView: FC<NewComponentWebviewProps> = ({
+    project,
+    organization,
+    directoryPath,
+    gitInstallUrl,
+}) => {
     const form = useForm<ComponentFormType>({
         resolver: zodResolver(componentFormSchema),
         mode: "all",
@@ -37,6 +43,7 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({ project, organ
             branch: "",
             dockerFile: "Dockerfile",
             port: 8080,
+            visibility: "Public",
             spaBuildCommand: "npm run build",
             spaNodeVersion: "20.0.0",
             spaOutputDir: "build",
@@ -47,6 +54,23 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({ project, organ
     const selectedLang = form.watch("buildPackLang");
     const subPath = form.watch("subPath");
     const repoUrl = form.watch("repoUrl");
+    const port = form.watch("port");
+
+    const { data: hasEndpoints } = useQuery({
+        queryKey: ["directory-has-endpoints", { directoryPath, subPath }],
+        queryFn: async () => {
+            const compPath = await ChoreoWebViewAPI.getInstance().joinFilePaths([directoryPath, subPath]);
+            return ChoreoWebViewAPI.getInstance().readServiceEndpoints(compPath);
+        },
+        select: (resp) => resp?.endpoints?.length > 0,
+        enabled: selectedType === ChoreoComponentType.Service,
+    });
+
+    useEffect(() => {
+        if (!hasEndpoints && !port) {
+            form.setError("port", { message: "Required" });
+        }
+    }, [port, hasEndpoints]);
 
     const { isLoading: isLoadingBuildPacks, data: buildpacks = [] } = useQuery({
         queryKey: ["build-packs", { selectedType, orgId: organization?.id }],
@@ -56,24 +80,26 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({ project, organ
                 orgUuid: organization.uuid,
                 orgId: organization.id.toString(),
             }),
-        onSuccess: (buildpacks) => {
-            if (!buildpacks.find((item) => item.language === form.getValues("buildPackLang"))) {
-                form.setValue("buildPackLang", buildpacks[0].language);
-                form.setValue("langVersion", "");
-            }
-        },
         refetchOnWindowFocus: false,
     });
+
+    useEffect(()=>{
+        if (!buildpacks.find((item) => item.language === form.getValues("buildPackLang"))) {
+            form.setValue("buildPackLang", buildpacks[0].language);
+            form.setValue("langVersion", "");
+        }
+    },[form, buildpacks])
 
     const { isLoading: isLoadingRemotes, data: gitRemotes = [] } = useQuery({
         queryKey: ["get-git-remotes", { subPath }],
         queryFn: () => ChoreoWebViewAPI.getInstance().getGitRemotes([directoryPath, subPath]),
-        onSuccess: (remotes) => {
-            if (remotes.length > 0 && !remotes.includes(form.getValues("repoUrl"))) {
-                form.setValue("repoUrl", remotes[0]);
-            }
-        },
     });
+
+    useEffect(()=>{
+        if (gitRemotes.length > 0 && !gitRemotes.includes(form.getValues("repoUrl"))) {
+            form.setValue("repoUrl", gitRemotes[0]);
+        }
+    },[form, gitRemotes])
 
     const { isLoading: isLoadingBranches, data: branches = [] } = useQuery({
         queryKey: ["get-git-branches", { repo: repoUrl, orgId: organization?.id }],
@@ -82,19 +108,20 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({ project, organ
                 repoUrl,
                 orgId: organization.id.toString(),
             }),
-        onSuccess: (branches) => {
-            if (!form.getValues("branch") || !branches.includes(form.getValues("branch"))) {
-                if (branches.includes("main")) {
-                    form.setValue("branch", "main");
-                } else if (branches.includes("master")) {
-                    form.setValue("branch", "master");
-                } else {
-                    form.setValue("branch", branches[0]);
-                }
-            }
-        },
         refetchOnWindowFocus: false,
     });
+
+    useEffect(()=>{
+        if (!form.getValues("branch") || !branches.includes(form.getValues("branch"))) {
+            if (branches.includes("main")) {
+                form.setValue("branch", "main");
+            } else if (branches.includes("master")) {
+                form.setValue("branch", "master");
+            } else {
+                form.setValue("branch", branches[0]);
+            }
+        }
+    },[form, branches])
 
     const { isLoading: isCheckingRepoAccess, data: hasRepoAccess } = useQuery({
         queryKey: ["git-repo-access", { repo: repoUrl, orgId: organization?.id }],
@@ -118,6 +145,7 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({ project, organ
 
     const { mutate: createComponent, isLoading: isCreatingComponent } = useMutation({
         mutationFn: async (data: ComponentFormType) => {
+            const componentName = makeURLSafe(data.name);
             let selectedProject = project;
             if (!selectedProject) {
                 selectedProject = await ChoreoWebViewAPI.getInstance().getChoreoRpcClient().createProject({
@@ -132,7 +160,7 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({ project, organ
             await ChoreoWebViewAPI.getInstance().getChoreoRpcClient().createComponent({
                 orgId: organization.id.toString(),
                 projectHandle: selectedProject.handler,
-                name: data.name,
+                name: componentName,
                 type: data.type,
                 buildPackLang: data.buildPackLang,
                 componentDir,
@@ -149,31 +177,31 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({ project, organ
             await ChoreoWebViewAPI.getInstance().getChoreoRpcClient().createComponentLink({
                 projectHandle: selectedProject.handler,
                 orgHandle: organization.handle,
-                componentHandle: data.name,
+                componentHandle: componentName,
                 componentDir,
             });
 
-            const res = await ChoreoWebViewAPI.getInstance().getChoreoRpcClient().createEpYaml({
-                orgId: organization.id.toString(),
-                projectHandle: selectedProject.handler,
-                name: data.name,
-                type: data.type,
-                buildPackLang: data.buildPackLang,
-                componentDir,
-                repoUrl: data.repoUrl,
-                branch: data.branch,
-                langVersion: data.langVersion,
-                dockerFile: data.dockerFile,
-                port: data.port,
-                spaBuildCommand: data.spaBuildCommand,
-                spaNodeVersion: data.spaNodeVersion,
-                spaOutputDir: data.spaOutputDir,
-            });
-
-            if (!res.success) {
-                throw new Error("Failed to create EP YAML");
+            if (data.type === ChoreoComponentType.Service && !hasEndpoints) {
+                await ChoreoWebViewAPI.getInstance().createEndpointYaml({
+                    componentPath: componentDir,
+                    name: componentName,
+                    port: data.port,
+                    networkVisibility: data.visibility,
+                });
             }
 
+            const componentList = await ChoreoWebViewAPI.getInstance()
+                .getChoreoRpcClient()
+                .getComponentList({ orgId: organization.id.toString(), projectHandle: project.handler });
+            const createdComp = componentList.find((item) => item.metadata.name === componentName);
+            if (createdComp) {
+                ChoreoWebViewAPI.getInstance().ViewComponent({
+                    component: createdComp,
+                    organization,
+                    project,
+                    componentPath: componentDir,
+                });
+            }
         },
         onSuccess: (_, data) => {
             ChoreoWebViewAPI.getInstance().showInfoMsg(`Component ${data.name} has been successfully created`);
@@ -244,7 +272,20 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({ project, organ
             />
         );
 
-        if (selectedType === ChoreoComponentType.WebApplication) {
+        if (selectedType === ChoreoComponentType.Service && !hasEndpoints) {
+            additionalConfigs.push(
+                <TextField label="Port" required name="port" control={form.control} placeholder="8080" />
+            );
+            additionalConfigs.push(
+                <Dropdown
+                    label="Visibility"
+                    required
+                    name="visibility"
+                    items={["Public", "Organization", "Project"]}
+                    control={form.control}
+                />
+            );
+        } else if (selectedType === ChoreoComponentType.WebApplication) {
             additionalConfigs.push(
                 <TextField label="Port" required name="port" control={form.control} placeholder="8080" />
             );
@@ -267,8 +308,12 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({ project, organ
         <div className="flex flex-row justify-center p-1 md:p-3 lg:p-4 xl:p-6">
             <div className="container">
                 <form className="mx-auto max-w-4xl flex flex-col gap-2 p-4">
-                    {!project && (
+                    {!project ? (
                         <>
+                            <h1 className="text-sm text-right mb-3">
+                                <span className="font-extralight">Organization: </span>
+                                {organization.name}
+                            </h1>
                             <h1 className="text-xl font-bold">Project Details</h1>
                             <Divider />
                             <div className="grid md:grid-cols-2 gap-4 md:gap-6 mb-8">
@@ -288,7 +333,19 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({ project, organ
                                 />
                             </div>
                         </>
+                    ) : (
+                        <div className="flex flex-col gap-1 mb-3">
+                            <h1 className="text-sm text-right">
+                                <span className="font-extralight">Organization: </span>
+                                {organization.name}
+                            </h1>
+                            <h1 className="text-sm text-right">
+                                <span className="font-extralight">Project: </span>
+                                {project.name}
+                            </h1>
+                        </div>
                     )}
+
                     <h1 className="text-xl font-bold">Component Details</h1>
                     <Divider />
                     <div className="grid md:grid-cols-2 gap-4 md:gap-6">

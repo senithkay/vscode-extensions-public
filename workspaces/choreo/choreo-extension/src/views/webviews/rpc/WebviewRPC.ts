@@ -102,6 +102,7 @@ import {
     ViewBuildsLogs,
     ViewRuntimeLogs,
     GetWebviewStoreState,
+    CreateEndpointYaml,
 } from "@wso2-enterprise/choreo-core";
 import { registerChoreoProjectRPCHandlers, registerChoreoCellViewRPCHandlers } from "@wso2-enterprise/choreo-client";
 import { registerChoreoGithubRPCHandlers } from "@wso2-enterprise/choreo-client/lib/github/rpc";
@@ -124,6 +125,7 @@ import { choreoEnvConfig } from "../../../auth/auth";
 import { showComponentDetails } from "../../../cmds/view-component-cmd";
 import * as yaml from "js-yaml";
 import { getChoreoExecPath } from "../../../choreo-rpc/cli-install";
+import { createEndpointYaml, readEndpoints } from "../../../utils";
 
 const manager = new ChoreoProjectManager();
 
@@ -225,14 +227,8 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
     messenger.onRequest(ViewComponentDetails, async (params) => {
         showComponentDetails(params.organization, params.project, params.component, params.componentPath)
     });
-    messenger.onRequest(ReadServiceEndpoints, async (componentPath: string) => {
-        const endpointsYamlPath = join(componentPath, '.choreo', 'endpoints.yaml');
-            if (existsSync(endpointsYamlPath)) {
-                const endpointFileContent: EndpointYamlContent = yaml.load(readFileSync(endpointsYamlPath, "utf8")) as any;
-                return {endpoints:endpointFileContent.endpoints,filePath:endpointsYamlPath};
-            }
-        return {endpoints:[],filePath:""};
-    });
+    messenger.onRequest(ReadServiceEndpoints, async (componentPath: string) => readEndpoints(componentPath));
+    messenger.onRequest(CreateEndpointYaml, async (params) => createEndpointYaml(params));
     messenger.onRequest(ShowQuickPick, async (params) => {
         const itemSelection = await window.showQuickPick(params.items as vscode.QuickPickItem[], {
             title: params.title,
@@ -256,7 +252,6 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
         const args = ["logs", "-t", type.flag, "-o", orgName, "-p", projectName, "-c", componentName, "-d", deploymentTrackName, "-e", envName, "-f"];
         window.createTerminal(`${componentName}:${type.label}`, getChoreoExecPath(), args).show();
     });
-
     // TODO remove old ones
 
 
@@ -463,14 +458,6 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
         return ProjectRegistry.getInstance().getPreferredProjectRepository(projectId);
     });
 
-    messenger.onRequest(isChoreoProject, () => {
-        return ext.api.isChoreoProject();
-    });
-
-    messenger.onRequest(GetChoreoWorkspaceMetadata, () => {
-        return ext.api.getChoreoWorkspaceMetadata();
-    });
-
     messenger.onRequest(getConsoleUrl, () => {
         return ProjectRegistry.getInstance().getConsoleUrl();
     });
@@ -528,14 +515,6 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
     //         diagnostics: diagnostics,
     //     };
     // });
-
-    messenger.onRequest(SetChoreoInstallOrg, (orgId: number) => {
-        ext.api.setChoreoInstallOrg(orgId);
-    });
-
-    messenger.onRequest(ClearChoreoInstallOrg, () => {
-        ext.api.clearChoreoInstallOrg();
-    });
 
     messenger.onRequest(UpdateProjectOverview, (projectId: string) => {
         ext.api.projectUpdated();

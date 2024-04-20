@@ -16,6 +16,7 @@ import { linkedDirectoryStore } from "../stores/linked-dir-store";
 import { selectOrg, selectProject, resolveWorkspaceDirectory, resolveQuickPick } from "./cmd-utils";
 import { getGitRoot } from "../git/util";
 import { goTosource } from "../utils";
+import { showComponentDetails } from "./view-component-cmd";
 
 export function linkExistingComponentCommand(context: ExtensionContext) {
     context.subscriptions.push(
@@ -101,14 +102,17 @@ export function linkExistingComponentCommand(context: ExtensionContext) {
                 await window.withProgress(
                     { title: `Generating Link File...`, location: ProgressLocation.Notification },
                     async () => {
+                        const componentDir = path.join(gitRoot, matchingComponents[0]?.spec.source.github?.path!)
                         await ext.clients.rpcClient.createComponentLink({
-                            componentDir: path.join(gitRoot, matchingComponents[0]?.spec.source.github?.path!),
+                            componentDir,
                             componentHandle: matchingComponents[0]?.metadata.name!,
                             orgHandle: selectedOrg.handle,
                             projectHandle: selectedProject.handler,
                         });
 
                         await linkedDirectoryStore.getState().refreshState();
+
+                        showComponentDetails(selectedOrg, selectedProject, matchingComponents[0], componentDir);
 
                         window
                             .showInformationMessage(

@@ -54,6 +54,9 @@ export const ViewComponentDetails: RequestType<ViewComponentDetailsReq, void> = 
 export const ReadServiceEndpoints: RequestType<string, ReadEndpointsResp> = { method: 'readServiceEndpoints' };
 export const ViewBuildsLogs: RequestType<ViewBuildLogsReq, void> = { method: 'viewBuildLogs' };
 export const ViewRuntimeLogs: RequestType<ViewRuntimeLogsReq, void> = { method: 'viewRuntimeLogs' };
+export const CreateEndpointYaml: RequestType<CreateEndpointReq, void> = { method: 'createNewEndpointYaml' };
+
+export interface CreateEndpointReq { componentPath: string, name: string, networkVisibility: string, port: number }
 
 export interface ViewBuildLogsReq { orgId: string; orgHandler: string; componentName: string; projectId: string; buildId: number;}
 export interface ViewRuntimeLogsReq {

@@ -14,6 +14,7 @@ export const componentFormSchema = z
         langVersion: z.string(),
         dockerFile: z.string(),
         port: z.number({ coerce: true }),
+        visibility: z.string(),
         spaBuildCommand: z.string(),
         spaNodeVersion: z.string(),
         spaOutputDir: z.string(),

@@ -50,11 +50,11 @@ export const cloneRepoToCurrentProjectWorkspace = async (params: RepoCloneReques
             getLogger().debug("Cloning cancelled for " + repository);
             cancelled = true;
         });
-        if (!ext.api.isChoreoProject()) {
-            getLogger().error("Cannot clone repository to a non-Choreo project");
-            window.showErrorMessage('Current workspace is not a Choreo project. Please open a Choreo project to clone a repository.');
-            return;
-        }
+        // if (!ext.api.isChoreoProject()) {
+        //     getLogger().error("Cannot clone repository to a non-Choreo project");
+        //     window.showErrorMessage('Current workspace is not a Choreo project. Please open a Choreo project to clone a repository.');
+        //     return;
+        // }
         const projectDir = path.dirname(workspaceFilePath);
         const repoPath = path.join(projectDir, 'repos', repository);
         if (!existsSync(path.dirname(repoPath))) {

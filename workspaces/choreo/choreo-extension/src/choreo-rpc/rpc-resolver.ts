@@ -19,7 +19,6 @@ import {
     ChoreoRpcCreateProjectRequest,
     ChoreoRpcCreateComponentRequest,
     ChoreoRpcDeleteComponentRequest,
-    ChoreoRpcCreateEpYaml,
     ChoreoRpcCreateBuildRequest,
     ChoreoRpcGetDeploymentTracksRequest,
     ChoreoRpcGetBuildsRequest,
@@ -56,7 +55,6 @@ export function registerChoreoRpcResolver(messenger: Messenger, rpcClient: IChor
             () => rpcClient.deleteComponent(params)
         );
     });
-    messenger.onRequest(ChoreoRpcCreateEpYaml, (params) => rpcClient.createEpYaml(params));
     messenger.onRequest(ChoreoRpcCreateBuildRequest, async (params) => {
         return window.withProgress(
             { title: `Triggering build for ${params.componentName}...`, location: ProgressLocation.Notification },

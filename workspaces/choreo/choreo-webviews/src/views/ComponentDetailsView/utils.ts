@@ -1,4 +1,4 @@
-import { ComponentDisplayType, ComponentKind, ChoreoImplementationType } from "@wso2-enterprise/choreo-core";
+import { ComponentDisplayType, ComponentKind, ChoreoImplementationType, ChoreoComponentType } from "@wso2-enterprise/choreo-core";
 
 export const getTypeForDisplayType = (displayType: string): string => {
     switch (displayType) {
@@ -13,30 +13,30 @@ export const getTypeForDisplayType = (displayType: string): string => {
         case ComponentDisplayType.BuildpackRestApi:
         case ComponentDisplayType.MiRestApi:
         case ComponentDisplayType.ThirdPartyAPI:
-            return "service";
+            return ChoreoComponentType.Service;
         case ComponentDisplayType.BuildpackJob:
         case ComponentDisplayType.ByoiJob:
         case ComponentDisplayType.ByocJob:
         case ComponentDisplayType.MiJob:
         case ComponentDisplayType.ManualTrigger:
-            return "manual-task";
+            return ChoreoComponentType.ManualTrigger;
         case ComponentDisplayType.BuildpackCronJob:
         case ComponentDisplayType.ByoiCronjob:
         case ComponentDisplayType.ByocCronjob:
         case ComponentDisplayType.MiCronjob:
         case ComponentDisplayType.ScheduledTask:
-            return "scheduled-task";
+            return ChoreoComponentType.ScheduledTask;
         case ComponentDisplayType.BuildpackWebhook:
         case ComponentDisplayType.ByocWebhook:
         case ComponentDisplayType.Webhook:
-            return "web-hook";
+            return ChoreoComponentType.Webhook;
         case ComponentDisplayType.Proxy:
             return "api-proxy";
         case ComponentDisplayType.ByocWebApp:
         case ComponentDisplayType.ByocWebAppDockerLess:
         case ComponentDisplayType.BuildpackWebApp:
         case ComponentDisplayType.ByoiWebApp:
-            return "web-app";
+            return ChoreoComponentType.WebApplication;
         case ComponentDisplayType.MiEventHandler:
         case ComponentDisplayType.BallerinaEventHandler:
             return "event-handler";

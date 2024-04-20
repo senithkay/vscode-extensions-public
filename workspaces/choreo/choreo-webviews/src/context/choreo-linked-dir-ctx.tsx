@@ -57,8 +57,6 @@ export const LinkedDirContextProvider: FC<Props> = ({ children }) => {
         select: (data) => data.openedComponentPath,
     });
 
-    console.log('activeComponentPath', activeComponentPath)
-
     useEffect(() => {
         ChoreoWebViewAPI.getInstance().refreshLinkedDirState();
         ChoreoWebViewAPI.getInstance().onLinkedDirStateChanged((linkedDirState) => {
