@@ -212,7 +212,7 @@ export const AutoComplete = React.forwardRef<HTMLInputElement, AutoCompleteProps
         inputRef.current?.select();
         // This is to open the dropdown when the text field is focused.
         // This is a hacky way to do it since the Combobox component does not have a prop to open the dropdown.
-        document.getElementById(`autocomplete-dropdown-button-${items[0]}`)?.click();
+        document.getElementById(`autocomplete-dropdown-button-${getItemKey(items[0])}`)?.click();
         document.getElementById(props.value as string)?.focus();
     };
     const handleTextFieldOutFocused = (e: any) => {
@@ -277,7 +277,7 @@ export const AutoComplete = React.forwardRef<HTMLInputElement, AutoCompleteProps
                             onBlur={handleTextFieldOutFocused}
                         />
                         <Combobox.Button
-                            id={`autocomplete-dropdown-button-${items[0]}`}
+                            id={`autocomplete-dropdown-button-${getItemKey(items[0])}`}
                             className={isTextFieldFocused ? ComboboxButtonContainerActive : ComboboxButtonContainer}
                         >
                             {isUpButton ? (
