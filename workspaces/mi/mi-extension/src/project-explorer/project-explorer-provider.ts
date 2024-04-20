@@ -158,6 +158,7 @@ function generateTreeDataOfArtifacts(project: vscode.WorkspaceFolder, data: Proj
 			artifacts[key].path = path.join(project.uri.fsPath, 'src', 'main', 'wso2mi', 'artifacts', key);
 			let icon = 'folder';
 			let label = key;
+			let connectionEntry;
 
 			switch (key) {
 				case 'apis':
@@ -175,6 +176,8 @@ function generateTreeDataOfArtifacts(project: vscode.WorkspaceFolder, data: Proj
 				case 'localEntries':
 					icon = 'settings';
 					label = 'Local Entries';
+					connectionEntry = generateConnectionEntry(artifacts[key]);
+					connectionEntry.info = artifacts[key];
 					break;
 				case 'messageStores':
 					icon = 'database';
@@ -230,6 +233,8 @@ function generateTreeDataOfArtifacts(project: vscode.WorkspaceFolder, data: Proj
 			parentEntry.children = children;
 			parentEntry.contextValue = key;
 			parentEntry.id = `${project.name}/${key}`;
+
+			connectionEntry ? parentEntry.children?.push(connectionEntry) : null;
 
 			projectRoot.children = projectRoot.children ?? [];
 			projectRoot.children.push(parentEntry);
@@ -456,13 +461,70 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 		// 	};
 		// } 
 		else {
-			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, 'code');
+			if (entry.name) {
+				explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, 'code');
+			}
 		}
 
 		result.push(explorerEntry);
 	}
 
 	return result;
+}
+
+function generateConnectionEntry(connectionsData: any): ProjectExplorerEntry {
+	const connectionsEntry = new ProjectExplorerEntry(
+		"Connections",
+		isCollapsibleState(true),
+		connectionsData,
+		'vm-connect'
+	);
+	connectionsEntry.contextValue = 'connections';
+	connectionsEntry.id = 'connections';
+
+	for (const entry of connectionsData) {
+		if (!entry.type) {
+			for (const [key, connectionsArray] of Object.entries(entry)) {
+					const connectionTypeEntry = new ProjectExplorerEntry(
+						key,
+						isCollapsibleState((connectionsArray as any[]).length > 0),
+						{
+							name: key,
+							type: 'connections',
+							path: (connectionsArray as any)[0].path
+						},
+						'link-external'
+					);
+					connectionTypeEntry.contextValue = key;
+					connectionTypeEntry.id = key;
+
+					for (const connection of (connectionsArray as any)) {
+						const connectionEntry = new ProjectExplorerEntry(
+							connection.name,
+							isCollapsibleState(false),
+							connection,
+							'code'
+						);
+						connectionEntry.contextValue = 'connection';
+						connectionEntry.id = connection.name;
+
+						connectionEntry.command = {
+							"title": "Show Connection",
+							"command": COMMANDS.SHOW_CONNECTION,
+							"arguments": [vscode.Uri.parse(connection.path), undefined, false]
+						};
+
+						connectionTypeEntry.children = connectionTypeEntry.children ?? [];
+						connectionTypeEntry.children.push(connectionEntry);
+
+					}
+					connectionsEntry.children = connectionsEntry.children ?? [];
+					connectionsEntry.children.push(connectionTypeEntry);
+				}
+			}
+		}
+
+	return connectionsEntry;
 }
 
 function genRegistryProjectStructureEntry(data: RegistryResourcesFolder): ProjectExplorerEntry[] {
