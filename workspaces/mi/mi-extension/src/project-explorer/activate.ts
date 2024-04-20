@@ -186,7 +186,7 @@ export function activateProjectExplorer(context: ExtensionContext) {
 					if (!projectResources) return;
 
 					for (const projectResource of projectResources) {
-						const fileEntry = projectResource.children?.find((file) => file.info?.path === viewLocation.documentUri);
+						const fileEntry = projectResource.children?.find((file) => file !== undefined && file.info?.path === viewLocation.documentUri);
 						if (fileEntry) {
 							projectTree.reveal(fileEntry, { select: true });
 

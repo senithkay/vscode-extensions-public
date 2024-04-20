@@ -177,6 +177,7 @@ function generateTreeDataOfArtifacts(project: vscode.WorkspaceFolder, data: Proj
 					icon = 'settings';
 					label = 'Local Entries';
 					connectionEntry = generateConnectionEntry(artifacts[key]);
+					connectionEntry.info = artifacts[key];
 					break;
 				case 'messageStores':
 					icon = 'database';
@@ -478,7 +479,11 @@ function generateConnectionEntry(connectionsData: any): ProjectExplorerEntry {
 					const connectionTypeEntry = new ProjectExplorerEntry(
 						key,
 						isCollapsibleState((connectionsArray as any[]).length > 0),
-						(connectionsArray as any),
+						{
+							name: key,
+							type: 'connections',
+							path: (connectionsArray as any)[0].path
+						},
 						'link-external'
 					);
 					connectionTypeEntry.contextValue = key;
