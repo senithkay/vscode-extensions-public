@@ -77,22 +77,23 @@ export function FailoverWizard(props: FailoverWizardProps) {
     const [artifactNames, setArtifactNames] = useState([]);
     const [registryPaths, setRegistryPaths] = useState([]);
     const [endpoints, setEndpoints] = useState<Endpoint[]>([]);
-    const [existingEndpoints, setExistingEndpoints] = useState<string[]>([]);
-    const [existingArtifactNames, setExistingArtifactNames] = useState<string[]>([]);
     const [expandEndpointsView, setExpandEndpointsView] = useState<boolean>(false);
     const [showAddNewEndpointView, setShowAddNewEndpointView] = useState<boolean>(false);
     const [newEndpoint, setNewEndpoint] = useState<Endpoint>(initialInlineEndpoint);
     const [savedEPName, setSavedEPName] = useState<string>("");
+    const [workspaceFileNames, setWorkspaceFileNames] = useState([]);
 
     const schema = yup.object({
-        name: yup.string().required("Endpoint name is required").matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in Endpoint name")
+        name: yup.string().required("Endpoint name is required")
+            .matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in Endpoint Name")
             .test('validateEndpointName',
-                'Endpoint file name already exists', value => {
-                    return !isNewEndpoint ? !(existingEndpoints.includes(value) && value !== savedEPName) : !existingEndpoints.includes(value);
-                }).test('validateEndpointName',
-                    'Endpoint artifact name already exists', value => {
-                        return !isNewEndpoint ? !(existingArtifactNames.includes(value) && value !== savedEPName) : !existingArtifactNames.includes(value);
-                    }),
+                'An artifact with same name already exists', value => {
+                    return !isNewEndpoint ? !(workspaceFileNames.includes(value) && value !== savedEPName) : !workspaceFileNames.includes(value);
+                })
+            .test('validateEndpointArtifactName',
+                'A registry resource with this artifact name already exists', value => {
+                    return !isNewEndpoint ? !(artifactNames.includes(value) && value !== savedEPName) : !artifactNames.includes(value);
+                }),
         buildMessage: yup.string().required("Build Message is required"),
         description: yup.string(),
         endpoints: yup.array(),
@@ -103,10 +104,15 @@ export function FailoverWizard(props: FailoverWizardProps) {
             then: () =>
                 yup.string().notRequired(),
             otherwise: () =>
-                yup.string().required("Artifact Name is required").test('validateArtifactName',
-                    'Artifact name already exists', value => {
-                        return !artifactNames.includes(value);
-                    }),
+                yup.string().required("Artifact Name is required")
+                    .test('validateArtifactName',
+                        'Artifact name already exists', value => {
+                            return !artifactNames.includes(value);
+                        })
+                    .test('validateFileName',
+                        'A file already exists in the workspace with this artifact name', value => {
+                            return !workspaceFileNames.includes(value);
+                        }),
         }),
         registryPath: yup.string().when('saveInReg', {
             is: false,
@@ -177,25 +183,13 @@ export function FailoverWizard(props: FailoverWizardProps) {
             })();
         }
         (async () => {
-            const endpointResponse = await rpcClient.getMiDiagramRpcClient().getAvailableResources({
-                documentIdentifier: props.path,
-                resourceType: "endpoint",
-            });
-            let endpointArtifactNamesArr = [];
-            if (endpointResponse.resources) {
-                const endpointNames = endpointResponse.resources.map((resource) => resource.name);
-                endpointArtifactNamesArr.push(...endpointNames);
-                const epPaths = endpointResponse.resources.map((resource) => resource.artifactPath.replace(".xml", ""));
-                setExistingEndpoints(epPaths);
-            }
-            if (endpointResponse.registryResources) {
-                const registryKeys = endpointResponse.registryResources.map((resource) => resource.name);
-                endpointArtifactNamesArr.push(...registryKeys);
-            }
-            setExistingArtifactNames(endpointArtifactNamesArr);
             const result = await getArtifactNamesAndRegistryPaths(props.path, rpcClient);
             setArtifactNames(result.artifactNamesArr);
             setRegistryPaths(result.registryPaths);
+            const artifactRes = await rpcClient.getMiDiagramRpcClient().getAllArtifacts({
+                path: props.path,
+            });
+            setWorkspaceFileNames(artifactRes.artifacts);
         })();
     }, [props.path]);
 
