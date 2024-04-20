@@ -433,7 +433,11 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 			};
 
 		} else if (entry.type === "LOCAL_ENTRY") {
-			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, 'code');
+			let icon = 'code';
+			if (entry.isRegistryResource) {
+				icon = 'file-code';
+			}
+			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, icon);
 			explorerEntry.contextValue = 'localEntry';
 			explorerEntry.command = {
 				"title": "Show Local Entry",

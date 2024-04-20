@@ -207,10 +207,12 @@ export interface CreateLocalEntryRequest {
     type: string;
     value: string;
     URL: string;
+    getContentOnly: boolean;
 }
 
 export interface CreateLocalEntryResponse {
-    path: string;
+    fileContent: string;
+    filePath: string;
 }
 
 export interface GetLocalEntryRequest {
@@ -238,11 +240,11 @@ export interface CreateMessageStoreRequest {
     jndiQueueName: string;
     userName: string;
     password: string;
-    cacheConnection: string;
+    cacheConnection: boolean;
     jmsAPIVersion: string;
     rabbitMQServerHostName: string;
     rabbitMQServerPort: string;
-    sslEnabled: string;
+    sslEnabled: boolean;
     trustStoreLocation: string;
     trustStoreType: string;
     trustStorePassword: string;
@@ -262,7 +264,7 @@ export interface CreateMessageStoreRequest {
     queueConnectionFactory: string;
     pollingCount: string;
     xPath: string;
-    enableProducerGuaranteedDelivery: string;
+    enableProducerGuaranteedDelivery: boolean;
     providerClass: string;
     customParameters: Record[];
     failOverMessageStore: string;
@@ -281,7 +283,7 @@ export interface GetMessageStoreResponse {
     jndiQueueName: string;
     userName: string;
     password: string;
-    cacheConnection: string;
+    cacheConnection: boolean;
     jmsAPIVersion: string;
     rabbitMQServerHostName: string;
     rabbitMQServerPort: string;
