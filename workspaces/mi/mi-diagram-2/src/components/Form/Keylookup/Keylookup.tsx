@@ -8,7 +8,7 @@
  */
 
 import React, { useEffect, useState } from "react";
-import { AutoComplete, ErrorBanner, ItemComponent } from "@wso2-enterprise/ui-toolkit";
+import { AutoComplete, ErrorBanner, getItemKey, ItemComponent } from "@wso2-enterprise/ui-toolkit";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import styled from "@emotion/styled";
 import { VSCodeTag } from "@vscode/webview-ui-toolkit/react";
@@ -21,7 +21,20 @@ type FilterType =
     | "messageProcessor"
     | "task"
     | "sequenceTemplate"
-    | "endpointTemplate";
+    | "endpointTemplate"
+    | "dataService"
+    | "dataSource"
+    | "localEntry"
+    | "dataMapper"
+    | "js"
+    | "json"
+    | "smooksConfig"
+    | "wsdl"
+    | "ws_policy"
+    | "xsd"
+    | "xsl"
+    | "xslt"
+    | "yaml";
 
 // Interfaces
 export interface IKeylookup {
@@ -36,6 +49,7 @@ export interface IKeylookup {
     sx?: React.CSSProperties;
     borderBox?: boolean;
     errorMsg?: string;
+    value?: string;
     onValueChange?: (item: string, index?: number) => void;
     name?: string;
     onBlur?: React.FocusEventHandler<HTMLInputElement>;
@@ -61,6 +75,7 @@ const ItemContainer = styled.div({
     display: "flex",
     alignItems: "center",
     gap: "4px",
+    height: "22px"
 });
 
 const StyledTag = styled(VSCodeTag)({
@@ -83,9 +98,18 @@ const getItemComponent = (item: string, type?: "reg:") => {
 };
 
 export const Keylookup = (props: IKeylookup) => {
-    const { filter, filterType, onValueChange, allowItemCreate = true, path, errorMsg, ...rest } = props;
-    const [items, setItems] = useState<ItemComponent[]>([]);
-    const [value, setValue] = useState<string | undefined>(undefined);
+    const {
+        filter,
+        filterType,
+        value: initialValue,
+        onValueChange,
+        allowItemCreate = true,
+        path,
+        errorMsg,
+        ...rest
+    } = props;
+    const [items, setItems] = useState<(string | ItemComponent)[]>([]);
+    const [value, setValue] = useState<string | undefined>(initialValue);
     const { rpcClient } = useVisualizerContext();
 
     useEffect(() => {
@@ -95,24 +119,33 @@ export const Keylookup = (props: IKeylookup) => {
                 resourceType: filterType,
             });
 
-            let workspaceItems: ItemComponent[];
-            let registryItems: ItemComponent[];
+            let workspaceItems: ItemComponent[] = [];
+            let registryItems: ItemComponent[] = [];
+            let initialItem: ItemComponent;
             if (result?.resources) {
-                workspaceItems = result.resources.map((resource) => ({
-                    key: resource.name,
-                    item: getItemComponent(resource.name),
-                }));
+                result.resources.forEach((resource) => {
+                    const item = { key: resource.name, item: getItemComponent(resource.name) };
+                    if (resource.name === initialValue) {
+                        initialItem = item;
+                        return;
+                    }
+                    workspaceItems.push(item);
+                });
             }
             if (result?.registryResources) {
-                registryItems = result.registryResources.map((resource) => ({
-                    key: resource.registryKey,
-                    item: getItemComponent(resource.registryKey, "reg:"),
-                }));
+                result.registryResources.forEach((resource) => {
+                    const item = { key: resource.registryKey, item: getItemComponent(resource.registryKey, "reg:") };
+                    if (resource.registryKey === initialValue) {
+                        initialItem = item;
+                        return;
+                    }
+                    registryItems.push(item);
+                });
             }
 
-            let items = [...workspaceItems, ...registryItems];
+            let items = [initialValue && (initialItem || initialValue), ...workspaceItems, ...registryItems];
             if (filter) {
-                items = items.filter((item) => filter(item.key));
+                items = items.filter((item) => filter(getItemKey(item)));
             }
             setItems(items);
         };
@@ -134,9 +167,7 @@ export const Keylookup = (props: IKeylookup) => {
                 items={items}
                 allowItemCreate={allowItemCreate}
             />
-            {errorMsg && (
-                <ErrorBanner errorMsg={errorMsg} />
-            )}
+            {errorMsg && <ErrorBanner errorMsg={errorMsg} />}
         </Container>
     );
 };
@@ -144,8 +175,8 @@ export const Keylookup = (props: IKeylookup) => {
 export const FormKeylookup = <T extends FieldValues>(props: IFormKeylookup<T>) => {
     const { control, name, ...rest } = props;
     const {
-        field: { onChange },
+        field: { value, onChange },
     } = useController({ name, control });
 
-    return <Keylookup {...rest} onValueChange={onChange} />;
+    return <Keylookup {...rest} value={value} onValueChange={onChange} />;
 };
