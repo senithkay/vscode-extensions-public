@@ -226,6 +226,14 @@ export function activateProjectExplorer(context: ExtensionContext) {
 		revealWebviewPanel(beside);
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.LocalEntryForm, documentUri: documentUri?.fsPath });
 	});
+	commands.registerCommand(COMMANDS.SHOW_CONNECTION, async (documentUri: Uri, beside: boolean = true) => {
+		revealWebviewPanel(beside);
+		if (documentUri) {
+			let doc = await workspace.openTextDocument(documentUri);
+			let viewColumn = window.activeTextEditor ? ViewColumn.Beside : ViewColumn.Active;
+			await window.showTextDocument(doc, { viewColumn: viewColumn });
+		}
+	});
 	commands.registerCommand(COMMANDS.SHOW_DATA_SOURCE, (documentUri: Uri, resourceIndex: string, beside: boolean = true) => {
 		revealWebviewPanel(beside);
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.DataSourceForm, documentUri: documentUri?.fsPath });
