@@ -305,11 +305,13 @@ export const AutoComplete = React.forwardRef<HTMLInputElement, AutoCompleteProps
                         ref={ref}
                     >
                         <DropdownContainer
+                            // condition to display the dropdown
                             display={!(filteredResults.length === 0 && query !== "" && allowItemCreate)}
                             widthOffset={widthOffset}
                             dropdownWidth={dropdownWidth}
                         >
                             <Combobox.Options>
+                                {/* A hidden Combobox.Option which is used to create a new item */}
                                 {filteredResults.length === 0 && query !== "" ? (
                                     allowItemCreate ? (
                                         <ComboboxOption key={0}>
@@ -322,6 +324,10 @@ export const AutoComplete = React.forwardRef<HTMLInputElement, AutoCompleteProps
                                     )
                                 ) : (
                                     <Fragment>
+                                        {/**
+                                         * A hidden Combobox.Option which is used to create a new item when the query is a
+                                         * substring of the filtered results
+                                        **/}
                                         {allowItemCreate && extactMatch.length === 0 && (
                                             <ComboboxOption display={false} key={0}>
                                                 <Combobox.Option className={ComboboxOptionContainer} value={query} key={0}>
