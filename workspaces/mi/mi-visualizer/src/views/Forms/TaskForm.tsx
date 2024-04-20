@@ -29,7 +29,7 @@ type InputsFields = {
     group?: string;
     implementation?: string;
     pinnedServers?: string;
-    triggerType?: "simple" | "cron";
+    triggerType?: string;
     triggerCount?: number;
     triggerInterval?: number;
     triggerCron?: string;
@@ -46,33 +46,35 @@ const initialInboundEndpoint: InputsFields = {
     triggerCron: ""
 };
 
-const schema = yup.object({
-    
-    name: yup.string().required("Task Name is required").matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in Task name"),
-    group: yup.string().required("Task group is required"),
-    implementation: yup.string().required("Task Implementation is required"),
-    pinnedServers: yup.string(),
-    triggerType: yup.mixed().oneOf(["simple", "cron"]),
-    triggerCount: yup.number().when('triggerType', {
-        is: 'simple',
-        then: (schema) => schema.typeError('Trigger count must be a number').min(1, "Trigger count must be greater than 0"),
-        otherwise: (schema) => schema.notRequired().default(1),
-    }),
-    triggerInterval: yup.number().when('triggerType', {
-        is: 'simple',
-        then: (schema) => schema.required('Trigger Interval is required').typeError('Trigger count must be a number').min(1, "Trigger count must be greater than 1"),
-        otherwise: (schema) => schema.notRequired().default(1),
-    }),
-    triggerCron: yup.string().when('triggerType', {
-        is: 'cron',
-        then: (schema) => schema.required("Trigger cron is required"),
-        otherwise: (schema) => schema.notRequired().default(''),
-    })
-})
-
 export function TaskForm(props: TaskFormProps) {
 
-    const { rpcClient } = useVisualizerContext();
+    const schema = yup.object({
+        name: yup.string().required("Task Name is required")
+            .matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in Task name")
+            .test('validateTaskName',
+                'Task with same name already exists', value => {
+                    return !isNewTask ? !(tasks.includes(value) && value !== savedTaskName) : !tasks.includes(value);
+                }),
+        group: yup.string().required("Task group is required"),
+        implementation: yup.string().required("Task Implementation is required"),
+        pinnedServers: yup.string(),
+        triggerType: yup.mixed().oneOf(["simple", "cron"]),
+        triggerCount: yup.mixed().when('triggerType', {
+            is: 'simple',
+            then: () => yup.number().typeError('Trigger count must be a number').min(1, "Trigger count must be greater than 0"),
+            otherwise: () => yup.string().notRequired().default("1")
+        }),
+        triggerInterval: yup.number().when('triggerType', {
+            is: 'simple',
+            then: () => yup.number().required('Trigger Interval is required').typeError('Trigger count must be a number').min(1, "Trigger count must be greater than 1"),
+            otherwise: () => yup.string().notRequired().default("1")
+        }),
+        triggerCron: yup.string().when('triggerType', {
+            is: 'cron',
+            then: (schema) => schema.required("Trigger cron is required"),
+            otherwise: (schema) => schema.notRequired().default(''),
+        })
+    })
 
     const {
         reset,
@@ -86,23 +88,35 @@ export function TaskForm(props: TaskFormProps) {
         mode: "onChange"
     });
 
+    const { rpcClient } = useVisualizerContext();
     const [isNewTask, setIsNewTask] = useState(true);
+    const [tasks, setTasks] = useState([]);
+    const [savedTaskName, setSavedTaskName] = useState<string>("");
+    const formTitle = isNewTask
+        ? "Create new Scheduled Task"
+        : "Edit Scheduled Task : " + props.path.replace(/^.*[\\/]/, '').split(".")[0];
 
     useEffect(() => {
-        if (props.path && props.path.endsWith(".xml")) {
-            (async () => {
+        (async () => {
+            const taskResponse = await rpcClient.getMiDiagramRpcClient().getAvailableResources({
+                documentIdentifier: props.path,
+                resourceType: "task",
+            });
+
+            if (taskResponse.resources) {
+                const resources = taskResponse.resources.map((resource) => resource.name);
+                setTasks(resources);
+            }
+            if (props.path && props.path.endsWith(".xml")) {
                 const taskRes = await rpcClient.getMiDiagramRpcClient().getTask({ path: props.path });
                 if (taskRes.name) {
                     setIsNewTask(false);
                     reset(taskRes);
+                    setSavedTaskName(taskRes.name);
                 }
-            })();
-        }
+            }
+        })();
     }, [props.path]);
-
-    const formTitle = isNewTask
-        ? "Create new Scheduled Task"
-        : "Edit Scheduled Task : " + props.path.replace(/^.*[\\/]/, '').split(".")[0];
 
     const renderProps = (fieldName: keyof InputsFields) => {
         return {
@@ -110,14 +124,6 @@ export function TaskForm(props: TaskFormProps) {
             ...register(fieldName),
             errorMsg: errors[fieldName] && errors[fieldName].message.toString()
         }
-    };
-
-    const openOverview = () => {
-        rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Overview } });
-    };
-
-    const handleOnClose = () => {
-        rpcClient.getMiVisualizerRpcClient().goBack();
     };
 
     const handleCreateTask = async (values: any) => {
@@ -129,8 +135,12 @@ export function TaskForm(props: TaskFormProps) {
         openOverview();
     };
 
+    const openOverview = () => {
+        rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Overview } });
+    };
+
     return (
-        <FormView title={formTitle} onClose={handleOnClose}>
+        <FormView title={formTitle} onClose={openOverview}>
             <TextField
                 required
                 autoFocus

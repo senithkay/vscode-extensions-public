@@ -71,10 +71,12 @@ export interface UpdateLoadBalanceEPRequest {
     description: string;
     endpoints: { type: string; value: string; }[];
     properties: { name: string; value: string; scope: string; }[];
+    getContentOnly: boolean;
 }
 
 export interface UpdateLoadBalanceEPResponse {
     path: string;
+    content: string;
 }
 
 export interface GetLoadBalanceEPRequest {
@@ -152,10 +154,12 @@ export interface UpdateTemplateEPRequest {
     template: string;
     description: string;
     parameters: { name: string; value: string; }[];
+    getContentOnly: boolean;
 }
 
 export interface UpdateTemplateEPResponse {
     path: string;
+    content: string;
 }
 
 export interface GetTemplateEPRequest {
@@ -203,10 +207,12 @@ export interface CreateLocalEntryRequest {
     type: string;
     value: string;
     URL: string;
+    getContentOnly: boolean;
 }
 
 export interface CreateLocalEntryResponse {
-    path: string;
+    fileContent: string;
+    filePath: string;
 }
 
 export interface GetLocalEntryRequest {
@@ -234,11 +240,11 @@ export interface CreateMessageStoreRequest {
     jndiQueueName: string;
     userName: string;
     password: string;
-    cacheConnection: string;
+    cacheConnection: boolean;
     jmsAPIVersion: string;
     rabbitMQServerHostName: string;
     rabbitMQServerPort: string;
-    sslEnabled: string;
+    sslEnabled: boolean;
     trustStoreLocation: string;
     trustStoreType: string;
     trustStorePassword: string;
@@ -258,7 +264,7 @@ export interface CreateMessageStoreRequest {
     queueConnectionFactory: string;
     pollingCount: string;
     xPath: string;
-    enableProducerGuaranteedDelivery: string;
+    enableProducerGuaranteedDelivery: boolean;
     providerClass: string;
     customParameters: Record[];
     failOverMessageStore: string;
@@ -277,7 +283,7 @@ export interface GetMessageStoreResponse {
     jndiQueueName: string;
     userName: string;
     password: string;
-    cacheConnection: string;
+    cacheConnection: boolean;
     jmsAPIVersion: string;
     rabbitMQServerHostName: string;
     rabbitMQServerPort: string;
@@ -317,6 +323,7 @@ export interface CreateProjectRequest {
     open: boolean;
     groupID?: string;
     artifactID?: string;
+    version?: string;
 }
 
 export interface ImportProjectRequest {
@@ -561,10 +568,12 @@ export interface UpdateHttpEndpointRequest {
     templateName: string;
     requireTemplateParameters: boolean;
     templateParameters: any;
+    getContentOnly: boolean;
 }
 
 export interface UpdateHttpEndpointResponse {
     path: string;
+    content: string;
 }
 
 export interface RetrieveHttpEndpointRequest {
@@ -638,10 +647,12 @@ export interface UpdateAddressEndpointRequest {
     templateName: string;
     requireTemplateParameters: boolean;
     templateParameters: any;
+    getContentOnly: boolean;
 }
 
 export interface UpdateAddressEndpointResponse {
     path: string;
+    content: string;
 }
 
 export interface RetrieveAddressEndpointRequest {
@@ -705,10 +716,12 @@ export interface UpdateWsdlEndpointRequest {
     templateName: string;
     requireTemplateParameters: boolean;
     templateParameters: any;
+    getContentOnly: boolean;
 }
 
 export interface UpdateWsdlEndpointResponse {
     path: string;
+    content: string;
 }
 
 export interface RetrieveWsdlEndpointRequest {
@@ -771,10 +784,12 @@ export interface UpdateDefaultEndpointRequest {
     templateName: string;
     requireTemplateParameters: boolean;
     templateParameters: any;
+    getContentOnly: boolean;
 }
 
 export interface UpdateDefaultEndpointResponse {
     path: string;
+    content: string;
 }
 
 export interface RetrieveDefaultEndpointRequest {
@@ -849,10 +864,14 @@ export interface CreateTemplateRequest {
     wsdlUri: string;
     wsdlService: string;
     wsdlPort: number | null;
+    traceEnabled: boolean;
+    statisticsEnabled: boolean;
+    getContentOnly: boolean;
 }
 
 export interface CreateTemplateResponse {
     path: string;
+    content: string;
 }
 
 export interface RetrieveTemplateRequest {
@@ -868,6 +887,8 @@ export interface RetrieveTemplateResponse {
     wsdlUri: string;
     wsdlService: string;
     wsdlPort: number | null;
+    traceEnabled: boolean;
+    statisticsEnabled: boolean;
 }
 
 export interface ProjectRootResponse {
@@ -991,8 +1012,8 @@ export interface BrowseFileRequest {
 
 export interface GetAvailableResourcesRequest {
     documentIdentifier: string;
-    resourceType: "sequence" | "endpoint" | "messageStore" | "messageProcessor" | "task" | "sequenceTemplate" | "endpointTemplate" |
-    "dataService"| "dataSource" | "localEntry" | "dataMapper" | "js" | "json" | "smooksConfig" | "wsdl" | "ws_policy" | "xsd" | "xsl" | "xslt" | "yaml";
+    resourceType: "sequence" | "endpoint" | "messageStore" | "messageProcessor" | "task" | "sequenceTemplate" | "endpointTemplate" | "proxyService" |
+    "dataService" | "dataSource" | "localEntry" | "dataMapper" | "js" | "json" | "smooksConfig" | "wsdl" | "ws_policy" | "xsd" | "xsl" | "xslt" | "yaml";
 }
 
 export interface GetAvailableResourcesResponse {
@@ -1017,6 +1038,9 @@ export interface ListRegistryArtifactsRequest {
 }
 export interface ListRegistryArtifactsResponse {
     artifacts: RegistryArtifact[];
+}
+export interface RegistryArtifactNamesResponse {
+    artifacts: string[];
 }
 export interface RegistryArtifact {
     name: string;
@@ -1105,6 +1129,10 @@ export interface GetIconPathUriResponse {
     uri: any;
 }
 
+export interface GetUserAccessTokenResponse {
+    token: string;
+}
+
 export interface CreateConnectionRequest {
     connectionName: string;
     keyValuesXML: string;
@@ -1128,4 +1156,19 @@ export interface GetConnectorConnectionsRequest {
 
 export interface GetConnectorConnectionsResponse {
     connections?: ConnectorConnection[]
+}
+
+export interface GetAllRegistryPathsRequest {
+    path: string;
+}
+
+export interface GetAllRegistryPathsResponse {
+    registryPaths: string[];
+}
+export interface GetAllArtifactsRequest {
+    path: string;
+}
+
+export interface GetAllArtifactsResponse {
+    artifacts: string[]
 }

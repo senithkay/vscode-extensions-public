@@ -217,6 +217,10 @@ function generateTreeDataOfArtifacts(project: vscode.WorkspaceFolder, data: Proj
 					break;
 				default:
 			}
+			// TODO: Will introduce back when both data services and data sources are supported
+			if (key === 'dataServices' || key === 'dataSources') {
+				continue;
+			}
 
 			const parentEntry = new ProjectExplorerEntry(
 				label,
@@ -355,10 +359,7 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 			explorerEntry = apiEntry;
 
 		} else if (entry.type === "ENDPOINT") {
-			let icon = 'code';
-			if (entry.isRegistryResource) {
-				icon = 'file-code';
-			}
+			const icon = entry.isRegistryResource ? 'file-code' : 'code';
 			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, icon);
 			explorerEntry.contextValue = 'endpoint';
 			explorerEntry.command = {
@@ -400,7 +401,8 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 			};
 
 		} else if (entry.type === "TEMPLATE") {
-			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, 'code');
+			const icon = entry.isRegistryResource ? 'file-code' : 'code';
+			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, icon);
 			explorerEntry.contextValue = 'template';
 			explorerEntry.command = {
 				"title": "Show Template",
@@ -436,22 +438,29 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 			};
 
 		} else if (entry.type === "LOCAL_ENTRY") {
-			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, 'code');
+			let icon = 'code';
+			if (entry.isRegistryResource) {
+				icon = 'file-code';
+			}
+			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, icon);
 			explorerEntry.contextValue = 'localEntry';
 			explorerEntry.command = {
 				"title": "Show Local Entry",
 				"command": COMMANDS.SHOW_LOCAL_ENTRY,
 				"arguments": [vscode.Uri.parse(entry.path), undefined, false]
 			};
-		} else if (entry.type === "DATA_SOURCE") {
-			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, 'code');
-			explorerEntry.contextValue = 'dataSource';
-			explorerEntry.command = {
-				"title": "Show Data Source",
-				"command": COMMANDS.SHOW_DATA_SOURCE,
-				"arguments": [vscode.Uri.parse(entry.path), undefined, false]
-			};
-		} else {
+		}
+		// TODO: Will introduce back when both data services and data sources are supported
+		// else if (entry.type === "DATA_SOURCE") {
+		// 	explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, 'code');
+		// 	explorerEntry.contextValue = 'dataSource';
+		// 	explorerEntry.command = {
+		// 		"title": "Show Data Source",
+		// 		"command": COMMANDS.SHOW_DATA_SOURCE,
+		// 		"arguments": [vscode.Uri.parse(entry.path), undefined, false]
+		// 	};
+		// } 
+		else {
 			if (entry.name) {
 				explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, 'code');
 			}

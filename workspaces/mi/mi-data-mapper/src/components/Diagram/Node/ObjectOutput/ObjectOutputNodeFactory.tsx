@@ -37,7 +37,7 @@ export class ExpressionFunctionBodyFactory extends AbstractReactFactory<ObjectOu
 						id={`${OBJECT_OUTPUT_TARGET_PORT_PREFIX}${event.model.rootName ? `.${event.model.rootName}` : ''}`}
 						dmTypeWithValue={event.model.dmTypeWithValue}
 						typeName={event.model.typeName}
-						value={event.model.value.getExpression()}
+						value={event.model.value && event.model.value.getExpression()}
 						getPort={(portId: string) => event.model.getPort(portId) as InputOutputPortModel}
 						context={event.model.context}
 						mappings={event.model.mappings}

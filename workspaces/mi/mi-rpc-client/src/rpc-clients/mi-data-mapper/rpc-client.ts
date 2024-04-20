@@ -9,13 +9,10 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
-    GetFileContentRequest,
-    GetFileContentResponse,
     IOTypeRequest,
     IOTypeResponse,
     MIDataMapperAPI,
     UpdateFileContentRequest,
-    getFileContent,
     getIOTypes,
     updateFileContent
 } from "@wso2-enterprise/mi-core";
@@ -31,10 +28,6 @@ export class MiDataMapperRpcClient implements MIDataMapperAPI {
 
     getIOTypes(params: IOTypeRequest): Promise<IOTypeResponse> {
         return this._messenger.sendRequest(getIOTypes, HOST_EXTENSION, params);
-    }
-
-    getFileContent(params: GetFileContentRequest): Promise<GetFileContentResponse> {
-        return this._messenger.sendRequest(getFileContent, HOST_EXTENSION, params);
     }
 
     updateFileContent(params: UpdateFileContentRequest): void {

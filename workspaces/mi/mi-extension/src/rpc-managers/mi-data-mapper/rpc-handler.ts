@@ -9,9 +9,7 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
-    GetFileContentRequest,
     IOTypeRequest,
-    getFileContent,
     getIOTypes,
     updateFileContent,
     UpdateFileContentRequest
@@ -22,6 +20,5 @@ import { MiDataMapperRpcManager } from "./rpc-manager";
 export function registerMiDataMapperRpcHandlers(messenger: Messenger) {
     const rpcManger = new MiDataMapperRpcManager();
     messenger.onRequest(getIOTypes, (args: IOTypeRequest) => rpcManger.getIOTypes(args));
-    messenger.onRequest(getFileContent, (args: GetFileContentRequest) => rpcManger.getFileContent(args));
     messenger.onNotification(updateFileContent, (args: UpdateFileContentRequest) => rpcManger.updateFileContent(args));
 }

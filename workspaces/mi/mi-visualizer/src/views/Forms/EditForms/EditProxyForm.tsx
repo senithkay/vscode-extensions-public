@@ -10,13 +10,13 @@ import React, { useEffect, useState } from "react";
 import {
     Button,
     TextField,
-    CheckBox,
     CheckBoxGroup,
     Dropdown,
     ParamConfig,
     ParamManager,
     FormGroup,
     FormActions,
+    FormCheckBox,
     FormView,
     Dialog
 } from "@wso2-enterprise/ui-toolkit";
@@ -36,23 +36,6 @@ export type Protocol = "http" | "https";
 
 export type Method = "get" | "post" | "put" | "delete" | "patch" | "head" | "options";
 
-const schema = yup
-    .object({
-        name: yup.string().required("Task Name is required").matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in Message Store name"),
-        transports: yup.string().required("Transports are required"),
-        wsdlType: yup.string(),
-        wsdlInLine: yup.string().required().when('wsdlType', {
-            is: "INLINE",
-            then: (schema)=>schema.required("Inline WSDL is required"),
-            otherwise: (schema)=>schema.notRequired()
-        }),
-        wsdlUrl: yup.string().required().when('wsdlType', {
-            is: "SOURCE_URL",
-            then: (schema)=>schema.required("URL is required").matches(/^(https?:\/\/)?www\.[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$/i, "Invalid URL"),
-            otherwise: (schema)=>schema.notRequired()
-        }),         
-    })
-
 type InputsFields = {
     name?: string;
     pinnedServers?: string;
@@ -61,6 +44,17 @@ type InputsFields = {
     statistics?: boolean;
     startOnLoad?: boolean;
     transports?: string;
+    transport?: {
+        http: boolean;
+        https: boolean;
+        jms: boolean;
+        vfs: boolean;
+        local: boolean;
+        malito: boolean;
+        fix: boolean;
+        rabbitmq: boolean;
+        hl7: boolean;
+    };
     enableAddressing?: boolean;
     endpointType?: string;
     endpoint?: string;
@@ -159,21 +153,6 @@ export type ProxyProps = {
     onSave: (data: EditProxyForm) => void;
 };
 
-const ActionContainer = styled.div`
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-end;
-    gap: 10px;
-    padding-bottom: 20px;
-`;
-
-const SidePanelBodyWrapper = styled.div`
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    padding: 20px;
-`;
-
 const CheckBoxContainer = styled.div`
     display: flex;
     flex-direction: column;
@@ -183,7 +162,6 @@ const CheckBoxContainer = styled.div`
 const ContentSeperator = styled.div`
     padding: 10px 10px;
     border-bottom: 0.5px solid #e0e0e0;
-    width: 80%;
     justify-content: center;
 `;
 
@@ -209,6 +187,31 @@ namespace Section {
 
 export function EditProxyForm({ proxyData, isOpen, documentUri, onCancel, onSave }: ProxyProps) {
     const { rpcClient } = useVisualizerContext();
+    const [proxyNames, setProxyNames] = useState<string[]>([]);
+    const [proxyArtifactsNames, setProxyArtifactsNames] = useState<string[]>([]);
+    const schema = yup
+    .object({
+        name: yup.string().required("Proxy  Name is required").matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in Proxy name")
+              .test('validateMessageStoreName',
+              'Message Store file name already exists', value => {
+                  return !proxyNames.includes(value)
+              }).test('validateMessageStoreName',
+                  'Message Store artifact name already exists', value => {
+                      return !proxyArtifactsNames.includes(value)
+                  }),
+        wsdlType: yup.string(),
+        transports: yup.string().required("Transports are required"),
+        wsdlInLine: yup.string().required().when('wsdlType', {
+            is: "INLINE",
+            then: (schema)=>schema.required("Inline WSDL is required"),
+            otherwise: (schema)=>schema.notRequired()
+        }),
+        wsdlUrl: yup.string().required().when('wsdlType', {
+            is: "SOURCE_URL",
+            then: (schema)=>schema.required("URL is required").matches(/^(?:(file):\/[^\s$.?#]+\.wsdl|(?:https?|tcp):\/\/[^\s$.?#]+(:[0-9]{1,5})?\.?[^\s]*$)/, "Invalid URL"),
+            otherwise: (schema)=>schema.notRequired()
+        }),         
+    })
     const initialProxy:InputsFields = {
         name: proxyData?.name ?? "",
         pinnedServers: proxyData.pinnedServers ?? "",
@@ -217,6 +220,17 @@ export function EditProxyForm({ proxyData, isOpen, documentUri, onCancel, onSave
         statistics: proxyData.statistics,
         startOnLoad: proxyData.startOnLoad ?? false,
         transports: proxyData.transports,
+        transport: {
+            http: proxyData.transports.includes("http"),
+            https: proxyData.transports.includes("https"),
+            jms: proxyData.transports.includes("jms"),
+            vfs: proxyData.transports.includes("vfs"),
+            local: proxyData.transports.includes("local"),
+            malito: proxyData.transports.includes("malito"),
+            fix: proxyData.transports.includes("fix"),
+            rabbitmq: proxyData.transports.includes("rabbitmq"),
+            hl7: proxyData.transports.includes("hl7"),
+        },
         enableAddressing: proxyData.enableAddressing?.hasTextNode ?? false,
         endpointType :  proxyData.target?.endpointAttribute ? "named" : "inline",
         endpoint: proxyData.target?.endpointAttribute ,
@@ -243,22 +257,12 @@ export function EditProxyForm({ proxyData, isOpen, documentUri, onCancel, onSave
         handleSubmit,
         getValues,
         watch,
+        control,
         setValue
     } = useForm<InputsFields>({
         defaultValues: initialProxy,
-        resolver: yupResolver(schema),
+        resolver: yupResolver(schema), 
         mode: "onChange"
-    });
-    const [transports, setTransports] = useState({
-        http: false,
-        https: false,
-        jms: false,
-        vfs:false,
-        local: false,
-        malito: false,
-        fix: false,
-        rabbitmq: false,
-        hl7: false,
     });
     const [sequences, setSequences] = useState<string[]>([]);
     const [endpoints, setEndpoints] = useState<string[]>([]);
@@ -408,42 +412,15 @@ export function EditProxyForm({ proxyData, isOpen, documentUri, onCancel, onSave
             }
         })};
         type === "parameters" ? setParams(modifiedParams) : type === "policies" ? setPolicies(modifiedParams) : setResources(modifiedParams);
-        if (type === "policies") {
-            if (policyRegistries.length === 0) {
-                setResourceType("policy");
-                setResourceAvailability(false);
-            } else {
-                setResourceAvailability(true);
-            }
-        }
-        console.log(params);
     };
 
     const renderProps = (fieldName: keyof InputsFields) => {
         return {
             id: fieldName,
-            value: watch(fieldName) ? String(watch(fieldName)) : '',
             ...register(fieldName),
             errorMsg: errors[fieldName] && errors[fieldName].message.toString()
         }
     };
-
-    const renderCheckBoxProps = (fieldName: keyof InputsFields) => {
-        return {
-            value: fieldName,
-            checked: watch(fieldName) as boolean,
-            onChange: (event: any) => setValue(fieldName, event)
-        }
-    };
-
-    const onChangeTransports = (key:string, value:boolean) => {
-        setTransports((prev) => {
-            return {
-                ...prev,
-                [key]: value,
-            }
-        })          
-    }
 
     const handleMessage = (text: string, isError: boolean) => {
         setMessage({
@@ -460,7 +437,7 @@ export function EditProxyForm({ proxyData, isOpen, documentUri, onCancel, onSave
         </h2>
         <Button appearance="secondary" onClick={()=> { setResourceAvailability(true)}}>Continue</Button>
         </Dialog>);
-    }
+    }             
 
     const removeDuplicateResources = () => {
         const uniqueResources = wsdlResources?.filter((resource, index, self) =>
@@ -492,10 +469,12 @@ export function EditProxyForm({ proxyData, isOpen, documentUri, onCancel, onSave
         return uniquePolicies;
     };
 
-    const transportGenerator =() =>{
-        const transport = Object.keys(transports).filter((key: string) => transports[key as keyof typeof transports]).join(' ')
+    const transportGenerator = () => {
+        const transport = Object.keys(watch("transport") as Record<string, boolean>)
+            .filter((key) => (watch("transport") as Record<string, boolean>)[key] === true)
+            .join(" ");
         return transport;
-    }
+    };
 
     const parametersParser = () => {
         params.paramValues.map((param: any) => {
@@ -516,18 +495,6 @@ export function EditProxyForm({ proxyData, isOpen, documentUri, onCancel, onSave
             wsdlResources.push({location: resource.parameters[0].value, key: resource.parameters[1].value});
         })
         return removeDuplicateResources();
-    }
-
-    const transportParser =  (transport: string) => {
-        Object.keys(transports).forEach((key: string) => {
-            if(transport.split(' ').includes(key)){
-                setTransports((prev) => ({
-                    ...prev,
-                    [key]: true,
-                }))
-            }
-        })
-        console.log(transports);
     }
 
     const isValidXML = (xmlString: string) => {
@@ -575,7 +542,7 @@ export function EditProxyForm({ proxyData, isOpen, documentUri, onCancel, onSave
 
     React.useEffect(() => {
         (async () => {
-            transportParser(proxyData.transports);
+            //transportParser(proxyData.transports);
             handleXMLInputChange(proxyData.publishWSDL?.inlineWsdl);
             let resources:string[] = []
             const sequence = await rpcClient.getMiDiagramRpcClient().getAvailableResources({
@@ -590,32 +557,33 @@ export function EditProxyForm({ proxyData, isOpen, documentUri, onCancel, onSave
                 documentIdentifier: documentUri,
                 resourceType: "ws_policy",
             });
-            console.log(wsdl_registry);
+            console.log(sequence);
             console.log(policy_registry);
             const endpoint = await rpcClient.getMiDiagramRpcClient().getAvailableResources({
                 documentIdentifier: documentUri,
                 resourceType: "endpoint",
             });
-            console.log(endpoint);
             if (sequences) {
                 const sequenceNames = sequence.resources.map((resource) => resource.name);
-                setSequences(sequenceNames);
+                const registrySequences = sequence.registryResources.map((resource)=>resource.registryKey.replace(".xml",""))
+                setSequences([...sequenceNames,...registrySequences]);
                 setValue("inSequence", sequenceNames[0]);
                 setValue("outSequence", sequenceNames[0]);
                 setValue("faultSequence", sequenceNames[0]);
             }
             if (endpoints) {
                 const endpointNames = endpoint.resources.map((resource) => resource.name);
-                setEndpoints(endpointNames);
+                const registryEndpoints = endpoint.registryResources.map((resource)=>resource.registryKey)
+                setEndpoints([...endpointNames,...registryEndpoints]);
                 setValue("endpoint", endpointNames[0]);
             }
             if(wsdl_registry) {
-                const registryNames = wsdl_registry.registryResources.map((resource) => resource.registryKey.replace(".wsdl", ""));
+                const registryNames = wsdl_registry.registryResources.map((resource) => resource.registryKey);
                 setWsdlRegistries(registryNames);
                 setValue("registryKey", registryNames[0]);
             }
             if(policy_registry) {
-                const policyNames = policy_registry.registryResources.map((resource) => resource.registryKey.replace(".xml", ""));
+                const policyNames = policy_registry.registryResources.map((resource) => resource.registryKey);
                 resources = [...resources, ...policyNames]
                 setPolicyRegistries(policyNames);
                 setValue("wsdlEndpoint", policyNames[0]);
@@ -635,31 +603,27 @@ export function EditProxyForm({ proxyData, isOpen, documentUri, onCancel, onSave
     }, [isOpen, documentUri]);
 
     useEffect(() => {
-        setValue("transports", transportGenerator(), { shouldValidate: true  , shouldDirty: true });
-    }, [transports]);
-
+        (async () => {
+            const proxy = await rpcClient.getMiDiagramRpcClient().getAvailableResources({
+                documentIdentifier: documentUri,
+                resourceType: "proxyService",
+            });
+            console.log(proxy);
+            if(proxy.resources) {
+                const proxyNames = proxy.resources.map((resource: any) => resource.name.replace(proxyData.name, ""));
+                setProxyNames(proxyNames);
+                console.log(proxyNames);
+                const proxyArtifactsNames = proxy.resources.map((resource) => resource.artifactPath.replace(".xml",'').replace(proxyData.name,""));
+                setProxyArtifactsNames(proxyArtifactsNames);
+                console.log(proxyArtifactsNames);
+            }
+        })();
+    }, [proxyData]);
+    
     useEffect(() => {
-        if(( watch("inSequenceType") === "inline" || watch("outSequenceType") === "inline" || watch("faultSequenceType") === "inline" ) && sequences.length === 0) {
-            setResourceType("sequence");
-            setResourceAvailability(false); 
-        }
-        if(watch("endpointType") === "named" && endpoints.length === 0) {
-            setResourceType("endpoint");
-            setResourceAvailability(false);
-        }  
-    }, [watch("inSequenceType"),watch("outSequenceType"),watch("faultSequenceType"),watch("endpointType")]);
-
-    useEffect(() => {
-        if(watch("wsdlType") === "ENDPOINT" && endpoints.length === 0) {
-            setResourceType("endpoint");
-            setResourceAvailability(false);
-        } else if (watch("wsdlType") === "WSDL_REGISTRY" && wsdlRegistries.length === 0) {
-            setResourceType("wsdl");
-            setResourceAvailability(false);
-        } else {
-            setResourceAvailability(true);
-        }
-    }, [watch("wsdlType")]);
+        setValue("transports", transportGenerator(), { shouldValidate: true ,shouldDirty: true });
+        console.log(watch("transports"));
+    }, [watch("transport.http"), watch("transport.https"), watch("transport.jms"), watch("transport.vfs"), watch("transport.local"), watch("transport.malito"), watch("transport.fix"), watch("transport.rabbitmq"), watch("transport.hl7")]);
 
     useEffect(() => {
         if(!isXML) {
@@ -674,7 +638,6 @@ export function EditProxyForm({ proxyData, isOpen, documentUri, onCancel, onSave
 
     return (
         <FormView title="Edit Proxy" onClose={onCancel}>
-                    <h3>Proxy</h3>
                     <TextField
                         label="Name"
                         size={150}
@@ -691,195 +654,200 @@ export function EditProxyForm({ proxyData, isOpen, documentUri, onCancel, onSave
                         {...renderProps("serviceGroup")}
                     />        
                     <CheckBoxGroup columns={3}>
-                        <CheckBox label="Statistics" {...renderCheckBoxProps("statistics")} />
-                        <CheckBox label="Trace" {...renderCheckBoxProps("trace")} />
-                        <CheckBox label="Start On Load" {...renderCheckBoxProps("startOnLoad")} />
+                        <FormCheckBox label="Statistics" {...register("statistics")} control={control} />
+                        <FormCheckBox label="Trace" {...register("trace")} control={control} />
+                        <FormCheckBox label="Start On Load" {...register("startOnLoad")} control={control} />
                     </CheckBoxGroup>
                     <span>Transports</span>
-                    <CheckBoxGroup columns={3} {...register("transports")}>
-                        {Object.keys(transports).map((key) => (
-                            <CheckBox key={key} label={key.toUpperCase()} value={key} checked={transports[key as keyof typeof transports]} onChange={(value) => onChangeTransports(key, value)} />
-                        ))}
+                    <CheckBoxGroup columns={3}  >
+                        <FormCheckBox label="HTTP" {...register("transport.http")} control={control}/>
+                        <FormCheckBox label="HTTPS" {...register("transport.https")} control={control}/>
+                        <FormCheckBox label="JMS" {...register("transport.jms")} control={control}/>
+                        <FormCheckBox label="VFS" {...register("transport.vfs")} control={control}/>
+                        <FormCheckBox label="Local" {...register("transport.local")} control={control}/>
+                        <FormCheckBox label="MailTo" {...register("transport.malito")} control={control}/>
+                        <FormCheckBox label="FIX" {...register("transport.fix")} control={control}/>
+                        <FormCheckBox label="RabbitMQ" {...register("transport.rabbitmq")} control={control}/>
+                        <FormCheckBox label="HL7" {...register("transport.hl7")} control={control}/>
                     </CheckBoxGroup>
                     <span style={{ color:"#f48771" }}>{errors["transports"]?.message.toString()}</span>
                     <FormGroup title="Advanced Options">
-                    <React.Fragment>
-                                <CheckBoxContainer>
-                                    <label>End Point</label>
-                                    <VSCodeRadioGroup
-                                        orientation="horizontal"
-                                        {...renderProps("endpointType")}
-                                    >
-                                        <VSCodeRadio value="inline">In-Line</VSCodeRadio>
-                                        <VSCodeRadio value="named">Named</VSCodeRadio>
-                                    </VSCodeRadioGroup>
-                                </CheckBoxContainer>
-                                {watch("endpointType") === "named" && (
-                                    <Dropdown
+                        <React.Fragment>
+                            <CheckBoxContainer>
+                                <label>End Point</label>
+                                <VSCodeRadioGroup
+                                    orientation="horizontal"
+                                    {...renderProps("endpointType")}
+                                >
+                                    <VSCodeRadio value="inline">In-Line</VSCodeRadio>
+                                    <VSCodeRadio value="named">Named</VSCodeRadio>
+                                </VSCodeRadioGroup>
+                            </CheckBoxContainer>
+                            {watch("endpointType") === "named" && (
+                                <Dropdown
+                                    items={endpoints.map((sequence, index) => ({
+                                        id: index.toString(),
+                                        content: sequence,
+                                        value: sequence,
+                                    }))}
+                                    {...renderProps("endpoint")}
+                                />
+                            )}
+                            <ContentSeperator></ContentSeperator>
+                            <CheckBoxContainer>
+                                <label>In Sequence</label>
+                                <VSCodeRadioGroup
+                                    orientation="horizontal"
+                                    {...renderProps("inSequenceType")}
+                                >
+                                    <VSCodeRadio value="inline">In-Line</VSCodeRadio>
+                                    <VSCodeRadio value="named">Named</VSCodeRadio>
+                                </VSCodeRadioGroup>
+                            </CheckBoxContainer>
+                            {watch("inSequenceType") === "named" && (
+                                <Dropdown
+                                    items={sequences.map((sequence, index) => ({
+                                        id: index.toString(),
+                                        content: sequence,
+                                        value: sequence,
+                                    }))}
+                                    {...renderProps("inSequence")}
+                                />
+                            )}
+                            <ContentSeperator></ContentSeperator>
+                            <CheckBoxContainer>
+                                <label>Out Sequence</label>
+                                <VSCodeRadioGroup
+                                    orientation="horizontal"
+                                    {...renderProps("outSequenceType")}
+                                >
+                                    <VSCodeRadio value="inline">In-Line</VSCodeRadio>
+                                    <VSCodeRadio value="named">Named</VSCodeRadio>
+                                </VSCodeRadioGroup>
+                            </CheckBoxContainer>
+                            {watch("outSequenceType") === "named" && (
+                                <Dropdown
+                                    items={sequences.map((sequence, index) => ({
+                                        id: index.toString(),
+                                        content: sequence,
+                                        value: sequence,
+                                    }))}
+                                    {...renderProps("outSequence")}
+                                />
+                            )}
+                            <ContentSeperator></ContentSeperator>
+                            <CheckBoxContainer>
+                                <label>Fault Sequence</label>
+                                <VSCodeRadioGroup
+                                    orientation="horizontal"
+                                    {...renderProps("faultSequenceType")}
+                                >
+                                    <VSCodeRadio value="inline">In-Line</VSCodeRadio>
+                                    <VSCodeRadio value="named">Named</VSCodeRadio>
+                                </VSCodeRadioGroup>
+                            </CheckBoxContainer>
+                            {watch("faultSequenceType") === "named" && (
+                                <Dropdown
+                                    items={sequences.map((sequence, index) => ({
+                                        id: index.toString(),
+                                        content: sequence,
+                                        value: sequence,
+                                    }))}
+                                    {...renderProps("faultSequence")}
+                                />
+                            )}
+                            <ContentSeperator></ContentSeperator>
+                            <h3>Service Parameters</h3>
+                            <ParamManager
+                                paramConfigs={params}
+                                readonly={false}
+                                onChange={(param)=>handleOnChange(param,"parameters")} />
+                            <ContentSeperator></ContentSeperator>
+                            <h3>Security</h3>
+                            <FormCheckBox label="Enable Addressing" {...register("enableAddressing")} control={control} />
+                            <FormCheckBox label="Security Enabled" {...register("securityEnabled")} control={control} />
+                            <span>Service Policies</span>
+                            <ParamManager
+                                paramConfigs={policies}
+                                readonly={false}
+                                onChange={(param)=>handleOnChange(param,"policies")} />    
+                            <ContentSeperator></ContentSeperator>
+                            <h3>WDSL</h3>
+                            <Dropdown
+                                label="WSDL Type"                                        
+                                items={WSDL_Types.map((type, index) => ({
+                                    id: index.toString(),
+                                    content: type,
+                                    value: type,
+                                }))}
+                                {...renderProps("wsdlType")}
+                            />
+                            {watch("wsdlType") === "INLINE" && (
+                                <>
+                                    <span>WSDL XML</span>
+                                    <CodeMirror
+                                        value={watch("wsdlInLine")}
+                                        theme={ oneDark }
+                                        extensions={[xml()]}
+                                        onChange={(text: string) => handleXMLInputChange(text)}
+                                        height="200px"
+                                        autoFocus
+                                        indentWithTab={true}
+                                        options={{
+                                            lineNumbers: true,
+                                            lint: true,
+                                            mode: "xml",
+                                            columns: 100,
+                                            columnNumbers: true,
+                                            lineWrapping: true,
+                                        }}
+                                    />
+                                    {message.isError === true && <span style={{ color: message.isError ? "#f48771" : "" }}>{message.text}</span>}
+                                    <FormCheckBox label="Preserve Policy" {...register("preservePolicy")} control={control} />
+                                </>
+                            )}
+                            {watch("wsdlType") === "SOURCE_URL" && (
+                                <TextField
+                                    label="WSDL URL"
+                                    size={150}
+                                    {...renderProps("wsdlUrl")}
+                                />
+                            )}
+                            {watch("wsdlType") === "REGISTRY_KEY" && (
+                                <Dropdown
+                                    items={wsdlRegistries.map((sequence, index) => ({
+                                        id: index.toString(),
+                                        content: sequence,
+                                        value: sequence,
+                                    }))}
+                                    label="Registry Key"
+                                    {...renderProps("registryKey")}
+                                />
+                            )}
+                            {watch("wsdlType") === "ENDPOINT" && (
+                                <>
+                                    <FormCheckBox label="Preserve Policy" {...register("preservePolicy")} control={control} />
+                                    <Dropdown                                       
                                         items={endpoints.map((sequence, index) => ({
                                             id: index.toString(),
                                             content: sequence,
                                             value: sequence,
                                         }))}
-                                        {...renderProps("endpoint")}
+                                        label="WSDL Endpoint"
+                                        {...renderProps("wsdlEndpoint")}
                                     />
-                                )}
-                                <ContentSeperator></ContentSeperator>
-                                <CheckBoxContainer>
-                                    <label>In Sequence</label>
-                                    <VSCodeRadioGroup
-                                        orientation="horizontal"
-                                        {...renderProps("inSequenceType")}
-                                    >
-                                        <VSCodeRadio value="inline">In-Line</VSCodeRadio>
-                                        <VSCodeRadio value="named">Named</VSCodeRadio>
-                                    </VSCodeRadioGroup>
-                                </CheckBoxContainer>
-                                {watch("inSequenceType") === "named" && (
-                                    <Dropdown
-                                        items={sequences.map((sequence, index) => ({
-                                            id: index.toString(),
-                                            content: sequence,
-                                            value: sequence,
-                                        }))}
-                                        {...renderProps("inSequence")}
-                                    />
-                                )}
-                                <ContentSeperator></ContentSeperator>
-                                <CheckBoxContainer>
-                                    <label>Out Sequence</label>
-                                    <VSCodeRadioGroup
-                                        orientation="horizontal"
-                                        {...renderProps("outSequenceType")}
-                                    >
-                                        <VSCodeRadio value="inline">In-Line</VSCodeRadio>
-                                        <VSCodeRadio value="named">Named</VSCodeRadio>
-                                    </VSCodeRadioGroup>
-                                </CheckBoxContainer>
-                                {watch("outSequenceType") === "named" && (
-                                    <Dropdown
-                                        items={sequences.map((sequence, index) => ({
-                                            id: index.toString(),
-                                            content: sequence,
-                                            value: sequence,
-                                        }))}
-                                        {...renderProps("outSequence")}
-                                    />
-                                )}
-                                <ContentSeperator></ContentSeperator>
-                                <CheckBoxContainer>
-                                    <label>Fault Sequence</label>
-                                    <VSCodeRadioGroup
-                                        orientation="horizontal"
-                                        {...renderProps("faultSequenceType")}
-                                    >
-                                        <VSCodeRadio value="inline">In-Line</VSCodeRadio>
-                                        <VSCodeRadio value="named">Named</VSCodeRadio>
-                                    </VSCodeRadioGroup>
-                                </CheckBoxContainer>
-                                {watch("faultSequenceType") === "named" && (
-                                    <Dropdown
-                                        items={sequences.map((sequence, index) => ({
-                                            id: index.toString(),
-                                            content: sequence,
-                                            value: sequence,
-                                        }))}
-                                        {...renderProps("faultSequence")}
-                                    />
-                                )}
-                                <ContentSeperator></ContentSeperator>
-                                <span>Service Parameters</span>
-                                <ParamManager
-                                    paramConfigs={params}
-                                    readonly={false}
-                                    onChange={(param)=>handleOnChange(param,"parameters")} />
-                                <ContentSeperator></ContentSeperator>
-                                <span>Security</span>
-                                <CheckBox label="Enable Addressing" {...renderCheckBoxProps("enableAddressing")} ></CheckBox>
-                                <CheckBox label="Security Enabled" {...renderCheckBoxProps("securityEnabled")} />
-                                <span>Service Policies</span>
-                                <ParamManager
-                                    paramConfigs={policies}
-                                    readonly={false}
-                                    onChange={(param)=>handleOnChange(param,"policies")} />    
-                                <ContentSeperator></ContentSeperator>
-                                <Dropdown
-                                    label="WSDL"                                        
-                                    items={WSDL_Types.map((type, index) => ({
-                                        id: index.toString(),
-                                        content: type,
-                                        value: type,
-                                    }))}
-                                    {...renderProps("wsdlType")}
-                                />
-                                {watch("wsdlType") === "INLINE" && (
-                                    <>
-                                        <span>WSDL XML</span>
-                                        <CodeMirror
-                                            value={watch("wsdlInLine")}
-                                            theme={ oneDark }
-                                            extensions={[xml()]}
-                                            onChange={(text: string) => handleXMLInputChange(text)}
-                                            height="200px"
-                                            autoFocus
-                                            indentWithTab={true}
-                                            options={{
-                                                lineNumbers: true,
-                                                lint: true,
-                                                mode: "xml",
-                                                columns: 100,
-                                                columnNumbers: true,
-                                                lineWrapping: true,
-                                            }}
-                                        />
-                                        {message.isError === true && <span style={{ color: message.isError ? "#f48771" : "" }}>{message.text}</span>}
-                                        <CheckBox label="Preserve Policy" {...renderCheckBoxProps("preservePolicy")} />
-                                    </>
-                                )}
-                                {watch("wsdlType") === "SOURCE_URL" && (
-                                    <TextField
-                                        label="WSDL URL"
-                                        size={150}
-                                        {...renderProps("wsdlUrl")}
-                                    />
-                                )}
-                                {watch("wsdlType") === "REGISTRY_KEY" && (
-                                    <Dropdown
-                                        items={wsdlRegistries.map((sequence, index) => ({
-                                            id: index.toString(),
-                                            content: sequence,
-                                            value: sequence,
-                                        }))}
-                                        label="Registry Key"
-                                        {...renderProps("registryKey")}
-                                    />
-                                )}
-                                {watch("wsdlType") === "ENDPOINT" && (
-                                    <>
-                                        <CheckBox label="Preserve Policy" {...renderCheckBoxProps("preservePolicy")} />
-                                        <Dropdown                                       
-                                            items={endpoints.map((sequence, index) => ({
-                                                id: index.toString(),
-                                                content: sequence,
-                                                value: sequence,
-                                            }))}
-                                            label="WSDL Endpoint"
-                                            {...renderProps("wsdlEndpoint")}
-                                        />
-                                    </>
-
-                                )}
-                                {watch("wsdlType") !== "NONE" && watch("wsdlType") !=="ENDPOINT" && (
-                                    <>
-                                        <span>WSDL Resources</span>
-                                        <ParamManager
-                                            paramConfigs={resources}
-                                            readonly={false}
-                                            onChange={(param)=>handleOnChange(param,"resources")} />
-                                    </>
-                                )}
-                                {resourceAvailabilityDialog(resourceType, isResourceAvailable)}
-                            </React.Fragment>
+                                </>
+                            )}
+                            {watch("wsdlType") !== "NONE" && watch("wsdlType") !=="ENDPOINT" && (
+                                <>
+                                    <span>WSDL Resources</span>
+                                    <ParamManager
+                                        paramConfigs={resources}
+                                        readonly={false}
+                                        onChange={(param)=>handleOnChange(param,"resources")} />
+                                </>
+                            )}
+                        </React.Fragment>
                     </FormGroup>
                     <FormActions>
                         <Button appearance="secondary" onClick={onCancel}>

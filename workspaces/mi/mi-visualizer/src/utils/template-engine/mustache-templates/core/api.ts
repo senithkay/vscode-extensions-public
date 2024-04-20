@@ -7,8 +7,18 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 export function getEditServiceTemplate() {
-    return `<api name="{{{name}}}" context="{{{context}}}"{{#version}} version="{{{version}}}" version-type="{{version_type}}" {{/version}} xmlns="http://ws.apache.org/ns/synapse">`
+    return `<api{{#hostName}} hostname="{{hostName}}"{{/hostName}} name="{{{name}}}"{{#port}} port="{{port}}"{{/port}}{{#statistics}} statistics="enable"{{/statistics}}{{#trace}} trace="enable"{{/trace}} context="{{{context}}}"{{#version}} version="{{{version}}}" version-type="{{version_type}}" {{/version}} xmlns="http://ws.apache.org/ns/synapse">`
 }
+
+export function getHandlersTemplate() {
+    return `    {{#show}}<handlers>
+        {{#handlers}}<handler class="{{name}}">
+            {{#properties}}
+            <property name="{{name}}" value="{{value}}"/>
+            {{/properties}}
+        </handler>{{/handlers}}
+    </handlers>{{/show}}`;
+};
 
 export function getAddApiResourceTemplate() {
     return `    <resource methods="{{methods}}"{{#uri_template}} uri-template="{{{uri_template}}}"{{/uri_template}}{{#url_mapping}} url-mapping="{{{url_mapping}}}"{{/url_mapping}}>
