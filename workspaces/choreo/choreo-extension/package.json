@@ -2,7 +2,8 @@
   "name": "choreo",
   "displayName": "Choreo",
   "description": "An extension for Signing in to Choreo and managing your projects",
-  "version": "1.6.3",
+  "version": "2.0.0-alpha.0",
+  "cliVersion": "v0.0.432404191304",
   "publisher": "wso2",
   "bugs": {
     "url": "https://github.com/wso2/choreo-vscode/issues"
@@ -209,10 +210,10 @@
           "description": "The Choreo Enviornment to use",
           "scope": "window"
         },
-        "cli.path": {
+        "Advanced.RpcPath": {
           "type": "string",
-          "default": "choreo",
-          "description": "The path to the Choreo CLI",
+          "default": "",
+          "description": "The path to Choreo RPC server",
           "scope": "window"
         }
       }

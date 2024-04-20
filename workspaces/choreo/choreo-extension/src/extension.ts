@@ -22,9 +22,6 @@ import { ext } from "./extensionVariables";
 import { GitExtension } from "./git";
 import { activateStatusBarItem } from "./status-bar";
 import { activateURIHandlers } from "./uri-handlers";
-
-import { activateWizards } from "./wizards/activate";
-
 import { getLogger, initLogger } from "./logger/logger";
 import { COMPONENT_YAML_SCHEMA, COMPONENT_YAML_SCHEMA_DIR } from "./constants";
 import { activateTelemetry } from "./telemetry/telemetry";
@@ -37,13 +34,11 @@ import { activateActivityBarWebViews } from "./views/webviews/ActivityBar/activa
 import { activateCmds } from "./cmds";
 import { activateClients } from "./auth/auth";
 import { enrichComponentSchema, regexFilePathChecker } from "./utils";
-import { activateCellDiagram } from './cell-diagram/activate';
 import { Cache } from "./cache";
 import { initRPCServer } from "./choreo-rpc/activate";
 import { linkedDirectoryStore } from "./stores/linked-dir-store";
 import { authStore } from "./stores/auth-store";
 import { dataCacheStore } from "./stores/data-cache-store";
-import { handlerError } from "./error-utils";
 
 export async function activate(context: vscode.ExtensionContext) {
     activateTelemetry(context);
@@ -53,8 +48,6 @@ export async function activate(context: vscode.ExtensionContext) {
     ext.context = context;
     ext.api = new ChoreoExtensionApi(); // todo: remove
 
-    await initRPCServer();
-    activateClients(); // todo: remove (after extracting rpc client out!)
 
     // Initialize stores
     await authStore.persist.rehydrate();
@@ -62,22 +55,26 @@ export async function activate(context: vscode.ExtensionContext) {
     await dataCacheStore.persist.rehydrate();
     authStore.subscribe(({state}) => vscode.commands.executeCommand("setContext", "isLoggedIn", !!state.userInfo));
 
-    activateWizards(); // todo: remove
+    initRPCServer().then(async ()=>{
+        activateClients(); // TODO: remove (after extracting rpc client out!)
+        await ext.clients.rpcClient.init();
+        
+        authStore.getState().initAuth();
+        linkedDirectoryStore.getState().refreshState();
 
-    // states
-    authStore.getState().initAuth();
-    linkedDirectoryStore.getState().refreshState();
+        activateCmds(context);
+        activateActivityBarWebViews(context);   // activity web views
+        activateURIHandlers();
+        setupGithubAuthStatusCheck();   // TODO: remove
+        // registerYamlLanguageServer();   // TODO: Re-enable after fixing project manager dependencies
+    }).catch((e)=>{
+        getLogger().error("failed to initialize rpc client", e);
+    });
 
-    activateCmds(context);
-    activateActivityBarWebViews(context);
-    activateURIHandlers();
     // activateStatusBarItem();
-    activateCellDiagram(context);  // todo: remove
-    setupGithubAuthStatusCheck();
     registerPreInitHandlers();
     ext.isPluginStartup = false;
     getLogger().debug("Choreo Extension activated");
-    registerYamlLanguageServer();
 
     return ext.api;
 }
@@ -100,7 +97,7 @@ function registerPreInitHandlers(): any {
         "Choreo extension configuration changed. Please restart vscode for changes to take effect.";
     // We need to restart VSCode if we change plugin configurations.
     workspace.onDidChangeConfiguration((params: ConfigurationChangeEvent) => {
-        if (params.affectsConfiguration("Advanced.ChoreoEnvironment")) {
+        if (params.affectsConfiguration("Advanced.ChoreoEnvironment") || params.affectsConfiguration("Advanced.RpcPath")) {
             showMsgAndRestart(CONFIG_CHANGED);
         }
     });

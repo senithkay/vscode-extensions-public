@@ -4,27 +4,15 @@ import * as os from 'os'
 import { getLogger } from '../logger/logger';
 import * as path from 'path';
 import { workspace } from 'vscode';
+import { getChoreoExecPath } from './cli-install';
 
-export const getChoreoPath = () => {
-    const executablePath = workspace.getConfiguration().get<string>("cli.path");
 
-    const homeDir = os.homedir();
-    // generate the path for the executable based on the platform
-    let userHome = homeDir;
-
-    let genPath = path.join(userHome, ".choreo", "bin", "choreo");
-
-    if (executablePath) {
-        genPath = executablePath;
-    }
-    return genPath;
-}
 
 export class StdioConnection {
     private _connection: MessageConnection;
     private _serverProcess: ChildProcessWithoutNullStreams;
     constructor() {
-        const executablePath = getChoreoPath();
+        const executablePath = getChoreoExecPath();
         console.log("Starting RPC server, path:", executablePath);
         getLogger().debug("Starting RPC server" + executablePath);
         this._serverProcess = spawn(executablePath, ['start-rpc-server']);

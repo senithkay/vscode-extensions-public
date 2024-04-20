@@ -123,7 +123,7 @@ import { removeCredentialsFromGitURL } from "../../../git/util";
 import { choreoEnvConfig } from "../../../auth/auth";
 import { showComponentDetails } from "../../../cmds/view-component-cmd";
 import * as yaml from "js-yaml";
-import { getChoreoPath } from "../../../choreo-rpc/connection";
+import { getChoreoExecPath } from "../../../choreo-rpc/cli-install";
 
 const manager = new ChoreoProjectManager();
 
@@ -254,7 +254,7 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
     });
     messenger.onRequest(ViewRuntimeLogs, async ({orgName, projectName, componentName, deploymentTrackName, envName, type}) => {
         const args = ["logs", "-t", type.flag, "-o", orgName, "-p", projectName, "-c", componentName, "-d", deploymentTrackName, "-e", envName, "-f"];
-        window.createTerminal(`${componentName}:${type.label}`, getChoreoPath(), args).show();
+        window.createTerminal(`${componentName}:${type.label}`, getChoreoExecPath(), args).show();
     });
 
     // TODO remove old ones
