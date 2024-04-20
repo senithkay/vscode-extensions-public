@@ -179,18 +179,18 @@ const ComboboxOption: React.FC<ComboboxOptionProps> = styled.div`
     display: ${(props: ComboboxOptionProps) => (props.display === undefined ? 'block' : props.display ? 'block' : 'none')};
 `;
 
-const getItemKey = (item: string | ItemComponent) => {
+export const getItemKey = (item: string | ItemComponent) => {
     if (typeof item === 'string') {
         return item;
     }
-    return item.key;
+    return item?.key;
 }
 
-const getItem = (item: string | ItemComponent) => {
+export const getItem = (item: string | ItemComponent) => {
     if (typeof item === 'string') {
         return item;
     }
-    return item.item;
+    return item?.item;
 }
 
 
@@ -304,7 +304,11 @@ export const AutoComplete = React.forwardRef<HTMLInputElement, AutoCompleteProps
                         afterLeave={handleAfterLeave}
                         ref={ref}
                     >
-                        <DropdownContainer display={!(filteredResults.length === 0 && query !== "" && allowItemCreate)} widthOffset={widthOffset} dropdownWidth={dropdownWidth}>
+                        <DropdownContainer
+                            display={!(filteredResults.length === 0 && query !== "" && allowItemCreate)}
+                            widthOffset={widthOffset}
+                            dropdownWidth={dropdownWidth}
+                        >
                             <Combobox.Options>
                                 {filteredResults.length === 0 && query !== "" ? (
                                     allowItemCreate ? (
