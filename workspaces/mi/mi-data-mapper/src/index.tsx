@@ -16,8 +16,7 @@ import { DMType, Range } from "@wso2-enterprise/mi-core";
 import { Project } from "ts-morph";
 
 import { MIDataMapper } from "./components/DataMapper/DataMapper";
-import { FunctionSTFindingVisitor } from "./components/Visitors/FunctionSTFindingVisitor";
-import { traversNode } from "./components/Diagram/utils/st-utils";
+import { ErrorBoundary } from "@wso2-enterprise/ui-toolkit";
 
 const queryClient = new QueryClient({
     defaultOptions: {
@@ -63,11 +62,10 @@ export function DataMapperView(props: DataMapperViewProps) {
 
         const project = new Project({useInMemoryFileSystem: true});
         const sourceFile = project.createSourceFile(filePath, fileContent);
+        const fnST = sourceFile.getFunction(functionName);
 
-        const fnSTFindingVisitor = new FunctionSTFindingVisitor(functionName);
-        traversNode(sourceFile, fnSTFindingVisitor);
         return {
-            functionST: fnSTFindingVisitor.getFunctionST(),
+            functionST: fnST,
             sourceFile: sourceFile,
         };
 
@@ -78,15 +76,17 @@ export function DataMapperView(props: DataMapperViewProps) {
     };
 
     return (
-        <QueryClientProvider client={queryClient}>
-            <Global styles={globalStyles} />
-            <MIDataMapper
-                fnST={functionST}
-                inputTrees={inputTrees}
-                outputTree={outputTree}
-                goToSource={goToSource}
-                applyModifications={applyModifications}
-            />
-        </QueryClientProvider>
+        <ErrorBoundary errorMsg="An error occurred while redering the MI Data Mapper">
+            <QueryClientProvider client={queryClient}>
+                <Global styles={globalStyles} />
+                <MIDataMapper
+                    fnST={functionST}
+                    inputTrees={inputTrees}
+                    outputTree={outputTree}
+                    goToSource={goToSource}
+                    applyModifications={applyModifications}
+                />
+            </QueryClientProvider>
+        </ErrorBoundary>
     );
 }

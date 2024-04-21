@@ -7,10 +7,10 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { DMType, Range } from "@wso2-enterprise/mi-core";
-import { VariableDeclaration } from "ts-morph";
+import { FunctionDeclaration } from "ts-morph";
 
 export interface IDataMapperContext {
-    functionST: VariableDeclaration;
+    functionST: FunctionDeclaration;
     inputTrees: DMType[];
     outputTree: DMType;
     goToSource: (range: Range) => void;
@@ -20,7 +20,7 @@ export interface IDataMapperContext {
 export class DataMapperContext implements IDataMapperContext {
 
     constructor(
-        public functionST: VariableDeclaration,
+        public functionST: FunctionDeclaration,
         public inputTrees: DMType[],
         public outputTree: DMType,
         public goToSource: (range: Range) => void,

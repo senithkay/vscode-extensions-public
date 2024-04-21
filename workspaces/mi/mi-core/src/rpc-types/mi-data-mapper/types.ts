@@ -15,15 +15,7 @@ export interface IOTypeRequest {
 
 export interface IOTypeResponse {
     inputTrees: DMType[];
-    outputTree: DMType;
-}
-
-export interface GetFileContentRequest {
-    filePath: string;
-}
-
-export interface GetFileContentResponse {
-    fileContent: string;
+    outputTree: DMType | undefined;
 }
 
 export interface UpdateFileContentRequest {

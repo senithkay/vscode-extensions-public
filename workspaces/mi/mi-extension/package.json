@@ -66,7 +66,7 @@
           },
           "integrationStudio.rootUrl": {
             "type": "string",
-            "default": "https://e95488c8-8511-4882-967f-ec3ae2a0f86f-prod.e1-us-east-azure.choreoapis.dev/rkxg/copilotbackend/mi-copilot-backend-be2/v1.0",
+            "default": "https://e95488c8-8511-4882-967f-ec3ae2a0f86f-dev.e1-eu-north-azure.choreoapis.dev/mi-ai-deployments/micopilot/mi-copilot-backend-be2/v1.0",
             "description": "Root URL for Backend Services"
           }
         }

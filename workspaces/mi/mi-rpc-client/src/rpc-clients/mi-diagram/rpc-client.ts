@@ -93,12 +93,13 @@ import {
     GetTemplateEPResponse,
     GetTextAtRangeRequest,
     GetTextAtRangeResponse,
+    GetUserAccessTokenResponse,
     GetWorkspaceContextResponse,
     HighlightCodeRequest,
     ImportProjectRequest,
     ImportProjectResponse,
     ListRegistryArtifactsRequest,
-    ListRegistryArtifactsResponse,
+    RegistryArtifactNamesResponse,
     MiDiagramAPI,
     MigrateProjectRequest,
     MigrateProjectResponse,
@@ -204,6 +205,7 @@ import {
     getTemplateEndpoint,
     getTemplates,
     getTextAtRange,
+    getUserAccessToken,
     getWorkspaceContext,
     getWorkspaceRoot,
     getWsdlEndpoint,
@@ -226,7 +228,13 @@ import {
     updateRecipientEndpoint,
     updateTemplateEndpoint,
     updateWsdlEndpoint,
-    writeContentToFile
+    writeContentToFile,
+    getAllArtifacts,
+    GetAllArtifactsRequest,
+    GetAllArtifactsResponse,
+    getAllRegistryPaths,
+    GetAllRegistryPathsRequest,
+    GetAllRegistryPathsResponse,
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -530,7 +538,7 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
         return this._messenger.sendRequest(getBackendRootUrl, HOST_EXTENSION);
     }
 
-    getAvailableRegistryResources(params: ListRegistryArtifactsRequest): Promise<ListRegistryArtifactsResponse> {
+    getAvailableRegistryResources(params: ListRegistryArtifactsRequest): Promise<RegistryArtifactNamesResponse> {
         return this._messenger.sendRequest(getAvailableRegistryResources, HOST_EXTENSION, params);
     }
 
@@ -566,11 +574,22 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
         return this._messenger.sendRequest(getIconPathUri, HOST_EXTENSION, params);
     }
 
+    getUserAccessToken(): Promise<GetUserAccessTokenResponse> {
+        return this._messenger.sendRequest(getUserAccessToken, HOST_EXTENSION);
+    }
+
     createConnection(params: CreateConnectionRequest): Promise<CreateConnectionResponse> {
         return this._messenger.sendRequest(createConnection, HOST_EXTENSION, params);
     }
 
     getConnectorConnections(params: GetConnectorConnectionsRequest): Promise<GetConnectorConnectionsResponse> {
         return this._messenger.sendRequest(getConnectorConnections, HOST_EXTENSION, params);
+    }
+    getAllRegistryPaths(params: GetAllRegistryPathsRequest): Promise<GetAllRegistryPathsResponse> {
+        return this._messenger.sendRequest(getAllRegistryPaths, HOST_EXTENSION, params);
+    }
+
+    getAllArtifacts(params: GetAllArtifactsRequest): Promise<GetAllArtifactsResponse> {
+        return this._messenger.sendRequest(getAllArtifacts, HOST_EXTENSION, params);
     }
 }

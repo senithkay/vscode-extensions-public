@@ -50,7 +50,7 @@ export function findInputNode(expr: Node, dmNode: DataMapperNodeModel) {
         const valueExpr = getInnerExpr(expr);
 
         if (valueExpr && Node.isIdentifier(valueExpr)) {
-            paramNode = (dmNode.context.functionST.getInitializer() as ArrowFunction).getParameters().find((param) =>
+            paramNode = dmNode.context.functionST.getParameters().find((param) =>
                 param.getName() === valueExpr.getText()
             );
         }

@@ -15,7 +15,7 @@ import CardWrapper from "./Commons/CardWrapper";
 import {TypeChip} from "./Commons";
 import {useForm} from "react-hook-form";
 import * as yup from "yup";
-import {yupResolver} from "@hookform/resolvers/yup"
+import {yupResolver} from "@hookform/resolvers/yup";
 
 interface OptionProps {
     value: string;
@@ -95,62 +95,67 @@ const newMessageProcessor: InputsFields = {
     providerClass: ""
 };
 
-const schema = yup.object({
-    messageProcessorName: yup.string().required("Message Processor Name is required").matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in Message Processor Name"),
-    messageProcessorType: yup.string().default(""),
-    messageStoreType: yup.string().default("TestMBStore"),
-    failMessageStoreType: yup.string().notRequired().default(""),
-    sourceMessageStoreType: yup.string().default("TestMBStore"),
-    targetMessageStoreType: yup.string().default("TestMBStore"),
-    processorState: yup.string().default("Activate"),
-    dropMessageOption: yup.string().default("Disabled"),
-    quartzConfigPath: yup.string().notRequired().default(""),
-    cron: yup.string().notRequired().default(""),
-    forwardingInterval: yup.number().typeError('Forwarding Interval must be a number').min(1, "Forwarding Interval must be greater than 0").notRequired().default(1000),
-    retryInterval: yup.number().typeError('Retry interval must be a number').min(1, "Retry interval must be greater than 0").notRequired().default(1000),
-    maxRedeliveryAttempts: yup.number().typeError('Max Redelivery Attempts must be a number').min(1, "Max Redelivery Attempts must be greater than 0").notRequired().default(4),
-    maxConnectionAttempts: yup.number().typeError('Max Connection Attempts must be a number').min(-1, "Max Connection Attempts must be greater than -1").notRequired().default(-1),
-    connectionAttemptInterval: yup.number().typeError('Connection Attempt Interval must be a number').min(1, "Connection Attempt Interval must be greater than 0").notRequired().default(1000),
-    taskCount: yup.number().typeError('Task count must be a number').min(1, "Task Count must be greater than 0").notRequired().default(1),
-    statusCodes: yup.string().notRequired().default(""),
-    clientRepository: yup.string().notRequired().default(""),
-    axis2Config: yup.string().notRequired().default(""),
-    endpointType: yup.string().when('messageProcessorType', {
-        is: 'Scheduled Message Forwarding Processor',
-        then: (schema) => schema.required("Select Endpoint Type"),
-        otherwise: (schema) => schema.notRequired().default(""),
-    }),
-    sequenceType: yup.string().when('messageProcessorType', {
-        is: 'Message Sampling Processor',
-        then: (schema) => schema.required("Select Sequence Type"),
-        otherwise: (schema) => schema.notRequired().default(""),
-    }),
-    replySequenceType: yup.string().notRequired().default(""),
-    faultSequenceType: yup.string().notRequired().default(""),
-    deactivateSequenceType: yup.string().notRequired().default(""),
-    endpoint: yup.string().when('messageProcessorType', {
-        is: 'Scheduled Message Forwarding Processor',
-        then: (schema) => schema.required("Endpoint is required"),
-        otherwise: (schema) => schema.notRequired().default(""),
-    }),
-    sequence: yup.string().when('messageProcessorType', {
-        is: 'Message Sampling Processor',
-        then: (schema) => schema.required("Sequence is required"),
-        otherwise: (schema) => schema.notRequired().default(""),
-    }),
-    replySequence: yup.string().notRequired().default(""),
-    faultSequence: yup.string().notRequired().default(""),
-    deactivateSequence: yup.string().notRequired().default(""),
-    samplingInterval: yup.number().typeError('Sampling Interval must be a number').min(1, "Sampling Interval must be greater than 0").notRequired().default(1000),
-    samplingConcurrency: yup.number().typeError('Sampling Concurrency must be a number').min(1, "Sampling Concurrency must be greater than 0").notRequired().default(1),
-    providerClass: yup.string().when('messageProcessorType', {
-        is: 'Custom Message Processor',
-        then: (schema) => schema.required("Message Processor Provider Class FQN is required"),
-        otherwise: (schema) => schema.notRequired().default(""),
-    })
-})
-
 export function MessageProcessorWizard(props: MessageProcessorWizardProps) {
+
+    const schema = yup.object({
+        messageProcessorName: yup.string().required("Message Processor Name is required")
+            .matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in Message Processor Name")
+            .test('validateMessageProcessorName',
+                'Message Processor with same name already exists', value => {
+                    return !isNewMessageProcessor ? !(messageProcessors.includes(value) && value !== savedMPName) : !messageProcessors.includes(value);
+                }),
+        messageProcessorType: yup.string().default(""),
+        messageStoreType: yup.string().default("TestMBStore"),
+        failMessageStoreType: yup.string().notRequired().default(""),
+        sourceMessageStoreType: yup.string().default("TestMBStore"),
+        targetMessageStoreType: yup.string().default("TestMBStore"),
+        processorState: yup.string().default("Activate"),
+        dropMessageOption: yup.string().default("Disabled"),
+        quartzConfigPath: yup.string().notRequired().default(""),
+        cron: yup.string().notRequired().default(""),
+        forwardingInterval: yup.number().typeError('Forwarding Interval must be a number').min(1, "Forwarding Interval must be greater than 0").notRequired().default(1000),
+        retryInterval: yup.number().typeError('Retry interval must be a number').min(1, "Retry interval must be greater than 0").notRequired().default(1000),
+        maxRedeliveryAttempts: yup.number().typeError('Max Redelivery Attempts must be a number').min(1, "Max Redelivery Attempts must be greater than 0").notRequired().default(4),
+        maxConnectionAttempts: yup.number().typeError('Max Connection Attempts must be a number').min(-1, "Max Connection Attempts must be greater than -1").notRequired().default(-1),
+        connectionAttemptInterval: yup.number().typeError('Connection Attempt Interval must be a number').min(1, "Connection Attempt Interval must be greater than 0").notRequired().default(1000),
+        taskCount: yup.number().typeError('Task count must be a number').min(1, "Task Count must be greater than 0").notRequired().default(1),
+        statusCodes: yup.string().notRequired().default(""),
+        clientRepository: yup.string().notRequired().default(""),
+        axis2Config: yup.string().notRequired().default(""),
+        endpointType: yup.string().when('messageProcessorType', {
+            is: 'Scheduled Message Forwarding Processor',
+            then: (schema) => schema.required("Select Endpoint Type"),
+            otherwise: (schema) => schema.notRequired().default(""),
+        }),
+        sequenceType: yup.string().when('messageProcessorType', {
+            is: 'Message Sampling Processor',
+            then: (schema) => schema.required("Select Sequence Type"),
+            otherwise: (schema) => schema.notRequired().default(""),
+        }),
+        replySequenceType: yup.string().notRequired().default(""),
+        faultSequenceType: yup.string().notRequired().default(""),
+        deactivateSequenceType: yup.string().notRequired().default(""),
+        endpoint: yup.string().when('messageProcessorType', {
+            is: 'Scheduled Message Forwarding Processor',
+            then: (schema) => schema.required("Endpoint is required"),
+            otherwise: (schema) => schema.notRequired().default(""),
+        }),
+        sequence: yup.string().when('messageProcessorType', {
+            is: 'Message Sampling Processor',
+            then: (schema) => schema.required("Sequence is required"),
+            otherwise: (schema) => schema.notRequired().default(""),
+        }),
+        replySequence: yup.string().notRequired().default(""),
+        faultSequence: yup.string().notRequired().default(""),
+        deactivateSequence: yup.string().notRequired().default(""),
+        samplingInterval: yup.number().typeError('Sampling Interval must be a number').min(1, "Sampling Interval must be greater than 0").notRequired().default(1000),
+        samplingConcurrency: yup.number().typeError('Sampling Concurrency must be a number').min(1, "Sampling Concurrency must be greater than 0").notRequired().default(1),
+        providerClass: yup.string().when('messageProcessorType', {
+            is: 'Custom Message Processor',
+            then: (schema) => schema.required("Message Processor Provider Class FQN is required"),
+            otherwise: (schema) => schema.notRequired().default(""),
+        })
+    })
 
     const {
         reset,
@@ -169,9 +174,11 @@ export function MessageProcessorWizard(props: MessageProcessorWizardProps) {
     const {rpcClient} = useVisualizerContext();
     const [messageProcessorType, setMessageProcessorType] = useState("");
     const [hasCustomProperties, setHasCustomProperties] = useState("No");
-    const [sequences, setSequences] = useState();
-    const [endpoints, setEndpoints] = useState();
+    const [sequences, setSequences] = useState([]);
+    const [endpoints, setEndpoints] = useState([]);
+    const [messageProcessors, setMessageProcessors] = useState([]);
     const [isNewMessageProcessor, setIsNewMessageProcessor] = useState(!props.path.endsWith(".xml"));
+    const [savedMPName, setSavedMPName] = useState<string>("");
 
     const paramConfigs: ParamConfig = {
         paramValues: [],
@@ -191,7 +198,6 @@ export function MessageProcessorWizard(props: MessageProcessorWizardProps) {
                 isRequired: true
             }]
     }
-
     const [params, setParams] = useState(paramConfigs);
 
     const messageStoreTypes: OptionProps[] = [
@@ -203,7 +209,6 @@ export function MessageProcessorWizard(props: MessageProcessorWizardProps) {
     ];
 
     useEffect(() => {
-
         (async () => {
             const items = await rpcClient.getMiDiagramRpcClient().getEndpointsAndSequences();
             const sequenceList = items.data[1].map((seq: string) => {
@@ -216,6 +221,16 @@ export function MessageProcessorWizard(props: MessageProcessorWizardProps) {
             });
             setSequences(sequenceList);
             setEndpoints(endpointList);
+
+            const messageProcessorResponse = await rpcClient.getMiDiagramRpcClient().getAvailableResources({
+                documentIdentifier: props.path,
+                resourceType: "messageProcessor",
+            });
+
+            if (messageProcessorResponse.resources) {
+                const resources = messageProcessorResponse.resources.map((resource) => resource.name);
+                setMessageProcessors(resources);
+            }
 
             if (props.path.endsWith(".xml")) {
                 setIsNewMessageProcessor(false);
@@ -253,6 +268,7 @@ export function MessageProcessorWizard(props: MessageProcessorWizardProps) {
                 });
                 setMessageProcessorType(existingMessageProcessor.messageProcessorType);
                 reset(existingMessageProcessor);
+                setSavedMPName(existingMessageProcessor.messageProcessorName);
                 setValue('processorState', existingMessageProcessor.processorState ? "Activate" : "Deactivate");
                 setHasCustomProperties(existingMessageProcessor.properties.length > 0 ? "Yes" : "No");
                 updateTypes(endpointList, sequenceList);
@@ -338,12 +354,16 @@ export function MessageProcessorWizard(props: MessageProcessorWizardProps) {
             properties: customProperties,
             directory: props.path
         };
-
         await rpcClient.getMiDiagramRpcClient().createMessageProcessor(messageProcessorRequest);
-        rpcClient.getMiVisualizerRpcClient().openView({
-            type: EVENT_TYPE.OPEN_VIEW,
-            location: {view: MACHINE_VIEW.Overview}
-        });
+        handleCancel();
+    };
+
+    const renderProps = (fieldName: keyof InputsFields) => {
+        return {
+            id: fieldName,
+            ...register(fieldName),
+            errorMsg: errors[fieldName] && errors[fieldName].message.toString()
+        }
     };
 
     const handleCancel = () => {
@@ -351,15 +371,6 @@ export function MessageProcessorWizard(props: MessageProcessorWizardProps) {
             type: EVENT_TYPE.OPEN_VIEW,
             location: {view: MACHINE_VIEW.Overview}
         });
-    };
-
-    const renderProps = (fieldName: keyof InputsFields) => {
-        return {
-            id: fieldName,
-            value: String(watch(fieldName)),
-            ...register(fieldName),
-            errorMsg: errors[fieldName] && errors[fieldName].message.toString()
-        }
     };
 
     return (

@@ -9,13 +9,10 @@
 import {
     IOTypeRequest,
     IOTypeResponse,
-    GetFileContentRequest,
-    GetFileContentResponse,
     UpdateFileContentRequest
 } from "./types";
 
 export interface MIDataMapperAPI {
     getIOTypes: (params: IOTypeRequest) => Promise<IOTypeResponse>;
-    getFileContent: (params: GetFileContentRequest) => Promise<GetFileContentResponse>;
     updateFileContent: (params: UpdateFileContentRequest) => void;
 }
