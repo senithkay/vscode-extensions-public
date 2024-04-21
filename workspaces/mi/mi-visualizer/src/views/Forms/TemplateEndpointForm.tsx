@@ -197,8 +197,7 @@ export function TemplateEndpointWizard(props: TemplateEndpointWizardProps) {
 
         setValue('parameters', config.paramValues.map((param: any) => ({
             name: param.parameters[0].value,
-            value: param.parameters[1].value,
-            scope: param.parameters[2].value ?? 'default',
+            value: param.parameters[1].value
         })), { shouldDirty: true });
     }
 
