@@ -10,7 +10,7 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import React, { Fragment, ReactNode, useEffect, useRef, useState } from 'react'
+import React, { Fragment, ReactNode, useEffect, useMemo, useRef, useState } from 'react'
 
 import { css, cx } from "@emotion/css";
 import { Combobox, Transition } from '@headlessui/react'
@@ -201,6 +201,7 @@ export const AutoComplete = React.forwardRef<HTMLInputElement, AutoCompleteProps
     const [isUpButton, setIsUpButton] = useState(false);
     const [dropdownWidth, setDropdownWidth] = useState<number>();
     const inputRef = useRef(null);
+    const btnId = useMemo(() => props.name || getItemKey(items[0]), [props.name, items]);
 
     const handleChange = (item: string | ItemComponent) => {
         onValueChange && onValueChange(getItemKey(item));
@@ -212,7 +213,7 @@ export const AutoComplete = React.forwardRef<HTMLInputElement, AutoCompleteProps
         inputRef.current?.select();
         // This is to open the dropdown when the text field is focused.
         // This is a hacky way to do it since the Combobox component does not have a prop to open the dropdown.
-        document.getElementById(`autocomplete-dropdown-button-${getItemKey(items[0])}`)?.click();
+        document.getElementById(`autocomplete-dropdown-button-${btnId}`)?.click();
         document.getElementById(props.value as string)?.focus();
     };
     const handleTextFieldOutFocused = (e: any) => {
@@ -241,6 +242,8 @@ export const AutoComplete = React.forwardRef<HTMLInputElement, AutoCompleteProps
             });
     
     const extactMatch = items.filter(item => getItemKey(item) === query);
+
+    const indexOffset = allowItemCreate && extactMatch.length === 0 ? 1 : 0;
 
     const ComboboxOptionContainer = ({ active }: ComboboxOptionProps) => {
         return active ? OptionContainer : ActiveOptionContainer;
@@ -277,7 +280,7 @@ export const AutoComplete = React.forwardRef<HTMLInputElement, AutoCompleteProps
                             onBlur={handleTextFieldOutFocused}
                         />
                         <Combobox.Button
-                            id={`autocomplete-dropdown-button-${getItemKey(items[0])}`}
+                            id={`autocomplete-dropdown-button-${btnId}`}
                             className={isTextFieldFocused ? ComboboxButtonContainerActive : ComboboxButtonContainer}
                         >
                             {isUpButton ? (
@@ -338,9 +341,8 @@ export const AutoComplete = React.forwardRef<HTMLInputElement, AutoCompleteProps
                                         {filteredResults.map((filteredItem: string | ItemComponent, i: number) => {
                                             const item = getItem(filteredItem);
                                             const itemKey = getItemKey(filteredItem);
-                                            const offset = allowItemCreate && extactMatch.length === 0 ? 1 : 0;
                                             return (
-                                                <ComboboxOption key={i + offset}>
+                                                <ComboboxOption key={i + indexOffset}>
                                                     <Combobox.Option
                                                         className={ComboboxOptionContainer}
                                                         value={itemKey}

@@ -75,7 +75,7 @@ const ItemContainer = styled.div({
     display: "flex",
     alignItems: "center",
     gap: "4px",
-    height: "22px"
+    height: "22px",
 });
 
 const StyledTag = styled(VSCodeTag)({
@@ -178,5 +178,5 @@ export const FormKeylookup = <T extends FieldValues>(props: IFormKeylookup<T>) =
         field: { value, onChange },
     } = useController({ name, control });
 
-    return <Keylookup {...rest} value={value} onValueChange={onChange} />;
+    return <Keylookup {...rest} name={name} value={value} onValueChange={onChange} />;
 };
