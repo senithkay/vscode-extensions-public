@@ -186,7 +186,7 @@ export function activateProjectExplorer(context: ExtensionContext) {
 					if (!projectResources) return;
 
 					for (const projectResource of projectResources) {
-						const fileEntry = projectResource.children?.find((file) => file.info?.path === viewLocation.documentUri);
+						const fileEntry = projectResource.children?.find((file) => file !== undefined && file.info?.path === viewLocation.documentUri);
 						if (fileEntry) {
 							projectTree.reveal(fileEntry, { select: true });
 
@@ -225,6 +225,14 @@ export function activateProjectExplorer(context: ExtensionContext) {
 	commands.registerCommand(COMMANDS.SHOW_LOCAL_ENTRY, (documentUri: Uri, resourceIndex: string, beside: boolean = true) => {
 		revealWebviewPanel(beside);
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.LocalEntryForm, documentUri: documentUri?.fsPath });
+	});
+	commands.registerCommand(COMMANDS.SHOW_CONNECTION, async (documentUri: Uri, beside: boolean = true) => {
+		revealWebviewPanel(beside);
+		if (documentUri) {
+			let doc = await workspace.openTextDocument(documentUri);
+			let viewColumn = window.activeTextEditor ? ViewColumn.Beside : ViewColumn.Active;
+			await window.showTextDocument(doc, { viewColumn: viewColumn });
+		}
 	});
 	commands.registerCommand(COMMANDS.SHOW_DATA_SOURCE, (documentUri: Uri, resourceIndex: string, beside: boolean = true) => {
 		revealWebviewPanel(beside);

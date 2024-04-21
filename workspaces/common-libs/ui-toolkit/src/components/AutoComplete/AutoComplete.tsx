@@ -179,18 +179,18 @@ const ComboboxOption: React.FC<ComboboxOptionProps> = styled.div`
     display: ${(props: ComboboxOptionProps) => (props.display === undefined ? 'block' : props.display ? 'block' : 'none')};
 `;
 
-const getItemKey = (item: string | ItemComponent) => {
+export const getItemKey = (item: string | ItemComponent) => {
     if (typeof item === 'string') {
         return item;
     }
-    return item.key;
+    return item?.key;
 }
 
-const getItem = (item: string | ItemComponent) => {
+export const getItem = (item: string | ItemComponent) => {
     if (typeof item === 'string') {
         return item;
     }
-    return item.item;
+    return item?.item;
 }
 
 
@@ -212,7 +212,7 @@ export const AutoComplete = React.forwardRef<HTMLInputElement, AutoCompleteProps
         inputRef.current?.select();
         // This is to open the dropdown when the text field is focused.
         // This is a hacky way to do it since the Combobox component does not have a prop to open the dropdown.
-        document.getElementById(`autocomplete-dropdown-button-${items[0]}`)?.click();
+        document.getElementById(`autocomplete-dropdown-button-${getItemKey(items[0])}`)?.click();
         document.getElementById(props.value as string)?.focus();
     };
     const handleTextFieldOutFocused = (e: any) => {
@@ -277,7 +277,7 @@ export const AutoComplete = React.forwardRef<HTMLInputElement, AutoCompleteProps
                             onBlur={handleTextFieldOutFocused}
                         />
                         <Combobox.Button
-                            id={`autocomplete-dropdown-button-${items[0]}`}
+                            id={`autocomplete-dropdown-button-${getItemKey(items[0])}`}
                             className={isTextFieldFocused ? ComboboxButtonContainerActive : ComboboxButtonContainer}
                         >
                             {isUpButton ? (
@@ -304,8 +304,14 @@ export const AutoComplete = React.forwardRef<HTMLInputElement, AutoCompleteProps
                         afterLeave={handleAfterLeave}
                         ref={ref}
                     >
-                        <DropdownContainer display={!(filteredResults.length === 0 && query !== "" && allowItemCreate)} widthOffset={widthOffset} dropdownWidth={dropdownWidth}>
+                        <DropdownContainer
+                            // condition to display the dropdown
+                            display={!(filteredResults.length === 0 && query !== "" && allowItemCreate)}
+                            widthOffset={widthOffset}
+                            dropdownWidth={dropdownWidth}
+                        >
                             <Combobox.Options>
+                                {/* A hidden Combobox.Option which is used to create a new item */}
                                 {filteredResults.length === 0 && query !== "" ? (
                                     allowItemCreate ? (
                                         <ComboboxOption key={0}>
@@ -318,6 +324,10 @@ export const AutoComplete = React.forwardRef<HTMLInputElement, AutoCompleteProps
                                     )
                                 ) : (
                                     <Fragment>
+                                        {/**
+                                         * A hidden Combobox.Option which is used to create a new item when the query is a
+                                         * substring of the filtered results
+                                        **/}
                                         {allowItemCreate && extactMatch.length === 0 && (
                                             <ComboboxOption display={false} key={0}>
                                                 <Combobox.Option className={ComboboxOptionContainer} value={query} key={0}>
