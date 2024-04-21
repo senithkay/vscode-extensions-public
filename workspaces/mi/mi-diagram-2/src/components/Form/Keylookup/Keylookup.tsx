@@ -143,7 +143,13 @@ export const Keylookup = (props: IKeylookup) => {
                 });
             }
 
-            let items = [initialValue && (initialItem || initialValue), ...workspaceItems, ...registryItems];
+            let items: (string | ItemComponent)[] = [...workspaceItems, ...registryItems];
+
+            // Add the initial value to the start of the list if provided
+            if (!!initialValue && initialValue.length > 0) {
+                items.unshift((initialItem || initialValue));
+            }
+
             if (filter) {
                 items = items.filter((item) => filter(getItemKey(item)));
             }
