@@ -311,6 +311,7 @@ export interface GetMessageStoreResponse {
     providerClass: string;
     customParameters: Record[];
     failOverMessageStore: string;
+    connectionInformationType?: string;
 }
 
 export interface GetMessageStoreRequest {

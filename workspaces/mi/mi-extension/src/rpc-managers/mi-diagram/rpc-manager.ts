@@ -1003,6 +1003,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                         'store.jdbc.driver': 'driver',
                         'store.jdbc.connection.url': 'url',
                         'store.jdbc.username': 'user',
+                        'store.jdbc.password': 'password',
                         'store.jdbc.ds': 'dataSourceName',
                         'store.rabbitmq.username': 'userName',
                         'store.rabbitmq.password': 'password',
@@ -1269,7 +1270,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 uri: filePath,
                 range: {
                     start: { line: 0, character: 0 },
-                    end: { line:  sanitizedXmlData.split('\n').length + 1, character: 0 }
+                    end: { line: sanitizedXmlData.split('\n').length + 1, character: 0 }
                 }
             });
             commands.executeCommand(COMMANDS.REFRESH_COMMAND);
@@ -1354,8 +1355,10 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 directory, templateName, templateType, address, uriTemplate, httpMethod,
                 wsdlUri, wsdlService, wsdlPort, traceEnabled, statisticsEnabled } = params;
 
-            const getTemplateParams = { templateName, templateType, address, uriTemplate, httpMethod,
-                wsdlUri, wsdlService, wsdlPort, traceEnabled, statisticsEnabled };
+            const getTemplateParams = {
+                templateName, templateType, address, uriTemplate, httpMethod,
+                wsdlUri, wsdlService, wsdlPort, traceEnabled, statisticsEnabled
+            };
 
             const xmlData = getTemplateXmlWrapper(getTemplateParams);
             const sanitizedXmlData = xmlData.replace(/^\s*[\r\n]/gm, '');
@@ -1374,7 +1377,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     uri: filePath,
                     range: {
                         start: { line: 0, character: 0 },
-                        end: { line:  sanitizedXmlData.split('\n').length + 1, character: 0 }
+                        end: { line: sanitizedXmlData.split('\n').length + 1, character: 0 }
                     }
                 });
                 commands.executeCommand(COMMANDS.REFRESH_COMMAND);
@@ -1471,7 +1474,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             const sanitizedXmlData = xmlData.replace(/^\s*[\r\n]/gm, '');
 
             if (params.getContentOnly) {
-                resolve({path: "", content: sanitizedXmlData});
+                resolve({ path: "", content: sanitizedXmlData });
             } else {
                 let filePath: string;
                 if (directory.endsWith('.xml')) {
@@ -1486,7 +1489,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     uri: filePath,
                     range: {
                         start: { line: 0, character: 0 },
-                        end: { line:  sanitizedXmlData.split('\n').length + 1, character: 0 }
+                        end: { line: sanitizedXmlData.split('\n').length + 1, character: 0 }
                     }
                 });
                 commands.executeCommand(COMMANDS.REFRESH_COMMAND);
@@ -1653,7 +1656,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             const sanitizedXmlData = xmlData.replace(/^\s*[\r\n]/gm, '');
 
             if (params.getContentOnly) {
-                resolve({path: "", content: sanitizedXmlData});
+                resolve({ path: "", content: sanitizedXmlData });
             } else {
                 let filePath: string;
                 if (directory.endsWith('.xml')) {
@@ -1668,7 +1671,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     uri: filePath,
                     range: {
                         start: { line: 0, character: 0 },
-                        end: { line:  sanitizedXmlData.split('\n').length + 1, character: 0 }
+                        end: { line: sanitizedXmlData.split('\n').length + 1, character: 0 }
                     }
                 });
                 commands.executeCommand(COMMANDS.REFRESH_COMMAND);
@@ -1770,7 +1773,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             const sanitizedXmlData = xmlData.replace(/^\s*[\r\n]/gm, '');
 
             if (params.getContentOnly) {
-                resolve({path: "", content: sanitizedXmlData});
+                resolve({ path: "", content: sanitizedXmlData });
             } else {
                 let filePath: string;
                 if (directory.endsWith('.xml')) {
@@ -1785,7 +1788,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     uri: filePath,
                     range: {
                         start: { line: 0, character: 0 },
-                        end: { line:  sanitizedXmlData.split('\n').length + 1, character: 0 }
+                        end: { line: sanitizedXmlData.split('\n').length + 1, character: 0 }
                     }
                 });
                 commands.executeCommand(COMMANDS.REFRESH_COMMAND);
@@ -1888,7 +1891,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             const sanitizedXmlData = xmlData.replace(/^\s*[\r\n]/gm, '');
 
             if (params.getContentOnly) {
-                resolve({path: "", content: sanitizedXmlData});
+                resolve({ path: "", content: sanitizedXmlData });
             } else {
                 let filePath: string;
                 if (directory.endsWith('.xml')) {
@@ -1903,7 +1906,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     uri: filePath,
                     range: {
                         start: { line: 0, character: 0 },
-                        end: { line:  sanitizedXmlData.split('\n').length + 1, character: 0 }
+                        end: { line: sanitizedXmlData.split('\n').length + 1, character: 0 }
                     }
                 });
                 commands.executeCommand(COMMANDS.REFRESH_COMMAND);
@@ -2086,7 +2089,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 uri: filePath,
                 range: {
                     start: { line: 0, character: 0 },
-                    end: { line:  sanitizedXmlData.split('\n').length + 1, character: 0 }
+                    end: { line: sanitizedXmlData.split('\n').length + 1, character: 0 }
                 }
             });
             commands.executeCommand(COMMANDS.REFRESH_COMMAND);
@@ -2121,8 +2124,8 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     messageProcessorType: '',
                     messageStoreType: jsonData.messageProcessor["@_"]["@_messageStore"],
                     failMessageStoreType: '',
-                    sourceMessageStoreType: 'TestMBStore',
-                    targetMessageStoreType: 'TestMBStore',
+                    sourceMessageStoreType: '',
+                    targetMessageStoreType: '',
                     processorState: 'true',
                     dropMessageOption: 'Disabled',
                     quartzConfigPath: '',
@@ -2152,6 +2155,11 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     properties: [],
                     hasCustomProperties: false
                 };
+
+                let sourceMsgStore = '';
+                if (jsonData.messageProcessor["@_"]["@_messageStore"] !== undefined) {
+                    sourceMsgStore = jsonData.messageProcessor["@_"]["@_messageStore"];
+                }
 
                 if (jsonData.messageProcessor["@_"]["@_targetEndpoint"] !== undefined) {
                     response.endpoint = jsonData.messageProcessor["@_"]["@_targetEndpoint"];
@@ -2220,8 +2228,8 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                             } else {
                                 customProperties.push({ key: param.name, value: param.value });
                             }
-
                         });
+                        response.messageStoreType = sourceMsgStore;
                     } else if (className === 'org.apache.synapse.message.processor.impl.sampler.SamplingProcessor') {
                         response.messageProcessorType = 'Message Sampling Processor';
                         parameters.forEach((param: Parameter) => {
@@ -2240,6 +2248,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                                 customProperties.push({ key: param.name, value: param.value });
                             }
                         });
+                        response.sourceMessageStoreType = sourceMsgStore;
                     } else {
                         response.messageProcessorType = 'Custom Message Processor';
                         response.providerClass = className;

@@ -68,20 +68,6 @@ const initialAPI: APIData = {
     handlers: []
 };
 
-const schema = yup.object({
-    apiName: yup.string().required("API Name is required").matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in name"),
-    apiContext: yup.string().required("API Context is required"),
-    hostName: yup.string(),
-    port: yup.string(),
-    trace: yup.boolean(),
-    statistics: yup.boolean(),
-    version: yup.string(),
-    swaggerdefPath: yup.string(),
-    apiRange: yup.object(),
-    handlersRange: yup.object(),
-    handlers: yup.array()
-});
-
 export interface APIWizardProps {
     apiData?: APIData;
     path: string;
@@ -91,6 +77,31 @@ type VersionType = "none" | "context" | "url";
 
 export function APIWizard({ apiData, path }: APIWizardProps) {
     const { rpcClient } = useVisualizerContext();
+    const [versionType, setVersionType] = useState("none");
+    const [handlers, setHandlers] = useState([]);
+    const [artifactNames, setArtifactNames] = useState([]);
+    const [workspaceFileNames, setWorkspaceFileNames] = useState([]);
+
+    const schema = yup.object({
+        apiName: yup.string().required("API Name is required").matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in name")
+            .test('validateApiName',
+                'An artifact with same name already exists', value => {
+                    return !(workspaceFileNames.includes(value))
+                }).test('validateArtifactName',
+                    'A registry resource with this artifact name already exists', value => {
+                        return !(artifactNames.includes(value))
+                    }),
+        apiContext: yup.string().required("API Context is required"),
+        hostName: yup.string(),
+        port: yup.string(),
+        trace: yup.boolean(),
+        statistics: yup.boolean(),
+        version: yup.string(),
+        swaggerdefPath: yup.string(),
+        apiRange: yup.object(),
+        handlersRange: yup.object(),
+        handlers: yup.array()
+    });
 
     const {
         reset,
@@ -104,9 +115,6 @@ export function APIWizard({ apiData, path }: APIWizardProps) {
         resolver: yupResolver(schema),
         mode: "onChange"
     });
-
-    const [versionType, setVersionType] = useState("none");
-    const [handlers, setHandlers] = useState([]);
 
     const identifyVersionType = (version: string): VersionType => {
         if (!version) {
@@ -129,6 +137,19 @@ export function APIWizard({ apiData, path }: APIWizardProps) {
             reset(initialAPI);
         }
     }, [apiData]);
+
+    useEffect(() => {
+        (async () => {
+            const artifactRes = await rpcClient.getMiDiagramRpcClient().getAllArtifacts({
+                path: path,
+            });
+            setWorkspaceFileNames(artifactRes.artifacts);
+            const regArtifactRes = await rpcClient.getMiDiagramRpcClient().getAvailableRegistryResources({
+                path: path,
+            });
+            setArtifactNames(regArtifactRes.artifacts);
+        })();
+    }, []);
 
     const versionLabels = [
         { content: "None", value: "none" },
