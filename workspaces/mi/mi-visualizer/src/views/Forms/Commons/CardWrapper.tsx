@@ -96,24 +96,24 @@ const CARD_WRAPPER_DATA = {
     MESSAGE_PROCESSOR: {
         cards: [
             {
-                title: 'Scheduled Message Forwarding Processor',
-                icon: 'code',
-                description: 'Description',
-            },
-            {
                 title: 'Message Sampling Processor',
                 icon: 'code',
-                description: 'Description',
+                description: 'Sample messages for processing',
             },
             {
-                title: 'Custom Message Processor',
+                title: 'Scheduled Message Forwarding Processor',
                 icon: 'code',
-                description: 'Description',
+                description: 'Forwards messages on a schedule',
             },
             {
                 title: 'Scheduled Failover Message Forwarding Processor',
                 icon: 'code',
-                description: 'Description',
+                description: 'Handle failover scenarios',
+            },
+            {
+                title: 'Custom Message Processor',
+                icon: 'code',
+                description: 'Configure a custom message processor',
             }
         ]
     },
@@ -195,56 +195,56 @@ const CARD_WRAPPER_DATA = {
             {
                 title: 'In-Line Text Entry',
                 icon: 'code',
-                description: 'Description',
+                description: 'Stores text content',
             },
             {
                 title: 'In-Line XML Entry',
                 icon: 'code',
-                description: 'Description',
+                description: 'Stores XML content',
             },
             {
                 title: 'Source URL Entry',
                 icon: 'code',
-                description: 'Description',
+                description: 'Stores a URL reference',
             }
         ]
     },
     MESSAGE_STORE: {
         cards: [
             {
-                title: 'JMS Message Store',
+                title: 'In Memory Message Store',
                 icon: 'code',
-                description: 'Description',
+                description: 'Temporarily holds messages in memory',
             },
             {
                 title: 'RabbitMQ Message Store',
                 icon: 'code',
-                description: 'Description',
+                description: 'Utilizes RabbitMQ for message storage',
             },
             {
-                title: 'WSO2 MB Message Store',
+                title: 'JMS Message Store',
                 icon: 'code',
-                description: 'Description',
-            },
-            {
-                title: 'In Memory Message Store',
-                icon: 'code',
-                description: 'Description',
+                description: 'Stores messages for Java Message Service (JMS) communication.',
             },
             {
                 title: 'JDBC Message Store',
                 icon: 'code',
-                description: 'Description',
+                description: 'Persists messages using a JDBC database',
             },
             {
                 title: 'Custom Message Store',
                 icon: 'code',
-                description: 'Description',
+                description: 'Allows custom implementations for specific requirements',
             },
             {
                 title: 'Resequence Message Store',
                 icon: 'code',
-                description: 'Description',
+                description: 'Reorders messages based on specified criteria',
+            },
+            {
+                title: 'WSO2 MB Message Store',
+                icon: 'code',
+                description: 'Integrates with WSO2 Message Broker',
             }
         ]
     },
