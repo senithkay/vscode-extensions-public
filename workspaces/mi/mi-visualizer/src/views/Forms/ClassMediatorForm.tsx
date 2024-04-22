@@ -41,9 +41,8 @@ export function ClassMediatorForm(props: ClassMediatorProps) {
     const { rpcClient } = useVisualizerContext();
 
     const {
-        reset,
         register,
-        formState: { errors, isDirty, isValid },
+        formState: { errors },
         handleSubmit,
     } = useForm({
         defaultValues: initialClassMediator,
@@ -93,7 +92,7 @@ export function ClassMediatorForm(props: ClassMediatorProps) {
                 <Button appearance="secondary" onClick={openOverview}>
                     Cancel
                 </Button>
-                <Button disabled={!isValid || !isDirty} onClick={handleSubmit((values) => {
+                <Button onClick={handleSubmit((values) => {
                     handleCreateMediator(values);
                 })}>
                     Create
