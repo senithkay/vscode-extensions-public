@@ -1,8 +1,8 @@
-import React, { FC, PropsWithChildren } from "react";
+import React, { FC, PropsWithChildren, ReactNode } from "react";
 import { Divider } from "../../../components/Divider";
 
 interface Props extends PropsWithChildren {
-    title: string;
+    title: ReactNode;
     showDivider?: boolean;
 }
 

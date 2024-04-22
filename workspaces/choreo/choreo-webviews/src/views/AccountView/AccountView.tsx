@@ -14,7 +14,7 @@ export const AccountView: FC<AccountActivityViewProps> = () => {
     return (
         <div className="w-full flex gap-3 items-center px-6 py-2 mt-2">
             {userInfo?.userProfilePictureUrl && (
-                <img className="rounded" src={userInfo?.userProfilePictureUrl} width="60px" height="60px" />
+                <img className="rounded opacity-80" src={userInfo?.userProfilePictureUrl} width="60px" height="60px" />
             )}
             <div className="flex flex-col gap-0.5">
                 <h3 className="font-bold line-clamp-1">{userInfo.displayName}</h3>

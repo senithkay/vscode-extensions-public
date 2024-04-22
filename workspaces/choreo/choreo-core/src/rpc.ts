@@ -49,12 +49,13 @@ export const RefreshLinkedDirState: NotificationType<void> = { method: 'refreshL
 export const DeleteFile: RequestType<string, void> = { method: 'deleteFile' };
 export const ShowConfirmMessage: RequestType<ShowConfirmBoxReq, boolean> = { method: 'showConfirmMessage' };
 export const ShowQuickPick: RequestType<ShowWebviewQuickPickItemsReq, WebviewQuickPickItem | undefined> = { method: 'showQuickPicks' };
-export const OpenComponentInConsole: RequestType<OpenComponentInConsoleReq, void> = { method: 'openComponentInConsole' };
 export const ViewComponentDetails: RequestType<ViewComponentDetailsReq, void> = { method: 'viewComponentDetails' };
 export const ReadServiceEndpoints: RequestType<string, ReadEndpointsResp> = { method: 'readServiceEndpoints' };
 export const ViewBuildsLogs: RequestType<ViewBuildLogsReq, void> = { method: 'viewBuildLogs' };
 export const ViewRuntimeLogs: RequestType<ViewRuntimeLogsReq, void> = { method: 'viewRuntimeLogs' };
 export const CreateEndpointYaml: RequestType<CreateEndpointReq, void> = { method: 'createNewEndpointYaml' };
+export const TriggerGithubAuthFlow: RequestType<string, void> = { method: 'triggerGithubAuthFlow' };
+export const TriggerGithubInstallFlow: RequestType<string, void> = { method: 'triggerGithubInstallFlow' };
 
 export interface CreateEndpointReq { componentPath: string, name: string, networkVisibility: string, port: number }
 
@@ -84,12 +85,6 @@ export interface OpenDialogOptions {   // here
 export interface ShowConfirmBoxReq {
    message: string;
    buttonText: string;
-}
-
-export interface OpenComponentInConsoleReq {
-   orgHandler: string;
-   projectHandler: string;
-   componentHandler: string;
 }
 
 export interface ViewComponentDetailsReq {

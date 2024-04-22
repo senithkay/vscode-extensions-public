@@ -21,7 +21,7 @@ export const selectComponent = async (
         cacheQuickPicks: dataCacheStore
             .getState()
             .getComponents(org.handle, project.handler)
-            .map((item) => ({ label: item.metadata.name, item })),
+            .map((item) => ({ label: item.metadata.displayName, item })),
         loadQuickPicks: async () => {
             const components = await ext.clients.rpcClient.getComponentList({
                 orgId: org.id.toString(),
@@ -35,7 +35,7 @@ export const selectComponent = async (
                 );
             }
 
-            return components.map((item) => ({ label: item.metadata.name, item }));
+            return components.map((item) => ({ label: item.metadata.displayName, item }));
         },
         loadingTitle,
         selectTitle,

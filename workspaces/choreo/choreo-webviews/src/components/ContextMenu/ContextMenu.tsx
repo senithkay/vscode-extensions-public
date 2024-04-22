@@ -36,7 +36,9 @@ export const ContextMenu: FC<Props> = ({ options }) => {
                                 className="px-2 py-1 hover:bg-vsc-menubar-selectionBackground hover:text-vsc-menubar-selectionForeground duration-100"
                                 onClick={(event)=>{
                                     event.stopPropagation();
-                                    item.onClick();
+                                    if(item.onClick){
+                                        item.onClick();
+                                    }
                                 }}
                             >
                                 {item.label}

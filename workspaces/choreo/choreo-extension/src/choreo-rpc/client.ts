@@ -30,6 +30,8 @@ import {
     ComponentDeployment,
     CreateDeploymentReq,
     ViewBuildLogsReq,
+    GetComponentItemReq,
+    IsRepoAuthorizedResp,
 } from "@wso2-enterprise/choreo-core";
 import { workspace } from "vscode";
 import { handlerError } from "../error-utils";
@@ -123,7 +125,6 @@ export class ChoreoRPCClient implements IChoreoRPCClient {
         if (!this.client) {
             throw new Error("RPC client is not initialized");
         }
-        console.log("Creating ep yaml", params);
         const resp = await this.client.sendRequest<{ success: boolean }>("component/createEpYaml", params);
         return resp;
     }
@@ -141,6 +142,14 @@ export class ChoreoRPCClient implements IChoreoRPCClient {
         }
         const response = await this.client.sendRequest<{ projects: Project[] }>("project/getProjects", { orgID });
         return response.projects;
+    }
+
+    async getComponentItem(params: GetComponentItemReq): Promise<ComponentKind> {
+        if (!this.client) {
+            throw new Error("RPC client is not initialized");
+        }
+        const response = await this.client.sendRequest<{ component: ComponentKind }>("component/getItem", params);
+        return response.component;
     }
 
     async getComponentList(params: GetComponentsReq): Promise<ComponentKind[]> {
@@ -171,8 +180,8 @@ export class ChoreoRPCClient implements IChoreoRPCClient {
         if (!this.client) {
             throw new Error("RPC client is not initialized");
         }
-        const response = await this.client.sendRequest<{ isAccessible: boolean }>("repo/isRepoAuthorized", params);
-        return response.isAccessible;
+        const response = await this.client.sendRequest<IsRepoAuthorizedResp>("repo/isRepoAuthorized", params);
+        return response;
     }
 
     async createComponentLink(params: CreateLinkReq): Promise<void> {
@@ -288,6 +297,13 @@ export class ChoreoRPCClient implements IChoreoRPCClient {
         }
         const response: { logs: string }= await this.client.sendRequest("build/logs", params);
         return response.logs;
+    }
+
+    async obtainGithubToken(params: {code: string; orgId: string}): Promise<void> {
+        if (!this.client) {
+            throw new Error("RPC client is not initialized");
+        }
+        await this.client.sendRequest("repo/obtainGithubToken", params);
     }
 }
 

@@ -25,7 +25,7 @@ export const Banner: FC<Props> = ({ className, children, type }) => {
             )}
         >
             <i className="codicon codicon-warning" />
-            <span>{children}</span>
+            <div className="flex-1">{children}</div>
         </div>
     );
 };

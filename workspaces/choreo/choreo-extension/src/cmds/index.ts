@@ -8,6 +8,7 @@
  */
 import { commands, ExtensionContext } from "vscode";
 import { linkExistingComponentCommand } from './link-existing-component-cmd';
+import { unlinkComponentCommand } from './unlink-component-cmd';
 import { createNewComponentCommand } from './create-component-cmd';
 import { refreshComponentsCommand } from './refresh-components-cmd';
 import { deleteComponentCommand } from './delete-component-cmd';
@@ -21,6 +22,7 @@ import { CommandIds } from "@wso2-enterprise/choreo-core";
 export function activateCmds(context: ExtensionContext) {
     createNewComponentCommand(context);
     linkExistingComponentCommand(context);
+    unlinkComponentCommand(context);
     refreshComponentsCommand(context);
     deleteComponentCommand(context);
     signInCommand(context);

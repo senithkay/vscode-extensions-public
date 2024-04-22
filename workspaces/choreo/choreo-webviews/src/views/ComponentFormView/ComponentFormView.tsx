@@ -19,15 +19,11 @@ import { Banner } from "../../components/Banner";
 import { componentFormSchema } from "./componentFormSchema";
 import { Button } from "../../components/Button";
 import { makeURLSafe } from "../../utilities/helpers";
+import { Codicon } from "../../components/Codicon";
 
 type ComponentFormType = z.infer<typeof componentFormSchema>;
 
-export const ComponentFormView: FC<NewComponentWebviewProps> = ({
-    project,
-    organization,
-    directoryPath,
-    gitInstallUrl,
-}) => {
+export const ComponentFormView: FC<NewComponentWebviewProps> = ({ project, organization, directoryPath }) => {
     const form = useForm<ComponentFormType>({
         resolver: zodResolver(componentFormSchema),
         mode: "all",
@@ -83,23 +79,23 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({
         refetchOnWindowFocus: false,
     });
 
-    useEffect(()=>{
+    useEffect(() => {
         if (!buildpacks.find((item) => item.language === form.getValues("buildPackLang"))) {
             form.setValue("buildPackLang", buildpacks[0].language);
             form.setValue("langVersion", "");
         }
-    },[form, buildpacks])
+    }, [form, buildpacks]);
 
     const { isLoading: isLoadingRemotes, data: gitRemotes = [] } = useQuery({
         queryKey: ["get-git-remotes", { subPath }],
         queryFn: () => ChoreoWebViewAPI.getInstance().getGitRemotes([directoryPath, subPath]),
     });
 
-    useEffect(()=>{
+    useEffect(() => {
         if (gitRemotes.length > 0 && !gitRemotes.includes(form.getValues("repoUrl"))) {
             form.setValue("repoUrl", gitRemotes[0]);
         }
-    },[form, gitRemotes])
+    }, [form, gitRemotes]);
 
     const { isLoading: isLoadingBranches, data: branches = [] } = useQuery({
         queryKey: ["get-git-branches", { repo: repoUrl, orgId: organization?.id }],
@@ -111,7 +107,7 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({
         refetchOnWindowFocus: false,
     });
 
-    useEffect(()=>{
+    useEffect(() => {
         if (!form.getValues("branch") || !branches.includes(form.getValues("branch"))) {
             if (branches.includes("main")) {
                 form.setValue("branch", "main");
@@ -121,9 +117,14 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({
                 form.setValue("branch", branches[0]);
             }
         }
-    },[form, branches])
+    }, [form, branches]);
 
-    const { isLoading: isCheckingRepoAccess, data: hasRepoAccess } = useQuery({
+    const {
+        isLoading: isCheckingRepoAccess,
+        isFetching: isFetchingRepoAccess,
+        data: isRepoAuthorizedResp,
+        refetch: refetchRepoAccess,
+    } = useQuery({
         queryKey: ["git-repo-access", { repo: repoUrl, orgId: organization?.id }],
         queryFn: () =>
             ChoreoWebViewAPI.getInstance().getChoreoRpcClient().isRepoAuthorized({
@@ -140,8 +141,6 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({
         () => form.setValue("langVersion", supportedVersions[0] ?? "", { shouldValidate: !!supportedVersions[0] }),
         [supportedVersions]
     );
-
-    const openGitInstallUrl = () => ChoreoWebViewAPI.getInstance().openExternal(gitInstallUrl);
 
     const { mutate: createComponent, isLoading: isCreatingComponent } = useMutation({
         mutationFn: async (data: ComponentFormType) => {
@@ -161,6 +160,7 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({
                 orgId: organization.id.toString(),
                 projectHandle: selectedProject.handler,
                 name: componentName,
+                displayName: data.name,
                 type: data.type,
                 buildPackLang: data.buildPackLang,
                 componentDir,
@@ -190,22 +190,23 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({
                 });
             }
 
-            const componentList = await ChoreoWebViewAPI.getInstance()
-                .getChoreoRpcClient()
-                .getComponentList({ orgId: organization.id.toString(), projectHandle: project.handler });
-            const createdComp = componentList.find((item) => item.metadata.name === componentName);
-            if (createdComp) {
+            ChoreoWebViewAPI.getInstance().showInfoMsg(`Component ${data.name} has been successfully created`);
+            ChoreoWebViewAPI.getInstance().refreshLinkedDirState();
+
+            const createdComponent = await ChoreoWebViewAPI.getInstance().getChoreoRpcClient().getComponentItem({
+                orgId: organization.id.toString(),
+                projectHandle: project.handler,
+                componentName: componentName,
+            });
+            if (createdComponent) {
                 ChoreoWebViewAPI.getInstance().ViewComponent({
-                    component: createdComp,
+                    component: createdComponent,
                     organization,
                     project,
                     componentPath: componentDir,
                 });
             }
-        },
-        onSuccess: (_, data) => {
-            ChoreoWebViewAPI.getInstance().showInfoMsg(`Component ${data.name} has been successfully created`);
-            ChoreoWebViewAPI.getInstance().refreshLinkedDirState();
+
             ChoreoWebViewAPI.getInstance().closeWebView();
         },
         onError: (err: any) => {
@@ -295,14 +296,43 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({
     let invalidRepoMsg: ReactNode = "";
     if (!isLoadingRemotes && gitRemotes?.length === 0) {
         invalidRepoMsg = "The selected repository does not contain any Git remotes";
-    } else if (repoUrl && !isCheckingRepoAccess && !hasRepoAccess) {
+    } else if (repoUrl && !isCheckingRepoAccess && !isRepoAuthorizedResp?.isAccessible) {
         invalidRepoMsg = (
-            <>
-                Choreo lacks access to this repository. To grant access, please visit{" "}
-                <VSCodeLink onClick={openGitInstallUrl}>{gitInstallUrl}</VSCodeLink>
-            </>
+            <div className="flex items-center">
+                <div className="flex-1">
+                    {isRepoAuthorizedResp?.retrievedRepos
+                        ? "Choreo lacks access to this repository. Please grant access by clicking"
+                        : "Please authorize Choreo to access your GitHub repositories by clicking"}{" "}
+                    <VSCodeLink
+                        className="text-vsc-list-warningForeground font-bold"
+                        onClick={
+                            isRepoAuthorizedResp?.retrievedRepos
+                                ? () =>
+                                      ChoreoWebViewAPI.getInstance().triggerGithubInstallFlow(
+                                          organization.id?.toString()
+                                      )
+                                : () =>
+                                      ChoreoWebViewAPI.getInstance().triggerGithubAuthFlow(organization.id?.toString())
+                        }
+                    >
+                        here
+                    </VSCodeLink>
+                    .
+                </div>
+                <Button
+                    appearance="icon"
+                    className="text-vsc-list-warningForeground"
+                    title="Refresh access repository status"
+                    onClick={() => refetchRepoAccess()}
+                    disabled={isFetchingRepoAccess}
+                >
+                    <Codicon name="refresh" />
+                </Button>
+            </div>
         );
     }
+
+    // TODO: add visibility (internal/external) for webhooks
 
     return (
         <div className="flex flex-row justify-center p-1 md:p-3 lg:p-4 xl:p-6">
@@ -384,7 +414,7 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({
                             name="branch"
                             control={form.control}
                             items={branches}
-                            disabled={branches?.length === 0 || !hasRepoAccess}
+                            disabled={branches?.length === 0 || !isRepoAuthorizedResp?.isAccessible}
                             loading={isLoadingBranches}
                         />
                         <Dropdown

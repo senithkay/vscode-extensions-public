@@ -13,8 +13,9 @@ import React, { HTMLProps, FC } from "react";
 interface Props {
     name: string;
     className?: HTMLProps<HTMLElement>["className"];
+    title?: HTMLProps<HTMLElement>["title"];
 }
 
-export const Codicon:FC<Props> = ({ name, className }) => {
-    return <i className={classNames(`codicon`, `codicon-${name}`, className)} />;
-}
+export const Codicon: FC<Props> = ({ title, name, className }) => {
+    return <i title={title} className={classNames(`codicon`, `codicon-${name}`, className)} />;
+};

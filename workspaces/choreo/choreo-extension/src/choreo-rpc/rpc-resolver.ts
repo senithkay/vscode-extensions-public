@@ -27,11 +27,13 @@ import {
     ChoreoRpcGetEndpointsRequest,
     ChoreoRpcGetDeploymentStatusRequest,
     ChoreoRpcCreateDeploymentRequest,
+    ChoreoRpcGetComponentItemRequest,
 } from "@wso2-enterprise/choreo-core";
 import { ProgressLocation, window } from "vscode";
 
 export function registerChoreoRpcResolver(messenger: Messenger, rpcClient: IChoreoRPCClient) {
     messenger.onRequest(ChoreoRpcGetProjectsRequest, (orgID) => rpcClient.getProjects(orgID));
+    messenger.onRequest(ChoreoRpcGetComponentItemRequest, (params) => rpcClient.getComponentItem(params));
     messenger.onRequest(ChoreoRpcGetComponentsRequest, (params) => rpcClient.getComponentList(params));
     messenger.onRequest(ChoreoRpcCreateLinkRequest, (params) => rpcClient.createComponentLink(params));
     messenger.onRequest(ChoreoRpcCreateProjectRequest, async (params) => {

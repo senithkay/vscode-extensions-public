@@ -92,7 +92,7 @@ export function linkExistingComponentCommand(context: ExtensionContext) {
 
                 if (matchingComponents.length > 1) {
                     const matchingComponent = await resolveQuickPick(
-                        matchingComponents.map((item) => ({ item, label: item.metadata.name })),
+                        matchingComponents.map((item) => ({ item, label: item.metadata.displayName })),
                         `Select component to link with selected directory`,
                         "No components"
                     );
@@ -116,7 +116,7 @@ export function linkExistingComponentCommand(context: ExtensionContext) {
 
                         window
                             .showInformationMessage(
-                                `Selected directory has been successfully linked with component ${matchingComponents[0]?.metadata.name}`,
+                                `Selected directory has been successfully linked with component ${matchingComponents[0]?.metadata.displayName}`,
                                 "View link file"
                             )
                             .then((selection) => {
@@ -127,7 +127,8 @@ export function linkExistingComponentCommand(context: ExtensionContext) {
                                             matchingComponents[0]?.spec.source.github?.path!,
                                             ".choreo",
                                             "link.yaml"
-                                        )
+                                        ),
+                                        false
                                     );
                                 }
                             });

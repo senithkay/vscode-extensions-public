@@ -13,7 +13,6 @@ export interface NewComponentWebviewProps {
     type: "NewComponentForm";
     directoryPath: string;
     organization: Organization;
-    gitInstallUrl: string;
     project?: Project;
 }
 export interface ComponentsDetailsWebviewProps {

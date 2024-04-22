@@ -27,7 +27,7 @@ export class ComponentDetailsView {
     private static createWebview(component: ComponentKind): vscode.WebviewPanel {
         const panel = vscode.window.createWebviewPanel(
             `ComponentDetailsView-${component.metadata.name}`,
-            `Component: ${component.metadata.name}`,
+            `Component: ${component.metadata.displayName}`,
             vscode.ViewColumn.One,
             { enableScripts: true, retainContextWhenHidden: true }
         );

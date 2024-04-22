@@ -114,8 +114,6 @@ import {
     DeleteFile,
     ShowConfirmMessage,
     ShowConfirmBoxReq,
-    OpenComponentInConsoleReq,
-    OpenComponentInConsole,
     ViewComponentDetailsReq,
     ViewComponentDetails,
     ReadServiceEndpoints,
@@ -132,6 +130,8 @@ import {
     GetWebviewStoreState,
     CreateEndpointYaml,
     CreateEndpointReq,
+    TriggerGithubAuthFlow,
+    TriggerGithubInstallFlow,
 } from "@wso2-enterprise/choreo-core";
 import { IChoreoProjectClient } from "@wso2-enterprise/choreo-client/lib/project/types";
 import { ChoreoProjectClientRPCWebView } from "@wso2-enterprise/choreo-client/lib/project/rpc";
@@ -249,10 +249,6 @@ export class ChoreoWebViewAPI {
         return this._messenger.sendRequest(ShowConfirmMessage, HOST_EXTENSION, params);
     }
 
-    public async OpenComponentInConsole(params: OpenComponentInConsoleReq): Promise<void> {
-        return this._messenger.sendRequest(OpenComponentInConsole, HOST_EXTENSION, params);
-    }
-
     public async ViewComponent(params: ViewComponentDetailsReq): Promise<void> {
         return this._messenger.sendRequest(ViewComponentDetails, HOST_EXTENSION, params);
     }
@@ -275,6 +271,14 @@ export class ChoreoWebViewAPI {
 
     public async viewRuntimeLogs(params: ViewRuntimeLogsReq): Promise<void> {
         return this._messenger.sendRequest(ViewRuntimeLogs, HOST_EXTENSION, params);
+    }
+
+    public async triggerGithubAuthFlow(orgId: string): Promise<void> {
+        return this._messenger.sendRequest(TriggerGithubAuthFlow, HOST_EXTENSION, orgId);
+    }
+
+    public async triggerGithubInstallFlow(orgId: string): Promise<void> {
+        return this._messenger.sendRequest(TriggerGithubInstallFlow, HOST_EXTENSION, orgId);
     }
     // todo: remove old ones
 

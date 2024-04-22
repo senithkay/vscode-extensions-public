@@ -19,6 +19,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ChoreoWebViewAPI } from "../../../utilities/WebViewRpc";
 import { getShortenedHash, getTimeAgo } from "../../../utilities/helpers";
 import { CommitLink } from "../../../components/CommitLink";
+import { useAutoAnimate } from '@formkit/auto-animate/react'
 
 interface Props {
     component: ComponentKind;
@@ -32,6 +33,8 @@ export const BuildsSection: FC<Props> = (props) => {
     const { component, organization, project, deploymentTrack } = props;
     const [hasOngoingBuilds, setHasOngoingBuilds] = useState(false);
     const [visibleBuildCount, setVisibleBuildCount] = useState(5);
+    const [buildListRef] = useAutoAnimate({ duration: 100 })
+
 
     const { isLoading: isLoadingCommits, data: commits = [] } = useQuery({
         queryKey: [
@@ -56,6 +59,7 @@ export const BuildsSection: FC<Props> = (props) => {
 
     const {
         isLoading: isLoadingBuilds,
+        isRefetching: isRefetchingBuilds,
         data: builds = [],
         refetch: refetchBuilds,
     } = useQuery({
@@ -134,10 +138,11 @@ export const BuildsSection: FC<Props> = (props) => {
                     appearance="icon"
                     title="Refresh Build List"
                     className="opacity-50"
+                    disabled={isRefetchingBuilds}
                 >
                     <Codicon name="refresh" />
                 </Button>
-                {!isLoadingBuilds && builds?.length > 0 && (
+                {!isLoadingBuilds && (
                     <Button
                         disabled={isLoadingCommits || commits.length === 0 || isTriggeringBuild}
                         onClick={() => selectCommitForBuild()}
@@ -147,79 +152,69 @@ export const BuildsSection: FC<Props> = (props) => {
                 )}
             </div>
 
-            {isLoadingBuilds ? (
-                <>
-                    <div className="grid-cols-2 md:grid-cols-4 md:grid hidden py-2 font-light text-xs">
-                        <div>Build ID</div>
-                        <div>Commit</div>
-                        <div>Started</div>
-                        <div>Status</div>
-                    </div>
-                    {Array.from(new Array(5)).map((_, index) => (
-                        <div
-                            key={index}
-                            className="grid grid-cols-2 md:grid-cols-4 py-1 hover:bg-vsc-editorHoverWidget-background"
-                        >
-                            <GridColumnItem label="Build ID" index={0}>
-                                <SkeletonText className="w-20" />
-                            </GridColumnItem>
-                            <GridColumnItem label="Commit" index={1}>
-                                <div className="w-full flex justify-end md:justify-start">
-                                    <SkeletonText className="w-12" />
-                                </div>
-                            </GridColumnItem>
-                            <GridColumnItem label="Started" index={2}>
-                                <SkeletonText className="w-20" />
-                            </GridColumnItem>
-                            <GridColumnItem label="Status" index={3}>
-                                <div className="flex gap-2 justify-start md:justify-between items-center flex-row-reverse md:flex-row">
-                                    <SkeletonText className="w-12" />
-                                    <SkeletonText className="w-10" />
-                                </div>
-                            </GridColumnItem>
-                        </div>
-                    ))}
-                    <div className="h-10" />
-                </>
-            ) : (
-                <>
-                    {builds.length === 0 ? (
-                        <>
-                            <div className="flex flex-col items-center justify-center gap-3 lg:p-12 p-5">
-                                <p className="text-center opacity-50 font-light text-base">
-                                    There aren't any builds available
-                                </p>
-                                <Button
-                                    disabled={isLoadingCommits || commits.length === 0 || isTriggeringBuild}
-                                    onClick={() => selectCommitForBuild()}
-                                >
-                                    Build Component
-                                </Button>
+            <div className="grid-cols-2 md:grid-cols-4 md:grid hidden py-2 font-light text-xs">
+                <div>Build ID</div>
+                <div>Commit</div>
+                <div>Started</div>
+                <div>Status</div>
+            </div>
+            <div className="min-h-44" ref={buildListRef}>
+                {isLoadingBuilds ? (
+                    <>
+                        {Array.from(new Array(5)).map((_, index) => (
+                            <div
+                                key={index}
+                                className="grid grid-cols-2 md:grid-cols-4 py-1 hover:bg-vsc-editorHoverWidget-background"
+                            >
+                                <GridColumnItem label="Build ID" index={0}>
+                                    <SkeletonText className="w-20" />
+                                </GridColumnItem>
+                                <GridColumnItem label="Commit" index={1}>
+                                    <div className="w-full flex justify-end md:justify-start">
+                                        <SkeletonText className="w-12" />
+                                    </div>
+                                </GridColumnItem>
+                                <GridColumnItem label="Started" index={2}>
+                                    <SkeletonText className="w-20" />
+                                </GridColumnItem>
+                                <GridColumnItem label="Status" index={3}>
+                                    <div className="flex gap-2 justify-start md:justify-between items-center flex-row-reverse md:flex-row">
+                                        <SkeletonText className="w-12" />
+                                        <SkeletonText className="w-10" />
+                                    </div>
+                                </GridColumnItem>
                             </div>
-                            <div className="h-10" />
-                        </>
-                    ) : (
-                        <>
-                            <div className="grid-cols-2 md:grid-cols-4 md:grid hidden py-2 font-light text-xs">
-                                <div>Build ID</div>
-                                <div>Commit</div>
-                                <div>Started</div>
-                                <div>Status</div>
-                            </div>
-                            {builds?.slice(0, visibleBuildCount)?.map((item) => (
-                                <BuiltItemRow key={item.status?.runId} item={item} {...props} />
-                            ))}
-                            {builds.length > visibleBuildCount && (
-                                <div className="flex flex-row justify-end mt-2">
-                                    <Button appearance="icon" onClick={() => setVisibleBuildCount((v) => v + 5)}>
-                                        View More
-                                    </Button>
+                        ))}
+                        <div className="h-10 hidden lg:block" />
+                    </>
+                ) : (
+                    <>
+                        {builds.length === 0 ? (
+                            <>
+                                <div className="flex flex-col items-center justify-center gap-3 min-h-44">
+                                    <p className="text-center opacity-40 font-light text-sm">
+                                        There aren't any builds available
+                                    </p>
+                                    <Codicon name="inbox" className="!text-4xl opacity-20" />
                                 </div>
-                            )}
-                        </>
-                    )}
-                </>
-            )}
+                            </>
+                        ) : (
+                            <>
+                                {builds?.slice(0, visibleBuildCount)?.map((item) => (
+                                    <BuiltItemRow key={item.status?.runId} item={item} {...props} />
+                                ))}
+                                {builds.length > visibleBuildCount && (
+                                    <div className="flex flex-row justify-end mt-2">
+                                        <Button appearance="icon" onClick={() => setVisibleBuildCount((v) => v + 5)}>
+                                            View More
+                                        </Button>
+                                    </div>
+                                )}
+                            </>
+                        )}
+                    </>
+                )}
+            </div>
         </div>
     );
 };
@@ -285,7 +280,7 @@ const BuiltItemRow: FC<Props & { item: BuildKind }> = ({
                     },
                 ],
             });
-            
+
             ChoreoWebViewAPI.getInstance().showInfoMsg(
                 `Deployment for ${params.env?.name} has been successfully triggered`
             );

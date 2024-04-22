@@ -59,10 +59,12 @@ export const readEndpoints = (componentPath: string): ReadEndpointsResp => {
 };
 
 // TODO: move into ChoreoExtensionApi()
-export const goTosource = async (filePath: string) => {
+export const goTosource = async (filePath: string, focusFileExplorer?: boolean) => {
     if (existsSync(filePath)) {
         const sourceFile = await workspace.openTextDocument(filePath);
         await window.showTextDocument(sourceFile);
-        await commands.executeCommand("workbench.explorer.fileView.focus");
+        if(focusFileExplorer){
+            await commands.executeCommand("workbench.explorer.fileView.focus");
+        }
     }
 };

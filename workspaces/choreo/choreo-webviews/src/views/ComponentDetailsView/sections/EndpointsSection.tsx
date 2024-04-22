@@ -4,6 +4,8 @@ import { useQuery } from "@tanstack/react-query";
 import { ChoreoWebViewAPI } from "../../../utilities/WebViewRpc";
 import { ComponentKind } from "@wso2-enterprise/choreo-core";
 import { getTypeForDisplayType } from "../utils";
+import { Codicon } from "../../../components/Codicon";
+import { Button } from "../../../components/Button";
 
 interface Props {
     directoryPath: string;
@@ -24,7 +26,18 @@ export const EndpointsSection: FC<Props> = ({ directoryPath, component }) => {
             {endpointsResp?.endpoints?.map((item) => (
                 <RightPanelSection
                     key={item.name}
-                    title={`Endpoint: ${item.name}`}
+                    title={
+                        <div className="flex items-center justify-between gap-2">
+                            <span className="line-clamp-1">{`Endpoint: ${item.name}`}</span>
+                            <Button
+                                appearance="icon"
+                                title="Edit endpoint"
+                                onClick={() => ChoreoWebViewAPI.getInstance().goToSource(endpointsResp.filePath)}
+                            >
+                                <Codicon name="edit" />
+                            </Button>
+                        </div>
+                    }
                 >
                     <RightPanelSectionItem label="Port" value={item.port} />
                     {item.type && <RightPanelSectionItem label="Type" value={item.type} />}

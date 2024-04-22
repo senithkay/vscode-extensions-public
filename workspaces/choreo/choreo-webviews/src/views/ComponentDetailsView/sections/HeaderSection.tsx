@@ -1,9 +1,16 @@
 import React, { FC } from "react";
-import { ComponentKind, ComponentsDetailsWebviewProps, Organization, Project } from "@wso2-enterprise/choreo-core";
+import {
+    CommandIds,
+    ComponentKind,
+    ComponentsDetailsWebviewProps,
+    Organization,
+    Project,
+} from "@wso2-enterprise/choreo-core";
 import { getTypeForDisplayType } from "../utils";
 import { Button } from "../../../components/Button";
 import { ChoreoWebViewAPI } from "../../../utilities/WebViewRpc";
 import { useMutation } from "@tanstack/react-query";
+import { Codicon } from "../../../components/Codicon";
 
 export const HeaderSection: FC<ComponentsDetailsWebviewProps> = ({
     component,
@@ -11,57 +18,53 @@ export const HeaderSection: FC<ComponentsDetailsWebviewProps> = ({
     project,
     directoryPath,
 }) => {
-    // todo: reuse function from ComponentListItem
-    const { mutate: deleteComponent, isLoading: deletingComponent } = useMutation({
-        mutationFn: async () => {
-            await ChoreoWebViewAPI.getInstance().getChoreoRpcClient().deleteComponent({
-                compHandler: component.metadata.name,
-                projectId: project?.id!,
-                orgId: organization?.id?.toString(),
-                orgHandler: organization.handle,
-            });
-            await ChoreoWebViewAPI.getInstance().deleteFile(directoryPath);
-            ChoreoWebViewAPI.getInstance().showInfoMsg(
-                `Component ${component?.metadata?.name} has been successfully deleted`
-            );
-            ChoreoWebViewAPI.getInstance().refreshLinkedDirState();
-        },
-        onSuccess: () => ChoreoWebViewAPI.getInstance().closeWebView(),
-    });
-
-    // todo: reuse function from ComponentListItem
-    const { mutate: confirmDelete } = useMutation({
-        mutationFn: async () => {
-            const accepted = await ChoreoWebViewAPI.getInstance().showConfirmMessage({
-                message:
-                    "Are you sure you want to delete this Choreo component? This action will not affect any local files and will only delete the component created in Choreo. Please note that this action is not reversible.",
-                buttonText: "Delete",
-            });
-            if (accepted) {
-                deleteComponent();
-            }
-        },
-    });
-
     const openInConsole = () =>
-        ChoreoWebViewAPI.getInstance().OpenComponentInConsole({
-            componentHandler: component.metadata.name,
-            orgHandler: organization.handle,
-            projectHandler: project.handler,
+        ChoreoWebViewAPI.getInstance().triggerCmd(CommandIds.OpenComponentInConsole, {
+            component,
+            project,
+            organization,
         });
 
     const openGitPage = () => ChoreoWebViewAPI.getInstance().openExternal(component.spec.source?.github?.repository);
 
     return (
         <div className="flex flex-col gap-2">
-            <div className="flex items-center flex-wrap gap-3 mb-1">
-                <h1 className="text-2xl md:text-3xl font-bold">{component.metadata.name}</h1>
-                <h2 className="text-lg md:text-xl font-extralight opacity-60 md:mt-0.5">
-                    {getTypeForDisplayType(component?.spec?.type)}
-                </h2>
+            <div className="flex gap-2">
+                <div className="flex items-center flex-wrap gap-3 md:mb-1 flex-1">
+                    <h1 className="text-2xl md:text-3xl font-bold">{component.metadata.displayName}</h1>
+                    <h2 className="text-2xl md:text-3xl font-extralight opacity-40 hidden sm:block">
+                        {getTypeForDisplayType(component?.spec?.type)}
+                    </h2>
+                </div>
+                <span className="mt-1">
+                    <Button
+                        appearance="icon"
+                        onClick={(event) => {
+                            event.preventDefault();
+                            event.target.dispatchEvent(
+                                new MouseEvent("contextmenu", {
+                                    bubbles: true,
+                                    clientX: event.currentTarget.getBoundingClientRect().left,
+                                    clientY: event.currentTarget.getBoundingClientRect().bottom,
+                                })
+                            );
+                            event.stopPropagation();
+                        }}
+                        data-vscode-context={JSON.stringify({
+                            preventDefaultContextMenuItems: true,
+                            webviewSection: directoryPath ? "validLinkItem" : "invalidLinkItem",
+                            component: component,
+                            project: project,
+                            organization: organization,
+                            componentPath: directoryPath,
+                        })}
+                        title="More Actions"
+                    >
+                        <Codicon name="ellipsis" />
+                    </Button>
+                </span>
             </div>
-
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-1 xl:gap-2">
                 <div>
                     <span className="font-extralight">Project:</span> {project.name}
                 </div>
@@ -75,9 +78,6 @@ export const HeaderSection: FC<ComponentsDetailsWebviewProps> = ({
                 </Button>
                 <Button appearance="secondary" onClick={() => openGitPage()}>
                     Open Git Repository
-                </Button>
-                <Button appearance="secondary" onClick={() => confirmDelete()}>
-                    Delete Component
                 </Button>
             </div>
         </div>

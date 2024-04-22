@@ -42,7 +42,7 @@ export const linkedDirectoryStore = createStore(
     )
 );
 
-const getLinkedDirs = async (previousLink: ComponentLink[]) => {
+const getLinkedDirs = async (previousLink?: ComponentLink[]) => {
     const linkFiles = await workspace.findFiles("**/.choreo/link.yaml");
     const links: ComponentLink[] = [];
     for (const linkFile of linkFiles) {
@@ -70,7 +70,7 @@ const getLinkedDirs = async (previousLink: ComponentLink[]) => {
                     linkContent: linkContent,
                 };
 
-                const matchingPreviousLink = previousLink.find(
+                const matchingPreviousLink = previousLink?.find(
                     ({ linkContent: prevLinkContent }) =>
                         prevLinkContent.orgHandle === linkContent.orgHandle &&
                         prevLinkContent.projectHandle === linkContent.projectHandle &&
@@ -159,5 +159,17 @@ const getEnrichedLinks = async (links: ComponentLink[]) => {
         }
         linksWithData.push(linkItemWithData);
     }
-    return linksWithData;
+
+    const linkFiles = await workspace.findFiles("**/.choreo/link.yaml");
+
+    return linksWithData.filter(({ linkContent }) => {
+        return linkFiles.some((linkFile) => {
+            const parsedData: LinkFileContent = yaml.load(readFileSync(linkFile.fsPath, "utf8")) as any;
+            return (
+                parsedData.org === linkContent.orgHandle &&
+                parsedData.project === linkContent.projectHandle &&
+                parsedData.component === linkContent.componentHandle
+            );
+        });
+    });
 };

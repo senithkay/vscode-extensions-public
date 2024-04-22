@@ -5,6 +5,7 @@ import { Messenger } from "vscode-messenger-webview";
 export interface BuildPackReq { orgId: string; orgUuid: string; componentType: string }
 export interface GetBranchesReq { orgId: string; repoUrl: string }
 export interface IsRepoAuthorizedReq { orgId: string; repoUrl: string }
+export interface GetComponentItemReq { orgId: string; projectHandle: string; componentName: string; }
 export interface GetComponentsReq { orgId: string; projectHandle: string }
 export interface CreateLinkReq { componentDir: string; orgHandle: string; projectHandle: string; componentHandle: string; }
 export interface CreateProjectReq { orgId: string; orgHandler: string; projectName: string; region: string; }
@@ -13,6 +14,7 @@ export interface CreateComponentReq {
     orgId: string;
     projectHandle: string;
     name: string;
+    displayName: string;
     type: string;
     buildPackLang: string;
     componentDir: string;
@@ -33,16 +35,18 @@ export interface GetProjectEnvsReq { orgId: string; orgUuid: string; projectId: 
 export interface GetComponentEndpointsReq { orgId: string; orgHandler: string; projectId: string; compHandler: string; deploymentTrackId: string}
 export interface GetDeploymentStatusReq { orgId: string; orgHandler: string; orgUuid: string; projectId: string; compHandler: string; deploymentTrackId: string; envId: string}
 export interface CreateDeploymentReq { orgId: string; orgHandler: string; componentName: string; projectHandle: string; projectId: string; deploymentTrackId: string; commitHash: string; envName: string; envId: string; buildRef: string}
+export interface IsRepoAuthorizedResp { retrievedRepos: boolean; isAccessible: boolean }
 
 export interface IChoreoRPCClient {
     getProjects(orgID: string): Promise<Project[]>;
+    getComponentItem(params: GetComponentItemReq): Promise<ComponentKind>;
     getComponentList(params: GetComponentsReq): Promise<ComponentKind[]>;
     createComponentLink(params: CreateLinkReq): Promise<void>;
     createProject(params: CreateProjectReq): Promise<Project>;
     createComponent(params: CreateComponentReq): Promise<void>;
     getBuildPacks(params: BuildPackReq): Promise<Buildpack[]>;
     getRepoBranches(params: GetBranchesReq): Promise<string[]>;
-    isRepoAuthorized(params: IsRepoAuthorizedReq): Promise<boolean>;
+    isRepoAuthorized(params: IsRepoAuthorizedReq): Promise<IsRepoAuthorizedResp>;
     deleteComponent(params: DeleteCompReq): Promise<void>;
     getBuilds(params: GetBuildsReq): Promise<BuildKind[]>;
     createBuild(params: CreateBuildReq): Promise<BuildKind>;
@@ -60,6 +64,9 @@ export class ChoreoRpcWebview implements IChoreoRPCClient {
 
     getProjects(orgID: string): Promise<Project[]> {
         return this._messenger.sendRequest(ChoreoRpcGetProjectsRequest, HOST_EXTENSION, orgID);
+    }
+    getComponentItem(params: GetComponentItemReq): Promise<ComponentKind> {
+        return this._messenger.sendRequest(ChoreoRpcGetComponentItemRequest, HOST_EXTENSION, params);
     }
     getComponentList(params: GetComponentsReq): Promise<ComponentKind[]> {
         return this._messenger.sendRequest(ChoreoRpcGetComponentsRequest, HOST_EXTENSION, params);
@@ -79,7 +86,7 @@ export class ChoreoRpcWebview implements IChoreoRPCClient {
     getRepoBranches(params: GetBranchesReq): Promise<string[]> {
         return this._messenger.sendRequest(ChoreoRpcGetBranchesRequest, HOST_EXTENSION, params);
     }
-    isRepoAuthorized(params: IsRepoAuthorizedReq): Promise<boolean> {
+    isRepoAuthorized(params: IsRepoAuthorizedReq): Promise<IsRepoAuthorizedResp> {
         return this._messenger.sendRequest(ChoreoRpcIsRepoAuthorizedRequest, HOST_EXTENSION, params);
     }
     deleteComponent(params: DeleteCompReq): Promise<void> {
@@ -113,12 +120,13 @@ export class ChoreoRpcWebview implements IChoreoRPCClient {
 
 export const ChoreoRpcGetProjectsRequest: RequestType<string, Project[]> = { method: 'rpc/project/getProjects' };
 export const ChoreoRpcGetComponentsRequest: RequestType<GetComponentsReq, ComponentKind[]> = { method: 'rpc/component/getList' };
+export const ChoreoRpcGetComponentItemRequest: RequestType<GetComponentItemReq, ComponentKind> = { method: 'rpc/component/getItem' };
 export const ChoreoRpcCreateLinkRequest: RequestType<CreateLinkReq, void> = { method: 'rpc/component/createLink' };
 export const ChoreoRpcCreateProjectRequest: RequestType<CreateProjectReq, Project> = { method: 'rpc/project/create' };
 export const ChoreoRpcCreateComponentRequest: RequestType<CreateComponentReq, void> = { method: 'rpc/component/create' };
 export const ChoreoRpcGetBuildPacksRequest: RequestType<BuildPackReq, Buildpack[]> = { method: 'rpc/component/getBuildPacks' };
 export const ChoreoRpcGetBranchesRequest: RequestType<GetBranchesReq, string[]> = { method: 'rpc/repo/getBranches' };
-export const ChoreoRpcIsRepoAuthorizedRequest: RequestType<IsRepoAuthorizedReq, boolean> = { method: 'rpc/repo/isRepoAuthorized' };
+export const ChoreoRpcIsRepoAuthorizedRequest: RequestType<IsRepoAuthorizedReq, IsRepoAuthorizedResp> = { method: 'rpc/repo/isRepoAuthorized' };
 export const ChoreoRpcDeleteComponentRequest: RequestType<DeleteCompReq, void> = { method: 'rpc/component/delete' };
 export const ChoreoRpcCreateBuildRequest: RequestType<CreateBuildReq, BuildKind> = { method: 'rpc/build/create' };
 export const ChoreoRpcGetDeploymentTracksRequest: RequestType<GetDeploymentTracksReq, DeploymentTrack[]> = { method: 'rpc/component/getDeploymentTracks' };

@@ -4,9 +4,11 @@ import { useLinkedDirContext } from "../../context/choreo-linked-dir-ctx";
 import { ComponentsEmptyView } from "./ComponentsEmptyView";
 import { ComponentListItem } from "./ComponentListItem";
 import { InvalidWorkspaceView } from "./InvalidWorkspaceView";
+import { useAutoAnimate } from '@formkit/auto-animate/react'
 
 export const ComponentListView: FC<ComponentsListActivityViewProps> = ({ directoryPath }) => {
     const { links, isLoading, activeComponentPath } = useLinkedDirContext();
+    const [componentListRef] = useAutoAnimate({duration: 100});
 
     if (!directoryPath) {
         return <InvalidWorkspaceView />;
@@ -17,7 +19,7 @@ export const ComponentListView: FC<ComponentsListActivityViewProps> = ({ directo
     }
 
     return (
-        <div className="w-full flex flex-col py-2">
+        <div className="w-full flex flex-col py-2" ref={componentListRef}>
             {links.map((item, index) => (
                 <div key={item.componentFullPath}>
                     <ComponentListItem item={item} isListLoading={isLoading} opened={activeComponentPath === item.componentFullPath}/>

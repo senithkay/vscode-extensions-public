@@ -2214,6 +2214,7 @@ importers:
 
   ../../workspaces/choreo/choreo-webviews:
     specifiers:
+      '@formkit/auto-animate': 0.8.2
       '@hookform/resolvers': ^3.3.4
       '@tanstack/react-query': ~4.28.0
       '@tanstack/react-query-persist-client': ~4.28.0
@@ -2256,6 +2257,7 @@ importers:
       webpack-dev-server: ^4.11.1
       zod: ^3.22.4
     dependencies:
+      '@formkit/auto-animate': 0.8.2
       '@hookform/resolvers': 3.3.4_react-hook-form@7.51.2
       '@tanstack/react-query': 4.28.0_biqbaboplfbrettd7655fr4n2y
       '@tanstack/react-query-persist-client': 4.28.0_qfusmmwykmcbgdy37sd3cqxiry
@@ -7057,6 +7059,10 @@ packages:
       intl-messageformat: 9.13.0
       tslib: 2.6.2
       typescript: 4.9.5
+    dev: false
+
+  /@formkit/auto-animate/0.8.2:
+    resolution: {integrity: sha512-SwPWfeRa5veb1hOIBMdzI+73te5puUBHmqqaF1Bu7FjvxlYSz/kJcZKSa9Cg60zL0uRNeJL2SbRxV6Jp6Q1nFQ==}
     dev: false
 
   /@gar/promisify/1.1.3:

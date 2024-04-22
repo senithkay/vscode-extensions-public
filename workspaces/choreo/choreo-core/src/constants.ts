@@ -8,6 +8,7 @@ export const CommandIds = {
     CreateNewComponent: "wso2.choreo.create.component",
     DeleteComponent: "wso2.choreo.delete.component",
     LinkExistingComponent: "wso2.choreo.link.component",
+    UnlinkComponent: "wso2.choreo.unlink.component",
     RefreshComponent: "wso2.choreo.refresh.component",
     OpenWalkthrough:"wso2.choreo.getStarted",
     OpenComponentInConsole: "wso2.choreo.component.open.external",

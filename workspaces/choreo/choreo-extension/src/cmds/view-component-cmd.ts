@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { ExtensionContext, Uri, commands, workspace, window } from "vscode";
+import { ExtensionContext, Uri, commands, workspace, window, WebviewPanel } from "vscode";
 import { ext } from "../extensionVariables";
 import { CommandIds, ComponentKind, LinkFileContent, Organization, Project } from "@wso2-enterprise/choreo-core";
 import { authStore } from "../stores/auth-store";
@@ -68,15 +68,28 @@ export function viewComponentCommand(context: ExtensionContext) {
 
 const componentViewMap = new Map<string, ComponentDetailsView>();
 
+export const getComponentView = ( orgHandle: string,  projectHandle: string, component: string): WebviewPanel | undefined => {
+    const componentKey = `${orgHandle}-${projectHandle}-${component}`;
+    return componentViewMap.get(componentKey)?.getWebview();
+};
+
+export const closeWebviewPanel = (orgHandle: string,  projectHandle: string, component: string): void => {
+    const webView = getComponentView(orgHandle, projectHandle, component);
+    if (webView) {
+        webView.dispose();
+    }
+};
+
 export const showComponentDetails = (
     org: Organization,
     project: Project,
     component: ComponentKind,
     componentPath: string
 ) => {
-    const componentKey = `${org.handle}-${project.handler}-${component.metadata.name}`;
-    if (componentViewMap.has(componentKey) && componentViewMap.get(componentKey)?.getWebview()) {
-        componentViewMap.get(componentKey)?.getWebview()?.reveal();
+    const webView = getComponentView(org.handle, project.handler, component.metadata.name);
+
+    if (webView) {
+        webView?.reveal();
     } else {
         const componentDetailsView = new ComponentDetailsView(
             ext.context.extensionUri,
@@ -86,7 +99,7 @@ export const showComponentDetails = (
             componentPath
         );
         componentDetailsView.getWebview()?.reveal();
-        componentViewMap.set(componentKey, componentDetailsView);
+        componentViewMap.set(`${org.handle}-${project.handler}-${component.metadata.name}`, componentDetailsView);
 
         webviewStateStore.getState().setOpenedComponentPath(componentPath ?? "");
         componentDetailsView.getWebview()?.onDidChangeViewState((event) => {

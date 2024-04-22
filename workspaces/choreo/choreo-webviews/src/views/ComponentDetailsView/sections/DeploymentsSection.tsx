@@ -21,6 +21,7 @@ import { getTypeForDisplayType } from "../utils";
 import { CommitLink } from "../../../components/CommitLink";
 import { VSCodeLink } from "@vscode/webview-ui-toolkit/react";
 import clipboardy from "clipboardy";
+import { useAutoAnimate } from "@formkit/auto-animate/react";
 
 interface Props {
     component: ComponentKind;
@@ -91,10 +92,12 @@ const EnvItem: FC<{
     endpoints: ComponentEP[];
 }> = ({ organization, project, deploymentTrack, component, env, endpoints }) => {
     const isServiceType = getTypeForDisplayType(component.spec.type) === "service";
+    const [envDetailsRef] = useAutoAnimate({ duration: 100 });
 
     const {
         data: deploymentStatus,
         isLoading: loadingDeploymentStatus,
+        isFetching: fetchingDeploymentStatus,
         refetch: refetchDeploymentStatus,
     } = useQuery({
         queryKey: [
@@ -181,8 +184,9 @@ const EnvItem: FC<{
                     <Button
                         onClick={() => refetchDeploymentStatus()}
                         appearance="icon"
-                        title="Refresh Build List"
+                        title="Refresh Deployment Details"
                         className="opacity-50"
+                        disabled={fetchingDeploymentStatus}
                     >
                         <Codicon name="refresh" />
                     </Button>
@@ -195,7 +199,7 @@ const EnvItem: FC<{
                     </Button>
                 </div>
                 <div className="flex flex-col gap-3 ">
-                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-2">
+                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-2" ref={envDetailsRef}>
                         {loadingDeploymentStatus ? (
                             <>
                                 <GridColumnItem label="Status">
@@ -213,14 +217,14 @@ const EnvItem: FC<{
                                 <GridColumnItem label="Status">
                                     <span
                                         className={classNames({
-                                            "text-vsc-errorForeground":
+                                            "text-vsc-errorForeground font-medium":
                                                 deploymentStatus?.deploymentStatusV2 === "ERROR",
                                             "text-vsc-charts-lines":
                                                 deploymentStatus?.deploymentStatusV2 === "SUSPENDED",
                                             "text-vsc-foreground":
                                                 deploymentStatus?.deploymentStatusV2 === "NOT_DEPLOYED",
-                                            "text-vsc-charts-green": deploymentStatus?.deploymentStatusV2 === "ACTIVE",
-                                            "text-vsc-charts-orange":
+                                            "text-vsc-charts-green font-medium": deploymentStatus?.deploymentStatusV2 === "ACTIVE",
+                                            "text-vsc-charts-orange animate-pulse":
                                                 deploymentStatus?.deploymentStatusV2 === "IN_PROGRESS",
                                         })}
                                     >
@@ -252,6 +256,7 @@ const EnvItem: FC<{
                                                                 ? `Project URL (${item.displayName})`
                                                                 : "Project URL"
                                                         }
+                                                        key={item.id}
                                                     >
                                                         <VSCodeLink
                                                             title="Copy URL"
@@ -270,6 +275,7 @@ const EnvItem: FC<{
                                                                     ? `Organization URL (${item.displayName})`
                                                                     : "Organization URL"
                                                             }
+                                                            key={item.id}
                                                         >
                                                             <VSCodeLink
                                                                 title="Copy URL"
@@ -288,6 +294,7 @@ const EnvItem: FC<{
                                                                     ? `Public URL (${item.displayName})`
                                                                     : "Public URL"
                                                             }
+                                                            key={item.id}
                                                         >
                                                             <div className="flex items-center gap-1">
                                                                 <VSCodeLink
@@ -357,6 +364,6 @@ const EnvItemSkeleton: FC = () => {
 const GridColumnItem: FC<{ label: string; children?: ReactNode }> = ({ label, children }) => (
     <div className={classNames("flex flex-col")}>
         <div className="text-[9px] md:text-xs opacity-75 font-light">{label}</div>
-        <div className="w-full capitalize line-clamp-1">{children}</div>
+        <div className="w-full capitalize line-clamp-1 hover:bg-vsc-editorHoverWidget-background">{children}</div>
     </div>
 );

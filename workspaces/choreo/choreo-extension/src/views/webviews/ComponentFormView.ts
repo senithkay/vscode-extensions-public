@@ -74,7 +74,6 @@ export class ComponentFormView {
                       directoryPath: directoryPath,
                       organization,
                       project,
-                      gitInstallUrl: choreoEnvConfig.getGHAppConfig().installUrl,
                   } as WebviewProps)}
                 );
               }

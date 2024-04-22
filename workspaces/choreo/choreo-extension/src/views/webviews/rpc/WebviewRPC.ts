@@ -10,7 +10,7 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import { commands, WebviewPanel, window, Uri, ProgressLocation, WebviewView, Terminal } from "vscode";
+import { commands, WebviewPanel, window, Uri, ProgressLocation, WebviewView, Terminal, env } from "vscode";
 import { Messenger } from "vscode-messenger";
 import { BROADCAST } from "vscode-messenger-common";
 import {
@@ -89,8 +89,6 @@ import {
     DeleteFile,
     ShowConfirmMessage,
     ShowConfirmBoxReq,
-    OpenComponentInConsole,
-    OpenComponentInConsoleReq,
     ViewComponentDetails,
     ViewComponentDetailsReq,
     ReadServiceEndpoints,
@@ -103,6 +101,8 @@ import {
     ViewRuntimeLogs,
     GetWebviewStoreState,
     CreateEndpointYaml,
+    TriggerGithubAuthFlow,
+    TriggerGithubInstallFlow,
 } from "@wso2-enterprise/choreo-core";
 import { registerChoreoProjectRPCHandlers, registerChoreoCellViewRPCHandlers } from "@wso2-enterprise/choreo-client";
 import { registerChoreoGithubRPCHandlers } from "@wso2-enterprise/choreo-client/lib/github/rpc";
@@ -125,7 +125,7 @@ import { choreoEnvConfig } from "../../../auth/auth";
 import { showComponentDetails } from "../../../cmds/view-component-cmd";
 import * as yaml from "js-yaml";
 import { getChoreoExecPath } from "../../../choreo-rpc/cli-install";
-import { createEndpointYaml, readEndpoints } from "../../../utils";
+import { createEndpointYaml, goTosource, readEndpoints } from "../../../utils";
 
 const manager = new ChoreoProjectManager();
 
@@ -203,11 +203,7 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
         await ext.context.workspaceState.update(cacheKey, undefined);
     });
     messenger.onRequest(GoToSource, async (filePath): Promise<void> => {
-        if (existsSync(filePath)) {
-            const sourceFile = await vscode.workspace.openTextDocument(filePath);
-            await window.showTextDocument(sourceFile);
-            await commands.executeCommand("workbench.explorer.fileView.focus");
-        }
+        await goTosource(filePath, false);
     });
     messenger.onRequest(DeleteFile, async (linkFilePath) => {
         unlinkSync(linkFilePath);
@@ -215,14 +211,6 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
     messenger.onRequest(ShowConfirmMessage, async (params: ShowConfirmBoxReq) => {
         const response = await window.showInformationMessage(params.message,{modal: true},params.buttonText);
         return response === params.buttonText;
-    });
-    messenger.onRequest(OpenComponentInConsole, async (params: OpenComponentInConsoleReq) => {
-        // TODO: Replace selectedComponent.metadata.name, if available
-        const url = `${choreoEnvConfig.getConsoleUrl()}/organizations/${params.orgHandler}/projects/${
-            params.projectHandler
-        }/components/${params.componentHandler}`;
-        const consoleUrl = Uri.parse(url);
-        vscode.env.openExternal(consoleUrl);
     });
     messenger.onRequest(ViewComponentDetails, async (params) => {
         showComponentDetails(params.organization, params.project, params.component, params.componentPath)
@@ -251,6 +239,23 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
     messenger.onRequest(ViewRuntimeLogs, async ({orgName, projectName, componentName, deploymentTrackName, envName, type}) => {
         const args = ["logs", "-t", type.flag, "-o", orgName, "-p", projectName, "-c", componentName, "-d", deploymentTrackName, "-e", envName, "-f"];
         window.createTerminal(`${componentName}:${type.label}`, getChoreoExecPath(), args).show();
+    });
+    const _getGithubUrlState = async (orgId: string):Promise<string> => {
+        const callbackUrl = await env.asExternalUri(Uri.parse(`${env.uriScheme}://wso2.choreo/ghapp`));
+        const state = { origin: "vscode.choreo.ext", callbackUri: callbackUrl.toString(), orgId};
+        return Buffer.from(JSON.stringify(state), 'binary').toString('base64');
+    }
+    messenger.onRequest(TriggerGithubAuthFlow, async (orgId: string) => {
+        const { authUrl, clientId, redirectUrl } = choreoEnvConfig.getGHAppConfig();
+        const state = await _getGithubUrlState(orgId);
+        const ghURL = Uri.parse(`${authUrl}?redirect_uri=${redirectUrl}&client_id=${clientId}&state=${state}`);
+        await env.openExternal(ghURL);
+    });
+    messenger.onRequest(TriggerGithubInstallFlow, async (orgId: string) => {
+        const { installUrl } = choreoEnvConfig.getGHAppConfig();
+        const state = await _getGithubUrlState(orgId);
+        const ghURL = Uri.parse(`${installUrl}?state=${state}`);
+        await env.openExternal(ghURL);
     });
     // TODO remove old ones
 
