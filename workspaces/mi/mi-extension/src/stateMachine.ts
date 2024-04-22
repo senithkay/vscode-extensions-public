@@ -404,7 +404,7 @@ export function navigate() {
 function updateProjectExplorer(location: VisualizerLocation | undefined) {
     if (location && location.documentUri) {
         const projectRoot = vscode.workspace.getWorkspaceFolder(vscode.Uri.parse(location.documentUri));
-        if (projectRoot) {
+        if (projectRoot && !extension.preserveActivity) {
             location.projectUri = projectRoot.uri.fsPath;
             vscode.commands.executeCommand(COMMANDS.REVEAL_ITEM_COMMAND, location);
         }

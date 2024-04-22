@@ -13,6 +13,10 @@ import * as vscode from 'vscode';
 import { executeTasks, getServerPath } from './debugHelper';
 import { Subject } from 'await-notify';
 import { Debugger } from './debugger';
+import { StateMachine, navigate, openView } from '../stateMachine';
+import { EVENT_TYPE } from '@wso2-enterprise/mi-core';
+import { VisualizerWebview } from '../visualizer/webview';
+import { extension } from '../MIExtensionContext';
 
 export class MiDebugAdapter extends LoggingDebugSession {
     private _configurationDone = new Subject();
@@ -24,7 +28,7 @@ export class MiDebugAdapter extends LoggingDebugSession {
 
     public constructor() {
         super();
-        // this debugger uses zero-based lines and columns
+        // debugger uses zero-based lines and columns
         this.setDebuggerLinesStartAt1(false);
         this.setDebuggerColumnsStartAt1(false);
 
@@ -37,7 +41,19 @@ export class MiDebugAdapter extends LoggingDebugSession {
             this.sendEvent(new StoppedEvent('step', MiDebugAdapter.threadID));
         });
         this.debuggerHandler.on('stopOnBreakpoint', () => {
-            this.sendEvent(new StoppedEvent('breakpoint', MiDebugAdapter.threadID));
+
+            const stateContext = StateMachine.context();
+
+            if (VisualizerWebview.currentPanel?.getWebview()?.visible && stateContext.stNode) {
+                this.sendEvent(new StoppedEvent('breakpoint', MiDebugAdapter.threadID));
+                extension.webviewReveal = true;
+                setTimeout(() => {
+                    extension.webviewReveal = true;
+                    openView(EVENT_TYPE.OPEN_VIEW, stateContext);
+                }, 150);
+            } else {
+                this.sendEvent(new StoppedEvent('breakpoint', MiDebugAdapter.threadID));
+            }
         });
 
         this.debuggerHandler.on('breakpointValidated', (bp: DebugProtocol.Breakpoint) => {
@@ -58,32 +74,11 @@ export class MiDebugAdapter extends LoggingDebugSession {
             }
         });
 
-        // this.debuggerHandler.on('output', (type, text, filePath, line, column) => {
-
-        // 	let category: string;
-        // 	switch(type) {
-        // 		case 'prio': category = 'important'; break;
-        // 		case 'out': category = 'stdout'; break;
-        // 		case 'err': category = 'stderr'; break;
-        // 		default: category = 'console'; break;
-        // 	}
-        // 	const e: DebugProtocol.OutputEvent = new OutputEvent(`${text}\n`, category);
-
-        // 	if (text === 'start' || text === 'startCollapsed' || text === 'end') {
-        // 		e.body.group = text;
-        // 		e.body.output = `group-${text}\n`;
-        // 	}
-
-        // 	e.body.source = this.createSource(filePath);
-        // 	e.body.line = this.convertDebuggerLineToClient(line);
-        // 	e.body.column = this.convertDebuggerColumnToClient(column);
-        // 	this.sendEvent(e);
-        // });
         this.debuggerHandler.on('end', () => {
             this.sendEvent(new TerminatedEvent());
         });
 
-        // Create an instance of Handles to manage variable references
+        // An instance of Handles to manage variable references
         this.variableHandles = new Handles<any>();
 
     }
@@ -111,6 +106,20 @@ export class MiDebugAdapter extends LoggingDebugSession {
         }
     }
 
+    // requestSeq = 0;
+    // handleMessage(msg: DebugProtocol.ProtocolMessage): void {
+    //     console.log('Message received', msg);
+    //     this.requestSeq = msg.seq;
+    //     super.handleMessage(msg);
+    // }
+
+    // sendEvent(event: DebugProtocol.Event): void {
+    //     console.log('Event sent', event);
+    //     super.sendEvent(event);
+    // }
+
+
+    //TODO: Remove unwanted capabilities
     protected initializeRequest(response: DebugProtocol.InitializeResponse, args: DebugProtocol.InitializeRequestArguments): void {
         // build and return the capabilities of this debug adapter:
         response.body = response.body || {};
@@ -121,9 +130,6 @@ export class MiDebugAdapter extends LoggingDebugSession {
         // make VS Code use 'evaluate' when hovering over source
         response.body.supportsEvaluateForHovers = true;
 
-        // make VS Code show a 'step back' button
-        // response.body.supportsStepBack = true;
-
         // make VS Code support data breakpoints
         response.body.supportsDataBreakpoints = true;
 
@@ -133,12 +139,6 @@ export class MiDebugAdapter extends LoggingDebugSession {
 
         // make VS Code send cancel request
         response.body.supportsCancelRequest = true;
-
-        // make VS Code send the breakpointLocations request
-        // response.body.supportsBreakpointLocationsRequest = true;
-
-        // make VS Code provide "Step in Target" functionality
-        // response.body.supportsStepInTargetsRequest = true;
 
         // the adapter defines two exceptions filters, one with support for conditions.
         response.body.supportsExceptionFilterOptions = true;
@@ -221,6 +221,7 @@ export class MiDebugAdapter extends LoggingDebugSession {
             }
         }
         this.sendResponse(response);
+        navigate();
     }
 
     protected configurationDoneRequest(response: DebugProtocol.ConfigurationDoneResponse, args: DebugProtocol.ConfigurationDoneArguments, request?: DebugProtocol.Request | undefined): void {
@@ -239,7 +240,6 @@ export class MiDebugAdapter extends LoggingDebugSession {
                 } else {
                     executeTasks(serverPath)
                         .then(async () => {
-                            console.log('Intializing debugger');
                             await this.debuggerHandler?.initializeDebugger();
                             this.sendResponse(response);
                         })
@@ -254,8 +254,8 @@ export class MiDebugAdapter extends LoggingDebugSession {
     protected disconnectRequest(response: DebugProtocol.DisconnectResponse, args: DebugProtocol.DisconnectArguments, request?: DebugProtocol.Request): void {
         const taskExecution = vscode.tasks.taskExecutions.find(execution => execution.task.name === 'run');
         if (taskExecution) {
-            taskExecution.terminate();
             this.debuggerHandler?.closeDebugger();
+            taskExecution.terminate();
             response.success = true;
         } else {
             response.success = false;
@@ -274,35 +274,8 @@ export class MiDebugAdapter extends LoggingDebugSession {
         });
     }
 
-    // protected setFunctionBreakPointsRequest(response: DebugProtocol.SetFunctionBreakpointsResponse, args: DebugProtocol.SetFunctionBreakpointsArguments, request?: DebugProtocol.Request | undefined): void {
-    //     response.success = false;
-    //     this.sendResponse(response);
-    // }
-
-    // TODO: check possibility of removing this method
-    // protected breakpointLocationsRequest(response: DebugProtocol.BreakpointLocationsResponse, args: DebugProtocol.BreakpointLocationsArguments, request?: DebugProtocol.Request | undefined): void {
-    //     // get the current breakpoints and send their location data
-    //     const breakpoints = this.debuggerHandler?.getBreakpoints(args.source.path as string);
-
-    //     if (breakpoints) {
-    //         response.body = {
-    //             breakpoints: breakpoints.map(bp => {
-    //                 const line = bp?.line ? this.convertDebuggerLineToClient(bp.line) : 0;
-    //                 return {
-    //                     line: line
-    //                 };
-    //             })
-    //         };
-    //     } else {
-    //         response.body = {
-    //             breakpoints: []
-    //         };
-    //     }
-    //     this.sendResponse(response);
-    // }
-
     protected threadsRequest(response: DebugProtocol.ThreadsResponse): void {
-        // runtime supports no threads so just return a default thread.
+        // return a default thread.
         response.body = {
             threads: [
                 new Thread(MiDebugAdapter.threadID, "thread 1")
@@ -310,13 +283,16 @@ export class MiDebugAdapter extends LoggingDebugSession {
         };
         this.sendResponse(response);
     }
+
+    // TODO: Implement stepInRequest after LS changes
     protected async nextRequest(response: DebugProtocol.NextResponse, args: DebugProtocol.NextArguments, request?: DebugProtocol.Request | undefined): Promise<void> {
+        // await this.debuggerHandler?.stepBreakpoint();
         await this.debuggerHandler?.sendResumeCommand();
 
         this.sendResponse(response);
     }
 
-    protected stackTraceRequest(response: DebugProtocol.StackTraceResponse, args: DebugProtocol.StackTraceArguments, request?: DebugProtocol.Request | undefined): void {
+    protected async stackTraceRequest(response: DebugProtocol.StackTraceResponse, args: DebugProtocol.StackTraceArguments, request?: DebugProtocol.Request | undefined): Promise<void> {
         const stackFrames: DebugProtocol.StackFrame[] = [];
 
         // TODO: get the correct path when there are breakpoints in multiple files
@@ -329,7 +305,8 @@ export class MiDebugAdapter extends LoggingDebugSession {
             id: 1,
             name: "MI Extension",
             source: {
-                path: path
+                path: path,
+                presentationHint: "normal",
             },
             line: line,
             column: 0
@@ -346,6 +323,9 @@ export class MiDebugAdapter extends LoggingDebugSession {
     }
 
     protected async variablesRequest(response: DebugProtocol.VariablesResponse, args: DebugProtocol.VariablesArguments, request?: DebugProtocol.Request | undefined): Promise<void> {
+        // TODO: Check the possibility of using customEvent to load the diagram
+        // const customEvent = { event: "StackTraceUpdated" } as DebugProtocol.Event;
+        // this.sendEvent(customEvent);
         const vars = this.variableHandles.get(args.variablesReference);
         if (vars !== null) {
             let variables: DebugProtocol.Variable[] = Array.isArray(vars) ? vars : [vars];
@@ -370,7 +350,7 @@ export class MiDebugAdapter extends LoggingDebugSession {
         this.sendResponse(response);
     }
 
-    protected async scopesRequest(response: DebugProtocol.ScopesResponse, args: DebugProtocol.ScopesArguments, request?: DebugProtocol.Request | undefined): Promise<void> {
+    protected async scopesRequest(response: DebugProtocol.ScopesResponse, args?: DebugProtocol.ScopesArguments, request?: DebugProtocol.Request | undefined): Promise<void> {
         const variables = await this.debuggerHandler?.getVariables();
 
         const localScope = variables?.map((v: any): any => {
@@ -380,9 +360,11 @@ export class MiDebugAdapter extends LoggingDebugSession {
             return val;
         });
 
+        const ref = this.variableHandles.create(localScope);
+
         response.body = {
             scopes: [
-                new Scope("Local", this.variableHandles.create(localScope), false) // TODO: cehck for the scope
+                new Scope("Local", ref, false) // TODO: Check for the correct scope name
             ]
         };
 

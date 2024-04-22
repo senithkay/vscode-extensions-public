@@ -14,6 +14,7 @@ import { COMMANDS, SELECTED_SERVER_PATH } from '../constants';
 import { extension } from '../MIExtensionContext';
 import { executeBuildTask, executeTasks, getServerPath } from './debugHelper';
 import { getBuildTask } from './tasks';
+import { navigate } from '../stateMachine';
 
 
 class MiConfigurationProvider implements vscode.DebugConfigurationProvider {
@@ -31,7 +32,6 @@ class MiConfigurationProvider implements vscode.DebugConfigurationProvider {
 }
 
 export function activateDebugger(context: vscode.ExtensionContext) {
-
     vscode.commands.registerCommand(COMMANDS.BUILD_AND_RUN_PROJECT, async () => {
         getServerPath().then(async (serverPath) => {
             if (!serverPath) {
@@ -109,6 +109,18 @@ export function activateDebugger(context: vscode.ExtensionContext) {
             ];
         }
     }, vscode.DebugConfigurationProviderTriggerKind.Dynamic));
+
+    // TODO: Check the possibility of using event to get the triggered breakpoint in the diagram
+    // context.subscriptions.push(vscode.debug.onDidReceiveDebugSessionCustomEvent((e) => {
+    //     if(e.event === 'StackTraceUpdated') {
+    //         navigate();
+    //     }
+    // }));
+
+    // Listener to support reflect breakpoint changes in diagram when debugger is inactive
+    context.subscriptions.push(vscode.debug.onDidChangeBreakpoints((session) => {
+        navigate();
+    }));
 
     const factory = new InlineDebugAdapterFactory();
     context.subscriptions.push(vscode.debug.registerDebugAdapterDescriptorFactory('mi', factory));

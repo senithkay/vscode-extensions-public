@@ -27,6 +27,7 @@ export enum DefaultColors {
     OUTLINE_VARIANT = "#a8a8a8",
 
     ERROR = "#ED2633",
+    DEBUGGER_BREAKPOINT_BACKGROUND = "#ffcc004d",
 }
 
 export enum VSCodeColors {
@@ -78,6 +79,7 @@ export const Colors = {
         DefaultColors.OUTLINE_VARIANT,
 
     ERROR: VSCodeColors.ERROR || DefaultColors.ERROR,
+    DEBUGGER_BREAKPOINT_BACKGROUND: DefaultColors.DEBUGGER_BREAKPOINT_BACKGROUND,
 };
 
 export const NODE_GAP = {
