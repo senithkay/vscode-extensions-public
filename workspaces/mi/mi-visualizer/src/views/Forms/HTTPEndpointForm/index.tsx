@@ -17,7 +17,7 @@ import * as yup from "yup";
 import { initialEndpoint, InputsFields, paramTemplateConfigs, propertiesConfigs, oauthPropertiesConfigs } from "./Types";
 import { TypeChip } from "../Commons";
 import Form from "./Form";
-import AddToRegistry, {formatRegistryPath, getArtifactNamesAndRegistryPaths, saveToRegistry} from "../AddToRegistry";
+import AddToRegistry, { formatRegistryPath, getArtifactNamesAndRegistryPaths, saveToRegistry } from "../AddToRegistry";
 
 export interface HttpEndpointWizardProps {
     path: string;
@@ -28,15 +28,15 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
 
     const schema = yup.object({
         endpointName: props.type === 'endpoint' ? yup.string().required("Endpoint Name is required")
-                .matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in Endpoint Name")
-                .test('validateEndpointName',
-                    'Endpoint with same name already exists', value => {
-                        return !isNewEndpoint ? !(endpoints.includes(value) && value !== savedEPName) : !endpoints.includes(value);
-                    })
-                .test('validateEndpointArtifactName',
-                    'Endpoint artifact name already exists', value => {
-                        return !isNewEndpoint ? !(endpointArtifactNames.includes(value) && value !== savedEPName) : !endpointArtifactNames.includes(value);
-                    }) :
+            .matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in Endpoint Name")
+            .test('validateEndpointName',
+                'An artifact with same name already exists', value => {
+                    return !isNewEndpoint ? !(workspaceFileNames.includes(value) && value !== savedEPName) : !workspaceFileNames.includes(value);
+                })
+            .test('validateEndpointArtifactName',
+                'A registry resource with this artifact name already exists', value => {
+                    return !isNewEndpoint ? !(artifactNames.includes(value) && value !== savedEPName) : !artifactNames.includes(value);
+                }) :
             yup.string().required("Endpoint Name is required")
                 .matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in Endpoint Name"),
         traceEnabled: yup.string(),
@@ -44,7 +44,8 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
         uriTemplate: yup
             .string()
             .required("URI template is required")
-            .matches(/^(https?|ftp):\/\/(([a-z\d]([a-z\d-]*[a-z\d])?\.)+[a-z]{2,}|localhost(:[\d]*)?)(\/[-a-z\d%_.~+]*)*(\?[;&a-z\d%_.~+=-]*)?(\#[-a-z\d_]*)?$/i, "Invalid URI template format"),
+            .matches(/^\{.+\}$|^(https?|ftp):\/\/(([a-z\d]([a-z\d-]*[a-z\d])?\.)+[a-z]{2,}|localhost(:[\d]*)?)(\/[-a-z\d%_.~+]*)*(\?[;&a-z\d%_.~+=-]*)?(\#[-a-z\d_]*)?$/i,
+                "Invalid URI template format"),
         httpMethod: yup.string().required("HTTP method is required"),
         description: yup.string(),
         requireProperties: yup.boolean(),
@@ -98,6 +99,10 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
         addressingVersion: yup.string(),
         addressListener: yup.string(),
         securityEnabled: yup.string(),
+        seperatePolicies: yup.boolean().notRequired().default(false),
+        policyKey: yup.string().notRequired().default(""),
+        inboundPolicyKey: yup.string().notRequired().default(""),
+        outboundPolicyKey: yup.string().notRequired().default(""),
         suspendErrorCodes: yup.string(),
         initialDuration: yup.number().typeError('Initial Duration must be a number'),
         maximumDuration: yup.number().typeError('Maximum Duration must be a number').min(0, "Maximum Duration must be greater than or equal to 0"),
@@ -108,15 +113,15 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
         timeoutDuration: yup.number().typeError('Timeout Duration must be a number').min(0, "Timeout Duration must be greater than or equal to 0"),
         timeoutAction: yup.string(),
         templateName: props.type === 'template' ? yup.string().required("Template Name is required")
-                .matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in Template Name")
-                .test('validateTemplateName',
-                    'Template with same name already exists', value => {
-                        return !isNewEndpoint ? !(endpoints.includes(value) && value !== savedEPName) : !endpoints.includes(value);
-                    })
-                .test('validateTemplateArtifactName',
-                    'Template artifact name already exists', value => {
-                        return !isNewEndpoint ? !(endpointArtifactNames.includes(value) && value !== savedEPName) : !endpointArtifactNames.includes(value);
-                    }) :
+            .matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in Template Name")
+            .test('validateTemplateName',
+                'An artifact with same name already exists', value => {
+                    return !isNewEndpoint ? !(workspaceFileNames.includes(value) && value !== savedEPName) : !workspaceFileNames.includes(value);
+                })
+            .test('validateTemplateArtifactName',
+                'A registry resource with this artifact name already exists', value => {
+                    return !isNewEndpoint ? !(artifactNames.includes(value) && value !== savedEPName) : !artifactNames.includes(value);
+                }) :
             yup.string().notRequired().default(""),
         requireTemplateParameters: yup.boolean(),
         templateParameters: yup.array(),
@@ -126,10 +131,15 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
             then: () =>
                 yup.string().notRequired(),
             otherwise: () =>
-                yup.string().required("Artifact Name is required").test('validateArtifactName',
-                    'Artifact name already exists', value => {
-                        return !artifactNames.includes(value);
-                    }),
+                yup.string().required("Artifact Name is required")
+                    .test('validateArtifactName',
+                        'Artifact name already exists', value => {
+                            return !artifactNames.includes(value);
+                        })
+                    .test('validateFileName',
+                        'A file already exists in the workspace with this artifact name', value => {
+                            return !workspaceFileNames.includes(value);
+                        }),
         }),
         registryPath: yup.string().when('saveInReg', {
             is: false,
@@ -164,11 +174,10 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
     const [templateParams, setTemplateParams] = useState(paramTemplateConfigs);
     const [additionalParams, setAdditionalParams] = useState(propertiesConfigs);
     const [additionalOauthParams, setAdditionalOauthParams] = useState(oauthPropertiesConfigs);
-    const [endpoints, setEndpoints] = useState([]);
-    const [endpointArtifactNames, setEndpointArtifactNames] = useState([]);
     const [artifactNames, setArtifactNames] = useState([]);
     const [registryPaths, setRegistryPaths] = useState([]);
     const [savedEPName, setSavedEPName] = useState<string>("");
+    const [workspaceFileNames, setWorkspaceFileNames] = useState([]);
 
     useEffect(() => {
         (async () => {
@@ -220,60 +229,13 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
                 reset(initialEndpoint);
             }
 
-            if (isTemplate) {
-                const endpointTemplateResponse = await rpcClient.getMiDiagramRpcClient().getAvailableResources({
-                    documentIdentifier: props.path,
-                    resourceType: "endpointTemplate",
-                });
-                const sequenceTemplateResponse = await rpcClient.getMiDiagramRpcClient().getAvailableResources({
-                    documentIdentifier: props.path,
-                    resourceType: "sequenceTemplate",
-                });
-                let templateNames = [];
-                let tempArtifactNames = [];
-                if (endpointTemplateResponse.resources) {
-                    const templateNames = endpointTemplateResponse.resources.map((resource) => resource.name);
-                    tempArtifactNames.push(...templateNames);
-                    const templatePaths = endpointTemplateResponse.resources.map((resource) => resource.artifactPath.replace(".xml", ""));
-                    templateNames.push(...templatePaths);
-                }
-                if (sequenceTemplateResponse.resources) {
-                    const templateNames = sequenceTemplateResponse.resources.map((resource) => resource.name);
-                    tempArtifactNames.push(...templateNames);
-                    const templatePaths = sequenceTemplateResponse.resources.map((resource) => resource.artifactPath.replace(".xml", ""));
-                    templateNames.push(...templatePaths);
-                }
-                if (endpointTemplateResponse.registryResources) {
-                    const registryKeys = endpointTemplateResponse.registryResources.map((resource) => resource.registryKey);
-                    templateNames.push(...registryKeys);
-                }
-                if (sequenceTemplateResponse.registryResources) {
-                    const registryKeys = sequenceTemplateResponse.registryResources.map((resource) => resource.registryKey);
-                    templateNames.push(...registryKeys);
-                }
-                setEndpoints(templateNames);
-                setEndpointArtifactNames(tempArtifactNames);
-            } else {
-                const response = await rpcClient.getMiDiagramRpcClient().getAvailableResources({
-                    documentIdentifier: props.path,
-                    resourceType: "endpoint",
-                });
-                let endpointNamesArr = [];
-                if (response.resources) {
-                    const endpointNames = response.resources.map((resource) => resource.name);
-                    setEndpointArtifactNames(endpointNames);
-                    const endpointPaths = response.resources.map((resource) => resource.artifactPath.replace(".xml", ""));
-                    endpointNamesArr.push(...endpointPaths);
-                }
-                if (response.registryResources) {
-                    const registryKeys = response.registryResources.map((resource) => resource.registryKey);
-                    endpointNamesArr.push(...registryKeys);
-                }
-                setEndpoints(endpointNamesArr);
-            }
             const result = await getArtifactNamesAndRegistryPaths(props.path, rpcClient);
             setArtifactNames(result.artifactNamesArr);
             setRegistryPaths(result.registryPaths);
+            const artifactRes = await rpcClient.getMiDiagramRpcClient().getAllArtifacts({
+                path: props.path,
+            });
+            setWorkspaceFileNames(artifactRes.artifacts);
         })();
     }, [props.path]);
 
@@ -324,16 +286,19 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
             title={isTemplate ? 'Template Artifact' : 'Endpoint Artifact'}
             onClose={openOverview}
         >
-            <TypeChip 
-                type={isTemplate ? "HTTP Endpoint Template" : "HTTP Endpoint"} 
-                onClick={changeType} 
-                showButton={isNewEndpoint} 
+            <TypeChip
+                type={isTemplate ? "HTTP Endpoint Template" : "HTTP Endpoint"}
+                onClick={changeType}
+                showButton={isNewEndpoint}
             />
             <Form
                 renderProps={renderProps}
                 register={register}
                 watch={watch}
                 setValue={setValue}
+                control={control}
+                path={props.path}
+                errors={errors}
                 isTemplate={isTemplate}
                 templateParams={templateParams}
                 setTemplateParams={setTemplateParams}
@@ -351,8 +316,8 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
                     />
                     {watch("saveInReg") && (<>
                         <AddToRegistry path={props.path}
-                                       fileName={isTemplate ? watch("templateName") : watch("endpointName")}
-                                       register={register} errors={errors} getValues={getValues} />
+                            fileName={isTemplate ? watch("templateName") : watch("endpointName")}
+                            register={register} errors={errors} getValues={getValues} />
                     </>)}
                 </>
             )}

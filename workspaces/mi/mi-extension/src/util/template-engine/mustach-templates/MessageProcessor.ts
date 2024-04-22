@@ -18,6 +18,7 @@ export interface MessageProcessorTemplateArgs {
     messageProcessorType: string;
     messageStoreType: string;
     failMessageStoreType: string;
+    sourceMessageStoreType: string;
     targetMessageStoreType: string;
     processorState: string;
     dropMessageOption: string;
@@ -121,6 +122,10 @@ export function getMessageProcessorXml(data: MessageProcessorTemplateArgs) {
             }
         });
         params.push(...data.properties);
+    }
+
+    if (data.messageProcessorType === 'Scheduled Failover Message Forwarding Processor') {
+        data.messageStoreType = data.sourceMessageStoreType;
     }
 
     const modifiedData = {

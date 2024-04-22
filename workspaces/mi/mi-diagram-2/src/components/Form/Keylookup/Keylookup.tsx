@@ -75,7 +75,7 @@ const ItemContainer = styled.div({
     display: "flex",
     alignItems: "center",
     gap: "4px",
-    height: "22px"
+    height: "22px",
 });
 
 const StyledTag = styled(VSCodeTag)({
@@ -143,7 +143,13 @@ export const Keylookup = (props: IKeylookup) => {
                 });
             }
 
-            let items = [initialValue && (initialItem || initialValue), ...workspaceItems, ...registryItems];
+            let items: (string | ItemComponent)[] = [...workspaceItems, ...registryItems];
+
+            // Add the initial value to the start of the list if provided
+            if (!!initialValue && initialValue.length > 0) {
+                items.unshift((initialItem || initialValue));
+            }
+
             if (filter) {
                 items = items.filter((item) => filter(getItemKey(item)));
             }
@@ -178,5 +184,5 @@ export const FormKeylookup = <T extends FieldValues>(props: IFormKeylookup<T>) =
         field: { value, onChange },
     } = useController({ name, control });
 
-    return <Keylookup {...rest} value={value} onValueChange={onChange} />;
+    return <Keylookup {...rest} name={name} value={value} onValueChange={onChange} />;
 };

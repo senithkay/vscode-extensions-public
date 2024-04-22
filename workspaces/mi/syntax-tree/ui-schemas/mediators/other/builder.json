@@ -1,6 +1,6 @@
 {
   "name": "Command",
-  "type":"mediator",
+  "type": "mediator",
   "title": "Command Mediator",
   "help": "",
   "elements": [
@@ -14,51 +14,50 @@
             "value": {
               "name": "messageBuilders",
               "displayName": "Message Builders",
-              "form": {
-                "title": "Message Builder",
-                "description": "Editing of the properties of an object Message Builder",
-                "elements": [
-                  {
-                    "type": "attributeGroup",
-                    "value": {
-                      "groupName": "Properties",
-                      "elements": [
-                        {
-                          "type": "attribute",
-                          "value": {
-                            "name": "contentType",
-                            "displayName": "Content Type",
-                            "inputType": "string",
-                            "required": false,
-                            "helpTip": ""
-                          }
-                        },
-                        {
-                          "type": "attribute",
-                          "value": {
-                            "name": "builderClass",
-                            "displayName": "Builder Class",
-                            "inputType": "string",
-                            "required": false,
-                            "helpTip": ""
-                          }
-                        },
-                        {
-                          "type": "attribute",
-                          "value": {
-                            "name": "formatterClass",
-                            "displayName": "Formatter Class",
-                            "inputType": "expression",
-                            "required": false,
-                            "helpTip": ""
-                          }
+              "title": "Message Builder",
+              "description": "Editing of the properties of an object Message Builder",
+              "tableKey": "contentType",
+              "tableValue": "builderClass",
+              "elements": [
+                {
+                  "type": "attributeGroup",
+                  "value": {
+                    "groupName": "Properties",
+                    "elements": [
+                      {
+                        "type": "attribute",
+                        "value": {
+                          "name": "contentType",
+                          "displayName": "Content Type",
+                          "inputType": "string",
+                          "required": false,
+                          "helpTip": ""
                         }
-                      ]
-                    }
+                      },
+                      {
+                        "type": "attribute",
+                        "value": {
+                          "name": "builderClass",
+                          "displayName": "Builder Class",
+                          "inputType": "string",
+                          "required": false,
+                          "helpTip": ""
+                        }
+                      },
+                      {
+                        "type": "attribute",
+                        "value": {
+                          "name": "formatterClass",
+                          "displayName": "Formatter Class",
+                          "inputType": "expression",
+                          "required": false,
+                          "helpTip": ""
+                        }
+                      }
+                    ]
                   }
-                ]
-              },
-              "helpTip": ""
+                }
+              ]
             }
           },
           {

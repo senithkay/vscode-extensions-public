@@ -53,8 +53,8 @@ export function createFolderStructure(targetPath: string, structure: FileStructu
 	}
 }
 
-export function getInboundEndpointXmlWrapper(isNew: boolean, props: GetInboundTemplatesArgs) {
-	return getInboundEndpointdXml(isNew, props);
+export function getInboundEndpointXmlWrapper(props: GetInboundTemplatesArgs) {
+	return getInboundEndpointdXml(props);
 }
 
 export function getRegistryResourceContent(type: string, resourceName: string) {

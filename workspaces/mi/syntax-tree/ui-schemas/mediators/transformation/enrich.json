@@ -25,7 +25,7 @@
               "name": "sourceType",
               "displayName": "Source Type",
               "inputType": "combo",
-              "defaultValue": "custom",
+              "defaultValue": "envelope",
               "comboValues": [
                 "custom",
                 "envelope",
@@ -99,8 +99,28 @@
               "required": false,
               "helpTip": "",
               "enableCondition": [
+                "AND",
                 {
                   "sourceType": "inline"
+                },
+                {
+                  "inlineType": "Inline XML/JSON"
+                }
+              ]
+            }
+          },
+          {
+            "type": "attribute",
+            "value": {
+              "name": "inlineRegistryKey",
+              "displayName": "Inline Registry Key",
+              "inputType": "key",
+              "defaultValue": "",
+              "required": false,
+              "helpTip": "",
+              "enableCondition": [
+                {
+                  "inlineType": "RegistryKey"
                 }
               ]
             }
@@ -188,22 +208,14 @@
       }
     },
     {
-      "type": "attributeGroup",
+      "type": "attribute",
       "value": {
-        "groupName": "Misc",
-        "elements": [
-          {
-            "type": "attribute",
-            "value": {
-              "name": "description",
-              "displayName": "Description",
-              "inputType": "string",
-              "defaultValue": "",
-              "required": false,
-              "helpTip": ""
-            }
-          }
-        ]
+        "name": "description",
+        "displayName": "Description",
+        "inputType": "string",
+        "defaultValue": "",
+        "required": false,
+        "helpTip": ""
       }
     }
   ]

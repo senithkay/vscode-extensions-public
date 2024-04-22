@@ -77,22 +77,24 @@ export function FailoverWizard(props: FailoverWizardProps) {
     const [artifactNames, setArtifactNames] = useState([]);
     const [registryPaths, setRegistryPaths] = useState([]);
     const [endpoints, setEndpoints] = useState<Endpoint[]>([]);
-    const [existingEndpoints, setExistingEndpoints] = useState<string[]>([]);
-    const [existingArtifactNames, setExistingArtifactNames] = useState<string[]>([]);
     const [expandEndpointsView, setExpandEndpointsView] = useState<boolean>(false);
     const [showAddNewEndpointView, setShowAddNewEndpointView] = useState<boolean>(false);
     const [newEndpoint, setNewEndpoint] = useState<Endpoint>(initialInlineEndpoint);
     const [savedEPName, setSavedEPName] = useState<string>("");
+    const [endpointsUpdated, setEndpointsUpdated] = useState(false);
+    const [workspaceFileNames, setWorkspaceFileNames] = useState([]);
 
     const schema = yup.object({
-        name: yup.string().required("Endpoint name is required").matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in Endpoint name")
+        name: yup.string().required("Endpoint name is required")
+            .matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in Endpoint Name")
             .test('validateEndpointName',
-                'Endpoint file name already exists', value => {
-                    return !isNewEndpoint ? !(existingEndpoints.includes(value) && value !== savedEPName) : !existingEndpoints.includes(value);
-                }).test('validateEndpointName',
-                    'Endpoint artifact name already exists', value => {
-                        return !isNewEndpoint ? !(existingArtifactNames.includes(value) && value !== savedEPName) : !existingArtifactNames.includes(value);
-                    }),
+                'An artifact with same name already exists', value => {
+                    return !isNewEndpoint ? !(workspaceFileNames.includes(value) && value !== savedEPName) : !workspaceFileNames.includes(value);
+                })
+            .test('validateEndpointArtifactName',
+                'A registry resource with this artifact name already exists', value => {
+                    return !isNewEndpoint ? !(artifactNames.includes(value) && value !== savedEPName) : !artifactNames.includes(value);
+                }),
         buildMessage: yup.string().required("Build Message is required"),
         description: yup.string(),
         endpoints: yup.array(),
@@ -103,10 +105,15 @@ export function FailoverWizard(props: FailoverWizardProps) {
             then: () =>
                 yup.string().notRequired(),
             otherwise: () =>
-                yup.string().required("Artifact Name is required").test('validateArtifactName',
-                    'Artifact name already exists', value => {
-                        return !artifactNames.includes(value);
-                    }),
+                yup.string().required("Artifact Name is required")
+                    .test('validateArtifactName',
+                        'Artifact name already exists', value => {
+                            return !artifactNames.includes(value);
+                        })
+                    .test('validateFileName',
+                        'A file already exists in the workspace with this artifact name', value => {
+                            return !workspaceFileNames.includes(value);
+                        }),
         }),
         registryPath: yup.string().when('saveInReg', {
             is: false,
@@ -151,6 +158,7 @@ export function FailoverWizard(props: FailoverWizardProps) {
                 const { endpoints, ...endpoint } = await rpcClient.getMiDiagramRpcClient().getFailoverEndpoint({ path: props.path });
 
                 reset(endpoint);
+                setSavedEPName(endpoint.name);
                 setEndpoints(endpoints);
 
                 setParamConfigs((prev: any) => {
@@ -165,7 +173,7 @@ export function FailoverWizard(props: FailoverWizardProps) {
                                     { id: 2, label: 'Scope', type: 'Dropdown', value: property.scope, values: ["default", "transport", "axis2", "axis2-client"], isRequired: true },
                                 ],
                                 key: property.name,
-                                value: property.value,
+                                value: "value:" + property.value + "; scope:" + property.scope + ";"
                             }
                         })
                     };
@@ -177,25 +185,13 @@ export function FailoverWizard(props: FailoverWizardProps) {
             })();
         }
         (async () => {
-            const endpointResponse = await rpcClient.getMiDiagramRpcClient().getAvailableResources({
-                documentIdentifier: props.path,
-                resourceType: "endpoint",
-            });
-            let endpointArtifactNamesArr = [];
-            if (endpointResponse.resources) {
-                const endpointNames = endpointResponse.resources.map((resource) => resource.name);
-                endpointArtifactNamesArr.push(...endpointNames);
-                const epPaths = endpointResponse.resources.map((resource) => resource.artifactPath.replace(".xml", ""));
-                setExistingEndpoints(epPaths);
-            }
-            if (endpointResponse.registryResources) {
-                const registryKeys = endpointResponse.registryResources.map((resource) => resource.name);
-                endpointArtifactNamesArr.push(...registryKeys);
-            }
-            setExistingArtifactNames(endpointArtifactNamesArr);
             const result = await getArtifactNamesAndRegistryPaths(props.path, rpcClient);
             setArtifactNames(result.artifactNamesArr);
             setRegistryPaths(result.registryPaths);
+            const artifactRes = await rpcClient.getMiDiagramRpcClient().getAllArtifacts({
+                path: props.path,
+            });
+            setWorkspaceFileNames(artifactRes.artifacts);
         })();
     }, [props.path]);
 
@@ -220,6 +216,7 @@ export function FailoverWizard(props: FailoverWizardProps) {
         setEndpoints((prev: any) => [...prev, newEndpoint]);
         setShowAddNewEndpointView(false);
         setNewEndpoint(initialInlineEndpoint);
+        setEndpointsUpdated(true);
     }
 
     const handleParamChange = (config: any) => {
@@ -230,7 +227,7 @@ export function FailoverWizard(props: FailoverWizardProps) {
                     return {
                         ...param,
                         key: param.parameters[0].value,
-                        value: param.parameters[1].value ?? '',
+                        value: generateDisplayValue(param)
                     }
                 })
             };
@@ -242,6 +239,11 @@ export function FailoverWizard(props: FailoverWizardProps) {
             scope: param.parameters[2].value ?? 'default',
         })), { shouldDirty: true });
     }
+
+    const generateDisplayValue = (paramValues: any) => {
+        const result: string = "value:" + paramValues.parameters[1].value + "; scope:" + paramValues.parameters[2].value + ";";
+        return result.trim();
+    };
 
     const handleUpdateEndpoint = async (values: any) => {
         const updateEndpointParams = {
@@ -311,6 +313,7 @@ export function FailoverWizard(props: FailoverWizardProps) {
                         <EndpointList
                             endpoints={endpoints}
                             setEndpoints={setEndpoints}
+                            setEndpointUpdated={setEndpointsUpdated}
                         />
                     )}
                     {showAddNewEndpointView && (
@@ -346,7 +349,7 @@ export function FailoverWizard(props: FailoverWizardProps) {
                 <Button
                     appearance="primary"
                     onClick={handleSubmit(handleUpdateEndpoint)}
-                    disabled={!isDirty}
+                    disabled={!(isDirty || endpointsUpdated)}
                 >
                     {isNewEndpoint ? "Create" : "Save Changes"}
                 </Button>

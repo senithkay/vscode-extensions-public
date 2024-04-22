@@ -64,12 +64,12 @@ export function TemplateWizard(props: TemplateWizardProps) {
         templateName: yup.string().required("Template Name is required")
             .matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in Template Name")
             .test('validateTemplateName',
-                'Template with same name already exists', value => {
-                    return !isNewTemplate ? !(templates.includes(value) && value !== savedTemplateName) : !templates.includes(value);
+                'An artifact with same name already exists', value => {
+                    return !isNewTemplate ? !(workspaceFileNames.includes(value) && value !== savedTemplateName) : !workspaceFileNames.includes(value);
                 })
             .test('validateTemplateArtifactName',
-                'Template artifact name already exists', value => {
-                    return !isNewTemplate ? !(templateArtifactNames.includes(value) && value !== savedTemplateName) : !templateArtifactNames.includes(value);
+                'A registry resource with this artifact name already exists', value => {
+                    return !isNewTemplate ? !(artifactNames.includes(value) && value !== savedTemplateName) : !artifactNames.includes(value);
                 }),
         templateType: yup.string().default(""),
         address: yup.string().notRequired().default(""),
@@ -86,10 +86,15 @@ export function TemplateWizard(props: TemplateWizardProps) {
             then: () =>
                 yup.string().notRequired(),
             otherwise: () =>
-                yup.string().required("Artifact Name is required").test('validateArtifactName',
-                    'Artifact name already exists', value => {
-                        return !artifactNames.includes(value);
-                    }),
+                yup.string().required("Artifact Name is required")
+                    .test('validateArtifactName',
+                        'Artifact name already exists', value => {
+                            return !artifactNames.includes(value);
+                        })
+                    .test('validateFileName',
+                        'A file already exists in the workspace with this artifact name', value => {
+                            return !workspaceFileNames.includes(value);
+                        }),
         }),
         registryPath: yup.string().when('saveInReg', {
             is: false,
@@ -121,12 +126,11 @@ export function TemplateWizard(props: TemplateWizardProps) {
 
     const {rpcClient} = useVisualizerContext();
     const [templateType, setTemplateType] = useState("");
-    const [templates, setTemplates] = useState([]);
-    const [templateArtifactNames, setTemplateArtifactNames] = useState([]);
     const [artifactNames, setArtifactNames] = useState([]);
     const [registryPaths, setRegistryPaths] = useState([]);
     const isNewTemplate = !props.path.endsWith(".xml");
     const [savedTemplateName, setSavedTemplateName] = useState<string>("");
+    const [workspaceFileNames, setWorkspaceFileNames] = useState([]);
 
     useEffect(() => {
         (async () => {
@@ -140,42 +144,13 @@ export function TemplateWizard(props: TemplateWizardProps) {
                 reset(newTemplate);
             }
 
-            const endpointTemplateResponse = await rpcClient.getMiDiagramRpcClient().getAvailableResources({
-                documentIdentifier: props.path,
-                resourceType: "endpointTemplate",
-            });
-            const sequenceTemplateResponse = await rpcClient.getMiDiagramRpcClient().getAvailableResources({
-                documentIdentifier: props.path,
-                resourceType: "sequenceTemplate",
-            });
-            let templateNames = [];
-            let tempArtifactNames = [];
-            if (endpointTemplateResponse.resources) {
-                const templateNames = endpointTemplateResponse.resources.map((resource) => resource.name);
-                tempArtifactNames.push(...templateNames);
-                const templatePaths = endpointTemplateResponse.resources.map((resource) => resource.artifactPath.replace(".xml", ""));
-                templateNames.push(...templatePaths);
-            }
-            if (sequenceTemplateResponse.resources) {
-                const templateNames = sequenceTemplateResponse.resources.map((resource) => resource.name);
-                tempArtifactNames.push(...templateNames);
-                const templatePaths = sequenceTemplateResponse.resources.map((resource) => resource.artifactPath.replace(".xml", ""));
-                templateNames.push(...templatePaths);
-            }
-            if (endpointTemplateResponse.registryResources) {
-                const registryKeys = endpointTemplateResponse.registryResources.map((resource) => resource.registryKey);
-                templateNames.push(...registryKeys);
-            }
-            if (sequenceTemplateResponse.registryResources) {
-                const registryKeys = sequenceTemplateResponse.registryResources.map((resource) => resource.registryKey);
-                templateNames.push(...registryKeys);
-            }
-            setTemplates(templateNames);
-            setTemplateArtifactNames(tempArtifactNames);
-
             const result = await getArtifactNamesAndRegistryPaths(props.path, rpcClient);
             setArtifactNames(result.artifactNamesArr);
             setRegistryPaths(result.registryPaths);
+            const artifactRes = await rpcClient.getMiDiagramRpcClient().getAllArtifacts({
+                path: props.path,
+            });
+            setWorkspaceFileNames(artifactRes.artifacts);
         })();
     }, [props.path]);
 

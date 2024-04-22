@@ -13,7 +13,6 @@ import { TaskForm } from './views/Forms/TaskForm';
 import { MessageStoreWizard } from './views/Forms/MessageStoreForm/index';
 import { MessageProcessorWizard } from "./views/Forms/MessageProcessorForm";
 import { VSCodeProgressRing } from '@vscode/webview-ui-toolkit/react';
-import { GettingStarted } from "./views/GettingStarted";
 import styled from '@emotion/styled';
 import { InboundEPWizard } from './views/Forms/InboundEPform';
 import { LocalEntryWizard } from './views/Forms/LocalEntryForm';
@@ -121,10 +120,6 @@ const MainPanel = () => {
         rpcClient.getVisualizerState().then((machineView) => {
             let shouldShowNavigator = true;
             switch (machineView?.view) {
-                case MACHINE_VIEW.Welcome:
-                    setViewComponent(<GettingStarted />);
-                    shouldShowNavigator = false;
-                    break;
                 case MACHINE_VIEW.Overview:
                     setViewComponent(<Overview stateUpdated />);
                     break;
@@ -216,7 +211,7 @@ const MainPanel = () => {
                     break;
                 case MACHINE_VIEW.TemplateForm:
                     const templateType = machineView.customProps && machineView.customProps.type ? machineView.customProps.type : '';
-                    setViewComponent(<TemplateWizard path={machineView.documentUri} type={templateType}/>);
+                    setViewComponent(<TemplateWizard path={machineView.documentUri} type={templateType} />);
                     break;
                 case MACHINE_VIEW.HttpEndpointForm:
                     setViewComponent(<HttpEndpointWizard path={machineView.documentUri} type={machineView.customProps.type} />);
@@ -248,7 +243,7 @@ const MainPanel = () => {
                     break;
                 case MACHINE_VIEW.DataSourceForm:
                     setViewComponent(<DataSourceWizard path={machineView.documentUri} />);
-                    break;    
+                    break;
                 default:
                     setViewComponent(null);
             }

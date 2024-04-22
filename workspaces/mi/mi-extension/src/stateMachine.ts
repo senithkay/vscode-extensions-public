@@ -323,7 +323,7 @@ const stateMachine = createMachine<MachineContext>({
                             case !!node.sequence:
                                 // TODO: Use node.dataMapper to identify the data mapper function
                                 const filePath = "/Users/madusha/play/mi/mi-hw/HelloWorldService/src/main/wso2mi/resources/data-mapper/sample2.ts";
-                                const functionName="tnfStd2Person";
+                                const functionName = "tnfStd2Person";
 
                                 const fileContent = getSourceCode(filePath);
                                 viewLocation.dataMapperProps = {
@@ -480,6 +480,12 @@ async function checkIfMiProject() {
     } else {
         vscode.commands.executeCommand('setContext', 'MI.status', 'unknownProject');
     }
+
+    // Register Project Creation command in any of the above cases
+    vscode.commands.registerCommand(COMMANDS.CREATE_PROJECT_COMMAND, () => {
+        openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.ProjectCreationForm });
+        console.log('Create New Project');
+    });
 
     return {
         isProject,

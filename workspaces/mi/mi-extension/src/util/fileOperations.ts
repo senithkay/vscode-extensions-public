@@ -630,6 +630,48 @@ export function changeRootPomPackaging(projectDir: string, packaging: string) {
 }
 
 /**
+ * Add Synapse depedency to the root pom.
+ * @param projectDir project directory.
+ */
+export function addSynapseDependency(projectDir: string) {
+    const pomXMLPath = path.join(projectDir, 'pom.xml');
+    if (fs.existsSync(pomXMLPath)) {
+        const pomXML = fs.readFileSync(pomXMLPath, "utf8");
+        const options = {
+            ignoreAttributes: false,
+            format: true,
+        };
+        const parser = new XMLParser(options);
+        const pomXMLData = parser.parse(pomXML);
+        const synapseDep = {
+            dependency: {
+                groupId: "org.apache.synapse",
+                artifactId: "synapse-core",
+                version: "4.0.0-wso2v20",
+            }
+        };
+        if (!pomXMLData.project.dependencies || pomXMLData.project.dependencies === '') {
+            pomXMLData.project.dependencies = [];
+            pomXMLData.project.dependencies.push(synapseDep);
+        } else if (!Array.isArray(pomXMLData.project.dependencies.dependency)) {
+            const dep = pomXMLData.project.dependencies.dependency;
+            if (dep.artifactId !== "synapse-core") {
+                pomXMLData.project.dependencies.dependency = [];
+                pomXMLData.project.dependencies.dependency.push(dep);
+                pomXMLData.project.dependencies.dependency.push(synapseDep.dependency);
+            }
+        } else {
+            if (pomXMLData.project.dependencies.dependency.filter(dep => dep.artifactId === "synapse-core").length === 0) {
+                pomXMLData.project.dependencies.dependency.push(synapseDep.dependency);
+            }
+        }
+        const builder = new XMLBuilder(options);
+        const updatedXmlString = builder.build(pomXMLData);
+        fs.writeFileSync(pomXMLPath, updatedXmlString);
+    }
+}
+
+/**
  * Focus on the source file at the given position in the editor.
  * @param filePath   path of the file.
  * @param position     position to be focused.
@@ -639,10 +681,10 @@ export function goToSource(filePath: string, position: Range) {
         return;
     }
 
-    const { start : { line, column } } = position;
+    const { start: { line, column } } = position;
     const range: VSCodeRange = new VSCodeRange(line, column, line!, column!);
     const openedDocument = window.visibleTextEditors.find((editor) => editor.document.fileName === filePath);
-    
+
     if (openedDocument) {
         focusTextEditor(openedDocument, range);
     } else {
@@ -654,7 +696,7 @@ export function goToSource(filePath: string, position: Range) {
         window.showTextDocument(editor.document, { preview: false, preserveFocus: false, viewColumn: editor.viewColumn })
             .then(textEditor => updateEditor(textEditor, range));
     }
-    
+
     function openAndFocusTextDocument(filePath, range) {
         workspace.openTextDocument(filePath).then(sourceFile => {
             window.showTextDocument(sourceFile, { preview: false, preserveFocus: false })
