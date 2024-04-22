@@ -64,7 +64,7 @@ export function getDefaultEndpointMustacheTemplate() {
         </markForSuspension>
     </default>
     {{#properties}}
-    <property name="{{name}}" scope="{{scope}}" value="{{value}}"/>
+    <property name="{{name}}" {{#scope}}scope="{{scope}}"{{/scope}} value="{{value}}"/>
     {{/properties}}  
     {{#description}}<description>{{description}}</description>{{/description}}
 </endpoint>
@@ -94,6 +94,10 @@ export function getDefaultEndpointXml(data: DefaultEndpointArgs) {
 
     if (!data.requireProperties || data.properties.length == 0) {
         data.properties = null;
+    } else {
+        data.properties.forEach(element => {
+            element.scope = element.scope === 'default' ? null : element.scope;
+        });
     }
 
     data.templateName != null && data.templateName != '' ? template = true : endpoint = true;

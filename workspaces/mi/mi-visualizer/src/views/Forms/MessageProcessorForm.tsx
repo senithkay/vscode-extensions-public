@@ -91,7 +91,7 @@ export function MessageProcessorWizard(props: MessageProcessorWizardProps) {
 
     const schema = yup.object({
         messageProcessorName: yup.string().required("Message Processor Name is required")
-            .matches(/^[a-zA-Z0-9]*$/, "Invalid characters in Task name")
+            .matches(/^[a-zA-Z0-9]*$/, "Invalid characters in Message Processor name")
             .test('validateTaskName',
                 'An artifact with same name already exists', value => {
                     return !(workspaceFileNames.includes(value) && savedMPName !== value)

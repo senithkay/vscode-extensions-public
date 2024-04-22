@@ -8,7 +8,7 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { Button, ComponentCard, RequiredFormInput, TextField } from '@wso2-enterprise/ui-toolkit';
+import { AutoComplete, Button, ComponentCard, RequiredFormInput, TextField } from '@wso2-enterprise/ui-toolkit';
 import { VSCodeCheckbox, VSCodeDropdown, VSCodeOption } from '@vscode/webview-ui-toolkit/react';
 import styled from '@emotion/styled';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
@@ -176,6 +176,22 @@ const AddConnection = (props: AddConnectionProps) => {
                         </div>
                     </>
                 );
+            case 'comboOrExpression':
+                return (
+                    <>
+                        <label>{element.displayName}</label> {element.required && <RequiredFormInput />}
+                        <AutoComplete
+                            items={element.comboValues}
+                            value={formValues[element.name]}
+                            onValueChange={(e: any) => {
+                                setFormValues({ ...formValues, [element.name]: e });
+                                formValidators[element.name](e);
+                            }}
+                            allowItemCreate={true}
+                            required={element.required === 'true'} />
+                    </>
+
+                );
             case 'connection':
                 formValues[element.name] = formValues[element.name] ?? element.allowedConnectionTypes[0];
                 return (<>
@@ -233,8 +249,8 @@ const AddConnection = (props: AddConnectionProps) => {
 
     return (
         <>
-            <label>{"Connection Type"}</label> {<RequiredFormInput />}
             <div style={{ padding: "10px" }}>
+                <label>{"Connection Type"}</label> {<RequiredFormInput />}
                 <VSCodeDropdown
                     label={"Connection Type"}
                     value={connectionType}

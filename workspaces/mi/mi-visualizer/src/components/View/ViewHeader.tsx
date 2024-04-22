@@ -60,7 +60,7 @@ const ViewHeader: React.FC<ViewHeaderProps> = ({ title, children, codicon, icon,
                 <TitleContainer>
                     {codicon && <Codicon name={codicon} />}
                     {icon && <Icon name={icon} />}
-                    <Title>{title}</Title>
+                    {typeof title === 'string' ? <Title>{title}</Title> : title}
                     {onEdit && (
                         <Button
                             appearance="icon"

@@ -52,6 +52,8 @@ export enum MACHINE_VIEW {
     MessageStoreForm = "Message Store Form",
     ClassMediatorForm = "ClassMediator Creation Form",
     DataSourceForm = "Data Source Creation Form",
+    Samples = "Samples",
+    ImportProject = "Import Project",
 }
 
 export enum AI_MACHINE_VIEW {

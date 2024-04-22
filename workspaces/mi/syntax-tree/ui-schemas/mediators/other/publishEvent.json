@@ -64,7 +64,6 @@
             "value": {
               "name": "metaAttributes",
               "displayName": "Meta Attributes",
-              "form": {
                 "title": "Pulish Event Mediator Attribute",
                 "description": "Editing of the properties of an object PublishEvent Mediator Attribute",
                 "elements": [
@@ -163,7 +162,6 @@
                 ]
               }
             }
-          }
         ]
       }
     },
