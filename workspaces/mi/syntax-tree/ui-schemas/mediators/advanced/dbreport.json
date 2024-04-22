@@ -1,6 +1,6 @@
 {
   "name": "DBReport",
-  "type":"mediator",
+  "type": "mediator",
   "title": "DB Report Mediator",
   "help": "",
   "elements": [
@@ -439,160 +439,160 @@
             "value": {
               "name": "sqlStatements",
               "displayName": "SQL Statements",
-              "form": {
-                "title": "SQL Statement",
-                "description": "Editing of the properties of an object SQL Statement",
-                "elements": [
-                  {
-                    "type": "attribute",
-                    "value": {
-                      "name": "queryString",
-                      "displayName": "Query String",
-                      "inputType": "string",
-                      "required": false,
-                      "helpTip": ""
-                    }
-                  },
-                  {
-                    "type": "table",
-                    "value": {
-                      "name": "parameters",
-                      "displayName": "Parameters",
-                      "form": {
-                        "title": "SQL Parameter Definition",
-                        "description": "Editing of the properties of an object SQL Parameter Definition",
-                        "elements": [
-                          {
-                            "type": "attributeGroup",
-                            "value": {
-                              "groupName": "Properties",
-                              "elements": [
-                                {
-                                  "type": "attribute",
-                                  "value": {
-                                    "name": "dataType",
-                                    "displayName": "Data Type",
-                                    "inputType": "combo",
-                                    "defaultValue": "CHAR",
-                                    "comboValues": [
-                                      "CHAR",
-                                      "VARCHAR",
-                                      "LONGVARCHAR",
-                                      "NUMERIC",
-                                      "DECIMAL",
-                                      "BIT",
-                                      "TINYINT",
-                                      "SMALLINT",
-                                      "INTEGER",
-                                      "BIGINT",
-                                      "REAL",
-                                      "FLOAT",
-                                      "DOUBLE",
-                                      "DATE",
-                                      "TIME",
-                                      "TIMESTAMP"
-                                    ],
-                                    "required": true,
-                                    "helpTip": "Select the data type"
-                                  }
-                                },
-                                {
-                                  "type": "attribute",
-                                  "value": {
-                                    "name": "valueType",
-                                    "displayName": "Value Type",
-                                    "inputType": "combo",
-                                    "defaultValue": "LITERAL",
-                                    "comboValues": [
-                                      "LITERAL",
-                                      "EXPRESSION"
-                                    ],
-                                    "required": true,
-                                    "helpTip": "Select the value type"
-                                  }
-                                },
-                                {
-                                  "type": "attribute",
-                                  "value": {
-                                    "name": "valueLiteral",
-                                    "displayName": "Value Literal",
-                                    "inputType": "string",
-                                    "required": true,
-                                    "enableCondition": [
-                                      {
-                                        "valueType": "LITERAL"
-                                      }
-                                    ],
-                                    "helpTip": "Enter the value literal"
-                                  }
-                                },
-                                {
-                                  "type": "attribute",
-                                  "value": {
-                                    "name": "valueExpression",
-                                    "displayName": "Value Expression",
-                                    "inputType": "expression",
-                                    "required": true,
-                                    "enableCondition": [
-                                      {
-                                        "valueType": "EXPRESSION"
-                                      }
-                                    ],
-                                    "helpTip": "Enter the value expression"
-                                  }
-                                }
-                              ]
-                            }
-                          }
-                        ]
-                      }
-                    }
-                  },
-                  {
-                    "type": "attribute",
-                    "value": {
-                      "name": "resultsEnabled",
-                      "displayName": "Results Enabled",
-                      "inputType": "checkbox",
-                      "required": false,
-                      "helpTip": ""
-                    }
-                  },
-                  {
-                    "type": "table",
-                    "value": {
-                      "name": "results",
-                      "displayName": "Results",
-                      "form": {
-                        "title": "SQL Result Mapping",
-                        "description": "Editing of the properties of an object SQL Result Mapping",
-                        "elements": [
-                          {
-                            "type": "attribute",
-                            "value": {
-                              "name": "propertyName",
-                              "displayName": "Property Name",
-                              "inputType": "string",
-                              "required": false,
-                              "helpTip": ""
-                            }
-                          },
-                          {
-                            "type": "attribute",
-                            "value": {
-                              "name": "columnId",
-                              "displayName": "Column ID",
-                              "inputType": "string",
-                              "required": false,
-                              "helpTip": ""
-                            }
-                          }
-                        ]
-                      }
-                    }
+              "title": "SQL Statement",
+              "description": "Editing of the properties of an object SQL Statement",
+              "tableKey": "Query",
+              "tableValue": "queryString",
+              "elements": [
+                {
+                  "type": "attribute",
+                  "value": {
+                    "name": "queryString",
+                    "displayName": "Query String",
+                    "inputType": "string",
+                    "required": false,
+                    "helpTip": ""
                   }
-                ]
-              }
+                },
+                {
+                  "type": "table",
+                  "value": {
+                    "name": "parameters",
+                    "displayName": "Parameters",
+                    "title": "SQL Parameter Definition",
+                    "description": "Editing of the properties of an object SQL Parameter Definition",
+                    "tableKey": "dataType",
+                    "tableValue": "valueLiteral",
+                    "elements": [
+                      {
+                        "type": "attributeGroup",
+                        "value": {
+                          "groupName": "Properties",
+                          "elements": [
+                            {
+                              "type": "attribute",
+                              "value": {
+                                "name": "dataType",
+                                "displayName": "Data Type",
+                                "inputType": "combo",
+                                "defaultValue": "CHAR",
+                                "comboValues": [
+                                  "CHAR",
+                                  "VARCHAR",
+                                  "LONGVARCHAR",
+                                  "NUMERIC",
+                                  "DECIMAL",
+                                  "BIT",
+                                  "TINYINT",
+                                  "SMALLINT",
+                                  "INTEGER",
+                                  "BIGINT",
+                                  "REAL",
+                                  "FLOAT",
+                                  "DOUBLE",
+                                  "DATE",
+                                  "TIME",
+                                  "TIMESTAMP"
+                                ],
+                                "required": true,
+                                "helpTip": "Select the data type"
+                              }
+                            },
+                            {
+                              "type": "attribute",
+                              "value": {
+                                "name": "valueType",
+                                "displayName": "Value Type",
+                                "inputType": "combo",
+                                "defaultValue": "LITERAL",
+                                "comboValues": [
+                                  "LITERAL",
+                                  "EXPRESSION"
+                                ],
+                                "required": true,
+                                "helpTip": "Select the value type"
+                              }
+                            },
+                            {
+                              "type": "attribute",
+                              "value": {
+                                "name": "valueLiteral",
+                                "displayName": "Value Literal",
+                                "inputType": "string",
+                                "required": true,
+                                "enableCondition": [
+                                  {
+                                    "valueType": "LITERAL"
+                                  }
+                                ],
+                                "helpTip": "Enter the value literal"
+                              }
+                            },
+                            {
+                              "type": "attribute",
+                              "value": {
+                                "name": "valueExpression",
+                                "displayName": "Value Expression",
+                                "inputType": "expression",
+                                "required": true,
+                                "enableCondition": [
+                                  {
+                                    "valueType": "EXPRESSION"
+                                  }
+                                ],
+                                "helpTip": "Enter the value expression"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "type": "attribute",
+                  "value": {
+                    "name": "resultsEnabled",
+                    "displayName": "Results Enabled",
+                    "inputType": "checkbox",
+                    "required": false,
+                    "helpTip": ""
+                  }
+                },
+                {
+                  "type": "table",
+                  "value": {
+                    "name": "results",
+                    "displayName": "Results",
+                    "title": "SQL Result Mapping",
+                    "description": "Editing of the properties of an object SQL Result Mapping",
+                    "tableKey": "propertyName",
+                    "tableValue": "columnId",
+                    "elements": [
+                      {
+                        "type": "attribute",
+                        "value": {
+                          "name": "propertyName",
+                          "displayName": "Property Name",
+                          "inputType": "string",
+                          "required": false,
+                          "helpTip": ""
+                        }
+                      },
+                      {
+                        "type": "attribute",
+                        "value": {
+                          "name": "columnId",
+                          "displayName": "Column ID",
+                          "inputType": "string",
+                          "required": false,
+                          "helpTip": ""
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
             }
           }
         ]

@@ -36,6 +36,7 @@ interface AddConnectionProps {
     onNewConnection: (connectionName: string) => void;
     cancelConnection: () => void;
     allowedConnectionTypes: string[];
+    connectorName: string;
 }
 
 interface Element {
@@ -66,7 +67,15 @@ const AddConnection = (props: AddConnectionProps) => {
     useEffect(() => {
         const fetchFormData = async () => {
             if (connectionType) {
-                const connectionFormJSON = await rpcClient.getMiDiagramRpcClient().getConnectorForm({ uiSchemaPath: uiSchemaPath, operation: connectionType.toLowerCase() });
+                const connectorData = await rpcClient.getMiDiagramRpcClient().getAvailableConnectors({
+                    documentUri: props.documentUri,
+                    connectorName: props.connectorName
+                });
+                
+                const connectionUiSchema = connectorData.connectionUiSchema[connectionType as any];
+
+                const connectionFormJSON = await rpcClient.getMiDiagramRpcClient().getConnectionForm({ uiSchemaPath: connectionUiSchema });
+
                 setFormData(connectionFormJSON.formJSON);
             }
         };

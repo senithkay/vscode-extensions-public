@@ -17,17 +17,17 @@ export interface GetClassTemplatesArgs {
 export function getClassMustacheTemplate() {
     return `package {{package}};
 
-    import org.apache.synapse.MessageContext; 
-    import org.apache.synapse.mediators.AbstractMediator;
+import org.apache.synapse.MessageContext; 
+import org.apache.synapse.mediators.AbstractMediator;
     
-    public class {{className}} extends AbstractMediator { 
-    
-        public boolean mediate(MessageContext context) { 
-            // TODO Implement your mediation logic here 
-            return true;
-        }
+public class {{className}} extends AbstractMediator { 
+
+    public boolean mediate(MessageContext context) { 
+        // TODO Implement your mediation logic here 
+        return true;
     }
-    `;
+}
+`;
 }
 
 export function getClassMediatorContent(data: GetClassTemplatesArgs) {

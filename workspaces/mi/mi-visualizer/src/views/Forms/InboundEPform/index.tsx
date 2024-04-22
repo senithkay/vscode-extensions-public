@@ -58,8 +58,6 @@ const initialInboundEndpoint: InboundEndpoint = {
     parameters: {}
 };
 
-const hideSubFormTypes = ['HTTP', 'HTTPS', 'CXF_WS_RM', 'FEED'];
-
 const customSequenceType = {
     content: "custom-sequence",
     value: "custom",
@@ -72,7 +70,6 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
 
     const [selectedParams, setSelectedParams] = useState<{ [key: string]: { [key: string]: Paramater; } }>({});
     const [sequences, setSequences] = useState([]);
-    const [showHiddenForm, setShowHiddenForm] = useState(false);
     const [schemaParams, setSchemaParams] = useState({});
 
     const [selected, setSelected] = useState({
@@ -122,7 +119,6 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
             if (!isNewInboundEndpoint) {
                 const { parameters, ...data } = await rpcClient.getMiDiagramRpcClient().getInboundEndpoint({ path: props.path });
                 data.type = data.type.toUpperCase();
-                setShowHiddenForm(hideSubFormTypes.includes(data.type));
 
                 if (sequenceList.data[1].includes(data.sequence)) {
                     handleSequenceChange("sequence", data.sequence, false);
@@ -172,7 +168,6 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
     const readyForm = (type: string) => {
         const params = inboundEndpointParams[type.toLowerCase()];
         setSelectedParams(params)
-        setShowHiddenForm(hideSubFormTypes.includes(type));
 
         const schemaItems: { [key: string]: any } = {};
 
@@ -256,42 +251,38 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
                         placeholder="Name"
                         {...renderProps("name")}
                     />
-                    {!showHiddenForm && (
-                        <>
-                            <div>
-                                <Dropdown
-                                    id="sequence"
-                                    label="Sequence"
-                                    value={selected.sequence}
-                                    items={sequences}
-                                    onValueChange={(value: string) => handleSequenceChange("sequence", value)}
-                                />
-                                {selected.sequence === customSequenceType.value && <>
-                                    <TextField
-                                        required
-                                        placeholder="Custom Sequence Name"
-                                        {...renderProps("sequence")}
-                                    />
-                                </>}
-                            </div>
-                            <div>
-                                <Dropdown
-                                    id="errorSequence"
-                                    label="Error Sequence"
-                                    value={selected.errorSequence}
-                                    items={sequences}
-                                    onValueChange={(value: string) => handleSequenceChange("errorSequence", value)}
-                                />
-                                {selected.errorSequence === customSequenceType.value && <>
-                                    <TextField
-                                        required
-                                        placeholder="Custom on-error Sequence Name"
-                                        {...renderProps("errorSequence")}
-                                    />
-                                </>}
-                            </div>
-                        </>
-                    )}
+                    <div>
+                        <Dropdown
+                            id="sequence"
+                            label="Sequence"
+                            value={selected.sequence}
+                            items={sequences}
+                            onValueChange={(value: string) => handleSequenceChange("sequence", value)}
+                        />
+                        {selected.sequence === customSequenceType.value && <>
+                            <TextField
+                                required
+                                placeholder="Custom Sequence Name"
+                                {...renderProps("sequence")}
+                            />
+                        </>}
+                    </div>
+                    <div>
+                        <Dropdown
+                            id="errorSequence"
+                            label="Error Sequence"
+                            value={selected.errorSequence}
+                            items={[...sequences, { content: 'fault', value: 'fault' }]}
+                            onValueChange={(value: string) => handleSequenceChange("errorSequence", value)}
+                        />
+                        {selected.errorSequence === customSequenceType.value && <>
+                            <TextField
+                                required
+                                placeholder="Custom on-error Sequence Name"
+                                {...renderProps("errorSequence")}
+                            />
+                        </>}
+                    </div>
                     <CheckboxGroup>
                         <FormCheckBox
                             name="suspend"
