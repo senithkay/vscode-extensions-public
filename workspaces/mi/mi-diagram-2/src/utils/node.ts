@@ -12,6 +12,8 @@ import { MEDIATORS, NODE_GAP } from "../resources/constants";
 import { getLogDescription } from "./template-engine/mustach-templates/core/log";
 import { getFilterDescription } from "./template-engine/mustach-templates/filter/filter";
 import { getPropertyDescription } from "./template-engine/mustach-templates/core/property";
+import { getSwitchDescription } from "./template-engine/mustach-templates/filter/switch";
+import { getSequenceDescription } from "./template-engine/mustach-templates/core/sequence";
 
 export function getNodeIdFromModel(model: STNode, prefix?: string) {
     if (model.viewState?.id) {
@@ -50,6 +52,12 @@ export function getNodeDescription(stNode: any): string {
         }
         case (MEDIATORS.PROPERTY.toLowerCase()): {
             return getPropertyDescription(stNode);
+        }
+        case (MEDIATORS.SEQUENCE.toLowerCase()): {
+            return getSequenceDescription(stNode);
+        }
+        case (MEDIATORS.SWITCH.toLowerCase()): {
+            return getSwitchDescription(stNode);
         }
         default:
             return;
