@@ -46,16 +46,20 @@ const initialRegistryResource: InputsFields = {
 export function RegistryResourceForm(props: RegistryWizardProps) {
 
     const { rpcClient } = useVisualizerContext();
-    const [artifactNames, setArtifactNames] = useState([]);
+    const [regArtifactNames, setRegArtifactNames] = useState([]);
     const [registryPaths, setRegistryPaths] = useState([]);
+    const [artifactNames, setArtifactNames] = useState([]);
 
     const schema = yup
         .object({
             createOption: yup.mixed<"new" | "import">().oneOf(["new", "import"]),
             artifactName: yup.string().required("Artifact Name is required").test('validateArtifactName',
                 'Artifact name already exists', value => {
-                    return !artifactNames.includes(value);
-                }),
+                    return !regArtifactNames.includes(value);
+                }).test('validateArtifactNameInWorkspace',
+                    'A file already exists in the workspace with this artifact name', value => {
+                        return !artifactNames.includes(value);
+                    }),
             registryPath: yup.string().test('validateRegistryPath', 'Resource already exists', value => {
                 const formattedPath = formatRegistryPath(value);
                 return !(registryPaths.includes(formattedPath) || registryPaths.includes(formattedPath + "/"));
@@ -101,22 +105,16 @@ export function RegistryResourceForm(props: RegistryWizardProps) {
 
     useEffect(() => {
         (async () => {
-            if (artifactNames.length === 0 || registryPaths.length === 0) {
+            if (regArtifactNames.length === 0 || registryPaths.length === 0) {
                 const request = {
                     path: props.path
                 }
-                rpcClient.getMiDiagramRpcClient().getAvailableRegistryResources(request).then(response => {
-                    const artifacts = response.artifacts;
-                    var tempArtifactNames: string[] = [];
-                    for (let i = 0; i < artifacts.length; i++) {
-                        tempArtifactNames.push(artifacts[i].name);
-                    }
-                    setArtifactNames(tempArtifactNames);
-                });
-                const res = await rpcClient.getMiVisualizerRpcClient().getAllRegistryPaths({
-                    path: props.path,
-                });
+                const tempArtifactNames = await rpcClient.getMiDiagramRpcClient().getAvailableRegistryResources(request);
+                setRegArtifactNames(tempArtifactNames.artifacts);
+                const res = await rpcClient.getMiDiagramRpcClient().getAllRegistryPaths(request);
                 setRegistryPaths(res.registryPaths);
+                const artifactRes = await rpcClient.getMiDiagramRpcClient().getAllArtifacts(request);
+                setArtifactNames(artifactRes.artifacts);
             }
         })();
     }, []);
@@ -276,7 +274,7 @@ export function RegistryResourceForm(props: RegistryWizardProps) {
                     onClick={handleSubmit((values) => {
                         handleCreateRegResource(values);
                     })}
-                    disabled={!isDirty || !isValid || (!createOptionValue
+                    disabled={!isDirty || (!createOptionValue
                         && getValues("filePath") === "Please select a file or folder")}
                 >
                     Create

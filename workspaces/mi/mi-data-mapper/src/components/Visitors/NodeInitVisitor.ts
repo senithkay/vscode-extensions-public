@@ -6,41 +6,86 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import ts, { ArrowFunction, Node, ParenthesizedExpression } from "typescript";
+import { Node, PropertyAssignment, ObjectLiteralExpression, FunctionDeclaration, ReturnStatement } from "ts-morph";
 import { Visitor } from "../../ts/base-visitor";
-import { ObjectOutputNode, InputNode } from "../Diagram/Node";
+import { ObjectOutputNode, InputNode, LinkConnectorNode } from "../Diagram/Node";
 import { DataMapperNodeModel } from "../Diagram/Node/commons/DataMapperNode";
 import { DataMapperContext } from "../../utils/DataMapperContext/DataMapperContext";
+import { getPropertyAccessNodes, isConditionalExpression } from "../Diagram/utils/common-utils";
 
 export class NodeInitVisitor implements Visitor {
     private inputNodes: DataMapperNodeModel[] = [];
     private outputNode: DataMapperNodeModel;
+    private intermediateNodes: DataMapperNodeModel[] = [];
+    private mapIdentifiers: Node[] = [];
 
     constructor(
         private context: DataMapperContext,
     ) {}
 
-    beginVisitArrowFunction(node: ArrowFunction, parent?: Node): void {
+    beginVisitFunctionDeclaration(node: FunctionDeclaration): void {
         // Create input nodes
-        const params = node.parameters;
+        const params = node.getParameters();
         params.forEach((param) => {
             const paramNode = new InputNode(this.context, param);
             paramNode.setPosition(0, 0);
             this.inputNodes.push(paramNode);
         });
 
-        // Create output node
-        if (ts.isParenthesizedExpression(node.body)) {
-            const expr = (node.body as ParenthesizedExpression).expression;
+        const body = node.getBody();
 
-            if (ts.isObjectLiteralExpression(expr)) {
-                this.outputNode = new ObjectOutputNode(
+        if (Node.isBlock(body)) {
+            const returnStatement = body.getStatements()
+                .find((statement) => Node.isReturnStatement(statement)) as ReturnStatement;
+
+            this.outputNode = new ObjectOutputNode(
+                this.context,
+                returnStatement
+            );
+        }
+    }
+
+    beginVisitPropertyAssignment(node: PropertyAssignment, parent?: Node): void {
+        const initializer = node.getInitializer();
+        this.mapIdentifiers.push(node)
+
+        if (initializer
+            && !Node.isObjectLiteralExpression(initializer)
+            && !Node.isArrayLiteralExpression(initializer)
+        ) {
+            const propertyAccessNodes = getPropertyAccessNodes(initializer);
+            if (propertyAccessNodes.length > 1
+                || (propertyAccessNodes.length === 1
+                    && isConditionalExpression(initializer)
+                )
+            ){
+                const linkConnectorNode = new LinkConnectorNode(
                     this.context,
-                    expr
+                    node,
+                    node.getName(),
+                    parent,
+                    propertyAccessNodes,
+                    this.mapIdentifiers.slice(0)
                 );
+                this.intermediateNodes.push(linkConnectorNode);
             }
         }
-        
+    }
+
+    beginVisitObjectLiteralExpression(node: ObjectLiteralExpression): void {
+        this.mapIdentifiers.push(node);
+    }
+
+    endVisitPropertyAssignment(node: PropertyAssignment): void {
+        if (this.mapIdentifiers.length > 0) {
+            this.mapIdentifiers.pop()
+        }    
+    }
+
+    endVisitObjectLiteralExpression(node: ObjectLiteralExpression): void {
+        if (this.mapIdentifiers.length > 0) {
+            this.mapIdentifiers.pop()
+        }
     }
 
     getNodes() {
@@ -48,6 +93,7 @@ export class NodeInitVisitor implements Visitor {
         if (this.outputNode) {
             nodes.push(this.outputNode);
         }
+        nodes.push(...this.intermediateNodes);
         return nodes;
     }
 }

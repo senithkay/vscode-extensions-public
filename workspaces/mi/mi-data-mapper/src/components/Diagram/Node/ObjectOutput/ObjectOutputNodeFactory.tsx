@@ -11,7 +11,7 @@ import * as React from 'react';
 
 import { AbstractReactFactory } from '@projectstorm/react-canvas-core';
 import { DiagramEngine } from '@projectstorm/react-diagrams-core';
-import { Node } from 'typescript';
+import { Node } from 'ts-morph';
 
 import { InputOutputPortModel } from '../../Port';
 import { OBJECT_OUTPUT_TARGET_PORT_PREFIX } from '../../utils/constants';
@@ -37,7 +37,7 @@ export class ExpressionFunctionBodyFactory extends AbstractReactFactory<ObjectOu
 						id={`${OBJECT_OUTPUT_TARGET_PORT_PREFIX}${event.model.rootName ? `.${event.model.rootName}` : ''}`}
 						dmTypeWithValue={event.model.dmTypeWithValue}
 						typeName={event.model.typeName}
-						value={event.model.value}
+						value={event.model.value && event.model.value.getExpression()}
 						getPort={(portId: string) => event.model.getPort(portId) as InputOutputPortModel}
 						context={event.model.context}
 						mappings={event.model.mappings}

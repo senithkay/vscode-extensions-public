@@ -15,13 +15,10 @@ export interface IOTypeRequest {
 
 export interface IOTypeResponse {
     inputTrees: DMType[];
-    outputTree: DMType;
+    outputTree: DMType | undefined;
 }
 
-export interface FileContentRequest {
+export interface UpdateFileContentRequest {
     filePath: string;
-}
-
-export interface FileContentResponse {
     fileContent: string;
 }

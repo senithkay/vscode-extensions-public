@@ -7,15 +7,17 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 // tslint:disable: jsx-no-multiline-js
-import React from 'react';
+import React, { MouseEvent, ReactNode, useEffect, useState } from 'react';
 
 import { css } from '@emotion/css';
+import { Button, Codicon, ProgressRing } from '@wso2-enterprise/ui-toolkit';
 import classNames from "classnames";
 
+import { DiagnosticWidget } from '../Diagnostic/DiagnosticWidget';
 import { InputOutputPortModel } from '../Port';
+import { getEditorLineAndColumn } from '../utils/common-utils';
 
 import { ExpressionLabelModel } from './ExpressionLabelModel';
-import { Button, Codicon, ProgressRing } from '@wso2-enterprise/ui-toolkit';
 
 export interface EditableLabelWidgetProps {
     model: ExpressionLabelModel;
@@ -95,27 +97,14 @@ export enum LinkState {
 
 // now we can render all what we want in the label
 export function EditableLabelWidget(props: EditableLabelWidgetProps) {
-    const [linkStatus, setLinkStatus] = React.useState<LinkState>(LinkState.LinkNotSelected);
-    const [deleteInProgress, setDeleteInProgress] = React.useState(false);
+    const [linkStatus, setLinkStatus] = useState<LinkState>(LinkState.LinkNotSelected);
+    const [deleteInProgress, setDeleteInProgress] = useState(false);
+
     const classes = useStyles();
-    const { link, deleteLink } = props.model;
+    const { field, link, value, valueNode, context, deleteLink } = props.model;
+    const diagnostic = link && link.hasError() ? link.diagnostics[0] : null;
 
-    const onClickDelete = (evt?: React.MouseEvent<HTMLDivElement>) => {
-        if (evt) {
-            evt.preventDefault();
-            evt.stopPropagation();
-        }
-        setDeleteInProgress(true);
-        if (deleteLink) {
-            deleteLink();
-        }
-    };
-
-    const onClickEdit = (evt?: React.MouseEvent<HTMLDivElement>) => {
-        // TODO: Implement edit logic
-    };
-
-    React.useEffect(() => {
+    useEffect(() => {
         if (link) {
             link.registerListener({
                 selectionChanged(event) {
@@ -127,11 +116,27 @@ export function EditableLabelWidget(props: EditableLabelWidgetProps) {
         }
     }, [props.model]);
 
+    const onClickDelete = (evt?: MouseEvent<HTMLDivElement>) => {
+        if (evt) {
+            evt.preventDefault();
+            evt.stopPropagation();
+        }
+        setDeleteInProgress(true);
+        if (deleteLink) {
+            deleteLink();
+        }
+    };
+
+    const onClickEdit = (evt?: MouseEvent<HTMLDivElement>) => {
+        const range = getEditorLineAndColumn(field);
+        context.goToSource(range);
+    };
+
     const loadingScreen = (
         <ProgressRing sx={{ height: '16px', width: '16px' }} />
     );
 
-    const elements: React.ReactNode[] = [
+    const elements: ReactNode[] = [
         (
             <div className={classes.btnContainer}>
                 <Button
@@ -159,13 +164,26 @@ export function EditableLabelWidget(props: EditableLabelWidgetProps) {
         ),
     ];
 
+    if (diagnostic) {
+        elements.push(<div className={classes.separator}/>);
+        elements.push(
+            <DiagnosticWidget
+                diagnostic={diagnostic}
+                value={value}
+                onClick={onClickEdit}
+                isLabelElement={true}
+                btnSx={{ margin: "0 2px" }}
+            />
+        );
+    }
+
     let isSourceCollapsed = false;
     let isTargetCollapsed = false;
     const collapsedFields = [""];
     // const collapsedFields = props.model?.context?.collapsedFields;
 
-    const source = props.model?.link?.getSourcePort()
-    const target = props.model?.link?.getTargetPort()
+    const source = link?.getSourcePort()
+    const target = link?.getTargetPort()
 
     if (source instanceof InputOutputPortModel) {
         if (source?.parentId) {
@@ -185,10 +203,10 @@ export function EditableLabelWidget(props: EditableLabelWidgetProps) {
         }
     }
 
-    if (props.model?.valueNode && isSourceCollapsed && isTargetCollapsed) {
+    if (valueNode && isSourceCollapsed && isTargetCollapsed) {
         // for direct links, disable link widgets if both sides are collapsed
         return null
-    } else if (!props.model?.valueNode && (isSourceCollapsed || isTargetCollapsed)) {
+    } else if (!valueNode && (isSourceCollapsed || isTargetCollapsed)) {
         // for links with intermediary nodes,
         // disable link widget if either source or target port is collapsed
         return null;
@@ -207,7 +225,7 @@ export function EditableLabelWidget(props: EditableLabelWidgetProps) {
             </div>
         ) : (
             <div
-                data-testid={`expression-label-for-${props.model?.link?.getSourcePort()?.getName()}-to-${props.model?.link?.getTargetPort()?.getName()}`}
+                data-testid={`expression-label-for-${link?.getSourcePort()?.getName()}-to-${link?.getTargetPort()?.getName()}`}
                 className={classNames(
                     classes.container,
                     linkStatus === LinkState.LinkNotSelected && !deleteInProgress && classes.containerHidden

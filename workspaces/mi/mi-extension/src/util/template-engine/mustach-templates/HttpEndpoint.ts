@@ -121,7 +121,7 @@ export function getHttpEndpointMustacheTemplate() {
         </authentication>{{/authentication}}
     </http>
     {{#properties}}
-    <property name="{{name}}" scope="{{scope}}" value="{{value}}"/>
+    <property name="{{name}}" {{#scope}}scope="{{scope}}"{{/scope}} value="{{value}}"/>
     {{/properties}}  
     {{#description}}<description>{{description}}</description>{{/description}}
 </endpoint>
@@ -166,6 +166,10 @@ export function getHttpEndpointXml(data: HttpEndpointArgs) {
 
     if (!data.requireProperties || data.properties.length == 0) {
         data.properties = null;
+    } else {
+        data.properties.forEach(element => {
+            element.scope = element.scope === 'default' ? null : element.scope;
+        });
     }
 
     if (!data.requireOauthParameters || data.oauthProperties.length == 0) {

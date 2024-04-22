@@ -14,6 +14,7 @@ import {
     GettingStartedCategory,
     GettingStartedData,
     GettingStartedSample,
+    GoToSourceRequest,
     HistoryEntry,
     HistoryEntryResponse,
     MIVisualizerAPI,
@@ -25,14 +26,12 @@ import {
     WorkspaceFolder,
     WorkspacesResponse,
     ToggleDisplayOverviewRequest,
-    GetAllRegistryPathsResponse,
-    GetAllRegistryPathsRequest
 } from "@wso2-enterprise/mi-core";
 import fetch from 'node-fetch';
 import { workspace, window } from "vscode";
 import { history } from "../../history";
 import { StateMachine, navigate, openView } from "../../stateMachine";
-import { handleOpenFile } from "../../util/fileOperations";
+import { goToSource, handleOpenFile } from "../../util/fileOperations";
 import { openAIWebview } from "../../ai-panel/aiMachine";
 import { extension } from "../../MIExtensionContext";
 
@@ -62,14 +61,6 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
             const projectUrl = params.documentUri ? params.documentUri : rootPath;
             const res = await langClient.getProjectStructure(projectUrl);
             resolve(res);
-        });
-    }
-
-    async getAllRegistryPaths(params: GetAllRegistryPathsRequest): Promise<GetAllRegistryPathsResponse> {
-        return new Promise(async (resolve) => {
-            const langClient = StateMachine.context().langClient!;
-            const res = await langClient.getRegistryFiles(params.path);
-            resolve({ registryPaths: res });
         });
     }
 
@@ -171,5 +162,9 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
             await extension.context.workspaceState.update('displayOverview', params.displayOverview);
             resolve();
         });
+    }
+
+    goToSource(params: GoToSourceRequest): void {
+        goToSource(params.filePath, params.position);
     }
 }

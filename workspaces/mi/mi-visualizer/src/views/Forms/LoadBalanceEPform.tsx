@@ -11,11 +11,12 @@ import styled from "@emotion/styled";
 import { useEffect, useState } from "react";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
-import { Button, Dropdown, TextField, FormView, FormGroup, FormActions, ParamManager } from "@wso2-enterprise/ui-toolkit";
+import { Button, Dropdown, TextField, FormView, FormGroup, FormActions, ParamManager, FormCheckBox } from "@wso2-enterprise/ui-toolkit";
 import { Endpoint, EndpointList, InlineButtonGroup, TypeChip } from "./Commons";
 import { yupResolver } from "@hookform/resolvers/yup"
 import * as yup from "yup";
 import { useForm } from "react-hook-form";
+import AddToRegistry, { getArtifactNamesAndRegistryPaths, formatRegistryPath, saveToRegistry } from "./AddToRegistry";
 
 const FieldGroup = styled.div`
     display: flex;
@@ -52,6 +53,11 @@ type InputsFields = {
     description?: string;
     endpoints?: Endpoint[];
     properties?: any[];
+    //reg form
+    saveInReg?: boolean;
+    artifactName?: string;
+    registryPath?: string
+    registryType?: "gov" | "conf";
 };
 
 const initialEndpoint: InputsFields = {
@@ -64,31 +70,82 @@ const initialEndpoint: InputsFields = {
     description: '',
     endpoints: [],
     properties: [],
+    //reg form
+    saveInReg: false,
+    artifactName: "",
+    registryPath: "/",
+    registryType: "gov"
 };
-
-const schema = yup.object({
-    name: yup.string().required("Endpoint Name is required").matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in Endpoint name"),
-    algorithm: yup.string().required("Algorithm is required"),
-    failover: yup.string().required("Failover is required"),
-    buildMessage: yup.string().required("Build Message is required"),
-    sessionManagement: yup.string().required("Session Management is required"),
-    sessionTimeout: yup.number().typeError('Session Timeout must be a number').min(0, "Session Timeout must be greater than or equal to 0"),
-    description: yup.string(),
-    endpoints: yup.array(),
-    properties: yup.array(),
-});
 
 export function LoadBalanceWizard(props: LoadBalanceWizardProps) {
 
     const { rpcClient } = useVisualizerContext();
-
     const isNewEndpoint = !props.path.endsWith(".xml");
+    const [endpoints, setEndpoints] = useState<Endpoint[]>([]);
+    const [expandEndpointsView, setExpandEndpointsView] = useState<boolean>(false);
+    const [showAddNewEndpointView, setShowAddNewEndpointView] = useState<boolean>(false);
+    const [newEndpoint, setNewEndpoint] = useState<Endpoint>(initialInlineEndpoint);
+    const [artifactNames, setArtifactNames] = useState([]);
+    const [registryPaths, setRegistryPaths] = useState([]);
+    const [savedEPName, setSavedEPName] = useState<string>("");
+    const [endpointsUpdated, setEndpointsUpdated] = useState(false);
+    const [workspaceFileNames, setWorkspaceFileNames] = useState([]);
+
+    const schema = yup.object({
+        name: yup.string().required("Endpoint name is required")
+            .matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in Endpoint Name")
+            .test('validateEndpointName',
+                'An artifact with same name already exists', value => {
+                    return !isNewEndpoint ? !(workspaceFileNames.includes(value) && value !== savedEPName) : !workspaceFileNames.includes(value);
+                })
+            .test('validateEndpointArtifactName',
+                'A registry resource with this artifact name already exists', value => {
+                    return !isNewEndpoint ? !(artifactNames.includes(value) && value !== savedEPName) : !artifactNames.includes(value);
+                }),
+        algorithm: yup.string().required("Algorithm is required"),
+        failover: yup.string().required("Failover is required"),
+        buildMessage: yup.string().required("Build Message is required"),
+        sessionManagement: yup.string().required("Session Management is required"),
+        sessionTimeout: yup.number().typeError('Session Timeout must be a number').min(0, "Session Timeout must be greater than or equal to 0"),
+        description: yup.string(),
+        endpoints: yup.array(),
+        properties: yup.array(),
+        saveInReg: yup.boolean().default(false),
+        artifactName: yup.string().when('saveInReg', {
+            is: false,
+            then: () =>
+                yup.string().notRequired(),
+            otherwise: () =>
+                yup.string().required("Artifact Name is required")
+                    .test('validateArtifactName',
+                        'Artifact name already exists', value => {
+                            return !artifactNames.includes(value);
+                        })
+                    .test('validateFileName',
+                        'A file already exists in the workspace with this artifact name', value => {
+                            return !workspaceFileNames.includes(value);
+                        }),
+        }),
+        registryPath: yup.string().when('saveInReg', {
+            is: false,
+            then: () =>
+                yup.string().notRequired(),
+            otherwise: () =>
+                yup.string().test('validateRegistryPath', 'Resource already exists in registry', value => {
+                    const formattedPath = formatRegistryPath(value, getValues("registryType"), getValues("name"));
+                    return !(registryPaths.includes(formattedPath) || registryPaths.includes(formattedPath + "/"));
+                }),
+        }),
+        registryType: yup.mixed<"gov" | "conf">().oneOf(["gov", "conf"]),
+    });
 
     const {
         reset,
         register,
         formState: { errors, isDirty },
         handleSubmit,
+        getValues,
+        control,
         watch,
         setValue,
     } = useForm({
@@ -97,10 +154,7 @@ export function LoadBalanceWizard(props: LoadBalanceWizardProps) {
         mode: "onChange"
     });
 
-    const [endpoints, setEndpoints] = useState<Endpoint[]>([]);
-    const [expandEndpointsView, setExpandEndpointsView] = useState<boolean>(false);
-    const [showAddNewEndpointView, setShowAddNewEndpointView] = useState<boolean>(false);
-    const [newEndpoint, setNewEndpoint] = useState<Endpoint>(initialInlineEndpoint);
+
 
     const [paramConfigs, setParamConfigs] = useState<any>({
         paramValues: [],
@@ -114,15 +168,16 @@ export function LoadBalanceWizard(props: LoadBalanceWizardProps) {
     useEffect(() => {
         if (!isNewEndpoint) {
             (async () => {
-                const { properties, endpoints, ...endpoint } = await rpcClient.getMiDiagramRpcClient().getLoadBalanceEndpoint({ path: props.path });
+                const { endpoints, ...endpoint } = await rpcClient.getMiDiagramRpcClient().getLoadBalanceEndpoint({ path: props.path });
 
                 reset(endpoint);
+                setSavedEPName(endpoint.name);
                 setEndpoints(endpoints);
 
                 setParamConfigs((prev: any) => {
                     return {
                         ...prev,
-                        paramValues: properties.map((property: any, index: Number) => {
+                        paramValues: endpoint.properties.map((property: any, index: Number) => {
                             return {
                                 id: prev.paramValues.length + index,
                                 parameters: [
@@ -131,7 +186,7 @@ export function LoadBalanceWizard(props: LoadBalanceWizardProps) {
                                     { id: 2, label: 'Scope', type: 'Dropdown', value: property.scope, values: ["default", "transport", "axis2", "axis2-client"], isRequired: true },
                                 ],
                                 key: property.name,
-                                value: property.value,
+                                value: "value:" + property.value + "; scope:" + property.scope + ";"
                             }
                         })
                     };
@@ -142,6 +197,15 @@ export function LoadBalanceWizard(props: LoadBalanceWizardProps) {
                 }
             })();
         }
+        (async () => {
+            const result = await getArtifactNamesAndRegistryPaths(props.path, rpcClient);
+            setArtifactNames(result.artifactNamesArr);
+            setRegistryPaths(result.registryPaths);
+            const artifactRes = await rpcClient.getMiDiagramRpcClient().getAllArtifacts({
+                path: props.path,
+            });
+            setWorkspaceFileNames(artifactRes.artifacts);
+        })();
     }, [props.path]);
 
     const algorithms = [
@@ -178,6 +242,7 @@ export function LoadBalanceWizard(props: LoadBalanceWizardProps) {
         setEndpoints((prev: any) => [...prev, newEndpoint]);
         setShowAddNewEndpointView(false);
         setNewEndpoint(initialInlineEndpoint);
+        setEndpointsUpdated(true);
     }
 
     const handleParamChange = (config: any) => {
@@ -188,7 +253,7 @@ export function LoadBalanceWizard(props: LoadBalanceWizardProps) {
                     return {
                         ...param,
                         key: param.parameters[0].value,
-                        value: param.parameters[1].value ?? '',
+                        value: generateDisplayValue(param)
                     }
                 })
             };
@@ -201,13 +266,22 @@ export function LoadBalanceWizard(props: LoadBalanceWizardProps) {
         })), { shouldDirty: true });
     }
 
+    const generateDisplayValue = (paramValues: any) => {
+        const result: string = "value:" + paramValues.parameters[1].value + "; scope:" + paramValues.parameters[2].value + ";";
+        return result.trim();
+    };
+
     const handleUpdateEndpoint = async (values: any) => {
         const updateEndpointParams = {
             directory: props.path,
             ...values,
+            getContentOnly: watch("saveInReg") && isNewEndpoint,
             endpoints,
         }
-        rpcClient.getMiDiagramRpcClient().updateLoadBalanceEndpoint(updateEndpointParams);
+        const result = await rpcClient.getMiDiagramRpcClient().updateLoadBalanceEndpoint(updateEndpointParams);
+        if (watch("saveInReg") && isNewEndpoint) {
+            await saveToRegistry(rpcClient, props.path, values.registryType, values.name, result.content, values.registryPath, values.artifactName);
+        }
         openOverview();
     };
 
@@ -228,10 +302,10 @@ export function LoadBalanceWizard(props: LoadBalanceWizardProps) {
 
     return (
         <FormView title="Endpoint Artifact" onClose={openOverview}>
-            <TypeChip 
-                type={"Load Balance Endpoint"} 
-                onClick={changeType} 
-                showButton={isNewEndpoint} 
+            <TypeChip
+                type={"Load Balance Endpoint"}
+                onClick={changeType}
+                showButton={isNewEndpoint}
             />
             <FormGroup title="Basic Properties" isCollapsed={false}>
                 <TextField
@@ -275,6 +349,7 @@ export function LoadBalanceWizard(props: LoadBalanceWizardProps) {
                         <EndpointList
                             endpoints={endpoints}
                             setEndpoints={setEndpoints}
+                            setEndpointUpdated={setEndpointsUpdated}
                         />
                     )}
                     {showAddNewEndpointView && (
@@ -309,11 +384,21 @@ export function LoadBalanceWizard(props: LoadBalanceWizardProps) {
                     <ParamManager paramConfigs={paramConfigs} onChange={handleParamChange} />
                 </FieldGroup>
             </FormGroup>
+            {isNewEndpoint && (<>
+                <FormCheckBox
+                    label="Save the endpoint in registry"
+                    {...register("saveInReg")}
+                    control={control}
+                />
+                {watch("saveInReg") && (<>
+                    <AddToRegistry path={props.path} fileName={watch("name")} register={register} errors={errors} getValues={getValues} />
+                </>)}
+            </>)}
             <FormActions>
                 <Button
                     appearance="primary"
                     onClick={handleSubmit(handleUpdateEndpoint)}
-                    disabled={!isDirty}
+                    disabled={!(isDirty || endpointsUpdated)}
                 >
                     {isNewEndpoint ? "Create" : "Save Changes"}
                 </Button>

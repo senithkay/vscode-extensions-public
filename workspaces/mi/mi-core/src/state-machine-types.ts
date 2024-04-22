@@ -52,6 +52,8 @@ export enum MACHINE_VIEW {
     MessageStoreForm = "Message Store Form",
     ClassMediatorForm = "ClassMediator Creation Form",
     DataSourceForm = "Data Source Creation Form",
+    Samples = "Samples",
+    ImportProject = "Import Project",
 }
 
 export enum AI_MACHINE_VIEW {
@@ -97,6 +99,12 @@ export interface CommandProps {
     isService?: boolean
 }
 
+interface DataMapperProps {
+    filePath: string;
+    functionName: string;
+    fileContent: string;
+}
+
 // State Machine context values
 export interface VisualizerLocation {
     view: MACHINE_VIEW | null;
@@ -110,6 +118,7 @@ export interface VisualizerLocation {
     isMiProject?: boolean;
     displayOverview?: boolean;
     customProps?: any;
+    dataMapperProps?: DataMapperProps;
 }
 
 export interface AIVisualizerLocation {

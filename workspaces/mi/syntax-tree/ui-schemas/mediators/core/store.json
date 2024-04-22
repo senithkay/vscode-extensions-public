@@ -1,111 +1,62 @@
 {
   "name": "store",
-  "type":"mediator",
+  "type": "mediator",
   "title": "Store Mediator",
   "help": "",
   "elements": [
     {
-      "type": "attributeGroup",
+      "type": "attribute",
       "value": {
-        "groupName": "Properties",
-        "elements": [
+        "name": "messageStore",
+        "displayName": "Message Store",
+        "inputType": "editableCombo",
+        "defaultValue": "",
+        "required": false,
+        "helpTip": "",
+        "comboValues": [
+          "{workspace.messageStore}",
+          "{line.break}",
+          "Select Expresison"
+        ]
+      }
+    },
+    {
+      "type": "attribute",
+      "value": {
+        "name": "expression",
+        "displayName": "Expression",
+        "inputType": "expression",
+        "defaultValue": "",
+        "required": false,
+        "helpTip": "",
+        "enableCondition": [
           {
-            "type": "attributeGroup",
-            "value": {
-              "groupName": "Message Store",
-              "elements": [
-                {
-                  "type": "attribute",
-                  "value": {
-                    "name": "specifyAs",
-                    "displayName": "Specify As",
-                    "inputType": "combo",
-                    "defaultValue": "Value",
-                    "comboValues": [
-                      "Value",
-                      "Expression"
-                    ],
-                    "required": false,
-                    "helpTip": ""
-                  }
-                },
-                {
-                  "type": "attribute",
-                  "value": {
-                    "name": "availableMessageStores",
-                    "displayName": "Available Message Stores",
-                    "inputType": "combo",
-                    "defaultValue": "Select From Message Stores",
-                    "comboValues": [
-                      "Select From Message Stores"
-                    ],
-                    "required": false,
-                    "helpTip": "",
-                    "enableCondition": [
-                      {
-                        "specifyAs": "Value"
-                      }
-                    ]
-                  }
-                },
-                {
-                  "type": "attribute",
-                  "value": {
-                    "name": "messageStore",
-                    "displayName": "Message Store",
-                    "inputType": "string",
-                    "defaultValue": "",
-                    "required": false,
-                    "helpTip": "",
-                    "enableCondition": [
-                      {
-                        "specifyAs": "Value"
-                      }
-                    ]
-                  }
-                },
-                {
-                  "type": "attribute",
-                  "value": {
-                    "name": "expression",
-                    "displayName": "Expression",
-                    "inputType": "stringOrExpression",
-                    "defaultValue": "",
-                    "required": false,
-                    "helpTip": "",
-                    "enableCondition": [
-                      {
-                        "specifyAs": "Expression"
-                      }
-                    ]
-                  }
-                }
-              ]
-            }
-          },
-          {
-            "type": "attribute",
-            "value": {
-              "name": "onStoreSequence",
-              "displayName": "On Store Sequence",
-              "inputType": "stringOrExpression",
-              "defaultValue": "",
-              "required": false,
-              "helpTip": ""
-            }
-          },
-          {
-            "type": "attribute",
-            "value": {
-              "name": "description",
-              "displayName": "Description",
-              "inputType": "string",
-              "defaultValue": "",
-              "required": false,
-              "helpTip": ""
-            }
+            "messageStore": "Select Expresison"
           }
         ]
+      }
+    },
+    {
+      "type": "attribute",
+      "value": {
+        "name": "onStoreSequence",
+        "displayName": "On Store Sequence",
+        "inputType": "key",
+        "defaultValue": "",
+        "required": false,
+        "helpTip": "",
+        "keyType": "sequence"
+      }
+    },
+    {
+      "type": "attribute",
+      "value": {
+        "name": "description",
+        "displayName": "Description",
+        "inputType": "string",
+        "defaultValue": "",
+        "required": false,
+        "helpTip": ""
       }
     }
   ]

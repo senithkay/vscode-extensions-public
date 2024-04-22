@@ -9,13 +9,14 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
-    FileContentRequest,
-    FileContentResponse,
     IOTypeRequest,
     IOTypeResponse,
-    MIDataMapperAPI
+    MIDataMapperAPI,
+    UpdateFileContentRequest
 } from "@wso2-enterprise/mi-core";
-import { fetchIOTypes, getSourceCode } from "../../util/dataMapper";
+import { fetchIOTypes } from "../../util/dataMapper";
+import { Project } from "ts-morph";
+import { navigate } from "../../stateMachine";
 
 export class MiDataMapperRpcManager implements MIDataMapperAPI {
     async getIOTypes(params: IOTypeRequest): Promise<IOTypeResponse> {
@@ -24,36 +25,22 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
             try {
                 const {inputTypes, outputType} = fetchIOTypes(filePath, functionName);
 
-                if (inputTypes.length === 0 || !outputType) {
-                    throw new Error("Input and/or output type not found.");
-                }
-
                 return resolve({
                     inputTrees: inputTypes,
                     outputTree: outputType
                 });
             } catch (error: any) {
-                console.error(error);
                 reject(error);
             }
         });
     }
 
-    async getFileContent(params: FileContentRequest): Promise<FileContentResponse> {
-        return new Promise(async (resolve, reject) => {
-            const { filePath } = params;
-            try {
-                const fileContent = getSourceCode(filePath);
-
-                if (!fileContent) {
-                    throw new Error("Failed to fetch file content.");
-                }
-
-                return resolve({fileContent});
-            } catch (error: any) {
-                console.error(error);
-                reject(error);
-            }
-        });
+    async updateFileContent(params: UpdateFileContentRequest): Promise<void> {
+        const project = new Project();
+        const sourceFile = project.addSourceFileAtPath(params.filePath);
+        sourceFile.replaceWithText(params.fileContent);
+        sourceFile.formatText();
+        await sourceFile.save();
+        navigate();
     }
 }

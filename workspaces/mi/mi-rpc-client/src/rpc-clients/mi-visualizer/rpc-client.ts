@@ -11,6 +11,7 @@
 import {
     ColorThemeKind,
     GettingStartedData,
+    GoToSourceRequest,
     HistoryEntry,
     HistoryEntryResponse,
     MIVisualizerAPI,
@@ -32,9 +33,7 @@ import {
     goHome,
     goSelected,
     openView,
-    GetAllRegistryPathsRequest,
-    getAllRegistryPaths,
-    GetAllRegistryPathsResponse
+    goToSource
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -44,10 +43,6 @@ export class MiVisualizerRpcClient implements MIVisualizerAPI {
 
     constructor(messenger: Messenger) {
         this._messenger = messenger;
-    }
-
-    getAllRegistryPaths(params: GetAllRegistryPathsRequest): Promise<GetAllRegistryPathsResponse> {
-        return this._messenger.sendRequest(getAllRegistryPaths, HOST_EXTENSION, params);
     }
 
     getWorkspaces(): Promise<WorkspacesResponse> {
@@ -96,5 +91,9 @@ export class MiVisualizerRpcClient implements MIVisualizerAPI {
 
     toggleDisplayOverview(params: ToggleDisplayOverviewRequest): Promise<void> {
         return this._messenger.sendRequest(toggleDisplayOverview, HOST_EXTENSION, params);
+    }
+
+    goToSource(params: GoToSourceRequest): void {
+        return this._messenger.sendNotification(goToSource, HOST_EXTENSION, params);
     }
 }

@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { Progress, window, ProgressLocation, commands, workspace, Uri } from "vscode";
+import { Progress, window, ProgressLocation, commands, workspace, Uri, TextEditorRevealType, Selection, Range as VSCodeRange } from "vscode";
 import * as fs from 'fs';
 import * as os from 'os';
 import axios from "axios";
@@ -15,8 +15,9 @@ import * as path from 'path';
 import { XMLParser, XMLBuilder } from "fast-xml-parser";
 import { COMMANDS } from "../constants";
 import * as unzipper from 'unzipper';
-import { ListRegistryArtifactsResponse, RegistryArtifact } from "@wso2-enterprise/mi-core";
+import { ListRegistryArtifactsResponse, Range, RegistryArtifact } from "@wso2-enterprise/mi-core";
 import { rm } from 'node:fs/promises';
+import { existsSync } from "fs";
 
 interface ProgressMessage {
     message: string;
@@ -625,5 +626,86 @@ export function changeRootPomPackaging(projectDir: string, packaging: string) {
         const builder = new XMLBuilder(options);
         const updatedXmlString = builder.build(pomXMLData);
         fs.writeFileSync(pomXMLPath, updatedXmlString);
+    }
+}
+
+/**
+ * Add Synapse depedency to the root pom.
+ * @param projectDir project directory.
+ */
+export function addSynapseDependency(projectDir: string) {
+    const pomXMLPath = path.join(projectDir, 'pom.xml');
+    if (fs.existsSync(pomXMLPath)) {
+        const pomXML = fs.readFileSync(pomXMLPath, "utf8");
+        const options = {
+            ignoreAttributes: false,
+            format: true,
+        };
+        const parser = new XMLParser(options);
+        const pomXMLData = parser.parse(pomXML);
+        const synapseDep = {
+            dependency: {
+                groupId: "org.apache.synapse",
+                artifactId: "synapse-core",
+                version: "4.0.0-wso2v20",
+            }
+        };
+        if (!pomXMLData.project.dependencies || pomXMLData.project.dependencies === '') {
+            pomXMLData.project.dependencies = [];
+            pomXMLData.project.dependencies.push(synapseDep);
+        } else if (!Array.isArray(pomXMLData.project.dependencies.dependency)) {
+            const dep = pomXMLData.project.dependencies.dependency;
+            if (dep.artifactId !== "synapse-core") {
+                pomXMLData.project.dependencies.dependency = [];
+                pomXMLData.project.dependencies.dependency.push(dep);
+                pomXMLData.project.dependencies.dependency.push(synapseDep.dependency);
+            }
+        } else {
+            if (pomXMLData.project.dependencies.dependency.filter(dep => dep.artifactId === "synapse-core").length === 0) {
+                pomXMLData.project.dependencies.dependency.push(synapseDep.dependency);
+            }
+        }
+        const builder = new XMLBuilder(options);
+        const updatedXmlString = builder.build(pomXMLData);
+        fs.writeFileSync(pomXMLPath, updatedXmlString);
+    }
+}
+
+/**
+ * Focus on the source file at the given position in the editor.
+ * @param filePath   path of the file.
+ * @param position     position to be focused.
+ */
+export function goToSource(filePath: string, position: Range) {
+    if (!existsSync(filePath)) {
+        return;
+    }
+
+    const { start: { line, column } } = position;
+    const range: VSCodeRange = new VSCodeRange(line, column, line!, column!);
+    const openedDocument = window.visibleTextEditors.find((editor) => editor.document.fileName === filePath);
+
+    if (openedDocument) {
+        focusTextEditor(openedDocument, range);
+    } else {
+        openAndFocusTextDocument(filePath, range);
+    }
+
+    function focusTextEditor(editor, range) {
+        window.visibleTextEditors[0].revealRange(range, TextEditorRevealType.InCenter);
+        window.showTextDocument(editor.document, { preview: false, preserveFocus: false, viewColumn: editor.viewColumn })
+            .then(textEditor => updateEditor(textEditor, range));
+    }
+
+    function openAndFocusTextDocument(filePath, range) {
+        workspace.openTextDocument(filePath).then(sourceFile => {
+            window.showTextDocument(sourceFile, { preview: false, preserveFocus: false })
+                .then(textEditor => updateEditor(textEditor, range));
+        });
+    }
+
+    function updateEditor(textEditor, range) {
+        textEditor.revealRange(range, TextEditorRevealType.InCenter);
+        textEditor.selection = new Selection(range.start, range.start);
     }
 }

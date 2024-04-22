@@ -21,6 +21,7 @@ export function generateXmlData(
         allowBooleanAttributes: true,
         attributeNamePrefix: "",
         attributesGroupName: "@_",
+        cdataPropName: "#cdata",
         indentBy: '    ',
         format: true,
     };
@@ -42,7 +43,7 @@ export function generateXmlData(
         ${localEntryAttributes}
     </localEntry>
     `;
-
+    
     const jsonData = parser.parse(localEntryTemplate);
     if (type === "In-Line XML Entry") {
         if(jsonData.localEntry.xml["@_"]["xmlns"]) {
@@ -54,7 +55,6 @@ export function generateXmlData(
              jsonData.localEntry.xml["@_"]["xmlns"] = "";
         }
     }
-
     return builder.build(jsonData);
 }
 

@@ -19,7 +19,8 @@ export const useIOTypes = (filePath: string, functionName: string) => {
                 .getIOTypes({ filePath, functionName });
             return res;
         } catch (error) {
-            console.error('Error while fetching transformation profile: ', error);
+            console.error(error);
+            throw error;
         }
     }
 
@@ -27,31 +28,8 @@ export const useIOTypes = (filePath: string, functionName: string) => {
         data: dmIOTypes,
         isFetching: isFetchingIOTypes,
         isError: isTypeError,
-        refetch,
+        refetch
     } = useQuery(['getIOTypes', { filePath, functionName }], () => getIOTypes(), {});
 
-    return {dmIOTypes, isFetchingIOTypes, isTypeError, refetch };
-};
-
-export const useFileContent = (filePath: string) => {
-    const { rpcClient } = useVisualizerContext();
-    const getFileContent = async () => {
-        try {
-            const res = await rpcClient
-                .getMiDataMapperRpcClient()
-                .getFileContent({ filePath });
-            return res.fileContent;
-        } catch (error) {
-            console.error('Error while fetching file content: ', error);
-        }
-    }
-
-    const {
-        data: dmFileContent,
-        isFetching: isFetchingFileContent,
-        isError: isFileError,
-        refetch,
-    } = useQuery(['getFileContent', { filePath }], () => getFileContent(), {});
-
-    return {dmFileContent, isFetchingFileContent, isFileError, refetch };
+    return {dmIOTypes, isFetchingIOTypes, isTypeError, refetch};
 };

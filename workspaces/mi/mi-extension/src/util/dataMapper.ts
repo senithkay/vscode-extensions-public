@@ -6,12 +6,11 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import * as ts from 'typescript';
+import { ts, Node, Project, SourceFile, Type, ParameterDeclaration } from 'ts-morph';
 import * as path from 'path';
 import { DMType, TypeKind } from '@wso2-enterprise/mi-core';
 
-// Interface definitions
-const interfaces: { [key: string]: ts.InterfaceDeclaration } = {};
+let sourceFile: SourceFile;
 
 let inputTypes: DMType[] = [];
 let outputType: DMType | undefined;
@@ -22,11 +21,11 @@ export function fetchIOTypes(filePath: string, functionName: string) {
 
     try {
         const resolvedPath = path.resolve(filePath);
-        const sourceFile = getSourceFile(resolvedPath);
-        collectInterfaces(sourceFile);
-        ts.forEachChild(sourceFile, (node) => findInputsAndOutput(node, functionName));
+        const project = new Project();
+        sourceFile = project.addSourceFileAtPath(resolvedPath);
+        findInputsAndOutput(functionName);
     } catch (error: any) {
-        throw new Error("Error while creating input/output types. " + error.message);
+        throw new Error("[MI Data Mapper] Failed to fetch input/output types. " + error.message);
     }
 
     return { inputTypes, outputType };
@@ -36,56 +35,35 @@ export function getSourceCode(resolvedPath: string) {
     const sourceCode = ts.sys.readFile(resolvedPath, 'utf-8');
 
     if (!sourceCode) {
-        throw new Error("File not found.");
+        throw new Error("[MI Data Mapper] File not found.");
     }
     return sourceCode;
 }
 
-function getSourceFile(resolvedPath: string) {
-    const sourceCode = getSourceCode(resolvedPath);
-    // Parse the TypeScript code
-    const sourceFile = ts.createSourceFile(resolvedPath, sourceCode, ts.ScriptTarget.Latest, true);
-    return sourceFile;
-}
-
-// Traverse AST to collect interface declarations
-function collectInterfaces(node: ts.Node) {
-    if (ts.isInterfaceDeclaration(node)) {
-        interfaces[node.name.text] = node;
-    }
-    ts.forEachChild(node, collectInterfaces);
-}
-
 // Find inputs and output types
-function findInputsAndOutput(node: ts.Node, functionName: string) {
-    if (ts.isVariableStatement(node)) {
-        const declarationList = node.declarationList;
-        const variableDeclaration = declarationList.declarations[0];
-        const fnName = (variableDeclaration.name as any).text;
-        const initializer = variableDeclaration.initializer;
-        if (fnName === functionName && initializer && ts.isArrowFunction(initializer)) {
-            const parameters = initializer.parameters;
-            parameters.forEach((param) => {
-                if (ts.isParameter(param)) {
-                    inputTypes.push(getTypeInfo(param.type!));
-                }
-            });
-            outputType = getTypeInfo(initializer.type!);
-        }
+function findInputsAndOutput(functionName: string) {
+    const fn = sourceFile.getFunctionOrThrow(functionName);
+
+    if (fn) {
+        fn.getParameters().forEach((param) => {
+            inputTypes.push(getTypeInfo(param.getType()));
+        });
+        outputType = getTypeInfo(fn.getReturnType())
     }
 }
 
 // Function to extract type information
-function getTypeInfo(typeNode: ts.TypeNode): DMType {
-    if (ts.isTypeReferenceNode(typeNode)) {
-        const typeName = (typeNode.typeName as any).text;
-        if (interfaces[typeName]) {
-            const interfaceNode = interfaces[typeName];
-            const fields = interfaceNode.members.map(member => {
-                if (ts.isPropertySignature(member)) {
+function getTypeInfo(typeNode: Type): DMType {
+    if (typeNode.isInterface()) {
+        const typeName = typeNode.getText();
+        const interfaceNode = sourceFile.getInterface(typeName);
+
+        if (interfaceNode) {
+            const fields = interfaceNode.getMembers().map(member => {
+                if (Node.isPropertySignature(member)) {
                     return {
-                        ...getTypeInfo(member.type!),
-                        fieldName: (member.name as any).text
+                        ...getTypeInfo(member.getType()!),
+                        fieldName: member.getName()
                     }
                 }
             }).filter(Boolean) as DMType[];
@@ -95,21 +73,20 @@ function getTypeInfo(typeNode: ts.TypeNode): DMType {
                 fields
             };
         }
-    } else if (ts.isArrayTypeNode(typeNode)) {
-        const elementType = getTypeInfo(typeNode.elementType);
+    }
+    else if (typeNode.isArray()) {
+        const elementType = getTypeInfo(typeNode.getArrayElementType()!);
         return {
             kind: TypeKind.Array,
             memberType: elementType
         };
-    } else if (ts.isParenthesizedTypeNode(typeNode)) {
-        return getTypeInfo(typeNode.type);
-    } else if (typeNode.kind === ts.SyntaxKind.StringKeyword) {
+    } else if (typeNode.isString()) {
         return { kind: TypeKind.String };
-    } else if (typeNode.kind === ts.SyntaxKind.BooleanKeyword) {
+    } else if (typeNode.isBoolean()) {
         return { kind: TypeKind.Boolean };
-    } else if (typeNode.kind === ts.SyntaxKind.NumberKeyword) {
+    } else if (typeNode.isNumber()) {
         return { kind: TypeKind.Number };
-    } else if (ts.isTypeLiteralNode(typeNode)) {
+    } else if (typeNode.isObject()) {
         return { kind: TypeKind.Object };
     }
 

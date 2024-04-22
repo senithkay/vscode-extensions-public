@@ -20,13 +20,13 @@ export const projectFileContent = (projectName: string) => `<?xml version="1.0" 
 	</natures>
 </projectDescription>`;
 
-export const rootPomXmlContent = (projectName: string, groupID: string, artifactID: string, projectUuid: string) => `<?xml version="1.0" encoding="UTF-8"?>
+export const rootPomXmlContent = (projectName: string, groupID: string, artifactID: string, projectUuid: string, version: string) => `<?xml version="1.0" encoding="UTF-8"?>
 <project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
   <groupId>${groupID}</groupId>
   <artifactId>${artifactID}</artifactId>
-  <version>1.0.0-SNAPSHOT</version>
+  <version>${version}</version>
   <packaging>pom</packaging>
   <name>${projectName}</name>
   <description>${projectName}</description>
@@ -93,7 +93,7 @@ export const rootPomXmlContent = (projectName: string, groupID: string, artifact
       <plugin>
         <groupId>org.wso2.maven</groupId>
         <artifactId>vscode-car-plugin</artifactId>
-        <version>5.2.49</version>
+        <version>5.2.51</version>
         <extensions>true</extensions>
         <executions>
           <execution>

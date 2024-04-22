@@ -13,6 +13,7 @@ import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { VSCodeProgressRing } from '@vscode/webview-ui-toolkit/react';
 import styled from '@emotion/styled';
 import { AIOverviewWindow } from './views/AIOverviewWindow';
+import { AIProjectGenerationChat } from './views/AIProjectGenerationChat';
 import { AIChat } from './views/AIChat';
 import { AIArtifactWindow } from './views/AIArtifactWindow';
 import {SignInToCopilotMessage} from './views/LoggedOutWindow';
@@ -55,7 +56,7 @@ const AiPanel = () => {
         rpcClient.getAIVisualizerState().then((machineView) => {
             switch (machineView?.state) {
                 case "Ready":
-                    setViewComponent(<AIOverviewWindow />);
+                    setViewComponent(<div style={{height: "100%"}}><AIProjectGenerationChat /></div>);
                     break;
                 case "loggedOut":
                     setViewComponent(<SignInToCopilotMessage />);

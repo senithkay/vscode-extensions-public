@@ -71,7 +71,7 @@
           },
           "integrationStudio.rootUrl": {
             "type": "string",
-            "default": "https://e95488c8-8511-4882-967f-ec3ae2a0f86f-prod.e1-us-east-azure.choreoapis.dev/rkxg/copilotbackend/mi-copilot-backend-be2/v1.0",
+            "default": "https://e95488c8-8511-4882-967f-ec3ae2a0f86f-dev.e1-eu-north-azure.choreoapis.dev/mi-ai-deployments/micopilot/mi-copilot-backend-be2/v1.0",
             "description": "Root URL for Backend Services"
           }
         }
@@ -102,7 +102,7 @@
       },
       {
         "view": "MI.project-explorer",
-        "contents": "Welcome to Micro Integrator. You can open a folder containing a MI project or create a new project.\n[Open MI Project](command:MI.openProject)\n[Create New Project](command:MI.openWelcome)\nTo learn more about how to use Micro Integrator in VS Code, [read our docs](https://ei.docs.wso2.com).",
+        "contents": "Welcome to Micro Integrator. You can open a folder containing a MI project or create a new project.\n[Open MI Project](command:MI.openProject)\n[Create New Project](command:MI.project-explorer.create-project)\nTo learn more about how to use Micro Integrator in VS Code, [read our docs](https://ei.docs.wso2.com).",
         "when": "MI.status == 'unknownProject'"
       },
       {
@@ -474,6 +474,7 @@
     "rimraf": "~5.0.5",
     "@wso2-enterprise/mi-visualizer": "workspace:*",
     "@wso2-enterprise/mi-rpc-client": "workspace:*",
+    "ts-morph": "^22.0.0",
     "await-notify": "^1.0.1"
   },
   "dependencies": {
