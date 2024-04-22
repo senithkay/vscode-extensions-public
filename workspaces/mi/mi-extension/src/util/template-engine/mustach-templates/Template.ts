@@ -19,12 +19,14 @@ export interface TemplateArgs {
     wsdlUri: string;
     wsdlService: string;
     wsdlPort: number | null;
+    traceEnabled: boolean;
+    statisticsEnabled: boolean;
 }
 
 export function getTemplateMustacheTemplate() {
     return `<?xml version="1.0" encoding="UTF-8"?>
 <template name="{{templateName}}" xmlns="http://ws.apache.org/ns/synapse">
-    {{#sequenceTemplate}}<sequence/>{{/sequenceTemplate}}
+    {{#sequenceTemplate}}<sequence {{#stats}}statistics="enable"{{/stats}} {{#trace}}trace="enable"{{/trace}} />{{/sequenceTemplate}}
     {{^sequenceTemplate}}
     <endpoint name="{{endpointName}}">
         {{#addressTemplate}}<address uri="{{{address}}}">{{/addressTemplate}}
@@ -65,6 +67,8 @@ export function getTemplateXml(data: TemplateArgs) {
     }
 
     const endpointName = data.templateType != 'Sequence Template' ? "endpoint_urn_uuid_".concat(generateUUID()) : null;
+    const trace = data.traceEnabled ? "enabled" : null;
+    const stats = data.statisticsEnabled ? "enabled" : null;
 
     const modifiedData = {
         ...data,
@@ -73,7 +77,9 @@ export function getTemplateXml(data: TemplateArgs) {
         httpTemplate,
         sequenceTemplate,
         wsdlTemplate,
-        endpointName
+        endpointName,
+        trace,
+        stats
     };
 
     return render(getTemplateMustacheTemplate(), modifiedData);

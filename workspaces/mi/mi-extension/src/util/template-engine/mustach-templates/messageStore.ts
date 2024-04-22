@@ -26,11 +26,11 @@ export interface GetMessageStoreTemplatesArgs {
     jndiQueueName: string;
     userName: string;
     password: string;
-    cacheConnection: string;
+    cacheConnection: boolean;
     jmsAPIVersion: string;
     rabbitMQServerHostName: string;
     rabbitMQServerPort: string;
-    sslEnabled: string;
+    sslEnabled: boolean;
     trustStoreLocation: string;
     trustStoreType: string;
     trustStorePassword: string;
@@ -50,7 +50,7 @@ export interface GetMessageStoreTemplatesArgs {
     queueConnectionFactory: string;
     pollingCount: string;
     xPath: string;
-    enableProducerGuaranteedDelivery: string;
+    enableProducerGuaranteedDelivery: boolean;
     providerClass: string;
     customParameters: Record[];
     failOverMessageStore: string; 

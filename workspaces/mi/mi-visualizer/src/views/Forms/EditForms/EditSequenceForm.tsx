@@ -19,6 +19,8 @@ import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { useForm } from "react-hook-form";
+import { FormKeylookup } from "@wso2-enterprise/mi-diagram-2";
+import { set } from "lodash";
 
 export type EditSequenceFields = {
     name?: string;
@@ -38,10 +40,8 @@ export type ResourceProps = {
 export function EditSequenceForm({ sequenceData, isOpen, onCancel, onSave, documentUri }: ResourceProps) {
 
     const { rpcClient } = useVisualizerContext();
-    // sequence file names
-    const [sequences, setSequences] = useState([]);
-    // sequence artifact names
-    const [seqArtifactNames, setSeqArtifactNames] = useState([]);
+    const [artifactNames, setArtifactNames] = useState([]);
+    const [workspaceFileNames, setWorkspaceFileNames] = useState([]);
 
     const initialSequence: EditSequenceFields = {
         name: sequenceData.name,
@@ -53,11 +53,11 @@ export function EditSequenceForm({ sequenceData, isOpen, onCancel, onSave, docum
     const schema = yup.object({
         name: yup.string().required("Sequence name is required").matches(/^[a-zA-Z0-9]*$/, "Invalid characters in sequence name")
             .test('validateSequenceName',
-                'Sequence file name already exists', value => {
-                    return !(sequences.includes(value) && sequenceData.name !== value)
-                }).test('validateSequenceName',
-                    'Sequence artifact name already exists', value => {
-                        return !(seqArtifactNames.includes(value) && sequenceData.name !== value)
+                'An artifact with same name already exists', value => {
+                    return !(workspaceFileNames.includes(value) && sequenceData.name !== value)
+                }).test('validateArtifactName',
+                    'A registry resource with this artifact name already exists', value => {
+                        return !(artifactNames.includes(value) && sequenceData.name !== value)
                     }),
         endpoint: yup.string().notRequired(),
         onError: yup.string().notRequired(),
@@ -78,22 +78,14 @@ export function EditSequenceForm({ sequenceData, isOpen, onCancel, onSave, docum
 
     useEffect(() => {
         (async () => {
-            const response = await rpcClient.getMiDiagramRpcClient().getAvailableResources({
-                documentIdentifier: documentUri,
-                resourceType: "sequence",
+            const artifactRes = await rpcClient.getMiDiagramRpcClient().getAllArtifacts({
+                path: documentUri,
             });
-            let sequenceNamesArr = [];
-            if (response.resources) {
-                const sequenceNames = response.resources.map((resource) => resource.name);
-                setSeqArtifactNames(sequenceNames);
-                const seqPaths = response.resources.map((resource) => resource.artifactPath.replace(".xml", ""));
-                sequenceNamesArr.push(...seqPaths);
-            }
-            if (response.registryResources) {
-                const registryKeys = response.registryResources.map((resource) => resource.registryKey);
-                sequenceNamesArr.push(...registryKeys);
-            }
-            setSequences(sequenceNamesArr);
+            setWorkspaceFileNames(artifactRes.artifacts);
+            const regArtifactRes = await rpcClient.getMiDiagramRpcClient().getAvailableRegistryResources({
+                path: documentUri
+            });
+            setArtifactNames(regArtifactRes.artifacts);
         })();
     }, []);
 
@@ -116,12 +108,13 @@ export function EditSequenceForm({ sequenceData, isOpen, onCancel, onSave, docum
                 {...register("trace")}
                 control={control}
             />
-            <FormAutoComplete
-                label="On Error Sequence"
-                required={false}
-                isNullable={true}
-                items={sequences.filter(seq => seq !== sequenceData.name)}
+            <FormKeylookup
                 control={control}
+                label="On Error Sequence"
+                name="onErrorSequence"
+                filterType="sequence"
+                path={documentUri}
+                errorMsg={errors.onError?.message.toString()}
                 {...register("onError")}
             />
             <FormActions>

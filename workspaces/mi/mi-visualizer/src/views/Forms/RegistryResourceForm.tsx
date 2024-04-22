@@ -109,21 +109,11 @@ export function RegistryResourceForm(props: RegistryWizardProps) {
                 const request = {
                     path: props.path
                 }
-                rpcClient.getMiDiagramRpcClient().getAvailableRegistryResources(request).then(response => {
-                    const artifacts = response.artifacts;
-                    var tempArtifactNames: string[] = [];
-                    for (let i = 0; i < artifacts.length; i++) {
-                        tempArtifactNames.push(artifacts[i].name);
-                    }
-                    setRegArtifactNames(tempArtifactNames);
-                });
-                const res = await rpcClient.getMiDiagramRpcClient().getAllRegistryPaths({
-                    path: props.path,
-                });
+                const tempArtifactNames = await rpcClient.getMiDiagramRpcClient().getAvailableRegistryResources(request);
+                setRegArtifactNames(tempArtifactNames.artifacts);
+                const res = await rpcClient.getMiDiagramRpcClient().getAllRegistryPaths(request);
                 setRegistryPaths(res.registryPaths);
-                const artifactRes = await rpcClient.getMiDiagramRpcClient().getAllArtifacts({
-                    path: props.path,
-                });
+                const artifactRes = await rpcClient.getMiDiagramRpcClient().getAllArtifacts(request);
                 setArtifactNames(artifactRes.artifacts);
             }
         })();

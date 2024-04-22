@@ -121,7 +121,7 @@ import {
     GetTemplateEPResponse,
     GetSelectiveWorkspaceContextResponse,
     GetBackendRootUrlResponse,
-    ListRegistryArtifactsResponse,
+    RegistryArtifactNamesResponse,
     ListRegistryArtifactsRequest, RangeFormatRequest,
     MigrateProjectRequest,
     MigrateProjectResponse,
@@ -223,7 +223,7 @@ export const getAvailableResources: RequestType<GetAvailableResourcesRequest, Ge
 export const createClassMediator: RequestType<CreateClassMediatorRequest, CreateClassMediatorResponse> = { method: `${_preFix}/createClassMediator` };
 export const getSelectiveWorkspaceContext: RequestType<void, GetSelectiveWorkspaceContextResponse> = { method: `${_preFix}/getSelectiveWorkspaceContext` };
 export const getBackendRootUrl: RequestType<void, GetBackendRootUrlResponse> = { method: `${_preFix}/getBackendRootUrl` };
-export const getAvailableRegistryResources: RequestType<ListRegistryArtifactsRequest, ListRegistryArtifactsResponse> = { method: `${_preFix}/getAvailableRegistryResources` };
+export const getAvailableRegistryResources: RequestType<ListRegistryArtifactsRequest, RegistryArtifactNamesResponse> = { method: `${_preFix}/getAvailableRegistryResources` };
 export const rangeFormat: RequestType<RangeFormatRequest, ApplyEditResponse> = { method: `${_preFix}/rangeFormat` };
 export const downloadConnector: RequestType<DownloadConnectorRequest, DownloadConnectorResponse> = { method: `${_preFix}/downloadConnector` };
 export const getAvailableConnectors: RequestType<GetAvailableConnectorRequest, GetAvailableConnectorResponse> = { method: `${_preFix}/getAvailableConnectors` };
