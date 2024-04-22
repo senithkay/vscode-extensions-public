@@ -6,10 +6,10 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
 */
+// AUTO-GENERATED FILE. DO NOT MODIFY.
 
-
-import React, { useEffect, useState } from 'react';
-import { AutoComplete, Button, ComponentCard, TextField } from '@wso2-enterprise/ui-toolkit';
+import React, { useEffect } from 'react';
+import { AutoComplete, Button, ComponentCard, ProgressIndicator, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
 import { VSCodeCheckbox } from '@vscode/webview-ui-toolkit/react';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
@@ -17,9 +17,9 @@ import { AddMediatorProps } from '../common';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
 import { MEDIATORS } from '../../../../../resources/constants';
-import { Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
+import { Controller, useForm } from 'react-hook-form';
 
-const cardStyle = {
+const cardStyle = { 
     display: "block",
     margin: "15px 0",
     padding: "0 15px 15px 15px",
@@ -36,480 +36,364 @@ const Field = styled.div`
    margin-bottom: 12px;
 `;
 
-const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g;
-const nameWithoutSpecialCharactorsRegex = /^[a-zA-Z0-9]+$/g;
-
 const CacheForm = (props: AddMediatorProps) => {
     const { rpcClient } = useVisualizerContext();
     const sidePanelContext = React.useContext(SidePanelContext);
-    const [formValues, setFormValues] = useState({} as { [key: string]: any });
-    const [errors, setErrors] = useState({} as any);
+    const [ isLoading, setIsLoading ] = React.useState(true);
+
+    const { control, formState: { errors }, handleSubmit, watch, reset } = useForm();
 
     useEffect(() => {
-        if (sidePanelContext.formValues && Object.keys(sidePanelContext.formValues).length > 0) {
-            setFormValues({ ...formValues, ...sidePanelContext.formValues, isProtocolChanged: false, isImplementationChanged: false, isCacheChanged: false, isOnCacheHitChanged: false });
-        } else {
-            setFormValues({
-                "cacheMediatorImplementation": "Default",
-                "cacheType": "FINDER",
-                "cacheTimeout": "120",
-                "maxMessageSize": "2000",
-                "scope": "Per_Host",
-                "maxEntryCount": "1000",
-                "implementationType": "memory",
-                "sequenceType": "ANONYMOUS",
-                "sequenceKey": "registry",
-                "cacheProtocolType": "HTTP",
-                "cacheProtocolMethods": "*",
-                "responseCodes": ".*",
-                "enableCacheControl": false,
-                "includeAgeHeader": false,
-                "hashGenerator": "org.wso2.carbon.mediator.cache.digest.HttpRequestHashGenerator",
-                "isNewMediator": true
-            });
-        }
+        reset({
+            cacheMediatorImplementation: sidePanelContext?.formValues?.cacheMediatorImplementation || "Default",
+            cacheType: sidePanelContext?.formValues?.cacheType || "FINDER",
+            id: sidePanelContext?.formValues?.id || "",
+            cacheTimeout: sidePanelContext?.formValues?.cacheTimeout || "120",
+            maxMessageSize: sidePanelContext?.formValues?.maxMessageSize || "2000",
+            scope: sidePanelContext?.formValues?.scope || "Per_Host",
+            hashGeneratorAttribute: sidePanelContext?.formValues?.hashGeneratorAttribute || "",
+            maxEntryCount: sidePanelContext?.formValues?.maxEntryCount || "1000",
+            implementationType: sidePanelContext?.formValues?.implementationType || "memory",
+            sequenceType: sidePanelContext?.formValues?.sequenceType || "ANONYMOUS",
+            sequenceKey: sidePanelContext?.formValues?.sequenceKey || "registry",
+            cacheProtocolType: sidePanelContext?.formValues?.cacheProtocolType || "HTTP",
+            cacheProtocolMethods: sidePanelContext?.formValues?.cacheProtocolMethods || "*",
+            headersToExcludeInHash: sidePanelContext?.formValues?.headersToExcludeInHash || "",
+            headersToIncludeInHash: sidePanelContext?.formValues?.headersToIncludeInHash || "",
+            responseCodes: sidePanelContext?.formValues?.responseCodes || ".*",
+            enableCacheControl: sidePanelContext?.formValues?.enableCacheControl || "",
+            includeAgeHeader: sidePanelContext?.formValues?.includeAgeHeader || "",
+            hashGenerator: sidePanelContext?.formValues?.hashGenerator || "org.wso2.carbon.mediator.cache.digest.HttpRequestHashGenerator",
+            description: sidePanelContext?.formValues?.description || "",
+        });
+        setIsLoading(false);
     }, [sidePanelContext.formValues]);
 
-    const onClick = async () => {
-        const newErrors = {} as any;
-        Object.keys(formValidators).forEach((key) => {
-            const error = formValidators[key]();
-            if (error) {
-                newErrors[key] = (error);
-            }
-        });
-        if (Object.keys(newErrors).length > 0) {
-            setErrors(newErrors);
-        } else {
-            if (formValues["isNewMediator"]) {
-                const xml = getXML(MEDIATORS.CACHE, formValues);
-                rpcClient.getMiDiagramRpcClient().applyEdit({
-                    documentUri: props.documentUri, range: props.nodePosition, text: xml
-                });
-            } else {
-                if (formValues["isCacheChanged"]) {
-                    const range = formValues["ranges"]?.cache
-                    const data = { ...formValues, "isEditCache": true }
-                    applyEdit(data, range?.startTagRange)
-                }
-                if (formValues["isProtocolChanged"]) {
-                    const range = formValues["ranges"]?.protocol
-                    const editRange = {
-                        start: range.startTagRange?.start,
-                        end: range.endTagRange ? range.endTagRange?.end : range.startTagRange?.end
-                    }
-                    const data = { ...formValues, "isEditProtocol": true }
-                    applyEdit(data, editRange)
-
-                }
-                if (formValues["isOnCacheHitChanged"]) {
-                    const range = formValues["ranges"]?.onCacheHit
-                    let editRange = range.startTagRange;
-                    if (formValues["sequenceType"] == "REGISTRY_REFERENCE") {
-                        editRange = {
-                            start: range.startTagRange?.start,
-                            end: range.endTagRange ? range.endTagRange?.end : range.startTagRange?.end
-                        }
-                    }
-                    const data = { ...formValues, "isEditOnCacheHit": true }
-                    applyEdit(data, editRange)
-
-                }
-                if (formValues["isImplementationChanged"]) {
-                    const range = formValues["ranges"]?.implementation
-                    const data = { ...formValues, "isEditImplementation": true }
-                    applyEdit(data, range?.startTagRange)
-
-                }
-            }
-            sidePanelContext.setSidePanelState({
-                ...sidePanelContext,
-                isOpen: false,
-                isEditing: false,
-                formValues: undefined,
-                nodeRange: undefined,
-                operationName: undefined
-            });
-        }
-    };
-
-    const applyEdit = async (data: { [key: string]: any }, range: Range) => {
-        const xml = getXML(MEDIATORS.CACHE, data);
+    const onClick = async (values: any) => {
+        
+        const xml = getXML(MEDIATORS.CACHE, values);
         rpcClient.getMiDiagramRpcClient().applyEdit({
-            documentUri: props.documentUri, range: range, text: xml
+            documentUri: props.documentUri, range: props.nodePosition, text: xml
         });
+        sidePanelContext.setSidePanelState({
+            ...sidePanelContext,
+            isOpen: false,
+            isEditing: false,
+            formValues: undefined,
+            nodeRange: undefined,
+            operationName: undefined
+        });
+    };
+
+    if (isLoading) {
+        return <ProgressIndicator/>;
     }
-
-    const formValidators: { [key: string]: (e?: any) => string | undefined } = {
-        "cacheMediatorImplementation": (e?: any) => validateField("cacheMediatorImplementation", e, false),
-        "cacheType": (e?: any) => validateField("cacheType", e, false),
-        "id": (e?: any) => validateField("id", e, false),
-        "cacheTimeout": (e?: any) => validateField("cacheTimeout", e, false),
-        "maxMessageSize": (e?: any) => validateField("maxMessageSize", e, false),
-        "scope": (e?: any) => validateField("scope", e, false),
-        "hashGeneratorAttribute": (e?: any) => validateField("hashGeneratorAttribute", e, false),
-        "maxEntryCount": (e?: any) => validateField("maxEntryCount", e, false),
-        "implementationType": (e?: any) => validateField("implementationType", e, false),
-        "sequenceType": (e?: any) => validateField("sequenceType", e, false),
-        "sequenceKey": (e?: any) => validateField("sequenceKey", e, false),
-        "cacheProtocolType": (e?: any) => validateField("cacheProtocolType", e, false),
-        "cacheProtocolMethods": (e?: any) => validateField("cacheProtocolMethods", e, false),
-        "headersToExcludeInHash": (e?: any) => validateField("headersToExcludeInHash", e, false),
-        "headersToIncludeInHash": (e?: any) => validateField("headersToIncludeInHash", e, false),
-        "responseCodes": (e?: any) => validateField("responseCodes", e, false),
-        "enableCacheControl": (e?: any) => validateField("enableCacheControl", e, false),
-        "includeAgeHeader": (e?: any) => validateField("includeAgeHeader", e, false),
-        "hashGenerator": (e?: any) => validateField("hashGenerator", e, false),
-        "description": (e?: any) => validateField("description", e, false),
-
-    };
-
-    const validateField = (id: string, e: any, isRequired: boolean, validation?: "e-mail" | "nameWithoutSpecialCharactors" | "custom", regex?: string): string => {
-        const value = e ?? formValues[id];
-        const newErrors = { ...errors };
-        let error;
-        if (isRequired && !value) {
-            error = "This field is required";
-        } else if (validation === "e-mail" && !value.match(emailRegex)) {
-            error = "Invalid e-mail address";
-        } else if (validation === "nameWithoutSpecialCharactors" && !value.match(nameWithoutSpecialCharactorsRegex)) {
-            error = "Invalid name";
-        } else if (validation === "custom" && !value.match(regex)) {
-            error = "Invalid input";
-        } else {
-            delete newErrors[id];
-            setErrors(newErrors);
-        }
-        setErrors({ ...errors, [id]: error });
-        return error;
-    };
-
     return (
         <div style={{ padding: "10px" }}>
+            <Typography variant="body3"></Typography>
 
             <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                <h3>Type</h3>
+                <Typography variant="h3">Type</Typography>
 
                 <Field>
-                    <label>Cache Mediator Implementation</label>
-                    <AutoComplete items={["Default", "611 Compatible"]} value={formValues["cacheMediatorImplementation"]} onValueChange={(e: any) => {
-                        setFormValues({ ...formValues, "cacheMediatorImplementation": e, "isProtocolChanged": true });
-                        formValidators["cacheMediatorImplementation"](e);
-                    }} />
-                    {errors["cacheMediatorImplementation"] && <Error>{errors["cacheMediatorImplementation"]}</Error>}
-                </Field>
-
-            </ComponentCard>
-
-            <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                <h3>Properties</h3>
-
-                {formValues["cacheMediatorImplementation"] && formValues["cacheMediatorImplementation"].toLowerCase() == "611 compatible" &&
-                    <Field>
-                        <label>Cache Type</label>
-                        <AutoComplete items={["FINDER", "COLLECTOR"]} value={formValues["cacheType"]} onValueChange={(e: any) => {
-                            setFormValues({ ...formValues, "cacheType": e });
-                            formValidators["cacheType"](e);
-                        }} />
-                        {errors["cacheType"] && <Error>{errors["cacheType"]}</Error>}
-                    </Field>
-                }
-
-                {formValues["cacheMediatorImplementation"] && formValues["cacheMediatorImplementation"].toLowerCase() == "611 compatible" && formValues["cacheType"] && formValues["cacheType"].toLowerCase() == "finder" &&
-                    <Field>
-                        <TextField
-                            label="Id"
-                            size={50}
-                            placeholder=""
-                            value={formValues["id"]}
-                            onTextChange={(e: any) => {
-                                setFormValues({ ...formValues, "id": e, "isCacheChanged": true });
-                                formValidators["id"](e);
-                            }}
-                            required={false}
-                        />
-                        {errors["id"] && <Error>{errors["id"]}</Error>}
-                    </Field>
-                }
-
-                {formValues["cacheType"] && formValues["cacheType"].toLowerCase() == "finder" &&
-                    <Field>
-                        <TextField
-                            label="Cache Timeout(S)"
-                            size={50}
-                            placeholder=""
-                            value={formValues["cacheTimeout"]}
-                            onTextChange={(e: any) => {
-                                setFormValues({ ...formValues, "cacheTimeout": e, "isCacheChanged": true });
-                                formValidators["cacheTimeout"](e);
-                            }}
-                            required={false}
-                        />
-                        {errors["cacheTimeout"] && <Error>{errors["cacheTimeout"]}</Error>}
-                    </Field>
-                }
-
-                {formValues["cacheType"] && formValues["cacheType"].toLowerCase() == "finder" &&
-                    <Field>
-                        <TextField
-                            label="Max Message Size(bytes)"
-                            size={50}
-                            placeholder=""
-                            value={formValues["maxMessageSize"]}
-                            onTextChange={(e: any) => {
-                                setFormValues({ ...formValues, "maxMessageSize": e, "isCacheChanged": true });
-                                formValidators["maxMessageSize"](e);
-                            }}
-                            required={false}
-                        />
-                        {errors["maxMessageSize"] && <Error>{errors["maxMessageSize"]}</Error>}
-                    </Field>
-                }
-
-                {formValues["cacheMediatorImplementation"] && formValues["cacheMediatorImplementation"].toLowerCase() == "611 compatible" &&
-                    <Field>
-                        <label>Scope</label>
-                        <AutoComplete items={["Per-Host", "Per-Mediator"]} value={formValues["scope"]} onValueChange={(e: any) => {
-                            setFormValues({ ...formValues, "scope": e, "isCacheChanged": true });
-                            formValidators["scope"](e);
-                        }} />
-                        {errors["scope"] && <Error>{errors["scope"]}</Error>}
-                    </Field>
-                }
-
-                {formValues["cacheMediatorImplementation"] && formValues["cacheMediatorImplementation"].toLowerCase() == "611 compatible" && formValues["cacheType"] && formValues["cacheType"].toLowerCase() == "finder" &&
-                    <Field>
-                        <TextField
-                            label="HashGenerator Attribute"
-                            size={50}
-                            placeholder=""
-                            value={formValues["hashGeneratorAttribute"]}
-                            onTextChange={(e: any) => {
-                                setFormValues({ ...formValues, "hashGeneratorAttribute": e, "isCacheChanged": true });
-                                formValidators["hashGeneratorAttribute"](e);
-                            }}
-                            required={false}
-                        />
-                        {errors["hashGeneratorAttribute"] && <Error>{errors["hashGeneratorAttribute"]}</Error>}
-                    </Field>
-                }
-
-            </ComponentCard>
-
-            <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                <h3>Implementation</h3>
-
-                {formValues["cacheType"] && formValues["cacheType"].toLowerCase() == "finder" &&
-                    <Field>
-                        <TextField
-                            label="Max Entry Count"
-                            size={50}
-                            placeholder=""
-                            value={formValues["maxEntryCount"]}
-                            onTextChange={(e: any) => {
-                                setFormValues({ ...formValues, "maxEntryCount": e, "isImplementationChanged": true });
-                                formValidators["maxEntryCount"](e);
-                            }}
-                            required={false}
-                        />
-                        {errors["maxEntryCount"] && <Error>{errors["maxEntryCount"]}</Error>}
-                    </Field>
-                }
-
-                {formValues["cacheMediatorImplementation"] && formValues["cacheMediatorImplementation"].toLowerCase() == "611 compatible" && formValues["cacheType"] && formValues["cacheType"].toLowerCase() == "finder" &&
-                    <Field>
-                        <label>Implementation Type</label>
-                        <AutoComplete items={["memory", "disk"]} value={formValues["implementationType"]} onValueChange={(e: any) => {
-                            setFormValues({ ...formValues, "implementationType": e, "isImplementationChanged": true });
-                            formValidators["implementationType"](e);
-                        }} />
-                        {errors["implementationType"] && <Error>{errors["implementationType"]}</Error>}
-                    </Field>
-                }
-
-            </ComponentCard>
-
-            <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                <h3>On Cache Hit</h3>
-
-                {formValues["cacheType"] && formValues["cacheType"].toLowerCase() == "finder" &&
-                    <Field>
-                        <label>Sequence Type</label>
-                        <AutoComplete items={["ANONYMOUS", "REGISTRY_REFERENCE"]} value={formValues["sequenceType"]} onValueChange={(e: any) => {
-                            setFormValues({ ...formValues, "sequenceType": e });
-                            formValidators["sequenceType"](e);
-                        }} />
-                        {errors["sequenceType"] && <Error>{errors["sequenceType"]}</Error>}
-                    </Field>
-                }
-
-                {formValues["sequenceType"] && formValues["sequenceType"].toLowerCase() == "registry_reference" && formValues["cacheType"] && formValues["cacheType"].toLowerCase() == "finder" &&
-                    <Field>
-                        <TextField
-                            label="Sequence Key"
-                            size={50}
-                            placeholder=""
-                            value={formValues["sequenceKey"]}
-                            onTextChange={(e: any) => {
-                                setFormValues({ ...formValues, "sequenceKey": e, "isOnCacheHitChanged": true });
-                                formValidators["sequenceKey"](e);
-                            }}
-                            required={false}
-                        />
-                        {errors["sequenceKey"] && <Error>{errors["sequenceKey"]}</Error>}
-                    </Field>
-                }
-
-            </ComponentCard>
-
-            <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                <h3>Protocol</h3>
-
-                {formValues["cacheMediatorImplementation"] && formValues["cacheMediatorImplementation"].toLowerCase() == "default" && formValues["cacheType"] && formValues["cacheType"].toLowerCase() == "finder" &&
-                    <Field>
-                        <label>Cache Protocol Type</label>
-                        <AutoComplete items={["HTTP"]} value={formValues["cacheProtocolType"]} onValueChange={(e: any) => {
-                            setFormValues({ ...formValues, "cacheProtocolType": e, "isProtocolChanged": true });
-                            formValidators["cacheProtocolType"](e);
-                        }} />
-                        {errors["cacheProtocolType"] && <Error>{errors["cacheProtocolType"]}</Error>}
-                    </Field>
-                }
-
-                {formValues["cacheMediatorImplementation"] && formValues["cacheMediatorImplementation"].toLowerCase() == "default" && formValues["cacheType"] && formValues["cacheType"].toLowerCase() == "finder" &&
-                    <Field>
-                        <TextField
-                            label="Cache Protocol Methods"
-                            size={50}
-                            placeholder=""
-                            value={formValues["cacheProtocolMethods"]}
-                            onTextChange={(e: any) => {
-                                setFormValues({ ...formValues, "cacheProtocolMethods": e, "isProtocolChanged": true });
-                                formValidators["cacheProtocolMethods"](e);
-                            }}
-                            required={false}
-                        />
-                        {errors["cacheProtocolMethods"] && <Error>{errors["cacheProtocolMethods"]}</Error>}
-                    </Field>
-                }
-
-                {formValues["cacheMediatorImplementation"] && formValues["cacheMediatorImplementation"].toLowerCase() == "default" && formValues["cacheType"] && formValues["cacheType"].toLowerCase() == "finder" &&
-                    <Field>
-                        <TextField
-                            label="Headers To Exclude In Hash"
-                            size={50}
-                            placeholder=""
-                            value={formValues["headersToExcludeInHash"]}
-                            onChange={(e: any) => {
-                                setFormValues({ ...formValues, "headersToExcludeInHash": e, "isProtocolChanged": true });
-                                formValidators["headersToExcludeInHash"](e);
-                            }}
-                            required={false}
-                        />
-                        {errors["headersToExcludeInHash"] && <Error>{errors["headersToExcludeInHash"]}</Error>}
-                    </Field>
-                }
-
-                {formValues["cacheMediatorImplementation"] && formValues["cacheMediatorImplementation"].toLowerCase() == "default" && formValues["cacheType"] && formValues["cacheType"].toLowerCase() == "finder" &&
-                    <Field>
-                        <TextField
-                            label="Headers To Include In Hash"
-                            size={50}
-                            placeholder=""
-                            value={formValues["headersToIncludeInHash"]}
-                            onTextChange={(e: any) => {
-                                setFormValues({ ...formValues, "headersToIncludeInHash": e, "isProtocolChanged": true });
-                                formValidators["headersToIncludeInHash"](e);
-                            }}
-                            required={false}
-                        />
-                        {errors["headersToIncludeInHash"] && <Error>{errors["headersToIncludeInHash"]}</Error>}
-                    </Field>
-                }
-
-                {formValues["cacheMediatorImplementation"] && formValues["cacheMediatorImplementation"].toLowerCase() == "default" && formValues["cacheType"] && formValues["cacheType"].toLowerCase() == "finder" &&
-                    <Field>
-                        <TextField
-                            label="Response Codes"
-                            size={50}
-                            placeholder=""
-                            value={formValues["responseCodes"]}
-                            onTextChange={(e: any) => {
-                                setFormValues({ ...formValues, "responseCodes": e, "isProtocolChanged": true });
-                                formValidators["responseCodes"](e);
-                            }}
-                            required={false}
-                        />
-                        {errors["responseCodes"] && <Error>{errors["responseCodes"]}</Error>}
-                    </Field>
-                }
-
-                {formValues["cacheMediatorImplementation"] && formValues["cacheMediatorImplementation"].toLowerCase() == "default" && formValues["cacheType"] && formValues["cacheType"].toLowerCase() == "finder" &&
-                    <Field>
-                        <VSCodeCheckbox type="checkbox" checked={formValues["enableCacheControl"]} onChange={(e: any) => {
-                            setFormValues({ ...formValues, "enableCacheControl": e.target.checked, "isProtocolChanged": true });
-                            formValidators["enableCacheControl"](e);
-                        }
-                        }>Enable Cache Control </VSCodeCheckbox>
-                        {errors["enableCacheControl"] && <Error>{errors["enableCacheControl"]}</Error>}
-                    </Field>
-                }
-
-                {formValues["cacheMediatorImplementation"] && formValues["cacheMediatorImplementation"].toLowerCase() == "default" && formValues["cacheType"] && formValues["cacheType"].toLowerCase() == "finder" &&
-                    <Field>
-                        <VSCodeCheckbox type="checkbox" checked={formValues["includeAgeHeader"]} onChange={(e: any) => {
-                            setFormValues({ ...formValues, "includeAgeHeader": e.target.checked, "isProtocolChanged": true });
-                            formValidators["includeAgeHeader"](e);
-                        }
-                        }>Include Age Header </VSCodeCheckbox>
-                        {errors["includeAgeHeader"] && <Error>{errors["includeAgeHeader"]}</Error>}
-                    </Field>
-                }
-
-                {formValues["cacheMediatorImplementation"] && formValues["cacheMediatorImplementation"].toLowerCase() == "default" && formValues["cacheType"] && formValues["cacheType"].toLowerCase() == "finder" &&
-                    <Field>
-                        <TextField
-                            label="Hash Generator"
-                            size={50}
-                            placeholder=""
-                            value={formValues["hashGenerator"]}
-                            onTextChange={(e: any) => {
-                                setFormValues({ ...formValues, "hashGenerator": e, "isProtocolChanged": true });
-                                formValidators["hashGenerator"](e);
-                            }}
-                            required={false}
-                        />
-                        {errors["hashGenerator"] && <Error>{errors["hashGenerator"]}</Error>}
-                    </Field>
-                }
-
-            </ComponentCard>
-
-            <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                <h3>Misc</h3>
-
-                <Field>
-                    <TextField
-                        label="Description"
-                        size={50}
-                        placeholder=""
-                        value={formValues["description"]}
-                        onTextChange={(e: any) => {
-                            setFormValues({ ...formValues, "description": e, "isCacheChanged": true });
-                            formValidators["description"](e);
-                        }}
-                        required={false}
+                    <Controller
+                        name="cacheMediatorImplementation"
+                        control={control}
+                        render={({ field }) => (
+                            <AutoComplete label="Cache Mediator Implementation" items={["Default", "611 Compatible"]} value={field.value} onValueChange={(e: any) => {
+                                field.onChange(e);
+                            }} />
+                        )}
                     />
-                    {errors["description"] && <Error>{errors["description"]}</Error>}
+                    {errors.cacheMediatorImplementation && <Error>{errors.cacheMediatorImplementation.message.toString()}</Error>}
                 </Field>
 
             </ComponentCard>
 
+            <ComponentCard sx={cardStyle} disbaleHoverEffect>
+                <Typography variant="h3">Properties</Typography>
 
-            <div style={{ display: "flex", textAlign: "right", justifyContent: "flex-end", marginTop: "10px" }}>
+                {watch("cacheMediatorImplementation") && watch("cacheMediatorImplementation").toLowerCase() == "611 compatible" &&
+                    <Field>
+                        <Controller
+                            name="cacheType"
+                            control={control}
+                            render={({ field }) => (
+                                <AutoComplete label="Cache Type" items={["FINDER", "COLLECTOR"]} value={field.value} onValueChange={(e: any) => {
+                                    field.onChange(e);
+                                }} />
+                            )}
+                        />
+                        {errors.cacheType && <Error>{errors.cacheType.message.toString()}</Error>}
+                    </Field>
+                }
+
+                {watch("cacheMediatorImplementation") && watch("cacheMediatorImplementation").toLowerCase() == "611 compatible" &&watch("cacheType") && watch("cacheType").toLowerCase() == "finder"  &&
+                    <Field>
+                        <Controller
+                            name="id"
+                            control={control}
+                            render={({ field }) => (
+                                <TextField {...field} label="Id" size={50} placeholder="" />
+                            )}
+                        />
+                        {errors.id && <Error>{errors.id.message.toString()}</Error>}
+                    </Field>
+                }
+
+                {watch("cacheType") && watch("cacheType").toLowerCase() == "finder" &&
+                    <Field>
+                        <Controller
+                            name="cacheTimeout"
+                            control={control}
+                            render={({ field }) => (
+                                <TextField {...field} label="Cache Timeout(S)" size={50} placeholder="" />
+                            )}
+                        />
+                        {errors.cacheTimeout && <Error>{errors.cacheTimeout.message.toString()}</Error>}
+                    </Field>
+                }
+
+                {watch("cacheType") && watch("cacheType").toLowerCase() == "finder" &&
+                    <Field>
+                        <Controller
+                            name="maxMessageSize"
+                            control={control}
+                            render={({ field }) => (
+                                <TextField {...field} label="Max Message Size(bytes)" size={50} placeholder="" />
+                            )}
+                        />
+                        {errors.maxMessageSize && <Error>{errors.maxMessageSize.message.toString()}</Error>}
+                    </Field>
+                }
+
+                {watch("cacheMediatorImplementation") && watch("cacheMediatorImplementation").toLowerCase() == "611 compatible" &&
+                    <Field>
+                        <Controller
+                            name="scope"
+                            control={control}
+                            render={({ field }) => (
+                                <AutoComplete label="Scope" items={["Per_Host", "Per_Mediator"]} value={field.value} onValueChange={(e: any) => {
+                                    field.onChange(e);
+                                }} />
+                            )}
+                        />
+                        {errors.scope && <Error>{errors.scope.message.toString()}</Error>}
+                    </Field>
+                }
+
+                {watch("cacheMediatorImplementation") && watch("cacheMediatorImplementation").toLowerCase() == "611 compatible" &&watch("cacheType") && watch("cacheType").toLowerCase() == "finder"  &&
+                    <Field>
+                        <Controller
+                            name="hashGeneratorAttribute"
+                            control={control}
+                            render={({ field }) => (
+                                <TextField {...field} label="HashGenerator Attribute" size={50} placeholder="" />
+                            )}
+                        />
+                        {errors.hashGeneratorAttribute && <Error>{errors.hashGeneratorAttribute.message.toString()}</Error>}
+                    </Field>
+                }
+
+            </ComponentCard>
+
+            <ComponentCard sx={cardStyle} disbaleHoverEffect>
+                <Typography variant="h3">Implementation</Typography>
+
+                {watch("cacheType") && watch("cacheType").toLowerCase() == "finder" &&
+                    <Field>
+                        <Controller
+                            name="maxEntryCount"
+                            control={control}
+                            render={({ field }) => (
+                                <TextField {...field} label="Max Entry Count" size={50} placeholder="" />
+                            )}
+                        />
+                        {errors.maxEntryCount && <Error>{errors.maxEntryCount.message.toString()}</Error>}
+                    </Field>
+                }
+
+                {watch("cacheMediatorImplementation") && watch("cacheMediatorImplementation").toLowerCase() == "611 compatible" &&watch("cacheType") && watch("cacheType").toLowerCase() == "finder"  &&
+                    <Field>
+                        <Controller
+                            name="implementationType"
+                            control={control}
+                            render={({ field }) => (
+                                <AutoComplete label="Implementation Type" items={["memory", "disk"]} value={field.value} onValueChange={(e: any) => {
+                                    field.onChange(e);
+                                }} />
+                            )}
+                        />
+                        {errors.implementationType && <Error>{errors.implementationType.message.toString()}</Error>}
+                    </Field>
+                }
+
+            </ComponentCard>
+
+            <ComponentCard sx={cardStyle} disbaleHoverEffect>
+                <Typography variant="h3">On Cache Hit</Typography>
+
+                {watch("cacheType") && watch("cacheType").toLowerCase() == "finder" &&
+                    <Field>
+                        <Controller
+                            name="sequenceType"
+                            control={control}
+                            render={({ field }) => (
+                                <AutoComplete label="Sequence Type" items={["ANONYMOUS", "REGISTRY_REFERENCE"]} value={field.value} onValueChange={(e: any) => {
+                                    field.onChange(e);
+                                }} />
+                            )}
+                        />
+                        {errors.sequenceType && <Error>{errors.sequenceType.message.toString()}</Error>}
+                    </Field>
+                }
+
+                {watch("sequenceType") && watch("sequenceType").toLowerCase() == "registry_reference" &&watch("cacheType") && watch("cacheType").toLowerCase() == "finder"  &&
+                    <Field>
+                        <Controller
+                            name="sequenceKey"
+                            control={control}
+                            render={({ field }) => (
+                                <TextField {...field} label="Sequence Key" size={50} placeholder="" />
+                            )}
+                        />
+                        {errors.sequenceKey && <Error>{errors.sequenceKey.message.toString()}</Error>}
+                    </Field>
+                }
+
+            </ComponentCard>
+
+            <ComponentCard sx={cardStyle} disbaleHoverEffect>
+                <Typography variant="h3">Protocol</Typography>
+
+                {watch("cacheMediatorImplementation") && watch("cacheMediatorImplementation").toLowerCase() == "default" &&watch("cacheType") && watch("cacheType").toLowerCase() == "finder"  &&
+                    <Field>
+                        <Controller
+                            name="cacheProtocolType"
+                            control={control}
+                            render={({ field }) => (
+                                <AutoComplete label="Cache Protocol Type" items={["HTTP"]} value={field.value} onValueChange={(e: any) => {
+                                    field.onChange(e);
+                                }} />
+                            )}
+                        />
+                        {errors.cacheProtocolType && <Error>{errors.cacheProtocolType.message.toString()}</Error>}
+                    </Field>
+                }
+
+                {watch("cacheMediatorImplementation") && watch("cacheMediatorImplementation").toLowerCase() == "default" &&watch("cacheType") && watch("cacheType").toLowerCase() == "finder"  &&
+                    <Field>
+                        <Controller
+                            name="cacheProtocolMethods"
+                            control={control}
+                            render={({ field }) => (
+                                <TextField {...field} label="Cache Protocol Methods" size={50} placeholder="" />
+                            )}
+                        />
+                        {errors.cacheProtocolMethods && <Error>{errors.cacheProtocolMethods.message.toString()}</Error>}
+                    </Field>
+                }
+
+                {watch("cacheMediatorImplementation") && watch("cacheMediatorImplementation").toLowerCase() == "default" &&watch("cacheType") && watch("cacheType").toLowerCase() == "finder"  &&
+                    <Field>
+                        <Controller
+                            name="headersToExcludeInHash"
+                            control={control}
+                            render={({ field }) => (
+                                <TextField {...field} label="Headers To Exclude In Hash" size={50} placeholder="" />
+                            )}
+                        />
+                        {errors.headersToExcludeInHash && <Error>{errors.headersToExcludeInHash.message.toString()}</Error>}
+                    </Field>
+                }
+
+                {watch("cacheMediatorImplementation") && watch("cacheMediatorImplementation").toLowerCase() == "default" &&watch("cacheType") && watch("cacheType").toLowerCase() == "finder"  &&
+                    <Field>
+                        <Controller
+                            name="headersToIncludeInHash"
+                            control={control}
+                            render={({ field }) => (
+                                <TextField {...field} label="Headers To Include In Hash" size={50} placeholder="" />
+                            )}
+                        />
+                        {errors.headersToIncludeInHash && <Error>{errors.headersToIncludeInHash.message.toString()}</Error>}
+                    </Field>
+                }
+
+                {watch("cacheMediatorImplementation") && watch("cacheMediatorImplementation").toLowerCase() == "default" &&watch("cacheType") && watch("cacheType").toLowerCase() == "finder"  &&
+                    <Field>
+                        <Controller
+                            name="responseCodes"
+                            control={control}
+                            render={({ field }) => (
+                                <TextField {...field} label="Response Codes" size={50} placeholder="" />
+                            )}
+                        />
+                        {errors.responseCodes && <Error>{errors.responseCodes.message.toString()}</Error>}
+                    </Field>
+                }
+
+                {watch("cacheMediatorImplementation") && watch("cacheMediatorImplementation").toLowerCase() == "default" &&watch("cacheType") && watch("cacheType").toLowerCase() == "finder"  &&
+                    <Field>
+                        <Controller
+                            name="enableCacheControl"
+                            control={control}
+                            render={({ field }) => (
+                                <VSCodeCheckbox type="checkbox" checked={field.value} onChange={(e: any) => {
+                                    field.onChange(e);
+                                }}>Enable Cache Control</VSCodeCheckbox>
+                            )}
+                        />
+                        {errors.enableCacheControl && <Error>{errors.enableCacheControl.message.toString()}</Error>}
+                    </Field>
+                }
+
+                {watch("cacheMediatorImplementation") && watch("cacheMediatorImplementation").toLowerCase() == "default" &&watch("cacheType") && watch("cacheType").toLowerCase() == "finder"  &&
+                    <Field>
+                        <Controller
+                            name="includeAgeHeader"
+                            control={control}
+                            render={({ field }) => (
+                                <VSCodeCheckbox type="checkbox" checked={field.value} onChange={(e: any) => {
+                                    field.onChange(e);
+                                }}>Include Age Header</VSCodeCheckbox>
+                            )}
+                        />
+                        {errors.includeAgeHeader && <Error>{errors.includeAgeHeader.message.toString()}</Error>}
+                    </Field>
+                }
+
+                {watch("cacheMediatorImplementation") && watch("cacheMediatorImplementation").toLowerCase() == "default" &&watch("cacheType") && watch("cacheType").toLowerCase() == "finder"  &&
+                    <Field>
+                        <Controller
+                            name="hashGenerator"
+                            control={control}
+                            render={({ field }) => (
+                                <TextField {...field} label="Hash Generator" size={50} placeholder="" />
+                            )}
+                        />
+                        {errors.hashGenerator && <Error>{errors.hashGenerator.message.toString()}</Error>}
+                    </Field>
+                }
+
+            </ComponentCard>
+
+            <Field>
+                <Controller
+                    name="description"
+                    control={control}
+                    render={({ field }) => (
+                        <TextField {...field} label="Description" size={50} placeholder="" />
+                    )}
+                />
+                {errors.description && <Error>{errors.description.message.toString()}</Error>}
+            </Field>
+
+
+            <div style={{ textAlign: "right", marginTop: "10px", float: "right" }}>
                 <Button
                     appearance="primary"
-                    onClick={onClick}
+                    onClick={handleSubmit(onClick)}
                 >
                     Submit
                 </Button>

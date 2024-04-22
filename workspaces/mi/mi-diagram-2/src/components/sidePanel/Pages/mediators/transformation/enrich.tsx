@@ -6,10 +6,10 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
 */
+// AUTO-GENERATED FILE. DO NOT MODIFY.
 
-
-import React, { useEffect, useState } from 'react';
-import { AutoComplete, Button, ComponentCard, TextArea, TextField } from '@wso2-enterprise/ui-toolkit';
+import React, { useEffect } from 'react';
+import { AutoComplete, Button, ComponentCard, ExpressionField, ExpressionFieldValue, ProgressIndicator, TextField, TextArea, Typography } from '@wso2-enterprise/ui-toolkit';
 import { VSCodeCheckbox } from '@vscode/webview-ui-toolkit/react';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
@@ -17,8 +17,10 @@ import { AddMediatorProps } from '../common';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
 import { MEDIATORS } from '../../../../../resources/constants';
+import { Controller, useForm } from 'react-hook-form';
+import { Keylookup } from '../../../../Form';
 
-const cardStyle = {
+const cardStyle = { 
     display: "block",
     margin: "15px 0",
     padding: "0 15px 15px 15px",
@@ -35,277 +37,243 @@ const Field = styled.div`
    margin-bottom: 12px;
 `;
 
-const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g;
-const nameWithoutSpecialCharactorsRegex = /^[a-zA-Z0-9]+$/g;
-
 const EnrichForm = (props: AddMediatorProps) => {
     const { rpcClient } = useVisualizerContext();
     const sidePanelContext = React.useContext(SidePanelContext);
-    const [formValues, setFormValues] = useState({} as { [key: string]: any });
-    const [errors, setErrors] = useState({} as any);
+    const [ isLoading, setIsLoading ] = React.useState(true);
+
+    const { control, formState: { errors }, handleSubmit, watch, reset } = useForm();
 
     useEffect(() => {
-        if (sidePanelContext.formValues && Object.keys(sidePanelContext.formValues).length > 0) {
-            setFormValues({ ...formValues, ...sidePanelContext.formValues });
-        } else {
-            setFormValues({
-                "cloneSource": false,
-                "sourceType": "custom",
-                "inlineType": "Inline XML/JSON",
-                "targetAction": "replace",
-                "targetType": "custom",
-            });
-        }
+        reset({
+            cloneSource: sidePanelContext?.formValues?.cloneSource || "",
+            sourceType: sidePanelContext?.formValues?.sourceType || "envelope",
+            sourceXPath: sidePanelContext?.formValues?.sourceXPath || {"isExpression":true,"value":""},
+            sourceProperty: sidePanelContext?.formValues?.sourceProperty || "",
+            inlineType: sidePanelContext?.formValues?.inlineType || "Inline XML/JSON",
+            sourceXML: sidePanelContext?.formValues?.sourceXML || "",
+            inlineRegistryKey: sidePanelContext?.formValues?.inlineRegistryKey || "",
+            targetAction: sidePanelContext?.formValues?.targetAction || "replace",
+            targetType: sidePanelContext?.formValues?.targetType || "custom",
+            targetXPathJsonPath: sidePanelContext?.formValues?.targetXPathJsonPath || "",
+            targetProperty: sidePanelContext?.formValues?.targetProperty || "",
+            description: sidePanelContext?.formValues?.description || "",
+        });
+        setIsLoading(false);
     }, [sidePanelContext.formValues]);
 
-    const onClick = async () => {
-        const newErrors = {} as any;
-        Object.keys(formValidators).forEach((key) => {
-            const error = formValidators[key]();
-            if (error) {
-                newErrors[key] = (error);
-            }
+    const onClick = async (values: any) => {
+        
+        const xml = getXML(MEDIATORS.ENRICH, values);
+        rpcClient.getMiDiagramRpcClient().applyEdit({
+            documentUri: props.documentUri, range: props.nodePosition, text: xml
         });
-        if (Object.keys(newErrors).length > 0) {
-            setErrors(newErrors);
-        } else {
-            const xml = getXML(MEDIATORS.ENRICH, formValues);
-            rpcClient.getMiDiagramRpcClient().applyEdit({
-                documentUri: props.documentUri, range: props.nodePosition, text: xml
-            });
-            sidePanelContext.setSidePanelState({
-                ...sidePanelContext,
-                isOpen: false,
-                isEditing: false,
-                formValues: undefined,
-                nodeRange: undefined,
-                operationName: undefined
-            });
-        }
+        sidePanelContext.setSidePanelState({
+            ...sidePanelContext,
+            isOpen: false,
+            isEditing: false,
+            formValues: undefined,
+            nodeRange: undefined,
+            operationName: undefined
+        });
     };
 
-    const formValidators: { [key: string]: (e?: any) => string | undefined } = {
-        "cloneSource": (e?: any) => validateField("cloneSource", e, false),
-        "sourceType": (e?: any) => validateField("sourceType", e, false),
-        "sourceXPath": (e?: any) => validateField("sourceXPath", e, false),
-        "sourceProperty": (e?: any) => validateField("sourceProperty", e, false),
-        "inlineType": (e?: any) => validateField("inlineType", e, false),
-        "sourceXML": (e?: any) => validateField("sourceXML", e, false),
-        "inlineRegistryKey": (e?: any) => validateField("inlineRegistryKey", e, false),
-        "targetAction": (e?: any) => validateField("targetAction", e, false),
-        "targetType": (e?: any) => validateField("targetType", e, false),
-        "targetXPathJsonPath": (e?: any) => validateField("targetXPathJsonPath", e, false),
-        "targetProperty": (e?: any) => validateField("targetProperty", e, false),
-        "description": (e?: any) => validateField("description", e, false),
-
-    };
-
-    const validateField = (id: string, e: any, isRequired: boolean, validation?: "e-mail" | "nameWithoutSpecialCharactors" | "custom", regex?: string): string => {
-        const value = e ?? formValues[id];
-        const newErrors = { ...errors };
-        let error;
-        if (isRequired && !value) {
-            error = "This field is required";
-        } else if (validation === "e-mail" && !value.match(emailRegex)) {
-            error = "Invalid e-mail address";
-        } else if (validation === "nameWithoutSpecialCharactors" && !value.match(nameWithoutSpecialCharactorsRegex)) {
-            error = "Invalid name";
-        } else if (validation === "custom" && !value.match(regex)) {
-            error = "Invalid input";
-        } else {
-            delete newErrors[id];
-            setErrors(newErrors);
-        }
-        setErrors({ ...errors, [id]: error });
-        return error;
-    };
-
+    if (isLoading) {
+        return <ProgressIndicator/>;
+    }
     return (
         <div style={{ padding: "10px" }}>
+            <Typography variant="body3"></Typography>
 
             <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                <h3>Source</h3>
+                <Typography variant="h3">Source</Typography>
 
                 <Field>
-                    <VSCodeCheckbox type="checkbox" checked={formValues["cloneSource"]} onChange={(e: any) => {
-                        setFormValues({ ...formValues, "cloneSource": e.target.checked });
-                        formValidators["cloneSource"](e);
-                    }
-                    }>Clone Source </VSCodeCheckbox>
-                    {errors["cloneSource"] && <Error>{errors["cloneSource"]}</Error>}
-                </Field>
-
-                <Field>
-                    <label>Source Type</label>
-                    <AutoComplete items={["custom", "envelope", "body", "property", "inline"]} value={formValues["sourceType"]} onValueChange={(e: any) => {
-                        setFormValues({ ...formValues, "sourceType": e });
-                        formValidators["sourceType"](e);
-                    }} />
-                    {errors["sourceType"] && <Error>{errors["sourceType"]}</Error>}
-                </Field>
-
-                {formValues["sourceType"] && formValues["sourceType"].toLowerCase() == "custom" &&
-                    <Field>
-                        <TextField
-                            label="Source XPath"
-                            size={50}
-                            placeholder=""
-                            value={formValues["sourceXPath"]}
-                            onTextChange={(e: any) => {
-                                setFormValues({ ...formValues, "sourceXPath": e });
-                                formValidators["sourceXPath"](e);
-                            }}
-                            required={false}
-                        />
-                        {errors["sourceXPath"] && <Error>{errors["sourceXPath"]}</Error>}
-                    </Field>
-                }
-
-                {formValues["sourceType"] && formValues["sourceType"].toLowerCase() == "property" &&
-                    <Field>
-                        <TextField
-                            label="Source Property"
-                            size={50}
-                            placeholder=""
-                            value={formValues["sourceProperty"]}
-                            onTextChange={(e: any) => {
-                                setFormValues({ ...formValues, "sourceProperty": e });
-                                formValidators["sourceProperty"](e);
-                            }}
-                            required={false}
-                        />
-                        {errors["sourceProperty"] && <Error>{errors["sourceProperty"]}</Error>}
-                    </Field>
-                }
-
-                {formValues["sourceType"] && formValues["sourceType"].toLowerCase() == "inline" &&
-                    <Field>
-                        <label>Inline Type</label>
-                        <AutoComplete items={["Inline XML/JSON", "RegistryKey"]} value={formValues["inlineType"]} onValueChange={(e: any) => {
-                            setFormValues({ ...formValues, "inlineType": e });
-                            formValidators["inlineType"](e);
-                        }} />
-                        {errors["inlineType"] && <Error>{errors["inlineType"]}</Error>}
-                    </Field>
-                }
-
-                {formValues["sourceType"] && formValues["sourceType"].toLowerCase() == "inline" && formValues["inlineType"] == "Inline XML/JSON" &&
-                    <Field>
-                        <label>Source XML</label>
-                        <TextArea
-                            onTextChange={(e: any) => {
-                                setFormValues({ ...formValues, "sourceXML": e });
-                                formValidators["sourceXML"](e);
-                            }}
-                            placeholder="Type your source xml here"
-                            required={false}
-                            value={formValues["sourceXML"] ?? ""}
-                            rows={5}
-                            cols={45}
-                        />
-                        {errors["sourceXML"] && <Error>{errors["sourceXML"]}</Error>}
-                    </Field>
-                }
-
-                {formValues["sourceType"] && formValues["sourceType"].toLowerCase() == "inline" && formValues["inlineType"] == "RegistryKey" &&
-                    <Field>
-                        <TextField
-                            label="Inline RegistryKey"
-                            size={50}
-                            placeholder=""
-                            value={formValues["inlineRegistryKey"]}
-                            onTextChange={(e: any) => {
-                                setFormValues({ ...formValues, "inlineRegistryKey": e });
-                                formValidators["inlineRegistryKey"](e);
-                            }}
-                            required={false}
-                        />
-                        {errors["inlineRegistryKey"] && <Error>{errors["inlineRegistryKey"]}</Error>}
-                    </Field>}
-            </ComponentCard>
-
-            <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                <h3>Target</h3>
-
-                <Field>
-                    <label>Target Action</label>
-                    <AutoComplete items={["replace", "child", "sibling", "remove"]} value={formValues["targetAction"]} onValueChange={(e: any) => {
-                        setFormValues({ ...formValues, "targetAction": e });
-                        formValidators["targetAction"](e);
-                    }} />
-                    {errors["targetAction"] && <Error>{errors["targetAction"]}</Error>}
-                </Field>
-
-                <Field>
-                    <label>Target Type</label>
-                    <AutoComplete items={["custom", "body", "property", "envelope", "key"]} value={formValues["targetType"]} onValueChange={(e: any) => {
-                        setFormValues({ ...formValues, "targetType": e });
-                        formValidators["targetType"](e);
-                    }} />
-                    {errors["targetType"] && <Error>{errors["targetType"]}</Error>}
-                </Field>
-
-                {(formValues["targetType"] && formValues["targetType"].toLowerCase() == "custom" || formValues["targetType"] && formValues["targetType"].toLowerCase() == "key") &&
-                    <Field>
-                        <TextField
-                            label="Target XPath / JSONPath"
-                            size={50}
-                            placeholder=""
-                            value={formValues["targetXPathJsonPath"]}
-                            onTextChange={(e: any) => {
-                                setFormValues({ ...formValues, "targetXPathJsonPath": e });
-                                formValidators["targetXPathJsonPath"](e);
-                            }}
-                            required={false}
-                        />
-                        {errors["targetXPathJsonPath"] && <Error>{errors["targetXPathJsonPath"]}</Error>}
-                    </Field>
-                }
-
-                {formValues["targetType"] && formValues["targetType"].toLowerCase() == "property" &&
-                    <Field>
-                        <TextField
-                            label="Target Property"
-                            size={50}
-                            placeholder=""
-                            value={formValues["targetProperty"]}
-                            onTextChange={(e: any) => {
-                                setFormValues({ ...formValues, "targetProperty": e });
-                                formValidators["targetProperty"](e);
-                            }}
-                            required={false}
-                        />
-                        {errors["targetProperty"] && <Error>{errors["targetProperty"]}</Error>}
-                    </Field>
-                }
-
-            </ComponentCard>
-
-            <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                <h3>Misc</h3>
-
-                <Field>
-                    <TextField
-                        label="Description"
-                        size={50}
-                        placeholder=""
-                        value={formValues["description"]}
-                        onTextChange={(e: any) => {
-                            setFormValues({ ...formValues, "description": e });
-                            formValidators["description"](e);
-                        }}
-                        required={false}
+                    <Controller
+                        name="cloneSource"
+                        control={control}
+                        render={({ field }) => (
+                            <VSCodeCheckbox type="checkbox" checked={field.value} onChange={(e: any) => {
+                                field.onChange(e);
+                            }}>Clone Source</VSCodeCheckbox>
+                        )}
                     />
-                    {errors["description"] && <Error>{errors["description"]}</Error>}
+                    {errors.cloneSource && <Error>{errors.cloneSource.message.toString()}</Error>}
                 </Field>
+
+                <Field>
+                    <Controller
+                        name="sourceType"
+                        control={control}
+                        render={({ field }) => (
+                            <AutoComplete label="Source Type" items={["custom", "envelope", "body", "property", "inline"]} value={field.value} onValueChange={(e: any) => {
+                                field.onChange(e);
+                            }} />
+                        )}
+                    />
+                    {errors.sourceType && <Error>{errors.sourceType.message.toString()}</Error>}
+                </Field>
+
+                {watch("sourceType") && watch("sourceType").toLowerCase() == "custom" &&
+                    <Field>
+                        <Controller
+                            name="sourceXPath"
+                            control={control}
+                            render={({ field }) => (
+                                <ExpressionField
+                                    {...field} label="Source XPath"
+                                    placeholder=""
+                                    canChange={false}
+                                    openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => {
+                                        sidePanelContext.setSidePanelState({
+                                            ...sidePanelContext,
+                                            expressionEditor: {
+                                                isOpen: true,
+                                                value,
+                                                setValue
+                                            }
+                                        });
+                                    }}
+                                />
+                            )}
+                        />
+                        {errors.sourceXPath && <Error>{errors.sourceXPath.message.toString()}</Error>}
+                    </Field>
+                }
+
+                {watch("sourceType") && watch("sourceType").toLowerCase() == "property" &&
+                    <Field>
+                        <Controller
+                            name="sourceProperty"
+                            control={control}
+                            render={({ field }) => (
+                                <TextField {...field} label="Source Property" size={50} placeholder="" />
+                            )}
+                        />
+                        {errors.sourceProperty && <Error>{errors.sourceProperty.message.toString()}</Error>}
+                    </Field>
+                }
+
+                {watch("sourceType") && watch("sourceType").toLowerCase() == "inline" &&
+                    <Field>
+                        <Controller
+                            name="inlineType"
+                            control={control}
+                            render={({ field }) => (
+                                <AutoComplete label="Inline Type" items={["Inline XML/JSON", "RegistryKey"]} value={field.value} onValueChange={(e: any) => {
+                                    field.onChange(e);
+                                }} />
+                            )}
+                        />
+                        {errors.inlineType && <Error>{errors.inlineType.message.toString()}</Error>}
+                    </Field>
+                }
+
+                {watch("sourceType") && watch("sourceType").toLowerCase() == "inline" &&watch("inlineType") && watch("inlineType").toLowerCase() == "inline xml/json"  &&
+                    <Field>
+                        <Controller
+                            name="sourceXML"
+                            control={control}
+                            render={({ field }) => (
+                                <TextArea {...field} label="Source XML" placeholder="" />
+                            )}
+                        />
+                        {errors.sourceXML && <Error>{errors.sourceXML.message.toString()}</Error>}
+                    </Field>
+                }
+
+                {watch("inlineType") && watch("inlineType").toLowerCase() == "registrykey" &&
+                    <Field>
+                        <Controller
+                            name="inlineRegistryKey"
+                            control={control}
+                            render={({ field }) => (
+                                <Keylookup
+                                    {...field}
+                                    label="Inline Registry Key"
+                                    allowItemCreate={false}
+                                />
+                            )}
+                        />
+                        {errors.inlineRegistryKey && <Error>{errors.inlineRegistryKey.message.toString()}</Error>}
+                    </Field>
+                }
 
             </ComponentCard>
 
+            <ComponentCard sx={cardStyle} disbaleHoverEffect>
+                <Typography variant="h3">Target</Typography>
 
-            <div style={{ display: "flex", textAlign: "right", justifyContent: "flex-end", marginTop: "10px" }}>
+                <Field>
+                    <Controller
+                        name="targetAction"
+                        control={control}
+                        render={({ field }) => (
+                            <AutoComplete label="Target Action" items={["replace", "child", "sibling", "remove"]} value={field.value} onValueChange={(e: any) => {
+                                field.onChange(e);
+                            }} />
+                        )}
+                    />
+                    {errors.targetAction && <Error>{errors.targetAction.message.toString()}</Error>}
+                </Field>
+
+                <Field>
+                    <Controller
+                        name="targetType"
+                        control={control}
+                        render={({ field }) => (
+                            <AutoComplete label="Target Type" items={["custom", "body", "property", "envelope", "key"]} value={field.value} onValueChange={(e: any) => {
+                                field.onChange(e);
+                            }} />
+                        )}
+                    />
+                    {errors.targetType && <Error>{errors.targetType.message.toString()}</Error>}
+                </Field>
+
+                {watch("targetType") && watch("targetType").toLowerCase() == "custom" ||watch("targetType") && watch("targetType").toLowerCase() == "key"  &&
+                    <Field>
+                        <Controller
+                            name="targetXPathJsonPath"
+                            control={control}
+                            render={({ field }) => (
+                                <TextField {...field} label="Target XPath / JSONPath" size={50} placeholder="" />
+                            )}
+                        />
+                        {errors.targetXPathJsonPath && <Error>{errors.targetXPathJsonPath.message.toString()}</Error>}
+                    </Field>
+                }
+
+                {watch("targetType") && watch("targetType").toLowerCase() == "property" &&
+                    <Field>
+                        <Controller
+                            name="targetProperty"
+                            control={control}
+                            render={({ field }) => (
+                                <TextField {...field} label="Target Property" size={50} placeholder="" />
+                            )}
+                        />
+                        {errors.targetProperty && <Error>{errors.targetProperty.message.toString()}</Error>}
+                    </Field>
+                }
+
+            </ComponentCard>
+
+            <Field>
+                <Controller
+                    name="description"
+                    control={control}
+                    render={({ field }) => (
+                        <TextField {...field} label="Description" size={50} placeholder="" />
+                    )}
+                />
+                {errors.description && <Error>{errors.description.message.toString()}</Error>}
+            </Field>
+
+
+            <div style={{ textAlign: "right", marginTop: "10px", float: "right" }}>
                 <Button
                     appearance="primary"
-                    onClick={onClick}
+                    onClick={handleSubmit(onClick)}
                 >
                     Submit
                 </Button>

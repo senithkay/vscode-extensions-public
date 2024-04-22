@@ -77,14 +77,16 @@ const ConditionalRouterForm = (props: AddMediatorProps) => {
 
     const [params, setParams] = useState(paramConfigs);
     const handleOnChange = (params: any) => {
-        const modifiedParams = { ...params, paramValues: params.paramValues.map((param: any) => {
-            return {
-                ...param,
-                key: param.parameters[1].value,
-                value: generateDisplayValue(param),
-                icon: "query"
-            }
-        })};
+        const modifiedParams = {
+            ...params, paramValues: params.paramValues.map((param: any) => {
+                return {
+                    ...param,
+                    key: param.parameters[1].value,
+                    value: generateDisplayValue(param),
+                    icon: "query"
+                }
+            })
+        };
         setParams(modifiedParams);
     };
 
@@ -141,10 +143,10 @@ const ConditionalRouterForm = (props: AddMediatorProps) => {
                 newErrors[key] = (error);
             }
         });
-        formValues["conditionalRouteBranches"] = params.paramValues.map(param => param.parameters.slice(0, 4).map(p => p.value));
+        formValues["conditionalRouteBranches"] = params.paramValues.map((param: any) => param.parameters.slice(0, 4).map((p: any) => p.value));
         params.paramValues.forEach(param => {
-            param.parameters.slice(0, 4).forEach(p => {
-                let key = p.label.toLowerCase().replace(/\s/g, '');
+            (param as any).parameters.slice(0, 4).forEach((p: any) => {
+                const key = p.label.toLowerCase().replace(/\s/g, '');
                 formValues[key] = p.value;
             });
         });

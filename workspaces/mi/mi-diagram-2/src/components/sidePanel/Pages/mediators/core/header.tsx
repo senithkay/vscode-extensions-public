@@ -6,23 +6,24 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
 */
+// AUTO-GENERATED FILE. DO NOT MODIFY.
 
-
-import React, { useEffect, useState } from 'react';
-import { AutoComplete, Button, ComponentCard, TextField } from '@wso2-enterprise/ui-toolkit';
+import React, { useEffect } from 'react';
+import { AutoComplete, Button, ComponentCard, ExpressionField, ExpressionFieldValue, ProgressIndicator, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
-import { AddMediatorProps, filterFormValues } from '../common';
+import { AddMediatorProps } from '../common';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
 import { MEDIATORS } from '../../../../../resources/constants';
+import { Controller, useForm } from 'react-hook-form';
 
 const cardStyle = { 
-   display: "block",
-   margin: "15px 0",
-   padding: "0 15px 15px 15px",
-   width: "auto",
-   cursor: "auto"
+    display: "block",
+    margin: "15px 0",
+    padding: "0 15px 15px 15px",
+    width: "auto",
+    cursor: "auto"
 };
 
 const Error = styled.span`
@@ -34,228 +35,190 @@ const Field = styled.div`
    margin-bottom: 12px;
 `;
 
-const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g;
-const nameWithoutSpecialCharactorsRegex = /^[a-zA-Z0-9]+$/g;
-
 const HeaderForm = (props: AddMediatorProps) => {
-   const { rpcClient } = useVisualizerContext();
-   const sidePanelContext = React.useContext(SidePanelContext);
-   const [formValues, setFormValues] = useState({} as { [key: string]: any });
-   const [errors, setErrors] = useState({} as any);
+    const { rpcClient } = useVisualizerContext();
+    const sidePanelContext = React.useContext(SidePanelContext);
+    const [ isLoading, setIsLoading ] = React.useState(true);
 
-   useEffect(() => {
-       if (sidePanelContext.formValues && Object.keys(sidePanelContext.formValues).length > 0) {
-           setFormValues({ ...formValues, ...sidePanelContext.formValues });
-       } else {
-           setFormValues({
-       "headerName": "To",
-       "headerAction": "set",
-       "scope": "default",
-       "valueType": "LITERAL",});
-       }
-   }, [sidePanelContext.formValues]);
+    const { control, formState: { errors }, handleSubmit, watch, reset } = useForm();
 
-   const onClick = async () => {
-       const newErrors = {} as any;
-       Object.keys(formValidators).forEach((key) => {
-           const error = formValidators[key]();
-           if (error) {
-               newErrors[key] = (error);
-           }
-       });
-       if (Object.keys(newErrors).length > 0) {
-           setErrors(newErrors);
-       } else {
-           if (formValues["headerAction"] == "set") {
-               const keysToExclude = [];
-               if (formValues["valueType"] == "LITERAL") {
-                   keysToExclude.push(...["valueExpression", "valueInline"]);
-               } else if (formValues["valueType"] == "EXPRESSION") {
-                   keysToExclude.push(...["valueLiteral", "valueInline"]);
-               } else {
-                   keysToExclude.push(...["valueLiteral", "valueExpression"]);
-               }
-               setFormValues(filterFormValues(formValues, null, keysToExclude));
-           } else {
-               const keysToInclude = ["headerName", "headerAction", "scope", "description"]
-               setFormValues(filterFormValues(formValues, keysToInclude, null));
-           }
+    useEffect(() => {
+        reset({
+            headerName: sidePanelContext?.formValues?.headerName || {"isExpression":true,"value":"To"},
+            headerAction: sidePanelContext?.formValues?.headerAction || "set",
+            scope: sidePanelContext?.formValues?.scope || "default",
+            valueType: sidePanelContext?.formValues?.valueType || "LITERAL",
+            valueLiteral: sidePanelContext?.formValues?.valueLiteral || "",
+            valueExpression: sidePanelContext?.formValues?.valueExpression || {"isExpression":true,"value":""},
+            valueInline: sidePanelContext?.formValues?.valueInline || "",
+            description: sidePanelContext?.formValues?.description || "",
+        });
+        setIsLoading(false);
+    }, [sidePanelContext.formValues]);
 
-           const xml = getXML(MEDIATORS.HEADER, formValues);
-           rpcClient.getMiDiagramRpcClient().applyEdit({
-               documentUri: props.documentUri, range: props.nodePosition, text: xml
-           });
-           sidePanelContext.setSidePanelState({
-                ...sidePanelContext,
-                isOpen: false,
-                isEditing: false,
-                formValues: undefined,
-                nodeRange: undefined,
-                operationName: undefined
-              });
-       }
-   };
+    const onClick = async (values: any) => {
+        
+        const xml = getXML(MEDIATORS.HEADER, values);
+        rpcClient.getMiDiagramRpcClient().applyEdit({
+            documentUri: props.documentUri, range: props.nodePosition, text: xml
+        });
+        sidePanelContext.setSidePanelState({
+            ...sidePanelContext,
+            isOpen: false,
+            isEditing: false,
+            formValues: undefined,
+            nodeRange: undefined,
+            operationName: undefined
+        });
+    };
 
-   const formValidators: { [key: string]: (e?: any) => string | undefined } = {
-       "headerName": (e?: any) => validateField("headerName", e, false),
-       "headerAction": (e?: any) => validateField("headerAction", e, false),
-       "scope": (e?: any) => validateField("scope", e, false),
-       "valueType": (e?: any) => validateField("valueType", e, false),
-       "valueLiteral": (e?: any) => validateField("valueLiteral", e, false),
-       "valueExpression": (e?: any) => validateField("valueExpression", e, false),
-       "valueInline": (e?: any) => validateField("valueInline", e, false),
-       "description": (e?: any) => validateField("description", e, false),
+    if (isLoading) {
+        return <ProgressIndicator/>;
+    }
+    return (
+        <div style={{ padding: "10px" }}>
+            <Typography variant="body3"></Typography>
 
-   };
+            <Field>
+                <Controller
+                    name="headerName"
+                    control={control}
+                    render={({ field }) => (
+                        <ExpressionField
+                            {...field} label="Header Name"
+                            placeholder=""
+                            canChange={false}
+                            openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => {
+                                sidePanelContext.setSidePanelState({
+                                    ...sidePanelContext,
+                                    expressionEditor: {
+                                        isOpen: true,
+                                        value,
+                                        setValue
+                                    }
+                                });
+                            }}
+                        />
+                    )}
+                />
+                {errors.headerName && <Error>{errors.headerName.message.toString()}</Error>}
+            </Field>
 
-   const validateField = (id: string, e: any, isRequired: boolean, validation?: "e-mail" | "nameWithoutSpecialCharactors" | "custom", regex?: string): string => {
-       const value = e ?? formValues[id];
-       const newErrors = { ...errors };
-       let error;
-       if (isRequired && !value) {
-           error = "This field is required";
-       } else if (validation === "e-mail" && !value.match(emailRegex)) {
-           error = "Invalid e-mail address";
-       } else if (validation === "nameWithoutSpecialCharactors" && !value.match(nameWithoutSpecialCharactorsRegex)) {
-           error = "Invalid name";
-       } else if (validation === "custom" && !value.match(regex)) {
-           error = "Invalid input";
-       } else {
-           delete newErrors[id];
-           setErrors(newErrors);
-       }
-       setErrors({ ...errors, [id]: error });
-       return error;
-   };
+            <Field>
+                <Controller
+                    name="headerAction"
+                    control={control}
+                    render={({ field }) => (
+                        <AutoComplete label="Header Action" items={["set", "remove"]} value={field.value} onValueChange={(e: any) => {
+                            field.onChange(e);
+                        }} />
+                    )}
+                />
+                {errors.headerAction && <Error>{errors.headerAction.message.toString()}</Error>}
+            </Field>
 
-   return (
-       <div style={{ padding: "10px" }}>
+            <Field>
+                <Controller
+                    name="scope"
+                    control={control}
+                    render={({ field }) => (
+                        <AutoComplete label="Scope" items={["default", "transport"]} value={field.value} onValueChange={(e: any) => {
+                            field.onChange(e);
+                        }} />
+                    )}
+                />
+                {errors.scope && <Error>{errors.scope.message.toString()}</Error>}
+            </Field>
 
-            <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                <h3>Properties</h3>
+            {watch("headerAction") && watch("headerAction").toLowerCase() == "set" &&
+                <ComponentCard sx={cardStyle} disbaleHoverEffect>
+                    <Typography variant="h3">HeaderValue</Typography>
 
-                <Field>
-                    <TextField
-                        label="Header Name"
-                        size={50}
-                        placeholder=""
-                        value={formValues["headerName"]}
-                        onTextChange={(e: any) => {
-                            setFormValues({ ...formValues, "headerName": e });
-                            formValidators["headerName"](e);
-                        }}
-                        required={false}
-                    />
-                    {errors["headerName"] && <Error>{errors["headerName"]}</Error>}
-                </Field>
+                    <Field>
+                        <Controller
+                            name="valueType"
+                            control={control}
+                            render={({ field }) => (
+                                <AutoComplete label="Value Type" items={["LITERAL", "EXPRESSION", "INLINE"]} value={field.value} onValueChange={(e: any) => {
+                                    field.onChange(e);
+                                }} />
+                            )}
+                        />
+                        {errors.valueType && <Error>{errors.valueType.message.toString()}</Error>}
+                    </Field>
 
-                <Field>
-                    <label>Header Action</label>
-                    <AutoComplete items={["set", "remove"]} value={formValues["headerAction"]} onValueChange={(e: any) => {
-                        setFormValues({ ...formValues, "headerAction": e });
-                        formValidators["headerAction"](e);
-                    }} />
-                    {errors["headerAction"] && <Error>{errors["headerAction"]}</Error>}
-                </Field>
-
-                <Field>
-                    <label>Scope</label>
-                    <AutoComplete items={["default", "transport"]} value={formValues["scope"]} onValueChange={(e: any) => {
-                        setFormValues({ ...formValues, "scope": e });
-                        formValidators["scope"](e);
-                    }} />
-                    {errors["scope"] && <Error>{errors["scope"]}</Error>}
-                </Field>
-
-                {formValues["headerAction"] && formValues["headerAction"].toLowerCase() == "set" &&
-                    <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                        <h3>HeaderValue</h3>
-
+                    {watch("valueType") && watch("valueType").toLowerCase() == "literal" &&
                         <Field>
-                            <label>Value Type</label>
-                            <AutoComplete items={["LITERAL", "EXPRESSION", "INLINE"]} value={formValues["valueType"]} onValueChange={(e: any) => {
-                                setFormValues({ ...formValues, "valueType": e });
-                                formValidators["valueType"](e);
-                            }} />
-                            {errors["valueType"] && <Error>{errors["valueType"]}</Error>}
+                            <Controller
+                                name="valueLiteral"
+                                control={control}
+                                render={({ field }) => (
+                                    <TextField {...field} label="Value Literal" size={50} placeholder="" />
+                                )}
+                            />
+                            {errors.valueLiteral && <Error>{errors.valueLiteral.message.toString()}</Error>}
                         </Field>
+                    }
 
-                        {formValues["valueType"] && formValues["valueType"].toLowerCase() == "literal" &&
-                            <Field>
-                                <TextField
-                                    label="Value Literal"
-                                    size={50}
-                                    placeholder=""
-                                    value={formValues["valueLiteral"]}
-                                    onTextChange={(e: any) => {
-                                        setFormValues({ ...formValues, "valueLiteral": e });
-                                        formValidators["valueLiteral"](e);
-                                    }}
-                                    required={false}
-                                />
-                                {errors["valueLiteral"] && <Error>{errors["valueLiteral"]}</Error>}
-                            </Field>
-                        }
+                    {watch("valueType") && watch("valueType").toLowerCase() == "expression" &&
+                        <Field>
+                            <Controller
+                                name="valueExpression"
+                                control={control}
+                                render={({ field }) => (
+                                    <ExpressionField
+                                        {...field} label="Value Expression"
+                                        placeholder=""
+                                        canChange={false}
+                                        openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => {
+                                            sidePanelContext.setSidePanelState({
+                                                ...sidePanelContext,
+                                                expressionEditor: {
+                                                    isOpen: true,
+                                                    value,
+                                                    setValue
+                                                }
+                                            });
+                                        }}
+                                    />
+                                )}
+                            />
+                            {errors.valueExpression && <Error>{errors.valueExpression.message.toString()}</Error>}
+                        </Field>
+                    }
 
-                        {formValues["valueType"] && formValues["valueType"].toLowerCase() == "expression" &&
-                            <Field>
-                                <TextField
-                                    label="Value Expression"
-                                    size={50}
-                                    placeholder=""
-                                    value={formValues["valueExpression"]}
-                                    onTextChange={(e: any) => {
-                                        setFormValues({ ...formValues, "valueExpression": e });
-                                        formValidators["valueExpression"](e);
-                                    }}
-                                    required={false}
-                                />
-                                {errors["valueExpression"] && <Error>{errors["valueExpression"]}</Error>}
-                            </Field>
-                        }
+                    {watch("valueType") && watch("valueType").toLowerCase() == "inline" &&
+                        <Field>
+                            <Controller
+                                name="valueInline"
+                                control={control}
+                                render={({ field }) => (
+                                    <TextField {...field} label="Value Inline" size={50} placeholder="" />
+                                )}
+                            />
+                            {errors.valueInline && <Error>{errors.valueInline.message.toString()}</Error>}
+                        </Field>
+                    }
 
-                        {formValues["valueType"] && formValues["valueType"].toLowerCase() == "inline" &&
-                            <Field>
-                                <TextField
-                                    label="Value Inline"
-                                    size={50}
-                                    placeholder=""
-                                    value={formValues["valueInline"]}
-                                    onTextChange={(e: any) => {
-                                        setFormValues({ ...formValues, "valueInline": e });
-                                        formValidators["valueInline"](e);
-                                    }}
-                                    required={false}
-                                />
-                                {errors["valueInline"] && <Error>{errors["valueInline"]}</Error>}
-                            </Field>
-                        }
+                </ComponentCard>
+            }
 
-                    </ComponentCard>
-                }
-
-                <Field>
-                    <TextField
-                        label="Description"
-                        size={50}
-                        placeholder=""
-                        value={formValues["description"]}
-                        onTextChange={(e: any) => {
-                            setFormValues({ ...formValues, "description": e });
-                            formValidators["description"](e);
-                        }}
-                        required={false}
-                    />
-                    {errors["description"] && <Error>{errors["description"]}</Error>}
-                </Field>
-
-            </ComponentCard>
+            <Field>
+                <Controller
+                    name="description"
+                    control={control}
+                    render={({ field }) => (
+                        <TextField {...field} label="Description" size={50} placeholder="" />
+                    )}
+                />
+                {errors.description && <Error>{errors.description.message.toString()}</Error>}
+            </Field>
 
 
-            <div style={{ display: "flex", textAlign: "right", justifyContent: "flex-end", marginTop: "10px" }}>
+            <div style={{ textAlign: "right", marginTop: "10px", float: "right" }}>
                 <Button
                     appearance="primary"
-                    onClick={onClick}
+                    onClick={handleSubmit(onClick)}
                 >
                     Submit
                 </Button>

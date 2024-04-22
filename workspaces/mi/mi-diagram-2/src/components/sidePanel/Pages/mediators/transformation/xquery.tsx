@@ -6,18 +6,19 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
 */
+// AUTO-GENERATED FILE. DO NOT MODIFY.
 
-
-import React, { useEffect, useState } from 'react';
-import { AutoComplete, Button, ComponentCard, ParamConfig, ParamManager, TextField } from '@wso2-enterprise/ui-toolkit';
+import React, { useEffect } from 'react';
+import { AutoComplete, Button, ComponentCard, ExpressionField, ExpressionFieldValue, ParamManager, ProgressIndicator, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
 import { AddMediatorProps } from '../common';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
 import { MEDIATORS } from '../../../../../resources/constants';
+import { Controller, useForm } from 'react-hook-form';
 
-const cardStyle = {
+const cardStyle = { 
     display: "block",
     margin: "15px 0",
     padding: "0 15px 15px 15px",
@@ -34,318 +35,318 @@ const Field = styled.div`
    margin-bottom: 12px;
 `;
 
-const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g;
-const nameWithoutSpecialCharactorsRegex = /^[a-zA-Z0-9]+$/g;
-
-const generateDisplayValue = (paramValues: any) => {
-    const value = paramValues.parameters[2].value === "LITERAL" ? paramValues.parameters[3].value : paramValues.parameters[4].value
-    const result: string = paramValues.parameters[1].value + " " + value;
-    return result.trim();
-};
-
 const XQueryForm = (props: AddMediatorProps) => {
     const { rpcClient } = useVisualizerContext();
     const sidePanelContext = React.useContext(SidePanelContext);
-    const [formValues, setFormValues] = useState({} as { [key: string]: any });
-    const [errors, setErrors] = useState({} as any);
+    const [ isLoading, setIsLoading ] = React.useState(true);
 
-    const paramConfigs: ParamConfig = {
-        paramValues: [],
-        paramFields: [
-            {
-                id: 0,
-                type: "TextField",
-                label: "Variable Name",
-                defaultValue: "",
-                isRequired: false
-            },
-            {
-                id: 1,
-                type: "Dropdown",
-                label: "Variable Type",
-                defaultValue: "STRING",
-                isRequired: false,
-                values: ["DOCUMENT", "DOCUMENT_ELEMENT", "ELEMENT", "INT", "INTEGER", "BOOLEAN", "BYTE", "DOUBLE", "SHORT", "LONG", "FLOAT", "STRING"]
-            },
-            {
-                id: 2,
-                type: "Dropdown",
-                label: "Variable Option",
-                defaultValue: "LITERAL",
-                isRequired: false,
-                values: ["LITERAL", "EXPRESSION"]
-            },
-            {
-                id: 3,
-                type: "TextField",
-                label: "Variable Literal",
-                defaultValue: "",
-                isRequired: false,
-                enableCondition: [{ 2: "LITERAL" }]
-            },
-            {
-                id: 4,
-                type: "TextField",
-                label: "Variable Expression",
-                defaultValue: "",
-                isRequired: false,
-                enableCondition: [{ 2: "EXPRESSION" }]
-            },
-            {
-                id: 5,
-                type: "TextField",
-                label: "Variable Key",
-                defaultValue: "",
-                isRequired: false
-            }]
-    };
-
-    const [params, setParams] = useState(paramConfigs);
-
-    const handleOnChange = (params: any) => {
-        const modifiedParams = { ...params, paramValues: params.paramValues.map((param: any) => {
-            return {
-                ...param,
-                key: param.parameters[0].value,
-                value: generateDisplayValue(param),
-                icon: "query"
-            }
-        })};
-        setParams(modifiedParams);
-    };
+    const { control, formState: { errors }, handleSubmit, watch, reset } = useForm();
 
     useEffect(() => {
-        if (sidePanelContext.formValues && Object.keys(sidePanelContext.formValues).length > 0) {
-            setFormValues({ ...formValues, ...sidePanelContext.formValues });
-            if (sidePanelContext.formValues["variables"] && sidePanelContext.formValues["variables"].length > 0) {
-                const paramValues = sidePanelContext.formValues["variables"].map((property: string, index: string) => (
+        reset({
+            scriptKeyType: sidePanelContext?.formValues?.scriptKeyType || "Static",
+            staticScriptKey: sidePanelContext?.formValues?.staticScriptKey || "",
+            dynamicScriptKey: sidePanelContext?.formValues?.dynamicScriptKey || {"isExpression":true,"value":""},
+            targetXPath: sidePanelContext?.formValues?.targetXPath || {"isExpression":true,"value":""},
+            variables: {
+                paramValues: sidePanelContext?.formValues?.variables && sidePanelContext?.formValues?.variables.map((property: string|ExpressionFieldValue[], index: string) => (
                     {
                         id: index,
-                        parameters: [
+                        key: typeof property[0] === 'object' ? property[0].value : property[0],
+                        value: typeof property[3] === 'object' ? property[3].value : property[3],
+                        icon: 'query',
+                        paramValues: [
+                            { value: property[0] },
+                            { value: property[1] },
+                            { value: property[2] },
+                            { value: property[3] },
+                            { value: property[4] },
+                            { value: property[5] },
+                        ]
+                    }
+                )) || [] as string[][],
+                paramFields: [
+                    {
+                        "type": "TextField",
+                        "label": "Variable Name",
+                        "defaultValue": "",
+                        "isRequired": false, 
+                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
+                            sidePanelContext.setSidePanelState({
+                                ...sidePanelContext,
+                                expressionEditor: {
+                                    isOpen: true,
+                                    value,
+                                    setValue
+                                }
+                            });
+                        }},
+                    {
+                        "type": "Dropdown",
+                        "label": "Variable Type",
+                        "defaultValue": "STRING",
+                        "isRequired": false,
+                        "values": [
+                            "DOCUMENT",
+                            "DOCUMENT_ELEMENT",
+                            "ELEMENT",
+                            "INT",
+                            "INTEGER",
+                            "BOOLEAN",
+                            "BYTE",
+                            "DOUBLE",
+                            "SHORT",
+                            "LONG",
+                            "FLOAT",
+                            "STRING"
+                        ], 
+                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
+                            sidePanelContext.setSidePanelState({
+                                ...sidePanelContext,
+                                expressionEditor: {
+                                    isOpen: true,
+                                    value,
+                                    setValue
+                                }
+                            });
+                        }},
+                    {
+                        "type": "Dropdown",
+                        "label": "Variable Option",
+                        "defaultValue": "LITERAL",
+                        "isRequired": false,
+                        "values": [
+                            "LITERAL",
+                            "EXPRESSION"
+                        ], 
+                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
+                            sidePanelContext.setSidePanelState({
+                                ...sidePanelContext,
+                                expressionEditor: {
+                                    isOpen: true,
+                                    value,
+                                    setValue
+                                }
+                            });
+                        }},
+                    {
+                        "type": "TextField",
+                        "label": "Variable Literal",
+                        "defaultValue": "",
+                        "isRequired": false,
+                        "enableCondition": [
                             {
-                                id: 0,
-                                label: "variableName",
-                                type: "TextField",
-                                value: property[0],
-                                isRequired: false
-                            },
-                            {
-                                id: 1,
-                                label: "variableType",
-                                type: "Dropdown",
-                                value: property[1],
-                                isRequired: true,
-                                values: ["DOCUMENT", "DOCUMENT_ELEMENT", "ELEMENT", "INT", "INTEGER", "BOOLEAN", "BYTE", "DOUBLE", "SHORT", "LONG", "FLOAT", "STRING"]
-                            },
-                            {
-                                id: 2,
-                                label: "variableOption",
-                                type: "Dropdown",
-                                value: property[2],
-                                isRequired: true,
-                                values: ["LITERAL", "EXPRESSION"]
-                            },
-                            {
-                                id: 3,
-                                label: "variableLiteral",
-                                type: "TextField",
-                                value: property[3],
-                                isRequired: false
-                            },
-                            {
-                                id: 4,
-                                label: "variableExpression",
-                                type: "TextField",
-                                value: property[4],
-                                isRequired: false
-                            },
-                            {
-                                id: 5,
-                                label: "variableKey",
-                                type: "TextField",
-                                value: property[5],
-                                isRequired: false
+                                "1": "LITERAL"
                             }
-                        ],
-                        key: property[0],
-                        value: property[1] + " " + property[2] === "LITERAL" ? property[3] : property[4],
-                        icon: "query"
-                    })
-                )
-                setParams({ ...params, paramValues: paramValues });
-            }
-        } else {
-            setFormValues({
-                "scriptKeyType": "Static",
-                "variables": [] as string[][],
-            });
-        }
+                        ], 
+                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
+                            sidePanelContext.setSidePanelState({
+                                ...sidePanelContext,
+                                expressionEditor: {
+                                    isOpen: true,
+                                    value,
+                                    setValue
+                                }
+                            });
+                        }},
+                    {
+                        "type": "TextField",
+                        "label": "Variable Expression",
+                        "defaultValue": "",
+                        "isRequired": false,
+                        "enableCondition": [
+                            {
+                                "1": "EXPRESSION"
+                            }
+                        ], 
+                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
+                            sidePanelContext.setSidePanelState({
+                                ...sidePanelContext,
+                                expressionEditor: {
+                                    isOpen: true,
+                                    value,
+                                    setValue
+                                }
+                            });
+                        }},
+                    {
+                        "type": "TextField",
+                        "label": "Variable Key",
+                        "defaultValue": "",
+                        "isRequired": false, 
+                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
+                            sidePanelContext.setSidePanelState({
+                                ...sidePanelContext,
+                                expressionEditor: {
+                                    isOpen: true,
+                                    value,
+                                    setValue
+                                }
+                            });
+                        }},
+                ]
+            },
+            description: sidePanelContext?.formValues?.description || "",
+        });
+        setIsLoading(false);
     }, [sidePanelContext.formValues]);
 
-    const onClick = async () => {
-        const newErrors = {} as any;
-        Object.keys(formValidators).forEach((key) => {
-            const error = formValidators[key]();
-            if (error) {
-                newErrors[key] = (error);
-            }
+    const onClick = async (values: any) => {
+        
+        values["variables"] = values.variables.paramValues.map((param: any) => param.paramValues.map((p: any) => p.value));
+        const xml = getXML(MEDIATORS.XQUERY, values);
+        rpcClient.getMiDiagramRpcClient().applyEdit({
+            documentUri: props.documentUri, range: props.nodePosition, text: xml
         });
-        formValues["variables"] = params.paramValues.map(param => param.parameters.slice(0, 6).map(p => p.value));
-        params.paramValues.forEach(param => {
-            param.parameters.slice(0, 6).forEach(p => {
-                let key = p.label.toLowerCase().replace(/\s/g, '');
-                formValues[key] = p.value;
-            });
+        sidePanelContext.setSidePanelState({
+            ...sidePanelContext,
+            isOpen: false,
+            isEditing: false,
+            formValues: undefined,
+            nodeRange: undefined,
+            operationName: undefined
         });
-
-        if (Object.keys(newErrors).length > 0) {
-            setErrors(newErrors);
-        } else {
-            const xml = getXML(MEDIATORS.XQUERY, formValues);
-            rpcClient.getMiDiagramRpcClient().applyEdit({
-                documentUri: props.documentUri, range: props.nodePosition, text: xml
-            });
-            sidePanelContext.setSidePanelState({
-                ...sidePanelContext,
-                isOpen: false,
-                isEditing: false,
-                formValues: undefined,
-                nodeRange: undefined,
-                operationName: undefined
-            });
-        }
     };
 
-    const formValidators: { [key: string]: (e?: any) => string | undefined } = {
-        "scriptKeyType": (e?: any) => validateField("scriptKeyType", e, false),
-        "staticScriptKey": (e?: any) => validateField("staticScriptKey", e, false),
-        "dynamicScriptKey": (e?: any) => validateField("dynamicScriptKey", e, false),
-        "targetXPath": (e?: any) => validateField("targetXPath", e, false),
-        "description": (e?: any) => validateField("description", e, false),
-
-    };
-
-    const validateField = (id: string, e: any, isRequired: boolean, validation?: "e-mail" | "nameWithoutSpecialCharactors" | "custom", regex?: string): string => {
-        const value = e ?? formValues[id];
-        const newErrors = { ...errors };
-        let error;
-        if (isRequired && !value) {
-            error = "This field is required";
-        } else if (validation === "e-mail" && !value.match(emailRegex)) {
-            error = "Invalid e-mail address";
-        } else if (validation === "nameWithoutSpecialCharactors" && !value.match(nameWithoutSpecialCharactorsRegex)) {
-            error = "Invalid name";
-        } else if (validation === "custom" && !value.match(regex)) {
-            error = "Invalid input";
-        } else {
-            delete newErrors[id];
-            setErrors(newErrors);
-        }
-        setErrors({ ...errors, [id]: error });
-        return error;
-    };
-
+    if (isLoading) {
+        return <ProgressIndicator/>;
+    }
     return (
         <div style={{ padding: "10px" }}>
+            <Typography variant="body3"></Typography>
 
             <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                <h3>Properties</h3>
+                <Typography variant="h3">Properties</Typography>
 
                 <Field>
-                    <label>Script Key Type</label>
-                    <AutoComplete items={["Static", "Dynamic"]} value={formValues["scriptKeyType"]} onValueChange={(e: any) => {
-                        setFormValues({ ...formValues, "scriptKeyType": e });
-                        formValidators["scriptKeyType"](e);
-                    }} />
-                    {errors["scriptKeyType"] && <Error>{errors["scriptKeyType"]}</Error>}
+                    <Controller
+                        name="scriptKeyType"
+                        control={control}
+                        render={({ field }) => (
+                            <AutoComplete label="Script Key Type" items={["Static", "Dynamic"]} value={field.value} onValueChange={(e: any) => {
+                                field.onChange(e);
+                            }} />
+                        )}
+                    />
+                    {errors.scriptKeyType && <Error>{errors.scriptKeyType.message.toString()}</Error>}
                 </Field>
 
-                {formValues["scriptKeyType"] && formValues["scriptKeyType"].toLowerCase() == "static" &&
+                {watch("scriptKeyType") && watch("scriptKeyType").toLowerCase() == "static" &&
                     <Field>
-                        <TextField
-                            label="Static Script Key"
-                            size={50}
-                            placeholder=""
-                            value={formValues["staticScriptKey"]}
-                            onTextChange={(e: any) => {
-                                setFormValues({ ...formValues, "staticScriptKey": e });
-                                formValidators["staticScriptKey"](e);
-                            }}
-                            required={false}
+                        <Controller
+                            name="staticScriptKey"
+                            control={control}
+                            render={({ field }) => (
+                                <TextField {...field} label="Static Script Key" size={50} placeholder="" />
+                            )}
                         />
-                        {errors["staticScriptKey"] && <Error>{errors["staticScriptKey"]}</Error>}
+                        {errors.staticScriptKey && <Error>{errors.staticScriptKey.message.toString()}</Error>}
                     </Field>
                 }
 
-                {formValues["scriptKeyType"] && formValues["scriptKeyType"].toLowerCase() == "dynamic" &&
+                {watch("scriptKeyType") && watch("scriptKeyType").toLowerCase() == "dynamic" &&
                     <Field>
-                        <TextField
-                            label="Dynamic Script Key"
-                            size={50}
-                            placeholder=""
-                            value={formValues["dynamicScriptKey"]}
-                            onTextChange={(e: any) => {
-                                setFormValues({ ...formValues, "dynamicScriptKey": e });
-                                formValidators["dynamicScriptKey"](e);
-                            }}
-                            required={false}
+                        <Controller
+                            name="dynamicScriptKey"
+                            control={control}
+                            render={({ field }) => (
+                                <ExpressionField
+                                    {...field} label="Dynamic Script Key"
+                                    placeholder=""
+                                    canChange={false}
+                                    openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => {
+                                        sidePanelContext.setSidePanelState({
+                                            ...sidePanelContext,
+                                            expressionEditor: {
+                                                isOpen: true,
+                                                value,
+                                                setValue
+                                            }
+                                        });
+                                    }}
+                                />
+                            )}
                         />
-                        {errors["dynamicScriptKey"] && <Error>{errors["dynamicScriptKey"]}</Error>}
+                        {errors.dynamicScriptKey && <Error>{errors.dynamicScriptKey.message.toString()}</Error>}
                     </Field>
                 }
 
                 <Field>
-                    <TextField
-                        label="Target XPath"
-                        size={50}
-                        placeholder=""
-                        value={formValues["targetXPath"]}
-                        onTextChange={(e: any) => {
-                            setFormValues({ ...formValues, "targetXPath": e });
-                            formValidators["targetXPath"](e);
-                        }}
-                        required={false}
+                    <Controller
+                        name="targetXPath"
+                        control={control}
+                        render={({ field }) => (
+                            <ExpressionField
+                                {...field} label="Target XPath"
+                                placeholder=""
+                                canChange={false}
+                                openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => {
+                                    sidePanelContext.setSidePanelState({
+                                        ...sidePanelContext,
+                                        expressionEditor: {
+                                            isOpen: true,
+                                            value,
+                                            setValue
+                                        }
+                                    });
+                                }}
+                            />
+                        )}
                     />
-                    {errors["targetXPath"] && <Error>{errors["targetXPath"]}</Error>}
+                    {errors.targetXPath && <Error>{errors.targetXPath.message.toString()}</Error>}
                 </Field>
 
                 <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                    <h3>Variables</h3>
+                    <Typography variant="h3">Variables</Typography>
 
                     <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                        <h3>Variables</h3>
+                        <Typography variant="h3">Variables</Typography>
+                        <Typography variant="body3">Editing of the properties of an object XQuery Variable</Typography>
 
-                        {formValues["variables"] && (
-                            <ParamManager
-                                paramConfigs={params}
-                                readonly={false}
-                                onChange={handleOnChange} />
-                        )}
+                        <Controller
+                            name="variables"
+                            control={control}
+                            render={({ field: { onChange, value } }) => (
+                                <ParamManager
+                                    paramConfigs={value}
+                                    readonly={false}
+                                    onChange= {(values) => {
+                                        values.paramValues = values.paramValues.map((param: any, index: number) => {
+                                            const paramValues = param.paramValues;
+                                            param.key = paramValues[0].value;
+                                            param.value = paramValues[3].value;
+                                            if (paramValues[1]?.value?.isExpression) {
+                                                param.namespaces = paramValues[1].value.namespaces;
+                                            }
+                                            param.icon = 'query';
+                                            return param;
+                                        });
+                                        onChange(values);
+                                    }}
+                                />
+                            )}
+                        />
                     </ComponentCard>
                 </ComponentCard>
 
                 <Field>
-                    <TextField
-                        label="Description"
-                        size={50}
-                        placeholder=""
-                        value={formValues["description"]}
-                        onTextChange={(e: any) => {
-                            setFormValues({ ...formValues, "description": e });
-                            formValidators["description"](e);
-                        }}
-                        required={false}
+                    <Controller
+                        name="description"
+                        control={control}
+                        render={({ field }) => (
+                            <TextField {...field} label="Description" size={50} placeholder="" />
+                        )}
                     />
-                    {errors["description"] && <Error>{errors["description"]}</Error>}
+                    {errors.description && <Error>{errors.description.message.toString()}</Error>}
                 </Field>
 
             </ComponentCard>
 
 
-            <div style={{ display: "flex", textAlign: "right", justifyContent: "flex-end", marginTop: "10px" }}>
+            <div style={{ textAlign: "right", marginTop: "10px", float: "right" }}>
                 <Button
                     appearance="primary"
-                    onClick={onClick}
+                    onClick={handleSubmit(onClick)}
                 >
                     Submit
                 </Button>

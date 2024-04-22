@@ -6,24 +6,25 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
 */
+// AUTO-GENERATED FILE. DO NOT MODIFY.
 
-
-import React, { useEffect, useState } from 'react';
-import { AutoComplete, Button, ComponentCard, TextField } from '@wso2-enterprise/ui-toolkit';
+import React, { useEffect } from 'react';
+import { AutoComplete, Button, ComponentCard, ExpressionField, ExpressionFieldValue, ProgressIndicator, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
 import { VSCodeCheckbox } from '@vscode/webview-ui-toolkit/react';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
-import { AddMediatorProps, filterFormValues } from '../common';
+import { AddMediatorProps } from '../common';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
 import { MEDIATORS } from '../../../../../resources/constants';
+import { Controller, useForm } from 'react-hook-form';
 
 const cardStyle = { 
-   display: "block",
-   margin: "15px 0",
-   padding: "0 15px 15px 15px",
-   width: "auto",
-   cursor: "auto"
+    display: "block",
+    margin: "15px 0",
+    padding: "0 15px 15px 15px",
+    width: "auto",
+    cursor: "auto"
 };
 
 const Error = styled.span`
@@ -35,409 +36,360 @@ const Field = styled.div`
    margin-bottom: 12px;
 `;
 
-const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g;
-const nameWithoutSpecialCharactorsRegex = /^[a-zA-Z0-9]+$/g;
-
 const CalloutForm = (props: AddMediatorProps) => {
-   const { rpcClient } = useVisualizerContext();
-   const sidePanelContext = React.useContext(SidePanelContext);
-   const [formValues, setFormValues] = useState({} as { [key: string]: any });
-   const [errors, setErrors] = useState({} as any);
+    const { rpcClient } = useVisualizerContext();
+    const sidePanelContext = React.useContext(SidePanelContext);
+    const [ isLoading, setIsLoading ] = React.useState(true);
 
-   useEffect(() => {
-       if (sidePanelContext.formValues && Object.keys(sidePanelContext.formValues).length > 0) {
-           setFormValues({ ...formValues, ...sidePanelContext.formValues });
-       } else {
-           setFormValues({
-               "initAxis2ClientOptions": false,
-               "payloadType": "XPATH",
-               "resultType": "XPATH",
-               "securityType": "TRUE",
-               "policies": "TRUE",
-               "endpointType": "URL"
-           });
-       }
-   }, [sidePanelContext.formValues]);
+    const { control, formState: { errors }, handleSubmit, watch, reset } = useForm();
 
-   const onClick = async () => {
-       const newErrors = {} as any;
-       Object.keys(formValidators).forEach((key) => {
-           const error = formValidators[key]();
-           if (error) {
-               newErrors[key] = (error);
-           }
-       });
-       if (Object.keys(newErrors).length > 0) {
-           setErrors(newErrors);
-       } else {
-           const keysToExclude = []
-           keysToExclude.push(formValues["endpointType"] == "URL" ? "addressEndpoint" : "serviceURL");
-           formValues["payloadType"] == "XPATH" ? keysToExclude.push("payloadProperty") :
-               formValues["payloadType"] == "PROPERTY" ? keysToExclude.push("payloadMessageXPath") : keysToExclude.push(...["payloadProperty", "payloadMessageXPath"]);
-           formValues["resultType"] == "XPATH" ? keysToExclude.push("resultContextProperty") : keysToExclude.push("resultMessageXPath");
-           formValues["securityType"] == "FALSE" ? keysToExclude.push(...["policies", "policyKey", "outboundPolicyKey", "inboundPolicyKey"]) :
-               formValues["policies"] == "TRUE" ? keysToExclude.push("policyKey") : keysToExclude.push(...["outboundPolicyKey", "inboundPolicyKey"]);
-           setFormValues(filterFormValues(formValues, null, keysToExclude));
-           const xml = getXML(MEDIATORS.CALLOUT, formValues);
-           rpcClient.getMiDiagramRpcClient().applyEdit({
-               documentUri: props.documentUri, range: props.nodePosition, text: xml
-           });
-           sidePanelContext.setSidePanelState({
-                ...sidePanelContext,
-                isOpen: false,
-                isEditing: false,
-                formValues: undefined,
-                nodeRange: undefined,
-                operationName: undefined
-              });
-       }
-   };
+    useEffect(() => {
+        reset({
+            endpointType: sidePanelContext?.formValues?.endpointType || "",
+            soapAction: sidePanelContext?.formValues?.soapAction || "",
+            pathToAxis2Repository: sidePanelContext?.formValues?.pathToAxis2Repository || "",
+            pathToAxis2xml: sidePanelContext?.formValues?.pathToAxis2xml || "",
+            initAxis2ClientOptions: sidePanelContext?.formValues?.initAxis2ClientOptions || "",
+            serviceURL: sidePanelContext?.formValues?.serviceURL || "",
+            addressEndpoint: sidePanelContext?.formValues?.addressEndpoint || "",
+            payloadType: sidePanelContext?.formValues?.payloadType || "XPATH",
+            payloadMessageXPath: sidePanelContext?.formValues?.payloadMessageXPath || {"isExpression":true,"value":""},
+            payloadProperty: sidePanelContext?.formValues?.payloadProperty || "",
+            resultType: sidePanelContext?.formValues?.resultType || "XPATH",
+            resultMessageXPath: sidePanelContext?.formValues?.resultMessageXPath || {"isExpression":true,"value":""},
+            resultContextProperty: sidePanelContext?.formValues?.resultContextProperty || "",
+            securityType: sidePanelContext?.formValues?.securityType || "TRUE",
+            policies: sidePanelContext?.formValues?.policies || "TRUE",
+            policyKey: sidePanelContext?.formValues?.policyKey || "",
+            outboundPolicyKey: sidePanelContext?.formValues?.outboundPolicyKey || "",
+            inboundPolicyKey: sidePanelContext?.formValues?.inboundPolicyKey || "",
+            description: sidePanelContext?.formValues?.description || "",
+        });
+        setIsLoading(false);
+    }, [sidePanelContext.formValues]);
 
-   const formValidators: { [key: string]: (e?: any) => string | undefined } = {
-       "endpointType": (e?: any) => validateField("endpointType", e, false),
-       "soapAction": (e?: any) => validateField("soapAction", e, false),
-       "pathToAxis2Repository": (e?: any) => validateField("pathToAxis2Repository", e, false),
-       "pathToAxis2xml": (e?: any) => validateField("pathToAxis2xml", e, false),
-       "initAxis2ClientOptions": (e?: any) => validateField("initAxis2ClientOptions", e, false),
-       "serviceURL": (e?: any) => validateField("serviceURL", e, false),
-       "addressEndpoint": (e?: any) => validateField("addressEndpoint", e, false),
-       "payloadType": (e?: any) => validateField("payloadType", e, false),
-       "payloadMessageXPath": (e?: any) => validateField("payloadMessageXPath", e, false),
-       "payloadProperty": (e?: any) => validateField("payloadProperty", e, false),
-       "resultType": (e?: any) => validateField("resultType", e, false),
-       "resultMessageXPath": (e?: any) => validateField("resultMessageXPath", e, false),
-       "resultContextProperty": (e?: any) => validateField("resultContextProperty", e, false),
-       "securityType": (e?: any) => validateField("securityType", e, false),
-       "policies": (e?: any) => validateField("policies", e, false),
-       "policyKey": (e?: any) => validateField("policyKey", e, false),
-       "outboundPolicyKey": (e?: any) => validateField("outboundPolicyKey", e, false),
-       "inboundPolicyKey": (e?: any) => validateField("inboundPolicyKey", e, false),
-       "description": (e?: any) => validateField("description", e, false),
+    const onClick = async (values: any) => {
+        
+        const xml = getXML(MEDIATORS.CALLOUT, values);
+        rpcClient.getMiDiagramRpcClient().applyEdit({
+            documentUri: props.documentUri, range: props.nodePosition, text: xml
+        });
+        sidePanelContext.setSidePanelState({
+            ...sidePanelContext,
+            isOpen: false,
+            isEditing: false,
+            formValues: undefined,
+            nodeRange: undefined,
+            operationName: undefined
+        });
+    };
 
-   };
-
-   const validateField = (id: string, e: any, isRequired: boolean, validation?: "e-mail" | "nameWithoutSpecialCharactors" | "custom", regex?: string): string => {
-       const value = e ?? formValues[id];
-       const newErrors = { ...errors };
-       let error;
-       if (isRequired && !value) {
-           error = "This field is required";
-       } else if (validation === "e-mail" && !value.match(emailRegex)) {
-           error = "Invalid e-mail address";
-       } else if (validation === "nameWithoutSpecialCharactors" && !value.match(nameWithoutSpecialCharactorsRegex)) {
-           error = "Invalid name";
-       } else if (validation === "custom" && !value.match(regex)) {
-           error = "Invalid input";
-       } else {
-           delete newErrors[id];
-           setErrors(newErrors);
-       }
-       setErrors({ ...errors, [id]: error });
-       return error;
-   };
-
-   return (
-       <div style={{ padding: "10px" }}>
+    if (isLoading) {
+        return <ProgressIndicator/>;
+    }
+    return (
+        <div style={{ padding: "10px" }}>
+            <Typography variant="body3"></Typography>
 
             <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                <h3>Service</h3>
+                <Typography variant="h3">Service</Typography>
 
                 <Field>
-                    <label>Endpoint Type</label>
-                    <AutoComplete items={["URL", "AddressEndpoint"]} value={formValues["endpointType"]} onValueChange={(e: any) => {
-                        setFormValues({ ...formValues, "endpointType": e });
-                        formValidators["endpointType"](e);
-                    }} />
-                    {errors["endpointType"] && <Error>{errors["endpointType"]}</Error>}
-                </Field>
-
-                <Field>
-                    <TextField
-                        label="SOAP Action"
-                        size={50}
-                        placeholder=""
-                        value={formValues["soapAction"]}
-                        onTextChange={(e: any) => {
-                            setFormValues({ ...formValues, "soapAction": e });
-                            formValidators["soapAction"](e);
-                        }}
-                        required={false}
+                    <Controller
+                        name="endpointType"
+                        control={control}
+                        render={({ field }) => (
+                            <AutoComplete label="Endpoint Type" items={["URL", "AddressEndpoint"]} value={field.value} onValueChange={(e: any) => {
+                                field.onChange(e);
+                            }} />
+                        )}
                     />
-                    {errors["soapAction"] && <Error>{errors["soapAction"]}</Error>}
+                    {errors.endpointType && <Error>{errors.endpointType.message.toString()}</Error>}
                 </Field>
 
                 <Field>
-                    <TextField
-                        label="Path To Axis2 Repository"
-                        size={50}
-                        placeholder=""
-                        value={formValues["pathToAxis2Repository"]}
-                        onTextChange={(e: any) => {
-                            setFormValues({ ...formValues, "pathToAxis2Repository": e });
-                            formValidators["pathToAxis2Repository"](e);
-                        }}
-                        required={false}
+                    <Controller
+                        name="soapAction"
+                        control={control}
+                        render={({ field }) => (
+                            <TextField {...field} label="SOAP Action" size={50} placeholder="" />
+                        )}
                     />
-                    {errors["pathToAxis2Repository"] && <Error>{errors["pathToAxis2Repository"]}</Error>}
+                    {errors.soapAction && <Error>{errors.soapAction.message.toString()}</Error>}
                 </Field>
 
                 <Field>
-                    <TextField
-                        label="Path To Axis2xml"
-                        size={50}
-                        placeholder=""
-                        value={formValues["pathToAxis2xml"]}
-                        onTextChange={(e: any) => {
-                            setFormValues({ ...formValues, "pathToAxis2xml": e });
-                            formValidators["pathToAxis2xml"](e);
-                        }}
-                        required={false}
+                    <Controller
+                        name="pathToAxis2Repository"
+                        control={control}
+                        render={({ field }) => (
+                            <TextField {...field} label="Path To Axis2 Repository" size={50} placeholder="" />
+                        )}
                     />
-                    {errors["pathToAxis2xml"] && <Error>{errors["pathToAxis2xml"]}</Error>}
+                    {errors.pathToAxis2Repository && <Error>{errors.pathToAxis2Repository.message.toString()}</Error>}
                 </Field>
 
                 <Field>
-                    <VSCodeCheckbox type="checkbox" checked={formValues["initAxis2ClientOptions"]} onChange={(e: any) => {
-                        setFormValues({ ...formValues, "initAxis2ClientOptions": e.target.checked });
-                        formValidators["initAxis2ClientOptions"](e);
-                    }
-                    }>Init Axis2 Client Options </VSCodeCheckbox>
-                    {errors["initAxis2ClientOptions"] && <Error>{errors["initAxis2ClientOptions"]}</Error>}
-                </Field>
-
-                {formValues["endpointType"] && formValues["endpointType"].toLowerCase() == "url" &&
-                    <Field>
-                        <TextField
-                            label="Service URL"
-                            size={50}
-                            placeholder=""
-                            value={formValues["serviceURL"]}
-                            onTextChange={(e: any) => {
-                                setFormValues({ ...formValues, "serviceURL": e });
-                                formValidators["serviceURL"](e);
-                            }}
-                            required={false}
-                        />
-                        {errors["serviceURL"] && <Error>{errors["serviceURL"]}</Error>}
-                    </Field>
-                }
-
-                {formValues["endpointType"] && formValues["endpointType"].toLowerCase() == "addressendpoint" &&
-                    <Field>
-                        <TextField
-                            label="Address Endpoint"
-                            size={50}
-                            placeholder=""
-                            value={formValues["addressEndpoint"]}
-                            onChange={(e: any) => {
-                                setFormValues({ ...formValues, "addressEndpoint": e });
-                                formValidators["addressEndpoint"](e);
-                            }}
-                            required={false}
-                        />
-                        {errors["addressEndpoint"] && <Error>{errors["addressEndpoint"]}</Error>}
-                    </Field>
-                }
-
-            </ComponentCard>
-
-            <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                <h3>Source</h3>
-
-                <Field>
-                    <label>Payload Type</label>
-                    <AutoComplete items={["XPATH", "PROPERTY", "ENVELOPE"]} value={formValues["payloadType"]} onValueChange={(e: any) => {
-                        setFormValues({ ...formValues, "payloadType": e });
-                        formValidators["payloadType"](e);
-                    }} />
-                    {errors["payloadType"] && <Error>{errors["payloadType"]}</Error>}
-                </Field>
-
-                {formValues["payloadType"] && formValues["payloadType"].toLowerCase() == "xpath" &&
-                    <Field>
-                        <TextField
-                            label="Payload Message XPath"
-                            size={50}
-                            placeholder=""
-                            value={formValues["payloadMessageXPath"]}
-                            onTextChange={(e: any) => {
-                                setFormValues({ ...formValues, "payloadMessageXPath": e });
-                                formValidators["payloadMessageXPath"](e);
-                            }}
-                            required={false}
-                        />
-                        {errors["payloadMessageXPath"] && <Error>{errors["payloadMessageXPath"]}</Error>}
-                    </Field>
-                }
-
-                {formValues["payloadType"] && formValues["payloadType"].toLowerCase() == "property" &&
-                    <Field>
-                        <TextField
-                            label="Payload Property"
-                            size={50}
-                            placeholder=""
-                            value={formValues["payloadProperty"]}
-                            onTextChange={(e: any) => {
-                                setFormValues({ ...formValues, "payloadProperty": e });
-                                formValidators["payloadProperty"](e);
-                            }}
-                            required={false}
-                        />
-                        {errors["payloadProperty"] && <Error>{errors["payloadProperty"]}</Error>}
-                    </Field>
-                }
-
-            </ComponentCard>
-
-            <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                <h3>Target</h3>
-
-                <Field>
-                    <label>Result Type</label>
-                    <AutoComplete items={["XPATH", "PROPERTY"]} value={formValues["resultType"]} onValueChange={(e: any) => {
-                        setFormValues({ ...formValues, "resultType": e });
-                        formValidators["resultType"](e);
-                    }} />
-                    {errors["resultType"] && <Error>{errors["resultType"]}</Error>}
-                </Field>
-
-                {formValues["resultType"] && formValues["resultType"].toLowerCase() == "xpath" &&
-                    <Field>
-                        <TextField
-                            label="Result Message XPath"
-                            size={50}
-                            placeholder=""
-                            value={formValues["resultMessageXPath"]}
-                            onTextChange={(e: any) => {
-                                setFormValues({ ...formValues, "resultMessageXPath": e });
-                                formValidators["resultMessageXPath"](e);
-                            }}
-                            required={false}
-                        />
-                        {errors["resultMessageXPath"] && <Error>{errors["resultMessageXPath"]}</Error>}
-                    </Field>
-                }
-
-                {formValues["resultType"] && formValues["resultType"].toLowerCase() == "property" &&
-                    <Field>
-                        <TextField
-                            label="Result Context Property"
-                            size={50}
-                            placeholder=""
-                            value={formValues["resultContextProperty"]}
-                            onTextChange={(e: any) => {
-                                setFormValues({ ...formValues, "resultContextProperty": e });
-                                formValidators["resultContextProperty"](e);
-                            }}
-                            required={false}
-                        />
-                        {errors["resultContextProperty"] && <Error>{errors["resultContextProperty"]}</Error>}
-                    </Field>
-                }
-
-            </ComponentCard>
-
-            <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                <h3>WS</h3>
-
-                <Field>
-                    <label>Security Type</label>
-                    <AutoComplete items={["TRUE", "FALSE"]} value={formValues["securityType"]} onValueChange={(e: any) => {
-                        setFormValues({ ...formValues, "securityType": e });
-                        formValidators["securityType"](e);
-                    }} />
-                    {errors["securityType"] && <Error>{errors["securityType"]}</Error>}
-                </Field>
-
-                {formValues["securityType"] && formValues["securityType"].toLowerCase() == "true" &&
-                    <Field>
-                        <label>Policies</label>
-                        <AutoComplete items={["TRUE", "FALSE"]} value={formValues["policies"]} onValueChange={(e: any) => {
-                            setFormValues({ ...formValues, "policies": e });
-                            formValidators["policies"](e);
-                        }} />
-                        {errors["policies"] && <Error>{errors["policies"]}</Error>}
-                    </Field>
-                }
-
-                {formValues["securityType"] && formValues["securityType"].toLowerCase() == "true" &&formValues["policies"] && formValues["policies"].toLowerCase() == "false" &&
-                    <Field>
-                        <TextField
-                            label="Policy Key"
-                            size={50}
-                            placeholder=""
-                            value={formValues["policyKey"]}
-                            onTextChange={(e: any) => {
-                                setFormValues({ ...formValues, "policyKey": e });
-                                formValidators["policyKey"](e);
-                            }}
-                            required={false}
-                        />
-                        {errors["policyKey"] && <Error>{errors["policyKey"]}</Error>}
-                    </Field>
-                }
-
-                {formValues["securityType"] && formValues["securityType"].toLowerCase() == "true" &&formValues["policies"] && formValues["policies"].toLowerCase() == "true" &&
-                    <Field>
-                        <TextField
-                            label="Outbound Policy Key"
-                            size={50}
-                            placeholder=""
-                            value={formValues["outboundPolicyKey"]}
-                            onTextChange={(e: any) => {
-                                setFormValues({ ...formValues, "outboundPolicyKey": e });
-                                formValidators["outboundPolicyKey"](e);
-                            }}
-                            required={false}
-                        />
-                        {errors["outboundPolicyKey"] && <Error>{errors["outboundPolicyKey"]}</Error>}
-                    </Field>
-                }
-
-                {formValues["securityType"] && formValues["securityType"].toLowerCase() == "true" &&formValues["policies"] && formValues["policies"].toLowerCase() == "true" &&
-                    <Field>
-                        <TextField
-                            label="Inbound Policy Key"
-                            size={50}
-                            placeholder=""
-                            value={formValues["inboundPolicyKey"]}
-                            onTextChange={(e: any) => {
-                                setFormValues({ ...formValues, "inboundPolicyKey": e });
-                                formValidators["inboundPolicyKey"](e);
-                            }}
-                            required={false}
-                        />
-                        {errors["inboundPolicyKey"] && <Error>{errors["inboundPolicyKey"]}</Error>}
-                    </Field>
-                }
-
-            </ComponentCard>
-
-            <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                <h3>Misc</h3>
-
-                <Field>
-                    <TextField
-                        label="Description"
-                        size={50}
-                        placeholder=""
-                        value={formValues["description"]}
-                        onTextChange={(e: any) => {
-                            setFormValues({ ...formValues, "description": e });
-                            formValidators["description"](e);
-                        }}
-                        required={false}
+                    <Controller
+                        name="pathToAxis2xml"
+                        control={control}
+                        render={({ field }) => (
+                            <TextField {...field} label="Path To Axis2xml" size={50} placeholder="" />
+                        )}
                     />
-                    {errors["description"] && <Error>{errors["description"]}</Error>}
+                    {errors.pathToAxis2xml && <Error>{errors.pathToAxis2xml.message.toString()}</Error>}
+                </Field>
+
+                <Field>
+                    <Controller
+                        name="initAxis2ClientOptions"
+                        control={control}
+                        render={({ field }) => (
+                            <VSCodeCheckbox type="checkbox" checked={field.value} onChange={(e: any) => {
+                                field.onChange(e);
+                            }}>Init Axis2 Client Options</VSCodeCheckbox>
+                        )}
+                    />
+                    {errors.initAxis2ClientOptions && <Error>{errors.initAxis2ClientOptions.message.toString()}</Error>}
+                </Field>
+
+                {watch("endpointType") && watch("endpointType").toLowerCase() == "url" &&
+                    <Field>
+                        <Controller
+                            name="serviceURL"
+                            control={control}
+                            render={({ field }) => (
+                                <TextField {...field} label="Service URL" size={50} placeholder="" />
+                            )}
+                        />
+                        {errors.serviceURL && <Error>{errors.serviceURL.message.toString()}</Error>}
+                    </Field>
+                }
+
+                {watch("endpointType") && watch("endpointType").toLowerCase() == "addressendpoint" &&
+                    <Field>
+                        <Controller
+                            name="addressEndpoint"
+                            control={control}
+                            render={({ field }) => (
+                                <TextField {...field} label="Address Endpoint" size={50} placeholder="" />
+                            )}
+                        />
+                        {errors.addressEndpoint && <Error>{errors.addressEndpoint.message.toString()}</Error>}
+                    </Field>
+                }
+
+            </ComponentCard>
+
+            <ComponentCard sx={cardStyle} disbaleHoverEffect>
+                <Typography variant="h3">Source</Typography>
+
+                <Field>
+                    <Controller
+                        name="payloadType"
+                        control={control}
+                        render={({ field }) => (
+                            <AutoComplete label="Payload Type" items={["XPATH", "PROPERTY", "ENVELOPE"]} value={field.value} onValueChange={(e: any) => {
+                                field.onChange(e);
+                            }} />
+                        )}
+                    />
+                    {errors.payloadType && <Error>{errors.payloadType.message.toString()}</Error>}
+                </Field>
+
+                {watch("payloadType") && watch("payloadType").toLowerCase() == "xpath" &&
+                    <Field>
+                        <Controller
+                            name="payloadMessageXPath"
+                            control={control}
+                            render={({ field }) => (
+                                <ExpressionField
+                                    {...field} label="Payload Message XPath"
+                                    placeholder=""
+                                    canChange={false}
+                                    openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => {
+                                        sidePanelContext.setSidePanelState({
+                                            ...sidePanelContext,
+                                            expressionEditor: {
+                                                isOpen: true,
+                                                value,
+                                                setValue
+                                            }
+                                        });
+                                    }}
+                                />
+                            )}
+                        />
+                        {errors.payloadMessageXPath && <Error>{errors.payloadMessageXPath.message.toString()}</Error>}
+                    </Field>
+                }
+
+                {watch("payloadType") && watch("payloadType").toLowerCase() == "property" &&
+                    <Field>
+                        <Controller
+                            name="payloadProperty"
+                            control={control}
+                            render={({ field }) => (
+                                <TextField {...field} label="Payload Property" size={50} placeholder="" />
+                            )}
+                        />
+                        {errors.payloadProperty && <Error>{errors.payloadProperty.message.toString()}</Error>}
+                    </Field>
+                }
+
+            </ComponentCard>
+
+            <ComponentCard sx={cardStyle} disbaleHoverEffect>
+                <Typography variant="h3">Target</Typography>
+
+                <Field>
+                    <Controller
+                        name="resultType"
+                        control={control}
+                        render={({ field }) => (
+                            <AutoComplete label="Result Type" items={["XPATH", "PROPERTY"]} value={field.value} onValueChange={(e: any) => {
+                                field.onChange(e);
+                            }} />
+                        )}
+                    />
+                    {errors.resultType && <Error>{errors.resultType.message.toString()}</Error>}
+                </Field>
+
+                {watch("resultType") && watch("resultType").toLowerCase() == "xpath" &&
+                    <Field>
+                        <Controller
+                            name="resultMessageXPath"
+                            control={control}
+                            render={({ field }) => (
+                                <ExpressionField
+                                    {...field} label="Result Message XPath"
+                                    placeholder=""
+                                    canChange={false}
+                                    openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => {
+                                        sidePanelContext.setSidePanelState({
+                                            ...sidePanelContext,
+                                            expressionEditor: {
+                                                isOpen: true,
+                                                value,
+                                                setValue
+                                            }
+                                        });
+                                    }}
+                                />
+                            )}
+                        />
+                        {errors.resultMessageXPath && <Error>{errors.resultMessageXPath.message.toString()}</Error>}
+                    </Field>
+                }
+
+                {watch("resultType") && watch("resultType").toLowerCase() == "property" &&
+                    <Field>
+                        <Controller
+                            name="resultContextProperty"
+                            control={control}
+                            render={({ field }) => (
+                                <TextField {...field} label="Result Context Property" size={50} placeholder="" />
+                            )}
+                        />
+                        {errors.resultContextProperty && <Error>{errors.resultContextProperty.message.toString()}</Error>}
+                    </Field>
+                }
+
+            </ComponentCard>
+
+            <ComponentCard sx={cardStyle} disbaleHoverEffect>
+                <Typography variant="h3">WS</Typography>
+
+                <Field>
+                    <Controller
+                        name="securityType"
+                        control={control}
+                        render={({ field }) => (
+                            <AutoComplete label="Security Type" items={["TRUE", "FALSE"]} value={field.value} onValueChange={(e: any) => {
+                                field.onChange(e);
+                            }} />
+                        )}
+                    />
+                    {errors.securityType && <Error>{errors.securityType.message.toString()}</Error>}
+                </Field>
+
+                {watch("securityType") && watch("securityType").toLowerCase() == "true" &&
+                    <Field>
+                        <Controller
+                            name="policies"
+                            control={control}
+                            render={({ field }) => (
+                                <AutoComplete label="Policies" items={["TRUE", "FALSE"]} value={field.value} onValueChange={(e: any) => {
+                                    field.onChange(e);
+                                }} />
+                            )}
+                        />
+                        {errors.policies && <Error>{errors.policies.message.toString()}</Error>}
+                    </Field>
+                }
+
+                {watch("securityType") && watch("securityType").toLowerCase() == "true" &&watch("policies") && watch("policies").toLowerCase() == "false"  &&
+                    <Field>
+                        <Controller
+                            name="policyKey"
+                            control={control}
+                            render={({ field }) => (
+                                <TextField {...field} label="Policy Key" size={50} placeholder="" />
+                            )}
+                        />
+                        {errors.policyKey && <Error>{errors.policyKey.message.toString()}</Error>}
+                    </Field>
+                }
+
+                {watch("securityType") && watch("securityType").toLowerCase() == "true" &&watch("policies") && watch("policies").toLowerCase() == "true"  &&
+                    <Field>
+                        <Controller
+                            name="outboundPolicyKey"
+                            control={control}
+                            render={({ field }) => (
+                                <TextField {...field} label="Outbound Policy Key" size={50} placeholder="" />
+                            )}
+                        />
+                        {errors.outboundPolicyKey && <Error>{errors.outboundPolicyKey.message.toString()}</Error>}
+                    </Field>
+                }
+
+                {watch("securityType") && watch("securityType").toLowerCase() == "true" &&watch("policies") && watch("policies").toLowerCase() == "true"  &&
+                    <Field>
+                        <Controller
+                            name="inboundPolicyKey"
+                            control={control}
+                            render={({ field }) => (
+                                <TextField {...field} label="Inbound Policy Key" size={50} placeholder="" />
+                            )}
+                        />
+                        {errors.inboundPolicyKey && <Error>{errors.inboundPolicyKey.message.toString()}</Error>}
+                    </Field>
+                }
+
+            </ComponentCard>
+
+            <ComponentCard sx={cardStyle} disbaleHoverEffect>
+                <Typography variant="h3">Misc</Typography>
+
+                <Field>
+                    <Controller
+                        name="description"
+                        control={control}
+                        render={({ field }) => (
+                            <TextField {...field} label="Description" size={50} placeholder="" />
+                        )}
+                    />
+                    {errors.description && <Error>{errors.description.message.toString()}</Error>}
                 </Field>
 
             </ComponentCard>
 
 
-            <div style={{ display: "flex", textAlign: "right", justifyContent: "flex-end", marginTop: "10px" }}>
+            <div style={{ textAlign: "right", marginTop: "10px", float: "right" }}>
                 <Button
                     appearance="primary"
-                    onClick={onClick}
+                    onClick={handleSubmit(onClick)}
                 >
                     Submit
                 </Button>

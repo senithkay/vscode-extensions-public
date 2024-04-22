@@ -6,23 +6,25 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
 */
+// AUTO-GENERATED FILE. DO NOT MODIFY.
 
-
-import React, { useEffect, useState } from 'react';
-import { AutoComplete, Button, ComponentCard, TextField } from '@wso2-enterprise/ui-toolkit';
+import React, { useEffect } from 'react';
+import { Button, ProgressIndicator, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
 import { AddMediatorProps } from '../common';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
 import { MEDIATORS } from '../../../../../resources/constants';
+import { Controller, useForm } from 'react-hook-form';
+import { Keylookup } from '../../../../Form';
 
 const cardStyle = { 
-   display: "block",
-   margin: "15px 0",
-   padding: "0 15px 15px 15px",
-   width: "auto",
-   cursor: "auto"
+    display: "block",
+    margin: "15px 0",
+    padding: "0 15px 15px 15px",
+    width: "auto",
+    cursor: "auto"
 };
 
 const Error = styled.span`
@@ -34,155 +36,76 @@ const Field = styled.div`
    margin-bottom: 12px;
 `;
 
-const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g;
-const nameWithoutSpecialCharactorsRegex = /^[a-zA-Z0-9]+$/g;
-
 const SequenceForm = (props: AddMediatorProps) => {
-   const { rpcClient } = useVisualizerContext();
-   const sidePanelContext = React.useContext(SidePanelContext);
-   const [formValues, setFormValues] = useState({} as { [key: string]: any });
-   const [errors, setErrors] = useState({} as any);
+    const { rpcClient } = useVisualizerContext();
+    const sidePanelContext = React.useContext(SidePanelContext);
+    const [ isLoading, setIsLoading ] = React.useState(true);
 
-   useEffect(() => {
-       if (sidePanelContext.formValues && Object.keys(sidePanelContext.formValues).length > 0) {
-           setFormValues({ ...formValues, ...sidePanelContext.formValues });
-       } else {
-           setFormValues({
-       "referringSequenceType": "Static",
-       "staticReferenceKey": "Sequence",});
-       }
-   }, [sidePanelContext.formValues]);
+    const { control, formState: { errors }, handleSubmit, watch, reset } = useForm();
 
-   const onClick = async () => {
-       const newErrors = {} as any;
-       Object.keys(formValidators).forEach((key) => {
-           const error = formValidators[key]();
-           if (error) {
-               newErrors[key] = (error);
-           }
-       });
-       if (Object.keys(newErrors).length > 0) {
-           setErrors(newErrors);
-       } else {
-           const xml = getXML(MEDIATORS.SEQUENCE, formValues);
-           rpcClient.getMiDiagramRpcClient().applyEdit({
-               documentUri: props.documentUri, range: props.nodePosition, text: xml
-           });
-           sidePanelContext.setSidePanelState({
-                ...sidePanelContext,
-                isOpen: false,
-                isEditing: false,
-                formValues: undefined,
-                nodeRange: undefined,
-                operationName: undefined
-              });
-       }
-   };
+    useEffect(() => {
+        reset({
+            referingSequence: sidePanelContext?.formValues?.referingSequence || "",
+            description: sidePanelContext?.formValues?.description || "",
+        });
+        setIsLoading(false);
+    }, [sidePanelContext.formValues]);
 
-   const formValidators: { [key: string]: (e?: any) => string | undefined } = {
-       "referringSequenceType": (e?: any) => validateField("referringSequenceType", e, false),
-       "staticReferenceKey": (e?: any) => validateField("staticReferenceKey", e, false),
-       "dynamicReferenceKey": (e?: any) => validateField("dynamicReferenceKey", e, false),
-       "description": (e?: any) => validateField("description", e, false),
+    const onClick = async (values: any) => {
+        
+        const xml = getXML(MEDIATORS.SEQUENCE, values);
+        rpcClient.getMiDiagramRpcClient().applyEdit({
+            documentUri: props.documentUri, range: props.nodePosition, text: xml
+        });
+        sidePanelContext.setSidePanelState({
+            ...sidePanelContext,
+            isOpen: false,
+            isEditing: false,
+            formValues: undefined,
+            nodeRange: undefined,
+            operationName: undefined
+        });
+    };
 
-   };
+    if (isLoading) {
+        return <ProgressIndicator/>;
+    }
+    return (
+        <div style={{ padding: "10px" }}>
+            <Typography variant="body3"></Typography>
 
-   const validateField = (id: string, e: any, isRequired: boolean, validation?: "e-mail" | "nameWithoutSpecialCharactors" | "custom", regex?: string): string => {
-       const value = e ?? formValues[id];
-       const newErrors = { ...errors };
-       let error;
-       if (isRequired && !value) {
-           error = "This field is required";
-       } else if (validation === "e-mail" && !value.match(emailRegex)) {
-           error = "Invalid e-mail address";
-       } else if (validation === "nameWithoutSpecialCharactors" && !value.match(nameWithoutSpecialCharactorsRegex)) {
-           error = "Invalid name";
-       } else if (validation === "custom" && !value.match(regex)) {
-           error = "Invalid input";
-       } else {
-           delete newErrors[id];
-           setErrors(newErrors);
-       }
-       setErrors({ ...errors, [id]: error });
-       return error;
-   };
+            <Field>
+                <Controller
+                    name="referingSequence"
+                    control={control}
+                    render={({ field }) => (
+                        <Keylookup
+                            {...field}
+                            filterType='sequence'
+                            label="Refering Sequence"
+                            allowItemCreate={true}
+                        />
+                    )}
+                />
+                {errors.referingSequence && <Error>{errors.referingSequence.message.toString()}</Error>}
+            </Field>
 
-   return (
-       <div style={{ padding: "10px" }}>
-
-            <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                <h3>Properties</h3>
-
-                <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                    <h3>Referring Sequence</h3>
-
-                    <Field>
-                        <label>Referring Sequence Type</label>
-                        <AutoComplete items={["Static", "Dynamic"]} value={formValues["referringSequenceType"]} onValueChange={(e: any) => {
-                            setFormValues({ ...formValues, "referringSequenceType": e });
-                            formValidators["referringSequenceType"](e);
-                        }} />
-                        {errors["referringSequenceType"] && <Error>{errors["referringSequenceType"]}</Error>}
-                    </Field>
-
-                    {formValues["referringSequenceType"] && formValues["referringSequenceType"].toLowerCase() == "static" &&
-                        <Field>
-                            <TextField
-                                label="Static Reference Key"
-                                size={50}
-                                placeholder=""
-                                value={formValues["staticReferenceKey"]}
-                                onTextChange={(e: any) => {
-                                    setFormValues({ ...formValues, "staticReferenceKey": e });
-                                    formValidators["staticReferenceKey"](e);
-                                }}
-                                required={false}
-                            />
-                            {errors["staticReferenceKey"] && <Error>{errors["staticReferenceKey"]}</Error>}
-                        </Field>
-                    }
-
-                    {formValues["referringSequenceType"] && formValues["referringSequenceType"].toLowerCase() == "dynamic" &&
-                        <Field>
-                            <TextField
-                                label="Dynamic Reference Key"
-                                size={50}
-                                placeholder=""
-                                value={formValues["dynamicReferenceKey"]}
-                                onTextChange={(e: any) => {
-                                    setFormValues({ ...formValues, "dynamicReferenceKey": e });
-                                    formValidators["dynamicReferenceKey"](e);
-                                }}
-                                required={false}
-                            />
-                            {errors["dynamicReferenceKey"] && <Error>{errors["dynamicReferenceKey"]}</Error>}
-                        </Field>
-                    }
-
-                </ComponentCard>
-
-                <Field>
-                    <TextField
-                        label="Description"
-                        size={50}
-                        placeholder=""
-                        value={formValues["description"]}
-                        onTextChange={(e: any) => {
-                            setFormValues({ ...formValues, "description": e });
-                            formValidators["description"](e);
-                        }}
-                        required={false}
-                    />
-                    {errors["description"] && <Error>{errors["description"]}</Error>}
-                </Field>
-
-            </ComponentCard>
+            <Field>
+                <Controller
+                    name="description"
+                    control={control}
+                    render={({ field }) => (
+                        <TextField {...field} label="Description" size={50} placeholder="" />
+                    )}
+                />
+                {errors.description && <Error>{errors.description.message.toString()}</Error>}
+            </Field>
 
 
-            <div style={{ display: "flex", textAlign: "right", justifyContent: "flex-end", marginTop: "10px" }}>
+            <div style={{ textAlign: "right", marginTop: "10px", float: "right" }}>
                 <Button
                     appearance="primary"
-                    onClick={onClick}
+                    onClick={handleSubmit(onClick)}
                 >
                     Submit
                 </Button>

@@ -6,10 +6,10 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
 */
+// AUTO-GENERATED FILE. DO NOT MODIFY.
 
-
-import React, { useEffect, useState } from 'react';
-import { AutoComplete, Button, ComponentCard, TextField } from '@wso2-enterprise/ui-toolkit';
+import React, { useEffect } from 'react';
+import { AutoComplete, Button, ComponentCard, ExpressionField, ExpressionFieldValue, ProgressIndicator, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
 import { VSCodeCheckbox } from '@vscode/webview-ui-toolkit/react';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
@@ -17,9 +17,10 @@ import { AddMediatorProps } from '../common';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
 import { MEDIATORS } from '../../../../../resources/constants';
-import { Range, TagRange } from '@wso2-enterprise/mi-syntax-tree/lib/src';
+import { Controller, useForm } from 'react-hook-form';
+import { Keylookup } from '../../../../Form';
 
-const cardStyle = {
+const cardStyle = { 
     display: "block",
     margin: "15px 0",
     padding: "0 15px 15px 15px",
@@ -36,273 +37,204 @@ const Field = styled.div`
    margin-bottom: 12px;
 `;
 
-const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g;
-const nameWithoutSpecialCharactorsRegex = /^[a-zA-Z0-9]+$/g;
-
 const IterateForm = (props: AddMediatorProps) => {
     const { rpcClient } = useVisualizerContext();
     const sidePanelContext = React.useContext(SidePanelContext);
-    const [formValues, setFormValues] = useState({} as { [key: string]: any });
-    const [errors, setErrors] = useState({} as any);
+    const [ isLoading, setIsLoading ] = React.useState(true);
+
+    const { control, formState: { errors }, handleSubmit, watch, reset } = useForm();
 
     useEffect(() => {
-        if (sidePanelContext.formValues && Object.keys(sidePanelContext.formValues).length > 0) {
-            setFormValues({ ...formValues, ...sidePanelContext.formValues, "isIterateChanged": false, "isTargetChanged": false });
-        } else {
-            setFormValues({
-                "sequentialMediation": false,
-                "continueParent": false,
-                "preservePayload": false,
-                "sequenceType": "ANONYMOUS",
-                "isNewMediator": true
-            });
-        }
+        reset({
+            iterateID: sidePanelContext?.formValues?.iterateID || "",
+            iterateExpression: sidePanelContext?.formValues?.iterateExpression || {"isExpression":true,"value":""},
+            sequentialMediation: sidePanelContext?.formValues?.sequentialMediation || "",
+            continueParent: sidePanelContext?.formValues?.continueParent || "",
+            preservePayload: sidePanelContext?.formValues?.preservePayload || "",
+            attachPath: sidePanelContext?.formValues?.attachPath || {"isExpression":true,"value":""},
+            sequenceType: sidePanelContext?.formValues?.sequenceType || "Anonymous",
+            sequenceKey: sidePanelContext?.formValues?.sequenceKey || "",
+            description: sidePanelContext?.formValues?.description || "",
+        });
+        setIsLoading(false);
     }, [sidePanelContext.formValues]);
 
-    const onClick = async () => {
-        const newErrors = {} as any;
-        Object.keys(formValidators).forEach((key) => {
-            const error = formValidators[key]();
-            if (error) {
-                newErrors[key] = (error);
-            }
+    const onClick = async (values: any) => {
+        
+        const xml = getXML(MEDIATORS.ITERATE, values);
+        rpcClient.getMiDiagramRpcClient().applyEdit({
+            documentUri: props.documentUri, range: props.nodePosition, text: xml
         });
-        if (Object.keys(newErrors).length > 0) {
-            setErrors(newErrors);
-        } else {
-            if (formValues["isNewMediator"]) {
-                await applyEdit(formValues, props.nodePosition);
-            } else {
-                const iterateRange: TagRange = formValues["ranges"].iterate;
-                const targetRange: TagRange = formValues["ranges"]?.target;
-                if (formValues["isTargetChanged"]) {
-                    const data = { ...formValues, "editTarget": true };
-                    let editRange: Range;
-                    if (!(formValues["prevSeqType"] == "ANONYMOUS" && formValues["sequenceType"] == "ANONYMOUS")) {
-                        if (targetRange == undefined) {
-                            editRange = {
-                                start: iterateRange.startTagRange.end,
-                                end: iterateRange.startTagRange.end
-                            };
-                        } else {
-                            editRange = {
-                                start: targetRange.startTagRange.start,
-                                end: targetRange.endTagRange.end ? targetRange.endTagRange.end : targetRange.startTagRange.end
-                            };
-                        }
-                        await applyEdit(data, editRange);
-                    } else if (formValues["prevSeqType"] == "ANONYMOUS" && formValues["sequenceType"] != "ANONYMOUS") {
-                        editRange = { start: targetRange.startTagRange.start, end: targetRange.endTagRange.end };
-                        await applyEdit(data, editRange);
-                    }
-                }
-                if (formValues["isIterateChanged"]) {
-                    let editRange = iterateRange.startTagRange;
-                    const data = { ...formValues, "editIterate": true };
-                    await applyEdit(data, editRange);
-                }
-            }
-
-            sidePanelContext.setSidePanelState({
-                ...sidePanelContext,
-                isOpen: false,
-                isEditing: false,
-                formValues: undefined,
-                nodeRange: undefined,
-                operationName: undefined
-            });
-        }
+        sidePanelContext.setSidePanelState({
+            ...sidePanelContext,
+            isOpen: false,
+            isEditing: false,
+            formValues: undefined,
+            nodeRange: undefined,
+            operationName: undefined
+        });
     };
 
-    const applyEdit = async (data: { [key: string]: any }, range: Range) => {
-        const xml = getXML(MEDIATORS.ITERATE, data);
-        await rpcClient.getMiDiagramRpcClient().applyEdit({
-            documentUri: props.documentUri, range: range, text: xml
-        });
+    if (isLoading) {
+        return <ProgressIndicator/>;
     }
-
-    const formValidators: { [key: string]: (e?: any) => string | undefined } = {
-        "iterateID": (e?: any) => validateField("iterateID", e, false),
-        "iterateExpression": (e?: any) => validateField("iterateExpression", e, false),
-        "sequentialMediation": (e?: any) => validateField("sequentialMediation", e, false),
-        "continueParent": (e?: any) => validateField("continueParent", e, false),
-        "preservePayload": (e?: any) => validateField("preservePayload", e, false),
-        "attachPath": (e?: any) => validateField("attachPath", e, false),
-        "sequenceType": (e?: any) => validateField("sequenceType", e, false),
-        "sequenceKey": (e?: any) => validateField("sequenceKey", e, false),
-        "sequenceName": (e?: any) => validateField("sequenceName", e, false),
-        "description": (e?: any) => validateField("description", e, false),
-
-    };
-
-    const validateField = (id: string, e: any, isRequired: boolean, validation?: "e-mail" | "nameWithoutSpecialCharactors" | "custom", regex?: string): string => {
-        const value = e ?? formValues[id];
-        const newErrors = { ...errors };
-        let error;
-        if (isRequired && !value) {
-            error = "This field is required";
-        } else if (validation === "e-mail" && !value.match(emailRegex)) {
-            error = "Invalid e-mail address";
-        } else if (validation === "nameWithoutSpecialCharactors" && !value.match(nameWithoutSpecialCharactorsRegex)) {
-            error = "Invalid name";
-        } else if (validation === "custom" && !value.match(regex)) {
-            error = "Invalid input";
-        } else {
-            delete newErrors[id];
-            setErrors(newErrors);
-        }
-        setErrors({ ...errors, [id]: error });
-        return error;
-    };
-
     return (
         <div style={{ padding: "10px" }}>
+            <Typography variant="body3"></Typography>
+
+            <Field>
+                <Controller
+                    name="iterateID"
+                    control={control}
+                    render={({ field }) => (
+                        <TextField {...field} label="Iterate ID" size={50} placeholder="" />
+                    )}
+                />
+                {errors.iterateID && <Error>{errors.iterateID.message.toString()}</Error>}
+            </Field>
+
+            <Field>
+                <Controller
+                    name="iterateExpression"
+                    control={control}
+                    render={({ field }) => (
+                        <ExpressionField
+                            {...field} label="Iterate Expression"
+                            placeholder=""
+                            canChange={false}
+                            openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => {
+                                sidePanelContext.setSidePanelState({
+                                    ...sidePanelContext,
+                                    expressionEditor: {
+                                        isOpen: true,
+                                        value,
+                                        setValue
+                                    }
+                                });
+                            }}
+                        />
+                    )}
+                />
+                {errors.iterateExpression && <Error>{errors.iterateExpression.message.toString()}</Error>}
+            </Field>
+
+            <Field>
+                <Controller
+                    name="sequentialMediation"
+                    control={control}
+                    render={({ field }) => (
+                        <VSCodeCheckbox type="checkbox" checked={field.value} onChange={(e: any) => {
+                            field.onChange(e);
+                        }}>Sequential Mediation</VSCodeCheckbox>
+                    )}
+                />
+                {errors.sequentialMediation && <Error>{errors.sequentialMediation.message.toString()}</Error>}
+            </Field>
+
+            <Field>
+                <Controller
+                    name="continueParent"
+                    control={control}
+                    render={({ field }) => (
+                        <VSCodeCheckbox type="checkbox" checked={field.value} onChange={(e: any) => {
+                            field.onChange(e);
+                        }}>Continue Parent</VSCodeCheckbox>
+                    )}
+                />
+                {errors.continueParent && <Error>{errors.continueParent.message.toString()}</Error>}
+            </Field>
+
+            <Field>
+                <Controller
+                    name="preservePayload"
+                    control={control}
+                    render={({ field }) => (
+                        <VSCodeCheckbox type="checkbox" checked={field.value} onChange={(e: any) => {
+                            field.onChange(e);
+                        }}>Preserve Payload</VSCodeCheckbox>
+                    )}
+                />
+                {errors.preservePayload && <Error>{errors.preservePayload.message.toString()}</Error>}
+            </Field>
+
+            {watch("preservePayload") == true &&
+                <Field>
+                    <Controller
+                        name="attachPath"
+                        control={control}
+                        render={({ field }) => (
+                            <ExpressionField
+                                {...field} label="Attach Path"
+                                placeholder=""
+                                canChange={false}
+                                openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => {
+                                    sidePanelContext.setSidePanelState({
+                                        ...sidePanelContext,
+                                        expressionEditor: {
+                                            isOpen: true,
+                                            value,
+                                            setValue
+                                        }
+                                    });
+                                }}
+                            />
+                        )}
+                    />
+                    {errors.attachPath && <Error>{errors.attachPath.message.toString()}</Error>}
+                </Field>
+            }
 
             <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                <h3>Properties</h3>
+                <Typography variant="h3">Sequence</Typography>
 
                 <Field>
-                    <TextField
-                        label="Iterate ID"
-                        size={50}
-                        placeholder=""
-                        value={formValues["iterateID"]}
-                        onTextChange={(e: any) => {
-                            setFormValues({ ...formValues, "iterateID": e, "isIterateChanged": true });
-                            formValidators["iterateID"](e);
-                        }}
-                        required={false}
+                    <Controller
+                        name="sequenceType"
+                        control={control}
+                        render={({ field }) => (
+                            <AutoComplete label="Sequence Type" items={["Anonymous", "Key"]} value={field.value} onValueChange={(e: any) => {
+                                field.onChange(e);
+                            }} />
+                        )}
                     />
-                    {errors["iterateID"] && <Error>{errors["iterateID"]}</Error>}
+                    {errors.sequenceType && <Error>{errors.sequenceType.message.toString()}</Error>}
                 </Field>
 
-                <Field>
-                    <TextField
-                        label="Iterate Expression"
-                        size={50}
-                        placeholder=""
-                        value={formValues["iterateExpression"]}
-                        onTextChange={(e: any) => {
-                            setFormValues({ ...formValues, "iterateExpression": e, "isIterateChanged": true });
-                            formValidators["iterateExpression"](e);
-                        }}
-                        required={false}
-                    />
-                    {errors["iterateExpression"] && <Error>{errors["iterateExpression"]}</Error>}
-                </Field>
-
-                <Field>
-                    <VSCodeCheckbox type="checkbox" checked={formValues["sequentialMediation"]} onChange={(e: any) => {
-                        setFormValues({ ...formValues, "sequentialMediation": e.target.checked, "isIterateChanged": true });
-                        formValidators["sequentialMediation"](e);
-                    }
-                    }>Sequential Mediation </VSCodeCheckbox>
-                    {errors["sequentialMediation"] && <Error>{errors["sequentialMediation"]}</Error>}
-                </Field>
-
-                <Field>
-                    <VSCodeCheckbox type="checkbox" checked={formValues["continueParent"]} onChange={(e: any) => {
-                        setFormValues({ ...formValues, "continueParent": e.target.checked, "isIterateChanged": true });
-                        formValidators["continueParent"](e);
-                    }
-                    }>Continue Parent </VSCodeCheckbox>
-                    {errors["continueParent"] && <Error>{errors["continueParent"]}</Error>}
-                </Field>
-
-                <Field>
-                    <VSCodeCheckbox type="checkbox" checked={formValues["preservePayload"]} onChange={(e: any) => {
-                        setFormValues({ ...formValues, "preservePayload": e.target.checked, "isIterateChanged": true });
-                        formValidators["preservePayload"](e);
-                    }
-                    }>Preserve Payload </VSCodeCheckbox>
-                    {errors["preservePayload"] && <Error>{errors["preservePayload"]}</Error>}
-                </Field>
-
-                <Field>
-                    <TextField
-                        label="Attach Path"
-                        size={50}
-                        placeholder=""
-                        value={formValues["attachPath"]}
-                        onTextChange={(e: any) => {
-                            setFormValues({ ...formValues, "attachPath": e, "isIterateChanged": true });
-                            formValidators["attachPath"](e);
-                        }}
-                        required={false}
-                    />
-                    {errors["attachPath"] && <Error>{errors["attachPath"]}</Error>}
-                </Field>
-
-                <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                    <h3>Sequence</h3>
-
+                {watch("sequenceType") && watch("sequenceType").toLowerCase() == "key" &&
                     <Field>
-                        <label>Sequence Type</label>
-                        <AutoComplete items={["ANONYMOUS", "REGISTRY_REFERENCE", "NAMED_REFERENCE"]} value={formValues["sequenceType"]} onValueChange={(e: any) => {
-                            setFormValues({ ...formValues, "sequenceType": e, "isTargetChanged": true });
-                            formValidators["sequenceType"](e);
-                        }} />
-                        {errors["sequenceType"] && <Error>{errors["sequenceType"]}</Error>}
+                        <Controller
+                            name="sequenceKey"
+                            control={control}
+                            render={({ field }) => (
+                                <Keylookup
+                                    {...field}filterType='sequence'
+                                    label="Sequence Key"
+                                    allowItemCreate={false}
+                                />
+                            )}
+                        />
+                        {errors.sequenceKey && <Error>{errors.sequenceKey.message.toString()}</Error>}
                     </Field>
-
-                    {formValues["sequenceType"] && formValues["sequenceType"].toLowerCase() == "registry_reference" &&
-                        <Field>
-                            <TextField
-                                label="Sequence Key"
-                                size={50}
-                                placeholder=""
-                                value={formValues["sequenceKey"]}
-                                onTextChange={(e: any) => {
-                                    setFormValues({ ...formValues, "sequenceKey": e, "isTargetChanged": true });
-                                    formValidators["sequenceKey"](e);
-                                }}
-                                required={false}
-                            />
-                            {errors["sequenceKey"] && <Error>{errors["sequenceKey"]}</Error>}
-                        </Field>
-                    }
-
-                    {formValues["sequenceType"] && formValues["sequenceType"].toLowerCase() == "named_reference" &&
-                        <Field>
-                            <TextField
-                                label="Sequence Name"
-                                size={50}
-                                placeholder=""
-                                value={formValues["sequenceName"]}
-                                onTextChange={(e: any) => {
-                                    setFormValues({ ...formValues, "sequenceName": e, "isTargetChanged": true });
-                                    formValidators["sequenceName"](e);
-                                }}
-                                required={false}
-                            />
-                            {errors["sequenceName"] && <Error>{errors["sequenceName"]}</Error>}
-                        </Field>
-                    }
-
-                </ComponentCard>
-
-                <Field>
-                    <TextField
-                        label="Description"
-                        size={50}
-                        placeholder=""
-                        value={formValues["description"]}
-                        onTextChange={(e: any) => {
-                            setFormValues({ ...formValues, "description": e, "isIterateChanged": true });
-                            formValidators["description"](e);
-                        }}
-                        required={false}
-                    />
-                    {errors["description"] && <Error>{errors["description"]}</Error>}
-                </Field>
+                }
 
             </ComponentCard>
 
+            <Field>
+                <Controller
+                    name="description"
+                    control={control}
+                    render={({ field }) => (
+                        <TextField {...field} label="Description" size={50} placeholder="" />
+                    )}
+                />
+                {errors.description && <Error>{errors.description.message.toString()}</Error>}
+            </Field>
 
-            <div style={{ display: "flex", textAlign: "right", justifyContent: "flex-end", marginTop: "10px" }}>
+
+            <div style={{ textAlign: "right", marginTop: "10px", float: "right" }}>
                 <Button
                     appearance="primary"
-                    onClick={onClick}
+                    onClick={handleSubmit(onClick)}
                 >
                     Submit
                 </Button>

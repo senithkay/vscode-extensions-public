@@ -6,19 +6,19 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
 */
+// AUTO-GENERATED FILE. DO NOT MODIFY.
 
-
-import React, { useEffect, useState } from 'react';
-import { Button, ComponentCard, ParamConfig, ParamManager, TextField } from '@wso2-enterprise/ui-toolkit';
-import { VSCodeDataGrid, VSCodeDataGridRow, VSCodeDataGridCell } from '@vscode/webview-ui-toolkit/react';
+import React, { useEffect } from 'react';
+import { Button, ComponentCard, ExpressionFieldValue, ParamManager, ProgressIndicator, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
 import { AddMediatorProps } from '../common';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
 import { MEDIATORS } from '../../../../../resources/constants';
+import { Controller, useForm } from 'react-hook-form';
 
-const cardStyle = {
+const cardStyle = { 
     display: "block",
     margin: "15px 0",
     padding: "0 15px 15px 15px",
@@ -35,198 +35,155 @@ const Field = styled.div`
    margin-bottom: 12px;
 `;
 
-const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g;
-const nameWithoutSpecialCharactorsRegex = /^[a-zA-Z0-9]+$/g;
-
-const generateDisplayValue = (paramValues: any) => {
-    const result: string = paramValues.parameters[1].value + " " + paramValues.parameters[2].value;
-    return result.trim();
-};
-
-const BuilderForm = (props: AddMediatorProps) => {
+const CommandForm = (props: AddMediatorProps) => {
     const { rpcClient } = useVisualizerContext();
     const sidePanelContext = React.useContext(SidePanelContext);
-    const [formValues, setFormValues] = useState({} as { [key: string]: any });
-    const [errors, setErrors] = useState({} as any);
+    const [ isLoading, setIsLoading ] = React.useState(true);
 
-    const paramConfigs: ParamConfig = {
-        paramValues: [],
-        paramFields: [
-            {
-                id: 0,
-                type: "TextField",
-                label: "Content Type",
-                defaultValue: "",
-                isRequired: false,
-            },
-            {
-                id: 1,
-                type: "TextField",
-                label: "Builder Class",
-                defaultValue: "",
-                isRequired: false,
-            },
-            {
-                id: 2,
-                type: "TextField",
-                label: "Formatter Class",
-                defaultValue: "",
-                isRequired: false,
-            },]
-    };
-
-    const [params, setParams] = useState(paramConfigs);
-    const handleOnChange = (params: any) => {
-        const modifiedParams = { ...params, paramValues: params.paramValues.map((param: any) => {
-            return {
-                ...param,
-                key: param.parameters[0].value,
-                value: generateDisplayValue(param),
-                icon: "query"
-            }
-        })};
-        setParams(modifiedParams);
-    };
+    const { control, formState: { errors }, handleSubmit, watch, reset } = useForm();
 
     useEffect(() => {
-        if (sidePanelContext.formValues && Object.keys(sidePanelContext.formValues).length > 0) {
-            setFormValues({ ...formValues, ...sidePanelContext.formValues });
-            if (sidePanelContext.formValues["messageBuilders"] && sidePanelContext.formValues["messageBuilders"].length > 0) {
-                const paramValues = sidePanelContext.formValues["messageBuilders"].map((property: string, index: string) => (
+        reset({
+            messageBuilders: {
+                paramValues: sidePanelContext?.formValues?.messageBuilders && sidePanelContext?.formValues?.messageBuilders.map((property: string|ExpressionFieldValue[], index: string) => (
                     {
                         id: index,
-                        parameters: [
-                            {
-                                id: 0,
-                                label: "contentType",
-                                type: "TextField",
-                                value: property[0],
-                                isRequired: false
-                            },
-                            {
-                                id: 1,
-                                label: "builderClass",
-                                type: "TextField",
-                                value: property[1],
-                                isRequired: true
-                            },
-                            {
-                                id: 2,
-                                label: "formatterClass",
-                                type: "TextField",
-                                value: property[2],
-                                isRequired: false
-                            }
-                        ],
-                        key: property[0],
-                        value: property[1] + " " + property[2],
-                        icon: "query"
-                    })
-                )
-                setParams({ ...params, paramValues: paramValues });
-            }
-        } else {
-            setFormValues({
-                "messageBuilders": [] as string[][],
-            });
-        }
+                        key: typeof property[0] === 'object' ? property[0].value : property[0],
+                        value: typeof property[1] === 'object' ? property[1].value : property[1],
+                        icon: 'query',
+                        paramValues: [
+                            { value: property[0] },
+                            { value: property[1] },
+                            { value: property[2] },
+                        ]
+                    }
+                )) || [] as string[][],
+                paramFields: [
+                    {
+                        "type": "TextField",
+                        "label": "Content Type",
+                        "defaultValue": "",
+                        "isRequired": false, 
+                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
+                            sidePanelContext.setSidePanelState({
+                                ...sidePanelContext,
+                                expressionEditor: {
+                                    isOpen: true,
+                                    value,
+                                    setValue
+                                }
+                            });
+                        }},
+                    {
+                        "type": "TextField",
+                        "label": "Builder Class",
+                        "defaultValue": "",
+                        "isRequired": false, 
+                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
+                            sidePanelContext.setSidePanelState({
+                                ...sidePanelContext,
+                                expressionEditor: {
+                                    isOpen: true,
+                                    value,
+                                    setValue
+                                }
+                            });
+                        }},
+                    {
+                        "type": "TextField",
+                        "label": "Formatter Class",
+                        "defaultValue": "",
+                        "isRequired": false, 
+                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
+                            sidePanelContext.setSidePanelState({
+                                ...sidePanelContext,
+                                expressionEditor: {
+                                    isOpen: true,
+                                    value,
+                                    setValue
+                                }
+                            });
+                        }},
+                ]
+            },
+            description: sidePanelContext?.formValues?.description || "",
+        });
+        setIsLoading(false);
     }, [sidePanelContext.formValues]);
 
-    const onClick = async () => {
-        const newErrors = {} as any;
-        Object.keys(formValidators).forEach((key) => {
-            const error = formValidators[key]();
-            if (error) {
-                newErrors[key] = (error);
-            }
+    const onClick = async (values: any) => {
+        
+        values["messageBuilders"] = values.messageBuilders.paramValues.map((param: any) => param.paramValues.map((p: any) => p.value));
+        const xml = getXML(MEDIATORS.COMMAND, values);
+        rpcClient.getMiDiagramRpcClient().applyEdit({
+            documentUri: props.documentUri, range: props.nodePosition, text: xml
         });
-        formValues["messageBuilders"] = params.paramValues.map(param => param.parameters.slice(0, 4).map(p => p.value));
-        params.paramValues.forEach(param => {
-            param.parameters.slice(0, 4).forEach(p => {
-                let key = p.label.toLowerCase().replace(/\s/g, '');
-                formValues[key] = p.value;
-            });
+        sidePanelContext.setSidePanelState({
+            ...sidePanelContext,
+            isOpen: false,
+            isEditing: false,
+            formValues: undefined,
+            nodeRange: undefined,
+            operationName: undefined
         });
-        if (Object.keys(newErrors).length > 0) {
-            setErrors(newErrors);
-        } else {
-            const xml = getXML(MEDIATORS.BUILDER, formValues);
-            rpcClient.getMiDiagramRpcClient().applyEdit({
-                documentUri: props.documentUri, range: props.nodePosition, text: xml
-            });
-            sidePanelContext.setSidePanelState({
-                ...sidePanelContext,
-                isOpen: false,
-                isEditing: false,
-                formValues: undefined,
-                nodeRange: undefined,
-                operationName: undefined
-            });
-        }
     };
 
-    const formValidators: { [key: string]: (e?: any) => string | undefined } = {
-        "contentType": (e?: any) => validateField("contentType", e, false),
-        "builderClass": (e?: any) => validateField("builderClass", e, false),
-        "formatterClass": (e?: any) => validateField("formatterClass", e, false),
-        "description": (e?: any) => validateField("description", e, false),
-
-    };
-
-    const validateField = (id: string, e: any, isRequired: boolean, validation?: "e-mail" | "nameWithoutSpecialCharactors" | "custom", regex?: string): string => {
-        const value = e ?? formValues[id];
-        const newErrors = { ...errors };
-        let error;
-        if (isRequired && !value) {
-            error = "This field is required";
-        } else if (validation === "e-mail" && !value.match(emailRegex)) {
-            error = "Invalid e-mail address";
-        } else if (validation === "nameWithoutSpecialCharactors" && !value.match(nameWithoutSpecialCharactorsRegex)) {
-            error = "Invalid name";
-        } else if (validation === "custom" && !value.match(regex)) {
-            error = "Invalid input";
-        } else {
-            delete newErrors[id];
-            setErrors(newErrors);
-        }
-        setErrors({ ...errors, [id]: error });
-        return error;
-    };
-
+    if (isLoading) {
+        return <ProgressIndicator/>;
+    }
     return (
         <div style={{ padding: "10px" }}>
+            <Typography variant="body3"></Typography>
 
             <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                <h3>Properties</h3>
+                <Typography variant="h3">Properties</Typography>
 
-                {formValues["messageBuilders"] && (
-                    <ParamManager
-                        paramConfigs={params}
-                        readonly={false}
-                        onChange={handleOnChange} />
-                )}
-                <Field>
-                    <TextField
-                        label="Description"
-                        size={50}
-                        placeholder=""
-                        value={formValues["description"]}
-                        onTextChange={(e: any) => {
-                            setFormValues({ ...formValues, "description": e });
-                            formValidators["description"](e);
-                        }}
-                        required={false}
+                <ComponentCard sx={cardStyle} disbaleHoverEffect>
+                    <Typography variant="h3">Message Builders</Typography>
+                    <Typography variant="body3">Editing of the properties of an object Message Builder</Typography>
+
+                    <Controller
+                        name="messageBuilders"
+                        control={control}
+                        render={({ field: { onChange, value } }) => (
+                            <ParamManager
+                                paramConfigs={value}
+                                readonly={false}
+                                onChange= {(values) => {
+                                    values.paramValues = values.paramValues.map((param: any, index: number) => {
+                                        const paramValues = param.paramValues;
+                                        param.key = paramValues[0].value;
+                                        param.value = paramValues[1].value;
+                                        if (paramValues[1]?.value?.isExpression) {
+                                            param.namespaces = paramValues[1].value.namespaces;
+                                        }
+                                        param.icon = 'query';
+                                        return param;
+                                    });
+                                    onChange(values);
+                                }}
+                            />
+                        )}
                     />
-                    {errors["description"] && <Error>{errors["description"]}</Error>}
+                </ComponentCard>
+                <Field>
+                    <Controller
+                        name="description"
+                        control={control}
+                        render={({ field }) => (
+                            <TextField {...field} label="Description" size={50} placeholder="" />
+                        )}
+                    />
+                    {errors.description && <Error>{errors.description.message.toString()}</Error>}
                 </Field>
 
             </ComponentCard>
 
 
-            <div style={{ textAlign: "right", marginTop: "10px" }}>
+            <div style={{ textAlign: "right", marginTop: "10px", float: "right" }}>
                 <Button
                     appearance="primary"
-                    onClick={onClick}
+                    onClick={handleSubmit(onClick)}
                 >
                     Submit
                 </Button>
@@ -236,4 +193,4 @@ const BuilderForm = (props: AddMediatorProps) => {
     );
 };
 
-export default BuilderForm; 
+export default CommandForm; 

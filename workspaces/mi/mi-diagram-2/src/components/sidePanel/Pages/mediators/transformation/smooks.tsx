@@ -6,23 +6,24 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
 */
+// AUTO-GENERATED FILE. DO NOT MODIFY.
 
-
-import React, { useEffect, useState } from 'react';
-import { AutoComplete, Button, ComponentCard, TextField } from '@wso2-enterprise/ui-toolkit';
+import React, { useEffect } from 'react';
+import { AutoComplete, Button, ComponentCard, ExpressionField, ExpressionFieldValue, ProgressIndicator, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
 import { AddMediatorProps } from '../common';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
 import { MEDIATORS } from '../../../../../resources/constants';
+import { Controller, useForm } from 'react-hook-form';
 
 const cardStyle = { 
-   display: "block",
-   margin: "15px 0",
-   padding: "0 15px 15px 15px",
-   width: "auto",
-   cursor: "auto"
+    display: "block",
+    margin: "15px 0",
+    padding: "0 15px 15px 15px",
+    width: "auto",
+    cursor: "auto"
 };
 
 const Error = styled.span`
@@ -34,231 +35,203 @@ const Field = styled.div`
    margin-bottom: 12px;
 `;
 
-const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g;
-const nameWithoutSpecialCharactorsRegex = /^[a-zA-Z0-9]+$/g;
-
 const SmooksForm = (props: AddMediatorProps) => {
-   const { rpcClient } = useVisualizerContext();
-   const sidePanelContext = React.useContext(SidePanelContext);
-   const [formValues, setFormValues] = useState({} as { [key: string]: any });
-   const [errors, setErrors] = useState({} as any);
+    const { rpcClient } = useVisualizerContext();
+    const sidePanelContext = React.useContext(SidePanelContext);
+    const [ isLoading, setIsLoading ] = React.useState(true);
 
-   useEffect(() => {
-       if (sidePanelContext.formValues && Object.keys(sidePanelContext.formValues).length > 0) {
-           setFormValues({ ...formValues, ...sidePanelContext.formValues });
-       } else {
-           setFormValues({
-       "inputType": "xml",
-       "outputType": "xml",
-       "outputMethod": "Default",
-       "outputAction": "Add",});
-       }
-   }, [sidePanelContext.formValues]);
+    const { control, formState: { errors }, handleSubmit, watch, reset } = useForm();
 
-   const onClick = async () => {
-       const newErrors = {} as any;
-       Object.keys(formValidators).forEach((key) => {
-           const error = formValidators[key]();
-           if (error) {
-               newErrors[key] = (error);
-           }
-       });
-       if (Object.keys(newErrors).length > 0) {
-           setErrors(newErrors);
-       } else {
-           const xml = getXML(MEDIATORS.SMOOKS, formValues);
-           rpcClient.getMiDiagramRpcClient().applyEdit({
-               documentUri: props.documentUri, range: props.nodePosition, text: xml
-           });
-           sidePanelContext.setSidePanelState({
-                ...sidePanelContext,
-                isOpen: false,
-                isEditing: false,
-                formValues: undefined,
-                nodeRange: undefined,
-                operationName: undefined
-              });
-       }
-   };
+    useEffect(() => {
+        reset({
+            inputType: sidePanelContext?.formValues?.inputType || "xml",
+            inputExpression: sidePanelContext?.formValues?.inputExpression || {"isExpression":true,"value":""},
+            configurationKey: sidePanelContext?.formValues?.configurationKey || "",
+            outputType: sidePanelContext?.formValues?.outputType || "xml",
+            outputMethod: sidePanelContext?.formValues?.outputMethod || "Default",
+            outputProperty: sidePanelContext?.formValues?.outputProperty || "",
+            outputAction: sidePanelContext?.formValues?.outputAction || "Add",
+            outputExpression: sidePanelContext?.formValues?.outputExpression || "",
+            description: sidePanelContext?.formValues?.description || "",
+        });
+        setIsLoading(false);
+    }, [sidePanelContext.formValues]);
 
-   const formValidators: { [key: string]: (e?: any) => string | undefined } = {
-       "inputType": (e?: any) => validateField("inputType", e, false),
-       "inputExpression": (e?: any) => validateField("inputExpression", e, false),
-       "configurationKey": (e?: any) => validateField("configurationKey", e, false),
-       "outputType": (e?: any) => validateField("outputType", e, false),
-       "outputMethod": (e?: any) => validateField("outputMethod", e, false),
-       "outputProperty": (e?: any) => validateField("outputProperty", e, false),
-       "outputAction": (e?: any) => validateField("outputAction", e, false),
-       "outputExpression": (e?: any) => validateField("outputExpression", e, false),
-       "description": (e?: any) => validateField("description", e, false),
+    const onClick = async (values: any) => {
+        
+        const xml = getXML(MEDIATORS.SMOOKS, values);
+        rpcClient.getMiDiagramRpcClient().applyEdit({
+            documentUri: props.documentUri, range: props.nodePosition, text: xml
+        });
+        sidePanelContext.setSidePanelState({
+            ...sidePanelContext,
+            isOpen: false,
+            isEditing: false,
+            formValues: undefined,
+            nodeRange: undefined,
+            operationName: undefined
+        });
+    };
 
-   };
-
-   const validateField = (id: string, e: any, isRequired: boolean, validation?: "e-mail" | "nameWithoutSpecialCharactors" | "custom", regex?: string): string => {
-       const value = e ?? formValues[id];
-       const newErrors = { ...errors };
-       let error;
-       if (isRequired && !value) {
-           error = "This field is required";
-       } else if (validation === "e-mail" && !value.match(emailRegex)) {
-           error = "Invalid e-mail address";
-       } else if (validation === "nameWithoutSpecialCharactors" && !value.match(nameWithoutSpecialCharactorsRegex)) {
-           error = "Invalid name";
-       } else if (validation === "custom" && !value.match(regex)) {
-           error = "Invalid input";
-       } else {
-           delete newErrors[id];
-           setErrors(newErrors);
-       }
-       setErrors({ ...errors, [id]: error });
-       return error;
-   };
-
-   return (
-       <div style={{ padding: "10px" }}>
+    if (isLoading) {
+        return <ProgressIndicator/>;
+    }
+    return (
+        <div style={{ padding: "10px" }}>
+            <Typography variant="body3"></Typography>
 
             <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                <h3>Input</h3>
+                <Typography variant="h3">Input</Typography>
 
                 <Field>
-                    <label>Input Type</label>
-                    <AutoComplete items={["xml", "text"]} value={formValues["inputType"]} onValueChange={(e: any) => {
-                        setFormValues({ ...formValues, "inputType": e });
-                        formValidators["inputType"](e);
-                    }} />
-                    {errors["inputType"] && <Error>{errors["inputType"]}</Error>}
+                    <Controller
+                        name="inputType"
+                        control={control}
+                        render={({ field }) => (
+                            <AutoComplete label="Input Type" items={["xml", "text"]} value={field.value} onValueChange={(e: any) => {
+                                field.onChange(e);
+                            }} />
+                        )}
+                    />
+                    {errors.inputType && <Error>{errors.inputType.message.toString()}</Error>}
                 </Field>
 
                 <Field>
-                    <TextField
-                        label="Input Expression"
-                        size={50}
-                        placeholder=""
-                        value={formValues["inputExpression"]}
-                        onTextChange={(e: any) => {
-                            setFormValues({ ...formValues, "inputExpression": e });
-                            formValidators["inputExpression"](e);
-                        }}
-                        required={false}
+                    <Controller
+                        name="inputExpression"
+                        control={control}
+                        render={({ field }) => (
+                            <ExpressionField
+                                {...field} label="Input Expression"
+                                placeholder=""
+                                canChange={false}
+                                openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => {
+                                    sidePanelContext.setSidePanelState({
+                                        ...sidePanelContext,
+                                        expressionEditor: {
+                                            isOpen: true,
+                                            value,
+                                            setValue
+                                        }
+                                    });
+                                }}
+                            />
+                        )}
                     />
-                    {errors["inputExpression"] && <Error>{errors["inputExpression"]}</Error>}
+                    {errors.inputExpression && <Error>{errors.inputExpression.message.toString()}</Error>}
                 </Field>
 
             </ComponentCard>
 
             <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                <h3>Key</h3>
+                <Typography variant="h3">Key</Typography>
 
                 <Field>
-                    <TextField
-                        label="Configuration Key"
-                        size={50}
-                        placeholder=""
-                        value={formValues["configurationKey"]}
-                        onTextChange={(e: any) => {
-                            setFormValues({ ...formValues, "configurationKey": e });
-                            formValidators["configurationKey"](e);
-                        }}
-                        required={false}
+                    <Controller
+                        name="configurationKey"
+                        control={control}
+                        render={({ field }) => (
+                            <TextField {...field} label="Configuration Key" size={50} placeholder="" />
+                        )}
                     />
-                    {errors["configurationKey"] && <Error>{errors["configurationKey"]}</Error>}
+                    {errors.configurationKey && <Error>{errors.configurationKey.message.toString()}</Error>}
                 </Field>
 
             </ComponentCard>
 
             <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                <h3>Output</h3>
+                <Typography variant="h3">Output</Typography>
 
                 <Field>
-                    <label>Output Type</label>
-                    <AutoComplete items={["xml", "text", "java"]} value={formValues["outputType"]} onValueChange={(e: any) => {
-                        setFormValues({ ...formValues, "outputType": e });
-                        formValidators["outputType"](e);
-                    }} />
-                    {errors["outputType"] && <Error>{errors["outputType"]}</Error>}
+                    <Controller
+                        name="outputType"
+                        control={control}
+                        render={({ field }) => (
+                            <AutoComplete label="Output Type" items={["xml", "text", "java"]} value={field.value} onValueChange={(e: any) => {
+                                field.onChange(e);
+                            }} />
+                        )}
+                    />
+                    {errors.outputType && <Error>{errors.outputType.message.toString()}</Error>}
                 </Field>
 
                 <Field>
-                    <label>Output Method</label>
-                    <AutoComplete items={["Default", "Property", "Expression"]} value={formValues["outputMethod"]} onValueChange={(e: any) => {
-                        setFormValues({ ...formValues, "outputMethod": e });
-                        formValidators["outputMethod"](e);
-                    }} />
-                    {errors["outputMethod"] && <Error>{errors["outputMethod"]}</Error>}
+                    <Controller
+                        name="outputMethod"
+                        control={control}
+                        render={({ field }) => (
+                            <AutoComplete label="Output Method" items={["Default", "Property", "Expression"]} value={field.value} onValueChange={(e: any) => {
+                                field.onChange(e);
+                            }} />
+                        )}
+                    />
+                    {errors.outputMethod && <Error>{errors.outputMethod.message.toString()}</Error>}
                 </Field>
 
-                {formValues["outputMethod"] && formValues["outputMethod"].toLowerCase() == "property" &&
+                {watch("outputMethod") && watch("outputMethod").toLowerCase() == "property" &&
                     <Field>
-                        <TextField
-                            label="Output Property"
-                            size={50}
-                            placeholder=""
-                            value={formValues["outputProperty"]}
-                            onTextChange={(e: any) => {
-                                setFormValues({ ...formValues, "outputProperty": e });
-                                formValidators["outputProperty"](e);
-                            }}
-                            required={false}
+                        <Controller
+                            name="outputProperty"
+                            control={control}
+                            render={({ field }) => (
+                                <TextField {...field} label="Output Property" size={50} placeholder="" />
+                            )}
                         />
-                        {errors["outputProperty"] && <Error>{errors["outputProperty"]}</Error>}
+                        {errors.outputProperty && <Error>{errors.outputProperty.message.toString()}</Error>}
                     </Field>
                 }
 
-                {formValues["outputMethod"] && formValues["outputMethod"].toLowerCase() == "expression" &&
+                {watch("outputMethod") && watch("outputMethod").toLowerCase() == "expression" &&
                     <Field>
-                        <label>Output Action</label>
-                        <AutoComplete items={["Add", "Replace", "Sibiling"]} value={formValues["outputAction"]} onValueChange={(e: any) => {
-                            setFormValues({ ...formValues, "outputAction": e });
-                            formValidators["outputAction"](e);
-                        }} />
-                        {errors["outputAction"] && <Error>{errors["outputAction"]}</Error>}
-                    </Field>
-                }
-
-                {formValues["outputMethod"] && formValues["outputMethod"].toLowerCase() == "expression" &&
-                    <Field>
-                        <TextField
-                            label="Output Expression"
-                            size={50}
-                            placeholder=""
-                            value={formValues["outputExpression"]}
-                            onTextChange={(e: any) => {
-                                setFormValues({ ...formValues, "outputExpression": e });
-                                formValidators["outputExpression"](e);
-                            }}
-                            required={false}
+                        <Controller
+                            name="outputAction"
+                            control={control}
+                            render={({ field }) => (
+                                <AutoComplete label="Output Action" items={["Add", "Replace", "Sibiling"]} value={field.value} onValueChange={(e: any) => {
+                                    field.onChange(e);
+                                }} />
+                            )}
                         />
-                        {errors["outputExpression"] && <Error>{errors["outputExpression"]}</Error>}
+                        {errors.outputAction && <Error>{errors.outputAction.message.toString()}</Error>}
+                    </Field>
+                }
+
+                {watch("outputMethod") && watch("outputMethod").toLowerCase() == "expression" &&
+                    <Field>
+                        <Controller
+                            name="outputExpression"
+                            control={control}
+                            render={({ field }) => (
+                                <TextField {...field} label="Output Expression" size={50} placeholder="" />
+                            )}
+                        />
+                        {errors.outputExpression && <Error>{errors.outputExpression.message.toString()}</Error>}
                     </Field>
                 }
 
             </ComponentCard>
 
             <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                <h3>Misc</h3>
+                <Typography variant="h3">Misc</Typography>
 
                 <Field>
-                    <TextField
-                        label="Description"
-                        size={50}
-                        placeholder=""
-                        value={formValues["description"]}
-                        onTextChange={(e: any) => {
-                            setFormValues({ ...formValues, "description": e });
-                            formValidators["description"](e);
-                        }}
-                        required={false}
+                    <Controller
+                        name="description"
+                        control={control}
+                        render={({ field }) => (
+                            <TextField {...field} label="Description" size={50} placeholder="" />
+                        )}
                     />
-                    {errors["description"] && <Error>{errors["description"]}</Error>}
+                    {errors.description && <Error>{errors.description.message.toString()}</Error>}
                 </Field>
 
             </ComponentCard>
 
 
-            <div style={{ display: "flex", textAlign: "right", justifyContent: "flex-end", marginTop: "10px" }}>
+            <div style={{ textAlign: "right", marginTop: "10px", float: "right" }}>
                 <Button
                     appearance="primary"
-                    onClick={onClick}
+                    onClick={handleSubmit(onClick)}
                 >
                     Submit
                 </Button>

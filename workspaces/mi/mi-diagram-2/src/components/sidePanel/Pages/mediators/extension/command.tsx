@@ -6,18 +6,19 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
 */
+// AUTO-GENERATED FILE. DO NOT MODIFY.
 
-
-import React, { useEffect, useState } from 'react';
-import { Button, ComponentCard, ParamConfig, ParamManager, TextField } from '@wso2-enterprise/ui-toolkit';
+import React, { useEffect } from 'react';
+import { Button, ComponentCard, ExpressionFieldValue, ParamManager, ProgressIndicator, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
 import { AddMediatorProps } from '../common';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
 import { MEDIATORS } from '../../../../../resources/constants';
+import { Controller, useForm } from 'react-hook-form';
 
-const cardStyle = {
+const cardStyle = { 
     display: "block",
     margin: "15px 0",
     padding: "0 15px 15px 15px",
@@ -34,284 +35,271 @@ const Field = styled.div`
    margin-bottom: 12px;
 `;
 
-const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g;
-const nameWithoutSpecialCharactorsRegex = /^[a-zA-Z0-9]+$/g;
-
-const generateDisplayValue = (paramValues: any) => {
-    const result: string = paramValues.parameters[1].value === "LITERAL" ? paramValues.parameters[2].value : paramValues.parameters[3].value;
-    return result.trim();
-};
-
 const CommandForm = (props: AddMediatorProps) => {
     const { rpcClient } = useVisualizerContext();
     const sidePanelContext = React.useContext(SidePanelContext);
-    const [formValues, setFormValues] = useState({} as { [key: string]: any });
-    const [errors, setErrors] = useState({} as any);
+    const [ isLoading, setIsLoading ] = React.useState(true);
 
-    const paramConfigs: ParamConfig = {
-        paramValues: [],
-        paramFields: [
-            {
-                id: 0,
-                type: "TextField",
-                label: "Property Name",
-                defaultValue: "",
-                isRequired: false
-            },
-            {
-                id: 1,
-                type: "Dropdown",
-                label: "Value Type",
-                defaultValue: "LITERAL",
-                isRequired: false,
-                values: ["LITERAL", "MESSAGE_ELEMENT", "CONTEXT_PROPERTY"]
-            },
-            {
-                id: 2,
-                type: "TextField",
-                label: "Value Literal",
-                defaultValue: "",
-                isRequired: false,
-                enableCondition: [{ 1: "LITERAL" }]
-            },
-            {
-                id: 3,
-                type: "Dropdown",
-                label: "Message Action",
-                defaultValue: "ReadMessage",
-                isRequired: false,
-                enableCondition: [{ 1: "MESSAGE_ELEMENT" }],
-                values: ["ReadMessage", "UpdateMessage", "ReadAndUpdateMessage"]
-            },
-            {
-                id: 4,
-                type: "TextField",
-                label: "Value Message Element Xpath",
-                defaultValue: "",
-                isRequired: false,
-                enableCondition: [{ 1: "MESSAGE_ELEMENT" }]
-            },
-            {
-                id: 5,
-                type: "TextField",
-                label: "Value Context Property Name",
-                defaultValue: "",
-                isRequired: false,
-                enableCondition: [{ 1: "CONTEXT_PROPERTY" }]
-            },
-            {
-                id: 6,
-                type: "Dropdown",
-                label: "Context Action",
-                defaultValue: "ReadContext",
-                isRequired: false,
-                enableCondition: [{ 1: "CONTEXT_PROPERTY" }],
-                values: ["ReadContext", "UpdateContext", "ReadAndUpdateContext"]
-            }]
-    };
-
-    const [params, setParams] = useState(paramConfigs);
-
-    const handleOnChange = (params: any) => {
-        const modifiedParams = { ...params, paramValues: params.paramValues.map((param: any) => {
-            return {
-                ...param,
-                key: param.parameters[0].value,
-                value: generateDisplayValue(param),
-                icon: "query"
-            }
-        })};
-        setParams(modifiedParams);
-    };
+    const { control, formState: { errors }, handleSubmit, watch, reset } = useForm();
 
     useEffect(() => {
-        if (sidePanelContext.formValues && Object.keys(sidePanelContext.formValues).length > 0) {
-            setFormValues({ ...formValues, ...sidePanelContext.formValues });
-            if (sidePanelContext.formValues["properties"] && sidePanelContext.formValues["properties"].length > 0) {
-                const paramValues = sidePanelContext.formValues["properties"].map((property: string, index: string) => (
+        reset({
+            className: sidePanelContext?.formValues?.className || "",
+            properties: {
+                paramValues: sidePanelContext?.formValues?.properties && sidePanelContext?.formValues?.properties.map((property: string|ExpressionFieldValue[], index: string) => (
                     {
                         id: index,
-                        parameters: [
+                        key: typeof property[0] === 'object' ? property[0].value : property[0],
+                        value: typeof property[2] === 'object' ? property[2].value : property[2],
+                        icon: 'query',
+                        paramValues: [
+                            { value: property[0] },
+                            { value: property[1] },
+                            { value: property[2] },
+                            { value: property[3] },
+                            { value: property[4] },
+                            { value: property[5] },
+                            { value: property[6] },
+                        ]
+                    }
+                )) || [] as string[][],
+                paramFields: [
+                    {
+                        "type": "TextField",
+                        "label": "Property Name",
+                        "defaultValue": "",
+                        "isRequired": false, 
+                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
+                            sidePanelContext.setSidePanelState({
+                                ...sidePanelContext,
+                                expressionEditor: {
+                                    isOpen: true,
+                                    value,
+                                    setValue
+                                }
+                            });
+                        }},
+                    {
+                        "type": "Dropdown",
+                        "label": "Value Type",
+                        "defaultValue": "LITERAL",
+                        "isRequired": false,
+                        "values": [
+                            "LITERAL",
+                            "MESSAGE_ELEMENT",
+                            "CONTEXT_PROPERTY"
+                        ], 
+                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
+                            sidePanelContext.setSidePanelState({
+                                ...sidePanelContext,
+                                expressionEditor: {
+                                    isOpen: true,
+                                    value,
+                                    setValue
+                                }
+                            });
+                        }},
+                    {
+                        "type": "TextField",
+                        "label": "Value Literal",
+                        "defaultValue": "",
+                        "isRequired": false,
+                        "enableCondition": [
                             {
-                                id: 0,
-                                label: "propertyName",
-                                type: "TextField",
-                                value: property[0],
-                                isRequired: true
-                            },
-                            {
-                                id: 1,
-                                label: "valueType",
-                                type: "Dropdown",
-                                value: property[1],
-                                isRequired: true,
-                                values: ["LITERAL", "MESSAGE_ELEMENT", "CONTEXT_PROPERTY"]
-                            },
-                            {
-                                id: 2,
-                                label: "valueLiteral",
-                                type: "TextField",
-                                value: property[2],
-                                isRequired: false
-                            },
-                            {
-                                id: 3,
-                                label: "messageAction",
-                                type: "Dropdown",
-                                value: property[3],
-                                isRequired: false,
-                                values: ["ReadContext", "UpdateContext", "ReadAndUpdateContext"]
-                            },
-                            {
-                                id: 4,
-                                label: "valueMessageElementXpath",
-                                type: "TextField",
-                                value: property[4],
-                                isRequired: false,
-                            },
-                            {
-                                id: 5,
-                                label: "valueContextPropertyName",
-                                type: "TextField",
-                                value: property[5],
-                                isRequired: false,
-                            },
-                            {
-                                id: 6,
-                                label: "contextAction",
-                                type: "Dropdown",
-                                value: property[6],
-                                isRequired: false,
-                                values: ["ReadContext", "UpdateContext", "ReadAndUpdateContext"]
+                                "-1": "LITERAL"
                             }
+                        ], 
+                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
+                            sidePanelContext.setSidePanelState({
+                                ...sidePanelContext,
+                                expressionEditor: {
+                                    isOpen: true,
+                                    value,
+                                    setValue
+                                }
+                            });
+                        }},
+                    {
+                        "type": "Dropdown",
+                        "label": "Message Action",
+                        "defaultValue": "ReadMessage",
+                        "isRequired": false,
+                        "values": [
+                            "ReadMessage",
+                            "UpdateMessage",
+                            "ReadAndUpdateMessage"
                         ],
-                        key: property[0],
-                        value: property[1] === "LITERAL" ? property[2] : property[3],
-                        icon: "query"
-                    })
-                )
-                setParams({ ...params, paramValues: paramValues });
-            }
-        } else {
-            setFormValues({
-                "properties": [] as string[][],
-            });
-        }
+                        "enableCondition": [
+                            {
+                                "-1": "MESSAGE_ELEMENT"
+                            }
+                        ], 
+                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
+                            sidePanelContext.setSidePanelState({
+                                ...sidePanelContext,
+                                expressionEditor: {
+                                    isOpen: true,
+                                    value,
+                                    setValue
+                                }
+                            });
+                        }},
+                    {
+                        "type": "TextField",
+                        "label": "Value Message Element Xpath",
+                        "defaultValue": "",
+                        "isRequired": false,
+                        "enableCondition": [
+                            {
+                                "-1": "MESSAGE_ELEMENT"
+                            }
+                        ], 
+                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
+                            sidePanelContext.setSidePanelState({
+                                ...sidePanelContext,
+                                expressionEditor: {
+                                    isOpen: true,
+                                    value,
+                                    setValue
+                                }
+                            });
+                        }},
+                    {
+                        "type": "TextField",
+                        "label": "Value Context Property Name",
+                        "defaultValue": "",
+                        "isRequired": false,
+                        "enableCondition": [
+                            {
+                                "-1": "CONTEXT_PROPERTY"
+                            }
+                        ], 
+                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
+                            sidePanelContext.setSidePanelState({
+                                ...sidePanelContext,
+                                expressionEditor: {
+                                    isOpen: true,
+                                    value,
+                                    setValue
+                                }
+                            });
+                        }},
+                    {
+                        "type": "Dropdown",
+                        "label": "Context Action",
+                        "defaultValue": "ReadContext",
+                        "isRequired": false,
+                        "values": [
+                            "ReadContext",
+                            "UpdateContext",
+                            "ReadAndUpdateContext"
+                        ],
+                        "enableCondition": [
+                            {
+                                "-1": "CONTEXT_PROPERTY"
+                            }
+                        ], 
+                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
+                            sidePanelContext.setSidePanelState({
+                                ...sidePanelContext,
+                                expressionEditor: {
+                                    isOpen: true,
+                                    value,
+                                    setValue
+                                }
+                            });
+                        }},
+                ]
+            },
+            description: sidePanelContext?.formValues?.description || "",
+        });
+        setIsLoading(false);
     }, [sidePanelContext.formValues]);
 
-    const onClick = async () => {
-        const newErrors = {} as any;
-        Object.keys(formValidators).forEach((key) => {
-            const error = formValidators[key]();
-            if (error) {
-                newErrors[key] = (error);
-            }
-        });
-        formValues["properties"] = params.paramValues.map(param => param.parameters.slice(0, 7).map(p => p.value));
-        params.paramValues.forEach(param => {
-            param.parameters.slice(0, 7).forEach(p => {
-                let key = p.label.toLowerCase().replace(/\s/g, '');
-                formValues[key] = p.value;
-            });
-        });
+    const onClick = async (values: any) => {
         
-        if (Object.keys(newErrors).length > 0) {
-            setErrors(newErrors);
-        } else {
-            const xml = getXML(MEDIATORS.COMMAND, formValues);
-            rpcClient.getMiDiagramRpcClient().applyEdit({
-                documentUri: props.documentUri, range: props.nodePosition, text: xml
-            });
-            sidePanelContext.setSidePanelState({
-                ...sidePanelContext,
-                isOpen: false,
-                isEditing: false,
-                formValues: undefined,
-                nodeRange: undefined,
-                operationName: undefined
-            });
-        }
+        values["properties"] = values.properties.paramValues.map((param: any) => param.paramValues.map((p: any) => p.value));
+        const xml = getXML(MEDIATORS.COMMAND, values);
+        rpcClient.getMiDiagramRpcClient().applyEdit({
+            documentUri: props.documentUri, range: props.nodePosition, text: xml
+        });
+        sidePanelContext.setSidePanelState({
+            ...sidePanelContext,
+            isOpen: false,
+            isEditing: false,
+            formValues: undefined,
+            nodeRange: undefined,
+            operationName: undefined
+        });
     };
 
-    const formValidators: { [key: string]: (e?: any) => string | undefined } = {
-        "className": (e?: any) => validateField("className", e, false),
-        "description": (e?: any) => validateField("description", e, false),
-
-    };
-
-    const validateField = (id: string, e: any, isRequired: boolean, validation?: "e-mail" | "nameWithoutSpecialCharactors" | "custom", regex?: string): string => {
-        const value = e ?? formValues[id];
-        const newErrors = { ...errors };
-        let error;
-        if (isRequired && !value) {
-            error = "This field is required";
-        } else if (validation === "e-mail" && !value.match(emailRegex)) {
-            error = "Invalid e-mail address";
-        } else if (validation === "nameWithoutSpecialCharactors" && !value.match(nameWithoutSpecialCharactorsRegex)) {
-            error = "Invalid name";
-        } else if (validation === "custom" && !value.match(regex)) {
-            error = "Invalid input";
-        } else {
-            delete newErrors[id];
-            setErrors(newErrors);
-        }
-        setErrors({ ...errors, [id]: error });
-        return error;
-    };
-
+    if (isLoading) {
+        return <ProgressIndicator/>;
+    }
     return (
         <div style={{ padding: "10px" }}>
+            <Typography variant="body3"></Typography>
 
             <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                <h3>Properties</h3>
+                <Typography variant="h3">Properties</Typography>
 
                 <Field>
-                    <TextField
-                        label="Class Name"
-                        size={50}
-                        placeholder=""
-                        value={formValues["className"]}
-                        onTextChange={(e: any) => {
-                            setFormValues({ ...formValues, "className": e });
-                            formValidators["className"](e);
-                        }}
-                        required={false}
+                    <Controller
+                        name="className"
+                        control={control}
+                        render={({ field }) => (
+                            <TextField {...field} label="Class Name" size={50} placeholder="" />
+                        )}
                     />
-                    {errors["className"] && <Error>{errors["className"]}</Error>}
+                    {errors.className && <Error>{errors.className.message.toString()}</Error>}
                 </Field>
 
                 <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                    <h3>Properties</h3>
+                    <Typography variant="h3">Properties</Typography>
+                    <Typography variant="body3">Editing of the properties of an object ClassProperty</Typography>
 
-                    {formValues["properties"] && (
-                        <ParamManager
-                            paramConfigs={params}
-                            readonly={false}
-                            onChange={handleOnChange} />
-                    )}
+                    <Controller
+                        name="properties"
+                        control={control}
+                        render={({ field: { onChange, value } }) => (
+                            <ParamManager
+                                paramConfigs={value}
+                                readonly={false}
+                                onChange= {(values) => {
+                                    values.paramValues = values.paramValues.map((param: any, index: number) => {
+                                        const paramValues = param.paramValues;
+                                        param.key = paramValues[0].value;
+                                        param.value = paramValues[2].value;
+                                        if (paramValues[1]?.value?.isExpression) {
+                                            param.namespaces = paramValues[1].value.namespaces;
+                                        }
+                                        param.icon = 'query';
+                                        return param;
+                                    });
+                                    onChange(values);
+                                }}
+                            />
+                        )}
+                    />
                 </ComponentCard>
                 <Field>
-                    <TextField
-                        label="Description"
-                        size={50}
-                        placeholder=""
-                        value={formValues["description"]}
-                        onTextChange={(e: any) => {
-                            setFormValues({ ...formValues, "description": e });
-                            formValidators["description"](e);
-                        }}
-                        required={false}
+                    <Controller
+                        name="description"
+                        control={control}
+                        render={({ field }) => (
+                            <TextField {...field} label="Description" size={50} placeholder="" />
+                        )}
                     />
-                    {errors["description"] && <Error>{errors["description"]}</Error>}
+                    {errors.description && <Error>{errors.description.message.toString()}</Error>}
                 </Field>
 
             </ComponentCard>
 
 
-            <div style={{ display: "flex", textAlign: "right", justifyContent: "flex-end", marginTop: "10px" }}>
+            <div style={{ textAlign: "right", marginTop: "10px", float: "right" }}>
                 <Button
                     appearance="primary"
-                    onClick={onClick}
+                    onClick={handleSubmit(onClick)}
                 >
                     Submit
                 </Button>

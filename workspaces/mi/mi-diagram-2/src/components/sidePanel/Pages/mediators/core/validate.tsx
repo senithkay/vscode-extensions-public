@@ -6,24 +6,25 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
 */
+// AUTO-GENERATED FILE. DO NOT MODIFY.
 
-
-import React, { useEffect, useState } from 'react';
-import { AutoComplete, Button, ComponentCard, TextField } from '@wso2-enterprise/ui-toolkit';
-import { VSCodeCheckbox, VSCodeDataGrid, VSCodeDataGridRow, VSCodeDataGridCell } from '@vscode/webview-ui-toolkit/react';
+import React, { useEffect } from 'react';
+import { Button, ComponentCard, ExpressionField, ExpressionFieldValue, ParamManager, ProgressIndicator, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
+import { VSCodeCheckbox } from '@vscode/webview-ui-toolkit/react';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
 import { AddMediatorProps } from '../common';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
 import { MEDIATORS } from '../../../../../resources/constants';
+import { Controller, useForm } from 'react-hook-form';
 
 const cardStyle = { 
-   display: "block",
-   margin: "15px 0",
-   padding: "0 15px 15px 15px",
-   width: "auto",
-   cursor: "auto"
+    display: "block",
+    margin: "15px 0",
+    padding: "0 15px 15px 15px",
+    width: "auto",
+    cursor: "auto"
 };
 
 const Error = styled.span`
@@ -35,365 +36,305 @@ const Field = styled.div`
    margin-bottom: 12px;
 `;
 
-const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g;
-const nameWithoutSpecialCharactorsRegex = /^[a-zA-Z0-9]+$/g;
-
 const ValidateForm = (props: AddMediatorProps) => {
-   const { rpcClient } = useVisualizerContext();
-   const sidePanelContext = React.useContext(SidePanelContext);
-   const [formValues, setFormValues] = useState({} as { [key: string]: any });
-   const [errors, setErrors] = useState({} as any);
+    const { rpcClient } = useVisualizerContext();
+    const sidePanelContext = React.useContext(SidePanelContext);
+    const [ isLoading, setIsLoading ] = React.useState(true);
 
-   useEffect(() => {
-       if (sidePanelContext.formValues && Object.keys(sidePanelContext.formValues).length > 0) {
-           setFormValues({ ...formValues, ...sidePanelContext.formValues });
-       } else {
-           setFormValues({
-       "enableSchemaCaching": false,
-       "schemas": [] as string[][],
-       "validateSchemaKeyType": "Static",
-       "features": [] as string[][],
-       "featureEnabled": false,
-       "resources": [] as string[][],});
-       }
-   }, [sidePanelContext.formValues]);
+    const { control, formState: { errors }, handleSubmit, watch, reset } = useForm();
 
-   const onClick = async () => {
-       const newErrors = {} as any;
-       Object.keys(formValidators).forEach((key) => {
-           const error = formValidators[key]();
-           if (error) {
-               newErrors[key] = (error);
-           }
-       });
-       if (Object.keys(newErrors).length > 0) {
-           setErrors(newErrors);
-       } else {
-           const xml = getXML(MEDIATORS.VALIDATE, formValues);
-           rpcClient.getMiDiagramRpcClient().applyEdit({
-               documentUri: props.documentUri, range: props.nodePosition, text: xml
-           });
-           sidePanelContext.setSidePanelState({
-                ...sidePanelContext,
-                isOpen: false,
-                isEditing: false,
-                formValues: undefined,
-                nodeRange: undefined,
-                operationName: undefined
-              });
-       }
-   };
+    useEffect(() => {
+        reset({
+            source: sidePanelContext?.formValues?.source || {"isExpression":true,"value":""},
+            enableSchemaCaching: sidePanelContext?.formValues?.enableSchemaCaching || "",
+            schemas: {
+                paramValues: sidePanelContext?.formValues?.schemas && sidePanelContext?.formValues?.schemas.map((property: string|ExpressionFieldValue[], index: string) => (
+                    {
+                        id: index,
+                        key: index,
+                        value: typeof property[0] === 'object' ? property[0].value : property[0],
+                        icon: 'query',
+                        paramValues: [
+                            { value: property[0] },
+                        ]
+                    }
+                )) || [] as string[][],
+                paramFields: [
+                    {
+                        "label": "Validate Schema Key",
+                        "defaultValue": "",
+                        "isRequired": false, 
+                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
+                            sidePanelContext.setSidePanelState({
+                                ...sidePanelContext,
+                                expressionEditor: {
+                                    isOpen: true,
+                                    value,
+                                    setValue
+                                }
+                            });
+                        }},
+                ]
+            },
+            features: {
+                paramValues: sidePanelContext?.formValues?.features && sidePanelContext?.formValues?.features.map((property: string|ExpressionFieldValue[], index: string) => (
+                    {
+                        id: index,
+                        key: typeof property[0] === 'object' ? property[0].value : property[0],
+                        value: typeof property[1] === 'object' ? property[1].value : property[1],
+                        icon: 'query',
+                        paramValues: [
+                            { value: property[0] },
+                            { value: property[1] },
+                        ]
+                    }
+                )) || [] as string[][],
+                paramFields: [
+                    {
+                        "type": "TextField",
+                        "label": "Feature Name",
+                        "defaultValue": "",
+                        "isRequired": false, 
+                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
+                            sidePanelContext.setSidePanelState({
+                                ...sidePanelContext,
+                                expressionEditor: {
+                                    isOpen: true,
+                                    value,
+                                    setValue
+                                }
+                            });
+                        }},
+                    {
+                        "label": "Feature Enabled",
+                        "defaultValue": "",
+                        "isRequired": false, 
+                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
+                            sidePanelContext.setSidePanelState({
+                                ...sidePanelContext,
+                                expressionEditor: {
+                                    isOpen: true,
+                                    value,
+                                    setValue
+                                }
+                            });
+                        }},
+                ]
+            },
+            resources: {
+                paramValues: sidePanelContext?.formValues?.resources && sidePanelContext?.formValues?.resources.map((property: string|ExpressionFieldValue[], index: string) => (
+                    {
+                        id: index,
+                        key: typeof property[0] === 'object' ? property[0].value : property[0],
+                        value: typeof property[1] === 'object' ? property[1].value : property[1],
+                        icon: 'query',
+                        paramValues: [
+                            { value: property[0] },
+                            { value: property[1] },
+                        ]
+                    }
+                )) || [] as string[][],
+                paramFields: [
+                    {
+                        "type": "TextField",
+                        "label": "Location",
+                        "defaultValue": "",
+                        "isRequired": false, 
+                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
+                            sidePanelContext.setSidePanelState({
+                                ...sidePanelContext,
+                                expressionEditor: {
+                                    isOpen: true,
+                                    value,
+                                    setValue
+                                }
+                            });
+                        }},
+                    {
+                        "label": "Location Key",
+                        "defaultValue": "",
+                        "isRequired": false, 
+                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
+                            sidePanelContext.setSidePanelState({
+                                ...sidePanelContext,
+                                expressionEditor: {
+                                    isOpen: true,
+                                    value,
+                                    setValue
+                                }
+                            });
+                        }},
+                ]
+            },
+            description: sidePanelContext?.formValues?.description || "",
+        });
+        setIsLoading(false);
+    }, [sidePanelContext.formValues]);
 
-   const formValidators: { [key: string]: (e?: any) => string | undefined } = {
-       "source": (e?: any) => validateField("source", e, false),
-       "enableSchemaCaching": (e?: any) => validateField("enableSchemaCaching", e, false),
-       "validateSchemaKeyType": (e?: any) => validateField("validateSchemaKeyType", e, false),
-       "validateStaticSchemaKey": (e?: any) => validateField("validateStaticSchemaKey", e, false),
-       "validateDynamicSchemaKey": (e?: any) => validateField("validateDynamicSchemaKey", e, false),
-       "featureName": (e?: any) => validateField("featureName", e, false),
-       "featureEnabled": (e?: any) => validateField("featureEnabled", e, false),
-       "location": (e?: any) => validateField("location", e, false),
-       "locationKey": (e?: any) => validateField("locationKey", e, false),
-       "description": (e?: any) => validateField("description", e, false),
+    const onClick = async (values: any) => {
+        
+        values["schemas"] = values.schemas.paramValues.map((param: any) => param.paramValues.map((p: any) => p.value));
+        values["features"] = values.features.paramValues.map((param: any) => param.paramValues.map((p: any) => p.value));
+        values["resources"] = values.resources.paramValues.map((param: any) => param.paramValues.map((p: any) => p.value));
+        const xml = getXML(MEDIATORS.VALIDATE, values);
+        rpcClient.getMiDiagramRpcClient().applyEdit({
+            documentUri: props.documentUri, range: props.nodePosition, text: xml
+        });
+        sidePanelContext.setSidePanelState({
+            ...sidePanelContext,
+            isOpen: false,
+            isEditing: false,
+            formValues: undefined,
+            nodeRange: undefined,
+            operationName: undefined
+        });
+    };
 
-   };
+    if (isLoading) {
+        return <ProgressIndicator/>;
+    }
+    return (
+        <div style={{ padding: "10px" }}>
+            <Typography variant="body3"></Typography>
 
-   const validateField = (id: string, e: any, isRequired: boolean, validation?: "e-mail" | "nameWithoutSpecialCharactors" | "custom", regex?: string): string => {
-       const value = e ?? formValues[id];
-       const newErrors = { ...errors };
-       let error;
-       if (isRequired && !value) {
-           error = "This field is required";
-       } else if (validation === "e-mail" && !value.match(emailRegex)) {
-           error = "Invalid e-mail address";
-       } else if (validation === "nameWithoutSpecialCharactors" && !value.match(nameWithoutSpecialCharactorsRegex)) {
-           error = "Invalid name";
-       } else if (validation === "custom" && !value.match(regex)) {
-           error = "Invalid input";
-       } else {
-           delete newErrors[id];
-           setErrors(newErrors);
-       }
-       setErrors({ ...errors, [id]: error });
-       return error;
-   };
+            <Field>
+                <Controller
+                    name="source"
+                    control={control}
+                    render={({ field }) => (
+                        <ExpressionField
+                            {...field} label="Source"
+                            placeholder=""
+                            canChange={false}
+                            openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => {
+                                sidePanelContext.setSidePanelState({
+                                    ...sidePanelContext,
+                                    expressionEditor: {
+                                        isOpen: true,
+                                        value,
+                                        setValue
+                                    }
+                                });
+                            }}
+                        />
+                    )}
+                />
+                {errors.source && <Error>{errors.source.message.toString()}</Error>}
+            </Field>
 
-   return (
-       <div style={{ padding: "10px" }}>
+            <Field>
+                <Controller
+                    name="enableSchemaCaching"
+                    control={control}
+                    render={({ field }) => (
+                        <VSCodeCheckbox type="checkbox" checked={field.value} onChange={(e: any) => {
+                            field.onChange(e);
+                        }}>Enable Schema Caching</VSCodeCheckbox>
+                    )}
+                />
+                {errors.enableSchemaCaching && <Error>{errors.enableSchemaCaching.message.toString()}</Error>}
+            </Field>
 
             <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                <h3>Properties</h3>
+                <Typography variant="h3">Schemas</Typography>
+                <Typography variant="body3">Editing of the properties of an object ValidateSchema</Typography>
 
-                <Field>
-                    <TextField
-                        label="Source"
-                        size={50}
-                        placeholder=""
-                        value={formValues["source"]}
-                        onTextChange={(e: any) => {
-                            setFormValues({ ...formValues, "source": e });
-                            formValidators["source"](e);
-                        }}
-                        required={false}
-                    />
-                    {errors["source"] && <Error>{errors["source"]}</Error>}
-                </Field>
-
-                <Field>
-                    <VSCodeCheckbox type="checkbox" checked={formValues["enableSchemaCaching"]} onChange={(e: any) => {
-                        setFormValues({ ...formValues, "enableSchemaCaching": e.target.checked });
-                        formValidators["enableSchemaCaching"](e);
-                    }
-                    }>Enable Schema Caching </VSCodeCheckbox>
-                    {errors["enableSchemaCaching"] && <Error>{errors["enableSchemaCaching"]}</Error>}
-                </Field>
-
-                <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                    <h3>Schemas</h3>
-
-                        <Field>
-                            <label>Validate Schema Key Type</label>
-                            <AutoComplete items={["Static", "Dynamic"]} value={formValues["validateSchemaKeyType"]} onValueChange={(e: any) => {
-                                setFormValues({ ...formValues, "validateSchemaKeyType": e });
-                                formValidators["validateSchemaKeyType"](e);
-                            }} />
-                            {errors["validateSchemaKeyType"] && <Error>{errors["validateSchemaKeyType"]}</Error>}
-                        </Field>
-
-                        {formValues["validateSchemaKeyType"] && formValues["validateSchemaKeyType"].toLowerCase() == "static" &&
-                            <Field>
-                                <TextField
-                                    label="Validate Static Schema Key"
-                                    size={50}
-                                    placeholder=""
-                                    value={formValues["validateStaticSchemaKey"]}
-                                    onTextChange={(e: any) => {
-                                        setFormValues({ ...formValues, "validateStaticSchemaKey": e });
-                                        formValidators["validateStaticSchemaKey"](e);
-                                    }}
-                                    required={false}
-                                />
-                                {errors["validateStaticSchemaKey"] && <Error>{errors["validateStaticSchemaKey"]}</Error>}
-                            </Field>
-                        }
-
-                        {formValues["validateSchemaKeyType"] && formValues["validateSchemaKeyType"].toLowerCase() == "dynamic" &&
-                            <Field>
-                                <TextField
-                                    label="Validate Dynamic Schema Key"
-                                    size={50}
-                                    placeholder=""
-                                    value={formValues["validateDynamicSchemaKey"]}
-                                    onTextChange={(e: any) => {
-                                        setFormValues({ ...formValues, "validateDynamicSchemaKey": e });
-                                        formValidators["validateDynamicSchemaKey"](e);
-                                    }}
-                                    required={false}
-                                />
-                                {errors["validateDynamicSchemaKey"] && <Error>{errors["validateDynamicSchemaKey"]}</Error>}
-                            </Field>
-                        }
-
-
-                <div style={{ textAlign: "right", marginTop: "10px" }}>
-                    <Button appearance="primary" onClick={() => {
-                           const validateKey = formValues["validateSchemaKeyType"] == "Static" ? "validateStaticSchemaKey" : "validateDynamicSchemaKey"
-                           if (!(validateField("validateSchemaKeyType", formValues["validateSchemaKeyType"], true) || validateField(validateKey, formValues[validateKey], true))) {
-                               setFormValues({
-                                   ...formValues, "validateSchemaKeyType": "Static", "validateDynamicSchemaKey": undefined, "validateStaticSchemaKey": undefined,
-                                   "schemas": [...formValues["schemas"], [formValues["validateSchemaKeyType"], formValues["validateStaticSchemaKey"] ?? formValues["validateDynamicSchemaKey"]]]
-                               });
-                        }
-                    }}>
-                        Add
-                    </Button>
-                </div>
-                {formValues["schemas"] && formValues["schemas"].length > 0 && (
-                    <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                        <h3>Schemas Table</h3>
-                        <VSCodeDataGrid style={{ display: 'flex', flexDirection: 'column' }}>
-                            <VSCodeDataGridRow className="header" style={{ display: 'flex', background: 'gray' }}>
-                                <VSCodeDataGridCell key={0} style={{ flex: 1 }}>
-                                    Key Type
-                                </VSCodeDataGridCell>
-                                <VSCodeDataGridCell key={1} style={{ flex: 1 }}>
-                                    Key
-                                </VSCodeDataGridCell>
-                            </VSCodeDataGridRow>
-                            {formValues["schemas"].map((property: string, index: string) => (
-                                <VSCodeDataGridRow key={index} style={{ display: 'flex' }}>
-                                    <VSCodeDataGridCell key={0} style={{ flex: 1 }}>
-                                        {property[0]}
-                                    </VSCodeDataGridCell>
-                                    <VSCodeDataGridCell key={1} style={{ flex: 1 }}>
-                                        {property[1]}
-                                    </VSCodeDataGridCell>
-                                </VSCodeDataGridRow>
-                            ))}
-                        </VSCodeDataGrid>
-                    </ComponentCard>
-                )}
-                </ComponentCard>
-                <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                    <h3>Features</h3>
-
-                        <Field>
-                            <TextField
-                                label="Feature Name"
-                                size={50}
-                                placeholder=""
-                                value={formValues["featureName"]}
-                                onTextChange={(e: any) => {
-                                    setFormValues({ ...formValues, "featureName": e });
-                                    formValidators["featureName"](e);
-                                }}
-                                required={false}
-                            />
-                            {errors["featureName"] && <Error>{errors["featureName"]}</Error>}
-                        </Field>
-
-                        <Field>
-                            <VSCodeCheckbox type="checkbox" checked={formValues["featureEnabled"]} onChange={(e: any) => {
-                                setFormValues({ ...formValues, "featureEnabled": e.target.checked });
-                                formValidators["featureEnabled"](e);
-                            }
-                            }>Feature Enabled </VSCodeCheckbox>
-                            {errors["featureEnabled"] && <Error>{errors["featureEnabled"]}</Error>}
-                        </Field>
-
-
-                <div style={{ textAlign: "right", marginTop: "10px" }}>
-                    <Button appearance="primary" onClick={() => {
-                           if (!validateField("featureName", formValues["featureName"], true)) {
-                               setFormValues({
-                                   ...formValues, "featureName": undefined, "featureEnabled": false,
-                                   "features": [...formValues["features"], [formValues["featureName"], formValues["featureEnabled"]?.toString()]]
-                               });
-                        }
-                    }}>
-                        Add
-                    </Button>
-                </div>
-                {formValues["features"] && formValues["features"].length > 0 && (
-                    <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                        <h3>Features Table</h3>
-                        <VSCodeDataGrid style={{ display: 'flex', flexDirection: 'column' }}>
-                            <VSCodeDataGridRow className="header" style={{ display: 'flex', background: 'gray' }}>
-                                <VSCodeDataGridCell key={0} style={{ flex: 1 }}>
-                                    Feature Name
-                                </VSCodeDataGridCell>
-                                <VSCodeDataGridCell key={1} style={{ flex: 1 }}>
-                                    Feature Enabled
-                                </VSCodeDataGridCell>
-                            </VSCodeDataGridRow>
-                            {formValues["features"].map((property: string, index: string) => (
-                                <VSCodeDataGridRow key={index} style={{ display: 'flex' }}>
-                                    <VSCodeDataGridCell key={0} style={{ flex: 1 }}>
-                                        {property[0]}
-                                    </VSCodeDataGridCell>
-                                    <VSCodeDataGridCell key={1} style={{ flex: 1 }}>
-                                        {property[1]}
-                                    </VSCodeDataGridCell>
-                                </VSCodeDataGridRow>
-                            ))}
-                        </VSCodeDataGrid>
-                    </ComponentCard>
-                )}
-                </ComponentCard>
-                <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                    <h3>Resources</h3>
-
-                        <Field>
-                            <TextField
-                                label="Location"
-                                size={50}
-                                placeholder=""
-                                value={formValues["location"]}
-                                onTextChange={(e: any) => {
-                                    setFormValues({ ...formValues, "location": e });
-                                    formValidators["location"](e);
-                                }}
-                                required={false}
-                            />
-                            {errors["location"] && <Error>{errors["location"]}</Error>}
-                        </Field>
-
-                        <Field>
-                            <TextField
-                                label="Location Key"
-                                size={50}
-                                placeholder=""
-                                value={formValues["locationKey"]}
-                                onTextChange={(e: any) => {
-                                    setFormValues({ ...formValues, "locationKey": e });
-                                    formValidators["locationKey"](e);
-                                }}
-                                required={false}
-                            />
-                            {errors["locationKey"] && <Error>{errors["locationKey"]}</Error>}
-                        </Field>
-
-
-                <div style={{ textAlign: "right", marginTop: "10px" }}>
-                    <Button appearance="primary" onClick={() => {
-                           if (!(validateField("location", formValues["location"], true) || validateField("locationKey", formValues["locationKey"], true))) {
-                               setFormValues({
-                                   ...formValues, "location": undefined, "locationKey": undefined,
-                                   "resources": [...formValues["resources"], [formValues["location"], formValues["locationKey"]]]
-                            });
-                        }
-                    }}>
-                        Add
-                    </Button>
-                </div>
-                {formValues["resources"] && formValues["resources"].length > 0 && (
-                    <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                        <h3>Resources Table</h3>
-                        <VSCodeDataGrid style={{ display: 'flex', flexDirection: 'column' }}>
-                            <VSCodeDataGridRow className="header" style={{ display: 'flex', background: 'gray' }}>
-                                <VSCodeDataGridCell key={0} style={{ flex: 1 }}>
-                                    Location
-                                </VSCodeDataGridCell>
-                                <VSCodeDataGridCell key={1} style={{ flex: 1 }}>
-                                    Location Key
-                                </VSCodeDataGridCell>
-                            </VSCodeDataGridRow>
-                            {formValues["resources"].map((property: string, index: string) => (
-                                <VSCodeDataGridRow key={index} style={{ display: 'flex' }}>
-                                    <VSCodeDataGridCell key={0} style={{ flex: 1 }}>
-                                        {property[0]}
-                                    </VSCodeDataGridCell>
-                                    <VSCodeDataGridCell key={1} style={{ flex: 1 }}>
-                                        {property[1]}
-                                    </VSCodeDataGridCell>
-                                </VSCodeDataGridRow>
-                            ))}
-                        </VSCodeDataGrid>
-                    </ComponentCard>
-                )}
-                </ComponentCard>
-                <Field>
-                    <TextField
-                        label="Description"
-                        size={50}
-                        placeholder=""
-                        value={formValues["description"]}
-                        onTextChange={(e: any) => {
-                            setFormValues({ ...formValues, "description": e });
-                            formValidators["description"](e);
-                        }}
-                        required={false}
-                    />
-                    {errors["description"] && <Error>{errors["description"]}</Error>}
-                </Field>
-
+                <Controller
+                    name="schemas"
+                    control={control}
+                    render={({ field: { onChange, value } }) => (
+                        <ParamManager
+                            paramConfigs={value}
+                            readonly={false}
+                            onChange= {(values) => {
+                                values.paramValues = values.paramValues.map((param: any, index: number) => {
+                                    const paramValues = param.paramValues;
+                                    param.key = index;
+                                    param.value = paramValues[0].value.value;
+                                    if (paramValues[1]?.value?.isExpression) {
+                                        param.namespaces = paramValues[1].value.namespaces;
+                                    }
+                                    param.icon = 'query';
+                                    return param;
+                                });
+                                onChange(values);
+                            }}
+                        />
+                    )}
+                />
             </ComponentCard>
+            <ComponentCard sx={cardStyle} disbaleHoverEffect>
+                <Typography variant="h3">Features</Typography>
+                <Typography variant="body3">Editing of the properties of an object Validate Feature</Typography>
+
+                <Controller
+                    name="features"
+                    control={control}
+                    render={({ field: { onChange, value } }) => (
+                        <ParamManager
+                            paramConfigs={value}
+                            readonly={false}
+                            onChange= {(values) => {
+                                values.paramValues = values.paramValues.map((param: any, index: number) => {
+                                    const paramValues = param.paramValues;
+                                    param.key = paramValues[0].value;
+                                    param.value = paramValues[1].value;
+                                    if (paramValues[1]?.value?.isExpression) {
+                                        param.namespaces = paramValues[1].value.namespaces;
+                                    }
+                                    param.icon = 'query';
+                                    return param;
+                                });
+                                onChange(values);
+                            }}
+                        />
+                    )}
+                />
+            </ComponentCard>
+            <ComponentCard sx={cardStyle} disbaleHoverEffect>
+                <Typography variant="h3">Resources</Typography>
+                <Typography variant="body3">Editing of the properties of an object Validate Resource</Typography>
+
+                <Controller
+                    name="resources"
+                    control={control}
+                    render={({ field: { onChange, value } }) => (
+                        <ParamManager
+                            paramConfigs={value}
+                            readonly={false}
+                            onChange= {(values) => {
+                                values.paramValues = values.paramValues.map((param: any, index: number) => {
+                                    const paramValues = param.paramValues;
+                                    param.key = paramValues[0].value;
+                                    param.value = paramValues[1].value;
+                                    if (paramValues[1]?.value?.isExpression) {
+                                        param.namespaces = paramValues[1].value.namespaces;
+                                    }
+                                    param.icon = 'query';
+                                    return param;
+                                });
+                                onChange(values);
+                            }}
+                        />
+                    )}
+                />
+            </ComponentCard>
+            <Field>
+                <Controller
+                    name="description"
+                    control={control}
+                    render={({ field }) => (
+                        <TextField {...field} label="Description" size={50} placeholder="" />
+                    )}
+                />
+                {errors.description && <Error>{errors.description.message.toString()}</Error>}
+            </Field>
 
 
-            <div style={{ display: "flex", textAlign: "right", justifyContent: "flex-end", marginTop: "10px" }}>
+            <div style={{ textAlign: "right", marginTop: "10px", float: "right" }}>
                 <Button
                     appearance="primary"
-                    onClick={onClick}
+                    onClick={handleSubmit(onClick)}
                 >
                     Submit
                 </Button>

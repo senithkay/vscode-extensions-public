@@ -6,23 +6,24 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
 */
+// AUTO-GENERATED FILE. DO NOT MODIFY.
 
-
-import React, { useEffect, useState } from 'react';
-import { AutoComplete, Button, ComponentCard, TextField } from '@wso2-enterprise/ui-toolkit';
+import React, { useEffect } from 'react';
+import { AutoComplete, Button, ComponentCard, ExpressionField, ExpressionFieldValue, ProgressIndicator, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
 import { AddMediatorProps } from '../common';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
 import { MEDIATORS } from '../../../../../resources/constants';
+import { Controller, useForm } from 'react-hook-form';
 
 const cardStyle = { 
-   display: "block",
-   margin: "15px 0",
-   padding: "0 15px 15px 15px",
-   width: "auto",
-   cursor: "auto"
+    display: "block",
+    margin: "15px 0",
+    padding: "0 15px 15px 15px",
+    width: "auto",
+    cursor: "auto"
 };
 
 const Error = styled.span`
@@ -34,154 +35,139 @@ const Field = styled.div`
    margin-bottom: 12px;
 `;
 
-const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g;
-const nameWithoutSpecialCharactorsRegex = /^[a-zA-Z0-9]+$/g;
-
 const FastXSLTForm = (props: AddMediatorProps) => {
-   const { rpcClient } = useVisualizerContext();
-   const sidePanelContext = React.useContext(SidePanelContext);
-   const [formValues, setFormValues] = useState({} as { [key: string]: any });
-   const [errors, setErrors] = useState({} as any);
+    const { rpcClient } = useVisualizerContext();
+    const sidePanelContext = React.useContext(SidePanelContext);
+    const [ isLoading, setIsLoading ] = React.useState(true);
 
-   useEffect(() => {
-       if (sidePanelContext.formValues && Object.keys(sidePanelContext.formValues).length > 0) {
-           setFormValues({ ...formValues, ...sidePanelContext.formValues });
-       } else {
-           setFormValues({
-       "fastXsltSchemaType": "Static",});
-       }
-   }, [sidePanelContext.formValues]);
+    const { control, formState: { errors }, handleSubmit, watch, reset } = useForm();
 
-   const onClick = async () => {
-       const newErrors = {} as any;
-       Object.keys(formValidators).forEach((key) => {
-           const error = formValidators[key]();
-           if (error) {
-               newErrors[key] = (error);
-           }
-       });
-       if (Object.keys(newErrors).length > 0) {
-           setErrors(newErrors);
-       } else {
-           const xml = getXML(MEDIATORS.FASTXSLT, formValues);
-           rpcClient.getMiDiagramRpcClient().applyEdit({
-               documentUri: props.documentUri, range: props.nodePosition, text: xml
-           });
-           sidePanelContext.setSidePanelState({
-                ...sidePanelContext,
-                isOpen: false,
-                isEditing: false,
-                formValues: undefined,
-                nodeRange: undefined,
-                operationName: undefined
-              });
-       }
-   };
+    useEffect(() => {
+        reset({
+            fastXsltSchemaType: sidePanelContext?.formValues?.fastXsltSchemaType || "Static",
+            fastXsltDynamicSchemaKey: sidePanelContext?.formValues?.fastXsltDynamicSchemaKey || {"isExpression":true,"value":""},
+            fastXsltStaticSchemaKey: sidePanelContext?.formValues?.fastXsltStaticSchemaKey || {"isExpression":true,"value":""},
+            description: sidePanelContext?.formValues?.description || "",
+        });
+        setIsLoading(false);
+    }, [sidePanelContext.formValues]);
 
-   const formValidators: { [key: string]: (e?: any) => string | undefined } = {
-       "fastXsltSchemaType": (e?: any) => validateField("fastXsltSchemaType", e, false),
-       "fastXsltDynamicSchemaKey": (e?: any) => validateField("fastXsltDynamicSchemaKey", e, false),
-       "fastXsltStaticSchemaKey": (e?: any) => validateField("fastXsltStaticSchemaKey", e, false),
-       "description": (e?: any) => validateField("description", e, false),
+    const onClick = async (values: any) => {
+        
+        const xml = getXML(MEDIATORS.FASTXSLT, values);
+        rpcClient.getMiDiagramRpcClient().applyEdit({
+            documentUri: props.documentUri, range: props.nodePosition, text: xml
+        });
+        sidePanelContext.setSidePanelState({
+            ...sidePanelContext,
+            isOpen: false,
+            isEditing: false,
+            formValues: undefined,
+            nodeRange: undefined,
+            operationName: undefined
+        });
+    };
 
-   };
-
-   const validateField = (id: string, e: any, isRequired: boolean, validation?: "e-mail" | "nameWithoutSpecialCharactors" | "custom", regex?: string): string => {
-       const value = e ?? formValues[id];
-       const newErrors = { ...errors };
-       let error;
-       if (isRequired && !value) {
-           error = "This field is required";
-       } else if (validation === "e-mail" && !value.match(emailRegex)) {
-           error = "Invalid e-mail address";
-       } else if (validation === "nameWithoutSpecialCharactors" && !value.match(nameWithoutSpecialCharactorsRegex)) {
-           error = "Invalid name";
-       } else if (validation === "custom" && !value.match(regex)) {
-           error = "Invalid input";
-       } else {
-           delete newErrors[id];
-           setErrors(newErrors);
-       }
-       setErrors({ ...errors, [id]: error });
-       return error;
-   };
-
-   return (
-       <div style={{ padding: "10px" }}>
+    if (isLoading) {
+        return <ProgressIndicator/>;
+    }
+    return (
+        <div style={{ padding: "10px" }}>
+            <Typography variant="body3"></Typography>
 
             <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                <h3>SchemaKey</h3>
+                <Typography variant="h3">SchemaKey</Typography>
 
                 <Field>
-                    <label>Fast Xslt Schema Type</label>
-                    <AutoComplete items={["Static", "Dynamic"]} value={formValues["fastXsltSchemaType"]} onValueChange={(e: any) => {
-                        setFormValues({ ...formValues, "fastXsltSchemaType": e });
-                        formValidators["fastXsltSchemaType"](e);
-                    }} />
-                    {errors["fastXsltSchemaType"] && <Error>{errors["fastXsltSchemaType"]}</Error>}
-                </Field>
-
-                {formValues["fastXsltSchemaType"] && formValues["fastXsltSchemaType"].toLowerCase() == "dynamic" &&
-                    <Field>
-                        <TextField
-                            label="Fast Xslt Dynamic SchemaKey"
-                            size={50}
-                            placeholder=""
-                            value={formValues["fastXsltDynamicSchemaKey"]}
-                            onTextChange={(e: any) => {
-                                setFormValues({ ...formValues, "fastXsltDynamicSchemaKey": e });
-                                formValidators["fastXsltDynamicSchemaKey"](e);
-                            }}
-                            required={false}
-                        />
-                        {errors["fastXsltDynamicSchemaKey"] && <Error>{errors["fastXsltDynamicSchemaKey"]}</Error>}
-                    </Field>
-                }
-
-                {formValues["fastXsltSchemaType"] && formValues["fastXsltSchemaType"].toLowerCase() == "static" &&
-                    <Field>
-                        <TextField
-                            label="Fast Xslt Static SchemaKey"
-                            size={50}
-                            placeholder=""
-                            value={formValues["fastXsltStaticSchemaKey"]}
-                            onTextChange={(e: any) => {
-                                setFormValues({ ...formValues, "fastXsltStaticSchemaKey": e });
-                                formValidators["fastXsltStaticSchemaKey"](e);
-                            }}
-                            required={false}
-                        />
-                        {errors["fastXsltStaticSchemaKey"] && <Error>{errors["fastXsltStaticSchemaKey"]}</Error>}
-                    </Field>
-                }
-
-            </ComponentCard>
-
-            <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                <h3>Misc</h3>
-
-                <Field>
-                    <TextField
-                        label="Description"
-                        size={50}
-                        placeholder=""
-                        value={formValues["description"]}
-                        onTextChange={(e: any) => {
-                            setFormValues({ ...formValues, "description": e });
-                            formValidators["description"](e);
-                        }}
-                        required={false}
+                    <Controller
+                        name="fastXsltSchemaType"
+                        control={control}
+                        render={({ field }) => (
+                            <AutoComplete label="Fast Xslt Schema Type" items={["Static", "Dynamic"]} value={field.value} onValueChange={(e: any) => {
+                                field.onChange(e);
+                            }} />
+                        )}
                     />
-                    {errors["description"] && <Error>{errors["description"]}</Error>}
+                    {errors.fastXsltSchemaType && <Error>{errors.fastXsltSchemaType.message.toString()}</Error>}
+                </Field>
+
+                {watch("fastXsltSchemaType") && watch("fastXsltSchemaType").toLowerCase() == "dynamic" &&
+                    <Field>
+                        <Controller
+                            name="fastXsltDynamicSchemaKey"
+                            control={control}
+                            render={({ field }) => (
+                                <ExpressionField
+                                    {...field} label="Fast Xslt Dynamic SchemaKey"
+                                    placeholder=""
+                                    canChange={false}
+                                    openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => {
+                                        sidePanelContext.setSidePanelState({
+                                            ...sidePanelContext,
+                                            expressionEditor: {
+                                                isOpen: true,
+                                                value,
+                                                setValue
+                                            }
+                                        });
+                                    }}
+                                />
+                            )}
+                        />
+                        {errors.fastXsltDynamicSchemaKey && <Error>{errors.fastXsltDynamicSchemaKey.message.toString()}</Error>}
+                    </Field>
+                }
+
+                {watch("fastXsltSchemaType") && watch("fastXsltSchemaType").toLowerCase() == "static" &&
+                    <Field>
+                        <Controller
+                            name="fastXsltStaticSchemaKey"
+                            control={control}
+                            render={({ field }) => (
+                                <ExpressionField
+                                    {...field} label="Fast Xslt Static SchemaKey"
+                                    placeholder=""
+                                    canChange={false}
+                                    openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => {
+                                        sidePanelContext.setSidePanelState({
+                                            ...sidePanelContext,
+                                            expressionEditor: {
+                                                isOpen: true,
+                                                value,
+                                                setValue
+                                            }
+                                        });
+                                    }}
+                                />
+                            )}
+                        />
+                        {errors.fastXsltStaticSchemaKey && <Error>{errors.fastXsltStaticSchemaKey.message.toString()}</Error>}
+                    </Field>
+                }
+
+            </ComponentCard>
+
+            <ComponentCard sx={cardStyle} disbaleHoverEffect>
+                <Typography variant="h3">Misc</Typography>
+
+                <Field>
+                    <Controller
+                        name="description"
+                        control={control}
+                        render={({ field }) => (
+                            <TextField {...field} label="Description" size={50} placeholder="" />
+                        )}
+                    />
+                    {errors.description && <Error>{errors.description.message.toString()}</Error>}
                 </Field>
 
             </ComponentCard>
 
 
-            <div style={{ display: "flex", textAlign: "right", justifyContent: "flex-end", marginTop: "10px" }}>
+            <div style={{ textAlign: "right", marginTop: "10px", float: "right" }}>
                 <Button
                     appearance="primary"
-                    onClick={onClick}
+                    onClick={handleSubmit(onClick)}
                 >
                     Submit
                 </Button>
