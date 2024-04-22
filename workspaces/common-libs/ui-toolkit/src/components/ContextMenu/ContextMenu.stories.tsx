@@ -10,6 +10,15 @@ import React from "react";
 import { storiesOf } from "@storybook/react";
 
 import { ContextMenu } from "./ContextMenu";
+import styled from "@emotion/styled";
+
+const Container = styled.div`
+    height: 100vh;
+    width: 100vw;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+`;
 
 const ComponentStory = () => {
 
@@ -55,3 +64,14 @@ const VericleMenuWithCircularBorder = () => {
 };
 
 storiesOf("Context Menu").add("Vericle Menu With Circular Border", () => <VericleMenuWithCircularBorder />);
+
+const ContextMenuPosition = () => {
+
+    return (
+        <Container>
+            <ContextMenu iconSx={verticalIconStyles} position="bottom-left" menuItems={[{id: "1", label: <>Test Item 1</>, onClick: () => {console.log("Item 1 Selected")}}, {id: "2", label: <>Test Item 2</>, onClick: () => {console.log("Item 2 Selected")}}]}/>
+        </Container>
+    );
+};
+
+storiesOf("Context Menu").add("Context Menu Position", () => <ContextMenuPosition />);
