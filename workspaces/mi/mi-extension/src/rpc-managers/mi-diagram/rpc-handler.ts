@@ -141,6 +141,7 @@ import {
     highlightCode,
     importProject,
     initUndoRedoManager,
+    logoutFromMIAccount,
     migrateProject,
     openDiagram,
     openFile,
@@ -157,7 +158,7 @@ import {
     updateRecipientEndpoint,
     updateTemplateEndpoint,
     updateWsdlEndpoint,
-    writeContentToFile
+    writeContentToFile,
 } from "@wso2-enterprise/mi-core";
 import { Messenger } from "vscode-messenger";
 import { MiDiagramRpcManager } from "./rpc-manager";
@@ -249,4 +250,5 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getUserAccessToken, () => rpcManger.getUserAccessToken());
     messenger.onRequest(createConnection, (args: CreateConnectionRequest) => rpcManger.createConnection(args));
     messenger.onRequest(getConnectorConnections, (args: GetConnectorConnectionsRequest) => rpcManger.getConnectorConnections(args));
+    messenger.onNotification(logoutFromMIAccount, () => rpcManger.logoutFromMIAccount());
 }

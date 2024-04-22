@@ -212,6 +212,7 @@ import {
     highlightCode,
     importProject,
     initUndoRedoManager,
+    logoutFromMIAccount,
     migrateProject,
     openDiagram,
     openFile,
@@ -578,5 +579,9 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     getConnectorConnections(params: GetConnectorConnectionsRequest): Promise<GetConnectorConnectionsResponse> {
         return this._messenger.sendRequest(getConnectorConnections, HOST_EXTENSION, params);
+    }
+
+    logoutFromMIAccount(): void {
+        return this._messenger.sendNotification(logoutFromMIAccount, HOST_EXTENSION);
     }
 }

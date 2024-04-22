@@ -229,4 +229,5 @@ export interface MiDiagramAPI {
     getUserAccessToken: () => Promise<GetUserAccessTokenResponse>;
     createConnection: (params: CreateConnectionRequest) => Promise<CreateConnectionResponse>;
     getConnectorConnections: (params: GetConnectorConnectionsRequest) => Promise<GetConnectorConnectionsResponse>;
+    logoutFromMIAccount: () => void;
 }

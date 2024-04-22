@@ -148,6 +148,7 @@ import {
     WriteContentToFileResponse,
     getSTRequest,
     getSTResponse,
+    AI_EVENT_TYPE,
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
 import { error } from "console";
@@ -157,7 +158,8 @@ import { Transform } from 'stream';
 import { v4 as uuidv4 } from 'uuid';
 import * as vscode from 'vscode';
 import { Position, Range, Selection, TextEdit, Uri, ViewColumn, WorkspaceEdit, commands, window, workspace } from "vscode";
-import { COMMANDS, MI_COPILOT_BACKEND_URL } from "../../constants";
+import { extension } from '../../MIExtensionContext';
+import { COMMANDS, DEFAULT_PROJECT_VERSION, MI_COPILOT_BACKEND_URL } from "../../constants";
 import { StateMachine, openView } from "../../stateMachine";
 import { UndoRedoManager } from "../../undoRedoManager";
 import { createFolderStructure, getAddressEndpointXmlWrapper, getDefaultEndpointXmlWrapper, getFailoverXmlWrapper, getHttpEndpointXmlWrapper, getInboundEndpointXmlWrapper, getLoadBalanceXmlWrapper, getMessageProcessorXmlWrapper, getMessageStoreXmlWrapper, getProxyServiceXmlWrapper, getRegistryResourceContent, getTaskXmlWrapper, getTemplateEndpointXmlWrapper, getTemplateXmlWrapper, getWsdlEndpointXmlWrapper } from "../../util";
@@ -170,9 +172,8 @@ import { getRecipientEPXml } from "../../util/template-engine/mustach-templates/
 import { rootPomXmlContent } from "../../util/templates";
 import { replaceFullContentToFile } from "../../util/workspace";
 import { VisualizerWebview } from "../../visualizer/webview";
+import { StateMachineAI } from '../../ai-panel/aiMachine';
 import path = require("path");
-import { extension } from '../../MIExtensionContext';
-import { DEFAULT_PROJECT_VERSION } from "../../constants";
 
 const { XMLParser, XMLBuilder } = require("fast-xml-parser");
 
@@ -2978,6 +2979,17 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
             resolve(res);
         });
+    }
+
+    async logoutFromMIAccount(): Promise<void> {
+        const confirm = await window.showInformationMessage('Are you sure you want to logout?', 'Yes', 'No');
+        if (confirm === 'Yes') {
+            await extension.context.secrets.delete('MIAIUser');
+            await extension.context.secrets.delete('MIAIRefreshToken');
+            StateMachineAI.sendEvent(AI_EVENT_TYPE.LOGOUT);
+        }else {
+            return;
+        }
     }
 }
 
