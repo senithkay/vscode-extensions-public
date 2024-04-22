@@ -1,45 +1,27 @@
 {
   "name": "ForEach Mediator",
-  "type":"mediator",
+  "type": "mediator",
   "title": "ForEach Mediator",
   "help": "",
   "elements": [
     {
-      "type": "attributeGroup",
+      "type": "attribute",
       "value": {
-        "groupName": "Properties",
-        "elements": [
-          {
-            "type": "attribute",
-            "value": {
-              "name": "forEachID",
-              "displayName": "ForEach ID",
-              "inputType": "string",
-              "required": false,
-              "helpTip": ""
-            }
-          },
-          {
-            "type": "attribute",
-            "value": {
-              "name": "forEachExpression",
-              "displayName": "ForEach Expression",
-              "inputType": "expression",
-              "required": true,
-              "helpTip": ""
-            }
-          },
-          {
-            "type": "attribute",
-            "value": {
-              "name": "description",
-              "displayName": "Description",
-              "inputType": "string",
-              "required": false,
-              "helpTip": ""
-            }
-          }
-        ]
+        "name": "forEachID",
+        "displayName": "ForEach ID",
+        "inputType": "string",
+        "required": false,
+        "helpTip": ""
+      }
+    },
+    {
+      "type": "attribute",
+      "value": {
+        "name": "forEachExpression",
+        "displayName": "ForEach Expression",
+        "inputType": "expression",
+        "required": true,
+        "helpTip": ""
       }
     },
     {
@@ -53,11 +35,10 @@
               "name": "sequenceType",
               "displayName": "Sequence Type",
               "inputType": "combo",
-              "defaultValue": "ANONYMOUS",
+              "defaultValue": "Anonymous",
               "comboValues": [
-                "ANONYMOUS",
-                "REGISTRY_REFERENCE",
-                "NAMED_REFERENCE"
+                "Anonymous",
+                "Key"
               ],
               "required": false,
               "helpTip": ""
@@ -68,32 +49,28 @@
             "value": {
               "name": "sequenceKey",
               "displayName": "Sequence Key",
-              "inputType": "registry",
+              "inputType": "key",
               "enableCondition": [
                 {
-                  "sequenceType": "REGISTRY_REFERENCE"
+                  "sequenceType": "Key"
                 }
               ],
               "required": false,
-              "helpTip": ""
-            }
-          },
-          {
-            "type": "attribute",
-            "value": {
-              "name": "sequenceName",
-              "displayName": "Sequence Name",
-              "inputType": "string",
-              "enableCondition": [
-                {
-                  "sequenceType": "NAMED_REFERENCE"
-                }
-              ],
-              "required": false,
-              "helpTip": ""
+              "helpTip": "",
+              "keyType": "sequence"
             }
           }
         ]
+      }
+    },
+    {
+      "type": "attribute",
+      "value": {
+        "name": "description",
+        "displayName": "Description",
+        "inputType": "string",
+        "required": false,
+        "helpTip": ""
       }
     }
   ]
