@@ -100,7 +100,7 @@ const MainPanel = () => {
     useEffect(() => {
         const handleKeyDown = (event: KeyboardEvent) => {
             if (event.key === 'i' && (event.metaKey || event.ctrlKey)) {
-                setShowAIWindow(prevShow => !prevShow);
+                rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.openAiPanel"] });
             }
         };
 
