@@ -237,6 +237,9 @@ export function ConnectorPage(props: ConnectorPageProps) {
 
         setIsGeneratingForm(true);
 
+        // Add 1s timeout to unzip the downloaded connected
+        await new Promise(resolve => setTimeout(resolve, 1000));
+
         // Get Connector Data from LS
         const connectorData = await rpcClient.getMiDiagramRpcClient().getAvailableConnectors({
             documentUri: props.documentUri,
