@@ -50,6 +50,11 @@ export enum VSCodeColors {
     OUTLINE_VARIANT = "var(--vscode-dropdown-border)",
 
     ERROR = "var(--vscode-errorForeground)",
+
+    INPUT_OPTION_ACTIVE = "var(--vscode-inputOption-activeBackground)",
+    INPUT_OPTION_INACTIVE = "var(--vscode-inputOption-inactiveBackground)",
+    INPUT_OPTION_HOVER = "var(--vscode-inputOption-hoverBackground)",
+    INPUT_OPTION_ACTIVE_BORDER = "var(--vscode-inputOption-activeBorder)",
 }
 
 export const Colors = {
@@ -78,6 +83,11 @@ export const Colors = {
         DefaultColors.OUTLINE_VARIANT,
 
     ERROR: VSCodeColors.ERROR || DefaultColors.ERROR,
+
+    INPUT_OPTION_ACTIVE: VSCodeColors.INPUT_OPTION_ACTIVE,
+    INPUT_OPTION_INACTIVE: VSCodeColors.INPUT_OPTION_INACTIVE,
+    INPUT_OPTION_HOVER: VSCodeColors.INPUT_OPTION_HOVER,
+    INPUT_OPTION_ACTIVE_BORDER: VSCodeColors.INPUT_OPTION_ACTIVE_BORDER,
 };
 
 export const NODE_GAP = {
