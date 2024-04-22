@@ -80,7 +80,7 @@ export function ProjectWizard({ cancelView }: { cancelView: MACHINE_VIEW }) {
     }
 
     const handleCreateProject = async (values: any) => {
-        values.artifactId = values.artifactID ? values.artifactID : values.name;
+        setValue("artifactID", getValues("artifactID") ? getValues("artifactID") : getValues("name"))
         const createProjectParams = {
             ...values,
             open: true,

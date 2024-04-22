@@ -167,7 +167,7 @@ import { COMMANDS, DEFAULT_PROJECT_VERSION, MI_COPILOT_BACKEND_URL } from "../..
 import { StateMachine, openView } from "../../stateMachine";
 import { UndoRedoManager } from "../../undoRedoManager";
 import { createFolderStructure, getAddressEndpointXmlWrapper, getDefaultEndpointXmlWrapper, getFailoverXmlWrapper, getHttpEndpointXmlWrapper, getInboundEndpointXmlWrapper, getLoadBalanceXmlWrapper, getMessageProcessorXmlWrapper, getMessageStoreXmlWrapper, getProxyServiceXmlWrapper, getRegistryResourceContent, getTaskXmlWrapper, getTemplateEndpointXmlWrapper, getTemplateXmlWrapper, getWsdlEndpointXmlWrapper } from "../../util";
-import { addNewEntryToArtifactXML, changeRootPomPackaging, createMetadataFilesForRegistryCollection, detectMediaType, getAvailableRegistryResources, getMediatypeAndFileExtension } from "../../util/fileOperations";
+import { addNewEntryToArtifactXML, changeRootPomPackaging, createMetadataFilesForRegistryCollection, detectMediaType, getAvailableRegistryResources, getMediatypeAndFileExtension, addSynapseDependency } from "../../util/fileOperations";
 import { importProject } from "../../util/migrationUtils";
 import { getDataserviceXml } from "../../util/template-engine/mustach-templates/Dataservice";
 import { getClassMediatorContent } from "../../util/template-engine/mustach-templates/classMediator";
@@ -2250,6 +2250,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                                     // 'data-sources': '',
                                 },
                                 'resources': {
+                                    'connectors': '',
                                     'metadata': '',
                                     'registry': {
                                         'gov': '',
@@ -2722,6 +2723,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             const fileUri = Uri.file(params.projectDirectory);
             const workspaceFolder = workspace.getWorkspaceFolder(fileUri)?.uri.fsPath ?? workspace.getWorkspaceFolder[0].uri.fsPath;
             changeRootPomPackaging(workspaceFolder, "jar");
+            addSynapseDependency(workspaceFolder);
             commands.executeCommand(COMMANDS.REFRESH_COMMAND);
             resolve({ path: filePath });
         });
