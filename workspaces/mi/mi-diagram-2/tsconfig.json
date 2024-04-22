@@ -13,8 +13,7 @@
     "isolatedModules": false,
     "jsx": "react",
     "sourceMap": true,
-    "declaration": true,
-    "declarationDir": "./lib",
+    "declaration": false,
     "esModuleInterop": true,
 
     "strict": true,
