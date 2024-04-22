@@ -168,7 +168,7 @@ export function LoadBalanceWizard(props: LoadBalanceWizardProps) {
     useEffect(() => {
         if (!isNewEndpoint) {
             (async () => {
-                const { properties, endpoints, ...endpoint } = await rpcClient.getMiDiagramRpcClient().getLoadBalanceEndpoint({ path: props.path });
+                const { endpoints, ...endpoint } = await rpcClient.getMiDiagramRpcClient().getLoadBalanceEndpoint({ path: props.path });
 
                 reset(endpoint);
                 setSavedEPName(endpoint.name);
@@ -177,7 +177,7 @@ export function LoadBalanceWizard(props: LoadBalanceWizardProps) {
                 setParamConfigs((prev: any) => {
                     return {
                         ...prev,
-                        paramValues: properties.map((property: any, index: Number) => {
+                        paramValues: endpoint.properties.map((property: any, index: Number) => {
                             return {
                                 id: prev.paramValues.length + index,
                                 parameters: [
@@ -186,7 +186,7 @@ export function LoadBalanceWizard(props: LoadBalanceWizardProps) {
                                     { id: 2, label: 'Scope', type: 'Dropdown', value: property.scope, values: ["default", "transport", "axis2", "axis2-client"], isRequired: true },
                                 ],
                                 key: property.name,
-                                value: property.value,
+                                value: "value:" + property.value + "; scope:" + property.scope + ";"
                             }
                         })
                     };
@@ -253,7 +253,7 @@ export function LoadBalanceWizard(props: LoadBalanceWizardProps) {
                     return {
                         ...param,
                         key: param.parameters[0].value,
-                        value: param.parameters[1].value ?? '',
+                        value: generateDisplayValue(param)
                     }
                 })
             };
@@ -265,6 +265,11 @@ export function LoadBalanceWizard(props: LoadBalanceWizardProps) {
             scope: param.parameters[2].value ?? 'default',
         })), { shouldDirty: true });
     }
+
+    const generateDisplayValue = (paramValues: any) => {
+        const result: string = "value:" + paramValues.parameters[1].value + "; scope:" + paramValues.parameters[2].value + ";";
+        return result.trim();
+    };
 
     const handleUpdateEndpoint = async (values: any) => {
         const updateEndpointParams = {
