@@ -1,6 +1,6 @@
 {
   "name": "EJB",
-  "type":"mediator",
+  "type": "mediator",
   "title": "EJB Mediator",
   "help": "",
   "elements": [
@@ -69,76 +69,75 @@
       "value": {
         "name": "methodArguments",
         "displayName": "Method Arguments",
-        "form": {
-          "title": "Method Argument",
-          "description": "Editing of the properties of an object Method Argument",
-          "elements": [
-            {
-              "type": "attributeGroup",
-              "value": {
-                "groupName": "Properties",
-                "elements": [
-                  {
-                    "type": "attribute",
-                    "value": {
-                      "name": "propertyName",
-                      "displayName": "Property Name",
-                      "inputType": "string",
-                      "required": false,
-                      "helpTip": ""
-                    }
-                  },
-                  {
-                    "type": "attribute",
-                    "value": {
-                      "name": "propertyValueType",
-                      "displayName": "Property Value Type",
-                      "inputType": "combo",
-                      "defaultValue": "LITERAL",
-                      "comboValues": [
-                        "LITERAL",
-                        "EXPRESSION"
-                      ],
-                      "required": false,
-                      "helpTip": ""
-                    }
-                  },
-                  {
-                    "type": "attribute",
-                    "value": {
-                      "name": "propertyValue",
-                      "displayName": "Property Value",
-                      "inputType": "string",
-                      "required": false,
-                      "helpTip": "",
-                      "enableCondition": [
-                        {
-                          "propertyValueType": "LITERAL"
-                        }
-                      ]
-                    }
-                  },
-                  {
-                    "type": "attribute",
-                    "value": {
-                      "name": "propertyExpression",
-                      "displayName": "Property Expression",
-                      "inputType": "expression",
-                      "required": false,
-                      "helpTip": "",
-                      "enableCondition": [
-                        {
-                          "propertyValueType": "EXPRESSION"
-                        }
-                      ]
-                    }
+        "title": "Method Argument",
+        "description": "Editing of the properties of an object Method Argument",
+        "tableKey": "propertyName",
+        "tableValue": "propertyValue",
+        "elements": [
+          {
+            "type": "attributeGroup",
+            "value": {
+              "groupName": "Properties",
+              "elements": [
+                {
+                  "type": "attribute",
+                  "value": {
+                    "name": "propertyName",
+                    "displayName": "Property Name",
+                    "inputType": "string",
+                    "required": false,
+                    "helpTip": ""
                   }
-                ]
-              }
+                },
+                {
+                  "type": "attribute",
+                  "value": {
+                    "name": "propertyValueType",
+                    "displayName": "Property Value Type",
+                    "inputType": "combo",
+                    "defaultValue": "LITERAL",
+                    "comboValues": [
+                      "LITERAL",
+                      "EXPRESSION"
+                    ],
+                    "required": false,
+                    "helpTip": ""
+                  }
+                },
+                {
+                  "type": "attribute",
+                  "value": {
+                    "name": "propertyValue",
+                    "displayName": "Property Value",
+                    "inputType": "string",
+                    "required": false,
+                    "helpTip": "",
+                    "enableCondition": [
+                      {
+                        "propertyValueType": "LITERAL"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "type": "attribute",
+                  "value": {
+                    "name": "propertyExpression",
+                    "displayName": "Property Expression",
+                    "inputType": "expression",
+                    "required": false,
+                    "helpTip": "",
+                    "enableCondition": [
+                      {
+                        "propertyValueType": "EXPRESSION"
+                      }
+                    ]
+                  }
+                }
+              ]
             }
-          ]
-        },
-        "helpTip": ""
+          }
+        ]
       }
     },
     {

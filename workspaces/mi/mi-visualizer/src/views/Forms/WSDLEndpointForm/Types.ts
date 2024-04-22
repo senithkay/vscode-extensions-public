@@ -25,6 +25,10 @@ export type InputsFields = {
     addressingVersion: string;
     addressListener: string;
     securityEnabled: string;
+    seperatePolicies: boolean;
+    policyKey?: string;
+    inboundPolicyKey?: string;
+    outboundPolicyKey?: string;
     suspendErrorCodes: string;
     initialDuration: number;
     maximumDuration: number;
@@ -60,6 +64,10 @@ export const initialEndpoint: InputsFields = {
     addressingVersion: "",
     addressListener: "",
     securityEnabled: "disable",
+    seperatePolicies: false,
+    policyKey: "",
+    inboundPolicyKey: "",
+    outboundPolicyKey: "",
     suspendErrorCodes: "",
     initialDuration: -1,
     maximumDuration: Number.MAX_SAFE_INTEGER,

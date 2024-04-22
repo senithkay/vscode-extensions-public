@@ -1,6 +1,6 @@
 {
   "name": "ConditionalRouter",
-  "type":"mediator",
+  "type": "mediator",
   "title": "Conditional Router Mediator",
   "help": "",
   "elements": [
@@ -24,50 +24,50 @@
             "value": {
               "name": "conditionalRouteBranches",
               "displayName": "Conditional Route Branches",
-              "form": {
-                "title": "Conditional Route Branch",
-                "description": "Editing of the properties of an object Conditional Route Branch",
-                "elements": [
-                  {
-                    "type": "attributeGroup",
-                    "value": {
-                      "groupName": "Properties",
-                      "elements": [
-                        {
-                          "type": "attribute",
-                          "value": {
-                            "name": "breakAfterRoute",
-                            "displayName": "Break After Route",
-                            "inputType": "string",
-                            "required": false,
-                            "helpTip": ""
-                          }
-                        },
-                        {
-                          "type": "attribute",
-                          "value": {
-                            "name": "targetSequence",
-                            "displayName": "Target Sequence",
-                            "inputType": "registry",
-                            "required": false,
-                            "helpTip": ""
-                          }
-                        },
-                        {
-                          "type": "attribute",
-                          "value": {
-                            "name": "evaluatorExpression",
-                            "displayName": "Evaluator Expression",
-                            "inputType": "string",
-                            "required": true,
-                            "helpTip": ""
-                          }
+              "title": "Conditional Route Branch",
+              "description": "Editing of the properties of an object Conditional Route Branch",
+              "tableKey": "breakAfterRoute",
+              "tableValue": "targetSequence",
+              "elements": [
+                {
+                  "type": "attributeGroup",
+                  "value": {
+                    "groupName": "Properties",
+                    "elements": [
+                      {
+                        "type": "attribute",
+                        "value": {
+                          "name": "breakAfterRoute",
+                          "displayName": "Break After Route",
+                          "inputType": "string",
+                          "required": false,
+                          "helpTip": ""
                         }
-                      ]
-                    }
+                      },
+                      {
+                        "type": "attribute",
+                        "value": {
+                          "name": "targetSequence",
+                          "displayName": "Target Sequence",
+                          "inputType": "registry",
+                          "required": false,
+                          "helpTip": ""
+                        }
+                      },
+                      {
+                        "type": "attribute",
+                        "value": {
+                          "name": "evaluatorExpression",
+                          "displayName": "Evaluator Expression",
+                          "inputType": "string",
+                          "required": true,
+                          "helpTip": ""
+                        }
+                      }
+                    ]
                   }
-                ]
-              }
+                }
+              ]
             }
           },
           {
