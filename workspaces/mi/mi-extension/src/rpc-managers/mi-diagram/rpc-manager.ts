@@ -322,7 +322,15 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
     </api>`;
 
             const filePath = path.join(directory, `${name}.xml`);
-            fs.writeFileSync(filePath, xmlData);
+            const sanitizedXmlData = xmlData.replace(/^\s*[\r\n]/gm, '');
+            fs.writeFileSync(filePath, sanitizedXmlData);
+            await this.rangeFormat({
+                uri: filePath,
+                range: {
+                    start: { line: 0, character: 0 },
+                    end: { line: sanitizedXmlData.split('\n').length + 1, character: 0 }
+                }
+            });
             commands.executeCommand(COMMANDS.REFRESH_COMMAND);
             resolve({ path: filePath });
         });
@@ -784,6 +792,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             const getTemplateParams = params;
 
             const xmlData = getMessageStoreXmlWrapper(getTemplateParams);
+            const sanitizedXmlData = xmlData.replace(/^\s*[\r\n]/gm, '');
             let filePath = params.directory;
 
             if (filePath.includes('messageStores')) {
@@ -795,7 +804,14 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 filePath = path.join(filePath, `${params.name}.xml`);
             }
 
-            fs.writeFileSync(filePath, xmlData);
+            fs.writeFileSync(filePath, sanitizedXmlData);
+            await this.rangeFormat({
+                uri: filePath,
+                range: {
+                    start: { line: 0, character: 0 },
+                    end: { line: sanitizedXmlData.split('\n').length + 1, character: 0 }
+                }
+            });
             commands.executeCommand(COMMANDS.REFRESH_COMMAND);
             resolve({ path: filePath });
         });
@@ -1445,7 +1461,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     retryErrorCodes: suspensionParams.errorCodes != undefined ? suspensionParams.errorCodes.textNode : '',
                     retryCount: suspensionParams.retriesBeforeSuspension != undefined ? suspensionParams.retriesBeforeSuspension.textNode : 0,
                     retryDelay: suspensionParams.retryDelay != undefined ? suspensionParams.retryDelay.textNode : 0,
-                    timeoutDuration: (timeoutParams != undefined && timeoutParams.content[0] != undefined) ? timeoutParams.content[0].textNode : 0,
+                    timeoutDuration: (timeoutParams != undefined && timeoutParams.content[0] != undefined) ? timeoutParams.content[0].textNode : Number.MAX_SAFE_INTEGER,
                     timeoutAction: (timeoutParams != undefined && timeoutParams.content[1] != undefined) ? timeoutParams.content[1].textNode : '',
                     templateName: templateParams != null ? templateParams.name : '',
                     requireTemplateParameters: false,
@@ -1719,7 +1735,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     retryErrorCodes: suspensionParams.errorCodes != undefined ? suspensionParams.errorCodes.textNode : '',
                     retryCount: suspensionParams.retriesBeforeSuspension != undefined ? suspensionParams.retriesBeforeSuspension.textNode : 0,
                     retryDelay: suspensionParams.retryDelay != undefined ? suspensionParams.retryDelay.textNode : 0,
-                    timeoutDuration: (timeoutParams != undefined && timeoutParams.content[0] != undefined) ? timeoutParams.content[0].textNode : 0,
+                    timeoutDuration: (timeoutParams != undefined && timeoutParams.content[0] != undefined) ? timeoutParams.content[0].textNode : Number.MAX_SAFE_INTEGER,
                     timeoutAction: (timeoutParams != undefined && timeoutParams.content[1] != undefined) ? timeoutParams.content[1].textNode : '',
                     templateName: templateParams != null ? templateParams.name : '',
                     requireTemplateParameters: false,
