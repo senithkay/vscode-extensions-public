@@ -52,6 +52,9 @@ export class VisualizerWebview {
             {
                 enableScripts: true,
                 retainContextWhenHidden: true,
+                localResourceRoots: [
+                    vscode.Uri.file('/home')
+                ]
             }
         );
         return panel;
