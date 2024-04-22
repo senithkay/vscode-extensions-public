@@ -336,7 +336,8 @@ const AddConnector = (props: AddConnectorProps) => {
                     documentUri={documentUri}
                     uiSchemaPath={uiSchemaPath}
                     onNewConnection={onNewConnection}
-                    cancelConnection={cancelConnection} />
+                    cancelConnection={cancelConnection}
+                    connectorName={props.formData?.connectorName ?? props.connectorName.toLowerCase().replace(/\s/g, '')} />
                 :
                 <>
                     <ComponentCard sx={cardStyle} disbaleHoverEffect>

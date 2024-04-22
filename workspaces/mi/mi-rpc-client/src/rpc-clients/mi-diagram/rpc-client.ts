@@ -56,11 +56,17 @@ import {
     EndpointDirectoryResponse,
     EndpointsAndSequencesResponse,
     FileDirResponse,
+    GetAllArtifactsRequest,
+    GetAllArtifactsResponse,
+    GetAllRegistryPathsRequest,
+    GetAllRegistryPathsResponse,
     GetAvailableConnectorRequest,
     GetAvailableConnectorResponse,
     GetAvailableResourcesRequest,
     GetAvailableResourcesResponse,
     GetBackendRootUrlResponse,
+    GetConnectionFormRequest,
+    GetConnectionFormResponse,
     GetConnectorConnectionsRequest,
     GetConnectorConnectionsResponse,
     GetConnectorFormRequest,
@@ -99,7 +105,6 @@ import {
     ImportProjectRequest,
     ImportProjectResponse,
     ListRegistryArtifactsRequest,
-    RegistryArtifactNamesResponse,
     MiDiagramAPI,
     MigrateProjectRequest,
     MigrateProjectResponse,
@@ -107,6 +112,7 @@ import {
     ProjectDirResponse,
     ProjectRootResponse,
     RangeFormatRequest,
+    RegistryArtifactNamesResponse,
     RetrieveAddressEndpointRequest,
     RetrieveAddressEndpointResponse,
     RetrieveDefaultEndpointRequest,
@@ -169,10 +175,13 @@ import {
     getAIResponse,
     getAPIDirectory,
     getAddressEndpoint,
+    getAllArtifacts,
+    getAllRegistryPaths,
     getAvailableConnectors,
     getAvailableRegistryResources,
     getAvailableResources,
     getBackendRootUrl,
+    getConnectionForm,
     getConnector,
     getConnectorConnections,
     getConnectorForm,
@@ -228,13 +237,7 @@ import {
     updateRecipientEndpoint,
     updateTemplateEndpoint,
     updateWsdlEndpoint,
-    writeContentToFile,
-    getAllArtifacts,
-    GetAllArtifactsRequest,
-    GetAllArtifactsResponse,
-    getAllRegistryPaths,
-    GetAllRegistryPathsRequest,
-    GetAllRegistryPathsResponse,
+    writeContentToFile
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -562,6 +565,10 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
         return this._messenger.sendRequest(getConnectorForm, HOST_EXTENSION, params);
     }
 
+    getConnectionForm(params: GetConnectionFormRequest): Promise<GetConnectionFormResponse> {
+        return this._messenger.sendRequest(getConnectionForm, HOST_EXTENSION, params);
+    }
+
     createDataSource(params: DataSourceTemplate): Promise<CreateDataSourceResponse> {
         return this._messenger.sendRequest(createDataSource, HOST_EXTENSION, params);
     }
@@ -585,6 +592,7 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
     getConnectorConnections(params: GetConnectorConnectionsRequest): Promise<GetConnectorConnectionsResponse> {
         return this._messenger.sendRequest(getConnectorConnections, HOST_EXTENSION, params);
     }
+
     getAllRegistryPaths(params: GetAllRegistryPathsRequest): Promise<GetAllRegistryPathsResponse> {
         return this._messenger.sendRequest(getAllRegistryPaths, HOST_EXTENSION, params);
     }

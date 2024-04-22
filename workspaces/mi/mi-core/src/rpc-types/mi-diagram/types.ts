@@ -1062,10 +1062,13 @@ export interface DownloadConnectorRequest {
 export interface DownloadConnectorResponse {
     path: string;
 }
-
 export interface GetAvailableConnectorRequest {
     documentUri: string;
-    connectorName: string;
+    connectorName: string | null;
+}
+
+export interface connectionUiSchemaRecord {
+    [key: string]: string;
 }
 
 export interface GetAvailableConnectorResponse {
@@ -1075,6 +1078,7 @@ export interface GetAvailableConnectorResponse {
     uiSchemaPath?: string;
     version?: string;
     iconPath?: string;
+    connectionUiSchema?: connectionUiSchemaRecord;
 }
 
 export interface UpdateConnectorRequest {
@@ -1087,6 +1091,14 @@ export interface GetConnectorFormRequest {
 }
 
 export interface GetConnectorFormResponse {
+    formJSON: string;
+}
+
+export interface GetConnectionFormRequest {
+    uiSchemaPath: string;
+}
+
+export interface GetConnectionFormResponse {
     formJSON: string;
 }
 export interface CreateDataSourceResponse {

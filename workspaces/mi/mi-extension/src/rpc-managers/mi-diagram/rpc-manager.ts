@@ -59,11 +59,17 @@ import {
     EndpointsAndSequencesResponse,
     FileDirResponse,
     FileStructure,
+    GetAllArtifactsRequest,
+    GetAllArtifactsResponse,
+    GetAllRegistryPathsRequest,
+    GetAllRegistryPathsResponse,
     GetAvailableConnectorRequest,
     GetAvailableConnectorResponse,
     GetAvailableResourcesRequest,
     GetAvailableResourcesResponse,
     GetBackendRootUrlResponse,
+    GetConnectionFormRequest,
+    GetConnectionFormResponse,
     GetConnectorConnectionsRequest,
     GetConnectorConnectionsResponse,
     GetConnectorFormRequest,
@@ -102,7 +108,6 @@ import {
     ImportProjectRequest,
     ImportProjectResponse,
     ListRegistryArtifactsRequest,
-    RegistryArtifactNamesResponse,
     MACHINE_VIEW,
     MiDiagramAPI,
     MigrateProjectRequest,
@@ -111,6 +116,7 @@ import {
     ProjectDirResponse,
     ProjectRootResponse,
     RangeFormatRequest,
+    RegistryArtifactNamesResponse,
     RetrieveAddressEndpointRequest,
     RetrieveAddressEndpointResponse,
     RetrieveDefaultEndpointRequest,
@@ -147,11 +153,7 @@ import {
     WriteContentToFileRequest,
     WriteContentToFileResponse,
     getSTRequest,
-    getSTResponse,
-    GetAllRegistryPathsRequest,
-    GetAllRegistryPathsResponse,
-    GetAllArtifactsRequest,
-    GetAllArtifactsResponse,
+    getSTResponse
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
 import { error } from "console";
@@ -161,7 +163,8 @@ import { Transform } from 'stream';
 import { v4 as uuidv4 } from 'uuid';
 import * as vscode from 'vscode';
 import { Position, Range, Selection, TextEdit, Uri, ViewColumn, WorkspaceEdit, commands, window, workspace } from "vscode";
-import { COMMANDS, MI_COPILOT_BACKEND_URL } from "../../constants";
+import { extension } from '../../MIExtensionContext';
+import { COMMANDS, DEFAULT_PROJECT_VERSION, MI_COPILOT_BACKEND_URL } from "../../constants";
 import { StateMachine, openView } from "../../stateMachine";
 import { UndoRedoManager } from "../../undoRedoManager";
 import { createFolderStructure, getAddressEndpointXmlWrapper, getDefaultEndpointXmlWrapper, getFailoverXmlWrapper, getHttpEndpointXmlWrapper, getInboundEndpointXmlWrapper, getLoadBalanceXmlWrapper, getMessageProcessorXmlWrapper, getMessageStoreXmlWrapper, getProxyServiceXmlWrapper, getRegistryResourceContent, getTaskXmlWrapper, getTemplateEndpointXmlWrapper, getTemplateXmlWrapper, getWsdlEndpointXmlWrapper } from "../../util";
@@ -175,8 +178,6 @@ import { rootPomXmlContent } from "../../util/templates";
 import { replaceFullContentToFile } from "../../util/workspace";
 import { VisualizerWebview } from "../../visualizer/webview";
 import path = require("path");
-import { extension } from '../../MIExtensionContext';
-import { DEFAULT_PROJECT_VERSION } from "../../constants";
 
 const { XMLParser, XMLBuilder } = require("fast-xml-parser");
 
@@ -2662,6 +2663,19 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         }
 
         const rawData = fs.readFileSync(operationSchema, 'utf-8');
+        const formJSON = JSON.parse(rawData);
+
+        return { formJSON: formJSON };
+    }
+
+    async getConnectionForm(params: GetConnectionFormRequest): Promise<GetConnectionFormResponse> {
+        const { uiSchemaPath } = params;
+
+        if (!fs.existsSync(uiSchemaPath)) {
+            return { formJSON: '' };
+        }
+
+        const rawData = fs.readFileSync(uiSchemaPath, 'utf-8');
         const formJSON = JSON.parse(rawData);
 
         return { formJSON: formJSON };

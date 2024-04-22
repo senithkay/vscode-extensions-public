@@ -145,6 +145,8 @@ import {
     GetAllRegistryPathsResponse,
     GetAllArtifactsRequest,
     GetAllArtifactsResponse,
+    GetConnectionFormRequest,
+    GetConnectionFormResponse,
 } from "./types";
 
 export interface MiDiagramAPI {
@@ -227,6 +229,7 @@ export interface MiDiagramAPI {
     getAvailableConnectors: (params: GetAvailableConnectorRequest) => Promise<GetAvailableConnectorResponse>;
     updateConnectors: (params: UpdateConnectorRequest) => void;
     getConnectorForm: (params: GetConnectorFormRequest) => Promise<GetConnectorFormResponse>;
+    getConnectionForm: (params: GetConnectionFormRequest) => Promise<GetConnectionFormResponse>;
     createDataSource: (params: DataSourceTemplate) => Promise<CreateDataSourceResponse>;
     getDataSource: (params: GetDataSourceRequest) => Promise<DataSourceTemplate>;
     getIconPathUri: (params: GetIconPathUriRequest) => Promise<GetIconPathUriResponse>;

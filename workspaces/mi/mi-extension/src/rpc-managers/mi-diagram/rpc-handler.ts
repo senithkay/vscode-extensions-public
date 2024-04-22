@@ -30,8 +30,11 @@ import {
     CreateTemplateRequest,
     DataSourceTemplate,
     DownloadConnectorRequest,
+    GetAllArtifactsRequest,
+    GetAllRegistryPathsRequest,
     GetAvailableConnectorRequest,
     GetAvailableResourcesRequest,
+    GetConnectionFormRequest,
     GetConnectorConnectionsRequest,
     GetConnectorFormRequest,
     GetDataSourceRequest,
@@ -99,10 +102,13 @@ import {
     getAIResponse,
     getAPIDirectory,
     getAddressEndpoint,
+    getAllArtifacts,
+    getAllRegistryPaths,
     getAvailableConnectors,
     getAvailableRegistryResources,
     getAvailableResources,
     getBackendRootUrl,
+    getConnectionForm,
     getConnector,
     getConnectorConnections,
     getConnectorForm,
@@ -157,11 +163,7 @@ import {
     updateRecipientEndpoint,
     updateTemplateEndpoint,
     updateWsdlEndpoint,
-    writeContentToFile,
-    GetAllRegistryPathsRequest,
-    getAllRegistryPaths,
-    GetAllArtifactsRequest,
-    getAllArtifacts,
+    writeContentToFile
 } from "@wso2-enterprise/mi-core";
 import { Messenger } from "vscode-messenger";
 import { MiDiagramRpcManager } from "./rpc-manager";
@@ -247,6 +249,7 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getAvailableConnectors, (args: GetAvailableConnectorRequest) => rpcManger.getAvailableConnectors(args));
     messenger.onNotification(updateConnectors, (args: UpdateConnectorRequest) => rpcManger.updateConnectors(args));
     messenger.onRequest(getConnectorForm, (args: GetConnectorFormRequest) => rpcManger.getConnectorForm(args));
+    messenger.onRequest(getConnectionForm, (args: GetConnectionFormRequest) => rpcManger.getConnectionForm(args));
     messenger.onRequest(createDataSource, (args: DataSourceTemplate) => rpcManger.createDataSource(args));
     messenger.onRequest(getDataSource, (args: GetDataSourceRequest) => rpcManger.getDataSource(args));
     messenger.onRequest(getIconPathUri, (args: GetIconPathUriRequest) => rpcManger.getIconPathUri(args));
