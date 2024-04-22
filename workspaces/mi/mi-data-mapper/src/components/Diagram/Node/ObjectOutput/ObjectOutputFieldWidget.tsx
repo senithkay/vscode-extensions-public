@@ -12,7 +12,7 @@ import React, { useMemo, useState } from "react";
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import { Button, Codicon, ProgressRing } from "@wso2-enterprise/ui-toolkit";
 import { TypeKind } from "@wso2-enterprise/mi-core";
-import { Node } from "ts-morph";
+import { Block, Node } from "ts-morph";
 
 import classnames from "classnames";
 
@@ -26,6 +26,7 @@ import { ValueConfigMenuItem } from "../commons/DataManipulationWidget/ValueConf
 import { useIONodesStyles } from "../../../styles";
 import { useDMCollapsedFieldsStore } from '../../../../store/store';
 import { getDefaultValue, getEditorLineAndColumn, isConnectedViaLink } from "../../utils/common-utils";
+import { createSourceForUserInput } from "../../utils/modification-utils";
 
 export interface ObjectOutputFieldWidgetProps {
     parentId: string;
@@ -95,7 +96,8 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
         setIsLoading(true);
         try {
             const defaultValue = getDefaultValue(field.type.kind);
-            // TODO: Implement updating source with default value
+            const fnBody = context.functionST.getBody() as Block;
+            await createSourceForUserInput(field, objectLiteralExpr, defaultValue, fnBody, context.applyModifications);
         } finally {
             setIsLoading(false);
         }
