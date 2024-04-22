@@ -141,13 +141,13 @@ export function TemplateEndpointWizard(props: TemplateEndpointWizardProps) {
     useEffect(() => {
         if (!isNewEndpoint) {
             (async () => {
-                const { parameters, ...endpoint } = await rpcClient.getMiDiagramRpcClient().getTemplateEndpoint({ path: props.path });
+                const { ...endpoint } = await rpcClient.getMiDiagramRpcClient().getTemplateEndpoint({ path: props.path });
                 reset(endpoint);
                 setSavedEPName(endpoint.name);
                 setParamConfigs((prev: any) => {
                     return {
                         ...prev,
-                        paramValues: parameters.map((property: any, index: Number) => {
+                        paramValues: endpoint.parameters.map((property: any, index: Number) => {
                             return {
                                 id: prev.paramValues.length + index,
                                 parameters: [

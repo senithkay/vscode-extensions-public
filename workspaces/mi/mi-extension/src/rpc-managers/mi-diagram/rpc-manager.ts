@@ -1418,7 +1418,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 let response: RetrieveHttpEndpointResponse = {
                     endpointName: endpointParams.name,
                     traceEnabled: httpParams.trace != undefined ? httpParams.trace : 'disable',
-                    statisticsEnabled: httpParams.statistics,
+                    statisticsEnabled: httpParams.statistics != undefined ? httpParams.statistics : 'disable',
                     uriTemplate: httpParams.uriTemplate,
                     httpMethod: httpParams.method != undefined ? httpParams.method.toUpperCase() : 'leave_as_is',
                     description: endpointParams.description,
@@ -1516,7 +1516,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     let params: any[];
                     params = endpointParams.property;
                     params.forEach((element) => {
-                        response.properties.push({ name: element.name, value: element.value, scope: element.scope });
+                        response.properties.push({ name: element.name, value: element.value, scope: element.scope ?? 'default' });
                     });
                 }
 
@@ -1599,7 +1599,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     endpointName: endpointParams.name,
                     format: addressParams.format != undefined ? addressParams.format.toUpperCase() : 'LEAVE_AS_IS',
                     traceEnabled: addressParams.trace != undefined ? addressParams.trace : 'disable',
-                    statisticsEnabled: addressParams.statistics,
+                    statisticsEnabled: addressParams.statistics != undefined ? addressParams.statistics : 'disable',
                     uri: addressParams.uri,
                     optimize: addressParams.optimize != undefined ? addressParams.optimize.toUpperCase() : 'LEAVE_AS_IS',
                     description: endpointParams.description,
@@ -1633,7 +1633,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     let params: any[];
                     params = endpointParams.property;
                     params.forEach((element) => {
-                        response.properties.push({ name: element.name, value: element.value, scope: element.scope });
+                        response.properties.push({ name: element.name, value: element.value, scope: element.scope ?? 'default' });
                     });
                 }
 
@@ -1716,7 +1716,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     endpointName: endpointParams.name,
                     format: wsdlParams.format != undefined ? wsdlParams.format.toUpperCase() : 'LEAVE_AS_IS',
                     traceEnabled: wsdlParams.trace != undefined ? wsdlParams.trace : 'disable',
-                    statisticsEnabled: wsdlParams.statistics,
+                    statisticsEnabled: wsdlParams.statistics != undefined ? wsdlParams.statistics : 'disable',
                     optimize: wsdlParams.optimize != undefined ? wsdlParams.optimize.toUpperCase() : 'LEAVE_AS_IS',
                     description: endpointParams.description,
                     wsdlUri: wsdlParams.uri,
@@ -1752,7 +1752,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     let params: any[];
                     params = endpointParams.property;
                     params.forEach((element) => {
-                        response.properties.push({ name: element.name, value: element.value, scope: element.scope });
+                        response.properties.push({ name: element.name, value: element.value, scope: element.scope ?? 'default' });
                     });
                 }
 
@@ -1867,7 +1867,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     let params: any[];
                     params = endpointParams.property;
                     params.forEach((element) => {
-                        response.properties.push({ name: element.name, value: element.value, scope: element.scope });
+                        response.properties.push({ name: element.name, value: element.value, scope: element.scope ?? 'default' });
                     });
                 }
 
@@ -1952,21 +1952,19 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
     async createMessageProcessor(params: CreateMessageProcessorRequest): Promise<CreateMessageProcessorResponse> {
         return new Promise(async (resolve) => {
             const { directory, messageProcessorName, messageProcessorType, messageStoreType, failMessageStoreType,
-                targetMessageStoreType, processorState, dropMessageOption, quartzConfigPath, cron, forwardingInterval,
-                retryInterval, maxRedeliveryAttempts, maxConnectionAttempts, connectionAttemptInterval, taskCount,
-                statusCodes, clientRepository, axis2Config, endpointType, sequenceType, replySequenceType,
-                faultSequenceType, deactivateSequenceType, endpoint, sequence, replySequence,
-                faultSequence, deactivateSequence,
-                samplingInterval, samplingConcurrency,
+                sourceMessageStoreType, targetMessageStoreType, processorState, dropMessageOption, quartzConfigPath,
+                cron, forwardingInterval, retryInterval, maxRedeliveryAttempts, maxConnectionAttempts,
+                connectionAttemptInterval, taskCount, statusCodes, clientRepository, axis2Config, endpointType,
+                sequenceType, replySequenceType, faultSequenceType, deactivateSequenceType, endpoint, sequence, replySequence,
+                faultSequence, deactivateSequence, samplingInterval, samplingConcurrency,
                 providerClass, properties } = params;
 
             const getTemplateParams = {
-                messageProcessorName, messageProcessorType, messageStoreType, failMessageStoreType, targetMessageStoreType,
-                processorState, dropMessageOption, quartzConfigPath, cron, forwardingInterval, retryInterval,
-                maxRedeliveryAttempts, maxConnectionAttempts, connectionAttemptInterval, taskCount, statusCodes,
-                clientRepository, axis2Config, endpointType, sequenceType, replySequenceType, faultSequenceType,
-                deactivateSequenceType, endpoint, sequence,
-                replySequence, faultSequence,
+                messageProcessorName, messageProcessorType, messageStoreType, failMessageStoreType, sourceMessageStoreType,
+                targetMessageStoreType, processorState, dropMessageOption, quartzConfigPath, cron, forwardingInterval,
+                retryInterval, maxRedeliveryAttempts, maxConnectionAttempts, connectionAttemptInterval, taskCount,
+                statusCodes, clientRepository, axis2Config, endpointType, sequenceType, replySequenceType, faultSequenceType,
+                deactivateSequenceType, endpoint, sequence, replySequence, faultSequence,
                 deactivateSequence, samplingInterval, samplingConcurrency, providerClass, properties
             };
 

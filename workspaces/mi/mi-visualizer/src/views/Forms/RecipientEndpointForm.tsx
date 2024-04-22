@@ -152,7 +152,7 @@ export function RecipientWizard(props: RecipientWizardProps) {
     useEffect(() => {
         if (!isNewEndpoint) {
             (async () => {
-                const { properties, endpoints, ...endpoint } = await rpcClient.getMiDiagramRpcClient().getRecipientEndpoint({ path: props.path });
+                const { endpoints, ...endpoint } = await rpcClient.getMiDiagramRpcClient().getRecipientEndpoint({ path: props.path });
 
                 reset(endpoint);
                 setSavedEPName(endpoint.name);
@@ -161,7 +161,7 @@ export function RecipientWizard(props: RecipientWizardProps) {
                 setParamConfigs((prev: any) => {
                     return {
                         ...prev,
-                        paramValues: properties.map((property: any, index: Number) => {
+                        paramValues: endpoint.properties.map((property: any, index: Number) => {
                             return {
                                 id: prev.paramValues.length + index,
                                 parameters: [
