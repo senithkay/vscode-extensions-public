@@ -7,117 +7,39 @@
     {
       "type": "attributeGroup",
       "value": {
-        "groupName": "Properties",
+        "groupName": "Complete Condition",
         "elements": [
           {
-            "type": "attributeGroup",
+            "type": "attribute",
             "value": {
-              "groupName": "Complete Condition",
-              "elements": [
-                {
-                  "type": "attribute",
-                  "value": {
-                    "name": "completionTimeout",
-                    "displayName": "Completion Timeout",
-                    "inputType": "string",
-                    "defaultValue": "0",
-                    "required": false,
-                    "helpTip": ""
-                  }
-                },
-                {
-                  "type": "attribute",
-                  "value": {
-                    "name": "completionMinMessagesType",
-                    "displayName": "Completion Min Messages Type",
-                    "inputType": "combo",
-                    "defaultValue": "VALUE",
-                    "comboValues": [
-                      "VALUE",
-                      "EXPRESSION"
-                    ],
-                    "required": false,
-                    "helpTip": ""
-                  }
-                },
-                {
-                  "type": "attribute",
-                  "value": {
-                    "name": "completionMinMessagesValue",
-                    "displayName": "Completion Min Messages Value",
-                    "inputType": "string",
-                    "defaultValue": "-1",
-                    "enableCondition": [
-                      {
-                        "completionMinMessagesType": "VALUE"
-                      }
-                    ],
-                    "required": false,
-                    "helpTip": ""
-                  }
-                },
-                {
-                  "type": "attribute",
-                  "value": {
-                    "name": "completionMinMessages",
-                    "displayName": "Completion Min Messages",
-                    "inputType": "expression",
-                    "enableCondition": [
-                      {
-                        "completionMinMessagesType": "EXPRESSION"
-                      }
-                    ],
-                    "required": false,
-                    "helpTip": ""
-                  }
-                },
-                {
-                  "type": "attribute",
-                  "value": {
-                    "name": "completionMaxMessagesType",
-                    "displayName": "Completion Max Messages Type",
-                    "inputType": "combo",
-                    "defaultValue": "VALUE",
-                    "comboValues": [
-                      "VALUE",
-                      "EXPRESSION"
-                    ],
-                    "required": false,
-                    "helpTip": ""
-                  }
-                },
-                {
-                  "type": "attribute",
-                  "value": {
-                    "name": "completionMaxMessagesValue",
-                    "displayName": "Completion Max Messages Value",
-                    "inputType": "string",
-                    "defaultValue": "-1",
-                    "enableCondition": [
-                      {
-                        "completionMaxMessagesType": "VALUE"
-                      }
-                    ],
-                    "required": false,
-                    "helpTip": ""
-                  }
-                },
-                {
-                  "type": "attribute",
-                  "value": {
-                    "name": "completionMaxMessages",
-                    "displayName": "Completion Max Messages",
-                    "inputType": "expression",
-                    "enableCondition": [
-                      {
-                        "completionMaxMessagesType": "EXPRESSION"
-                      }
-                    ],
-                    "required": false,
-                    "helpTip": ""
-                  }
-                }
-              ]
+              "name": "completionTimeout",
+              "displayName": "Completion Timeout",
+              "inputType": "string",
+              "defaultValue": "0",
+              "required": false,
+              "helpTip": ""
+            }
+          },
+          {
+            "type": "attribute",
+            "value": {
+              "name": "completionMinMessages",
+              "displayName": "Completion Min Messages",
+              "inputType": "stringOrExpression",
+              "defaultValue": "-1",
+              "required": false,
+              "helpTip": ""
+            }
+          },
+          {
+            "type": "attribute",
+            "value": {
+              "name": "completionMaxMessages",
+              "displayName": "Completion Max Messages",
+              "inputType": "stringOrExpression",
+              "defaultValue": "-1",
+              "required": false,
+              "helpTip": ""
             }
           },
           {
@@ -149,7 +71,15 @@
               "required": false,
               "helpTip": ""
             }
-          },
+          }
+        ]
+      }
+    },
+    {
+      "type": "attributeGroup",
+      "value": {
+        "groupName": "OnComplete",
+        "elements": [
           {
             "type": "attribute",
             "value": {
@@ -174,15 +104,7 @@
               "required": true,
               "helpTip": ""
             }
-          }
-        ]
-      }
-    },
-    {
-      "type": "attributeGroup",
-      "value": {
-        "groupName": "OnComplete",
-        "elements": [
+          },
           {
             "type": "attribute",
             "value": {

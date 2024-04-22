@@ -1,6 +1,6 @@
 {
   "name": "Cache",
-  "type":"mediator",
+  "type": "mediator",
   "title": "Cache Mediator",
   "help": "",
   "elements": [
@@ -46,12 +46,8 @@
               "required": false,
               "helpTip": "",
               "enableCondition": [
-                "AND",
                 {
                   "cacheMediatorImplementation": "611 Compatible"
-                },
-                {
-                  "cacheType": "FINDER"
                 }
               ]
             }
@@ -419,22 +415,14 @@
       }
     },
     {
-      "type": "attributeGroup",
+      "type": "attribute",
       "value": {
-        "groupName": "Misc",
-        "elements": [
-          {
-            "type": "attribute",
-            "value": {
-              "name": "description",
-              "displayName": "Description",
-              "inputType": "string",
-              "defaultValue": "",
-              "required": false,
-              "helpTip": ""
-            }
-          }
-        ]
+        "name": "description",
+        "displayName": "Description",
+        "inputType": "string",
+        "defaultValue": "",
+        "required": false,
+        "helpTip": ""
       }
     }
   ]
