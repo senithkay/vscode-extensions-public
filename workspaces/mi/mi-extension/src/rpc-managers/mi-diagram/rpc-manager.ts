@@ -177,6 +177,7 @@ import { rootPomXmlContent } from "../../util/templates";
 import { replaceFullContentToFile } from "../../util/workspace";
 import { VisualizerWebview } from "../../visualizer/webview";
 import { StateMachineAI } from '../../ai-panel/aiMachine';
+import fetch from 'node-fetch';
 import path = require("path");
 
 const { XMLParser, XMLBuilder } = require("fast-xml-parser");
@@ -2981,10 +2982,21 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
     async logoutFromMIAccount(): Promise<void> {
         const confirm = await window.showInformationMessage('Are you sure you want to logout?', 'Yes', 'No');
         if (confirm === 'Yes') {
+            const token = await extension.context.secrets.get('MIAIUser');
+            const clientId = 'rTEgoRFEQMc1baXcsO6_AU1ugjAa';
+    
+            await fetch('https://api.asgardeo.io/t/wso2midev/oauth2/revoke', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: `token=${token}&client_id=${clientId}`
+            });
+    
             await extension.context.secrets.delete('MIAIUser');
             await extension.context.secrets.delete('MIAIRefreshToken');
             StateMachineAI.sendEvent(AI_EVENT_TYPE.LOGOUT);
-        }else {
+        } else {
             return;
         }
     }
