@@ -9,13 +9,21 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
-    MiDebuggerAPI,
-    ValidateBreakpointsRequest,
-    ValidateBreakpointsResponse,
+    AddBreakpointToSourceRequest,
+    AddBreakpointToSourceResponse,
     GetBreakpointInfoRequest,
-    GetBreakpointInfoResponse
+    GetBreakpointInfoResponse,
+    GetBreakpointsRequest,
+    GetBreakpointsResponse,
+    MiDebuggerAPI,
+    RemoveBreakpointFromSourceRequest,
+    StepOverBreakpointRequest,
+    StepOverBreakpointResponse,
+    ValidateBreakpointsRequest,
+    ValidateBreakpointsResponse
 } from "@wso2-enterprise/mi-core";
-import { StateMachine } from "../../stateMachine";
+import * as vscode from "vscode";
+import { StateMachine, navigate, openView } from "../../stateMachine";
 
 export class MiDebuggerRpcManager implements MiDebuggerAPI {
     async validateBreakpoints(params: ValidateBreakpointsRequest): Promise<ValidateBreakpointsResponse> {
@@ -34,5 +42,84 @@ export class MiDebuggerRpcManager implements MiDebuggerAPI {
 
             resolve(breakpointInfo);
         });
+    }
+
+    async addBreakpointToSource(params: AddBreakpointToSourceRequest): Promise<AddBreakpointToSourceResponse> {
+        return new Promise(async (resolve) => {
+            const breakpoint = new vscode.SourceBreakpoint(new vscode.Location(vscode.Uri.file(params.filePath), new vscode.Position(params.breakpoint.line, 0)));
+            vscode.debug.addBreakpoints([breakpoint]);
+            navigate();
+
+            resolve({ isBreakpointValid: true });
+        });
+    }
+
+    async getBreakpoints(params: GetBreakpointsRequest): Promise<GetBreakpointsResponse> {
+        return new Promise(async (resolve) => {
+            const breakpointsForFile: vscode.SourceBreakpoint[] = vscode.debug.breakpoints.filter((breakpoint) => {
+                const sourceBreakpoint = breakpoint as vscode.SourceBreakpoint;
+                return sourceBreakpoint.location.uri.fsPath === params.filePath;
+            }) as vscode.SourceBreakpoint[];
+
+            const breakpoints = breakpointsForFile.map((breakpoint) => {
+                return {
+                    line: breakpoint.location.range.start.line
+                };
+            });
+
+
+            // get the  current stackTrace to find the triggered breakpoint
+            const debugSession = vscode.debug.activeDebugSession;
+            let currentLine = 0;
+            if (debugSession) {
+                // Request the stack trace for the current thread
+                const response = await debugSession.customRequest('stackTrace', {
+                    threadId: 0,
+                });
+
+                if (response && response.stackFrames) {
+                    // Check the first stack frame, as it represents the current execution point
+                    const firstFrame = response.stackFrames[0];
+                    const currentFile = firstFrame.source.path;
+                    if (currentFile === params.filePath) {
+                        currentLine = firstFrame.line;
+                        // convert to debugger line if current line is not 0
+                        if (currentLine !== 0) { // TODO: use the util method
+                            currentLine = currentLine - 1;
+                        }
+                    }
+                    // console.log(`Hit breakpoint at ${currentFile}:${currentLine}`);
+                }
+            } else {
+                currentLine = 0;
+            }
+            resolve({ breakpoints, activeBreakpoint: currentLine });
+        });
+    }
+
+    async getStepOverBreakpoint(params: StepOverBreakpointRequest): Promise<StepOverBreakpointResponse> {
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            const breakpointInfo = await langClient.getStepOverBreakpoint(params);
+
+            resolve(breakpointInfo);
+        });
+    }
+
+    removeBreakpointFromSource(params: RemoveBreakpointFromSourceRequest): void {
+        const breakpointsForFile: vscode.SourceBreakpoint[] = vscode.debug.breakpoints.filter((breakpoint) => {
+            const sourceBreakpoint = breakpoint as vscode.SourceBreakpoint;
+            return sourceBreakpoint.location.uri.fsPath === params.filePath;
+        }) as vscode.SourceBreakpoint[];
+
+        const breakpoints = breakpointsForFile.filter((breakpoint) => {
+            return breakpoint.location.range.start.line === params.breakpoint.line;
+        });
+
+        breakpoints.forEach((breakpoint) => {
+            vscode.debug.removeBreakpoints([breakpoint]);
+        });
+
+        navigate();
     }
 }

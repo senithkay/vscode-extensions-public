@@ -35,6 +35,40 @@ export interface GetBreakpointInfoResponse {
     breakpointInfo: BreakpointInfo[];
 }
 
+export interface AddBreakpointToSourceRequest {
+    filePath: string;
+    breakpoint: BreakpointPosition;
+}
+
+export interface AddBreakpointToSourceResponse {
+    isBreakpointValid: boolean;
+}
+
+export interface GetBreakpointsRequest {
+    filePath: string;
+}
+
+export interface GetBreakpointsResponse {
+    breakpoints: BreakpointPosition[];
+    activeBreakpoint: number;
+}
+
+export interface StepOverBreakpointRequest {
+    filePath: string;
+    breakpoint: BreakpointPosition;
+}
+
+export interface StepOverBreakpointResponse {
+    nextBreakpointLine: number;
+    nextDebugInfo:BreakpointInfo,
+    noNextBreakpoint:boolean
+}
+
+export interface RemoveBreakpointFromSourceRequest {
+    filePath: string;
+    breakpoint: BreakpointPosition;
+}
+
 export interface BreakpointInfo {
     sequence?: BreakpointSequence; // TODO: update as SequenceBreakpoint
     template?: BreakpointTemplate;

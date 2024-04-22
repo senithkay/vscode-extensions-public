@@ -9,9 +9,17 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
-    ValidateBreakpointsRequest,
-    getBreakpointInfo,
+    AddBreakpointToSourceRequest,
     GetBreakpointInfoRequest,
+    GetBreakpointsRequest,
+    RemoveBreakpointFromSourceRequest,
+    StepOverBreakpointRequest,
+    ValidateBreakpointsRequest,
+    addBreakpointToSource,
+    getBreakpointInfo,
+    getBreakpoints,
+    getStepOverBreakpoint,
+    removeBreakpointFromSource,
     validateBreakpoints
 } from "@wso2-enterprise/mi-core";
 import { Messenger } from "vscode-messenger";
@@ -21,4 +29,8 @@ export function registerMiDebuggerRpcHandlers(messenger: Messenger) {
     const rpcManger = new MiDebuggerRpcManager();
     messenger.onRequest(validateBreakpoints, (args: ValidateBreakpointsRequest) => rpcManger.validateBreakpoints(args));
     messenger.onRequest(getBreakpointInfo, (args: GetBreakpointInfoRequest) => rpcManger.getBreakpointInfo(args));
+    messenger.onRequest(addBreakpointToSource, (args: AddBreakpointToSourceRequest) => rpcManger.addBreakpointToSource(args));
+    messenger.onRequest(getBreakpoints, (args: GetBreakpointsRequest) => rpcManger.getBreakpoints(args));
+    messenger.onRequest(getStepOverBreakpoint, (args: StepOverBreakpointRequest) => rpcManger.getStepOverBreakpoint(args));
+    messenger.onNotification(removeBreakpointFromSource, (args: RemoveBreakpointFromSourceRequest) => rpcManger.removeBreakpointFromSource(args));
 }

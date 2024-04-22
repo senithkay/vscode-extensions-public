@@ -8,9 +8,13 @@
  * 
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
-import { ValidateBreakpointsRequest, ValidateBreakpointsResponse, GetBreakpointInfoRequest, GetBreakpointInfoResponse } from "./types";
-import { RequestType } from "vscode-messenger-common";
+import { ValidateBreakpointsRequest, ValidateBreakpointsResponse, GetBreakpointInfoRequest, GetBreakpointInfoResponse, AddBreakpointToSourceRequest, AddBreakpointToSourceResponse, GetBreakpointsRequest, GetBreakpointsResponse, StepOverBreakpointResponse, StepOverBreakpointRequest, RemoveBreakpointFromSourceRequest } from "./types";
+import { RequestType, NotificationType } from "vscode-messenger-common";
 
 const _preFix = "mi-debugger";
 export const validateBreakpoints: RequestType<ValidateBreakpointsRequest, ValidateBreakpointsResponse> = { method: `${_preFix}/validateBreakpoints` };
 export const getBreakpointInfo: RequestType<GetBreakpointInfoRequest, GetBreakpointInfoResponse> = { method: `${_preFix}/getBreakpointInfo` };
+export const addBreakpointToSource: RequestType<AddBreakpointToSourceRequest, AddBreakpointToSourceResponse> = { method: `${_preFix}/addBreakpointToSource` };
+export const getBreakpoints: RequestType<GetBreakpointsRequest, GetBreakpointsResponse> = { method: `${_preFix}/getBreakpoints` };
+export const getStepOverBreakpoint: RequestType<StepOverBreakpointRequest, StepOverBreakpointResponse> = { method: `${_preFix}/getStepOverBreakpoint` };
+export const removeBreakpointFromSource: NotificationType<RemoveBreakpointFromSourceRequest> = { method: `${_preFix}/removeBreakpointFromSource` };

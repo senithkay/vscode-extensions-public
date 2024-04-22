@@ -9,12 +9,23 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
-    MiDebuggerAPI,
-    ValidateBreakpointsRequest,
-    ValidateBreakpointsResponse,
-    getBreakpointInfo,
+    AddBreakpointToSourceRequest,
+    AddBreakpointToSourceResponse,
     GetBreakpointInfoRequest,
     GetBreakpointInfoResponse,
+    GetBreakpointsRequest,
+    GetBreakpointsResponse,
+    MiDebuggerAPI,
+    RemoveBreakpointFromSourceRequest,
+    StepOverBreakpointRequest,
+    StepOverBreakpointResponse,
+    ValidateBreakpointsRequest,
+    ValidateBreakpointsResponse,
+    addBreakpointToSource,
+    getBreakpointInfo,
+    getBreakpoints,
+    getStepOverBreakpoint,
+    removeBreakpointFromSource,
     validateBreakpoints
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
@@ -33,5 +44,21 @@ export class MiDebuggerRpcClient implements MiDebuggerAPI {
 
     getBreakpointInfo(params: GetBreakpointInfoRequest): Promise<GetBreakpointInfoResponse> {
         return this._messenger.sendRequest(getBreakpointInfo, HOST_EXTENSION, params);
+    }
+
+    addBreakpointToSource(params: AddBreakpointToSourceRequest): Promise<AddBreakpointToSourceResponse> {
+        return this._messenger.sendRequest(addBreakpointToSource, HOST_EXTENSION, params);
+    }
+
+    getBreakpoints(params: GetBreakpointsRequest): Promise<GetBreakpointsResponse> {
+        return this._messenger.sendRequest(getBreakpoints, HOST_EXTENSION, params);
+    }
+
+    getStepOverBreakpoint(params: StepOverBreakpointRequest): Promise<StepOverBreakpointResponse> {
+        return this._messenger.sendRequest(getStepOverBreakpoint, HOST_EXTENSION, params);
+    }
+
+    removeBreakpointFromSource(params: RemoveBreakpointFromSourceRequest): void {
+        return this._messenger.sendNotification(removeBreakpointFromSource, HOST_EXTENSION, params);
     }
 }

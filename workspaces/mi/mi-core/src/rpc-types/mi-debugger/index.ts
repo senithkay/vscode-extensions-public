@@ -7,9 +7,13 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { ValidateBreakpointsRequest, ValidateBreakpointsResponse, GetBreakpointInfoRequest, GetBreakpointInfoResponse } from "./types";
+import { ValidateBreakpointsRequest, ValidateBreakpointsResponse, GetBreakpointInfoRequest, GetBreakpointInfoResponse, AddBreakpointToSourceRequest, AddBreakpointToSourceResponse, GetBreakpointsRequest, GetBreakpointsResponse, StepOverBreakpointResponse, StepOverBreakpointRequest, RemoveBreakpointFromSourceRequest } from "./types";
 
 export interface MiDebuggerAPI {
     validateBreakpoints: (params: ValidateBreakpointsRequest) => Promise<ValidateBreakpointsResponse>;
     getBreakpointInfo: (params: GetBreakpointInfoRequest) => Promise<GetBreakpointInfoResponse>;
+    addBreakpointToSource: (params: AddBreakpointToSourceRequest) => Promise<AddBreakpointToSourceResponse>;
+    getBreakpoints: (params: GetBreakpointsRequest) => Promise<GetBreakpointsResponse>;
+    getStepOverBreakpoint: (params: StepOverBreakpointRequest) => Promise<StepOverBreakpointResponse>;
+    removeBreakpointFromSource: (params: RemoveBreakpointFromSourceRequest) => void;
 }
