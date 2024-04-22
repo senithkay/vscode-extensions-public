@@ -235,9 +235,6 @@ export function ConnectorPage(props: ConnectorPageProps) {
             setIsDownloading(false);
         }
 
-        // // Update LS with new connector
-        // await rpcClient.getMiDiagramRpcClient().updateConnectors({ documentUri: props.documentUri });
-
         setIsGeneratingForm(true);
 
         // Get Connector Data from LS
