@@ -32,7 +32,7 @@
         "title": "Validate Schema",
         "description": "Editing of the properties of an object ValidateSchema",
         "tableKey": "{row.number}",
-        "tableValue": "propertyValue",
+        "tableValue": "validateSchemaKey",
         "elements": [
           {
             "type": "attribute",
@@ -58,31 +58,23 @@
         "tableValue": "featureEnabled",
         "elements": [
           {
-            "type": "attributeGroup",
+            "type": "attribute",
             "value": {
-              "groupName": "Properties",
-              "elements": [
-                {
-                  "type": "attribute",
-                  "value": {
-                    "name": "featureName",
-                    "displayName": "Feature Name",
-                    "inputType": "string",
-                    "required": false,
-                    "helpTip": ""
-                  }
-                },
-                {
-                  "type": "attribute",
-                  "value": {
-                    "name": "featureEnabled",
-                    "displayName": "Feature Enabled",
-                    "inputType": "checkbox",
-                    "required": false,
-                    "helpTip": ""
-                  }
-                }
-              ]
+              "name": "featureName",
+              "displayName": "Feature Name",
+              "inputType": "string",
+              "required": false,
+              "helpTip": ""
+            }
+          },
+          {
+            "type": "attribute",
+            "value": {
+              "name": "featureEnabled",
+              "displayName": "Feature Enabled",
+              "inputType": "checkbox",
+              "required": false,
+              "helpTip": ""
             }
           }
         ]
@@ -99,31 +91,23 @@
         "tableValue": "locationKey",
         "elements": [
           {
-            "type": "attributeGroup",
+            "type": "attribute",
             "value": {
-              "groupName": "Properties",
-              "elements": [
-                {
-                  "type": "attribute",
-                  "value": {
-                    "name": "location",
-                    "displayName": "Location",
-                    "inputType": "string",
-                    "required": false,
-                    "helpTip": ""
-                  }
-                },
-                {
-                  "type": "attribute",
-                  "value": {
-                    "name": "locationKey",
-                    "displayName": "Location Key",
-                    "inputType": "key",
-                    "required": false,
-                    "helpTip": ""
-                  }
-                }
-              ]
+              "name": "location",
+              "displayName": "Location",
+              "inputType": "string",
+              "required": false,
+              "helpTip": ""
+            }
+          },
+          {
+            "type": "attribute",
+            "value": {
+              "name": "locationKey",
+              "displayName": "Location Key",
+              "inputType": "key",
+              "required": false,
+              "helpTip": ""
             }
           }
         ]

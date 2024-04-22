@@ -27,31 +27,23 @@
         "tableValue": "parameterValue",
         "elements": [
           {
-            "type": "attributeGroup",
+            "type": "attribute",
             "value": {
-              "groupName": "Properties",
-              "elements": [
-                {
-                  "type": "attribute",
-                  "value": {
-                    "name": "parameterName",
-                    "displayName": "Parameter Name",
-                    "inputType": "string",
-                    "required": false,
-                    "helpTip": ""
-                  }
-                },
-                {
-                  "type": "attribute",
-                  "value": {
-                    "name": "parameterValue",
-                    "displayName": "Parameter Value",
-                    "inputType": "stringOrExpression",
-                    "required": false,
-                    "helpTip": ""
-                  }
-                }
-              ]
+              "name": "parameterName",
+              "displayName": "Parameter Name",
+              "inputType": "string",
+              "required": false,
+              "helpTip": ""
+            }
+          },
+          {
+            "type": "attribute",
+            "value": {
+              "name": "parameterValue",
+              "displayName": "Parameter Value",
+              "inputType": "stringOrExpression",
+              "required": false,
+              "helpTip": ""
             }
           }
         ]

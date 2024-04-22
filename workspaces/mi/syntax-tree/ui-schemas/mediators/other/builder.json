@@ -20,41 +20,33 @@
               "tableValue": "builderClass",
               "elements": [
                 {
-                  "type": "attributeGroup",
+                  "type": "attribute",
                   "value": {
-                    "groupName": "Properties",
-                    "elements": [
-                      {
-                        "type": "attribute",
-                        "value": {
-                          "name": "contentType",
-                          "displayName": "Content Type",
-                          "inputType": "string",
-                          "required": false,
-                          "helpTip": ""
-                        }
-                      },
-                      {
-                        "type": "attribute",
-                        "value": {
-                          "name": "builderClass",
-                          "displayName": "Builder Class",
-                          "inputType": "string",
-                          "required": false,
-                          "helpTip": ""
-                        }
-                      },
-                      {
-                        "type": "attribute",
-                        "value": {
-                          "name": "formatterClass",
-                          "displayName": "Formatter Class",
-                          "inputType": "expression",
-                          "required": false,
-                          "helpTip": ""
-                        }
-                      }
-                    ]
+                    "name": "contentType",
+                    "displayName": "Content Type",
+                    "inputType": "string",
+                    "required": false,
+                    "helpTip": ""
+                  }
+                },
+                {
+                  "type": "attribute",
+                  "value": {
+                    "name": "builderClass",
+                    "displayName": "Builder Class",
+                    "inputType": "string",
+                    "required": false,
+                    "helpTip": ""
+                  }
+                },
+                {
+                  "type": "attribute",
+                  "value": {
+                    "name": "formatterClass",
+                    "displayName": "Formatter Class",
+                    "inputType": "expression",
+                    "required": false,
+                    "helpTip": ""
                   }
                 }
               ]

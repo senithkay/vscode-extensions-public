@@ -30,108 +30,100 @@
                     "tableValue": "ruleFragment",
                     "elements": [
                       {
-                        "type": "attributeGroup",
+                        "type": "attribute",
                         "value": {
-                          "groupName": "Properties",
-                          "elements": [
+                          "name": "ruleAction",
+                          "displayName": "Rule Action",
+                          "inputType": "combo",
+                          "defaultValue": "Replace",
+                          "comboValues": [
+                            "Replace",
+                            "Remove",
+                            "Append",
+                            "Prepend",
+                            "Set"
+                          ],
+                          "required": false,
+                          "helpTip": ""
+                        }
+                      },
+                      {
+                        "type": "attribute",
+                        "value": {
+                          "name": "ruleFragment",
+                          "displayName": "Rule Fragment",
+                          "inputType": "combo",
+                          "defaultValue": "protocol",
+                          "comboValues": [
+                            "protocol",
+                            "host",
+                            "port",
+                            "path",
+                            "query",
+                            "ref",
+                            "user",
+                            "full"
+                          ],
+                          "required": false,
+                          "helpTip": ""
+                        }
+                      },
+                      {
+                        "type": "attribute",
+                        "value": {
+                          "name": "ruleOption",
+                          "displayName": "Rule Option",
+                          "inputType": "combo",
+                          "defaultValue": "Value",
+                          "comboValues": [
+                            "Value",
+                            "Expression"
+                          ],
+                          "required": false,
+                          "helpTip": ""
+                        }
+                      },
+                      {
+                        "type": "attribute",
+                        "value": {
+                          "name": "actionValue",
+                          "displayName": "Action Value",
+                          "inputType": "string",
+                          "defaultValue": "",
+                          "required": false,
+                          "helpTip": "",
+                          "enableCondition": [
                             {
-                              "type": "attribute",
-                              "value": {
-                                "name": "ruleAction",
-                                "displayName": "Rule Action",
-                                "inputType": "combo",
-                                "defaultValue": "Replace",
-                                "comboValues": [
-                                  "Replace",
-                                  "Remove",
-                                  "Append",
-                                  "Prepend",
-                                  "Set"
-                                ],
-                                "required": false,
-                                "helpTip": ""
-                              }
-                            },
-                            {
-                              "type": "attribute",
-                              "value": {
-                                "name": "ruleFragment",
-                                "displayName": "Rule Fragment",
-                                "inputType": "combo",
-                                "defaultValue": "protocol",
-                                "comboValues": [
-                                  "protocol",
-                                  "host",
-                                  "port",
-                                  "path",
-                                  "query",
-                                  "ref",
-                                  "user",
-                                  "full"
-                                ],
-                                "required": false,
-                                "helpTip": ""
-                              }
-                            },
-                            {
-                              "type": "attribute",
-                              "value": {
-                                "name": "ruleOption",
-                                "displayName": "Rule Option",
-                                "inputType": "combo",
-                                "defaultValue": "Value",
-                                "comboValues": [
-                                  "Value",
-                                  "Expression"
-                                ],
-                                "required": false,
-                                "helpTip": ""
-                              }
-                            },
-                            {
-                              "type": "attribute",
-                              "value": {
-                                "name": "actionValue",
-                                "displayName": "Action Value",
-                                "inputType": "string",
-                                "defaultValue": "",
-                                "required": false,
-                                "helpTip": "",
-                                "enableCondition": [
-                                  {
-                                    "ruleOption": "Value"
-                                  }
-                                ]
-                              }
-                            },
-                            {
-                              "type": "attribute",
-                              "value": {
-                                "name": "actionExpression",
-                                "displayName": "Action Expression",
-                                "inputType": "expression",
-                                "defaultValue": "",
-                                "required": false,
-                                "helpTip": "",
-                                "enableCondition": [
-                                  {
-                                    "ruleOption": "Expression"
-                                  }
-                                ]
-                              }
-                            },
-                            {
-                              "type": "attribute",
-                              "value": {
-                                "name": "actionRegex",
-                                "displayName": "Action Regex",
-                                "inputType": "string",
-                                "defaultValue": "",
-                                "required": false,
-                                "helpTip": ""
-                              }
+                              "ruleOption": "Value"
                             }
                           ]
+                        }
+                      },
+                      {
+                        "type": "attribute",
+                        "value": {
+                          "name": "actionExpression",
+                          "displayName": "Action Expression",
+                          "inputType": "expression",
+                          "defaultValue": "",
+                          "required": false,
+                          "helpTip": "",
+                          "enableCondition": [
+                            {
+                              "ruleOption": "Expression"
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "type": "attribute",
+                        "value": {
+                          "name": "actionRegex",
+                          "displayName": "Action Regex",
+                          "inputType": "string",
+                          "defaultValue": "",
+                          "required": false,
+                          "helpTip": ""
                         }
                       }
                     ]

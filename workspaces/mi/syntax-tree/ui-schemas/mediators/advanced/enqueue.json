@@ -24,7 +24,7 @@
             "value": {
               "name": "priority",
               "displayName": "Priority",
-              "inputType": "String",
+              "inputType": "string",
               "defaultValue": "0",
               "required": true,
               "helpTip": ""

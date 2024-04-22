@@ -62,9 +62,9 @@
         "inputType": "expression",
         "required": false,
         "helpTip": "",
-        "enableCondition": {
+        "enableCondition": [{
           "preservePayload": "true"
-        }
+        }]
       }
     },
     {
