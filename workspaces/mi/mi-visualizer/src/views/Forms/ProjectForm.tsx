@@ -80,7 +80,7 @@ export function ProjectWizard({ cancelView }: { cancelView: MACHINE_VIEW }) {
     }
 
     const handleCreateProject = async (values: any) => {
-        values.artifactId = values.artifactID ? values.artifactID : values.name;
+        setValue("artifactID", getValues("artifactID") ? getValues("artifactID") : getValues("name"))
         const createProjectParams = {
             ...values,
             open: true,
@@ -92,12 +92,8 @@ export function ProjectWizard({ cancelView }: { cancelView: MACHINE_VIEW }) {
         rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: cancelView } });
     };
 
-    const handleBackButtonClick = () => {
-        rpcClient.getMiVisualizerRpcClient().goBack();
-    };
-
     return (
-        <FormView title="Create New Project" onClose={handleBackButtonClick}>
+        <FormView title="Create New Project" onClose={handleCancel}>
             <TextField
                 id='name'
                 label="Project Name"

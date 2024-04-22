@@ -1,13 +1,81 @@
 {
     "name": "call",
-    "type":"mediator",
+    "type": "mediator",
     "title": "Call Mediator",
-    "help": "",
+    "help": "The Call mediator is used to send messages out of the Micro Integrator to an endpoint, allowing for both blocking and non-blocking invocations",
     "elements": [
+        {
+            "type": "attribute",
+            "value": {
+                "name": "endopint",
+                "displayName": "Select Endpoint",
+                "inputType": "combo",
+                "comboValues": [
+                    "{workspace.endopints}",
+                    "{registry.endpoints}",
+                    "{line.break}",
+                    "{create.new}",
+                    "INLINE",
+                    "NONE",
+                    "REGISTRYKEY",
+                    "XPATH"
+                ],
+                "required": true,
+                "helpTip": "Choose an existing endpoint, or specify a new one"
+            }
+        },
+        {
+            "type": "attribute",
+            "value": {
+                "name": "inlineEndpoint",
+                "displayName": "Inline Endpoint",
+                "inputType": "textArea",
+                "defaultValue": "<inline/>",
+                "required": false,
+                "helpTip": "Define your endpoint as an XML",
+                "enableCondition": [
+                    {
+                        "endopint": "INLINE"
+                    }
+                ]
+            }
+        },
+        {
+            "type": "attribute",
+            "value": {
+                "name": "endpointRegistryKey",
+                "displayName": "Endpoint Registry Key",
+                "inputType": "string",
+                "defaultValue": "",
+                "required": false,
+                "helpTip": "Endpoint Registry Key",
+                "enableCondition": [
+                    {
+                        "endpointType": "REGISTRYKEY"
+                    }
+                ]
+            }
+        },
+        {
+            "type": "attribute",
+            "value": {
+                "name": "endpointXpath",
+                "displayName": "Endpoint Xpath",
+                "inputType": "expression",
+                "defaultValue": "",
+                "required": false,
+                "helpTip": "Endpoint Xpath",
+                "enableCondition": [
+                    {
+                        "endpointType": "XPATH"
+                    }
+                ]
+            }
+        },
         {
             "type": "attributeGroup",
             "value": {
-                "groupName": "Properties",
+                "groupName": "Advanced",
                 "elements": [
                     {
                         "type": "attribute",
@@ -29,63 +97,6 @@
                             "defaultValue": false,
                             "required": false,
                             "helpTip": "Initialize Axis2 client options"
-                        }
-                    },
-                    {
-                        "type": "attributeGroup",
-                        "value": {
-                            "groupName": "EndpointType",
-                            "elements": [
-                                {
-                                    "type": "attribute",
-                                    "value": {
-                                        "name": "endpointType",
-                                        "displayName": "Endpoint Type",
-                                        "inputType": "combo",
-                                        "defaultValue": "INLINE",
-                                        "comboValues": [
-                                            "INLINE",
-                                            "NONE",
-                                            "REGISTRYKEY",
-                                            "XPATH"
-                                        ],
-                                        "required": true,
-                                        "helpTip": "Endpoint Type"
-                                    }
-                                },
-                                {
-                                    "type": "attribute",
-                                    "value": {
-                                        "name": "endpointRegistryKey",
-                                        "displayName": "Endpoint Registry Key",
-                                        "inputType": "registry",
-                                        "defaultValue": "",
-                                        "required": false,
-                                        "helpTip": "Endpoint Registry Key",
-                                        "enableCondition": [
-                                            {
-                                                "endpointType": "REGISTRYKEY"
-                                            }
-                                        ]
-                                    }
-                                },
-                                {
-                                    "type": "attribute",
-                                    "value": {
-                                        "name": "endpointXpath",
-                                        "displayName": "Endpoint Xpath",
-                                        "inputType": "stringOrExpression",
-                                        "defaultValue": "",
-                                        "required": false,
-                                        "helpTip": "Endpoint Xpath",
-                                        "enableCondition": [
-                                            {
-                                                "endpointType": "XPATH"
-                                            }
-                                        ]
-                                    }
-                                }
-                            ]
                         }
                     },
                     {
@@ -111,7 +122,7 @@
                         "value": {
                             "name": "sourceProperty",
                             "displayName": "Source Property",
-                            "inputType": "stringOrExpression",
+                            "inputType": "string",
                             "defaultValue": "",
                             "required": false,
                             "helpTip": "Source Property",
@@ -127,7 +138,7 @@
                         "value": {
                             "name": "contentType",
                             "displayName": "Content Type",
-                            "inputType": "stringOrExpression",
+                            "inputType": "string",
                             "defaultValue": "",
                             "required": false,
                             "helpTip": "Content Type",
@@ -148,12 +159,12 @@
                     {
                         "type": "attribute",
                         "value": {
-                            "name": "sourceendpointType",
-                            "displayName": "Source endpointType",
-                            "inputType": "stringOrExpression",
-                            "defaultValue": "",
+                            "name": "sourcePayload",
+                            "displayName": "Source Payload",
+                            "inputType": "textArea",
+                            "defaultValue": "<inline xmlns=\"\"/>",
                             "required": false,
-                            "helpTip": "Source endpointType",
+                            "helpTip": "",
                             "enableCondition": [
                                 {
                                     "sourceType": "inline"
@@ -166,10 +177,15 @@
                         "value": {
                             "name": "sourceXPath",
                             "displayName": "Source XPath",
-                            "inputType": "stringOrExpression",
+                            "inputType": "expression",
                             "defaultValue": "",
                             "required": false,
-                            "helpTip": "Source XPath"
+                            "helpTip": "Source XPath",
+                            "enableCondition": [
+                                {
+                                    "sourceType": "custom"
+                                }
+                            ]
                         }
                     },
                     {
@@ -177,7 +193,7 @@
                         "value": {
                             "name": "targetType",
                             "displayName": "Target Type",
-                            "inputType": "comboOrExpression",
+                            "inputType": "combo",
                             "defaultValue": "body",
                             "comboValues": [
                                 "body",
@@ -192,7 +208,7 @@
                         "value": {
                             "name": "targetProperty",
                             "displayName": "Target Property",
-                            "inputType": "stringOrExpression",
+                            "inputType": "string",
                             "defaultValue": "",
                             "required": false,
                             "helpTip": "Target Property",
@@ -202,19 +218,19 @@
                                 }
                             ]
                         }
-                    },
-                    {
-                        "type": "attribute",
-                        "value": {
-                            "name": "description",
-                            "displayName": "Description",
-                            "inputType": "string",
-                            "defaultValue": "",
-                            "required": false,
-                            "helpTip": "Description"
-                        }
                     }
                 ]
+            }
+        },
+        {
+            "type": "attribute",
+            "value": {
+                "name": "description",
+                "displayName": "Description",
+                "inputType": "string",
+                "defaultValue": "",
+                "required": false,
+                "helpTip": "Description"
             }
         }
     ]

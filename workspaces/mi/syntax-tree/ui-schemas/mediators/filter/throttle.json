@@ -123,95 +123,87 @@
                         "value": {
                             "name": "policyEntries",
                             "displayName": "Policy Entries",
-                            "form": {
-                                "title": "ThrottlePolicyEntry",
-                                "description": "Editing of the properties of an object ThrottlePolicyEntry",
-                                "elements": [
-                                    {
-                                        "type": "attributeGroup",
-                                        "value": {
-                                            "groupName": "Properties",
-                                            "elements": [
-                                                {
-                                                    "type": "attribute",
-                                                    "value": {
-                                                        "name": "throttleType",
-                                                        "displayName": "Throttle Type",
-                                                        "inputType": "combo",
-                                                        "defaultValue": "IP",
-                                                        "comboValues": [
-                                                            "IP",
-                                                            "DOMAIN"
-                                                        ],
-                                                        "required": false,
-                                                        "helpTip": ""
-                                                    }
-                                                },
-                                                {
-                                                    "type": "attribute",
-                                                    "value": {
-                                                        "name": "throttleRange",
-                                                        "displayName": "Throttle Range",
-                                                        "inputType": "string",
-                                                        "defaultValue": "other",
-                                                        "required": false,
-                                                        "helpTip": ""
-                                                    }
-                                                },
-                                                {
-                                                    "type": "attribute",
-                                                    "value": {
-                                                        "name": "accessType",
-                                                        "displayName": "Access Type",
-                                                        "inputType": "combo",
-                                                        "defaultValue": "Allow",
-                                                        "comboValues": [
-                                                            "Allow",
-                                                            "Deny",
-                                                            "Control"
-                                                        ],
-                                                        "required": false,
-                                                        "helpTip": ""
-                                                    }
-                                                },
-                                                {
-                                                    "type": "attribute",
-                                                    "value": {
-                                                        "name": "maxRequestCount",
-                                                        "displayName": "Max Request Count",
-                                                        "inputType": "string",
-                                                        "defaultValue": "0",
-                                                        "required": false,
-                                                        "helpTip": ""
-                                                    }
-                                                },
-                                                {
-                                                    "type": "attribute",
-                                                    "value": {
-                                                        "name": "unitTime",
-                                                        "displayName": "Unit Time",
-                                                        "inputType": "string",
-                                                        "defaultValue": "0",
-                                                        "required": false,
-                                                        "helpTip": ""
-                                                    }
-                                                },
-                                                {
-                                                    "type": "attribute",
-                                                    "value": {
-                                                        "name": "prohibitPeriod",
-                                                        "displayName": "Prohibit Period",
-                                                        "inputType": "string",
-                                                        "defaultValue": "0",
-                                                        "required": false,
-                                                        "helpTip": ""
-                                                    }
-                                                }
-                                            ]
-                                        }
+                            "title": "ThrottlePolicyEntry",
+                            "description": "Editing of the properties of an object ThrottlePolicyEntry",
+                            "tableKey": "throttleType",
+                            "tableValue": "accessType",
+                            "elements": [
+                                {
+                                    "type": "attribute",
+                                    "value": {
+                                        "name": "throttleType",
+                                        "displayName": "Throttle Type",
+                                        "inputType": "combo",
+                                        "defaultValue": "IP",
+                                        "comboValues": [
+                                            "IP",
+                                            "DOMAIN"
+                                        ],
+                                        "required": false,
+                                        "helpTip": ""
                                     }
-                                ]
-                            },
+                                },
+                                {
+                                    "type": "attribute",
+                                    "value": {
+                                        "name": "throttleRange",
+                                        "displayName": "Throttle Range",
+                                        "inputType": "string",
+                                        "defaultValue": "other",
+                                        "required": false,
+                                        "helpTip": ""
+                                    }
+                                },
+                                {
+                                    "type": "attribute",
+                                    "value": {
+                                        "name": "accessType",
+                                        "displayName": "Access Type",
+                                        "inputType": "combo",
+                                        "defaultValue": "Allow",
+                                        "comboValues": [
+                                            "Allow",
+                                            "Deny",
+                                            "Control"
+                                        ],
+                                        "required": false,
+                                        "helpTip": ""
+                                    }
+                                },
+                                {
+                                    "type": "attribute",
+                                    "value": {
+                                        "name": "maxRequestCount",
+                                        "displayName": "Max Request Count",
+                                        "inputType": "string",
+                                        "defaultValue": "0",
+                                        "required": false,
+                                        "helpTip": ""
+                                    }
+                                },
+                                {
+                                    "type": "attribute",
+                                    "value": {
+                                        "name": "unitTime",
+                                        "displayName": "Unit Time",
+                                        "inputType": "string",
+                                        "defaultValue": "0",
+                                        "required": false,
+                                        "helpTip": ""
+                                    }
+                                },
+                                {
+                                    "type": "attribute",
+                                    "value": {
+                                        "name": "prohibitPeriod",
+                                        "displayName": "Prohibit Period",
+                                        "inputType": "string",
+                                        "defaultValue": "0",
+                                        "required": false,
+                                        "helpTip": ""
+                                    }
+                                }
+                            ],
                             "enableCondition": [
                                 {
                                     "policyType": "INLINE"
@@ -238,21 +230,13 @@
             }
         },
         {
-            "type": "attributeGroup",
+            "type": "attribute",
             "value": {
-                "groupName": "Misc",
-                "elements": [
-                    {
-                        "type": "attribute",
-                        "value": {
-                            "name": "description",
-                            "displayName": "Description",
-                            "inputType": "string",
-                            "required": false,
-                            "helpTip": ""
-                        }
-                    }
-                ]
+                "name": "description",
+                "displayName": "Description",
+                "inputType": "string",
+                "required": false,
+                "helpTip": ""
             }
         }
     ]

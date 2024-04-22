@@ -9,16 +9,16 @@
 
 import styled from "@emotion/styled";
 import React, { useEffect, useState } from "react";
-import { AutoComplete, Button, TextField , Codicon, Typography , FormView, FormActions, CheckBox, FormCheckBox} from "@wso2-enterprise/ui-toolkit";
+import { AutoComplete, Button, TextField, Codicon, Typography, FormView, FormActions, CheckBox, FormCheckBox } from "@wso2-enterprise/ui-toolkit";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import CodeMirror from "@uiw/react-codemirror";
 import { xml } from "@codemirror/lang-xml";
 import { oneDark } from "@codemirror/theme-one-dark";
-import { linter, Diagnostic  } from "@codemirror/lint";
-import {CreateLocalEntryRequest, CreateLocalEntryResponse, EVENT_TYPE, MACHINE_VIEW} from "@wso2-enterprise/mi-core";
+import { linter, Diagnostic } from "@codemirror/lint";
+import { CreateLocalEntryRequest, CreateLocalEntryResponse, EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
 import path from "path";
-import {XMLValidator} from "fast-xml-parser";
+import { XMLValidator } from "fast-xml-parser";
 import { get, set, values } from "lodash";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -39,7 +39,7 @@ export interface Region {
 }
 
 export interface LocalEntryWizardProps {
-    path:string
+    path: string
 }
 
 type InputsFields = {
@@ -69,66 +69,70 @@ const initialLocalEntry: InputsFields = {
 };
 export function LocalEntryWizard(props: LocalEntryWizardProps) {
     const { rpcClient } = useVisualizerContext();
-    const [localEntryArtifactsNames, setLocalEntryArtifactsNames] = useState([]);
-    const [artifactNames, setArtifactNames] = useState([]);
     const [registryPaths, setRegistryPaths] = useState([]);
-    const [localEntryNames, setLocalEntryNames] = useState([]);
+    const [artifactNames, setArtifactNames] = useState([]);
+    const [workspaceFileNames, setWorkspaceFileNames] = useState([]);
+    const [savedLocalEntryName, setSavedLocalEntryName] = useState<string>("");
+
     const schema = yup
-    .object({
-        name: yup.string().required("Local Entry Name is required").matches(/^[^@\\^+;:!%&,=*#[\]$\ ?'"<>{}() /]*$/, "Invalid characters in Message Store name")
-            .test('validateLocalEntryName',
-            'Local Entry file name already exists', value => {
-                return !localEntryNames.includes(value)
-            }).test('validateLocalEntryName',
-                'Local Entry artifact name already exists', value => {
-                    return !localEntryArtifactsNames.includes(value)
-                }),
-        type: yup.string(),
-        saveInReg: yup.boolean().default(false),
-        inLineTextValue: yup.string().required().when("type", {
-            is: "In-Line Text Entry",
-            then: (schema)=>schema.required("In-Line Text Value is required"),
-            otherwise: (schema)=>schema.notRequired()
-        }),
-        inLineXmlValue: yup.string().required().when("type", {
-            is: "In-Line XML Entry",
-            then: (schema)=>schema.required("In-Line XML Value is required"),
-            otherwise: (schema)=>schema.notRequired()
-        }),
-        sourceURL: yup.string().required().when("type", {
-            is: "Source URL Entry",
-            then: (schema)=>schema.required("Source URL is required"),
-            otherwise: (schema)=>schema.notRequired()
-        }),
-        artifactName: yup.string().when('saveInReg', {
-            is: false,
-            then: () =>
-                yup.string().notRequired(),
-            otherwise: () =>
-                yup.string().required("Artifact Name is required").test('validateArtifactName',
-                    'Artifact name already exists', value => {
-                        return !artifactNames.includes(value);
+        .object({
+            name: yup.string().required("Local Entry Name is required").matches(/^[a-zA-Z0-9]*$/, "Invalid characters in Message Store name")
+                .test('validateSequenceName',
+                    'An artifact with same name already exists', value => {
+                        return !(workspaceFileNames.includes(value) && savedLocalEntryName !== value)
+                    }).test('validateArtifactName',
+                        'A registry resource with this artifact name already exists', value => {
+                            return !(artifactNames.includes(value) && savedLocalEntryName !== value)
+                        }),
+            type: yup.string(),
+            saveInReg: yup.boolean().default(false),
+            inLineTextValue: yup.string().required().when("type", {
+                is: "In-Line Text Entry",
+                then: (schema) => schema.required("In-Line Text Value is required"),
+                otherwise: (schema) => schema.notRequired()
+            }),
+            inLineXmlValue: yup.string().required().when("type", {
+                is: "In-Line XML Entry",
+                then: (schema) => schema.required("In-Line XML Value is required"),
+                otherwise: (schema) => schema.notRequired()
+            }),
+            sourceURL: yup.string().required().when("type", {
+                is: "Source URL Entry",
+                then: (schema) => schema.required("Source URL is required"),
+                otherwise: (schema) => schema.notRequired()
+            }),
+            artifactName: yup.string().when('saveInReg', {
+                is: false,
+                then: () =>
+                    yup.string().notRequired(),
+                otherwise: () =>
+                    yup.string().required("Artifact Name is required").test('validateArtifactName',
+                        'Artifact name already exists', value => {
+                            return !artifactNames.includes(value);
+                        }).test('validateFileName',
+                            'A file already exists in the workspace with this artifact name', value => {
+                                return !workspaceFileNames.includes(value);
+                            }),
+            }),
+            registryPath: yup.string().when('saveInReg', {
+                is: false,
+                then: () =>
+                    yup.string().notRequired(),
+                otherwise: () =>
+                    yup.string().test('validateRegistryPath', 'Resource already exists in registry', value => {
+                        const formattedPath = formatRegistryPath(value, getValues("registryType"), getValues("name"));
+                        return !(registryPaths.includes(formattedPath) || registryPaths.includes(formattedPath + "/"));
                     }),
-        }),
-        registryPath: yup.string().when('saveInReg', {
-            is: false,
-            then: () =>
-                yup.string().notRequired(),
-            otherwise: () =>
-                yup.string().test('validateRegistryPath', 'Resource already exists in registry', value => {
-                    const formattedPath = formatRegistryPath(value, getValues("registryType"), getValues("name"));
-                    return !(registryPaths.includes(formattedPath) || registryPaths.includes(formattedPath + "/"));
-                }),
-        }),
-        registryType: yup.mixed<"gov" | "conf">().oneOf(["gov", "conf"]),
-    });
+            }),
+            registryType: yup.mixed<"gov" | "conf">().oneOf(["gov", "conf"]),
+        });
     const [type, setType] = useState("");
     const [xmlErrors, setXmlErrors] = useState({
         code: "",
         col: 0,
         line: 0,
         msg: ""
-    }); 
+    });
     const {
         reset,
         register,
@@ -145,7 +149,7 @@ export function LocalEntryWizard(props: LocalEntryWizardProps) {
     });
     const [isNewTask, setIsNewTask] = useState(!props.path.endsWith(".xml"));
     const [validationMessage, setValidationMessage] = useState(true);
-    const [message , setMessage] = useState({
+    const [message, setMessage] = useState({
         isError: false,
         text: ""
     });
@@ -154,26 +158,13 @@ export function LocalEntryWizard(props: LocalEntryWizardProps) {
 
     useEffect(() => {
         (async () => {
-            const response = await rpcClient.getMiDiagramRpcClient().getAvailableResources({
-                documentIdentifier: props.path,
-                resourceType: "localEntry",
-            });
-            let localEntryNamesArr = [];
-            if(response.resources) {
-                const localEntryNames = response.resources.map((resource: any) => resource.name.replace(watch("name"), ""));
-                setLocalEntryNames(localEntryNames);
-                console.log(localEntryNames);
-                const localEntryPaths = response.resources.map((resource: any) => resource.artifactPath.replace(".xml", "").replace(watch("name"), ""));
-                localEntryNamesArr.push(...localEntryPaths);
-            }
-            if(response.registryResources) {
-                const registryKeys = response.registryResources.map((resource: any) => resource.registryKey);
-                localEntryNamesArr.push(...registryKeys);
-            }
-            setLocalEntryArtifactsNames(localEntryNamesArr);
             const result = await getArtifactNamesAndRegistryPaths(props.path, rpcClient);
             setArtifactNames(result.artifactNamesArr);
             setRegistryPaths(result.registryPaths);
+            const artifactRes = await rpcClient.getMiDiagramRpcClient().getAllArtifacts({
+                path: props.path,
+            });
+            setWorkspaceFileNames(artifactRes.artifacts);
         })();
     }, []);
 
@@ -181,11 +172,11 @@ export function LocalEntryWizard(props: LocalEntryWizardProps) {
         if (props.path.endsWith(".xml")) {
             (async () => {
                 const localEntry = await rpcClient.getMiDiagramRpcClient().getLocalEntry({ path: props.path });
-                console.log(props.path);
                 if (localEntry.name) {
                     setIsNewTask(false);
                     setType(localEntry.type);
                     setEditable(false);
+                    setSavedLocalEntryName(localEntry.name);
                     reset(localEntry);
                 }
             })();
@@ -193,16 +184,16 @@ export function LocalEntryWizard(props: LocalEntryWizardProps) {
     }, [props.path]);
 
     useEffect(() => {
-        if(!isXML) {
+        if (!isXML) {
             handleMessage("Entered In-Line Xml Should be in XML", true);
-        } else if(!validationMessage) {
+        } else if (!validationMessage) {
             handleMessage(`Error ${xmlErrors.code} , ${xmlErrors.msg} in line ${xmlErrors.line}, from ${xmlErrors.col} `, true);
         } else {
             handleMessage("", false);
         }
     }, [getValues("inLineXmlValue")]);
-    
-  
+
+
     const handleURLDirSelection = async () => {
         const fileDirectory = await rpcClient
             .getMiDiagramRpcClient()
@@ -214,7 +205,7 @@ export function LocalEntryWizard(props: LocalEntryWizardProps) {
         setType(type);
         setValue("type", type);
     }
-  
+
     const isValidXML = (xmlString: string) => {
         const result = XMLValidator.validate(xmlString);
         if (result !== true) {
@@ -223,7 +214,7 @@ export function LocalEntryWizard(props: LocalEntryWizardProps) {
         }
         return result;
     };
-  
+
     const handleXMLInputChange = (text: string) => {
         if (text.toLowerCase().startsWith("<xml" || "<xml>" || "<?xml" || "<?xml>")) {
             setIsXML(true);
@@ -241,11 +232,11 @@ export function LocalEntryWizard(props: LocalEntryWizardProps) {
             errorMsg: errors[fieldName] && errors[fieldName].message.toString()
         }
     };
-  
-    const handleCreateLocalEntry = async (values:InputsFields) => {
+
+    const handleCreateLocalEntry = async (values: InputsFields) => {
         if (getValues("type") === "In-Line XML Entry") {
             if (validationMessage === false) {
-              return;
+                return;
             }
         }
         const createLocalEntryParams: CreateLocalEntryRequest = {
@@ -256,130 +247,126 @@ export function LocalEntryWizard(props: LocalEntryWizardProps) {
             URL: values.sourceURL,
             getContentOnly: watch("saveInReg") ?? false,
         };
-        const result:CreateLocalEntryResponse = await rpcClient
+        const result: CreateLocalEntryResponse = await rpcClient
             .getMiDiagramRpcClient()
             .createLocalEntry(createLocalEntryParams);
         if (watch("saveInReg")) {
             await saveToRegistry(rpcClient, props.path, values.registryType, values.name, result.fileContent, values.registryPath, values.artifactName);
-        }    
-        openOverview();    
+        }
+        openOverview();
     };
 
     const handleMessage = (text: string, isError: boolean = false) => {
         setMessage({ isError, text });
     }
-  
-    const handleCancel = () => {
-        rpcClient.getMiDiagramRpcClient().closeWebView();
-    };
 
     const handleOnClose = () => {
         rpcClient.getMiVisualizerRpcClient().goBack();
     }
-  
+
     const handleBackButtonClick = () => {
         setLocalEntryType("");
     }
-    
+
     const openOverview = () => {
         rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Overview } });
     };
-    
+
     return (
         <FormView title="Local Entry" onClose={handleOnClose}>
             {type === "" ? <CardWrapper cardsType="LOCAL_ENTRY" setType={setLocalEntryType} /> :
-            <>
-                <TypeChip type={type} onClick={handleBackButtonClick} showButton={isNewTask} />
-                <TextField
-                    {...renderProps("name")}
-                    label="Local Entry Name"
-                    placeholder="Local Entry Name"
-                    required
-                    readOnly={!editable}
-                />
-                {getValues("type") === "In-Line Text Entry" && (
+                <>
+                    <TypeChip type={type} onClick={handleBackButtonClick} showButton={isNewTask} />
                     <TextField
-                        {...renderProps("inLineTextValue")}
-                        label="In-Line Text Value"
-                        placeholder="In-Line Text Value"
+                        {...renderProps("name")}
+                        label="Local Entry Name"
+                        placeholder="Local Entry Name"
                         required
                         readOnly={!editable}
                     />
-                )}
-                {getValues("type") === "In-Line XML Entry" && (
-                    <CodeMirror
-                        value={getValues("inLineXmlValue")}
-                        theme={editable ? oneDark : "none"}
-                        extensions={[xml()]}
-                        height="200px"
-                        autoFocus
-                        editable={editable}
-                        indentWithTab={true}
-                        onChange={handleXMLInputChange}
-                        options={{
-                            lineNumbers: true,
-                            lint: true,
-                            mode: "xml",
-                            columns: 100,
-                            columnNumbers: true,
-                            lineWrapping: true,
-                        }}
-                    />
-                )}
-                {getValues("type") === "Source URL Entry" && (
-                    <>
-                        <div style={{ display: "flex", alignItems: "center" }}>
-                            <TextField
-                                {...renderProps("sourceURL")}
-                                label="Source URL"
-                                placeholder="Source URL"
-                                required
-                                readOnly
-                            />
-                            <BrowseBtn
-                                onClick={handleURLDirSelection}
-                                id="select-project-dir-btn"
-                                disabled={!editable}
-                            >
-                              Browse
-                            </BrowseBtn>
-                        </div>
-                    </>
-                )}
-                {!isNewTask && (
-                    <>
-                      {!editable && (
-                           <FormActions>
-                               <Button
-                                   appearance="primary"
-                                   onClick={() => setEditable(true)}
-                               >
-                                   Edit
-                               </Button>
-                           </FormActions>
-                      )}
-                      {editable && (
-                           <FormActions>
-                                {message && <span style={{ color: message.isError ? "#f48771" : "" }}>{message.text}</span>}
-                                <Button 
-                                     appearance="secondary"
-                                     onClick={openOverview}
+                    {getValues("type") === "In-Line Text Entry" && (
+                        <TextField
+                            {...renderProps("inLineTextValue")}
+                            label="In-Line Text Value"
+                            placeholder="In-Line Text Value"
+                            required
+                            readOnly={!editable}
+                        />
+                    )}
+                    {getValues("type") === "In-Line XML Entry" && (
+                        <CodeMirror
+                            value={getValues("inLineXmlValue")}
+                            theme={editable ? oneDark : "none"}
+                            extensions={[xml()]}
+                            height="200px"
+                            autoFocus
+                            editable={editable}
+                            indentWithTab={true}
+                            onChange={handleXMLInputChange}
+                            options={{
+                                lineNumbers: true,
+                                lint: true,
+                                mode: "xml",
+                                columns: 100,
+                                columnNumbers: true,
+                                lineWrapping: true,
+                            }}
+                        />
+                    )}
+                    {getValues("type") === "Source URL Entry" && (
+                        <>
+                            <div style={{ display: "flex", alignItems: "center" }}>
+                                <TextField
+                                    {...renderProps("sourceURL")}
+                                    label="Source URL"
+                                    placeholder="Source URL"
+                                    required
+                                    readOnly
+                                />
+                                <BrowseBtn
+                                    onClick={handleURLDirSelection}
+                                    id="select-project-dir-btn"
+                                    disabled={!editable}
                                 >
-                                     Cancel
-                                </Button>
-                                <Button
-                                     appearance="primary"
-                                     onClick={handleSubmit(handleCreateLocalEntry)}
-                                     disabled={ message.isError && !isDirty && !isValid}
-                                 >
-                                     {isNewTask ? "Create" : "Update"}
-                                </Button>
-                           </FormActions>
-                      )}
-    
-                    </>
-                )}
-                {isNewTask && (
+                                    Browse
+                                </BrowseBtn>
+                            </div>
+                        </>
+                    )}
+                    {!isNewTask && (
+                        <>
+                            {!editable && (
+                                <FormActions>
+                                    <Button
+                                        appearance="primary"
+                                        onClick={() => setEditable(true)}
+                                    >
+                                        Edit
+                                    </Button>
+                                </FormActions>
+                            )}
+                            {editable && (
+                                <FormActions>
+                                    {message && <span style={{ color: message.isError ? "#f48771" : "" }}>{message.text}</span>}
+                                    <Button
+                                        appearance="secondary"
+                                        onClick={openOverview}
+                                    >
+                                        Cancel
+                                    </Button>
+                                    <Button
+                                        appearance="primary"
+                                        onClick={handleSubmit(handleCreateLocalEntry)}
+                                        disabled={message.isError && !isDirty && !isValid}
+                                    >
+                                        {isNewTask ? "Create" : "Update"}
+                                    </Button>
+                                </FormActions>
+                            )}
+
+                        </>
+                    )}
+                    {isNewTask && (
                         <>
                             <FormCheckBox
                                 label="Save the sequence in registry"
@@ -391,7 +378,7 @@ export function LocalEntryWizard(props: LocalEntryWizardProps) {
                             </>)}
                             <FormActions>
                                 {message && <span style={{ color: message.isError ? "#f48771" : "" }}>{message.text}</span>}
-                                <Button 
+                                <Button
                                     appearance="secondary"
                                     onClick={openOverview}
                                 >
@@ -400,14 +387,14 @@ export function LocalEntryWizard(props: LocalEntryWizardProps) {
                                 <Button
                                     appearance="primary"
                                     onClick={handleSubmit(handleCreateLocalEntry)}
-                                    disabled={ message.isError && !isDirty && !isValid}
+                                    disabled={message.isError && !isDirty && !isValid}
                                 >
                                     {isNewTask ? "Create" : "Update"}
                                 </Button>
                             </FormActions>
                         </>
-                )}
-            </>}
+                    )}
+                </>}
         </FormView>
     );
 }

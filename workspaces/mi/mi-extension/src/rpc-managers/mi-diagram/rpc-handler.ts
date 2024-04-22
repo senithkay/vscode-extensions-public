@@ -147,6 +147,7 @@ import {
     highlightCode,
     importProject,
     initUndoRedoManager,
+    logoutFromMIAccount,
     migrateProject,
     openDiagram,
     openFile,
@@ -256,6 +257,7 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getUserAccessToken, () => rpcManger.getUserAccessToken());
     messenger.onRequest(createConnection, (args: CreateConnectionRequest) => rpcManger.createConnection(args));
     messenger.onRequest(getConnectorConnections, (args: GetConnectorConnectionsRequest) => rpcManger.getConnectorConnections(args));
+    messenger.onNotification(logoutFromMIAccount, () => rpcManger.logoutFromMIAccount());
     messenger.onRequest(getAllRegistryPaths, (args: GetAllRegistryPathsRequest) => rpcManger.getAllRegistryPaths(args));
     messenger.onRequest(getAllArtifacts, (args: GetAllArtifactsRequest) => rpcManger.getAllArtifacts(args));
 }
