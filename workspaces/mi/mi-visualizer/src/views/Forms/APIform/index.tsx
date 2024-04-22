@@ -97,11 +97,19 @@ export function APIWizard({ apiData, path }: APIWizardProps) {
         trace: yup.boolean(),
         statistics: yup.boolean(),
         versionType: yup.string().oneOf(["none", "url", "context"]).required(),
-        version: yup.string().when("versionType", {
-            is: "none",
-            then: schema => schema.transform(() => undefined),
-            otherwise: schema => schema.required("Version is required")
-        }),
+        version: yup.string()
+            .when("versionType", {
+                is: "none",
+                then: schema => schema.transform(() => undefined),
+            })
+            .when("versionType", {
+                is: "context",
+                then: schema => schema.matches(/^(\d+\.\d+\.\d+)$/, "Invalid version format"),
+            })
+            .when("versionType", {
+                is: "url",
+                then: schema => schema.matches(/^https?:\/\/.*/, "Invalid URL format"),
+            }),
         swaggerdefPath: yup.string(),
         apiRange: yup.object(),
         handlersRange: yup.object(),
