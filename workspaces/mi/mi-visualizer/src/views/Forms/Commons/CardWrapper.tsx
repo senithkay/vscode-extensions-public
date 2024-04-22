@@ -122,42 +122,42 @@ const CARD_WRAPPER_DATA = {
             {
                 title: 'Address Endpoint',
                 icon: 'code',
-                description: 'Description',
+                description: 'Direct address connection',
             },
             {
                 title: 'Default Endpoint',
                 icon: 'code',
-                description: 'Description',
+                description: 'Fallback endpoint',
             },
             {
                 title: 'Failover Endpoint',
                 icon: 'code',
-                description: 'Description',
+                description: 'Backup endpoint on failure',
             },
             {
                 title: 'HTTP Endpoint',
                 icon: 'code',
-                description: 'Description',
+                description: 'HTTP connection endpoint',
             },
             {
                 title: 'Load Balance Endpoint',
                 icon: 'code',
-                description: 'Description',
+                description: 'Distributes load among multiple endpoints',
             },
             {
                 title: 'Recipient List Endpoint',
                 icon: 'code',
-                description: 'Description',
+                description: 'Routes messages to multiple destinations',
             },
             {
                 title: 'Template Endpoint',
                 icon: 'code',
-                description: 'Description',
+                description: 'Reusable endpoint template',
             },
             {
                 title: 'WSDL Endpoint',
                 icon: 'code',
-                description: 'Description',
+                description: 'Endpoint defined in a WSDL file',
             }
         ]
     },

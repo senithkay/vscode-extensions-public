@@ -1354,23 +1354,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
     async updateHttpEndpoint(params: UpdateHttpEndpointRequest): Promise<UpdateHttpEndpointResponse> {
         return new Promise(async (resolve) => {
-            const {
-                directory, endpointName, traceEnabled, statisticsEnabled, uriTemplate, httpMethod, description, requireProperties,
-                properties, authType, basicAuthUsername, basicAuthPassword, authMode, grantType, clientId, clientSecret,
-                refreshToken, tokenUrl, username, password, requireOauthParameters, oauthProperties, addressingEnabled,
-                addressingVersion, addressListener, securityEnabled, suspendErrorCodes, initialDuration, maximumDuration,
-                progressionFactor, retryErrorCodes, retryCount, retryDelay, timeoutDuration, timeoutAction, templateName,
-                requireTemplateParameters, templateParameters
-            } = params;
-
-            const getHttpEndpointParams = {
-                endpointName, traceEnabled, statisticsEnabled, uriTemplate, httpMethod, description, requireProperties,
-                properties, authType, basicAuthUsername, basicAuthPassword, authMode, grantType, clientId, clientSecret,
-                refreshToken, tokenUrl, username, password, requireOauthParameters, oauthProperties, addressingEnabled,
-                addressingVersion, addressListener, securityEnabled, suspendErrorCodes, initialDuration, maximumDuration,
-                progressionFactor, retryErrorCodes, retryCount, retryDelay, timeoutDuration, timeoutAction, templateName,
-                requireTemplateParameters, templateParameters
-            };
+            const { directory, ...getHttpEndpointParams } = params;
 
             const xmlData = getHttpEndpointXmlWrapper(getHttpEndpointParams);
             const sanitizedXmlData = xmlData.replace(/^\s*[\r\n]/gm, '');
@@ -1378,11 +1362,12 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             if (params.getContentOnly) {
                 resolve({ path: "", content: sanitizedXmlData });
             } else {
+                const { templateName, endpointName } = getHttpEndpointParams;
                 let filePath: string;
                 if (directory.endsWith('.xml')) {
                     filePath = directory;
                 } else {
-                    const fileName = templateName !== '' ? templateName : endpointName;
+                    const fileName = templateName?.length > 0 ? templateName : endpointName;
                     filePath = path.join(directory, `${fileName}.xml`);
                 }
 
@@ -1442,6 +1427,10 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     addressingVersion: endpointOverallParams.enableAddressing != undefined ? endpointOverallParams.enableAddressing.version : '',
                     addressListener: (endpointOverallParams.enableAddressing != undefined && endpointOverallParams.enableAddressing.separateListener) ? 'enable' : 'disable',
                     securityEnabled: endpointOverallParams.enableSec != undefined ? 'enable' : 'disable',
+                    seperatePolicies: endpointOverallParams.enableSec != undefined ? endpointOverallParams.enableSec.policy !== undefined ? true : false : false,
+                    policyKey: endpointOverallParams.enableSec != undefined ? endpointOverallParams.enableSec.policy ?? '' : '',
+                    inboundPolicyKey: endpointOverallParams.enableSec != undefined ? endpointOverallParams.enableSec.inboundPolicy ?? '' : '',
+                    outboundPolicyKey: endpointOverallParams.enableSec != undefined ? endpointOverallParams.enableSec.outboundPolicy ?? '' : '',
                     suspendErrorCodes: failureParams.errorCodes != undefined ? failureParams.errorCodes.textNode : '',
                     initialDuration: failureParams.initialDuration != undefined ? failureParams.initialDuration.textNode : -1,
                     maximumDuration: failureParams.maximumDuration != undefined ? failureParams.maximumDuration.textNode : Number.MAX_SAFE_INTEGER,
@@ -1541,18 +1530,8 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
     async updateAddressEndpoint(params: UpdateAddressEndpointRequest): Promise<UpdateAddressEndpointResponse> {
         return new Promise(async (resolve) => {
             const {
-                directory, endpointName, format, traceEnabled, statisticsEnabled, uri, optimize, description,
-                requireProperties, properties, addressingEnabled, addressingVersion, addressListener, securityEnabled,
-                suspendErrorCodes, initialDuration, maximumDuration, progressionFactor, retryErrorCodes, retryCount,
-                retryDelay, timeoutDuration, timeoutAction, templateName, requireTemplateParameters, templateParameters
+                directory, ...getAddressEndpointParams
             } = params;
-
-            const getAddressEndpointParams = {
-                endpointName, format, traceEnabled, statisticsEnabled, uri, optimize, description,
-                requireProperties, properties, addressingEnabled, addressingVersion, addressListener, securityEnabled,
-                suspendErrorCodes, initialDuration, maximumDuration, progressionFactor, retryErrorCodes, retryCount,
-                retryDelay, timeoutDuration, timeoutAction, templateName, requireTemplateParameters, templateParameters
-            };
 
             const xmlData = getAddressEndpointXmlWrapper(getAddressEndpointParams);
             const sanitizedXmlData = xmlData.replace(/^\s*[\r\n]/gm, '');
@@ -1560,11 +1539,12 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             if (params.getContentOnly) {
                 resolve({ path: "", content: sanitizedXmlData });
             } else {
+                const { templateName, endpointName } = getAddressEndpointParams;
                 let filePath: string;
                 if (directory.endsWith('.xml')) {
                     filePath = directory;
                 } else {
-                    const fileName = templateName !== '' ? templateName : endpointName;
+                    const fileName = templateName?.length > 0 ? templateName : endpointName;
                     filePath = path.join(directory, `${fileName}.xml`);
                 }
 
@@ -1610,6 +1590,10 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     addressingVersion: addressParams.enableAddressing != undefined ? addressParams.enableAddressing.version : '',
                     addressListener: (addressParams.enableAddressing != undefined && addressParams.enableAddressing.separateListener) ? 'enable' : 'disable',
                     securityEnabled: addressParams.enableSec != undefined ? 'enable' : 'disable',
+                    seperatePolicies: addressParams.enableSec != undefined ? addressParams.enableSec.policy !== undefined ? true : false : false,
+                    policyKey: addressParams.enableSec != undefined ? addressParams.enableSec.policy ?? '' : '',
+                    inboundPolicyKey: addressParams.enableSec != undefined ? addressParams.enableSec.inboundPolicy ?? '' : '',
+                    outboundPolicyKey: addressParams.enableSec != undefined ? addressParams.enableSec.outboundPolicy ?? '' : '',
                     suspendErrorCodes: failureParams.errorCodes != undefined ? failureParams.errorCodes.textNode : '',
                     initialDuration: failureParams.initialDuration != undefined ? failureParams.initialDuration.textNode : -1,
                     maximumDuration: failureParams.maximumDuration != undefined ? failureParams.maximumDuration.textNode : Number.MAX_SAFE_INTEGER,
@@ -1656,20 +1640,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
     async updateWsdlEndpoint(params: UpdateWsdlEndpointRequest): Promise<UpdateWsdlEndpointResponse> {
         return new Promise(async (resolve) => {
-            const {
-                directory, endpointName, format, traceEnabled, statisticsEnabled, optimize, description, wsdlUri,
-                wsdlService, wsdlPort, requireProperties, properties, addressingEnabled, addressingVersion,
-                addressListener, securityEnabled, suspendErrorCodes, initialDuration, maximumDuration, progressionFactor,
-                retryErrorCodes, retryCount, retryDelay, timeoutDuration, timeoutAction, templateName,
-                requireTemplateParameters, templateParameters
-            } = params;
-
-            const getWsdlEndpointParams = {
-                endpointName, format, traceEnabled, statisticsEnabled, optimize, description, wsdlUri, wsdlService,
-                wsdlPort, requireProperties, properties, addressingEnabled, addressingVersion, addressListener,
-                securityEnabled, suspendErrorCodes, initialDuration, maximumDuration, progressionFactor, retryErrorCodes,
-                retryCount, retryDelay, timeoutDuration, timeoutAction, templateName, requireTemplateParameters, templateParameters
-            };
+            const { directory, ...getWsdlEndpointParams } = params;
 
             const xmlData = getWsdlEndpointXmlWrapper(getWsdlEndpointParams);
             const sanitizedXmlData = xmlData.replace(/^\s*[\r\n]/gm, '');
@@ -1677,11 +1648,12 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             if (params.getContentOnly) {
                 resolve({ path: "", content: sanitizedXmlData });
             } else {
+                const { templateName, endpointName } = getWsdlEndpointParams;
                 let filePath: string;
                 if (directory.endsWith('.xml')) {
                     filePath = directory;
                 } else {
-                    const fileName = templateName !== '' ? templateName : endpointName;
+                    const fileName = templateName?.length > 0 ? templateName : endpointName;
                     filePath = path.join(directory, `${fileName}.xml`);
                 }
 
@@ -1729,6 +1701,10 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     addressingVersion: wsdlParams.enableAddressing != undefined ? wsdlParams.enableAddressing.version : '',
                     addressListener: (wsdlParams.enableAddressing != undefined && wsdlParams.enableAddressing.separateListener) ? 'enable' : 'disable',
                     securityEnabled: wsdlParams.enableSec != undefined ? 'enable' : 'disable',
+                    seperatePolicies: wsdlParams.enableSec != undefined ? wsdlParams.enableSec.policy !== undefined ? true : false : false,
+                    policyKey: wsdlParams.enableSec != undefined ? wsdlParams.enableSec.policy ?? '' : '',
+                    inboundPolicyKey: wsdlParams.enableSec != undefined ? wsdlParams.enableSec.inboundPolicy ?? '' : '',
+                    outboundPolicyKey: wsdlParams.enableSec != undefined ? wsdlParams.enableSec.outboundPolicy ?? '' : '',
                     suspendErrorCodes: failureParams.errorCodes != undefined ? failureParams.errorCodes.textNode : '',
                     initialDuration: failureParams.initialDuration != undefined ? failureParams.initialDuration.textNode : -1,
                     maximumDuration: failureParams.maximumDuration != undefined ? failureParams.maximumDuration.textNode : Number.MAX_SAFE_INTEGER,
@@ -1775,19 +1751,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
     async updateDefaultEndpoint(params: UpdateDefaultEndpointRequest): Promise<UpdateDefaultEndpointResponse> {
         return new Promise(async (resolve) => {
-            const {
-                directory, endpointName, format, traceEnabled, statisticsEnabled, optimize, description, requireProperties,
-                properties, addressingEnabled, addressingVersion, addressListener, securityEnabled, suspendErrorCodes,
-                initialDuration, maximumDuration, progressionFactor, retryErrorCodes, retryCount, retryDelay,
-                timeoutDuration, timeoutAction, templateName, requireTemplateParameters, templateParameters
-            } = params;
-
-            const getDefaultEndpointParams = {
-                endpointName, format, traceEnabled, statisticsEnabled, optimize, description, requireProperties,
-                properties, addressingEnabled, addressingVersion, addressListener, securityEnabled, suspendErrorCodes,
-                initialDuration, maximumDuration, progressionFactor, retryErrorCodes, retryCount, retryDelay,
-                timeoutDuration, timeoutAction, templateName, requireTemplateParameters, templateParameters
-            };
+            const { directory, ...getDefaultEndpointParams } = params;
 
             const xmlData = getDefaultEndpointXmlWrapper(getDefaultEndpointParams);
             const sanitizedXmlData = xmlData.replace(/^\s*[\r\n]/gm, '');
@@ -1799,7 +1763,8 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 if (directory.endsWith('.xml')) {
                     filePath = directory;
                 } else {
-                    const fileName = templateName !== '' ? templateName : endpointName;
+                    const { templateName, endpointName } = getDefaultEndpointParams;
+                    const fileName = templateName?.length > 0 ? templateName : endpointName;
                     filePath = path.join(directory, `${fileName}.xml`);
                 }
 
@@ -1844,6 +1809,10 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     addressingVersion: defaultParams.enableAddressing != undefined ? defaultParams.enableAddressing.version : '',
                     addressListener: (defaultParams.enableAddressing != undefined && defaultParams.enableAddressing.separateListener) ? 'enable' : 'disable',
                     securityEnabled: defaultParams.enableSec != undefined ? 'enable' : 'disable',
+                    seperatePolicies: defaultParams.enableSec != undefined ? defaultParams.enableSec.policy !== undefined ? true : false : false,
+                    policyKey: defaultParams.enableSec != undefined ? defaultParams.enableSec.policy ?? '' : '',
+                    inboundPolicyKey: defaultParams.enableSec != undefined ? defaultParams.enableSec.inboundPolicy ?? '' : '',
+                    outboundPolicyKey: defaultParams.enableSec != undefined ? defaultParams.enableSec.outboundPolicy ?? '' : '',
                     suspendErrorCodes: failureParams.errorCodes != undefined ? failureParams.errorCodes.textNode : '',
                     initialDuration: failureParams.initialDuration != undefined ? failureParams.initialDuration.textNode : -1,
                     maximumDuration: failureParams.maximumDuration != undefined ? failureParams.maximumDuration.textNode : Number.MAX_SAFE_INTEGER,

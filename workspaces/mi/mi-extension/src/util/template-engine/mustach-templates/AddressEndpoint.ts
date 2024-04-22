@@ -24,6 +24,10 @@ export interface AddressEndpointArgs {
     addressingVersion: string;
     addressListener: string | null;
     securityEnabled: string;
+    seperatePolicies: boolean;
+    policyKey: string;
+    inboundPolicyKey: string;
+    outboundPolicyKey: string;
     suspendErrorCodes: string;
     initialDuration: number;
     maximumDuration: number;
@@ -47,7 +51,7 @@ export function getAddressEndpointMustacheTemplate() {
 <endpoint name="{{endpointName}}" {{^template}}xmlns="http://ws.apache.org/ns/synapse"{{/template}}>
     <address {{#format}}format="{{format}}"{{/format}} {{#optimize}}optimize="{{optimize}}"{{/optimize}} {{#statisticsEnabled}}statistics="{{statisticsEnabled}}"{{/statisticsEnabled}} {{#traceEnabled}}trace="{{traceEnabled}}"{{/traceEnabled}} uri="{{{uri}}}">
         {{#addressingEnabled}}<enableAddressing {{#addressListener}}separateListener="{{addressListener}}"{{/addressListener}} {{#addressingVersion}}version="{{addressingVersion}}{{/addressingVersion}}"/>{{/addressingEnabled}}
-        {{#securityEnabled}}<enableSec/>{{/securityEnabled}}
+        {{#securityEnabled}}<enableSec{{#policyKey}} policy="{{policyKey}}"{{/policyKey}}{{#inboundPolicyKey}} inboundPolicy="{{inboundPolicyKey}}"{{/inboundPolicyKey}}{{#outboundPolicyKey}} outboundPolicy="{{outboundPolicyKey}}"{{/outboundPolicyKey}}/>{{/securityEnabled}}
         {{#timeout}}<timeout>
             {{#timeoutDuration}}<duration>{{timeoutDuration}}</duration>{{/timeoutDuration}}
             {{#timeoutAction}}<responseAction>{{timeoutAction}}</responseAction>{{/timeoutAction}}
@@ -115,6 +119,13 @@ export function getAddressEndpointXml(data: AddressEndpointArgs) {
             parameters.push({ key: 'axis2ns'.concat(String(incrementalValue).padStart(2, '0')), value: element });
             incrementalValue++;
         });
+    }
+
+    if (data.seperatePolicies) {
+        data.policyKey = '';
+    } else {
+        data.inboundPolicyKey = '';
+        data.outboundPolicyKey = '';
     }
 
     const modifiedData = {
