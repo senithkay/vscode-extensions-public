@@ -8,44 +8,33 @@
  */
 
 import styled from '@emotion/styled';
-import ParamField from '../Commons/ParamField';
+import { FormGroup } from '@wso2-enterprise/ui-toolkit';
+import ParamField, { getParameterName } from './InboundParamField';
 
 const Container = styled.div({
     display: "flex",
     flexDirection: "column",
+    marginBottom: "20px",
 });
 
-const Title = styled.h2({
-    marginBottom: "30px",
-});
-
-const ParamForm = ({ paramState, parameters, handleOnChange }: any) => {
-    const { advance, ...basic } = parameters;
-
+const ParamForm = ({ params }: any) => {
     return (
         <Container>
-            {basic && Object.keys(basic).map((key: string) => (
-                <ParamField
-                    key={key}
-                    stateValue={paramState[key] ?? ''}
-                    id={key}
-                    field={basic[key]}
-                    handleOnChange={handleOnChange}
-                />
+            {Object.keys(params).map((group: string) => (
+                <FormGroup
+                    key={group}
+                    title={getParameterName(group)}
+                    isCollapsed={group !== "basic"}
+                >
+                    {Object.keys(params[group]).map((prop: string) => (
+                        <ParamField
+                            key={prop}
+                            id={prop}
+                            field={params[group][prop]}
+                        />
+                    ))}
+                </FormGroup>
             ))}
-
-            {advance && <>
-                <Title>Advance Parameters</Title>
-                {Object.keys(advance).map((key: string) => (
-                    <ParamField
-                        key={key}
-                        stateValue={paramState[key] ?? ''}
-                        id={key}
-                        field={advance[key]}
-                        handleOnChange={handleOnChange}
-                    />
-                ))}
-            </>}
         </Container>
     );
 }

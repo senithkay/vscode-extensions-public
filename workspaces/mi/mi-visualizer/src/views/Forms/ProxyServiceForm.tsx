@@ -8,12 +8,13 @@
  */
 import React, {useEffect, useState} from "react";
 import * as path from 'path';
-import {Button, TextField, Dropdown, CheckBox, RadioButtonGroup, FormView, FormActions} from "@wso2-enterprise/ui-toolkit";
+import {Button, TextField, Dropdown, CheckBox, FormView, FormActions} from "@wso2-enterprise/ui-toolkit";
 import {useVisualizerContext} from "@wso2-enterprise/mi-rpc-client";
 import {EVENT_TYPE, MACHINE_VIEW, CreateProxyServiceRequest} from "@wso2-enterprise/mi-core";
 import {useForm} from "react-hook-form";
 import * as yup from "yup";
 import {yupResolver} from "@hookform/resolvers/yup";
+import {FormKeylookup} from "@wso2-enterprise/mi-diagram-2";
 
 interface OptionProps {
     value: string;
@@ -59,8 +60,8 @@ export function ProxyServiceWizard(props: ProxyServiceWizardProps) {
         proxyServiceName: yup.string().required("Proxy Service Name is required")
             .matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in Proxy Service Name")
             .test('validateProxyServiceName',
-                'Proxy Service with same name already exists', value => {
-                    return !proxyServices.includes(value)
+                'An artifact with same name already exists', value => {
+                    return !workspaceFileNames.includes(value)
                 }),
         proxyServiceType: yup.string().default(""),
         endpointType: yup.string().notRequired().default(""),
@@ -80,6 +81,7 @@ export function ProxyServiceWizard(props: ProxyServiceWizardProps) {
         formState: {errors, isDirty},
         handleSubmit,
         watch,
+        control
     } = useForm({
         defaultValues: newProxyService,
         resolver: yupResolver(schema),
@@ -90,9 +92,8 @@ export function ProxyServiceWizard(props: ProxyServiceWizardProps) {
     const [selectedTransports, setSelectedTransports] = useState(['http', 'https']);
     const [transformResponse, setTransformResponse] = useState([]);
     const [publishContract, setPublishContract] = useState([]);
-    const [endpoints, setEndpoints] = useState([]);
-    const [proxyServices, setProxyServices] = useState([]);
     const [directoryPath, setDirectoryPath] = useState("");
+    const [workspaceFileNames, setWorkspaceFileNames] = useState([]);
 
     const transportTypes = [
         'http',
@@ -117,22 +118,11 @@ export function ProxyServiceWizard(props: ProxyServiceWizardProps) {
             const projectDir = (await rpcClient.getMiDiagramRpcClient().getProjectRoot({path: props.path})).path;
             const proxyServicesDir = path.join(projectDir, 'src', 'main', 'wso2mi', 'artifacts', 'proxy-services');
             setDirectoryPath(proxyServicesDir);
-            const items = await rpcClient.getMiDiagramRpcClient().getEndpointsAndSequences();
-            const endpoints = items.data[0].map((seq: string) => {
-                seq = seq.replace(".xml", "");
-                return {value: seq}
-            });
-            setEndpoints(endpoints);
 
-            const proxyServiceResponse = await rpcClient.getMiDiagramRpcClient().getAvailableResources({
-                documentIdentifier: props.path,
-                resourceType: "proxyService",
+            const artifactRes = await rpcClient.getMiDiagramRpcClient().getAllArtifacts({
+                path: props.path,
             });
-
-            if (proxyServiceResponse.resources) {
-                const resources = proxyServiceResponse.resources.map((resource) => resource.name);
-                setProxyServices(resources);
-            }
+            setWorkspaceFileNames(artifactRes.artifacts);
         })();
 
     }, []);
@@ -208,23 +198,14 @@ export function ProxyServiceWizard(props: ProxyServiceWizardProps) {
                 />
             ))}
             {!(watch('proxyServiceType') === "Custom Proxy" || watch('proxyServiceType') === "WSDL Based Proxy") && (
-                <>
-                    <RadioButtonGroup
-                        label="Target Endpoint"
-                        options={[{content: "Workspace", value: "Workspace"}, {content: "Custom", value: "Custom"}]}
-                        {...renderProps('endpointType')}
-                    />
-                    {watch('endpointType') === "Workspace" && (
-                        <Dropdown items={endpoints} {...renderProps('endpoint')} />
-                    )}
-                    {watch('endpointType') === "Custom" && (
-                        <TextField
-                            placeholder="Custom Endpoint"
-                            label="Custom Endpoint"
-                            {...renderProps('endpoint')}
-                        />
-                    )}
-                </>
+                <FormKeylookup
+                    control={control}
+                    name="endpoint"
+                    label="Target Endpoint"
+                    filterType="endpointTemplate"
+                    path={props.path}
+                    {...renderProps("endpoint")}
+                />
             )}
             {watch('proxyServiceType') === "Logging Proxy" && (
                 <>

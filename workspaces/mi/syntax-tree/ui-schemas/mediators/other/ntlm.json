@@ -12,16 +12,6 @@
           {
             "type": "attribute",
             "value": {
-              "name": "description",
-              "displayName": "Description",
-              "inputType": "string",
-              "required": false,
-              "helpTip": ""
-            }
-          },
-          {
-            "type": "attribute",
-            "value": {
               "name": "username",
               "displayName": "Username",
               "inputType": "stringOrExpression",
@@ -65,6 +55,16 @@
               "name": "ntlmVersion",
               "displayName": "NTLM Version",
               "inputType": "stringOrExpression",
+              "required": false,
+              "helpTip": ""
+            }
+          },
+          {
+            "type": "attribute",
+            "value": {
+              "name": "description",
+              "displayName": "Description",
+              "inputType": "string",
               "required": false,
               "helpTip": ""
             }

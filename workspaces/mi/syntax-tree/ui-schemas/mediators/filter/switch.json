@@ -5,63 +5,47 @@
   "help": "",
   "elements": [
     {
-      "type": "attributeGroup",
+      "type": "attribute",
       "value": {
-        "groupName": "Properties",
+        "name": "sourceXPath",
+        "displayName": "Source XPath",
+        "inputType": "expression",
+        "required": true,
+        "helpTip": ""
+      }
+    },
+    {
+      "type": "table",
+      "value": {
+        "name": "caseBranches",
+        "displayName": "Case Branches",
+        "title": "Switch Case Branch",
+        "description": "Editing of the properties of an object Switch Case Branch",
+        "tableKey": "{case.id}",
+        "tableValue": "caseRegex",
         "elements": [
           {
             "type": "attribute",
             "value": {
-              "name": "sourceXPath",
-              "displayName": "Source XPath",
-              "inputType": "expression",
-              "required": true,
-              "helpTip": ""
-            }
-          },
-          {
-            "type": "table",
-            "value": {
-              "name": "caseBranches",
-              "displayName": "Case Branches",
-              "form": {
-                "title": "Switch Case Branch",
-                "description": "Editing of the properties of an object Switch Case Branch",
-                "elements": [
-                  {
-                    "type": "attributeGroup",
-                    "value": {
-                      "groupName": "Properties",
-                      "elements": [
-                        {
-                          "type": "attribute",
-                          "value": {
-                            "name": "caseRegex",
-                            "displayName": "Case Regex",
-                            "inputType": "string",
-                            "defaultValue": ".*+",
-                            "required": false,
-                            "helpTip": ""
-                          }
-                        }
-                      ]
-                    }
-                  }
-                ]
-              }
-            }
-          },
-          {
-            "type": "attribute",
-            "value": {
-              "name": "description",
-              "displayName": "Description",
+              "name": "caseRegex",
+              "displayName": "Case Regex",
               "inputType": "string",
+              "defaultValue": ".*+",
               "required": false,
               "helpTip": ""
             }
           }
         ]
+      }
+    },
+    {
+      "type": "attribute",
+      "value": {
+        "name": "description",
+        "displayName": "Description",
+        "inputType": "string",
+        "required": false,
+        "helpTip": ""
       }
     }
   ]

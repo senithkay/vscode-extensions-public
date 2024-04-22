@@ -30,12 +30,12 @@ export function WsdlEndpointWizard(props: WsdlEndpointWizardProps) {
         endpointName: props.type === 'endpoint' ? yup.string().required("Endpoint Name is required")
                 .matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in Endpoint Name")
                 .test('validateEndpointName',
-                    'Endpoint with same name already exists', value => {
-                        return !isNewEndpoint ? !(endpoints.includes(value) && value !== savedEPName) : !endpoints.includes(value);
+                    'An artifact with same name already exists', value => {
+                        return !isNewEndpoint ? !(workspaceFileNames.includes(value) && value !== savedEPName) : !workspaceFileNames.includes(value);
                     })
                 .test('validateEndpointArtifactName',
-                    'Endpoint artifact name already exists', value => {
-                        return !isNewEndpoint ? !(endpointArtifactNames.includes(value) && value !== savedEPName) : !endpointArtifactNames.includes(value);
+                    'A registry resource with this artifact name already exists', value => {
+                        return !isNewEndpoint ? !(artifactNames.includes(value) && value !== savedEPName) : !artifactNames.includes(value);
                     }) :
             yup.string().required("Endpoint Name is required")
                 .matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in Endpoint Name"),
@@ -47,7 +47,8 @@ export function WsdlEndpointWizard(props: WsdlEndpointWizardProps) {
         wsdlUri: yup
             .string()
             .required("WSDL URI is required")
-            .matches(/^(https?|ftp):\/\/(([a-z\d]([a-z\d-]*[a-z\d])?\.)+[a-z]{2,}|localhost(:[\d]*)?)(\/[-a-z\d%_.~+]*)*(\?[;&a-z\d%_.~+=-]*)?(\#[-a-z\d_]*)?(\.wsdl)$/i, "Invalid URI template format"),
+            .matches(/^\{.+\}$|^(https?|ftp):\/\/(([a-z\d]([a-z\d-]*[a-z\d])?\.)+[a-z]{2,}|localhost(:[\d]*)?)(\/[-a-z\d%_.~+]*)*(\?[;&a-z\d%_.~+=-]*)?(\#[-a-z\d_]*)?([?.]wsdl)$/i,
+                "Invalid WSDL URI template format"),
         wsdlService: yup.string().required("WSDL Service is required"),
         wsdlPort: yup.string().required("WSDL Port is required"),
         requireProperties: yup.boolean(),
@@ -68,12 +69,12 @@ export function WsdlEndpointWizard(props: WsdlEndpointWizardProps) {
         templateName: props.type === 'template' ? yup.string().required("Template Name is required")
                 .matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in Template Name")
                 .test('validateTemplateName',
-                    'Template with same name already exists', value => {
-                        return !isNewEndpoint ? !(endpoints.includes(value) && value !== savedEPName) : !endpoints.includes(value);
+                    'An artifact with same name already exists', value => {
+                        return !isNewEndpoint ? !(workspaceFileNames.includes(value) && value !== savedEPName) : !workspaceFileNames.includes(value);
                     })
                 .test('validateTemplateArtifactName',
-                    'Template artifact name already exists', value => {
-                        return !isNewEndpoint ? !(endpointArtifactNames.includes(value) && value !== savedEPName) : !endpointArtifactNames.includes(value);
+                    'A registry resource with this artifact name already exists', value => {
+                        return !isNewEndpoint ? !(artifactNames.includes(value) && value !== savedEPName) : !artifactNames.includes(value);
                     }) :
             yup.string().notRequired().default(""),
         requireTemplateParameters: yup.boolean(),
@@ -84,10 +85,15 @@ export function WsdlEndpointWizard(props: WsdlEndpointWizardProps) {
             then: () =>
                 yup.string().notRequired(),
             otherwise: () =>
-                yup.string().required("Artifact Name is required").test('validateArtifactName',
-                    'Artifact name already exists', value => {
-                        return !artifactNames.includes(value);
-                    }),
+                yup.string().required("Artifact Name is required")
+                    .test('validateArtifactName',
+                        'Artifact name already exists', value => {
+                            return !artifactNames.includes(value);
+                        })
+                    .test('validateFileName',
+                        'A file already exists in the workspace with this artifact name', value => {
+                            return !workspaceFileNames.includes(value);
+                        }),
         }),
         registryPath: yup.string().when('saveInReg', {
             is: false,
@@ -119,13 +125,12 @@ export function WsdlEndpointWizard(props: WsdlEndpointWizardProps) {
     const { rpcClient } = useVisualizerContext();
     const isNewEndpoint = !props.path.endsWith(".xml");
     const isTemplate = props.type === 'template';
-    const [endpoints, setEndpoints] = useState([]);
-    const [endpointArtifactNames, setEndpointArtifactNames] = useState([]);
     const [artifactNames, setArtifactNames] = useState([]);
     const [registryPaths, setRegistryPaths] = useState([]);
     const [templateParams, setTemplateParams] = useState(paramTemplateConfigs);
     const [additionalParams, setAdditionalParams] = useState(propertiesConfigs);
     const [savedEPName, setSavedEPName] = useState<string>("");
+    const [workspaceFileNames, setWorkspaceFileNames] = useState([]);
 
     useEffect(() => {
         (async () => {
@@ -164,60 +169,13 @@ export function WsdlEndpointWizard(props: WsdlEndpointWizardProps) {
                 reset(initialEndpoint);
             }
 
-            if (isTemplate) {
-                const endpointTemplateResponse = await rpcClient.getMiDiagramRpcClient().getAvailableResources({
-                    documentIdentifier: props.path,
-                    resourceType: "endpointTemplate",
-                });
-                const sequenceTemplateResponse = await rpcClient.getMiDiagramRpcClient().getAvailableResources({
-                    documentIdentifier: props.path,
-                    resourceType: "sequenceTemplate",
-                });
-                let templateNames = [];
-                let tempArtifactNames = [];
-                if (endpointTemplateResponse.resources) {
-                    const templateNames = endpointTemplateResponse.resources.map((resource) => resource.name);
-                    tempArtifactNames.push(...templateNames);
-                    const templatePaths = endpointTemplateResponse.resources.map((resource) => resource.artifactPath.replace(".xml", ""));
-                    templateNames.push(...templatePaths);
-                }
-                if (sequenceTemplateResponse.resources) {
-                    const templateNames = sequenceTemplateResponse.resources.map((resource) => resource.name);
-                    tempArtifactNames.push(...templateNames);
-                    const templatePaths = sequenceTemplateResponse.resources.map((resource) => resource.artifactPath.replace(".xml", ""));
-                    templateNames.push(...templatePaths);
-                }
-                if (endpointTemplateResponse.registryResources) {
-                    const registryKeys = endpointTemplateResponse.registryResources.map((resource) => resource.registryKey);
-                    templateNames.push(...registryKeys);
-                }
-                if (sequenceTemplateResponse.registryResources) {
-                    const registryKeys = sequenceTemplateResponse.registryResources.map((resource) => resource.registryKey);
-                    templateNames.push(...registryKeys);
-                }
-                setEndpoints(templateNames);
-                setEndpointArtifactNames(tempArtifactNames);
-            } else {
-                const response = await rpcClient.getMiDiagramRpcClient().getAvailableResources({
-                    documentIdentifier: props.path,
-                    resourceType: "endpoint",
-                });
-                let endpointNamesArr = [];
-                if (response.resources) {
-                    const endpointNames = response.resources.map((resource) => resource.name);
-                    setEndpointArtifactNames(endpointNames);
-                    const endpointPaths = response.resources.map((resource) => resource.artifactPath.replace(".xml", ""));
-                    endpointNamesArr.push(...endpointPaths);
-                }
-                if (response.registryResources) {
-                    const registryKeys = response.registryResources.map((resource) => resource.registryKey);
-                    endpointNamesArr.push(...registryKeys);
-                }
-                setEndpoints(endpointNamesArr);
-            }
             const result = await getArtifactNamesAndRegistryPaths(props.path, rpcClient);
             setArtifactNames(result.artifactNamesArr);
             setRegistryPaths(result.registryPaths);
+            const artifactRes = await rpcClient.getMiDiagramRpcClient().getAllArtifacts({
+                path: props.path,
+            });
+            setWorkspaceFileNames(artifactRes.artifacts);
         })();
     }, [props.path]);
 

@@ -48,13 +48,25 @@ const initialInboundEndpoint: InputsFields = {
 
 export function TaskForm(props: TaskFormProps) {
 
+    const { rpcClient } = useVisualizerContext();
+    const [isNewTask, setIsNewTask] = useState(true);
+    const [savedTaskName, setSavedTaskName] = useState<string>("");
+    const formTitle = isNewTask
+        ? "Create new Scheduled Task"
+        : "Edit Scheduled Task : " + props.path.replace(/^.*[\\/]/, '').split(".")[0];
+    const [artifactNames, setArtifactNames] = useState([]);
+    const [workspaceFileNames, setWorkspaceFileNames] = useState([]);
+
     const schema = yup.object({
         name: yup.string().required("Task Name is required")
-            .matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in Task name")
+            .matches(/^[a-zA-Z0-9]*$/, "Invalid characters in Task name")
             .test('validateTaskName',
-                'Task with same name already exists', value => {
-                    return !isNewTask ? !(tasks.includes(value) && value !== savedTaskName) : !tasks.includes(value);
-                }),
+                'An artifact with same name already exists', value => {
+                    return !(workspaceFileNames.includes(value) && savedTaskName !== value)
+                }).test('validateArtifactName',
+                    'A registry resource with this artifact name already exists', value => {
+                        return !(artifactNames.includes(value) && savedTaskName !== value)
+                    }),
         group: yup.string().required("Task group is required"),
         implementation: yup.string().required("Task Implementation is required"),
         pinnedServers: yup.string(),
@@ -88,25 +100,8 @@ export function TaskForm(props: TaskFormProps) {
         mode: "onChange"
     });
 
-    const { rpcClient } = useVisualizerContext();
-    const [isNewTask, setIsNewTask] = useState(true);
-    const [tasks, setTasks] = useState([]);
-    const [savedTaskName, setSavedTaskName] = useState<string>("");
-    const formTitle = isNewTask
-        ? "Create new Scheduled Task"
-        : "Edit Scheduled Task : " + props.path.replace(/^.*[\\/]/, '').split(".")[0];
-
     useEffect(() => {
         (async () => {
-            const taskResponse = await rpcClient.getMiDiagramRpcClient().getAvailableResources({
-                documentIdentifier: props.path,
-                resourceType: "task",
-            });
-
-            if (taskResponse.resources) {
-                const resources = taskResponse.resources.map((resource) => resource.name);
-                setTasks(resources);
-            }
             if (props.path && props.path.endsWith(".xml")) {
                 const taskRes = await rpcClient.getMiDiagramRpcClient().getTask({ path: props.path });
                 if (taskRes.name) {
@@ -117,6 +112,19 @@ export function TaskForm(props: TaskFormProps) {
             }
         })();
     }, [props.path]);
+
+    useEffect(() => {
+        (async () => {
+            const artifactRes = await rpcClient.getMiDiagramRpcClient().getAllArtifacts({
+                path: props.path,
+            });
+            setWorkspaceFileNames(artifactRes.artifacts);
+            const regArtifactRes = await rpcClient.getMiDiagramRpcClient().getAvailableRegistryResources({
+                path: props.path,
+            });
+            setArtifactNames(regArtifactRes.artifacts);
+        })();
+    }, []);
 
     const renderProps = (fieldName: keyof InputsFields) => {
         return {

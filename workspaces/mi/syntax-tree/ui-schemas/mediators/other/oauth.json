@@ -1,63 +1,55 @@
 {
   "name": "OAuth",
-  "type":"mediator",
+  "type": "mediator",
   "title": "OAuth Mediator",
   "help": "",
   "elements": [
     {
+      "type": "attribute",
+      "value": {
+        "name": "remoteServiceURL",
+        "displayName": "Remote Service URL",
+        "inputType": "string",
+        "required": true,
+        "helpTip": ""
+      }
+    },
+    {
       "type": "attributeGroup",
       "value": {
-        "groupName": "Properties",
+        "groupName": "Credentials",
         "elements": [
           {
             "type": "attribute",
             "value": {
-              "name": "remoteServiceURL",
-              "displayName": "Remote Service URL",
+              "name": "username",
+              "displayName": "Username",
               "inputType": "string",
               "required": true,
               "helpTip": ""
             }
           },
           {
-            "type": "attributeGroup",
-            "value": {
-              "groupName": "Credentials",
-              "elements": [
-                {
-                  "type": "attribute",
-                  "value": {
-                    "name": "username",
-                    "displayName": "Username",
-                    "inputType": "string",
-                    "required": true,
-                    "helpTip": ""
-                  }
-                },
-                {
-                  "type": "attribute",
-                  "value": {
-                    "name": "password",
-                    "displayName": "Password",
-                    "inputType": "string",
-                    "required": true,
-                    "helpTip": ""
-                  }
-                }
-              ]
-            }
-          },
-          {
             "type": "attribute",
             "value": {
-              "name": "description",
-              "displayName": "Description",
+              "name": "password",
+              "displayName": "Password",
               "inputType": "string",
-              "required": false,
+              "required": true,
               "helpTip": ""
             }
           }
         ]
+      }
+    },
+    {
+      "type": "attribute",
+      "value": {
+        "name": "description",
+        "displayName": "Description",
+        "inputType": "string",
+        "required": false,
+        "helpTip": ""
       }
     }
   ]

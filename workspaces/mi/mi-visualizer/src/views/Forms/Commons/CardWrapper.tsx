@@ -12,7 +12,7 @@ import { Card } from "@wso2-enterprise/ui-toolkit";
 
 const CardContainer = styled.div({
     display: "grid",
-    gridTemplateColumns: "repeat(4, 1fr)",
+    gridTemplateColumns: "repeat(3, 1fr)",
     gap: 20,
     justifyContent: "center",
     width: "100%",
@@ -22,98 +22,98 @@ const CARD_WRAPPER_DATA = {
     INBOUND_ENDPOINT: {
         cards: [
             {
-                title: 'CXF_WS_RM',
-                icon: 'code',
-                description: 'Description',
-            },
-            {
-                title: 'Custom',
-                icon: 'code',
-                description: 'Description',
-            },
-            {
-                title: 'Feed',
-                icon: 'code',
-                description: 'Description',
-            },
-            {
-                title: 'File',
-                icon: 'code',
-                description: 'Description',
-            },
-            {
-                title: 'HL7',
-                icon: 'code',
-                description: 'Description',
-            },
-            {
                 title: 'HTTP',
                 icon: 'code',
-                description: 'Description',
+                description: 'HTTP protocol',
             },
             {
                 title: 'HTTPS',
                 icon: 'code',
-                description: 'Description',
+                description: 'Secure HTTP protocol',
+            },
+            {
+                title: 'File',
+                icon: 'code',
+                description: 'File system',
             },
             {
                 title: 'JMS',
                 icon: 'code',
-                description: 'Description',
+                description: 'Java Messaging Service',
             },
             {
                 title: 'KAFKA',
                 icon: 'code',
-                description: 'Description',
-            },
-            {
-                title: 'MQTT',
-                icon: 'code',
-                description: 'Description',
+                description: 'Kafka messaging',
             },
             {
                 title: 'RABBITMQ',
                 icon: 'code',
-                description: 'Description',
+                description: 'RabbitMQ messaging',
+            },
+            {
+                title: 'HL7',
+                icon: 'code',
+                description: 'Healthcare messaging',
+            },
+            {
+                title: 'MQTT',
+                icon: 'code',
+                description: 'MQTT messaging',
             },
             {
                 title: 'WS',
                 icon: 'code',
-                description: 'Description',
+                description: 'Web Services',
             },
             {
                 title: 'WSO2_MB',
                 icon: 'code',
-                description: 'Description',
+                description: 'WSO2 Message Broker',
             },
             {
                 title: 'WSS',
                 icon: 'code',
-                description: 'Description',
-            }
+                description: 'Secure Web Services',
+            },
+            {
+                title: 'CXF_WS_RM',
+                icon: 'code',
+                description: 'CXF with WS-RM',
+            },
+            {
+                title: 'Feed',
+                icon: 'code',
+                description: 'RSS/Atom feed',
+            },
+            {
+                title: 'Custom',
+                icon: 'code',
+                description: 'User-defined endpoint',
+            },
         ]
     },
     MESSAGE_PROCESSOR: {
         cards: [
             {
-                title: 'Scheduled Message Forwarding Processor',
-                icon: 'code',
-                description: 'Description',
-            },
-            {
                 title: 'Message Sampling Processor',
                 icon: 'code',
-                description: 'Description',
+                description: 'Sample messages for processing',
             },
             {
-                title: 'Custom Message Processor',
+                title: 'Scheduled Message Forwarding Processor',
                 icon: 'code',
-                description: 'Description',
+                description: 'Forwards messages on a schedule',
             },
             {
                 title: 'Scheduled Failover Message Forwarding Processor',
                 icon: 'code',
-                description: 'Description',
+                description: 'Handle failover scenarios',
+            },
+            {
+                title: 'Custom Message Processor',
+                icon: 'code',
+                description: 'Configure a custom message processor',
             }
         ]
     },
@@ -195,56 +195,56 @@ const CARD_WRAPPER_DATA = {
             {
                 title: 'In-Line Text Entry',
                 icon: 'code',
-                description: 'Description',
+                description: 'Stores text content',
             },
             {
                 title: 'In-Line XML Entry',
                 icon: 'code',
-                description: 'Description',
+                description: 'Stores XML content',
             },
             {
                 title: 'Source URL Entry',
                 icon: 'code',
-                description: 'Description',
+                description: 'Stores a URL reference',
             }
         ]
     },
     MESSAGE_STORE: {
         cards: [
             {
-                title: 'JMS Message Store',
+                title: 'In Memory Message Store',
                 icon: 'code',
-                description: 'Description',
+                description: 'Temporarily holds messages in memory',
             },
             {
                 title: 'RabbitMQ Message Store',
                 icon: 'code',
-                description: 'Description',
+                description: 'Utilizes RabbitMQ for message storage',
             },
             {
-                title: 'WSO2 MB Message Store',
+                title: 'JMS Message Store',
                 icon: 'code',
-                description: 'Description',
-            },
-            {
-                title: 'In Memory Message Store',
-                icon: 'code',
-                description: 'Description',
+                description: 'Stores messages for Java Message Service (JMS) communication.',
             },
             {
                 title: 'JDBC Message Store',
                 icon: 'code',
-                description: 'Description',
+                description: 'Persists messages using a JDBC database',
             },
             {
                 title: 'Custom Message Store',
                 icon: 'code',
-                description: 'Description',
+                description: 'Allows custom implementations for specific requirements',
             },
             {
                 title: 'Resequence Message Store',
                 icon: 'code',
-                description: 'Description',
+                description: 'Reorders messages based on specified criteria',
+            },
+            {
+                title: 'WSO2 MB Message Store',
+                icon: 'code',
+                description: 'Integrates with WSO2 Message Broker',
             }
         ]
     },

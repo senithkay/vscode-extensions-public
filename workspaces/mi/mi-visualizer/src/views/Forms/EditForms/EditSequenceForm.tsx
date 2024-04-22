@@ -54,10 +54,10 @@ export function EditSequenceForm({ sequenceData, isOpen, onCancel, onSave, docum
         name: yup.string().required("Sequence name is required").matches(/^[a-zA-Z0-9]*$/, "Invalid characters in sequence name")
             .test('validateSequenceName',
                 'An artifact with same name already exists', value => {
-                    return !workspaceFileNames.includes(value)
+                    return !(workspaceFileNames.includes(value) && sequenceData.name !== value)
                 }).test('validateArtifactName',
                     'A registry resource with this artifact name already exists', value => {
-                        return !artifactNames.includes(value)
+                        return !(artifactNames.includes(value) && sequenceData.name !== value)
                     }),
         endpoint: yup.string().notRequired(),
         onError: yup.string().notRequired(),
@@ -78,10 +78,6 @@ export function EditSequenceForm({ sequenceData, isOpen, onCancel, onSave, docum
 
     useEffect(() => {
         (async () => {
-            const response = await rpcClient.getMiDiagramRpcClient().getAvailableResources({
-                documentIdentifier: documentUri,
-                resourceType: "sequence",
-            });
             const artifactRes = await rpcClient.getMiDiagramRpcClient().getAllArtifacts({
                 path: documentUri,
             });
