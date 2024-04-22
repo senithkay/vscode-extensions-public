@@ -109,14 +109,14 @@ export function ConnectorPage(props: ConnectorPageProps) {
         });
     };
 
-    useEffect(() => {
-        const fetchLocalConnectorData = async () => {
-            const connectorData = await rpcClient.getMiDiagramRpcClient().getAvailableConnectors({ documentUri: props.documentUri, connectorName: "" });
-            if (connectorData) {
-                setLocalConnectors(connectorData.connectors);
-            }
-        };
+    const fetchLocalConnectorData = async () => {
+        const connectorData = await rpcClient.getMiDiagramRpcClient().getAvailableConnectors({ documentUri: props.documentUri, connectorName: "" });
+        if (connectorData) {
+            setLocalConnectors(connectorData.connectors);
+        }
+    };
 
+    useEffect(() => {
         fetchLocalConnectorData();
 
         if (!sidePanelContext.connectors || sidePanelContext.connectors.length === 0) {
@@ -244,8 +244,6 @@ export function ConnectorPage(props: ConnectorPageProps) {
         });
 
         if (connectorData) {
-            // // Update LS with new connector
-            await rpcClient.getMiDiagramRpcClient().updateConnectors({ documentUri: props.documentUri });
 
             // Retrieve form
             const formJSON = await rpcClient.getMiDiagramRpcClient().getConnectorForm({ uiSchemaPath: connectorData.uiSchemaPath, operation: operation });
@@ -258,6 +256,8 @@ export function ConnectorPage(props: ConnectorPageProps) {
                 operationName={operation} />;
 
             props.setContent(connecterForm, `${sidePanelContext.isEditing ? "Edit" : "Add"} ${operation}`);
+        } else {
+            fetchLocalConnectorData();
         }
 
         setIsGeneratingForm(false);

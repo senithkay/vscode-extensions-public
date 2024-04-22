@@ -59,11 +59,17 @@ import {
     EndpointsAndSequencesResponse,
     FileDirResponse,
     FileStructure,
+    GetAllArtifactsRequest,
+    GetAllArtifactsResponse,
+    GetAllRegistryPathsRequest,
+    GetAllRegistryPathsResponse,
     GetAvailableConnectorRequest,
     GetAvailableConnectorResponse,
     GetAvailableResourcesRequest,
     GetAvailableResourcesResponse,
     GetBackendRootUrlResponse,
+    GetConnectionFormRequest,
+    GetConnectionFormResponse,
     GetConnectorConnectionsRequest,
     GetConnectorConnectionsResponse,
     GetConnectorFormRequest,
@@ -102,7 +108,6 @@ import {
     ImportProjectRequest,
     ImportProjectResponse,
     ListRegistryArtifactsRequest,
-    RegistryArtifactNamesResponse,
     MACHINE_VIEW,
     MiDiagramAPI,
     MigrateProjectRequest,
@@ -111,6 +116,7 @@ import {
     ProjectDirResponse,
     ProjectRootResponse,
     RangeFormatRequest,
+    RegistryArtifactNamesResponse,
     RetrieveAddressEndpointRequest,
     RetrieveAddressEndpointResponse,
     RetrieveDefaultEndpointRequest,
@@ -149,10 +155,6 @@ import {
     getSTRequest,
     getSTResponse,
     AI_EVENT_TYPE,
-    GetAllRegistryPathsRequest,
-    GetAllRegistryPathsResponse,
-    GetAllArtifactsRequest,
-    GetAllArtifactsResponse,
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
 import { error } from "console";
@@ -2545,6 +2547,19 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         }
 
         const rawData = fs.readFileSync(operationSchema, 'utf-8');
+        const formJSON = JSON.parse(rawData);
+
+        return { formJSON: formJSON };
+    }
+
+    async getConnectionForm(params: GetConnectionFormRequest): Promise<GetConnectionFormResponse> {
+        const { uiSchemaPath } = params;
+
+        if (!fs.existsSync(uiSchemaPath)) {
+            return { formJSON: '' };
+        }
+
+        const rawData = fs.readFileSync(uiSchemaPath, 'utf-8');
         const formJSON = JSON.parse(rawData);
 
         return { formJSON: formJSON };
