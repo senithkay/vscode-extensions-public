@@ -17,7 +17,7 @@ import { InputsFields, initialEndpoint, propertiesConfigs, paramTemplateConfigs 
 import { TypeChip } from "../Commons";
 import Form from "./Form";
 import * as yup from "yup";
-import AddToRegistry, {formatRegistryPath, getArtifactNamesAndRegistryPaths, saveToRegistry} from "../AddToRegistry";
+import AddToRegistry, { formatRegistryPath, getArtifactNamesAndRegistryPaths, saveToRegistry } from "../AddToRegistry";
 
 export interface WsdlEndpointWizardProps {
     path: string;
@@ -28,15 +28,15 @@ export function WsdlEndpointWizard(props: WsdlEndpointWizardProps) {
 
     const schema = yup.object({
         endpointName: props.type === 'endpoint' ? yup.string().required("Endpoint Name is required")
-                .matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in Endpoint Name")
-                .test('validateEndpointName',
-                    'An artifact with same name already exists', value => {
-                        return !isNewEndpoint ? !(workspaceFileNames.includes(value) && value !== savedEPName) : !workspaceFileNames.includes(value);
-                    })
-                .test('validateEndpointArtifactName',
-                    'A registry resource with this artifact name already exists', value => {
-                        return !isNewEndpoint ? !(artifactNames.includes(value) && value !== savedEPName) : !artifactNames.includes(value);
-                    }) :
+            .matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in Endpoint Name")
+            .test('validateEndpointName',
+                'An artifact with same name already exists', value => {
+                    return !isNewEndpoint ? !(workspaceFileNames.includes(value) && value !== savedEPName) : !workspaceFileNames.includes(value);
+                })
+            .test('validateEndpointArtifactName',
+                'A registry resource with this artifact name already exists', value => {
+                    return !isNewEndpoint ? !(artifactNames.includes(value) && value !== savedEPName) : !artifactNames.includes(value);
+                }) :
             yup.string().required("Endpoint Name is required")
                 .matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in Endpoint Name"),
         format: yup.string(),
@@ -57,6 +57,10 @@ export function WsdlEndpointWizard(props: WsdlEndpointWizardProps) {
         addressingVersion: yup.string(),
         addressListener: yup.string(),
         securityEnabled: yup.string(),
+        seperatePolicies: yup.boolean().notRequired().default(false),
+        policyKey: yup.string().notRequired().default(""),
+        inboundPolicyKey: yup.string().notRequired().default(""),
+        outboundPolicyKey: yup.string().notRequired().default(""),
         suspendErrorCodes: yup.string(),
         initialDuration: yup.number().typeError('Initial Duration must be a number'),
         maximumDuration: yup.number().typeError('Maximum Duration must be a number').min(0, "Maximum Duration must be greater than or equal to 0"),
@@ -67,15 +71,15 @@ export function WsdlEndpointWizard(props: WsdlEndpointWizardProps) {
         timeoutDuration: yup.number().typeError('Timeout Duration must be a number').min(0, "Timeout Duration must be greater than or equal to 0"),
         timeoutAction: yup.string(),
         templateName: props.type === 'template' ? yup.string().required("Template Name is required")
-                .matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in Template Name")
-                .test('validateTemplateName',
-                    'An artifact with same name already exists', value => {
-                        return !isNewEndpoint ? !(workspaceFileNames.includes(value) && value !== savedEPName) : !workspaceFileNames.includes(value);
-                    })
-                .test('validateTemplateArtifactName',
-                    'A registry resource with this artifact name already exists', value => {
-                        return !isNewEndpoint ? !(artifactNames.includes(value) && value !== savedEPName) : !artifactNames.includes(value);
-                    }) :
+            .matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in Template Name")
+            .test('validateTemplateName',
+                'An artifact with same name already exists', value => {
+                    return !isNewEndpoint ? !(workspaceFileNames.includes(value) && value !== savedEPName) : !workspaceFileNames.includes(value);
+                })
+            .test('validateTemplateArtifactName',
+                'A registry resource with this artifact name already exists', value => {
+                    return !isNewEndpoint ? !(artifactNames.includes(value) && value !== savedEPName) : !artifactNames.includes(value);
+                }) :
             yup.string().notRequired().default(""),
         requireTemplateParameters: yup.boolean(),
         templateParameters: yup.array(),
@@ -236,6 +240,9 @@ export function WsdlEndpointWizard(props: WsdlEndpointWizardProps) {
                 register={register}
                 watch={watch}
                 setValue={setValue}
+                control={control}
+                path={props.path}
+                errors={errors}
                 isTemplate={isTemplate}
                 templateParams={templateParams}
                 setTemplateParams={setTemplateParams}
@@ -251,8 +258,8 @@ export function WsdlEndpointWizard(props: WsdlEndpointWizardProps) {
                     />
                     {watch("saveInReg") && (<>
                         <AddToRegistry path={props.path}
-                                       fileName={isTemplate ? watch("templateName") : watch("endpointName")}
-                                       register={register} errors={errors} getValues={getValues} />
+                            fileName={isTemplate ? watch("templateName") : watch("endpointName")}
+                            register={register} errors={errors} getValues={getValues} />
                     </>)}
                 </>
             )}

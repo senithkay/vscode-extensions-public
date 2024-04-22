@@ -17,6 +17,7 @@ import { registerMiVisualizerRpcHandlers } from './rpc-managers/mi-visualizer/rp
 import { AiPanelWebview } from './ai-panel/webview';
 import { StateMachineAI } from './ai-panel/aiMachine';
 import { registerMiDataMapperRpcHandlers } from './rpc-managers/mi-data-mapper/rpc-handler';
+import { extension } from './MIExtensionContext';
 import { registerMiDebuggerRpcHandlers } from './rpc-managers/mi-debugger/rpc-handler';
 
 export class RPCLayer {
@@ -77,7 +78,7 @@ async function getContext(): Promise<VisualizerLocation> {
 async function getAIContext(): Promise<AIVisualizerLocation> {
     const context = StateMachineAI.context();
     return new Promise((resolve) => {
-        resolve({ view: context.view, initialPrompt: context.initialPrompt, state: StateMachineAI.state() });
+        resolve({ view: context.view, initialPrompt: extension.initialPrompt, state: StateMachineAI.state() });
     });
 }
 

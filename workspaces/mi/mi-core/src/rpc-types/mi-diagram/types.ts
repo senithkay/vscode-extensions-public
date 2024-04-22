@@ -561,6 +561,10 @@ export interface UpdateHttpEndpointRequest {
     addressingVersion: string;
     addressListener: string;
     securityEnabled: string;
+    seperatePolicies: boolean;
+    policyKey: string;
+    inboundPolicyKey: string;
+    outboundPolicyKey: string;
     suspendErrorCodes: string;
     initialDuration: number;
     maximumDuration: number;
@@ -611,6 +615,10 @@ export interface RetrieveHttpEndpointResponse {
     addressingVersion: string;
     addressListener: string;
     securityEnabled: string;
+    seperatePolicies: boolean;
+    policyKey: string;
+    inboundPolicyKey: string;
+    outboundPolicyKey: string;
     suspendErrorCodes: string;
     initialDuration: number;
     maximumDuration: number;
@@ -640,6 +648,10 @@ export interface UpdateAddressEndpointRequest {
     addressingVersion: string;
     addressListener: string;
     securityEnabled: string;
+    seperatePolicies: boolean;
+    policyKey: string;
+    inboundPolicyKey: string;
+    outboundPolicyKey: string;
     suspendErrorCodes: string;
     initialDuration: number;
     maximumDuration: number;
@@ -678,6 +690,10 @@ export interface RetrieveAddressEndpointResponse {
     addressingVersion: string;
     addressListener: string;
     securityEnabled: string;
+    seperatePolicies: boolean;
+    policyKey: string;
+    inboundPolicyKey: string;
+    outboundPolicyKey: string;
     suspendErrorCodes: string;
     initialDuration: number;
     maximumDuration: number;
@@ -709,6 +725,10 @@ export interface UpdateWsdlEndpointRequest {
     addressingVersion: string;
     addressListener: string;
     securityEnabled: string;
+    seperatePolicies: boolean;
+    policyKey: string;
+    inboundPolicyKey: string;
+    outboundPolicyKey: string;
     suspendErrorCodes: string;
     initialDuration: number;
     maximumDuration: number;
@@ -749,6 +769,10 @@ export interface RetrieveWsdlEndpointResponse {
     addressingVersion: string;
     addressListener: string;
     securityEnabled: string;
+    seperatePolicies: boolean;
+    policyKey: string;
+    inboundPolicyKey: string;
+    outboundPolicyKey: string;
     suspendErrorCodes: string;
     initialDuration: number;
     maximumDuration: number;
@@ -777,6 +801,10 @@ export interface UpdateDefaultEndpointRequest {
     addressingVersion: string;
     addressListener: string;
     securityEnabled: string;
+    seperatePolicies: boolean;
+    policyKey: string;
+    inboundPolicyKey: string;
+    outboundPolicyKey: string;
     suspendErrorCodes: string;
     initialDuration: number;
     maximumDuration: number;
@@ -814,6 +842,10 @@ export interface RetrieveDefaultEndpointResponse {
     addressingVersion: string;
     addressListener: string;
     securityEnabled: string;
+    seperatePolicies: boolean;
+    policyKey: string;
+    inboundPolicyKey: string;
+    outboundPolicyKey: string;
     suspendErrorCodes: string;
     initialDuration: number;
     maximumDuration: number;
@@ -1067,10 +1099,13 @@ export interface DownloadConnectorRequest {
 export interface DownloadConnectorResponse {
     path: string;
 }
-
 export interface GetAvailableConnectorRequest {
     documentUri: string;
-    connectorName: string;
+    connectorName: string | null;
+}
+
+export interface connectionUiSchemaRecord {
+    [key: string]: string;
 }
 
 export interface GetAvailableConnectorResponse {
@@ -1080,6 +1115,7 @@ export interface GetAvailableConnectorResponse {
     uiSchemaPath?: string;
     version?: string;
     iconPath?: string;
+    connectionUiSchema?: connectionUiSchemaRecord;
 }
 
 export interface UpdateConnectorRequest {
@@ -1092,6 +1128,14 @@ export interface GetConnectorFormRequest {
 }
 
 export interface GetConnectorFormResponse {
+    formJSON: string;
+}
+
+export interface GetConnectionFormRequest {
+    uiSchemaPath: string;
+}
+
+export interface GetConnectionFormResponse {
     formJSON: string;
 }
 export interface CreateDataSourceResponse {
