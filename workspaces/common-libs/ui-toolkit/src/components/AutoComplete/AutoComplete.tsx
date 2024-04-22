@@ -165,7 +165,6 @@ export interface AutoCompleteProps {
     name?: string;
     value?: string;
     onBlur?: React.FocusEventHandler<HTMLInputElement>;
-    onChange?: React.ChangeEventHandler<HTMLInputElement>;
 } 
 
 const ComboboxOption: React.FC<ComboboxOptionProps> = styled.div`
@@ -195,13 +194,28 @@ export const getItem = (item: string | ItemComponent) => {
 
 
 export const AutoComplete = React.forwardRef<HTMLInputElement, AutoCompleteProps>((props, ref) => {
-    const { id, items, required, label, notItemsFoundMessage, widthOffset = 157, nullable, allowItemCreate = false, sx, borderBox, onValueChange, ...rest } = props;
+    const {
+        id,
+        name,
+        value,
+        items,
+        required,
+        label,
+        notItemsFoundMessage,
+        widthOffset = 157,
+        nullable,
+        allowItemCreate = false,
+        sx,
+        borderBox,
+        onBlur,
+        onValueChange
+    } = props;
     const [query, setQuery] = useState('');
     const [isTextFieldFocused, setIsTextFieldFocused] = useState(false);
     const [isUpButton, setIsUpButton] = useState(false);
     const [dropdownWidth, setDropdownWidth] = useState<number>();
     const inputRef = useRef(null);
-    const btnId = useMemo(() => props.name || getItemKey(items[0]), [props.name, items]);
+    const btnId = useMemo(() => name || getItemKey(items[0]), [name, items]);
 
     const handleChange = (item: string | ItemComponent) => {
         onValueChange && onValueChange(getItemKey(item));
@@ -219,7 +233,7 @@ export const AutoComplete = React.forwardRef<HTMLInputElement, AutoCompleteProps
     const handleTextFieldOutFocused = (e: any) => {
         setIsTextFieldFocused(false);
         setIsUpButton(false);
-        props.onBlur && props.onBlur(e);
+        onBlur && onBlur(e);
     };
     const handleComboButtonClick = () => {
         setIsUpButton(!isUpButton);
@@ -259,7 +273,7 @@ export const AutoComplete = React.forwardRef<HTMLInputElement, AutoCompleteProps
 
     return (
         <Container sx={sx}>
-            <Combobox value={props.value} onChange={handleChange} name={props.name} {...(nullable && { nullable })}>
+            <Combobox value={value} onChange={handleChange} name={name} {...(nullable && { nullable })}>
                 <LabelContainer>
                     <label htmlFor={id}>{label}</label>
                     {(required && label) && (<RequiredFormInput />)}
@@ -276,7 +290,6 @@ export const AutoComplete = React.forwardRef<HTMLInputElement, AutoCompleteProps
                             `))}
                             onFocus={handleTextFieldFocused}
                             onClick={handleTextFieldClick}
-                            { ...props.name ? {...rest} : {} } // If name is not provided, then value should be empty (for react-hook-form)
                             onBlur={handleTextFieldOutFocused}
                         />
                         <Combobox.Button
