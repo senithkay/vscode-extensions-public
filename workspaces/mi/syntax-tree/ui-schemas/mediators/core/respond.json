@@ -1,26 +1,18 @@
 {
   "name": "respond",
-  "type":"mediator",
+  "type": "mediator",
   "title": "Respond Mediator",
   "help": "",
   "elements": [
     {
-      "type": "attributeGroup",
+      "type": "attribute",
       "value": {
-        "groupName": "Properties",
-        "elements": [
-          {
-            "type": "attribute",
-            "value": {
-              "name": "description",
-              "displayName": "Description",
-              "inputType": "string",
-              "defaultValue": "",
-              "required": false,
-              "helpTip": "Description"
-            }
-          }
-        ]
+        "name": "description",
+        "displayName": "Description",
+        "inputType": "string",
+        "defaultValue": "",
+        "required": false,
+        "helpTip": "Description"
       }
     }
   ]

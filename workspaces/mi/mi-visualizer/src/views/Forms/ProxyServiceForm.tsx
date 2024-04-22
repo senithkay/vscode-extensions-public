@@ -8,13 +8,13 @@
  */
 import React, {useEffect, useState} from "react";
 import * as path from 'path';
-import {Button, TextField, Dropdown, CheckBox, RadioButtonGroup, FormView, FormActions} from "@wso2-enterprise/ui-toolkit";
+import {Button, TextField, Dropdown, CheckBox, FormView, FormActions} from "@wso2-enterprise/ui-toolkit";
 import {useVisualizerContext} from "@wso2-enterprise/mi-rpc-client";
 import {EVENT_TYPE, MACHINE_VIEW, CreateProxyServiceRequest} from "@wso2-enterprise/mi-core";
 import {useForm} from "react-hook-form";
 import * as yup from "yup";
 import {yupResolver} from "@hookform/resolvers/yup";
-
+import {FormKeylookup} from "@wso2-enterprise/mi-diagram-2";
 
 interface OptionProps {
     value: string;
@@ -54,28 +54,34 @@ const newProxyService: InputsFields = {
     wsdlPort: 8080,
 }
 
-const schema = yup.object({
-    proxyServiceName: yup.string().required("Template Name is required").matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in Template Name"),
-    proxyServiceType: yup.string().default(""),
-    endpointType: yup.string().notRequired().default(""),
-    endpoint: yup.string().notRequired().default(""),
-    requestLogLevel: yup.string().notRequired().default("None"),
-    responseLogLevel: yup.string().notRequired().default("None"),
-    securityPolicy: yup.string().notRequired().default(""),
-    requestXslt: yup.string().notRequired().default(""),
-    responseXslt: yup.string().notRequired().default(""),
-    wsdlUri: yup.string().notRequired().default(""),
-    wsdlService: yup.string().notRequired().default(""),
-    wsdlPort: yup.number().notRequired().default(8080)
-});
-
 export function ProxyServiceWizard(props: ProxyServiceWizardProps) {
+
+    const schema = yup.object({
+        proxyServiceName: yup.string().required("Proxy Service Name is required")
+            .matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in Proxy Service Name")
+            .test('validateProxyServiceName',
+                'An artifact with same name already exists', value => {
+                    return !workspaceFileNames.includes(value)
+                }),
+        proxyServiceType: yup.string().default(""),
+        endpointType: yup.string().notRequired().default(""),
+        endpoint: yup.string().notRequired().default(""),
+        requestLogLevel: yup.string().notRequired().default("None"),
+        responseLogLevel: yup.string().notRequired().default("None"),
+        securityPolicy: yup.string().notRequired().default(""),
+        requestXslt: yup.string().notRequired().default(""),
+        responseXslt: yup.string().notRequired().default(""),
+        wsdlUri: yup.string().notRequired().default(""),
+        wsdlService: yup.string().notRequired().default(""),
+        wsdlPort: yup.number().notRequired().default(8080)
+    });
 
     const {
         register,
         formState: {errors, isDirty},
         handleSubmit,
         watch,
+        control
     } = useForm({
         defaultValues: newProxyService,
         resolver: yupResolver(schema),
@@ -86,24 +92,8 @@ export function ProxyServiceWizard(props: ProxyServiceWizardProps) {
     const [selectedTransports, setSelectedTransports] = useState(['http', 'https']);
     const [transformResponse, setTransformResponse] = useState([]);
     const [publishContract, setPublishContract] = useState([]);
-    const [endpoints, setEndpoints] = useState([]);
     const [directoryPath, setDirectoryPath] = useState("");
-
-    useEffect(() => {
-
-        (async () => {
-            const projectDir = (await rpcClient.getMiDiagramRpcClient().getProjectRoot({path: props.path})).path;
-            const proxyServicesDir = path.join(projectDir, 'src', 'main', 'wso2mi', 'artifacts', 'proxy-services');
-            setDirectoryPath(proxyServicesDir);
-            const items = await rpcClient.getMiDiagramRpcClient().getEndpointsAndSequences();
-            const endpoints = items.data[0].map((seq: string) => {
-                seq = seq.replace(".xml", "");
-                return {value: seq}
-            });
-            setEndpoints(endpoints);
-        })();
-
-    }, []);
+    const [workspaceFileNames, setWorkspaceFileNames] = useState([]);
 
     const transportTypes = [
         'http',
@@ -122,6 +112,20 @@ export function ProxyServiceWizard(props: ProxyServiceWizardProps) {
         {value: "Full"},
         {value: "Simple"}
     ];
+
+    useEffect(() => {
+        (async () => {
+            const projectDir = (await rpcClient.getMiDiagramRpcClient().getProjectRoot({path: props.path})).path;
+            const proxyServicesDir = path.join(projectDir, 'src', 'main', 'wso2mi', 'artifacts', 'proxy-services');
+            setDirectoryPath(proxyServicesDir);
+
+            const artifactRes = await rpcClient.getMiDiagramRpcClient().getAllArtifacts({
+                path: props.path,
+            });
+            setWorkspaceFileNames(artifactRes.artifacts);
+        })();
+
+    }, []);
 
     const handleTransportsChange = (value: string) => {
         if (selectedTransports.includes(value)) {
@@ -157,17 +161,12 @@ export function ProxyServiceWizard(props: ProxyServiceWizardProps) {
             ...values
         }
         await rpcClient.getMiDiagramRpcClient().createProxyService(createProxyServiceParams);
-
-        rpcClient.getMiVisualizerRpcClient().openView({
-            type: EVENT_TYPE.OPEN_VIEW,
-            location: {view: MACHINE_VIEW.Overview}
-        });
+        handleCancel();
     };
 
     const renderProps = (fieldName: keyof InputsFields) => {
         return {
             id: fieldName,
-            value: String(watch(fieldName)),
             ...register(fieldName),
             errorMsg: errors[fieldName] && errors[fieldName].message.toString()
         }
@@ -199,23 +198,14 @@ export function ProxyServiceWizard(props: ProxyServiceWizardProps) {
                 />
             ))}
             {!(watch('proxyServiceType') === "Custom Proxy" || watch('proxyServiceType') === "WSDL Based Proxy") && (
-                <>
-                    <RadioButtonGroup
-                        label="Target Endpoint"
-                        options={[{content: "Workspace", value: "Workspace"}, {content: "Custom", value: "Custom"}]}
-                        {...renderProps('endpointType')}
-                    />
-                    {watch('endpointType') === "Workspace" && (
-                        <Dropdown items={endpoints} {...renderProps('endpoint')} />
-                    )}
-                    {watch('endpointType') === "Custom" && (
-                        <TextField
-                            placeholder="Custom Endpoint"
-                            label="Custom Endpoint"
-                            {...renderProps('endpoint')}
-                        />
-                    )}
-                </>
+                <FormKeylookup
+                    control={control}
+                    name="endpoint"
+                    label="Target Endpoint"
+                    filterType="endpointTemplate"
+                    path={props.path}
+                    {...renderProps("endpoint")}
+                />
             )}
             {watch('proxyServiceType') === "Logging Proxy" && (
                 <>

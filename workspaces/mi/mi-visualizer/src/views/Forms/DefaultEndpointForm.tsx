@@ -7,13 +7,14 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import React, {useEffect, useState} from "react";
-import {Button, TextField, Dropdown, RadioButtonGroup, FormView, FormGroup, FormActions, ParamConfig, ParamManager} from "@wso2-enterprise/ui-toolkit";
+import {Button, TextField, Dropdown, RadioButtonGroup, FormCheckBox, FormView, FormGroup, FormActions, ParamConfig, ParamManager} from "@wso2-enterprise/ui-toolkit";
 import {useVisualizerContext} from "@wso2-enterprise/mi-rpc-client";
 import {EVENT_TYPE, MACHINE_VIEW, UpdateDefaultEndpointRequest} from "@wso2-enterprise/mi-core";
 import {TypeChip} from "./Commons";
 import {useForm} from "react-hook-form";
 import * as yup from "yup";
-import {yupResolver} from "@hookform/resolvers/yup"
+import {yupResolver} from "@hookform/resolvers/yup";
+import AddToRegistry, {formatRegistryPath, saveToRegistry, getArtifactNamesAndRegistryPaths} from "./AddToRegistry";
 
 interface OptionProps {
     value: string;
@@ -47,6 +48,11 @@ type InputsFields = {
     timeoutAction?: string;
     templateName?: string;
     requireTemplateParameters?: boolean;
+    saveInReg?: boolean;
+    //reg form
+    artifactName?: string;
+    registryPath?: string
+    registryType?: "gov" | "conf";
 };
 
 const newDefaultEndpoint: InputsFields = {
@@ -71,13 +77,29 @@ const newDefaultEndpoint: InputsFields = {
     timeoutDuration: Number.MAX_SAFE_INTEGER,
     timeoutAction: "",
     templateName: "",
-    requireTemplateParameters: false
+    requireTemplateParameters: false,
+    saveInReg: false,
+    //reg form
+    artifactName: "",
+    registryPath: "/",
+    registryType: "gov"
 }
 
 export function DefaultEndpointWizard(props: DefaultEndpointWizardProps) {
 
     const schema = yup.object({
-        endpointName: yup.string().required("Endpoint Name is required").matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in Endpoint Name"),
+        endpointName: props.type === 'endpoint' ? yup.string().required("Endpoint Name is required")
+                .matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in Endpoint Name")
+                .test('validateEndpointName',
+                    'An artifact with same name already exists', value => {
+                        return !isNewEndpoint ? !(workspaceFileNames.includes(value) && value !== savedEPName) : !workspaceFileNames.includes(value);
+                    })
+                .test('validateEndpointArtifactName',
+                    'A registry resource with this artifact name already exists', value => {
+                        return !isNewEndpoint ? !(artifactNames.includes(value) && value !== savedEPName) : !artifactNames.includes(value);
+                    }) :
+            yup.string().required("Endpoint Name is required")
+                .matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in Endpoint Name"),
         format: yup.string().notRequired().default("LEAVE_AS_IS"),
         traceEnabled: yup.string().notRequired().default("disable"),
         statisticsEnabled: yup.string().notRequired().default("disable"),
@@ -97,8 +119,45 @@ export function DefaultEndpointWizard(props: DefaultEndpointWizardProps) {
         retryDelay: yup.number().typeError('Retry Delay must be a number').min(0, "Retry Delay Interval must be greater than or equal to 0").notRequired().default(0),
         timeoutDuration: yup.number().typeError('Timeout Duration must be a number').min(1, "Timeout Duration must be greater than 0").notRequired().default(Number.MAX_SAFE_INTEGER),
         timeoutAction: yup.string().notRequired().default(""),
-        templateName: props.type === 'template' ? yup.string().required("Template Name is required").matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in Template Name") : yup.string().notRequired().default(""),
-        requireTemplateParameters: yup.boolean().notRequired().default(false)
+        templateName: props.type === 'template' ? yup.string().required("Template Name is required")
+                .matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in Template Name")
+                .test('validateTemplateName',
+                    'An artifact with same name already exists', value => {
+                        return !isNewEndpoint ? !(workspaceFileNames.includes(value) && value !== savedEPName) : !workspaceFileNames.includes(value);
+                    })
+                .test('validateTemplateArtifactName',
+                    'A registry resource with this artifact name already exists', value => {
+                        return !isNewEndpoint ? !(artifactNames.includes(value) && value !== savedEPName) : !artifactNames.includes(value);
+                    }) :
+            yup.string().notRequired().default(""),
+        requireTemplateParameters: yup.boolean().notRequired().default(false),
+        saveInReg: yup.boolean(),
+        artifactName: yup.string().when('saveInReg', {
+            is: false,
+            then: () =>
+                yup.string().notRequired(),
+            otherwise: () =>
+                yup.string().required("Artifact Name is required")
+                    .test('validateArtifactName',
+                        'Artifact name already exists', value => {
+                            return !artifactNames.includes(value);
+                        })
+                    .test('validateFileName',
+                        'A file already exists in the workspace with this artifact name', value => {
+                            return !workspaceFileNames.includes(value);
+                        }),
+        }),
+        registryPath: yup.string().when('saveInReg', {
+            is: false,
+            then: () =>
+                yup.string().notRequired(),
+            otherwise: () =>
+                yup.string().test('validateRegistryPath', 'Resource already exists in registry', value => {
+                    const formattedPath = formatRegistryPath(value, getValues("registryType"), getValues("endpointName"));
+                    return !(registryPaths.includes(formattedPath) || registryPaths.includes(formattedPath + "/"));
+                }),
+        }),
+        registryType: yup.mixed<"gov" | "conf">().oneOf(["gov", "conf"]),
     });
 
     const {
@@ -108,6 +167,8 @@ export function DefaultEndpointWizard(props: DefaultEndpointWizardProps) {
         handleSubmit,
         setValue,
         watch,
+        control,
+        getValues
     } = useForm({
         resolver: yupResolver(schema),
         mode: "onChange"
@@ -116,6 +177,10 @@ export function DefaultEndpointWizard(props: DefaultEndpointWizardProps) {
     const {rpcClient} = useVisualizerContext();
     const isNewEndpoint = !props.path.endsWith(".xml")
     const isTemplate = props.type === 'template';
+    const [artifactNames, setArtifactNames] = useState([]);
+    const [registryPaths, setRegistryPaths] = useState([]);
+    const [savedEPName, setSavedEPName] = useState<string>("");
+    const [workspaceFileNames, setWorkspaceFileNames] = useState([]);
 
     const paramTemplateConfigs: ParamConfig = {
         paramValues: [],
@@ -159,9 +224,8 @@ export function DefaultEndpointWizard(props: DefaultEndpointWizardProps) {
     const [additionalParams, setAdditionalParams] = useState(propertiesConfigs);
 
     useEffect(() => {
-
-        if (!isNewEndpoint) {
-            (async () => {
+        (async () => {
+            if (!isNewEndpoint) {
                 const existingEndpoint = await rpcClient.getMiDiagramRpcClient().getDefaultEndpoint({path: props.path});
                 templateParams.paramValues = [];
                 setTemplateParams(templateParams);
@@ -220,12 +284,22 @@ export function DefaultEndpointWizard(props: DefaultEndpointWizardProps) {
                     });
                 });
                 reset(existingEndpoint);
+                setSavedEPName(isTemplate ? existingEndpoint.templateName : existingEndpoint.endpointName);
+                setValue('saveInReg', false);
                 setValue('timeoutAction', existingEndpoint.timeoutAction === '' ? 'Never' :
                     existingEndpoint.timeoutAction.charAt(0).toUpperCase() + existingEndpoint.timeoutAction.slice(1));
-            })();
-        } else {
-            reset(newDefaultEndpoint);
-        }
+            } else {
+                reset(newDefaultEndpoint);
+            }
+
+            const result = await getArtifactNamesAndRegistryPaths(props.path, rpcClient);
+            setArtifactNames(result.artifactNamesArr);
+            setRegistryPaths(result.registryPaths);
+            const artifactRes = await rpcClient.getMiDiagramRpcClient().getAllArtifacts({
+                path: props.path,
+            });
+            setWorkspaceFileNames(artifactRes.artifacts);
+        })();
     }, [props.path]);
 
     const addressingVersions: OptionProps[] = [
@@ -306,20 +380,22 @@ export function DefaultEndpointWizard(props: DefaultEndpointWizardProps) {
             ...values,
             templateParameters: templateParameters,
             properties: endpointProperties,
+            getContentOnly: watch("saveInReg"),
             directory: props.path
         }
-        await rpcClient.getMiDiagramRpcClient().updateDefaultEndpoint(updateDefaultEndpointParams);
 
-        rpcClient.getMiVisualizerRpcClient().openView({
-            type: EVENT_TYPE.OPEN_VIEW,
-            location: {view: MACHINE_VIEW.Overview}
-        });
+        const result = await rpcClient.getMiDiagramRpcClient().updateDefaultEndpoint(updateDefaultEndpointParams);
+        if (watch("saveInReg")) {
+            await saveToRegistry(rpcClient, props.path, values.registryType,
+                isTemplate ? values.templateName : values.endpointName,
+                result.content, values.registryPath, values.artifactName);
+        }
+        handleCancel();
     };
 
     const renderProps = (fieldName: keyof InputsFields) => {
         return {
             id: fieldName,
-            value: String(watch(fieldName)),
             errorMsg: errors[fieldName] && errors[fieldName].message.toString(),
             ...register(fieldName)
         }
@@ -374,7 +450,7 @@ export function DefaultEndpointWizard(props: DefaultEndpointWizardProps) {
                     </FormGroup>
                 </>
             )}
-            <FormGroup title="Basic Properties" isCollapsed={false}>
+            <FormGroup title="Basic Properties" isCollapsed={isTemplate}>
                 <TextField
                     placeholder="Endpoint Name"
                     label="Endpoint Name"
@@ -394,7 +470,7 @@ export function DefaultEndpointWizard(props: DefaultEndpointWizardProps) {
                     {...renderProps('statisticsEnabled')}
                 />
             </FormGroup>
-            <FormGroup title="Miscellaneous Properties" isCollapsed={false}>
+            <FormGroup title="Miscellaneous Properties" isCollapsed={true}>
                 <Dropdown label="Optimize" items={optimizeOptions} {...renderProps('optimize')} />
                 <TextField
                     placeholder="Description"
@@ -413,7 +489,7 @@ export function DefaultEndpointWizard(props: DefaultEndpointWizardProps) {
                         onChange={handleAdditionalPropertiesChange}/>
                 )}
             </FormGroup>
-            <FormGroup title="Quality of Service Properties" isCollapsed={false}>
+            <FormGroup title="Quality of Service Properties" isCollapsed={true}>
                 <RadioButtonGroup
                     label="Addressing"
                     options={[{content: "Enable", value: "enable"}, {content: "Disable", value: "disable"}]}
@@ -436,7 +512,7 @@ export function DefaultEndpointWizard(props: DefaultEndpointWizardProps) {
                     {...renderProps('securityEnabled')}
                 />
             </FormGroup>
-            <FormGroup title="Endpoint Error Handling" isCollapsed={false}>
+            <FormGroup title="Endpoint Error Handling" isCollapsed={true}>
                 <TextField
                     placeholder="304,305"
                     label="Suspend Error Codes"
@@ -479,6 +555,20 @@ export function DefaultEndpointWizard(props: DefaultEndpointWizardProps) {
                 />
                 <Dropdown label="Timeout Action" items={timeoutOptions} {...renderProps('timeoutAction')} />
             </FormGroup>
+            {isNewEndpoint && (
+                <>
+                    <FormCheckBox
+                        label="Save the sequence in registry"
+                        {...register("saveInReg")}
+                        control={control}
+                    />
+                    {watch("saveInReg") && (<>
+                        <AddToRegistry path={props.path}
+                                       fileName={isTemplate ? watch("templateName") : watch("endpointName")}
+                                       register={register} errors={errors} getValues={getValues} />
+                    </>)}
+                </>
+            )}
             <FormActions>
                 <Button
                     appearance="primary"

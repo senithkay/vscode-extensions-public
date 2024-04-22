@@ -15,7 +15,7 @@ export interface IOTypeRequest {
 
 export interface IOTypeResponse {
     inputTrees: DMType[];
-    outputTree: DMType;
+    outputTree: DMType | undefined;
 }
 
 export interface UpdateFileContentRequest {

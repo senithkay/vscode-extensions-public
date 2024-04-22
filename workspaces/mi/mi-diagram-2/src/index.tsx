@@ -8,3 +8,5 @@
  */
 
 export { Diagram } from "./components/Diagram";
+export * from "./components/Form";
+

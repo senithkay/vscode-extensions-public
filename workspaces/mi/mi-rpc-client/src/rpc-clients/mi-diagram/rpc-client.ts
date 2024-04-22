@@ -99,7 +99,7 @@ import {
     ImportProjectRequest,
     ImportProjectResponse,
     ListRegistryArtifactsRequest,
-    ListRegistryArtifactsResponse,
+    RegistryArtifactNamesResponse,
     MiDiagramAPI,
     MigrateProjectRequest,
     MigrateProjectResponse,
@@ -229,7 +229,13 @@ import {
     updateRecipientEndpoint,
     updateTemplateEndpoint,
     updateWsdlEndpoint,
-    writeContentToFile
+    writeContentToFile,
+    getAllArtifacts,
+    GetAllArtifactsRequest,
+    GetAllArtifactsResponse,
+    getAllRegistryPaths,
+    GetAllRegistryPathsRequest,
+    GetAllRegistryPathsResponse,
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -533,7 +539,7 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
         return this._messenger.sendRequest(getBackendRootUrl, HOST_EXTENSION);
     }
 
-    getAvailableRegistryResources(params: ListRegistryArtifactsRequest): Promise<ListRegistryArtifactsResponse> {
+    getAvailableRegistryResources(params: ListRegistryArtifactsRequest): Promise<RegistryArtifactNamesResponse> {
         return this._messenger.sendRequest(getAvailableRegistryResources, HOST_EXTENSION, params);
     }
 
@@ -583,5 +589,14 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     logoutFromMIAccount(): void {
         return this._messenger.sendNotification(logoutFromMIAccount, HOST_EXTENSION);
+    }
+    
+    getAllRegistryPaths(params: GetAllRegistryPathsRequest): Promise<GetAllRegistryPathsResponse> {
+        return this._messenger.sendRequest(getAllRegistryPaths, HOST_EXTENSION, params);
+    }
+
+    getAllArtifacts(params: GetAllArtifactsRequest): Promise<GetAllArtifactsResponse> {
+        return this._messenger.sendRequest(getAllArtifacts, HOST_EXTENSION, params);
+
     }
 }

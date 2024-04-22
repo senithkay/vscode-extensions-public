@@ -25,7 +25,7 @@ export function fetchIOTypes(filePath: string, functionName: string) {
         sourceFile = project.addSourceFileAtPath(resolvedPath);
         findInputsAndOutput(functionName);
     } catch (error: any) {
-        throw new Error("Error while creating input/output types. " + error.message);
+        throw new Error("[MI Data Mapper] Failed to fetch input/output types. " + error.message);
     }
 
     return { inputTypes, outputType };
@@ -35,14 +35,14 @@ export function getSourceCode(resolvedPath: string) {
     const sourceCode = ts.sys.readFile(resolvedPath, 'utf-8');
 
     if (!sourceCode) {
-        throw new Error("File not found.");
+        throw new Error("[MI Data Mapper] File not found.");
     }
     return sourceCode;
 }
 
 // Find inputs and output types
 function findInputsAndOutput(functionName: string) {
-    const fn = sourceFile.getFunction(functionName);
+    const fn = sourceFile.getFunctionOrThrow(functionName);
 
     if (fn) {
         fn.getParameters().forEach((param) => {

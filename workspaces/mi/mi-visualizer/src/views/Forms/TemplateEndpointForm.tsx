@@ -17,7 +17,7 @@ import * as yup from "yup";
 import { useForm } from "react-hook-form";
 import { TypeChip } from "./Commons";
 import AddToRegistry, { getArtifactNamesAndRegistryPaths, formatRegistryPath, saveToRegistry } from "./AddToRegistry";
-import { set } from "lodash";
+import { FormKeylookup } from "@wso2-enterprise/mi-diagram-2";
 
 const FieldGroup = styled.div`
     display: flex;
@@ -66,7 +66,6 @@ export function TemplateEndpointWizard(props: TemplateEndpointWizardProps) {
 
     const { rpcClient } = useVisualizerContext();
     const isNewEndpoint = !props.path.endsWith(".xml");
-    const [templates, setTemplates] = useState<string[]>([]);
     const [paramConfigs, setParamConfigs] = useState<any>({
         paramValues: [],
         paramFields: [
@@ -74,21 +73,22 @@ export function TemplateEndpointWizard(props: TemplateEndpointWizardProps) {
             { id: 2, type: "TextField", label: "Value", defaultValue: "", isRequired: true },
         ]
     });
-    const [existingEndpoints, setExistingEndpoints] = useState<string[]>([]);
-    const [existingArtifactNames, setExistingArtifactNames] = useState<string[]>([]);
     const [artifactNames, setArtifactNames] = useState([]);
     const [registryPaths, setRegistryPaths] = useState([]);
     const [savedEPName, setSavedEPName] = useState<string>("");
+    const [workspaceFileNames, setWorkspaceFileNames] = useState([]);
 
     const schema = yup.object({
-        name: yup.string().required("Endpoint name is required").matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in Endpoint name")
+        name: yup.string().required("Endpoint name is required")
+            .matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in Endpoint Name")
             .test('validateEndpointName',
-                'Endpoint file name already exists', value => {
-                    return !isNewEndpoint ? !(existingEndpoints.includes(value) && value !== savedEPName) : !existingEndpoints.includes(value);
-                }).test('validateEndpointName',
-                    'Endpoint artifact name already exists', value => {
-                        return !isNewEndpoint ? !(existingArtifactNames.includes(value) && value !== savedEPName) : !existingArtifactNames.includes(value);
-                    }),
+                'An artifact with same name already exists', value => {
+                    return !isNewEndpoint ? !(workspaceFileNames.includes(value) && value !== savedEPName) : !workspaceFileNames.includes(value);
+                })
+            .test('validateEndpointArtifactName',
+                'A registry resource with this artifact name already exists', value => {
+                    return !isNewEndpoint ? !(artifactNames.includes(value) && value !== savedEPName) : !artifactNames.includes(value);
+                }),
         uri: yup.string(),
         template: yup.string().required("Template is required"),
         description: yup.string(),
@@ -100,10 +100,15 @@ export function TemplateEndpointWizard(props: TemplateEndpointWizardProps) {
             then: () =>
                 yup.string().notRequired(),
             otherwise: () =>
-                yup.string().required("Artifact Name is required").test('validateArtifactName',
-                    'Artifact name already exists', value => {
-                        return !artifactNames.includes(value);
-                    }),
+                yup.string().required("Artifact Name is required")
+                    .test('validateArtifactName',
+                        'Artifact name already exists', value => {
+                            return !artifactNames.includes(value);
+                        })
+                    .test('validateFileName',
+                        'A file already exists in the workspace with this artifact name', value => {
+                            return !workspaceFileNames.includes(value);
+                        }),
         }),
         registryPath: yup.string().when('saveInReg', {
             is: false,
@@ -133,8 +138,6 @@ export function TemplateEndpointWizard(props: TemplateEndpointWizardProps) {
         mode: "onChange"
     });
 
-
-
     useEffect(() => {
         if (!isNewEndpoint) {
             (async () => {
@@ -160,39 +163,13 @@ export function TemplateEndpointWizard(props: TemplateEndpointWizardProps) {
             })();
         }
         (async () => {
-            const endpointResponse = await rpcClient.getMiDiagramRpcClient().getAvailableResources({
-                documentIdentifier: props.path,
-                resourceType: "endpoint",
-            });
-            let endpointNamesArr = [];
-            if (endpointResponse.resources) {
-                const endpointNames = endpointResponse.resources.map((resource) => resource.name);
-                setExistingArtifactNames(endpointNames);
-                const epPaths = endpointResponse.resources.map((resource) => resource.artifactPath.replace(".xml", ""));
-                endpointNamesArr.push(...epPaths);
-            }
-            if (endpointResponse.registryResources) {
-                const registryKeys = endpointResponse.registryResources.map((resource) => resource.registryKey);
-                endpointNamesArr.push(...registryKeys);
-            }
-            setExistingEndpoints(endpointNamesArr);
             const result = await getArtifactNamesAndRegistryPaths(props.path, rpcClient);
             setArtifactNames(result.artifactNamesArr);
             setRegistryPaths(result.registryPaths);
-            let templates = [];
-            const response = await rpcClient.getMiDiagramRpcClient().getAvailableResources({
-                documentIdentifier: props.path,
-                resourceType: "endpointTemplate",
+            const artifactRes = await rpcClient.getMiDiagramRpcClient().getAllArtifacts({
+                path: props.path,
             });
-            if (response.resources) {
-                const endpointNames = response.resources.map((resource) => resource.name);
-                templates.push(...endpointNames);
-            }
-            if (response.registryResources) {
-                const registryKeys = response.registryResources.map((resource) => resource.registryKey);
-                templates.push(...registryKeys);
-            }
-            setTemplates(templates);
+            setWorkspaceFileNames(artifactRes.artifacts);
         })();
     }, [props.path]);
 
@@ -220,8 +197,7 @@ export function TemplateEndpointWizard(props: TemplateEndpointWizardProps) {
 
         setValue('parameters', config.paramValues.map((param: any) => ({
             name: param.parameters[0].value,
-            value: param.parameters[1].value,
-            scope: param.parameters[2].value ?? 'default',
+            value: param.parameters[1].value
         })), { shouldDirty: true });
     }
 
@@ -274,12 +250,12 @@ export function TemplateEndpointWizard(props: TemplateEndpointWizardProps) {
                     placeholder="Uri"
                     {...renderProps("uri")}
                 />
-                <FormAutoComplete
-                    label="Template"
-                    required={false}
-                    isNullable={true}
-                    items={templates}
+                <FormKeylookup
                     control={control}
+                    label="Template"
+                    name="template"
+                    filterType="endpointTemplate"
+                    path={props.path}
                     {...renderProps("template")}
                 />
                 <TextField

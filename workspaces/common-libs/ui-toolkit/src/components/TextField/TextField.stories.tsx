@@ -14,6 +14,13 @@ import React from "react";
 import { ComponentStory } from "@storybook/react";
 import { TextField, TextFieldProps } from "./TextField";
 import { Codicon } from "../Codicon/Codicon";
+import { Icon } from "../Icon/Icon";
+
+const labelAdornment = (
+    <div style={{display: "flex", justifyContent: "flex-end", flexGrow: 1}}>
+        <Icon isCodicon name="plus"/>
+    </div>
+)
 
 const Template: ComponentStory<typeof TextField> = (args: TextFieldProps) => <TextField {...args} ref={undefined}/>;
 
@@ -44,5 +51,8 @@ TextFieldWithCustomDescription.args = { value: "Sample Text", label: "TextField"
         <div style={{color: "var(--vscode-button-background)", marginLeft: 4}}>Click Here</div>
     </div>
 ), autoFocus: true, placeholder: "placeholder", onTextChange: (txt: string) => {console.log("Text Changed: ", txt)} };
+
+export const TextFieldWithLabelAdornment = Template.bind();
+TextFieldWithLabelAdornment.args = { value: "Sample Text", label: "TextField", errorMsg: "Test Error", description: "This is a sample text field component", autoFocus: true, placeholder: "placeholder", labelAdornment: labelAdornment, onTextChange: (txt: string) => {console.log("Text Changed: ", txt)} };
 
 export default { component: TextField, title: "TextField" };
