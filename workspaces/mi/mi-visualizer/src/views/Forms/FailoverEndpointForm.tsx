@@ -81,6 +81,7 @@ export function FailoverWizard(props: FailoverWizardProps) {
     const [showAddNewEndpointView, setShowAddNewEndpointView] = useState<boolean>(false);
     const [newEndpoint, setNewEndpoint] = useState<Endpoint>(initialInlineEndpoint);
     const [savedEPName, setSavedEPName] = useState<string>("");
+    const [endpointsUpdated, setEndpointsUpdated] = useState(false);
     const [workspaceFileNames, setWorkspaceFileNames] = useState([]);
 
     const schema = yup.object({
@@ -157,6 +158,7 @@ export function FailoverWizard(props: FailoverWizardProps) {
                 const { endpoints, ...endpoint } = await rpcClient.getMiDiagramRpcClient().getFailoverEndpoint({ path: props.path });
 
                 reset(endpoint);
+                setSavedEPName(endpoint.name);
                 setEndpoints(endpoints);
 
                 setParamConfigs((prev: any) => {
@@ -214,6 +216,7 @@ export function FailoverWizard(props: FailoverWizardProps) {
         setEndpoints((prev: any) => [...prev, newEndpoint]);
         setShowAddNewEndpointView(false);
         setNewEndpoint(initialInlineEndpoint);
+        setEndpointsUpdated(true);
     }
 
     const handleParamChange = (config: any) => {
@@ -305,6 +308,7 @@ export function FailoverWizard(props: FailoverWizardProps) {
                         <EndpointList
                             endpoints={endpoints}
                             setEndpoints={setEndpoints}
+                            setEndpointUpdated={setEndpointsUpdated}
                         />
                     )}
                     {showAddNewEndpointView && (
@@ -340,7 +344,7 @@ export function FailoverWizard(props: FailoverWizardProps) {
                 <Button
                     appearance="primary"
                     onClick={handleSubmit(handleUpdateEndpoint)}
-                    disabled={!isDirty}
+                    disabled={!(isDirty || endpointsUpdated)}
                 >
                     {isNewEndpoint ? "Create" : "Save Changes"}
                 </Button>

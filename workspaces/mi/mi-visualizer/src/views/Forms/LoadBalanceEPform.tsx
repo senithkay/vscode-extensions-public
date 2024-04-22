@@ -88,6 +88,7 @@ export function LoadBalanceWizard(props: LoadBalanceWizardProps) {
     const [artifactNames, setArtifactNames] = useState([]);
     const [registryPaths, setRegistryPaths] = useState([]);
     const [savedEPName, setSavedEPName] = useState<string>("");
+    const [endpointsUpdated, setEndpointsUpdated] = useState(false);
     const [workspaceFileNames, setWorkspaceFileNames] = useState([]);
 
     const schema = yup.object({
@@ -241,6 +242,7 @@ export function LoadBalanceWizard(props: LoadBalanceWizardProps) {
         setEndpoints((prev: any) => [...prev, newEndpoint]);
         setShowAddNewEndpointView(false);
         setNewEndpoint(initialInlineEndpoint);
+        setEndpointsUpdated(true);
     }
 
     const handleParamChange = (config: any) => {
@@ -342,6 +344,7 @@ export function LoadBalanceWizard(props: LoadBalanceWizardProps) {
                         <EndpointList
                             endpoints={endpoints}
                             setEndpoints={setEndpoints}
+                            setEndpointUpdated={setEndpointsUpdated}
                         />
                     )}
                     {showAddNewEndpointView && (
@@ -390,7 +393,7 @@ export function LoadBalanceWizard(props: LoadBalanceWizardProps) {
                 <Button
                     appearance="primary"
                     onClick={handleSubmit(handleUpdateEndpoint)}
-                    disabled={!isDirty}
+                    disabled={!(isDirty || endpointsUpdated)}
                 >
                     {isNewEndpoint ? "Create" : "Save Changes"}
                 </Button>
