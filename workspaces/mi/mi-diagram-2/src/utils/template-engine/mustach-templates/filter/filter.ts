@@ -60,6 +60,9 @@ export function getFilterFormDataFromSTNode(data: { [key: string]: any }, node: 
 }
 
 export function getFilterDescription(node: Filter) {
+    if (node.regex && node.source) {
+        return `${node.source} matches ${node.regex}`;
+    }
     if (node.regex) {
         return node.regex;
     } else if (node.source) {
