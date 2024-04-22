@@ -248,6 +248,21 @@ const AddConnector = (props: AddConnectorProps) => {
                         </div>
                     </>
                 );
+            case 'comboOrExpression':
+                return (
+                    <>
+                        <label>{element.displayName}</label> {element.required && <RequiredFormInput />}
+                        <AutoComplete
+                            items={element.comboValues}
+                            value={formValues[element.name]}
+                            onValueChange={(e: any) => {
+                                setFormValues({ ...formValues, [element.name]: e });
+                                formValidators[element.name](e);
+                            }}
+                            required={element.required === 'true'} />
+                    </>
+
+                );
             case 'connection':
                 formValues[element.name] = formValues[element.name] ?? element.allowedConnectionTypes[0];
                 return (<>
