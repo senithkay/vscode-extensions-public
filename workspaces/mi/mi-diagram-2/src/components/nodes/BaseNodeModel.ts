@@ -83,6 +83,7 @@ export class BaseNodeModel extends NodeModel {
     }
 
     async onClicked(e: any, node: BaseNodeModel, rpcClient: RpcClient, sidePanelContext: SidePanelContext, operationName: string = this.mediatorName, stNode: STNode = this.stNode) {
+        e.stopPropagation();
         const nodeRange = { start: stNode.range.startTagRange.start, end: stNode.range.endTagRange.end || stNode.range.startTagRange.end };
         if (e.ctrlKey || e.metaKey) {
             // open code and highlight the selected node
@@ -142,6 +143,7 @@ export const Header = styled.div<{ showBorder: boolean }>`
 export const Description = styled.div`
     color: ${Colors.ON_SURFACE};
     max-width: 90px;
+    width: 90px;
     overflow: hidden;
     text-overflow: ellipsis;
     display: -webkit-box;
