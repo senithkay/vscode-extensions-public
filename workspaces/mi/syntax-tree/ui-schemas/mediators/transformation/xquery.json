@@ -77,114 +77,114 @@
                   "value": {
                     "name": "variables",
                     "displayName": "Variables",
-                    "form": {
-                      "title": "XQuery Variable",
-                      "description": "Editing of the properties of an object XQuery Variable",
-                      "elements": [
-                        {
-                          "type": "attributeGroup",
-                          "value": {
-                            "groupName": "Properties",
-                            "elements": [
-                              {
-                                "type": "attribute",
-                                "value": {
-                                  "name": "variableName",
-                                  "displayName": "Variable Name",
-                                  "inputType": "string",
-                                  "defaultValue": "",
-                                  "required": false,
-                                  "helpTip": ""
-                                }
-                              },
-                              {
-                                "type": "attribute",
-                                "value": {
-                                  "name": "variableType",
-                                  "displayName": "Variable Type",
-                                  "inputType": "combo",
-                                  "defaultValue": "STRING",
-                                  "comboValues": [
-                                    "DOCUMENT",
-                                    "DOCUMENT_ELEMENT",
-                                    "ELEMENT",
-                                    "INT",
-                                    "INTEGER",
-                                    "BOOLEAN",
-                                    "BYTE",
-                                    "DOUBLE",
-                                    "SHORT",
-                                    "LONG",
-                                    "FLOAT",
-                                    "STRING"
-                                  ],
-                                  "required": false,
-                                  "helpTip": ""
-                                }
-                              },
-                              {
-                                "type": "attribute",
-                                "value": {
-                                  "name": "variableOption",
-                                  "displayName": "Variable Option",
-                                  "inputType": "combo",
-                                  "defaultValue": "LITERAL",
-                                  "comboValues": [
-                                    "LITERAL",
-                                    "EXPRESSION"
-                                  ],
-                                  "required": false,
-                                  "helpTip": ""
-                                }
-                              },
-                              {
-                                "type": "attribute",
-                                "value": {
-                                  "name": "variableLiteral",
-                                  "displayName": "Variable Literal",
-                                  "inputType": "string",
-                                  "defaultValue": "",
-                                  "required": false,
-                                  "helpTip": "",
-                                  "enableCondition": [
-                                    {
-                                      "variableType": "LITERAL"
-                                    }
-                                  ]
-                                }
-                              },
-                              {
-                                "type": "attribute",
-                                "value": {
-                                  "name": "variableExpression",
-                                  "displayName": "Variable Expression",
-                                  "inputType": "expression",
-                                  "defaultValue": "",
-                                  "required": false,
-                                  "helpTip": "",
-                                  "enableCondition": [
-                                    {
-                                      "variableType": "EXPRESSION"
-                                    }
-                                  ]
-                                }
-                              },
-                              {
-                                "type": "attribute",
-                                "value": {
-                                  "name": "variableKey",
-                                  "displayName": "Variable Key",
-                                  "inputType": "registry",
-                                  "defaultValue": "",
-                                  "required": false,
-                                  "helpTip": ""
-                                }
+                    "title": "XQuery Variable",
+                    "description": "Editing of the properties of an object XQuery Variable",
+                    "tableKey": "variableName",
+                    "tableValue": "variableLiteral",
+                    "elements": [
+                      {
+                        "type": "attributeGroup",
+                        "value": {
+                          "groupName": "Properties",
+                          "elements": [
+                            {
+                              "type": "attribute",
+                              "value": {
+                                "name": "variableName",
+                                "displayName": "Variable Name",
+                                "inputType": "string",
+                                "defaultValue": "",
+                                "required": false,
+                                "helpTip": ""
                               }
-                            ]
-                          }
+                            },
+                            {
+                              "type": "attribute",
+                              "value": {
+                                "name": "variableType",
+                                "displayName": "Variable Type",
+                                "inputType": "combo",
+                                "defaultValue": "STRING",
+                                "comboValues": [
+                                  "DOCUMENT",
+                                  "DOCUMENT_ELEMENT",
+                                  "ELEMENT",
+                                  "INT",
+                                  "INTEGER",
+                                  "BOOLEAN",
+                                  "BYTE",
+                                  "DOUBLE",
+                                  "SHORT",
+                                  "LONG",
+                                  "FLOAT",
+                                  "STRING"
+                                ],
+                                "required": false,
+                                "helpTip": ""
+                              }
+                            },
+                            {
+                              "type": "attribute",
+                              "value": {
+                                "name": "variableOption",
+                                "displayName": "Variable Option",
+                                "inputType": "combo",
+                                "defaultValue": "LITERAL",
+                                "comboValues": [
+                                  "LITERAL",
+                                  "EXPRESSION"
+                                ],
+                                "required": false,
+                                "helpTip": ""
+                              }
+                            },
+                            {
+                              "type": "attribute",
+                              "value": {
+                                "name": "variableLiteral",
+                                "displayName": "Variable Literal",
+                                "inputType": "string",
+                                "defaultValue": "",
+                                "required": false,
+                                "helpTip": "",
+                                "enableCondition": [
+                                  {
+                                    "variableType": "LITERAL"
+                                  }
+                                ]
+                              }
+                            },
+                            {
+                              "type": "attribute",
+                              "value": {
+                                "name": "variableExpression",
+                                "displayName": "Variable Expression",
+                                "inputType": "expression",
+                                "defaultValue": "",
+                                "required": false,
+                                "helpTip": "",
+                                "enableCondition": [
+                                  {
+                                    "variableType": "EXPRESSION"
+                                  }
+                                ]
+                              }
+                            },
+                            {
+                              "type": "attribute",
+                              "value": {
+                                "name": "variableKey",
+                                "displayName": "Variable Key",
+                                "inputType": "registry",
+                                "defaultValue": "",
+                                "required": false,
+                                "helpTip": ""
+                              }
+                            }
+                          ]
                         }
-                      ]
-                    }
+                      }
+                    ]
                   }
                 }
               ]
