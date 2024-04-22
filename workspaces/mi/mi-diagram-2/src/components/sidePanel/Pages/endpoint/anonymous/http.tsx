@@ -165,28 +165,32 @@ const HTTPEndpointForm = (props: AddMediatorProps) => {
     const [propertyParams, setPropertyParams] = useState(propertyParamConfigs);
 
     const handleOnChangeProperties = (params: any) => {
-        const modifiedParams = { ...params, paramValues: params.paramValues.map((param: any) => {
-            return {
-                ...param,
-                key: param.parameters[0].value,
-                value: generateDisplayValue(param),
-                icon: "query"
-            }
-        })};
+        const modifiedParams = {
+            ...params, paramValues: params.paramValues.map((param: any) => {
+                return {
+                    ...param,
+                    key: param.parameters[0].value,
+                    value: generateDisplayValue(param),
+                    icon: "query"
+                }
+            })
+        };
         setPropertyParams(modifiedParams);
     };
 
     const [oauthParams, setOauthParams] = useState(oauthParamConfigs);
 
     const handleOnChangeOauth = (params: any) => {
-        const modifiedParams = { ...params, paramValues: params.paramValues.map((param: any) => {
-            return {
-                ...param,
-                key: param.parameters[0].value,
-                value: param.parameters[1].value,
-                icon: "query"
-            }
-        })};
+        const modifiedParams = {
+            ...params, paramValues: params.paramValues.map((param: any) => {
+                return {
+                    ...param,
+                    key: param.parameters[0].value,
+                    value: param.parameters[1].value,
+                    icon: "query"
+                }
+            })
+        };
         setOauthParams(modifiedParams);
     };
 
@@ -317,20 +321,14 @@ const HTTPEndpointForm = (props: AddMediatorProps) => {
             }
         });
 
-        formValues["properties"] = propertyParams.paramValues.map(param => param.parameters.slice(0, 5).map(p => p.value));
+        formValues["properties"] = propertyParams.paramValues.map(param => param.paramValues.slice(0, 5).map(p => p.value));
         propertyParams.paramValues.forEach(param => {
-            param.parameters.slice(0, 5).forEach(p => {
-                let key = p.label.toLowerCase().replace(/\s/g, '');
-                formValues[key] = p.value;
-            });
+            formValues[param.key] = param.value;
         });
 
-        formValues["oauthParameters"] = oauthParams.paramValues.map(param => param.parameters.slice(0, 5).map(p => p.value));
+        formValues["oauthParameters"] = oauthParams.paramValues.map(param => param.paramValues.slice(0, 5).map(p => p.value));
         propertyParams.paramValues.forEach(param => {
-            param.parameters.slice(0, 5).forEach(p => {
-                let key = p.label.toLowerCase().replace(/\s/g, '');
-                formValues[key] = p.value;
-            });
+            formValues[param.key] = param.value;
         });
 
         if (Object.keys(newErrors).length > 0) {
@@ -671,13 +669,13 @@ const HTTPEndpointForm = (props: AddMediatorProps) => {
                                 <ComponentCard sx={cardStyle} disbaleHoverEffect>
                                     <h3>OAuth Parameters</h3>
 
-                                {formValues["oauthParameters"] && (
-                                    <ParamManager
-                                        paramConfigs={oauthParams}
-                                        readonly={false}
-                                        onChange={handleOnChangeOauth} />
-                                )}
-                            </ComponentCard>}
+                                    {formValues["oauthParameters"] && (
+                                        <ParamManager
+                                            paramConfigs={oauthParams}
+                                            readonly={false}
+                                            onChange={handleOnChangeOauth} />
+                                    )}
+                                </ComponentCard>}
                         </ComponentCard>
 
                         <ComponentCard sx={cardStyle} disbaleHoverEffect>
