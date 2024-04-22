@@ -100,7 +100,7 @@ export function AddressEndpointWizard(props: AddressEndpointWizardProps) {
 
     const schema = yup.object({
         endpointName: props.type === 'endpoint' ? yup.string().required("Endpoint Name is required")
-                .matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in Endpoint Name")
+                .matches(/^[^@\\^+;:!%&,=*#[\]?'"<>{}() /]*$/, "Invalid characters in Endpoint Name")
                 .test('validateEndpointName',
                     'An artifact with same name already exists', value => {
                         return !isNewEndpoint ? !(workspaceFileNames.includes(value) && value !== savedEPName) : !workspaceFileNames.includes(value);
@@ -110,13 +110,13 @@ export function AddressEndpointWizard(props: AddressEndpointWizardProps) {
                         return !isNewEndpoint ? !(artifactNames.includes(value) && value !== savedEPName) : !artifactNames.includes(value);
                     }) :
             yup.string().required("Endpoint Name is required")
-                .matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in Endpoint Name"),
+                .matches(/^[^@\\^+;:!%&,=*#[\]?'"<>{}() /]*$/, "Invalid characters in Endpoint Name"),
         format: yup.string().notRequired().default("LEAVE_AS_IS"),
         traceEnabled: yup.string().notRequired().default("disable"),
         statisticsEnabled: yup.string().notRequired().default("disable"),
         uri: yup.string().required("Address Endpoint URI is required")
-            .matches(/^\{.+\}$|^(https?|ftp):\/\/(([a-z\d]([a-z\d-]*[a-z\d])?\.)+[a-z]{2,}|localhost(:[\d]*)?)(\/[-a-z\d%_.~+]*)*(\?[;&a-z\d%_.~+=-]*)?(\#[-a-z\d_]*)?$/i,
-                "Invalid URI template format"),
+            .matches(/^\$.+$|^\{.+\}$|^(https?|ftp):\/\/(([a-z\d]([a-z\d-]*[a-z\d])?\.)+[a-z]{2,}|localhost(:[\d]*)?)(\/[-a-z\d%_.~+]*)*(\?[;&a-z\d%_.~+=-]*)?(\#[-a-z\d_]*)?$/i,
+                "Invalid URI format"),
         optimize: yup.string().notRequired().default("LEAVE_AS_IS"),
         description: yup.string().notRequired().default(""),
         requireProperties: yup.boolean().notRequired().default(false),
@@ -138,7 +138,7 @@ export function AddressEndpointWizard(props: AddressEndpointWizardProps) {
         timeoutDuration: yup.number().typeError('Timeout Duration must be a number').min(1, "Timeout Duration must be greater than 0").notRequired().default(Number.MAX_SAFE_INTEGER),
         timeoutAction: yup.string().notRequired().default(""),
         templateName: props.type === 'template' ? yup.string().required("Template Name is required")
-                .matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in Template Name")
+                .matches(/^[^@\\^+;:!%&,=*#[\]?'"<>{}() /]*$/, "Invalid characters in Template Name")
                 .test('validateTemplateName',
                     'An artifact with same name already exists', value => {
                         return !isNewEndpoint ? !(workspaceFileNames.includes(value) && value !== savedEPName) : !workspaceFileNames.includes(value);
@@ -468,7 +468,7 @@ export function AddressEndpointWizard(props: AddressEndpointWizardProps) {
                     </FormGroup>
                 </>
             )}
-            <FormGroup title="Basic Properties" isCollapsed={isTemplate}>
+            <FormGroup title="Basic Properties" isCollapsed={false}>
                 <TextField
                     placeholder="Endpoint Name"
                     label="Endpoint Name"

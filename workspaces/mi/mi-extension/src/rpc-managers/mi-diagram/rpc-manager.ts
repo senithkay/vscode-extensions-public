@@ -179,6 +179,7 @@ import { rootPomXmlContent } from "../../util/templates";
 import { replaceFullContentToFile } from "../../util/workspace";
 import { VisualizerWebview } from "../../visualizer/webview";
 import { StateMachineAI } from '../../ai-panel/aiMachine';
+import fetch from 'node-fetch';
 import path = require("path");
 
 const { XMLParser, XMLBuilder } = require("fast-xml-parser");
@@ -321,7 +322,15 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
     </api>`;
 
             const filePath = path.join(directory, `${name}.xml`);
-            fs.writeFileSync(filePath, xmlData);
+            const sanitizedXmlData = xmlData.replace(/^\s*[\r\n]/gm, '');
+            fs.writeFileSync(filePath, sanitizedXmlData);
+            await this.rangeFormat({
+                uri: filePath,
+                range: {
+                    start: { line: 0, character: 0 },
+                    end: { line: sanitizedXmlData.split('\n').length + 1, character: 0 }
+                }
+            });
             commands.executeCommand(COMMANDS.REFRESH_COMMAND);
             resolve({ path: filePath });
         });
@@ -783,6 +792,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             const getTemplateParams = params;
 
             const xmlData = getMessageStoreXmlWrapper(getTemplateParams);
+            const sanitizedXmlData = xmlData.replace(/^\s*[\r\n]/gm, '');
             let filePath = params.directory;
 
             if (filePath.includes('messageStores')) {
@@ -794,7 +804,14 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 filePath = path.join(filePath, `${params.name}.xml`);
             }
 
-            fs.writeFileSync(filePath, xmlData);
+            fs.writeFileSync(filePath, sanitizedXmlData);
+            await this.rangeFormat({
+                uri: filePath,
+                range: {
+                    start: { line: 0, character: 0 },
+                    end: { line: sanitizedXmlData.split('\n').length + 1, character: 0 }
+                }
+            });
             commands.executeCommand(COMMANDS.REFRESH_COMMAND);
             resolve({ path: filePath });
         });
@@ -1444,7 +1461,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     retryErrorCodes: suspensionParams.errorCodes != undefined ? suspensionParams.errorCodes.textNode : '',
                     retryCount: suspensionParams.retriesBeforeSuspension != undefined ? suspensionParams.retriesBeforeSuspension.textNode : 0,
                     retryDelay: suspensionParams.retryDelay != undefined ? suspensionParams.retryDelay.textNode : 0,
-                    timeoutDuration: (timeoutParams != undefined && timeoutParams.content[0] != undefined) ? timeoutParams.content[0].textNode : 0,
+                    timeoutDuration: (timeoutParams != undefined && timeoutParams.content[0] != undefined) ? timeoutParams.content[0].textNode : Number.MAX_SAFE_INTEGER,
                     timeoutAction: (timeoutParams != undefined && timeoutParams.content[1] != undefined) ? timeoutParams.content[1].textNode : '',
                     templateName: templateParams != null ? templateParams.name : '',
                     requireTemplateParameters: false,
@@ -1718,7 +1735,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     retryErrorCodes: suspensionParams.errorCodes != undefined ? suspensionParams.errorCodes.textNode : '',
                     retryCount: suspensionParams.retriesBeforeSuspension != undefined ? suspensionParams.retriesBeforeSuspension.textNode : 0,
                     retryDelay: suspensionParams.retryDelay != undefined ? suspensionParams.retryDelay.textNode : 0,
-                    timeoutDuration: (timeoutParams != undefined && timeoutParams.content[0] != undefined) ? timeoutParams.content[0].textNode : 0,
+                    timeoutDuration: (timeoutParams != undefined && timeoutParams.content[0] != undefined) ? timeoutParams.content[0].textNode : Number.MAX_SAFE_INTEGER,
                     timeoutAction: (timeoutParams != undefined && timeoutParams.content[1] != undefined) ? timeoutParams.content[1].textNode : '',
                     templateName: templateParams != null ? templateParams.name : '',
                     requireTemplateParameters: false,
@@ -2969,10 +2986,21 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
     async logoutFromMIAccount(): Promise<void> {
         const confirm = await window.showInformationMessage('Are you sure you want to logout?', 'Yes', 'No');
         if (confirm === 'Yes') {
+            const token = await extension.context.secrets.get('MIAIUser');
+            const clientId = 'rTEgoRFEQMc1baXcsO6_AU1ugjAa';
+    
+            await fetch('https://api.asgardeo.io/t/wso2midev/oauth2/revoke', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: `token=${token}&client_id=${clientId}`
+            });
+    
             await extension.context.secrets.delete('MIAIUser');
             await extension.context.secrets.delete('MIAIRefreshToken');
             StateMachineAI.sendEvent(AI_EVENT_TYPE.LOGOUT);
-        }else {
+        } else {
             return;
         }
     }
