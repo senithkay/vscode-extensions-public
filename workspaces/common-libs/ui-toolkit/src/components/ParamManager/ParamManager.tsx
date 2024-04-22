@@ -17,9 +17,10 @@ import { Codicon } from '../Codicon/Codicon';
 import { Param } from './TypeResolver';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
+import { ExpressionFieldValue } from '../ExpressionField/ExpressionInput';
 
 export interface ParamValue {
-    value: (string | boolean);
+    value: string | boolean | ExpressionFieldValue;
     isEnabled?: boolean;
 }
 
@@ -54,6 +55,8 @@ export interface ParamField {
     isRequired?: boolean;
     values?: string[]; // For Dropdown
     enableCondition?: (ConditionParams | string)[];
+    openExpressionEditor?: () => void; // For ExpressionField
+    canChange?: boolean; // For ExpressionField
 }
 
 export interface ParamConfig {
@@ -114,7 +117,7 @@ export function isFieldEnabled(params: Param[], enableCondition?: EnableConditio
         });
     });
     enableCondition["AND"]?.forEach(item => {
-        paramEnabled = !paramEnabled ? false : paramEnabled; 
+        paramEnabled = !paramEnabled ? false : paramEnabled;
         for (const par of params) {
             if (item[par.id]) {
                 const satisfiedConditionValue = item[par.id];
@@ -159,7 +162,7 @@ const getNewParam = (fields: ParamField[], index: number): Parameters => {
             type: field.type,
             value: field.defaultValue,
             values: field.values,
-            isRequired: field.isRequired,            
+            isRequired: field.isRequired,
             enableCondition: field.enableCondition ? convertToObject(field.enableCondition) : undefined
         });
     });
@@ -209,8 +212,18 @@ const getParamFieldEnableConditionFromParamId = (paramFields: ParamField[], para
     return enableCondition === null ? undefined : enableCondition;
 }
 
+const getParamFieldOpenExpressionEditorFromParamId = (paramFields: ParamField[], paramId: number) => {
+    const paramField = paramFields[paramId];
+    return paramField?.openExpressionEditor;
+}
+
+const getPramFieldCanChangeFromParamId = (paramFields: ParamField[], paramId: number) => {
+    const paramField = paramFields[paramId];
+    return paramField?.canChange;
+}
+
 export function ParamManager(props: ParamManagerProps) {
-    const { paramConfigs , readonly, onChange } = props;
+    const { paramConfigs, readonly, onChange } = props;
     const [editingSegmentId, setEditingSegmentId] = useState<number>(-1);
     const [isNew, setIsNew] = useState(false);
 
@@ -220,7 +233,7 @@ export function ParamManager(props: ParamManagerProps) {
 
     const paramValues: Parameters[] = paramConfigs.paramValues.map(paramValue => {
         const params: Param[] = paramValue.paramValues.map((paramVal, id) => {
-            const param: Param = { 
+            const param: Param = {
                 id: id,
                 label: getParamFieldLabelFromParamId(paramConfigs.paramFields, id),
                 type: getParamFieldTypeFromParamId(paramConfigs.paramFields, id),
@@ -229,6 +242,8 @@ export function ParamManager(props: ParamManagerProps) {
                 isRequired: getParamFieldIsRequiredFromParamId(paramConfigs.paramFields, id),
                 values: getParamFieldValuesFromParamId(paramConfigs.paramFields, id),
                 enableCondition: getParamFieldEnableConditionFromParamId(paramConfigs.paramFields, id),
+                openExpressionEditor: getParamFieldOpenExpressionEditorFromParamId(paramConfigs.paramFields, id),
+                canChange: getPramFieldCanChangeFromParamId(paramConfigs.paramFields, id)
             };
             return param;
         });
@@ -313,7 +328,7 @@ export function ParamManager(props: ParamManagerProps) {
 
     const paramComponents: React.ReactElement[] = [];
     paramValues
-        .forEach((param , index) => {
+        .forEach((param, index) => {
             if (editingSegmentId === index) {
                 paramComponents.push(
                     <ParamEditor

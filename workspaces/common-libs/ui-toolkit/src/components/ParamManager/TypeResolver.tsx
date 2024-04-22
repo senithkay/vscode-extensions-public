@@ -13,18 +13,21 @@ import { Dropdown } from "../Dropdown/Dropdown";
 import { VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
 import { TextArea } from "../TextArea/TextArea";
 import { EnableCondition } from "./ParamManager";
+import { ExpressionField, ExpressionFieldValue } from "../ExpressionField/ExpressionInput";
 
 export interface Param {
     id: number;
     label: string;
-    type: "TextField" | "Dropdown" | "Checkbox" | "TextArea";
-    value: string | boolean; // Boolean is for Checkbox
+    type: "TextField" | "Dropdown" | "Checkbox" | "TextArea" | "ExprField";
+    value: string | boolean | ExpressionFieldValue; // Boolean is for Checkbox
     isRequired?: boolean;
     errorMessage?: string;
     disabled?: boolean;
     isEnabled?: boolean;
     enableCondition?: EnableCondition;
     values?: string[]; // For Dropdown
+    openExpressionEditor?: () => void; // For ExpressionField
+    canChange?: boolean; // For ExpressionField
 }
 
 interface TypeResolverProps {
@@ -34,7 +37,7 @@ interface TypeResolverProps {
 
 export function TypeResolver(props: TypeResolverProps) {
     const { param, onChange } = props;
-    const { id, label, type, value, isRequired, values, disabled, errorMessage  } = param;
+    const { id, label, type, value, isRequired, values, disabled, errorMessage, openExpressionEditor, canChange } = param;
 
     const handleOnChange = (newValue: string | boolean) => {
         onChange({ ...param, value: newValue }, param.enableCondition);
@@ -55,7 +58,7 @@ export function TypeResolver(props: TypeResolverProps) {
         case "TextField":
             return (
                 <TextField
-                    sx={{marginBottom: 5}}
+                    sx={{ marginBottom: 5 }}
                     id={`txt-field-${id}`}
                     label={label}
                     value={value as string}
@@ -81,7 +84,7 @@ export function TypeResolver(props: TypeResolverProps) {
             );
         case "Checkbox":
             return (
-                <div style={{marginBottom: 5}}>
+                <div style={{ marginBottom: 5 }}>
                     <VSCodeCheckbox
                         id={`checkbox-${id}`}
                         checked={value as boolean}
@@ -95,13 +98,27 @@ export function TypeResolver(props: TypeResolverProps) {
         case "TextArea":
             return (
                 <TextArea
-                    sx={{marginBottom: 5, width: 200}}
+                    sx={{ marginBottom: 5, width: 200 }}
                     id={`txt-area-${id}`}
                     value={value as string}
                     disabled={disabled}
                     label={label}
                     errorMsg={errorMessage}
                     onTextChange={handleOnChange}
+                />
+            );
+        case "ExprField":
+            return (
+                <ExpressionField
+                    sx={{ marginBottom: 5 }}
+                    id={`txt-area-${id}`}
+                    value={value as ExpressionFieldValue}
+                    openExpressionEditor={openExpressionEditor}
+                    disabled={disabled}
+                    label={label}
+                    errorMsg={errorMessage}
+                    onChange={handleOnChange}
+                    canChange={canChange}
                 />
             );
         default:
