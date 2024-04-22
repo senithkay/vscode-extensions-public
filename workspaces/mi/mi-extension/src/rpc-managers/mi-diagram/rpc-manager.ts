@@ -999,6 +999,10 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     params[param["@_name"]] = param["#text"] ?? param["@_key"];
                 });
 
+                if (jsonData.inboundEndpoint["@_class"]) {
+                    params["class"] = jsonData.inboundEndpoint["@_class"];
+                }
+
                 const response: GetInboundEndpointResponse = {
                     name: jsonData.inboundEndpoint["@_name"],
                     type: isWso2Mb ? 'wso2_mb' : jsonData.inboundEndpoint["@_protocol"] ?? 'custom',
