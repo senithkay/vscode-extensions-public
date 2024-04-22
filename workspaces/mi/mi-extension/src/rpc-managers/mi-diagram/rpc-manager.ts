@@ -1047,7 +1047,6 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             const { directory, ...templateParams } = params;
 
             let filePath: string = directory;
-            let isNew = true;
             templateParams.type = templateParams.type.toLowerCase();
 
             if (filePath.includes('inboundEndpoints')) {
@@ -1055,12 +1054,11 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             }
 
             if (filePath.endsWith('.xml')) {
-                isNew = false;
             } else {
                 filePath = path.join(filePath, `${templateParams.name}.xml`);
             }
 
-            const xmlData = getInboundEndpointXmlWrapper(isNew, templateParams);
+            const xmlData = getInboundEndpointXmlWrapper(templateParams);
 
             fs.writeFileSync(filePath, xmlData);
             commands.executeCommand(COMMANDS.REFRESH_COMMAND);
@@ -1095,19 +1093,15 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     params[param["@_name"]] = param["#text"] ?? param["@_key"];
                 });
 
-
-
                 const response: GetInboundEndpointResponse = {
                     name: jsonData.inboundEndpoint["@_name"],
                     type: isWso2Mb ? 'wso2_mb' : jsonData.inboundEndpoint["@_protocol"] ?? 'custom',
                     sequence: jsonData.inboundEndpoint["@_sequence"],
-                    errorSequence: jsonData.inboundEndpoint["@_errorSequence"],
+                    errorSequence: jsonData.inboundEndpoint["@_onError"],
                     parameters: params,
-                    additionalParameters: {
-                        suspend: jsonData.inboundEndpoint["@_suspend"] === 'true',
-                        trace: jsonData.inboundEndpoint["@_trace"] ? true : false,
-                        statistics: jsonData.inboundEndpoint["@_statistics"] ? true : false,
-                    }
+                    suspend: jsonData.inboundEndpoint["@_suspend"] === 'true',
+                    trace: jsonData.inboundEndpoint["@_trace"] ? true : false,
+                    statistics: jsonData.inboundEndpoint["@_statistics"] ? true : false,
                 };
 
                 resolve(response);
@@ -1119,7 +1113,9 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 sequence: '',
                 errorSequence: '',
                 parameters: {},
-                additionalParameters: {}
+                suspend: false,
+                trace: false,
+                statistics: false,
             });
         });
     }
