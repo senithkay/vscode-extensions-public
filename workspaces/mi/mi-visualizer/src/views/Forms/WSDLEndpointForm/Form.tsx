@@ -124,7 +124,7 @@ const Form = ({
                     )}
                 </FormGroup>
             )}
-            <FormGroup title="Basic Properties" isCollapsed={isTemplate}>
+            <FormGroup title="Basic Properties" isCollapsed={false}>
                 <TextField
                     required
                     autoFocus
@@ -132,6 +132,24 @@ const Form = ({
                     placeholder="Endpoint Name"
                     {...renderProps("endpointName")}
                     size={100}
+                />
+                <TextField
+                    required
+                    label="WSDL URI"
+                    placeholder="WSDL URI"
+                    {...renderProps("wsdlUri")}
+                />
+                <TextField
+                    required
+                    label="WSDL Service"
+                    placeholder="WSDL Service"
+                    {...renderProps("wsdlService")}
+                />
+                <TextField
+                    required
+                    label="WSDL Port"
+                    placeholder="WSDL Port"
+                    {...renderProps("wsdlPort")}
                 />
                 <Dropdown
                     label="Format"
@@ -159,24 +177,6 @@ const Form = ({
                     label="Description"
                     placeholder="Description"
                     {...renderProps("description")}
-                />
-                <TextField
-                    required
-                    label="WSDL URI"
-                    placeholder="WSDL URI"
-                    {...renderProps("wsdlUri")}
-                />
-                <TextField
-                    required
-                    label="WSDL Service"
-                    placeholder="WSDL Service"
-                    {...renderProps("wsdlService")}
-                />
-                <TextField
-                    required
-                    label="WSDL Port"
-                    placeholder="WSDL Port"
-                    {...renderProps("wsdlPort")}
                 />
                 <RadioButtonGroup
                     label="Require Additional Properties"

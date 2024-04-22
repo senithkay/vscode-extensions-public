@@ -136,7 +136,7 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
     const [artifactNames, setArtifactNames] = useState([]);
     const [workspaceFileNames, setWorkspaceFileNames] = useState([]);
     const [rows, setRows] = useState<CustomParameter[]>([]);
-    const [isNewStore, setIsNewStore] = useState(true);
+    const isNewStore = !props.path.endsWith(".xml");
     const [preConfiguredProfile, setPreConfiguredProfile] = useState("Other");
     const [rdbmsType, setRdbmsType] = useState("Other");
     const [type, setType] = useState("");
@@ -343,10 +343,9 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
     }, [storeName]);
 
     useEffect(() => {
-        if (props.path) {
+        if (props.path.endsWith(".xml")) {
             (async () => {
                 const messageStore = await rpcClient.getMiDiagramRpcClient().getMessageStore({ path: props.path });
-                console.log("messageStore", messageStore);
                 if (messageStore.name) {
                     if (messageStore.dataSourceName) {
                         messageStore.connectionInformationType = "Carbon Datasource";
@@ -383,11 +382,13 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                         });
                     };
                     setStoreName(messageStore.name);
-                    setIsNewStore(false);
                     setType(messageStore.type);
                     reset(messageStore);
                 }
             })();
+        } else {
+            reset(initialMessageStore);
+            setMessageStoreType("");
         }
     }, [props.path]);
 
@@ -524,7 +525,7 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
             failOverMessageStore: values.failOverMessageStore,
             customParameters: removeDuplicateParameters(),
         };
-        const file = await rpcClient.getMiDiagramRpcClient().createMessageStore(createMessageStoreParams);
+        await rpcClient.getMiDiagramRpcClient().createMessageStore(createMessageStoreParams);
         openOverview();
     };
 

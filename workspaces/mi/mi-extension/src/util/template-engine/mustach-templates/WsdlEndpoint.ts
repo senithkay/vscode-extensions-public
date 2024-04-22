@@ -28,12 +28,12 @@ export interface WsdlEndpointArgs {
     securityEnabled: string;
     suspendErrorCodes: string;
     initialDuration: number;
-    maximumDuration: number;
+    maximumDuration: number | null;
     progressionFactor: number;
     retryErrorCodes: string;
     retryCount: number;
     retryDelay: number;
-    timeoutDuration: number;
+    timeoutDuration: number | null;
     timeoutAction: string | null;
     templateName: string;
     requireTemplateParameters: boolean;
@@ -118,6 +118,9 @@ export function getWsdlEndpointXml(data: WsdlEndpointArgs) {
             incrementalValue++;
         });
     }
+
+    data.maximumDuration = data.maximumDuration === Number.MAX_SAFE_INTEGER ? null : data.maximumDuration;
+    data.timeoutDuration = data.timeoutDuration === Number.MAX_SAFE_INTEGER ? null : data.timeoutDuration;
 
     const modifiedData = {
         ...data,

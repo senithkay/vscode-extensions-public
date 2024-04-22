@@ -162,7 +162,7 @@ const Form = ({
                     )}
                 </FormGroup>
             )}
-            <FormGroup title="Basic Properties" isCollapsed={isTemplate}>
+            <FormGroup title="Basic Properties" isCollapsed={false}>
                 <TextField
                     required
                     autoFocus
@@ -170,6 +170,18 @@ const Form = ({
                     placeholder="Endpoint Name"
                     {...renderProps("endpointName")}
                     size={100}
+                />
+                <TextField
+                    required
+                    label="URI Template"
+                    placeholder="URI Template"
+                    {...renderProps("uriTemplate")}
+                />
+                <Dropdown
+                    required
+                    label="HTTP Method"
+                    items={httpMethods}
+                    {...renderProps("httpMethod")}
                 />
                 <RadioButtonGroup
                     label="Trace Enabled"
@@ -183,18 +195,6 @@ const Form = ({
                 />
             </FormGroup>
             <FormGroup title="Miscellaneous Properties" isCollapsed={true}>
-                <TextField
-                    required
-                    label="URI Template"
-                    placeholder="URI Template"
-                    {...renderProps("uriTemplate")}
-                />
-                <Dropdown
-                    required
-                    label="HTTP Method"
-                    items={httpMethods}
-                    {...renderProps("httpMethod")}
-                />
                 <TextField
                     label="Description"
                     placeholder="Description"
