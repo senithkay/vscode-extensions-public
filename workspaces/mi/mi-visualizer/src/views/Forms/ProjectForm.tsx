@@ -92,12 +92,8 @@ export function ProjectWizard({ cancelView }: { cancelView: MACHINE_VIEW }) {
         rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: cancelView } });
     };
 
-    const handleBackButtonClick = () => {
-        rpcClient.getMiVisualizerRpcClient().goBack();
-    };
-
     return (
-        <FormView title="Create New Project" onClose={handleBackButtonClick}>
+        <FormView title="Create New Project" onClose={handleCancel}>
             <TextField
                 id='name'
                 label="Project Name"
