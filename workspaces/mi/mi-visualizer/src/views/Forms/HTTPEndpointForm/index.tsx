@@ -17,7 +17,7 @@ import * as yup from "yup";
 import { initialEndpoint, InputsFields, paramTemplateConfigs, propertiesConfigs, oauthPropertiesConfigs } from "./Types";
 import { TypeChip } from "../Commons";
 import Form from "./Form";
-import AddToRegistry, {formatRegistryPath, getArtifactNamesAndRegistryPaths, saveToRegistry} from "../AddToRegistry";
+import AddToRegistry, { formatRegistryPath, getArtifactNamesAndRegistryPaths, saveToRegistry } from "../AddToRegistry";
 
 export interface HttpEndpointWizardProps {
     path: string;
@@ -99,6 +99,10 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
         addressingVersion: yup.string(),
         addressListener: yup.string(),
         securityEnabled: yup.string(),
+        seperatePolicies: yup.boolean().notRequired().default(false),
+        policyKey: yup.string().notRequired().default(""),
+        inboundPolicyKey: yup.string().notRequired().default(""),
+        outboundPolicyKey: yup.string().notRequired().default(""),
         suspendErrorCodes: yup.string(),
         initialDuration: yup.number().typeError('Initial Duration must be a number'),
         maximumDuration: yup.number().typeError('Maximum Duration must be a number').min(0, "Maximum Duration must be greater than or equal to 0"),
@@ -282,16 +286,19 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
             title={isTemplate ? 'Template Artifact' : 'Endpoint Artifact'}
             onClose={openOverview}
         >
-            <TypeChip 
-                type={isTemplate ? "HTTP Endpoint Template" : "HTTP Endpoint"} 
-                onClick={changeType} 
-                showButton={isNewEndpoint} 
+            <TypeChip
+                type={isTemplate ? "HTTP Endpoint Template" : "HTTP Endpoint"}
+                onClick={changeType}
+                showButton={isNewEndpoint}
             />
             <Form
                 renderProps={renderProps}
                 register={register}
                 watch={watch}
                 setValue={setValue}
+                control={control}
+                path={props.path}
+                errors={errors}
                 isTemplate={isTemplate}
                 templateParams={templateParams}
                 setTemplateParams={setTemplateParams}
@@ -309,8 +316,8 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
                     />
                     {watch("saveInReg") && (<>
                         <AddToRegistry path={props.path}
-                                       fileName={isTemplate ? watch("templateName") : watch("endpointName")}
-                                       register={register} errors={errors} getValues={getValues} />
+                            fileName={isTemplate ? watch("templateName") : watch("endpointName")}
+                            register={register} errors={errors} getValues={getValues} />
                     </>)}
                 </>
             )}

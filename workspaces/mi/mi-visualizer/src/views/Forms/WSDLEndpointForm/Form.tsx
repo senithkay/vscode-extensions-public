@@ -7,7 +7,8 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { TextField, Dropdown, RadioButtonGroup, FormGroup, ParamManager } from "@wso2-enterprise/ui-toolkit";
+import { TextField, Dropdown, RadioButtonGroup, FormGroup, ParamManager, FormCheckBox } from "@wso2-enterprise/ui-toolkit";
+import { FormKeylookup } from "@wso2-enterprise/mi-diagram-2";
 
 interface OptionProps {
     value: string;
@@ -18,6 +19,9 @@ const Form = ({
     register,
     watch,
     setValue,
+    control,
+    path,
+    errors,
     isTemplate,
     templateParams,
     setTemplateParams,
@@ -57,7 +61,7 @@ const Form = ({
 
     const handleTemplateParametersChange = (params: any) => {
         const modifiedParams = {
-            paramFields: params.paramFields, 
+            paramFields: params.paramFields,
             paramValues: params.paramValues.map((param: any, index: number) => {
                 return {
                     ...param,
@@ -77,7 +81,7 @@ const Form = ({
 
     const handleAdditionalPropertiesChange = (params: any) => {
         const modifiedParams = {
-            paramFields: params.paramFields, 
+            paramFields: params.paramFields,
             paramValues: params.paramValues.map((param: any) => {
                 return {
                     ...param,
@@ -216,6 +220,43 @@ const Form = ({
                     options={[{ content: "Enable", value: "enable" }, { content: "Disable", value: "disable" }]}
                     {...renderProps("securityEnabled")}
                 />
+                {watch('securityEnabled') === 'enable' && <>
+                    <FormCheckBox
+                        name="seperatePolicies"
+                        label="Specify as Inbound and Outbound Policies"
+                        control={control}
+                    />
+                    {watch("seperatePolicies") ? <>
+                        <FormKeylookup
+                            control={control}
+                            label="Inbound Policy Key"
+                            name="inboundPolicyKey"
+                            filterType="xslt"
+                            path={path}
+                            errorMsg={errors.inboundPolicyKey?.message.toString()}
+                            {...register("inboundPolicyKey")}
+                        />
+                        <FormKeylookup
+                            control={control}
+                            label="Outbound Policy Key"
+                            name="outboundPolicyKey"
+                            filterType="xslt"
+                            path={path}
+                            errorMsg={errors.outboundPolicyKey?.message.toString()}
+                            {...register("outboundPolicyKey")}
+                        />
+                    </> : (
+                        <FormKeylookup
+                            control={control}
+                            label="Policy Key"
+                            name="policyKey"
+                            filterType="xslt"
+                            path={path}
+                            errorMsg={errors.policyKey?.message.toString()}
+                            {...register("policyKey")}
+                        />
+                    )}
+                </>}
             </FormGroup>
             <FormGroup title="Endpoint Error Handling" isCollapsed={true}>
                 <TextField

@@ -17,7 +17,7 @@ import { InputsFields, initialEndpoint, propertiesConfigs, paramTemplateConfigs 
 import { TypeChip } from "../Commons";
 import Form from "./Form";
 import * as yup from "yup";
-import AddToRegistry, {formatRegistryPath, getArtifactNamesAndRegistryPaths, saveToRegistry} from "../AddToRegistry";
+import AddToRegistry, { formatRegistryPath, getArtifactNamesAndRegistryPaths, saveToRegistry } from "../AddToRegistry";
 
 export interface WsdlEndpointWizardProps {
     path: string;
@@ -57,6 +57,10 @@ export function WsdlEndpointWizard(props: WsdlEndpointWizardProps) {
         addressingVersion: yup.string(),
         addressListener: yup.string(),
         securityEnabled: yup.string(),
+        seperatePolicies: yup.boolean().notRequired().default(false),
+        policyKey: yup.string().notRequired().default(""),
+        inboundPolicyKey: yup.string().notRequired().default(""),
+        outboundPolicyKey: yup.string().notRequired().default(""),
         suspendErrorCodes: yup.string(),
         initialDuration: yup.number().typeError('Initial Duration must be a number'),
         maximumDuration: yup.number().typeError('Maximum Duration must be a number').min(0, "Maximum Duration must be greater than or equal to 0"),
@@ -236,6 +240,9 @@ export function WsdlEndpointWizard(props: WsdlEndpointWizardProps) {
                 register={register}
                 watch={watch}
                 setValue={setValue}
+                control={control}
+                path={props.path}
+                errors={errors}
                 isTemplate={isTemplate}
                 templateParams={templateParams}
                 setTemplateParams={setTemplateParams}
@@ -251,8 +258,8 @@ export function WsdlEndpointWizard(props: WsdlEndpointWizardProps) {
                     />
                     {watch("saveInReg") && (<>
                         <AddToRegistry path={props.path}
-                                       fileName={isTemplate ? watch("templateName") : watch("endpointName")}
-                                       register={register} errors={errors} getValues={getValues} />
+                            fileName={isTemplate ? watch("templateName") : watch("endpointName")}
+                            register={register} errors={errors} getValues={getValues} />
                     </>)}
                 </>
             )}
