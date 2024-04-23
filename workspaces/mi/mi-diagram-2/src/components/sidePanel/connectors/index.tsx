@@ -268,7 +268,7 @@ export function ConnectorPage(props: ConnectorPageProps) {
 
     function existsInLocalConnectors(connector: any) {
         return localConnectors.some(localConnector =>
-            localConnector.name === connector.name.toLowerCase().replace(/\s/g, '') && localConnector.version === connector.version);
+            localConnector.name.toLowerCase() === connector.name.toLowerCase().replace(/\s/g, '') && localConnector.version === connector.version);
     }
 
 
