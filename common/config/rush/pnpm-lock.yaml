@@ -3234,6 +3234,7 @@ importers:
       '@wso2-enterprise/mi-syntax-tree': workspace:*
       '@wso2-enterprise/mi-visualizer': workspace:*
       '@wso2-enterprise/playwright-vscode-tester': workspace:*
+      await-notify: ^1.0.1
       axios: ~1.5.1
       copyfiles: ^2.4.1
       eslint: ^8.47.0
@@ -3300,6 +3301,7 @@ importers:
       '@typescript-eslint/parser': 6.21.0_xdgzedli73k7lw4xlyzszm74om
       '@vscode/test-electron': 2.3.9
       '@wso2-enterprise/mi-visualizer': link:../mi-visualizer
+      await-notify: 1.0.1
       eslint: 8.56.0
       glob: 10.3.10
       mocha: 10.2.0
@@ -22939,6 +22941,10 @@ packages:
   /available-typed-arrays/1.0.6:
     resolution: {integrity: sha512-j1QzY8iPNPG4o4xmO3ptzpRxTciqD3MgEHtifP/YnJpIo58Xu+ne4BejlbkuaLfXn/nz6HFiw29bLpj2PNMdGg==}
     engines: {node: '>= 0.4'}
+
+  /await-notify/1.0.1:
+    resolution: {integrity: sha512-eT6XN2ycPKvuiffzUNmU0dnGmmLw+TexMW7UKOyf5utdVrWx14PR2acRIfy6ZfFWRAv8twt1X74VUgd9RnDmfQ==}
+    dev: true
 
   /aws-sign2/0.7.0:
     resolution: {integrity: sha512-08kcGqnYf/YmjoRhfxyu+CLxBjUtHLXLXX/vUfx9l2LYzG3c1m61nrpyFUZI6zeS+Li/wWMMidD9KgrqtGq3mA==}
