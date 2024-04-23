@@ -120,7 +120,7 @@ export function getMustacheTemplate(name: string) {
             return getAggregateMustacheTemplate();
         case MEDIATORS.ITERATE:
             return getIterateMustacheTemplate();
-        case MEDIATORS.FOREACH:
+        case MEDIATORS.FOREACHMEDIATOR:
             return getForeachMustacheTemplate();
         //Filter Mediators
         case MEDIATORS.FILTER:
@@ -242,7 +242,7 @@ export function getXML(name: string, data: { [key: string]: any }, dirtyFields?:
             return getAggregateXml(data);
         case MEDIATORS.ITERATE:
             return getIterateXml(data);
-        case MEDIATORS.FOREACH:
+        case MEDIATORS.FOREACHMEDIATOR:
             return getForeachXml(data);
         //Filter Mediators
         case MEDIATORS.FILTER:
@@ -359,7 +359,7 @@ export function getDataFromXML(name: string, node: STNode) {
             return getAggregateFormDataFromSTNode(formData, node as Aggregate);
         case MEDIATORS.ITERATE:
             return getIterateFormDataFromSTNode(formData, node as Iterate);
-        case MEDIATORS.FOREACH:
+        case MEDIATORS.FOREACHMEDIATOR:
             return getForEachFormDataFromSTNode(formData, node as Foreach);
         //Filter Mediators
         case MEDIATORS.FILTER:

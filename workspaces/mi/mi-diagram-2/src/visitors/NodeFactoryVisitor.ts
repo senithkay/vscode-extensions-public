@@ -638,10 +638,10 @@ export class NodeFactoryVisitor implements Visitor {
         this.skipChildrenVisit = false;
     }
     beginVisitForeach(node: Foreach): void {
-        this.createNodeAndLinks(({ node, name: MEDIATORS.FOREACH, type: NodeTypes.GROUP_NODE }))
+        this.createNodeAndLinks(({ node, name: MEDIATORS.FOREACHMEDIATOR, type: NodeTypes.GROUP_NODE }))
         this.parents.push(node);
 
-        this.visitSubSequences(node, MEDIATORS.FOREACH, {
+        this.visitSubSequences(node, MEDIATORS.FOREACHMEDIATOR, {
             Sequence: node.sequence
         }, NodeTypes.GROUP_NODE, false)
         this.skipChildrenVisit = true;

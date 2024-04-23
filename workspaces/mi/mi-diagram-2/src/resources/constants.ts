@@ -178,7 +178,7 @@ export const MEDIATORS = {
     FASTXSLT: "FastXSLT",
     FAULT: "Fault",
     FILTER: "Filter",
-    FOREACH: "ForEach",
+    FOREACHMEDIATOR: "ForEach",
     HEADER: "Header",
     ITERATE: "Iterate",
     JSONTRANSFORM: "JSONTransform",
