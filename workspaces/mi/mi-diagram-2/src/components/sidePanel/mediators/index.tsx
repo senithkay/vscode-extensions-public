@@ -14,22 +14,14 @@ import styled from "@emotion/styled";
 import { ConnectorPage } from "../connectors";
 
 const Wrapper = styled.div`
-    height: calc(100vh - 190px);
+    height: calc(100vh - 150px);
 `;
 
 const ButtonContainer = styled.div`
     display: flex;
     flex-direction: row;
-    justify-content: center;
-    gap: 10px;
+    gap: 5px;
 `;
-
-const BtnStyle = {
-    '& > vscode-button': {
-        width: '130px',
-        borderRadius: '2px',
-    },
-};
 
 const SearchStyle = {
     width: 'auto',
@@ -106,16 +98,17 @@ export function MediatorPage(props: MediatorPageProps) {
                     autoFocus={true}
                 />
                 {/*  Categories */}
-                <ButtonContainer style={{ justifyContent: "space-between", marginBottom: "10px", width: "calc(100% - 15px)" }}>
-                    <Button onClick={handleAllMediatorsClicked} appearance={isAllMediators ? 'primary' : 'icon'} sx={BtnStyle}>
+                <ButtonContainer style={{ marginBottom: "10px", width: "calc(100% - 15px)" }}>
+                    <Button onClick={handleAllMediatorsClicked} appearance={isAllMediators ? 'primary' : 'secondary'} >
                         <Icon sx={{marginTop: 2, marginRight: 5}} name="module-icon"/>
                         All Mediators
                     </Button>
-                    <Button onClick={handleLibraryClicked} appearance={isLibrary ? 'primary' : 'icon'} sx={BtnStyle}>
+                    {/*Enable later on library addition */}
+                    {/* <Button onClick={handleLibraryClicked} appearance={isLibrary ? 'primary' : 'secondary'}>
                         <Icon sx={{marginTop: 2, marginRight: 5}} name="doc"/>
                         Library
-                    </Button>
-                    <Button onClick={handleConnectorsClicked} appearance={isConnectors ? 'primary' : 'icon'} sx={BtnStyle}>
+                    </Button> */}
+                    <Button onClick={handleConnectorsClicked} appearance={isConnectors ? 'primary' : 'secondary'}>
                         <Icon sx={{marginTop: 2, marginRight: 5}} name="caller"/>
                         Connectors
                     </Button>

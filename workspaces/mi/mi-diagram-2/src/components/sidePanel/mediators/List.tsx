@@ -103,10 +103,10 @@ export function Mediators(props: MediatorProps) {
                                                 fill: 'var(--vscode-editor-foreground)'
                                             },
                                             backgroundColor: 'var(--vscode-pickerGroup-border)',
-                                            border: '1px solid var(--vscode-focusBorder)'
+                                            border: '0.5px solid var(--vscode-focusBorder)'
                                         },
                                         alignItems: 'center',
-                                        border: '1px solid var(--vscode-editor-foreground)',
+                                        border: '0.5px solid var(--vscode-editor-foreground)',
                                         borderRadius: 2,
                                         cursor: 'pointer',
                                         display: 'flex',

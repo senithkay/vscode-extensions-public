@@ -10,6 +10,7 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import * as os from 'os';
+import * as fs from 'fs';
 import { Uri, ViewColumn } from 'vscode';
 import { getComposerJSFiles } from '../util';
 import { RPCLayer } from '../RPCLayer';
@@ -79,7 +80,15 @@ export class VisualizerWebview {
 
     public getIconPath(iconPath: string, name: string): string | undefined {
         const panel = this.getWebview();
-        const iconPathUri = vscode.Uri.file(path.join(iconPath, name).toString());
+        let iconPathUri;
+
+        // Check if PNG file exists
+        if (fs.existsSync(path.join(iconPath, name + '.png'))) {
+            iconPathUri = vscode.Uri.file(path.join(iconPath, name + '.png').toString());
+        } else {
+            // If PNG does not exist, use GIF
+            iconPathUri = vscode.Uri.file(path.join(iconPath, name + '.gif').toString());
+        }
 
         if (panel) {
             const iconUri = panel.webview.asWebviewUri(iconPathUri);

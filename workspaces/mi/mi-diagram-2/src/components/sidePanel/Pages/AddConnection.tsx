@@ -273,10 +273,14 @@ const AddConnection = (props: AddConnectionProps) => {
             } else if (element.type === 'attributeGroup') {
                 return (
                     <>
-                        <h3 style={{ margin: 0 }}>{element.value.groupName}</h3>
-                        <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                            {renderForm(element.value.elements)}
-                        </ComponentCard>
+                        {element.value.groupName === "General" ? renderForm(element.value.elements) :
+                            <>
+                                <ComponentCard sx={cardStyle} disbaleHoverEffect>
+                                    <h3 style={{ margin: '0 0 15px 0' }}>{element.value.groupName}</h3>
+                                    {renderForm(element.value.elements)}
+                                </ComponentCard>
+                            </>
+                        }
                     </>
                 );
             }
@@ -310,9 +314,7 @@ const AddConnection = (props: AddConnectionProps) => {
                 </VSCodeDropdown>
                 {formData && formData.elements && formData.elements.length > 0 && (
                     <>
-                        <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                            {renderForm(formData.elements)}
-                        </ComponentCard>
+                        {renderForm(formData.elements)}
                         <div style={{ display: "flex", textAlign: "right", justifyContent: "flex-end", marginTop: "10px", gap: "10px" }}>
                             <Button
                                 appearance="secondary"
