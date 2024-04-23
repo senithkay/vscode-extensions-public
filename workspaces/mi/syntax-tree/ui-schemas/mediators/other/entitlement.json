@@ -2,7 +2,7 @@
   "name": "Entitlement",
   "type": "mediator",
   "title": "Entitlement Mediator",
-  "help": "",
+  "help": "Evaluates messages against XACML policy.",
   "elements": [
     {
       "type": "attribute",

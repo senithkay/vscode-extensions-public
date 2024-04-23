@@ -2,7 +2,7 @@
   "name": "OAuth",
   "type": "mediator",
   "title": "OAuth Mediator",
-  "help": "",
+  "help": "Validates client credentials for a RESTful service using OAuth (WSO2 IS).",
   "elements": [
     {
       "type": "attribute",

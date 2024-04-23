@@ -2,7 +2,7 @@
   "name": "Payload",
   "type": "mediator",
   "title": "Payload Mediator",
-  "help": "",
+  "help": "Replaces message payload with a new SOAP/JSON payload.",
   "elements": [
     {
       "type": "attribute",

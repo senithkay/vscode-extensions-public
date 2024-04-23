@@ -152,8 +152,8 @@ export const NODE_DIMENSIONS = {
         HEIGHT: 24,
     },
     CONNECTOR: {
-        WIDTH: 120,
-        HEIGHT: 40,
+        WIDTH: 150,
+        HEIGHT: 60,
     },
     BORDER: 1,
 };

@@ -2,7 +2,7 @@
   "name": "Rewrite",
   "type": "mediator",
   "title": "URL Rewrite Mediator",
-  "help": "",
+  "help": "Modifies and transforms URL values in the message.",
   "elements": [
     {
       "type": "table",

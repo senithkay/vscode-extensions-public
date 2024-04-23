@@ -2,7 +2,7 @@
   "name": "Bam",
   "type":"mediator",
   "title": "Bam Mediator",
-  "help": "",
+  "help": "Deprecated. Use PublishEvent Mediator for similar functionality.",
   "elements": [
     {
       "type": "attributeGroup",

@@ -2,7 +2,7 @@
   "name": "Fault",
   "type": "mediator",
   "title": "Fault Mediator",
-  "help": "",
+  "help": "Transforms the current message into a fault message.",
   "elements": [
     {
       "type": "attribute",

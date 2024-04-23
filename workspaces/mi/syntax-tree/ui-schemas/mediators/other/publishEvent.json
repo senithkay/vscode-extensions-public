@@ -1,8 +1,8 @@
 {
   "name": "PUBLISHEVENT",
   "type": "mediator",
-  "title": "",
-  "help": "",
+  "title": "Publish Event Mediator",
+  "help": "Constructs and publishes events to different systems such as WSO2 BAM/DAS/CEP/SP via event sinks.",
   "elements": [
     {
       "type": "attribute",
@@ -64,7 +64,7 @@
             "value": {
               "name": "metaAttributes",
               "displayName": "Meta Attributes",
-              "title": "Pulish Event Mediator Attribute",
+              "title": "Publish Event Mediator Attribute",
               "description": "Editing of the properties of an object PublishEvent Mediator Attribute",
               "tableKey": "attributeName",
               "tableValue": "attributeValue",

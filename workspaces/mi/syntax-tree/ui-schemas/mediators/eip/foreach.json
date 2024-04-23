@@ -2,7 +2,7 @@
   "name": "ForEach",
   "type": "mediator",
   "title": "ForEach Mediator",
-  "help": "",
+  "help": "Splits message based on XPath/JSONPath, processes sequentially, then merges back.",
   "elements": [
     {
       "type": "attribute",
