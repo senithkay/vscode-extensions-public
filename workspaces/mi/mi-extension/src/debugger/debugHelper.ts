@@ -14,6 +14,7 @@ import { COMMANDS, PORTS_TO_CHECK, SELECTED_SERVER_PATH } from '../constants';
 import { extension } from '../MIExtensionContext';
 import { getCopyTask, getBuildTask, getRunTask } from './tasks';
 import * as fs from 'fs';
+import * as path from 'path';
 
 export async function isPortInUse(port: number): Promise<boolean> {
     return new Promise<boolean>((resolve) => {
@@ -101,6 +102,7 @@ export async function executeCopyTask(task: vscode.Task) {
 }
 
 export async function executeBuildTask(task: vscode.Task, serverPath: string) {
+    await deleteCapp(serverPath);
     await vscode.tasks.executeTask(task);
 
     return new Promise<void>(resolve => {
@@ -166,4 +168,24 @@ export async function getServerPath(): Promise<string | undefined> {
         return updatedPath as string;
     }
     return currentPath as string;
+}
+
+export async function deleteCapp(serverPath: string): Promise<void> {
+    const targetPath = serverPath + '/repository/deployment/server/carbonapps';
+    if (process.platform === 'win32') {
+        targetPath.replace(/\//g, '\\');
+    }
+
+    try {
+        const files = await fs.promises.readdir(targetPath);
+
+        for (const file of files) {
+            if (file.endsWith('.car')) {
+                const filePath = path.join(targetPath, file);
+                await fs.promises.unlink(filePath);
+            }
+        }
+    } catch (err) {
+        console.error(`Error deleting files: ${err}`);
+    }
 }
