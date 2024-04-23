@@ -232,43 +232,43 @@ export function AddArtifactView() {
                                     <Card
                                         icon="source-control"
                                         title="Endpoint"
-                                        description="Add description here..."
+                                        description="Define communication endpoint configurations."
                                         onClick={() => handleClick("endpoints")}
                                     />
                                     <Card
                                         icon="list-ordered"
                                         title="Sequence"
-                                        description="Add description here..."
+                                        description="Configure reusable mediation sequences."
                                         onClick={() => handleClick("sequences")}
                                     />
                                     <Card
                                         icon="output"
                                         title="Registry"
-                                        description="Add description here..."
+                                        description="Manage shared resources and configurations."
                                         onClick={() => handleClick("registry")}
                                     />
                                     <Card
                                         icon="mail"
                                         title="Message Processor"
-                                        description="Add description here..."
+                                        description="Define processing logic for messages."
                                         onClick={() => handleClick("messageProcessors")}
                                     />
                                     <Card
                                         icon="file"
                                         title="Template"
-                                        description="Add description here..."
+                                        description="Create reusable message transformation templates."
                                         onClick={() => handleClick("templates")}
                                     />
                                     <Card
                                         icon="database"
                                         title="Message Store"
-                                        description="Add description here..."
+                                        description="Store and manage messages locally."
                                         onClick={() => handleClick("messageStores")}
                                     />
                                     <Card
                                         icon="output"
                                         title="Local Entry"
-                                        description="Add description here..."
+                                        description="Define local resource entries for reuse."
                                         onClick={() => handleClick("localEntries")}
                                     />
                                 </HorizontalCardContainer>
