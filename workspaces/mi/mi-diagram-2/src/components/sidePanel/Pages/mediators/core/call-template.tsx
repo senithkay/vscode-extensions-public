@@ -177,13 +177,13 @@ const CallTemplateForm = (props: AddMediatorProps) => {
                 <Controller
                     name="onError"
                     control={control}
-                    render={({ field: { onChange, value } }) => (
+                    render={({ field }) => (
                         <Keylookup
-                            value={value}
+                            value={field.value}
                             filterType='sequence'
                             label="OnError"
                             allowItemCreate={false}
-                            onValueChange={onChange}
+                            onValueChange={field.onChange}
                         />
                     )}
                 />

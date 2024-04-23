@@ -45,8 +45,8 @@ const SendForm = (props: AddMediatorProps) => {
 
     useEffect(() => {
         reset({
-            skipSerialization: sidePanelContext?.formValues?.skipSerialization || "",
-            buildMessageBeforeSending: sidePanelContext?.formValues?.buildMessageBeforeSending || "",
+            skipSerialization: sidePanelContext?.formValues?.skipSerialization || false,
+            buildMessageBeforeSending: sidePanelContext?.formValues?.buildMessageBeforeSending || false,
             receivingSequenceType: sidePanelContext?.formValues?.receivingSequenceType || "Default",
             staticReceivingSequence: sidePanelContext?.formValues?.staticReceivingSequence || {"isExpression":true,"value":""},
             dynamicReceivingSequence: sidePanelContext?.formValues?.dynamicReceivingSequence || {"isExpression":true,"value":""},
@@ -94,9 +94,7 @@ const SendForm = (props: AddMediatorProps) => {
                         name="skipSerialization"
                         control={control}
                         render={({ field }) => (
-                            <VSCodeCheckbox type="checkbox" checked={field.value} onChange={(e: any) => {
-                                field.onChange(e);
-                            }}>Skip Serialization</VSCodeCheckbox>
+                            <VSCodeCheckbox {...field} type="checkbox" checked={field.value} onChange={(e: any) => {field.onChange(e.target.checked)}}>Skip Serialization</VSCodeCheckbox>
                         )}
                     />
                     {errors.skipSerialization && <Error>{errors.skipSerialization.message.toString()}</Error>}
@@ -108,9 +106,7 @@ const SendForm = (props: AddMediatorProps) => {
                             name="buildMessageBeforeSending"
                             control={control}
                             render={({ field }) => (
-                                <VSCodeCheckbox type="checkbox" checked={field.value} onChange={(e: any) => {
-                                    field.onChange(e);
-                                }}>Build Message Before Sending</VSCodeCheckbox>
+                                <VSCodeCheckbox {...field} type="checkbox" checked={field.value} onChange={(e: any) => {field.onChange(e.target.checked)}}>Build Message Before Sending</VSCodeCheckbox>
                             )}
                         />
                         {errors.buildMessageBeforeSending && <Error>{errors.buildMessageBeforeSending.message.toString()}</Error>}

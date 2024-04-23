@@ -50,8 +50,8 @@ const CallForm = (props: AddMediatorProps) => {
             inlineEndpoint: sidePanelContext?.formValues?.inlineEndpoint || "<inline/>",
             endpointRegistryKey: sidePanelContext?.formValues?.endpointRegistryKey || "",
             endpointXpath: sidePanelContext?.formValues?.endpointXpath || {"isExpression":true,"value":""},
-            enableBlockingCalls: sidePanelContext?.formValues?.enableBlockingCalls || "",
-            initAxis2ClientOptions: sidePanelContext?.formValues?.initAxis2ClientOptions || "",
+            enableBlockingCalls: sidePanelContext?.formValues?.enableBlockingCalls || false,
+            initAxis2ClientOptions: sidePanelContext?.formValues?.initAxis2ClientOptions || false,
             sourceType: sidePanelContext?.formValues?.sourceType || "none",
             sourceProperty: sidePanelContext?.formValues?.sourceProperty || "",
             contentType: sidePanelContext?.formValues?.contentType || "",
@@ -99,16 +99,16 @@ const CallForm = (props: AddMediatorProps) => {
                 <Controller
                     name="endopint"
                     control={control}
-                    render={({ field: { onChange, value } }) => (
+                    render={({ field }) => (
                         <Keylookup
-                            value={value}
+                            value={field.value}
                             filterType='endpoint'
                             label="Select Endpoint"
                             allowItemCreate={false}
                             onCreateButtonClick={(fetchItems: any, handleValueChange: any) => {
                                 openPopup(rpcClient, "endpoint", fetchItems, handleValueChange);
                             }}
-                            onValueChange={onChange}
+                            onValueChange={field.onChange}
                         />
                     )}
                 />
@@ -176,9 +176,7 @@ const CallForm = (props: AddMediatorProps) => {
                         name="enableBlockingCalls"
                         control={control}
                         render={({ field }) => (
-                            <VSCodeCheckbox type="checkbox" checked={field.value} onChange={(e: any) => {
-                                field.onChange(e);
-                            }}>Enable Blocking Calls</VSCodeCheckbox>
+                            <VSCodeCheckbox {...field} type="checkbox" checked={field.value} onChange={(e: any) => {field.onChange(e.target.checked)}}>Enable Blocking Calls</VSCodeCheckbox>
                         )}
                     />
                     {errors.enableBlockingCalls && <Error>{errors.enableBlockingCalls.message.toString()}</Error>}
@@ -189,9 +187,7 @@ const CallForm = (props: AddMediatorProps) => {
                         name="initAxis2ClientOptions"
                         control={control}
                         render={({ field }) => (
-                            <VSCodeCheckbox type="checkbox" checked={field.value} onChange={(e: any) => {
-                                field.onChange(e);
-                            }}>Initialize Axis2 Client Options</VSCodeCheckbox>
+                            <VSCodeCheckbox {...field} type="checkbox" checked={field.value} onChange={(e: any) => {field.onChange(e.target.checked)}}>Initialize Axis2 Client Options</VSCodeCheckbox>
                         )}
                     />
                     {errors.initAxis2ClientOptions && <Error>{errors.initAxis2ClientOptions.message.toString()}</Error>}

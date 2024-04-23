@@ -126,13 +126,13 @@ const StoreForm = (props: AddMediatorProps) => {
                 <Controller
                     name="onStoreSequence"
                     control={control}
-                    render={({ field: { onChange, value } }) => (
+                    render={({ field }) => (
                         <Keylookup
-                            value={value}
+                            value={field.value}
                             filterType='sequence'
                             label="On Store Sequence"
                             allowItemCreate={false}
-                            onValueChange={onChange}
+                            onValueChange={field.onChange}
                         />
                     )}
                 />

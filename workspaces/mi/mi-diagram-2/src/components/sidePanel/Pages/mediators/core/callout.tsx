@@ -153,9 +153,7 @@ const CalloutForm = (props: AddMediatorProps) => {
                         name="initAxis2ClientOptions"
                         control={control}
                         render={({ field }) => (
-                            <VSCodeCheckbox type="checkbox" checked={field.value} onChange={(e: any) => {
-                                field.onChange(e);
-                            }}>Init Axis2 Client Options</VSCodeCheckbox>
+                            <VSCodeCheckbox {...field} type="checkbox" checked={field.value} onChange={(e: any) => {field.onChange(e.target.checked)}}>Init Axis2 Client Options</VSCodeCheckbox>
                         )}
                     />
                     {errors.initAxis2ClientOptions && <Error>{errors.initAxis2ClientOptions.message.toString()}</Error>}

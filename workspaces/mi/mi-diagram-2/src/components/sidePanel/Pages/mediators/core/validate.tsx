@@ -235,9 +235,7 @@ const ValidateForm = (props: AddMediatorProps) => {
                     name="enableSchemaCaching"
                     control={control}
                     render={({ field }) => (
-                        <VSCodeCheckbox type="checkbox" checked={field.value} onChange={(e: any) => {
-                            field.onChange(e);
-                        }}>Enable Schema Caching</VSCodeCheckbox>
+                        <VSCodeCheckbox {...field} type="checkbox" checked={field.value} onChange={(e: any) => {field.onChange(e.target.checked)}}>Enable Schema Caching</VSCodeCheckbox>
                     )}
                 />
                 {errors.enableSchemaCaching && <Error>{errors.enableSchemaCaching.message.toString()}</Error>}

@@ -240,9 +240,7 @@ const generateForm = (jsonData: any): string => {
                         fixIndentation(comboStr, indentation);
                 } else if (inputType === 'checkbox') {
                     const checkboxStr = `
-                        <VSCodeCheckbox type="checkbox" checked={field.value} onChange={(e: any) => {
-                            field.onChange(e);
-                        }}>${displayName}</VSCodeCheckbox>`;
+                        <VSCodeCheckbox {...field} type="checkbox" checked={field.value} onChange={(e: any) => {field.onChange(e.target.checked)}}>${displayName}</VSCodeCheckbox>`;
 
                     fields +=
                         fixIndentation(checkboxStr, indentation);
@@ -257,17 +255,14 @@ const generateForm = (jsonData: any): string => {
                         }}`;
                     }
 
-                    const comboStr = `render={({ field: { onChange, value } }) => (
+                    const comboStr = `
                         <Keylookup
-                            value={value}${element.value.keyType ? `
+                            value={field.value}${element.value.keyType ? `
                             filterType='${filterType}'` : ''}
                             label="${element.value.displayName}"
                             allowItemCreate={${inputType === 'keyOrExpression'}} ${addNewStr}
-                            onValueChange={onChange}
+                            onValueChange={field.onChange}
                         />`;
-
-                    // remove last line from fields string
-                    fields = fields.slice(0, -25);
                     fields +=
                         fixIndentation(comboStr, indentation);
                 }
