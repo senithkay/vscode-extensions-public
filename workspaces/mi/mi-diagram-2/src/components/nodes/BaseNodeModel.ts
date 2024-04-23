@@ -16,7 +16,7 @@ import { RpcClient } from '@wso2-enterprise/mi-rpc-client';
 import { Diagnostic } from "vscode-languageserver-types";
 import { getDataFromXML } from "../../utils/template-engine/mustach-templates/templateUtils";
 import SidePanelContext from "../sidePanel/SidePanelContexProvider";
-import styled from "@emotion/styled";
+import styled, { StyledComponent } from "@emotion/styled";
 
 export class BaseNodeModel extends NodeModel {
     readonly stNode: STNode;
@@ -140,7 +140,7 @@ export class BaseNodeModel extends NodeModel {
 }
 
 
-export const Header = styled.div<{ showBorder: boolean }>`
+export const Header: StyledComponent<any, any, any>  = styled.div<{ showBorder: boolean }>`
     color: ${Colors.ON_SURFACE};
     display: flex;
     width: 100%;
@@ -149,7 +149,7 @@ export const Header = styled.div<{ showBorder: boolean }>`
     text-align: center;
 `;
 
-export const Description = styled.div`
+export const Description: StyledComponent<any, any, any>  = styled.div`
     color: ${Colors.ON_SURFACE};
     max-width: 90px;
     width: 90px;
@@ -163,7 +163,7 @@ export const Description = styled.div`
     font-size: var(--type-ramp-minus1-font-size);
 `;
 
-export const Name = styled(Description)`
+export const Name: StyledComponent<any, any, any>  = styled(Description)`
     font-size: var(--type-ramp-base-font-size);
     font-weight: var(--font-weight);
 `;
