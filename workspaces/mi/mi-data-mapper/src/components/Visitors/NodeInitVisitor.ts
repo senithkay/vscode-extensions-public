@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { Node, PropertyAssignment, ObjectLiteralExpression, FunctionDeclaration, ReturnStatement } from "ts-morph";
+import { Node, PropertyAssignment, ObjectLiteralExpression, FunctionDeclaration, ReturnStatement, ArrayLiteralExpression } from "ts-morph";
 import { Visitor } from "../../ts/base-visitor";
 import { ObjectOutputNode, InputNode, LinkConnectorNode } from "../Diagram/Node";
 import { DataMapperNodeModel } from "../Diagram/Node/commons/DataMapperNode";
@@ -86,6 +86,31 @@ export class NodeInitVisitor implements Visitor {
         this.mapIdentifiers.push(node);
     }
 
+    beginVisitArrayLiteralExpression(node: ArrayLiteralExpression, parent?: Node): void {
+        this.mapIdentifiers.push(node);
+        const elements = node.getElements();
+        if (elements) {
+            elements.forEach(element => {
+                let innerExpr = element;
+                if (!Node.isObjectLiteralExpression(innerExpr) && !Node.isArrayLiteralExpression(innerExpr)) {
+                    const propertyAccessNodes = getPropertyAccessNodes(innerExpr);
+                    if (propertyAccessNodes.length > 1
+                        || (propertyAccessNodes.length === 1 && isConditionalExpression(innerExpr))) {
+                        const linkConnectorNode = new LinkConnectorNode(
+                            this.context,
+                            innerExpr,
+                            "",
+                            parent,
+                            propertyAccessNodes,
+                            [...this.mapIdentifiers, innerExpr]
+                        );
+                        this.intermediateNodes.push(linkConnectorNode);
+                    }
+                }
+            })
+        }
+    }
+
     endVisitPropertyAssignment(node: PropertyAssignment): void {
         if (this.mapIdentifiers.length > 0) {
             this.mapIdentifiers.pop()
@@ -93,6 +118,12 @@ export class NodeInitVisitor implements Visitor {
     }
 
     endVisitObjectLiteralExpression(node: ObjectLiteralExpression): void {
+        if (this.mapIdentifiers.length > 0) {
+            this.mapIdentifiers.pop()
+        }
+    }
+
+    endVisitArrayLiteralExpression(node: ArrayLiteralExpression): void {
         if (this.mapIdentifiers.length > 0) {
             this.mapIdentifiers.pop()
         }

@@ -51,7 +51,6 @@ export function getEnrichedDMType(
     return dmTypeWithValue;
 }
 
-
 export function getEnrichedPrimitiveType(
     field: DMType,
     node: Node,
@@ -100,7 +99,6 @@ export function getEnrichedArrayType(
     return members;
 }
 
-
 function getValueNodeAndNextNodeForParentType(
     node: Node | undefined,
     parentType: DMTypeWithValue,
@@ -136,6 +134,8 @@ function getValueNodeAndNextNodeForParentType(
         } else {
             return [node, node];
         }
+    } else {
+        return [node, undefined];
     }
     return [undefined, undefined];
 }

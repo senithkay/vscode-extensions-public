@@ -30,7 +30,7 @@ import { getDefaultValue, getEditorLineAndColumn, isConnectedViaLink } from "../
 import { DiagnosticTooltip } from "../../Diagnostic/DiagnosticTooltip";
 import { TreeBody } from "../commons/Tree/Tree";
 import { createSourceForUserInput } from "../../utils/modification-utils";
-import { PrimitiveTypeOutputElementWidget } from "../commons/DataManipulationWidget/PrimitiveTypeInputElementWidget";
+import { PrimitiveTypeOutputElementWidget } from "../commons/DataManipulationWidget/PrimitiveTypeOutputElementWidget";
 
 export interface ArrayOutputFieldWidgetProps {
     parentId: string;
