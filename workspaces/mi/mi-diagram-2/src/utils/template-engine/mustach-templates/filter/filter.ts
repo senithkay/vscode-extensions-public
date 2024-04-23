@@ -9,6 +9,7 @@
 
 import { Filter } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import Mustache from "mustache";
+import { checkAttributesExist } from "../../../commons";
 
 export function getFilterMustacheTemplate() {
 
@@ -32,23 +33,32 @@ export function getFilterMustacheTemplate() {
     `;
 }
 
-export function getFilterXml(data: { [key: string]: any }) {
+export function getFilterXml(data: { [key: string]: any }, dirtyFields?: any, defaultValues?: any) {
     if (data.conditionType == "Source and Regular Expression") {
+        data.regularExpression = data.regularExpression?.value;
         delete data.xPath;
     } else if (data.conditionType == "XPath") {
+        data.xPath = data.xPath?.value;
         delete data.regularExpression;
         delete data.source;
     }
 
+    if (defaultValues == undefined || Object.keys(defaultValues).length == 0) {
+        data.isNewMediator = true;
+        const output = Mustache.render(getFilterMustacheTemplate(), data)?.trim();
+        return output;
+    }
     const output = Mustache.render(getFilterMustacheTemplate(), data)?.trim();
-    return output;
+    let range = data.range.startTagRange;
+    let edits = [{ range, text: output }];
+    return edits;
 }
 
 export function getFilterFormDataFromSTNode(data: { [key: string]: any }, node: Filter) {
     data.description = node.description;
     data.regularExpression = node.regex;
-    data.source = node.source;
-    data.xPath = node.xpath;
+    data.source = { isExpression: true, value: node.source };
+    data.xPath = { isExpression: true, value: node.xpath };
     if (data.xPath) {
         data.conditionType = "XPath";
     } else if (data.source || data.regex) {

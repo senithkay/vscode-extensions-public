@@ -246,7 +246,7 @@ export function getXML(name: string, data: { [key: string]: any }, dirtyFields?:
             return getForeachXml(data);
         //Filter Mediators
         case MEDIATORS.FILTER:
-            return getFilterXml(data);
+            return getFilterXml(data, dirtyFields, defaultValues);
         case MEDIATORS.SWITCH:
             return getSwitchXml(data);
         case MEDIATORS.THROTTLE:
