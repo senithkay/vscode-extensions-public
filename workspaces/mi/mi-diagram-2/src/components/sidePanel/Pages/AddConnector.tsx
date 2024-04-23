@@ -183,8 +183,13 @@ const AddConnector = (props: AddConnectorProps) => {
         } else {
             const template = create();
 
-            const connectorName = props.formData?.connectorName ?? props.connectorName?.toLowerCase().replace(/\s/g, '') ?? sidePanelContext.formValues.connectorName;
-            const operationName = props.formData?.operationName ?? props.operationName ?? sidePanelContext.formValues.operationName;
+            const connectorName = props.formData?.connectorName ??
+                props.connectorName?.toLowerCase().replace(/\s/g, '') ??
+                sidePanelContext.formValues.connectorName;
+
+            const operationName = props.formData?.operationName ?? props.operationName ??
+                sidePanelContext.formValues.operationName;
+                
             const root = template.ele(`${connectorName}${operationName ? `.${operationName}` : ''}`);
             root.att('configKey', formValues['configKey']);
             // Fill the values
