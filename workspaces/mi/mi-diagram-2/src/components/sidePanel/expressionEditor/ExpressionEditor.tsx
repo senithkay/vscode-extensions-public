@@ -110,6 +110,7 @@ const ExpressionEditor = () => {
                             <ParamManager
                                 paramConfigs={value}
                                 readonly={false}
+                                addParamText="Add Namespace"
                                 onChange={(values) => {
                                     values.paramValues = values.paramValues.map((param: any) => {
                                         const paramValues = param.paramValues;
