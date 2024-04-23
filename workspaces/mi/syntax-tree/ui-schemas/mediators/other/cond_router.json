@@ -30,41 +30,33 @@
               "tableValue": "targetSequence",
               "elements": [
                 {
-                  "type": "attributeGroup",
+                  "type": "attribute",
                   "value": {
-                    "groupName": "Properties",
-                    "elements": [
-                      {
-                        "type": "attribute",
-                        "value": {
-                          "name": "breakAfterRoute",
-                          "displayName": "Break After Route",
-                          "inputType": "string",
-                          "required": false,
-                          "helpTip": ""
-                        }
-                      },
-                      {
-                        "type": "attribute",
-                        "value": {
-                          "name": "targetSequence",
-                          "displayName": "Target Sequence",
-                          "inputType": "registry",
-                          "required": false,
-                          "helpTip": ""
-                        }
-                      },
-                      {
-                        "type": "attribute",
-                        "value": {
-                          "name": "evaluatorExpression",
-                          "displayName": "Evaluator Expression",
-                          "inputType": "string",
-                          "required": true,
-                          "helpTip": ""
-                        }
-                      }
-                    ]
+                    "name": "breakAfterRoute",
+                    "displayName": "Break After Route",
+                    "inputType": "string",
+                    "required": false,
+                    "helpTip": ""
+                  }
+                },
+                {
+                  "type": "attribute",
+                  "value": {
+                    "name": "targetSequence",
+                    "displayName": "Target Sequence",
+                    "inputType": "registry",
+                    "required": false,
+                    "helpTip": ""
+                  }
+                },
+                {
+                  "type": "attribute",
+                  "value": {
+                    "name": "evaluatorExpression",
+                    "displayName": "Evaluator Expression",
+                    "inputType": "string",
+                    "required": true,
+                    "helpTip": ""
                   }
                 }
               ]
