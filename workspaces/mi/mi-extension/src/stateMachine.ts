@@ -424,8 +424,13 @@ export function openView(type: EVENT_TYPE, viewLocation?: VisualizerLocation) {
 export function navigate(entry?: HistoryEntry) {
     const historyStack = history.get();
     if (historyStack.length === 0) {
-        history.push({ location: entry!.location });
-        stateService.send({ type: "NAVIGATE", viewLocation: entry!.location });
+        if (entry) {
+            history.push({ location: entry.location });
+            stateService.send({ type: "NAVIGATE", viewLocation: entry!.location });
+        } else {
+            history.push({ location: { view: MACHINE_VIEW.Overview } });
+            stateService.send({ type: "NAVIGATE", viewLocation: { view: MACHINE_VIEW.Overview } });
+        }
     } else {
         const location = historyStack[historyStack.length - 1].location;
         stateService.send({ type: "NAVIGATE", viewLocation: location });
