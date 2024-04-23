@@ -135,7 +135,7 @@ const getRegexAndMessage = (validation: string, validationRegEx: string) => {
 
 const generateForm = (jsonData: any): string => {
     const operationName = jsonData.name;
-    const description = jsonData.description;
+    const description = jsonData.help;
     const operationNameCapitalized = `${operationName.split(/[-\s*]/)
         .map((word: string) => capitalizeFirstLetter(word))
         .join('')}Form`;
@@ -518,8 +518,9 @@ const ${operationNameCapitalized} = (props: AddMediatorProps) => {
         return <ProgressIndicator/>;
     }
     return (
-        <div style={{ padding: "10px" }}>
-            <Typography variant="body3">${description || ""}</Typography>\n`, 0);
+        <>
+        <Typography sx={{ padding: "10px 15px", borderBottom: "1px solid var(--vscode-editorWidget-border)" }} variant="body3">${description || ""}</Typography>
+        <div style={{ padding: "20px" }}>\n`, 0);
     componentContent += fields;
 
     componentContent += fixIndentation(`
@@ -533,6 +534,7 @@ const ${operationNameCapitalized} = (props: AddMediatorProps) => {
                 </Button>
             </div>\n
         </div>
+        </>
     );
 };
 
