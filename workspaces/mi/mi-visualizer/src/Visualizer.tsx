@@ -13,8 +13,7 @@ import { MachineStateValue, AIMachineStateValue } from "@wso2-enterprise/mi-core
 import MainPanel from "./MainPanel";
 import { VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 import styled from "@emotion/styled";
-import { AIOverviewWindow } from "./views/AIOverviewWindow";
-import AiPanel from "./AiPanel";
+import AIPanel from "./AIPanel";
 import { ErrorBoundary } from "@wso2-enterprise/ui-toolkit";
 import { WelcomePanel } from "./WelcomePanel";
 
@@ -82,7 +81,7 @@ const VisualizerComponent = React.memo(({ state }: { state: MachineStateValue })
 const AiVisualizerComponent = React.memo(({ state }: { state: AIMachineStateValue }) => {
     switch (true) {
         case state !== 'Initialize':
-            return <AiPanel />;
+            return <AIPanel />;
         default:
             return (
                 <LoaderWrapper>
