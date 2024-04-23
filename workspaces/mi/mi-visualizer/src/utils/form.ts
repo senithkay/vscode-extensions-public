@@ -32,13 +32,15 @@ export const generateResourceData = (model: APIResource): ResourceType => {
             head: false,
             options: false,
         });
-    const extractedProtocols = model.protocol?.reduce<{ [K in Protocol]: boolean }>(
-        (acc, protocol) => ({ ...acc, [protocol]: true }),
-        {
-            http: false,
-            https: false,
-        }
-    );
+    const extractedProtocols = model.protocol
+        ? model.protocol.reduce<{ [K in Protocol]: boolean }>((acc, protocol) => ({ ...acc, [protocol]: true }), {
+              http: false,
+              https: false,
+          })
+        : {
+              http: true,
+              https: true,
+          };
 
     // Create resource data object
     const resourceData: ResourceType = {
