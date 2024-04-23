@@ -11,11 +11,9 @@ import { TextField, Button, Codicon, Icon, ComponentCard, IconLabel, AutoComplet
 import React, { useContext, useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import SidePanelContext from "../SidePanelContexProvider";
-import { getSVGIcon } from "../../../resources/icons/mediatorIcons/icons";
 import { VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import AddConnector from "../Pages/AddConnector";
-import { getPNGIcon } from "../../../resources/icons/connectorIcons/icons";
 
 const LoaderWrapper = styled.div`
     display: flex;
