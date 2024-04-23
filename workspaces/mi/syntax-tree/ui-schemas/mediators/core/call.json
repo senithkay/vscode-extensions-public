@@ -2,7 +2,7 @@
     "name": "call",
     "type": "mediator",
     "title": "Call Mediator",
-    "help": "The Call mediator is used to send messages out of the Micro Integrator to an endpoint, allowing for both blocking and non-blocking invocations",
+    "help": "Invokes external services in blocking/non-blocking mode.",
     "elements": [
         {
             "type": "attribute",

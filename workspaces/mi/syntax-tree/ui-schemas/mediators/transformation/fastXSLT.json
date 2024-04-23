@@ -2,7 +2,7 @@
   "name": "Fast XSLT",
   "type": "mediator",
   "title": "Fast XSLT Mediator",
-  "help": "",
+  "help": "Swiftly transforms message streams (not payloads) based on an XSLT script.",
   "elements": [
     {
       "type": "attributeGroup",

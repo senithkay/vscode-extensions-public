@@ -2,7 +2,7 @@
   "name": "Script",
   "type": "mediator",
   "title": "Script Mediator",
-  "help": "",
+  "help": "Invokes scripting language functions with embedded or stored script files.",
   "elements": [
     {
       "type": "attribute",

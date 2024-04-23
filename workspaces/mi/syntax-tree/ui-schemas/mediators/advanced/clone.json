@@ -2,7 +2,7 @@
     "name": "Clone",
     "type": "mediator",
     "title": "Clone Mediator",
-    "help": "",
+    "help": "Clones a message into several messages.",
     "elements": [
         {
             "type": "attribute",

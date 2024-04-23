@@ -2,7 +2,7 @@
   "name": "Filter",
   "type": "mediator",
   "title": "Filter Mediator",
-  "help": "",
+  "help": "Filters messages based on XPath/JSONPath/regex.",
   "elements": [
     {
       "type": "attribute",

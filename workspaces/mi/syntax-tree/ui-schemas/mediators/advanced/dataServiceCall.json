@@ -2,7 +2,7 @@
   "name": "DataService",
   "type": "mediator",
   "title": "Data Service Mediator",
-  "help": "",
+  "help": "Invokes data service operations.",
   "elements": [
     {
       "type": "attributeGroup",

@@ -1,8 +1,8 @@
 {
   "name": "Event",
   "type":"mediator",
-  "title": "Eevnt Mediator",
-  "help": "",
+  "title": "Event Mediator",
+  "help": "Sends event notifications to an event source, and publishes messages to topics.",
   "elements": [
     {
       "type": "attributeGroup",
