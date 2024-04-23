@@ -9,65 +9,65 @@
 
 import React from "react"
 import { ENDPOINTS, MEDIATORS } from "../../../resources/constants"
-import CallForm from "../Pages/mediators/core/call"
-import CallTemplateForm from "../Pages/mediators/core/call-template"
-import CalloutForm from "../Pages/mediators/core/callout"
-import DropForm from "../Pages/mediators/core/drop"
-import HeaderForm from "../Pages/mediators/core/header"
-import LogForm from "../Pages/mediators/core/log"
-import LoopbackForm from "../Pages/mediators/core/loopback"
-import PropertyForm from "../Pages/mediators/core/property"
-import PropertyGroupForm from "../Pages/mediators/core/propertyGroup"
-import RespondForm from "../Pages/mediators/core/respond"
-import SendForm from "../Pages/mediators/core/send"
-import SequenceForm from "../Pages/mediators/core/sequence"
-import StoreForm from "../Pages/mediators/core/store"
-import ValidateForm from "../Pages/mediators/core/validate"
-import FilterForm from "../Pages/mediators/filter/filter"
-import DataMapperForm from "../Pages/mediators/transformation/datamapper"
-import EnrichForm from "../Pages/mediators/transformation/enrich"
-import FastXSLTForm from "../Pages/mediators/transformation/fastXSLT"
-import FaultForm from "../Pages/mediators/transformation/fault"
-import JSONTransformForm from "../Pages/mediators/transformation/jsonTransform"
-import PayloadForm from "../Pages/mediators/transformation/payload"
-import RewriteForm from "../Pages/mediators/transformation/rewrite"
-import SmooksForm from "../Pages/mediators/transformation/smooks"
-import XQueryForm from "../Pages/mediators/transformation/xquery"
-import XSLTForm from "../Pages/mediators/transformation/xslt"
-import AddressEndpointForm from "../Pages/endpoint/anonymous/address"
-import DefaultEndpointForm from "../Pages/endpoint/anonymous/defaultEndpoint"
-import FailoverEndpointForm from "../Pages/endpoint/anonymous/failover"
-import HTTPEndpointForm from "../Pages/endpoint/anonymous/http"
-import LoadbalanceEndpointForm from "../Pages/endpoint/anonymous/loadbalance"
-import NamedEndpointForm from "../Pages/endpoint/anonymous/namedEndpoint"
-import RecipientListEndpointForm from "../Pages/endpoint/anonymous/recipientList"
-import TemplateEndpointForm from "../Pages/endpoint/anonymous/template"
-import WSDLEndpointForm from "../Pages/endpoint/anonymous/wsdl"
-import AggregateForm from "../Pages/mediators/eip/aggregate"
-import ForEachMediatorForm from "../Pages/mediators/eip/foreach"
-import IterateForm from "../Pages/mediators/eip/iterate"
-import BeanForm from "../Pages/mediators/extension/bean"
-import ClassForm from "../Pages/mediators/extension/classExtension"
-import CommandForm from "../Pages/mediators/extension/command"
-import EJBForm from "../Pages/mediators/extension/ejb"
-import ScriptForm from "../Pages/mediators/extension/script"
-import SpringForm from "../Pages/mediators/extension/spring"
-import CloneForm from "../Pages/mediators/advanced/clone"
-import DataServiceForm from "../Pages/mediators/advanced/dataServiceCall"
-import EnqueueForm from "../Pages/mediators/advanced/enqueue"
-import EventForm from "../Pages/mediators/advanced/event"
-import TransactionForm from "../Pages/mediators/advanced/transaction"
-import CacheForm from "../Pages/mediators/advanced/cache"
-import SwitchForm from "../Pages/mediators/filter/switchMediator"
-import BamForm from "../Pages/mediators/other/bam"
-import ConditionalRouterForm from "../Pages/mediators/filter/cond_router"
-import OAuthForm from "../Pages/mediators/other/oauth"
-import BuilderForm from "../Pages/mediators/other/builder"
-import PublishEventForm from "../Pages/mediators/other/publishEvent"
-import EntitlementForm from "../Pages/mediators/other/entitlement"
-import RuleForm from "../Pages/mediators/other/rule"
-import NTLMForm from "../Pages/mediators/other/ntlm"
-import ThrottleForm from "../Pages/mediators/filter/throttle"
+import AddressEndpointForm from "../Pages/endpoint/anonymous/address";
+import DefaultEndpointForm from "../Pages/endpoint/anonymous/defaultEndpoint";
+import FailoverEndpointForm from "../Pages/endpoint/anonymous/failover";
+import HTTPEndpointForm from "../Pages/endpoint/anonymous/http";
+import LoadbalanceEndpointForm from "../Pages/endpoint/anonymous/loadbalance";
+import NamedEndpointForm from "../Pages/endpoint/anonymous/namedEndpoint";
+import RecipientListEndpointForm from "../Pages/endpoint/anonymous/recipientList";
+import TemplateEndpointForm from "../Pages/endpoint/anonymous/template";
+import WSDLEndpointForm from "../Pages/endpoint/anonymous/wsdl";
+import CallForm from "../Pages/mediators/core/call";
+import CallTemplateForm from "../Pages/mediators/core/call-template";
+import DropForm from "../Pages/mediators/core/drop";
+import LogForm from "../Pages/mediators/core/log";
+import PropertyForm from "../Pages/mediators/core/property";
+import PropertyGroupForm from "../Pages/mediators/core/propertyGroup";
+import RespondForm from "../Pages/mediators/core/respond";
+import ClassForm from "../Pages/mediators/extension/classExtension";
+import ScriptForm from "../Pages/mediators/extension/script";
+import AggregateForm from "../Pages/mediators/flow-control/aggregate";
+import CloneForm from "../Pages/mediators/flow-control/clone";
+import FilterForm from "../Pages/mediators/flow-control/filter";
+import IterateForm from "../Pages/mediators/flow-control/iterate";
+import StoreForm from "../Pages/mediators/flow-control/store";
+import SwitchForm from "../Pages/mediators/flow-control/switch";
+import ValidateForm from "../Pages/mediators/flow-control/validate";
+import BamForm from "../Pages/mediators/other/bam";
+import BeanForm from "../Pages/mediators/other/bean";
+import CommandForm from "../Pages/mediators/other/builder";
+import CalloutForm from "../Pages/mediators/other/callout";
+import ConditionalRouterForm from "../Pages/mediators/other/cond_router";
+import EJBForm from "../Pages/mediators/other/ejb";
+import EnqueueForm from "../Pages/mediators/other/enqueue";
+import EventForm from "../Pages/mediators/other/event";
+import FastXSLTForm from "../Pages/mediators/other/fastXSLT";
+import LoopbackForm from "../Pages/mediators/other/loopback";
+import RuleForm from "../Pages/mediators/other/rule";
+import SendForm from "../Pages/mediators/other/send";
+import SmooksForm from "../Pages/mediators/other/smooks";
+import SpringForm from "../Pages/mediators/other/spring";
+import TransactionForm from "../Pages/mediators/other/transaction";
+import XQueryForm from "../Pages/mediators/other/xquery";
+import CacheForm from "../Pages/mediators/qos/cache";
+import EntitlementForm from "../Pages/mediators/qos/entitlement";
+import NTLMForm from "../Pages/mediators/qos/ntlm";
+import OAuthForm from "../Pages/mediators/qos/oauth";
+import ThrottleForm from "../Pages/mediators/qos/throttle";
+import DataMapperForm from "../Pages/mediators/transformation/datamapper";
+import EnrichForm from "../Pages/mediators/transformation/enrich";
+import FaultForm from "../Pages/mediators/transformation/fault";
+import HeaderForm from "../Pages/mediators/transformation/header";
+import JSONTransformForm from "../Pages/mediators/transformation/jsonTransform";
+import PayloadForm from "../Pages/mediators/transformation/payload";
+import XSLTForm from "../Pages/mediators/transformation/xslt";
+import ForEachMediatorForm from "../Pages/mediators/flow-control/foreach";
+import PublishEventForm from "../Pages/mediators/other/publishEvent";
+import RewriteForm from "../Pages/mediators/oldForms/rewrite";
+import DataServiceForm from "../Pages/mediators/oldForms/dataServiceCall";
+import BuilderForm from "../Pages/mediators/other/builder";
+import SequenceForm from "../Pages/mediators/core/sequence";
 
 export interface GetMediatorsProps {
     nodePosition: any;
@@ -185,7 +185,7 @@ export function getAllMediators(props: GetMediatorsProps) {
             },
             {
                 title: "Foreach",
-                operationName: MEDIATORS.FOREACH,
+                operationName: MEDIATORS.FOREACHMEDIATOR,
                 form: <ForEachMediatorForm nodePosition={props.nodePosition} documentUri={props.documentUri}></ForEachMediatorForm>,
             },
             {
@@ -420,7 +420,7 @@ export function getAllMediators(props: GetMediatorsProps) {
                 // return {...allMediators, "sequences", "connectors"};
                 return { ...allMediators };
             case MEDIATORS.ITERATE.toLowerCase():
-            case MEDIATORS.FOREACH.toLowerCase(): {
+            case MEDIATORS.FOREACHMEDIATOR.toLowerCase(): {
                 allMediators["core"] = allMediators["core"].filter((mediator: any) => !["Send", "Respond", "Loopback", "Drop"].includes(mediator.title));
                 // return {...allMediators, "sequences", "connectors"};
                 return { ...allMediators };

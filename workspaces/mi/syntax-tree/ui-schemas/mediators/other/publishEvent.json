@@ -1,5 +1,5 @@
 {
-  "name": "PUBLISHEVENT",
+  "name": "PublishEvent",
   "type": "mediator",
   "title": "Publish Event Mediator",
   "help": "Constructs and publishes events to different systems such as WSO2 BAM/DAS/CEP/SP via event sinks.",

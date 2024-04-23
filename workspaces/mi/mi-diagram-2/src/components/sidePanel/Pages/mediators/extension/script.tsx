@@ -41,7 +41,7 @@ const ScriptForm = (props: AddMediatorProps) => {
     const sidePanelContext = React.useContext(SidePanelContext);
     const [ isLoading, setIsLoading ] = React.useState(true);
 
-    const { control, formState: { errors }, handleSubmit, watch, reset } = useForm();
+    const { control, formState: { errors, dirtyFields }, handleSubmit, watch, reset } = useForm();
 
     useEffect(() => {
         reset({
@@ -104,10 +104,18 @@ const ScriptForm = (props: AddMediatorProps) => {
     const onClick = async (values: any) => {
         
         values["scriptKeys"] = values.scriptKeys.paramValues.map((param: any) => param.paramValues.map((p: any) => p.value));
-        const xml = getXML(MEDIATORS.SCRIPT, values);
-        rpcClient.getMiDiagramRpcClient().applyEdit({
-            documentUri: props.documentUri, range: props.nodePosition, text: xml
-        });
+        const xml = getXML(MEDIATORS.SCRIPT, values, dirtyFields, sidePanelContext.formValues);
+        if (Array.isArray(xml)) {
+            for (let i = 0; i < xml.length; i++) {
+                await rpcClient.getMiDiagramRpcClient().applyEdit({
+                    documentUri: props.documentUri, range: xml[i].range, text: xml[i].text
+                });
+            }
+        } else {
+            rpcClient.getMiDiagramRpcClient().applyEdit({
+                documentUri: props.documentUri, range: props.nodePosition, text: xml
+            });
+        }
         sidePanelContext.setSidePanelState({
             ...sidePanelContext,
             isOpen: false,
@@ -122,36 +130,37 @@ const ScriptForm = (props: AddMediatorProps) => {
         return <ProgressIndicator/>;
     }
     return (
-        <div style={{ padding: "10px" }}>
-            <Typography variant="body3"></Typography>
+        <>
+            <Typography sx={{ padding: "10px 15px", borderBottom: "1px solid var(--vscode-editorWidget-border)" }} variant="body3">Invokes scripting language functions with embedded or stored script files.</Typography>
+            <div style={{ padding: "20px" }}>
 
-            <Field>
-                <Controller
-                    name="scriptLanguage"
-                    control={control}
-                    render={({ field }) => (
-                        <AutoComplete label="Script Language" items={["js", "rb", "groovy", "nashornJs"]} value={field.value} onValueChange={(e: any) => {
-                            field.onChange(e);
-                        }} />
-                    )}
-                />
-                {errors.scriptLanguage && <Error>{errors.scriptLanguage.message.toString()}</Error>}
-            </Field>
+                <Field>
+                    <Controller
+                        name="scriptLanguage"
+                        control={control}
+                        render={({ field }) => (
+                            <AutoComplete label="Script Language" name="scriptLanguage" items={["js", "rb", "groovy", "nashornJs"]} value={field.value} onValueChange={(e: any) => {
+                                field.onChange(e);
+                            }} />
+                        )}
+                    />
+                    {errors.scriptLanguage && <Error>{errors.scriptLanguage.message.toString()}</Error>}
+                </Field>
 
-            <Field>
-                <Controller
-                    name="scriptType"
-                    control={control}
-                    render={({ field }) => (
-                        <AutoComplete label="Script Type" items={["INLINE", "REGISTRY_REFERENCE"]} value={field.value} onValueChange={(e: any) => {
-                            field.onChange(e);
-                        }} />
-                    )}
-                />
-                {errors.scriptType && <Error>{errors.scriptType.message.toString()}</Error>}
-            </Field>
+                <Field>
+                    <Controller
+                        name="scriptType"
+                        control={control}
+                        render={({ field }) => (
+                            <AutoComplete label="Script Type" name="scriptType" items={["INLINE", "REGISTRY_REFERENCE"]} value={field.value} onValueChange={(e: any) => {
+                                field.onChange(e);
+                            }} />
+                        )}
+                    />
+                    {errors.scriptType && <Error>{errors.scriptType.message.toString()}</Error>}
+                </Field>
 
-            {watch("scriptType") && watch("scriptType").toLowerCase() == "inline" &&
+                {watch("scriptType") && watch("scriptType").toLowerCase() == "inline" &&
                 <Field>
                     <Controller
                         name="scriptBody"
@@ -162,26 +171,27 @@ const ScriptForm = (props: AddMediatorProps) => {
                     />
                     {errors.scriptBody && <Error>{errors.scriptBody.message.toString()}</Error>}
                 </Field>
-            }
+                }
 
-            {watch("scriptType") && watch("scriptType").toLowerCase() == "registry_reference" &&
+                {watch("scriptType") && watch("scriptType").toLowerCase() == "registry_reference" &&
                 <Field>
                     <Controller
                         name="scriptKey"
                         control={control}
                         render={({ field }) => (
                             <Keylookup
-                                {...field}
+                                value={field.value}
                                 label="Script Key"
                                 allowItemCreate={true}
+                                onValueChange={field.onChange}
                             />
                         )}
                     />
                     {errors.scriptKey && <Error>{errors.scriptKey.message.toString()}</Error>}
                 </Field>
-            }
+                }
 
-            {watch("scriptType") && watch("scriptType").toLowerCase() == "registry_reference" &&
+                {watch("scriptType") && watch("scriptType").toLowerCase() == "registry_reference" &&
                 <Field>
                     <Controller
                         name="mediateFunction"
@@ -192,58 +202,59 @@ const ScriptForm = (props: AddMediatorProps) => {
                     />
                     {errors.mediateFunction && <Error>{errors.mediateFunction.message.toString()}</Error>}
                 </Field>
-            }
+                }
 
-            <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                <Typography variant="h3">Script Keys</Typography>
-                <Typography variant="body3">Editing of the properties of an object Registry Key Property</Typography>
+                <ComponentCard sx={cardStyle} disbaleHoverEffect>
+                    <Typography variant="h3">Script Keys</Typography>
+                    <Typography variant="body3">Editing of the properties of an object Registry Key Property</Typography>
 
-                <Controller
-                    name="scriptKeys"
-                    control={control}
-                    render={({ field: { onChange, value } }) => (
-                        <ParamManager
-                            paramConfigs={value}
-                            readonly={false}
-                            onChange= {(values) => {
-                                values.paramValues = values.paramValues.map((param: any, index: number) => {
-                                    const paramValues = param.paramValues;
-                                    param.key = paramValues[0].value;
-                                    param.value = paramValues[1].value;
-                                    if (paramValues[1]?.value?.isExpression) {
-                                        param.namespaces = paramValues[1].value.namespaces;
-                                    }
-                                    param.icon = 'query';
-                                    return param;
-                                });
-                                onChange(values);
-                            }}
-                        />
-                    )}
-                />
-            </ComponentCard>
-            <Field>
-                <Controller
-                    name="description"
-                    control={control}
-                    render={({ field }) => (
-                        <TextField {...field} label="Description" size={50} placeholder="" />
-                    )}
-                />
-                {errors.description && <Error>{errors.description.message.toString()}</Error>}
-            </Field>
+                    <Controller
+                        name="scriptKeys"
+                        control={control}
+                        render={({ field: { onChange, value } }) => (
+                            <ParamManager
+                                paramConfigs={value}
+                                readonly={false}
+                                onChange= {(values) => {
+                                    values.paramValues = values.paramValues.map((param: any, index: number) => {
+                                        const paramValues = param.paramValues;
+                                        param.key = paramValues[0].value;
+                                        param.value = paramValues[1].value;
+                                        if (paramValues[1]?.value?.isExpression) {
+                                            param.namespaces = paramValues[1].value.namespaces;
+                                        }
+                                        param.icon = 'query';
+                                        return param;
+                                    });
+                                    onChange(values);
+                                }}
+                            />
+                        )}
+                    />
+                </ComponentCard>
+                <Field>
+                    <Controller
+                        name="description"
+                        control={control}
+                        render={({ field }) => (
+                            <TextField {...field} label="Description" size={50} placeholder="" />
+                        )}
+                    />
+                    {errors.description && <Error>{errors.description.message.toString()}</Error>}
+                </Field>
 
 
-            <div style={{ textAlign: "right", marginTop: "10px", float: "right" }}>
-                <Button
-                    appearance="primary"
-                    onClick={handleSubmit(onClick)}
-                >
+                <div style={{ textAlign: "right", marginTop: "10px", float: "right" }}>
+                    <Button
+                        appearance="primary"
+                        onClick={handleSubmit(onClick)}
+                    >
                     Submit
-                </Button>
-            </div>
+                    </Button>
+                </div>
 
-        </div>
+            </div>
+        </>
     );
 };
 

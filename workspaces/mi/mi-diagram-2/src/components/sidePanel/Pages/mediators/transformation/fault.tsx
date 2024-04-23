@@ -41,7 +41,7 @@ const FaultForm = (props: AddMediatorProps) => {
     const sidePanelContext = React.useContext(SidePanelContext);
     const [ isLoading, setIsLoading ] = React.useState(true);
 
-    const { control, formState: { errors }, handleSubmit, watch, reset } = useForm();
+    const { control, formState: { errors, dirtyFields }, handleSubmit, watch, reset } = useForm();
 
     useEffect(() => {
         reset({
@@ -62,10 +62,18 @@ const FaultForm = (props: AddMediatorProps) => {
 
     const onClick = async (values: any) => {
         
-        const xml = getXML(MEDIATORS.FAULT, values);
-        rpcClient.getMiDiagramRpcClient().applyEdit({
-            documentUri: props.documentUri, range: props.nodePosition, text: xml
-        });
+        const xml = getXML(MEDIATORS.FAULT, values, dirtyFields, sidePanelContext.formValues);
+        if (Array.isArray(xml)) {
+            for (let i = 0; i < xml.length; i++) {
+                await rpcClient.getMiDiagramRpcClient().applyEdit({
+                    documentUri: props.documentUri, range: xml[i].range, text: xml[i].text
+                });
+            }
+        } else {
+            rpcClient.getMiDiagramRpcClient().applyEdit({
+                documentUri: props.documentUri, range: props.nodePosition, text: xml
+            });
+        }
         sidePanelContext.setSidePanelState({
             ...sidePanelContext,
             isOpen: false,
@@ -80,53 +88,54 @@ const FaultForm = (props: AddMediatorProps) => {
         return <ProgressIndicator/>;
     }
     return (
-        <div style={{ padding: "10px" }}>
-            <Typography variant="body3"></Typography>
+        <>
+            <Typography sx={{ padding: "10px 15px", borderBottom: "1px solid var(--vscode-editorWidget-border)" }} variant="body3">Transforms the current message into a fault message.</Typography>
+            <div style={{ padding: "20px" }}>
 
-            <Field>
-                <Controller
-                    name="soapVersion"
-                    control={control}
-                    render={({ field }) => (
-                        <AutoComplete label="SOAP Version" items={["soap11", "soap12", "POX"]} value={field.value} onValueChange={(e: any) => {
-                            field.onChange(e);
-                        }} />
-                    )}
-                />
-                {errors.soapVersion && <Error>{errors.soapVersion.message.toString()}</Error>}
-            </Field>
+                <Field>
+                    <Controller
+                        name="soapVersion"
+                        control={control}
+                        render={({ field }) => (
+                            <AutoComplete label="SOAP Version" name="soapVersion" items={["soap11", "soap12", "POX"]} value={field.value} onValueChange={(e: any) => {
+                                field.onChange(e);
+                            }} />
+                        )}
+                    />
+                    {errors.soapVersion && <Error>{errors.soapVersion.message.toString()}</Error>}
+                </Field>
 
-            {watch("soapVersion") && watch("soapVersion").toLowerCase() == "soap11" &&
+                {watch("soapVersion") && watch("soapVersion").toLowerCase() == "soap11" &&
                 <Field>
                     <Controller
                         name="soap11"
                         control={control}
                         render={({ field }) => (
-                            <AutoComplete label="SOAP11" items={["VersionMismatch", "MustUnderstand", "Client", "Server"]} value={field.value} onValueChange={(e: any) => {
+                            <AutoComplete label="SOAP11" name="soap11" items={["VersionMismatch", "MustUnderstand", "Client", "Server"]} value={field.value} onValueChange={(e: any) => {
                                 field.onChange(e);
                             }} />
                         )}
                     />
                     {errors.soap11 && <Error>{errors.soap11.message.toString()}</Error>}
                 </Field>
-            }
+                }
 
-            {watch("soapVersion") && watch("soapVersion").toLowerCase() == "soap12" &&
+                {watch("soapVersion") && watch("soapVersion").toLowerCase() == "soap12" &&
                 <Field>
                     <Controller
                         name="code"
                         control={control}
                         render={({ field }) => (
-                            <AutoComplete label="Code" items={["VersionMismatch", "MustUnderstand", "DataEncordingUnknown", "Sender", "Reciever"]} value={field.value} onValueChange={(e: any) => {
+                            <AutoComplete label="Code" name="code" items={["VersionMismatch", "MustUnderstand", "DataEncordingUnknown", "Sender", "Reciever"]} value={field.value} onValueChange={(e: any) => {
                                 field.onChange(e);
                             }} />
                         )}
                     />
                     {errors.code && <Error>{errors.code.message.toString()}</Error>}
                 </Field>
-            }
+                }
 
-            {watch("soapVersion") && watch("soapVersion").toLowerCase() == "soap12" &&
+                {watch("soapVersion") && watch("soapVersion").toLowerCase() == "soap12" &&
                 <Field>
                     <Controller
                         name="Role"
@@ -137,9 +146,9 @@ const FaultForm = (props: AddMediatorProps) => {
                     />
                     {errors.Role && <Error>{errors.Role.message.toString()}</Error>}
                 </Field>
-            }
+                }
 
-            {watch("soapVersion") && watch("soapVersion").toLowerCase() == "soap12" &&
+                {watch("soapVersion") && watch("soapVersion").toLowerCase() == "soap12" &&
                 <Field>
                     <Controller
                         name="node"
@@ -150,9 +159,9 @@ const FaultForm = (props: AddMediatorProps) => {
                     />
                     {errors.node && <Error>{errors.node.message.toString()}</Error>}
                 </Field>
-            }
+                }
 
-            {watch("soapVersion") && watch("soapVersion").toLowerCase() == "soap11" &&
+                {watch("soapVersion") && watch("soapVersion").toLowerCase() == "soap11" &&
                 <Field>
                     <Controller
                         name="actor"
@@ -163,108 +172,105 @@ const FaultForm = (props: AddMediatorProps) => {
                     />
                     {errors.actor && <Error>{errors.actor.message.toString()}</Error>}
                 </Field>
-            }
+                }
 
-            <Field>
-                <Controller
-                    name="serializeResponse"
-                    control={control}
-                    render={({ field }) => (
-                        <VSCodeCheckbox type="checkbox" checked={field.value} onChange={(e: any) => {
-                            field.onChange(e);
-                        }}>Serialize Response</VSCodeCheckbox>
-                    )}
-                />
-                {errors.serializeResponse && <Error>{errors.serializeResponse.message.toString()}</Error>}
-            </Field>
+                <Field>
+                    <Controller
+                        name="serializeResponse"
+                        control={control}
+                        render={({ field }) => (
+                            <VSCodeCheckbox {...field} type="checkbox" checked={field.value} onChange={(e: any) => {field.onChange(e.target.checked)}}>Serialize Response</VSCodeCheckbox>
+                        )}
+                    />
+                    {errors.serializeResponse && <Error>{errors.serializeResponse.message.toString()}</Error>}
+                </Field>
 
-            {watch("serializeResponse") == true &&
+                {watch("serializeResponse") == true &&
                 <Field>
                     <Controller
                         name="markAsResponse"
                         control={control}
                         render={({ field }) => (
-                            <VSCodeCheckbox type="checkbox" checked={field.value} onChange={(e: any) => {
-                                field.onChange(e);
-                            }}>Mark As Response</VSCodeCheckbox>
+                            <VSCodeCheckbox {...field} type="checkbox" checked={field.value} onChange={(e: any) => {field.onChange(e.target.checked)}}>Mark As Response</VSCodeCheckbox>
                         )}
                     />
                     {errors.markAsResponse && <Error>{errors.markAsResponse.message.toString()}</Error>}
                 </Field>
-            }
+                }
 
-            <Field>
-                <Controller
-                    name="detail"
-                    control={control}
-                    render={({ field }) => (
-                        <ExpressionField
-                            {...field} label="Detail"
-                            placeholder=""
-                            canChange={true}
-                            openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => {
-                                sidePanelContext.setSidePanelState({
-                                    ...sidePanelContext,
-                                    expressionEditor: {
-                                        isOpen: true,
-                                        value,
-                                        setValue
-                                    }
-                                });
-                            }}
-                        />
-                    )}
-                />
-                {errors.detail && <Error>{errors.detail.message.toString()}</Error>}
-            </Field>
+                <Field>
+                    <Controller
+                        name="detail"
+                        control={control}
+                        render={({ field }) => (
+                            <ExpressionField
+                                {...field} label="Detail"
+                                placeholder=""
+                                canChange={true}
+                                openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => {
+                                    sidePanelContext.setSidePanelState({
+                                        ...sidePanelContext,
+                                        expressionEditor: {
+                                            isOpen: true,
+                                            value,
+                                            setValue
+                                        }
+                                    });
+                                }}
+                            />
+                        )}
+                    />
+                    {errors.detail && <Error>{errors.detail.message.toString()}</Error>}
+                </Field>
 
-            <Field>
-                <Controller
-                    name="reason"
-                    control={control}
-                    render={({ field }) => (
-                        <ExpressionField
-                            {...field} label="Reason"
-                            placeholder=""
-                            canChange={true}
-                            openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => {
-                                sidePanelContext.setSidePanelState({
-                                    ...sidePanelContext,
-                                    expressionEditor: {
-                                        isOpen: true,
-                                        value,
-                                        setValue
-                                    }
-                                });
-                            }}
-                        />
-                    )}
-                />
-                {errors.reason && <Error>{errors.reason.message.toString()}</Error>}
-            </Field>
+                <Field>
+                    <Controller
+                        name="reason"
+                        control={control}
+                        render={({ field }) => (
+                            <ExpressionField
+                                {...field} label="Reason"
+                                placeholder=""
+                                canChange={true}
+                                openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => {
+                                    sidePanelContext.setSidePanelState({
+                                        ...sidePanelContext,
+                                        expressionEditor: {
+                                            isOpen: true,
+                                            value,
+                                            setValue
+                                        }
+                                    });
+                                }}
+                            />
+                        )}
+                    />
+                    {errors.reason && <Error>{errors.reason.message.toString()}</Error>}
+                </Field>
 
-            <Field>
-                <Controller
-                    name="description"
-                    control={control}
-                    render={({ field }) => (
-                        <TextField {...field} label="Description" size={50} placeholder="" />
-                    )}
-                />
-                {errors.description && <Error>{errors.description.message.toString()}</Error>}
-            </Field>
+                <Field>
+                    <Controller
+                        name="description"
+                        control={control}
+                        render={({ field }) => (
+                            <TextField {...field} label="Description" size={50} placeholder="" />
+                        )}
+                    />
+                    {errors.description && <Error>{errors.description.message.toString()}</Error>}
+                </Field>
 
 
-            <div style={{ textAlign: "right", marginTop: "10px", float: "right" }}>
-                <Button
-                    appearance="primary"
-                    onClick={handleSubmit(onClick)}
-                >
+                <div style={{ textAlign: "right", marginTop: "10px", float: "right" }}>
+                    <Button
+                        appearance="primary"
+                        onClick={handleSubmit(onClick)}
+                    >
                     Submit
-                </Button>
-            </div>
+                    </Button>
+                </div>
 
-        </div>
+            </div>
+        </>
     );
 };
 

@@ -15,12 +15,12 @@ import { MediatorNodeWidget } from "./MediatorNodeWidget";
 import { NodeTypes } from "../../../resources/constants";
 
 export class MediatorNodeFactory extends AbstractReactFactory<MediatorNodeModel, DiagramEngine> {
-    constructor() {
-        super(NodeTypes.MEDIATOR_NODE);
+    constructor(nodeType: string = NodeTypes.MEDIATOR_NODE) {
+        super(nodeType);
     }
 
     generateModel(event: GenerateModelEvent): MediatorNodeModel {
-        return new MediatorNodeModel(event.initialConfig.stNode, event.initialConfig.mediatorName, event.initialConfig.documentUri);
+        return new MediatorNodeModel(NodeTypes.MEDIATOR_NODE, event.initialConfig.stNode, event.initialConfig.mediatorName, event.initialConfig.documentUri);
     }
 
     generateReactWidget(event: GenerateWidgetEvent<MediatorNodeModel>) {

@@ -85,47 +85,48 @@ const PropertyForm = (props: AddMediatorProps) => {
         return <ProgressIndicator/>;
     }
     return (
-        <div style={{ padding: "10px" }}>
-            <Typography variant="body3"></Typography>
+        <>
+            <Typography sx={{ padding: "10px 15px", borderBottom: "1px solid var(--vscode-editorWidget-border)" }} variant="body3">Manipulates message properties by setting and/or removing property values, supporting both constant and dynamically generated values through XPath expressions.</Typography>
+            <div style={{ padding: "20px" }}>
 
-            <Field>
-                <Controller
-                    name="propertyName"
-                    control={control}
-                    render={({ field }) => (
-                        <TextField {...field} label="Property Name" size={50} placeholder="New Property Name" />
-                    )}
-                />
-                {errors.propertyName && <Error>{errors.propertyName.message.toString()}</Error>}
-            </Field>
+                <Field>
+                    <Controller
+                        name="propertyName"
+                        control={control}
+                        render={({ field }) => (
+                            <TextField {...field} label="Property Name" size={50} placeholder="New Property Name" />
+                        )}
+                    />
+                    {errors.propertyName && <Error>{errors.propertyName.message.toString()}</Error>}
+                </Field>
 
-            <Field>
-                <Controller
-                    name="propertyDataType"
-                    control={control}
-                    render={({ field }) => (
-                        <AutoComplete label="Property Data Type" name="propertyDataType" items={["STRING", "INTEGER", "BOOLEAN", "DOUBLE", "FLOAT", "LONG", "SHORT", "OM", "JSON"]} value={field.value} onValueChange={(e: any) => {
-                            field.onChange(e);
-                        }} />
-                    )}
-                />
-                {errors.propertyDataType && <Error>{errors.propertyDataType.message.toString()}</Error>}
-            </Field>
+                <Field>
+                    <Controller
+                        name="propertyDataType"
+                        control={control}
+                        render={({ field }) => (
+                            <AutoComplete label="Property Data Type" name="propertyDataType" items={["STRING", "INTEGER", "BOOLEAN", "DOUBLE", "FLOAT", "LONG", "SHORT", "OM", "JSON"]} value={field.value} onValueChange={(e: any) => {
+                                field.onChange(e);
+                            }} />
+                        )}
+                    />
+                    {errors.propertyDataType && <Error>{errors.propertyDataType.message.toString()}</Error>}
+                </Field>
 
-            <Field>
-                <Controller
-                    name="propertyAction"
-                    control={control}
-                    render={({ field }) => (
-                        <AutoComplete label="Property Action" name="propertyAction" items={["set", "remove"]} value={field.value} onValueChange={(e: any) => {
-                            field.onChange(e);
-                        }} />
-                    )}
-                />
-                {errors.propertyAction && <Error>{errors.propertyAction.message.toString()}</Error>}
-            </Field>
+                <Field>
+                    <Controller
+                        name="propertyAction"
+                        control={control}
+                        render={({ field }) => (
+                            <AutoComplete label="Property Action" name="propertyAction" items={["set", "remove"]} value={field.value} onValueChange={(e: any) => {
+                                field.onChange(e);
+                            }} />
+                        )}
+                    />
+                    {errors.propertyAction && <Error>{errors.propertyAction.message.toString()}</Error>}
+                </Field>
 
-            {watch("propertyDataType") && watch("propertyDataType").toLowerCase() == "om"  &&
+                {watch("propertyDataType") && watch("propertyDataType").toLowerCase() == "om"  &&
                 <Field>
                     <Controller
                         name="value"
@@ -150,9 +151,9 @@ const PropertyForm = (props: AddMediatorProps) => {
                     />
                     {errors.value && <Error>{errors.value.message.toString()}</Error>}
                 </Field>
-            }
+                }
 
-            {watch("propertyDataType") && watch("propertyDataType").toLowerCase() == "om" &&
+                {watch("propertyDataType") && watch("propertyDataType").toLowerCase() == "om" &&
                 <Field>
                     <Controller
                         name="OMValue"
@@ -163,23 +164,23 @@ const PropertyForm = (props: AddMediatorProps) => {
                     />
                     {errors.OMValue && <Error>{errors.OMValue.message.toString()}</Error>}
                 </Field>
-            }
+                }
 
-            <Field>
-                <Controller
-                    name="propertyScope"
-                    control={control}
-                    render={({ field }) => (
-                        <AutoComplete label="Property Scope" name="propertyScope" items={["DEFAULT", "TRANSPORT", "AXIS2", "AXIS2_CLIENT", "OPERATION", "REGISTRY", "SYSTEM", "ANALYTICS"]} value={field.value} onValueChange={(e: any) => {
-                            field.onChange(e);
-                        }} />
-                    )}
-                />
-                {errors.propertyScope && <Error>{errors.propertyScope.message.toString()}</Error>}
-            </Field>
+                <Field>
+                    <Controller
+                        name="propertyScope"
+                        control={control}
+                        render={({ field }) => (
+                            <AutoComplete label="Property Scope" name="propertyScope" items={["DEFAULT", "TRANSPORT", "AXIS2", "AXIS2_CLIENT", "OPERATION", "REGISTRY", "SYSTEM", "ANALYTICS"]} value={field.value} onValueChange={(e: any) => {
+                                field.onChange(e);
+                            }} />
+                        )}
+                    />
+                    {errors.propertyScope && <Error>{errors.propertyScope.message.toString()}</Error>}
+                </Field>
 
-            <FormGroup title="Advanced">
-                {watch("propertyDataType") && watch("propertyDataType").toLowerCase() == "string" &&
+                <FormGroup title="Advanced">
+                    {watch("propertyDataType") && watch("propertyDataType").toLowerCase() == "string" &&
                     <Field>
                         <Controller
                             name="valueStringPattern"
@@ -190,9 +191,9 @@ const PropertyForm = (props: AddMediatorProps) => {
                         />
                         {errors.valueStringPattern && <Error>{errors.valueStringPattern.message.toString()}</Error>}
                     </Field>
-                }
+                    }
 
-                {watch("propertyDataType") && watch("propertyDataType").toLowerCase() == "string" &&
+                    {watch("propertyDataType") && watch("propertyDataType").toLowerCase() == "string" &&
                     <Field>
                         <Controller
                             name="valueStringCapturingGroup"
@@ -203,32 +204,33 @@ const PropertyForm = (props: AddMediatorProps) => {
                         />
                         {errors.valueStringCapturingGroup && <Error>{errors.valueStringCapturingGroup.message.toString()}</Error>}
                     </Field>
-                }
+                    }
 
-            </FormGroup>
+                </FormGroup>
 
-            <Field>
-                <Controller
-                    name="description"
-                    control={control}
-                    render={({ field }) => (
-                        <TextField {...field} label="Description" size={50} placeholder="Description" />
-                    )}
-                />
-                {errors.description && <Error>{errors.description.message.toString()}</Error>}
-            </Field>
+                <Field>
+                    <Controller
+                        name="description"
+                        control={control}
+                        render={({ field }) => (
+                            <TextField {...field} label="Description" size={50} placeholder="Description" />
+                        )}
+                    />
+                    {errors.description && <Error>{errors.description.message.toString()}</Error>}
+                </Field>
 
 
-            <div style={{ textAlign: "right", marginTop: "10px", float: "right" }}>
-                <Button
-                    appearance="primary"
-                    onClick={handleSubmit(onClick)}
-                >
+                <div style={{ textAlign: "right", marginTop: "10px", float: "right" }}>
+                    <Button
+                        appearance="primary"
+                        onClick={handleSubmit(onClick)}
+                    >
                     Submit
-                </Button>
-            </div>
+                    </Button>
+                </div>
 
-        </div>
+            </div>
+        </>
     );
 };
 

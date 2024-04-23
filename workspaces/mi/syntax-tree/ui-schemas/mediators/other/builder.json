@@ -1,7 +1,7 @@
 {
-  "name": "Command",
+  "name": "Builder",
   "type": "mediator",
-  "title": "Command Mediator",
+  "title": "Builder Mediator",
   "help": "Builds (converts to XML) messages even with Binary Relay enabled in the server.",
   "elements": [
     {

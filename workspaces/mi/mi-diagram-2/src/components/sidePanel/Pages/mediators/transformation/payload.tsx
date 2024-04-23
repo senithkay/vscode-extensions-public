@@ -40,7 +40,7 @@ const PayloadForm = (props: AddMediatorProps) => {
     const sidePanelContext = React.useContext(SidePanelContext);
     const [ isLoading, setIsLoading ] = React.useState(true);
 
-    const { control, formState: { errors }, handleSubmit, watch, reset } = useForm();
+    const { control, formState: { errors, dirtyFields }, handleSubmit, watch, reset } = useForm();
 
     useEffect(() => {
         reset({
@@ -132,10 +132,18 @@ const PayloadForm = (props: AddMediatorProps) => {
     const onClick = async (values: any) => {
         
         values["args"] = values.args.paramValues.map((param: any) => param.paramValues.map((p: any) => p.value));
-        const xml = getXML(MEDIATORS.PAYLOAD, values);
-        rpcClient.getMiDiagramRpcClient().applyEdit({
-            documentUri: props.documentUri, range: props.nodePosition, text: xml
-        });
+        const xml = getXML(MEDIATORS.PAYLOAD, values, dirtyFields, sidePanelContext.formValues);
+        if (Array.isArray(xml)) {
+            for (let i = 0; i < xml.length; i++) {
+                await rpcClient.getMiDiagramRpcClient().applyEdit({
+                    documentUri: props.documentUri, range: xml[i].range, text: xml[i].text
+                });
+            }
+        } else {
+            rpcClient.getMiDiagramRpcClient().applyEdit({
+                documentUri: props.documentUri, range: props.nodePosition, text: xml
+            });
+        }
         sidePanelContext.setSidePanelState({
             ...sidePanelContext,
             isOpen: false,
@@ -150,49 +158,50 @@ const PayloadForm = (props: AddMediatorProps) => {
         return <ProgressIndicator/>;
     }
     return (
-        <div style={{ padding: "10px" }}>
-            <Typography variant="body3"></Typography>
+        <>
+            <Typography sx={{ padding: "10px 15px", borderBottom: "1px solid var(--vscode-editorWidget-border)" }} variant="body3">Replaces message payload with a new SOAP/JSON payload.</Typography>
+            <div style={{ padding: "20px" }}>
 
-            <Field>
-                <Controller
-                    name="payloadFormat"
-                    control={control}
-                    render={({ field }) => (
-                        <AutoComplete label="Payload Format" items={["Inline", "Registry Reference"]} value={field.value} onValueChange={(e: any) => {
-                            field.onChange(e);
-                        }} />
-                    )}
-                />
-                {errors.payloadFormat && <Error>{errors.payloadFormat.message.toString()}</Error>}
-            </Field>
+                <Field>
+                    <Controller
+                        name="payloadFormat"
+                        control={control}
+                        render={({ field }) => (
+                            <AutoComplete label="Payload Format" name="payloadFormat" items={["Inline", "Registry Reference"]} value={field.value} onValueChange={(e: any) => {
+                                field.onChange(e);
+                            }} />
+                        )}
+                    />
+                    {errors.payloadFormat && <Error>{errors.payloadFormat.message.toString()}</Error>}
+                </Field>
 
-            <Field>
-                <Controller
-                    name="mediaType"
-                    control={control}
-                    render={({ field }) => (
-                        <AutoComplete label="Media Type" items={["xml", "json", "text"]} value={field.value} onValueChange={(e: any) => {
-                            field.onChange(e);
-                        }} />
-                    )}
-                />
-                {errors.mediaType && <Error>{errors.mediaType.message.toString()}</Error>}
-            </Field>
+                <Field>
+                    <Controller
+                        name="mediaType"
+                        control={control}
+                        render={({ field }) => (
+                            <AutoComplete label="Media Type" name="mediaType" items={["xml", "json", "text"]} value={field.value} onValueChange={(e: any) => {
+                                field.onChange(e);
+                            }} />
+                        )}
+                    />
+                    {errors.mediaType && <Error>{errors.mediaType.message.toString()}</Error>}
+                </Field>
 
-            <Field>
-                <Controller
-                    name="templateType"
-                    control={control}
-                    render={({ field }) => (
-                        <AutoComplete label="Template Type" items={["Default", "Freemarker"]} value={field.value} onValueChange={(e: any) => {
-                            field.onChange(e);
-                        }} />
-                    )}
-                />
-                {errors.templateType && <Error>{errors.templateType.message.toString()}</Error>}
-            </Field>
+                <Field>
+                    <Controller
+                        name="templateType"
+                        control={control}
+                        render={({ field }) => (
+                            <AutoComplete label="Template Type" name="templateType" items={["Default", "Freemarker"]} value={field.value} onValueChange={(e: any) => {
+                                field.onChange(e);
+                            }} />
+                        )}
+                    />
+                    {errors.templateType && <Error>{errors.templateType.message.toString()}</Error>}
+                </Field>
 
-            {watch("payloadFormat") && watch("payloadFormat").toLowerCase() == "registry reference" &&
+                {watch("payloadFormat") && watch("payloadFormat").toLowerCase() == "registry reference" &&
                 <Field>
                     <Controller
                         name="payloadKey"
@@ -203,12 +212,12 @@ const PayloadForm = (props: AddMediatorProps) => {
                     />
                     {errors.payloadKey && <Error>{errors.payloadKey.message.toString()}</Error>}
                 </Field>
-            }
+                }
 
-            <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                <Typography variant="h3">Payload</Typography>
+                <ComponentCard sx={cardStyle} disbaleHoverEffect>
+                    <Typography variant="h3">Payload</Typography>
 
-                {watch("payloadFormat") && watch("payloadFormat").toLowerCase() == "inline" &&
+                    {watch("payloadFormat") && watch("payloadFormat").toLowerCase() == "inline" &&
                     <Field>
                         <Controller
                             name="payload"
@@ -219,60 +228,61 @@ const PayloadForm = (props: AddMediatorProps) => {
                         />
                         {errors.payload && <Error>{errors.payload.message.toString()}</Error>}
                     </Field>
-                }
+                    }
 
-                <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                    <Typography variant="h3">Args</Typography>
-                    <Typography variant="body3">Editing of the properties of an object Payload Factory Argument</Typography>
+                    <ComponentCard sx={cardStyle} disbaleHoverEffect>
+                        <Typography variant="h3">Args</Typography>
+                        <Typography variant="body3">Editing of the properties of an object Payload Factory Argument</Typography>
 
+                        <Controller
+                            name="args"
+                            control={control}
+                            render={({ field: { onChange, value } }) => (
+                                <ParamManager
+                                    paramConfigs={value}
+                                    readonly={false}
+                                    onChange= {(values) => {
+                                        values.paramValues = values.paramValues.map((param: any, index: number) => {
+                                            const paramValues = param.paramValues;
+                                            param.key = index;
+                                            param.value = paramValues[0].value.value;
+                                            if (paramValues[1]?.value?.isExpression) {
+                                                param.namespaces = paramValues[1].value.namespaces;
+                                            }
+                                            param.icon = 'query';
+                                            return param;
+                                        });
+                                        onChange(values);
+                                    }}
+                                />
+                            )}
+                        />
+                    </ComponentCard>
+                </ComponentCard>
+
+                <Field>
                     <Controller
-                        name="args"
+                        name="description"
                         control={control}
-                        render={({ field: { onChange, value } }) => (
-                            <ParamManager
-                                paramConfigs={value}
-                                readonly={false}
-                                onChange= {(values) => {
-                                    values.paramValues = values.paramValues.map((param: any, index: number) => {
-                                        const paramValues = param.paramValues;
-                                        param.key = index;
-                                        param.value = paramValues[0].value.value;
-                                        if (paramValues[1]?.value?.isExpression) {
-                                            param.namespaces = paramValues[1].value.namespaces;
-                                        }
-                                        param.icon = 'query';
-                                        return param;
-                                    });
-                                    onChange(values);
-                                }}
-                            />
+                        render={({ field }) => (
+                            <TextField {...field} label="Description" size={50} placeholder="" />
                         )}
                     />
-                </ComponentCard>
-            </ComponentCard>
-
-            <Field>
-                <Controller
-                    name="description"
-                    control={control}
-                    render={({ field }) => (
-                        <TextField {...field} label="Description" size={50} placeholder="" />
-                    )}
-                />
-                {errors.description && <Error>{errors.description.message.toString()}</Error>}
-            </Field>
+                    {errors.description && <Error>{errors.description.message.toString()}</Error>}
+                </Field>
 
 
-            <div style={{ textAlign: "right", marginTop: "10px", float: "right" }}>
-                <Button
-                    appearance="primary"
-                    onClick={handleSubmit(onClick)}
-                >
+                <div style={{ textAlign: "right", marginTop: "10px", float: "right" }}>
+                    <Button
+                        appearance="primary"
+                        onClick={handleSubmit(onClick)}
+                    >
                     Submit
-                </Button>
-            </div>
+                    </Button>
+                </div>
 
-        </div>
+            </div>
+        </>
     );
 };
 

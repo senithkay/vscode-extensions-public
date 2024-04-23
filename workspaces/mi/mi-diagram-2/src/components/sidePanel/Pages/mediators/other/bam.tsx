@@ -40,7 +40,7 @@ const BamForm = (props: AddMediatorProps) => {
     const sidePanelContext = React.useContext(SidePanelContext);
     const [ isLoading, setIsLoading ] = React.useState(true);
 
-    const { control, formState: { errors }, handleSubmit, watch, reset } = useForm();
+    const { control, formState: { errors, dirtyFields }, handleSubmit, watch, reset } = useForm();
 
     useEffect(() => {
         reset({
@@ -54,10 +54,18 @@ const BamForm = (props: AddMediatorProps) => {
 
     const onClick = async (values: any) => {
         
-        const xml = getXML(MEDIATORS.BAM, values);
-        rpcClient.getMiDiagramRpcClient().applyEdit({
-            documentUri: props.documentUri, range: props.nodePosition, text: xml
-        });
+        const xml = getXML(MEDIATORS.BAM, values, dirtyFields, sidePanelContext.formValues);
+        if (Array.isArray(xml)) {
+            for (let i = 0; i < xml.length; i++) {
+                await rpcClient.getMiDiagramRpcClient().applyEdit({
+                    documentUri: props.documentUri, range: xml[i].range, text: xml[i].text
+                });
+            }
+        } else {
+            rpcClient.getMiDiagramRpcClient().applyEdit({
+                documentUri: props.documentUri, range: props.nodePosition, text: xml
+            });
+        }
         sidePanelContext.setSidePanelState({
             ...sidePanelContext,
             isOpen: false,
@@ -72,74 +80,76 @@ const BamForm = (props: AddMediatorProps) => {
         return <ProgressIndicator/>;
     }
     return (
-        <div style={{ padding: "10px" }}>
-            <Typography variant="body3"></Typography>
-
-            <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                <Typography variant="h3">Properties</Typography>
-
-                <Field>
-                    <Controller
-                        name="serverProfileName"
-                        control={control}
-                        render={({ field }) => (
-                            <TextField {...field} label="Server Profile Name" size={50} placeholder="" />
-                        )}
-                    />
-                    {errors.serverProfileName && <Error>{errors.serverProfileName.message.toString()}</Error>}
-                </Field>
+        <>
+            <Typography sx={{ padding: "10px 15px", borderBottom: "1px solid var(--vscode-editorWidget-border)" }} variant="body3">Deprecated. Use PublishEvent Mediator for similar functionality.</Typography>
+            <div style={{ padding: "20px" }}>
 
                 <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                    <Typography variant="h3">Stream</Typography>
+                    <Typography variant="h3">Properties</Typography>
 
                     <Field>
                         <Controller
-                            name="streamName"
+                            name="serverProfileName"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Stream Name" size={50} placeholder="" />
+                                <TextField {...field} label="Server Profile Name" size={50} placeholder="" />
                             )}
                         />
-                        {errors.streamName && <Error>{errors.streamName.message.toString()}</Error>}
+                        {errors.serverProfileName && <Error>{errors.serverProfileName.message.toString()}</Error>}
                     </Field>
 
+                    <ComponentCard sx={cardStyle} disbaleHoverEffect>
+                        <Typography variant="h3">Stream</Typography>
+
+                        <Field>
+                            <Controller
+                                name="streamName"
+                                control={control}
+                                render={({ field }) => (
+                                    <TextField {...field} label="Stream Name" size={50} placeholder="" />
+                                )}
+                            />
+                            {errors.streamName && <Error>{errors.streamName.message.toString()}</Error>}
+                        </Field>
+
+                        <Field>
+                            <Controller
+                                name="streamVersion"
+                                control={control}
+                                render={({ field }) => (
+                                    <TextField {...field} label="Stream Version" size={50} placeholder="" />
+                                )}
+                            />
+                            {errors.streamVersion && <Error>{errors.streamVersion.message.toString()}</Error>}
+                        </Field>
+
+                    </ComponentCard>
+
                     <Field>
                         <Controller
-                            name="streamVersion"
+                            name="description"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Stream Version" size={50} placeholder="" />
+                                <TextField {...field} label="Description" size={50} placeholder="" />
                             )}
                         />
-                        {errors.streamVersion && <Error>{errors.streamVersion.message.toString()}</Error>}
+                        {errors.description && <Error>{errors.description.message.toString()}</Error>}
                     </Field>
 
                 </ComponentCard>
 
-                <Field>
-                    <Controller
-                        name="description"
-                        control={control}
-                        render={({ field }) => (
-                            <TextField {...field} label="Description" size={50} placeholder="" />
-                        )}
-                    />
-                    {errors.description && <Error>{errors.description.message.toString()}</Error>}
-                </Field>
 
-            </ComponentCard>
-
-
-            <div style={{ textAlign: "right", marginTop: "10px", float: "right" }}>
-                <Button
-                    appearance="primary"
-                    onClick={handleSubmit(onClick)}
-                >
+                <div style={{ textAlign: "right", marginTop: "10px", float: "right" }}>
+                    <Button
+                        appearance="primary"
+                        onClick={handleSubmit(onClick)}
+                    >
                     Submit
-                </Button>
-            </div>
+                    </Button>
+                </div>
 
-        </div>
+            </div>
+        </>
     );
 };
 

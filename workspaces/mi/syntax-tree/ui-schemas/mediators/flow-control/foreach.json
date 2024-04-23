@@ -1,5 +1,5 @@
 {
-  "name": "ForEach",
+  "name": "ForEachMediator",
   "type": "mediator",
   "title": "ForEach Mediator",
   "help": "Splits message based on XPath/JSONPath, processes sequentially, then merges back.",

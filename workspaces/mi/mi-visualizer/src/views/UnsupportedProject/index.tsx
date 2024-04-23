@@ -96,14 +96,6 @@ const CardExpanded = styled.div`
   background-color: var(--vscode-welcomePage-tileBackground);
 `;
 
-const CardLayout = styled.div`
-  display: grid;
-  width: 100%;
-  grid-template-columns: 1fr 15fr;
-  row-gap: 4px;
-  align-items: start;
-`;
-
 const CardContent = styled.div`
   display: flex;
   flex-direction: column;
@@ -124,7 +116,6 @@ const Footer = styled.div`
 `;
 
 interface CardProps {
-  id: number;
   title: string;
   description: string;
   expanded: boolean;
@@ -141,7 +132,7 @@ export interface UnsupportedProjectProps {
   displayOverview?: boolean;
 };
 
-const Card: React.FC<CardProps> = ({ id: index, title, description, expanded, onClick }) => {
+const Card: React.FC<CardProps> = ({ title, description, expanded, onClick }) => {
   return (
     <React.Fragment>
       {expanded ? (
@@ -155,14 +146,9 @@ const Card: React.FC<CardProps> = ({ id: index, title, description, expanded, on
         </CardExpanded>
       ) : (
         <CardCollapsed onClick={onClick}>
-          <CardLayout>
-            <Typography variant='body3' sx={{ fontWeight: 600 }}>
-              {`${index}.`}
-            </Typography>
             <CardTitle variant='body3' sx={{ fontWeight: 600 }}>
               {title}
             </CardTitle>
-          </CardLayout>
         </CardCollapsed>
       )}
     </React.Fragment>
@@ -286,7 +272,6 @@ export function UnsupportedProject(props: UnsupportedProjectProps) {
               {cards.map((card, index) => (
                 <Card
                   key={card.title}
-                  id={index + 1}
                   title={card.title}
                   description={card.description}
                   expanded={index === activeCard}

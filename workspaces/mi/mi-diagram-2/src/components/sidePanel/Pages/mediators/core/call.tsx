@@ -92,30 +92,31 @@ const CallForm = (props: AddMediatorProps) => {
         return <ProgressIndicator/>;
     }
     return (
-        <div style={{ padding: "10px" }}>
-            <Typography variant="body3"></Typography>
+        <>
+            <Typography sx={{ padding: "10px 15px", borderBottom: "1px solid var(--vscode-editorWidget-border)" }} variant="body3">Invokes external services in blocking/non-blocking mode.</Typography>
+            <div style={{ padding: "20px" }}>
 
-            <Field>
-                <Controller
-                    name="endopint"
-                    control={control}
-                    render={({ field }) => (
-                        <Keylookup
-                            value={field.value}
-                            filterType='endpoint'
-                            label="Select Endpoint"
-                            allowItemCreate={false}
-                            onCreateButtonClick={(fetchItems: any, handleValueChange: any) => {
-                                openPopup(rpcClient, "endpoint", fetchItems, handleValueChange);
-                            }}
-                            onValueChange={field.onChange}
-                        />
-                    )}
-                />
-                {errors.endopint && <Error>{errors.endopint.message.toString()}</Error>}
-            </Field>
+                <Field>
+                    <Controller
+                        name="endopint"
+                        control={control}
+                        render={({ field }) => (
+                            <Keylookup
+                                value={field.value}
+                                filterType='endpoint'
+                                label="Select Endpoint"
+                                allowItemCreate={false}
+                                onCreateButtonClick={(fetchItems: any, handleValueChange: any) => {
+                                    openPopup(rpcClient, "endpoint", fetchItems, handleValueChange);
+                                }}
+                                onValueChange={field.onChange}
+                            />
+                        )}
+                    />
+                    {errors.endopint && <Error>{errors.endopint.message.toString()}</Error>}
+                </Field>
 
-            {watch("endopint") && watch("endopint").toLowerCase() == "inline" &&
+                {watch("endopint") && watch("endopint").toLowerCase() == "inline" &&
                 <Field>
                     <Controller
                         name="inlineEndpoint"
@@ -126,9 +127,9 @@ const CallForm = (props: AddMediatorProps) => {
                     />
                     {errors.inlineEndpoint && <Error>{errors.inlineEndpoint.message.toString()}</Error>}
                 </Field>
-            }
+                }
 
-            {watch("endpoint") && watch("endpoint").toLowerCase() == "registrykey" &&
+                {watch("endpoint") && watch("endpoint").toLowerCase() == "registrykey" &&
                 <Field>
                     <Controller
                         name="endpointRegistryKey"
@@ -139,9 +140,9 @@ const CallForm = (props: AddMediatorProps) => {
                     />
                     {errors.endpointRegistryKey && <Error>{errors.endpointRegistryKey.message.toString()}</Error>}
                 </Field>
-            }
+                }
 
-            {watch("endpoint") && watch("endpoint").toLowerCase() == "xpath" &&
+                {watch("endpoint") && watch("endpoint").toLowerCase() == "xpath" &&
                 <Field>
                     <Controller
                         name="endpointXpath"
@@ -166,47 +167,47 @@ const CallForm = (props: AddMediatorProps) => {
                     />
                     {errors.endpointXpath && <Error>{errors.endpointXpath.message.toString()}</Error>}
                 </Field>
-            }
+                }
 
-            <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                <Typography variant="h3">Advanced</Typography>
+                <ComponentCard sx={cardStyle} disbaleHoverEffect>
+                    <Typography variant="h3">Advanced</Typography>
 
-                <Field>
-                    <Controller
-                        name="enableBlockingCalls"
-                        control={control}
-                        render={({ field }) => (
-                            <VSCodeCheckbox {...field} type="checkbox" checked={field.value} onChange={(e: any) => {field.onChange(e.target.checked)}}>Enable Blocking Calls</VSCodeCheckbox>
-                        )}
-                    />
-                    {errors.enableBlockingCalls && <Error>{errors.enableBlockingCalls.message.toString()}</Error>}
-                </Field>
+                    <Field>
+                        <Controller
+                            name="enableBlockingCalls"
+                            control={control}
+                            render={({ field }) => (
+                                <VSCodeCheckbox {...field} type="checkbox" checked={field.value} onChange={(e: any) => {field.onChange(e.target.checked)}}>Enable Blocking Calls</VSCodeCheckbox>
+                            )}
+                        />
+                        {errors.enableBlockingCalls && <Error>{errors.enableBlockingCalls.message.toString()}</Error>}
+                    </Field>
 
-                <Field>
-                    <Controller
-                        name="initAxis2ClientOptions"
-                        control={control}
-                        render={({ field }) => (
-                            <VSCodeCheckbox {...field} type="checkbox" checked={field.value} onChange={(e: any) => {field.onChange(e.target.checked)}}>Initialize Axis2 Client Options</VSCodeCheckbox>
-                        )}
-                    />
-                    {errors.initAxis2ClientOptions && <Error>{errors.initAxis2ClientOptions.message.toString()}</Error>}
-                </Field>
+                    <Field>
+                        <Controller
+                            name="initAxis2ClientOptions"
+                            control={control}
+                            render={({ field }) => (
+                                <VSCodeCheckbox {...field} type="checkbox" checked={field.value} onChange={(e: any) => {field.onChange(e.target.checked)}}>Initialize Axis2 Client Options</VSCodeCheckbox>
+                            )}
+                        />
+                        {errors.initAxis2ClientOptions && <Error>{errors.initAxis2ClientOptions.message.toString()}</Error>}
+                    </Field>
 
-                <Field>
-                    <Controller
-                        name="sourceType"
-                        control={control}
-                        render={({ field }) => (
-                            <AutoComplete label="Source Type" name="sourceType" items={["none", "body", "property", "inline", "custom"]} value={field.value} onValueChange={(e: any) => {
-                                field.onChange(e);
-                            }} />
-                        )}
-                    />
-                    {errors.sourceType && <Error>{errors.sourceType.message.toString()}</Error>}
-                </Field>
+                    <Field>
+                        <Controller
+                            name="sourceType"
+                            control={control}
+                            render={({ field }) => (
+                                <AutoComplete label="Source Type" name="sourceType" items={["none", "body", "property", "inline", "custom"]} value={field.value} onValueChange={(e: any) => {
+                                    field.onChange(e);
+                                }} />
+                            )}
+                        />
+                        {errors.sourceType && <Error>{errors.sourceType.message.toString()}</Error>}
+                    </Field>
 
-                {watch("sourceType") && watch("sourceType").toLowerCase() == "property" &&
+                    {watch("sourceType") && watch("sourceType").toLowerCase() == "property" &&
                     <Field>
                         <Controller
                             name="sourceProperty"
@@ -217,9 +218,9 @@ const CallForm = (props: AddMediatorProps) => {
                         />
                         {errors.sourceProperty && <Error>{errors.sourceProperty.message.toString()}</Error>}
                     </Field>
-                }
+                    }
 
-                {watch("sourceType") && watch("sourceType").toLowerCase() == "property" ||watch("sourceType") && watch("sourceType").toLowerCase() == "inline" ||watch("sourceType") && watch("sourceType").toLowerCase() == "custom"  &&
+                    {watch("sourceType") && watch("sourceType").toLowerCase() == "property" ||watch("sourceType") && watch("sourceType").toLowerCase() == "inline" ||watch("sourceType") && watch("sourceType").toLowerCase() == "custom"  &&
                     <Field>
                         <Controller
                             name="contentType"
@@ -230,9 +231,9 @@ const CallForm = (props: AddMediatorProps) => {
                         />
                         {errors.contentType && <Error>{errors.contentType.message.toString()}</Error>}
                     </Field>
-                }
+                    }
 
-                {watch("sourceType") && watch("sourceType").toLowerCase() == "inline" &&
+                    {watch("sourceType") && watch("sourceType").toLowerCase() == "inline" &&
                     <Field>
                         <Controller
                             name="sourcePayload"
@@ -243,9 +244,9 @@ const CallForm = (props: AddMediatorProps) => {
                         />
                         {errors.sourcePayload && <Error>{errors.sourcePayload.message.toString()}</Error>}
                     </Field>
-                }
+                    }
 
-                {watch("sourceType") && watch("sourceType").toLowerCase() == "custom" &&
+                    {watch("sourceType") && watch("sourceType").toLowerCase() == "custom" &&
                     <Field>
                         <Controller
                             name="sourceXPath"
@@ -270,22 +271,22 @@ const CallForm = (props: AddMediatorProps) => {
                         />
                         {errors.sourceXPath && <Error>{errors.sourceXPath.message.toString()}</Error>}
                     </Field>
-                }
+                    }
 
-                <Field>
-                    <Controller
-                        name="targetType"
-                        control={control}
-                        render={({ field }) => (
-                            <AutoComplete label="Target Type" name="targetType" items={["body", "property"]} value={field.value} onValueChange={(e: any) => {
-                                field.onChange(e);
-                            }} />
-                        )}
-                    />
-                    {errors.targetType && <Error>{errors.targetType.message.toString()}</Error>}
-                </Field>
+                    <Field>
+                        <Controller
+                            name="targetType"
+                            control={control}
+                            render={({ field }) => (
+                                <AutoComplete label="Target Type" name="targetType" items={["body", "property"]} value={field.value} onValueChange={(e: any) => {
+                                    field.onChange(e);
+                                }} />
+                            )}
+                        />
+                        {errors.targetType && <Error>{errors.targetType.message.toString()}</Error>}
+                    </Field>
 
-                {watch("targetType") && watch("targetType").toLowerCase() == "property" &&
+                    {watch("targetType") && watch("targetType").toLowerCase() == "property" &&
                     <Field>
                         <Controller
                             name="targetProperty"
@@ -296,32 +297,33 @@ const CallForm = (props: AddMediatorProps) => {
                         />
                         {errors.targetProperty && <Error>{errors.targetProperty.message.toString()}</Error>}
                     </Field>
-                }
+                    }
 
-            </ComponentCard>
+                </ComponentCard>
 
-            <Field>
-                <Controller
-                    name="description"
-                    control={control}
-                    render={({ field }) => (
-                        <TextField {...field} label="Description" size={50} placeholder="Description" />
-                    )}
-                />
-                {errors.description && <Error>{errors.description.message.toString()}</Error>}
-            </Field>
+                <Field>
+                    <Controller
+                        name="description"
+                        control={control}
+                        render={({ field }) => (
+                            <TextField {...field} label="Description" size={50} placeholder="Description" />
+                        )}
+                    />
+                    {errors.description && <Error>{errors.description.message.toString()}</Error>}
+                </Field>
 
 
-            <div style={{ textAlign: "right", marginTop: "10px", float: "right" }}>
-                <Button
-                    appearance="primary"
-                    onClick={handleSubmit(onClick)}
-                >
+                <div style={{ textAlign: "right", marginTop: "10px", float: "right" }}>
+                    <Button
+                        appearance="primary"
+                        onClick={handleSubmit(onClick)}
+                    >
                     Submit
-                </Button>
-            </div>
+                    </Button>
+                </div>
 
-        </div>
+            </div>
+        </>
     );
 };
 

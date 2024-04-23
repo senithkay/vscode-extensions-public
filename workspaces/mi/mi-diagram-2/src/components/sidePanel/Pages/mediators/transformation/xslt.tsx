@@ -41,7 +41,7 @@ const XSLTForm = (props: AddMediatorProps) => {
     const sidePanelContext = React.useContext(SidePanelContext);
     const [ isLoading, setIsLoading ] = React.useState(true);
 
-    const { control, formState: { errors }, handleSubmit, watch, reset } = useForm();
+    const { control, formState: { errors, dirtyFields }, handleSubmit, watch, reset } = useForm();
 
     useEffect(() => {
         reset({
@@ -197,10 +197,18 @@ const XSLTForm = (props: AddMediatorProps) => {
         values["properties"] = values.properties.paramValues.map((param: any) => param.paramValues.map((p: any) => p.value));
         values["resources"] = values.resources.paramValues.map((param: any) => param.paramValues.map((p: any) => p.value));
         values["features"] = values.features.paramValues.map((param: any) => param.paramValues.map((p: any) => p.value));
-        const xml = getXML(MEDIATORS.XSLT, values);
-        rpcClient.getMiDiagramRpcClient().applyEdit({
-            documentUri: props.documentUri, range: props.nodePosition, text: xml
-        });
+        const xml = getXML(MEDIATORS.XSLT, values, dirtyFields, sidePanelContext.formValues);
+        if (Array.isArray(xml)) {
+            for (let i = 0; i < xml.length; i++) {
+                await rpcClient.getMiDiagramRpcClient().applyEdit({
+                    documentUri: props.documentUri, range: xml[i].range, text: xml[i].text
+                });
+            }
+        } else {
+            rpcClient.getMiDiagramRpcClient().applyEdit({
+                documentUri: props.documentUri, range: props.nodePosition, text: xml
+            });
+        }
         sidePanelContext.setSidePanelState({
             ...sidePanelContext,
             isOpen: false,
@@ -215,158 +223,162 @@ const XSLTForm = (props: AddMediatorProps) => {
         return <ProgressIndicator/>;
     }
     return (
-        <div style={{ padding: "10px" }}>
-            <Typography variant="body3"></Typography>
+        <>
+            <Typography sx={{ padding: "10px 15px", borderBottom: "1px solid var(--vscode-editorWidget-border)" }} variant="body3">Transforms message payload based on an XSLT script. For faster XSLT transformation, use FastXSLT.</Typography>
+            <div style={{ padding: "20px" }}>
 
-            <Field>
-                <Controller
-                    name="sourceXPath"
-                    control={control}
-                    render={({ field }) => (
-                        <ExpressionField
-                            {...field} label="Source XPath"
-                            placeholder=""
-                            canChange={false}
-                            openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => {
-                                sidePanelContext.setSidePanelState({
-                                    ...sidePanelContext,
-                                    expressionEditor: {
-                                        isOpen: true,
-                                        value,
-                                        setValue
-                                    }
-                                });
-                            }}
+                <Field>
+                    <Controller
+                        name="sourceXPath"
+                        control={control}
+                        render={({ field }) => (
+                            <ExpressionField
+                                {...field} label="Source XPath"
+                                placeholder=""
+                                canChange={false}
+                                openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => {
+                                    sidePanelContext.setSidePanelState({
+                                        ...sidePanelContext,
+                                        expressionEditor: {
+                                            isOpen: true,
+                                            value,
+                                            setValue
+                                        }
+                                    });
+                                }}
+                            />
+                        )}
+                    />
+                    {errors.sourceXPath && <Error>{errors.sourceXPath.message.toString()}</Error>}
+                </Field>
+
+                <Field>
+                    <Controller
+                        name="xsltSchemaKey"
+                        control={control}
+                        render={({ field }) => (
+                            <Keylookup
+                                value={field.value}
+                                filterType='xslt'
+                                label="XSLT Schema Key"
+                                allowItemCreate={true}
+                                onValueChange={field.onChange}
+                            />
+                        )}
+                    />
+                    {errors.xsltSchemaKey && <Error>{errors.xsltSchemaKey.message.toString()}</Error>}
+                </Field>
+
+                <FormGroup title="Advanced">
+                    <ComponentCard sx={cardStyle} disbaleHoverEffect>
+                        <Typography variant="h3">Properties</Typography>
+                        <Typography variant="body3">Editing of the properties of an object XSLT Property</Typography>
+
+                        <Controller
+                            name="properties"
+                            control={control}
+                            render={({ field: { onChange, value } }) => (
+                                <ParamManager
+                                    paramConfigs={value}
+                                    readonly={false}
+                                    onChange= {(values) => {
+                                        values.paramValues = values.paramValues.map((param: any, index: number) => {
+                                            const paramValues = param.paramValues;
+                                            param.key = paramValues[0].value;
+                                            param.value = paramValues[1].value.value;
+                                            if (paramValues[1]?.value?.isExpression) {
+                                                param.namespaces = paramValues[1].value.namespaces;
+                                            }
+                                            param.icon = 'query';
+                                            return param;
+                                        });
+                                        onChange(values);
+                                    }}
+                                />
+                            )}
                         />
-                    )}
-                />
-                {errors.sourceXPath && <Error>{errors.sourceXPath.message.toString()}</Error>}
-            </Field>
+                    </ComponentCard>
+                    <ComponentCard sx={cardStyle} disbaleHoverEffect>
+                        <Typography variant="h3">Resources</Typography>
+                        <Typography variant="body3">Editing of the properties of an object XSLT Resource</Typography>
 
-            <Field>
-                <Controller
-                    name="xsltSchemaKey"
-                    control={control}
-                    render={({ field }) => (
-                        <Keylookup
-                            {...field}filterType='xslt'
-                            label="XSLT Schema Key"
-                            allowItemCreate={true}
+                        <Controller
+                            name="resources"
+                            control={control}
+                            render={({ field: { onChange, value } }) => (
+                                <ParamManager
+                                    paramConfigs={value}
+                                    readonly={false}
+                                    onChange= {(values) => {
+                                        values.paramValues = values.paramValues.map((param: any, index: number) => {
+                                            const paramValues = param.paramValues;
+                                            param.key = paramValues[0].value;
+                                            param.value = paramValues[1].value;
+                                            if (paramValues[1]?.value?.isExpression) {
+                                                param.namespaces = paramValues[1].value.namespaces;
+                                            }
+                                            param.icon = 'query';
+                                            return param;
+                                        });
+                                        onChange(values);
+                                    }}
+                                />
+                            )}
                         />
-                    )}
-                />
-                {errors.xsltSchemaKey && <Error>{errors.xsltSchemaKey.message.toString()}</Error>}
-            </Field>
+                    </ComponentCard>
+                    <ComponentCard sx={cardStyle} disbaleHoverEffect>
+                        <Typography variant="h3">Features</Typography>
+                        <Typography variant="body3">Editing of the properties of an object XSLT Features</Typography>
 
-            <FormGroup title="Advanced">
-                <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                    <Typography variant="h3">Properties</Typography>
-                    <Typography variant="body3">Editing of the properties of an object XSLT Property</Typography>
+                        <Controller
+                            name="features"
+                            control={control}
+                            render={({ field: { onChange, value } }) => (
+                                <ParamManager
+                                    paramConfigs={value}
+                                    readonly={false}
+                                    onChange= {(values) => {
+                                        values.paramValues = values.paramValues.map((param: any, index: number) => {
+                                            const paramValues = param.paramValues;
+                                            param.key = paramValues[0].value;
+                                            param.value = paramValues[1].value;
+                                            if (paramValues[1]?.value?.isExpression) {
+                                                param.namespaces = paramValues[1].value.namespaces;
+                                            }
+                                            param.icon = 'query';
+                                            return param;
+                                        });
+                                        onChange(values);
+                                    }}
+                                />
+                            )}
+                        />
+                    </ComponentCard>
+                </FormGroup>
 
+                <Field>
                     <Controller
-                        name="properties"
+                        name="description"
                         control={control}
-                        render={({ field: { onChange, value } }) => (
-                            <ParamManager
-                                paramConfigs={value}
-                                readonly={false}
-                                onChange= {(values) => {
-                                    values.paramValues = values.paramValues.map((param: any, index: number) => {
-                                        const paramValues = param.paramValues;
-                                        param.key = paramValues[0].value;
-                                        param.value = paramValues[1].value.value;
-                                        if (paramValues[1]?.value?.isExpression) {
-                                            param.namespaces = paramValues[1].value.namespaces;
-                                        }
-                                        param.icon = 'query';
-                                        return param;
-                                    });
-                                    onChange(values);
-                                }}
-                            />
+                        render={({ field }) => (
+                            <TextField {...field} label="Description" size={50} placeholder="" />
                         )}
                     />
-                </ComponentCard>
-                <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                    <Typography variant="h3">Resources</Typography>
-                    <Typography variant="body3">Editing of the properties of an object XSLT Resource</Typography>
-
-                    <Controller
-                        name="resources"
-                        control={control}
-                        render={({ field: { onChange, value } }) => (
-                            <ParamManager
-                                paramConfigs={value}
-                                readonly={false}
-                                onChange= {(values) => {
-                                    values.paramValues = values.paramValues.map((param: any, index: number) => {
-                                        const paramValues = param.paramValues;
-                                        param.key = paramValues[0].value;
-                                        param.value = paramValues[1].value;
-                                        if (paramValues[1]?.value?.isExpression) {
-                                            param.namespaces = paramValues[1].value.namespaces;
-                                        }
-                                        param.icon = 'query';
-                                        return param;
-                                    });
-                                    onChange(values);
-                                }}
-                            />
-                        )}
-                    />
-                </ComponentCard>
-                <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                    <Typography variant="h3">Features</Typography>
-                    <Typography variant="body3">Editing of the properties of an object XSLT Features</Typography>
-
-                    <Controller
-                        name="features"
-                        control={control}
-                        render={({ field: { onChange, value } }) => (
-                            <ParamManager
-                                paramConfigs={value}
-                                readonly={false}
-                                onChange= {(values) => {
-                                    values.paramValues = values.paramValues.map((param: any, index: number) => {
-                                        const paramValues = param.paramValues;
-                                        param.key = paramValues[0].value;
-                                        param.value = paramValues[1].value;
-                                        if (paramValues[1]?.value?.isExpression) {
-                                            param.namespaces = paramValues[1].value.namespaces;
-                                        }
-                                        param.icon = 'query';
-                                        return param;
-                                    });
-                                    onChange(values);
-                                }}
-                            />
-                        )}
-                    />
-                </ComponentCard>
-            </FormGroup>
-
-            <Field>
-                <Controller
-                    name="description"
-                    control={control}
-                    render={({ field }) => (
-                        <TextField {...field} label="Description" size={50} placeholder="" />
-                    )}
-                />
-                {errors.description && <Error>{errors.description.message.toString()}</Error>}
-            </Field>
+                    {errors.description && <Error>{errors.description.message.toString()}</Error>}
+                </Field>
 
 
-            <div style={{ textAlign: "right", marginTop: "10px", float: "right" }}>
-                <Button
-                    appearance="primary"
-                    onClick={handleSubmit(onClick)}
-                >
+                <div style={{ textAlign: "right", marginTop: "10px", float: "right" }}>
+                    <Button
+                        appearance="primary"
+                        onClick={handleSubmit(onClick)}
+                    >
                     Submit
-                </Button>
-            </div>
+                    </Button>
+                </div>
 
-        </div>
+            </div>
+        </>
     );
 };
 

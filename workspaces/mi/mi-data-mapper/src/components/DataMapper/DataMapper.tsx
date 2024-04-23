@@ -20,6 +20,8 @@ import { NodeInitVisitor } from "../Visitors/NodeInitVisitor";
 import { traversNode } from "../Diagram/utils/st-utils";
 import { DMType, Range } from "@wso2-enterprise/mi-core";
 import { FunctionDeclaration } from "ts-morph";
+import { ImportDataForm } from "./SidePanel/ImportDataForm";
+import { useDMSidePanelStore } from "../../store/store";
 
 const classes = {
     root: css({
@@ -33,8 +35,11 @@ export interface MIDataMapperProps {
     fnST: FunctionDeclaration;
     inputTrees: DMType[];
     outputTree: DMType;
+    fileContent: string;
     goToSource: (range: Range) => void;
     applyModifications: () => void;
+    filePath: string;
+    configName: string;
 }
 
 export function MIDataMapper(props: MIDataMapperProps) {
@@ -42,10 +47,16 @@ export function MIDataMapper(props: MIDataMapperProps) {
         fnST,
         inputTrees,
         outputTree,
+        fileContent,
         goToSource,
-        applyModifications
+        applyModifications,
+        configName,
+        filePath
     } = props;
     const [nodes, setNodes] = useState<DataMapperNodeModel[]>([]);
+    const isSidePanelOpen = useDMSidePanelStore(state => state.sidePanelOpen);
+    const setSidePanelOpen = useDMSidePanelStore(state => state.setSidePanelOpen);
+    const sidePanelIOType = useDMSidePanelStore(state => state.sidePanelIOType);
 
     useEffect(() => {
         async function generateNodes() {
@@ -58,7 +69,7 @@ export function MIDataMapper(props: MIDataMapperProps) {
             setNodes(nodeInitVisitor.getNodes());
         }
         generateNodes();
-    }, [fnST]);
+    }, [fileContent]);
 
     return (
         <div className={classes.root}>
@@ -75,6 +86,8 @@ export function MIDataMapper(props: MIDataMapperProps) {
                     onError={undefined}
                 />
             )}
+            <ImportDataForm isOpen={isSidePanelOpen} onCancel={() => setSidePanelOpen(false)} 
+                    configName={configName} documentUri={filePath} ioType={sidePanelIOType} />
         </div>
     )
 }

@@ -79,48 +79,50 @@ const SequenceForm = (props: AddMediatorProps) => {
         return <ProgressIndicator/>;
     }
     return (
-        <div style={{ padding: "10px" }}>
-            <Typography variant="body3"></Typography>
+        <>
+            <Typography sx={{ padding: "10px 15px", borderBottom: "1px solid var(--vscode-editorWidget-border)" }} variant="body3">Inserts reference to a sequence.</Typography>
+            <div style={{ padding: "20px" }}>
 
-            <Field>
-                <Controller
-                    name="referingSequence"
-                    control={control}
-                    render={({ field }) => (
-                        <Keylookup
-                            value={field.value}
-                            filterType='sequence'
-                            label="Refering Sequence"
-                            allowItemCreate={true}
-                            onValueChange={field.onChange}
-                        />
-                    )}
-                />
-                {errors.referingSequence && <Error>{errors.referingSequence.message.toString()}</Error>}
-            </Field>
+                <Field>
+                    <Controller
+                        name="referingSequence"
+                        control={control}
+                        render={({ field }) => (
+                            <Keylookup
+                                value={field.value}
+                                filterType='sequence'
+                                label="Refering Sequence"
+                                allowItemCreate={true}
+                                onValueChange={field.onChange}
+                            />
+                        )}
+                    />
+                    {errors.referingSequence && <Error>{errors.referingSequence.message.toString()}</Error>}
+                </Field>
 
-            <Field>
-                <Controller
-                    name="description"
-                    control={control}
-                    render={({ field }) => (
-                        <TextField {...field} label="Description" size={50} placeholder="" />
-                    )}
-                />
-                {errors.description && <Error>{errors.description.message.toString()}</Error>}
-            </Field>
+                <Field>
+                    <Controller
+                        name="description"
+                        control={control}
+                        render={({ field }) => (
+                            <TextField {...field} label="Description" size={50} placeholder="" />
+                        )}
+                    />
+                    {errors.description && <Error>{errors.description.message.toString()}</Error>}
+                </Field>
 
 
-            <div style={{ textAlign: "right", marginTop: "10px", float: "right" }}>
-                <Button
-                    appearance="primary"
-                    onClick={handleSubmit(onClick)}
-                >
+                <div style={{ textAlign: "right", marginTop: "10px", float: "right" }}>
+                    <Button
+                        appearance="primary"
+                        onClick={handleSubmit(onClick)}
+                    >
                     Submit
-                </Button>
-            </div>
+                    </Button>
+                </div>
 
-        </div>
+            </div>
+        </>
     );
 };
 
