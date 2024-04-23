@@ -18,8 +18,8 @@ import { Range } from "@wso2-enterprise/mi-core";
 
 interface DataMapperProps {
     filePath: string;
-    functionName: string;
-    fileContent: string;
+    functionName?: string;
+    fileContent?: string;
 }
 
 export function DataMapper(props: DataMapperProps) {

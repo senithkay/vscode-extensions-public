@@ -101,8 +101,8 @@ export interface CommandProps {
 
 interface DataMapperProps {
     filePath: string;
-    functionName: string;
-    fileContent: string;
+    functionName?: string;
+    fileContent?: string;
 }
 
 // State Machine context values

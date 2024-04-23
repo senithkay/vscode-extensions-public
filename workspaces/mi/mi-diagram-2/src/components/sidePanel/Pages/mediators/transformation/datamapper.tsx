@@ -16,6 +16,8 @@ import { AddMediatorProps } from '../common';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
 import { MEDIATORS } from '../../../../../resources/constants';
+import { VSCodeRadio, VSCodeRadioGroup } from "@vscode/webview-ui-toolkit/react";
+import { EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
 
 const cardStyle = { 
    display: "block",
@@ -42,6 +44,8 @@ const DataMapperForm = (props: AddMediatorProps) => {
    const sidePanelContext = React.useContext(SidePanelContext);
    const [formValues, setFormValues] = useState({} as { [key: string]: any });
    const [errors, setErrors] = useState({} as any);
+   const [createOption, setCreateOption] = useState("new");
+   const [configName, setConfigName] = useState("");
 
    useEffect(() => {
        if (sidePanelContext.formValues && Object.keys(sidePanelContext.formValues).length > 0) {
@@ -52,6 +56,23 @@ const DataMapperForm = (props: AddMediatorProps) => {
        "outputType": "XML",});
        }
    }, [sidePanelContext.formValues]);
+
+   useEffect(() => {
+        deriveConfigName();
+        formValues.configurationLocalPath = 'gov:/datamapper/' + configName + '.dmc';
+        formValues.inputSchemaLocalPath = 'gov:/datamapper/' + configName + '_inputSchema.json';
+        formValues.outputSchemaLocalPath = 'gov:/datamapper/' + configName + '_outputSchema.json';
+        if (sidePanelContext.formValues && Object.keys(sidePanelContext.formValues).length > 0) {
+            setFormValues({ ...sidePanelContext.formValues, ...formValues });
+        } else {
+            setFormValues({...formValues });
+        }
+   }, [configName]);
+
+   const dmConfigs: string[] = []
+   rpcClient.getMiDataMapperRpcClient().loadDMConfigs({filePath: props.documentUri}).then(response => {
+        dmConfigs.push(...response.dmConfigs);
+   });
 
    const onClick = async () => {
        const newErrors = {} as any;
@@ -109,6 +130,22 @@ const DataMapperForm = (props: AddMediatorProps) => {
        return error;
    };
 
+   const onOptionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setCreateOption(e.target.value);
+    };
+
+    const deriveConfigName = () => {
+        if (configName === "" && sidePanelContext.formValues && Object.keys(sidePanelContext.formValues).length > 0) {
+            const configLocalPath = sidePanelContext.formValues.configurationLocalPath;
+            if (configLocalPath) {
+                const configLocalPathParts = configLocalPath.split('/');
+                const configNamePart = configLocalPathParts[configLocalPathParts.length - 1].slice(0, -4);
+                setConfigName(configNamePart);
+                setCreateOption("existing");
+            }
+        }
+    }
+
    return (
        <div style={{ padding: "10px" }}>
 
@@ -130,27 +167,67 @@ const DataMapperForm = (props: AddMediatorProps) => {
                     {errors["description"] && <Error>{errors["description"]}</Error>}
                 </Field>
 
-                <Field>
-                    <TextField
-                        label="Configuration Local Path"
-                        size={50}
-                        placeholder=""
-                        value={formValues["configurationLocalPath"]}
-                        onTextChange={(e: any) => {
-                            setFormValues({ ...formValues, "configurationLocalPath": e });
-                            formValidators["configurationLocalPath"](e);
-                        }}
-                        required={false}
-                    />
-                    {errors["configurationLocalPath"] && <Error>{errors["configurationLocalPath"]}</Error>}
-                </Field>
-
                 <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                    <h3>InputType</h3>
+                    <h3>Configuration</h3>
+
+                    <VSCodeRadioGroup>
+                        <VSCodeRadio value="new" checked={createOption === "new"} onChange={onOptionChange}>Create new config</VSCodeRadio>
+                        <VSCodeRadio value="existing" checked={createOption === "existing"} onChange={onOptionChange}>Use Existing</VSCodeRadio>
+                    </VSCodeRadioGroup>
+
+                    <Field>
+                        {createOption === "new" && <TextField
+                            label="Configuration"
+                            size={50}
+                            placeholder=""
+                            value={configName}
+                            onTextChange={(e: any) => {
+                                setConfigName(e);
+                            }}
+                            required={false}
+                        />}
+                        {createOption === "existing" && <AutoComplete items={dmConfigs} 
+                            label="Configuration" 
+                            value={configName} 
+                            onValueChange={(e: any) => {
+                                setConfigName(e);
+                            }} />
+                            }
+                        {errors["configurationLocalPath"] && <Error>{errors["configurationLocalPath"]}</Error>}
+                    </Field>
+
+                    <Field>
+                        <TextField
+                            label="Configuration Local Path"
+                            size={50}
+                            placeholder=""
+                            value={formValues["configurationLocalPath"]}
+                            required={false}
+                            disabled
+                            hidden
+                        />
+                        {errors["configurationLocalPath"] && <Error>{errors["configurationLocalPath"]}</Error>}
+                    </Field>
+
+                    <Field>
+                        <TextField
+                            label="Configuration Local Path"
+                            size={50}
+                            placeholder=""
+                            value={formValues["configurationLocalPath"]}
+                            onTextChange={(e: any) => {
+                                setFormValues({ ...formValues, "configurationLocalPath": e });
+                                formValidators["configurationLocalPath"](e);
+                            }}
+                            hidden
+                            required={false}
+                        />
+                        {errors["configurationLocalPath"] && <Error>{errors["configurationLocalPath"]}</Error>}
+                    </Field>
 
                     <Field>
                         <label>Input Type</label>
-                        <AutoComplete items={["XML", "CSV", "JSON"]} value={formValues["inputType"]} onValueChange={(e: any) => {
+                        <AutoComplete items={[ "JSON", "XML", "CSV"]} value={formValues["inputType"]} onValueChange={(e: any) => {
                             setFormValues({ ...formValues, "inputType": e });
                             formValidators["inputType"](e);
                         }} />
@@ -158,28 +235,23 @@ const DataMapperForm = (props: AddMediatorProps) => {
                     </Field>
 
                     <Field>
-                        <TextField
-                            label="InputSchema Local Path"
-                            size={50}
-                            placeholder=""
-                            value={formValues["inputSchemaLocalPath"]}
-                            onTextChange={(e: any) => {
-                                setFormValues({ ...formValues, "inputSchemaLocalPath": e });
-                                formValidators["inputSchemaLocalPath"](e);
-                            }}
-                            required={false}
-                        />
+                        <div>
+                            <TextField
+                                label="InputSchema Local Path"
+                                size={50}
+                                placeholder=""
+                                value={formValues["inputSchemaLocalPath"]}
+                                required={false}
+                                disabled
+                                hidden
+                            />
+                        </div>
                         {errors["inputSchemaLocalPath"] && <Error>{errors["inputSchemaLocalPath"]}</Error>}
                     </Field>
 
-                </ComponentCard>
-
-                <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                    <h3>OutputType</h3>
-
                     <Field>
                         <label>Output Type</label>
-                        <AutoComplete items={["XML", "CSV", "JSON"]} value={formValues["outputType"]} onValueChange={(e: any) => {
+                        <AutoComplete items={["JSON", "XML", "CSV"]} value={formValues["outputType"]} onValueChange={(e: any) => {
                             setFormValues({ ...formValues, "outputType": e });
                             formValidators["outputType"](e);
                         }} />
@@ -192,13 +264,10 @@ const DataMapperForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["outputSchemaLocalPath"]}
-                            onTextChange={(e: any) => {
-                                setFormValues({ ...formValues, "outputSchemaLocalPath": e });
-                                formValidators["outputSchemaLocalPath"](e);
-                            }}
                             required={false}
+                            disabled
+                            hidden
                         />
-                        {errors["outputSchemaLocalPath"] && <Error>{errors["outputSchemaLocalPath"]}</Error>}
                     </Field>
 
                 </ComponentCard>

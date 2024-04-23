@@ -43,6 +43,7 @@ import { DataMapperLinkFactory } from './Link';
 import { RightAngleLinkFactory } from './Link/RightAngleLink/RightAngleLinkFactory';
 import * as Nodes from "./Node";
 import { Icon } from '@wso2-enterprise/ui-toolkit';
+import { DataImportNodeFactory } from './Node/DataImport/DataImportNodeFactory';
 
 const classes = {
 	buttonWrap: css({
@@ -95,6 +96,7 @@ function initDiagramEngine() {
 	engine.getNodeFactories().registerFactory(new Nodes.InputNodeFactory());
 	engine.getNodeFactories().registerFactory(new Nodes.ExpressionFunctionBodyFactory());
 	engine.getNodeFactories().registerFactory(new LinkConnectorNodeFactory());
+	engine.getNodeFactories().registerFactory(new DataImportNodeFactory);
 
 	engine.getPortFactories().registerFactory(new InputOutputPortFactory());
 	engine.getPortFactories().registerFactory(new IntermediatePortFactory());

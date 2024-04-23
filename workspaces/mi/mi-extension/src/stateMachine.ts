@@ -194,6 +194,7 @@ const stateMachine = createMachine<MachineContext>({
                                 position: (context, event) => event.viewLocation.position,
                                 projectOpened: (context, event) => true,
                                 customProps: (context, event) => event.viewLocation.customProps,
+                                dataMapperProps: (context, event) => event.viewLocation.dataMapperProps,
                                 stNode: (context, event) => undefined,
                                 diagnostics: (context, event) => undefined,
                             })
@@ -207,7 +208,7 @@ const stateMachine = createMachine<MachineContext>({
                                 position: (context, event) => event.viewLocation.position,
                                 projectOpened: (context, event) => true,
                                 customProps: (context, event) => event.viewLocation.customProps,
-                                dataMapperProps: (context, event) => event.data?.dataMapperProps
+                                dataMapperProps: (context, event) => event.viewLocation.dataMapperProps
                             })
                         },
                         FILE_EDIT: {
@@ -291,7 +292,7 @@ const stateMachine = createMachine<MachineContext>({
         findView: (context, event): Promise<VisualizerLocation> => {
             return new Promise(async (resolve, reject) => {
                 const langClient = StateMachine.context().langClient!;
-                const viewLocation = context;
+            const viewLocation = context;
                 if (context.view?.includes("Form")) {
                     return resolve(viewLocation);
                 }
@@ -311,19 +312,27 @@ const stateMachine = createMachine<MachineContext>({
                                     viewLocation.view = MACHINE_VIEW.ResourceView;
                                     viewLocation.stNode = node.api.resource[context.identifier];
                                 }
+                                if (context.dataMapperProps?.filePath) {
+                                    const filePath = context.dataMapperProps?.filePath!;
+                                    const functionName = "mapFunction";
+    
+                                    const fileContent = getSourceCode(filePath);
+                                    viewLocation.dataMapperProps = {
+                                        filePath: filePath,
+                                        functionName: functionName,
+                                        fileContent: fileContent
+                                    };
+    
+                                    viewLocation.view = MACHINE_VIEW.DataMapperView;
+                                }
                                 break;
                             case !!node.proxy:
                                 viewLocation.view = MACHINE_VIEW.ProxyView;
                                 viewLocation.stNode = node.proxy;
                                 break;
-                            case !!node.sequence:
-                                viewLocation.view = MACHINE_VIEW.SequenceView;
-                                viewLocation.stNode = node.sequence;
-                                break;
-                            case !!node.sequence:
-                                // TODO: Use node.dataMapper to identify the data mapper function
-                                const filePath = "/Users/madusha/play/mi/mi-hw/HelloWorldService/src/main/wso2mi/resources/data-mapper/sample2.ts";
-                                const functionName = "tnfStd2Person";
+                            case !!node.data_mapper:
+                                const filePath = context.dataMapperProps?.filePath!;
+                                const functionName = "mapFunction";
 
                                 const fileContent = getSourceCode(filePath);
                                 viewLocation.dataMapperProps = {

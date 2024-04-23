@@ -47,6 +47,12 @@ export interface DataMapperViewProps {
     updateFileContent: (fileContent: string) => void;
 }
 
+function deriveConfigName(filePath: string) {
+    const parts = filePath.split("/");
+    const fileName = parts[parts.length - 1];
+    return fileName.split(".")[0];
+}
+
 export function DataMapperView(props: DataMapperViewProps) {
     const {
         filePath,
@@ -85,6 +91,8 @@ export function DataMapperView(props: DataMapperViewProps) {
                     outputTree={outputTree}
                     goToSource={goToSource}
                     applyModifications={applyModifications}
+                    filePath={filePath}
+                    configName={deriveConfigName(filePath)}
                 />
             </QueryClientProvider>
         </ErrorBoundary>
