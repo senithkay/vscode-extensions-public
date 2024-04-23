@@ -43,11 +43,12 @@ export function getPayloadXml(data: { [key: string]: any }) {
             }
         }
     });
+    data.templateType = data.templateType.toLowerCase();
     const modifiedData = {
         ...data,
         args
     }
-
+    
     return Mustache.render(getPayloadMustacheTemplate(), modifiedData);
 }
 
@@ -56,7 +57,8 @@ export function getPayloadFormDataFromSTNode(data: { [key: string]: any }, node:
         data.mediaType = node.mediaType;
     }
     if (node.templateType) {
-        data.templateType = node.templateType;
+        let templateType = node.templateType;
+        data.templateType = templateType.charAt(0).toUpperCase() + templateType.slice(1);
     }
     if (node.format) {
         data.format = node.format;
