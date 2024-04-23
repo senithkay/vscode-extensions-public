@@ -176,10 +176,18 @@ const ValidateForm = (props: AddMediatorProps) => {
         values["schemas"] = values.schemas.paramValues.map((param: any) => param.paramValues.map((p: any) => p.value));
         values["features"] = values.features.paramValues.map((param: any) => param.paramValues.map((p: any) => p.value));
         values["resources"] = values.resources.paramValues.map((param: any) => param.paramValues.map((p: any) => p.value));
-        const xml = getXML(MEDIATORS.VALIDATE, values, dirtyFields);
-        rpcClient.getMiDiagramRpcClient().applyEdit({
-            documentUri: props.documentUri, range: props.nodePosition, text: xml
-        });
+        const xml = getXML(MEDIATORS.VALIDATE, values, dirtyFields, sidePanelContext.formValues);
+        if (Array.isArray(xml)) {
+            for (let i = 0; i < xml.length; i++) {
+                await rpcClient.getMiDiagramRpcClient().applyEdit({
+                    documentUri: props.documentUri, range: xml[i].range, text: xml[i].text
+                });
+            }
+        } else {
+            rpcClient.getMiDiagramRpcClient().applyEdit({
+                documentUri: props.documentUri, range: props.nodePosition, text: xml
+            });
+        }
         sidePanelContext.setSidePanelState({
             ...sidePanelContext,
             isOpen: false,

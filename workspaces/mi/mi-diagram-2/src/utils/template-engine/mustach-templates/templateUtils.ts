@@ -201,7 +201,7 @@ export function getMustacheTemplate(name: string) {
     }
 }
 
-export function getXML(name: string, data: { [key: string]: any }, dirtyFields?: any) {
+export function getXML(name: string, data: { [key: string]: any }, dirtyFields?: any, defaultValues?: any) {
     switch (name) {
         //Advanced Mediators
         case MEDIATORS.CACHE:
