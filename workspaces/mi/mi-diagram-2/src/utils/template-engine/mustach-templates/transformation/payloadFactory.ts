@@ -29,17 +29,17 @@ export function getPayloadMustacheTemplate() {
 export function getPayloadXml(data: { [key: string]: any }) {
 
     data.isInlined = data?.payloadFormat == "Inline" ? true : false;
-    const args = data.args.map((property: string[]) => {
-        if (property[0] === "Value") {
+    const args = data.args.map((property: any[]) => {
+        if (!property[0].isExpression) {
             return {
-                value: property[1],
-                literal: property[4]
+                value: property[0]?.value,
+                literal: property[2]
             }
         } else {
             return {
-                expression: property[2],
-                evaluator: property[3],
-                literal: property[4]
+                expression: property[0]?.value,
+                evaluator: property[1],
+                literal: property[2]
             }
         }
     });
@@ -72,7 +72,8 @@ export function getPayloadFormDataFromSTNode(data: { [key: string]: any }, node:
     }
     if (node.args && node.args.arg) {
         data.args = node.args.arg.map((arg) => {
-            return [ arg.value ? "Value" : "Expression", arg.value, arg.expression, arg.evaluator, arg.literal];
+            let isExpression = arg.value ? false : true;
+            return [{ isExpression: isExpression, value: arg.value ?? arg.expression }, arg.evaluator, arg.literal];
         });
     }
 
