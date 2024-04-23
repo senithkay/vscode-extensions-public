@@ -85,44 +85,9 @@ export function getAllMediators(props: GetMediatorsProps) {
                 form: <CallForm nodePosition={props.nodePosition} documentUri={props.documentUri}></CallForm>,
             },
             {
-                title: "CallTemplate",
-                operationName: MEDIATORS.CALLTEMPLATE,
-                form: <CallTemplateForm nodePosition={props.nodePosition} documentUri={props.documentUri}></CallTemplateForm>,
-            },
-            {
-                title: "Callout",
-                operationName: MEDIATORS.CALLOUT,
-                form: <CalloutForm nodePosition={props.nodePosition} documentUri={props.documentUri}></CalloutForm>,
-            },
-            {
-                title: "Drop",
-                operationName: MEDIATORS.DROP,
-                form: <DropForm nodePosition={props.nodePosition} documentUri={props.documentUri}></DropForm>,
-            },
-            {
-                title: "Header",
-                operationName: MEDIATORS.HEADER,
-                form: <HeaderForm nodePosition={props.nodePosition} documentUri={props.documentUri}></HeaderForm>,
-            },
-            {
                 title: "Log",
                 operationName: MEDIATORS.LOG,
                 form: <LogForm nodePosition={props.nodePosition} documentUri={props.documentUri}></LogForm>,
-            },
-            {
-                title: "Loopback",
-                operationName: MEDIATORS.LOOPBACK,
-                form: <LoopbackForm nodePosition={props.nodePosition} documentUri={props.documentUri}></LoopbackForm>,
-            },
-            {
-                title: "Property",
-                operationName: MEDIATORS.PROPERTY,
-                form: <PropertyForm nodePosition={props.nodePosition} documentUri={props.documentUri}></PropertyForm>,
-            },
-            {
-                title: "PropertyGroup",
-                operationName: MEDIATORS.PROPERTYGROUP,
-                form: <PropertyGroupForm nodePosition={props.nodePosition} documentUri={props.documentUri}></PropertyGroupForm>,
             },
             {
                 title: "Respond",
@@ -130,14 +95,98 @@ export function getAllMediators(props: GetMediatorsProps) {
                 form: <RespondForm nodePosition={props.nodePosition} documentUri={props.documentUri}></RespondForm>,
             },
             {
-                title: "Send",
-                operationName: MEDIATORS.SEND,
-                form: <SendForm nodePosition={props.nodePosition} documentUri={props.documentUri}></SendForm>,
+                title: "Property",
+                operationName: MEDIATORS.PROPERTY,
+                form: <PropertyForm nodePosition={props.nodePosition} documentUri={props.documentUri}></PropertyForm>,
+            },
+            {
+                title: "Drop",
+                operationName: MEDIATORS.DROP,
+                form: <DropForm nodePosition={props.nodePosition} documentUri={props.documentUri}></DropForm>,
+            },
+            {
+                title: "CallTemplate",
+                operationName: MEDIATORS.CALLTEMPLATE,
+                form: <CallTemplateForm nodePosition={props.nodePosition} documentUri={props.documentUri}></CallTemplateForm>,
             },
             {
                 title: "Sequence",
                 operationName: MEDIATORS.SEQUENCE,
                 form: <SequenceForm nodePosition={props.nodePosition} documentUri={props.documentUri}></SequenceForm>,
+            },
+            {
+                title: "PropertyGroup",
+                operationName: MEDIATORS.PROPERTYGROUP,
+                form: <PropertyGroupForm nodePosition={props.nodePosition} documentUri={props.documentUri}></PropertyGroupForm>,
+            }
+        ],
+        "transformation": [
+            {
+                title: "Payload",
+                operationName: MEDIATORS.PAYLOAD,
+                form: <PayloadForm nodePosition={props.nodePosition} documentUri={props.documentUri}></PayloadForm>,
+            },
+            {
+                title: "Data Mapper",
+                operationName: MEDIATORS.DATAMAPPER,
+                form: <DataMapperForm nodePosition={props.nodePosition} documentUri={props.documentUri}></DataMapperForm>,
+            },
+            {
+                title: "XSLT",
+                operationName: MEDIATORS.XSLT,
+                form: <XSLTForm nodePosition={props.nodePosition} documentUri={props.documentUri}></XSLTForm>,
+            },
+            {
+                title: "Enrich",
+                operationName: MEDIATORS.ENRICH,
+                form: <EnrichForm nodePosition={props.nodePosition} documentUri={props.documentUri}></EnrichForm>,
+            },
+            {
+                title: "Header",
+                operationName: MEDIATORS.HEADER,
+                form: <HeaderForm nodePosition={props.nodePosition} documentUri={props.documentUri}></HeaderForm>,
+            },
+            {
+                title: "Json Transform",
+                operationName: MEDIATORS.JSONTRANSFORM,
+                form: <JSONTransformForm nodePosition={props.nodePosition} documentUri={props.documentUri}></JSONTransformForm>,
+            },
+            {
+                title: "Fault",
+                operationName: MEDIATORS.FAULT,
+                form: <FaultForm nodePosition={props.nodePosition} documentUri={props.documentUri}></FaultForm>,
+            }
+        ],
+        "flow control": [
+            {
+                title: "Filter",
+                operationName: MEDIATORS.FILTER,
+                form: <FilterForm nodePosition={props.nodePosition} documentUri={props.documentUri}></FilterForm>,
+            },
+            {
+                title: "Switch",
+                operationName: MEDIATORS.SWITCH,
+                form: <SwitchForm nodePosition={props.nodePosition} documentUri={props.documentUri}></SwitchForm>,
+            },
+            {
+                title: "Clone",
+                operationName: MEDIATORS.CLONE,
+                form: <CloneForm nodePosition={props.nodePosition} documentUri={props.documentUri}></CloneForm>,
+            },
+            {
+                title: "Iterate",
+                operationName: MEDIATORS.ITERATE,
+                form: <IterateForm nodePosition={props.nodePosition} documentUri={props.documentUri}></IterateForm>,
+            },
+            {
+                title: "Aggregate",
+                operationName: MEDIATORS.AGGREGATE,
+                form: <AggregateForm nodePosition={props.nodePosition} documentUri={props.documentUri}></AggregateForm>,
+            },
+            {
+                title: "Foreach",
+                operationName: MEDIATORS.FOREACH,
+                form: <ForEachMediatorForm nodePosition={props.nodePosition} documentUri={props.documentUri}></ForEachMediatorForm>,
             },
             {
                 title: "Store",
@@ -150,63 +199,62 @@ export function getAllMediators(props: GetMediatorsProps) {
                 form: <ValidateForm nodePosition={props.nodePosition} documentUri={props.documentUri}></ValidateForm>,
             }
         ],
-        "filter": [
+        "extension": [
             {
-                title: "Conditional Router",
-                operationName: MEDIATORS.CONDITIONALROUTER,
-                form: <ConditionalRouterForm nodePosition={props.nodePosition} documentUri={props.documentUri}></ConditionalRouterForm>,
+                title: "Class",
+                operationName: MEDIATORS.CLASS,
+                form: <ClassForm nodePosition={props.nodePosition} documentUri={props.documentUri}></ClassForm>,
             },
             {
-                title: "Filter",
-                operationName: MEDIATORS.FILTER,
-                form: <FilterForm nodePosition={props.nodePosition} documentUri={props.documentUri}></FilterForm>,
+                title: "Script",
+                operationName: MEDIATORS.SCRIPT,
+                form: <ScriptForm nodePosition={props.nodePosition} documentUri={props.documentUri}></ScriptForm>,
+            }
+        ],
+        "QOS": [
+            {
+                title: "Cache",
+                operationName: MEDIATORS.CACHE,
+                form: <CacheForm nodePosition={props.nodePosition} documentUri={props.documentUri}></CacheForm>,
             },
             {
-                title: "Switch",
-                operationName: MEDIATORS.SWITCH,
-                form: <SwitchForm nodePosition={props.nodePosition} documentUri={props.documentUri}></SwitchForm>,
+                title: "Entitlement Service",
+                operationName: MEDIATORS.ENTITLEMENT,
+                form: <EntitlementForm nodePosition={props.nodePosition} documentUri={props.documentUri}></EntitlementForm>,
+            },
+            {
+                title: "Oauth",
+                operationName: MEDIATORS.OAUTH,
+                form: <OAuthForm nodePosition={props.nodePosition} documentUri={props.documentUri}></OAuthForm>,
+            },
+            {
+                title: "NTLM",
+                operationName: MEDIATORS.NTLM,
+                form: <NTLMForm nodePosition={props.nodePosition} documentUri={props.documentUri}></NTLMForm>,
             },
             {
                 title: "Throttle",
                 operationName: MEDIATORS.THROTTLE,
                 form: <ThrottleForm nodePosition={props.nodePosition} documentUri={props.documentUri}></ThrottleForm>,
-            },
+            }
         ],
-        "transformation": [
+        "data": [
             {
-                title: "Data Mapper",
-                operationName: MEDIATORS.DATAMAPPER,
-                form: <DataMapperForm nodePosition={props.nodePosition} documentUri={props.documentUri}></DataMapperForm>,
+                title: "Dataservice Call",
+                operationName: MEDIATORS.DATASERVICECALL,
+                form: <DataServiceForm nodePosition={props.nodePosition} documentUri={props.documentUri}></DataServiceForm>,
+            }
+        ],
+        "other": [
+            {
+                title: "Send",
+                operationName: MEDIATORS.SEND,
+                form: <SendForm nodePosition={props.nodePosition} documentUri={props.documentUri}></SendForm>,
             },
             {
-                title: "Enrich",
-                operationName: MEDIATORS.ENRICH,
-                form: <EnrichForm nodePosition={props.nodePosition} documentUri={props.documentUri}></EnrichForm>,
-            },
-            {
-                title: "Fast XSLT",
-                operationName: MEDIATORS.FASTXSLT,
-                form: <FastXSLTForm nodePosition={props.nodePosition} documentUri={props.documentUri}></FastXSLTForm>,
-            },
-            {
-                title: "Fault",
-                operationName: MEDIATORS.FAULT,
-                form: <FaultForm nodePosition={props.nodePosition} documentUri={props.documentUri}></FaultForm>,
-            },
-            {
-                title: "Json Transform",
-                operationName: MEDIATORS.JSONTRANSFORM,
-                form: <JSONTransformForm nodePosition={props.nodePosition} documentUri={props.documentUri}></JSONTransformForm>,
-            },
-            {
-                title: "Payload",
-                operationName: MEDIATORS.PAYLOAD,
-                form: <PayloadForm nodePosition={props.nodePosition} documentUri={props.documentUri}></PayloadForm>,
-            },
-            {
-                title: "Rewrite",
-                operationName: MEDIATORS.REWRITE,
-                form: <RewriteForm nodePosition={props.nodePosition} documentUri={props.documentUri}></RewriteForm>,
+                title: "Callout",
+                operationName: MEDIATORS.CALLOUT,
+                form: <CalloutForm nodePosition={props.nodePosition} documentUri={props.documentUri}></CalloutForm>,
             },
             {
                 title: "Smooks",
@@ -214,53 +262,44 @@ export function getAllMediators(props: GetMediatorsProps) {
                 form: <SmooksForm nodePosition={props.nodePosition} documentUri={props.documentUri}></SmooksForm>,
             },
             {
+                title: "Transaction",
+                operationName: MEDIATORS.TRANSACTION,
+                form: <TransactionForm nodePosition={props.nodePosition} documentUri={props.documentUri}></TransactionForm>,
+            },
+            {
+                title: "Builder",
+                operationName: MEDIATORS.BUILDER,
+                form: <BuilderForm nodePosition={props.nodePosition} documentUri={props.documentUri}></BuilderForm>,
+            },
+            {
+                title: "Rule",
+                operationName: MEDIATORS.RULE,
+                form: <RuleForm nodePosition={props.nodePosition} documentUri={props.documentUri}></RuleForm>,
+            },
+            {
+                title: "Loopback",
+                operationName: MEDIATORS.LOOPBACK,
+                form: <LoopbackForm nodePosition={props.nodePosition} documentUri={props.documentUri}></LoopbackForm>,
+            },
+            {
+                title: "Publish Event",
+                operationName: MEDIATORS.PUBLISHEVENT,
+                form: <PublishEventForm nodePosition={props.nodePosition} documentUri={props.documentUri}></PublishEventForm>,
+            },
+            {
+                title: "Fast XSLT",
+                operationName: MEDIATORS.FASTXSLT,
+                form: <FastXSLTForm nodePosition={props.nodePosition} documentUri={props.documentUri}></FastXSLTForm>,
+            },
+            {
+                title: "Rewrite",
+                operationName: MEDIATORS.REWRITE,
+                form: <RewriteForm nodePosition={props.nodePosition} documentUri={props.documentUri}></RewriteForm>,
+            },
+            {
                 title: "xquery",
                 operationName: MEDIATORS.XQUERY,
                 form: <XQueryForm nodePosition={props.nodePosition} documentUri={props.documentUri}></XQueryForm>,
-            },
-            {
-                title: "XSLT",
-                operationName: MEDIATORS.XSLT,
-                form: <XSLTForm nodePosition={props.nodePosition} documentUri={props.documentUri}></XSLTForm>,
-            }
-        ],
-        "eip": [
-            {
-                title: "Aggregate",
-                operationName: MEDIATORS.AGGREGATE,
-                form: <AggregateForm nodePosition={props.nodePosition} documentUri={props.documentUri}></AggregateForm>,
-            },
-            {
-                title: "Foreach",
-                operationName: MEDIATORS.FOREACH,
-                form: <ForEachMediatorForm nodePosition={props.nodePosition} documentUri={props.documentUri}></ForEachMediatorForm>,
-            },
-            {
-                title: "Iterate",
-                operationName: MEDIATORS.ITERATE,
-                form: <IterateForm nodePosition={props.nodePosition} documentUri={props.documentUri}></IterateForm>,
-            }
-        ],
-        "advanced": [
-            {
-                title: "Cache",
-                operationName: MEDIATORS.CACHE,
-                form: <CacheForm nodePosition={props.nodePosition} documentUri={props.documentUri}></CacheForm>,
-            },
-            {
-                title: "Clone",
-                operationName: MEDIATORS.CLONE,
-                form: <CloneForm nodePosition={props.nodePosition} documentUri={props.documentUri}></CloneForm>,
-            },
-            {
-                title: "Dataservice Call",
-                operationName: MEDIATORS.DATASERVICECALL,
-                form: <DataServiceForm nodePosition={props.nodePosition} documentUri={props.documentUri}></DataServiceForm>,
-            },
-            {
-                title: "Enqueue",
-                operationName: MEDIATORS.ENQUEUE,
-                form: <EnqueueForm nodePosition={props.nodePosition} documentUri={props.documentUri}></EnqueueForm>,
             },
             {
                 title: "Event",
@@ -268,21 +307,14 @@ export function getAllMediators(props: GetMediatorsProps) {
                 form: <EventForm nodePosition={props.nodePosition} documentUri={props.documentUri}></EventForm>,
             },
             {
-                title: "Transaction",
-                operationName: MEDIATORS.TRANSACTION,
-                form: <TransactionForm nodePosition={props.nodePosition} documentUri={props.documentUri}></TransactionForm>,
-            }
-        ],
-        "extension": [
+                title: "Enqueue",
+                operationName: MEDIATORS.ENQUEUE,
+                form: <EnqueueForm nodePosition={props.nodePosition} documentUri={props.documentUri}></EnqueueForm>,
+            },
             {
                 title: "Bean",
                 operationName: MEDIATORS.BEAN,
                 form: <BeanForm nodePosition={props.nodePosition} documentUri={props.documentUri}></BeanForm>,
-            },
-            {
-                title: "Class",
-                operationName: MEDIATORS.CLASS,
-                form: <ClassForm nodePosition={props.nodePosition} documentUri={props.documentUri}></ClassForm>,
             },
             {
                 title: "Command",
@@ -295,52 +327,20 @@ export function getAllMediators(props: GetMediatorsProps) {
                 form: <EJBForm nodePosition={props.nodePosition} documentUri={props.documentUri}></EJBForm>,
             },
             {
-                title: "Script",
-                operationName: MEDIATORS.SCRIPT,
-                form: <ScriptForm nodePosition={props.nodePosition} documentUri={props.documentUri}></ScriptForm>,
-            },
-            {
                 title: "Spring",
                 operationName: MEDIATORS.SPRING,
                 form: <SpringForm nodePosition={props.nodePosition} documentUri={props.documentUri}></SpringForm>,
-            }
-        ],
-        "other": [
+            },
+            {
+                title: "Conditional Router",
+                operationName: MEDIATORS.CONDITIONALROUTER,
+                form: <ConditionalRouterForm nodePosition={props.nodePosition} documentUri={props.documentUri}></ConditionalRouterForm>,
+            },
             {
                 title: "BAM",
                 operationName: MEDIATORS.BAM,
                 form: <BamForm nodePosition={props.nodePosition} documentUri={props.documentUri}></BamForm>
-            },
-            {
-                title: "Oauth",
-                operationName: MEDIATORS.OAUTH,
-                form: <OAuthForm nodePosition={props.nodePosition} documentUri={props.documentUri}></OAuthForm>,
-            },
-            {
-                title: "Builder",
-                operationName: MEDIATORS.BUILDER,
-                form: <BuilderForm nodePosition={props.nodePosition} documentUri={props.documentUri}></BuilderForm>,
-            },
-            {
-                title: "Publish Event",
-                operationName: MEDIATORS.PUBLISHEVENT,
-                form: <PublishEventForm nodePosition={props.nodePosition} documentUri={props.documentUri}></PublishEventForm>,
-            },
-            {
-                title: "Entitlement Service",
-                operationName: MEDIATORS.ENTITLEMENT,
-                form: <EntitlementForm nodePosition={props.nodePosition} documentUri={props.documentUri}></EntitlementForm>,
-            },
-            {
-                title: "Rule",
-                operationName: MEDIATORS.RULE,
-                form: <RuleForm nodePosition={props.nodePosition} documentUri={props.documentUri}></RuleForm>,
-            },
-            {
-                title: "NTLM",
-                operationName: MEDIATORS.NTLM,
-                form: <NTLMForm nodePosition={props.nodePosition} documentUri={props.documentUri}></NTLMForm>,
-            },
+            }
         ]
     };
 
