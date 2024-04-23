@@ -60,6 +60,7 @@ export interface IKeylookup {
     filterType?: FilterType;
     // Callback to filter the fetched artifacts
     filter?: (value: string) => boolean;
+    onCreateButtonClick?: () => void;
 }
 
 export type IFormKeylookup<T extends FieldValues> = IKeylookup & UseControllerProps<T>;
@@ -170,8 +171,13 @@ export const Keylookup = (props: IKeylookup) => {
                 {...rest}
                 value={value}
                 onValueChange={handleValueChange}
+                required={props.required}
                 items={items}
                 allowItemCreate={allowItemCreate}
+                onCreateButtonClick={props.onCreateButtonClick ? () => {
+                    handleValueChange("");
+                    props.onCreateButtonClick();
+                } : null}
             />
             {errorMsg && <ErrorBanner errorMsg={errorMsg} />}
         </Container>

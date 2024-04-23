@@ -10,12 +10,12 @@
 import React, { useEffect, useRef } from "react";
 import styled from "@emotion/styled";
 import { RequiredFormInput } from "../Commons/RequiredInput";
-import { ContainerProps } from "../Popover/Popover";
 import { Typography } from "../Typography/Typography";
 import { TextField } from "../TextField/TextField";
 import { Container } from "../AutoComplete/AutoComplete";
 import { Codicon } from "../Codicon/Codicon";
 import { Tooltip } from "../Tooltip/Tooltip";
+import { FlexLabelContainer, Label, Link } from "../../styles";
 
 const Colors = {
     INPUT_OPTION_ACTIVE: "var(--vscode-inputOption-activeBackground)",
@@ -23,12 +23,6 @@ const Colors = {
     INPUT_OPTION_HOVER: "var(--vscode-inputOption-hoverBackground)",
     INPUT_OPTION_ACTIVE_BORDER: "var(--vscode-inputOption-activeBorder)",
 }
-
-const LabelContainer = styled.div<ContainerProps>`
-    display: flex;
-    flex-direction: row;
-    margin-bottom: 4px;
-`;
 
 const ExButtonWrapper = styled.div<{ isActive: boolean }>`
     margin-left: -14px;
@@ -40,15 +34,6 @@ const ExButtonWrapper = styled.div<{ isActive: boolean }>`
     &:hover {
         background-color: ${(props: { isActive: any; }) => props.isActive ? Colors.INPUT_OPTION_ACTIVE : Colors.INPUT_OPTION_HOVER};
     }
-`;
-
-const Link = styled.a`
-    cursor: pointer;
-    font-size: 12px;
-    margin-left: auto;
-    margin-right: 15px;
-    margin-bottom: -5px;
-    color: var(--vscode-editor-foreground);
 `;
 
 interface Namespace {
@@ -106,10 +91,8 @@ const ExBtnComponent = (props: ExBtnComponentProps) => {
     const { label, required, isExActive, disabled, openExpressionEditor, placeholder, setIsExpression: setIsExpression, value, setValue, onChange, canChange } = props;
 
     return <>
-        <LabelContainer>
-            <div style={{ color: "var(--vscode-editor-foreground)" }}>
-                <label style={{ fontSize: "var(--type-ramp-base-font-size)" }}>{label}</label>
-            </div>
+        <FlexLabelContainer>
+            <Label>{label}</Label>
             {(required && label) && (<RequiredFormInput />)}
             {isExActive && (
                 <Link onClick={() => openExpressionEditor(value, setValue)}>
@@ -118,7 +101,7 @@ const ExBtnComponent = (props: ExBtnComponentProps) => {
                     </Tooltip>
                 </Link>
             )}
-        </LabelContainer>
+        </FlexLabelContainer>
         <TextField
             placeholder={placeholder}
             disabled={disabled}
