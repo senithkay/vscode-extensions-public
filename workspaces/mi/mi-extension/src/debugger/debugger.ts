@@ -62,6 +62,8 @@ export class Debugger extends EventEmitter {
         try {
             const langClient = StateMachine.context().langClient!;
             const breakpointPerFile: RuntimeBreakpoint[] = [];
+            // To maintain the valid and invalid breakpoints in the vscode
+            const vscodeBreakpointsPerFile: RuntimeBreakpoint[] = [];
             if (path) {
                 // create BreakpointPosition array
                 const breakpointPositions = breakpoints.map((breakpoint) => {
@@ -85,14 +87,17 @@ export class Debugger extends EventEmitter {
                             filePath: normalizedPath
                         };
 
-                        // get current breakpoints for the path
-                        let currentBreakpointsPerSource = this.runtimeBreakpoints.get(normalizedPath);
-                        if (!currentBreakpointsPerSource) {
-                            currentBreakpointsPerSource = new Array<RuntimeBreakpoint>();
-                            this.runtimeBreakpoints.set(normalizedPath, currentBreakpointsPerSource);
+                        if (breakpoint.valid) {
+                            // get current breakpoints for the path
+                            let currentBreakpointsPerSource = this.runtimeBreakpoints.get(normalizedPath);
+                            if (!currentBreakpointsPerSource) {
+                                currentBreakpointsPerSource = new Array<RuntimeBreakpoint>();
+                                this.runtimeBreakpoints.set(normalizedPath, currentBreakpointsPerSource);
+                            }
+                            currentBreakpointsPerSource.push(runtimeBreakpoint);
+                            breakpointPerFile.push(runtimeBreakpoint);
                         }
-                        currentBreakpointsPerSource.push(runtimeBreakpoint);
-                        breakpointPerFile.push(runtimeBreakpoint);
+                        vscodeBreakpointsPerFile.push(runtimeBreakpoint);
                     }
                 }
 
@@ -109,7 +114,7 @@ export class Debugger extends EventEmitter {
                     }
                 }
 
-                return breakpointPerFile;
+                return vscodeBreakpointsPerFile;
             }
         } catch (error) {
             console.error('Error setting breakpoint:', error);
