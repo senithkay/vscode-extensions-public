@@ -1224,5 +1224,6 @@ export interface GetAllArtifactsResponse {
 
 export interface DeleteArtifactRequest {
     path: string;
+    enableUndo?: boolean;
 }
 

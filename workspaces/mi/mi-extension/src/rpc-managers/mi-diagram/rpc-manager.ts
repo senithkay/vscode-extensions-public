@@ -3064,11 +3064,25 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
     async deleteArtifact(params: DeleteArtifactRequest): Promise<void> {
         return new Promise(async (resolve) => {
+            // Initialize undo redo manager with the file content
+            if (params.enableUndo) {
+                await this.initUndoRedoManager({ path: params.path });
+            }
+
             await workspace.fs.delete(Uri.file(params.path));
             await vscode.commands.executeCommand(COMMANDS.REFRESH_COMMAND); // Refresh the project explore view
-
-            undoRedo.addModification('');
             navigate();
+            
+            if (params.enableUndo) {
+                undoRedo.addModification('');
+                const selection = await vscode.window.showInformationMessage('Do you want to undo the deletion?', 'Undo');
+                if (selection === 'Undo') {
+                    this.undo({ path: params.path });
+                    await vscode.commands.executeCommand(COMMANDS.REFRESH_COMMAND);
+                    navigate();
+                }
+            }
+
             resolve();
         });
     }
