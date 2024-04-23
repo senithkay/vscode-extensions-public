@@ -60,7 +60,7 @@ export interface IKeylookup {
     filterType?: FilterType;
     // Callback to filter the fetched artifacts
     filter?: (value: string) => boolean;
-    onCreateButtonClick?: () => void;
+    onCreateButtonClick?: (fetchItems: any, handleValueChange: any) => void;
 }
 
 export type IFormKeylookup<T extends FieldValues> = IKeylookup & UseControllerProps<T>;
@@ -114,51 +114,51 @@ export const Keylookup = (props: IKeylookup) => {
     const { rpcClient } = useVisualizerContext();
 
     useEffect(() => {
-        const fetchItems = async () => {
-            const result = await rpcClient.getMiDiagramRpcClient().getAvailableResources({
-                documentIdentifier: path,
-                resourceType: filterType,
-            });
-
-            let workspaceItems: ItemComponent[] = [];
-            let registryItems: ItemComponent[] = [];
-            let initialItem: ItemComponent;
-            if (result?.resources) {
-                result.resources.forEach((resource) => {
-                    const item = { key: resource.name, item: getItemComponent(resource.name) };
-                    if (resource.name === initialValue) {
-                        initialItem = item;
-                        return;
-                    }
-                    workspaceItems.push(item);
-                });
-            }
-            if (result?.registryResources) {
-                result.registryResources.forEach((resource) => {
-                    const item = { key: resource.registryKey, item: getItemComponent(resource.registryKey, "reg:") };
-                    if (resource.registryKey === initialValue) {
-                        initialItem = item;
-                        return;
-                    }
-                    registryItems.push(item);
-                });
-            }
-
-            let items: (string | ItemComponent)[] = [...workspaceItems, ...registryItems];
-
-            // Add the initial value to the start of the list if provided
-            if (!!initialValue && initialValue.length > 0) {
-                items.unshift((initialItem || initialValue));
-            }
-
-            if (filter) {
-                items = items.filter((item) => filter(getItemKey(item)));
-            }
-            setItems(items);
-        };
-
         fetchItems();
     }, []);
+
+    const fetchItems = async () => {
+        const result = await rpcClient.getMiDiagramRpcClient().getAvailableResources({
+            documentIdentifier: path,
+            resourceType: filterType,
+        });
+
+        let workspaceItems: ItemComponent[] = [];
+        let registryItems: ItemComponent[] = [];
+        let initialItem: ItemComponent;
+        if (result?.resources) {
+            result.resources.forEach((resource) => {
+                const item = { key: resource.name, item: getItemComponent(resource.name) };
+                if (resource.name === initialValue) {
+                    initialItem = item;
+                    return;
+                }
+                workspaceItems.push(item);
+            });
+        }
+        if (result?.registryResources) {
+            result.registryResources.forEach((resource) => {
+                const item = { key: resource.registryKey, item: getItemComponent(resource.registryKey, "reg:") };
+                if (resource.registryKey === initialValue) {
+                    initialItem = item;
+                    return;
+                }
+                registryItems.push(item);
+            });
+        }
+
+        let items: (string | ItemComponent)[] = [...workspaceItems, ...registryItems];
+
+        // Add the initial value to the start of the list if provided
+        if (!!initialValue && initialValue.length > 0) {
+            items.unshift((initialItem || initialValue));
+        }
+
+        if (filter) {
+            items = items.filter((item) => filter(getItemKey(item)));
+        }
+        setItems(items);
+    };
 
     const handleValueChange = (val: string) => {
         setValue(val);
@@ -176,7 +176,7 @@ export const Keylookup = (props: IKeylookup) => {
                 allowItemCreate={allowItemCreate}
                 onCreateButtonClick={props.onCreateButtonClick ? () => {
                     handleValueChange("");
-                    props.onCreateButtonClick();
+                    props.onCreateButtonClick(fetchItems, handleValueChange);
                 } : null}
             />
             {errorMsg && <ErrorBanner errorMsg={errorMsg} />}

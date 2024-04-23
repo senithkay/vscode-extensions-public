@@ -14,7 +14,7 @@ import { LICENSE_HEADER } from "./commons";
 
 function toCamelCase(text: string): string {
     const words = text.split(" ");
-    return words.map((word, index) => 
+    return words.map((word, index) =>
         index === 0 ? word.toLowerCase() : word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
     ).join("");
 }
@@ -246,15 +246,28 @@ const generateForm = (jsonData: any): string => {
 
                     fields +=
                         fixIndentation(checkboxStr, indentation);
-                } else if (inputType === 'key' || inputType === 'keyOrExpression') {
+                } else if (inputType === 'key' || inputType === 'keyOrExpression' || inputType === 'comboOrKey') {
+                    const filterType = element.value.keyType;
 
-                    const comboStr = `
+                    let addNewStr = '';
+                    if (inputType === 'comboOrKey') {
+                        addNewStr = `
+                        onCreateButtonClick={(fetchItems: any, handleValueChange: any) => {
+                            openPopup(rpcClient, "${filterType}", fetchItems, handleValueChange);
+                        }}`;
+                    }
+
+                    const comboStr = `render={({ field: { onChange, value } }) => (
                         <Keylookup
-                            {...field}${element.value.keyType ?
-                            `filterType='${element.value.keyType}'` : ''}
-                            label="${element.value.displayName}" 
-                            allowItemCreate={${inputType === 'keyOrExpression'}}
+                            value={value}${element.value.keyType ? `
+                            filterType='${filterType}'` : ''}
+                            label="${element.value.displayName}"
+                            allowItemCreate={${inputType === 'keyOrExpression'}} ${addNewStr}
+                            onValueChange={onChange}
                         />`;
+
+                    // remove last line from fields string
+                    fields = fields.slice(0, -25);
                     fields +=
                         fixIndentation(comboStr, indentation);
                 }
@@ -441,11 +454,11 @@ const generateForm = (jsonData: any): string => {
         fixIndentation(
             `${LICENSE_HEADER}
 import React, { useEffect, useState } from 'react';
-import { AutoComplete, Button, ComponentCard, ExpressionField, ExpressionFieldValue, FormGroup, ParamConfig, ParamManager, ProgressIndicator, colors, RequiredFormInput, TextField, TextArea, Typography } from '@wso2-enterprise/ui-toolkit';
+import { AutoComplete, Button, Codicon, ComponentCard, ExpressionField, ExpressionFieldValue, FormGroup, FlexLabelContainer, Label, Link, ParamConfig, ParamManager, ProgressIndicator, colors, RequiredFormInput, TextField, TextArea, Tooltip, Typography } from '@wso2-enterprise/ui-toolkit';
 import { VSCodeCheckbox, VSCodeDropdown, VSCodeOption, VSCodeDataGrid, VSCodeDataGridRow, VSCodeDataGridCell } from '@vscode/webview-ui-toolkit/react';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
-import { AddMediatorProps } from '../common';
+import { AddMediatorProps, openPopup } from '../common';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
 import { MEDIATORS } from '../../../../../resources/constants';
