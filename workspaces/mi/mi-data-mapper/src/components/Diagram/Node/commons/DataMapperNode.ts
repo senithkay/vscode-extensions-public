@@ -100,7 +100,7 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 		hidden?: boolean
 	) {
 
-		const fieldName = field.type?.fieldName;
+		const fieldName = field.type?.fieldName || field.type.kind;
 		if (elementIndex !== undefined) {
 			parentId = parentId ? `${parentId}.${elementIndex}` : elementIndex.toString();
 		}
@@ -120,7 +120,7 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 						fieldPort, collapsedFields, isCollapsed ? true : hidden);
 				});
 			}
-		} else if (field.type.typeName === TypeKind.Array) {
+		} else if (field.type.kind === TypeKind.Array) {
 			const elements: ArrayElement[] = field?.elements;
 			if (elements && !!elements.length) {
 				elements.forEach((element, index) => {

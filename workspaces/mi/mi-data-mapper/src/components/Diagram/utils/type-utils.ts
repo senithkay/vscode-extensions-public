@@ -6,13 +6,13 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { Node, PropertyAssignment } from "ts-morph"
+import { ArrayLiteralExpression, Node, ObjectLiteralExpression, PropertyAssignment } from "ts-morph"
 import { DMType, TypeKind } from "@wso2-enterprise/mi-core";
 
-import { DMTypeWithValue } from "../Mappings/DMTypeWithValue";
+import { ArrayElement, DMTypeWithValue } from "../Mappings/DMTypeWithValue";
 
 export function enrichAndProcessType(typeToBeProcessed: DMType, node: Node): [DMTypeWithValue, DMType] {
-    let type = {...typeToBeProcessed};
+    let type = { ...typeToBeProcessed };
     let valueEnrichedType = getEnrichedDMType(type, node);
     return [valueEnrichedType, type];
 }
@@ -41,11 +41,65 @@ export function getEnrichedDMType(
     if (type.kind === TypeKind.Interface) {
         addChildrenTypes(type, childrenTypes, nextNode, dmTypeWithValue);
     } else if (type.kind === TypeKind.Array && type?.memberType) {
-        // TODO: Handle enriching array elements
+        if (nextNode) {
+            addEnrichedArrayElements(nextNode, type, dmTypeWithValue, childrenTypes);
+        } else {
+            addArrayElements(type, parentType, dmTypeWithValue, childrenTypes);
+        }
     }
 
     return dmTypeWithValue;
 }
+
+
+export function getEnrichedPrimitiveType(
+    field: DMType,
+    node: Node,
+    parentType?: DMTypeWithValue,
+    childrenTypes?: DMTypeWithValue[]
+) {
+    const members: ArrayElement[] = [];
+
+    const childType = getEnrichedDMType(field, node, parentType, childrenTypes);
+
+    if (childType) {
+        members.push({
+            member: childType,
+            elementNode: node
+        });
+    }
+
+    return members;
+}
+
+export function getEnrichedArrayType(
+    field: DMType,
+    node: ArrayLiteralExpression,
+    parentType?: DMTypeWithValue,
+    childrenTypes?: DMTypeWithValue[]
+) {
+    const members: ArrayElement[] = [];
+
+    const elements = node.getElements();
+    const fields = new Array(elements.length).fill(field);
+
+    elements.forEach((expr, index) => {
+        const type = fields[index];
+        if (type) {
+            const childType = getEnrichedDMType(type, expr, parentType, childrenTypes);
+
+            if (childType) {
+                members.push({
+                    member: childType,
+                    elementNode: expr
+                });
+            }
+        }
+    });
+
+    return members;
+}
+
 
 function getValueNodeAndNextNodeForParentType(
     node: Node | undefined,
@@ -53,7 +107,9 @@ function getValueNodeAndNextNodeForParentType(
     originalType: DMType
 ): [Node?, Node?] {
 
-    if (node && Node.isObjectLiteralExpression(node)) {
+    if (!node) {
+        return [undefined, undefined];
+    } else if (Node.isObjectLiteralExpression(node)) {
         const propertyAssignment = node.getProperties().find((val) =>
             Node.isPropertyAssignment(val)
             && originalType?.fieldName
@@ -65,8 +121,25 @@ function getValueNodeAndNextNodeForParentType(
         } else if (propertyAssignment) {
             return [propertyAssignment, propertyAssignment?.getInitializer()];
         }
+    } else if (Node.isArrayLiteralExpression(node)) {
+        const objLitExprs = node.getElements().filter(element =>
+            Node.isObjectLiteralExpression(element)
+        ) as ObjectLiteralExpression[];
+
+        if (objLitExprs.length > 0) {
+            let propertyAssignment: Node;
+            for (const expr of objLitExprs) {
+                propertyAssignment = expr.getProperties().find(property =>
+                    Node.isPropertyAssignment(property)
+                    && property.getName() === originalType?.fieldName
+                );
+            }
+            return [propertyAssignment || node, !propertyAssignment && node];
+        } else {
+            return [node, node];
+        }
     }
-    return [undefined, undefined];
+    return [node, undefined];
 }
 
 function addChildrenTypes(
@@ -84,4 +157,44 @@ function addChildrenTypes(
         });
     }
     dmTypeWithValue.childrenTypes = children;
+}
+
+function addEnrichedArrayElements(
+    nextNode: Node,
+    type: DMType,
+    dmTypeWithValue: DMTypeWithValue,
+    childrenTypes?: DMTypeWithValue[]
+) {
+    if (Node.isObjectLiteralExpression(nextNode)) {
+        if (type.memberType.kind === TypeKind.Interface) {
+            const childType = getEnrichedDMType(type.memberType, nextNode, dmTypeWithValue, childrenTypes);
+            dmTypeWithValue.elements = [{
+                member: childType,
+                elementNode: nextNode
+            }];
+        } else {
+            dmTypeWithValue.elements = getEnrichedPrimitiveType(type.memberType, nextNode, dmTypeWithValue);
+        }
+    } else if (Node.isArrayLiteralExpression(nextNode)) {
+        dmTypeWithValue.elements = getEnrichedArrayType(type.memberType, nextNode, dmTypeWithValue);
+    } else {
+        dmTypeWithValue.elements = getEnrichedPrimitiveType(type.memberType, nextNode, dmTypeWithValue);
+    }
+}
+
+function addArrayElements(
+    type: DMType,
+    parentType: DMTypeWithValue,
+    dmTypeWithValue: DMTypeWithValue,
+    childrenTypes?: DMTypeWithValue[]
+) {
+    if (type.memberType.kind === TypeKind.Interface) {
+        const members: ArrayElement[] = [];
+        const childType = getEnrichedDMType(type.memberType, undefined, parentType, childrenTypes);
+        members.push({
+            member: childType,
+            elementNode: undefined
+        });
+        dmTypeWithValue.elements = members;
+    }
 }

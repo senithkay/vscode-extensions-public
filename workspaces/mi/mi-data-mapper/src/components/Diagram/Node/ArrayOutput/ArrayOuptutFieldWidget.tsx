@@ -30,6 +30,7 @@ import { getDefaultValue, getEditorLineAndColumn, isConnectedViaLink } from "../
 import { DiagnosticTooltip } from "../../Diagnostic/DiagnosticTooltip";
 import { TreeBody } from "../commons/Tree/Tree";
 import { createSourceForUserInput } from "../../utils/modification-utils";
+import { PrimitiveTypeInputElementWidget } from "../commons/DataManipulationWidget/PrimitiveTypeInputElementWidget";
 
 export interface ArrayOutputFieldWidgetProps {
     parentId: string;
@@ -231,8 +232,22 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
                     }
                 }
                 return (
-                    // TODO: Return the widget for primitive typed element
-                    <></>
+                    <>
+                        <TreeBody>
+                            <PrimitiveTypeInputElementWidget
+                                parentId={fieldId}
+                                field={element.member}
+                                engine={engine}
+                                getPort={getPort}
+                                context={context}
+                                fieldIndex={index}
+                                deleteField={deleteField}
+                                isArrayElement={true}
+                                hasHoveredParent={isHovered || hasHoveredParent}
+                            />
+                        </TreeBody>
+                        <br />
+                    </>
                 );
             })
         );
