@@ -22,7 +22,7 @@ import { OutputSearchHighlight } from "../Search";
 import { ValueConfigMenu, ValueConfigOption } from "./ValueConfigButton";
 import { useIONodesStyles } from "../../../../styles";
 
-export interface PrimitiveTypeInputElementWidgetProps {
+export interface PrimitiveTypeOutputElementWidgetProps {
     parentId: string;
     field: DMTypeWithValue;
     engine: DiagramEngine;
@@ -34,7 +34,7 @@ export interface PrimitiveTypeInputElementWidgetProps {
     hasHoveredParent?: boolean;
 }
 
-export function PrimitiveTypeInputElementWidget(props: PrimitiveTypeInputElementWidgetProps) {
+export function PrimitiveTypeOutputElementWidget(props: PrimitiveTypeOutputElementWidgetProps) {
     const {
         parentId,
         field,
@@ -51,13 +51,13 @@ export function PrimitiveTypeInputElementWidget(props: PrimitiveTypeInputElement
     const [portState, setPortState] = useState<PortState>(PortState.Unselected);
 
     const typeName = field.type.kind;
-    const fieldName = field.type?.fieldName || typeName;
+    const fieldName = field.type?.fieldName || '';
     const value = field.value && !field.value.wasForgotten() && field.value.getText().trim();
 
     let fieldId = parentId;
 
     if (fieldIndex !== undefined) {
-        fieldId = `${parentId}.${fieldIndex}.${fieldName}`;
+        fieldId =`${parentId}.${fieldIndex}${fieldName !== '' ? `.${fieldName}` : ''}`;
     } else if (fieldName) {
         fieldId = `${parentId}.${typeName}.${fieldName}`;
     } else {

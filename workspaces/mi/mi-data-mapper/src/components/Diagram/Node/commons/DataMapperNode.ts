@@ -100,7 +100,7 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 		hidden?: boolean
 	) {
 
-		const fieldName = field.type?.fieldName || field.type.kind;
+		const fieldName = field.type?.fieldName || '';
 		if (elementIndex !== undefined) {
 			parentId = parentId ? `${parentId}.${elementIndex}` : elementIndex.toString();
 		}

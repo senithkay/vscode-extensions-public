@@ -107,9 +107,7 @@ function getValueNodeAndNextNodeForParentType(
     originalType: DMType
 ): [Node?, Node?] {
 
-    if (!node) {
-        return [undefined, undefined];
-    } else if (Node.isObjectLiteralExpression(node)) {
+    if (node && Node.isObjectLiteralExpression(node)) {
         const propertyAssignment = node.getProperties().find((val) =>
             Node.isPropertyAssignment(val)
             && originalType?.fieldName
@@ -121,7 +119,7 @@ function getValueNodeAndNextNodeForParentType(
         } else if (propertyAssignment) {
             return [propertyAssignment, propertyAssignment?.getInitializer()];
         }
-    } else if (Node.isArrayLiteralExpression(node)) {
+    } else if (node && Node.isArrayLiteralExpression(node)) {
         const objLitExprs = node.getElements().filter(element =>
             Node.isObjectLiteralExpression(element)
         ) as ObjectLiteralExpression[];
@@ -139,7 +137,7 @@ function getValueNodeAndNextNodeForParentType(
             return [node, node];
         }
     }
-    return [node, undefined];
+    return [undefined, undefined];
 }
 
 function addChildrenTypes(

@@ -162,7 +162,7 @@ export function getOutputPort(
                 const [nextField, fieldIndex] = getNextField(nextTypeNode.elements, nextPosition);
 
                 if (nextField && fieldIndex !== -1) {
-                    const nextFieldName = nextField.originalType?.fieldName || nextField.originalType.kind;
+                    const nextFieldName = nextField.originalType?.fieldName || '';
                     portIdBuffer = `${portIdBuffer}.${nextFieldName}`;
                 }
             }
