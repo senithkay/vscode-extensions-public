@@ -10,3 +10,8 @@
 export const FirstCharToUpperCase = (str: string) => {
     return str.charAt(0).toUpperCase() + str.slice(1);
 }
+
+// Checks if the given dirty keys exist in the attributes
+export function checkAttributesExist(dirtyKeys: string[], attributes: string[]) {
+    return dirtyKeys.some(key => attributes.includes(key));
+}
