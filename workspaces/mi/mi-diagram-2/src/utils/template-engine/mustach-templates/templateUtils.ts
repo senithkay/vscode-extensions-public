@@ -207,7 +207,7 @@ export function getXML(name: string, data: { [key: string]: any }, dirtyFields?:
         case MEDIATORS.CACHE:
             return getCacheXml(data, dirtyFields, defaultValues);
         case MEDIATORS.CLONE:
-            return getCloneXml(data);
+            return getCloneXml(data, dirtyFields, defaultValues);
         case MEDIATORS.DATASERVICECALL:
             return getDataSerivceCallXml(data);
         case MEDIATORS.TRANSACTION:
