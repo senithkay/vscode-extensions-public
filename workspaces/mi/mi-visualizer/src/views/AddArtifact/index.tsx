@@ -156,11 +156,6 @@ export function AddArtifactView() {
             });
     }, []);
 
-    // Add a function to handle the close action
-    const handleClose = () => {
-        console.log("Close button clicked"); // Implement the close logic here
-    };
-
     const handleGenerateWithAI = async () => {
         rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Overview } })
         rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.openAiPanel", inputAiPrompt] });
@@ -176,9 +171,6 @@ export function AddArtifactView() {
             <ViewContent padding>
                 <Container>
                     <AddPanel>
-                        <CloseButton onClick={handleClose} appearance="icon" tooltip="Close">
-                            <Codicon name="chrome-close" />
-                        </CloseButton>
                         <Typography variant="h3" sx={{ margin: "0 0 5px 0", display: "flex", alignItems: "center" }}>
                             <Codicon name="wand" sx={{ marginRight: "5px" }} />
                             Describe your Integration to generate with AI
@@ -274,7 +266,7 @@ export function AddArtifactView() {
                                         onClick={() => handleClick("messageStores")}
                                     />
                                     <Card
-                                        icon="location"
+                                        icon="output"
                                         title="Local Entry"
                                         description="Add description here..."
                                         onClick={() => handleClick("localEntries")}
