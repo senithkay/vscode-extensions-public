@@ -57,11 +57,17 @@ import {
     EndpointDirectoryResponse,
     EndpointsAndSequencesResponse,
     FileDirResponse,
+    GetAllArtifactsRequest,
+    GetAllArtifactsResponse,
+    GetAllRegistryPathsRequest,
+    GetAllRegistryPathsResponse,
     GetAvailableConnectorRequest,
     GetAvailableConnectorResponse,
     GetAvailableResourcesRequest,
     GetAvailableResourcesResponse,
     GetBackendRootUrlResponse,
+    GetConnectionFormRequest,
+    GetConnectionFormResponse,
     GetConnectorConnectionsRequest,
     GetConnectorConnectionsResponse,
     GetConnectorFormRequest,
@@ -94,12 +100,12 @@ import {
     GetTemplateEPResponse,
     GetTextAtRangeRequest,
     GetTextAtRangeResponse,
+    GetUserAccessTokenResponse,
     GetWorkspaceContextResponse,
     HighlightCodeRequest,
     ImportProjectRequest,
     ImportProjectResponse,
     ListRegistryArtifactsRequest,
-    ListRegistryArtifactsResponse,
     MiDiagramAPI,
     MigrateProjectRequest,
     MigrateProjectResponse,
@@ -107,6 +113,7 @@ import {
     ProjectDirResponse,
     ProjectRootResponse,
     RangeFormatRequest,
+    RegistryArtifactNamesResponse,
     RetrieveAddressEndpointRequest,
     RetrieveAddressEndpointResponse,
     RetrieveDefaultEndpointRequest,
@@ -170,10 +177,13 @@ import {
     getAIResponse,
     getAPIDirectory,
     getAddressEndpoint,
+    getAllArtifacts,
+    getAllRegistryPaths,
     getAvailableConnectors,
     getAvailableRegistryResources,
     getAvailableResources,
     getBackendRootUrl,
+    getConnectionForm,
     getConnector,
     getConnectorConnections,
     getConnectorForm,
@@ -206,12 +216,14 @@ import {
     getTemplateEndpoint,
     getTemplates,
     getTextAtRange,
+    getUserAccessToken,
     getWorkspaceContext,
     getWorkspaceRoot,
     getWsdlEndpoint,
     highlightCode,
     importProject,
     initUndoRedoManager,
+    logoutFromMIAccount,
     migrateProject,
     openDiagram,
     openFile,
@@ -532,7 +544,7 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
         return this._messenger.sendRequest(getBackendRootUrl, HOST_EXTENSION);
     }
 
-    getAvailableRegistryResources(params: ListRegistryArtifactsRequest): Promise<ListRegistryArtifactsResponse> {
+    getAvailableRegistryResources(params: ListRegistryArtifactsRequest): Promise<RegistryArtifactNamesResponse> {
         return this._messenger.sendRequest(getAvailableRegistryResources, HOST_EXTENSION, params);
     }
 
@@ -556,6 +568,10 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
         return this._messenger.sendRequest(getConnectorForm, HOST_EXTENSION, params);
     }
 
+    getConnectionForm(params: GetConnectionFormRequest): Promise<GetConnectionFormResponse> {
+        return this._messenger.sendRequest(getConnectionForm, HOST_EXTENSION, params);
+    }
+
     createDataSource(params: DataSourceTemplate): Promise<CreateDataSourceResponse> {
         return this._messenger.sendRequest(createDataSource, HOST_EXTENSION, params);
     }
@@ -568,12 +584,29 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
         return this._messenger.sendRequest(getIconPathUri, HOST_EXTENSION, params);
     }
 
+    getUserAccessToken(): Promise<GetUserAccessTokenResponse> {
+        return this._messenger.sendRequest(getUserAccessToken, HOST_EXTENSION);
+    }
+
     createConnection(params: CreateConnectionRequest): Promise<CreateConnectionResponse> {
         return this._messenger.sendRequest(createConnection, HOST_EXTENSION, params);
     }
 
     getConnectorConnections(params: GetConnectorConnectionsRequest): Promise<GetConnectorConnectionsResponse> {
         return this._messenger.sendRequest(getConnectorConnections, HOST_EXTENSION, params);
+    }
+
+    logoutFromMIAccount(): void {
+        return this._messenger.sendNotification(logoutFromMIAccount, HOST_EXTENSION);
+    }
+    
+    getAllRegistryPaths(params: GetAllRegistryPathsRequest): Promise<GetAllRegistryPathsResponse> {
+        return this._messenger.sendRequest(getAllRegistryPaths, HOST_EXTENSION, params);
+    }
+
+    getAllArtifacts(params: GetAllArtifactsRequest): Promise<GetAllArtifactsResponse> {
+        return this._messenger.sendRequest(getAllArtifacts, HOST_EXTENSION, params);
+
     }
 
     deleteArtifact(params: DeleteArtifactRequest): Promise<void> {

@@ -24,14 +24,18 @@ export interface AddressEndpointArgs {
     addressingVersion: string;
     addressListener: string | null;
     securityEnabled: string;
+    seperatePolicies: boolean;
+    policyKey: string;
+    inboundPolicyKey: string;
+    outboundPolicyKey: string;
     suspendErrorCodes: string;
     initialDuration: number;
-    maximumDuration: number;
+    maximumDuration: number | null;
     progressionFactor: number;
     retryErrorCodes: string;
     retryCount: number;
     retryDelay: number;
-    timeoutDuration: number;
+    timeoutDuration: number | null;
     timeoutAction: string | null;
     templateName: string;
     requireTemplateParameters: boolean;
@@ -47,7 +51,7 @@ export function getAddressEndpointMustacheTemplate() {
 <endpoint name="{{endpointName}}" {{^template}}xmlns="http://ws.apache.org/ns/synapse"{{/template}}>
     <address {{#format}}format="{{format}}"{{/format}} {{#optimize}}optimize="{{optimize}}"{{/optimize}} {{#statisticsEnabled}}statistics="{{statisticsEnabled}}"{{/statisticsEnabled}} {{#traceEnabled}}trace="{{traceEnabled}}"{{/traceEnabled}} uri="{{{uri}}}">
         {{#addressingEnabled}}<enableAddressing {{#addressListener}}separateListener="{{addressListener}}"{{/addressListener}} {{#addressingVersion}}version="{{addressingVersion}}{{/addressingVersion}}"/>{{/addressingEnabled}}
-        {{#securityEnabled}}<enableSec/>{{/securityEnabled}}
+        {{#securityEnabled}}<enableSec{{#policyKey}} policy="{{policyKey}}"{{/policyKey}}{{#inboundPolicyKey}} inboundPolicy="{{inboundPolicyKey}}"{{/inboundPolicyKey}}{{#outboundPolicyKey}} outboundPolicy="{{outboundPolicyKey}}"{{/outboundPolicyKey}}/>{{/securityEnabled}}
         {{#timeout}}<timeout>
             {{#timeoutDuration}}<duration>{{timeoutDuration}}</duration>{{/timeoutDuration}}
             {{#timeoutAction}}<responseAction>{{timeoutAction}}</responseAction>{{/timeoutAction}}
@@ -65,7 +69,7 @@ export function getAddressEndpointMustacheTemplate() {
         </markForSuspension>
     </address>
     {{#properties}}
-    <property name="{{name}}" scope="{{scope}}" value="{{value}}"/>
+    <property name="{{name}}" {{#scope}}scope="{{scope}}"{{/scope}} value="{{value}}"/>
     {{/properties}}  
     {{#description}}<description>{{description}}</description>{{/description}}
 </endpoint>
@@ -95,6 +99,10 @@ export function getAddressEndpointXml(data: AddressEndpointArgs) {
 
     if (!data.requireProperties || data.properties.length == 0) {
         data.properties = null;
+    } else {
+        data.properties.forEach(element => {
+            element.scope = element.scope === 'default' ? null : element.scope;
+        });
     }
 
     data.templateName != null && data.templateName != '' ? template = true : endpoint = true;
@@ -111,6 +119,16 @@ export function getAddressEndpointXml(data: AddressEndpointArgs) {
             parameters.push({ key: 'axis2ns'.concat(String(incrementalValue).padStart(2, '0')), value: element });
             incrementalValue++;
         });
+    }
+  
+    data.maximumDuration = data.maximumDuration === Number.MAX_SAFE_INTEGER ? null : data.maximumDuration;
+    data.timeoutDuration = data.timeoutDuration === Number.MAX_SAFE_INTEGER ? null : data.timeoutDuration;
+
+    if (data.seperatePolicies) {
+        data.policyKey = '';
+    } else {
+        data.inboundPolicyKey = '';
+        data.outboundPolicyKey = '';
     }
 
     const modifiedData = {

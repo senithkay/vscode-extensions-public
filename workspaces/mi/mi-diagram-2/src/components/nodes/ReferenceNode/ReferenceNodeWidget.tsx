@@ -168,7 +168,7 @@ export function ReferenceNodeWidget(props: ReferenceNodeWidgetProps) {
             rpcClient.getMiVisualizerRpcClient().openView({
                 type: EVENT_TYPE.OPEN_VIEW,
                 location: {
-                    view: MACHINE_VIEW.DataMapperView,
+                    view: MACHINE_VIEW.SequenceView,
                     documentUri: definition.uri
                 }
             });

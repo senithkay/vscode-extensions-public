@@ -7,13 +7,15 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import React, {useEffect, useState} from "react";
-import {Button, TextField, Dropdown, RadioButtonGroup, FormView, FormGroup, FormActions, ParamConfig, ParamManager} from "@wso2-enterprise/ui-toolkit";
+import {Button, TextField, Dropdown, RadioButtonGroup, FormCheckBox, FormView, FormGroup, FormActions, ParamConfig, ParamManager} from "@wso2-enterprise/ui-toolkit";
 import {useVisualizerContext} from "@wso2-enterprise/mi-rpc-client";
 import {EVENT_TYPE, MACHINE_VIEW, UpdateAddressEndpointRequest} from "@wso2-enterprise/mi-core";
 import {TypeChip} from "./Commons";
-import {useForm, Controller} from "react-hook-form";
+import {useForm} from "react-hook-form";
 import * as yup from "yup";
 import {yupResolver} from "@hookform/resolvers/yup";
+import AddToRegistry, {formatRegistryPath, saveToRegistry, getArtifactNamesAndRegistryPaths} from "./AddToRegistry";
+import { FormKeylookup } from "@wso2-enterprise/mi-diagram-2";
 
 interface OptionProps {
     value: string;
@@ -37,6 +39,10 @@ type InputsFields = {
     addressingVersion?: string;
     addressListener?: string;
     securityEnabled?: string;
+    seperatePolicies: boolean;
+    policyKey?: string;
+    inboundPolicyKey?: string;
+    outboundPolicyKey?: string;
     suspendErrorCodes?: string;
     initialDuration?: number;
     maximumDuration?: number;
@@ -48,6 +54,11 @@ type InputsFields = {
     timeoutAction?: string;
     templateName?: string;
     requireTemplateParameters?: boolean;
+    saveInReg?: boolean;
+    //reg form
+    artifactName?: string;
+    registryPath?: string
+    registryType?: "gov" | "conf";
 };
 
 const newAddressEndpoint: InputsFields = {
@@ -63,6 +74,10 @@ const newAddressEndpoint: InputsFields = {
     addressingVersion: "",
     addressListener: "disable",
     securityEnabled: "disable",
+    seperatePolicies: false,
+    policyKey: "",
+    inboundPolicyKey: "",
+    outboundPolicyKey: "",
     suspendErrorCodes: "",
     initialDuration: -1,
     maximumDuration: Number.MAX_SAFE_INTEGER,
@@ -74,16 +89,34 @@ const newAddressEndpoint: InputsFields = {
     timeoutAction: "",
     templateName: "",
     requireTemplateParameters: false,
+    saveInReg: false,
+    //reg form
+    artifactName: "",
+    registryPath: "/",
+    registryType: "gov"
 }
 
 export function AddressEndpointWizard(props: AddressEndpointWizardProps) {
 
     const schema = yup.object({
-        endpointName: yup.string().required("Endpoint Name is required").matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in Endpoint Name"),
+        endpointName: props.type === 'endpoint' ? yup.string().required("Endpoint Name is required")
+                .matches(/^[^@\\^+;:!%&,=*#[\]?'"<>{}() /]*$/, "Invalid characters in Endpoint Name")
+                .test('validateEndpointName',
+                    'An artifact with same name already exists', value => {
+                        return !isNewEndpoint ? !(workspaceFileNames.includes(value) && value !== savedEPName) : !workspaceFileNames.includes(value);
+                    })
+                .test('validateEndpointArtifactName',
+                    'A registry resource with this artifact name already exists', value => {
+                        return !isNewEndpoint ? !(artifactNames.includes(value) && value !== savedEPName) : !artifactNames.includes(value);
+                    }) :
+            yup.string().required("Endpoint Name is required")
+                .matches(/^[^@\\^+;:!%&,=*#[\]?'"<>{}() /]*$/, "Invalid characters in Endpoint Name"),
         format: yup.string().notRequired().default("LEAVE_AS_IS"),
         traceEnabled: yup.string().notRequired().default("disable"),
         statisticsEnabled: yup.string().notRequired().default("disable"),
-        uri: yup.string().required("Address Endpoint URI is required").matches(/^(https?|ftp):\/\/(([a-z\d]([a-z\d-]*[a-z\d])?\.)+[a-z]{2,}|localhost(:[\d]*)?)(\/[-a-z\d%_.~+]*)*(\?[;&a-z\d%_.~+=-]*)?(\#[-a-z\d_]*)?$/i, "Invalid URI template format"),
+        uri: yup.string().required("Address Endpoint URI is required")
+            .matches(/^\$.+$|^\{.+\}$|^(https?|ftp):\/\/(([a-z\d]([a-z\d-]*[a-z\d])?\.)+[a-z]{2,}|localhost(:[\d]*)?)(\/[-a-z\d%_.~+]*)*(\?[;&a-z\d%_.~+=-]*)?(\#[-a-z\d_]*)?$/i,
+                "Invalid URI format"),
         optimize: yup.string().notRequired().default("LEAVE_AS_IS"),
         description: yup.string().notRequired().default(""),
         requireProperties: yup.boolean().notRequired().default(false),
@@ -91,6 +124,10 @@ export function AddressEndpointWizard(props: AddressEndpointWizardProps) {
         addressingVersion: yup.string().notRequired().default(""),
         addressListener: yup.string().notRequired().default("disable"),
         securityEnabled: yup.string().notRequired().default("disable"),
+        seperatePolicies: yup.boolean().notRequired().default(false),
+        policyKey: yup.string().notRequired().default(""),
+        inboundPolicyKey: yup.string().notRequired().default(""),
+        outboundPolicyKey: yup.string().notRequired().default(""),
         suspendErrorCodes: yup.string().notRequired().default(""),
         initialDuration: yup.number().typeError('Initial Duration must be a number').min(-1, "Initial Duration must be greater than -1").notRequired().default(-1),
         maximumDuration: yup.number().typeError('Maximum Duration must be a number').min(1, "Maximum Duration must be greater than 0").notRequired().default(Number.MAX_SAFE_INTEGER),
@@ -100,8 +137,45 @@ export function AddressEndpointWizard(props: AddressEndpointWizardProps) {
         retryDelay: yup.number().typeError('Retry Delay must be a number').min(0, "Retry Delay Interval must be greater than or equal to 0").notRequired().default(0),
         timeoutDuration: yup.number().typeError('Timeout Duration must be a number').min(1, "Timeout Duration must be greater than 0").notRequired().default(Number.MAX_SAFE_INTEGER),
         timeoutAction: yup.string().notRequired().default(""),
-        templateName: props.type === 'template' ? yup.string().required("Template Name is required").matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in Template Name") : yup.string().notRequired().default(""),
+        templateName: props.type === 'template' ? yup.string().required("Template Name is required")
+                .matches(/^[^@\\^+;:!%&,=*#[\]?'"<>{}() /]*$/, "Invalid characters in Template Name")
+                .test('validateTemplateName',
+                    'An artifact with same name already exists', value => {
+                        return !isNewEndpoint ? !(workspaceFileNames.includes(value) && value !== savedEPName) : !workspaceFileNames.includes(value);
+                    })
+                .test('validateTemplateArtifactName',
+                    'A registry resource with this artifact name already exists', value => {
+                        return !isNewEndpoint ? !(artifactNames.includes(value) && value !== savedEPName) : !artifactNames.includes(value);
+                    }) :
+            yup.string().notRequired().default(""),
         requireTemplateParameters: yup.boolean().notRequired().default(false),
+        saveInReg: yup.boolean(),
+        artifactName: yup.string().when('saveInReg', {
+            is: false,
+            then: () =>
+                yup.string().notRequired(),
+            otherwise: () =>
+                yup.string().required("Artifact Name is required")
+                    .test('validateArtifactName',
+                    'Artifact name already exists', value => {
+                        return !artifactNames.includes(value);
+                        })
+                    .test('validateFileName',
+                    'A file already exists in the workspace with this artifact name', value => {
+                        return !workspaceFileNames.includes(value);
+                    }),
+        }),
+        registryPath: yup.string().when('saveInReg', {
+            is: false,
+            then: () =>
+                yup.string().notRequired(),
+            otherwise: () =>
+                yup.string().test('validateRegistryPath', 'Resource already exists in registry', value => {
+                    const formattedPath = formatRegistryPath(value, getValues("registryType"), getValues("endpointName"));
+                    return !(registryPaths.includes(formattedPath) || registryPaths.includes(formattedPath + "/"));
+                }),
+        }),
+        registryType: yup.mixed<"gov" | "conf">().oneOf(["gov", "conf"]),
     });
 
     const {
@@ -112,6 +186,7 @@ export function AddressEndpointWizard(props: AddressEndpointWizardProps) {
         setValue,
         watch,
         control,
+        getValues,
     } = useForm({
         resolver: yupResolver(schema),
         mode: "onChange"
@@ -120,6 +195,10 @@ export function AddressEndpointWizard(props: AddressEndpointWizardProps) {
     const {rpcClient} = useVisualizerContext();
     const isNewEndpoint = !props.path.endsWith(".xml");
     const isTemplate = props.type === 'template';
+    const [artifactNames, setArtifactNames] = useState([]);
+    const [registryPaths, setRegistryPaths] = useState([]);
+    const [savedEPName, setSavedEPName] = useState<string>("");
+    const [workspaceFileNames, setWorkspaceFileNames] = useState([]);
 
     const paramTemplateConfigs: ParamConfig = {
         paramValues: [],
@@ -163,9 +242,8 @@ export function AddressEndpointWizard(props: AddressEndpointWizardProps) {
     const [additionalParams, setAdditionalParams] = useState(propertiesConfigs);
 
     useEffect(() => {
-
-        if (!isNewEndpoint) {
-            (async () => {
+        (async () => {
+            if (!isNewEndpoint) {
                 const existingEndpoint = await rpcClient.getMiDiagramRpcClient().getAddressEndpoint({path: props.path});
                 templateParams.paramValues = [];
                 setTemplateParams(templateParams);
@@ -224,12 +302,22 @@ export function AddressEndpointWizard(props: AddressEndpointWizardProps) {
                     });
                 });
                 reset(existingEndpoint);
+                setSavedEPName(isTemplate ? existingEndpoint.templateName : existingEndpoint.endpointName);
+                setValue('saveInReg', false);
                 setValue('timeoutAction', existingEndpoint.timeoutAction === '' ? 'Never' :
                     existingEndpoint.timeoutAction.charAt(0).toUpperCase() + existingEndpoint.timeoutAction.slice(1));
-            })();
-        } else {
-            reset(newAddressEndpoint);
-        }
+            } else {
+                reset(newAddressEndpoint);
+            }
+
+            const result = await getArtifactNamesAndRegistryPaths(props.path, rpcClient);
+            setArtifactNames(result.artifactNamesArr);
+            setRegistryPaths(result.registryPaths);
+            const artifactRes = await rpcClient.getMiDiagramRpcClient().getAllArtifacts({
+                path: props.path,
+            });
+            setWorkspaceFileNames(artifactRes.artifacts);
+        })();
     }, [props.path]);
 
     const addressingVersions: OptionProps[] = [
@@ -310,21 +398,22 @@ export function AddressEndpointWizard(props: AddressEndpointWizardProps) {
             ...values,
             templateParameters: templateParameters,
             properties: endpointProperties,
+            getContentOnly: watch("saveInReg"),
             directory: props.path
         };
 
-        await rpcClient.getMiDiagramRpcClient().updateAddressEndpoint(addressEndpointParams);
-
-        rpcClient.getMiVisualizerRpcClient().openView({
-            type: EVENT_TYPE.OPEN_VIEW,
-            location: {view: MACHINE_VIEW.Overview}
-        });
+        const result = await rpcClient.getMiDiagramRpcClient().updateAddressEndpoint(addressEndpointParams);
+        if (watch("saveInReg")) {
+            await saveToRegistry(rpcClient, props.path, values.registryType,
+                isTemplate ? values.templateName : values.endpointName,
+                result.content, values.registryPath, values.artifactName);
+        }
+        handleCancel();
     };
 
     const renderProps = (fieldName: keyof InputsFields) => {
         return {
             id: fieldName,
-            value: String(watch(fieldName)),
             errorMsg: errors[fieldName] && errors[fieldName].message.toString(),
             ...register(fieldName)
         }
@@ -387,6 +476,12 @@ export function AddressEndpointWizard(props: AddressEndpointWizardProps) {
                     required
                     {...renderProps('endpointName')}
                 />
+                <TextField
+                    placeholder="URI"
+                    label="URI"
+                    required
+                    {...renderProps('uri')}
+                />
                 <Dropdown label="Format" items={formatOptions} {...renderProps('format')} />
                 <RadioButtonGroup
                     label="Trace Enabled"
@@ -399,13 +494,7 @@ export function AddressEndpointWizard(props: AddressEndpointWizardProps) {
                     {...renderProps('statisticsEnabled')}
                 />
             </FormGroup>
-            <FormGroup title="Miscellaneous Properties" isCollapsed={false}>
-                <TextField
-                    placeholder="URI"
-                    label="URI"
-                    required
-                    {...renderProps('uri')}
-                />
+            <FormGroup title="Miscellaneous Properties" isCollapsed={true}>
                 <Dropdown label="Optimize" items={optimizeOptions} {...renderProps('optimize')} />
                 <TextField
                     placeholder="Description"
@@ -424,7 +513,7 @@ export function AddressEndpointWizard(props: AddressEndpointWizardProps) {
                         onChange={handleAdditionalPropertiesChange}/>
                 )}
             </FormGroup>
-            <FormGroup title="Quality of Service Properties" isCollapsed={false}>
+            <FormGroup title="Quality of Service Properties" isCollapsed={true}>
                 <RadioButtonGroup
                     label="Addressing"
                     options={[{content: "Enable", value: "enable"}, {content: "Disable", value: "disable"}]}
@@ -446,8 +535,45 @@ export function AddressEndpointWizard(props: AddressEndpointWizardProps) {
                     options={[{content: "Enable", value: "enable"}, {content: "Disable", value: "disable"}]}
                     {...renderProps('securityEnabled')}
                 />
+                {watch('securityEnabled') === 'enable' && <>
+                    <FormCheckBox
+                        name="seperatePolicies"
+                        label="Specify as Inbound and Outbound Policies"
+                        control={control}
+                    />
+                    {watch("seperatePolicies") ? <>
+                        <FormKeylookup
+                            control={control}
+                            label="Inbound Policy Key"
+                            name="inboundPolicyKey"
+                            filterType="xslt"
+                            path={props.path}
+                            errorMsg={errors.inboundPolicyKey?.message.toString()}
+                            {...register("inboundPolicyKey")}
+                        />
+                        <FormKeylookup
+                            control={control}
+                            label="Outbound Policy Key"
+                            name="outboundPolicyKey"
+                            filterType="xslt"
+                            path={props.path}
+                            errorMsg={errors.outboundPolicyKey?.message.toString()}
+                            {...register("outboundPolicyKey")}
+                        />
+                    </> : (
+                        <FormKeylookup
+                            control={control}
+                            label="Policy Key"
+                            name="policyKey"
+                            filterType="xslt"
+                            path={props.path}
+                            errorMsg={errors.policyKey?.message.toString()}
+                            {...register("policyKey")}
+                        />
+                    )}
+                </>}
             </FormGroup>
-            <FormGroup title="Endpoint Error Handling" isCollapsed={false}>
+            <FormGroup title="Endpoint Error Handling" isCollapsed={true}>
                 <TextField
                     placeholder="304,305"
                     label="Suspend Error Codes"
@@ -490,6 +616,20 @@ export function AddressEndpointWizard(props: AddressEndpointWizardProps) {
                 />
                 <Dropdown label="Timeout Action" items={timeoutOptions} {...renderProps('timeoutAction')} />
             </FormGroup>
+            {isNewEndpoint && (
+                <>
+                    <FormCheckBox
+                        label="Save the sequence in registry"
+                        {...register("saveInReg")}
+                        control={control}
+                    />
+                    {watch("saveInReg") && (<>
+                        <AddToRegistry path={props.path}
+                                       fileName={isTemplate ? watch("templateName") : watch("endpointName")}
+                                       register={register} errors={errors} getValues={getValues} />
+                    </>)}
+                </>
+            )}
             <FormActions>
                 <Button
                     appearance="primary"

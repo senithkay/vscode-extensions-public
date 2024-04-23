@@ -16,6 +16,7 @@ import { DMType, Range } from "@wso2-enterprise/mi-core";
 import { Project } from "ts-morph";
 
 import { MIDataMapper } from "./components/DataMapper/DataMapper";
+import { ErrorBoundary } from "@wso2-enterprise/ui-toolkit";
 
 const queryClient = new QueryClient({
     defaultOptions: {
@@ -75,15 +76,17 @@ export function DataMapperView(props: DataMapperViewProps) {
     };
 
     return (
-        <QueryClientProvider client={queryClient}>
-            <Global styles={globalStyles} />
-            <MIDataMapper
-                fnST={functionST}
-                inputTrees={inputTrees}
-                outputTree={outputTree}
-                goToSource={goToSource}
-                applyModifications={applyModifications}
-            />
-        </QueryClientProvider>
+        <ErrorBoundary errorMsg="An error occurred while redering the MI Data Mapper">
+            <QueryClientProvider client={queryClient}>
+                <Global styles={globalStyles} />
+                <MIDataMapper
+                    fnST={functionST}
+                    inputTrees={inputTrees}
+                    outputTree={outputTree}
+                    goToSource={goToSource}
+                    applyModifications={applyModifications}
+                />
+            </QueryClientProvider>
+        </ErrorBoundary>
     );
 }

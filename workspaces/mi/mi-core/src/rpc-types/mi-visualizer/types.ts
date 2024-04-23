@@ -124,14 +124,6 @@ export interface ToggleDisplayOverviewRequest {
     displayOverview: boolean;
 }
 
-export interface GetAllRegistryPathsRequest {
-    path: string;
-}
-
-export interface GetAllRegistryPathsResponse {
-    registryPaths: string[];
-}
-
 export interface GoToSourceRequest {
     filePath: string;
     position?: Range;

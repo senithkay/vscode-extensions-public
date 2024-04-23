@@ -5,37 +5,50 @@
   "help": "",
   "elements": [
     {
+      "type": "attribute",
+      "value": {
+        "name": "sourceXPath",
+        "displayName": "Source XPath",
+        "inputType": "expression",
+        "defaultValue": "",
+        "required": false,
+        "helpTip": ""
+      }
+    },
+    {
+      "type": "attribute",
+      "value": {
+        "name": "xsltSchemaKey",
+        "displayName": "XSLT Schema Key",
+        "inputType": "keyOrExpression",
+        "defaultValue": "",
+        "required": false,
+        "helpTip": "",
+        "keyType": "xslt"
+      }
+    },
+    {
       "type": "attributeGroup",
       "value": {
-        "groupName": "Properties",
+        "groupName": "Advanced",
+        "isCollapsible": true,
         "elements": [
           {
-            "type": "attribute",
+            "type": "table",
             "value": {
-              "name": "sourceXPath",
-              "displayName": "Source XPath",
-              "inputType": "expression",
-              "defaultValue": "",
-              "required": false,
-              "helpTip": ""
-            }
-          },
-          {
-            "type": "attributeGroup",
-            "value": {
-              "groupName": "XSLT Schema Key",
+              "name": "properties",
+              "displayName": "Properties",
+              "title": "XSLT property",
+              "description": "Editing of the properties of an object XSLT Property",
+              "tableKey": "propertyName",
+              "tableValue": "propertyValue",
               "elements": [
                 {
                   "type": "attribute",
                   "value": {
-                    "name": "xsltSchemaKeyType",
-                    "displayName": "XSLT Schema Key Type",
-                    "inputType": "combo",
-                    "defaultValue": "Static",
-                    "comboValues": [
-                      "Static",
-                      "Dynamic"
-                    ],
+                    "name": "propertyName",
+                    "displayName": "Property Name",
+                    "inputType": "string",
                     "required": false,
                     "helpTip": ""
                   }
@@ -43,213 +56,98 @@
                 {
                   "type": "attribute",
                   "value": {
-                    "name": "xsltStaticSchemaKey",
-                    "displayName": "XSLT Static Schema Key",
-                    "inputType": "registry",
-                    "defaultValue": "",
+                    "name": "propertyValue",
+                    "displayName": "Property Value",
+                    "inputType": "stringOrExpression",
                     "required": false,
-                    "helpTip": "",
-                    "enableCondition": [
-                      {
-                        "xsltSchemaType": "Static"
-                      }
-                    ]
-                  }
-                },
-                {
-                  "type": "attribute",
-                  "value": {
-                    "name": "xsltDynamicSchemaKey",
-                    "displayName": "XSLT Dynamic Schema Key",
-                    "inputType": "expression",
-                    "defaultValue": "",
-                    "required": false,
-                    "helpTip": "",
-                    "enableCondition": [
-                      {
-                        "xsltSchemaType": "Dynamic"
-                      }
-                    ]
-                  }
-                },
-                {
-                  "type": "table",
-                  "value": {
-                    "name": "properties",
-                    "displayName": "Properties",
-                    "form": {
-                      "title": "XSLT property",
-                      "description": "Editing of the properties of an object XSLT Property",
-                      "elements": [
-                        {
-                          "type": "attributeGroup",
-                          "value": {
-                            "groupName": "Properties",
-                            "elements": [
-                              {
-                                "type": "attribute",
-                                "value": {
-                                  "name": "propertyName",
-                                  "displayName": "Property Name",
-                                  "inputType": "string",
-                                  "required": false,
-                                  "helpTip": ""
-                                }
-                              },
-                              {
-                                "type": "attribute",
-                                "value": {
-                                  "name": "propertyValueType",
-                                  "displayName": "Property Value Type",
-                                  "inputType": "combo",
-                                  "defaultValue": "LITERAL",
-                                  "comboValues": [
-                                    "LITERAL",
-                                    "EXPRESSION"
-                                  ],
-                                  "required": false,
-                                  "helpTip": ""
-                                }
-                              },
-                              {
-                                "type": "attribute",
-                                "value": {
-                                  "name": "propertyValue",
-                                  "displayName": "Property Value",
-                                  "inputType": "string",
-                                  "required": false,
-                                  "helpTip": "",
-                                  "enableCondition": [
-                                    {
-                                      "propertyValueType": "LITERAL"
-                                    }
-                                  ]
-                                }
-                              },
-                              {
-                                "type": "attribute",
-                                "value": {
-                                  "name": "propertyExpression",
-                                  "displayName": "Property Expression",
-                                  "inputType": "expression",
-                                  "required": false,
-                                  "helpTip": "",
-                                  "enableCondition": [
-                                    {
-                                      "propertyValueType": "EXPRESSION"
-                                    }
-                                  ]
-                                }
-                              }
-                            ]
-                          }
-                        }
-                      ]
-                    },
                     "helpTip": ""
-                  }
-                },
-                {
-                  "type": "table",
-                  "value": {
-                    "name": "resources",
-                    "displayName": "Resources",
-                    "form": {
-                      "title": "XSLT Resource",
-                      "description": "Editing of the properties of an object XSLT Resource",
-                      "elements": [
-                        {
-                          "type": "attributeGroup",
-                          "value": {
-                            "groupName": "Properties",
-                            "elements": [
-                              {
-                                "type": "attribute",
-                                "value": {
-                                  "name": "location",
-                                  "displayName": "Location",
-                                  "inputType": "string",
-                                  "defaultValue": "",
-                                  "required": false,
-                                  "helpTip": ""
-                                }
-                              },
-                              {
-                                "type": "attribute",
-                                "value": {
-                                  "name": "resourceRegistryKey",
-                                  "displayName": "Resource Registry Key",
-                                  "inputType": "registry",
-                                  "defaultValue": "",
-                                  "required": false,
-                                  "helpTip": ""
-                                }
-                              }
-                            ]
-                          }
-                        }
-                      ]
-                    }
-                  }
-                },
-                {
-                  "type": "table",
-                  "value": {
-                    "name": "features",
-                    "displayName": "Features",
-                    "form": {
-                      "title": "XSLT Features",
-                      "description": "Editing of the properties of an object XSLT Features",
-                      "elements": [
-                        {
-                          "type": "attributeGroup",
-                          "value": {
-                            "groupName": "Properties",
-                            "elements": [
-                              {
-                                "type": "attribute",
-                                "value": {
-                                  "name": "featureName",
-                                  "displayName": "Feature Name",
-                                  "inputType": "string",
-                                  "defaultValue": "",
-                                  "required": false,
-                                  "helpTip": ""
-                                }
-                              },
-                              {
-                                "type": "attribute",
-                                "value": {
-                                  "name": "featureEnabled",
-                                  "displayName": "Feature Enabled",
-                                  "inputType": "checkbox",
-                                  "defaultValue": false,
-                                  "required": false,
-                                  "helpTip": ""
-                                }
-                              }
-                            ]
-                          }
-                        }
-                      ]
-                    }
                   }
                 }
               ]
             }
           },
           {
-            "type": "attribute",
+            "type": "table",
             "value": {
-              "name": "description",
-              "displayName": "Description",
-              "inputType": "string",
-              "defaultValue": "",
-              "required": false,
-              "helpTip": ""
+              "name": "resources",
+              "displayName": "Resources",
+              "title": "XSLT Resource",
+              "description": "Editing of the properties of an object XSLT Resource",
+              "tableKey": "location",
+              "tableValue": "resourceRegistryKey",
+              "elements": [
+                {
+                  "type": "attribute",
+                  "value": {
+                    "name": "location",
+                    "displayName": "Location",
+                    "inputType": "string",
+                    "defaultValue": "",
+                    "required": false,
+                    "helpTip": ""
+                  }
+                },
+                {
+                  "type": "attribute",
+                  "value": {
+                    "name": "resourceRegistryKey",
+                    "displayName": "Resource Registry Key",
+                    "inputType": "key",
+                    "defaultValue": "",
+                    "required": false,
+                    "helpTip": ""
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "type": "table",
+            "value": {
+              "name": "features",
+              "displayName": "Features",
+              "title": "XSLT Features",
+              "description": "Editing of the properties of an object XSLT Features",
+              "tableKey": "featureName",
+              "tableValue": "featureEnabled",
+              "elements": [
+                {
+                  "type": "attribute",
+                  "value": {
+                    "name": "featureName",
+                    "displayName": "Feature Name",
+                    "inputType": "string",
+                    "defaultValue": "",
+                    "required": false,
+                    "helpTip": ""
+                  }
+                },
+                {
+                  "type": "attribute",
+                  "value": {
+                    "name": "featureEnabled",
+                    "displayName": "Feature Enabled",
+                    "inputType": "checkbox",
+                    "defaultValue": false,
+                    "required": false,
+                    "helpTip": ""
+                  }
+                }
+              ]
             }
           }
         ]
+      }
+    },
+    {
+      "type": "attribute",
+      "value": {
+        "name": "description",
+        "displayName": "Description",
+        "inputType": "string",
+        "defaultValue": "",
+        "required": false,
+        "helpTip": ""
       }
     }
   ]

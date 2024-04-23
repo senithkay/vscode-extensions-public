@@ -248,6 +248,36 @@ const AddConnector = (props: AddConnectorProps) => {
                         </div>
                     </>
                 );
+            case 'comboOrExpression':
+                return (
+                    <>
+                        <label>{element.displayName}</label> {element.required && <RequiredFormInput />}
+                        <AutoComplete
+                            items={element.comboValues}
+                            value={formValues[element.name]}
+                            onValueChange={(e: any) => {
+                                setFormValues({ ...formValues, [element.name]: e });
+                                formValidators[element.name](e);
+                            }}
+                            allowItemCreate={true}
+                            required={element.required === 'true'} />
+                    </>
+
+                );
+            case 'textAreaOrExpression':
+                return (
+                    <TextField
+                        label={element.displayName}
+                        size={50}
+                        value={formValues[element.name] || ''}
+                        onTextChange={(e: any) => {
+                            setFormValues({ ...formValues, [element.name]: e });
+                            formValidators[element.name](e);
+                        }}
+                        required={element.required === 'true'}
+                        placeholder={element.helpTip}
+                    />
+                );
             case 'connection':
                 formValues[element.name] = formValues[element.name] ?? element.allowedConnectionTypes[0];
                 return (<>
@@ -320,7 +350,8 @@ const AddConnector = (props: AddConnectorProps) => {
                     documentUri={documentUri}
                     uiSchemaPath={uiSchemaPath}
                     onNewConnection={onNewConnection}
-                    cancelConnection={cancelConnection} />
+                    cancelConnection={cancelConnection}
+                    connectorName={props.formData?.connectorName ?? props.connectorName.toLowerCase().replace(/\s/g, '')} />
                 :
                 <>
                     <ComponentCard sx={cardStyle} disbaleHoverEffect>

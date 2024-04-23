@@ -120,7 +120,7 @@ import {
     GetTemplateEPResponse,
     GetSelectiveWorkspaceContextResponse,
     GetBackendRootUrlResponse,
-    ListRegistryArtifactsResponse,
+    RegistryArtifactNamesResponse,
     ListRegistryArtifactsRequest, RangeFormatRequest,
     MigrateProjectRequest,
     MigrateProjectResponse,
@@ -136,10 +136,17 @@ import {
     GetDataSourceRequest,
     GetIconPathUriRequest,
     GetIconPathUriResponse,
+    GetUserAccessTokenResponse,
     CreateConnectionRequest,
     CreateConnectionResponse,
     GetConnectorConnectionsRequest,
     GetConnectorConnectionsResponse,
+    GetAllRegistryPathsRequest,
+    GetAllRegistryPathsResponse,
+    GetAllArtifactsRequest,
+    GetAllArtifactsResponse,
+    GetConnectionFormRequest,
+    GetConnectionFormResponse,
     DeleteArtifactRequest,
 } from "./types";
 
@@ -217,16 +224,21 @@ export interface MiDiagramAPI {
     createClassMediator: (params: CreateClassMediatorRequest) => Promise<CreateClassMediatorResponse>;
     getSelectiveWorkspaceContext: () => Promise<GetSelectiveWorkspaceContextResponse>;
     getBackendRootUrl: () => Promise<GetBackendRootUrlResponse>;
-    getAvailableRegistryResources: (params: ListRegistryArtifactsRequest) => Promise<ListRegistryArtifactsResponse>;
+    getAvailableRegistryResources: (params: ListRegistryArtifactsRequest) => Promise<RegistryArtifactNamesResponse>;
     rangeFormat: (params: RangeFormatRequest) => Promise<ApplyEditResponse>;
     downloadConnector: (params: DownloadConnectorRequest) => Promise<DownloadConnectorResponse>;
     getAvailableConnectors: (params: GetAvailableConnectorRequest) => Promise<GetAvailableConnectorResponse>;
     updateConnectors: (params: UpdateConnectorRequest) => void;
     getConnectorForm: (params: GetConnectorFormRequest) => Promise<GetConnectorFormResponse>;
+    getConnectionForm: (params: GetConnectionFormRequest) => Promise<GetConnectionFormResponse>;
     createDataSource: (params: DataSourceTemplate) => Promise<CreateDataSourceResponse>;
     getDataSource: (params: GetDataSourceRequest) => Promise<DataSourceTemplate>;
     getIconPathUri: (params: GetIconPathUriRequest) => Promise<GetIconPathUriResponse>;
+    getUserAccessToken: () => Promise<GetUserAccessTokenResponse>;
     createConnection: (params: CreateConnectionRequest) => Promise<CreateConnectionResponse>;
     getConnectorConnections: (params: GetConnectorConnectionsRequest) => Promise<GetConnectorConnectionsResponse>;
+    logoutFromMIAccount: () => void;
+    getAllRegistryPaths: (params: GetAllRegistryPathsRequest) => Promise<GetAllRegistryPathsResponse>;
+    getAllArtifacts: (params: GetAllArtifactsRequest) => Promise<GetAllArtifactsResponse>;
     deleteArtifact: (params: DeleteArtifactRequest) => Promise<void>;
 }

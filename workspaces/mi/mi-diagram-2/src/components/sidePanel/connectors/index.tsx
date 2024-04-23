@@ -109,14 +109,14 @@ export function ConnectorPage(props: ConnectorPageProps) {
         });
     };
 
-    useEffect(() => {
-        const fetchLocalConnectorData = async () => {
-            const connectorData = await rpcClient.getMiDiagramRpcClient().getAvailableConnectors({ documentUri: props.documentUri, connectorName: "" });
-            if (connectorData) {
-                setLocalConnectors(connectorData.connectors);
-            }
-        };
+    const fetchLocalConnectorData = async () => {
+        const connectorData = await rpcClient.getMiDiagramRpcClient().getAvailableConnectors({ documentUri: props.documentUri, connectorName: "" });
+        if (connectorData) {
+            setLocalConnectors(connectorData.connectors);
+        }
+    };
 
+    useEffect(() => {
         fetchLocalConnectorData();
 
         if (!sidePanelContext.connectors || sidePanelContext.connectors.length === 0) {
@@ -237,6 +237,9 @@ export function ConnectorPage(props: ConnectorPageProps) {
 
         setIsGeneratingForm(true);
 
+        // Add 1s timeout to unzip the downloaded connected
+        await new Promise(resolve => setTimeout(resolve, 1000));
+
         // Get Connector Data from LS
         const connectorData = await rpcClient.getMiDiagramRpcClient().getAvailableConnectors({
             documentUri: props.documentUri,
@@ -244,8 +247,6 @@ export function ConnectorPage(props: ConnectorPageProps) {
         });
 
         if (connectorData) {
-            // // Update LS with new connector
-            await rpcClient.getMiDiagramRpcClient().updateConnectors({ documentUri: props.documentUri });
 
             // Retrieve form
             const formJSON = await rpcClient.getMiDiagramRpcClient().getConnectorForm({ uiSchemaPath: connectorData.uiSchemaPath, operation: operation });
@@ -258,6 +259,8 @@ export function ConnectorPage(props: ConnectorPageProps) {
                 operationName={operation} />;
 
             props.setContent(connecterForm, `${sidePanelContext.isEditing ? "Edit" : "Add"} ${operation}`);
+        } else {
+            fetchLocalConnectorData();
         }
 
         setIsGeneratingForm(false);
@@ -265,7 +268,7 @@ export function ConnectorPage(props: ConnectorPageProps) {
 
     function existsInLocalConnectors(connector: any) {
         return localConnectors.some(localConnector =>
-            localConnector.name === connector.name.toLowerCase().replace(/\s/g, '') && localConnector.version === connector.version);
+            localConnector.name.toLowerCase() === connector.name.toLowerCase().replace(/\s/g, '') && localConnector.version === connector.version);
     }
 
 
@@ -485,7 +488,7 @@ export function ConnectorPage(props: ConnectorPageProps) {
                                                     || (expandedConnectors && expandedConnectors.includes(connector))) && (
                                                         <OperationGrid>
                                                             {((filteredOperations.find(([filteredConnector]) => filteredConnector === connector)?.slice(1))
-                                                                || (Object.keys(connector.operations))).map((operation: any) => {
+                                                                || connector.operations).map((operation: any) => {
                                                                     // If operation is hidden, do not render the ComponentCard
                                                                     if (operation.isHidden) {
                                                                         return null;
@@ -493,8 +496,8 @@ export function ConnectorPage(props: ConnectorPageProps) {
 
                                                                     return (
                                                                         <ComponentCard
-                                                                            key={operation}
-                                                                            onClick={() => selectOperation(connector, operation)}
+                                                                            key={operation.name}
+                                                                            onClick={() => selectOperation(connector, operation.name)}
                                                                             sx={{
                                                                                 '&:hover, &.active': {
                                                                                     '.icon svg g': {
@@ -525,7 +528,7 @@ export function ConnectorPage(props: ConnectorPageProps) {
                                                                                 whiteSpace: 'nowrap',
                                                                                 textAlign: 'left'
                                                                             }}>
-                                                                                <IconLabel>{operation}</IconLabel>
+                                                                                <IconLabel>{operation.name}</IconLabel>
                                                                             </div>
                                                                         </ComponentCard>
                                                                     );

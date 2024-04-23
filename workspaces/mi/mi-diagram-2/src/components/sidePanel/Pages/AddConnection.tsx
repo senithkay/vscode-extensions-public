@@ -8,7 +8,7 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { Button, ComponentCard, RequiredFormInput, TextField } from '@wso2-enterprise/ui-toolkit';
+import { AutoComplete, Button, ComponentCard, RequiredFormInput, TextField } from '@wso2-enterprise/ui-toolkit';
 import { VSCodeCheckbox, VSCodeDropdown, VSCodeOption } from '@vscode/webview-ui-toolkit/react';
 import styled from '@emotion/styled';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
@@ -36,6 +36,7 @@ interface AddConnectionProps {
     onNewConnection: (connectionName: string) => void;
     cancelConnection: () => void;
     allowedConnectionTypes: string[];
+    connectorName: string;
 }
 
 interface Element {
@@ -66,7 +67,15 @@ const AddConnection = (props: AddConnectionProps) => {
     useEffect(() => {
         const fetchFormData = async () => {
             if (connectionType) {
-                const connectionFormJSON = await rpcClient.getMiDiagramRpcClient().getConnectorForm({ uiSchemaPath: uiSchemaPath, operation: connectionType.toLowerCase() });
+                const connectorData = await rpcClient.getMiDiagramRpcClient().getAvailableConnectors({
+                    documentUri: props.documentUri,
+                    connectorName: props.connectorName
+                });
+
+                const connectionUiSchema = connectorData.connectionUiSchema[connectionType as any];
+
+                const connectionFormJSON = await rpcClient.getMiDiagramRpcClient().getConnectionForm({ uiSchemaPath: connectionUiSchema });
+
                 setFormData(connectionFormJSON.formJSON);
             }
         };
@@ -159,6 +168,20 @@ const AddConnection = (props: AddConnectionProps) => {
                         placeholder={element.helpTip}
                     />
                 );
+            case 'stringOrExpresion':
+                return (
+                    <TextField
+                        label={element.displayName}
+                        size={50}
+                        value={formValues[element.name] || ''}
+                        onTextChange={(e: any) => {
+                            setFormValues({ ...formValues, [element.name]: e });
+                            formValidators[element.name](e);
+                        }}
+                        required={element.required === 'true'}
+                        placeholder={element.helpTip}
+                    />
+                );
             case 'booleanOrExpression':
                 return (
                     <>
@@ -175,6 +198,36 @@ const AddConnection = (props: AddConnectionProps) => {
                             />
                         </div>
                     </>
+                );
+            case 'comboOrExpression':
+                return (
+                    <>
+                        <label>{element.displayName}</label> {element.required && <RequiredFormInput />}
+                        <AutoComplete
+                            items={element.comboValues}
+                            value={formValues[element.name]}
+                            onValueChange={(e: any) => {
+                                setFormValues({ ...formValues, [element.name]: e });
+                                formValidators[element.name](e);
+                            }}
+                            allowItemCreate={true}
+                            required={element.required === 'true'} />
+                    </>
+
+                );
+            case 'textAreaOrExpression':
+                return (
+                    <TextField
+                        label={element.displayName}
+                        size={50}
+                        value={formValues[element.name] || ''}
+                        onTextChange={(e: any) => {
+                            setFormValues({ ...formValues, [element.name]: e });
+                            formValidators[element.name](e);
+                        }}
+                        required={element.required === 'true'}
+                        placeholder={element.helpTip}
+                    />
                 );
             case 'connection':
                 formValues[element.name] = formValues[element.name] ?? element.allowedConnectionTypes[0];
@@ -233,8 +286,8 @@ const AddConnection = (props: AddConnectionProps) => {
 
     return (
         <>
-            <label>{"Connection Type"}</label> {<RequiredFormInput />}
             <div style={{ padding: "10px" }}>
+                <label>{"Connection Type"}</label> {<RequiredFormInput />}
                 <VSCodeDropdown
                     label={"Connection Type"}
                     value={connectionType}

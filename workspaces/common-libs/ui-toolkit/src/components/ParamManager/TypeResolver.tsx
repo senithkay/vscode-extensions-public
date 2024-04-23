@@ -68,7 +68,7 @@ export function TypeResolver(props: TypeResolverProps) {
         case "Dropdown":
             return (
                 <Dropdown
-                    containerSx={{width: 166, fontFamily: "var(--vscode-font-family)", fontSize: "var(--vscode-font-size)", marginBottom: 5}}
+                    containerSx={{fontFamily: "var(--vscode-font-family)", fontSize: "var(--vscode-font-size)", marginBottom: 5}}
                     id={`dropdown-${id}`}
                     label={label}
                     value={value as string}

@@ -5,20 +5,7 @@
  * Dissemination of any information or reproduction of any material contained
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
- * 
- * THIS FILE INCLUDES AUTO GENERATED CODE
  */
-.custom-textarea-style {
-    display: flex;
-    flex-direction: column;
-    min-height: 7vh;
-    margin: 0;
 
-  }
-
-.custom-button-style{
-    display: block;
-    margin: auto;
-    margin-top: 2%;
-}
+export * from "./Keylookup/Keylookup";
 

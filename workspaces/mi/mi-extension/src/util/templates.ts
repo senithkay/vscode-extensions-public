@@ -93,7 +93,7 @@ export const rootPomXmlContent = (projectName: string, groupID: string, artifact
       <plugin>
         <groupId>org.wso2.maven</groupId>
         <artifactId>vscode-car-plugin</artifactId>
-        <version>5.2.49</version>
+        <version>5.2.51</version>
         <extensions>true</extensions>
         <executions>
           <execution>

@@ -8,7 +8,6 @@
  */
 
 import { ParamConfig } from '@wso2-enterprise/ui-toolkit';
-import * as yup from "yup";
 
 export type InputsFields = {
     endpointName: string;
@@ -36,6 +35,10 @@ export type InputsFields = {
     addressingVersion: string;
     addressListener: string;
     securityEnabled: string;
+    seperatePolicies: boolean;
+    policyKey?: string;
+    inboundPolicyKey?: string;
+    outboundPolicyKey?: string;
     suspendErrorCodes: string;
     initialDuration: number;
     maximumDuration: number;
@@ -48,6 +51,11 @@ export type InputsFields = {
     templateName: string;
     requireTemplateParameters: boolean;
     templateParameters: any[];
+    saveInReg?: boolean;
+    //reg form
+    artifactName?: string;
+    registryPath?: string
+    registryType?: "gov" | "conf";
 }
 
 export const initialEndpoint: InputsFields = {
@@ -89,6 +97,10 @@ export const initialEndpoint: InputsFields = {
     addressListener: "",
     // -- addressingEnabled: end,
     securityEnabled: "disable",
+    seperatePolicies: false,
+    policyKey: "",
+    inboundPolicyKey: "",
+    outboundPolicyKey: "",
 
     // Endpoint Error Handling: start
     suspendErrorCodes: "",
@@ -104,84 +116,13 @@ export const initialEndpoint: InputsFields = {
     // Template Configuration
     templateName: "",
     requireTemplateParameters: false,
-    templateParameters: []
-}
+    templateParameters: [],
 
-export const getSchema = (type: string) => {
-    return yup.object({
-        endpointName: yup.string().required("Endpoint name is required").matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in name"),
-        traceEnabled: yup.string(),
-        statisticsEnabled: yup.string(),
-        uriTemplate: yup
-            .string()
-            .required("URI template is required")
-            .matches(/^(https?|ftp):\/\/(([a-z\d]([a-z\d-]*[a-z\d])?\.)+[a-z]{2,}|localhost(:[\d]*)?)(\/[-a-z\d%_.~+]*)*(\?[;&a-z\d%_.~+=-]*)?(\#[-a-z\d_]*)?$/i, "Invalid URI template format"),
-        httpMethod: yup.string().required("HTTP method is required"),
-        description: yup.string(),
-        requireProperties: yup.boolean(),
-        properties: yup.array(),
-        authType: yup.string(),
-        basicAuthUsername: yup.string().when('authType', {
-            is: 'Basic Auth',
-            then: (schema) => schema.required('Basic Auth Username is required'),
-            otherwise: (schema) => schema.notRequired(),
-        }),
-        basicAuthPassword: yup.string().when('authType', {
-            is: 'Basic Auth',
-            then: (schema) => schema.required('Basic Auth Password is required'),
-            otherwise: (schema) => schema.notRequired(),
-        }),
-        authMode: yup.string(),
-        grantType: yup.string(),
-        clientId: yup.string().when('authType', {
-            is: 'OAuth',
-            then: (schema) => schema.required('Client ID is required'),
-            otherwise: (schema) => schema.notRequired(),
-        }),
-        clientSecret: yup.string().when('authType', {
-            is: 'OAuth',
-            then: (schema) => schema.required('Client Secret is required'),
-            otherwise: (schema) => schema.notRequired(),
-        }),
-        tokenUrl: yup.string().when('authType', {
-            is: 'OAuth',
-            then: (schema) => schema.required('Token URL is required'),
-            otherwise: (schema) => schema.notRequired(),
-        }),
-        refreshToken: yup.string().when(['authType', 'grantType'], {
-            is: (authType: any, grantType: any) => grantType === 'Authorization Code' && authType === 'OAuth',
-            then: (schema) => schema.required('Refresh token is required'),
-            otherwise: (schema) => schema.notRequired(),
-        }),
-        username: yup.string().when('grantType', {
-            is: 'Password',
-            then: (schema) => schema.required('Username is required'),
-            otherwise: (schema) => schema.notRequired(),
-        }),
-        password: yup.string().when('grantType', {
-            is: 'Password',
-            then: (schema) => schema.required('Password is required'),
-            otherwise: (schema) => schema.notRequired(),
-        }),
-        requireOauthParameters: yup.boolean(),
-        oauthProperties: yup.array(),
-        addressingEnabled: yup.string(),
-        addressingVersion: yup.string(),
-        addressListener: yup.string(),
-        securityEnabled: yup.string(),
-        suspendErrorCodes: yup.string(),
-        initialDuration: yup.number().typeError('Initial Duration must be a number'),
-        maximumDuration: yup.number().typeError('Maximum Duration must be a number').min(0, "Maximum Duration must be greater than or equal to 0"),
-        progressionFactor: yup.number().typeError('Progression Factor must be a number'),
-        retryErrorCodes: yup.string(),
-        retryCount: yup.number().typeError('Retry Count must be a number').min(0, "Retry Count must be greater than or equal to 0"),
-        retryDelay: yup.number().typeError('Retry Delay must be a number').min(0, "Retry Delay must be greater than or equal to 0"),
-        timeoutDuration: yup.number().typeError('Timeout Duration must be a number').min(0, "Timeout Duration must be greater than or equal to 0"),
-        timeoutAction: yup.string(),
-        templateName: type === 'endpoint' ? yup.string() : yup.string().required("Template name is required"),
-        requireTemplateParameters: yup.boolean(),
-        templateParameters: yup.array()
-    });
+    saveInReg: false,
+    //reg form
+    artifactName: "",
+    registryPath: "/",
+    registryType: "gov"
 }
 
 export const paramTemplateConfigs: ParamConfig = {

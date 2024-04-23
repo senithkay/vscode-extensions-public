@@ -13,7 +13,6 @@ import { TaskForm } from './views/Forms/TaskForm';
 import { MessageStoreWizard } from './views/Forms/MessageStoreForm/index';
 import { MessageProcessorWizard } from "./views/Forms/MessageProcessorForm";
 import { VSCodeProgressRing } from '@vscode/webview-ui-toolkit/react';
-import { GettingStarted } from "./views/GettingStarted";
 import styled from '@emotion/styled';
 import { InboundEPWizard } from './views/Forms/InboundEPform';
 import { LocalEntryWizard } from './views/Forms/LocalEntryForm';
@@ -36,6 +35,7 @@ import { Diagram } from '@wso2-enterprise/mi-diagram-2';
 import { TemplateEndpointWizard } from './views/Forms/TemplateEndpointForm';
 import { UnsupportedProject, UnsupportedProjectProps } from './views/UnsupportedProject';
 import { DataMapper } from './views/DataMapper';
+import { ErrorBoundary } from '@wso2-enterprise/ui-toolkit';
 import { AddArtifactView } from './views/AddArtifact';
 
 const MainContainer = styled.div`
@@ -101,7 +101,7 @@ const MainPanel = () => {
     useEffect(() => {
         const handleKeyDown = (event: KeyboardEvent) => {
             if (event.key === 'i' && (event.metaKey || event.ctrlKey)) {
-                setShowAIWindow(prevShow => !prevShow);
+                rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.openAiPanel"] });
             }
         };
 
@@ -121,10 +121,6 @@ const MainPanel = () => {
         rpcClient.getVisualizerState().then(async (machineView) => {
             let shouldShowNavigator = true;
             switch (machineView?.view) {
-                case MACHINE_VIEW.Welcome:
-                    setViewComponent(<GettingStarted />);
-                    shouldShowNavigator = false;
-                    break;
                 case MACHINE_VIEW.Overview:
                     setViewComponent(<Overview stateUpdated />);
                     break;
@@ -175,7 +171,11 @@ const MainPanel = () => {
                     setViewComponent(<ServiceDesignerView syntaxTree={machineView.stNode} documentUri={machineView.documentUri} />);
                     break;
                 case MACHINE_VIEW.DataMapperView:
-                    setViewComponent(<DataMapper {...machineView.dataMapperProps} />);
+                    setViewComponent(
+                        <ErrorBoundary errorMsg="An error occurred in the MI Data Mapper">
+                            <DataMapper {...machineView.dataMapperProps} />
+                        </ErrorBoundary >
+                    );
                     break;
                 case MACHINE_VIEW.APIForm:
                     setViewComponent(<APIWizard apiData={(machineView.customProps as APIWizardProps)?.apiData} path={machineView.documentUri} />);
@@ -215,7 +215,7 @@ const MainPanel = () => {
                     break;
                 case MACHINE_VIEW.TemplateForm:
                     const templateType = machineView.customProps && machineView.customProps.type ? machineView.customProps.type : '';
-                    setViewComponent(<TemplateWizard path={machineView.documentUri} type={templateType}/>);
+                    setViewComponent(<TemplateWizard path={machineView.documentUri} type={templateType} />);
                     break;
                 case MACHINE_VIEW.HttpEndpointForm:
                     setViewComponent(<HttpEndpointWizard path={machineView.documentUri} type={machineView.customProps.type} />);
@@ -247,7 +247,7 @@ const MainPanel = () => {
                     break;
                 case MACHINE_VIEW.DataSourceForm:
                     setViewComponent(<DataSourceWizard path={machineView.documentUri} />);
-                    break;    
+                    break;
                 default:
                     setViewComponent(null);
             }

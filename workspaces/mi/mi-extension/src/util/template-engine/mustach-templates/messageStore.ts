@@ -12,7 +12,7 @@ import { render } from "mustache";
 interface Parameter {
     [key: string]: string | number | boolean;
 }
-interface Record{
+interface Record {
     name: string;
     value: string;
 }
@@ -26,11 +26,11 @@ export interface GetMessageStoreTemplatesArgs {
     jndiQueueName: string;
     userName: string;
     password: string;
-    cacheConnection: string;
+    cacheConnection: boolean;
     jmsAPIVersion: string;
     rabbitMQServerHostName: string;
     rabbitMQServerPort: string;
-    sslEnabled: string;
+    sslEnabled: boolean;
     trustStoreLocation: string;
     trustStoreType: string;
     trustStorePassword: string;
@@ -50,12 +50,12 @@ export interface GetMessageStoreTemplatesArgs {
     queueConnectionFactory: string;
     pollingCount: string;
     xPath: string;
-    enableProducerGuaranteedDelivery: string;
+    enableProducerGuaranteedDelivery: boolean;
     providerClass: string;
     customParameters: Record[];
-    failOverMessageStore: string; 
+    failOverMessageStore: string;
 }
-const classPool:{[key:string]:string} = {
+const classPool: { [key: string]: string } = {
     "JMS Message Store": "org.apache.synapse.message.store.impl.jms.JmsStore",
     "JDBC Message Store": "org.apache.synapse.message.store.impl.jdbc.JDBCMessageStore",
     "WSO2 MB Message Store": "org.apache.synapse.message.store.impl.jms.JmsStore",
@@ -67,68 +67,78 @@ const classPool:{[key:string]:string} = {
 };
 const paramPool: { [key: string]: Parameter } = {
     "JMS Message Store": {
-        "store.jms.destination":"jndiQueueName",
-        "store.jms.username":"userName",
-        "store.jms.connection.factory":"connectionFactory",
-        "store.producer.guaranteed.delivery.enable":"enableProducerGuaranteedDelivery",
-        "store.jms.password":"password",
-        "store.jms.cache.connection":"cacheConnection",
-        "java.naming.factory.initial":"initialContextFactory",
-        "java.naming.provider.url":"providerURL",
-        "store.jms.JMSSpecVersion":"jmsAPIVersion",
-        "store.failover.message.store.name":"failOverMessageStore"
+        "store.jms.destination": "jndiQueueName",
+        "store.jms.username": "userName",
+        "store.jms.connection.factory": "connectionFactory",
+        "store.producer.guaranteed.delivery.enable": "enableProducerGuaranteedDelivery",
+        "store.jms.password": "password",
+        "store.jms.cache.connection": "cacheConnection",
+        "java.naming.factory.initial": "initialContextFactory",
+        "java.naming.provider.url": "providerURL",
+        "store.jms.JMSSpecVersion": "jmsAPIVersion",
+        "store.failover.message.store.name": "failOverMessageStore"
     },
     "JDBC Message Store": {
-        "store.jdbc.driver":"driver",
-        "store.producer.guaranteed.delivery.enable":"enableProducerGuaranteedDelivery",
-        "store.jdbc.username":"user",
-        "store.jdbc.connection.url":"url",
-        "store.jdbc.password":"password",
-        "store.jdbc.table":"dataBaseTable",
+        "store.jdbc.driver": "driver",
+        "store.producer.guaranteed.delivery.enable": "enableProducerGuaranteedDelivery",
+        "store.jdbc.username": "user",
+        "store.jdbc.connection.url": "url",
+        "store.jdbc.password": "password",
+        "store.jdbc.table": "dataBaseTable",
+        "store.failover.message.store.name": "failOverMessageStore"
+    },
+    "JDBC Message Store DS": {
+        "store.producer.guaranteed.delivery.enable": "enableProducerGuaranteedDelivery",
+        "store.jdbc.table": "dataBaseTable",
         "store.jdbc.ds": "dataSourceName",
-        "store.failover.message.store.name":"failOverMessageStore"
+        "store.failover.message.store.name": "failOverMessageStore"
     },
     "WSO2 MB Message Store": {
-        "store.jms.destination":"jndiQueueName",
-        "store.failover.message.store.name":"failOverMessageStore",
-        "connectionfactory.QueueConnectionFactory":"queueConnectionFactory",
-        "store.producer.guaranteed.delivery.enable":"enableProducerGuaranteedDelivery",
-        "store.jms.cache.connection":"cacheConnection",
-        "java.naming.factory.initial":"initialContextFactory",
-        "store.jms.JMSSpecVersion":"jmsAPIVersion"
+        "store.jms.destination": "jndiQueueName",
+        "store.failover.message.store.name": "failOverMessageStore",
+        "connectionfactory.QueueConnectionFactory": "queueConnectionFactory",
+        "store.producer.guaranteed.delivery.enable": "enableProducerGuaranteedDelivery",
+        "store.jms.cache.connection": "cacheConnection",
+        "java.naming.factory.initial": "initialContextFactory",
+        "store.jms.JMSSpecVersion": "jmsAPIVersion"
     },
     "RabbitMQ Message Store": {
-        "rabbitmq.connection.ssl.keystore.password":"keyStorePassword",
-        "store.rabbitmq.host.name":"rabbitMQServerHostName",
-        "store.producer.guaranteed.delivery.enable":"enableProducerGuaranteedDelivery",
-        "store.rabbitmq.route.key":"routineKey",
-        "rabbitmq.connection.ssl.truststore.type":"trustStoreType",
-        "rabbitmq.connection.ssl.enabled":"sslEnabled",
-        "store.rabbitmq.exchange.name":"rabbitMQExchangeName",
-        "store.rabbitmq.queue.name":"rabbitMQQueueName",
-        "rabbitmq.connection.ssl.keystore.type":"keyStoreType",
-        "rabbitmq.connection.ssl.version":"sslVersion",
-        "store.rabbitmq.host.port":"rabbitMQServerPort",
-        "rabbitmq.connection.ssl.keystore.location":"keyStoreLocation", 
-        "store.rabbitmq.username":"userName",
-        "store.rabbitmq.virtual.host":"virtualHost",
-        "store.rabbitmq.password":"password",
-        "rabbitmq.connection.ssl.truststore.location":"trustStoreLocation",
-        "rabbitmq.connection.ssl.truststore.password":"trustStorePassword",
-        "store.failover.message.store.name":"failOverMessageStore"
+        "rabbitmq.connection.ssl.keystore.password": "keyStorePassword",
+        "store.rabbitmq.host.name": "rabbitMQServerHostName",
+        "store.producer.guaranteed.delivery.enable": "enableProducerGuaranteedDelivery",
+        "store.rabbitmq.route.key": "routineKey",
+        "rabbitmq.connection.ssl.truststore.type": "trustStoreType",
+        "rabbitmq.connection.ssl.enabled": "sslEnabled",
+        "store.rabbitmq.exchange.name": "rabbitMQExchangeName",
+        "store.rabbitmq.queue.name": "rabbitMQQueueName",
+        "rabbitmq.connection.ssl.keystore.type": "keyStoreType",
+        "rabbitmq.connection.ssl.version": "sslVersion",
+        "store.rabbitmq.host.port": "rabbitMQServerPort",
+        "rabbitmq.connection.ssl.keystore.location": "keyStoreLocation",
+        "store.rabbitmq.username": "userName",
+        "store.rabbitmq.virtual.host": "virtualHost",
+        "store.rabbitmq.password": "password",
+        "rabbitmq.connection.ssl.truststore.location": "trustStoreLocation",
+        "rabbitmq.connection.ssl.truststore.password": "trustStorePassword",
+        "store.failover.message.store.name": "failOverMessageStore"
     },
     "Resequence Message Store": {
-        "store.resequence.timeout":"pollingCount",
-        "store.jdbc.driver":"driver",
-        "store.producer.guaranteed.delivery.enable":"enableProducerGuaranteedDelivery",
-        "store.jdbc.username":"user",
-        "store.jdbc.connection.url":"url",
-        "store.jdbc.password":"password",
-        "store.jdbc.table":"dataBaseTable",
+        "store.resequence.timeout": "pollingCount",
+        "store.jdbc.driver": "driver",
+        "store.producer.guaranteed.delivery.enable": "enableProducerGuaranteedDelivery",
+        "store.jdbc.username": "user",
+        "store.jdbc.connection.url": "url",
+        "store.jdbc.password": "password",
+        "store.jdbc.table": "dataBaseTable",
+        "store.failover.message.store.name": "failOverMessageStore"
+    },
+    "Resequence Message Store DS": {
+        "store.resequence.timeout": "pollingCount",
+        "store.producer.guaranteed.delivery.enable": "enableProducerGuaranteedDelivery",
+        "store.jdbc.table": "dataBaseTable",
         "store.jdbc.ds": "dataSourceName",
-        "store.failover.message.store.name":"failOverMessageStore"
+        "store.failover.message.store.name": "failOverMessageStore"
     }
-
 };
 
 export function getMessageStoreMustacheTemplate() {
@@ -147,18 +157,29 @@ export function getMessageStoreMustacheTemplate() {
 
 export function getMessageStoreXml(data: GetMessageStoreTemplatesArgs) {
     const params: Parameter[] = [];
-    if(data.type !== 'Custom Message Store' && data.type !== 'In Memory Message Store'){
+    if (data.type !== 'Custom Message Store' && data.type !== 'In Memory Message Store'
+        && data.type !== 'JDBC Message Store' && data.type !== 'Resequence Message Store') {
         Object.entries(paramPool[data.type]).map(([key, value]) => {
-            params.push({ key, value: data[value as string]});
+            params.push({ key, value: data[value as string] });
         });
     }
-    if(data.type === 'Custom Message Store'){
+    if (data.type === 'Custom Message Store') {
         Object.entries(data.customParameters).map(([key, value]) => {
-            params.push({ key: value.name, value: value.value});
+            params.push({ key: value.name, value: value.value });
         });
     }
-    
-    var className = classPool[data.type]? classPool[data.type]: data.providerClass;
+    if (data.type === 'JDBC Message Store' || data.type === 'Resequence Message Store') {
+        if (data.dataSourceName) {
+            Object.entries(paramPool[data.type + " DS"]).map(([key, value]) => {
+                params.push({ key, value: data[value as string] });
+            });
+        } else {
+            Object.entries(paramPool[data.type]).map(([key, value]) => {
+                params.push({ key, value: data[value as string] });
+            });
+        }
+    }
+    var className = classPool[data.type] ? classPool[data.type] : data.providerClass;
 
     const modifiedData = {
         ...data,

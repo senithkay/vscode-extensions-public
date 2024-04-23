@@ -9,7 +9,7 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import React, { useEffect, useState } from "react";
-import { VisualizerLocation, CreateProjectRequest, GetWorkspaceContextResponse } from "@wso2-enterprise/mi-core";
+import { VisualizerLocation, CreateProjectRequest, GetWorkspaceContextResponse, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import {TextArea, Button, Switch, Icon, ProgressRing} from "@wso2-enterprise/ui-toolkit";
 import ReactMarkdown from 'react-markdown';
@@ -176,12 +176,12 @@ export function AIProjectGenerationChat() {
   console.log(isCodeLoading);
 }, [isCodeLoading]); // The dependency array ensures this effect runs whenever isCodeLoading changes
 
-  useEffect(() => {
-    // Step 2: Scroll into view when messages state changes
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
-    }
-  }, [messages]);
+useEffect(() => {
+  // Step 2: Scroll into view when messages state changes
+  if (messagesEndRef.current) {
+    messagesEndRef.current.scrollIntoView({ behavior: "smooth", block: "end" });
+  }
+}, [messages]);
 
   useEffect(() => {
     if (rpcClient) {
@@ -202,6 +202,18 @@ export function AIProjectGenerationChat() {
     console.log("Suggestions: " + isSuggestionLoading);
   } , [isSuggestionLoading]);
 
+  function getStatusText(status: number) {
+    switch(status) {
+      case 400: return 'Bad Request';
+      case 401: return 'Unauthorized';
+      case 403: return 'Forbidden';
+      case 404: return 'Not Found';
+      case 429: return 'Token Count Exceeded';
+      // Add more status codes as needed
+      default: return '';
+    }
+  }
+
   async function generateSuggestions() {
     try {
         setIsLoading(true);
@@ -209,29 +221,26 @@ export function AIProjectGenerationChat() {
         const url = backendRootUri + MI_SUGGESTIVE_QUESTIONS_BACKEND_URL;
         var context: GetWorkspaceContextResponse[] = [];
         //Get machine view
-        const machineView = await rpcClient.getAIVisualizerState();
+        const machineView = await rpcClient.getVisualizerState();
         switch (machineView?.view) {
-            case AI_MACHINE_VIEW.AIOverview:
+            case MACHINE_VIEW.Overview:
                 await rpcClient?.getMiDiagramRpcClient()?.getWorkspaceContext().then((response) => {
                     context = [response]; // Wrap the response in an array
                  });
                 break;
-            case AI_MACHINE_VIEW.AIArtifact:
-                await rpcClient?.getMiDiagramRpcClient()?.getSelectiveWorkspaceContext().then((response) => {
-                  context = [response]; // Wrap the response in an array
-                });
-                break;
             default:
-              await rpcClient?.getMiDiagramRpcClient()?.getWorkspaceContext().then((response) => {
-                  context = [response]; // Wrap the response in an array
-               });
-                console.log("default");  
+              console.log("Other");
+              await rpcClient?.getMiDiagramRpcClient()?.getSelectiveWorkspaceContext().then((response) => {
+                context = [response]; // Wrap the response in an array
+              });
         }
         console.log(JSON.stringify({messages: chatArray, context : context[0].context}));
+        const token = await rpcClient.getMiDiagramRpcClient().getUserAccessToken();
         const response = await fetch(url, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token.token}`,
             },
             body: JSON.stringify({messages: chatArray, context : context[0].context, num_suggestions:1, type: "artifact_gen" }),
         });
@@ -299,20 +308,15 @@ export function AIProjectGenerationChat() {
     var backendUrl = ""
     var view = ""
     //Get machine view
-    const machineView = await rpcClient.getAIVisualizerState();
+    const machineView = await rpcClient.getVisualizerState();
       switch (machineView?.view) {
-          case AI_MACHINE_VIEW.AIOverview:
+          case MACHINE_VIEW.Overview:
               backendUrl = MI_ARTIFACT_GENERATION_BACKEND_URL;
               view = "Overview";
               break;
-          case AI_MACHINE_VIEW.AIArtifact:
+          default:
               backendUrl = MI_ARTIFACT_EDIT_BACKEND_URL;
               view = "Artifact";
-              break;
-          default:
-            backendUrl = MI_ARTIFACT_GENERATION_BACKEND_URL;
-            view = "Overview";
-            console.log("default");
               
       }
       if(view == "Overview"){
@@ -325,15 +329,24 @@ export function AIProjectGenerationChat() {
             } );
       }
       console.log(context[0].context);
-    const response = await fetch(backendRootUri+backendUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({messages: chatArray, context : context[0].context}),
-    })
+      const token = await rpcClient.getMiDiagramRpcClient().getUserAccessToken();
+      const response = await fetch(backendRootUri+backendUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token.token}`, 
+        },
+        body: JSON.stringify({messages: chatArray, context : context[0].context}),
+      })
     if (!response.ok) {
       setIsLoading(false);
+      setMessages(prevMessages => {
+        const newMessages = [...prevMessages];
+        const statusText = getStatusText(response.status);
+        newMessages[newMessages.length - 1].content += `Failed to fetch response. Status: ${response.status} - ${statusText}`;
+        newMessages[newMessages.length - 1].type = 'Error';
+        return newMessages;
+      });
       throw new Error('Failed to fetch response');
     }
     const reader = response.body?.getReader();
@@ -463,6 +476,10 @@ export function AIProjectGenerationChat() {
     return segments;
   }
 
+  async function handleLogout() {
+     await rpcClient.getMiDiagramRpcClient().logoutFromMIAccount();
+  }
+
   const handleKeyPress = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -517,19 +534,30 @@ export function AIProjectGenerationChat() {
   const otherMessages = messages.filter(message => message.type !== "question");
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "90%", width: "100%", margin: "auto" }}>
+    <div style={{ display: "flex", flexDirection: "column", height: "95%", width: "100%", margin: "auto" }}>
       <div style={{ flex: 1, overflowY: "auto", padding: "10px", borderBottom: "1px solid #ccc" }}>
-      <div style={{ textAlign: "right" }}>
-          <Icon
-            name="trash-solid"
-            sx="width: 100%; height: 100%; cursor: pointer;"
-            onClick={() => handleClearChat()}
-          />
-        </div>
+      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+    <Icon
+        name="trash-solid"
+        sx="width: 100%; height: 100%; cursor: pointer;"
+        onClick={() => handleClearChat()}
+    />
+
+    <Button
+        appearance="primary"
+        onClick={() => handleLogout()}
+        tooltip="Logout"
+        className="custom-button-style"
+        disabled={isLoading}
+    >
+        <br />
+        <div style={{ color: 'var(--vscode-button-foreground)' }}>Logout</div>
+    </Button>
+</div>
        {otherMessages.map((message, index) => (
         <div key={index} style={{ marginBottom: "8px" }}>
         {message.type !== "question" && message.type !== "label" && <strong>{message.role}:</strong>}
-                {splitContent(message.content).map((segment, i) =>
+        {splitContent(message.content).map((segment, i) =>
           segment.isCode ? (
             
               <div>
@@ -555,8 +583,11 @@ export function AIProjectGenerationChat() {
               </div>
             
           ) : (
-            
-            <MarkdownRenderer key={i} markdownContent={segment.text} />
+            message.type == "Error" ? (
+              <div style={{ color: 'red', marginTop:"10px" }}>{segment.text}</div>
+            ):(
+              <MarkdownRenderer key={i} markdownContent={segment.text} />
+            )
           
           )
         )}
@@ -568,8 +599,9 @@ export function AIProjectGenerationChat() {
           Generating Code &nbsp;&nbsp; <ProgressRing sx={{position: "relative"}}/>
         </div>
       )} */}
-       <div ref={messagesEndRef} />
+      <div ref={messagesEndRef} />
       </div>
+
 
         <div style={{ paddingTop: "15px", marginLeft: "10px" }}>
         {isLoading && (
@@ -605,7 +637,6 @@ export function AIProjectGenerationChat() {
             </div>
           ))}
       </div>
-
       {/* {isLoading ? (
             <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "4%"}}>
                   <ProgressRing sx={{position: "relative"}}/>

@@ -33,9 +33,6 @@ import {
     goHome,
     goSelected,
     openView,
-    GetAllRegistryPathsRequest,
-    getAllRegistryPaths,
-    GetAllRegistryPathsResponse,
     goToSource
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
@@ -46,10 +43,6 @@ export class MiVisualizerRpcClient implements MIVisualizerAPI {
 
     constructor(messenger: Messenger) {
         this._messenger = messenger;
-    }
-
-    getAllRegistryPaths(params: GetAllRegistryPathsRequest): Promise<GetAllRegistryPathsResponse> {
-        return this._messenger.sendRequest(getAllRegistryPaths, HOST_EXTENSION, params);
     }
 
     getWorkspaces(): Promise<WorkspacesResponse> {

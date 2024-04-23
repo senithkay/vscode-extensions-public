@@ -8,8 +8,7 @@
  */
 import { TypeKind } from "@wso2-enterprise/mi-core";
 import md5 from "blueimp-md5";
-import { Diagnostic } from "vscode-languageserver-types";
-import { Identifier, Node, PropertyAccessExpression } from "ts-morph";
+import { Diagnostic, Identifier, Node, PropertyAccessExpression } from "ts-morph";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { DataMapperLinkModel } from "../../Link";
@@ -25,6 +24,7 @@ import {
     getOutputPort,
     getTargetPortPrefix
 } from "../../utils/common-utils";
+import { getDiagnostics } from "../../utils/diagnostics-utils";
 
 export const LINK_CONNECTOR_NODE_TYPE = "link-connector-node";
 const NODE_ID = "link-connector-node";
@@ -58,8 +58,10 @@ export class LinkConnectorNode extends DataMapperNodeModel {
         );
         if (Node.isPropertyAssignment(valueNode)) {
             this.value = valueNode.getInitializer() ? valueNode.getInitializer().getText().trim() : '';
+            this.diagnostics = getDiagnostics(valueNode.getInitializer());
         } else {
             this.value = valueNode.getText().trim();
+            this.diagnostics = getDiagnostics(valueNode);
         }
     }
 
@@ -135,7 +137,7 @@ export class LinkConnectorNode extends DataMapperNodeModel {
         } else {
             this.sourcePorts.forEach((sourcePort) => {
                 const inPort = this.inPort;
-                const lm = new DataMapperLinkModel(undefined, undefined, true);
+                const lm = new DataMapperLinkModel(undefined, this.diagnostics, true);
     
                 if (sourcePort) {
                     sourcePort.addLinkedPort(this.inPort);

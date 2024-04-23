@@ -180,8 +180,10 @@ export interface CreateInboundEndpointRequest {
     type: string;
     sequence: string;
     errorSequence: string;
+    suspend?: boolean;
+    trace?: boolean;
+    statistics?: boolean;
     parameters?: { [key: string]: string | number | boolean };
-    additionalParameters?: { [key: string]: string | number | boolean };
 }
 
 export interface CreateInboundEndpointResponse {
@@ -193,8 +195,10 @@ export interface GetInboundEndpointResponse {
     type: string;
     sequence: string;
     errorSequence: string;
+    suspend?: boolean;
+    trace?: boolean;
+    statistics?: boolean;
     parameters: { [key: string]: string | number | boolean };
-    additionalParameters: { [key: string]: string | number | boolean };
 }
 
 export interface GetInboundEndpointRequest {
@@ -207,10 +211,12 @@ export interface CreateLocalEntryRequest {
     type: string;
     value: string;
     URL: string;
+    getContentOnly: boolean;
 }
 
 export interface CreateLocalEntryResponse {
-    path: string;
+    fileContent: string;
+    filePath: string;
 }
 
 export interface GetLocalEntryRequest {
@@ -238,50 +244,7 @@ export interface CreateMessageStoreRequest {
     jndiQueueName: string;
     userName: string;
     password: string;
-    cacheConnection: string;
-    jmsAPIVersion: string;
-    rabbitMQServerHostName: string;
-    rabbitMQServerPort: string;
-    sslEnabled: string;
-    trustStoreLocation: string;
-    trustStoreType: string;
-    trustStorePassword: string;
-    keyStoreLocation: string;
-    keyStoreType: string;
-    keyStorePassword: string;
-    sslVersion: string;
-    rabbitMQQueueName: string;
-    rabbitMQExchangeName: string;
-    routineKey: string;
-    virtualHost: string;
-    dataBaseTable: string;
-    driver: string;
-    url: string;
-    user: string;
-    dataSourceName: string;
-    queueConnectionFactory: string;
-    pollingCount: string;
-    xPath: string;
-    enableProducerGuaranteedDelivery: string;
-    providerClass: string;
-    customParameters: Record[];
-    failOverMessageStore: string;
-}
-
-export interface CreateMessageStoreResponse {
-    path: string;
-}
-
-export interface GetMessageStoreResponse {
-    name: string;
-    type: string;
-    initialContextFactory: string;
-    providerURL: string;
-    connectionFactory: string;
-    jndiQueueName: string;
-    userName: string;
-    password: string;
-    cacheConnection: string;
+    cacheConnection: boolean;
     jmsAPIVersion: string;
     rabbitMQServerHostName: string;
     rabbitMQServerPort: string;
@@ -309,6 +272,50 @@ export interface GetMessageStoreResponse {
     providerClass: string;
     customParameters: Record[];
     failOverMessageStore: string;
+}
+
+export interface CreateMessageStoreResponse {
+    path: string;
+}
+
+export interface GetMessageStoreResponse {
+    name: string;
+    type: string;
+    initialContextFactory: string;
+    providerURL: string;
+    connectionFactory: string;
+    jndiQueueName: string;
+    userName: string;
+    password: string;
+    cacheConnection: boolean;
+    jmsAPIVersion: string;
+    rabbitMQServerHostName: string;
+    rabbitMQServerPort: string;
+    sslEnabled: boolean;
+    trustStoreLocation: string;
+    trustStoreType: string;
+    trustStorePassword: string;
+    keyStoreLocation: string;
+    keyStoreType: string;
+    keyStorePassword: string;
+    sslVersion: string;
+    rabbitMQQueueName: string;
+    rabbitMQExchangeName: string;
+    routineKey: string;
+    virtualHost: string;
+    dataBaseTable: string;
+    driver: string;
+    url: string;
+    user: string;
+    dataSourceName: string;
+    queueConnectionFactory: string;
+    pollingCount: string;
+    xPath: string;
+    enableProducerGuaranteedDelivery: boolean;
+    providerClass: string;
+    customParameters: Record[];
+    failOverMessageStore: string;
+    connectionInformationType?: string;
 }
 
 export interface GetMessageStoreRequest {
@@ -554,6 +561,10 @@ export interface UpdateHttpEndpointRequest {
     addressingVersion: string;
     addressListener: string;
     securityEnabled: string;
+    seperatePolicies: boolean;
+    policyKey: string;
+    inboundPolicyKey: string;
+    outboundPolicyKey: string;
     suspendErrorCodes: string;
     initialDuration: number;
     maximumDuration: number;
@@ -566,10 +577,12 @@ export interface UpdateHttpEndpointRequest {
     templateName: string;
     requireTemplateParameters: boolean;
     templateParameters: any;
+    getContentOnly: boolean;
 }
 
 export interface UpdateHttpEndpointResponse {
     path: string;
+    content: string;
 }
 
 export interface RetrieveHttpEndpointRequest {
@@ -602,6 +615,10 @@ export interface RetrieveHttpEndpointResponse {
     addressingVersion: string;
     addressListener: string;
     securityEnabled: string;
+    seperatePolicies: boolean;
+    policyKey: string;
+    inboundPolicyKey: string;
+    outboundPolicyKey: string;
     suspendErrorCodes: string;
     initialDuration: number;
     maximumDuration: number;
@@ -631,6 +648,10 @@ export interface UpdateAddressEndpointRequest {
     addressingVersion: string;
     addressListener: string;
     securityEnabled: string;
+    seperatePolicies: boolean;
+    policyKey: string;
+    inboundPolicyKey: string;
+    outboundPolicyKey: string;
     suspendErrorCodes: string;
     initialDuration: number;
     maximumDuration: number;
@@ -643,10 +664,12 @@ export interface UpdateAddressEndpointRequest {
     templateName: string;
     requireTemplateParameters: boolean;
     templateParameters: any;
+    getContentOnly: boolean;
 }
 
 export interface UpdateAddressEndpointResponse {
     path: string;
+    content: string;
 }
 
 export interface RetrieveAddressEndpointRequest {
@@ -667,6 +690,10 @@ export interface RetrieveAddressEndpointResponse {
     addressingVersion: string;
     addressListener: string;
     securityEnabled: string;
+    seperatePolicies: boolean;
+    policyKey: string;
+    inboundPolicyKey: string;
+    outboundPolicyKey: string;
     suspendErrorCodes: string;
     initialDuration: number;
     maximumDuration: number;
@@ -698,6 +725,10 @@ export interface UpdateWsdlEndpointRequest {
     addressingVersion: string;
     addressListener: string;
     securityEnabled: string;
+    seperatePolicies: boolean;
+    policyKey: string;
+    inboundPolicyKey: string;
+    outboundPolicyKey: string;
     suspendErrorCodes: string;
     initialDuration: number;
     maximumDuration: number;
@@ -710,10 +741,12 @@ export interface UpdateWsdlEndpointRequest {
     templateName: string;
     requireTemplateParameters: boolean;
     templateParameters: any;
+    getContentOnly: boolean;
 }
 
 export interface UpdateWsdlEndpointResponse {
     path: string;
+    content: string;
 }
 
 export interface RetrieveWsdlEndpointRequest {
@@ -736,6 +769,10 @@ export interface RetrieveWsdlEndpointResponse {
     addressingVersion: string;
     addressListener: string;
     securityEnabled: string;
+    seperatePolicies: boolean;
+    policyKey: string;
+    inboundPolicyKey: string;
+    outboundPolicyKey: string;
     suspendErrorCodes: string;
     initialDuration: number;
     maximumDuration: number;
@@ -764,6 +801,10 @@ export interface UpdateDefaultEndpointRequest {
     addressingVersion: string;
     addressListener: string;
     securityEnabled: string;
+    seperatePolicies: boolean;
+    policyKey: string;
+    inboundPolicyKey: string;
+    outboundPolicyKey: string;
     suspendErrorCodes: string;
     initialDuration: number;
     maximumDuration: number;
@@ -776,10 +817,12 @@ export interface UpdateDefaultEndpointRequest {
     templateName: string;
     requireTemplateParameters: boolean;
     templateParameters: any;
+    getContentOnly: boolean;
 }
 
 export interface UpdateDefaultEndpointResponse {
     path: string;
+    content: string;
 }
 
 export interface RetrieveDefaultEndpointRequest {
@@ -799,6 +842,10 @@ export interface RetrieveDefaultEndpointResponse {
     addressingVersion: string;
     addressListener: string;
     securityEnabled: string;
+    seperatePolicies: boolean;
+    policyKey: string;
+    inboundPolicyKey: string;
+    outboundPolicyKey: string;
     suspendErrorCodes: string;
     initialDuration: number;
     maximumDuration: number;
@@ -854,10 +901,14 @@ export interface CreateTemplateRequest {
     wsdlUri: string;
     wsdlService: string;
     wsdlPort: number | null;
+    traceEnabled: boolean;
+    statisticsEnabled: boolean;
+    getContentOnly: boolean;
 }
 
 export interface CreateTemplateResponse {
     path: string;
+    content: string;
 }
 
 export interface RetrieveTemplateRequest {
@@ -873,6 +924,8 @@ export interface RetrieveTemplateResponse {
     wsdlUri: string;
     wsdlService: string;
     wsdlPort: number | null;
+    traceEnabled: boolean;
+    statisticsEnabled: boolean;
 }
 
 export interface ProjectRootResponse {
@@ -995,8 +1048,8 @@ export interface BrowseFileRequest {
 }
 
 export interface GetAvailableResourcesRequest {
-    documentIdentifier: string;
-    resourceType: "sequence" | "endpoint" | "messageStore" | "messageProcessor" | "task" | "sequenceTemplate" | "endpointTemplate" |
+    documentIdentifier: string | undefined;
+    resourceType: "sequence" | "endpoint" | "messageStore" | "messageProcessor" | "task" | "sequenceTemplate" | "endpointTemplate" | "proxyService" |
     "dataService" | "dataSource" | "localEntry" | "dataMapper" | "js" | "json" | "smooksConfig" | "wsdl" | "ws_policy" | "xsd" | "xsl" | "xslt" | "yaml";
 }
 
@@ -1023,6 +1076,9 @@ export interface ListRegistryArtifactsRequest {
 export interface ListRegistryArtifactsResponse {
     artifacts: RegistryArtifact[];
 }
+export interface RegistryArtifactNamesResponse {
+    artifacts: string[];
+}
 export interface RegistryArtifact {
     name: string;
     file: string;
@@ -1043,10 +1099,13 @@ export interface DownloadConnectorRequest {
 export interface DownloadConnectorResponse {
     path: string;
 }
-
 export interface GetAvailableConnectorRequest {
     documentUri: string;
-    connectorName: string;
+    connectorName: string | null;
+}
+
+export interface connectionUiSchemaRecord {
+    [key: string]: string;
 }
 
 export interface GetAvailableConnectorResponse {
@@ -1056,6 +1115,7 @@ export interface GetAvailableConnectorResponse {
     uiSchemaPath?: string;
     version?: string;
     iconPath?: string;
+    connectionUiSchema?: connectionUiSchemaRecord;
 }
 
 export interface UpdateConnectorRequest {
@@ -1068,6 +1128,14 @@ export interface GetConnectorFormRequest {
 }
 
 export interface GetConnectorFormResponse {
+    formJSON: string;
+}
+
+export interface GetConnectionFormRequest {
+    uiSchemaPath: string;
+}
+
+export interface GetConnectionFormResponse {
     formJSON: string;
 }
 export interface CreateDataSourceResponse {
@@ -1110,6 +1178,10 @@ export interface GetIconPathUriResponse {
     uri: any;
 }
 
+export interface GetUserAccessTokenResponse {
+    token: string;
+}
+
 export interface CreateConnectionRequest {
     connectionName: string;
     keyValuesXML: string;
@@ -1128,11 +1200,26 @@ export interface ConnectorConnection {
 
 export interface GetConnectorConnectionsRequest {
     documentUri: string;
-    connectorName: string;
+    connectorName: string | null;
 }
 
 export interface GetConnectorConnectionsResponse {
     connections?: ConnectorConnection[]
+}
+
+export interface GetAllRegistryPathsRequest {
+    path: string;
+}
+
+export interface GetAllRegistryPathsResponse {
+    registryPaths: string[];
+}
+export interface GetAllArtifactsRequest {
+    path: string;
+}
+
+export interface GetAllArtifactsResponse {
+    artifacts: string[]
 }
 
 export interface DeleteArtifactRequest {

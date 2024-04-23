@@ -91,9 +91,24 @@ export function ServiceDesignerView({ syntaxTree, documentUri }: ServiceDesigner
             apiName: st.name,
             apiContext: st.context,
             version: st.version,
-            range: {
+            hostName: st.hostname ?? '',
+            port: st.port ?? '0',
+            statistics: st.statistics ? true : false,
+            trace: st.trace ? true : false,
+            handlers: st.handlers[0]?.handler.map((handler: any) => ({
+                name: handler.clazz,
+                properties: handler.property.map((property: any) => ({
+                    name: property.name,
+                    value: property.value,
+                }))
+            })) ?? [],
+            apiRange: {
                 start: st.range.startTagRange.start,
                 end: st.range.startTagRange.end,
+            },
+            handlersRange: {
+                start: st.handlers[0]?.range.startTagRange.start ?? st.range.endTagRange.start,
+                end: st.handlers[0]?.range.endTagRange.end ?? st.range.endTagRange.start,
             },
         };
         setServiceData(serviceData);

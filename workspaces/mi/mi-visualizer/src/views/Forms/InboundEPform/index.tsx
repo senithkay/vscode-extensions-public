@@ -7,15 +7,18 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import styled from "@emotion/styled";
 import { useEffect, useState } from "react";
-import { Button, TextField, TextArea, Dropdown, CheckBox, FormView, FormActions } from "@wso2-enterprise/ui-toolkit";
-import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
+import styled from "@emotion/styled";
+import { Button, TextField, Dropdown, FormCheckBox, FormView, FormActions } from "@wso2-enterprise/ui-toolkit";
 import { EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
-import ParamForm from "./ParamForm";
-import { inboundEndpointParams } from "./ParamTemplate";
-import CardWrapper from "../Commons/CardWrapper";
+import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
+import { yupResolver } from "@hookform/resolvers/yup"
+import { useForm, FormProvider } from "react-hook-form";
+import * as yup from "yup";
 import { TypeChip } from "../Commons";
+import CardWrapper from "../Commons/CardWrapper";
+import ParamForm from "./ParamForm";
+import { Paramater, defaultParameters, inboundEndpointParams } from "./ParamTemplate";
 
 const CheckboxGroup = styled.div({
     display: "flex",
@@ -36,11 +39,24 @@ export interface InboundEPWizardProps {
 type InboundEndpoint = {
     name: string;
     type: string;
-    sequence: string;
-    errorSequence: string;
+    sequence?: string;
+    errorSequence?: string;
+    suspend?: boolean;
+    trace?: boolean;
+    statistics?: boolean;
+    parameters: {}
 };
 
-const hideSubFormTypes = ['HTTP', 'HTTPS', 'CXF_WS_RM', 'Feed'];
+const initialInboundEndpoint: InboundEndpoint = {
+    name: "",
+    type: "",
+    sequence: "",
+    errorSequence: "",
+    suspend: false,
+    trace: false,
+    statistics: false,
+    parameters: {}
+};
 
 const customSequenceType = {
     content: "custom-sequence",
@@ -50,197 +66,172 @@ const customSequenceType = {
 export function InboundEPWizard(props: InboundEPWizardProps) {
 
     const { rpcClient } = useVisualizerContext();
+    const isNewInboundEndpoint = !props.path.endsWith(".xml");
 
-    const [isNewInboundEndpoint, setIsNewInboundEndpoint] = useState(true);
-    const [changesOccured, setChangesOccured] = useState(false);
-
-    const [inboundEndpoint, setInboundEndpoint] = useState<InboundEndpoint>({
-        name: "",
-        type: "",
-        sequence: "",
-        errorSequence: "",
-    });
-
-    const [paramState, setParamState] = useState<{ [key: string]: { [key: string]: any } }>({});
-
-    const [additionalParameters, setAdditionalParameters] = useState<any>({
-        suspend: false,
-        trace: false,
-        statistics: false,
-        description: "",
-    });
-
-    const [selectedInboundParamaters, setSelectedInboundParameters] = useState<any>(inboundEndpointParams[inboundEndpoint.type.toLowerCase()]);
-
+    const [selectedParams, setSelectedParams] = useState<{ [key: string]: { [key: string]: Paramater; } }>({});
     const [sequences, setSequences] = useState([]);
-    const [isCustom, setIsCustom] = useState({
-        sequence: true,
-        errorSequence: true,
+    const [schemaParams, setSchemaParams] = useState({});
+
+    const [selected, setSelected] = useState({
+        sequence: customSequenceType.value,
+        errorSequence: customSequenceType.value,
     });
 
-    const [customSequence, setCustomSequence] = useState("");
-    const [customErrorSequence, setCustomErrorSequence] = useState("");
-
-    const [showHiddenForm, setShowHiddenForm] = useState(false);
-
-    const [message, setMessage] = useState({
-        isError: false,
-        text: "",
+    const schema = yup.object({
+        name: yup.string().required("Name is required").matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in name"),
+        type: yup.string().required("Type is required"),
+        sequence: yup.string(),
+        errorSequence: yup.string(),
+        suspend: yup.boolean(),
+        trace: yup.boolean(),
+        statistics: yup.boolean(),
+        parameters: yup.object({
+            ...schemaParams
+        })
     });
 
-    useEffect(() => {
-        if (props.path) {
-            (async () => {
-                const { parameters, additionalParameters, ...data } = await rpcClient.getMiDiagramRpcClient().getInboundEndpoint({ path: props.path });
-                if (data.name) {
-                    data.type = data.type.toUpperCase();
-                    setInboundEndpoint((prev: any) => ({
-                        ...prev,
-                        ...data,
-                    }));
-                    setIsNewInboundEndpoint(false);
-                    setParamState({
-                        [data.type.toLowerCase()]: { ...parameters },
-                    })
-                    setAdditionalParameters((prev: any) => ({ ...prev, ...additionalParameters }));
-                    setSelectedInboundParameters(inboundEndpointParams[data.type.toLowerCase()]);
-                }
-                else {
-                    clearForm();
-                    if (hideSubFormTypes.includes(inboundEndpoint.type)) {
-                        setShowHiddenForm(false);
-                        setInboundEndpoint((prev: any) => ({ ...prev, sequence: "", errorSequence: "" }));
-                    }
-                    else {
-                        setShowHiddenForm(true);
-                    }
-                }
-            })();
-        }
-    }, [props.path]);
+    const formMethods = useForm({
+        defaultValues: initialInboundEndpoint,
+        resolver: yupResolver(schema),
+        mode: "onChange"
+    });
+
+    const {
+        reset,
+        register,
+        control,
+        formState: { errors, isDirty },
+        handleSubmit,
+        watch,
+        setValue,
+    } = formMethods;
 
     useEffect(() => {
         (async () => {
-            const data = await rpcClient.getMiDiagramRpcClient().getEndpointsAndSequences();
-            const items = data.data[1].map((seq: string) => {
+            const sequenceList = await rpcClient.getMiDiagramRpcClient().getEndpointsAndSequences();
+            const newSequenceList = sequenceList.data[1].map((seq: string) => {
                 seq = seq.replace(".xml", "");
                 return { value: seq }
             });
 
-            setSequences([customSequenceType, ...items]);
-            setInboundEndpoint((prev: any) => ({
-                ...prev,
-                sequence: customSequenceType.value,
-                errorSequence: customSequenceType.value
-            }));
+            setSequences([customSequenceType, ...newSequenceList]);
+
+            if (!isNewInboundEndpoint) {
+                const { parameters, ...data } = await rpcClient.getMiDiagramRpcClient().getInboundEndpoint({ path: props.path });
+                data.type = data.type.toUpperCase();
+
+                if (sequenceList.data[1].includes(data.sequence)) {
+                    handleSequenceChange("sequence", data.sequence, false);
+                }
+                if (sequenceList.data[1].includes(data.errorSequence)) {
+                    handleSequenceChange("errorSequence", data.errorSequence, false);
+                }
+
+                readyForm(data.type);
+                reset({
+                    ...data,
+                    parameters: transformParams(parameters)
+                });
+            }
+            else {
+                setSelected({
+                    sequence: customSequenceType.value,
+                    errorSequence: customSequenceType.value,
+                });
+                reset(initialInboundEndpoint);
+            }
         })();
-    }, []);
+    }, [props.path]);
 
     const formTitle = isNewInboundEndpoint
         ? "Create new Inbound Endpoint"
         : "Edit Inbound Endpoint : " + props.path.replace(/^.*[\\/]/, '').split(".")[0];
 
-    const handleMessage = (text: string, isError: boolean = false) => {
-        setMessage({ isError, text });
+    const renderProps = (fieldName: keyof InboundEndpoint) => {
+        return {
+            id: fieldName,
+            ...register(fieldName),
+            errorMsg: errors[fieldName] && errors[fieldName].message.toString()
+        }
+    };
+
+    const transformParams = (params: any, reverse: boolean = false) => {
+        const s = reverse ? '-' : '.';
+        const j = reverse ? '.' : '-';
+        const parameters: { [key: string]: any } = {}
+        for (const prop in params) {
+            parameters[prop.split(s).join(j)] = params[prop];
+        }
+        return parameters;
     }
 
-    const clearForm = () => {
-        setInboundEndpoint({
-            name: "",
-            type: "",
-            sequence: "",
-            errorSequence: "",
-        });
-        setParamState({});
-        setAdditionalParameters({
-            suspend: false,
-            trace: false,
-            statistics: false,
-            description: "",
-        });
-        setSelectedInboundParameters(inboundEndpointParams[inboundEndpoint.type.toLowerCase()]);
-        setCustomSequence("");
-        setCustomErrorSequence("");
-        setShowHiddenForm(false);
-        setIsCustom({
-            sequence: true,
-            errorSequence: true,
-        });
-        setIsNewInboundEndpoint(true);
-    }
+    const readyForm = (type: string) => {
+        const params = inboundEndpointParams[type.toLowerCase()];
+        setSelectedParams(params)
 
-    const handleOnChange = (field: any, value: any) => {
-        if (!isNewInboundEndpoint && !changesOccured) {
-            setChangesOccured(true);
-        }
+        const schemaItems: { [key: string]: any } = {};
 
-        if ((field === "sequence" || field === "errorSequence")) {
-            setIsCustom((prev: any) => ({ ...prev, [field]: value === customSequenceType.value }));
-        }
+        for (const group in params) {
+            for (const prop in params[group]) {
+                const param = params[group][prop];
 
-        setInboundEndpoint((prev: any) => ({ ...prev, [field]: value }));
+                if (param.validate) {
+                    const validationType = param.validate?.type;
+                    const schemaItem = validationType === 'number'
+                        ? yup.number().required("This field is required").typeError("Invalid number")
+                        : yup.string().required("This field is required");
+
+                    if (param.validate.min !== undefined) {
+                        schemaItem.min(param.validate.min, `Minimum value is ${param.validate.min}`);
+                    }
+                    if (param.validate.max !== undefined) {
+                        schemaItem.max(param.validate.max, `Maximum value is ${param.validate.max}`);
+                    }
+
+                    schemaItems[prop.split('.').join('-')] = schemaItem;
+                }
+                else {
+                    schemaItems[prop.split('.').join('-')] = yup.string().notRequired()
+                }
+            }
+        };
+
+        setSchemaParams(schemaItems);
     }
 
     const setInboundEndpointType = (type: string) => {
-        setInboundEndpoint((prev: any) => ({ ...prev, type }));
-        setSelectedInboundParameters(inboundEndpointParams[type.toLowerCase()]);
-    }
-
-    const handleAdditionalParamChange = (field: string, value: any) => {
-        setAdditionalParameters((prev: any) => ({ ...prev, [field]: value }));
-    }
-
-    const handleParamChange = (field: string, value: any) => {
-        if (!isNewInboundEndpoint && !changesOccured) {
-            setChangesOccured(true);
-        }
-
-        setParamState((prev: any) => {
-            const params = prev[inboundEndpoint.type.toLowerCase()] ?? {};
-            return {
-                ...prev,
-                [inboundEndpoint.type.toLowerCase()]: {
-                    ...params,
-                    [field]: value
-                }
-            }
+        setSelected({
+            sequence: customSequenceType.value,
+            errorSequence: customSequenceType.value,
         });
+        reset({
+            ...initialInboundEndpoint,
+            parameters: transformParams(defaultParameters[type.toLowerCase()])
+        })
+        setValue("type", type);
+        readyForm(type);
     }
 
-    const validateName = (name: string) => {
-        // Check if the name is empty
-        if (!name.trim()) {
-            return "Name is required";
-        }
+    const handleSequenceChange = (field: 'sequence' | 'errorSequence', value: string, shouldDirty: boolean = true) => {
+        setSelected((prev) => ({
+            ...prev,
+            [field]: value
+        }));
+        setValue(field, value === customSequenceType.value ? "" : value, { shouldDirty });
+    }
 
-        // Check if the name contains spaces or special characters
-        if (/[\s~`!@#$%^&*()_+={}[\]:;'",.<>?/\\|]+/.test(name)) {
-            return "Name cannot contain spaces or special characters";
-        }
-        return "";
-    };
-
-    const handleCreateInboundEP = async () => {
+    const handleCreateInboundEP = async (values: any) => {
         const createInboundEPParams = {
             directory: props.path,
-            name: inboundEndpoint.name,
-            type: inboundEndpoint.type.toLowerCase(),
-            sequence: (showHiddenForm && isCustom.sequence) ? customSequence : inboundEndpoint.sequence,
-            errorSequence: (showHiddenForm && isCustom.errorSequence) ? customErrorSequence : inboundEndpoint.errorSequence,
-            parameters: {
-                ...paramState[inboundEndpoint.type.toLowerCase()],
-            },
-            additionalParameters,
+            ...values,
+            type: values.type.toLowerCase(),
+            parameters: transformParams(values.parameters, true)
         }
         await rpcClient.getMiDiagramRpcClient().createInboundEndpoint(createInboundEPParams);
-        handleMessage(isNewInboundEndpoint ? "Task created successfully" : "Task updated successfully");
-        setIsNewInboundEndpoint(false);
-        clearForm();
         openOverview();
     };
 
     const openOverview = () => {
-        setMessage({ isError: false, text: "" });
         rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Overview } });
     };
 
@@ -248,122 +239,85 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
         rpcClient.getMiVisualizerRpcClient().goBack();
     }
 
-    const isValid: boolean = !message.isError && inboundEndpoint.name.length > 0 && inboundEndpoint.type.length > 0 && (hideSubFormTypes.includes(inboundEndpoint.type) || (
-        inboundEndpoint.sequence.length > 0 && inboundEndpoint.errorSequence.length > 0
-    ));
-
     return (
         <FormView title={formTitle} onClose={handleOnClose}>
-            {inboundEndpoint.type === '' ? <CardWrapper cardsType="INBOUND_ENDPOINT" setType={setInboundEndpointType} /> : <>
-                <TypeChip type={inboundEndpoint.type} onClick={setInboundEndpointType} showButton={isNewInboundEndpoint} />
-                <TextField
-                    value={inboundEndpoint.name}
-                    id='name-input'
-                    label="Name"
-                    placeholder="Name"
-                    onTextChange={(text: string) => handleOnChange("name", text)}
-                    errorMsg={validateName(inboundEndpoint.name)}
-                    autoFocus
-                    required
-                    size={100}
-                />
-                {showHiddenForm && (
-                    <>
-                        <div>
-                            <span>Sequence</span>
-                            <Dropdown
-                                id="sequence"
-                                value={inboundEndpoint.sequence}
-                                onValueChange={(text: string) => handleOnChange("sequence", text)}
-                                items={sequences}
-                            />
-                            {isCustom.sequence && <>
-                                <TextField
-                                    value={customSequence}
-                                    id='custom-sequence'
-                                    placeholder="Custom Sequence Name"
-                                    onTextChange={(text: string) => setCustomSequence(text)}
-                                    errorMsg={validateName(customSequence)}
-                                    required
-                                    size={100}
-                                />
-                            </>}
-                        </div>
-                        <div>
-                            <span>On Error Sequence</span>
-                            <Dropdown
-                                id="errorSequence"
-                                value={inboundEndpoint.errorSequence}
-                                onValueChange={(text: string) => handleOnChange("errorSequence", text)}
-                                items={sequences}
-                            />
-                            {isCustom.errorSequence && <>
-                                <TextField
-                                    value={customErrorSequence}
-                                    id='custom-onerror-sequence'
-                                    placeholder="Custom On Error Sequence Name"
-                                    onTextChange={(text: string) => setCustomErrorSequence(text)}
-                                    errorMsg={validateName(customErrorSequence)}
-                                    required
-                                    size={100}
-                                />
-                            </>}
-                        </div>
-                    </>
-                )}
-                {!isNewInboundEndpoint && (
+            {isNewInboundEndpoint && watch('type') === '' ? <CardWrapper cardsType="INBOUND_ENDPOINT" setType={setInboundEndpointType} /> : (
+                <FormProvider {...formMethods}>
+                    <TypeChip type={watch('type')} onClick={setInboundEndpointType} showButton={isNewInboundEndpoint} />
+                    <TextField
+                        required
+                        autoFocus
+                        label="Name"
+                        placeholder="Name"
+                        {...renderProps("name")}
+                    />
                     <div>
-                        <CheckboxGroup>
-                            <CheckBox
-                                label="Suspend"
-                                value="suspend"
-                                checked={additionalParameters.suspend}
-                                onChange={(checked: boolean) => handleAdditionalParamChange("suspend", checked)}
-                            />
-                            <CheckBox
-                                label="Trace Enabled"
-                                value="trace"
-                                checked={additionalParameters.trace}
-                                onChange={(checked: boolean) => handleAdditionalParamChange("trace", checked)}
-                            />
-                            <CheckBox
-                                label="Statistics Enabled"
-                                value="statistics"
-                                checked={additionalParameters.statistics}
-                                onChange={(checked: boolean) => handleAdditionalParamChange("statistics", checked)}
-                            />
-                        </CheckboxGroup>
-                        {selectedInboundParamaters && <ParamForm
-                            paramState={paramState[inboundEndpoint.type.toLocaleLowerCase()] ?? {}}
-                            parameters={selectedInboundParamaters}
-                            handleOnChange={handleParamChange}
-                        />}
-                        <TextArea
-                            value={additionalParameters.description}
-                            id='description'
-                            label="Description"
-                            placeholder="Description"
-                            onTextChange={(text: string) => handleAdditionalParamChange("description", text)}
-                            cols={150}
+                        <Dropdown
+                            id="sequence"
+                            label="Sequence"
+                            value={selected.sequence}
+                            items={sequences}
+                            onValueChange={(value: string) => handleSequenceChange("sequence", value)}
                         />
+                        {selected.sequence === customSequenceType.value && <>
+                            <TextField
+                                required
+                                placeholder="Custom Sequence Name"
+                                {...renderProps("sequence")}
+                            />
+                        </>}
                     </div>
-                )}
-                <FormActions>
-                    <Button
-                        appearance="secondary"
-                        onClick={openOverview}
-                    >
-                        Cancel
-                    </Button>
-                    <Button
-                        appearance="primary"
-                        onClick={handleCreateInboundEP}
-                        disabled={!isValid}
-                    >
-                        {isNewInboundEndpoint ? "Create" : "Save Changes"}
-                    </Button>
-                </FormActions>
-            </>}
+                    <div>
+                        <Dropdown
+                            id="errorSequence"
+                            label="Error Sequence"
+                            value={selected.errorSequence}
+                            items={[...sequences, { content: 'fault', value: 'fault' }]}
+                            onValueChange={(value: string) => handleSequenceChange("errorSequence", value)}
+                        />
+                        {selected.errorSequence === customSequenceType.value && <>
+                            <TextField
+                                required
+                                placeholder="Custom on-error Sequence Name"
+                                {...renderProps("errorSequence")}
+                            />
+                        </>}
+                    </div>
+                    <CheckboxGroup>
+                        <FormCheckBox
+                            name="suspend"
+                            label="Suspend"
+                            control={control}
+                        />
+                        <FormCheckBox
+                            name="trace"
+                            label="Trace Enabled"
+                            control={control}
+                        />
+                        <FormCheckBox
+                            name="statistics"
+                            label="Statistics Enabled"
+                            control={control}
+                        />
+                    </CheckboxGroup>
+                    {watch('type') && <ParamForm params={selectedParams} />}
+                    <FormActions>
+                        <Button
+                            appearance="primary"
+                            onClick={handleSubmit(handleCreateInboundEP)}
+                            disabled={!isDirty}
+                        >
+                            {isNewInboundEndpoint ? "Create" : "Save Changes"}
+                        </Button>
+                        <Button
+                            appearance="secondary"
+                            onClick={openOverview}
+                        >
+                            Cancel
+                        </Button>
+                    </FormActions>
+                </FormProvider>
+            )}
         </FormView>
     );
 }

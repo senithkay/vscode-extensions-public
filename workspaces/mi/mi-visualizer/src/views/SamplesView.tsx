@@ -9,13 +9,17 @@
 
 
 import React, { useEffect } from "react";
-import { VisualizerLocation, GettingStartedSample, GettingStartedCategory, SampleDownloadRequest } from "@wso2-enterprise/mi-core";
+import {
+    VisualizerLocation, GettingStartedSample,
+    GettingStartedCategory, SampleDownloadRequest,
+    EVENT_TYPE, MACHINE_VIEW
+} from "@wso2-enterprise/mi-core";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
-import { ComponentCard, Dropdown, Grid, SearchBox } from "@wso2-enterprise/ui-toolkit";
+import { ComponentCard, Dropdown, Codicon, SearchBox } from "@wso2-enterprise/ui-toolkit";
 import { Button } from "@wso2-enterprise/ui-toolkit";
 import { SAMPLE_ICONS_GITHUB_URL } from "../constants";
 import styled from "@emotion/styled";
-import { VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
+import { VSCodeProgressRing, VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import { View, ViewContent, ViewHeader } from "../components/View";
 
 const SearchWrapper = styled.div`
@@ -23,6 +27,13 @@ const SearchWrapper = styled.div`
     flex-direction: row;
     gap: 30px;
 `;
+
+const NavigationContainer = styled.div`
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+`;
+
 
 const SampleContainer = styled.div`
     display: grid;
@@ -123,59 +134,77 @@ export function SamplesView() {
         rpcClient.getMiVisualizerRpcClient().downloadSelectedSampleFromGithub(request);
     }
 
+    function handleBackButtonClick() {
+        rpcClient.getMiVisualizerRpcClient().openView({
+            type: EVENT_TYPE.OPEN_VIEW,
+            location: {
+                view: MACHINE_VIEW.Welcome
+            }
+        });
+    }
+
     function getSampleTitle() {
-        return <div>
-            <h2 style={{ marginBottom: "0px" }}>Samples</h2>
-            <p style={{ marginTop: "0px" }}>Choose a sample from the list below to get started.</p>
-        </div>;
+        return (
+            <div>
+                <h2 style={{ marginBottom: "0px", marginTop: "0px" }}>Samples</h2>
+                <p style={{ marginTop: "0px" }}>Choose a sample from the list below to get started.</p>
+            </div>
+        );
     }
 
 
 
     return (
-        <View>
-            <ViewHeader title={getSampleTitle()}>
-                <p>Category</p>
-                <Dropdown
-                    id="drop-down"
-                    items={categories ? categories.map(category => ({
-                        key: category.id - 1,
-                        text: category.title,
-                        value: category.title
-                    })) : null}
-                    onValueChange={handleChange}
-                    value={filterText}
-                    sx={{ width: 230 }}
-                />
-                <SearchBox
-                    value={searchText}
-                    autoFocus
-                    type="text"
-                    onChange={handleSearch}
-                />
-            </ViewHeader>
-            <ViewContent padding>
-                {filteredSampleData ? (
-                    <SampleGrid>
-                        {filteredSampleData.sort((a, b) => a.priority - b.priority).map((sample, index) => (
-                            <ComponentCard
-                                disbaleHoverEffect={true}
-                                sx={{ alignItems: "flex-start", width: "220px", marginBottom: "20px" }}>
-                                <SampleContainer key={sample.title}>
-                                    <h2 className="card-title" style={{ margin: '0', fontSize: '16px' }}>{sample.title}</h2>
-                                    <img src={images[sample.category]} className="card-image" style={{ width: '50%', height: 'auto' }} />
-                                    <p className="card-content" style={{ marginTop: '16px', textAlign: 'justify' }}>{sample.description}</p>
-                                    <Button appearance="secondary" onClick={() => downloadSample(sample.zipFileName)}>Download</Button>
-                                </SampleContainer>
-                            </ComponentCard>
-                        ))}
-                    </SampleGrid>
-                ) : (
-                    <LoaderWrapper>
-                        <ProgressRing />
-                    </LoaderWrapper>
-                )}
-            </ViewContent>
-        </View>
+        <>
+            <NavigationContainer id="nav-bar-main">
+                <VSCodeButton appearance="icon" title="Go Back" onClick={handleBackButtonClick}>
+                    <Codicon name="arrow-left" />
+                </VSCodeButton>
+            </NavigationContainer>
+            <View>
+                <ViewHeader title={getSampleTitle()}>
+                    <p>Category</p>
+                    <Dropdown
+                        id="drop-down"
+                        items={categories ? categories.map(category => ({
+                            key: category.id - 1,
+                            text: category.title,
+                            value: category.title
+                        })) : null}
+                        onValueChange={handleChange}
+                        value={filterText}
+                        sx={{ width: 230 }}
+                    />
+                    <SearchBox
+                        value={searchText}
+                        autoFocus
+                        type="text"
+                        onChange={handleSearch}
+                    />
+                </ViewHeader>
+                <ViewContent padding>
+                    {filteredSampleData ? (
+                        <SampleGrid>
+                            {filteredSampleData.sort((a, b) => a.priority - b.priority).map((sample, index) => (
+                                <ComponentCard
+                                    disbaleHoverEffect={true}
+                                    sx={{ alignItems: "flex-start", width: "220px", marginBottom: "20px" }}>
+                                    <SampleContainer key={sample.title}>
+                                        <h2 className="card-title" style={{ margin: '0', fontSize: '16px' }}>{sample.title}</h2>
+                                        <img src={images[sample.category]} className="card-image" style={{ width: '50%', height: 'auto' }} />
+                                        <p className="card-content" style={{ marginTop: '16px', textAlign: 'justify' }}>{sample.description}</p>
+                                        <Button appearance="secondary" onClick={() => downloadSample(sample.zipFileName)}>Download</Button>
+                                    </SampleContainer>
+                                </ComponentCard>
+                            ))}
+                        </SampleGrid>
+                    ) : (
+                        <LoaderWrapper>
+                            <ProgressRing />
+                        </LoaderWrapper>
+                    )}
+                </ViewContent>
+            </View>
+        </>
     );
 }

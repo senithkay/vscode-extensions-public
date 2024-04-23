@@ -93,7 +93,6 @@ const inlineFormatter = (inlineWsdl: string) => {
     };
     const parser = new XMLParser(options);
     const builder = new XMLBuilder(options);
-    console.log(parser.parse(inlineWsdl));
     return builder.build(parser.parse(inlineWsdl)) as string;
 }
 

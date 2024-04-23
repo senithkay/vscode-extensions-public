@@ -22,6 +22,7 @@ import { findInputNode, getInputPort, getOutputPort } from "../../utils/common-u
 import { InputOutputPortModel } from "../../Port";
 import { DataMapperLinkModel } from "../../Link";
 import { ExpressionLabelModel } from "../../Label";
+import { getDiagnostics } from "../../utils/diagnostics-utils";
 
 export const OBJECT_OUTPUT_NODE_TYPE = "data-mapper-node-object-output";
 const NODE_ID = "object-output-node";
@@ -114,7 +115,8 @@ export class ObjectOutputNode extends DataMapperNodeModel {
             );
 
             if (inPort && mappedOutPort) {
-                const lm = new DataMapperLinkModel(value, [], true);
+                const diagnostics = getDiagnostics(otherVal || value);
+                const lm = new DataMapperLinkModel(value, diagnostics, true);
                 const mappedField = mappedOutPort.typeWithValue && mappedOutPort.typeWithValue.type;
                 const keepDefault = ((mappedField && !mappedField?.fieldName
                     && mappedField.kind !== TypeKind.Array

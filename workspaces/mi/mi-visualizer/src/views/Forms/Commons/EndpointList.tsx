@@ -34,18 +34,20 @@ const CustomLabel = styled.p`
     margin: 10px 0;
 `;
 
-const EndpointList = ({ endpoints, setEndpoints }: any) => {
+const EndpointList = ({ endpoints, setEndpoints, setEndpointUpdated }: any) => {
 
     const handleEndpointsChange = (index: number, endpoint: any) => {
         const newEndpoints = [...endpoints];
         newEndpoints[index] = { ...endpoint };
         setEndpoints(newEndpoints);
+        setEndpointUpdated(true);
     }
 
     const onEndpointDelete = (index: number) => {
         const newEndpoints = [...endpoints];
         newEndpoints.splice(index, 1);
         setEndpoints(newEndpoints);
+        setEndpointUpdated(true);
     }
 
     return (
