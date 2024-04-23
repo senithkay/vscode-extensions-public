@@ -2,7 +2,7 @@
   "name": "Data Mapper",
   "type": "mediator",
   "title": "Data Mapper Mediator",
-  "help": "",
+  "help": "Transforms data format/structure in the message.",
   "elements": [
     {
       "type": "attributeGroup",
