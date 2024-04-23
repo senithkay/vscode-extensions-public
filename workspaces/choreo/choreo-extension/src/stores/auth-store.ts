@@ -22,7 +22,7 @@ export const authStore = createStore(
             loginStart: () => set(({ state }) => ({ state: { ...state, loading: true } })),
             loginSuccess: (userInfo) => {
                 dataCacheStore.getState().setOrgs(userInfo.organizations);
-                set(({ state }) => ({ state: { ...state, userInfo, loading: false } }))
+                set(({ state }) => ({ state: { ...state, userInfo, loading: false } }));
             },
             logout: () => {
                 ext.clients.rpcClient.signOut();
@@ -44,3 +44,13 @@ export const authStore = createStore(
         getGlobalStateStore("auth-zustand-storage")
     )
 );
+
+export const waitForLogin = async (): Promise<UserInfo> => {
+    return new Promise((resolve) => {
+        authStore.subscribe(({ state }) => {
+            if (state.userInfo) {
+                resolve(state.userInfo);
+            }
+        });
+    });
+};

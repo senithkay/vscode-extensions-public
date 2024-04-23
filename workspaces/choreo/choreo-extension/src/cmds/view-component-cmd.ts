@@ -11,7 +11,7 @@ import { ext } from "../extensionVariables";
 import { CommandIds, ComponentKind, LinkFileContent, Organization, Project } from "@wso2-enterprise/choreo-core";
 import { authStore } from "../stores/auth-store";
 import { ComponentDetailsView } from "../views/webviews/ComponentDetailsView";
-import { selectComponent, selectOrg, selectProject } from "./cmd-utils";
+import { getUserInfoForCmd, selectComponent, selectOrg, selectProject } from "./cmd-utils";
 import { readFileSync } from "fs";
 import * as yaml from "js-yaml";
 import * as path from "path";
@@ -21,43 +21,41 @@ export function viewComponentCommand(context: ExtensionContext) {
     context.subscriptions.push(
         commands.registerCommand(CommandIds.ViewComponent, async () => {
             try {
-                const userInfo = authStore.getState().state.userInfo;
-                if (!userInfo) {
-                    throw new Error("You are not logged in. Please log in and retry.");
-                }
+                const userInfo = await getUserInfoForCmd("view component details");
+                if (userInfo) {
+                    const selectedOrg = await selectOrg(userInfo, "Select organization (1/3)");
 
-                const selectedOrg = await selectOrg(userInfo, "Select organization (1/3)");
+                    const selectedProject = await selectProject(
+                        selectedOrg,
+                        `Loading projects from '${selectedOrg.name}' (2/3)`,
+                        `Select project from '${selectedOrg.name}' (2/3)`
+                    );
 
-                const selectedProject = await selectProject(
-                    selectedOrg,
-                    `Loading projects from '${selectedOrg.name}' (2/3)`,
-                    `Select project from '${selectedOrg.name}' (2/3)`
-                );
+                    const selectedComponent = await selectComponent(
+                        selectedOrg,
+                        selectedProject,
+                        `Loading components from '${selectedProject.name}' (3/3)`,
+                        `Select component from '${selectedProject.name}' to view (3/3)`
+                    );
 
-                const selectedComponent = await selectComponent(
-                    selectedOrg,
-                    selectedProject,
-                    `Loading components from '${selectedProject.name}' (3/3)`,
-                    `Select component from '${selectedProject.name}' to view (3/3)`
-                );
+                    const linkFiles = await workspace.findFiles("**/.choreo/link.yaml");
 
-                const linkFiles = await workspace.findFiles("**/.choreo/link.yaml");
+                    let matchingPath: string = "";
 
-                let matchingPath: string = "";
-
-                for (const linkFile of linkFiles) {
-                    const parsedData: LinkFileContent = yaml.load(readFileSync(linkFile.fsPath, "utf8")) as any;
-                    if (
-                        parsedData.component === selectedComponent.metadata.name &&
-                        parsedData.project === selectedProject.handler &&
-                        parsedData.org === selectedOrg.handle
-                    ) {
-                        matchingPath = path.dirname(path.dirname(linkFile.path));
-                        break;
+                    for (const linkFile of linkFiles) {
+                        const parsedData: LinkFileContent = yaml.load(readFileSync(linkFile.fsPath, "utf8")) as any;
+                        if (
+                            parsedData.component === selectedComponent.metadata.name &&
+                            parsedData.project === selectedProject.handler &&
+                            parsedData.org === selectedOrg.handle
+                        ) {
+                            matchingPath = path.dirname(path.dirname(linkFile.path));
+                            break;
+                        }
                     }
-                }
 
-                showComponentDetails(selectedOrg, selectedProject, selectedComponent, matchingPath);
+                    showComponentDetails(selectedOrg, selectedProject, selectedComponent, matchingPath);
+                }
             } catch (err: any) {
                 console.error("Failed to create component", err);
                 window.showErrorMessage(err?.message || "Failed to create component");
@@ -68,12 +66,16 @@ export function viewComponentCommand(context: ExtensionContext) {
 
 const componentViewMap = new Map<string, ComponentDetailsView>();
 
-export const getComponentView = ( orgHandle: string,  projectHandle: string, component: string): WebviewPanel | undefined => {
+export const getComponentView = (
+    orgHandle: string,
+    projectHandle: string,
+    component: string
+): WebviewPanel | undefined => {
     const componentKey = `${orgHandle}-${projectHandle}-${component}`;
     return componentViewMap.get(componentKey)?.getWebview();
 };
 
-export const closeWebviewPanel = (orgHandle: string,  projectHandle: string, component: string): void => {
+export const closeWebviewPanel = (orgHandle: string, projectHandle: string, component: string): void => {
     const webView = getComponentView(orgHandle, projectHandle, component);
     if (webView) {
         webView.dispose();

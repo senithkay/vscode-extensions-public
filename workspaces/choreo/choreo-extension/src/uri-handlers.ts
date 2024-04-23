@@ -11,7 +11,7 @@
  *  associated services.
  */
 
-import { ProviderResult, Uri, commands, window } from "vscode";
+import { ProgressLocation, ProviderResult, Uri, commands, window } from "vscode";
 import { ext } from "./extensionVariables";
 import { getLogger } from "./logger/logger";
 import { authStore } from "./stores/auth-store";
@@ -29,16 +29,23 @@ export function activateURIHandlers() {
                     getLogger().debug("Initiating Choreo sign in flow from auth code");
                     // TODO: Check if status is equal to STATUS_LOGGING_IN, if not, show error message.
                     // It means that the login was initiated from somewhere else or an old page was opened/refreshed in the browser
-                    try {
-                        ext.clients.rpcClient.signInWithAuthCode(authCode).then(userInfo=>{
-                            if(userInfo){
-                                authStore.getState().loginSuccess(userInfo);
+                    window.withProgress(
+                        {
+                            title: `Verifying user details and logging into Choreo...`,
+                            location: ProgressLocation.Notification,
+                        },
+                        async () => {
+                            try {
+                                const userInfo = await ext.clients.rpcClient.signInWithAuthCode(authCode);
+                                if (userInfo) {
+                                    authStore.getState().loginSuccess(userInfo);
+                                }
+                            } catch (error: any) {
+                                getLogger().error(`Choreo sign in Failed: ${error.message}`);
+                                window.showErrorMessage(`Sign in failed. Please check the logs for more details.`);
                             }
-                        });                        
-                        } catch (error: any) {
-                        getLogger().error(`Choreo sign in Failed: ${error.message}`);
-                        window.showErrorMessage(`Sign in failed. Please check the logs for more details.`);
-                    }
+                        }
+                    );
                 } else {
                     getLogger().error(`Choreo Login Failed: Authorization code not found!`);
                     window.showErrorMessage(`Choreo Login Failed: Authorization code not found!`);
@@ -49,8 +56,8 @@ export function activateURIHandlers() {
                 const authCode = urlParams.get("code");
                 // const installationId = urlParams.get("installationId");
                 const orgId = urlParams.get("orgId");
-                if(authCode && orgId){
-                    ext.clients.rpcClient.obtainGithubToken({code: authCode, orgId});
+                if (authCode && orgId) {
+                    ext.clients.rpcClient.obtainGithubToken({ code: authCode, orgId });
                 }
             }
         },

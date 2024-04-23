@@ -6,10 +6,11 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { window, QuickPickItem, QuickPickItemKind, workspace, WorkspaceFolder } from "vscode";
+import { window, QuickPickItem, QuickPickItemKind, workspace, WorkspaceFolder, commands } from "vscode";
 import { ext } from "../extensionVariables";
-import { ComponentKind, Organization, Project, UserInfo } from "@wso2-enterprise/choreo-core";
+import { CommandIds, ComponentKind, Organization, Project, UserInfo } from "@wso2-enterprise/choreo-core";
 import { dataCacheStore } from "../stores/data-cache-store";
+import { authStore, waitForLogin } from "../stores/auth-store";
 
 export const selectComponent = async (
     org: Organization,
@@ -136,7 +137,7 @@ export const selectProjectWithCreateNew = async (
         })
         .catch((err) => {
             quickPick.dispose();
-            throw(err);
+            throw err;
         });
 
     const selectedQuickPick = await new Promise((resolve) => {
@@ -246,7 +247,7 @@ async function quickPickWithLoader<T>(params: {
         })
         .catch((err) => {
             quickPick.dispose();
-            throw(err);
+            throw err;
         });
 
     const selectedQuickPick = await new Promise((resolve) => {
@@ -258,3 +259,29 @@ async function quickPickWithLoader<T>(params: {
 
     return selectedT;
 }
+
+export const getUserInfoForCmd = async (message: string): Promise<UserInfo | null> => {
+    let userInfo = authStore.getState().state.userInfo;
+    if (!userInfo) {
+        const loginSelection = await window.showInformationMessage(
+            `You are not logged into Choreo.`,
+            { modal: true, detail: `Please login to continue and ${message}` },
+            "Login"
+        );
+        if (loginSelection === "Login") {
+            await commands.executeCommand(CommandIds.SignIn);
+            userInfo = await waitForLogin();
+
+            const response = await window.showInformationMessage(
+                "Successfully logged into Choreo",
+                { modal: true, detail: `Do you want to continue and ${message}` },
+                "Continue"
+            );
+            if (response === "Continue") {
+                return userInfo;
+            }
+            return null;
+        }
+    }
+    return userInfo;
+};

@@ -9,43 +9,49 @@
 import { ExtensionContext, commands, env, Uri, window } from "vscode";
 import { CommandIds, ComponentKind, Organization, Project } from "@wso2-enterprise/choreo-core";
 import { authStore } from "../stores/auth-store";
-import { selectOrg, selectProject, selectComponent } from "./cmd-utils";
+import { selectOrg, selectProject, selectComponent, getUserInfoForCmd } from "./cmd-utils";
 import { choreoEnvConfig } from "../auth/auth";
 
 export function openComponentInConsoleCommand(context: ExtensionContext) {
     context.subscriptions.push(
-        commands.registerCommand(CommandIds.OpenComponentInConsole, async (params: { organization: Organization, project: Project, component: ComponentKind }) => {
-            try {
-                const userInfo = authStore.getState().state.userInfo;
-                if (!userInfo) {
-                    throw new Error("You are not logged in. Please log in and retry.");
+        commands.registerCommand(
+            CommandIds.OpenComponentInConsole,
+            async (params: { organization: Organization; project: Project; component: ComponentKind }) => {
+                try {
+                    const userInfo = await getUserInfoForCmd("open a component in Choreo console");
+                    if (userInfo) {
+                        const selectedOrg =
+                            params?.organization ?? (await selectOrg(userInfo, "Select organization (1/3)"));
+
+                        const selectedProject =
+                            params?.project ??
+                            (await selectProject(
+                                selectedOrg,
+                                `Loading projects from '${selectedOrg.name}' (2/3)`,
+                                `Select project from '${selectedOrg.name}' (2/3)`
+                            ));
+
+                        const selectedComponent =
+                            params?.component ??
+                            (await selectComponent(
+                                selectedOrg,
+                                selectedProject,
+                                `Loading components from '${selectedProject.name}' (3/3)`,
+                                `Select component from '${selectedProject.name}' to open in Console (3/3)`
+                            ));
+
+                        // TODO: Replace selectedComponent.metadata.name, if available
+                        const url = `${choreoEnvConfig.getConsoleUrl()}/organizations/${selectedOrg?.handle}/projects/${
+                            selectedProject.id
+                        }/components/${selectedComponent.metadata.name}`;
+                        const consoleUrl = Uri.parse(url);
+                        env.openExternal(consoleUrl);
+                    }
+                } catch (err: any) {
+                    console.error("Failed to create component", err);
+                    window.showErrorMessage(err?.message || "Failed to create component");
                 }
-
-                const selectedOrg = params?.organization ?? await selectOrg(userInfo, "Select organization (1/3)");
-
-                const selectedProject = params?.project ?? await selectProject(
-                    selectedOrg,
-                    `Loading projects from '${selectedOrg.name}' (2/3)`,
-                    `Select project from '${selectedOrg.name}' (2/3)`
-                );
-
-                const selectedComponent = params?.component ?? await selectComponent(
-                    selectedOrg,
-                    selectedProject,
-                    `Loading components from '${selectedProject.name}' (3/3)`,
-                    `Select component from '${selectedProject.name}' to open in Console (3/3)`
-                );
-
-                // TODO: Replace selectedComponent.metadata.name, if available
-                const url = `${choreoEnvConfig.getConsoleUrl()}/organizations/${selectedOrg?.handle}/projects/${
-                    selectedProject.id
-                }/components/${selectedComponent.metadata.name}`;
-                const consoleUrl = Uri.parse(url);
-                env.openExternal(consoleUrl);
-            } catch (err: any) {
-                console.error("Failed to create component", err);
-                window.showErrorMessage(err?.message || "Failed to create component");
             }
-        })
+        )
     );
 }

@@ -181,6 +181,8 @@ const EnvItem: FC<{
 
     const openExternal = (url: string) => ChoreoWebViewAPI.getInstance().openExternal(url);
 
+    // TODO: handle errors in deployed URLs
+
     return (
         <>
             <Divider />
@@ -257,16 +259,14 @@ const EnvItem: FC<{
                                             .filter((item) => item.environmentId === env.id)
                                             .map((item) => {
                                                 const endpointsNodes: ReactNode[] = [];
-                                                if (item.projectUrl) {
-                                                    endpointsNodes.push(
-                                                        <GridColumnItem
-                                                            label={
-                                                                endpoints.length > 1
-                                                                    ? `Project URL (${item.displayName})`
-                                                                    : "Project URL"
-                                                            }
-                                                            key={`${item.id}-project`}
-                                                        >
+                                                endpointsNodes.push(
+                                                    <GridColumnItem
+                                                        label={`Project URL ${
+                                                            endpoints.length > 1 ? `(${item.displayName})` : ""
+                                                        }`}
+                                                        key={`${item.id}-project`}
+                                                    >
+                                                        {item.projectUrl ? (
                                                             <VSCodeLink
                                                                 title="Copy URL"
                                                                 className="line-clamp-1 text-vsc-foreground"
@@ -274,26 +274,21 @@ const EnvItem: FC<{
                                                             >
                                                                 {item.projectUrl}
                                                             </VSCodeLink>
-                                                        </GridColumnItem>
-                                                    );
-                                                } else {
-                                                    endpointsNodes.push(
-                                                        <GridColumnItem label="Project URL">
-                                                            <SkeletonText className="max-w-44" />
-                                                        </GridColumnItem>
-                                                    );
-                                                }
+                                                        ) : (
+                                                            <SkeletonText className="w-24" />
+                                                        )}
+                                                    </GridColumnItem>
+                                                );
+
                                                 if (item.visibility === "Organization") {
-                                                    if (item.organizationUrl) {
-                                                        endpointsNodes.push(
-                                                            <GridColumnItem
-                                                                label={
-                                                                    endpoints.length > 1
-                                                                        ? `Organization URL (${item.displayName})`
-                                                                        : "Organization URL"
-                                                                }
-                                                                key={`${item.id}-org`}
-                                                            >
+                                                    endpointsNodes.push(
+                                                        <GridColumnItem
+                                                            label={`Organization URL ${
+                                                                endpoints.length > 1 ? `(${item.displayName})` : ""
+                                                            }`}
+                                                            key={`${item.id}-org`}
+                                                        >
+                                                            {item.organizationUrl ? (
                                                                 <VSCodeLink
                                                                     title="Copy URL"
                                                                     className="line-clamp-1 text-vsc-foreground"
@@ -301,42 +296,43 @@ const EnvItem: FC<{
                                                                 >
                                                                     {item.organizationUrl}
                                                                 </VSCodeLink>
-                                                            </GridColumnItem>
-                                                        );
-                                                    } else {
-                                                        endpointsNodes.push(
-                                                            <GridColumnItem label="Organization URL">
-                                                                <SkeletonText className="max-w-44" />
-                                                            </GridColumnItem>
-                                                        );
-                                                    }
+                                                            ) : (
+                                                                <SkeletonText className="w-24" />
+                                                            )}
+                                                        </GridColumnItem>
+                                                    );
                                                 } else if (item.visibility === "Public") {
                                                     if (item.publicUrl) {
                                                         endpointsNodes.push(
                                                             <GridColumnItem
-                                                                label={
-                                                                    endpoints.length > 1
-                                                                        ? `Public URL (${item.displayName})`
-                                                                        : "Public URL"
-                                                                }
+                                                                label={`Public URL ${
+                                                                    endpoints.length > 1 ? `(${item.displayName})` : ""
+                                                                }`}
                                                                 key={`${item.id}-public`}
                                                             >
-                                                                <div className="flex items-center gap-1">
-                                                                    <VSCodeLink
-                                                                        title="Copy URL"
-                                                                        className="flex-1 line-clamp-1 text-vsc-foreground"
-                                                                        onClick={() => copyUrl(item.publicUrl)}
-                                                                    >
-                                                                        {item.publicUrl}
-                                                                    </VSCodeLink>
-                                                                    <Button
-                                                                        appearance="icon"
-                                                                        title="Open URL"
-                                                                        onClick={() => openExternal(item.publicUrl)}
-                                                                    >
-                                                                        <Codicon name="link-external" />
-                                                                    </Button>
-                                                                </div>
+                                                                {item.publicUrl ? (
+                                                                    <div className="flex items-center gap-1">
+                                                                        <VSCodeLink
+                                                                            title="Copy URL"
+                                                                            className="flex-1 line-clamp-1 text-vsc-foreground"
+                                                                            onClick={() => copyUrl(item.publicUrl)}
+                                                                        >
+                                                                            {item.publicUrl || (
+                                                                                <SkeletonText className="max-w-44" />
+                                                                            )}
+                                                                        </VSCodeLink>
+                                                                        <Button
+                                                                            appearance="icon"
+                                                                            title="Open URL"
+                                                                            onClick={() => openExternal(item.publicUrl)}
+                                                                            disabled={!item.publicUrl}
+                                                                        >
+                                                                            <Codicon name="link-external" />
+                                                                        </Button>
+                                                                    </div>
+                                                                ) : (
+                                                                    <SkeletonText className="w-24" />
+                                                                )}
                                                             </GridColumnItem>
                                                         );
                                                     } else {

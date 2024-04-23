@@ -91,8 +91,7 @@
         "command": "wso2.choreo.create.component",
         "title": "Create Component",
         "category": "Choreo",
-        "icon": "$(add)",
-        "enablement": "isLoggedIn == true"
+        "icon": "$(add)"
       },
       {
         "command": "wso2.choreo.refresh.component",
@@ -105,37 +104,31 @@
         "command": "wso2.choreo.link.component",
         "title": "Link Directory",
         "category": "Choreo",
-        "icon": "$(link)",
-        "enablement": "isLoggedIn == true"
+        "icon": "$(link)"
       },
-
       {
         "command": "wso2.choreo.component.open.external",
         "title": "Open in Console",
         "category": "Choreo",
-        "icon": "$(link-external)",
-        "enablement": "isLoggedIn == true"
+        "icon": "$(link-external)"
       },
       {
         "command": "wso2.choreo.unlink.component",
         "title": "Unlink Directory",
         "category": "Choreo",
-        "icon": "$(debug-disconnect)",
-        "enablement": "isLoggedIn == true"
+        "icon": "$(debug-disconnect)"
       },
       {
         "command": "wso2.choreo.delete.component",
         "title": "Delete Component",
         "category": "Choreo",
-        "icon": "$(trash)",
-        "enablement": "isLoggedIn == true"
+        "icon": "$(trash)"
       },
       {
         "command": "wso2.choreo.component.view",
         "title": "View Component Details",
         "category": "Choreo",
-        "icon": "$(preview)",
-        "enablement": "isLoggedIn == true"
+        "icon": "$(preview)"
       }
     ],
     "viewsContainers": {
