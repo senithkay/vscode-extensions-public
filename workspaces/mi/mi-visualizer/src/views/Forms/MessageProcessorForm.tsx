@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import React, { useEffect, useState } from "react";
-import { Button, TextField, Dropdown, RadioButtonGroup, FormView, FormActions, ParamConfig, ParamManager } from "@wso2-enterprise/ui-toolkit";
+import { Button, TextField, RadioButtonGroup, FormView, FormActions, ParamConfig, ParamManager } from "@wso2-enterprise/ui-toolkit";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
 import { CreateMessageProcessorRequest } from "@wso2-enterprise/mi-core";
@@ -17,7 +17,6 @@ import { useForm } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { FormKeylookup } from "@wso2-enterprise/mi-diagram-2";
-import { get, set } from "lodash";
 
 interface OptionProps {
     value: string;
@@ -91,7 +90,7 @@ export function MessageProcessorWizard(props: MessageProcessorWizardProps) {
 
     const schema = yup.object({
         messageProcessorName: yup.string().required("Message Processor Name is required")
-            .matches(/^[a-zA-Z0-9]*$/, "Invalid characters in Message Processor name")
+            .matches(/^[a-zA-Z0-9_-]*$/, "Invalid characters in Message Processor name")
             .test('validateTaskName',
                 'An artifact with same name already exists', value => {
                     return !(workspaceFileNames.includes(value) && savedMPName !== value)

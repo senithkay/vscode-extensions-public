@@ -2,7 +2,7 @@
   "name": "NTLM",
   "type":"mediator",
   "title": "NTLM Mediator",
-  "help": "",
+  "help": "Enables access to NTLM-protected services.",
   "elements": [
     {
       "type": "attributeGroup",

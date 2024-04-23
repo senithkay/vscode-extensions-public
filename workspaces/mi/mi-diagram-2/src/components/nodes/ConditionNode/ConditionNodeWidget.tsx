@@ -22,13 +22,16 @@ import { Description, Name } from "../BaseNodeModel";
 import { getNodeDescription } from "../../../utils/node";
 
 namespace S {
-    export const Node = styled.div<{}>`
+    export type NodeStyleProp = {
+        isActiveBreakpoint?: boolean;
+    };
+    export const Node = styled.div<NodeStyleProp>`
         display: flex;
         flex-direction: column;
         justify-content: space-between;
         align-items: center;
         cursor: pointer;
-        background-color: ${Colors.SURFACE_BRIGHT};
+        background-color: ${(props: NodeStyleProp) => props?.isActiveBreakpoint ? Colors.DEBUGGER_BREAKPOINT_BACKGROUND : Colors.SURFACE_BRIGHT};
         color: ${Colors.ON_SURFACE};
         & svg {
             fill: ${Colors.ON_SURFACE};
@@ -77,6 +80,8 @@ export function ConditionNodeWidget(props: CallNodeWidgetProps) {
     const [popoverAnchorEl, setPopoverAnchorEl] = React.useState(null);
     const sidePanelContext = React.useContext(SidePanelContext);
     const description = getNodeDescription(node.stNode);
+    const hasBreakpoint = node.hasBreakpoint();
+    const isActiveBreakpoint = node.isActiveBreakpoint();
 
     const handleOnClickMenu = (event: any) => {
         setIsPopoverOpen(!isPopoverOpen);
@@ -88,10 +93,37 @@ export function ConditionNodeWidget(props: CallNodeWidgetProps) {
         setIsPopoverOpen(false);
     }
 
+    const handleAddBreakpoint = async () => {
+        const file = node.documentUri;
+        const line = node.stNode.range.startTagRange.start.line;
+        const request = {
+            filePath: file,
+            breakpoint: {
+                line: line
+            }
+        }
+
+        await rpcClient.getMiDebuggerRpcClient().addBreakpointToSource(request);
+    };
+
+    const removeBreakpoint = async () => {
+        const file = node.documentUri;
+        const line = node.stNode.range.startTagRange.start.line;
+        const request = {
+            filePath: file,
+            breakpoint: {
+                line: line
+            }
+        }
+
+        await rpcClient.getMiDebuggerRpcClient().removeBreakpointFromSource(request);
+    };
+
     return (
         <div >
             <Tooltip content={tooltip} position={'bottom'} containerPosition={'absolute'}>
                 <S.Node
+                    isActiveBreakpoint={isActiveBreakpoint}
                     onMouseEnter={() => setIsHovered(true)}
                     onMouseLeave={() => setIsHovered(false)}
                     onClick={(e) => node.onClicked(e, node, rpcClient, sidePanelContext)}
@@ -150,6 +182,10 @@ export function ConditionNodeWidget(props: CallNodeWidgetProps) {
                 <ClickAwayListener onClickAway={handlePopoverClose}>
                     <Menu>
                         <MenuItem key={'delete-btn'} item={{ label: 'Delete', id: "delete", onClick: () => node.delete(rpcClient) }} />
+                        {hasBreakpoint ?
+                            <MenuItem key={'remove-breakpoint-btn'} item={{ label: 'Remove Breakpoint', id: "removeBreakpoint", onClick: removeBreakpoint }} /> :
+                            <MenuItem key={'breakpoint-btn'} item={{ label: 'Add Breakpoint', id: "addBreakpoint", onClick: handleAddBreakpoint }} />
+                        }
                     </Menu>
                 </ClickAwayListener>
             </Popover>

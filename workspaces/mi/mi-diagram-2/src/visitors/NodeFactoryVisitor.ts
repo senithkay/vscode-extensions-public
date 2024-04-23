@@ -86,6 +86,7 @@ import { ReferenceNodeModel } from "../components/nodes/ReferenceNode/ReferenceN
 import { PlusNodeModel } from "../components/nodes/PlusNode/PlusNodeModel";
 import { ConnectorNodeModel } from "../components/nodes/ConnectorNode/ConnectorNodeModel";
 import { DataMapperNodeModel } from "../components/nodes/DataMapperNode/DataMapperNodeModel";
+import { BreakpointPosition, GetBreakpointsResponse } from "@wso2-enterprise/mi-core";
 
 interface BranchData {
     name: string;
@@ -119,15 +120,31 @@ export class NodeFactoryVisitor implements Visitor {
     private documentUri: string;
     private diagramType: DiagramType;
     private resource: DiagramService;
+    private breakpointPositions: BreakpointPosition[];
+    private activatedBreakpoint: number;
 
-    constructor(documentUri: string, model: DiagramService) {
+
+    constructor(documentUri: string, model: DiagramService, breakpoints: GetBreakpointsResponse) {
         this.documentUri = documentUri;
         this.resource = model;
+        this.breakpointPositions = breakpoints.breakpoints;
+        this.activatedBreakpoint = breakpoints.activeBreakpoint;
     }
 
     private createNodeAndLinks(params: createNodeAndLinks): void {
         let { node, name, type, data } = params;
 
+        for(const breakpoint of this.breakpointPositions) {
+            if(breakpoint.line === node.range.startTagRange.start.line) {
+                node.hasBreakpoint = true;
+                break;
+            }
+        }
+
+        if(this.activatedBreakpoint === node.range.startTagRange.start.line) {
+            node.isActiveBreakpoint = true;
+        }
+        
         // create node
         let diagramNode: AnyNode;
         switch (type) {

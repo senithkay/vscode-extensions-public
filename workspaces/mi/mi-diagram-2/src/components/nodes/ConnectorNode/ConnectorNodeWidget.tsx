@@ -11,7 +11,7 @@ import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { ConnectorNodeModel } from "./ConnectorNodeModel";
-import { Colors } from "../../../resources/constants";
+import { Colors, NODE_DIMENSIONS } from "../../../resources/constants";
 import { STNode } from "@wso2-enterprise/mi-syntax-tree/src";
 import { Button, ClickAwayListener, Menu, MenuItem, Popover, Tooltip } from "@wso2-enterprise/ui-toolkit";
 import { MoreVertIcon } from "../../../resources";
@@ -31,11 +31,9 @@ namespace S {
         flex-direction: column;
         justify-content: space-between;
         align-items: center;
-        min-width: 100px;
-        max-width: 100px;
-        height: 36px;
-        padding: 0 8px;
-        border: 2px solid
+        width: ${NODE_DIMENSIONS.CONNECTOR.WIDTH - (NODE_DIMENSIONS.BORDER * 2)}px;
+        height: ${NODE_DIMENSIONS.CONNECTOR.HEIGHT - (NODE_DIMENSIONS.BORDER * 2)}px;
+        border: ${NODE_DIMENSIONS.BORDER}px solid
             ${(props: NodeStyleProp) =>
             props.hasError ? Colors.ERROR : props.selected ? Colors.SECONDARY : props.hovered ? Colors.SECONDARY : Colors.OUTLINE_VARIANT};
         border-radius: 10px;

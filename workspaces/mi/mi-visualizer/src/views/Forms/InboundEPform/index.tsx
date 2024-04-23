@@ -80,8 +80,8 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
     const schema = yup.object({
         name: yup.string().required("Name is required").matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in name"),
         type: yup.string().required("Type is required"),
-        sequence: yup.string(),
-        errorSequence: yup.string(),
+        sequence: yup.string().required("Sequence is required"),
+        errorSequence: yup.string().required("Error Sequence is required"),
         suspend: yup.boolean(),
         trace: yup.boolean(),
         statistics: yup.boolean(),
@@ -176,16 +176,52 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
                 const param = params[group][prop];
 
                 if (param.validate) {
-                    const validationType = param.validate?.type;
-                    const schemaItem = validationType === 'number'
-                        ? yup.number().required("This field is required").typeError("Invalid number")
-                        : yup.string().required("This field is required");
+                    let schemaItem;
 
-                    if (param.validate.min !== undefined) {
-                        schemaItem.min(param.validate.min, `Minimum value is ${param.validate.min}`);
-                    }
-                    if (param.validate.max !== undefined) {
-                        schemaItem.max(param.validate.max, `Maximum value is ${param.validate.max}`);
+                    if (param.validate?.type === 'string' && param.validate?.required) {
+                        schemaItem = yup.string().required("This field is required");
+                    } else if (param.validate?.type === 'number' && param.validate?.required) {
+                        if (param.validate?.min !== undefined && param.validate?.max !== undefined) {
+                            schemaItem = yup.number().required("This field is required")
+                                .typeError("Invalid number")
+                                .min(param.validate?.min, `Minimum value is ${param.validate?.min}`)
+                                .max(param.validate?.max, `Maximum value is ${param.validate?.max}`);
+                        }
+                        else if (param.validate?.min !== undefined) {
+                            schemaItem = yup.number().required("This field is required")
+                                .typeError("Invalid number")
+                                .min(param.validate?.min, `Minimum value is ${param.validate?.min}`);
+                        }
+                        else if (param.validate?.max !== undefined) {
+                            schemaItem = yup.number().required("This field is required")
+                                .typeError("Invalid number")
+                                .max(param.validate?.max, `Maximum value is ${param.validate?.max}`);
+                        } else {
+                            schemaItem = yup.number().required("This field is required")
+                                .typeError("Invalid number");
+                        }
+                    } else if (param.validate?.type === 'number') {
+                        if (param.validate?.min !== undefined && param.validate?.max !== undefined) {
+                            schemaItem = yup.number()
+                                .typeError("Invalid number")
+                                .min(param.validate?.min, `Minimum value is ${param.validate?.min}`)
+                                .max(param.validate?.max, `Maximum value is ${param.validate?.max}`);
+                        }
+                        else if (param.validate?.min !== undefined) {
+                            schemaItem = yup.number()
+                                .typeError("Invalid number")
+                                .min(param.validate?.min, `Minimum value is ${param.validate?.min}`);
+                        }
+                        else if (param.validate?.max !== undefined) {
+                            schemaItem = yup.number()
+                                .typeError("Invalid number")
+                                .max(param.validate?.max, `Maximum value is ${param.validate?.max}`);
+                        } else {
+                            schemaItem = yup.number()
+                                .typeError("Invalid number");
+                        }
+                    } else {
+                        schemaItem = yup.string().notRequired();
                     }
 
                     schemaItems[prop.split('.').join('-')] = schemaItem;
@@ -253,6 +289,7 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
                     />
                     <div>
                         <Dropdown
+                            required
                             id="sequence"
                             label="Sequence"
                             value={selected.sequence}
@@ -269,6 +306,7 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
                     </div>
                     <div>
                         <Dropdown
+                            required
                             id="errorSequence"
                             label="Error Sequence"
                             value={selected.errorSequence}
