@@ -205,9 +205,9 @@ export function getXML(name: string, data: { [key: string]: any }, dirtyFields?:
     switch (name) {
         //Advanced Mediators
         case MEDIATORS.CACHE:
-            return getCacheXml(data);
+            return getCacheXml(data, dirtyFields, defaultValues);
         case MEDIATORS.CLONE:
-            return getCloneXml(data);
+            return getCloneXml(data, dirtyFields, defaultValues);
         case MEDIATORS.DATASERVICECALL:
             return getDataSerivceCallXml(data);
         case MEDIATORS.TRANSACTION:
@@ -216,7 +216,7 @@ export function getXML(name: string, data: { [key: string]: any }, dirtyFields?:
             return getEventXml(data);
         //Core Mediators
         case MEDIATORS.CALL:
-            return getCallXml(data);
+            return getCallXml(data, dirtyFields, defaultValues);
         case MEDIATORS.LOG:
             return getLogXml(data);
         case MEDIATORS.CALLOUT:
