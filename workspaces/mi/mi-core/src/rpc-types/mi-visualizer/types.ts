@@ -127,5 +127,5 @@ export interface ToggleDisplayOverviewRequest {
 
 export interface GoToSourceRequest {
     filePath: string;
-    position: Range;
+    position?: Range;
 }

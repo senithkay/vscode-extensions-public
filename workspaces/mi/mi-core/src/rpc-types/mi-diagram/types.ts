@@ -1225,3 +1225,9 @@ export interface GetAllArtifactsRequest {
 export interface GetAllArtifactsResponse {
     artifacts: string[]
 }
+
+export interface DeleteArtifactRequest {
+    path: string;
+    enableUndo?: boolean;
+}
+

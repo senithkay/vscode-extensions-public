@@ -4,7 +4,7 @@ import * as vscode from 'vscode';
 import { Uri, ViewColumn, window } from 'vscode';
 import { MILanguageClient } from './lang-client/activator';
 import { extension } from './MIExtensionContext';
-import { EVENT_TYPE, MACHINE_VIEW, MachineStateValue, SyntaxTreeMi, VisualizerLocation, webviewReady } from '@wso2-enterprise/mi-core';
+import { EVENT_TYPE, HistoryEntry, MACHINE_VIEW, MachineStateValue, SyntaxTreeMi, VisualizerLocation, webviewReady } from '@wso2-enterprise/mi-core';
 import { ExtendedLanguageClient } from './lang-client/ExtendedLanguageClient';
 import { VisualizerWebview } from './visualizer/webview';
 import { RPCLayer } from './RPCLayer';
@@ -40,7 +40,19 @@ const stateMachine = createMachine<MachineContext>({
                 onDone: [
                     {
                         target: 'projectDetected',
-                        cond: (context, event) => event.data.isProject === true, // Assuming true means project detected
+                        cond: (context, event) =>
+                            event.data.isProject === true && event.data.emptyProject === true, // Assuming true means project detected
+                        actions: assign({
+                            view: (context, event) => MACHINE_VIEW.ADD_ARTIFACT,
+                            projectUri: (context, event) => event.data.projectUri,
+                            isMiProject: (context, event) => true,
+                            displayOverview: (context, event) => true,
+                        })
+                    },
+                    {
+                        target: 'projectDetected',
+                        cond: (context, event) =>
+                            event.data.isProject === true && event.data.emptyProject === false, // Assuming true means project detected
                         actions: assign({
                             view: (context, event) => MACHINE_VIEW.Overview,
                             projectUri: (context, event) => event.data.projectUri,
@@ -412,11 +424,16 @@ export function openView(type: EVENT_TYPE, viewLocation?: VisualizerLocation) {
     stateService.send({ type: type, viewLocation: viewLocation });
 }
 
-export function navigate() {
+export function navigate(entry?: HistoryEntry) {
     const historyStack = history.get();
     if (historyStack.length === 0) {
-        history.push({ location: { view: MACHINE_VIEW.Overview, } });
-        stateService.send({ type: "NAVIGATE", viewLocation: { view: MACHINE_VIEW.Overview } });
+        if (entry) {
+            history.push({ location: entry.location });
+            stateService.send({ type: "NAVIGATE", viewLocation: entry!.location });
+        } else {
+            history.push({ location: { view: MACHINE_VIEW.Overview } });
+            stateService.send({ type: "NAVIGATE", viewLocation: { view: MACHINE_VIEW.Overview } });
+        }
     } else {
         const location = historyStack[historyStack.length - 1].location;
         stateService.send({ type: "NAVIGATE", viewLocation: location });
@@ -441,7 +458,7 @@ function updateProjectExplorer(location: VisualizerLocation | undefined) {
 }
 
 async function checkIfMiProject() {
-    let isProject = false, isUnsupportedProject = false, displayOverview = true;
+    let isProject = false, isUnsupportedProject = false, displayOverview = true, emptyProject = false;
     let projectUri = '';
     try {
         // Check for pom.xml files excluding node_modules directory
@@ -469,6 +486,12 @@ async function checkIfMiProject() {
     }
 
     if (isProject) {
+        // Check if the project is empty
+        const files = await vscode.workspace.findFiles('src/main/wso2mi/artifacts/*/*.xml', '**/node_modules/**', 1);
+        if (files.length === 0) {
+            emptyProject = true;
+        }
+        
         projectUri = vscode.workspace.workspaceFolders![0].uri.fsPath;
         vscode.commands.executeCommand('setContext', 'MI.status', 'projectDetected');
         vscode.commands.executeCommand('setContext', 'MI.projectType', 'miProject'); // for command enablements
@@ -494,6 +517,7 @@ async function checkIfMiProject() {
         isProject,
         isUnsupportedProject,
         displayOverview,
-        projectUri // Return the path of the detected project
+        projectUri, // Return the path of the detected project
+        emptyProject
     };
 }
