@@ -94,7 +94,7 @@ export function ArrayTypeOutputWidget(props: ArrayTypeOutputWidgetProps) {
 
 	const label = (
 		<span style={{ marginRight: "auto" }}>
-			<span className={classnames(classes.outputTypeLabel, isDisabled ? classes.typeLabelDisabled : "")}>
+			<span className={classnames(classes.outputTypeLabel, isDisabled ? classes.labelDisabled : "")}>
 				{typeName || ''}
 			</span>
 		</span>

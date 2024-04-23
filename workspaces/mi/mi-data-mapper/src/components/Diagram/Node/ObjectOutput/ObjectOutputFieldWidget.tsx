@@ -176,7 +176,7 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
         <span style={{ marginRight: "auto" }} data-testid={`record-widget-field-label-${portIn?.getName()}`}>
             <span
                 className={classnames(classes.valueLabel,
-                    isDisabled && !hasHoveredParent ? classes.valueLabelDisabled : ""
+                    isDisabled && !hasHoveredParent ? classes.labelDisabled : ""
                 )}
                 style={{ marginLeft: fields ? 0 : indentation + 24 }}
             >
@@ -187,7 +187,7 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
             {typeName && (
                 <span
                     className={classnames(classes.outputTypeLabel,
-                        isDisabled && !hasHoveredParent ? classes.typeLabelDisabled : ""
+                        isDisabled && !hasHoveredParent ? classes.labelDisabled : ""
                     )}
                 >
                     {typeName || ''}

@@ -134,7 +134,7 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
         <span style={{ marginRight: "auto" }} data-testid={`record-widget-field-label-${portIn?.getName()}`}>
             <span
                 className={classnames(classes.valueLabel,
-                    isDisabled ? classes.valueLabelDisabled : "")}
+                    isDisabled ? classes.labelDisabled : "")}
                 style={{ marginLeft: hasValue && !connectedViaLink ? 0 : indentation + 24 }}
             >
                 <OutputSearchHighlight>{fieldName}</OutputSearchHighlight>
@@ -142,7 +142,7 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
                 {fieldName && typeName && ":"}
             </span>
             {typeName && (
-                <span className={classnames(classes.outputTypeLabel, isDisabled ? classes.typeLabelDisabled : "")}>
+                <span className={classnames(classes.outputTypeLabel, isDisabled ? classes.labelDisabled : "")}>
                     {typeName}
                 </span>
             )}
@@ -232,22 +232,17 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
                     }
                 }
                 return (
-                    <>
-                        <TreeBody>
-                            <PrimitiveTypeOutputElementWidget
-                                parentId={fieldId}
-                                field={element.member}
-                                engine={engine}
-                                getPort={getPort}
-                                context={context}
-                                fieldIndex={index}
-                                deleteField={deleteField}
-                                isArrayElement={true}
-                                hasHoveredParent={isHovered || hasHoveredParent}
-                            />
-                        </TreeBody>
-                        <br />
-                    </>
+                    <PrimitiveTypeOutputElementWidget
+                        parentId={fieldId}
+                        field={element.member}
+                        engine={engine}
+                        getPort={getPort}
+                        context={context}
+                        fieldIndex={index}
+                        deleteField={deleteField}
+                        isArrayElement={true}
+                        hasHoveredParent={isHovered || hasHoveredParent}
+                    />
                 );
             })
         );
@@ -330,10 +325,7 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
 
     return (
         <div
-            className={classnames(classes.treeLabel, classes.treeLabelArray,
-                isDisabled ? classes.treeLabelDisabled : "",
-                hasHoveredParent ? classes.treeLabelParentHovered : ""
-            )}
+            className={classnames(classes.treeLabelArray, hasHoveredParent ? classes.treeLabelParentHovered : "")}
         >
             {!isReturnTypeDesc && (
                 <div
