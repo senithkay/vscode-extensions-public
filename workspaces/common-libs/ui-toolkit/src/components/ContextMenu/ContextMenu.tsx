@@ -53,7 +53,8 @@ const VSCodeDataGridInlineCell = styled(VSCodeDataGridCell)`
     color: var(--vscode-inputOption-activeForeground);
     text-align: left;
     display: flex;
-    align-items: center;
+    justify-content: flex-start;
+    min-width: 220px;
     padding: 6px 10px;
     &:hover {
         color: var(--button-primary-foreground);
