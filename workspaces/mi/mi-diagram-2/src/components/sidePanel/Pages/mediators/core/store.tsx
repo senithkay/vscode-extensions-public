@@ -128,7 +128,8 @@ const StoreForm = (props: AddMediatorProps) => {
                     control={control}
                     render={({ field }) => (
                         <Keylookup
-                            {...field}filterType='sequence'
+                            {...field}
+                            filterType='sequence'
                             label="On Store Sequence"
                             allowItemCreate={false}
                         />

@@ -88,7 +88,8 @@ const SequenceForm = (props: AddMediatorProps) => {
                     control={control}
                     render={({ field }) => (
                         <Keylookup
-                            {...field}filterType='sequence'
+                            {...field}
+                            filterType='sequence'
                             label="Refering Sequence"
                             allowItemCreate={true}
                         />

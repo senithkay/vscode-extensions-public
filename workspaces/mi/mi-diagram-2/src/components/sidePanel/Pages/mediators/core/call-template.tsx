@@ -179,7 +179,8 @@ const CallTemplateForm = (props: AddMediatorProps) => {
                     control={control}
                     render={({ field }) => (
                         <Keylookup
-                            {...field}filterType='sequence'
+                            {...field}
+                            filterType='sequence'
                             label="OnError"
                             allowItemCreate={false}
                         />
