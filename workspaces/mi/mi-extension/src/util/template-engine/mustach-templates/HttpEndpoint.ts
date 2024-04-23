@@ -36,14 +36,18 @@ export interface HttpEndpointArgs {
     addressingVersion: string;
     addressListener: string | null;
     securityEnabled: string;
+    seperatePolicies: boolean;
+    policyKey: string;
+    inboundPolicyKey: string;
+    outboundPolicyKey: string;
     suspendErrorCodes: string;
     initialDuration: number;
-    maximumDuration: number;
+    maximumDuration: number | null;
     progressionFactor: number;
     retryErrorCodes: string;
     retryCount: number;
     retryDelay: number;
-    timeoutDuration: number;
+    timeoutDuration: number | null;
     timeoutAction: string | null;
     templateName: string;
     requireTemplateParameters: boolean;
@@ -59,7 +63,7 @@ export function getHttpEndpointMustacheTemplate() {
 <endpoint name="{{endpointName}}" {{^template}}xmlns="http://ws.apache.org/ns/synapse"{{/template}}>
     <http {{#httpMethod}}method="{{httpMethod}}"{{/httpMethod}} {{#statisticsEnabled}}statistics="{{statisticsEnabled}}"{{/statisticsEnabled}} {{#traceEnabled}}trace="{{traceEnabled}}"{{/traceEnabled}} uri-template="{{{uriTemplate}}}">
         {{#addressingEnabled}}<enableAddressing {{#addressListener}}separateListener="{{addressListener}}"{{/addressListener}} {{#addressingVersion}}version="{{addressingVersion}}{{/addressingVersion}}"/>{{/addressingEnabled}}
-        {{#securityEnabled}}<enableSec/>{{/securityEnabled}}
+        {{#securityEnabled}}<enableSec{{#policyKey}} policy="{{policyKey}}"{{/policyKey}}{{#inboundPolicyKey}} inboundPolicy="{{inboundPolicyKey}}"{{/inboundPolicyKey}}{{#outboundPolicyKey}} outboundPolicy="{{outboundPolicyKey}}"{{/outboundPolicyKey}}/>{{/securityEnabled}}
         {{#timeout}}<timeout>
             {{#timeoutDuration}}<duration>{{timeoutDuration}}</duration>{{/timeoutDuration}}
             {{#timeoutAction}}<responseAction>{{timeoutAction}}</responseAction>{{/timeoutAction}}
@@ -121,7 +125,7 @@ export function getHttpEndpointMustacheTemplate() {
         </authentication>{{/authentication}}
     </http>
     {{#properties}}
-    <property name="{{name}}" scope="{{scope}}" value="{{value}}"/>
+    <property name="{{name}}" {{#scope}}scope="{{scope}}"{{/scope}} value="{{value}}"/>
     {{/properties}}  
     {{#description}}<description>{{description}}</description>{{/description}}
 </endpoint>
@@ -166,6 +170,10 @@ export function getHttpEndpointXml(data: HttpEndpointArgs) {
 
     if (!data.requireProperties || data.properties.length == 0) {
         data.properties = null;
+    } else {
+        data.properties.forEach(element => {
+            element.scope = element.scope === 'default' ? null : element.scope;
+        });
     }
 
     if (!data.requireOauthParameters || data.oauthProperties.length == 0) {
@@ -187,6 +195,16 @@ export function getHttpEndpointXml(data: HttpEndpointArgs) {
             incrementalValue++;
         });
     }
+
+    if (data.seperatePolicies) {
+        data.policyKey = '';
+    } else {
+        data.inboundPolicyKey = '';
+        data.outboundPolicyKey = '';
+    }
+  
+    data.maximumDuration = data.maximumDuration === Number.MAX_SAFE_INTEGER ? null : data.maximumDuration;
+    data.timeoutDuration = data.timeoutDuration === Number.MAX_SAFE_INTEGER ? null : data.timeoutDuration;
 
     const modifiedData = {
         ...data,

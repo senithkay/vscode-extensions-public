@@ -146,7 +146,11 @@ export class ExtendedLanguageClient extends LanguageClient {
     }
 
     async getAvailableResources(req: GetAvailableResourcesRequest): Promise<GetAvailableResourcesResponse> {
-        return this.sendRequest("synapse/availableResources", { documentIdentifier: { uri: Uri.parse(req.documentIdentifier).toString() }, "resourceType": req.resourceType });
+        let uri: string | undefined;
+        if(req.documentIdentifier){
+            uri = Uri.parse(req.documentIdentifier).toString();
+        }
+        return this.sendRequest("synapse/availableResources", { documentIdentifier: { uri: uri }, "resourceType": req.resourceType });
     }
 
     async getDiagnostics(req: GetDiagnosticsReqeust): Promise<GetDiagnosticsResponse> {

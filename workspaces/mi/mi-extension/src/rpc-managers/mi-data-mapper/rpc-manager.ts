@@ -160,6 +160,7 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
                 updateDMC(dmName, sourcePath).then(() => {
                     resolve({success: true});
                 });
+                navigate();
                 resolve({success: false});
             } catch (error: any) {
                 console.error(error);
@@ -177,9 +178,13 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
                 if (workspaceFolder) {
                     const dataMapperConfigFolder = path.join(
                         workspaceFolder.uri.fsPath,  'src', 'main', 'wso2mi', 'resources', 'registry', 'gov', 'datamapper');
-                    const dmcFilePath = path.join(dataMapperConfigFolder, `${dmName}.ts`);
+                    const tsFilePath = path.join(dataMapperConfigFolder, `${dmName}.ts`);
+                    if (!fs.existsSync(tsFilePath)) {
+                        fs.writeFileSync(tsFilePath, dmContent);
+                    }
+                    const dmcFilePath = path.join(dataMapperConfigFolder, `${dmName}.dmc`);
                     if (!fs.existsSync(dmcFilePath)) {
-                        fs.writeFileSync(dmcFilePath, dmContent);
+                        fs.writeFileSync(dmcFilePath, "");
                     }
                     const inputSchemaFilePath = path.join(dataMapperConfigFolder, `${dmName}_inputSchema.json`);
                     if (!fs.existsSync(inputSchemaFilePath)) {

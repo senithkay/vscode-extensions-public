@@ -20,7 +20,7 @@ import { useDMCollapsedFieldsStore, useDMSearchStore } from '../../store/store';
 import { ObjectOutputNode, InputNode } from '../Diagram/Node';
 import { GAP_BETWEEN_INPUT_NODES, IO_NODE_DEFAULT_WIDTH, OFFSETS, VISUALIZER_PADDING } from '../Diagram/utils/constants';
 import { LinkConnectorNode } from '../Diagram/Node/LinkConnector';
-import { DataImportNodeModel, OutputDataImportNodeModel } from '../Diagram/Node/DataImport/DataImportNode';
+import { InputDataImportNodeModel, OutputDataImportNodeModel } from '../Diagram/Node/DataImport/DataImportNode';
 
 export const useRepositionedNodes = (nodes: DataMapperNodeModel[], zoomLevel: number, diagramModel: DiagramModel) => {
     const nodesClone = [...nodes];
@@ -45,16 +45,16 @@ export const useRepositionedNodes = (nodes: DataMapperNodeModel[], zoomLevel: nu
             const nodeHeight = getIONodeHeight(node.numberOfFields);
             prevBottomY = computedY + nodeHeight;
         }
-        if (node instanceof DataImportNodeModel) {
+        if (node instanceof OutputDataImportNodeModel){
+            const x = (window.innerWidth - VISUALIZER_PADDING) * (100 / zoomLevel) - IO_NODE_DEFAULT_WIDTH;
+            const y = exisitingNode && exisitingNode.getY() !== 0 ? exisitingNode.getY() : 0;
+            node.setPosition(x, y);
+        }
+        if (node instanceof InputDataImportNodeModel) {
             const x = OFFSETS.SOURCE_NODE.X;
             const computedY = prevBottomY + (prevBottomY ? GAP_BETWEEN_INPUT_NODES : 0);
             let y = exisitingNode && exisitingNode.getY() !== 0 ? exisitingNode.getY() : computedY;
 
-            node.setPosition(x, y);
-        }
-        if (node instanceof OutputDataImportNodeModel){
-            const x = (window.innerWidth - VISUALIZER_PADDING) * (100 / zoomLevel) - IO_NODE_DEFAULT_WIDTH;
-            const y = exisitingNode && exisitingNode.getY() !== 0 ? exisitingNode.getY() : 0;
             node.setPosition(x, y);
         }
     });

@@ -88,6 +88,8 @@
         "displayName": "Script Keys",
         "title": "Registry Key Property",
         "description": "Editing of the properties of an object Registry Key Property",
+        "tableKey": "keyName",
+        "tableValue": "keyValue",
         "elements": [
           {
             "type": "attribute",

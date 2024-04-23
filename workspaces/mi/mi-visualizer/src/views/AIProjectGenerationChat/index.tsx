@@ -476,6 +476,10 @@ useEffect(() => {
     return segments;
   }
 
+  async function handleLogout() {
+     await rpcClient.getMiDiagramRpcClient().logoutFromMIAccount();
+  }
+
   const handleKeyPress = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -532,13 +536,24 @@ useEffect(() => {
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "95%", width: "100%", margin: "auto" }}>
       <div style={{ flex: 1, overflowY: "auto", padding: "10px", borderBottom: "1px solid #ccc" }}>
-      <div style={{ textAlign: "right" }}>
-          <Icon
-            name="trash-solid"
-            sx="width: 100%; height: 100%; cursor: pointer;"
-            onClick={() => handleClearChat()}
-          />
-        </div>
+      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+    <Icon
+        name="trash-solid"
+        sx="width: 100%; height: 100%; cursor: pointer;"
+        onClick={() => handleClearChat()}
+    />
+
+    <Button
+        appearance="primary"
+        onClick={() => handleLogout()}
+        tooltip="Logout"
+        className="custom-button-style"
+        disabled={isLoading}
+    >
+        <br />
+        <div style={{ color: 'var(--vscode-button-foreground)' }}>Logout</div>
+    </Button>
+</div>
        {otherMessages.map((message, index) => (
         <div key={index} style={{ marginBottom: "8px" }}>
         {message.type !== "question" && message.type !== "label" && <strong>{message.role}:</strong>}

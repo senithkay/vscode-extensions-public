@@ -11,6 +11,11 @@
 import { JSONSchema3or4 } from "to-json-schema";
 import toJsonSchema = require("to-json-schema");
 import xmltojs = require("xml2js");
+import transformTypescript from "@babel/plugin-transform-typescript";
+import getBabelOptions from "recast/parsers/_babel_options";
+import { parser } from "recast/parsers/babel";
+import { parse, print } from "recast";
+import { transformFromAstSync } from "@babel/core";
 
 const HTTP_WSO2JSONSCHEMA_ORG = "http://wso2jsonschema.org";
 const HTTP_JSON_SCHEMA_ORG_DRAFT_04_SCHEMA = "http://wso2.org/json-schema/wso2-data-mapper-v5.0.0/schema#";
@@ -69,4 +74,36 @@ export function generateSchemaForXML(fileContent: string, fileType: string, titl
         schema = generateSchemaForJSON(JSON.stringify(input), fileType, title);
     });
     return schema;
+}
+
+export function convertTypeScriptToJavascript(fileContent: string): string {
+    try {
+        const ast = parse(fileContent, {
+          parser: {
+            parse: (source, options) => {
+              const babelOptions = getBabelOptions(options);
+              babelOptions.plugins.push("typescript", "jsx");
+              return parser.parse(source, babelOptions);
+            }
+          }
+        });
+    
+        const options = {
+          cloneInputAst: false, 
+          code: false,
+          ast: true,
+          plugins: [transformTypescript],
+          configFile: false
+        };
+        const { ast: transformedAST } = transformFromAstSync(
+          ast,
+          fileContent,
+          options
+        );
+        const result = print(transformedAST).code;
+        return result;
+      } catch (e) {
+        console.error(e);
+        return "";
+      }
 }

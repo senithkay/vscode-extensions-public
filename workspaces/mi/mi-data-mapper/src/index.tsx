@@ -89,6 +89,7 @@ export function DataMapperView(props: DataMapperViewProps) {
                     fnST={functionST}
                     inputTrees={inputTrees}
                     outputTree={outputTree}
+                    fileContent={fileContent}
                     goToSource={goToSource}
                     applyModifications={applyModifications}
                     filePath={filePath}

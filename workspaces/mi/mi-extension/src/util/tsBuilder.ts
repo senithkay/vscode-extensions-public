@@ -13,6 +13,7 @@ import * as fs from "fs";
 import * as os from 'os';
 import path = require("path");
 import { Uri, workspace } from "vscode";
+import { convertTypeScriptToJavascript } from './schemaBuilder';
 
 export function generateTSInterfacesFromSchemaFile(schemaPath: string): Promise<string> {
     const ts = compileFromFile(schemaPath, {bannerComment: ""});
@@ -24,11 +25,14 @@ export async function updateDMC(dmName:string, sourcePath: string): Promise<stri
     if (workspaceFolder) {
         const dataMapperConfigFolder = path.join(
             workspaceFolder.uri.fsPath,  'src', 'main', 'wso2mi', 'resources', 'registry', 'gov', 'datamapper');
-        const dmcFilePath = path.join(dataMapperConfigFolder, `${dmName}.ts`);
+        const tsFilepath = path.join(dataMapperConfigFolder, `${dmName}.ts`);
         const inputSchemaPath = path.join(dataMapperConfigFolder, `${dmName}_inputSchema.json`);
         const outputSchemaPath = path.join(dataMapperConfigFolder, `${dmName}_outputSchema.json`);
+        const dmcFilePath = path.join(dataMapperConfigFolder, `${dmName}.dmc`);
 
-        let dmcContent = "";
+        let tsContent = "";
+
+        tsContent += `function mapFunction(input: InputRoot): OutputRoot {\nreturn {}\n};\n\n`;
 
         const inputSchemaContent = fs.readFileSync(inputSchemaPath, 'utf8');
         const outputSchemaContent = fs.readFileSync(outputSchemaPath, 'utf8');
@@ -38,9 +42,9 @@ export async function updateDMC(dmName:string, sourcePath: string): Promise<stri
             if (inputTSInterfaces.startsWith("export ")) {
                 inputTSInterfaces = inputTSInterfaces.replace("export ", "");
             }
-            dmcContent += `${inputTSInterfaces}\n\n`;
+            tsContent += `${inputTSInterfaces}\n\n`;
         } else {
-            dmcContent += "interface InputRoot {\n}\n\n";
+            tsContent += "interface InputRoot {\n}\n\n";
         }
 
         if (outputSchemaContent.length > 0) {
@@ -48,13 +52,13 @@ export async function updateDMC(dmName:string, sourcePath: string): Promise<stri
             if (outputTSInterfaces.startsWith("export ")) {
                 outputTSInterfaces = outputTSInterfaces.replace("export ", "");
             }
-            dmcContent += `${outputTSInterfaces}\n\n`;
+            tsContent += `${outputTSInterfaces}\n\n`;
         } else {
-            dmcContent += "interface OutputRoot {\n}\n\n";
+            tsContent += "interface OutputRoot {\n}\n";
         }
-
-        dmcContent += `function mapFunction(input: InputRoot): OutputRoot {\nreturn {}\n};`;
-        fs.writeFileSync(dmcFilePath, dmcContent);
+        fs.writeFileSync(tsFilepath, tsContent);
+        const jsContent = convertTypeScriptToJavascript(tsContent);
+        fs.writeFileSync(dmcFilePath, jsContent);
     }
     return "";
 }

@@ -11,7 +11,7 @@ import { Visitor } from "../../ts/base-visitor";
 import { ObjectOutputNode, InputNode, LinkConnectorNode } from "../Diagram/Node";
 import { DataMapperNodeModel } from "../Diagram/Node/commons/DataMapperNode";
 import { DataMapperContext } from "../../utils/DataMapperContext/DataMapperContext";
-import { DataImportNodeModel, OutputDataImportNodeModel } from "../Diagram/Node/DataImport/DataImportNode";
+import { InputDataImportNodeModel, OutputDataImportNodeModel } from "../Diagram/Node/DataImport/DataImportNode";
 import { getPropertyAccessNodes, isConditionalExpression } from "../Diagram/utils/common-utils";
 
 export class NodeInitVisitor implements Visitor {
@@ -19,7 +19,7 @@ export class NodeInitVisitor implements Visitor {
     private outputNode: DataMapperNodeModel;
     private intermediateNodes: DataMapperNodeModel[] = [];
     private mapIdentifiers: Node[] = [];
-    private dataimportNode: DataImportNodeModel;
+    private inputDataimportNode: InputDataImportNodeModel;
     private outputDataImportNode: OutputDataImportNodeModel;
 
     constructor(
@@ -48,8 +48,8 @@ export class NodeInitVisitor implements Visitor {
         }
 
         // Create data import node
-        this.dataimportNode = new DataImportNodeModel();
-        this.dataimportNode.setPosition(0, 0);
+        this.inputDataimportNode = new InputDataImportNodeModel();
+        this.inputDataimportNode.setPosition(0, 0);
 
         // Create output data import node
         this.outputDataImportNode = new OutputDataImportNodeModel();
@@ -100,24 +100,23 @@ export class NodeInitVisitor implements Visitor {
 
     getNodes() {
         const nodes:DataMapperNodeModel[] = [];
-        console.log("Input nodes", this.inputNodes);
-        console.log("Output node", this.outputNode);
         if (this.inputNodes) {
             const inputNode: InputNode = this.inputNodes[0] as InputNode;
-            if (inputNode.dmType && inputNode.dmType.fields && inputNode.dmType.fields.length > 1) {
+            if (inputNode.dmType && inputNode.dmType.fields && inputNode.dmType.fields.length > 0) {
                 nodes.push(...this.inputNodes);
             } else {
-                nodes.push(this.dataimportNode);
+                nodes.push(this.inputDataimportNode);
             }
         }
         if (this.outputNode) {
             const outNode: ObjectOutputNode = this.outputNode as ObjectOutputNode;
-            if (outNode.dmType && outNode.dmType.fields && outNode.dmType.fields.length > 1) {
+            if (outNode.dmType && outNode.dmType.fields && outNode.dmType.fields.length > 0) {
                 nodes.push(this.outputNode);
             } else {
                 nodes.push(this.outputDataImportNode);
             }
         }
+        nodes.push(...this.intermediateNodes);
         return nodes;
     }
 }

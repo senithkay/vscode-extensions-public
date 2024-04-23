@@ -14,7 +14,7 @@ import { openAIWebview } from './ai-panel/aiMachine';
 import { AiPanelWebview } from './ai-panel/webview';
 import { activateProjectExplorer } from './project-explorer/activate';
 import { StateMachineAI } from './ai-panel/aiMachine';
-import { getSourceCode } from './util/dataMapper';
+import { getSources } from './util/dataMapper';
 
 interface MachineContext extends VisualizerLocation {
     langClient: ExtendedLanguageClient | null;
@@ -312,36 +312,17 @@ const stateMachine = createMachine<MachineContext>({
                                     viewLocation.view = MACHINE_VIEW.ResourceView;
                                     viewLocation.stNode = node.api.resource[context.identifier];
                                 }
-                                if (context.dataMapperProps?.filePath) {
-                                    const filePath = context.dataMapperProps?.filePath!;
-                                    const functionName = "mapFunction";
-    
-                                    const fileContent = getSourceCode(filePath);
-                                    viewLocation.dataMapperProps = {
-                                        filePath: filePath,
-                                        functionName: functionName,
-                                        fileContent: fileContent
-                                    };
-    
-                                    viewLocation.view = MACHINE_VIEW.DataMapperView;
-                                }
+                                openDataMapperViewIfAvailable(context, viewLocation);
                                 break;
                             case !!node.proxy:
                                 viewLocation.view = MACHINE_VIEW.ProxyView;
                                 viewLocation.stNode = node.proxy;
+                                openDataMapperViewIfAvailable(context, viewLocation);
                                 break;
-                            case !!node.data_mapper:
-                                const filePath = context.dataMapperProps?.filePath!;
-                                const functionName = "mapFunction";
-
-                                const fileContent = getSourceCode(filePath);
-                                viewLocation.dataMapperProps = {
-                                    filePath: filePath,
-                                    functionName: functionName,
-                                    fileContent: fileContent
-                                };
-
-                                viewLocation.view = MACHINE_VIEW.DataMapperView;
+                            case !!node.sequence:
+                                viewLocation.view = MACHINE_VIEW.SequenceView;
+                                viewLocation.stNode = node.sequence;
+                                openDataMapperViewIfAvailable(context, viewLocation);
                                 break;
                             default:
                                 // Handle default case
@@ -416,6 +397,23 @@ export function openView(type: EVENT_TYPE, viewLocation?: VisualizerLocation) {
     }
     updateProjectExplorer(viewLocation);
     stateService.send({ type: type, viewLocation: viewLocation });
+}
+
+export function openDataMapperViewIfAvailable(context: MachineContext,  viewLocation: VisualizerLocation) {
+    if (context.dataMapperProps?.filePath) {
+        const filePath = context.dataMapperProps?.filePath!;
+        const functionName = "mapFunction";
+
+        const [fnSource, interfacesSource] = getSources(filePath);
+        viewLocation.dataMapperProps = {
+            filePath: filePath,
+            functionName: functionName,
+            fileContent: fnSource,
+            interfacesSource: interfacesSource
+        };
+
+        viewLocation.view = MACHINE_VIEW.DataMapperView;
+    }
 }
 
 export function navigate() {

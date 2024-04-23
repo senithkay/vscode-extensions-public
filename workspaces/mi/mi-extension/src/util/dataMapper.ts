@@ -10,8 +10,6 @@ import { ts, Node, Project, SourceFile, Type, ParameterDeclaration } from 'ts-mo
 import * as path from 'path';
 import { DMType, TypeKind } from '@wso2-enterprise/mi-core';
 
-let sourceFile: SourceFile;
-
 let inputTypes: DMType[] = [];
 let outputType: DMType | undefined;
 
@@ -22,8 +20,8 @@ export function fetchIOTypes(filePath: string, functionName: string) {
     try {
         const resolvedPath = path.resolve(filePath);
         const project = new Project();
-        sourceFile = project.addSourceFileAtPath(resolvedPath);
-        findInputsAndOutput(functionName);
+        const sourceFile = project.addSourceFileAtPath(resolvedPath);
+        findInputsAndOutput(functionName, sourceFile);
     } catch (error: any) {
         throw new Error("[MI Data Mapper] Failed to fetch input/output types. " + error.message);
     }
@@ -31,29 +29,43 @@ export function fetchIOTypes(filePath: string, functionName: string) {
     return { inputTypes, outputType };
 }
 
-export function getSourceCode(resolvedPath: string) {
-    const sourceCode = ts.sys.readFile(resolvedPath, 'utf-8');
+export function getSources(filePath: string) {
+    let fileContent: string;
+    let interfaceSource: string;
+    try {
+        const resolvedPath = path.resolve(filePath);
+        const project = new Project();
+        const sourceFile = project.addSourceFileAtPath(resolvedPath);
 
-    if (!sourceCode) {
-        throw new Error("[MI Data Mapper] File not found.");
+        fileContent = sourceFile.getText();
+        interfaceSource = sourceFile.getInterfaces().map((interfaceNode) => {
+            return interfaceNode.getText();
+        }).join('\n');
+
+    } catch (error: any) {
+        throw new Error("[MI Data Mapper] Failed to fetch input/output types. " + error.message);
     }
-    return sourceCode;
+
+    if (!fileContent || !interfaceSource) {
+        throw new Error("[MI Data Mapper] Function or interfaces not found in the source file.");
+    }
+    return [fileContent, interfaceSource];
 }
 
 // Find inputs and output types
-function findInputsAndOutput(functionName: string) {
+function findInputsAndOutput(functionName: string, sourceFile: SourceFile) {
     const fn = sourceFile.getFunctionOrThrow(functionName);
 
     if (fn) {
         fn.getParameters().forEach((param) => {
-            inputTypes.push(getTypeInfo(param.getType()));
+            inputTypes.push(getTypeInfo(param.getType(), sourceFile));
         });
-        outputType = getTypeInfo(fn.getReturnType())
+        outputType = getTypeInfo(fn.getReturnType(), sourceFile);
     }
 }
 
 // Function to extract type information
-function getTypeInfo(typeNode: Type): DMType {
+function getTypeInfo(typeNode: Type, sourceFile: SourceFile): DMType {
     if (typeNode.isInterface()) {
         const typeName = typeNode.getText();
         const interfaceNode = sourceFile.getInterface(typeName);
@@ -62,7 +74,7 @@ function getTypeInfo(typeNode: Type): DMType {
             const fields = interfaceNode.getMembers().map(member => {
                 if (Node.isPropertySignature(member)) {
                     return {
-                        ...getTypeInfo(member.getType()!),
+                        ...getTypeInfo(member.getType()!, sourceFile),
                         fieldName: member.getName()
                     }
                 }
@@ -75,7 +87,7 @@ function getTypeInfo(typeNode: Type): DMType {
         }
     }
     else if (typeNode.isArray()) {
-        const elementType = getTypeInfo(typeNode.getArrayElementType()!);
+        const elementType = getTypeInfo(typeNode.getArrayElementType()!, sourceFile);
         return {
             kind: TypeKind.Array,
             memberType: elementType

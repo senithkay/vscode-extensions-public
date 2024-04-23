@@ -15,6 +15,7 @@ import {
     SidePanelBody,
     Codicon,
     AutoComplete,
+    ComponentCard
 } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
@@ -24,6 +25,18 @@ const SidePanelBodyWrapper = styled.div`
     display: flex;
     flex-direction: column;
     gap: 10px;
+`;
+
+const cardStyle = { 
+    display: "block",
+    margin: "15px 0",
+    padding: "0 15px 15px 15px",
+    width: "auto",
+    cursor: "auto"
+ };
+
+ const Field = styled.div`
+   margin-bottom: 12px;
 `;
 
 export type ImportDataWizardProps = {
@@ -51,7 +64,6 @@ export function ImportDataForm(props: ImportDataWizardProps) {
         }
         await rpcClient.getMiDataMapperRpcClient().browseSchema(request).then(response => {
             const filePathStr = response.filePath;
-            console.log(filePathStr);
             setSidePanelOpen(false);
             rpcClient.getMiDiagramRpcClient().getProjectRoot({ path: documentUri })
                 .then(response => {
@@ -70,7 +82,9 @@ export function ImportDataForm(props: ImportDataWizardProps) {
                     });
                 })
             
-        }).catch(e => { console.log(e); });
+        }).catch(e => {
+            console.error("Error while importing schema", e);
+        });
     }
 
     return (
@@ -87,10 +101,14 @@ export function ImportDataForm(props: ImportDataWizardProps) {
                 </SidePanelTitleContainer>
                 <SidePanelBody>
                     <SidePanelBodyWrapper>
-                        <h3>Import {ioType} Schema</h3>
-                        <AutoComplete label="Resource Type" items={["JSON", "JSONSCHEMA", "XML"]} 
-                            onValueChange={(e: any) => setSelectedResourceType(e)}/>
-                        <Button appearance="primary" onClick={loadSchema}>Import</Button>
+                        <ComponentCard sx={cardStyle} disbaleHoverEffect>
+                            <h3>Import {ioType} Schema</h3>
+                            <Field>
+                                <AutoComplete label="Resource Type" items={["JSON", "JSONSCHEMA", "XML"]} 
+                                    borderBox onValueChange={(e: any) => setSelectedResourceType(e)}/>
+                            </Field>
+                            <Button appearance="primary" onClick={loadSchema}>Import</Button>
+                        </ComponentCard>
                     </SidePanelBodyWrapper>
                 </SidePanelBody>
         </SidePanel>

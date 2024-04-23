@@ -17,120 +17,117 @@ import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
 import { MEDIATORS } from '../../../../../resources/constants';
 import { VSCodeRadio, VSCodeRadioGroup } from "@vscode/webview-ui-toolkit/react";
-import { EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
 
 const cardStyle = { 
-   display: "block",
-   margin: "15px 0",
-   padding: "0 15px 15px 15px",
-   width: "auto",
-   cursor: "auto"
+    display: "block",
+    margin: "15px 0",
+    padding: "0 15px 15px 15px",
+    width: "auto",
+    cursor: "auto"
 };
 
 const Error = styled.span`
-   color: var(--vscode-errorForeground);
-   font-size: 12px;
+    color: var(--vscode-errorForeground);
+    font-size: 12px;
 `;
 
 const Field = styled.div`
-   margin-bottom: 12px;
+    margin-bottom: 12px;
 `;
 
 const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g;
 const nameWithoutSpecialCharactorsRegex = /^[a-zA-Z0-9]+$/g;
 
 const DataMapperForm = (props: AddMediatorProps) => {
-   const { rpcClient } = useVisualizerContext();
-   const sidePanelContext = React.useContext(SidePanelContext);
-   const [formValues, setFormValues] = useState({} as { [key: string]: any });
-   const [errors, setErrors] = useState({} as any);
-   const [createOption, setCreateOption] = useState("new");
-   const [configName, setConfigName] = useState("");
+    const { rpcClient } = useVisualizerContext();
+    const sidePanelContext = React.useContext(SidePanelContext);
+    const [formValues, setFormValues] = useState({} as { [key: string]: any });
+    const [errors, setErrors] = useState({} as any);
+    const [createOption, setCreateOption] = useState("new");
+    const [configName, setConfigName] = useState("");
 
-   useEffect(() => {
+    useEffect(() => {
        if (sidePanelContext.formValues && Object.keys(sidePanelContext.formValues).length > 0) {
-           setFormValues({ ...formValues, ...sidePanelContext.formValues });
+            setFormValues({ ...formValues, ...sidePanelContext.formValues });
        } else {
-           setFormValues({
-       "inputType": "XML",
-       "outputType": "XML",});
-       }
-   }, [sidePanelContext.formValues]);
+            setFormValues({
+                "inputType": "JSON",
+                "outputType": "JSON"});
+            }
+    }, [sidePanelContext.formValues]);
 
-   useEffect(() => {
+    useEffect(() => {
         deriveConfigName();
         formValues.configurationLocalPath = 'gov:/datamapper/' + configName + '.dmc';
         formValues.inputSchemaLocalPath = 'gov:/datamapper/' + configName + '_inputSchema.json';
         formValues.outputSchemaLocalPath = 'gov:/datamapper/' + configName + '_outputSchema.json';
-        if (sidePanelContext.formValues && Object.keys(sidePanelContext.formValues).length > 0) {
-            setFormValues({ ...sidePanelContext.formValues, ...formValues });
-        } else {
-            setFormValues({...formValues });
-        }
-   }, [configName]);
+        formValues.inputType = sidePanelContext.formValues.inputType;
+        formValues.outputType = sidePanelContext.formValues.outputType;
+        setFormValues({...formValues });
+    }, [configName]);
 
-   const dmConfigs: string[] = []
-   rpcClient.getMiDataMapperRpcClient().loadDMConfigs({filePath: props.documentUri}).then(response => {
+    const dmConfigs: string[] = []
+    rpcClient.getMiDataMapperRpcClient().loadDMConfigs({filePath: props.documentUri}).then(response => {
         dmConfigs.push(...response.dmConfigs);
-   });
+    });
 
-   const onClick = async () => {
-       const newErrors = {} as any;
-       Object.keys(formValidators).forEach((key) => {
-           const error = formValidators[key]();
-           if (error) {
-               newErrors[key] = (error);
-           }
-       });
-       if (Object.keys(newErrors).length > 0) {
-           setErrors(newErrors);
-       } else {
-           const xml = getXML(MEDIATORS.DATAMAPPER, formValues);
-           rpcClient.getMiDiagramRpcClient().applyEdit({
-               documentUri: props.documentUri, range: props.nodePosition, text: xml
-           });
-           sidePanelContext.setSidePanelState({
-                ...sidePanelContext,
-                isOpen: false,
-                isEditing: false,
-                formValues: undefined,
-                nodeRange: undefined,
-                operationName: undefined
-              });
-       }
-   };
+    const onClick = async () => {
+        const newErrors = {} as any;
+        Object.keys(formValidators).forEach((key) => {
+            const error = formValidators[key]();
+            if (error) {
+                newErrors[key] = (error);
+            }
+        });
+        if (Object.keys(newErrors).length > 0) {
+            setErrors(newErrors);
+        } else {
+            const xml = getXML(MEDIATORS.DATAMAPPER, formValues);
+            rpcClient.getMiDiagramRpcClient().applyEdit({
+                documentUri: props.documentUri, range: props.nodePosition, text: xml
+            });
+            sidePanelContext.setSidePanelState({
+                    ...sidePanelContext,
+                    isOpen: false,
+                    isEditing: false,
+                    formValues: undefined,
+                    nodeRange: undefined,
+                    operationName: undefined
+                });
+        }
+    };
 
-   const formValidators: { [key: string]: (e?: any) => string | undefined } = {
-       "description": (e?: any) => validateField("description", e, false),
-       "configurationLocalPath": (e?: any) => validateField("configurationLocalPath", e, false),
-       "inputType": (e?: any) => validateField("inputType", e, false),
-       "inputSchemaLocalPath": (e?: any) => validateField("inputSchemaLocalPath", e, false),
-       "outputType": (e?: any) => validateField("outputType", e, false),
-       "outputSchemaLocalPath": (e?: any) => validateField("outputSchemaLocalPath", e, false),
+    const formValidators: { [key: string]: (e?: any) => string | undefined } = {
+        "description": (e?: any) => validateField("description", e, false),
+        "configurationLocalPath": (e?: any) => validateField("configurationLocalPath", e, false),
+        "inputType": (e?: any) => validateField("inputType", e, false),
+        "inputSchemaLocalPath": (e?: any) => validateField("inputSchemaLocalPath", e, false),
+        "outputType": (e?: any) => validateField("outputType", e, false),
+        "outputSchemaLocalPath": (e?: any) => validateField("outputSchemaLocalPath", e, false),
 
-   };
+    };
 
-   const validateField = (id: string, e: any, isRequired: boolean, validation?: "e-mail" | "nameWithoutSpecialCharactors" | "custom", regex?: string): string => {
-       const value = e ?? formValues[id];
-       const newErrors = { ...errors };
-       let error;
-       if (isRequired && !value) {
-           error = "This field is required";
-       } else if (validation === "e-mail" && !value.match(emailRegex)) {
-           error = "Invalid e-mail address";
-       } else if (validation === "nameWithoutSpecialCharactors" && !value.match(nameWithoutSpecialCharactorsRegex)) {
-           error = "Invalid name";
-       } else if (validation === "custom" && !value.match(regex)) {
-           error = "Invalid input";
-       } else {
-           delete newErrors[id];
-           setErrors(newErrors);
-       }
-       setErrors({ ...errors, [id]: error });
-       return error;
-   };
+    const validateField = (id: string, e: any, isRequired: boolean, validation?: "e-mail" | "nameWithoutSpecialCharactors" | "custom", regex?: string): string => {
+        const value = e ?? formValues[id];
+        const newErrors = { ...errors };
+        let error;
+        if (isRequired && !value) {
+            error = "This field is required";
+        } else if (validation === "e-mail" && !value.match(emailRegex)) {
+            error = "Invalid e-mail address";
+        } else if (validation === "nameWithoutSpecialCharactors" && !value.match(nameWithoutSpecialCharactorsRegex)) {
+            error = "Invalid name";
+        } else if (validation === "custom" && !value.match(regex)) {
+            error = "Invalid input";
+        } else {
+            delete newErrors[id];
+            setErrors(newErrors);
+        }
+        setErrors({ ...errors, [id]: error });
+        return error;
+    };
 
-   const onOptionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const onOptionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setCreateOption(e.target.value);
     };
 
@@ -227,7 +224,7 @@ const DataMapperForm = (props: AddMediatorProps) => {
 
                     <Field>
                         <label>Input Type</label>
-                        <AutoComplete items={[ "JSON", "XML", "CSV"]} value={formValues["inputType"]} onValueChange={(e: any) => {
+                        <AutoComplete items={[ "JSON", "XML", "CSV"]} value={formValues['inputType']} onValueChange={(e: any) => {
                             setFormValues({ ...formValues, "inputType": e });
                             formValidators["inputType"](e);
                         }} />
@@ -251,7 +248,7 @@ const DataMapperForm = (props: AddMediatorProps) => {
 
                     <Field>
                         <label>Output Type</label>
-                        <AutoComplete items={["JSON", "XML", "CSV"]} value={formValues["outputType"]} onValueChange={(e: any) => {
+                        <AutoComplete items={["JSON", "XML", "CSV"]} value={formValues['outputType']} onValueChange={(e: any) => {
                             setFormValues({ ...formValues, "outputType": e });
                             formValidators["outputType"](e);
                         }} />
@@ -269,9 +266,7 @@ const DataMapperForm = (props: AddMediatorProps) => {
                             hidden
                         />
                     </Field>
-
                 </ComponentCard>
-
             </ComponentCard>
 
 

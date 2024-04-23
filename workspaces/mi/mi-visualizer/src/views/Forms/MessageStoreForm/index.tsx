@@ -136,7 +136,7 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
     const [artifactNames, setArtifactNames] = useState([]);
     const [workspaceFileNames, setWorkspaceFileNames] = useState([]);
     const [rows, setRows] = useState<CustomParameter[]>([]);
-    const [isNewStore, setIsNewStore] = useState(true);
+    const isNewStore = !props.path.endsWith(".xml");
     const [preConfiguredProfile, setPreConfiguredProfile] = useState("Other");
     const [rdbmsType, setRdbmsType] = useState("Other");
     const [type, setType] = useState("");
@@ -236,7 +236,6 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
         handleSubmit,
         getValues,
         watch,
-        trigger,
         control,
         setValue
     } = useForm<InputsFields>({
@@ -343,10 +342,9 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
     }, [storeName]);
 
     useEffect(() => {
-        if (props.path) {
+        if (props.path.endsWith(".xml")) {
             (async () => {
                 const messageStore = await rpcClient.getMiDiagramRpcClient().getMessageStore({ path: props.path });
-                console.log("messageStore", messageStore);
                 if (messageStore.name) {
                     if (messageStore.dataSourceName) {
                         messageStore.connectionInformationType = "Carbon Datasource";
@@ -383,11 +381,13 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                         });
                     };
                     setStoreName(messageStore.name);
-                    setIsNewStore(false);
                     setType(messageStore.type);
                     reset(messageStore);
                 }
             })();
+        } else {
+            reset(initialMessageStore);
+            setMessageStoreType("");
         }
     }, [props.path]);
 
@@ -421,13 +421,12 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
             }
             else if (type === "JDBC Message Store") {
                 reset({ ...getValues(), ...jdbcInitialValues() });
-                console.log("here -------------1");
                 setValue("connectionInformationType", "Pool");
             }
             else if (type === "WSO2 MB Message Store") {
                 reset({ ...getValues(), ...wso2MbInitialValues() });
             }
-            else if (type === "Resquence Message Store") {
+            else if (type === "Resequence Message Store") {
                 reset({ ...getValues(), ...resequenceInitialValues() });
                 setValue("connectionInformationType", "Pool");
             }
@@ -516,7 +515,7 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
             driver: values.driver,
             url: values.url,
             user: values.user,
-            dataSourceName: values.dataSourceName,
+            dataSourceName: getValues("connectionInformationType") === "Pool" ? "" : values.dataSourceName,
             queueConnectionFactory: values.queueConnectionFactory,
             pollingCount: values.pollingCount,
             xPath: values.xPath,
@@ -524,7 +523,7 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
             failOverMessageStore: values.failOverMessageStore,
             customParameters: removeDuplicateParameters(),
         };
-        const file = await rpcClient.getMiDiagramRpcClient().createMessageStore(createMessageStoreParams);
+        await rpcClient.getMiDiagramRpcClient().createMessageStore(createMessageStoreParams);
         openOverview();
     };
 
@@ -614,11 +613,12 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                                     {...register("cacheConnection")}
                                     control={control}
                                 />
-                                <AutoComplete
+                                <FormAutoComplete
+                                    name="jmsAPIVersion"
                                     label="JMS API Version"
                                     items={["1.0", "1.1"]}
-                                    sx={{ width: "100%" }}
-                                    {...renderProps("jmsAPIVersion")}
+                                    control={control}
+                                    {...register("jmsAPIVersion")}
                                 />
                             </FormGroup>
 
@@ -849,11 +849,12 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                                 />
                             </FormGroup>
                             <FormGroup title="Advanced Properties">
-                                <AutoComplete
+                                <FormAutoComplete
+                                    name="jmsAPIVersion"
                                     label="JMS API Version"
                                     items={["1.0", "1.1"]}
-                                    sx={{ width: "100%" }}
-                                    {...renderProps("jmsAPIVersion")}
+                                    control={control}
+                                    {...register("jmsAPIVersion")}
                                 />
                                 <FormCheckBox
                                     label="Cache Connection"
@@ -874,10 +875,11 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                                     required
                                     {...renderProps("dataBaseTable")}
                                 />
-                                <AutoComplete
+                                <FormAutoComplete
+                                    name="connectionInformationType"
                                     label="Connection Information Type"
                                     items={["Pool", "Carbon Datasource"]}
-                                    sx={{ width: "100%" }}
+                                    control={control}
                                     {...register("connectionInformationType")}
                                 />
                                 {watch("connectionInformationType") === "Pool" && (

@@ -35,6 +35,7 @@ export interface MIDataMapperProps {
     fnST: FunctionDeclaration;
     inputTrees: DMType[];
     outputTree: DMType;
+    fileContent: string;
     goToSource: (range: Range) => void;
     applyModifications: () => void;
     filePath: string;
@@ -46,6 +47,7 @@ export function MIDataMapper(props: MIDataMapperProps) {
         fnST,
         inputTrees,
         outputTree,
+        fileContent,
         goToSource,
         applyModifications,
         configName,
@@ -67,7 +69,7 @@ export function MIDataMapper(props: MIDataMapperProps) {
             setNodes(nodeInitVisitor.getNodes());
         }
         generateNodes();
-    }, [fnST]);
+    }, [fileContent]);
 
     return (
         <div className={classes.root}>

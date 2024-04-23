@@ -146,6 +146,8 @@ import {
     GetAllRegistryPathsResponse,
     GetAllArtifactsRequest,
     GetAllArtifactsResponse,
+    GetConnectionFormRequest,
+    GetConnectionFormResponse,
 } from "./types";
 import { RequestType, NotificationType } from "vscode-messenger-common";
 
@@ -229,11 +231,13 @@ export const downloadConnector: RequestType<DownloadConnectorRequest, DownloadCo
 export const getAvailableConnectors: RequestType<GetAvailableConnectorRequest, GetAvailableConnectorResponse> = { method: `${_preFix}/getAvailableConnectors` };
 export const updateConnectors: NotificationType<UpdateConnectorRequest> = { method: `${_preFix}/updateConnectors` };
 export const getConnectorForm: RequestType<GetConnectorFormRequest, GetConnectorFormResponse> = { method: `${_preFix}/getConnectorForm` };
+export const getConnectionForm: RequestType<GetConnectionFormRequest, GetConnectionFormResponse> = { method: `${_preFix}/getConnectionForm` };
 export const createDataSource: RequestType<DataSourceTemplate, CreateDataSourceResponse> = { method: `${_preFix}/createDataSource` };
 export const getDataSource: RequestType<GetDataSourceRequest, DataSourceTemplate> = { method: `${_preFix}/getDataSource` };
 export const getIconPathUri: RequestType<GetIconPathUriRequest, GetIconPathUriResponse> = { method: `${_preFix}/getIconPathUri` };
 export const getUserAccessToken: RequestType<void, GetUserAccessTokenResponse> = { method: `${_preFix}/getUserAccessToken` };
 export const createConnection: RequestType<CreateConnectionRequest, CreateConnectionResponse> = { method: `${_preFix}/createConnection` };
 export const getConnectorConnections: RequestType<GetConnectorConnectionsRequest, GetConnectorConnectionsResponse> = { method: `${_preFix}/getConnectorConnections` };
+export const logoutFromMIAccount: NotificationType<void> = { method: `${_preFix}/logoutFromMIAccount` };
 export const getAllRegistryPaths: RequestType<GetAllRegistryPathsRequest, GetAllRegistryPathsResponse> = { method: `${_preFix}/getAllRegistryPaths` };
 export const getAllArtifacts: RequestType<GetAllArtifactsRequest, GetAllArtifactsResponse> = { method: `${_preFix}/getAllArtifacts` };

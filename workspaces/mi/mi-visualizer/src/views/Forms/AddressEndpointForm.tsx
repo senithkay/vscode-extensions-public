@@ -15,6 +15,7 @@ import {useForm} from "react-hook-form";
 import * as yup from "yup";
 import {yupResolver} from "@hookform/resolvers/yup";
 import AddToRegistry, {formatRegistryPath, saveToRegistry, getArtifactNamesAndRegistryPaths} from "./AddToRegistry";
+import { FormKeylookup } from "@wso2-enterprise/mi-diagram-2";
 
 interface OptionProps {
     value: string;
@@ -38,6 +39,10 @@ type InputsFields = {
     addressingVersion?: string;
     addressListener?: string;
     securityEnabled?: string;
+    seperatePolicies: boolean;
+    policyKey?: string;
+    inboundPolicyKey?: string;
+    outboundPolicyKey?: string;
     suspendErrorCodes?: string;
     initialDuration?: number;
     maximumDuration?: number;
@@ -69,6 +74,10 @@ const newAddressEndpoint: InputsFields = {
     addressingVersion: "",
     addressListener: "disable",
     securityEnabled: "disable",
+    seperatePolicies: false,
+    policyKey: "",
+    inboundPolicyKey: "",
+    outboundPolicyKey: "",
     suspendErrorCodes: "",
     initialDuration: -1,
     maximumDuration: Number.MAX_SAFE_INTEGER,
@@ -91,7 +100,7 @@ export function AddressEndpointWizard(props: AddressEndpointWizardProps) {
 
     const schema = yup.object({
         endpointName: props.type === 'endpoint' ? yup.string().required("Endpoint Name is required")
-                .matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in Endpoint Name")
+                .matches(/^[^@\\^+;:!%&,=*#[\]?'"<>{}() /]*$/, "Invalid characters in Endpoint Name")
                 .test('validateEndpointName',
                     'An artifact with same name already exists', value => {
                         return !isNewEndpoint ? !(workspaceFileNames.includes(value) && value !== savedEPName) : !workspaceFileNames.includes(value);
@@ -101,13 +110,13 @@ export function AddressEndpointWizard(props: AddressEndpointWizardProps) {
                         return !isNewEndpoint ? !(artifactNames.includes(value) && value !== savedEPName) : !artifactNames.includes(value);
                     }) :
             yup.string().required("Endpoint Name is required")
-                .matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in Endpoint Name"),
+                .matches(/^[^@\\^+;:!%&,=*#[\]?'"<>{}() /]*$/, "Invalid characters in Endpoint Name"),
         format: yup.string().notRequired().default("LEAVE_AS_IS"),
         traceEnabled: yup.string().notRequired().default("disable"),
         statisticsEnabled: yup.string().notRequired().default("disable"),
         uri: yup.string().required("Address Endpoint URI is required")
-            .matches(/^\{.+\}$|^(https?|ftp):\/\/(([a-z\d]([a-z\d-]*[a-z\d])?\.)+[a-z]{2,}|localhost(:[\d]*)?)(\/[-a-z\d%_.~+]*)*(\?[;&a-z\d%_.~+=-]*)?(\#[-a-z\d_]*)?$/i,
-                "Invalid URI template format"),
+            .matches(/^\$.+$|^\{.+\}$|^(https?|ftp):\/\/(([a-z\d]([a-z\d-]*[a-z\d])?\.)+[a-z]{2,}|localhost(:[\d]*)?)(\/[-a-z\d%_.~+]*)*(\?[;&a-z\d%_.~+=-]*)?(\#[-a-z\d_]*)?$/i,
+                "Invalid URI format"),
         optimize: yup.string().notRequired().default("LEAVE_AS_IS"),
         description: yup.string().notRequired().default(""),
         requireProperties: yup.boolean().notRequired().default(false),
@@ -115,6 +124,10 @@ export function AddressEndpointWizard(props: AddressEndpointWizardProps) {
         addressingVersion: yup.string().notRequired().default(""),
         addressListener: yup.string().notRequired().default("disable"),
         securityEnabled: yup.string().notRequired().default("disable"),
+        seperatePolicies: yup.boolean().notRequired().default(false),
+        policyKey: yup.string().notRequired().default(""),
+        inboundPolicyKey: yup.string().notRequired().default(""),
+        outboundPolicyKey: yup.string().notRequired().default(""),
         suspendErrorCodes: yup.string().notRequired().default(""),
         initialDuration: yup.number().typeError('Initial Duration must be a number').min(-1, "Initial Duration must be greater than -1").notRequired().default(-1),
         maximumDuration: yup.number().typeError('Maximum Duration must be a number').min(1, "Maximum Duration must be greater than 0").notRequired().default(Number.MAX_SAFE_INTEGER),
@@ -125,7 +138,7 @@ export function AddressEndpointWizard(props: AddressEndpointWizardProps) {
         timeoutDuration: yup.number().typeError('Timeout Duration must be a number').min(1, "Timeout Duration must be greater than 0").notRequired().default(Number.MAX_SAFE_INTEGER),
         timeoutAction: yup.string().notRequired().default(""),
         templateName: props.type === 'template' ? yup.string().required("Template Name is required")
-                .matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in Template Name")
+                .matches(/^[^@\\^+;:!%&,=*#[\]?'"<>{}() /]*$/, "Invalid characters in Template Name")
                 .test('validateTemplateName',
                     'An artifact with same name already exists', value => {
                         return !isNewEndpoint ? !(workspaceFileNames.includes(value) && value !== savedEPName) : !workspaceFileNames.includes(value);
@@ -455,7 +468,7 @@ export function AddressEndpointWizard(props: AddressEndpointWizardProps) {
                     </FormGroup>
                 </>
             )}
-            <FormGroup title="Basic Properties" isCollapsed={isTemplate}>
+            <FormGroup title="Basic Properties" isCollapsed={false}>
                 <TextField
                     placeholder="Endpoint Name"
                     label="Endpoint Name"
@@ -522,6 +535,43 @@ export function AddressEndpointWizard(props: AddressEndpointWizardProps) {
                     options={[{content: "Enable", value: "enable"}, {content: "Disable", value: "disable"}]}
                     {...renderProps('securityEnabled')}
                 />
+                {watch('securityEnabled') === 'enable' && <>
+                    <FormCheckBox
+                        name="seperatePolicies"
+                        label="Specify as Inbound and Outbound Policies"
+                        control={control}
+                    />
+                    {watch("seperatePolicies") ? <>
+                        <FormKeylookup
+                            control={control}
+                            label="Inbound Policy Key"
+                            name="inboundPolicyKey"
+                            filterType="xslt"
+                            path={props.path}
+                            errorMsg={errors.inboundPolicyKey?.message.toString()}
+                            {...register("inboundPolicyKey")}
+                        />
+                        <FormKeylookup
+                            control={control}
+                            label="Outbound Policy Key"
+                            name="outboundPolicyKey"
+                            filterType="xslt"
+                            path={props.path}
+                            errorMsg={errors.outboundPolicyKey?.message.toString()}
+                            {...register("outboundPolicyKey")}
+                        />
+                    </> : (
+                        <FormKeylookup
+                            control={control}
+                            label="Policy Key"
+                            name="policyKey"
+                            filterType="xslt"
+                            path={props.path}
+                            errorMsg={errors.policyKey?.message.toString()}
+                            {...register("policyKey")}
+                        />
+                    )}
+                </>}
             </FormGroup>
             <FormGroup title="Endpoint Error Handling" isCollapsed={true}>
                 <TextField
