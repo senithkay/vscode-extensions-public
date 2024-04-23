@@ -54,12 +54,21 @@ const VSCodeDataGridInlineCell = styled(VSCodeDataGridCell)`
     text-align: left;
     display: flex;
     justify-content: flex-start;
-    min-width: 220px;
+    flex-grow: 1;
+    white-space: nowrap;
     padding: 6px 10px;
     &:hover {
         color: var(--button-primary-foreground);
         background-color: var(--vscode-button-hoverBackground);
     };
+`;
+
+const VSCodeDataGridFlexRow = styled(VSCodeDataGridRow)`
+    display: flex;
+    padding: calc((var(--design-unit) / 4) * 1px) 0;
+    box-sizing: border-box;
+    width: 100%;
+    background: transparent;
 `;
 
 const ExpandedMenu = styled.div<ContainerProps>`
@@ -139,7 +148,8 @@ export const ContextMenu: React.FC<ContextMenuProps> = (props: ContextMenuProps)
             break;
     }
 
-    const handleClick = () => {
+    const handleClick = (event: React.MouseEvent<HTMLElement, MouseEvent>) => {
+        event.stopPropagation();
         setIsMenuOpen(true);
     };
 
@@ -171,7 +181,7 @@ export const ContextMenu: React.FC<ContextMenuProps> = (props: ContextMenuProps)
                     <ExpandedMenu ref={expandMenuRef} sx={menuSx} top={top} left={left}>
                         <VSCodeDataGrid aria-label="Context Menu">
                             {menuItems?.map(item => (
-                                <VSCodeDataGridRow
+                                <VSCodeDataGridFlexRow
                                     key={item.id}
                                     onClick={(event: React.MouseEvent<HTMLElement, MouseEvent>) => {
                                         if (!item?.disabled) {
@@ -189,7 +199,7 @@ export const ContextMenu: React.FC<ContextMenuProps> = (props: ContextMenuProps)
                                     id={`component-list-menu-${item.id}`}
                                 >
                                     <VSCodeDataGridInlineCell>{item.label}</VSCodeDataGridInlineCell>
-                                </VSCodeDataGridRow>
+                                </VSCodeDataGridFlexRow>
                             ))}
                         </VSCodeDataGrid>
                     </ExpandedMenu>,
