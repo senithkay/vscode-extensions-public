@@ -9,6 +9,7 @@
 
 import Mustache from "mustache";
 import { Call } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { checkAttributesExist } from "../../../commons";
 
 export function getCallMustacheTemplate() {
   return `
@@ -78,7 +79,7 @@ export function getCallMustacheTemplate() {
 `
 }
 
-export function getCallXml(data: { [key: string]: any }) {
+export function getCallXml(data: { [key: string]: any }, dirtyFields?: any, defaultValues?: any) {
 
   data.sourceOrTargetOrEndpoint = true;
 
@@ -113,11 +114,52 @@ export function getCallXml(data: { [key: string]: any }) {
     delete data.endpointXpath;
   }
 
-  let output = Mustache.render(getCallMustacheTemplate(), data).trim();
-  if (!data.isNewMediator && !data.editCall && output != "") {
-    output = "\t" + output;
+  if (defaultValues == undefined || Object.keys(defaultValues).length == 0) {
+    return getNewMediator(data);
   }
+
+  return getEdits(data, dirtyFields, defaultValues);
+}
+
+function getNewMediator(data: { [key: string]: any }) {
+  let newData = { ...data };
+  newData.isNewMediator = true;
+  let output = Mustache.render(getCallMustacheTemplate(), newData).trim();
   return output;
+}
+
+function getEdits(data: { [key: string]: any }, dirtyFields: any, defaultValues: any) {
+
+  let callTagAttributes = ["enableBlockingCalls", "initAxis2ClientOptions", "description"];
+  let endpointTagAttributes = ["endpointType", "endpointXpath", "endpointRegistryKey"];
+  let sourceTagAttributes = ["sourceType", "contentType", "sourceProperty", "sourcePayload", "sourceXPath"];
+  let targetTagAttributes = ["targetType", "targetProperty"];
+  let edits: { [key: string]: any }[] = [];
+
+  edits.push(getEdit("Call", data, defaultValues, true));
+  edits.push(getEdit("Endpoint", data, defaultValues, false));
+  edits.push(getEdit("Source", data, defaultValues, false));
+  edits.push(getEdit("Target", data, defaultValues, false));
+
+  edits.sort((a, b) => b.range.start.line - a.range.start.line);
+  return edits;
+}
+
+function getEdit(key: string, data: { [key: string]: any }, defaultValues: any, editStartTagOnly: boolean) {
+
+  let newData = { ...data };
+  newData["edit" + key] = true;
+  let output = Mustache.render(getCallMustacheTemplate(), newData).trim();
+  let range = defaultValues.ranges[key.toLowerCase()];
+  let editRange = {
+    start: range.startTagRange.start,
+    end: range.endTagRange.end ? range.endTagRange.end : range.startTagRange.end
+  }
+  let edit = {
+    text: output,
+    range: editRange
+  }
+  return edit;
 }
 
 export function getCallFormDataFromSTNode(data: { [key: string]: any }, node: Call) {

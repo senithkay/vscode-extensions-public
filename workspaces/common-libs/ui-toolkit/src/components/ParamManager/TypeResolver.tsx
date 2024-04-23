@@ -14,16 +14,20 @@ import { VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
 import { TextArea } from "../TextArea/TextArea";
 import { EnableCondition } from "./ParamManager";
 import { ExpressionField, ExpressionFieldValue } from "../ExpressionField/ExpressionInput";
+import { AutoComplete } from "../AutoComplete/AutoComplete";
 
 export interface Param {
     id: number;
     label: string;
-    type: "TextField" | "Dropdown" | "Checkbox" | "TextArea" | "ExprField";
+    type: "TextField" | "Dropdown" | "Checkbox" | "TextArea" | "ExprField" | "AutoComplete";
     value: string | boolean | ExpressionFieldValue; // Boolean is for Checkbox
     isRequired?: boolean;
     errorMessage?: string;
     disabled?: boolean;
     isEnabled?: boolean;
+    nullable?: boolean;
+    allowItemCreate?: boolean;
+    noItemsFoundMessage?: string;
     enableCondition?: EnableCondition;
     values?: string[]; // For Dropdown
     openExpressionEditor?: () => void; // For ExpressionField
@@ -37,7 +41,8 @@ interface TypeResolverProps {
 
 export function TypeResolver(props: TypeResolverProps) {
     const { param, onChange } = props;
-    const { id, label, type, value, isRequired, values, disabled, errorMessage, openExpressionEditor, canChange } = param;
+    const { id, label, type, value, isRequired, values, disabled, errorMessage, openExpressionEditor,
+        canChange, allowItemCreate, noItemsFoundMessage, nullable } = param;
 
     const handleOnChange = (newValue: string | boolean) => {
         onChange({ ...param, value: newValue }, param.enableCondition);
@@ -98,7 +103,7 @@ export function TypeResolver(props: TypeResolverProps) {
         case "TextArea":
             return (
                 <TextArea
-                    sx={{ marginBottom: 5, width: 200 }}
+                    sx={{marginBottom: 5}}
                     id={`txt-area-${id}`}
                     value={value as string}
                     disabled={disabled}
@@ -119,6 +124,21 @@ export function TypeResolver(props: TypeResolverProps) {
                     errorMsg={errorMessage}
                     onChange={handleOnChange}
                     canChange={canChange}
+                />
+            );
+        case "AutoComplete":
+            return (
+                <AutoComplete
+                    sx={{marginBottom: 5}}
+                    id={`auto-complete-${id}`}
+                    label={label}
+                    value={value as string}
+                    required={isRequired}
+                    onValueChange={handleOnChange}
+                    items={values}
+                    allowItemCreate={allowItemCreate}
+                    nullable={nullable}
+                    notItemsFoundMessage={noItemsFoundMessage}
                 />
             );
         default:

@@ -35,10 +35,13 @@ const paramConfigs: ParamConfig = {
                     value: true,
                 }, {
                     value: "This is a description",
+                },
+                {
+                    value: "Test2",
                 }
             ],
             key: "Key",
-            value: "int var1 0 true This is a description",
+            value: "int var1 0 true This is a description Test2",
             icon: "query"
         }
     ],
@@ -73,6 +76,16 @@ const paramConfigs: ParamConfig = {
             label: "Description",
             defaultValue: "This is a description",
             isRequired: false
+        },
+        {
+            id: 4,
+            type: "AutoComplete",
+            label: "Auto Complete",
+            defaultValue: "Test",
+            values: ["Test1", "Test2", "Test3"],
+            isRequired: true,
+            nullable: true,
+            noItemsFoundMessage: "No items",
         }
     ]
 };
@@ -93,7 +106,7 @@ const ParamManagerDefault = () => {
 
     return (
         <>
-            <ParamManager paramConfigs={params} readonly={false} onChange={handleOnChange} />
+            <ParamManager paramConfigs={params} readonly={false} addParamText="New Param" onChange={handleOnChange} />
         </>
     );
 };
