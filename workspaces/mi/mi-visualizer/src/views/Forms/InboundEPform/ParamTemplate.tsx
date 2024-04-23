@@ -10,7 +10,7 @@
 export interface Paramater {
     name?: string;
     type: 'text' | 'checkbox' | 'dropdown' | 'radio';
-    value: string | number | boolean;
+    value?: string | number | boolean;
     items?: { content?: string; value: string }[];
     validate?: {
         type: string;
@@ -43,10 +43,12 @@ export const defaultParameters: { [key: string]: { [key: string]: string | numbe
     },
     cxf_ws_rm: {
         enableSSL: false,
+        'inbound.behavior': 'polling',
     },
     feed: {
         interval: 1000,
         'feed.type': 'Atom',
+        'inbound.behavior': 'polling',
     },
     file: {
         interval: 1000,
@@ -116,7 +118,6 @@ export const defaultParameters: { [key: string]: { [key: string]: string | numbe
         'zookeeper.connect': 'localhost:2181',
         'group.id': 'sampleGroupID',
         'consumer.type': 'highlevel',
-        topics: 'sampleTopic',
         'thread.count': 1,
         'socket.timeout.ms': 30000,
         'socket.receive.buffer.bytes': 65536,
@@ -142,6 +143,13 @@ export const defaultParameters: { [key: string]: { [key: string]: string | numbe
         'offsets.channel.socket.timeout.ms': 10000,
         'offsets.commit.max.retries': 5,
         'dual.commit.enabled': true,
+        'bootstrap.servers': 'localhost:9092',
+        'key.deserializer': 'org.apache.kafka.common.serialization.StringDeserializer',
+        'value.deserializer': 'org.apache.kafka.common.serialization.StringDeserializer',
+        'poll.timeout': 100,
+        'topics': 'topics',
+        'topic.name': 'sampleTopic',
+        'content.type': 'application/json',
     },
     mqtt: {
         sequential: true,
@@ -253,7 +261,6 @@ export const inboundEndpointParams: ParamPool = {
                 value: 400,
                 validate: {
                     type: 'number',
-                    required: true,
                 }
             },
             'inbound.worker.pool.size.max': {
@@ -262,7 +269,6 @@ export const inboundEndpointParams: ParamPool = {
                 value: 500,
                 validate: {
                     type: 'number',
-                    required: true,
                 }
             },
             'inbound.worker.thread.keep.alive.sec': {
@@ -271,7 +277,6 @@ export const inboundEndpointParams: ParamPool = {
                 value: 60,
                 validate: {
                     type: 'number',
-                    required: true,
                 }
             },
             'inbound.worker.pool.queue.length': {
@@ -280,7 +285,6 @@ export const inboundEndpointParams: ParamPool = {
                 value: -1,
                 validate: {
                     type: 'number',
-                    required: true,
                 }
             },
             'inbound.thread.group.id': {
@@ -294,7 +298,6 @@ export const inboundEndpointParams: ParamPool = {
                 value: 'PassThroughInboundWorkerPool',
                 validate: {
                     type: 'string',
-                    required: true,
                 }
             },
             'dispatch.filter.pattern': {
@@ -314,7 +317,28 @@ export const inboundEndpointParams: ParamPool = {
             'inbound.cxf.rm.port': {
                 name: 'Port',
                 type: 'text',
-                value: '',
+            },
+            'class': {
+                type: 'text',
+            },
+            'inbound.behavior': {
+                name: 'Behavior',
+                type: 'dropdown',
+                items: [
+                    {
+                        content: "Polling Inbound Endpoint",
+                        value: "polling",
+                    },
+                    {
+                        content: "Listening Inbound Endpoint",
+                        value: "listening",
+                    },
+                    {
+                        content: "Event Based Inbound Endpoint",
+                        value: "eventBased",
+                    },
+                ],
+                description: 'Select the behavior of the inbound endpoint',
             },
         },
         advanced: {
@@ -353,7 +377,28 @@ export const inboundEndpointParams: ParamPool = {
                     { content: 'RSS', value: "RSS" },
                     { content: 'Atom', value: "Atom" },
                 ],
-                value: 'Atom',
+            },
+            'class': {
+                type: 'text',
+            },
+            'inbound.behavior': {
+                name: 'Behavior',
+                type: 'dropdown',
+                items: [
+                    {
+                        content: "Polling Inbound Endpoint",
+                        value: "polling",
+                    },
+                    {
+                        content: "Listening Inbound Endpoint",
+                        value: "listening",
+                    },
+                    {
+                        content: "Event Based Inbound Endpoint",
+                        value: "eventBased",
+                    },
+                ],
+                description: 'Select the behavior of the inbound endpoint',
             },
         }
     },
@@ -382,7 +427,6 @@ export const inboundEndpointParams: ParamPool = {
                 value: 'UTF-8',
                 validate: {
                     type: 'string',
-                    required: true,
                 }
             },
             'inbound.hl7.TimeOut': {
@@ -391,7 +435,6 @@ export const inboundEndpointParams: ParamPool = {
                 value: 10000,
                 validate: {
                     type: 'number',
-                    required: true,
                 }
             },
             'inbound.hl7.ValidateMessage': {
@@ -430,21 +473,30 @@ export const inboundEndpointParams: ParamPool = {
                 type: 'checkbox',
                 value: true,
             },
-        },
-        connection: {
             'java.naming.factory.initial': {
                 type: 'text',
-                value: '',
+                validate: {
+                    type: 'string',
+                    required: true,
+                }
             },
             'java.naming.provider.url': {
                 type: 'text',
-                value: '',
+                validate: {
+                    type: 'string',
+                    required: true,
+                }
             },
             'transport.jms.ConnectionFactoryJNDIName': {
                 name: 'Connection Factory JNDI Name',
                 type: 'text',
-                value: '',
+                validate: {
+                    type: 'string',
+                    required: true,
+                }
             },
+        },
+        connection: {
             'transport.jms.ConnectionFactoryType': {
                 name: 'Connection Factory Type',
                 type: 'radio',
@@ -510,7 +562,6 @@ export const inboundEndpointParams: ParamPool = {
                 value: 3,
                 validate: {
                     type: 'number',
-                    required: true,
                 }
             },
             'transport.jms.ContentType': {
@@ -640,7 +691,6 @@ export const inboundEndpointParams: ParamPool = {
                 value: 'text/plain',
                 validate: {
                     type: 'string',
-                    required: true,
                 }
             },
             'transport.vfs.FileNamePattern': {
@@ -649,7 +699,6 @@ export const inboundEndpointParams: ParamPool = {
                 value: '.*.txt',
                 validate: {
                     type: 'string',
-                    required: true,
                 }
             },
             'transport.vfs.FileProcessInterval': {
@@ -668,7 +717,6 @@ export const inboundEndpointParams: ParamPool = {
                 value: 'response.xml',
                 validate: {
                     type: 'string',
-                    required: true,
                 }
             },
         },
@@ -736,7 +784,6 @@ export const inboundEndpointParams: ParamPool = {
                 value: 'vfs-move-failed-records.properties',
                 validate: {
                     type: 'string',
-                    required: true,
                 }
             },
             'transport.vfs.FailedRecordsFileDestination': {
@@ -745,7 +792,6 @@ export const inboundEndpointParams: ParamPool = {
                 value: 'repository/conf/',
                 validate: {
                     type: 'string',
-                    required: true,
                 }
             },
             'transport.vfs.MoveFailedRecordTimestampFormat': {
@@ -754,7 +800,6 @@ export const inboundEndpointParams: ParamPool = {
                 value: 'dd-MM-yyyy HH:mm:ss',
                 validate: {
                     type: 'string',
-                    required: true,
                 }
             },
             'transport.vfs.FailedRecordNextRetryDuration': {
@@ -763,7 +808,6 @@ export const inboundEndpointParams: ParamPool = {
                 value: 3000,
                 validate: {
                     type: 'number',
-                    required: true,
                 }
             },
             'transport.vfs.AutoLockRelease': {
@@ -795,12 +839,12 @@ export const inboundEndpointParams: ParamPool = {
             },
             'transport.vfs.FileSortAttribute': {
                 name: 'File Sort Attribute',
-                type: 'text',
-                value: 'none',
-                validate: {
-                    type: 'string',
-                    required: true,
-                }
+                type: 'dropdown',
+                items: [
+                    { content: "None", value: "NONE", },
+                    { content: "Size", value: "Size", },
+                    { content: "Last modified timestamp", value: "Lastmodifiedtimestamp", },
+                ],
             },
             'transport.vfs.FileSortAscending': {
                 name: 'File Sort Ascending',
@@ -858,17 +902,26 @@ export const inboundEndpointParams: ParamPool = {
             'inbound.ws.port': {
                 name: 'Port',
                 type: 'text',
-                value: '',
+                validate: {
+                    type: 'number',
+                    required: true,
+                }
             },
             'ws.outflow.dispatch.sequence': {
                 name: 'Outflow Sequence',
                 type: 'text',
-                value: '',
+                validate: {
+                    type: 'string',
+                    required: true,
+                }
             },
             'ws.outflow.dispatch.fault.sequence': {
                 name: 'Outflow Fault Sequence',
                 type: 'text',
-                value: '',
+                validate: {
+                    type: 'string',
+                    required: true,
+                }
             },
             'ws.client.side.broadcast.level': {
                 name: 'Client Side Broadcast Level',
@@ -975,7 +1028,6 @@ export const inboundEndpointParams: ParamPool = {
                 value: 400,
                 validate: {
                     type: 'number',
-                    required: true,
                 }
             },
             'inbound.worker.pool.size.max': {
@@ -984,7 +1036,6 @@ export const inboundEndpointParams: ParamPool = {
                 value: 500,
                 validate: {
                     type: 'number',
-                    required: true,
                 }
             },
             'inbound.worker.thread.keep.alive.sec': {
@@ -993,7 +1044,6 @@ export const inboundEndpointParams: ParamPool = {
                 value: 60,
                 validate: {
                     type: 'number',
-                    required: true,
                 }
             },
             'inbound.worker.pool.queue.length': {
@@ -1002,7 +1052,6 @@ export const inboundEndpointParams: ParamPool = {
                 value: -1,
                 validate: {
                     type: 'number',
-                    required: true,
                 }
             },
             'inbound.thread.group.id': {
@@ -1016,7 +1065,6 @@ export const inboundEndpointParams: ParamPool = {
                 value: 'PassThroughInboundWorkerPool',
                 validate: {
                     type: 'string',
-                    required: true,
                 }
             },
             'dispatch.filter.pattern': {
@@ -1031,17 +1079,26 @@ export const inboundEndpointParams: ParamPool = {
             'inbound.ws.port': {
                 name: 'Port',
                 type: 'text',
-                value: '',
+                validate: {
+                    type: 'number',
+                    required: true,
+                }
             },
             'ws.outflow.dispatch.sequence': {
                 name: 'Outflow Sequence',
                 type: 'text',
-                value: '',
+                validate: {
+                    type: 'string',
+                    required: true,
+                }
             },
             'ws.outflow.dispatch.fault.sequence': {
                 name: 'Outflow Fault Sequence',
                 type: 'text',
-                value: '',
+                validate: {
+                    type: 'string',
+                    required: true,
+                }
             },
             'ws.client.side.broadcast.level': {
                 name: 'Client Side Broadcast Level',
@@ -1053,33 +1110,48 @@ export const inboundEndpointParams: ParamPool = {
                     { content: "2", value: '2', },
                 ],
             },
-        },
-        'SSL': {
             'wss.ssl.key.store.file': {
                 name: 'Key Store Location',
                 type: 'text',
-                value: '',
+                validate: {
+                    type: 'string',
+                    required: true,
+                }
             },
             'wss.ssl.key.store.pass': {
                 name: 'Key Store Password',
                 type: 'text',
-                value: '',
+                validate: {
+                    type: 'string',
+                    required: true,
+                }
             },
             'wss.ssl.trust.store.file': {
                 name: 'Trust Store Location',
                 type: 'text',
-                value: '',
+                validate: {
+                    type: 'string',
+                    required: true,
+                }
             },
             'wss.ssl.trust.store.pass': {
                 name: 'Trust Store Password',
                 type: 'text',
-                value: '',
+                validate: {
+                    type: 'string',
+                    required: true,
+                }
             },
             'wss.ssl.cert.pass': {
                 name: 'Certificate Password',
                 type: 'text',
-                value: '',
+                validate: {
+                    type: 'string',
+                    required: true,
+                }
             },
+        },
+        'SSL': {
             'wss.ssl.protocols': {
                 name: 'SSL Protocols',
                 type: 'text',
@@ -1148,7 +1220,42 @@ export const inboundEndpointParams: ParamPool = {
             },
             coordination: {
                 type: 'checkbox',
-                value: true,
+            },
+            'bootstrap.servers': {
+                type: 'text',
+                validate: {
+                    type: 'string',
+                    required: true,
+                }
+            },
+            'key.deserializer': {
+                type: 'text',
+                validate: {
+                    type: 'string',
+                    required: true,
+                }
+            },
+            'value.deserializer': {
+                type: 'text',
+                validate: {
+                    type: 'string',
+                    required: true,
+                }
+            },
+            'group.id': {
+                name: 'Group ID',
+                type: 'text',
+                validate: {
+                    type: 'string',
+                    required: true,
+                }
+            },
+            'poll.timeout': {
+                type: 'text',
+                validate: {
+                    type: 'number',
+                    required: true,
+                }
             },
             'topics': {
                 name: 'Topics or Topic Filter',
@@ -1162,7 +1269,13 @@ export const inboundEndpointParams: ParamPool = {
             'topic.name': {
                 name: 'Topic Name',
                 type: 'text',
-                value: 'sampleTopic',
+                validate: {
+                    type: 'string',
+                    required: true,
+                }
+            },
+            'content.type': {
+                type: 'text',
                 validate: {
                     type: 'string',
                     required: true,
@@ -1260,15 +1373,6 @@ export const inboundEndpointParams: ParamPool = {
             },
         },
         consumer: {
-            'group.id': {
-                name: 'Group ID',
-                type: 'text',
-                value: 'sampleGroupID',
-                validate: {
-                    type: 'string',
-                    required: true,
-                }
-            },
             'consumer.type': {
                 type: 'dropdown',
                 value: 'highlevel',
@@ -1308,6 +1412,9 @@ export const inboundEndpointParams: ParamPool = {
             },
         },
         advanced: {
+            'class': {
+                type: 'text',
+            },
             'thread.count': {
                 type: 'text',
                 value: 1,
