@@ -7,7 +7,9 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { Range, TagRange } from '@wso2-enterprise/mi-syntax-tree/lib/src';
+import { MACHINE_VIEW, POPUP_EVENT_TYPE, ParentPopupData } from '@wso2-enterprise/mi-core';
+import { RpcClient } from '@wso2-enterprise/mi-rpc-client';
+import { Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 
 export interface AddMediatorProps {
     nodePosition: Range;
@@ -30,4 +32,21 @@ export function filterFormValues(formValues: { [key: string]: any }, keysToInclu
         });
     }
     return formValues;
+}
+
+export const openPopup = (rpcClient: RpcClient, view: string, fetchItems: any, setValue: any) => {
+    let form;
+    switch (view) {
+        case "endpoint":
+            form = MACHINE_VIEW.EndPointForm;
+            break;
+    }
+    rpcClient.getMiVisualizerRpcClient().openView({ type: POPUP_EVENT_TYPE.OPEN_VIEW, location: { view: form }, isPopup: true });
+
+    rpcClient.onParentPopupSubmitted((data: ParentPopupData) => {
+        if (data.recentIdentifier) {
+            fetchItems();
+            setValue(data.recentIdentifier);
+        }
+    });
 }
