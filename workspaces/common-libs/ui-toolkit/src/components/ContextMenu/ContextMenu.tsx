@@ -16,8 +16,8 @@ import {
 } from "@vscode/webview-ui-toolkit/react";
 import styled from "@emotion/styled";
 import { Codicon } from "../Codicon/Codicon";
-import { ClickAwayListener } from "../ClickAwayListener/ClickAwayListener";
 import { createPortal } from "react-dom";
+import { Overlay } from "../Commons/Overlay";
 
 interface Item {
     id: number | string;
@@ -153,6 +153,11 @@ export const ContextMenu: React.FC<ContextMenuProps> = (props: ContextMenuProps)
         setIsMenuOpen(true);
     };
 
+    const handleMenuClose = (event: React.MouseEvent<HTMLElement, MouseEvent>) => {
+        event.stopPropagation();
+        setIsMenuOpen(false);
+    };
+
     useEffect(() => {
         if (isMenuOpen) {
             setExpandMenuWidth(expandMenuRef.current?.clientWidth || 0);
@@ -161,7 +166,7 @@ export const ContextMenu: React.FC<ContextMenuProps> = (props: ContextMenuProps)
     }, [isMenuOpen]);
 
     return (
-        <ClickAwayListener onClickAway={() => setIsMenuOpen(false)}>
+        <>
             <Container id={id} className={className}>
                 {isLoading ? (
                     <SmallProgressRing />
@@ -206,6 +211,7 @@ export const ContextMenu: React.FC<ContextMenuProps> = (props: ContextMenuProps)
                     document.body
                 )}
             </Container>
-        </ClickAwayListener>
+            {isMenuOpen && <Overlay onClose={handleMenuClose} />}
+        </>
     );
 };
