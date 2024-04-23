@@ -22,6 +22,7 @@ import AddToRegistry, { formatRegistryPath, getArtifactNamesAndRegistryPaths, sa
 export interface HttpEndpointWizardProps {
     path: string;
     type: string;
+    isPopup?: boolean;
 }
 
 export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
@@ -270,14 +271,16 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
                 view: isTemplate ? MACHINE_VIEW.TemplateForm : MACHINE_VIEW.EndPointForm,
                 documentUri: props.path,
                 customProps: { type: isTemplate ? 'template' : 'endpoint' }
-            }
+            },
+            isPopup: props.isPopup
         });
     }
 
     const openOverview = () => {
         rpcClient.getMiVisualizerRpcClient().openView({
             type: EVENT_TYPE.OPEN_VIEW,
-            location: { view: MACHINE_VIEW.Overview }
+            location: { view: MACHINE_VIEW.Overview },
+            isPopup: props.isPopup
         });
     };
 

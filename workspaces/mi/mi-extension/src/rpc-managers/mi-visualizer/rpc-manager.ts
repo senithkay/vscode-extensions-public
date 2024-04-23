@@ -26,6 +26,9 @@ import {
     WorkspaceFolder,
     WorkspacesResponse,
     ToggleDisplayOverviewRequest,
+    POPUP_EVENT_TYPE,
+    PopupVisualizerLocation,
+    EVENT_TYPE,
 } from "@wso2-enterprise/mi-core";
 import fetch from 'node-fetch';
 import { workspace, window } from "vscode";
@@ -34,6 +37,7 @@ import { StateMachine, navigate, openView } from "../../stateMachine";
 import { goToSource, handleOpenFile } from "../../util/fileOperations";
 import { openAIWebview } from "../../ai-panel/aiMachine";
 import { extension } from "../../MIExtensionContext";
+import { openPopupView } from "../../stateMachinePopup";
 
 export class MiVisualizerRpcManager implements MIVisualizerAPI {
     async getWorkspaces(): Promise<WorkspacesResponse> {
@@ -67,8 +71,12 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
     openView(params: OpenViewRequest): void {
         if (params.isAiWebview) {
             openAIWebview();
+        } if (params.isPopup) {
+            if (params.location.view?.includes("Form") || params.type === POPUP_EVENT_TYPE.CLOSE_VIEW) {
+                openPopupView(params.type as POPUP_EVENT_TYPE, params.location as PopupVisualizerLocation);
+            }
         } else {
-            openView(params.type, params.location as VisualizerLocation);
+            openView(params.type as EVENT_TYPE, params.location as VisualizerLocation);
         }
     }
 
