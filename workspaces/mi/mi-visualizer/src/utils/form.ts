@@ -6,43 +6,57 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { APIResource, Range, NamedSequence , Proxy } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { APIResource, Range, NamedSequence, Proxy, TagRange } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { RpcClient } from "@wso2-enterprise/mi-rpc-client";
-import { EditAPIForm, Method } from "../views/Forms/EditForms/EditResourceForm";
 import { EditSequenceFields } from "../views/Forms/EditForms/EditSequenceForm";
 import { SERVICE } from "../constants";
 import { getXML } from "./template-engine/mustache-templates/templateUtils";
 import { EditProxyForm } from "../views/Forms/EditForms/EditProxyForm";
 import { XMLBuilder, XMLParser } from "fast-xml-parser";
+import { Method, Protocol, ResourceType } from "../views/Forms/ResourceForm";
 
 /**
  * Functions to generate data for forms
  */
 
-export const generateResourceData = (model: APIResource): EditAPIForm => {
-    const resourceData: EditAPIForm = {
+export const generateResourceData = (model: APIResource): ResourceType => {
+    // Extract methods and protocols
+    const extractedMethods = model.methods
+        .map((method) => method.toLowerCase())
+        .reduce<{ [K in Method]: boolean }>((acc, method) => ({ ...acc, [method]: true }), {
+            get: false,
+            post: false,
+            put: false,
+            delete: false,
+            patch: false,
+            head: false,
+            options: false,
+        });
+    const extractedProtocols = model.protocol?.reduce<{ [K in Protocol]: boolean }>(
+        (acc, protocol) => ({ ...acc, [protocol]: true }),
+        {
+            http: false,
+            https: false,
+        }
+    );
+
+    // Create resource data object
+    const resourceData: ResourceType = {
         urlStyle: model.uriTemplate ? "uri-template" : model.urlMapping ? "url-mapping" : "none",
         uriTemplate: model.uriTemplate,
         urlMapping: model.urlMapping,
-        methods: model.methods
-            .map(method => method.toLowerCase())
-            .reduce<{ [K in Method]: boolean }>((acc, method) => ({ ...acc, [method]: true }), {
-                get: false,
-                post: false,
-                put: false,
-                delete: false,
-                patch: false,
-                head: false,
-                options: false,
-            }), // Extract boolean values for each method
-        protocol: {
-            http: true,
-            https: true,
-        }, // Extract boolean values for each protocol
-    }
+        methods: extractedMethods,
+        protocol: extractedProtocols,
+        inSequenceType: model.inSequenceAttribute ? "named" : "inline",
+        inSequence: model.inSequenceAttribute,
+        outSequenceType: model.outSequenceAttribute ? "named" : "inline",
+        outSequence: model.outSequenceAttribute,
+        faultSequenceType: model.faultSequenceAttribute ? "named" : "inline",
+        faultSequence: model.faultSequenceAttribute,
+    };
 
     return resourceData;
-}
+};
 
 export const generateSequenceData = (model: NamedSequence): any => {
     const sequenceData: EditSequenceFields = {
@@ -53,7 +67,7 @@ export const generateSequenceData = (model: NamedSequence): any => {
     };
 
     return sequenceData;
-}
+};
 
 export const generateProxyData = (model: Proxy): EditProxyForm => {
     const proxyData: EditProxyForm = {
@@ -66,7 +80,15 @@ export const generateProxyData = (model: Proxy): EditProxyForm => {
             ...model.publishWSDL,
             inlineWsdl: model.publishWSDL?.inlineWsdl ? inlineFormatter(model.publishWSDL.inlineWsdl) : "</definition>",
         },
-        wsdlType: model.publishWSDL ? (model.publishWSDL.endpoint ? "ENDPOINT" : (model.publishWSDL.uri ? "SOURCE_URL" : (model.publishWSDL.key ? "REGISTRY_KEY" : "INLINE"))):"NONE",
+        wsdlType: model.publishWSDL
+            ? model.publishWSDL.endpoint
+                ? "ENDPOINT"
+                : model.publishWSDL.uri
+                ? "SOURCE_URL"
+                : model.publishWSDL.key
+                ? "REGISTRY_KEY"
+                : "INLINE"
+            : "NONE",
         name: model.name,
         transports: model.transports,
         pinnedServers: model.pinnedServers,
@@ -76,11 +98,10 @@ export const generateProxyData = (model: Proxy): EditProxyForm => {
         outSequenceEdited: false,
         statistics: model.statistics === "enable" ? true : false,
         trace: model.trace === "enable" ? true : false,
-    }
+    };
 
     return proxyData;
-
-}
+};
 
 const inlineFormatter = (inlineWsdl: string) => {
     const options = {
@@ -88,32 +109,76 @@ const inlineFormatter = (inlineWsdl: string) => {
         allowBooleanAttributes: true,
         attributeNamePrefix: "",
         attributesGroupName: "@_",
-        indentBy: '    ',
+        indentBy: "    ",
         format: true,
     };
     const parser = new XMLParser(options);
     const builder = new XMLBuilder(options);
     return builder.build(parser.parse(inlineWsdl)) as string;
-}
+};
+
+/**
+ * Function to handle resource create
+ */
+
+export const onResourceCreate = (data: ResourceType, range: Range, documentUri: string, rpcClient: RpcClient) => {
+    const { uriTemplate, urlMapping, methods, protocol } = data;
+    const formValues = {
+        // Extract selected methods and create string containing the methods for the XML
+        methods: Object.keys(methods)
+            .filter((method) => methods[method as keyof typeof methods])
+            .map((method) => method.toUpperCase())
+            .join(" "),
+        // If both http, https are selected, then undefined. Otherwise, set the selected protocol.
+        protocol: Object.keys(protocol).every((key) => protocol[key as keyof typeof protocol])
+            ? undefined
+            : Object.keys(protocol).find((key) => protocol[key as keyof typeof protocol]),
+        uri_template: uriTemplate,
+        url_mapping: urlMapping,
+    };
+
+    const xml = getXML(SERVICE.ADD_RESOURCE, formValues);
+    rpcClient.getMiDiagramRpcClient().applyEdit({
+        text: xml,
+        documentUri: documentUri,
+        range: {
+            start: {
+                line: range.end.line,
+                character: range.end.character,
+            },
+            end: {
+                line: range.end.line,
+                character: range.end.character,
+            },
+        },
+    });
+};
 
 /**
  * Function to handle resource editing
  */
 
 export const onResourceEdit = (
-    data: EditAPIForm,
-    range: Range,
+    data: ResourceType,
+    resourceRange: TagRange,
     deleteRanges: Range[],
     documentUri: string,
-    rpcClient: RpcClient,
+    rpcClient: RpcClient
 ) => {
-    const { uriTemplate, urlMapping, methods, inSequence, outSequence, faultSequence } = data;
+    const startTagRange = resourceRange.startTagRange;
+    const endTagRange = resourceRange.endTagRange;
+    const { uriTemplate, urlMapping, methods, protocol, inSequence, outSequence, faultSequence } = data;
     const formValues = {
-        methods: Object
-            .keys(methods)
+        methods: Object.keys(methods)
             .filter((method) => methods[method as keyof typeof methods])
-            .map(method => method.toUpperCase())
-            .join(" "), // Extract selected methods and create string containing the methods for the XML
+            .map((method) => method.toUpperCase())
+            .join(" "),
+        protocol: Object
+            .keys(protocol)
+            .every((key) => protocol[key as keyof typeof protocol]) ? undefined : 
+            Object
+            .keys(protocol)
+            .find((key) => protocol[key as keyof typeof protocol]),
         uri_template: uriTemplate,
         url_mapping: urlMapping,
         in_sequence: inSequence,
@@ -122,21 +187,40 @@ export const onResourceEdit = (
     };
 
     const xml = getXML(SERVICE.EDIT_RESOURCE, formValues);
-    const sortedRanges = deleteRanges.sort((a, b) => b.start.line - a.start.line || b.start.character - a.start.character);
-    rpcClient.getMiDiagramRpcClient().applyEdit({
-        text: xml,
-        documentUri: documentUri,
-        range: range
-    }).then(async () => {
-        for (const range of sortedRanges) {
-            await rpcClient.getMiDiagramRpcClient().applyEdit({
-                text: "",
-                documentUri: documentUri,
-                range: range
-            });
-        }
-    });
-}
+    const sortedRanges = deleteRanges.sort(
+        (a, b) => b.start.line - a.start.line || b.start.character - a.start.character
+    );
+    let deleteLineCount = 0
+    rpcClient
+        .getMiDiagramRpcClient()
+        .applyEdit({
+            text: xml,
+            documentUri: documentUri,
+            range: startTagRange,
+        })
+        .then(async () => {
+            for (const range of sortedRanges) {
+                deleteLineCount += range.end.line - range.start.line;
+                await rpcClient.getMiDiagramRpcClient().applyEdit({
+                    text: "",
+                    documentUri: documentUri,
+                    range: range,
+                });
+            }
+        })
+        .then(async () => {
+            await rpcClient.getMiDiagramRpcClient().rangeFormat({
+                uri: documentUri,
+                range: {
+                    start: startTagRange.start,
+                    end: {
+                        line: endTagRange.end.line - deleteLineCount,
+                        character: endTagRange.end.character,
+                    },
+                }
+            })
+        });
+};
 
 export const onSequenceEdit = (
     data: EditSequenceFields,
@@ -253,21 +337,21 @@ const proxyRange = (model:Proxy,tag:string):Range => {
     }
 }
 
-export const getResourceDeleteRanges = (model: APIResource, formData: EditAPIForm): Range[] => {
+export const getResourceDeleteRanges = (model: APIResource, formData: ResourceType): Range[] => {
     const ranges: Range[] = [];
-    if (formData.inSequence) {
+    if (formData.inSequenceType === "named" && model.inSequence) {
         ranges.push({
             start: model.inSequence.range.startTagRange.start,
             end: model.inSequence.range.endTagRange.end,
         });
     }
-    if (formData.outSequence) {
+    if (formData.outSequenceType === "named" && model.outSequence) {
         ranges.push({
             start: model.outSequence.range.startTagRange.start,
             end: model.outSequence.range.endTagRange.end,
         });
     }
-    if (formData.faultSequence) {
+    if (formData.faultSequenceType === "named" && model.faultSequence) {
         ranges.push({
             start: model.faultSequence.range.startTagRange.start,
             end: model.faultSequence.range.endTagRange.end,
@@ -275,5 +359,4 @@ export const getResourceDeleteRanges = (model: APIResource, formData: EditAPIFor
     }
 
     return ranges;
-}
-
+};

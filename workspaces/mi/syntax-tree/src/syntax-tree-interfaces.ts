@@ -1074,7 +1074,7 @@ export interface APIResource extends STNode {
     outSequence: Sequence;
     faultSequence: Sequence;
     methods: [string];
-    protocol: string;
+    protocol: [string];
     inSequenceAttribute: string;
     outSequenceAttribute: string;
     faultSequenceAttribute: string;
