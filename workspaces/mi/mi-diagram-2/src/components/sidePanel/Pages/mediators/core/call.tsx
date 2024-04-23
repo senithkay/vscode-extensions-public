@@ -13,11 +13,12 @@ import { AutoComplete, Button, ComponentCard, ExpressionField, ExpressionFieldVa
 import { VSCodeCheckbox } from '@vscode/webview-ui-toolkit/react';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
-import { AddMediatorProps } from '../common';
+import { AddMediatorProps, openPopup } from '../common';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
 import { MEDIATORS } from '../../../../../resources/constants';
 import { Controller, useForm } from 'react-hook-form';
+import { Keylookup } from '../../../../Form';
 
 const cardStyle = { 
     display: "block",
@@ -98,10 +99,17 @@ const CallForm = (props: AddMediatorProps) => {
                 <Controller
                     name="endopint"
                     control={control}
-                    render={({ field }) => (
-                        <AutoComplete label="Select Endpoint" items={["{workspace.endopints}", "{registry.endpoints}", "{line.break}", "{create.new}", "INLINE", "NONE", "REGISTRYKEY", "XPATH"]} value={field.value} onValueChange={(e: any) => {
-                            field.onChange(e);
-                        }} />
+                    render={({ field: { onChange, value } }) => (
+                        <Keylookup
+                            value={value}
+                            filterType='endpoint'
+                            label="Select Endpoint"
+                            allowItemCreate={false}
+                            onCreateButtonClick={(fetchItems: any, handleValueChange: any) => {
+                                openPopup(rpcClient, "endpoint", fetchItems, handleValueChange);
+                            }}
+                            onValueChange={onChange}
+                        />
                     )}
                 />
                 {errors.endopint && <Error>{errors.endopint.message.toString()}</Error>}
@@ -120,7 +128,7 @@ const CallForm = (props: AddMediatorProps) => {
                 </Field>
             }
 
-            {watch("endpointType") && watch("endpointType").toLowerCase() == "registrykey" &&
+            {watch("endpoint") && watch("endpoint").toLowerCase() == "registrykey" &&
                 <Field>
                     <Controller
                         name="endpointRegistryKey"
@@ -133,7 +141,7 @@ const CallForm = (props: AddMediatorProps) => {
                 </Field>
             }
 
-            {watch("endpointType") && watch("endpointType").toLowerCase() == "xpath" &&
+            {watch("endpoint") && watch("endpoint").toLowerCase() == "xpath" &&
                 <Field>
                     <Controller
                         name="endpointXpath"
@@ -194,7 +202,7 @@ const CallForm = (props: AddMediatorProps) => {
                         name="sourceType"
                         control={control}
                         render={({ field }) => (
-                            <AutoComplete label="Source Type" items={["none", "body", "property", "inline", "custom"]} value={field.value} onValueChange={(e: any) => {
+                            <AutoComplete label="Source Type" name="sourceType" items={["none", "body", "property", "inline", "custom"]} value={field.value} onValueChange={(e: any) => {
                                 field.onChange(e);
                             }} />
                         )}
@@ -273,7 +281,7 @@ const CallForm = (props: AddMediatorProps) => {
                         name="targetType"
                         control={control}
                         render={({ field }) => (
-                            <AutoComplete label="Target Type" items={["body", "property"]} value={field.value} onValueChange={(e: any) => {
+                            <AutoComplete label="Target Type" name="targetType" items={["body", "property"]} value={field.value} onValueChange={(e: any) => {
                                 field.onChange(e);
                             }} />
                         )}

@@ -144,7 +144,7 @@ const LogForm = (props: AddMediatorProps) => {
                         }
                     }
                     render={({ field }) => (
-                        <AutoComplete label="Log Category" items={["INFO", "TRACE", "DEBUG", "WARN", "ERROR", "FATAL"]} value={field.value} onValueChange={(e: any) => {
+                        <AutoComplete label="Log Category" name="logCategory" items={["INFO", "TRACE", "DEBUG", "WARN", "ERROR", "FATAL"]} value={field.value} onValueChange={(e: any) => {
                             field.onChange(e);
                         }} />
                     )}
@@ -162,7 +162,7 @@ const LogForm = (props: AddMediatorProps) => {
                         }
                     }
                     render={({ field }) => (
-                        <AutoComplete label="Log Level" items={["SIMPLE", "HEADERS", "FULL", "CUSTOM"]} value={field.value} onValueChange={(e: any) => {
+                        <AutoComplete label="Log Level" name="logLevel" items={["SIMPLE", "HEADERS", "FULL", "CUSTOM"]} value={field.value} onValueChange={(e: any) => {
                             field.onChange(e);
                         }} />
                     )}

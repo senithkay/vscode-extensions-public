@@ -104,7 +104,7 @@ const PropertyForm = (props: AddMediatorProps) => {
                     name="propertyDataType"
                     control={control}
                     render={({ field }) => (
-                        <AutoComplete label="Property Data Type" items={["STRING", "INTEGER", "BOOLEAN", "DOUBLE", "FLOAT", "LONG", "SHORT", "OM", "JSON"]} value={field.value} onValueChange={(e: any) => {
+                        <AutoComplete label="Property Data Type" name="propertyDataType" items={["STRING", "INTEGER", "BOOLEAN", "DOUBLE", "FLOAT", "LONG", "SHORT", "OM", "JSON"]} value={field.value} onValueChange={(e: any) => {
                             field.onChange(e);
                         }} />
                     )}
@@ -117,7 +117,7 @@ const PropertyForm = (props: AddMediatorProps) => {
                     name="propertyAction"
                     control={control}
                     render={({ field }) => (
-                        <AutoComplete label="Property Action" items={["set", "remove"]} value={field.value} onValueChange={(e: any) => {
+                        <AutoComplete label="Property Action" name="propertyAction" items={["set", "remove"]} value={field.value} onValueChange={(e: any) => {
                             field.onChange(e);
                         }} />
                     )}
@@ -170,7 +170,7 @@ const PropertyForm = (props: AddMediatorProps) => {
                     name="propertyScope"
                     control={control}
                     render={({ field }) => (
-                        <AutoComplete label="Property Scope" items={["DEFAULT", "TRANSPORT", "AXIS2", "AXIS2_CLIENT", "OPERATION", "REGISTRY", "SYSTEM", "ANALYTICS"]} value={field.value} onValueChange={(e: any) => {
+                        <AutoComplete label="Property Scope" name="propertyScope" items={["DEFAULT", "TRANSPORT", "AXIS2", "AXIS2_CLIENT", "OPERATION", "REGISTRY", "SYSTEM", "ANALYTICS"]} value={field.value} onValueChange={(e: any) => {
                             field.onChange(e);
                         }} />
                     )}

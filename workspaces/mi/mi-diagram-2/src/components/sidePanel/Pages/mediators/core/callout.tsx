@@ -107,7 +107,7 @@ const CalloutForm = (props: AddMediatorProps) => {
                         name="endpointType"
                         control={control}
                         render={({ field }) => (
-                            <AutoComplete label="Endpoint Type" items={["URL", "AddressEndpoint"]} value={field.value} onValueChange={(e: any) => {
+                            <AutoComplete label="Endpoint Type" name="endpointType" items={["URL", "AddressEndpoint"]} value={field.value} onValueChange={(e: any) => {
                                 field.onChange(e);
                             }} />
                         )}
@@ -197,7 +197,7 @@ const CalloutForm = (props: AddMediatorProps) => {
                         name="payloadType"
                         control={control}
                         render={({ field }) => (
-                            <AutoComplete label="Payload Type" items={["XPATH", "PROPERTY", "ENVELOPE"]} value={field.value} onValueChange={(e: any) => {
+                            <AutoComplete label="Payload Type" name="payloadType" items={["XPATH", "PROPERTY", "ENVELOPE"]} value={field.value} onValueChange={(e: any) => {
                                 field.onChange(e);
                             }} />
                         )}
@@ -255,7 +255,7 @@ const CalloutForm = (props: AddMediatorProps) => {
                         name="resultType"
                         control={control}
                         render={({ field }) => (
-                            <AutoComplete label="Result Type" items={["XPATH", "PROPERTY"]} value={field.value} onValueChange={(e: any) => {
+                            <AutoComplete label="Result Type" name="resultType" items={["XPATH", "PROPERTY"]} value={field.value} onValueChange={(e: any) => {
                                 field.onChange(e);
                             }} />
                         )}
@@ -313,7 +313,7 @@ const CalloutForm = (props: AddMediatorProps) => {
                         name="securityType"
                         control={control}
                         render={({ field }) => (
-                            <AutoComplete label="Security Type" items={["TRUE", "FALSE"]} value={field.value} onValueChange={(e: any) => {
+                            <AutoComplete label="Security Type" name="securityType" items={["TRUE", "FALSE"]} value={field.value} onValueChange={(e: any) => {
                                 field.onChange(e);
                             }} />
                         )}
@@ -327,7 +327,7 @@ const CalloutForm = (props: AddMediatorProps) => {
                             name="policies"
                             control={control}
                             render={({ field }) => (
-                                <AutoComplete label="Policies" items={["TRUE", "FALSE"]} value={field.value} onValueChange={(e: any) => {
+                                <AutoComplete label="Policies" name="policies" items={["TRUE", "FALSE"]} value={field.value} onValueChange={(e: any) => {
                                     field.onChange(e);
                                 }} />
                             )}

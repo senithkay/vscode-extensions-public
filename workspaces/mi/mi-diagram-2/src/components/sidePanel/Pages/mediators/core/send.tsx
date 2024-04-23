@@ -126,7 +126,7 @@ const SendForm = (props: AddMediatorProps) => {
                                 name="receivingSequenceType"
                                 control={control}
                                 render={({ field }) => (
-                                    <AutoComplete label="Receiving Sequence Type" items={["Default", "Static", "Dynamic"]} value={field.value} onValueChange={(e: any) => {
+                                    <AutoComplete label="Receiving Sequence Type" name="receivingSequenceType" items={["Default", "Static", "Dynamic"]} value={field.value} onValueChange={(e: any) => {
                                         field.onChange(e);
                                     }} />
                                 )}

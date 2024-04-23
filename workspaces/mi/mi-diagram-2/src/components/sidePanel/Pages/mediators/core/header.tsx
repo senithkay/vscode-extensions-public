@@ -117,7 +117,7 @@ const HeaderForm = (props: AddMediatorProps) => {
                     name="headerAction"
                     control={control}
                     render={({ field }) => (
-                        <AutoComplete label="Header Action" items={["set", "remove"]} value={field.value} onValueChange={(e: any) => {
+                        <AutoComplete label="Header Action" name="headerAction" items={["set", "remove"]} value={field.value} onValueChange={(e: any) => {
                             field.onChange(e);
                         }} />
                     )}
@@ -130,7 +130,7 @@ const HeaderForm = (props: AddMediatorProps) => {
                     name="scope"
                     control={control}
                     render={({ field }) => (
-                        <AutoComplete label="Scope" items={["default", "transport"]} value={field.value} onValueChange={(e: any) => {
+                        <AutoComplete label="Scope" name="scope" items={["default", "transport"]} value={field.value} onValueChange={(e: any) => {
                             field.onChange(e);
                         }} />
                     )}
@@ -147,7 +147,7 @@ const HeaderForm = (props: AddMediatorProps) => {
                             name="valueType"
                             control={control}
                             render={({ field }) => (
-                                <AutoComplete label="Value Type" items={["LITERAL", "EXPRESSION", "INLINE"]} value={field.value} onValueChange={(e: any) => {
+                                <AutoComplete label="Value Type" name="valueType" items={["LITERAL", "EXPRESSION", "INLINE"]} value={field.value} onValueChange={(e: any) => {
                                     field.onChange(e);
                                 }} />
                             )}
