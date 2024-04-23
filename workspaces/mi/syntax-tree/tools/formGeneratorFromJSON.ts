@@ -467,7 +467,7 @@ const ${operationNameCapitalized} = (props: AddMediatorProps) => {
     const sidePanelContext = React.useContext(SidePanelContext);
     const [ isLoading, setIsLoading ] = React.useState(true);
 
-    const { control, formState: { errors }, handleSubmit, watch, reset } = useForm();
+    const { control, formState: { errors, dirtyFields }, handleSubmit, watch, reset } = useForm();
 
     useEffect(() => {
         reset({${defaultValues}
@@ -477,7 +477,7 @@ const ${operationNameCapitalized} = (props: AddMediatorProps) => {
 
     const onClick = async (values: any) => {
         ${valueChanges}
-        const xml = getXML(MEDIATORS.${operationNameCapitalized.toUpperCase().substring(0, operationNameCapitalized.length - 4)}, values);
+        const xml = getXML(MEDIATORS.${operationNameCapitalized.toUpperCase().substring(0, operationNameCapitalized.length - 4)}, values, dirtyFields);
         rpcClient.getMiDiagramRpcClient().applyEdit({
             documentUri: props.documentUri, range: props.nodePosition, text: xml
         });

@@ -41,7 +41,7 @@ const StoreForm = (props: AddMediatorProps) => {
     const sidePanelContext = React.useContext(SidePanelContext);
     const [ isLoading, setIsLoading ] = React.useState(true);
 
-    const { control, formState: { errors }, handleSubmit, watch, reset } = useForm();
+    const { control, formState: { errors, dirtyFields }, handleSubmit, watch, reset } = useForm();
 
     useEffect(() => {
         reset({
@@ -55,7 +55,7 @@ const StoreForm = (props: AddMediatorProps) => {
 
     const onClick = async (values: any) => {
         
-        const xml = getXML(MEDIATORS.STORE, values);
+        const xml = getXML(MEDIATORS.STORE, values, dirtyFields);
         rpcClient.getMiDiagramRpcClient().applyEdit({
             documentUri: props.documentUri, range: props.nodePosition, text: xml
         });
@@ -120,8 +120,7 @@ const StoreForm = (props: AddMediatorProps) => {
                     control={control}
                     render={({ field }) => (
                         <Keylookup
-                            {...field}
-                            filterType='sequence'
+                            {...field}filterType='sequence'
                             label="On Store Sequence"
                             allowItemCreate={false}
                         />

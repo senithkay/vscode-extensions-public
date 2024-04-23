@@ -40,7 +40,7 @@ const PropertyGroupForm = (props: AddMediatorProps) => {
     const sidePanelContext = React.useContext(SidePanelContext);
     const [ isLoading, setIsLoading ] = React.useState(true);
 
-    const { control, formState: { errors }, handleSubmit, watch, reset } = useForm();
+    const { control, formState: { errors, dirtyFields }, handleSubmit, watch, reset } = useForm();
 
     useEffect(() => {
         reset({
@@ -231,7 +231,7 @@ const PropertyGroupForm = (props: AddMediatorProps) => {
     const onClick = async (values: any) => {
         
         values["properties"] = values.properties.paramValues.map((param: any) => param.paramValues.map((p: any) => p.value));
-        const xml = getXML(MEDIATORS.PROPERTYGROUP, values);
+        const xml = getXML(MEDIATORS.PROPERTYGROUP, values, dirtyFields);
         rpcClient.getMiDiagramRpcClient().applyEdit({
             documentUri: props.documentUri, range: props.nodePosition, text: xml
         });
