@@ -190,6 +190,9 @@ export function GroupNodeWidget(props: CallNodeWidgetProps) {
                     onMouseLeave={() => setIsHovered(false)}
                     onClick={(e) => node.onClicked(e, node, rpcClient, sidePanelContext)}
                 >
+                    {hasBreakpoint && (
+                        <div style={{ position: "absolute", left: -5, width: 15, height: 15, borderRadius: "50%", backgroundColor: "red" }}></div>
+                    )}
                     <S.TopPortWidget port={node.getPort("in")!} engine={engine} />
                     <S.Header>
                         <S.IconContainer>{getSVGIcon(node.stNode.tag)}</S.IconContainer>
