@@ -288,6 +288,7 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
         <FormView
             title={isTemplate ? 'Template Artifact' : 'Endpoint Artifact'}
             onClose={openOverview}
+            hideClose={props.isPopup}
         >
             <TypeChip
                 type={isTemplate ? "HTTP Endpoint Template" : "HTTP Endpoint"}
