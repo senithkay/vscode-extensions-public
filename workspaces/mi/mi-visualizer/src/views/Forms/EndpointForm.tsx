@@ -14,6 +14,7 @@ import CardWrapper from "./Commons/CardWrapper";
 
 export interface EndpointWizardProps {
     path: string;
+    isPopup?: boolean;
 }
 
 export function EndpointWizard(props: EndpointWizardProps) {
@@ -31,7 +32,7 @@ export function EndpointWizard(props: EndpointWizardProps) {
             'Recipient List Endpoint': MACHINE_VIEW.RecipientEndPointForm,
             'Template Endpoint': MACHINE_VIEW.TemplateEndPointForm,
         };
-    
+
         const view = endpointMappings[type];
         if (view) {
             rpcClient.getMiVisualizerRpcClient().openView({
@@ -39,8 +40,9 @@ export function EndpointWizard(props: EndpointWizardProps) {
                 location: {
                     view,
                     documentUri: props.path,
-                    customProps: {type: 'endpoint'}
-                }
+                    customProps: { type: 'endpoint' }
+                },
+                isPopup: props.isPopup
             });
         }
     };
@@ -50,7 +52,7 @@ export function EndpointWizard(props: EndpointWizardProps) {
     };
 
     return (
-        <FormView title={"Create Endpoint Artifact"} onClose={handleOnClose}>
+        <FormView title={"Create Endpoint Artifact"} onClose={handleOnClose} hideClose={props.isPopup}>
             <CardWrapper cardsType={"ENDPOINT"} setType={setEndpointType} />
         </FormView>
     );

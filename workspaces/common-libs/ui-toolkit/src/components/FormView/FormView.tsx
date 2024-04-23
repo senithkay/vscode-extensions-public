@@ -17,9 +17,10 @@ interface FormViewProps {
     title: string;
     children: React.ReactNode;
     onClose: () => void; // Added onClose prop
+    hideClose?: boolean;
 }
 
-export const FormView: React.FC<FormViewProps> = ({ title, children, onClose }) => {
+export const FormView: React.FC<FormViewProps> = ({ title, children, onClose, hideClose }) => {
     const [isScrolling, setIsScrolling] = useState(false);
 
     const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
@@ -47,9 +48,11 @@ export const FormView: React.FC<FormViewProps> = ({ title, children, onClose }) 
                     alignItems: 'center',
                 }}>
                     <Typography variant="h2" sx={{ flexGrow: 1 }}>{title}</Typography>
-                    <Button appearance="icon" onClick={onClose} tooltip="Close">
-                        <Codicon name='close' />
-                    </Button>
+                    {!hideClose &&
+                        <Button appearance="icon" onClick={onClose} tooltip="Close">
+                            <Codicon name='close' />
+                        </Button>
+                    }
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                     {children}

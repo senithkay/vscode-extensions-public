@@ -10,7 +10,7 @@
  */
 
 import { Messenger } from "vscode-messenger-webview";
-import { MachineStateValue, stateChanged, vscode, getVisualizerState, getAIVisualizerState, VisualizerLocation, AIVisualizerLocation, webviewReady, onFileContentUpdate, AI_EVENT_TYPE, sendAIStateEvent, AIMachineStateValue, aiStateChanged, themeChanged, ColorThemeKind  } from "@wso2-enterprise/mi-core";
+import { MachineStateValue, stateChanged, vscode, getVisualizerState, getAIVisualizerState, VisualizerLocation, AIVisualizerLocation, webviewReady, onFileContentUpdate, AI_EVENT_TYPE, sendAIStateEvent, AIMachineStateValue, aiStateChanged, themeChanged, ColorThemeKind, PopupMachineStateValue, popupStateChanged, PopupVisualizerLocation, getPopupVisualizerState, onParentPopupSubmitted, ParentPopupData  } from "@wso2-enterprise/mi-core";
 import { MiDiagramRpcClient } from "./rpc-clients/mi-diagram/rpc-client";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { MiVisualizerRpcClient } from "./rpc-clients/mi-visualizer/rpc-client";
@@ -51,6 +51,10 @@ export class RpcClient {
         this.messenger.onNotification(aiStateChanged, callback);
     }
 
+    onPopupStateChanged(callback: (state: PopupMachineStateValue) => void) {
+        this.messenger.onNotification(popupStateChanged, callback);
+    }
+
     onThemeChanged(callback: (kind: ColorThemeKind) => void) {
         this.messenger.onNotification(themeChanged, callback);
 
@@ -64,6 +68,10 @@ export class RpcClient {
         return this.messenger.sendRequest(getAIVisualizerState, HOST_EXTENSION);
     }
 
+    getPopupVisualizerState(): Promise<PopupVisualizerLocation> {
+        return this.messenger.sendRequest(getPopupVisualizerState, HOST_EXTENSION);
+    }
+
     sendAIStateEvent(event: AI_EVENT_TYPE) {
         this.messenger.sendRequest(sendAIStateEvent, HOST_EXTENSION, event);
     }
@@ -74,6 +82,10 @@ export class RpcClient {
     
     webviewReady(): void {
         this.messenger.sendNotification(webviewReady, HOST_EXTENSION);
+    }
+
+    onParentPopupSubmitted(callback: (parent: ParentPopupData) => void) {
+        this.messenger.onNotification(onParentPopupSubmitted, callback);
     }
 
 }

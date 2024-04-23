@@ -155,6 +155,7 @@ import {
     getSTRequest,
     getSTResponse,
     AI_EVENT_TYPE,
+    POPUP_EVENT_TYPE,
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
 import { error } from "console";
@@ -181,6 +182,7 @@ import { VisualizerWebview } from "../../visualizer/webview";
 import { StateMachineAI } from '../../ai-panel/aiMachine';
 import fetch from 'node-fetch';
 import path = require("path");
+import { openPopupView } from "../../stateMachinePopup";
 
 const { XMLParser, XMLBuilder } = require("fast-xml-parser");
 
@@ -458,7 +460,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             const xmlData = getLoadBalanceXmlWrapper(templateParams);
             const sanitizedXmlData = xmlData.replace(/^\s*[\r\n]/gm, '');
             if (params.getContentOnly) {
-                resolve({path: "", content: sanitizedXmlData});
+                resolve({ path: "", content: sanitizedXmlData });
             } else {
                 let filePath: string;
                 if (directory.endsWith('.xml')) {
@@ -472,10 +474,11 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     uri: filePath,
                     range: {
                         start: { line: 0, character: 0 },
-                        end: { line:  sanitizedXmlData.split('\n').length + 1, character: 0 }
+                        end: { line: sanitizedXmlData.split('\n').length + 1, character: 0 }
                     }
                 });
                 commands.executeCommand(COMMANDS.REFRESH_COMMAND);
+                openPopupView(POPUP_EVENT_TYPE.CLOSE_VIEW, { view: null, recentIdentifier: templateParams.name });
                 resolve({ path: filePath, content: "" });
             }
         });
@@ -531,7 +534,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             const xmlData = getFailoverXmlWrapper(templateParams);
             const sanitizedXmlData = xmlData.replace(/^\s*[\r\n]/gm, '');
             if (params.getContentOnly) {
-                resolve({path: "", content: sanitizedXmlData});
+                resolve({ path: "", content: sanitizedXmlData });
             } else {
                 let filePath: string;
                 if (directory.endsWith('.xml')) {
@@ -545,10 +548,11 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     uri: filePath,
                     range: {
                         start: { line: 0, character: 0 },
-                        end: { line:  sanitizedXmlData.split('\n').length + 1, character: 0 }
+                        end: { line: sanitizedXmlData.split('\n').length + 1, character: 0 }
                     }
                 });
                 commands.executeCommand(COMMANDS.REFRESH_COMMAND);
+                openPopupView(POPUP_EVENT_TYPE.CLOSE_VIEW, { view: null, recentIdentifier: templateParams.name });
                 resolve({ path: filePath, content: "" });
             }
         });
@@ -594,7 +598,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             const xmlData = getRecipientEPXml(templateParams);
             const sanitizedXmlData = xmlData.replace(/^\s*[\r\n]/gm, '');
             if (params.getContentOnly) {
-                resolve({path: "", content: sanitizedXmlData});
+                resolve({ path: "", content: sanitizedXmlData });
             } else {
                 let filePath: string;
                 if (directory.endsWith('.xml')) {
@@ -608,10 +612,11 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     uri: filePath,
                     range: {
                         start: { line: 0, character: 0 },
-                        end: { line:  sanitizedXmlData.split('\n').length + 1, character: 0 }
+                        end: { line: sanitizedXmlData.split('\n').length + 1, character: 0 }
                     }
                 });
                 commands.executeCommand(COMMANDS.REFRESH_COMMAND);
+                openPopupView(POPUP_EVENT_TYPE.CLOSE_VIEW, { view: null, recentIdentifier: templateParams.name });
                 resolve({ path: filePath, content: "" });
             }
         });
@@ -655,7 +660,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             const xmlData = getTemplateEndpointXmlWrapper(templateParams);
             const sanitizedXmlData = xmlData.replace(/^\s*[\r\n]/gm, '');
             if (params.getContentOnly) {
-                resolve({path: "", content: sanitizedXmlData});
+                resolve({ path: "", content: sanitizedXmlData });
             } else {
                 let filePath: string;
                 if (directory.endsWith('.xml')) {
@@ -669,10 +674,11 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     uri: filePath,
                     range: {
                         start: { line: 0, character: 0 },
-                        end: { line:  sanitizedXmlData.split('\n').length + 1, character: 0 }
+                        end: { line: sanitizedXmlData.split('\n').length + 1, character: 0 }
                     }
                 });
                 commands.executeCommand(COMMANDS.REFRESH_COMMAND);
+                openPopupView(POPUP_EVENT_TYPE.CLOSE_VIEW, { view: null, recentIdentifier: templateParams.name });
                 resolve({ path: filePath, content: "" });
             }
         });
@@ -1415,11 +1421,11 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 resolve({ path: "", content: sanitizedXmlData });
             } else {
                 const { templateName, endpointName } = getHttpEndpointParams;
+                const fileName = templateName?.length > 0 ? templateName : endpointName;
                 let filePath: string;
                 if (directory.endsWith('.xml')) {
                     filePath = directory;
                 } else {
-                    const fileName = templateName?.length > 0 ? templateName : endpointName;
                     filePath = path.join(directory, `${fileName}.xml`);
                 }
 
@@ -1432,6 +1438,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     }
                 });
                 commands.executeCommand(COMMANDS.REFRESH_COMMAND);
+                openPopupView(POPUP_EVENT_TYPE.CLOSE_VIEW, { view: null, recentIdentifier: fileName });
                 resolve({ path: filePath, content: "" });
             }
         });
@@ -1592,11 +1599,11 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 resolve({ path: "", content: sanitizedXmlData });
             } else {
                 const { templateName, endpointName } = getAddressEndpointParams;
+                const fileName = templateName?.length > 0 ? templateName : endpointName;
                 let filePath: string;
                 if (directory.endsWith('.xml')) {
                     filePath = directory;
                 } else {
-                    const fileName = templateName?.length > 0 ? templateName : endpointName;
                     filePath = path.join(directory, `${fileName}.xml`);
                 }
 
@@ -1609,6 +1616,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     }
                 });
                 commands.executeCommand(COMMANDS.REFRESH_COMMAND);
+                openPopupView(POPUP_EVENT_TYPE.CLOSE_VIEW, { view: null, recentIdentifier: fileName });
                 resolve({ path: filePath, content: "" });
             }
         });
@@ -1701,11 +1709,11 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 resolve({ path: "", content: sanitizedXmlData });
             } else {
                 const { templateName, endpointName } = getWsdlEndpointParams;
+                const fileName = templateName?.length > 0 ? templateName : endpointName;
                 let filePath: string;
                 if (directory.endsWith('.xml')) {
                     filePath = directory;
                 } else {
-                    const fileName = templateName?.length > 0 ? templateName : endpointName;
                     filePath = path.join(directory, `${fileName}.xml`);
                 }
 
@@ -1718,6 +1726,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     }
                 });
                 commands.executeCommand(COMMANDS.REFRESH_COMMAND);
+                openPopupView(POPUP_EVENT_TYPE.CLOSE_VIEW, { view: null, recentIdentifier: fileName });
                 resolve({ path: filePath, content: "" });
             }
         });
@@ -1811,12 +1820,12 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             if (params.getContentOnly) {
                 resolve({ path: "", content: sanitizedXmlData });
             } else {
+                const { templateName, endpointName } = getDefaultEndpointParams;
+                const fileName = templateName?.length > 0 ? templateName : endpointName;
                 let filePath: string;
                 if (directory.endsWith('.xml')) {
                     filePath = directory;
                 } else {
-                    const { templateName, endpointName } = getDefaultEndpointParams;
-                    const fileName = templateName?.length > 0 ? templateName : endpointName;
                     filePath = path.join(directory, `${fileName}.xml`);
                 }
 
@@ -1829,6 +1838,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     }
                 });
                 commands.executeCommand(COMMANDS.REFRESH_COMMAND);
+                openPopupView(POPUP_EVENT_TYPE.CLOSE_VIEW, { view: null, recentIdentifier: fileName });
                 resolve({ path: filePath, content: "" });
             }
         });
@@ -3017,7 +3027,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         if (confirm === 'Yes') {
             const token = await extension.context.secrets.get('MIAIUser');
             const clientId = 'rTEgoRFEQMc1baXcsO6_AU1ugjAa';
-    
+
             await fetch('https://api.asgardeo.io/t/wso2midev/oauth2/revoke', {
                 method: 'POST',
                 headers: {
@@ -3025,7 +3035,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 },
                 body: `token=${token}&client_id=${clientId}`
             });
-    
+
             await extension.context.secrets.delete('MIAIUser');
             await extension.context.secrets.delete('MIAIRefreshToken');
             StateMachineAI.sendEvent(AI_EVENT_TYPE.LOGOUT);
@@ -3068,11 +3078,11 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             endpointList.map((member: any) => {
                 if (isLoadBalanceEp) {
                     if (member.endpoint?.key) {
-                        endpoints.push({type: 'static', value: member.endpoint.key});
+                        endpoints.push({ type: 'static', value: member.endpoint.key });
                     }
                 } else {
                     if (member.key) {
-                        endpoints.push({type: 'static', value: member.key});
+                        endpoints.push({ type: 'static', value: member.key });
                     }
                 }
             });
@@ -3084,7 +3094,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
             let match;
             while ((match = endpointRegex.exec(xmlString)) !== null) {
-                endpoints.push({type: 'inline', value: builder.build(parser.parse(match[0])) as string});
+                endpoints.push({ type: 'inline', value: builder.build(parser.parse(match[0])) as string });
             }
             resolve(endpoints);
         });

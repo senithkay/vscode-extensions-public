@@ -12,6 +12,13 @@ import path = require("path");
 import * as fs from "fs";
 import { LICENSE_HEADER } from "./commons";
 
+function toCamelCase(text: string): string {
+    const words = text.split(" ");
+    return words.map((word, index) => 
+        index === 0 ? word.toLowerCase() : word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+    ).join("");
+}
+
 function capitalizeFirstLetter(str: string) {
     return str.charAt(0).toUpperCase() + str.slice(1);
 }
@@ -226,7 +233,7 @@ const generateForm = (jsonData: any): string => {
 
                     const comboValues = element.value.comboValues.map((value: string) => `"${value}"`).toString().replaceAll(",", ", ");
                     const comboStr = `
-                        <AutoComplete label="${displayName}" items={[${comboValues}]} value={field.value} onValueChange={(e: any) => {
+                        <AutoComplete label="${displayName}" name="${toCamelCase(displayName)}" items={[${comboValues}]} value={field.value} onValueChange={(e: any) => {
                             field.onChange(e);
                         }} />`;
                     fields +=
