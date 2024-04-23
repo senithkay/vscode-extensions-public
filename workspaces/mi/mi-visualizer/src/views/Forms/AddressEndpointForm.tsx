@@ -24,6 +24,7 @@ interface OptionProps {
 export interface AddressEndpointWizardProps {
     path: string;
     type: string;
+    isPopup?: boolean;
 }
 
 type InputsFields = {
@@ -426,19 +427,21 @@ export function AddressEndpointWizard(props: AddressEndpointWizardProps) {
                 view: isTemplate ? MACHINE_VIEW.TemplateForm : MACHINE_VIEW.EndPointForm,
                 documentUri: props.path,
                 customProps: {type: isTemplate ? 'template' : 'endpoint'}
-            }
+            },
+            isPopup: props.isPopup
         });
     }
 
     const handleCancel = () => {
         rpcClient.getMiVisualizerRpcClient().openView({
             type: EVENT_TYPE.OPEN_VIEW,
-            location: {view: MACHINE_VIEW.Overview}
+            location: {view: MACHINE_VIEW.Overview},
+            isPopup: props.isPopup
         });
     };
 
     return (
-        <FormView title={isTemplate ? 'Template Artifact' : 'Endpoint Artifact'} onClose={handleCancel}>
+        <FormView title={isTemplate ? 'Template Artifact' : 'Endpoint Artifact'} onClose={handleCancel} hideClose={props.isPopup}>
             <TypeChip
                 type={isTemplate ? "Address Endpoint Template" : "Address Endpoint"}
                 onClick={changeType}
