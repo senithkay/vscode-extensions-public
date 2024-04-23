@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import React, {useEffect, useState} from "react";
-import {Button, TextField, FormView, FormActions, FormCheckBox} from "@wso2-enterprise/ui-toolkit";
+import {Button, TextField, FormView, FormActions, FormCheckBox, ParamManager, ParamConfig} from "@wso2-enterprise/ui-toolkit";
 import {useVisualizerContext} from "@wso2-enterprise/mi-rpc-client";
 import {EVENT_TYPE, MACHINE_VIEW, CreateTemplateRequest} from "@wso2-enterprise/mi-core";
 import CardWrapper from "./Commons/CardWrapper";
@@ -131,16 +131,54 @@ export function TemplateWizard(props: TemplateWizardProps) {
     const isNewTemplate = !props.path.endsWith(".xml");
     const [savedTemplateName, setSavedTemplateName] = useState<string>("");
     const [workspaceFileNames, setWorkspaceFileNames] = useState([]);
+    const [paramsUpdated, setParamsUpdated] = useState(false);
+
+    const params: ParamConfig = {
+        paramValues: [],
+        paramFields: [
+            {
+                id: 0,
+                type: "TextField",
+                label: "Parameter",
+                defaultValue: "parameter_value",
+                isRequired: true
+            }]
+    }
+    const [sequenceParams, setSequenceParams] = useState(params);
 
     useEffect(() => {
         (async () => {
 
             if (!isNewTemplate) {
                 const existingTemplates = await rpcClient.getMiDiagramRpcClient().getTemplate({path: props.path});
+                params.paramValues = [];
+                setSequenceParams(params);
+                let i = 1;
+                existingTemplates.parameters.map((param: any) => {
+                    setSequenceParams((prev: any) => {
+                        return {
+                            ...prev,
+                            paramValues: [...prev.paramValues, {
+                                id: prev.paramValues.length,
+                                parameters: [{
+                                    id: 0,
+                                    value: param,
+                                    label: "Parameter",
+                                    type: "TextField",
+                                }],
+                                key: i++,
+                                value: param,
+                            }
+                            ]
+                        }
+                    });
+                });
                 reset(existingTemplates);
                 setSavedTemplateName(existingTemplates.templateName);
                 setValue('saveInReg', false);
             } else {
+                params.paramValues = [];
+                setSequenceParams(params);
                 reset(newTemplate);
             }
 
@@ -180,13 +218,34 @@ export function TemplateWizard(props: TemplateWizardProps) {
         }
     };
 
+    const handleParametersChange = (params: any) => {
+        let i = 1;
+        const modifiedParams = {
+            ...params, paramValues: params.paramValues.map((param: any) => {
+                return {
+                    ...param,
+                    key: i++,
+                    value: param.parameters[0].value
+                }
+            })
+        };
+        setSequenceParams(modifiedParams);
+        setParamsUpdated(true);
+    };
+
     const handleCreateTemplate = async (values: any) => {
+
+        let parameters: any = [];
+        sequenceParams.paramValues.map((param: any) => {
+            parameters.push(param.parameters[0].value);
+        })
 
         setValue('templateType', 'Sequence Template');
         const createTemplateParams: CreateTemplateRequest = {
             directory: props.path,
             getContentOnly: watch("saveInReg"),
-            ...values
+            ...values,
+            parameters
         }
 
         const result = await rpcClient.getMiDiagramRpcClient().createTemplate(createTemplateParams);
@@ -226,6 +285,11 @@ export function TemplateWizard(props: TemplateWizardProps) {
                     {...register("statisticsEnabled")}
                     control={control}
                 />
+                <span>Parameters</span>
+                <ParamManager
+                    paramConfigs={sequenceParams}
+                    readonly={false}
+                    onChange={handleParametersChange}/>
                 {isNewTemplate && (
                     <>
                         <FormCheckBox
@@ -242,7 +306,7 @@ export function TemplateWizard(props: TemplateWizardProps) {
                     <Button
                         appearance="primary"
                         onClick={handleSubmit(handleCreateTemplate)}
-                        disabled={!isDirty}
+                        disabled={!(isDirty || paramsUpdated)}
                     >
                         {isNewTemplate ? "Create" : "Save Changes"}
                     </Button>

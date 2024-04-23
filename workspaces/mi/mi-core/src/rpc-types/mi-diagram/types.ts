@@ -272,6 +272,7 @@ export interface CreateMessageStoreRequest {
     providerClass: string;
     customParameters: Record[];
     failOverMessageStore: string;
+    namespaces: any;
 }
 
 export interface CreateMessageStoreResponse {
@@ -316,6 +317,7 @@ export interface GetMessageStoreResponse {
     customParameters: Record[];
     failOverMessageStore: string;
     connectionInformationType?: string;
+    namespaces: any;
 }
 
 export interface GetMessageStoreRequest {
@@ -903,6 +905,7 @@ export interface CreateTemplateRequest {
     wsdlPort: number | null;
     traceEnabled: boolean;
     statisticsEnabled: boolean;
+    parameters: any;
     getContentOnly: boolean;
 }
 
@@ -926,6 +929,7 @@ export interface RetrieveTemplateResponse {
     wsdlPort: number | null;
     traceEnabled: boolean;
     statisticsEnabled: boolean;
+    parameters: any;
 }
 
 export interface ProjectRootResponse {
