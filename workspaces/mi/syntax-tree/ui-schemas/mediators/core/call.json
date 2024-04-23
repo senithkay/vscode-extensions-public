@@ -9,18 +9,15 @@
             "value": {
                 "name": "endopint",
                 "displayName": "Select Endpoint",
-                "inputType": "combo",
+                "inputType": "comboOrKey",
                 "comboValues": [
-                    "{workspace.endopints}",
-                    "{registry.endpoints}",
-                    "{line.break}",
-                    "{create.new}",
                     "INLINE",
                     "NONE",
                     "REGISTRYKEY",
                     "XPATH"
                 ],
                 "required": true,
+                "keyType":"endopint",
                 "helpTip": "Choose an existing endpoint, or specify a new one"
             }
         },
@@ -51,7 +48,7 @@
                 "helpTip": "Endpoint Registry Key",
                 "enableCondition": [
                     {
-                        "endpointType": "REGISTRYKEY"
+                        "endpoint": "REGISTRYKEY"
                     }
                 ]
             }
@@ -67,7 +64,7 @@
                 "helpTip": "Endpoint Xpath",
                 "enableCondition": [
                     {
-                        "endpointType": "XPATH"
+                        "endpoint": "XPATH"
                     }
                 ]
             }
