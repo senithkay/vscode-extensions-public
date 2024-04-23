@@ -1,0 +1,363 @@
+/*
+ * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
+
+import React, { Fragment, useEffect, useState } from "react";
+import {
+    Button,
+    TextField,
+    CheckBoxGroup,
+    SidePanel,
+    SidePanelTitleContainer,
+    SidePanelBody,
+    Codicon,
+    Divider,
+    RadioButtonGroup,
+    FormCheckBox,
+} from "@wso2-enterprise/ui-toolkit";
+import * as yup from "yup";
+import styled from "@emotion/styled";
+import { SIDE_PANEL_WIDTH } from "../../constants";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { FormKeylookup } from "@wso2-enterprise/mi-diagram-2";
+
+// Styles
+const ActionContainer = styled.div`
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    gap: 10px;
+    padding-bottom: 20px;
+`;
+
+const CheckBoxContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+`;
+
+const SidePanelBodyWrapper = styled.div`
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+`;
+
+namespace Section {
+    export const Container = styled.div`
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    `;
+
+    export const Title = styled.h4`
+        display: flex;
+        align-items: center;
+        margin: 0;
+        padding: 2px;
+        width: 100%;
+    `;
+
+    export const IconContainer = styled.div`
+        margin-left: auto;
+    `;
+}
+
+// Schema
+const schema = yup.object({
+    urlStyle: yup.string().oneOf(["none", "uri-template", "url-mapping"]).required("URL Style is required"),
+    uriTemplate: yup.string().when("urlStyle", {
+        is: "uri-template",
+        then: (schema) =>
+            schema.required("URI Template is required").matches(/^\//, "URL Template must start with a /"),
+        otherwise: (schema) => schema.transform(() => undefined),
+    }),
+    urlMapping: yup.string().when("urlStyle", {
+        is: "url-mapping",
+        then: (schema) => schema.required("URL Mapping is required").matches(/^\//, "URL Mapping must start with a /"),
+        otherwise: (schema) => schema.transform(() => undefined),
+    }),
+    protocol: yup.object({
+        http: yup.boolean(),
+        https: yup.boolean(),
+    }),
+    methods: yup.object({
+        get: yup.boolean(),
+        post: yup.boolean(),
+        put: yup.boolean(),
+        delete: yup.boolean(),
+        patch: yup.boolean(),
+        head: yup.boolean(),
+        options: yup.boolean(),
+    }),
+    inSequenceType: yup.string().oneOf(["inline", "named"]).required("In Sequence Type is required"),
+    inSequence: yup.string().when("inSequenceType", {
+        is: "named",
+        then: (schema) => schema.required("In Sequence is required"),
+        otherwise: (schema) => schema.transform(() => undefined),
+    }),
+    outSequenceType: yup.string().oneOf(["inline", "named"]).required("Out Sequence Type is required"),
+    outSequence: yup.string().when("outSequenceType", {
+        is: "named",
+        then: (schema) => schema.required("Out Sequence is required"),
+        otherwise: (schema) => schema.transform(() => undefined),
+    }),
+    faultSequenceType: yup.string().oneOf(["inline", "named"]).required("Fault Sequence Type is required"),
+    faultSequence: yup.string().when("faultSequenceType", {
+        is: "named",
+        then: (schema) => schema.required("Fault Sequence is required"),
+        otherwise: (schema) => schema.transform(() => undefined),
+    }),
+});
+
+// Types
+export type ResourceType = yup.InferType<typeof schema>;
+
+type ResourceFormProps = {
+    formData?: ResourceType;
+    isOpen: boolean;
+    documentUri: string;
+    onCancel: () => void;
+    onSave: (data: ResourceType & { mode: "create" | "edit" }) => void;
+};
+
+export type Protocol = "http" | "https";
+
+export type Method = "get" | "post" | "put" | "delete" | "patch" | "head" | "options";
+
+// Initial values
+const initialValues: ResourceType = {
+    urlStyle: "none",
+    uriTemplate: "/",
+    urlMapping: "/",
+    protocol: {
+        http: true,
+        https: true,
+    },
+    methods: {
+        get: false,
+        post: false,
+        put: false,
+        delete: false,
+        patch: false,
+        head: false,
+        options: false,
+    },
+    inSequenceType: "inline",
+    inSequence: "",
+    outSequenceType: "inline",
+    outSequence: "",
+    faultSequenceType: "inline",
+    faultSequence: "",
+};
+
+export const ResourceForm = ({ isOpen, documentUri, onCancel, onSave, formData }: ResourceFormProps) => {
+    const {
+        control,
+        handleSubmit,
+        formState: { errors, isValid, isDirty },
+        register,
+        watch,
+        reset
+    } = useForm({
+        defaultValues: initialValues,
+        resolver: yupResolver(schema),
+        mode: "onChange",
+    });
+    const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
+
+    // Watchers
+    const urlStyle = watch("urlStyle");
+    const inSequenceType = watch("inSequenceType");
+    const outSequenceType = watch("outSequenceType");
+    const faultSequenceType = watch("faultSequenceType");
+
+    // Functions
+    const handleCancel = () => {
+        onCancel();
+    };
+
+    // useEffects
+    useEffect(() => {
+        if (formData) {
+            reset(formData);
+        } else {
+            reset(initialValues);
+        }
+    }, [formData])
+
+    return (
+        <SidePanel
+            isOpen={isOpen}
+            alignmanet="right"
+            width={SIDE_PANEL_WIDTH}
+            overlay={false}
+            sx={{ transition: "all 0.3s ease-in-out" }}
+        >
+            <SidePanelTitleContainer>
+                <Button sx={{ marginLeft: "auto" }} onClick={onCancel} appearance="icon">
+                    <Codicon name="close" />
+                </Button>
+            </SidePanelTitleContainer>
+            <SidePanelBody style={{ overflowY: "scroll" }}>
+                <SidePanelBodyWrapper>
+                    <h3>{`${formData ? "Edit" : "Add"} API Resource`}</h3>
+                    <RadioButtonGroup
+                        id="urlStyle"
+                        label="URL Style"
+                        options={[
+                            { id: "uri-template", content: "URI_TEMPLATE", value: "uri-template" },
+                            { id: "url-mapping", content: "URL_MAPPING", value: "url-mapping" },
+                            { id: "none", content: "NONE", value: "none" },
+                        ]}
+                        orientation="horizontal"
+                        {...register("urlStyle")}
+                    />
+                    {urlStyle === "uri-template" && (
+                        <TextField
+                            id="url-style-uri-template"
+                            label="URI Template"
+                            size={150}
+                            {...register("uriTemplate")}
+                            errorMsg={errors.uriTemplate?.message}
+                        />
+                    )}
+                    {urlStyle === "url-mapping" && (
+                        <TextField
+                            id="url-style-url-mapping"
+                            label="URL Mapping"
+                            size={150}
+                            {...register("urlMapping")}
+                            errorMsg={errors.urlMapping?.message}
+                        />
+                    )}
+                    <CheckBoxContainer>
+                        <label>Methods</label>
+                        <CheckBoxGroup columns={2}>
+                            <FormCheckBox name="methods.get" label="GET" control={control} />
+                            <FormCheckBox name="methods.patch" label="PATCH" control={control} />
+                            <FormCheckBox name="methods.post" label="POST" control={control} />
+                            <FormCheckBox name="methods.head" label="HEAD" control={control} />
+                            <FormCheckBox name="methods.put" label="PUT" control={control} />
+                            <FormCheckBox name="methods.options" label="OPTIONS" control={control} />
+                            <FormCheckBox name="methods.delete" label="DELETE" control={control} />
+                        </CheckBoxGroup>
+                    </CheckBoxContainer>
+                    <CheckBoxContainer>
+                        <label>Protocol</label>
+                        <CheckBoxGroup columns={2}>
+                            <FormCheckBox name="protocol.http" label="HTTP" control={control} />
+                            <FormCheckBox name="protocol.https" label="HTTPS" control={control} />
+                        </CheckBoxGroup>
+                    </CheckBoxContainer>
+
+                    {/* Only when editing a resource */}
+                    {formData && (
+                        <Fragment>
+                            <Divider />
+                            <Section.Container>
+                                <Section.Title>
+                                    Advanced Options
+                                    <Section.IconContainer>
+                                        <Codicon
+                                            name={showAdvancedOptions ? "chrome-minimize" : "add"}
+                                            sx={{
+                                                padding: "2px",
+                                                borderRadius: "4px",
+                                                height: "14px",
+                                                backgroundColor: "var(--button-icon-hover-background)",
+                                            }}
+                                            iconSx={{ fontSize: showAdvancedOptions ? "14px" : "15px" }}
+                                            onClick={() => setShowAdvancedOptions(!showAdvancedOptions)}
+                                        />
+                                    </Section.IconContainer>
+                                </Section.Title>
+                                {showAdvancedOptions && (
+                                    <React.Fragment>
+                                        <RadioButtonGroup
+                                            id="inSequenceType"
+                                            label="In Sequence"
+                                            options={[
+                                                { id: "inline", content: "In-Line", value: "inline" },
+                                                { id: "named", content: "Named", value: "named" },
+                                            ]}
+                                            orientation="horizontal"
+                                            {...register("inSequenceType")}
+                                        />
+                                        {inSequenceType === "named" && (
+                                            <FormKeylookup
+                                                id="in-sequence-keylookup"
+                                                name="inSequence"
+                                                filterType="sequence"
+                                                path={documentUri}
+                                                control={control}
+                                                errorMsg={errors.inSequence?.message}
+                                            />
+                                        )}
+                                        <RadioButtonGroup
+                                            id="outSequenceType"
+                                            label="Out Sequence"
+                                            options={[
+                                                { id: "inline", content: "In-Line", value: "inline" },
+                                                { id: "named", content: "Named", value: "named" },
+                                            ]}
+                                            orientation="horizontal"
+                                            {...register("outSequenceType")}
+                                        />
+                                        {outSequenceType === "named" && (
+                                            <FormKeylookup
+                                                id="out-sequence-keylookup"
+                                                name="outSequence"
+                                                filterType="sequence"
+                                                path={documentUri}
+                                                control={control}
+                                                errorMsg={errors.outSequence?.message}
+                                            />
+                                        )}
+                                        <RadioButtonGroup
+                                            id="faultSequenceType"
+                                            label="Fault Sequence"
+                                            options={[
+                                                { id: "inline", content: "In-Line", value: "inline" },
+                                                { id: "named", content: "Named", value: "named" },
+                                            ]}
+                                            orientation="horizontal"
+                                            {...register("faultSequenceType")}
+                                        />
+                                        {faultSequenceType === "named" && (
+                                            <FormKeylookup
+                                                id="fault-sequence-keylookup"
+                                                name="faultSequence"
+                                                filterType="sequence"
+                                                path={documentUri}
+                                                control={control}
+                                                errorMsg={errors.faultSequence?.message}
+                                            />
+                                        )}
+                                    </React.Fragment>
+                                )}
+                            </Section.Container>
+                        </Fragment>
+                    )}
+                    <ActionContainer>
+                        <Button appearance="secondary" onClick={handleCancel}>
+                            Cancel
+                        </Button>
+                        <Button
+                            appearance="primary"
+                            onClick={handleSubmit((data: ResourceType) => onSave({ ...data, mode: formData ? "edit" : "create" }))}
+                            disabled={!isValid || !isDirty}
+                        >
+                            {formData ? "Update" : "Create"}
+                        </Button>
+                    </ActionContainer>
+                </SidePanelBodyWrapper>
+            </SidePanelBody>
+        </SidePanel>
+    );
+};
