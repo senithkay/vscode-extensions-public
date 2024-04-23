@@ -19,17 +19,17 @@ export function getPropertyGroupMustacheTemplate() {
 }
 
 export function getPropertyGroupXml(data: { [key: string]: any }) {
-    const properties = data.properties.map((property: string[]) => {
+    const properties = data.properties.map((property: any[]) => {
         return {
-            newPropertyName: property[1],
-            propertyDataType: property[2],
-            propertyAction: property[3],
-            propertyScope: property[4]?.toLowerCase(),
-            value: property[5] == "LITERAL" ? property[6] : undefined,
-            expression: property[5] == "EXPRESSION" ? property[7] : undefined,
-            valueStringPattern: property[8],
-            valueStringCapturingGroup: property[9],
-            description: property[10]
+            newPropertyName: property[0],
+            propertyDataType: property[1],
+            propertyAction: property[2],
+            value: property[3]?.isExpression ? undefined : property[3]?.value,
+            expression: property[3]?.isExpression ? property[3]?.value : undefined,
+            propertyScope: property[5]?.toLowerCase(),
+            valueStringPattern: property[4],
+            valueStringCapturingGroup: property[6],
+            description: property[7]
         }
     });
     const modifiedData = {
@@ -42,7 +42,8 @@ export function getPropertyGroupXml(data: { [key: string]: any }) {
 export function getPropertyGroupFormDataFromSTNode(data: { [key: string]: any }, node: PropertyGroup) {
 
     data.properties = node.property.map(property => {
-        return [property.name, property.type, property.action, property.scope, property.value ? "LITERAL" : "EXPRESSION", property.value ?? property.expression, property.pattern, property.group, property.description];
+        let isExpression = property.value ? "LITERAL" : "EXPRESSION";
+        return [property.name, property.type, property.action, { isExpression: isExpression, value: property.value ?? property.expression }, property.pattern, property.scope, property.group, property.description];
     })
     return data;
 }
