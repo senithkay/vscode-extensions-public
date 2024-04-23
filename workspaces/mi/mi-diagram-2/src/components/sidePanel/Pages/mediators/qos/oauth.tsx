@@ -9,7 +9,7 @@
 // AUTO-GENERATED FILE. DO NOT MODIFY.
 
 import React, { useEffect } from 'react';
-import { Button, ProgressIndicator, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
+import { Button, ComponentCard, ProgressIndicator, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
 import { AddMediatorProps } from '../common';
@@ -35,7 +35,7 @@ const Field = styled.div`
    margin-bottom: 12px;
 `;
 
-const RespondForm = (props: AddMediatorProps) => {
+const OAuthForm = (props: AddMediatorProps) => {
     const { rpcClient } = useVisualizerContext();
     const sidePanelContext = React.useContext(SidePanelContext);
     const [ isLoading, setIsLoading ] = React.useState(true);
@@ -44,6 +44,9 @@ const RespondForm = (props: AddMediatorProps) => {
 
     useEffect(() => {
         reset({
+            remoteServiceURL: sidePanelContext?.formValues?.remoteServiceURL || "",
+            username: sidePanelContext?.formValues?.username || "",
+            password: sidePanelContext?.formValues?.password || "",
             description: sidePanelContext?.formValues?.description || "",
         });
         setIsLoading(false);
@@ -51,7 +54,7 @@ const RespondForm = (props: AddMediatorProps) => {
 
     const onClick = async (values: any) => {
         
-        const xml = getXML(MEDIATORS.RESPOND, values, dirtyFields, sidePanelContext.formValues);
+        const xml = getXML(MEDIATORS.OAUTH, values, dirtyFields, sidePanelContext.formValues);
         if (Array.isArray(xml)) {
             for (let i = 0; i < xml.length; i++) {
                 await rpcClient.getMiDiagramRpcClient().applyEdit({
@@ -78,15 +81,53 @@ const RespondForm = (props: AddMediatorProps) => {
     }
     return (
         <>
-            <Typography sx={{ padding: "10px 15px", borderBottom: "1px solid var(--vscode-editorWidget-border)" }} variant="body3">Terminates the processing of the current message flow and returns the message to the client.</Typography>
+            <Typography sx={{ padding: "10px 15px", borderBottom: "1px solid var(--vscode-editorWidget-border)" }} variant="body3">Validates client credentials for a RESTful service using OAuth (WSO2 IS).</Typography>
             <div style={{ padding: "20px" }}>
+
+                <Field>
+                    <Controller
+                        name="remoteServiceURL"
+                        control={control}
+                        render={({ field }) => (
+                            <TextField {...field} label="Remote Service URL" size={50} placeholder="" />
+                        )}
+                    />
+                    {errors.remoteServiceURL && <Error>{errors.remoteServiceURL.message.toString()}</Error>}
+                </Field>
+
+                <ComponentCard sx={cardStyle} disbaleHoverEffect>
+                    <Typography variant="h3">Credentials</Typography>
+
+                    <Field>
+                        <Controller
+                            name="username"
+                            control={control}
+                            render={({ field }) => (
+                                <TextField {...field} label="Username" size={50} placeholder="" />
+                            )}
+                        />
+                        {errors.username && <Error>{errors.username.message.toString()}</Error>}
+                    </Field>
+
+                    <Field>
+                        <Controller
+                            name="password"
+                            control={control}
+                            render={({ field }) => (
+                                <TextField {...field} label="Password" size={50} placeholder="" />
+                            )}
+                        />
+                        {errors.password && <Error>{errors.password.message.toString()}</Error>}
+                    </Field>
+
+                </ComponentCard>
 
                 <Field>
                     <Controller
                         name="description"
                         control={control}
                         render={({ field }) => (
-                            <TextField {...field} label="Description" size={50} placeholder="Description" />
+                            <TextField {...field} label="Description" size={50} placeholder="" />
                         )}
                     />
                     {errors.description && <Error>{errors.description.message.toString()}</Error>}
@@ -107,4 +148,4 @@ const RespondForm = (props: AddMediatorProps) => {
     );
 };
 
-export default RespondForm; 
+export default OAuthForm; 

@@ -40,7 +40,7 @@ const RuleForm = (props: AddMediatorProps) => {
     const sidePanelContext = React.useContext(SidePanelContext);
     const [ isLoading, setIsLoading ] = React.useState(true);
 
-    const { control, formState: { errors }, handleSubmit, watch, reset } = useForm();
+    const { control, formState: { errors, dirtyFields }, handleSubmit, watch, reset } = useForm();
 
     useEffect(() => {
         reset({
@@ -378,10 +378,18 @@ const RuleForm = (props: AddMediatorProps) => {
         
         values["factsConfiguration"] = values.factsConfiguration.paramValues.map((param: any) => param.paramValues.map((p: any) => p.value));
         values["resultsConfiguration"] = values.resultsConfiguration.paramValues.map((param: any) => param.paramValues.map((p: any) => p.value));
-        const xml = getXML(MEDIATORS.RULE, values);
-        rpcClient.getMiDiagramRpcClient().applyEdit({
-            documentUri: props.documentUri, range: props.nodePosition, text: xml
-        });
+        const xml = getXML(MEDIATORS.RULE, values, dirtyFields, sidePanelContext.formValues);
+        if (Array.isArray(xml)) {
+            for (let i = 0; i < xml.length; i++) {
+                await rpcClient.getMiDiagramRpcClient().applyEdit({
+                    documentUri: props.documentUri, range: xml[i].range, text: xml[i].text
+                });
+            }
+        } else {
+            rpcClient.getMiDiagramRpcClient().applyEdit({
+                documentUri: props.documentUri, range: props.nodePosition, text: xml
+            });
+        }
         sidePanelContext.setSidePanelState({
             ...sidePanelContext,
             isOpen: false,
@@ -396,159 +404,160 @@ const RuleForm = (props: AddMediatorProps) => {
         return <ProgressIndicator/>;
     }
     return (
-        <div style={{ padding: "10px" }}>
-            <Typography variant="body3"></Typography>
+        <>
+            <Typography sx={{ padding: "10px 15px", borderBottom: "1px solid var(--vscode-editorWidget-border)" }} variant="body3">Processes XML message by applying a set of rules.</Typography>
+            <div style={{ padding: "20px" }}>
 
-            <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                <Typography variant="h3">Source</Typography>
+                <ComponentCard sx={cardStyle} disbaleHoverEffect>
+                    <Typography variant="h3">Source</Typography>
 
-                <Field>
-                    <Controller
-                        name="sourceValue"
-                        control={control}
-                        render={({ field }) => (
-                            <TextField {...field} label="Source Value" size={50} placeholder="" />
-                        )}
-                    />
-                    {errors.sourceValue && <Error>{errors.sourceValue.message.toString()}</Error>}
-                </Field>
+                    <Field>
+                        <Controller
+                            name="sourceValue"
+                            control={control}
+                            render={({ field }) => (
+                                <TextField {...field} label="Source Value" size={50} placeholder="" />
+                            )}
+                        />
+                        {errors.sourceValue && <Error>{errors.sourceValue.message.toString()}</Error>}
+                    </Field>
 
-                <Field>
-                    <Controller
-                        name="sourceXPath"
-                        control={control}
-                        render={({ field }) => (
-                            <ExpressionField
-                                {...field} label="Source XPath"
-                                placeholder=""
-                                canChange={false}
-                                openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => {
-                                    sidePanelContext.setSidePanelState({
-                                        ...sidePanelContext,
-                                        expressionEditor: {
-                                            isOpen: true,
-                                            value,
-                                            setValue
-                                        }
-                                    });
-                                }}
-                            />
-                        )}
-                    />
-                    {errors.sourceXPath && <Error>{errors.sourceXPath.message.toString()}</Error>}
-                </Field>
+                    <Field>
+                        <Controller
+                            name="sourceXPath"
+                            control={control}
+                            render={({ field }) => (
+                                <ExpressionField
+                                    {...field} label="Source XPath"
+                                    placeholder=""
+                                    canChange={false}
+                                    openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => {
+                                        sidePanelContext.setSidePanelState({
+                                            ...sidePanelContext,
+                                            expressionEditor: {
+                                                isOpen: true,
+                                                value,
+                                                setValue
+                                            }
+                                        });
+                                    }}
+                                />
+                            )}
+                        />
+                        {errors.sourceXPath && <Error>{errors.sourceXPath.message.toString()}</Error>}
+                    </Field>
 
-            </ComponentCard>
+                </ComponentCard>
 
-            <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                <Typography variant="h3">Target</Typography>
+                <ComponentCard sx={cardStyle} disbaleHoverEffect>
+                    <Typography variant="h3">Target</Typography>
 
-                <Field>
-                    <Controller
-                        name="targetValue"
-                        control={control}
-                        render={({ field }) => (
-                            <TextField {...field} label="Target Value" size={50} placeholder="" />
-                        )}
-                    />
-                    {errors.targetValue && <Error>{errors.targetValue.message.toString()}</Error>}
-                </Field>
+                    <Field>
+                        <Controller
+                            name="targetValue"
+                            control={control}
+                            render={({ field }) => (
+                                <TextField {...field} label="Target Value" size={50} placeholder="" />
+                            )}
+                        />
+                        {errors.targetValue && <Error>{errors.targetValue.message.toString()}</Error>}
+                    </Field>
 
-                <Field>
-                    <Controller
-                        name="targetAction"
-                        control={control}
-                        render={({ field }) => (
-                            <AutoComplete label="Target Action" items={["Replace", "Child", "Sibiling"]} value={field.value} onValueChange={(e: any) => {
-                                field.onChange(e);
-                            }} />
-                        )}
-                    />
-                    {errors.targetAction && <Error>{errors.targetAction.message.toString()}</Error>}
-                </Field>
+                    <Field>
+                        <Controller
+                            name="targetAction"
+                            control={control}
+                            render={({ field }) => (
+                                <AutoComplete label="Target Action" name="targetAction" items={["Replace", "Child", "Sibiling"]} value={field.value} onValueChange={(e: any) => {
+                                    field.onChange(e);
+                                }} />
+                            )}
+                        />
+                        {errors.targetAction && <Error>{errors.targetAction.message.toString()}</Error>}
+                    </Field>
 
-                <Field>
-                    <Controller
-                        name="targetXPath"
-                        control={control}
-                        render={({ field }) => (
-                            <ExpressionField
-                                {...field} label="Target XPath"
-                                placeholder=""
-                                canChange={false}
-                                openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => {
-                                    sidePanelContext.setSidePanelState({
-                                        ...sidePanelContext,
-                                        expressionEditor: {
-                                            isOpen: true,
-                                            value,
-                                            setValue
-                                        }
-                                    });
-                                }}
-                            />
-                        )}
-                    />
-                    {errors.targetXPath && <Error>{errors.targetXPath.message.toString()}</Error>}
-                </Field>
+                    <Field>
+                        <Controller
+                            name="targetXPath"
+                            control={control}
+                            render={({ field }) => (
+                                <ExpressionField
+                                    {...field} label="Target XPath"
+                                    placeholder=""
+                                    canChange={false}
+                                    openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => {
+                                        sidePanelContext.setSidePanelState({
+                                            ...sidePanelContext,
+                                            expressionEditor: {
+                                                isOpen: true,
+                                                value,
+                                                setValue
+                                            }
+                                        });
+                                    }}
+                                />
+                            )}
+                        />
+                        {errors.targetXPath && <Error>{errors.targetXPath.message.toString()}</Error>}
+                    </Field>
 
-                <Field>
-                    <Controller
-                        name="targetResultXPath"
-                        control={control}
-                        render={({ field }) => (
-                            <ExpressionField
-                                {...field} label="Target Result XPath"
-                                placeholder=""
-                                canChange={false}
-                                openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => {
-                                    sidePanelContext.setSidePanelState({
-                                        ...sidePanelContext,
-                                        expressionEditor: {
-                                            isOpen: true,
-                                            value,
-                                            setValue
-                                        }
-                                    });
-                                }}
-                            />
-                        )}
-                    />
-                    {errors.targetResultXPath && <Error>{errors.targetResultXPath.message.toString()}</Error>}
-                </Field>
+                    <Field>
+                        <Controller
+                            name="targetResultXPath"
+                            control={control}
+                            render={({ field }) => (
+                                <ExpressionField
+                                    {...field} label="Target Result XPath"
+                                    placeholder=""
+                                    canChange={false}
+                                    openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => {
+                                        sidePanelContext.setSidePanelState({
+                                            ...sidePanelContext,
+                                            expressionEditor: {
+                                                isOpen: true,
+                                                value,
+                                                setValue
+                                            }
+                                        });
+                                    }}
+                                />
+                            )}
+                        />
+                        {errors.targetResultXPath && <Error>{errors.targetResultXPath.message.toString()}</Error>}
+                    </Field>
 
-            </ComponentCard>
+                </ComponentCard>
 
-            <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                <Typography variant="h3">Rule Set</Typography>
+                <ComponentCard sx={cardStyle} disbaleHoverEffect>
+                    <Typography variant="h3">Rule Set</Typography>
 
-                <Field>
-                    <Controller
-                        name="ruleSetType"
-                        control={control}
-                        render={({ field }) => (
-                            <AutoComplete label="Rule Set Type" items={["Regular", "Decision Table"]} value={field.value} onValueChange={(e: any) => {
-                                field.onChange(e);
-                            }} />
-                        )}
-                    />
-                    {errors.ruleSetType && <Error>{errors.ruleSetType.message.toString()}</Error>}
-                </Field>
+                    <Field>
+                        <Controller
+                            name="ruleSetType"
+                            control={control}
+                            render={({ field }) => (
+                                <AutoComplete label="Rule Set Type" name="ruleSetType" items={["Regular", "Decision Table"]} value={field.value} onValueChange={(e: any) => {
+                                    field.onChange(e);
+                                }} />
+                            )}
+                        />
+                        {errors.ruleSetType && <Error>{errors.ruleSetType.message.toString()}</Error>}
+                    </Field>
 
-                <Field>
-                    <Controller
-                        name="ruleSetSourceType"
-                        control={control}
-                        render={({ field }) => (
-                            <AutoComplete label="Rule Set Source Type" items={["INLINE", "REGISTRY_REFERENCE", "URL"]} value={field.value} onValueChange={(e: any) => {
-                                field.onChange(e);
-                            }} />
-                        )}
-                    />
-                    {errors.ruleSetSourceType && <Error>{errors.ruleSetSourceType.message.toString()}</Error>}
-                </Field>
+                    <Field>
+                        <Controller
+                            name="ruleSetSourceType"
+                            control={control}
+                            render={({ field }) => (
+                                <AutoComplete label="Rule Set Source Type" name="ruleSetSourceType" items={["INLINE", "REGISTRY_REFERENCE", "URL"]} value={field.value} onValueChange={(e: any) => {
+                                    field.onChange(e);
+                                }} />
+                            )}
+                        />
+                        {errors.ruleSetSourceType && <Error>{errors.ruleSetSourceType.message.toString()}</Error>}
+                    </Field>
 
-                {watch("ruleSetSourceType") && watch("ruleSetSourceType").toLowerCase() == "inline" &&
+                    {watch("ruleSetSourceType") && watch("ruleSetSourceType").toLowerCase() == "inline" &&
                     <Field>
                         <Controller
                             name="ruleSetSourceCode"
@@ -559,9 +568,9 @@ const RuleForm = (props: AddMediatorProps) => {
                         />
                         {errors.ruleSetSourceCode && <Error>{errors.ruleSetSourceCode.message.toString()}</Error>}
                     </Field>
-                }
+                    }
 
-                {watch("ruleSetSourceType") && watch("ruleSetSourceType").toLowerCase() == "registry_reference" &&
+                    {watch("ruleSetSourceType") && watch("ruleSetSourceType").toLowerCase() == "registry_reference" &&
                     <Field>
                         <Controller
                             name="inlineRegistryKey"
@@ -572,9 +581,9 @@ const RuleForm = (props: AddMediatorProps) => {
                         />
                         {errors.inlineRegistryKey && <Error>{errors.inlineRegistryKey.message.toString()}</Error>}
                     </Field>
-                }
+                    }
 
-                {watch("ruleSetSourceType") && watch("ruleSetSourceType").toLowerCase() == "url" &&
+                    {watch("ruleSetSourceType") && watch("ruleSetSourceType").toLowerCase() == "url" &&
                     <Field>
                         <Controller
                             name="ruleSetURL"
@@ -585,147 +594,148 @@ const RuleForm = (props: AddMediatorProps) => {
                         />
                         {errors.ruleSetURL && <Error>{errors.ruleSetURL.message.toString()}</Error>}
                     </Field>
-                }
+                    }
 
-            </ComponentCard>
-
-            <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                <Typography variant="h3">Input Facts</Typography>
-
-                <Field>
-                    <Controller
-                        name="inputWrapperName"
-                        control={control}
-                        render={({ field }) => (
-                            <TextField {...field} label="Input Wrapper Name" size={50} placeholder="" />
-                        )}
-                    />
-                    {errors.inputWrapperName && <Error>{errors.inputWrapperName.message.toString()}</Error>}
-                </Field>
-
-                <Field>
-                    <Controller
-                        name="inputNamespace"
-                        control={control}
-                        render={({ field }) => (
-                            <TextField {...field} label="Input Namespace" size={50} placeholder="" />
-                        )}
-                    />
-                    {errors.inputNamespace && <Error>{errors.inputNamespace.message.toString()}</Error>}
-                </Field>
+                </ComponentCard>
 
                 <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                    <Typography variant="h3">Facts Configuration</Typography>
-                    <Typography variant="body3">Editing of the properties of an object Facts Configuration</Typography>
+                    <Typography variant="h3">Input Facts</Typography>
 
-                    <Controller
-                        name="factsConfiguration"
-                        control={control}
-                        render={({ field: { onChange, value } }) => (
-                            <ParamManager
-                                paramConfigs={value}
-                                readonly={false}
-                                onChange= {(values) => {
-                                    values.paramValues = values.paramValues.map((param: any, index: number) => {
-                                        const paramValues = param.paramValues;
-                                        param.key = paramValues[0].value;
-                                        param.value = paramValues[2].value;
-                                        if (paramValues[1]?.value?.isExpression) {
-                                            param.namespaces = paramValues[1].value.namespaces;
-                                        }
-                                        param.icon = 'query';
-                                        return param;
-                                    });
-                                    onChange(values);
-                                }}
-                            />
-                        )}
-                    />
+                    <Field>
+                        <Controller
+                            name="inputWrapperName"
+                            control={control}
+                            render={({ field }) => (
+                                <TextField {...field} label="Input Wrapper Name" size={50} placeholder="" />
+                            )}
+                        />
+                        {errors.inputWrapperName && <Error>{errors.inputWrapperName.message.toString()}</Error>}
+                    </Field>
+
+                    <Field>
+                        <Controller
+                            name="inputNamespace"
+                            control={control}
+                            render={({ field }) => (
+                                <TextField {...field} label="Input Namespace" size={50} placeholder="" />
+                            )}
+                        />
+                        {errors.inputNamespace && <Error>{errors.inputNamespace.message.toString()}</Error>}
+                    </Field>
+
+                    <ComponentCard sx={cardStyle} disbaleHoverEffect>
+                        <Typography variant="h3">Facts Configuration</Typography>
+                        <Typography variant="body3">Editing of the properties of an object Facts Configuration</Typography>
+
+                        <Controller
+                            name="factsConfiguration"
+                            control={control}
+                            render={({ field: { onChange, value } }) => (
+                                <ParamManager
+                                    paramConfigs={value}
+                                    readonly={false}
+                                    onChange= {(values) => {
+                                        values.paramValues = values.paramValues.map((param: any, index: number) => {
+                                            const paramValues = param.paramValues;
+                                            param.key = paramValues[0].value;
+                                            param.value = paramValues[2].value;
+                                            if (paramValues[1]?.value?.isExpression) {
+                                                param.namespaces = paramValues[1].value.namespaces;
+                                            }
+                                            param.icon = 'query';
+                                            return param;
+                                        });
+                                        onChange(values);
+                                    }}
+                                />
+                            )}
+                        />
+                    </ComponentCard>
                 </ComponentCard>
-            </ComponentCard>
-
-            <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                <Typography variant="h3">Output Facts</Typography>
-
-                <Field>
-                    <Controller
-                        name="outputWrapperName"
-                        control={control}
-                        render={({ field }) => (
-                            <TextField {...field} label="Output Wrapper Name" size={50} placeholder="" />
-                        )}
-                    />
-                    {errors.outputWrapperName && <Error>{errors.outputWrapperName.message.toString()}</Error>}
-                </Field>
-
-                <Field>
-                    <Controller
-                        name="outputNamespace"
-                        control={control}
-                        render={({ field }) => (
-                            <TextField {...field} label="Output Namespace" size={50} placeholder="" />
-                        )}
-                    />
-                    {errors.outputNamespace && <Error>{errors.outputNamespace.message.toString()}</Error>}
-                </Field>
 
                 <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                    <Typography variant="h3">Results Configuration</Typography>
-                    <Typography variant="body3">Editing of the properties of an object Rule Results Configuration</Typography>
+                    <Typography variant="h3">Output Facts</Typography>
 
-                    <Controller
-                        name="resultsConfiguration"
-                        control={control}
-                        render={({ field: { onChange, value } }) => (
-                            <ParamManager
-                                paramConfigs={value}
-                                readonly={false}
-                                onChange= {(values) => {
-                                    values.paramValues = values.paramValues.map((param: any, index: number) => {
-                                        const paramValues = param.paramValues;
-                                        param.key = paramValues[0].value;
-                                        param.value = paramValues[2].value;
-                                        if (paramValues[1]?.value?.isExpression) {
-                                            param.namespaces = paramValues[1].value.namespaces;
-                                        }
-                                        param.icon = 'query';
-                                        return param;
-                                    });
-                                    onChange(values);
-                                }}
-                            />
-                        )}
-                    />
+                    <Field>
+                        <Controller
+                            name="outputWrapperName"
+                            control={control}
+                            render={({ field }) => (
+                                <TextField {...field} label="Output Wrapper Name" size={50} placeholder="" />
+                            )}
+                        />
+                        {errors.outputWrapperName && <Error>{errors.outputWrapperName.message.toString()}</Error>}
+                    </Field>
+
+                    <Field>
+                        <Controller
+                            name="outputNamespace"
+                            control={control}
+                            render={({ field }) => (
+                                <TextField {...field} label="Output Namespace" size={50} placeholder="" />
+                            )}
+                        />
+                        {errors.outputNamespace && <Error>{errors.outputNamespace.message.toString()}</Error>}
+                    </Field>
+
+                    <ComponentCard sx={cardStyle} disbaleHoverEffect>
+                        <Typography variant="h3">Results Configuration</Typography>
+                        <Typography variant="body3">Editing of the properties of an object Rule Results Configuration</Typography>
+
+                        <Controller
+                            name="resultsConfiguration"
+                            control={control}
+                            render={({ field: { onChange, value } }) => (
+                                <ParamManager
+                                    paramConfigs={value}
+                                    readonly={false}
+                                    onChange= {(values) => {
+                                        values.paramValues = values.paramValues.map((param: any, index: number) => {
+                                            const paramValues = param.paramValues;
+                                            param.key = paramValues[0].value;
+                                            param.value = paramValues[2].value;
+                                            if (paramValues[1]?.value?.isExpression) {
+                                                param.namespaces = paramValues[1].value.namespaces;
+                                            }
+                                            param.icon = 'query';
+                                            return param;
+                                        });
+                                        onChange(values);
+                                    }}
+                                />
+                            )}
+                        />
+                    </ComponentCard>
                 </ComponentCard>
-            </ComponentCard>
 
-            <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                <Typography variant="h3">Misc</Typography>
+                <ComponentCard sx={cardStyle} disbaleHoverEffect>
+                    <Typography variant="h3">Misc</Typography>
 
-                <Field>
-                    <Controller
-                        name="description"
-                        control={control}
-                        render={({ field }) => (
-                            <TextField {...field} label="Description" size={50} placeholder="" />
-                        )}
-                    />
-                    {errors.description && <Error>{errors.description.message.toString()}</Error>}
-                </Field>
+                    <Field>
+                        <Controller
+                            name="description"
+                            control={control}
+                            render={({ field }) => (
+                                <TextField {...field} label="Description" size={50} placeholder="" />
+                            )}
+                        />
+                        {errors.description && <Error>{errors.description.message.toString()}</Error>}
+                    </Field>
 
-            </ComponentCard>
+                </ComponentCard>
 
 
-            <div style={{ textAlign: "right", marginTop: "10px", float: "right" }}>
-                <Button
-                    appearance="primary"
-                    onClick={handleSubmit(onClick)}
-                >
+                <div style={{ textAlign: "right", marginTop: "10px", float: "right" }}>
+                    <Button
+                        appearance="primary"
+                        onClick={handleSubmit(onClick)}
+                    >
                     Submit
-                </Button>
-            </div>
+                    </Button>
+                </div>
 
-        </div>
+            </div>
+        </>
     );
 };
 

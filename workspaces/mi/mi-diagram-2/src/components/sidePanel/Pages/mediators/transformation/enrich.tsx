@@ -42,7 +42,7 @@ const EnrichForm = (props: AddMediatorProps) => {
     const sidePanelContext = React.useContext(SidePanelContext);
     const [ isLoading, setIsLoading ] = React.useState(true);
 
-    const { control, formState: { errors }, handleSubmit, watch, reset } = useForm();
+    const { control, formState: { errors, dirtyFields }, handleSubmit, watch, reset } = useForm();
 
     useEffect(() => {
         reset({
@@ -64,10 +64,18 @@ const EnrichForm = (props: AddMediatorProps) => {
 
     const onClick = async (values: any) => {
         
-        const xml = getXML(MEDIATORS.ENRICH, values);
-        rpcClient.getMiDiagramRpcClient().applyEdit({
-            documentUri: props.documentUri, range: props.nodePosition, text: xml
-        });
+        const xml = getXML(MEDIATORS.ENRICH, values, dirtyFields, sidePanelContext.formValues);
+        if (Array.isArray(xml)) {
+            for (let i = 0; i < xml.length; i++) {
+                await rpcClient.getMiDiagramRpcClient().applyEdit({
+                    documentUri: props.documentUri, range: xml[i].range, text: xml[i].text
+                });
+            }
+        } else {
+            rpcClient.getMiDiagramRpcClient().applyEdit({
+                documentUri: props.documentUri, range: props.nodePosition, text: xml
+            });
+        }
         sidePanelContext.setSidePanelState({
             ...sidePanelContext,
             isOpen: false,
@@ -82,39 +90,38 @@ const EnrichForm = (props: AddMediatorProps) => {
         return <ProgressIndicator/>;
     }
     return (
-        <div style={{ padding: "10px" }}>
-            <Typography variant="body3"></Typography>
+        <>
+            <Typography sx={{ padding: "10px 15px", borderBottom: "1px solid var(--vscode-editorWidget-border)" }} variant="body3">Enriches message content (envelope, body, etc.) based on specification.</Typography>
+            <div style={{ padding: "20px" }}>
 
-            <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                <Typography variant="h3">Source</Typography>
+                <ComponentCard sx={cardStyle} disbaleHoverEffect>
+                    <Typography variant="h3">Source</Typography>
 
-                <Field>
-                    <Controller
-                        name="cloneSource"
-                        control={control}
-                        render={({ field }) => (
-                            <VSCodeCheckbox type="checkbox" checked={field.value} onChange={(e: any) => {
-                                field.onChange(e);
-                            }}>Clone Source</VSCodeCheckbox>
-                        )}
-                    />
-                    {errors.cloneSource && <Error>{errors.cloneSource.message.toString()}</Error>}
-                </Field>
+                    <Field>
+                        <Controller
+                            name="cloneSource"
+                            control={control}
+                            render={({ field }) => (
+                                <VSCodeCheckbox {...field} type="checkbox" checked={field.value} onChange={(e: any) => {field.onChange(e.target.checked)}}>Clone Source</VSCodeCheckbox>
+                            )}
+                        />
+                        {errors.cloneSource && <Error>{errors.cloneSource.message.toString()}</Error>}
+                    </Field>
 
-                <Field>
-                    <Controller
-                        name="sourceType"
-                        control={control}
-                        render={({ field }) => (
-                            <AutoComplete label="Source Type" items={["custom", "envelope", "body", "property", "inline"]} value={field.value} onValueChange={(e: any) => {
-                                field.onChange(e);
-                            }} />
-                        )}
-                    />
-                    {errors.sourceType && <Error>{errors.sourceType.message.toString()}</Error>}
-                </Field>
+                    <Field>
+                        <Controller
+                            name="sourceType"
+                            control={control}
+                            render={({ field }) => (
+                                <AutoComplete label="Source Type" name="sourceType" items={["custom", "envelope", "body", "property", "inline"]} value={field.value} onValueChange={(e: any) => {
+                                    field.onChange(e);
+                                }} />
+                            )}
+                        />
+                        {errors.sourceType && <Error>{errors.sourceType.message.toString()}</Error>}
+                    </Field>
 
-                {watch("sourceType") && watch("sourceType").toLowerCase() == "custom" &&
+                    {watch("sourceType") && watch("sourceType").toLowerCase() == "custom" &&
                     <Field>
                         <Controller
                             name="sourceXPath"
@@ -139,9 +146,9 @@ const EnrichForm = (props: AddMediatorProps) => {
                         />
                         {errors.sourceXPath && <Error>{errors.sourceXPath.message.toString()}</Error>}
                     </Field>
-                }
+                    }
 
-                {watch("sourceType") && watch("sourceType").toLowerCase() == "property" &&
+                    {watch("sourceType") && watch("sourceType").toLowerCase() == "property" &&
                     <Field>
                         <Controller
                             name="sourceProperty"
@@ -152,24 +159,24 @@ const EnrichForm = (props: AddMediatorProps) => {
                         />
                         {errors.sourceProperty && <Error>{errors.sourceProperty.message.toString()}</Error>}
                     </Field>
-                }
+                    }
 
-                {watch("sourceType") && watch("sourceType").toLowerCase() == "inline" &&
+                    {watch("sourceType") && watch("sourceType").toLowerCase() == "inline" &&
                     <Field>
                         <Controller
                             name="inlineType"
                             control={control}
                             render={({ field }) => (
-                                <AutoComplete label="Inline Type" items={["Inline XML/JSON", "RegistryKey"]} value={field.value} onValueChange={(e: any) => {
+                                <AutoComplete label="Inline Type" name="inlineType" items={["Inline XML/JSON", "RegistryKey"]} value={field.value} onValueChange={(e: any) => {
                                     field.onChange(e);
                                 }} />
                             )}
                         />
                         {errors.inlineType && <Error>{errors.inlineType.message.toString()}</Error>}
                     </Field>
-                }
+                    }
 
-                {watch("sourceType") && watch("sourceType").toLowerCase() == "inline" &&watch("inlineType") && watch("inlineType").toLowerCase() == "inline xml/json"  &&
+                    {watch("sourceType") && watch("sourceType").toLowerCase() == "inline" &&watch("inlineType") && watch("inlineType").toLowerCase() == "inline xml/json"  &&
                     <Field>
                         <Controller
                             name="sourceXML"
@@ -180,57 +187,58 @@ const EnrichForm = (props: AddMediatorProps) => {
                         />
                         {errors.sourceXML && <Error>{errors.sourceXML.message.toString()}</Error>}
                     </Field>
-                }
+                    }
 
-                {watch("inlineType") && watch("inlineType").toLowerCase() == "registrykey" &&
+                    {watch("inlineType") && watch("inlineType").toLowerCase() == "registrykey" &&
                     <Field>
                         <Controller
                             name="inlineRegistryKey"
                             control={control}
                             render={({ field }) => (
                                 <Keylookup
-                                    {...field}
+                                    value={field.value}
                                     label="Inline Registry Key"
                                     allowItemCreate={false}
+                                    onValueChange={field.onChange}
                                 />
                             )}
                         />
                         {errors.inlineRegistryKey && <Error>{errors.inlineRegistryKey.message.toString()}</Error>}
                     </Field>
-                }
+                    }
 
-            </ComponentCard>
+                </ComponentCard>
 
-            <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                <Typography variant="h3">Target</Typography>
+                <ComponentCard sx={cardStyle} disbaleHoverEffect>
+                    <Typography variant="h3">Target</Typography>
 
-                <Field>
-                    <Controller
-                        name="targetAction"
-                        control={control}
-                        render={({ field }) => (
-                            <AutoComplete label="Target Action" items={["replace", "child", "sibling", "remove"]} value={field.value} onValueChange={(e: any) => {
-                                field.onChange(e);
-                            }} />
-                        )}
-                    />
-                    {errors.targetAction && <Error>{errors.targetAction.message.toString()}</Error>}
-                </Field>
+                    <Field>
+                        <Controller
+                            name="targetAction"
+                            control={control}
+                            render={({ field }) => (
+                                <AutoComplete label="Target Action" name="targetAction" items={["replace", "child", "sibling", "remove"]} value={field.value} onValueChange={(e: any) => {
+                                    field.onChange(e);
+                                }} />
+                            )}
+                        />
+                        {errors.targetAction && <Error>{errors.targetAction.message.toString()}</Error>}
+                    </Field>
 
-                <Field>
-                    <Controller
-                        name="targetType"
-                        control={control}
-                        render={({ field }) => (
-                            <AutoComplete label="Target Type" items={["custom", "body", "property", "envelope", "key"]} value={field.value} onValueChange={(e: any) => {
-                                field.onChange(e);
-                            }} />
-                        )}
-                    />
-                    {errors.targetType && <Error>{errors.targetType.message.toString()}</Error>}
-                </Field>
+                    <Field>
+                        <Controller
+                            name="targetType"
+                            control={control}
+                            render={({ field }) => (
+                                <AutoComplete label="Target Type" name="targetType" items={["custom", "body", "property", "envelope", "key"]} value={field.value} onValueChange={(e: any) => {
+                                    field.onChange(e);
+                                }} />
+                            )}
+                        />
+                        {errors.targetType && <Error>{errors.targetType.message.toString()}</Error>}
+                    </Field>
 
-                {watch("targetType") && watch("targetType").toLowerCase() == "custom" ||watch("targetType") && watch("targetType").toLowerCase() == "key"  &&
+                    {watch("targetType") && watch("targetType").toLowerCase() == "custom" ||watch("targetType") && watch("targetType").toLowerCase() == "key"  &&
                     <Field>
                         <Controller
                             name="targetXPathJsonPath"
@@ -241,9 +249,9 @@ const EnrichForm = (props: AddMediatorProps) => {
                         />
                         {errors.targetXPathJsonPath && <Error>{errors.targetXPathJsonPath.message.toString()}</Error>}
                     </Field>
-                }
+                    }
 
-                {watch("targetType") && watch("targetType").toLowerCase() == "property" &&
+                    {watch("targetType") && watch("targetType").toLowerCase() == "property" &&
                     <Field>
                         <Controller
                             name="targetProperty"
@@ -254,32 +262,33 @@ const EnrichForm = (props: AddMediatorProps) => {
                         />
                         {errors.targetProperty && <Error>{errors.targetProperty.message.toString()}</Error>}
                     </Field>
-                }
+                    }
 
-            </ComponentCard>
+                </ComponentCard>
 
-            <Field>
-                <Controller
-                    name="description"
-                    control={control}
-                    render={({ field }) => (
-                        <TextField {...field} label="Description" size={50} placeholder="" />
-                    )}
-                />
-                {errors.description && <Error>{errors.description.message.toString()}</Error>}
-            </Field>
+                <Field>
+                    <Controller
+                        name="description"
+                        control={control}
+                        render={({ field }) => (
+                            <TextField {...field} label="Description" size={50} placeholder="" />
+                        )}
+                    />
+                    {errors.description && <Error>{errors.description.message.toString()}</Error>}
+                </Field>
 
 
-            <div style={{ textAlign: "right", marginTop: "10px", float: "right" }}>
-                <Button
-                    appearance="primary"
-                    onClick={handleSubmit(onClick)}
-                >
+                <div style={{ textAlign: "right", marginTop: "10px", float: "right" }}>
+                    <Button
+                        appearance="primary"
+                        onClick={handleSubmit(onClick)}
+                    >
                     Submit
-                </Button>
-            </div>
+                    </Button>
+                </div>
 
-        </div>
+            </div>
+        </>
     );
 };
 

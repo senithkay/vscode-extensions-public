@@ -9,7 +9,8 @@
 // AUTO-GENERATED FILE. DO NOT MODIFY.
 
 import React, { useEffect } from 'react';
-import { AutoComplete, Button, ComponentCard, ExpressionFieldValue, ParamManager, ProgressIndicator, TextField, TextArea, Typography } from '@wso2-enterprise/ui-toolkit';
+import { Button, ComponentCard, ExpressionFieldValue, ParamManager, ProgressIndicator, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
+import { VSCodeCheckbox } from '@vscode/webview-ui-toolkit/react';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
 import { AddMediatorProps } from '../common';
@@ -35,7 +36,7 @@ const Field = styled.div`
    margin-bottom: 12px;
 `;
 
-const PayloadForm = (props: AddMediatorProps) => {
+const ConditionalRouterForm = (props: AddMediatorProps) => {
     const { rpcClient } = useVisualizerContext();
     const sidePanelContext = React.useContext(SidePanelContext);
     const [ isLoading, setIsLoading ] = React.useState(true);
@@ -44,17 +45,13 @@ const PayloadForm = (props: AddMediatorProps) => {
 
     useEffect(() => {
         reset({
-            payloadFormat: sidePanelContext?.formValues?.payloadFormat || "",
-            mediaType: sidePanelContext?.formValues?.mediaType || "json",
-            templateType: sidePanelContext?.formValues?.templateType || "Default",
-            payloadKey: sidePanelContext?.formValues?.payloadKey || "",
-            payload: sidePanelContext?.formValues?.payload || "{\"Sample\":\"Payload\"}",
-            args: {
-                paramValues: sidePanelContext?.formValues?.args && sidePanelContext?.formValues?.args.map((property: string|ExpressionFieldValue[], index: string) => (
+            continueAfterRoute: sidePanelContext?.formValues?.continueAfterRoute || "",
+            conditionalRouteBranches: {
+                paramValues: sidePanelContext?.formValues?.conditionalRouteBranches && sidePanelContext?.formValues?.conditionalRouteBranches.map((property: string|ExpressionFieldValue[], index: string) => (
                     {
                         id: index,
-                        key: index,
-                        value: typeof property[0] === 'object' ? property[0].value : property[0],
+                        key: typeof property[0] === 'object' ? property[0].value : property[0],
+                        value: typeof property[1] === 'object' ? property[1].value : property[1],
                         icon: 'query',
                         paramValues: [
                             { value: property[0] },
@@ -65,14 +62,10 @@ const PayloadForm = (props: AddMediatorProps) => {
                 )) || [] as string[][],
                 paramFields: [
                     {
-                        "type": "ExprField",
-                        "label": "Argument Value",
-                        "defaultValue": {
-                            "isExpression": false,
-                            "value": ""
-                        },
-                        "isRequired": false,
-                        "canChange": true, 
+                        "type": "TextField",
+                        "label": "Break After Route",
+                        "defaultValue": "",
+                        "isRequired": false, 
                         openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
                             sidePanelContext.setSidePanelState({
                                 ...sidePanelContext,
@@ -84,20 +77,10 @@ const PayloadForm = (props: AddMediatorProps) => {
                             });
                         }},
                     {
-                        "type": "Dropdown",
-                        "label": "Evaluator",
-                        "defaultValue": "xml",
-                        "isRequired": false,
-                        "values": [
-                            "xml",
-                            "json"
-                        ],
-                        "enableCondition": [
-                            "isExpression",
-                            {
-                                "-1": "a"
-                            }
-                        ], 
+                        "type": "TextField",
+                        "label": "Target Sequence",
+                        "defaultValue": "",
+                        "isRequired": false, 
                         openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
                             sidePanelContext.setSidePanelState({
                                 ...sidePanelContext,
@@ -109,7 +92,8 @@ const PayloadForm = (props: AddMediatorProps) => {
                             });
                         }},
                     {
-                        "label": "Literal",
+                        "type": "TextField",
+                        "label": "Evaluator Expression",
                         "defaultValue": "",
                         "isRequired": false, 
                         openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
@@ -131,8 +115,8 @@ const PayloadForm = (props: AddMediatorProps) => {
 
     const onClick = async (values: any) => {
         
-        values["args"] = values.args.paramValues.map((param: any) => param.paramValues.map((p: any) => p.value));
-        const xml = getXML(MEDIATORS.PAYLOAD, values, dirtyFields, sidePanelContext.formValues);
+        values["conditionalRouteBranches"] = values.conditionalRouteBranches.paramValues.map((param: any) => param.paramValues.map((p: any) => p.value));
+        const xml = getXML(MEDIATORS.CONDITIONALROUTER, values, dirtyFields, sidePanelContext.formValues);
         if (Array.isArray(xml)) {
             for (let i = 0; i < xml.length; i++) {
                 await rpcClient.getMiDiagramRpcClient().applyEdit({
@@ -159,83 +143,29 @@ const PayloadForm = (props: AddMediatorProps) => {
     }
     return (
         <>
-            <Typography sx={{ padding: "10px 15px", borderBottom: "1px solid var(--vscode-editorWidget-border)" }} variant="body3">Replaces message payload with a new SOAP/JSON payload.</Typography>
+            <Typography sx={{ padding: "10px 15px", borderBottom: "1px solid var(--vscode-editorWidget-border)" }} variant="body3">Routes messages to target sequence only if conditions are met.</Typography>
             <div style={{ padding: "20px" }}>
 
-                <Field>
-                    <Controller
-                        name="payloadFormat"
-                        control={control}
-                        render={({ field }) => (
-                            <AutoComplete label="Payload Format" name="payloadFormat" items={["Inline", "Registry Reference"]} value={field.value} onValueChange={(e: any) => {
-                                field.onChange(e);
-                            }} />
-                        )}
-                    />
-                    {errors.payloadFormat && <Error>{errors.payloadFormat.message.toString()}</Error>}
-                </Field>
-
-                <Field>
-                    <Controller
-                        name="mediaType"
-                        control={control}
-                        render={({ field }) => (
-                            <AutoComplete label="Media Type" name="mediaType" items={["xml", "json", "text"]} value={field.value} onValueChange={(e: any) => {
-                                field.onChange(e);
-                            }} />
-                        )}
-                    />
-                    {errors.mediaType && <Error>{errors.mediaType.message.toString()}</Error>}
-                </Field>
-
-                <Field>
-                    <Controller
-                        name="templateType"
-                        control={control}
-                        render={({ field }) => (
-                            <AutoComplete label="Template Type" name="templateType" items={["Default", "Freemarker"]} value={field.value} onValueChange={(e: any) => {
-                                field.onChange(e);
-                            }} />
-                        )}
-                    />
-                    {errors.templateType && <Error>{errors.templateType.message.toString()}</Error>}
-                </Field>
-
-                {watch("payloadFormat") && watch("payloadFormat").toLowerCase() == "registry reference" &&
-                <Field>
-                    <Controller
-                        name="payloadKey"
-                        control={control}
-                        render={({ field }) => (
-                            <TextField {...field} label="Payload Key" size={50} placeholder="" />
-                        )}
-                    />
-                    {errors.payloadKey && <Error>{errors.payloadKey.message.toString()}</Error>}
-                </Field>
-                }
-
                 <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                    <Typography variant="h3">Payload</Typography>
+                    <Typography variant="h3">Properties</Typography>
 
-                    {watch("payloadFormat") && watch("payloadFormat").toLowerCase() == "inline" &&
                     <Field>
                         <Controller
-                            name="payload"
+                            name="continueAfterRoute"
                             control={control}
                             render={({ field }) => (
-                                <TextArea {...field} label="Payload" placeholder="" />
+                                <VSCodeCheckbox {...field} type="checkbox" checked={field.value} onChange={(e: any) => {field.onChange(e.target.checked)}}>Continue After Route</VSCodeCheckbox>
                             )}
                         />
-                        {errors.payload && <Error>{errors.payload.message.toString()}</Error>}
+                        {errors.continueAfterRoute && <Error>{errors.continueAfterRoute.message.toString()}</Error>}
                     </Field>
-                    }
 
                     <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                        <Typography variant="h3">Args</Typography>
-                        <Typography variant="body3">Editing of the properties of an object Payload Factory Argument</Typography>
+                        <Typography variant="h3">Conditional Route Branches</Typography>
+                        <Typography variant="body3">Editing of the properties of an object Conditional Route Branch</Typography>
 
                         <Controller
-                            name="args"
+                            name="conditionalRouteBranches"
                             control={control}
                             render={({ field: { onChange, value } }) => (
                                 <ParamManager
@@ -244,8 +174,8 @@ const PayloadForm = (props: AddMediatorProps) => {
                                     onChange= {(values) => {
                                         values.paramValues = values.paramValues.map((param: any, index: number) => {
                                             const paramValues = param.paramValues;
-                                            param.key = index;
-                                            param.value = paramValues[0].value.value;
+                                            param.key = paramValues[0].value;
+                                            param.value = paramValues[1].value;
                                             if (paramValues[1]?.value?.isExpression) {
                                                 param.namespaces = paramValues[1].value.namespaces;
                                             }
@@ -258,18 +188,18 @@ const PayloadForm = (props: AddMediatorProps) => {
                             )}
                         />
                     </ComponentCard>
-                </ComponentCard>
+                    <Field>
+                        <Controller
+                            name="description"
+                            control={control}
+                            render={({ field }) => (
+                                <TextField {...field} label="Description" size={50} placeholder="" />
+                            )}
+                        />
+                        {errors.description && <Error>{errors.description.message.toString()}</Error>}
+                    </Field>
 
-                <Field>
-                    <Controller
-                        name="description"
-                        control={control}
-                        render={({ field }) => (
-                            <TextField {...field} label="Description" size={50} placeholder="" />
-                        )}
-                    />
-                    {errors.description && <Error>{errors.description.message.toString()}</Error>}
-                </Field>
+                </ComponentCard>
 
 
                 <div style={{ textAlign: "right", marginTop: "10px", float: "right" }}>
@@ -286,4 +216,4 @@ const PayloadForm = (props: AddMediatorProps) => {
     );
 };
 
-export default PayloadForm; 
+export default ConditionalRouterForm; 

@@ -10,6 +10,7 @@
 
 import React, { useEffect } from 'react';
 import { Button, ComponentCard, ExpressionFieldValue, ParamManager, ProgressIndicator, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
+import { VSCodeCheckbox } from '@vscode/webview-ui-toolkit/react';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
 import { AddMediatorProps } from '../common';
@@ -35,7 +36,7 @@ const Field = styled.div`
    margin-bottom: 12px;
 `;
 
-const PropertyGroupForm = (props: AddMediatorProps) => {
+const CloneForm = (props: AddMediatorProps) => {
     const { rpcClient } = useVisualizerContext();
     const sidePanelContext = React.useContext(SidePanelContext);
     const [ isLoading, setIsLoading ] = React.useState(true);
@@ -44,12 +45,15 @@ const PropertyGroupForm = (props: AddMediatorProps) => {
 
     useEffect(() => {
         reset({
-            properties: {
-                paramValues: sidePanelContext?.formValues?.properties && sidePanelContext?.formValues?.properties.map((property: string|ExpressionFieldValue[], index: string) => (
+            cloneId: sidePanelContext?.formValues?.cloneId || "",
+            sequentialMediation: sidePanelContext?.formValues?.sequentialMediation || false,
+            continueParent: sidePanelContext?.formValues?.continueParent || false,
+            targets: {
+                paramValues: sidePanelContext?.formValues?.targets && sidePanelContext?.formValues?.targets.map((property: string|ExpressionFieldValue[], index: string) => (
                     {
                         id: index,
                         key: typeof property[0] === 'object' ? property[0].value : property[0],
-                        value: typeof property[3] === 'object' ? property[3].value : property[3],
+                        value: typeof property[2] === 'object' ? property[2].value : property[2],
                         icon: 'query',
                         paramValues: [
                             { value: property[0] },
@@ -58,104 +62,38 @@ const PropertyGroupForm = (props: AddMediatorProps) => {
                             { value: property[3] },
                             { value: property[4] },
                             { value: property[5] },
-                            { value: property[6] },
-                            { value: property[7] },
                         ]
                     }
                 )) || [] as string[][],
                 paramFields: [
                     {
+                        "type": "Dropdown",
+                        "label": "Sequence Type",
+                        "defaultValue": "ANONYMOUS",
+                        "isRequired": false,
+                        "values": [
+                            "NONE",
+                            "ANONYMOUS",
+                            "REGISTRY_REFERENCE"
+                        ], 
+                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
+                            sidePanelContext.setSidePanelState({
+                                ...sidePanelContext,
+                                expressionEditor: {
+                                    isOpen: true,
+                                    value,
+                                    setValue
+                                }
+                            });
+                        }},
+                    {
                         "type": "TextField",
-                        "label": "Property Name",
-                        "defaultValue": "",
-                        "isRequired": false, 
-                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                            sidePanelContext.setSidePanelState({
-                                ...sidePanelContext,
-                                expressionEditor: {
-                                    isOpen: true,
-                                    value,
-                                    setValue
-                                }
-                            });
-                        }},
-                    {
-                        "type": "Dropdown",
-                        "label": "Property Data Type",
-                        "defaultValue": "STRING",
-                        "isRequired": false,
-                        "values": [
-                            "STRING",
-                            "INTEGER",
-                            "BOOLEAN",
-                            "DOUBLE",
-                            "FLOAT",
-                            "LONG",
-                            "SHORT",
-                            "OM",
-                            "JSON"
-                        ], 
-                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                            sidePanelContext.setSidePanelState({
-                                ...sidePanelContext,
-                                expressionEditor: {
-                                    isOpen: true,
-                                    value,
-                                    setValue
-                                }
-                            });
-                        }},
-                    {
-                        "type": "Dropdown",
-                        "label": "Property Action",
-                        "defaultValue": "set",
-                        "isRequired": false,
-                        "values": [
-                            "set",
-                            "remove"
-                        ], 
-                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                            sidePanelContext.setSidePanelState({
-                                ...sidePanelContext,
-                                expressionEditor: {
-                                    isOpen: true,
-                                    value,
-                                    setValue
-                                }
-                            });
-                        }},
-                    {
-                        "type": "ExprField",
-                        "label": "Property Value",
-                        "defaultValue": {
-                            "isExpression": false,
-                            "value": ""
-                        },
-                        "isRequired": false,
-                        "canChange": true,
-                        "enableCondition": [
-                            "NOT",
-                            {
-                                "1": "OM"
-                            }
-                        ], 
-                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                            sidePanelContext.setSidePanelState({
-                                ...sidePanelContext,
-                                expressionEditor: {
-                                    isOpen: true,
-                                    value,
-                                    setValue
-                                }
-                            });
-                        }},
-                    {
-                        "label": "OM",
+                        "label": "Sequence Registry Key",
                         "defaultValue": "",
                         "isRequired": false,
                         "enableCondition": [
                             {
-                                "1": "OM"
+                                "0": "REGISTRY_REFERENCE"
                             }
                         ], 
                         openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
@@ -170,18 +108,13 @@ const PropertyGroupForm = (props: AddMediatorProps) => {
                         }},
                     {
                         "type": "Dropdown",
-                        "label": "Property Scope",
-                        "defaultValue": "DEFAULT",
+                        "label": "Endpoint Type",
+                        "defaultValue": "ANONYMOUS",
                         "isRequired": false,
                         "values": [
-                            "DEFAULT",
-                            "TRANSPORT",
-                            "AXIS2",
-                            "AXIS2_CLIENT",
-                            "OPERATION",
-                            "REGISTRY",
-                            "SYSTEM",
-                            "ANALYTICS"
+                            "NONE",
+                            "ANONYMOUS",
+                            "REGISTRY_REFERENCE"
                         ], 
                         openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
                             sidePanelContext.setSidePanelState({
@@ -194,6 +127,28 @@ const PropertyGroupForm = (props: AddMediatorProps) => {
                             });
                         }},
                     {
+                        "type": "TextField",
+                        "label": "Endpoint Registry Key",
+                        "defaultValue": "",
+                        "isRequired": false,
+                        "enableCondition": [
+                            {
+                                "2": "REGISTRY_REFERENCE"
+                            }
+                        ], 
+                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
+                            sidePanelContext.setSidePanelState({
+                                ...sidePanelContext,
+                                expressionEditor: {
+                                    isOpen: true,
+                                    value,
+                                    setValue
+                                }
+                            });
+                        }},
+                    {
+                        "type": "TextField",
+                        "label": "SOAP Action",
                         "defaultValue": "",
                         "isRequired": false, 
                         openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
@@ -208,7 +163,7 @@ const PropertyGroupForm = (props: AddMediatorProps) => {
                         }},
                     {
                         "type": "TextField",
-                        "label": "Description",
+                        "label": "To Address",
                         "defaultValue": "",
                         "isRequired": false, 
                         openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
@@ -230,8 +185,8 @@ const PropertyGroupForm = (props: AddMediatorProps) => {
 
     const onClick = async (values: any) => {
         
-        values["properties"] = values.properties.paramValues.map((param: any) => param.paramValues.map((p: any) => p.value));
-        const xml = getXML(MEDIATORS.PROPERTYGROUP, values, dirtyFields, sidePanelContext.formValues);
+        values["targets"] = values.targets.paramValues.map((param: any) => param.paramValues.map((p: any) => p.value));
+        const xml = getXML(MEDIATORS.CLONE, values, dirtyFields, sidePanelContext.formValues);
         if (Array.isArray(xml)) {
             for (let i = 0; i < xml.length; i++) {
                 await rpcClient.getMiDiagramRpcClient().applyEdit({
@@ -258,15 +213,48 @@ const PropertyGroupForm = (props: AddMediatorProps) => {
     }
     return (
         <>
-            <Typography sx={{ padding: "10px 15px", borderBottom: "1px solid var(--vscode-editorWidget-border)" }} variant="body3">Sets/removes multiple properties on message context efficiently.</Typography>
+            <Typography sx={{ padding: "10px 15px", borderBottom: "1px solid var(--vscode-editorWidget-border)" }} variant="body3">Clones a message into several messages.</Typography>
             <div style={{ padding: "20px" }}>
 
+                <Field>
+                    <Controller
+                        name="cloneId"
+                        control={control}
+                        render={({ field }) => (
+                            <TextField {...field} label="Clone ID" size={50} placeholder="" />
+                        )}
+                    />
+                    {errors.cloneId && <Error>{errors.cloneId.message.toString()}</Error>}
+                </Field>
+
+                <Field>
+                    <Controller
+                        name="sequentialMediation"
+                        control={control}
+                        render={({ field }) => (
+                            <VSCodeCheckbox {...field} type="checkbox" checked={field.value} onChange={(e: any) => {field.onChange(e.target.checked)}}>Sequential Mediation</VSCodeCheckbox>
+                        )}
+                    />
+                    {errors.sequentialMediation && <Error>{errors.sequentialMediation.message.toString()}</Error>}
+                </Field>
+
+                <Field>
+                    <Controller
+                        name="continueParent"
+                        control={control}
+                        render={({ field }) => (
+                            <VSCodeCheckbox {...field} type="checkbox" checked={field.value} onChange={(e: any) => {field.onChange(e.target.checked)}}>Continue Parent</VSCodeCheckbox>
+                        )}
+                    />
+                    {errors.continueParent && <Error>{errors.continueParent.message.toString()}</Error>}
+                </Field>
+
                 <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                    <Typography variant="h3">Properties</Typography>
-                    <Typography variant="body3">Editing of the properties of an object PropertyMediator</Typography>
+                    <Typography variant="h3">Targets</Typography>
+                    <Typography variant="body3">Editing of the properties of an object CloneTarget</Typography>
 
                     <Controller
-                        name="properties"
+                        name="targets"
                         control={control}
                         render={({ field: { onChange, value } }) => (
                             <ParamManager
@@ -276,7 +264,7 @@ const PropertyGroupForm = (props: AddMediatorProps) => {
                                     values.paramValues = values.paramValues.map((param: any, index: number) => {
                                         const paramValues = param.paramValues;
                                         param.key = paramValues[0].value;
-                                        param.value = paramValues[3].value.value;
+                                        param.value = paramValues[2].value;
                                         if (paramValues[1]?.value?.isExpression) {
                                             param.namespaces = paramValues[1].value.namespaces;
                                         }
@@ -294,7 +282,7 @@ const PropertyGroupForm = (props: AddMediatorProps) => {
                         name="description"
                         control={control}
                         render={({ field }) => (
-                            <TextField {...field} label="Description" size={50} placeholder="Description" />
+                            <TextField {...field} label="Description" size={50} placeholder="" />
                         )}
                     />
                     {errors.description && <Error>{errors.description.message.toString()}</Error>}
@@ -315,4 +303,4 @@ const PropertyGroupForm = (props: AddMediatorProps) => {
     );
 };
 
-export default PropertyGroupForm; 
+export default CloneForm; 

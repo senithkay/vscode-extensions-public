@@ -40,7 +40,7 @@ const DataMapperForm = (props: AddMediatorProps) => {
     const sidePanelContext = React.useContext(SidePanelContext);
     const [ isLoading, setIsLoading ] = React.useState(true);
 
-    const { control, formState: { errors }, handleSubmit, watch, reset } = useForm();
+    const { control, formState: { errors, dirtyFields }, handleSubmit, watch, reset } = useForm();
 
     useEffect(() => {
         reset({
@@ -56,10 +56,18 @@ const DataMapperForm = (props: AddMediatorProps) => {
 
     const onClick = async (values: any) => {
         
-        const xml = getXML(MEDIATORS.DATAMAPPER, values);
-        rpcClient.getMiDiagramRpcClient().applyEdit({
-            documentUri: props.documentUri, range: props.nodePosition, text: xml
-        });
+        const xml = getXML(MEDIATORS.DATAMAPPER, values, dirtyFields, sidePanelContext.formValues);
+        if (Array.isArray(xml)) {
+            for (let i = 0; i < xml.length; i++) {
+                await rpcClient.getMiDiagramRpcClient().applyEdit({
+                    documentUri: props.documentUri, range: xml[i].range, text: xml[i].text
+                });
+            }
+        } else {
+            rpcClient.getMiDiagramRpcClient().applyEdit({
+                documentUri: props.documentUri, range: props.nodePosition, text: xml
+            });
+        }
         sidePanelContext.setSidePanelState({
             ...sidePanelContext,
             isOpen: false,
@@ -74,105 +82,107 @@ const DataMapperForm = (props: AddMediatorProps) => {
         return <ProgressIndicator/>;
     }
     return (
-        <div style={{ padding: "10px" }}>
-            <Typography variant="body3"></Typography>
-
-            <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                <Typography variant="h3">Properties</Typography>
-
-                <Field>
-                    <Controller
-                        name="description"
-                        control={control}
-                        render={({ field }) => (
-                            <TextField {...field} label="Description" size={50} placeholder="" />
-                        )}
-                    />
-                    {errors.description && <Error>{errors.description.message.toString()}</Error>}
-                </Field>
-
-                <Field>
-                    <Controller
-                        name="configurationLocalPath"
-                        control={control}
-                        render={({ field }) => (
-                            <TextField {...field} label="Configuration Local Path" size={50} placeholder="" />
-                        )}
-                    />
-                    {errors.configurationLocalPath && <Error>{errors.configurationLocalPath.message.toString()}</Error>}
-                </Field>
+        <>
+            <Typography sx={{ padding: "10px 15px", borderBottom: "1px solid var(--vscode-editorWidget-border)" }} variant="body3">Transforms data format/structure in the message.</Typography>
+            <div style={{ padding: "20px" }}>
 
                 <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                    <Typography variant="h3">InputType</Typography>
+                    <Typography variant="h3">Properties</Typography>
 
                     <Field>
                         <Controller
-                            name="inputType"
+                            name="description"
                             control={control}
                             render={({ field }) => (
-                                <AutoComplete label="Input Type" items={["XML", "CSV", "JSON"]} value={field.value} onValueChange={(e: any) => {
-                                    field.onChange(e);
-                                }} />
+                                <TextField {...field} label="Description" size={50} placeholder="" />
                             )}
                         />
-                        {errors.inputType && <Error>{errors.inputType.message.toString()}</Error>}
+                        {errors.description && <Error>{errors.description.message.toString()}</Error>}
                     </Field>
 
                     <Field>
                         <Controller
-                            name="inputSchemaLocalPath"
+                            name="configurationLocalPath"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="InputSchema Local Path" size={50} placeholder="" />
+                                <TextField {...field} label="Configuration Local Path" size={50} placeholder="" />
                             )}
                         />
-                        {errors.inputSchemaLocalPath && <Error>{errors.inputSchemaLocalPath.message.toString()}</Error>}
+                        {errors.configurationLocalPath && <Error>{errors.configurationLocalPath.message.toString()}</Error>}
                     </Field>
+
+                    <ComponentCard sx={cardStyle} disbaleHoverEffect>
+                        <Typography variant="h3">InputType</Typography>
+
+                        <Field>
+                            <Controller
+                                name="inputType"
+                                control={control}
+                                render={({ field }) => (
+                                    <AutoComplete label="Input Type" name="inputType" items={["XML", "CSV", "JSON"]} value={field.value} onValueChange={(e: any) => {
+                                        field.onChange(e);
+                                    }} />
+                                )}
+                            />
+                            {errors.inputType && <Error>{errors.inputType.message.toString()}</Error>}
+                        </Field>
+
+                        <Field>
+                            <Controller
+                                name="inputSchemaLocalPath"
+                                control={control}
+                                render={({ field }) => (
+                                    <TextField {...field} label="InputSchema Local Path" size={50} placeholder="" />
+                                )}
+                            />
+                            {errors.inputSchemaLocalPath && <Error>{errors.inputSchemaLocalPath.message.toString()}</Error>}
+                        </Field>
+
+                    </ComponentCard>
+
+                    <ComponentCard sx={cardStyle} disbaleHoverEffect>
+                        <Typography variant="h3">OutputType</Typography>
+
+                        <Field>
+                            <Controller
+                                name="outputType"
+                                control={control}
+                                render={({ field }) => (
+                                    <AutoComplete label="Output Type" name="outputType" items={["XML", "CSV", "JSON"]} value={field.value} onValueChange={(e: any) => {
+                                        field.onChange(e);
+                                    }} />
+                                )}
+                            />
+                            {errors.outputType && <Error>{errors.outputType.message.toString()}</Error>}
+                        </Field>
+
+                        <Field>
+                            <Controller
+                                name="outputSchemaLocalPath"
+                                control={control}
+                                render={({ field }) => (
+                                    <TextField {...field} label="OutputSchema Local Path" size={50} placeholder="" />
+                                )}
+                            />
+                            {errors.outputSchemaLocalPath && <Error>{errors.outputSchemaLocalPath.message.toString()}</Error>}
+                        </Field>
+
+                    </ComponentCard>
 
                 </ComponentCard>
 
-                <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                    <Typography variant="h3">OutputType</Typography>
 
-                    <Field>
-                        <Controller
-                            name="outputType"
-                            control={control}
-                            render={({ field }) => (
-                                <AutoComplete label="Output Type" items={["XML", "CSV", "JSON"]} value={field.value} onValueChange={(e: any) => {
-                                    field.onChange(e);
-                                }} />
-                            )}
-                        />
-                        {errors.outputType && <Error>{errors.outputType.message.toString()}</Error>}
-                    </Field>
-
-                    <Field>
-                        <Controller
-                            name="outputSchemaLocalPath"
-                            control={control}
-                            render={({ field }) => (
-                                <TextField {...field} label="OutputSchema Local Path" size={50} placeholder="" />
-                            )}
-                        />
-                        {errors.outputSchemaLocalPath && <Error>{errors.outputSchemaLocalPath.message.toString()}</Error>}
-                    </Field>
-
-                </ComponentCard>
-
-            </ComponentCard>
-
-
-            <div style={{ textAlign: "right", marginTop: "10px", float: "right" }}>
-                <Button
-                    appearance="primary"
-                    onClick={handleSubmit(onClick)}
-                >
+                <div style={{ textAlign: "right", marginTop: "10px", float: "right" }}>
+                    <Button
+                        appearance="primary"
+                        onClick={handleSubmit(onClick)}
+                    >
                     Submit
-                </Button>
-            </div>
+                    </Button>
+                </div>
 
-        </div>
+            </div>
+        </>
     );
 };
 

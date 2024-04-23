@@ -40,7 +40,7 @@ const ClassForm = (props: AddMediatorProps) => {
     const sidePanelContext = React.useContext(SidePanelContext);
     const [ isLoading, setIsLoading ] = React.useState(true);
 
-    const { control, formState: { errors }, handleSubmit, watch, reset } = useForm();
+    const { control, formState: { errors, dirtyFields }, handleSubmit, watch, reset } = useForm();
 
     useEffect(() => {
         reset({
@@ -103,10 +103,18 @@ const ClassForm = (props: AddMediatorProps) => {
     const onClick = async (values: any) => {
         
         values["properties"] = values.properties.paramValues.map((param: any) => param.paramValues.map((p: any) => p.value));
-        const xml = getXML(MEDIATORS.CLASS, values);
-        rpcClient.getMiDiagramRpcClient().applyEdit({
-            documentUri: props.documentUri, range: props.nodePosition, text: xml
-        });
+        const xml = getXML(MEDIATORS.CLASS, values, dirtyFields, sidePanelContext.formValues);
+        if (Array.isArray(xml)) {
+            for (let i = 0; i < xml.length; i++) {
+                await rpcClient.getMiDiagramRpcClient().applyEdit({
+                    documentUri: props.documentUri, range: xml[i].range, text: xml[i].text
+                });
+            }
+        } else {
+            rpcClient.getMiDiagramRpcClient().applyEdit({
+                documentUri: props.documentUri, range: props.nodePosition, text: xml
+            });
+        }
         sidePanelContext.setSidePanelState({
             ...sidePanelContext,
             isOpen: false,
@@ -121,70 +129,72 @@ const ClassForm = (props: AddMediatorProps) => {
         return <ProgressIndicator/>;
     }
     return (
-        <div style={{ padding: "10px" }}>
-            <Typography variant="body3"></Typography>
+        <>
+            <Typography sx={{ padding: "10px 15px", borderBottom: "1px solid var(--vscode-editorWidget-border)" }} variant="body3">Uses custom class instance as mediator.</Typography>
+            <div style={{ padding: "20px" }}>
 
-            <Field>
-                <Controller
-                    name="className"
-                    control={control}
-                    render={({ field }) => (
-                        <TextField {...field} label="Class Name" size={50} placeholder="" />
-                    )}
-                />
-                {errors.className && <Error>{errors.className.message.toString()}</Error>}
-            </Field>
+                <Field>
+                    <Controller
+                        name="className"
+                        control={control}
+                        render={({ field }) => (
+                            <TextField {...field} label="Class Name" size={50} placeholder="" />
+                        )}
+                    />
+                    {errors.className && <Error>{errors.className.message.toString()}</Error>}
+                </Field>
 
-            <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                <Typography variant="h3">Class Arguments</Typography>
-                <Typography variant="body3">Editing of the properties of an object ClassProperty</Typography>
+                <ComponentCard sx={cardStyle} disbaleHoverEffect>
+                    <Typography variant="h3">Class Arguments</Typography>
+                    <Typography variant="body3">Editing of the properties of an object ClassProperty</Typography>
 
-                <Controller
-                    name="properties"
-                    control={control}
-                    render={({ field: { onChange, value } }) => (
-                        <ParamManager
-                            paramConfigs={value}
-                            readonly={false}
-                            onChange= {(values) => {
-                                values.paramValues = values.paramValues.map((param: any, index: number) => {
-                                    const paramValues = param.paramValues;
-                                    param.key = paramValues[0].value;
-                                    param.value = paramValues[1].value.value;
-                                    if (paramValues[1]?.value?.isExpression) {
-                                        param.namespaces = paramValues[1].value.namespaces;
-                                    }
-                                    param.icon = 'query';
-                                    return param;
-                                });
-                                onChange(values);
-                            }}
-                        />
-                    )}
-                />
-            </ComponentCard>
-            <Field>
-                <Controller
-                    name="description"
-                    control={control}
-                    render={({ field }) => (
-                        <TextField {...field} label="Description" size={50} placeholder="" />
-                    )}
-                />
-                {errors.description && <Error>{errors.description.message.toString()}</Error>}
-            </Field>
+                    <Controller
+                        name="properties"
+                        control={control}
+                        render={({ field: { onChange, value } }) => (
+                            <ParamManager
+                                paramConfigs={value}
+                                readonly={false}
+                                onChange= {(values) => {
+                                    values.paramValues = values.paramValues.map((param: any, index: number) => {
+                                        const paramValues = param.paramValues;
+                                        param.key = paramValues[0].value;
+                                        param.value = paramValues[1].value.value;
+                                        if (paramValues[1]?.value?.isExpression) {
+                                            param.namespaces = paramValues[1].value.namespaces;
+                                        }
+                                        param.icon = 'query';
+                                        return param;
+                                    });
+                                    onChange(values);
+                                }}
+                            />
+                        )}
+                    />
+                </ComponentCard>
+                <Field>
+                    <Controller
+                        name="description"
+                        control={control}
+                        render={({ field }) => (
+                            <TextField {...field} label="Description" size={50} placeholder="" />
+                        )}
+                    />
+                    {errors.description && <Error>{errors.description.message.toString()}</Error>}
+                </Field>
 
 
-            <div style={{ textAlign: "right", marginTop: "10px", float: "right" }}>
-                <Button
-                    appearance="primary"
-                    onClick={handleSubmit(onClick)}
-                >
+                <div style={{ textAlign: "right", marginTop: "10px", float: "right" }}>
+                    <Button
+                        appearance="primary"
+                        onClick={handleSubmit(onClick)}
+                    >
                     Submit
-                </Button>
-            </div>
+                    </Button>
+                </div>
 
-        </div>
+            </div>
+        </>
     );
 };
 

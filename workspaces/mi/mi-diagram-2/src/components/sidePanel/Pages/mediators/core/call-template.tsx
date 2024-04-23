@@ -131,87 +131,89 @@ const CallTemplateForm = (props: AddMediatorProps) => {
         return <ProgressIndicator/>;
     }
     return (
-        <div style={{ padding: "10px" }}>
-            <Typography variant="body3"></Typography>
+        <>
+            <Typography sx={{ padding: "10px 15px", borderBottom: "1px solid var(--vscode-editorWidget-border)" }} variant="body3">Invokes sequence template by populating pre-configured parameters with static values or XPath expressions.</Typography>
+            <div style={{ padding: "20px" }}>
 
-            <Field>
-                <Controller
-                    name="targetTemplate"
-                    control={control}
-                    render={({ field }) => (
-                        <TextField {...field} label="Target Template" size={50} placeholder="" />
-                    )}
-                />
-                {errors.targetTemplate && <Error>{errors.targetTemplate.message.toString()}</Error>}
-            </Field>
+                <Field>
+                    <Controller
+                        name="targetTemplate"
+                        control={control}
+                        render={({ field }) => (
+                            <TextField {...field} label="Target Template" size={50} placeholder="" />
+                        )}
+                    />
+                    {errors.targetTemplate && <Error>{errors.targetTemplate.message.toString()}</Error>}
+                </Field>
 
-            <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                <Typography variant="h3">Call-Template Parameter</Typography>
-                <Typography variant="body3">Editing of the properties of an object CallTemplateParameter</Typography>
+                <ComponentCard sx={cardStyle} disbaleHoverEffect>
+                    <Typography variant="h3">Call-Template Parameter</Typography>
+                    <Typography variant="body3">Editing of the properties of an object CallTemplateParameter</Typography>
 
-                <Controller
-                    name="parameterNameTable"
-                    control={control}
-                    render={({ field: { onChange, value } }) => (
-                        <ParamManager
-                            paramConfigs={value}
-                            readonly={false}
-                            onChange= {(values) => {
-                                values.paramValues = values.paramValues.map((param: any, index: number) => {
-                                    const paramValues = param.paramValues;
-                                    param.key = paramValues[0].value;
-                                    param.value = paramValues[1].value.value;
-                                    if (paramValues[1]?.value?.isExpression) {
-                                        param.namespaces = paramValues[1].value.namespaces;
-                                    }
-                                    param.icon = 'query';
-                                    return param;
-                                });
-                                onChange(values);
-                            }}
-                        />
-                    )}
-                />
-            </ComponentCard>
-            <Field>
-                <Controller
-                    name="onError"
-                    control={control}
-                    render={({ field }) => (
-                        <Keylookup
-                            value={field.value}
-                            filterType='sequence'
-                            label="OnError"
-                            allowItemCreate={false}
-                            onValueChange={field.onChange}
-                        />
-                    )}
-                />
-                {errors.onError && <Error>{errors.onError.message.toString()}</Error>}
-            </Field>
+                    <Controller
+                        name="parameterNameTable"
+                        control={control}
+                        render={({ field: { onChange, value } }) => (
+                            <ParamManager
+                                paramConfigs={value}
+                                readonly={false}
+                                onChange= {(values) => {
+                                    values.paramValues = values.paramValues.map((param: any, index: number) => {
+                                        const paramValues = param.paramValues;
+                                        param.key = paramValues[0].value;
+                                        param.value = paramValues[1].value.value;
+                                        if (paramValues[1]?.value?.isExpression) {
+                                            param.namespaces = paramValues[1].value.namespaces;
+                                        }
+                                        param.icon = 'query';
+                                        return param;
+                                    });
+                                    onChange(values);
+                                }}
+                            />
+                        )}
+                    />
+                </ComponentCard>
+                <Field>
+                    <Controller
+                        name="onError"
+                        control={control}
+                        render={({ field }) => (
+                            <Keylookup
+                                value={field.value}
+                                filterType='sequence'
+                                label="OnError"
+                                allowItemCreate={false}
+                                onValueChange={field.onChange}
+                            />
+                        )}
+                    />
+                    {errors.onError && <Error>{errors.onError.message.toString()}</Error>}
+                </Field>
 
-            <Field>
-                <Controller
-                    name="description"
-                    control={control}
-                    render={({ field }) => (
-                        <TextField {...field} label="Description" size={50} placeholder="" />
-                    )}
-                />
-                {errors.description && <Error>{errors.description.message.toString()}</Error>}
-            </Field>
+                <Field>
+                    <Controller
+                        name="description"
+                        control={control}
+                        render={({ field }) => (
+                            <TextField {...field} label="Description" size={50} placeholder="" />
+                        )}
+                    />
+                    {errors.description && <Error>{errors.description.message.toString()}</Error>}
+                </Field>
 
 
-            <div style={{ textAlign: "right", marginTop: "10px", float: "right" }}>
-                <Button
-                    appearance="primary"
-                    onClick={handleSubmit(onClick)}
-                >
+                <div style={{ textAlign: "right", marginTop: "10px", float: "right" }}>
+                    <Button
+                        appearance="primary"
+                        onClick={handleSubmit(onClick)}
+                    >
                     Submit
-                </Button>
-            </div>
+                    </Button>
+                </div>
 
-        </div>
+            </div>
+        </>
     );
 };
 

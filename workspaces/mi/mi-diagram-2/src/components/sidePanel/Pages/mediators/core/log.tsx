@@ -131,106 +131,108 @@ const LogForm = (props: AddMediatorProps) => {
         return <ProgressIndicator/>;
     }
     return (
-        <div style={{ padding: "10px" }}>
-            <Typography variant="body3"></Typography>
+        <>
+            <Typography sx={{ padding: "10px 15px", borderBottom: "1px solid var(--vscode-editorWidget-border)" }} variant="body3">Generates logs for messages. Log details are customisable.</Typography>
+            <div style={{ padding: "20px" }}>
 
-            <Field>
-                <Controller
-                    name="category"
-                    control={control}
-                    rules={
-                        {
-                            required: "This field is required",
+                <Field>
+                    <Controller
+                        name="category"
+                        control={control}
+                        rules={
+                            {
+                                required: "This field is required",
+                            }
                         }
-                    }
-                    render={({ field }) => (
-                        <AutoComplete label="Log Category" name="logCategory" items={["INFO", "TRACE", "DEBUG", "WARN", "ERROR", "FATAL"]} value={field.value} onValueChange={(e: any) => {
-                            field.onChange(e);
-                        }} />
-                    )}
-                />
-                {errors.category && <Error>{errors.category.message.toString()}</Error>}
-            </Field>
+                        render={({ field }) => (
+                            <AutoComplete label="Log Category" name="logCategory" items={["INFO", "TRACE", "DEBUG", "WARN", "ERROR", "FATAL"]} value={field.value} onValueChange={(e: any) => {
+                                field.onChange(e);
+                            }} />
+                        )}
+                    />
+                    {errors.category && <Error>{errors.category.message.toString()}</Error>}
+                </Field>
 
-            <Field>
-                <Controller
-                    name="level"
-                    control={control}
-                    rules={
-                        {
-                            required: "This field is required",
+                <Field>
+                    <Controller
+                        name="level"
+                        control={control}
+                        rules={
+                            {
+                                required: "This field is required",
+                            }
                         }
-                    }
-                    render={({ field }) => (
-                        <AutoComplete label="Log Level" name="logLevel" items={["SIMPLE", "HEADERS", "FULL", "CUSTOM"]} value={field.value} onValueChange={(e: any) => {
-                            field.onChange(e);
-                        }} />
-                    )}
-                />
-                {errors.level && <Error>{errors.level.message.toString()}</Error>}
-            </Field>
+                        render={({ field }) => (
+                            <AutoComplete label="Log Level" name="logLevel" items={["SIMPLE", "HEADERS", "FULL", "CUSTOM"]} value={field.value} onValueChange={(e: any) => {
+                                field.onChange(e);
+                            }} />
+                        )}
+                    />
+                    {errors.level && <Error>{errors.level.message.toString()}</Error>}
+                </Field>
 
-            <Field>
-                <Controller
-                    name="separator"
-                    control={control}
-                    render={({ field }) => (
-                        <TextField {...field} label="Log Separator" size={50} placeholder="" />
-                    )}
-                />
-                {errors.separator && <Error>{errors.separator.message.toString()}</Error>}
-            </Field>
+                <Field>
+                    <Controller
+                        name="separator"
+                        control={control}
+                        render={({ field }) => (
+                            <TextField {...field} label="Log Separator" size={50} placeholder="" />
+                        )}
+                    />
+                    {errors.separator && <Error>{errors.separator.message.toString()}</Error>}
+                </Field>
 
-            <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                <Typography variant="h3">Properties</Typography>
-                <Typography variant="body3">Editing of the properties of an object LogProperty</Typography>
+                <ComponentCard sx={cardStyle} disbaleHoverEffect>
+                    <Typography variant="h3">Properties</Typography>
+                    <Typography variant="body3">Editing of the properties of an object LogProperty</Typography>
 
-                <Controller
-                    name="properties"
-                    control={control}
-                    render={({ field: { onChange, value } }) => (
-                        <ParamManager
-                            paramConfigs={value}
-                            readonly={false}
-                            onChange= {(values) => {
-                                values.paramValues = values.paramValues.map((param: any, index: number) => {
-                                    const paramValues = param.paramValues;
-                                    param.key = paramValues[0].value;
-                                    param.value = paramValues[1].value.value;
-                                    if (paramValues[1]?.value?.isExpression) {
-                                        param.namespaces = paramValues[1].value.namespaces;
-                                    }
-                                    param.icon = 'query';
-                                    return param;
-                                });
-                                onChange(values);
-                            }}
-                        />
-                    )}
-                />
-            </ComponentCard>
-            <Field>
-                <Controller
-                    name="description"
-                    control={control}
-                    render={({ field }) => (
-                        <TextField {...field} label="Description" size={50} placeholder="Description" />
-                    )}
-                />
-                {errors.description && <Error>{errors.description.message.toString()}</Error>}
-            </Field>
+                    <Controller
+                        name="properties"
+                        control={control}
+                        render={({ field: { onChange, value } }) => (
+                            <ParamManager
+                                paramConfigs={value}
+                                readonly={false}
+                                onChange= {(values) => {
+                                    values.paramValues = values.paramValues.map((param: any, index: number) => {
+                                        const paramValues = param.paramValues;
+                                        param.key = paramValues[0].value;
+                                        param.value = paramValues[1].value.value;
+                                        if (paramValues[1]?.value?.isExpression) {
+                                            param.namespaces = paramValues[1].value.namespaces;
+                                        }
+                                        param.icon = 'query';
+                                        return param;
+                                    });
+                                    onChange(values);
+                                }}
+                            />
+                        )}
+                    />
+                </ComponentCard>
+                <Field>
+                    <Controller
+                        name="description"
+                        control={control}
+                        render={({ field }) => (
+                            <TextField {...field} label="Description" size={50} placeholder="Description" />
+                        )}
+                    />
+                    {errors.description && <Error>{errors.description.message.toString()}</Error>}
+                </Field>
 
 
-            <div style={{ textAlign: "right", marginTop: "10px", float: "right" }}>
-                <Button
-                    appearance="primary"
-                    onClick={handleSubmit(onClick)}
-                >
+                <div style={{ textAlign: "right", marginTop: "10px", float: "right" }}>
+                    <Button
+                        appearance="primary"
+                        onClick={handleSubmit(onClick)}
+                    >
                     Submit
-                </Button>
-            </div>
+                    </Button>
+                </div>
 
-        </div>
+            </div>
+        </>
     );
 };
 

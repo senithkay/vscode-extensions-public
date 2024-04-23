@@ -575,6 +575,7 @@ const generateForms = () => {
     const jsonFiles = getFiles(source, []).filter(file => file.endsWith('.json'));
     console.log(`Found ${jsonFiles.length} json files`);
 
+    const failedFiles: string[] = [];
     jsonFiles.forEach((file) => {
         const fileContent = fs.readFileSync(file, 'utf8');
         const fileName = path.basename(file);
@@ -596,12 +597,16 @@ const generateForms = () => {
                 console.log(`Generating form for ${fileName}`);
 
                 const componentContent = generateForm(jsonData);
+                if (!fs.existsSync(path.dirname(destinationPath))) {
+                    fs.mkdirSync(path.dirname(destinationPath), { recursive: true });
+                }
                 fs.writeFileSync(destinationPath, componentContent);
                 console.log(`\x1b[32mSuccessfully generated form for ${fileName}\x1b[0m`);
             }
         } catch (e) {
             console.error(`\x1b[31mError generating form for ${fileName}\x1b[0m`);
             console.error(e);
+            failedFiles.push(fileName);
         }
         console.log('---------------END-----------------');
     });
@@ -618,6 +623,12 @@ const generateForms = () => {
         console.log(stderr);
     }
     );
+
+    if (failedFiles.length > 0) {
+        console.log(`\x1b[31mFailed to generate forms for the following files: (${failedFiles.length})\n${failedFiles.join('\n')}\x1b[0m`);
+    } else {
+        console.log(`\x1b[32mSuccessfully generated forms for ${jsonFiles.length} files\x1b[0m`);
+    }
 }
 
 generateForms();

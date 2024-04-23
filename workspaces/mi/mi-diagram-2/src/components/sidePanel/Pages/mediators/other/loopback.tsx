@@ -9,7 +9,7 @@
 // AUTO-GENERATED FILE. DO NOT MODIFY.
 
 import React, { useEffect } from 'react';
-import { Button, ProgressIndicator, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
+import { Button, ComponentCard, ProgressIndicator, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
 import { AddMediatorProps } from '../common';
@@ -35,7 +35,7 @@ const Field = styled.div`
    margin-bottom: 12px;
 `;
 
-const RespondForm = (props: AddMediatorProps) => {
+const LoopbackForm = (props: AddMediatorProps) => {
     const { rpcClient } = useVisualizerContext();
     const sidePanelContext = React.useContext(SidePanelContext);
     const [ isLoading, setIsLoading ] = React.useState(true);
@@ -51,7 +51,7 @@ const RespondForm = (props: AddMediatorProps) => {
 
     const onClick = async (values: any) => {
         
-        const xml = getXML(MEDIATORS.RESPOND, values, dirtyFields, sidePanelContext.formValues);
+        const xml = getXML(MEDIATORS.LOOPBACK, values, dirtyFields, sidePanelContext.formValues);
         if (Array.isArray(xml)) {
             for (let i = 0; i < xml.length; i++) {
                 await rpcClient.getMiDiagramRpcClient().applyEdit({
@@ -78,19 +78,24 @@ const RespondForm = (props: AddMediatorProps) => {
     }
     return (
         <>
-            <Typography sx={{ padding: "10px 15px", borderBottom: "1px solid var(--vscode-editorWidget-border)" }} variant="body3">Terminates the processing of the current message flow and returns the message to the client.</Typography>
+            <Typography sx={{ padding: "10px 15px", borderBottom: "1px solid var(--vscode-editorWidget-border)" }} variant="body3">Routes messages from the inflow (In Sequence) to outflow (Out Sequence).</Typography>
             <div style={{ padding: "20px" }}>
 
-                <Field>
-                    <Controller
-                        name="description"
-                        control={control}
-                        render={({ field }) => (
-                            <TextField {...field} label="Description" size={50} placeholder="Description" />
-                        )}
-                    />
-                    {errors.description && <Error>{errors.description.message.toString()}</Error>}
-                </Field>
+                <ComponentCard sx={cardStyle} disbaleHoverEffect>
+                    <Typography variant="h3">Properties</Typography>
+
+                    <Field>
+                        <Controller
+                            name="description"
+                            control={control}
+                            render={({ field }) => (
+                                <TextField {...field} label="Description" size={50} placeholder="Description" />
+                            )}
+                        />
+                        {errors.description && <Error>{errors.description.message.toString()}</Error>}
+                    </Field>
+
+                </ComponentCard>
 
 
                 <div style={{ textAlign: "right", marginTop: "10px", float: "right" }}>
@@ -107,4 +112,4 @@ const RespondForm = (props: AddMediatorProps) => {
     );
 };
 
-export default RespondForm; 
+export default LoopbackForm; 

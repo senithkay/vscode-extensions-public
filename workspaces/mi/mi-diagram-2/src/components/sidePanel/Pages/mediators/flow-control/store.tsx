@@ -9,7 +9,7 @@
 // AUTO-GENERATED FILE. DO NOT MODIFY.
 
 import React, { useEffect } from 'react';
-import { Button, ProgressIndicator, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
+import { Button, ExpressionField, ExpressionFieldValue, ProgressIndicator, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
 import { AddMediatorProps } from '../common';
@@ -36,7 +36,7 @@ const Field = styled.div`
    margin-bottom: 12px;
 `;
 
-const SequenceForm = (props: AddMediatorProps) => {
+const StoreForm = (props: AddMediatorProps) => {
     const { rpcClient } = useVisualizerContext();
     const sidePanelContext = React.useContext(SidePanelContext);
     const [ isLoading, setIsLoading ] = React.useState(true);
@@ -45,7 +45,9 @@ const SequenceForm = (props: AddMediatorProps) => {
 
     useEffect(() => {
         reset({
-            referingSequence: sidePanelContext?.formValues?.referingSequence || "",
+            messageStore: sidePanelContext?.formValues?.messageStore || "",
+            expression: sidePanelContext?.formValues?.expression || {"isExpression":true,"value":""},
+            onStoreSequence: sidePanelContext?.formValues?.onStoreSequence || "",
             description: sidePanelContext?.formValues?.description || "",
         });
         setIsLoading(false);
@@ -53,7 +55,7 @@ const SequenceForm = (props: AddMediatorProps) => {
 
     const onClick = async (values: any) => {
         
-        const xml = getXML(MEDIATORS.SEQUENCE, values, dirtyFields, sidePanelContext.formValues);
+        const xml = getXML(MEDIATORS.STORE, values, dirtyFields, sidePanelContext.formValues);
         if (Array.isArray(xml)) {
             for (let i = 0; i < xml.length; i++) {
                 await rpcClient.getMiDiagramRpcClient().applyEdit({
@@ -80,24 +82,62 @@ const SequenceForm = (props: AddMediatorProps) => {
     }
     return (
         <>
-            <Typography sx={{ padding: "10px 15px", borderBottom: "1px solid var(--vscode-editorWidget-border)" }} variant="body3">Inserts reference to a sequence.</Typography>
+            <Typography sx={{ padding: "10px 15px", borderBottom: "1px solid var(--vscode-editorWidget-border)" }} variant="body3">Routes message to a predefined message store.</Typography>
             <div style={{ padding: "20px" }}>
 
                 <Field>
                     <Controller
-                        name="referingSequence"
+                        name="messageStore"
+                        control={control}
+                        render={({ field }) => (
+                            <TextField {...field} label="Message Store" size={50} placeholder="" />
+                        )}
+                    />
+                    {errors.messageStore && <Error>{errors.messageStore.message.toString()}</Error>}
+                </Field>
+
+                {watch("messageStore") && watch("messageStore").toLowerCase() == "select expresison" &&
+                <Field>
+                    <Controller
+                        name="expression"
+                        control={control}
+                        render={({ field }) => (
+                            <ExpressionField
+                                {...field} label="Expression"
+                                placeholder=""
+                                canChange={false}
+                                openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => {
+                                    sidePanelContext.setSidePanelState({
+                                        ...sidePanelContext,
+                                        expressionEditor: {
+                                            isOpen: true,
+                                            value,
+                                            setValue
+                                        }
+                                    });
+                                }}
+                            />
+                        )}
+                    />
+                    {errors.expression && <Error>{errors.expression.message.toString()}</Error>}
+                </Field>
+                }
+
+                <Field>
+                    <Controller
+                        name="onStoreSequence"
                         control={control}
                         render={({ field }) => (
                             <Keylookup
                                 value={field.value}
                                 filterType='sequence'
-                                label="Refering Sequence"
-                                allowItemCreate={true}
+                                label="On Store Sequence"
+                                allowItemCreate={false}
                                 onValueChange={field.onChange}
                             />
                         )}
                     />
-                    {errors.referingSequence && <Error>{errors.referingSequence.message.toString()}</Error>}
+                    {errors.onStoreSequence && <Error>{errors.onStoreSequence.message.toString()}</Error>}
                 </Field>
 
                 <Field>
@@ -126,4 +166,4 @@ const SequenceForm = (props: AddMediatorProps) => {
     );
 };
 
-export default SequenceForm; 
+export default StoreForm; 

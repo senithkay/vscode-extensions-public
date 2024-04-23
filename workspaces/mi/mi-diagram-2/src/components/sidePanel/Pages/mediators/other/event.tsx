@@ -9,7 +9,7 @@
 // AUTO-GENERATED FILE. DO NOT MODIFY.
 
 import React, { useEffect } from 'react';
-import { Button, ComponentCard, ProgressIndicator, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
+import { AutoComplete, Button, ComponentCard, ProgressIndicator, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
 import { AddMediatorProps } from '../common';
@@ -35,7 +35,7 @@ const Field = styled.div`
    margin-bottom: 12px;
 `;
 
-const BamForm = (props: AddMediatorProps) => {
+const EventForm = (props: AddMediatorProps) => {
     const { rpcClient } = useVisualizerContext();
     const sidePanelContext = React.useContext(SidePanelContext);
     const [ isLoading, setIsLoading ] = React.useState(true);
@@ -44,9 +44,9 @@ const BamForm = (props: AddMediatorProps) => {
 
     useEffect(() => {
         reset({
-            serverProfileName: sidePanelContext?.formValues?.serverProfileName || "",
-            streamName: sidePanelContext?.formValues?.streamName || "",
-            streamVersion: sidePanelContext?.formValues?.streamVersion || "",
+            topicType: sidePanelContext?.formValues?.topicType || "static",
+            staticTopic: sidePanelContext?.formValues?.staticTopic || "",
+            dynamicTopic: sidePanelContext?.formValues?.dynamicTopic || "",
             description: sidePanelContext?.formValues?.description || "",
         });
         setIsLoading(false);
@@ -54,7 +54,7 @@ const BamForm = (props: AddMediatorProps) => {
 
     const onClick = async (values: any) => {
         
-        const xml = getXML(MEDIATORS.BAM, values, dirtyFields, sidePanelContext.formValues);
+        const xml = getXML(MEDIATORS.EVENT, values, dirtyFields, sidePanelContext.formValues);
         if (Array.isArray(xml)) {
             for (let i = 0; i < xml.length; i++) {
                 await rpcClient.getMiDiagramRpcClient().applyEdit({
@@ -81,7 +81,7 @@ const BamForm = (props: AddMediatorProps) => {
     }
     return (
         <>
-            <Typography sx={{ padding: "10px 15px", borderBottom: "1px solid var(--vscode-editorWidget-border)" }} variant="body3">Deprecated. Use PublishEvent Mediator for similar functionality.</Typography>
+            <Typography sx={{ padding: "10px 15px", borderBottom: "1px solid var(--vscode-editorWidget-border)" }} variant="body3">Sends event notifications to an event source, and publishes messages to topics.</Typography>
             <div style={{ padding: "20px" }}>
 
                 <ComponentCard sx={cardStyle} disbaleHoverEffect>
@@ -89,41 +89,42 @@ const BamForm = (props: AddMediatorProps) => {
 
                     <Field>
                         <Controller
-                            name="serverProfileName"
+                            name="topicType"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Server Profile Name" size={50} placeholder="" />
+                                <AutoComplete label="Topic Type" name="topicType" items={["static", "dynamic"]} value={field.value} onValueChange={(e: any) => {
+                                    field.onChange(e);
+                                }} />
                             )}
                         />
-                        {errors.serverProfileName && <Error>{errors.serverProfileName.message.toString()}</Error>}
+                        {errors.topicType && <Error>{errors.topicType.message.toString()}</Error>}
                     </Field>
 
-                    <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                        <Typography variant="h3">Stream</Typography>
+                    {watch("topicType") && watch("topicType").toLowerCase() == "static" &&
+                    <Field>
+                        <Controller
+                            name="staticTopic"
+                            control={control}
+                            render={({ field }) => (
+                                <TextField {...field} label="Static Topic" size={50} placeholder="" />
+                            )}
+                        />
+                        {errors.staticTopic && <Error>{errors.staticTopic.message.toString()}</Error>}
+                    </Field>
+                    }
 
-                        <Field>
-                            <Controller
-                                name="streamName"
-                                control={control}
-                                render={({ field }) => (
-                                    <TextField {...field} label="Stream Name" size={50} placeholder="" />
-                                )}
-                            />
-                            {errors.streamName && <Error>{errors.streamName.message.toString()}</Error>}
-                        </Field>
-
-                        <Field>
-                            <Controller
-                                name="streamVersion"
-                                control={control}
-                                render={({ field }) => (
-                                    <TextField {...field} label="Stream Version" size={50} placeholder="" />
-                                )}
-                            />
-                            {errors.streamVersion && <Error>{errors.streamVersion.message.toString()}</Error>}
-                        </Field>
-
-                    </ComponentCard>
+                    {watch("topicType") && watch("topicType").toLowerCase() == "dynamic" &&
+                    <Field>
+                        <Controller
+                            name="dynamicTopic"
+                            control={control}
+                            render={({ field }) => (
+                                <TextField {...field} label="Dynamic Topic" size={50} placeholder="" />
+                            )}
+                        />
+                        {errors.dynamicTopic && <Error>{errors.dynamicTopic.message.toString()}</Error>}
+                    </Field>
+                    }
 
                     <Field>
                         <Controller
@@ -153,4 +154,4 @@ const BamForm = (props: AddMediatorProps) => {
     );
 };
 
-export default BamForm; 
+export default EventForm; 
