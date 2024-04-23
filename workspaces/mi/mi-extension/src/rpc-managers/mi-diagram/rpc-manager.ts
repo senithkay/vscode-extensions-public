@@ -1007,16 +1007,24 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
                 let isWso2Mb = false;
                 const params: { [key: string]: string | number | boolean } = {};
-                jsonData.inboundEndpoint.parameters.parameter.map((param: any) => {
-                    if (param["@_name"] === 'rabbitmq.channel.consumer.qos') {
-                        params["rabbitmq.channel.consumer.qos.type"] = param["@_key"] ? 'registry' : 'inline';
-                    }
-                    if (param["@_name"] === 'connectionfactory.TopicConnectionFactory' || param["@_name"] === 'connectionfactory.QueueConnectionFactory') {
-                        params["mb.connection.url"] = param["#text"];
-                        isWso2Mb = true;
-                    }
-                    params[param["@_name"]] = param["#text"] ?? param["@_key"];
-                });
+                if (Array.isArray(jsonData.inboundEndpoint.parameters.parameter)) {
+                    jsonData.inboundEndpoint.parameters.parameter.map((param: any) => {
+                        if (param["@_name"] === 'rabbitmq.channel.consumer.qos') {
+                            params["rabbitmq.channel.consumer.qos.type"] = param["@_key"] ? 'registry' : 'inline';
+                        }
+                        if (param["@_name"] === 'connectionfactory.TopicConnectionFactory' || param["@_name"] === 'connectionfactory.QueueConnectionFactory') {
+                            params["mb.connection.url"] = param["#text"];
+                            isWso2Mb = true;
+                        }
+                        if (jsonData.inboundEndpoint["@_protocol"] === 'kafka' && (param["@_name"] === 'topics' || param["@_name"] === 'topic.filter')) {
+                            params["topics"] = param["@_name"];
+                            params["topic.name"] = param["#text"];
+                        }
+                        params[param["@_name"]] = param["#text"] ?? param["@_key"];
+                    });
+                } else {
+                    params[jsonData.inboundEndpoint.parameters.parameter["@_name"]] = jsonData.inboundEndpoint.parameters.parameter["#text"];
+                }
 
                 if (jsonData.inboundEndpoint["@_class"]) {
                     params["class"] = jsonData.inboundEndpoint["@_class"];
