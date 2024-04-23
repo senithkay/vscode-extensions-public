@@ -53,7 +53,7 @@
                             "name": "sequenceType",
                             "displayName": "Sequence Type",
                             "inputType": "combo",
-                            "defaultValue": "Default",
+                            "defaultValue": "ANONYMOUS",
                             "comboValues": [
                                 "NONE",
                                 "ANONYMOUS",
@@ -84,7 +84,7 @@
                             "name": "endpointType",
                             "displayName": "Endpoint Type",
                             "inputType": "combo",
-                            "defaultValue": "Default",
+                            "defaultValue": "ANONYMOUS",
                             "comboValues": [
                                 "NONE",
                                 "ANONYMOUS",
