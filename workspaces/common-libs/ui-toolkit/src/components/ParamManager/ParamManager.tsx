@@ -49,11 +49,14 @@ export interface EnableCondition {
 
 export interface ParamField {
     id?: number;
-    type: "TextField" | "Dropdown" | "Checkbox" | "TextArea";
+    type: "TextField" | "Dropdown" | "Checkbox" | "TextArea" | "AutoComplete";
     label: string;
     defaultValue: string | boolean;
     isRequired?: boolean;
-    values?: string[]; // For Dropdown
+    values?: string[]; // For Dropdown and AutoComplete
+    nullable?: boolean;
+    allowItemCreate?: boolean;
+    noItemsFoundMessage?: string;
     enableCondition?: (ConditionParams | string)[];
     openExpressionEditor?: () => void; // For ExpressionField
     canChange?: boolean; // For ExpressionField
@@ -68,6 +71,7 @@ export interface ParamManagerProps {
     paramConfigs: ParamConfig;
     onChange?: (parameters: ParamConfig) => void,
     readonly?: boolean;
+    addParamText?: string;
 }
 
 const AddButtonWrapper = styled.div`
@@ -206,6 +210,21 @@ const getParamFieldValuesFromParamId = (paramFields: ParamField[], paramId: numb
     return paramField?.values;
 }
 
+const getParamFieldNullableFromParamId = (paramFields: ParamField[], paramId: number) => {
+    const paramField = paramFields[paramId];
+    return paramField?.nullable;
+}
+
+const getParamFieldNoItemsFoundMessageFromParamId = (paramFields: ParamField[], paramId: number) => {
+    const paramField = paramFields[paramId];
+    return paramField?.noItemsFoundMessage;
+}
+
+const getParamFieldAllowItemCreateFromParamId = (paramFields: ParamField[], paramId: number) => {
+    const paramField = paramFields[paramId];
+    return paramField?.allowItemCreate;
+}
+
 const getParamFieldEnableConditionFromParamId = (paramFields: ParamField[], paramId: number): EnableCondition => {
     const paramField = paramFields[paramId];
     const enableCondition = convertToObject(paramField.enableCondition);
@@ -223,7 +242,7 @@ const getPramFieldCanChangeFromParamId = (paramFields: ParamField[], paramId: nu
 }
 
 export function ParamManager(props: ParamManagerProps) {
-    const { paramConfigs, readonly, onChange } = props;
+    const { paramConfigs, readonly, addParamText = "Add Parameter", onChange } = props;
     const [editingSegmentId, setEditingSegmentId] = useState<number>(-1);
     const [isNew, setIsNew] = useState(false);
 
@@ -243,7 +262,10 @@ export function ParamManager(props: ParamManagerProps) {
                 values: getParamFieldValuesFromParamId(paramConfigs.paramFields, id),
                 enableCondition: getParamFieldEnableConditionFromParamId(paramConfigs.paramFields, id),
                 openExpressionEditor: getParamFieldOpenExpressionEditorFromParamId(paramConfigs.paramFields, id),
-                canChange: getPramFieldCanChangeFromParamId(paramConfigs.paramFields, id)
+                canChange: getPramFieldCanChangeFromParamId(paramConfigs.paramFields, id),
+                nullable: getParamFieldNullableFromParamId(paramConfigs.paramFields, id),
+                allowItemCreate: getParamFieldAllowItemCreateFromParamId(paramConfigs.paramFields, id),
+                noItemsFoundMessage: getParamFieldNoItemsFoundMessageFromParamId(paramConfigs.paramFields, id)
             };
             return param;
         });
@@ -364,7 +386,7 @@ export function ParamManager(props: ParamManagerProps) {
                 <AddButtonWrapper>
                     <LinkButton sx={readonly && { color: "var(--vscode-badge-background)" }} onClick={!readonly && onAddClick} >
                         <Codicon name="add" />
-                        <>Add Parameter</>
+                        <>{addParamText}</>
                     </LinkButton>
                 </AddButtonWrapper>
             )}
