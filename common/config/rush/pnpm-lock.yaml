@@ -3217,8 +3217,6 @@ importers:
 
   ../../workspaces/mi/mi-extension:
     specifiers:
-      '@babel/core': ^7.24.4
-      '@babel/plugin-transform-typescript': ^7.16.1
       '@playwright/test': ~1.37.1
       '@types/lodash': ~4.14.199
       '@types/mocha': ^10.0.1
@@ -3250,7 +3248,6 @@ importers:
       mustache: ~4.2.0
       node-fetch: ~2.6.2
       node-loader: ~2.0.0
-      recast: ^0.20.5
       rimraf: ~5.0.5
       to-json-schema: 0.2.4
       tree-kill: ^1.2.2
@@ -3271,8 +3268,6 @@ importers:
       xml2js: 0.6.2
       xstate: ^4.38.3
     dependencies:
-      '@babel/core': 7.24.4
-      '@babel/plugin-transform-typescript': 7.23.6_@babel+core@7.24.4
       '@playwright/test': 1.37.1
       '@types/lodash': 4.14.202
       '@types/mustache': 4.2.5
@@ -3293,7 +3288,6 @@ importers:
       mustache: 4.2.0
       node-fetch: 2.6.13
       node-loader: 2.0.0_webpack@5.90.1
-      recast: 0.20.5
       to-json-schema: 0.2.4
       tree-kill: 1.2.2
       unzipper: 0.10.14
@@ -7230,6 +7224,17 @@ packages:
 
   /@codemirror/autocomplete/6.15.0:
     resolution: {integrity: sha512-G2Zm0mXznxz97JhaaOdoEG2cVupn4JjPaS4AcNvZzhOsnnG9YVN68VzfoUw6dYTsIxT6a/cmoFEN47KAWhXaOg==}
+    dependencies:
+      '@codemirror/language': 6.10.1
+      '@codemirror/state': 6.4.1
+      '@codemirror/view': 6.26.0
+      '@lezer/common': 1.2.1
+    dev: false
+
+  /@codemirror/autocomplete/6.15.0_@codemirror+state@6.4.1:
+    resolution: {integrity: sha512-G2Zm0mXznxz97JhaaOdoEG2cVupn4JjPaS4AcNvZzhOsnnG9YVN68VzfoUw6dYTsIxT6a/cmoFEN47KAWhXaOg==}
+    peerDependencies:
+      '@codemirror/state': ^6.0.0
     dependencies:
       '@codemirror/language': 6.10.1
       '@codemirror/state': 6.4.1
@@ -22627,7 +22632,7 @@ packages:
     peerDependencies:
       '@codemirror/lint': '>=6.0.0'
     dependencies:
-      '@codemirror/autocomplete': 6.15.0
+      '@codemirror/autocomplete': 6.15.0_@codemirror+state@6.4.1
       '@codemirror/commands': 6.3.3
       '@codemirror/language': 6.10.1
       '@codemirror/lint': 6.5.0

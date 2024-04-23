@@ -13,7 +13,6 @@ import * as fs from "fs";
 import * as os from 'os';
 import path = require("path");
 import { Uri, workspace } from "vscode";
-import { convertTypeScriptToJavascript } from './schemaBuilder';
 
 export function generateTSInterfacesFromSchemaFile(schemaPath: string): Promise<string> {
     const ts = compileFromFile(schemaPath, {bannerComment: ""});
@@ -57,8 +56,6 @@ export async function updateDMC(dmName:string, sourcePath: string): Promise<stri
             tsContent += "interface OutputRoot {\n}\n";
         }
         fs.writeFileSync(tsFilepath, tsContent);
-        const jsContent = convertTypeScriptToJavascript(tsContent);
-        fs.writeFileSync(dmcFilePath, jsContent);
     }
     return "";
 }
