@@ -16,7 +16,7 @@ import { getComposerJSFiles } from '../util';
 import { RPCLayer } from '../RPCLayer';
 import { extension } from '../MIExtensionContext';
 import { debounce } from 'lodash';
-import { navigate } from '../stateMachine';
+import { navigate, StateMachine } from '../stateMachine';
 import { MACHINE_VIEW } from '@wso2-enterprise/mi-core';
 import { COMMANDS } from '../constants';
 
@@ -35,7 +35,9 @@ export class VisualizerWebview {
         // Handle the text change and diagram update with rpc notification
         const refreshDiagram = debounce(async () => {
             if (this.getWebview()) {
-                await vscode.commands.executeCommand(COMMANDS.REFRESH_COMMAND); // Refresh the project explore view
+                if (StateMachine.context().isMiProject) {
+                    await vscode.commands.executeCommand(COMMANDS.REFRESH_COMMAND); // Refresh the project explore view
+                }
                 navigate();
             }
         }, 500);
@@ -54,6 +56,9 @@ export class VisualizerWebview {
                 break;
             case MACHINE_VIEW.ADD_ARTIFACT:
                 title = MACHINE_VIEW.ADD_ARTIFACT;
+                break;
+            case MACHINE_VIEW.UnsupportedProject:
+                title = MACHINE_VIEW.UnsupportedProject;
                 break;
             default:
                 title = 'Design View';
