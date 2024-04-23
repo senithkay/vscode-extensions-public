@@ -28,6 +28,7 @@ import {
     CreateSequenceRequest,
     CreateTaskRequest,
     CreateTemplateRequest,
+    DeleteArtifactRequest,
     DataSourceTemplate,
     DownloadConnectorRequest,
     GetAllArtifactsRequest,
@@ -98,6 +99,7 @@ import {
     createTask,
     createTemplate,
     downloadConnector,
+    deleteArtifact,
     executeCommand,
     getAIResponse,
     getAPIDirectory,
@@ -232,7 +234,7 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onNotification(highlightCode, (args: HighlightCodeRequest) => rpcManger.highlightCode(args));
     messenger.onRequest(getWorkspaceContext, () => rpcManger.getWorkspaceContext());
     messenger.onRequest(getProjectUuid, () => rpcManger.getProjectUuid());
-    messenger.onNotification(initUndoRedoManager, (args: UndoRedoParams) => rpcManger.initUndoRedoManager(args));
+    messenger.onRequest(initUndoRedoManager, (args: UndoRedoParams) => rpcManger.initUndoRedoManager(args));
     messenger.onNotification(undo, (args: UndoRedoParams) => rpcManger.undo(args));
     messenger.onNotification(redo, (args: UndoRedoParams) => rpcManger.redo(args));
     messenger.onRequest(getDefinition, (args: GetDefinitionRequest) => rpcManger.getDefinition(args));
@@ -260,4 +262,5 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onNotification(logoutFromMIAccount, () => rpcManger.logoutFromMIAccount());
     messenger.onRequest(getAllRegistryPaths, (args: GetAllRegistryPathsRequest) => rpcManger.getAllRegistryPaths(args));
     messenger.onRequest(getAllArtifacts, (args: GetAllArtifactsRequest) => rpcManger.getAllArtifacts(args));
+    messenger.onRequest(deleteArtifact, (args: DeleteArtifactRequest) => rpcManger.deleteArtifact(args));
 }

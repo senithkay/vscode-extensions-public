@@ -45,7 +45,7 @@ const ParamField = ({ field, id }: any) => {
         <div>
             {type === "text" ? (
                 <TextField
-                    required={field.validate}
+                    required={field.validate?.required}
                     label={name ?? getParameterName(id)}
                     {...renderProps(id)}
                     description={description}
@@ -58,7 +58,7 @@ const ParamField = ({ field, id }: any) => {
                 />
             ) : type === "dropdown" ? (
                 <Dropdown
-                    required={field.validate}
+                    required={field.validate?.required}
                     label={extendedLabel}
                     items={items}
                     {...renderProps(id)}

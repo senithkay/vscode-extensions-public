@@ -53,6 +53,7 @@ import {
     DataSourceTemplate,
     DownloadConnectorRequest,
     DownloadConnectorResponse,
+    DeleteArtifactRequest,
     ESBConfigsResponse,
     EVENT_TYPE,
     EndpointDirectoryResponse,
@@ -167,7 +168,7 @@ import * as vscode from 'vscode';
 import { Position, Range, Selection, TextEdit, Uri, ViewColumn, WorkspaceEdit, commands, window, workspace } from "vscode";
 import { extension } from '../../MIExtensionContext';
 import { COMMANDS, DEFAULT_PROJECT_VERSION, MI_COPILOT_BACKEND_URL } from "../../constants";
-import { StateMachine, openView } from "../../stateMachine";
+import { StateMachine, navigate, openView } from "../../stateMachine";
 import { UndoRedoManager } from "../../undoRedoManager";
 import { createFolderStructure, getAddressEndpointXmlWrapper, getDefaultEndpointXmlWrapper, getFailoverXmlWrapper, getHttpEndpointXmlWrapper, getInboundEndpointXmlWrapper, getLoadBalanceXmlWrapper, getMessageProcessorXmlWrapper, getMessageStoreXmlWrapper, getProxyServiceXmlWrapper, getRegistryResourceContent, getTaskXmlWrapper, getTemplateEndpointXmlWrapper, getTemplateXmlWrapper, getWsdlEndpointXmlWrapper } from "../../util";
 import { addNewEntryToArtifactXML, changeRootPomPackaging, createMetadataFilesForRegistryCollection, detectMediaType, getAvailableRegistryResources, getMediatypeAndFileExtension, addSynapseDependency } from "../../util/fileOperations";
@@ -1031,16 +1032,24 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
                 let isWso2Mb = false;
                 const params: { [key: string]: string | number | boolean } = {};
-                jsonData.inboundEndpoint.parameters.parameter.map((param: any) => {
-                    if (param["@_name"] === 'rabbitmq.channel.consumer.qos') {
-                        params["rabbitmq.channel.consumer.qos.type"] = param["@_key"] ? 'registry' : 'inline';
-                    }
-                    if (param["@_name"] === 'connectionfactory.TopicConnectionFactory' || param["@_name"] === 'connectionfactory.QueueConnectionFactory') {
-                        params["mb.connection.url"] = param["#text"];
-                        isWso2Mb = true;
-                    }
-                    params[param["@_name"]] = param["#text"] ?? param["@_key"];
-                });
+                if (Array.isArray(jsonData.inboundEndpoint.parameters.parameter)) {
+                    jsonData.inboundEndpoint.parameters.parameter.map((param: any) => {
+                        if (param["@_name"] === 'rabbitmq.channel.consumer.qos') {
+                            params["rabbitmq.channel.consumer.qos.type"] = param["@_key"] ? 'registry' : 'inline';
+                        }
+                        if (param["@_name"] === 'connectionfactory.TopicConnectionFactory' || param["@_name"] === 'connectionfactory.QueueConnectionFactory') {
+                            params["mb.connection.url"] = param["#text"];
+                            isWso2Mb = true;
+                        }
+                        if (jsonData.inboundEndpoint["@_protocol"] === 'kafka' && (param["@_name"] === 'topics' || param["@_name"] === 'topic.filter')) {
+                            params["topics"] = param["@_name"];
+                            params["topic.name"] = param["#text"];
+                        }
+                        params[param["@_name"]] = param["#text"] ?? param["@_key"];
+                    });
+                } else {
+                    params[jsonData.inboundEndpoint.parameters.parameter["@_name"]] = jsonData.inboundEndpoint.parameters.parameter["#text"];
+                }
 
                 if (jsonData.inboundEndpoint["@_class"]) {
                     params["class"] = jsonData.inboundEndpoint["@_class"];
@@ -2621,14 +2630,14 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         return { formJSON: formJSON };
     }
 
-    async undo(params: UndoRedoParams): Promise<void> {
+    undo(params: UndoRedoParams): void {
         const lastsource = undoRedo.undo();
         if (lastsource) {
             fs.writeFileSync(params.path, lastsource);
         }
     }
 
-    async redo(params: UndoRedoParams): Promise<void> {
+    redo(params: UndoRedoParams): void {
         const lastsource = undoRedo.redo();
         if (lastsource) {
             fs.writeFileSync(params.path, lastsource);
@@ -3097,6 +3106,31 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 endpoints.push({ type: 'inline', value: builder.build(parser.parse(match[0])) as string });
             }
             resolve(endpoints);
+        });
+    }
+
+    async deleteArtifact(params: DeleteArtifactRequest): Promise<void> {
+        return new Promise(async (resolve) => {
+            // Initialize undo redo manager with the file content
+            if (params.enableUndo) {
+                await this.initUndoRedoManager({ path: params.path });
+            }
+
+            await workspace.fs.delete(Uri.file(params.path));
+            await vscode.commands.executeCommand(COMMANDS.REFRESH_COMMAND); // Refresh the project explore view
+            navigate();
+            
+            if (params.enableUndo) {
+                undoRedo.addModification('');
+                const selection = await vscode.window.showInformationMessage('Do you want to undo the deletion?', 'Undo');
+                if (selection === 'Undo') {
+                    this.undo({ path: params.path });
+                    await vscode.commands.executeCommand(COMMANDS.REFRESH_COMMAND);
+                    navigate();
+                }
+            }
+
+            resolve();
         });
     }
 }

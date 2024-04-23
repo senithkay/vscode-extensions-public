@@ -128,6 +128,15 @@ export class BaseNodeModel extends NodeModel {
     getDiagnostics(): Diagnostic[] {
         return this.stNode.diagnostics || [];
     }
+
+    hasBreakpoint(): boolean {
+        return this.stNode.hasBreakpoint;
+    }
+
+    isActiveBreakpoint(): boolean {
+        return this.stNode.isActiveBreakpoint;
+    }
+    
 }
 
 

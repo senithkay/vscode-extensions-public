@@ -14,6 +14,7 @@ import { COMMANDS, PORTS_TO_CHECK, SELECTED_SERVER_PATH } from '../constants';
 import { extension } from '../MIExtensionContext';
 import { getCopyTask, getBuildTask, getRunTask } from './tasks';
 import * as fs from 'fs';
+import * as path from 'path';
 
 export async function isPortInUse(port: number): Promise<boolean> {
     return new Promise<boolean>((resolve) => {
@@ -36,6 +37,42 @@ export async function isPortInUse(port: number): Promise<boolean> {
                 }
             });
         }
+    });
+}
+
+export async function isPortActivelyListening(port: number, timeout: number): Promise<boolean> {
+    return new Promise<boolean>((resolve) => {
+        const startTime = Date.now();
+
+        const checkPort = () => {
+            if (Date.now() - startTime >= timeout) {
+                resolve(false); // Timeout reached
+            } else {
+                if (process.platform === 'win32') {
+                    const command = `netstat -an | find "LISTENING" | find ":${port}"`;
+                    childprocess.exec(command, (error, stdout, stderr) => {
+                        if (!error && stdout.trim() !== '') {
+                            resolve(true);
+                        } else {
+                            console.log('retrying');
+                            setTimeout(checkPort, 1000); // Check again after 1 second
+                        }
+                    });
+                } else {
+                    const command = `lsof -i :${port}`;
+                    childprocess.exec(command, (error, stdout, stderr) => {
+                        if (!error && stdout.trim() !== '') {
+                            resolve(true);
+                        } else {
+                            console.log('retrying');
+                            setTimeout(checkPort, 1000); // Check again after 1 second
+                        }
+                    });
+                }
+            }
+        };
+
+        checkPort(); // Start checking the port
     });
 }
 
@@ -65,6 +102,7 @@ export async function executeCopyTask(task: vscode.Task) {
 }
 
 export async function executeBuildTask(task: vscode.Task, serverPath: string) {
+    await deleteCapp(serverPath);
     await vscode.tasks.executeTask(task);
 
     return new Promise<void>(resolve => {
@@ -88,22 +126,41 @@ export async function executeBuildTask(task: vscode.Task, serverPath: string) {
     });
 }
 
-export async function executeTasks(serverPath: string): Promise<void> {
+export async function executeTasks(serverPath: string, isDebug: boolean): Promise<void> {
     const buildTask = getBuildTask();
     await executeBuildTask(buildTask, serverPath);
 
     const portsInUse = await checkPorts();
 
     if (!portsInUse) {
-        const runTask = getRunTask(serverPath);
+        return new Promise<void>(async (resolve) => {
+            const runTask = getRunTask(serverPath, isDebug);
+            await vscode.tasks.executeTask(runTask);
+            console.log('Running the server');
 
-        await vscode.tasks.executeTask(runTask);
+            // promise is resolved once the port is actively listening only
+
+            const commandPort = 9005;
+            const maxTimeout = 10000;
+            isPortActivelyListening(commandPort, maxTimeout).then((isListening) => {
+                if (isListening) {
+                    console.log('Port is actively listening');
+                    resolve();
+                    // Proceed with connecting to the port
+                } else {
+                    console.log('Port is not actively listening or timeout reached');
+                    resolve();
+                    // TODO: Handle the case where the port is not actively listening or timeout reached
+                }
+            });
+
+        });
     } else {
         vscode.window.showInformationMessage('Server is already running');
     }
 }
 
-export async function updateServerPathAndGet(): Promise<string | undefined> {
+export async function getServerPath(): Promise<string | undefined> {
     const currentPath: string | undefined = extension.context.globalState.get(SELECTED_SERVER_PATH);
     if (!currentPath) {
         await vscode.commands.executeCommand(COMMANDS.CHANGE_SERVER_PATH);
@@ -111,4 +168,24 @@ export async function updateServerPathAndGet(): Promise<string | undefined> {
         return updatedPath as string;
     }
     return currentPath as string;
+}
+
+export async function deleteCapp(serverPath: string): Promise<void> {
+    const targetPath = serverPath + '/repository/deployment/server/carbonapps';
+    if (process.platform === 'win32') {
+        targetPath.replace(/\//g, '\\');
+    }
+
+    try {
+        const files = await fs.promises.readdir(targetPath);
+
+        for (const file of files) {
+            if (file.endsWith('.car')) {
+                const filePath = path.join(targetPath, file);
+                await fs.promises.unlink(filePath);
+            }
+        }
+    } catch (err) {
+        console.error(`Error deleting files: ${err}`);
+    }
 }

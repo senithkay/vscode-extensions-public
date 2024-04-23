@@ -16,6 +16,8 @@ export interface STNode {
     tag: string;
     viewState?: ViewState;
     diagnostics?: Diagnostic[];
+    hasBreakpoint?: boolean;
+    isActiveBreakpoint?: boolean;
 }
 
 export interface ViewState {
