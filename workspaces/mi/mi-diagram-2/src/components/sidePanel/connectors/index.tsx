@@ -463,15 +463,11 @@ export function ConnectorPage(props: ConnectorPageProps) {
                                                 <CardLabel>
                                                     <IconContainer>
                                                         <img
-                                                            src={`https://mi-connectors.wso2.com/icons/${connector.name}.gif`}
+                                                            src={connector.icon_url}
                                                             alt="Icon"
                                                             onError={(e) => {
                                                                 const target = e.target as HTMLImageElement;
-                                                                target.onerror = () => {
-                                                                    target.onerror = null;
-                                                                    target.src = 'https://mi-connectors.wso2.com/icons/wordpress.gif';
-                                                                };
-                                                                target.src = `https://mi-connectors.wso2.com/icons/${connector.name}.png`
+                                                                target.src = 'https://mi-connectors.wso2.com/icons/wordpress.gif'
                                                             }}
                                                         />
                                                     </IconContainer>
