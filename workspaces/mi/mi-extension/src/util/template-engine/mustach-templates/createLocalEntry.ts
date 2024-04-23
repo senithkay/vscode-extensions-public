@@ -45,17 +45,7 @@ export function generateXmlData(
     `;
     
     const jsonData = parser.parse(localEntryTemplate);
-    if (type === "In-Line XML Entry") {
-        if(jsonData.localEntry.xml["@_"]["xmlns"]) {
-            if (jsonData.xml["@_"]["xmlns"] === "http://ws.apache.org/ns/synapse") {
-                delete jsonData.localEntry.xml["@_"]["xmlns"];
-            }
-        }
-        else {
-             jsonData.localEntry.xml["@_"]["xmlns"] = "";
-        }
-    }
-    return builder.build(jsonData);
+    return builder.build(jsonData).replace(/&apos;/g, "'");
 }
 
 export function writeXmlDataToFile(filePath: string, xmlData: string): void {

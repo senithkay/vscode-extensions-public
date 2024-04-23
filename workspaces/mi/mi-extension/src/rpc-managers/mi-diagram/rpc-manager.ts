@@ -767,22 +767,23 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     sourceURL: ""
                 };
                 if (jsonData && jsonData.localEntry) {
-                    if (jsonData.localEntry["#text"]) {
+                    const firstEntryKey = Object.keys(jsonData.localEntry)[0];
+                    if (jsonData.localEntry["#text"] ) {
                         response.type = "In-Line Text Entry";
                         response.inLineTextValue = jsonData.localEntry["#text"];
-                    } else if (jsonData.localEntry.xml) {
+                    } else if (firstEntryKey) {
                         response.type = "In-Line XML Entry";
-                        if (jsonData.localEntry.xml["@_"]["xmlns"] === '') {
-                            delete jsonData.localEntry.xml["@_"]["xmlns"];
-                        }
-                        const xmlObj = {
-                            xml: {
-                                ...jsonData.localEntry.xml
+                        const firstEntryKey = Object.keys(jsonData.localEntry)[0];
+                        if(firstEntryKey){
+                            const xmlObj = {
+                                [firstEntryKey]: {
+                                    ...jsonData.localEntry[firstEntryKey]
+                                }
                             }
+                            const builder = new XMLBuilder(options);
+                            let xml = builder.build(xmlObj).replace(/&apos;/g, "'");
+                            response.inLineXmlValue = xml;
                         }
-                        const builder = new XMLBuilder(options);
-                        let xml = builder.build(xmlObj);
-                        response.inLineXmlValue = xml;
                     } else if (jsonData.localEntry["@_"]["src"]) {
                         response.type = "Source URL Entry";
                         response.sourceURL = jsonData.localEntry["@_"]["src"];
@@ -790,7 +791,9 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 }
                 resolve(response);
             }
-            return error("File not found");
+            else {
+                return error("File not found");
+            }
         });
     }
 
