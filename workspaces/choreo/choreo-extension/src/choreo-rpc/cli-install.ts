@@ -61,7 +61,8 @@ export const downloadCLI = async () => {
     }
 
     console.log(`Moving executable to ${CHOREO_BIN_DIR}`);
-    await fs.promises.rename(`${CHOREO_TMP_DIR}/choreo`, CHOREO_CLI_EXEC);
+    await fs.promises.copyFile(`${CHOREO_TMP_DIR}/choreo`, CHOREO_CLI_EXEC);
+    await fs.promises.rm(`${CHOREO_TMP_DIR}/choreo`);
 
     console.log("Cleaning up...");
     await fs.promises.rm(CHOREO_TMP_DIR, { recursive: true });

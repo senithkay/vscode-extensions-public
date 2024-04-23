@@ -11,7 +11,7 @@
  *  associated services.
  */
 
-import { LinkFileContent, EndpointYamlContent, ReadEndpointsResp, CreateEndpointReq } from "@wso2-enterprise/choreo-core";
+import { LinkFileContent, EndpointYamlContent, ReadEndpointsResp } from "@wso2-enterprise/choreo-core";
 import { existsSync, mkdirSync, readFileSync, unlinkSync, writeFileSync } from "fs";
 import * as yaml from "js-yaml";
 import { commands, window, workspace } from "vscode";
@@ -35,20 +35,6 @@ export const deleteLinkFile = async (orgHandle: string, projectHandle: string, c
     }
 };
 
-// TODO: move into ChoreoExtensionApi()
-export const createEndpointYaml = (params: CreateEndpointReq) => {
-    const { componentPath, name, networkVisibility, port } = params;
-    const endpointFileContent: EndpointYamlContent = {
-        version: "0.1",
-        endpoints: [{ name, port, networkVisibility, context: "/", type: "REST" }],
-    };
-    const choreoDir = join(componentPath, ".choreo");
-    if (!existsSync(choreoDir)) {
-        mkdirSync(choreoDir);
-    }
-    writeFileSync(join(choreoDir, "endpoints.yaml"), yaml.dump(endpointFileContent));
-};
-
 export const readEndpoints = (componentPath: string): ReadEndpointsResp => {
     const endpointsYamlPath = join(componentPath, ".choreo", "endpoints.yaml");
     if (existsSync(endpointsYamlPath)) {
@@ -68,3 +54,9 @@ export const goTosource = async (filePath: string, focusFileExplorer?: boolean) 
         }
     }
 };
+
+
+// sanitize the component display name to make it url friendly
+export function makeURLSafe(input: string): string {
+    return input.trim().replace(/\s+/g, "-").toLowerCase();
+}

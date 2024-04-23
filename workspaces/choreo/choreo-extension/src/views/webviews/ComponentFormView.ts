@@ -9,8 +9,15 @@
 import * as vscode from "vscode";
 import { WebViewPanelRpc } from "./rpc/WebviewRPC";
 import { getUri } from "./utils";
-import { Organization, Project, WebviewProps } from "@wso2-enterprise/choreo-core";
-import { choreoEnvConfig } from "../../auth/auth";
+import { NewComponentWebviewProps, Organization, Project } from "@wso2-enterprise/choreo-core";
+
+
+interface IComponentCreateFormParams {
+  directoryPath: string;
+  organization: Organization;
+  project?: Project, 
+  initialValues?: { type?: string; buildPackLang?: string; subPath?: string; }
+}
 
 export class ComponentFormView {
     public static currentPanel: ComponentFormView | undefined;
@@ -18,10 +25,10 @@ export class ComponentFormView {
     private _disposables: vscode.Disposable[] = [];
     private _rpcHandler: WebViewPanelRpc;
 
-    constructor(extensionUri: vscode.Uri, directoryPath: string, organization: Organization, project?: Project) {
+    constructor(extensionUri: vscode.Uri, params: IComponentCreateFormParams) {
         this._panel = ComponentFormView.createWebview();
         this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
-        this._panel.webview.html = this._getWebviewContent(this._panel.webview, extensionUri, directoryPath, organization, project);
+        this._panel.webview.html = this._getWebviewContent(this._panel.webview, extensionUri, params);
         this._rpcHandler = new WebViewPanelRpc(this._panel);
     }
 
@@ -33,8 +40,6 @@ export class ComponentFormView {
             { enableScripts: true, retainContextWhenHidden: true }
         );
 
-        
-
         return panel;
     }
 
@@ -42,7 +47,7 @@ export class ComponentFormView {
         return this._panel;
     }
 
-    private _getWebviewContent(webview: vscode.Webview, extensionUri: vscode.Uri, directoryPath: string, organization: Organization, project?: Project) {
+    private _getWebviewContent(webview: vscode.Webview, extensionUri: vscode.Uri, params: IComponentCreateFormParams) {
         // The JS file from the React build output
         const scriptUri = getUri(webview, extensionUri, ["resources", "jslibs", "main.js"]);
 
@@ -71,10 +76,8 @@ export class ComponentFormView {
                   document.getElementById("root"),
                   ${JSON.stringify({
                       type: "NewComponentForm",
-                      directoryPath: directoryPath,
-                      organization,
-                      project,
-                  } as WebviewProps)}
+                      ...params
+                  } as NewComponentWebviewProps)}
                 );
               }
               render();

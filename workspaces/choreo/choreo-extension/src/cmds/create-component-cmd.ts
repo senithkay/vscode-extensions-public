@@ -6,60 +6,80 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { ExtensionContext, commands, window } from "vscode";
+import { ExtensionContext, WorkspaceFolder, commands, window, workspace } from "vscode";
 import { ext } from "../extensionVariables";
-import { CommandIds } from "@wso2-enterprise/choreo-core";
+import { CommandIds, ICreateComponentParams } from "@wso2-enterprise/choreo-core";
 import { authStore } from "../stores/auth-store";
 import { ComponentFormView } from "../views/webviews/ComponentFormView";
 import { resolveWorkspaceDirectory, selectOrg, selectProjectWithCreateNew } from "./cmd-utils";
+import * as path from "path";
 
 let componentWizard: ComponentFormView;
 
 export function createNewComponentCommand(context: ExtensionContext) {
     context.subscriptions.push(
-        commands.registerCommand(CommandIds.CreateNewComponent, async () => {
+        commands.registerCommand(CommandIds.CreateNewComponent, async (params: ICreateComponentParams) => {
             try {
                 const userInfo = authStore.getState().state.userInfo;
                 if (!userInfo) {
                     throw new Error("You are not logged in. Please log in and retry.");
                 }
 
-                const workspaceDir = await resolveWorkspaceDirectory();
+                let subPath: string | undefined;
+                let workspaceDir: WorkspaceFolder | undefined;
+
+                if(params?.initialValues?.componentDir){
+                    const workspaceDir = workspace.workspaceFolders?.find(item => !!getSubPath(params?.initialValues?.componentDir!, item.uri.path));
+                    if(workspaceDir){
+                        subPath = getSubPath(params?.initialValues?.componentDir!, workspaceDir?.uri.path);
+                    }
+                }
+
+                if(!workspaceDir){
+                    workspaceDir = await resolveWorkspaceDirectory();
+                }
 
                 const selectedOrg = await selectOrg(userInfo, "Select organization (1/2)");
 
-                const selectedProject = await selectProjectWithCreateNew(
+                let selectedProject = await selectProjectWithCreateNew(
                     selectedOrg,
                     `Loading projects from '${selectedOrg.name}' (2/2)`,
                     `Select project from '${selectedOrg.name}' to create your component in (2/2)`
                 );
 
-                if (selectedProject === "new-project") {
-                    if (componentWizard) {
-                        componentWizard.dispose();
-                    }
-                    componentWizard = new ComponentFormView(
-                        ext.context.extensionUri,
-                        workspaceDir.uri.path,
-                        selectedOrg
-                    );
-                    componentWizard.getWebview()?.reveal();
-                } else {
-                    if (componentWizard) {
-                        componentWizard.dispose();
-                    }
-                    componentWizard = new ComponentFormView(
-                        ext.context.extensionUri,
-                        workspaceDir.uri.path,
-                        selectedOrg,
-                        selectedProject
-                    );
-                    componentWizard.getWebview()?.reveal();
+                if (componentWizard) {
+                    componentWizard.dispose();
                 }
+                componentWizard = new ComponentFormView(
+                    ext.context.extensionUri,
+                    {
+                        directoryPath: workspaceDir.uri.path,
+                        organization: selectedOrg,
+                        project: selectedProject === "new-project" ? undefined : selectedProject,
+                        initialValues: { 
+                            type: params?.initialValues?.type,
+                            buildPackLang: params?.initialValues?.buildPackLang,
+                            subPath: subPath ?? "."
+                        }
+                    }
+                );
+                componentWizard.getWebview()?.reveal();
             } catch (err: any) {
                 console.error("Failed to create component", err);
                 window.showErrorMessage(err?.message || "Failed to create component");
             }
         })
     );
+}
+
+function getSubPath(subPath: string, parentPath: string): string | undefined {
+    const relative = path.relative(parentPath, subPath);
+    // If the relative path starts with '..', it means subPath is outside of parentPath
+    if (!relative.startsWith('..')) {
+        // If subPath and parentPath are the same, return '.'
+        if (relative === '') {
+            return '.';
+        }
+        return relative;
+    }
 }

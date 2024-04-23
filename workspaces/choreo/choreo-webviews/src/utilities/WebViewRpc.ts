@@ -128,10 +128,11 @@ import {
     ViewRuntimeLogs,
     ViewRuntimeLogsReq,
     GetWebviewStoreState,
-    CreateEndpointYaml,
-    CreateEndpointReq,
     TriggerGithubAuthFlow,
     TriggerGithubInstallFlow,
+    SubmitComponentCreate,
+    SubmitComponentCreateReq,
+    ComponentKind,
 } from "@wso2-enterprise/choreo-core";
 import { IChoreoProjectClient } from "@wso2-enterprise/choreo-client/lib/project/types";
 import { ChoreoProjectClientRPCWebView } from "@wso2-enterprise/choreo-client/lib/project/rpc";
@@ -257,10 +258,6 @@ export class ChoreoWebViewAPI {
         return this._messenger.sendRequest(ReadServiceEndpoints, HOST_EXTENSION, componentPath);
     }
 
-    public async createEndpointYaml(params: CreateEndpointReq): Promise<void> {
-        return this._messenger.sendRequest(CreateEndpointYaml, HOST_EXTENSION, params);
-    }
-
     public async showQuickPicks(params: ShowWebviewQuickPickItemsReq): Promise<WebviewQuickPickItem | undefined> {
         return this._messenger.sendRequest(ShowQuickPick, HOST_EXTENSION, params);
     }
@@ -279,6 +276,10 @@ export class ChoreoWebViewAPI {
 
     public async triggerGithubInstallFlow(orgId: string): Promise<void> {
         return this._messenger.sendRequest(TriggerGithubInstallFlow, HOST_EXTENSION, orgId);
+    }
+
+    public async submitComponentCreate(params: SubmitComponentCreateReq): Promise<ComponentKind> {
+        return this._messenger.sendRequest(SubmitComponentCreate, HOST_EXTENSION, params);
     }
     // todo: remove old ones
 

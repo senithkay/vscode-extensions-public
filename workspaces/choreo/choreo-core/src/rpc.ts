@@ -32,6 +32,7 @@ import {
    WebviewQuickPickItem,
    WebviewState,
 } from './types';
+import { CreateComponentReq } from './cli-rpc';
 
 export const GetAuthState: RequestType<void, AuthState> = { method: 'getAuthState' };
 export const GetLinkedDirState: RequestType<void, LinkedDirectoryState> = { method: 'getLinkedState' };
@@ -53,11 +54,16 @@ export const ViewComponentDetails: RequestType<ViewComponentDetailsReq, void> = 
 export const ReadServiceEndpoints: RequestType<string, ReadEndpointsResp> = { method: 'readServiceEndpoints' };
 export const ViewBuildsLogs: RequestType<ViewBuildLogsReq, void> = { method: 'viewBuildLogs' };
 export const ViewRuntimeLogs: RequestType<ViewRuntimeLogsReq, void> = { method: 'viewRuntimeLogs' };
-export const CreateEndpointYaml: RequestType<CreateEndpointReq, void> = { method: 'createNewEndpointYaml' };
 export const TriggerGithubAuthFlow: RequestType<string, void> = { method: 'triggerGithubAuthFlow' };
 export const TriggerGithubInstallFlow: RequestType<string, void> = { method: 'triggerGithubInstallFlow' };
+export const SubmitComponentCreate: RequestType<SubmitComponentCreateReq, ComponentKind> = { method: 'submitComponentCreate' };
 
-export interface CreateEndpointReq { componentPath: string, name: string, networkVisibility: string, port: number }
+export interface SubmitComponentCreateReq  {
+   org: Organization;
+   project: Project;
+   createParams: CreateComponentReq;
+   endpoint?: { networkVisibility: string; port: number; }
+}
 
 export interface ViewBuildLogsReq { orgId: string; orgHandler: string; componentName: string; projectId: string; buildId: number;}
 export interface ViewRuntimeLogsReq {

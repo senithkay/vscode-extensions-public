@@ -100,9 +100,11 @@ import {
     ViewBuildsLogs,
     ViewRuntimeLogs,
     GetWebviewStoreState,
-    CreateEndpointYaml,
     TriggerGithubAuthFlow,
     TriggerGithubInstallFlow,
+    SubmitComponentCreate,
+    SubmitComponentCreateReq,
+    ChoreoComponentType,
 } from "@wso2-enterprise/choreo-core";
 import { registerChoreoProjectRPCHandlers, registerChoreoCellViewRPCHandlers } from "@wso2-enterprise/choreo-client";
 import { registerChoreoGithubRPCHandlers } from "@wso2-enterprise/choreo-client/lib/github/rpc";
@@ -115,7 +117,7 @@ import { getLogger } from "../../../logger/logger";
 import { initGit } from "../../../git/main";
 import { dirname, join } from "path";
 import { sendTelemetryEvent, sendTelemetryException } from "../../../telemetry/utils";
-import { existsSync, readFileSync, unlinkSync } from "fs";
+import { existsSync, mkdirSync, readFileSync, unlinkSync, writeFileSync } from "fs";
 import { authStore } from "../../../stores/auth-store";
 import { linkedDirectoryStore } from "../../../stores/linked-dir-store";
 import { webviewStateStore } from "../../../stores/webview-state-store";
@@ -125,7 +127,7 @@ import { choreoEnvConfig } from "../../../auth/auth";
 import { showComponentDetails } from "../../../cmds/view-component-cmd";
 import * as yaml from "js-yaml";
 import { getChoreoExecPath } from "../../../choreo-rpc/cli-install";
-import { createEndpointYaml, goTosource, readEndpoints } from "../../../utils";
+import { goTosource, makeURLSafe, readEndpoints } from "../../../utils";
 
 const manager = new ChoreoProjectManager();
 
@@ -216,7 +218,6 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
         showComponentDetails(params.organization, params.project, params.component, params.componentPath)
     });
     messenger.onRequest(ReadServiceEndpoints, async (componentPath: string) => readEndpoints(componentPath));
-    messenger.onRequest(CreateEndpointYaml, async (params) => createEndpointYaml(params));
     messenger.onRequest(ShowQuickPick, async (params) => {
         const itemSelection = await window.showQuickPick(params.items as vscode.QuickPickItem[], {
             title: params.title,
@@ -256,6 +257,57 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
         const state = await _getGithubUrlState(orgId);
         const ghURL = Uri.parse(`${installUrl}?state=${state}`);
         await env.openExternal(ghURL);
+    });
+    messenger.onRequest(SubmitComponentCreate, async ({createParams, endpoint, org, project}: SubmitComponentCreateReq) => {
+        const cleanCompName = makeURLSafe(createParams.name);
+        await window.withProgress(
+            {
+                title: `Creating new component ${createParams.name}...`,
+                location: ProgressLocation.Notification,
+            },
+            () => ext.clients.rpcClient.createComponent(createParams)
+        );
+
+        if (createParams.type === ChoreoComponentType.Service && endpoint) {
+            const endpointFileContent: EndpointYamlContent = {
+                version: "0.1",
+                endpoints: [ { name: cleanCompName, context: "/", type: "REST" , ...endpoint }],
+            };
+            const choreoDir = join(createParams.componentDir, ".choreo");
+            if (!existsSync(choreoDir)) {
+                mkdirSync(choreoDir);
+            }
+            writeFileSync(join(choreoDir, "endpoints.yaml"), yaml.dump(endpointFileContent));
+        }
+
+        await ext.clients.rpcClient.createComponentLink({
+            componentDir: createParams.componentDir,
+            componentHandle: cleanCompName,
+            orgHandle: org.handle,
+            projectHandle: project.handler,
+        });
+
+        window.showInformationMessage(`Component ${createParams?.name} has been successfully created`);
+
+        const createdComponent = await window.withProgress(
+            {
+                title: `Fetching newly created component ${createParams?.name}...`,
+                location: ProgressLocation.Notification,
+            },
+            () =>
+                ext.clients.rpcClient.getComponentItem({
+                    orgId: org.id.toString(),
+                    projectHandle: project.handler,
+                    componentName: cleanCompName,
+                })
+        );
+
+        if (createdComponent) {
+            showComponentDetails(org, project, createdComponent, createParams?.componentDir);
+            linkedDirectoryStore?.getState().refreshState();
+        }
+
+        return createdComponent;
     });
     // TODO remove old ones
 

@@ -4,11 +4,15 @@ update eslint with prettier and https://github.com/tailwindlabs/prettier-plugin-
 add copyrights
 
 component create improvements
+verify with all component types
 check making name url safe 
 validate component/project names
 file picker for dockerfile
 validate buildpack type
 show error for reaching tier limit
+
+when running commands, if user is not logged in, 
+automatically take them through the login flow and return back to the previous command
 
 
 validate endpoints exist when triggering builds

@@ -9,7 +9,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import {
     ChoreoBuildPackNames,
     ChoreoComponentType,
+    CommandIds,
+    ICreateComponentParams,
     NewComponentWebviewProps,
+    SubmitComponentCreateReq,
     WebAppSPATypes,
 } from "@wso2-enterprise/choreo-core";
 import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
@@ -23,7 +26,7 @@ import { Codicon } from "../../components/Codicon";
 
 type ComponentFormType = z.infer<typeof componentFormSchema>;
 
-export const ComponentFormView: FC<NewComponentWebviewProps> = ({ project, organization, directoryPath }) => {
+export const ComponentFormView: FC<NewComponentWebviewProps> = ({ project, organization, directoryPath, initialValues }) => {
     const form = useForm<ComponentFormType>({
         resolver: zodResolver(componentFormSchema),
         mode: "all",
@@ -31,10 +34,10 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({ project, organ
             projectName: project?.name ?? "",
             projectRegion: project?.region ?? "US",
             name: "",
-            type: ChoreoComponentType.Service,
-            buildPackLang: "",
+            type: initialValues?.type ?? ChoreoComponentType.Service,
+            buildPackLang: initialValues?.buildPackLang ?? "",
             langVersion: "",
-            subPath: ".",
+            subPath: initialValues?.subPath ?? ".",
             repoUrl: "",
             branch: "",
             dockerFile: "Dockerfile",
@@ -58,7 +61,11 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({ project, organ
             const compPath = await ChoreoWebViewAPI.getInstance().joinFilePaths([directoryPath, subPath]);
             return ChoreoWebViewAPI.getInstance().readServiceEndpoints(compPath);
         },
-        select: (resp) => resp?.endpoints?.length > 0,
+        select: (resp) =>
+            resp?.endpoints?.length > 0 ||
+            [ChoreoBuildPackNames.Ballerina, ChoreoBuildPackNames.MicroIntegrator].includes(
+                selectedLang as ChoreoBuildPackNames
+            ),
         enabled: selectedType === ChoreoComponentType.Service,
     });
 
@@ -80,8 +87,8 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({ project, organ
     });
 
     useEffect(() => {
-        if (!buildpacks.find((item) => item.language === form.getValues("buildPackLang"))) {
-            form.setValue("buildPackLang", buildpacks[0].language);
+        if (buildpacks.length > 0 && !buildpacks.find((item) => item.language === form.getValues("buildPackLang"))) {
+            form.setValue("buildPackLang", buildpacks[0]?.language ?? "");
             form.setValue("langVersion", "");
         }
     }, [form, buildpacks]);
@@ -145,6 +152,7 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({ project, organ
     const { mutate: createComponent, isLoading: isCreatingComponent } = useMutation({
         mutationFn: async (data: ComponentFormType) => {
             const componentName = makeURLSafe(data.name);
+
             let selectedProject = project;
             if (!selectedProject) {
                 selectedProject = await ChoreoWebViewAPI.getInstance().getChoreoRpcClient().createProject({
@@ -154,60 +162,40 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({ project, organ
                     region: data.projectRegion,
                 });
             }
+
             const componentDir = await ChoreoWebViewAPI.getInstance().joinFilePaths([directoryPath, data.subPath]);
 
-            await ChoreoWebViewAPI.getInstance().getChoreoRpcClient().createComponent({
-                orgId: organization.id.toString(),
-                projectHandle: selectedProject.handler,
-                name: componentName,
-                displayName: data.name,
-                type: data.type,
-                buildPackLang: data.buildPackLang,
-                componentDir,
-                repoUrl: data.repoUrl,
-                branch: data.branch,
-                langVersion: data.langVersion,
-                dockerFile: data.dockerFile,
-                port: data.port,
-                spaBuildCommand: data.spaBuildCommand,
-                spaNodeVersion: data.spaNodeVersion,
-                spaOutputDir: data.spaOutputDir,
-            });
-
-            await ChoreoWebViewAPI.getInstance().getChoreoRpcClient().createComponentLink({
-                projectHandle: selectedProject.handler,
-                orgHandle: organization.handle,
-                componentHandle: componentName,
-                componentDir,
-            });
+            const createCompCommandParams: SubmitComponentCreateReq = {
+                org: organization,
+                project: selectedProject,
+                createParams: {
+                    orgId: organization.id.toString(),
+                    projectHandle: selectedProject.handler,
+                    name: componentName,
+                    displayName: data.name,
+                    type: data.type,
+                    buildPackLang: data.buildPackLang,
+                    componentDir,
+                    repoUrl: data.repoUrl,
+                    branch: data.branch,
+                    langVersion: data.langVersion,
+                    dockerFile: data.dockerFile,
+                    port: data.port,
+                    spaBuildCommand: data.spaBuildCommand,
+                    spaNodeVersion: data.spaNodeVersion,
+                    spaOutputDir: data.spaOutputDir,
+                },
+            };
 
             if (data.type === ChoreoComponentType.Service && !hasEndpoints) {
-                await ChoreoWebViewAPI.getInstance().createEndpointYaml({
-                    componentPath: componentDir,
-                    name: componentName,
-                    port: data.port,
-                    networkVisibility: data.visibility,
-                });
+                createCompCommandParams.endpoint = { port: data.port, networkVisibility: data.visibility };
             }
 
-            ChoreoWebViewAPI.getInstance().showInfoMsg(`Component ${data.name} has been successfully created`);
-            ChoreoWebViewAPI.getInstance().refreshLinkedDirState();
+            const created = await ChoreoWebViewAPI.getInstance().submitComponentCreate(createCompCommandParams);
 
-            const createdComponent = await ChoreoWebViewAPI.getInstance().getChoreoRpcClient().getComponentItem({
-                orgId: organization.id.toString(),
-                projectHandle: project.handler,
-                componentName: componentName,
-            });
-            if (createdComponent) {
-                ChoreoWebViewAPI.getInstance().ViewComponent({
-                    component: createdComponent,
-                    organization,
-                    project,
-                    componentPath: componentDir,
-                });
+            if (created) {
+                ChoreoWebViewAPI.getInstance().closeWebView();
             }
-
-            ChoreoWebViewAPI.getInstance().closeWebView();
         },
         onError: (err: any) => {
             console.error("Component create failed", err);
@@ -317,7 +305,7 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({ project, organ
                     >
                         here
                     </VSCodeLink>
-                    .
+                    . {isRepoAuthorizedResp?.retrievedRepos ? "(Only public repos are allowed for the free tier.)" : ""}
                 </div>
                 <Button
                     appearance="icon"

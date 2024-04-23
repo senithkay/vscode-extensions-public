@@ -14,13 +14,14 @@ export interface NewComponentWebviewProps {
     directoryPath: string;
     organization: Organization;
     project?: Project;
+    initialValues?: { type?: string; buildPackLang?: string; subPath?: string; };
 }
 export interface ComponentsDetailsWebviewProps {
     type: "ComponentDetailsView";
-    directoryPath?: string;
     organization: Organization;
     project: Project;
     component: ComponentKind;
+    directoryPath?: string;
 }
 
 export interface ComponentsListActivityViewProps {
@@ -387,6 +388,17 @@ export interface ComponentDeployment {
     version: string;
     cron: string;
     cronTimezone: string;
+}
+
+export interface IComponentCreateInitValues {
+    type: ChoreoComponentType;
+    buildPackLang: string;
+    /** Full path of the component directory */
+    componentDir: string;
+}
+
+export interface ICreateComponentParams {
+    initialValues?: IComponentCreateInitValues
 }
 
 
