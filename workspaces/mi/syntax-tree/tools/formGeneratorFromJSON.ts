@@ -272,8 +272,8 @@ const generateForm = (jsonData: any): string => {
                         fixIndentation(comboStr, indentation);
                 }
 
-                if (typeof defaultValue === 'boolean') {
-                    defaultValue = Boolean(defaultValue);
+                if (defaultValue === undefined) {
+                    defaultValue = '""';
                 } else if (typeof defaultValue === 'string') {
                     defaultValue = `"${defaultValue.replaceAll('"', '\\"')}"`;
                 } else {
@@ -282,7 +282,7 @@ const generateForm = (jsonData: any): string => {
 
                 defaultValues +=
                     fixIndentation(`
-                ${inputName}: sidePanelContext?.formValues?.${inputName} || ${defaultValue || '""'},`, 8);
+                ${inputName}: sidePanelContext?.formValues?.${inputName} || ${defaultValue},`, 8);
 
                 indentation -= 4;
                 fields +=
