@@ -1239,8 +1239,14 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
     async createTask(params: CreateTaskRequest): Promise<CreateTaskResponse> {
         return new Promise(async (resolve) => {
             const { directory, ...templateParams } = params;
-
-            const xmlData = getTaskXmlWrapper(templateParams);
+            // limit saving default values
+            const tempParams = templateParams.taskProperties.filter((prop: any) =>
+                prop.value !== '' && prop.value !== undefined && prop.value !== false);
+            const mustacheParams = {
+                ...templateParams,
+                taskProperties: tempParams
+            };
+            const xmlData = getTaskXmlWrapper(mustacheParams);
 
             let filePath: string;
 
@@ -1279,7 +1285,8 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     triggerType: 'simple',
                     triggerCount: 1,
                     triggerInterval: 1,
-                    triggerCron: ''
+                    triggerCron: '',
+                    taskProperties: []
                 };
 
                 if (jsonData.task.trigger["@_"]["@_count"] !== undefined) {
@@ -1290,20 +1297,53 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     response.triggerType = 'cron';
                     response.triggerCron = jsonData.task.trigger["@_"]["@_cron"];
                 }
+                if (jsonData.task.property) {
+                    response.taskProperties = Array.isArray(jsonData.task.property) ?
+                        jsonData.task.property.map((prop: any) => ({
+                            key: prop["@_"]["@_name"],
+                            value: prop["@_"]["@_value"],
+                            isLiteral: true
+                        })) :
+                        [{
+                            key: jsonData.task.property["@_"]["@_name"],
+                            value: jsonData.task.property["@_"]["@_value"],
+                            isLiteral: true
+                        }];
+                    const builder = new XMLBuilder(options);
+                    const message = jsonData.task.property.filter((prop: any) => prop["@_"]["@_name"] === "message");
+                    if (message.length > 0) {
+                        response.taskProperties = response.taskProperties.filter(prop => prop.key !== "message");
+                        if (message[0]["@_"]["@_value"] === undefined) {
+                            delete message[0]["@_"];
+                            let xml = builder.build(message[0]);
+                            response.taskProperties.push({
+                                key: "message",
+                                value: xml,
+                                isLiteral: false
+                            });
+                        } else {
+                            response.taskProperties.push({
+                                key: "message",
+                                value: message[0]["@_"]["@_value"],
+                                isLiteral: true
+                            });
+                        }
+                    }
+                    resolve(response);
+                }
 
-                resolve(response);
+                resolve({
+                    name: '',
+                    group: '',
+                    implementation: '',
+                    pinnedServers: '',
+                    triggerType: 'simple',
+                    triggerCount: 1,
+                    triggerInterval: 1,
+                    triggerCron: '',
+                    taskProperties: []
+                });
             }
-
-            resolve({
-                name: '',
-                group: '',
-                implementation: '',
-                pinnedServers: '',
-                triggerType: 'simple',
-                triggerCount: 1,
-                triggerInterval: 1,
-                triggerCron: ''
-            });
         });
     }
 
@@ -3119,7 +3159,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             await workspace.fs.delete(Uri.file(params.path));
             await vscode.commands.executeCommand(COMMANDS.REFRESH_COMMAND); // Refresh the project explore view
             navigate();
-            
+
             if (params.enableUndo) {
                 undoRedo.addModification('');
                 const selection = await vscode.window.showInformationMessage('Do you want to undo the deletion?', 'Undo');

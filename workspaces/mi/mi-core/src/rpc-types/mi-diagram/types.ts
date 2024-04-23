@@ -872,6 +872,13 @@ export interface CreateTaskRequest {
     triggerCount: number;
     triggerInterval: number;
     triggerCron: string;
+    taskProperties: taskProperty[];
+}
+
+export interface taskProperty {
+    key: string;
+    value: string;
+    isLiteral: boolean
 }
 
 export interface CreateTaskResponse {
@@ -891,6 +898,7 @@ export interface GetTaskResponse {
     triggerCount: number;
     triggerInterval: number;
     triggerCron: string;
+    taskProperties: taskProperty[];
 }
 
 export interface CreateTemplateRequest {
