@@ -216,7 +216,7 @@ export function getXML(name: string, data: { [key: string]: any }, dirtyFields?:
             return getEventXml(data);
         //Core Mediators
         case MEDIATORS.CALL:
-            return getCallXml(data);
+            return getCallXml(data, dirtyFields, defaultValues);
         case MEDIATORS.LOG:
             return getLogXml(data);
         case MEDIATORS.CALLOUT:
