@@ -92,6 +92,8 @@ export function getWsdlEndpointXml(data: WsdlEndpointArgs) {
 
     assignNullToEmptyStrings(data);
 
+    data.maximumDuration = data.maximumDuration === Number.MAX_SAFE_INTEGER ? null : data.maximumDuration;
+    data.timeoutDuration = data.timeoutDuration === Number.MAX_SAFE_INTEGER ? null : data.timeoutDuration;
     data.timeoutAction = (data.timeoutAction === 'Never' || data.timeoutAction === null) ? null : data.timeoutAction.toLowerCase();
     if (data.timeoutDuration != null || data.timeoutAction != null) {
         timeout = true;
@@ -129,9 +131,6 @@ export function getWsdlEndpointXml(data: WsdlEndpointArgs) {
         data.inboundPolicyKey = '';
         data.outboundPolicyKey = '';
     }
-
-    data.maximumDuration = data.maximumDuration === Number.MAX_SAFE_INTEGER ? null : data.maximumDuration;
-    data.timeoutDuration = data.timeoutDuration === Number.MAX_SAFE_INTEGER ? null : data.timeoutDuration;
 
     const modifiedData = {
         ...data,
