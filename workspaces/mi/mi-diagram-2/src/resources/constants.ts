@@ -242,6 +242,7 @@ export enum NodeTypes {
     PLUS_NODE = "plus-node",
     EMPTY_NODE = "empty-node",
     CONNECTOR_NODE = "connector-node",
+    DATAMAPPER_NODE = "datamapper-node",
 }
 
 export const NODE_LINK = "node-link";

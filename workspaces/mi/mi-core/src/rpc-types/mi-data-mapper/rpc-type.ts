@@ -9,12 +9,30 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
-    IOTypeRequest,
-    IOTypeResponse,
-    UpdateFileContentRequest
+    IOTypeRequest, 
+    IOTypeResponse, 
+    UpdateFileContentRequest, 
+    GenerateDMInputRequest, 
+    GenerateDMInputResponse, 
+    BrowseSchemaRequest, 
+    BrowseSchemaResponse,
+    LoadDMConfigsRequest,
+    LoadDMConfigsResponse,
+    ConvertRegPathToAbsPathRequest,
+    ConvertRegPathToAbsPathResponse,
+    ImportDMSchemaRequest,
+    ImportDMSchemaResponse,
+    UpdateDMCRequest,
+    UpdateDMCResponse
 } from "./types";
 import { RequestType, NotificationType } from "vscode-messenger-common";
 
 const _preFix = "mi-data-mapper";
 export const getIOTypes: RequestType<IOTypeRequest, IOTypeResponse> = { method: `${_preFix}/getIOTypes` };
 export const updateFileContent: NotificationType<UpdateFileContentRequest> = { method: `${_preFix}/updateFileContent` };
+export const browseSchema: RequestType<BrowseSchemaRequest, BrowseSchemaResponse> = { method: `${_preFix}/browseSchema` };
+export const loadDMConfigs: RequestType<LoadDMConfigsRequest, LoadDMConfigsResponse> = { method: `${_preFix}/loadDMConfigs` };
+export const convertRegPathToAbsPath: RequestType<ConvertRegPathToAbsPathRequest, ConvertRegPathToAbsPathResponse> = { method: `${_preFix}/convertRegPathToAbsPath` };
+export const importDMSchema: RequestType<ImportDMSchemaRequest, ImportDMSchemaResponse> = { method: `${_preFix}/importDMSchema` };
+export const updateDMC: RequestType<UpdateDMCRequest, UpdateDMCResponse> = { method: `${_preFix}/updateDMC` };
+export const createDMFiles: RequestType<GenerateDMInputRequest, GenerateDMInputResponse> = { method: `${_preFix}/createDMFiles` };

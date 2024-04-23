@@ -512,6 +512,11 @@
     "unzipper": "~0.10.14",
     "vscode-debugadapter": "^1.51.0",
     "vscode-debugprotocol": "^1.51.0",
-    "tree-kill": "^1.2.2"
+    "tree-kill": "^1.2.2",
+    "node-loader": "~2.0.0",
+    "json-schema-to-typescript": "13.1.2",
+    "@types/to-json-schema": "0.2.4",
+    "to-json-schema": "0.2.4",
+    "xml2js":"0.6.2"
   }
 }

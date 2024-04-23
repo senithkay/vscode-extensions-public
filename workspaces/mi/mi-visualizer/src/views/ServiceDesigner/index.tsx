@@ -13,15 +13,12 @@ import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { Resource, Service, ServiceDesigner } from "@wso2-enterprise/service-designer";
 import { Item } from "@wso2-enterprise/ui-toolkit";
 import { Position, Range, APIResource } from "@wso2-enterprise/mi-syntax-tree/lib/src";
-import { AddAPIFormProps, AddResourceForm } from "../Forms/AddResourceForm";
-import { getXML } from "../../utils/template-engine/mustache-templates/templateUtils";
 import { APIData, APIWizardProps } from "../Forms/APIform";
 import { View, ViewHeader, ViewContent } from "../../components/View";
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import { Codicon } from "@wso2-enterprise/ui-toolkit";
-import { SERVICE } from "../../constants";
-import { EditAPIForm, EditResourceForm } from "../Forms/EditForms/EditResourceForm";
-import { generateResourceData, getResourceDeleteRanges, onResourceEdit } from "../../utils/form";
+import { generateResourceData, getResourceDeleteRanges, onResourceCreate, onResourceEdit } from "../../utils/form";
+import { ResourceForm, ResourceType } from "../Forms/ResourceForm";
 
 interface ServiceDesignerProps {
     syntaxTree: any;
@@ -33,8 +30,8 @@ export function ServiceDesignerView({ syntaxTree, documentUri }: ServiceDesigner
     const [isResourceFormOpen, setResourceFormOpen] = React.useState<boolean>(false);
     const [serviceData, setServiceData] = React.useState<APIData>(null);
     const [resourceBodyRange, setResourceBodyRange] = React.useState<any>(null);
-    const [isEditFormOpen, setEditFormOpen] = React.useState<boolean>(false);
-    const [formData, setFormData] = React.useState<EditAPIForm>(null);
+    const [formData, setFormData] = React.useState<ResourceType>(null);
+    const [mode, setMode] = React.useState<"create" | "edit">("create");
     const [selectedResource, setSelectedResource] = React.useState<APIResource>(null);
 
     const getResources = (st: any): Resource[] => {
@@ -67,7 +64,8 @@ export function ServiceDesignerView({ syntaxTree, documentUri }: ServiceDesigner
                 onClick: () => {
                     setFormData(generateResourceData(resource));
                     setSelectedResource(resource);
-                    setEditFormOpen(true);
+                    setMode("edit");
+                    setResourceFormOpen(true);
                 },
             };
             const deleteAction: Item = {
@@ -155,6 +153,7 @@ export function ServiceDesignerView({ syntaxTree, documentUri }: ServiceDesigner
     }
 
     const handleResourceAdd = () => {
+        setMode("create");
         setResourceFormOpen(true);
     };
 
@@ -162,32 +161,17 @@ export function ServiceDesignerView({ syntaxTree, documentUri }: ServiceDesigner
         setResourceFormOpen(false);
     };
 
-    const handleCreateAPI = ({ methods, uriTemplate, urlMapping }: AddAPIFormProps) => {
-        const formValues = {
-            methods: Object
-                .keys(methods)
-                .filter((method) => methods[method as keyof typeof methods])
-                .map(method => method.toUpperCase())
-                .join(" "), // Extract selected methods and create string containing the methods for the XML
-            uri_template: uriTemplate,
-            url_mapping: urlMapping,
-        };
-
-        const xml = getXML(SERVICE.ADD_RESOURCE, formValues);
-        rpcClient.getMiDiagramRpcClient().applyEdit({
-            text: xml,
-            documentUri: documentUri,
-            range: {
-                start: {
-                    line: resourceBodyRange.end.line,
-                    character: resourceBodyRange.end.character,
-                },
-                end: {
-                    line: resourceBodyRange.end.line,
-                    character: resourceBodyRange.end.character,
-                },
-            },
-        });
+    const handleResourceCreate = (formData: ResourceType & { mode: "create" | "edit" }) => {
+        const { mode, ...data } = formData;
+        switch (mode) {
+            case "create":
+                onResourceCreate(data, resourceBodyRange, documentUri, rpcClient);
+                break;
+            case "edit":
+                const ranges: Range[] = getResourceDeleteRanges(selectedResource, data);
+                onResourceEdit(data, selectedResource.range, ranges, documentUri, rpcClient);
+                break;
+        }
         setResourceFormOpen(false);
     };
 
@@ -239,12 +223,6 @@ export function ServiceDesignerView({ syntaxTree, documentUri }: ServiceDesigner
         });
     };
 
-    const handleResourceEdit = (data: EditAPIForm) => {
-        const ranges: Range[] = getResourceDeleteRanges(selectedResource, data);
-        onResourceEdit(data, selectedResource.range.startTagRange, ranges, documentUri, rpcClient);
-        setEditFormOpen(false);
-    };
-
     return (
         <>
             {serviceModel && (
@@ -263,16 +241,13 @@ export function ServiceDesignerView({ syntaxTree, documentUri }: ServiceDesigner
                     </ViewContent>
                 </View>
             )}
-            <AddResourceForm isOpen={isResourceFormOpen} onCancel={handleCancel} onCreate={handleCreateAPI} />
-            {formData && (
-                <EditResourceForm
-                    isOpen={isEditFormOpen}
-                    resourceData={formData}
-                    documentUri={documentUri}
-                    onCancel={() => setEditFormOpen(false)}
-                    onSave={handleResourceEdit}
-                />
-            )}
+            <ResourceForm
+                isOpen={isResourceFormOpen}
+                formData={mode === "edit" && formData}
+                onCancel={handleCancel}
+                documentUri={documentUri}
+                onSave={handleResourceCreate}
+            />
         </>
     );
 }

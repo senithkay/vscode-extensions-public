@@ -12,7 +12,19 @@ import {
     IOTypeRequest,
     getIOTypes,
     updateFileContent,
-    UpdateFileContentRequest
+    UpdateFileContentRequest,
+    GenerateDMInputRequest,
+    browseSchema,
+    BrowseSchemaRequest,
+    LoadDMConfigsRequest,
+    loadDMConfigs,
+    ConvertRegPathToAbsPathRequest,
+    convertRegPathToAbsPath,
+    ImportDMSchemaRequest,
+    importDMSchema,
+    UpdateDMCRequest,
+    updateDMC,
+    createDMFiles,
 } from "@wso2-enterprise/mi-core";
 import { Messenger } from "vscode-messenger";
 import { MiDataMapperRpcManager } from "./rpc-manager";
@@ -21,4 +33,10 @@ export function registerMiDataMapperRpcHandlers(messenger: Messenger) {
     const rpcManger = new MiDataMapperRpcManager();
     messenger.onRequest(getIOTypes, (args: IOTypeRequest) => rpcManger.getIOTypes(args));
     messenger.onNotification(updateFileContent, (args: UpdateFileContentRequest) => rpcManger.updateFileContent(args));
+    messenger.onRequest(browseSchema, (args: BrowseSchemaRequest) => rpcManger.browseSchema(args));
+    messenger.onRequest(loadDMConfigs, (args: LoadDMConfigsRequest) => rpcManger.loadDMConfigs(args));
+    messenger.onRequest(convertRegPathToAbsPath, (args: ConvertRegPathToAbsPathRequest) => rpcManger.convertRegPathToAbsPath(args));
+    messenger.onRequest(importDMSchema, (args: ImportDMSchemaRequest) => rpcManger.importDMSchema(args));
+    messenger.onRequest(updateDMC, (args: UpdateDMCRequest) => rpcManger.updateDMC(args));
+    messenger.onRequest(createDMFiles, (args: GenerateDMInputRequest) => rpcManger.createDMFiles(args));
 }
