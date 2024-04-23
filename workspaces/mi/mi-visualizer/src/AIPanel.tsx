@@ -12,11 +12,8 @@ import { AIMachineStateValue, AI_EVENT_TYPE, AI_MACHINE_VIEW } from '@wso2-enter
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { VSCodeProgressRing } from '@vscode/webview-ui-toolkit/react';
 import styled from '@emotion/styled';
-import { AIOverviewWindow } from './views/AIOverviewWindow';
 import { AIProjectGenerationChat } from './views/AIProjectGenerationChat';
-import { AIChat } from './views/AIChat';
-import { AIArtifactWindow } from './views/AIArtifactWindow';
-import {SignInToCopilotMessage} from './views/LoggedOutWindow';
+import { SignInToCopilotMessage } from './views/LoggedOutWindow';
 import { WaitingForLoginMessage } from './views/WaitingForLoginWindow';
 
 const LoaderWrapper = styled.div`
@@ -34,7 +31,7 @@ const ProgressRing = styled(VSCodeProgressRing)`
     padding: 4px;
 `;
 
-const AiPanel = () => {
+const AIPanel = () => {
     const { rpcClient } = useVisualizerContext();
     const [viewComponent, setViewComponent] = useState<React.ReactNode>();
     const [state, setState] = React.useState<AIMachineStateValue>();
@@ -48,7 +45,7 @@ const AiPanel = () => {
         fetchContext();
     }, [state]);
 
-    const login = () => { 
+    const login = () => {
         rpcClient.sendAIStateEvent(AI_EVENT_TYPE.LOGIN);
     }
 
@@ -56,7 +53,7 @@ const AiPanel = () => {
         rpcClient.getAIVisualizerState().then((machineView) => {
             switch (machineView?.state) {
                 case "Ready":
-                    setViewComponent(<div style={{height: "100%"}}><AIProjectGenerationChat /></div>);
+                    setViewComponent(<AIProjectGenerationChat />);
                     break;
                 case "loggedOut":
                     setViewComponent(<SignInToCopilotMessage />);
@@ -68,23 +65,22 @@ const AiPanel = () => {
                     setViewComponent(null);
             }
         });
-        
+
     }
 
     return (
-            <div style={{
-                overflow: "hidden",
-                height:"100%"
-            }}>
-                {!viewComponent ? (
-                    <LoaderWrapper>
-                        <ProgressRing />
-                    </LoaderWrapper>
-                ) : <div style={{height:"100%"}}>
-                    {viewComponent}
-                </div>}
-            </div>
+        <div style={{
+            height: "100%"
+        }}>
+            {!viewComponent ? (
+                <LoaderWrapper>
+                    <ProgressRing />
+                </LoaderWrapper>
+            ) : <div style={{ height: "100%" }}>
+                {viewComponent}
+            </div>}
+        </div>
     );
 };
 
-export default AiPanel;   
+export default AIPanel;   

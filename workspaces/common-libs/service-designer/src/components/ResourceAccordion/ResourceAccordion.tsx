@@ -272,6 +272,7 @@ const ResourceAccordion = (params: ResourceAccordionProps) => {
                                         sx={{ transform: "translateX(-50%)" }}
                                         iconSx={verticalIconStyles}
                                         menuItems={additionalActions}
+                                        position='bottom-left'
                                     />
                                     <>
                                         More Actions

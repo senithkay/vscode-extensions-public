@@ -24,6 +24,7 @@ interface OptionProps {
 export interface DefaultEndpointWizardProps {
     path: string;
     type: string;
+    isPopup?: boolean;
 }
 
 type InputsFields = {
@@ -98,7 +99,7 @@ export function DefaultEndpointWizard(props: DefaultEndpointWizardProps) {
 
     const schema = yup.object({
         endpointName: props.type === 'endpoint' ? yup.string().required("Endpoint Name is required")
-                .matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in Endpoint Name")
+                .matches(/^[^@\\^+;:!%&,=*#[\]?'"<>{}() /]*$/, "Invalid characters in Endpoint Name")
                 .test('validateEndpointName',
                     'An artifact with same name already exists', value => {
                         return !isNewEndpoint ? !(workspaceFileNames.includes(value) && value !== savedEPName) : !workspaceFileNames.includes(value);
@@ -108,7 +109,7 @@ export function DefaultEndpointWizard(props: DefaultEndpointWizardProps) {
                         return !isNewEndpoint ? !(artifactNames.includes(value) && value !== savedEPName) : !artifactNames.includes(value);
                     }) :
             yup.string().required("Endpoint Name is required")
-                .matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in Endpoint Name"),
+                .matches(/^[^@\\^+;:!%&,=*#[\]?'"<>{}() /]*$/, "Invalid characters in Endpoint Name"),
         format: yup.string().notRequired().default("LEAVE_AS_IS"),
         traceEnabled: yup.string().notRequired().default("disable"),
         statisticsEnabled: yup.string().notRequired().default("disable"),
@@ -133,7 +134,7 @@ export function DefaultEndpointWizard(props: DefaultEndpointWizardProps) {
         timeoutDuration: yup.number().typeError('Timeout Duration must be a number').min(1, "Timeout Duration must be greater than 0").notRequired().default(Number.MAX_SAFE_INTEGER),
         timeoutAction: yup.string().notRequired().default(""),
         templateName: props.type === 'template' ? yup.string().required("Template Name is required")
-                .matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in Template Name")
+                .matches(/^[^@\\^+;:!%&,=*#[\]?'"<>{}() /]*$/, "Invalid characters in Template Name")
                 .test('validateTemplateName',
                     'An artifact with same name already exists', value => {
                         return !isNewEndpoint ? !(workspaceFileNames.includes(value) && value !== savedEPName) : !workspaceFileNames.includes(value);
@@ -421,19 +422,21 @@ export function DefaultEndpointWizard(props: DefaultEndpointWizardProps) {
                 view: isTemplate ? MACHINE_VIEW.TemplateForm : MACHINE_VIEW.EndPointForm,
                 documentUri: props.path,
                 customProps: {type: isTemplate ? 'template' : 'endpoint'}
-            }
+            },
+            isPopup: props.isPopup
         });
     }
 
     const handleCancel = () => {
         rpcClient.getMiVisualizerRpcClient().openView({
             type: EVENT_TYPE.OPEN_VIEW,
-            location: {view: MACHINE_VIEW.Overview}
+            location: {view: MACHINE_VIEW.Overview},
+            isPopup: props.isPopup
         });
     };
 
     return (
-        <FormView title={isTemplate ? 'Template Artifact' : 'Endpoint Artifact'} onClose={handleCancel}>
+        <FormView title={isTemplate ? 'Template Artifact' : 'Endpoint Artifact'} onClose={handleCancel} hideClose={props.isPopup}>
             <TypeChip
                 type={isTemplate ? "Default Endpoint Template" : "Default Endpoint"}
                 onClick={changeType}

@@ -61,7 +61,7 @@ export const SearchableInput = cx(css`
     color: var(--vscode-input-foreground);
     background-color: var(--vscode-input-background);
     height: 24px;
-    width: calc(100% - 40px);
+    width: calc(100% - 5px);
     padding-left: 8px;
     border-left: 1px solid var(--vscode-dropdown-border);
     border-bottom: 1px solid var(--vscode-dropdown-border);
@@ -120,7 +120,6 @@ export const NothingFound = styled.div`
 
 const DropdownContainer: React.FC<DropdownContainerProps> = styled.div`
     max-height: 100px;
-    width: ${(props: DropdownContainerProps) => `${props.dropdownWidth}px`};
     overflow: auto;
     background-color: var(--vscode-editor-background);
     color: var(--vscode-editor-foreground);

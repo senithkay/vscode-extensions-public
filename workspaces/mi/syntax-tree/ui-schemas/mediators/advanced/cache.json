@@ -2,7 +2,7 @@
   "name": "Cache",
   "type": "mediator",
   "title": "Cache Mediator",
-  "help": "",
+  "help": "Utilizes cached response if a similar message has been stored previously.",
   "elements": [
     {
       "type": "attributeGroup",

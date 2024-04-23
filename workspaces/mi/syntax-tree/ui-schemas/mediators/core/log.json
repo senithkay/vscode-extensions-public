@@ -2,7 +2,7 @@
   "name": "log",
   "type": "mediator",
   "title": "Log Mediator",
-  "help": "",
+  "help": "Generates logs for messages. Log details are customisable.",
   "elements": [
     {
       "type": "attribute",

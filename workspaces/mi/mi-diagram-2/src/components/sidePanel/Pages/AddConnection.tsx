@@ -71,7 +71,7 @@ const AddConnection = (props: AddConnectionProps) => {
                     documentUri: props.documentUri,
                     connectorName: props.connectorName
                 });
-                
+
                 const connectionUiSchema = connectorData.connectionUiSchema[connectionType as any];
 
                 const connectionFormJSON = await rpcClient.getMiDiagramRpcClient().getConnectionForm({ uiSchemaPath: connectionUiSchema });
@@ -168,6 +168,20 @@ const AddConnection = (props: AddConnectionProps) => {
                         placeholder={element.helpTip}
                     />
                 );
+            case 'stringOrExpresion':
+                return (
+                    <TextField
+                        label={element.displayName}
+                        size={50}
+                        value={formValues[element.name] || ''}
+                        onTextChange={(e: any) => {
+                            setFormValues({ ...formValues, [element.name]: e });
+                            formValidators[element.name](e);
+                        }}
+                        required={element.required === 'true'}
+                        placeholder={element.helpTip}
+                    />
+                );
             case 'booleanOrExpression':
                 return (
                     <>
@@ -200,6 +214,20 @@ const AddConnection = (props: AddConnectionProps) => {
                             required={element.required === 'true'} />
                     </>
 
+                );
+            case 'textAreaOrExpression':
+                return (
+                    <TextField
+                        label={element.displayName}
+                        size={50}
+                        value={formValues[element.name] || ''}
+                        onTextChange={(e: any) => {
+                            setFormValues({ ...formValues, [element.name]: e });
+                            formValidators[element.name](e);
+                        }}
+                        required={element.required === 'true'}
+                        placeholder={element.helpTip}
+                    />
                 );
             case 'connection':
                 formValues[element.name] = formValues[element.name] ?? element.allowedConnectionTypes[0];

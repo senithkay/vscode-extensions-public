@@ -8,18 +8,13 @@
  */
 
 import styled from "@emotion/styled";
-import React, { useEffect, useState } from "react";
-import { AutoComplete, Button, TextField, Codicon, Typography, FormView, FormActions, CheckBox, FormCheckBox } from "@wso2-enterprise/ui-toolkit";
+import { useEffect, useState } from "react";
+import { Button, TextField, FormView, FormActions, FormCheckBox } from "@wso2-enterprise/ui-toolkit";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
-import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import CodeMirror from "@uiw/react-codemirror";
 import { xml } from "@codemirror/lang-xml";
-import { oneDark } from "@codemirror/theme-one-dark";
-import { linter, Diagnostic } from "@codemirror/lint";
 import { CreateLocalEntryRequest, CreateLocalEntryResponse, EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
-import path from "path";
 import { XMLValidator } from "fast-xml-parser";
-import { get, set, values } from "lodash";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
@@ -27,11 +22,16 @@ import CardWrapper from "./Commons/CardWrapper";
 import AddToRegistry, { formatRegistryPath, getArtifactNamesAndRegistryPaths, saveToRegistry } from "./AddToRegistry";
 import { TypeChip } from "./Commons";
 
-
-const BrowseBtn = styled(VSCodeButton)`
-    width: fit-content;
-    margin-top: 18px;
-`;
+const SourceURLContainer = styled.div({
+    display: "flex", 
+    alignItems: "end", 
+    justifyContetnt: "end", 
+    gap: "10px",
+    width: "100%"
+})
+const BrowseBtnContainer = styled.div({
+    marginBottom: "1px"
+});
 
 export interface Region {
     label: string;
@@ -73,59 +73,6 @@ export function LocalEntryWizard(props: LocalEntryWizardProps) {
     const [artifactNames, setArtifactNames] = useState([]);
     const [workspaceFileNames, setWorkspaceFileNames] = useState([]);
     const [savedLocalEntryName, setSavedLocalEntryName] = useState<string>("");
-
-    const schema = yup
-        .object({
-            name: yup.string().required("Local Entry Name is required").matches(/^[a-zA-Z0-9]*$/, "Invalid characters in Message Store name")
-                .test('validateSequenceName',
-                    'An artifact with same name already exists', value => {
-                        return !(workspaceFileNames.includes(value) && savedLocalEntryName !== value)
-                    }).test('validateArtifactName',
-                        'A registry resource with this artifact name already exists', value => {
-                            return !(artifactNames.includes(value) && savedLocalEntryName !== value)
-                        }),
-            type: yup.string(),
-            saveInReg: yup.boolean().default(false),
-            inLineTextValue: yup.string().required().when("type", {
-                is: "In-Line Text Entry",
-                then: (schema) => schema.required("In-Line Text Value is required"),
-                otherwise: (schema) => schema.notRequired()
-            }),
-            inLineXmlValue: yup.string().required().when("type", {
-                is: "In-Line XML Entry",
-                then: (schema) => schema.required("In-Line XML Value is required"),
-                otherwise: (schema) => schema.notRequired()
-            }),
-            sourceURL: yup.string().required().when("type", {
-                is: "Source URL Entry",
-                then: (schema) => schema.required("Source URL is required"),
-                otherwise: (schema) => schema.notRequired()
-            }),
-            artifactName: yup.string().when('saveInReg', {
-                is: false,
-                then: () =>
-                    yup.string().notRequired(),
-                otherwise: () =>
-                    yup.string().required("Artifact Name is required").test('validateArtifactName',
-                        'Artifact name already exists', value => {
-                            return !artifactNames.includes(value);
-                        }).test('validateFileName',
-                            'A file already exists in the workspace with this artifact name', value => {
-                                return !workspaceFileNames.includes(value);
-                            }),
-            }),
-            registryPath: yup.string().when('saveInReg', {
-                is: false,
-                then: () =>
-                    yup.string().notRequired(),
-                otherwise: () =>
-                    yup.string().test('validateRegistryPath', 'Resource already exists in registry', value => {
-                        const formattedPath = formatRegistryPath(value, getValues("registryType"), getValues("name"));
-                        return !(registryPaths.includes(formattedPath) || registryPaths.includes(formattedPath + "/"));
-                    }),
-            }),
-            registryType: yup.mixed<"gov" | "conf">().oneOf(["gov", "conf"]),
-        });
     const [type, setType] = useState("");
     const [xmlErrors, setXmlErrors] = useState({
         code: "",
@@ -133,6 +80,65 @@ export function LocalEntryWizard(props: LocalEntryWizardProps) {
         line: 0,
         msg: ""
     });
+    const isNewTask = !props.path.endsWith(".xml");
+    const [validationMessage, setValidationMessage] = useState(true);
+    const [message, setMessage] = useState({
+        isError: false,
+        text: ""
+    });
+    const [isXML, setIsXML] = useState(true);
+
+    const schema = yup.object({
+        name: yup.string().required("Local Entry Name is required").matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in Local Entry name")
+            .test('validateSequenceName', 'An artifact with same name already exists', value => {
+                return !(workspaceFileNames.includes(value) && savedLocalEntryName !== value)
+            })
+            .test('validateArtifactName', 'A registry resource with this artifact name already exists', value => {
+                return !(artifactNames.includes(value) && savedLocalEntryName !== value)
+            }),
+        type: yup.string(),
+        saveInReg: yup.boolean().default(false),
+        inLineTextValue: yup.string().required().when("type", {
+            is: "In-Line Text Entry",
+            then: (schema) => schema.required("In-Line Text Value is required"),
+            otherwise: (schema) => schema.notRequired()
+        }),
+        inLineXmlValue: yup.string().required().when("type", {
+            is: "In-Line XML Entry",
+            then: (schema) => schema.required("In-Line XML Value is required"),
+            otherwise: (schema) => schema.notRequired()
+        }),
+        sourceURL: yup.string().required().when("type", {
+            is: "Source URL Entry",
+            then: (schema) => schema.required("Source URL is required"),
+            otherwise: (schema) => schema.notRequired()
+        }),
+        artifactName: yup.string().when('saveInReg', {
+            is: false,
+            then: () =>
+                yup.string().notRequired(),
+            otherwise: () =>
+                yup.string().required("Artifact Name is required")
+                    .test('validateArtifactName', 'Artifact name already exists', value => {
+                        return !artifactNames.includes(value);
+                    })
+                    .test('validateFileName', 'A file already exists in the workspace with this artifact name', value => {
+                        return !workspaceFileNames.includes(value);
+                    }),
+        }),
+        registryPath: yup.string().when('saveInReg', {
+            is: false,
+            then: () =>
+                yup.string().notRequired(),
+            otherwise: () =>
+                yup.string().test('validateRegistryPath', 'Resource already exists in registry', value => {
+                    const formattedPath = formatRegistryPath(value, getValues("registryType"), getValues("name"));
+                    return !(registryPaths.includes(formattedPath) || registryPaths.includes(formattedPath + "/"));
+                }),
+        }),
+        registryType: yup.mixed<"gov" | "conf">().oneOf(["gov", "conf"]),
+    });
+
     const {
         reset,
         register,
@@ -147,14 +153,6 @@ export function LocalEntryWizard(props: LocalEntryWizardProps) {
         resolver: yupResolver(schema),
         mode: "onChange"
     });
-    const [isNewTask, setIsNewTask] = useState(!props.path.endsWith(".xml"));
-    const [validationMessage, setValidationMessage] = useState(true);
-    const [message, setMessage] = useState({
-        isError: false,
-        text: ""
-    });
-    const [editable, setEditable] = useState(true);
-    const [isXML, setIsXML] = useState(true);
 
     useEffect(() => {
         (async () => {
@@ -166,20 +164,22 @@ export function LocalEntryWizard(props: LocalEntryWizardProps) {
             });
             setWorkspaceFileNames(artifactRes.artifacts);
         })();
-    }, []);
+    }, [props.path]);
 
     useEffect(() => {
         if (props.path.endsWith(".xml")) {
             (async () => {
                 const localEntry = await rpcClient.getMiDiagramRpcClient().getLocalEntry({ path: props.path });
                 if (localEntry.name) {
-                    setIsNewTask(false);
                     setType(localEntry.type);
-                    setEditable(false);
                     setSavedLocalEntryName(localEntry.name);
                     reset(localEntry);
                 }
             })();
+        } else {
+            setType("");
+            setSavedLocalEntryName("");
+            reset(initialLocalEntry);
         }
     }, [props.path]);
 
@@ -193,12 +193,11 @@ export function LocalEntryWizard(props: LocalEntryWizardProps) {
         }
     }, [getValues("inLineXmlValue")]);
 
-
     const handleURLDirSelection = async () => {
         const fileDirectory = await rpcClient
             .getMiDiagramRpcClient()
             .askFileDirPath();
-        setValue("sourceURL", fileDirectory.path);
+        setValue("sourceURL", "file:" + fileDirectory.path);
     };
 
     const setLocalEntryType = (type: string) => {
@@ -282,7 +281,6 @@ export function LocalEntryWizard(props: LocalEntryWizardProps) {
                         label="Local Entry Name"
                         placeholder="Local Entry Name"
                         required
-                        readOnly={!editable}
                     />
                     {getValues("type") === "In-Line Text Entry" && (
                         <TextField
@@ -290,17 +288,14 @@ export function LocalEntryWizard(props: LocalEntryWizardProps) {
                             label="In-Line Text Value"
                             placeholder="In-Line Text Value"
                             required
-                            readOnly={!editable}
                         />
                     )}
                     {getValues("type") === "In-Line XML Entry" && (
                         <CodeMirror
                             value={getValues("inLineXmlValue")}
-                            theme={editable ? oneDark : "none"}
                             extensions={[xml()]}
                             height="200px"
                             autoFocus
-                            editable={editable}
                             indentWithTab={true}
                             onChange={handleXMLInputChange}
                             options={{
@@ -314,57 +309,41 @@ export function LocalEntryWizard(props: LocalEntryWizardProps) {
                         />
                     )}
                     {getValues("type") === "Source URL Entry" && (
-                        <>
-                            <div style={{ display: "flex", alignItems: "center" }}>
-                                <TextField
-                                    {...renderProps("sourceURL")}
-                                    label="Source URL"
-                                    placeholder="Source URL"
-                                    required
-                                    readOnly
-                                />
-                                <BrowseBtn
+                        <SourceURLContainer>
+                            <TextField
+                                {...renderProps("sourceURL")}
+                                label="Source URL"
+                                placeholder="Source URL"
+                                required
+                                size={100}
+                            />
+                            <BrowseBtnContainer>
+                                <Button
                                     onClick={handleURLDirSelection}
                                     id="select-project-dir-btn"
-                                    disabled={!editable}
                                 >
                                     Browse
-                                </BrowseBtn>
-                            </div>
-                        </>
+                                </Button>
+                            </BrowseBtnContainer>
+                        </SourceURLContainer>
                     )}
                     {!isNewTask && (
-                        <>
-                            {!editable && (
-                                <FormActions>
-                                    <Button
-                                        appearance="primary"
-                                        onClick={() => setEditable(true)}
-                                    >
-                                        Edit
-                                    </Button>
-                                </FormActions>
-                            )}
-                            {editable && (
-                                <FormActions>
-                                    {message && <span style={{ color: message.isError ? "#f48771" : "" }}>{message.text}</span>}
-                                    <Button
-                                        appearance="secondary"
-                                        onClick={openOverview}
-                                    >
-                                        Cancel
-                                    </Button>
-                                    <Button
-                                        appearance="primary"
-                                        onClick={handleSubmit(handleCreateLocalEntry)}
-                                        disabled={message.isError && !isDirty && !isValid}
-                                    >
-                                        {isNewTask ? "Create" : "Update"}
-                                    </Button>
-                                </FormActions>
-                            )}
-
-                        </>
+                        <FormActions>
+                            <Button
+                                appearance="primary"
+                                onClick={handleSubmit(handleCreateLocalEntry)}
+                                disabled={message.isError && !isDirty}
+                            >
+                                {isNewTask ? "Create" : "Update"}
+                            </Button>
+                            <Button
+                                appearance="secondary"
+                                onClick={openOverview}
+                            >
+                                Cancel
+                            </Button>
+                            {message && <span style={{ color: message.isError ? "#f48771" : "" }}>{message.text}</span>}
+                        </FormActions>
                     )}
                     {isNewTask && (
                         <>
@@ -377,13 +356,6 @@ export function LocalEntryWizard(props: LocalEntryWizardProps) {
                                 <AddToRegistry path={props.path} fileName={watch("name")} register={register} errors={errors} getValues={getValues} />
                             </>)}
                             <FormActions>
-                                {message && <span style={{ color: message.isError ? "#f48771" : "" }}>{message.text}</span>}
-                                <Button
-                                    appearance="secondary"
-                                    onClick={openOverview}
-                                >
-                                    Cancel
-                                </Button>
                                 <Button
                                     appearance="primary"
                                     onClick={handleSubmit(handleCreateLocalEntry)}
@@ -391,6 +363,13 @@ export function LocalEntryWizard(props: LocalEntryWizardProps) {
                                 >
                                     {isNewTask ? "Create" : "Update"}
                                 </Button>
+                                <Button
+                                    appearance="secondary"
+                                    onClick={openOverview}
+                                >
+                                    Cancel
+                                </Button>
+                                {message && <span style={{ color: message.isError ? "#f48771" : "" }}>{message.text}</span>}
                             </FormActions>
                         </>
                     )}
