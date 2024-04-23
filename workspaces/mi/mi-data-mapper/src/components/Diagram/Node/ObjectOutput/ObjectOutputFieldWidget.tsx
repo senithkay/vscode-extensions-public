@@ -13,20 +13,19 @@ import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import { Button, Codicon, ProgressRing } from "@wso2-enterprise/ui-toolkit";
 import { TypeKind } from "@wso2-enterprise/mi-core";
 import { Block, Node } from "ts-morph";
-
 import classnames from "classnames";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { DMTypeWithValue } from "../../Mappings/DMTypeWithValue";
 import { DataMapperPortWidget, PortState, InputOutputPortModel } from "../../Port";
 import { OutputSearchHighlight } from "../commons/Search";
-
 import { ValueConfigMenu, ValueConfigOption } from "../commons/DataManipulationWidget/ValueConfigButton";
 import { ValueConfigMenuItem } from "../commons/DataManipulationWidget/ValueConfigButton/ValueConfigMenuItem";
 import { useIONodesStyles } from "../../../styles";
 import { useDMCollapsedFieldsStore } from '../../../../store/store';
 import { getDefaultValue, getEditorLineAndColumn, isConnectedViaLink } from "../../utils/common-utils";
 import { createSourceForUserInput } from "../../utils/modification-utils";
+import { ArrayOutputFieldWidget } from "../ArrayOutput/ArrayOuptutFieldWidget";
 
 export interface ObjectOutputFieldWidgetProps {
     parentId: string;
@@ -259,6 +258,21 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
                         </>
                     )}
                 </div>
+            )}
+            {isArray && (
+                <ArrayOutputFieldWidget
+                    key={fieldId}
+                    engine={engine}
+                    field={field}
+                    getPort={getPort}
+                    parentId={parentId}
+                    parentObjectLiteralExpr={objectLiteralExpr}
+                    context={context}
+                    fieldIndex={fieldIndex}
+                    treeDepth={treeDepth}
+                    deleteField={deleteField}
+                    hasHoveredParent={isHovered || hasHoveredParent}
+                />
             )}
             {fields && expanded &&
                 fields.map((subField, index) => {
