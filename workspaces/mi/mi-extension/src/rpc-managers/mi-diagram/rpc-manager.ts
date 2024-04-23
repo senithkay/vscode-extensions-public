@@ -874,6 +874,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     customParameters: [] as Parameter[],
                     sslVersion: "",
                     failOverMessageStore: "",
+                    namespaces: []
                 };
                 switch (className) {
                     case 'org.apache.synapse.message.store.impl.jms.JmsStore':
@@ -896,6 +897,23 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                         break;
                 }
                 if (jsonData && jsonData.messageStore && jsonData.messageStore.parameter) {
+
+                    const xmlnsValues: { prefix: string, uri: string }[] = [];
+                    if (Array.isArray(jsonData.messageStore.parameter)) {
+                        jsonData.messageStore.parameter.forEach((element) => {
+                            if (element["@_"]['@_name'] === 'store.resequence.id.path') {
+                                for (const key in element["@_"]) {
+                                    if (key.startsWith('@_xmlns')) {
+                                        const [_, prefix, value] = key.split(':');
+                                        const xmlnsValue = element["@_"][key];
+                                        xmlnsValues.push({ prefix, uri: xmlnsValue });
+                                    }
+                                }
+                            }
+                        });
+                    }
+                    response.namespaces = xmlnsValues;
+
                     parameters = Array.isArray(jsonData.messageStore.parameter)
                         ? jsonData.messageStore.parameter.map((param: any) => ({
                             name: param["@_"]['@_name'],
@@ -929,7 +947,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                         'store.jdbc.connection.url': 'url',
                         'store.jdbc.username': 'user',
                         'store.jdbc.password': 'password',
-                        'store.jdbc.ds': 'dataSourceName',
+                        'store.jdbc.dsName': 'dataSourceName',
                         'store.rabbitmq.username': 'userName',
                         'store.rabbitmq.password': 'password',
                         'store.rabbitmq.host.name': 'rabbitMQServerHostName',
@@ -1278,11 +1296,11 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         return new Promise(async (resolve) => {
             const {
                 directory, templateName, templateType, address, uriTemplate, httpMethod,
-                wsdlUri, wsdlService, wsdlPort, traceEnabled, statisticsEnabled } = params;
+                wsdlUri, wsdlService, wsdlPort, traceEnabled, statisticsEnabled, parameters } = params;
 
             const getTemplateParams = {
                 templateName, templateType, address, uriTemplate, httpMethod,
-                wsdlUri, wsdlService, wsdlPort, traceEnabled, statisticsEnabled
+                wsdlUri, wsdlService, wsdlPort, traceEnabled, statisticsEnabled, parameters
             };
 
             const xmlData = getTemplateXmlWrapper(getTemplateParams);
@@ -1341,7 +1359,8 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     wsdlService: '',
                     wsdlPort: null,
                     traceEnabled: false,
-                    statisticsEnabled: false
+                    statisticsEnabled: false,
+                    parameters: []
                 };
 
                 if (jsonData.template.endpoint?.address) {
@@ -1367,6 +1386,16 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     if (jsonData.template.sequence["@_"] !== undefined) {
                         response.traceEnabled = jsonData.template.sequence["@_"]["@_trace"] !== undefined;
                         response.statisticsEnabled = jsonData.template.sequence["@_"]["@_statistics"] !== undefined;
+                    }
+                    if (jsonData.template.parameter != undefined) {
+                        const params = jsonData.template.parameter;
+                        if (Array.isArray(params)) {
+                            params.forEach((param: any) => {
+                                response.parameters.push(param["@_"]["@_name"]);
+                            });
+                        } else {
+                            response.parameters.push(params["@_"]["@_name"]);
+                        }
                     }
                 }
 
