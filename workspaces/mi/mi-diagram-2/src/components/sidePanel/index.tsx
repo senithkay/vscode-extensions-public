@@ -111,20 +111,6 @@ const SidePanelList = (props: SidePanelListProps) => {
                         {(pageStack.length === 0 || sidePanelContext.isEditing) ? <div></div> :
                             <Codicon name="arrow-left" sx={{ width: "20px", position: "absolute", left: "0px", paddingLeft: "25px" }} onClick={handleGoBack} />}
 
-                        {pageStack.length === 0 && <Switch
-                            leftLabel="Add"
-                            rightLabel="Generate"
-                            checked={isGenerate}
-                            checkedColor="var(--vscode-button-background)"
-                            enableTransition={true}
-                            onChange={handleGenerateClick}
-                            sx={{
-                                "margin": "auto",
-                                fontFamily: "var(--font-family)",
-                                fontSize: "var(--type-ramp-base-font-size)",
-                            }}
-                        />}
-
                         {pageStack.length > 0 && title !== undefined && <h3 style={{ textAlign: "center", width: "355px" }}>{title}</h3>}
                         <Codicon name="close" sx={{ textAlign: "right", width: "20px", position: "absolute", right: "0px", paddingRight: "16px" }} onClick={handleClose} />
                     </ButtonContainer>
@@ -132,7 +118,7 @@ const SidePanelList = (props: SidePanelListProps) => {
                     {/* Content */}
                     <div style={{
                         overflowY: "auto",
-                        height: "calc(100vh - 70px)",
+                        height: "calc(100vh - 40px)",
                         scrollbarWidth: "none"
                     }}>
                         {pageStack.length === 0 && <>

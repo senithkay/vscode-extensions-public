@@ -445,9 +445,10 @@ function updateProjectExplorer(location: VisualizerLocation | undefined) {
         const projectRoot = vscode.workspace.getWorkspaceFolder(vscode.Uri.parse(location.documentUri));
         if (projectRoot && !extension.preserveActivity) {
             location.projectUri = projectRoot.uri.fsPath;
-            vscode.commands.executeCommand(COMMANDS.REVEAL_ITEM_COMMAND, location);
+            if (StateMachine.context().isMiProject) {
+                vscode.commands.executeCommand(COMMANDS.REVEAL_ITEM_COMMAND, location);
+            }
         }
-
     }
     const webview = VisualizerWebview.currentPanel?.getWebview();
     if (webview) {

@@ -110,7 +110,7 @@ export function ConnectorNodeWidget(props: ConnectorNodeWidgetProps) {
                 connectorName: node.stNode.tag.split(".")[0]
             });
 
-            const iconPath = await rpcClient.getMiDiagramRpcClient().getIconPathUri({ path: connectorData.iconPath, name: "icon-small.png" });
+            const iconPath = await rpcClient.getMiDiagramRpcClient().getIconPathUri({ path: connectorData.iconPath, name: "icon-small" });
             setIconPath(iconPath.uri);
     
         }
@@ -146,7 +146,9 @@ export function ConnectorNodeWidget(props: ConnectorNodeWidgetProps) {
                 form: formJSON.formJSON,
                 title: `${connectorData.name} - ${node.stNode.tag.split(".")[1]}`,
                 uiSchemaPath: connectorData.uiSchemaPath,
-                parameters: (node.stNode as Connector).parameters
+                parameters: (node.stNode as Connector).parameters ?? [],
+                connectorName: connectorData.name,
+                operationName: node.stNode.tag.split(".")[1]
             },
             parentNode: node.mediatorName
         });

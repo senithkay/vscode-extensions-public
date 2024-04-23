@@ -11,7 +11,6 @@ import { TextField, Button, Codicon, Icon, ComponentCard, IconLabel, AutoComplet
 import React, { useContext, useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import SidePanelContext from "../SidePanelContexProvider";
-import { getSVGIcon } from "../../../resources/icons/mediatorIcons/icons";
 import { VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import AddConnector from "../Pages/AddConnector";
@@ -112,7 +111,11 @@ export function ConnectorPage(props: ConnectorPageProps) {
     const fetchLocalConnectorData = async () => {
         const connectorData = await rpcClient.getMiDiagramRpcClient().getAvailableConnectors({ documentUri: props.documentUri, connectorName: "" });
         if (connectorData) {
-            setLocalConnectors(connectorData.connectors);
+            const connectorsWithIcons = await Promise.all(connectorData.connectors.map(async (connector) => {
+                const iconPathUri = await rpcClient.getMiDiagramRpcClient().getIconPathUri({ path: connector.iconPath, name: "icon-small" });
+                return { ...connector, iconPathUri };
+            }));
+            setLocalConnectors(connectorsWithIcons);
         }
     };
 
@@ -320,11 +323,11 @@ export function ConnectorPage(props: ConnectorPageProps) {
                                                             fill: 'var(--vscode-editor-foreground)'
                                                         },
                                                         backgroundColor: 'var(--vscode-pickerGroup-border)',
-                                                        border: '1px solid var(--vscode-focusBorder)'
+                                                        border: '0.5px solid var(--vscode-focusBorder)'
                                                     })
                                                 },
                                                 alignItems: 'center',
-                                                border: '1px solid var(--vscode-editor-foreground)',
+                                                border: '0.5px solid var(--vscode-editor-foreground)',
                                                 borderRadius: 2,
                                                 cursor: 'pointer',
                                                 display: 'flex',
@@ -338,7 +341,10 @@ export function ConnectorPage(props: ConnectorPageProps) {
                                             <CardContent>
                                                 <CardLabel>
                                                     <IconContainer>
-                                                        {getSVGIcon("Aggregate")}
+                                                        <img
+                                                            src={connector.iconPathUri.uri}
+                                                            alt="Icon"
+                                                        />
                                                     </IconContainer>
                                                     <div style={{
                                                         width: '100%',
@@ -383,10 +389,10 @@ export function ConnectorPage(props: ConnectorPageProps) {
                                                                                         fill: 'var(--vscode-editor-foreground)'
                                                                                     },
                                                                                     backgroundColor: 'var(--vscode-pickerGroup-border)',
-                                                                                    border: '1px solid var(--vscode-focusBorder)'
+                                                                                    border: '0.5px solid var(--vscode-focusBorder)'
                                                                                 },
                                                                                 alignItems: 'center',
-                                                                                border: '1px solid var(--vscode-editor-foreground)',
+                                                                                border: '0.5px solid var(--vscode-editor-foreground)',
                                                                                 borderRadius: 2,
                                                                                 cursor: 'pointer',
                                                                                 display: 'flex',
@@ -397,9 +403,6 @@ export function ConnectorPage(props: ConnectorPageProps) {
                                                                                 width: 170
                                                                             }}
                                                                         >
-                                                                            <IconContainer>
-                                                                                {getSVGIcon("loopback")}
-                                                                            </IconContainer>
                                                                             <div style={{
                                                                                 width: '100%',
                                                                                 overflow: 'hidden',
@@ -441,11 +444,11 @@ export function ConnectorPage(props: ConnectorPageProps) {
                                                             fill: 'var(--vscode-editor-foreground)'
                                                         },
                                                         backgroundColor: 'var(--vscode-pickerGroup-border)',
-                                                        border: '1px solid var(--vscode-focusBorder)'
+                                                        border: '0.5px solid var(--vscode-focusBorder)'
                                                     })
                                                 },
                                                 alignItems: 'center',
-                                                border: '1px solid var(--vscode-editor-foreground)',
+                                                border: '0.5px solid var(--vscode-editor-foreground)',
                                                 borderRadius: 2,
                                                 cursor: 'pointer',
                                                 display: 'flex',
@@ -459,7 +462,14 @@ export function ConnectorPage(props: ConnectorPageProps) {
                                             <CardContent>
                                                 <CardLabel>
                                                     <IconContainer>
-                                                        {getSVGIcon("Aggregate")}
+                                                        <img
+                                                            src={connector.icon_url}
+                                                            alt="Icon"
+                                                            onError={(e) => {
+                                                                const target = e.target as HTMLImageElement;
+                                                                target.src = 'https://mi-connectors.wso2.com/icons/wordpress.gif'
+                                                            }}
+                                                        />
                                                     </IconContainer>
                                                     <div style={{
                                                         width: '100%',
@@ -504,10 +514,10 @@ export function ConnectorPage(props: ConnectorPageProps) {
                                                                                         fill: 'var(--vscode-editor-foreground)'
                                                                                     },
                                                                                     backgroundColor: 'var(--vscode-pickerGroup-border)',
-                                                                                    border: '1px solid var(--vscode-focusBorder)'
+                                                                                    border: '0.5px solid var(--vscode-focusBorder)'
                                                                                 },
                                                                                 alignItems: 'center',
-                                                                                border: '1px solid var(--vscode-editor-foreground)',
+                                                                                border: '0.5px solid var(--vscode-editor-foreground)',
                                                                                 borderRadius: 2,
                                                                                 cursor: 'pointer',
                                                                                 display: 'flex',
@@ -518,9 +528,6 @@ export function ConnectorPage(props: ConnectorPageProps) {
                                                                                 width: 170
                                                                             }}
                                                                         >
-                                                                            <IconContainer>
-                                                                                {getSVGIcon("loopback")}
-                                                                            </IconContainer>
                                                                             <div style={{
                                                                                 width: '100%',
                                                                                 overflow: 'hidden',

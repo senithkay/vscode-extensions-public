@@ -16,6 +16,7 @@ import { FieldValues, useController, UseControllerProps } from "react-hook-form"
 
 type FilterType =
     | "sequence"
+    | "proxyService"
     | "endpoint"
     | "messageStore"
     | "messageProcessor"
