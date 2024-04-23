@@ -264,6 +264,20 @@ const AddConnector = (props: AddConnectorProps) => {
                     </>
 
                 );
+            case 'textAreaOrExpression':
+                return (
+                    <TextField
+                        label={element.displayName}
+                        size={50}
+                        value={formValues[element.name] || ''}
+                        onTextChange={(e: any) => {
+                            setFormValues({ ...formValues, [element.name]: e });
+                            formValidators[element.name](e);
+                        }}
+                        required={element.required === 'true'}
+                        placeholder={element.helpTip}
+                    />
+                );
             case 'connection':
                 formValues[element.name] = formValues[element.name] ?? element.allowedConnectionTypes[0];
                 return (<>

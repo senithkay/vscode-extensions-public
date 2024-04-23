@@ -55,7 +55,7 @@ export interface IKeylookup {
     onBlur?: React.FocusEventHandler<HTMLInputElement>;
     onChange?: React.ChangeEventHandler<HTMLInputElement>;
     // Document path
-    path: string;
+    path?: string;
     // Artifact type to be fetched
     filterType: FilterType;
     // Callback to filter the fetched artifacts

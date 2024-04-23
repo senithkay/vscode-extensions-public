@@ -38,7 +38,7 @@ const artifactTypeMap: Record<string, ArtifactType> = {
         command: "MI.project-explorer.add-endpoint",
         view: MACHINE_VIEW.EndPointForm,
         icon: "plug",
-        description: (entry: any) => `Endpoint SubType: ${entry.subType}`,
+        description: (entry: any) => `Type: ${entry.subType}`,
         path: (entry: any) => entry.path,
     },
     sequences: {
@@ -102,7 +102,7 @@ const artifactTypeMap: Record<string, ArtifactType> = {
         command: "MI.project-explorer.add-template",
         view: MACHINE_VIEW.TemplateForm,
         icon: "file-code",
-        description: (entry: any) => `Template SubType: ${entry.subType}`,
+        description: (entry: any) => `Type: ${entry.subType}`,
         path: (entry: any) => entry.path,
     },
     // Add more artifact types as needed
