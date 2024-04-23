@@ -2,7 +2,7 @@
   "name": "store",
   "type": "mediator",
   "title": "Store Mediator",
-  "help": "",
+  "help": "Routes message to a predefined message store.",
   "elements": [
     {
       "type": "attribute",

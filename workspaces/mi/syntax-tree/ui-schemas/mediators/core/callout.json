@@ -2,7 +2,7 @@
   "name": "callout",
   "type":"mediator",
   "title": "Callout Mediator",
-  "help": "",
+  "help": "Invokes external service in blocking mode.",
   "elements": [
     {
       "type": "attributeGroup",

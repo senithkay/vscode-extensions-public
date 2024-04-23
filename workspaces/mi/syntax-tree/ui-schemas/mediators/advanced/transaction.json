@@ -2,7 +2,7 @@
   "name": "Transaction",
   "type":"mediator",
   "title": "Transaction Mediator",
-  "help": "",
+  "help": "Provides transaction management for child mediators.",
   "elements": [
     {
       "type": "attributeGroup",

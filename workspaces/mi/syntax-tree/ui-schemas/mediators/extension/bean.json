@@ -2,7 +2,7 @@
   "name": "Bean",
   "type":"mediator",
   "title": "Bean Mediator",
-  "help": "",
+  "help": "Manipulates JavaBean bound to message context as a property.",
   "elements": [
     {
       "type": "attributeGroup",

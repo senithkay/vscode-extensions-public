@@ -15,6 +15,7 @@ import { AiPanelWebview } from './ai-panel/webview';
 import { activateProjectExplorer } from './project-explorer/activate';
 import { StateMachineAI } from './ai-panel/aiMachine';
 import { getSourceCode } from './util/dataMapper';
+import { StateMachinePopup } from './stateMachinePopup';
 
 interface MachineContext extends VisualizerLocation {
     langClient: ExtendedLanguageClient | null;
@@ -283,6 +284,7 @@ const stateMachine = createMachine<MachineContext>({
                 vscode.commands.executeCommand(COMMANDS.FOCUS_PROJECT_EXPLORER);
                 // Activate the AI Panel State machine after LS is loaded.
                 StateMachineAI.initialize();
+                StateMachinePopup.initialize();
                 resolve(ls);
             });
         },
@@ -375,6 +377,7 @@ const stateMachine = createMachine<MachineContext>({
                         }
                     });
                 }
+                StateMachinePopup.resetState();
                 resolve(true);
             });
         },

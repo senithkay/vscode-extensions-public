@@ -2,7 +2,7 @@
   "name": "Class",
   "type": "mediator",
   "title": "Class Mediator",
-  "help": "",
+  "help": "Uses custom class instance as mediator.",
   "elements": [
     {
       "type": "attribute",

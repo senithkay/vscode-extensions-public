@@ -32,6 +32,7 @@ export interface Region {
 
 export interface TemplateEndpointWizardProps {
     path: string;
+    isPopup?: boolean;
 }
 
 type InputsFields = {
@@ -215,7 +216,7 @@ export function TemplateEndpointWizard(props: TemplateEndpointWizardProps) {
     };
 
     const openOverview = () => {
-        rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Overview } });
+        rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Overview }, isPopup: props.isPopup });
     };
 
     const changeType = () => {
@@ -225,12 +226,13 @@ export function TemplateEndpointWizard(props: TemplateEndpointWizardProps) {
                 view: MACHINE_VIEW.EndPointForm,
                 documentUri: props.path,
                 customProps: { type: 'endpoint' }
-            }
+            },
+            isPopup: props.isPopup
         });
     }
 
     return (
-        <FormView title="Endpoint Artifact" onClose={openOverview}>
+        <FormView title="Endpoint Artifact" onClose={openOverview} hideClose={props.isPopup}>
             <TypeChip
                 type={"Template Endpoint"}
                 onClick={changeType}

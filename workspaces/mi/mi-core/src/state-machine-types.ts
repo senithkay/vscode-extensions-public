@@ -70,6 +70,8 @@ export type MachineStateValue =
 
 export type AIMachineStateValue = 'Initialize' | 'loggedOut' | 'Ready' | 'WaitingForLogin' | 'Executing' | 'disabled';
 
+export type PopupMachineStateValue = 'initialize' | 'ready' | 'reopen' | 'open' | 'disabled';
+
 export enum AI_EVENT_TYPE {
     LOGIN = "LOGIN",
     SIGN_IN_SUCCESS = "SIGN_IN_SUCCESS",
@@ -86,6 +88,11 @@ export enum EVENT_TYPE {
     CLEAR_PROMPT = "CLEAR_PROMPT",
     FILE_EDIT = "FILE_EDIT",
     EDIT_DONE = "EDIT_DONE",
+}
+
+export enum POPUP_EVENT_TYPE {
+    OPEN_VIEW = "OPEN_VIEW",
+    CLOSE_VIEW = "CLOSE_VIEW"
 }
 
 export type VoidCommands = "OPEN_LOW_CODE" | "OPEN_PROJECT" | "CREATE_PROJECT";
@@ -122,17 +129,28 @@ export interface VisualizerLocation {
     dataMapperProps?: DataMapperProps;
 }
 
+export interface PopupVisualizerLocation extends VisualizerLocation {
+    recentIdentifier?: string;
+}
+
 export interface AIVisualizerLocation {
     view?: AI_MACHINE_VIEW | null;
     initialPrompt?: string;
     state?: AIMachineStateValue;
 }
 
+export interface ParentPopupData {
+    recentIdentifier: string;
+}
+
 export const stateChanged: NotificationType<MachineStateValue> = { method: 'stateChanged' };
 export const aiStateChanged: NotificationType<AIMachineStateValue> = { method: 'aiStateChanged' };
+export const popupStateChanged: NotificationType<PopupMachineStateValue> = { method: 'popupStateChanged' };
 export const themeChanged: NotificationType<ColorThemeKind> = { method: 'themeChanged' };
 export const getVisualizerState: RequestType<void, VisualizerLocation> = { method: 'getVisualizerState' };
 export const getAIVisualizerState: RequestType<void, AIVisualizerLocation> = { method: 'getAIVisualizerState' };
+export const getPopupVisualizerState: RequestType<void, PopupVisualizerLocation> = { method: 'getPopupVisualizerState' };
 export const sendAIStateEvent: RequestType<AI_EVENT_TYPE, void> = { method: 'sendAIStateEvent' };
 export const onFileContentUpdate: NotificationType<void> = { method: `onFileContentUpdate` };
 export const webviewReady: NotificationType<void> = { method: `webviewReady` };
+export const onParentPopupSubmitted: NotificationType<ParentPopupData> = { method: `onParentPopupSubmitted` };

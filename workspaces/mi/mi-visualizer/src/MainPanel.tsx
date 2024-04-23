@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { EVENT_TYPE, MACHINE_VIEW, MachineStateValue } from '@wso2-enterprise/mi-core';
+import { EVENT_TYPE, POPUP_EVENT_TYPE, PopupMachineStateValue, MACHINE_VIEW, MachineStateValue } from '@wso2-enterprise/mi-core';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { Overview } from './views/Overview';
 import { ServiceDesignerView } from './views/ServiceDesigner';
@@ -35,7 +35,8 @@ import { Diagram } from '@wso2-enterprise/mi-diagram-2';
 import { TemplateEndpointWizard } from './views/Forms/TemplateEndpointForm';
 import { UnsupportedProject, UnsupportedProjectProps } from './views/UnsupportedProject';
 import { DataMapper } from './views/DataMapper';
-import { ErrorBoundary } from '@wso2-enterprise/ui-toolkit';
+import { ErrorBoundary, FormView } from '@wso2-enterprise/ui-toolkit';
+import PopupPanel from './PopupPanel';
 import { AddArtifactView } from './views/AddArtifact';
 
 const MainContainer = styled.div`
@@ -62,6 +63,16 @@ const ProgressRing = styled(VSCodeProgressRing)`
     padding: 4px;
 `;
 
+const PopUpContainer = styled.div`
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 999;
+    background: var(--background);
+`;
+
 const ViewContainer = styled.div({});
 
 const MainPanel = () => {
@@ -70,6 +81,7 @@ const MainPanel = () => {
     const [showAIWindow, setShowAIWindow] = useState<boolean>(false);
     const [machineView, setMachineView] = useState<MACHINE_VIEW>();
     const [showNavigator, setShowNavigator] = useState<boolean>(true);
+    const [formState, setFormState] = useState<PopupMachineStateValue>('initialize');
     const [stateUpdated, setStateUpdated] = React.useState<boolean>(false);
 
     rpcClient?.onStateChanged((newState: MachineStateValue) => {
@@ -83,6 +95,10 @@ const MainPanel = () => {
             rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.EDIT_DONE, location: null });
             setStateUpdated(!stateUpdated);
         }
+    });
+
+    rpcClient?.onPopupStateChanged((newState: PopupMachineStateValue) => {
+        setFormState(newState);
     });
 
     useEffect(() => {
@@ -256,6 +272,10 @@ const MainPanel = () => {
         });
     }
 
+    const handleOnClose = () => {
+        rpcClient.getMiVisualizerRpcClient().openView({ type: POPUP_EVENT_TYPE.CLOSE_VIEW, location: { view: null }, isPopup: true })
+    }
+
     return (
         <ViewContainer>
             {!viewComponent ? (
@@ -266,6 +286,13 @@ const MainPanel = () => {
                 {showNavigator && <NavigationBar />}
                 {viewComponent}
             </>}
+            {formState === "open" && (
+                <PopUpContainer>
+                    <FormView title='' onClose={handleOnClose}>
+                        <PopupPanel />
+                    </FormView>
+                </PopUpContainer>
+            )}
         </ViewContainer>
     );
 };
