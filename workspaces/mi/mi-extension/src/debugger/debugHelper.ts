@@ -126,7 +126,7 @@ export async function executeBuildTask(task: vscode.Task, serverPath: string) {
     });
 }
 
-export async function executeTasks(serverPath: string): Promise<void> {
+export async function executeTasks(serverPath: string, isDebug: boolean): Promise<void> {
     const buildTask = getBuildTask();
     await executeBuildTask(buildTask, serverPath);
 
@@ -134,7 +134,7 @@ export async function executeTasks(serverPath: string): Promise<void> {
 
     if (!portsInUse) {
         return new Promise<void>(async (resolve) => {
-            const runTask = getRunTask(serverPath);
+            const runTask = getRunTask(serverPath, isDebug);
             await vscode.tasks.executeTask(runTask);
             console.log('Running the server');
 

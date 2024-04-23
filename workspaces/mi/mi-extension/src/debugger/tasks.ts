@@ -38,8 +38,13 @@ export function getCopyTask(serverPath: string, targetDirectory: vscode.Uri): vs
     return copyTask;
 }
 
-export function getRunTask(serverPath: string): vscode.Task {
-    const command = serverPath + '/bin/micro-integrator.sh -Desb.debug=true';
+export function getRunTask(serverPath: string, isDebug: boolean): vscode.Task {
+    let command;
+    if(isDebug) {
+        command = serverPath + '/bin/micro-integrator.sh -Desb.debug=true';
+    } else {
+        command = serverPath + '/bin/micro-integrator.sh';
+    }
     const runTask = new vscode.Task(
         { type: 'mi-run' },
         vscode.TaskScope.Workspace,

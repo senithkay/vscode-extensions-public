@@ -14,7 +14,8 @@ import { COMMANDS, SELECTED_SERVER_PATH } from '../constants';
 import { extension } from '../MIExtensionContext';
 import { executeBuildTask, executeTasks, getServerPath } from './debugHelper';
 import { getBuildTask } from './tasks';
-import { navigate } from '../stateMachine';
+import { StateMachine, navigate, openView } from '../stateMachine';
+import { EVENT_TYPE } from '@wso2-enterprise/mi-core';
 
 
 class MiConfigurationProvider implements vscode.DebugConfigurationProvider {
@@ -38,7 +39,7 @@ export function activateDebugger(context: vscode.ExtensionContext) {
                 vscode.window.showErrorMessage("Server path not found");
                 return;
             }
-            await executeTasks(serverPath);
+            await executeTasks(serverPath, false);
         });
     });
 
@@ -113,7 +114,8 @@ export function activateDebugger(context: vscode.ExtensionContext) {
     // TODO: Check the possibility of using event to get the triggered breakpoint in the diagram
     // context.subscriptions.push(vscode.debug.onDidReceiveDebugSessionCustomEvent((e) => {
     //     if(e.event === 'StackTraceUpdated') {
-    //         navigate();
+    //         const stateContext = StateMachine.context();
+    //         openView(EVENT_TYPE.OPEN_VIEW, stateContext);
     //     }
     // }));
 

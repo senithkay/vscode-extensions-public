@@ -238,7 +238,7 @@ export class MiDebugAdapter extends LoggingDebugSession {
                     response.success = false;
                     this.sendResponse(response);
                 } else {
-                    executeTasks(serverPath)
+                    executeTasks(serverPath, true)
                         .then(async () => {
                             await this.debuggerHandler?.initializeDebugger();
                             this.sendResponse(response);
@@ -351,6 +351,8 @@ export class MiDebugAdapter extends LoggingDebugSession {
     }
 
     protected async scopesRequest(response: DebugProtocol.ScopesResponse, args?: DebugProtocol.ScopesArguments, request?: DebugProtocol.Request | undefined): Promise<void> {
+        // const customEvent = { event: "StackTraceUpdated" } as DebugProtocol.Event;
+        // this.sendEvent(customEvent);
         const variables = await this.debuggerHandler?.getVariables();
 
         const localScope = variables?.map((v: any): any => {
