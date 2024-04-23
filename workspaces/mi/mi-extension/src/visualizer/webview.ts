@@ -57,6 +57,9 @@ export class VisualizerWebview {
             case MACHINE_VIEW.ADD_ARTIFACT:
                 title = MACHINE_VIEW.ADD_ARTIFACT;
                 break;
+            case MACHINE_VIEW.UnsupportedProject:
+                title = MACHINE_VIEW.UnsupportedProject;
+                break;
             default:
                 title = 'Design View';
                 break;
