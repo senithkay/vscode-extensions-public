@@ -14,7 +14,7 @@ import { openAIWebview } from './ai-panel/aiMachine';
 import { AiPanelWebview } from './ai-panel/webview';
 import { activateProjectExplorer } from './project-explorer/activate';
 import { StateMachineAI } from './ai-panel/aiMachine';
-import { getSourceCode } from './util/dataMapper';
+import { getSources } from './util/dataMapper';
 import { StateMachinePopup } from './stateMachinePopup';
 
 interface MachineContext extends VisualizerLocation {
@@ -207,6 +207,7 @@ const stateMachine = createMachine<MachineContext>({
                                 position: (context, event) => event.viewLocation.position,
                                 projectOpened: (context, event) => true,
                                 customProps: (context, event) => event.viewLocation.customProps,
+                                dataMapperProps: (context, event) => event.viewLocation.dataMapperProps,
                                 stNode: (context, event) => undefined,
                                 diagnostics: (context, event) => undefined,
                             })
@@ -220,7 +221,7 @@ const stateMachine = createMachine<MachineContext>({
                                 position: (context, event) => event.viewLocation.position,
                                 projectOpened: (context, event) => true,
                                 customProps: (context, event) => event.viewLocation.customProps,
-                                dataMapperProps: (context, event) => event.data?.dataMapperProps
+                                dataMapperProps: (context, event) => event.viewLocation.dataMapperProps
                             })
                         },
                         FILE_EDIT: {
@@ -305,7 +306,7 @@ const stateMachine = createMachine<MachineContext>({
         findView: (context, event): Promise<VisualizerLocation> => {
             return new Promise(async (resolve, reject) => {
                 const langClient = StateMachine.context().langClient!;
-                const viewLocation = context;
+            const viewLocation = context;
                 if (context.view?.includes("Form")) {
                     return resolve(viewLocation);
                 }
@@ -325,28 +326,17 @@ const stateMachine = createMachine<MachineContext>({
                                     viewLocation.view = MACHINE_VIEW.ResourceView;
                                     viewLocation.stNode = node.api.resource[context.identifier];
                                 }
+                                openDataMapperViewIfAvailable(context, viewLocation);
                                 break;
                             case !!node.proxy:
                                 viewLocation.view = MACHINE_VIEW.ProxyView;
                                 viewLocation.stNode = node.proxy;
+                                openDataMapperViewIfAvailable(context, viewLocation);
                                 break;
                             case !!node.sequence:
                                 viewLocation.view = MACHINE_VIEW.SequenceView;
                                 viewLocation.stNode = node.sequence;
-                                break;
-                            case !!node.sequence:
-                                // TODO: Use node.dataMapper to identify the data mapper function
-                                const filePath = "/Users/madusha/play/mi/mi-hw/HelloWorldService/src/main/wso2mi/resources/data-mapper/sample2.ts";
-                                const functionName = "tnfStd2Person";
-
-                                const fileContent = getSourceCode(filePath);
-                                viewLocation.dataMapperProps = {
-                                    filePath: filePath,
-                                    functionName: functionName,
-                                    fileContent: fileContent
-                                };
-
-                                viewLocation.view = MACHINE_VIEW.DataMapperView;
+                                openDataMapperViewIfAvailable(context, viewLocation);
                                 break;
                             default:
                                 // Handle default case
@@ -422,6 +412,23 @@ export function openView(type: EVENT_TYPE, viewLocation?: VisualizerLocation) {
     }
     updateProjectExplorer(viewLocation);
     stateService.send({ type: type, viewLocation: viewLocation });
+}
+
+export function openDataMapperViewIfAvailable(context: MachineContext,  viewLocation: VisualizerLocation) {
+    if (context.dataMapperProps?.filePath) {
+        const filePath = context.dataMapperProps?.filePath!;
+        const functionName = "mapFunction";
+
+        const [fnSource, interfacesSource] = getSources(filePath);
+        viewLocation.dataMapperProps = {
+            filePath: filePath,
+            functionName: functionName,
+            fileContent: fnSource,
+            interfacesSource: interfacesSource
+        };
+
+        viewLocation.view = MACHINE_VIEW.DataMapperView;
+    }
 }
 
 export function navigate(entry?: HistoryEntry) {

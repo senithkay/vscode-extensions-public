@@ -6,13 +6,25 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import {
-    IOTypeRequest,
-    IOTypeResponse,
-    UpdateFileContentRequest
+import { 
+    IOTypeRequest, 
+    IOTypeResponse, 
+    UpdateFileContentRequest,
+    GenerateDMInputRequest, 
+    GenerateDMInputResponse,
+    LoadDMConfigsRequest,
+    LoadDMConfigsResponse,
+    ConvertRegPathToAbsPathRequest,
+    ConvertRegPathToAbsPathResponse,
+    ImportDMSchemaRequest,
+    ImportDMSchemaResponse,
 } from "./types";
 
 export interface MIDataMapperAPI {
     getIOTypes: (params: IOTypeRequest) => Promise<IOTypeResponse>;
     updateFileContent: (params: UpdateFileContentRequest) => void;
+    loadDMConfigs: (params: LoadDMConfigsRequest) => Promise<LoadDMConfigsResponse>;
+    convertRegPathToAbsPath: (params: ConvertRegPathToAbsPathRequest) => Promise<ConvertRegPathToAbsPathResponse>;
+    importDMSchema: (params: ImportDMSchemaRequest) => Promise<ImportDMSchemaResponse>;
+    createDMFiles: (params: GenerateDMInputRequest) => Promise<GenerateDMInputResponse>;
 }
