@@ -74,7 +74,7 @@ export class MiDebuggerRpcManager implements MiDebuggerAPI {
             if (debugSession) {
                 // Request the stack trace for the current thread
                 const response = await debugSession.customRequest('stackTrace', {
-                    threadId: 0,
+                    threadId: 1,
                 });
 
                 if (response && response.stackFrames) {
