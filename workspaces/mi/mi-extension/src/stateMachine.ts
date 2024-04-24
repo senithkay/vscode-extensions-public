@@ -298,48 +298,53 @@ const stateMachine = createMachine<MachineContext>({
                     return resolve(viewLocation);
                 }
                 if (context.documentUri) {
-                    const response = await langClient.getSyntaxTree({
-                        documentIdentifier: {
-                            uri: context.documentUri!
-                        },
-                    });
-                    if (response?.syntaxTree) {
-                        const node: SyntaxTreeMi = response.syntaxTree;
-                        switch (true) {
-                            case !!node.api:
-                                viewLocation.view = MACHINE_VIEW.ServiceDesigner;
-                                viewLocation.stNode = node.api;
-                                if (context.identifier?.toString()) {
-                                    viewLocation.view = MACHINE_VIEW.ResourceView;
-                                    viewLocation.stNode = node.api.resource[context.identifier];
-                                }
-                                break;
-                            case !!node.proxy:
-                                viewLocation.view = MACHINE_VIEW.ProxyView;
-                                viewLocation.stNode = node.proxy;
-                                break;
-                            case !!node.sequence:
-                                viewLocation.view = MACHINE_VIEW.SequenceView;
-                                viewLocation.stNode = node.sequence;
-                                break;
-                            case !!node.sequence:
-                                // TODO: Use node.dataMapper to identify the data mapper function
-                                const filePath = "/Users/madusha/play/mi/mi-hw/HelloWorldService/src/main/wso2mi/resources/data-mapper/sample2.ts";
-                                const functionName = "tnfStd2Person";
+                    try {
+                        const response = await langClient.getSyntaxTree({
+                            documentIdentifier: {
+                                uri: context.documentUri!
+                            },
+                        });
+                        if (response?.syntaxTree) {
+                            const node: SyntaxTreeMi = response.syntaxTree;
+                            switch (true) {
+                                case !!node.api:
+                                    viewLocation.view = MACHINE_VIEW.ServiceDesigner;
+                                    viewLocation.stNode = node.api;
+                                    if (context.identifier?.toString()) {
+                                        viewLocation.view = MACHINE_VIEW.ResourceView;
+                                        viewLocation.stNode = node.api.resource[context.identifier];
+                                    }
+                                    break;
+                                case !!node.proxy:
+                                    viewLocation.view = MACHINE_VIEW.ProxyView;
+                                    viewLocation.stNode = node.proxy;
+                                    break;
+                                case !!node.sequence:
+                                    viewLocation.view = MACHINE_VIEW.SequenceView;
+                                    viewLocation.stNode = node.sequence;
+                                    break;
+                                case !!node.sequence:
+                                    // TODO: Use node.dataMapper to identify the data mapper function
+                                    const filePath = "/Users/madusha/play/mi/mi-hw/HelloWorldService/src/main/wso2mi/resources/data-mapper/sample2.ts";
+                                    const functionName = "tnfStd2Person";
 
-                                const fileContent = getSourceCode(filePath);
-                                viewLocation.dataMapperProps = {
-                                    filePath: filePath,
-                                    functionName: functionName,
-                                    fileContent: fileContent
-                                };
+                                    const fileContent = getSourceCode(filePath);
+                                    viewLocation.dataMapperProps = {
+                                        filePath: filePath,
+                                        functionName: functionName,
+                                        fileContent: fileContent
+                                    };
 
-                                viewLocation.view = MACHINE_VIEW.DataMapperView;
-                                break;
-                            default:
-                                // Handle default case
-                                break;
+                                    viewLocation.view = MACHINE_VIEW.DataMapperView;
+                                    break;
+                                default:
+                                    // Handle default case
+                                    break;
+                            }
                         }
+                    } catch (error) {
+                        viewLocation.stNode = undefined;
+                        console.log("Error occured", error);
                     }
                 }
                 if (viewLocation.view === MACHINE_VIEW.ResourceView) {
