@@ -42,7 +42,7 @@
     "debuggers": [
       {
         "type": "mi",
-        "label": "MI: Run",
+        "label": "MI: Run and Debug",
         "runtime": "node",
         "languages": [
           "SynapseXml"
@@ -53,7 +53,7 @@
         "initialConfigurations": [
           {
             "type": "mi",
-            "name": "MI: Run",
+            "name": "MI: Run and Debug",
             "request": "launch"
           }
         ]
