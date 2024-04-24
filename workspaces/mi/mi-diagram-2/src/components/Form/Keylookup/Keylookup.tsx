@@ -111,7 +111,7 @@ export const Keylookup = (props: IKeylookup) => {
         ...rest
     } = props;
     const [items, setItems] = useState<(string | ItemComponent)[]>([]);
-    const [value, setValue] = useState<string | undefined>(initialValue);
+    const [value, setValue] = useState<string | undefined>();
     const { rpcClient } = useVisualizerContext();
 
     useEffect(() => {
@@ -170,7 +170,7 @@ export const Keylookup = (props: IKeylookup) => {
         <Container>
             <AutoComplete
                 {...rest}
-                value={value}
+                value={value || initialValue}
                 onValueChange={handleValueChange}
                 required={props.required}
                 items={items}
