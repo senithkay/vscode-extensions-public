@@ -5,23 +5,20 @@ add copyrights
 
 component create improvements
 verify with all component types
-check making name url safe 
 validate component/project names
 file picker for dockerfile
 validate buildpack type
-show error for reaching tier limit
 
-when running commands, if user is not logged in, 
-automatically take them through the login flow and return back to the previous command
-
-
-validate endpoints exist when triggering builds
 
 update welcome walkthrough
 
 add view more button
 
 switch envs
+
+clone project/component command
+
+delete project command
 
 API improvements
 have component/build create endpoints return created data
@@ -31,3 +28,7 @@ improve loading times for component/build list
 remove cellview and choreo client dependencies
 cleanup everything
 improve docs
+
+
+
+

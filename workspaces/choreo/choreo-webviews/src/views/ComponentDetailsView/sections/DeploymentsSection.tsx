@@ -174,15 +174,6 @@ const EnvItem: FC<{
         },
     });
 
-    const { mutate: copyUrl } = useMutation({
-        mutationFn: (url: string) => clipboardy.write(url),
-        onSuccess: () => ChoreoWebViewAPI.getInstance().showInfoMsg("The URL has been copied to the clipboard."),
-    });
-
-    const openExternal = (url: string) => ChoreoWebViewAPI.getInstance().openExternal(url);
-
-    // TODO: handle errors in deployed URLs
-
     return (
         <>
             <Divider />
@@ -192,7 +183,7 @@ const EnvItem: FC<{
                     <Button
                         onClick={() => refetchDeploymentStatus()}
                         appearance="icon"
-                        title="Refresh Deployment Details"
+                        title={`${fetchingDeploymentStatus ? "Refreshing" : "Refresh"} Deployment Details`}
                         className="opacity-50"
                         disabled={fetchingDeploymentStatus}
                     >
@@ -260,88 +251,35 @@ const EnvItem: FC<{
                                             .map((item) => {
                                                 const endpointsNodes: ReactNode[] = [];
                                                 endpointsNodes.push(
-                                                    <GridColumnItem
-                                                        label={`Project URL ${
-                                                            endpoints.length > 1 ? `(${item.displayName})` : ""
-                                                        }`}
-                                                        key={`${item.id}-project`}
-                                                    >
-                                                        {item.projectUrl ? (
-                                                            <VSCodeLink
-                                                                title="Copy URL"
-                                                                className="line-clamp-1 text-vsc-foreground"
-                                                                onClick={() => copyUrl(item.projectUrl)}
-                                                            >
-                                                                {item.projectUrl}
-                                                            </VSCodeLink>
-                                                        ) : (
-                                                            <SkeletonText className="w-24" />
-                                                        )}
-                                                    </GridColumnItem>
+                                                    <EndpointItem
+                                                        type="Project"
+                                                        name={item.displayName}
+                                                        url={item.projectUrl}
+                                                        hasMultiple={endpoints.length > 1}
+                                                        state={item.state}
+                                                    />
                                                 );
-
                                                 if (item.visibility === "Organization") {
                                                     endpointsNodes.push(
-                                                        <GridColumnItem
-                                                            label={`Organization URL ${
-                                                                endpoints.length > 1 ? `(${item.displayName})` : ""
-                                                            }`}
-                                                            key={`${item.id}-org`}
-                                                        >
-                                                            {item.organizationUrl ? (
-                                                                <VSCodeLink
-                                                                    title="Copy URL"
-                                                                    className="line-clamp-1 text-vsc-foreground"
-                                                                    onClick={() => copyUrl(item.organizationUrl)}
-                                                                >
-                                                                    {item.organizationUrl}
-                                                                </VSCodeLink>
-                                                            ) : (
-                                                                <SkeletonText className="w-24" />
-                                                            )}
-                                                        </GridColumnItem>
+                                                        <EndpointItem
+                                                            type="Organization"
+                                                            name={item.displayName}
+                                                            url={item.organizationUrl}
+                                                            hasMultiple={endpoints.length > 1}
+                                                            state={item.state}
+                                                        />
                                                     );
                                                 } else if (item.visibility === "Public") {
-                                                    if (item.publicUrl) {
-                                                        endpointsNodes.push(
-                                                            <GridColumnItem
-                                                                label={`Public URL ${
-                                                                    endpoints.length > 1 ? `(${item.displayName})` : ""
-                                                                }`}
-                                                                key={`${item.id}-public`}
-                                                            >
-                                                                {item.publicUrl ? (
-                                                                    <div className="flex items-center gap-1">
-                                                                        <VSCodeLink
-                                                                            title="Copy URL"
-                                                                            className="flex-1 line-clamp-1 text-vsc-foreground"
-                                                                            onClick={() => copyUrl(item.publicUrl)}
-                                                                        >
-                                                                            {item.publicUrl || (
-                                                                                <SkeletonText className="max-w-44" />
-                                                                            )}
-                                                                        </VSCodeLink>
-                                                                        <Button
-                                                                            appearance="icon"
-                                                                            title="Open URL"
-                                                                            onClick={() => openExternal(item.publicUrl)}
-                                                                            disabled={!item.publicUrl}
-                                                                        >
-                                                                            <Codicon name="link-external" />
-                                                                        </Button>
-                                                                    </div>
-                                                                ) : (
-                                                                    <SkeletonText className="w-24" />
-                                                                )}
-                                                            </GridColumnItem>
-                                                        );
-                                                    } else {
-                                                        endpointsNodes.push(
-                                                            <GridColumnItem label="Public URL">
-                                                                <SkeletonText className="max-w-44" />
-                                                            </GridColumnItem>
-                                                        );
-                                                    }
+                                                    endpointsNodes.push(
+                                                        <EndpointItem
+                                                            type="Public"
+                                                            name={item.displayName}
+                                                            url={item.publicUrl}
+                                                            showOpen={true}
+                                                            hasMultiple={endpoints.length > 1}
+                                                            state={item.state}
+                                                        />
+                                                    );
                                                 }
                                                 return endpointsNodes;
                                             })}
@@ -395,3 +333,52 @@ const GridColumnItem: FC<{ label: string; children?: ReactNode }> = ({ label, ch
         <div className="w-full capitalize line-clamp-1 hover:bg-vsc-editorHoverWidget-background">{children}</div>
     </div>
 );
+
+const EndpointItem: FC<{
+    type: string;
+    name: string;
+    url: string;
+    hasMultiple: boolean;
+    state: string;
+    showOpen?: boolean;
+}> = ({ name, type, url, hasMultiple, state, showOpen }) => {
+    
+    const { mutate: copyUrl } = useMutation({
+        mutationFn: (url: string) => clipboardy.write(url),
+        onSuccess: () => ChoreoWebViewAPI.getInstance().showInfoMsg("The URL has been copied to the clipboard."),
+    });
+
+    const openExternal = (url: string) => ChoreoWebViewAPI.getInstance().openExternal(url);
+
+    // TODO: add endpoint state reason if there are errors
+
+    return (
+        <GridColumnItem label={`${type} URL ${hasMultiple ? `(${name})` : ""}`} key={`${name}-${type}`}>
+            {url ? (
+                <div className="flex items-center gap-1">
+                    <VSCodeLink
+                        title="Copy URL"
+                        className={classNames({
+                            "flex-1 line-clamp-1 text-vsc-foreground": true,
+                            "animate-pulse": ["Pending", "Progressing"].includes(state),
+                            "text-vsc-errorForeground": state === "Error",
+                        })}
+                        onClick={() => copyUrl(url)}
+                    >
+                        {url ||
+                            (["Pending", "Progressing"].includes(state) && <SkeletonText className="max-w-44" />) ||
+                            (state === "Error" && "Error") ||
+                            "-"}
+                    </VSCodeLink>
+                    {showOpen && state === "Active" && (
+                        <Button appearance="icon" title="Open URL" onClick={() => openExternal(url)} disabled={!url}>
+                            <Codicon name="link-external" />
+                        </Button>
+                    )}
+                </div>
+            ) : (
+                <SkeletonText className="w-24" />
+            )}
+        </GridColumnItem>
+    );
+};

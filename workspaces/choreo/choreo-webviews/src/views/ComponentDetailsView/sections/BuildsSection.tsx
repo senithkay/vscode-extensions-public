@@ -124,6 +124,10 @@ export const BuildsSection: FC<Props> = (props) => {
                     deploymentTrackId: deploymentTrack?.id,
                     projectHandle: project.handler,
                     orgId: organization.id?.toString(),
+                    displayType: component.spec.type,
+                    gitRepoUrl: component.spec.source.github?.repository,
+                    gitBranch: component.spec.source.github?.branch,
+                    subPath: component.spec.source.github?.path
                 });
             }
         },
@@ -136,7 +140,7 @@ export const BuildsSection: FC<Props> = (props) => {
                 <Button
                     onClick={() => refetchBuilds()}
                     appearance="icon"
-                    title="Refresh Build List"
+                    title={`${isRefetchingBuilds ? "Refreshing": "Refresh"} Build List`}
                     className="opacity-50"
                     disabled={isRefetchingBuilds}
                 >

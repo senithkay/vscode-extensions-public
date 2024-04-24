@@ -3,8 +3,6 @@ import { ChoreoBuildPackNames, ChoreoComponentType, WebAppSPATypes } from "@wso2
 
 export const componentFormSchema = z
     .object({
-        projectName: z.string().min(1, "Required"),
-        projectRegion: z.string().min(1, "Required"),
         name: z.string().min(1, "Required"),
         type: z.string().min(1, "Required"),
         buildPackLang: z.string().min(1, "Required"),

@@ -133,6 +133,7 @@ import {
     SubmitComponentCreate,
     SubmitComponentCreateReq,
     ComponentKind,
+    GetSubPath,
 } from "@wso2-enterprise/choreo-core";
 import { IChoreoProjectClient } from "@wso2-enterprise/choreo-client/lib/project/types";
 import { ChoreoProjectClientRPCWebView } from "@wso2-enterprise/choreo-client/lib/project/rpc";
@@ -224,6 +225,10 @@ export class ChoreoWebViewAPI {
 
     public async joinFilePaths(paths: string[]): Promise<string> {
         return this._messenger.sendRequest(JoinFilePaths, HOST_EXTENSION, paths);
+    }
+
+    public async getSubPath(params: {subPath: string; parentPath: string;}): Promise<string | null> {
+        return this._messenger.sendRequest(GetSubPath, HOST_EXTENSION, params);
     }
 
     public triggerCmd(cmdId: string, ...args: any) {

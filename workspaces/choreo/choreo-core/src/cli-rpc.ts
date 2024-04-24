@@ -28,7 +28,18 @@ export interface CreateComponentReq {
     spaOutputDir: string;
 }
 export interface GetBuildsReq { orgId: string; componentName: string; projectHandle: string; deploymentTrackId: string; }
-export interface CreateBuildReq { orgId: string; componentName: string; projectHandle: string; deploymentTrackId: string; commitHash: string}
+export interface CreateBuildReq { 
+    orgId: string; 
+    componentName: string;
+    displayType: string;
+    projectHandle: string; 
+    deploymentTrackId: string; 
+    commitHash: string;
+    gitRepoUrl: string;
+    gitBranch: string;
+    subPath: string;
+}
+
 export interface GetDeploymentTracksReq { orgId: string; orgHandler: string; projectId: string; compHandler: string; }
 export interface GetCommitsReq { orgId: string; orgHandler: string; projectId: string; compHandler: string; branch: string}
 export interface GetProjectEnvsReq { orgId: string; orgUuid: string; projectId: string;}

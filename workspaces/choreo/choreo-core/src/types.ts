@@ -12,8 +12,9 @@ export type WebviewTypes = "NewComponentForm" | "ComponentsListActivityView" | "
 export interface NewComponentWebviewProps {
     type: "NewComponentForm";
     directoryPath: string;
+    directoryName: string;
     organization: Organization;
-    project?: Project;
+    project: Project;
     initialValues?: { type?: string; buildPackLang?: string; subPath?: string; };
 }
 export interface ComponentsDetailsWebviewProps {

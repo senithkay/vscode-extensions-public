@@ -14,8 +14,9 @@ import { NewComponentWebviewProps, Organization, Project } from "@wso2-enterpris
 
 interface IComponentCreateFormParams {
   directoryPath: string;
+  directoryName: string;
   organization: Organization;
-  project?: Project, 
+  project: Project, 
   initialValues?: { type?: string; buildPackLang?: string; subPath?: string; }
 }
 

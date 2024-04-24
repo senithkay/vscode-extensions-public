@@ -61,8 +61,9 @@ export const AuthContextProvider: FC<Props> = ({ children, viewType }) => {
                 <ErrorBanner errorMsg="Failed to authenticate user" />
             ) : (
                 <>
-                    {(authState?.loading || isLoading) && <ProgressIndicator />}
-                    {!isLoading && (
+                    {isLoading ? (
+                        <ProgressIndicator />
+                    ) : (
                         <>
                             {authState?.userInfo ? (
                                 children

@@ -1,4 +1,4 @@
-import React, { FC, ReactNode, useEffect } from "react";
+import React, { FC, ReactNode, useEffect, useState } from "react";
 import { Divider } from "@wso2-enterprise/ui-toolkit";
 import { TextField } from "../../components/FormElements/TextField";
 import { Dropdown } from "../../components/FormElements/Dropdown";
@@ -26,15 +26,19 @@ import { Codicon } from "../../components/Codicon";
 
 type ComponentFormType = z.infer<typeof componentFormSchema>;
 
-export const ComponentFormView: FC<NewComponentWebviewProps> = ({ project, organization, directoryPath, initialValues }) => {
+export const ComponentFormView: FC<NewComponentWebviewProps> = ({
+    project,
+    organization,
+    directoryPath,
+    directoryName,
+    initialValues,
+}) => {
     const form = useForm<ComponentFormType>({
         resolver: zodResolver(componentFormSchema),
         mode: "all",
         defaultValues: {
-            projectName: project?.name ?? "",
-            projectRegion: project?.region ?? "US",
             name: "",
-            type: initialValues?.type ?? ChoreoComponentType.Service,
+            type: initialValues?.type ?? "",
             buildPackLang: initialValues?.buildPackLang ?? "",
             langVersion: "",
             subPath: initialValues?.subPath ?? ".",
@@ -61,11 +65,7 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({ project, organ
             const compPath = await ChoreoWebViewAPI.getInstance().joinFilePaths([directoryPath, subPath]);
             return ChoreoWebViewAPI.getInstance().readServiceEndpoints(compPath);
         },
-        select: (resp) =>
-            resp?.endpoints?.length > 0 ||
-            [ChoreoBuildPackNames.Ballerina, ChoreoBuildPackNames.MicroIntegrator].includes(
-                selectedLang as ChoreoBuildPackNames
-            ),
+        select: (resp) => resp?.endpoints?.length > 0,
         enabled: selectedType === ChoreoComponentType.Service,
     });
 
@@ -84,6 +84,7 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({ project, organ
                 orgId: organization.id.toString(),
             }),
         refetchOnWindowFocus: false,
+        enabled: !!selectedType,
     });
 
     useEffect(() => {
@@ -112,10 +113,11 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({ project, organ
                 orgId: organization.id.toString(),
             }),
         refetchOnWindowFocus: false,
+        enabled: gitRemotes.length > 0,
     });
 
     useEffect(() => {
-        if (!form.getValues("branch") || !branches.includes(form.getValues("branch"))) {
+        if (branches.length > 0 && (!form.getValues("branch") || !branches.includes(form.getValues("branch")))) {
             if (branches.includes("main")) {
                 form.setValue("branch", "main");
             } else if (branches.includes("master")) {
@@ -138,6 +140,7 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({ project, organ
                 repoUrl: repoUrl,
                 orgId: organization.id.toString(),
             }),
+        enabled: !!repoUrl,
     });
 
     const selectedBuildPack = buildpacks?.find((item) => item.language === selectedLang);
@@ -153,24 +156,14 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({ project, organ
         mutationFn: async (data: ComponentFormType) => {
             const componentName = makeURLSafe(data.name);
 
-            let selectedProject = project;
-            if (!selectedProject) {
-                selectedProject = await ChoreoWebViewAPI.getInstance().getChoreoRpcClient().createProject({
-                    orgHandler: organization.handle,
-                    orgId: organization.id.toString(),
-                    projectName: data.projectName,
-                    region: data.projectRegion,
-                });
-            }
-
             const componentDir = await ChoreoWebViewAPI.getInstance().joinFilePaths([directoryPath, data.subPath]);
 
             const createCompCommandParams: SubmitComponentCreateReq = {
                 org: organization,
-                project: selectedProject,
+                project: project,
                 createParams: {
                     orgId: organization.id.toString(),
-                    projectHandle: selectedProject.handler,
+                    projectHandle: project.handler,
                     name: componentName,
                     displayName: data.name,
                     type: data.type,
@@ -196,10 +189,6 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({ project, organ
             if (created) {
                 ChoreoWebViewAPI.getInstance().closeWebView();
             }
-        },
-        onError: (err: any) => {
-            console.error("Component create failed", err);
-            ChoreoWebViewAPI.getInstance().showErrorMsg(`Failed to create component. Cause: ${err.message}`);
         },
     });
 
@@ -326,43 +315,16 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({ project, organ
         <div className="flex flex-row justify-center p-1 md:p-3 lg:p-4 xl:p-6">
             <div className="container">
                 <form className="mx-auto max-w-4xl flex flex-col gap-2 p-4">
-                    {!project ? (
-                        <>
-                            <h1 className="text-sm text-right mb-3">
-                                <span className="font-extralight">Organization: </span>
-                                {organization.name}
-                            </h1>
-                            <h1 className="text-xl font-bold">Project Details</h1>
-                            <Divider />
-                            <div className="grid md:grid-cols-2 gap-4 md:gap-6 mb-8">
-                                <TextField
-                                    label="Name"
-                                    required
-                                    name="projectName"
-                                    placeholder="project-name"
-                                    control={form.control}
-                                />
-                                <Dropdown
-                                    label="Region"
-                                    required
-                                    name="projectRegion"
-                                    control={form.control}
-                                    items={["US", "EU"]}
-                                />
-                            </div>
-                        </>
-                    ) : (
-                        <div className="flex flex-col gap-1 mb-3">
-                            <h1 className="text-sm text-right">
-                                <span className="font-extralight">Organization: </span>
-                                {organization.name}
-                            </h1>
-                            <h1 className="text-sm text-right">
-                                <span className="font-extralight">Project: </span>
-                                {project.name}
-                            </h1>
-                        </div>
-                    )}
+                    <div className="flex flex-col gap-1 mb-3">
+                        <h1 className="text-sm text-right">
+                            <span className="font-extralight">Organization: </span>
+                            {organization.name}
+                        </h1>
+                        <h1 className="text-sm text-right">
+                            <span className="font-extralight">Project: </span>
+                            {project.name}
+                        </h1>
+                    </div>
 
                     <h1 className="text-xl font-bold">Component Details</h1>
                     <Divider />
@@ -380,6 +342,7 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({ project, organ
                             required
                             control={form.control}
                             basePath={directoryPath}
+                            directoryName={directoryName}
                         />
                         <Dropdown
                             label="Repository"
@@ -424,7 +387,8 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({ project, organ
                             name="buildPackLang"
                             control={form.control}
                             items={buildpacks?.map((item) => ({ label: item.displayName, value: item.language }))}
-                            loading={isLoadingBuildPacks}
+                            loading={isLoadingBuildPacks && !!selectedType}
+                            disabled={buildpacks.length === 0}
                         />
                         {...additionalConfigs}
                     </div>

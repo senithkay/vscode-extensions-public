@@ -17,6 +17,7 @@ import * as yaml from "js-yaml";
 import { commands, window, workspace } from "vscode";
 import { linkedDirectoryStore } from "./stores/linked-dir-store";
 import { join } from "path";
+import * as path from "path";
 
 // TODO: move into ChoreoExtensionApi()
 export const deleteLinkFile = async (orgHandle: string, projectHandle: string, componentHandle: string) => {
@@ -59,4 +60,17 @@ export const goTosource = async (filePath: string, focusFileExplorer?: boolean) 
 // sanitize the component display name to make it url friendly
 export function makeURLSafe(input: string): string {
     return input.trim().replace(/\s+/g, "-").toLowerCase();
+}
+
+export const getSubPath = (subPath: string, parentPath: string): string | null => {
+    const relative = path.relative(parentPath, subPath);
+    // If the relative path starts with '..', it means subPath is outside of parentPath
+    if (!relative.startsWith("..")) {
+        // If subPath and parentPath are the same, return '.'
+        if (relative === "") {
+            return ".";
+        }
+        return relative;
+    }
+    return null;
 }

@@ -134,6 +134,7 @@ export const selectProjectWithCreateNew = async (
                 detail: `Create new project within ${org.name} organization`,
                 alwaysShow: true,
             });
+            quickPick.items = updatedQuickPicks;
         })
         .catch((err) => {
             quickPick.dispose();

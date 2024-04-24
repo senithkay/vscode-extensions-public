@@ -17,5 +17,6 @@ export enum ErrorCode {
     RepoAccessNeeded = -32008,
     EpYamlNotFound = -32009,
     UserNotFound = -32010,
+    MaxComponentCountError = -32011,
 }
 

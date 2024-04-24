@@ -31,7 +31,7 @@ export async function activate(context: vscode.ExtensionContext) {
     activateTelemetry(context);
     await initLogger(context);
     getLogger().debug("Activating Choreo Extension");
-    ext.isPluginStartup = true;
+    ext.isPluginStartup = true; // todo: remove if not used
     ext.context = context;
     ext.api = new ChoreoExtensionApi(); // todo: refactor and add only needed functions
 

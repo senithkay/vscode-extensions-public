@@ -105,6 +105,7 @@ import {
     SubmitComponentCreate,
     SubmitComponentCreateReq,
     ChoreoComponentType,
+    GetSubPath,
 } from "@wso2-enterprise/choreo-core";
 import { registerChoreoProjectRPCHandlers, registerChoreoCellViewRPCHandlers } from "@wso2-enterprise/choreo-client";
 import { registerChoreoGithubRPCHandlers } from "@wso2-enterprise/choreo-client/lib/github/rpc";
@@ -125,9 +126,9 @@ import { registerChoreoRpcResolver } from "../../../choreo-rpc";
 import { removeCredentialsFromGitURL } from "../../../git/util";
 import { choreoEnvConfig } from "../../../auth/auth";
 import { showComponentDetails } from "../../../cmds/view-component-cmd";
-import * as yaml from "js-yaml";
 import { getChoreoExecPath } from "../../../choreo-rpc/cli-install";
-import { goTosource, makeURLSafe, readEndpoints } from "../../../utils";
+import { getSubPath, goTosource, makeURLSafe, readEndpoints } from "../../../utils";
+import { submitCreateComponentHandler } from "../../../cmds/create-component-cmd";
 
 const manager = new ChoreoProjectManager();
 
@@ -174,6 +175,7 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
         }
     });
     messenger.onRequest(JoinFilePaths, (files: string[])=>join(...files));
+    messenger.onRequest(GetSubPath, (params: {subPath: string; parentPath: string;})=>getSubPath(params.subPath, params.parentPath));
     messenger.onRequest(ExecuteCommandRequest, async (args: string[]) => {
         if (args.length >= 1) {
             const cmdArgs = args.length > 1 ? args.slice(1) : [];
@@ -245,7 +247,7 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
         const callbackUrl = await env.asExternalUri(Uri.parse(`${env.uriScheme}://wso2.choreo/ghapp`));
         const state = { origin: "vscode.choreo.ext", callbackUri: callbackUrl.toString(), orgId};
         return Buffer.from(JSON.stringify(state), 'binary').toString('base64');
-    }
+    };
     messenger.onRequest(TriggerGithubAuthFlow, async (orgId: string) => {
         const { authUrl, clientId, redirectUrl } = choreoEnvConfig.getGHAppConfig();
         const state = await _getGithubUrlState(orgId);
@@ -258,57 +260,7 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
         const ghURL = Uri.parse(`${installUrl}?state=${state}`);
         await env.openExternal(ghURL);
     });
-    messenger.onRequest(SubmitComponentCreate, async ({createParams, endpoint, org, project}: SubmitComponentCreateReq) => {
-        const cleanCompName = makeURLSafe(createParams.name);
-        await window.withProgress(
-            {
-                title: `Creating new component ${createParams.name}...`,
-                location: ProgressLocation.Notification,
-            },
-            () => ext.clients.rpcClient.createComponent(createParams)
-        );
-
-        if (createParams.type === ChoreoComponentType.Service && endpoint) {
-            const endpointFileContent: EndpointYamlContent = {
-                version: "0.1",
-                endpoints: [ { name: cleanCompName, context: "/", type: "REST" , ...endpoint }],
-            };
-            const choreoDir = join(createParams.componentDir, ".choreo");
-            if (!existsSync(choreoDir)) {
-                mkdirSync(choreoDir);
-            }
-            writeFileSync(join(choreoDir, "endpoints.yaml"), yaml.dump(endpointFileContent));
-        }
-
-        await ext.clients.rpcClient.createComponentLink({
-            componentDir: createParams.componentDir,
-            componentHandle: cleanCompName,
-            orgHandle: org.handle,
-            projectHandle: project.handler,
-        });
-
-        window.showInformationMessage(`Component ${createParams?.name} has been successfully created`);
-
-        const createdComponent = await window.withProgress(
-            {
-                title: `Fetching newly created component ${createParams?.name}...`,
-                location: ProgressLocation.Notification,
-            },
-            () =>
-                ext.clients.rpcClient.getComponentItem({
-                    orgId: org.id.toString(),
-                    projectHandle: project.handler,
-                    componentName: cleanCompName,
-                })
-        );
-
-        if (createdComponent) {
-            showComponentDetails(org, project, createdComponent, createParams?.componentDir);
-            linkedDirectoryStore?.getState().refreshState();
-        }
-
-        return createdComponent;
-    });
+    messenger.onRequest(SubmitComponentCreate, submitCreateComponentHandler);
     // TODO remove old ones
 
 

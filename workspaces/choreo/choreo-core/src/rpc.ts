@@ -40,6 +40,7 @@ export const GetWebviewStoreState: RequestType<void, WebviewState> = { method: '
 export const OpenSubDialogRequest: RequestType<OpenDialogOptions, string[]> = { method: 'openDialog' };
 export const GetGetRemotes: RequestType<string[], string[]> = { method: 'getGitRemotes' };
 export const JoinFilePaths: RequestType<string[], string> = { method: 'joinFilePaths' };
+export const GetSubPath: RequestType<{subPath: string; parentPath: string;}, string | null> = { method: 'getSubPath' };
 export const SetWebviewCache: RequestType<SetWebviewCacheRequestParam, void> = { method: 'setWebviewCache' };
 export const RestoreWebviewCache: RequestType<IDBValidKey, unknown> = { method: 'restoreWebviewCache' };
 export const ClearWebviewCache: RequestType<IDBValidKey, void> = { method: 'clearWebviewCache' };
