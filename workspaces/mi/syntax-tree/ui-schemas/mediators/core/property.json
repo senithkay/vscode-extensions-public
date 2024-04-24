@@ -71,7 +71,7 @@
             "value": {
                 "name": "OMValue",
                 "displayName": "OM",
-                "inputType": "textfeild",
+                "inputType": "string",
                 "defaultValue": "",
                 "required": true,
                 "helpTip": "Value",

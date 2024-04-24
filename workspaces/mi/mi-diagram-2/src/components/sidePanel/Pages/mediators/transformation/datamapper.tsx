@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
 */
-
+// AUTO-GENERATED FILE. DO NOT MODIFY.
 
 import React, { useEffect, useState } from 'react';
 import { AutoComplete, Button, ComponentCard, TextField } from '@wso2-enterprise/ui-toolkit';
@@ -18,7 +18,7 @@ import { getXML } from '../../../../../utils/template-engine/mustach-templates/t
 import { MEDIATORS } from '../../../../../resources/constants';
 import { VSCodeRadio, VSCodeRadioGroup } from "@vscode/webview-ui-toolkit/react";
 
-const cardStyle = { 
+const cardStyle = {
     display: "block",
     margin: "15px 0",
     padding: "0 15px 15px 15px",
@@ -35,9 +35,6 @@ const Field = styled.div`
     margin-bottom: 12px;
 `;
 
-const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g;
-const nameWithoutSpecialCharactorsRegex = /^[a-zA-Z0-9]+$/g;
-
 const DataMapperForm = (props: AddMediatorProps) => {
     const { rpcClient } = useVisualizerContext();
     const sidePanelContext = React.useContext(SidePanelContext);
@@ -47,13 +44,14 @@ const DataMapperForm = (props: AddMediatorProps) => {
     const [configName, setConfigName] = useState("");
 
     useEffect(() => {
-       if (sidePanelContext.formValues && Object.keys(sidePanelContext.formValues).length > 0) {
+        if (sidePanelContext.formValues && Object.keys(sidePanelContext.formValues).length > 0) {
             setFormValues({ ...formValues, ...sidePanelContext.formValues });
-       } else {
+        } else {
             setFormValues({
                 "inputType": "JSON",
-                "outputType": "JSON"});
-            }
+                "outputType": "JSON"
+            });
+        }
     }, [sidePanelContext.formValues]);
 
     useEffect(() => {
@@ -63,11 +61,11 @@ const DataMapperForm = (props: AddMediatorProps) => {
         formValues.outputSchemaLocalPath = 'gov:/datamapper/' + configName + '_outputSchema.json';
         formValues.inputType = sidePanelContext.formValues.inputType;
         formValues.outputType = sidePanelContext.formValues.outputType;
-        setFormValues({...formValues });
+        setFormValues({ ...formValues });
     }, [configName]);
 
     const dmConfigs: string[] = []
-    rpcClient.getMiDataMapperRpcClient().loadDMConfigs({filePath: props.documentUri}).then(response => {
+    rpcClient.getMiDataMapperRpcClient().loadDMConfigs({ filePath: props.documentUri }).then(response => {
         dmConfigs.push(...response.dmConfigs);
     });
 
@@ -87,13 +85,13 @@ const DataMapperForm = (props: AddMediatorProps) => {
                 documentUri: props.documentUri, range: props.nodePosition, text: xml
             });
             sidePanelContext.setSidePanelState({
-                    ...sidePanelContext,
-                    isOpen: false,
-                    isEditing: false,
-                    formValues: undefined,
-                    nodeRange: undefined,
-                    operationName: undefined
-                });
+                ...sidePanelContext,
+                isOpen: false,
+                isEditing: false,
+                formValues: undefined,
+                nodeRange: undefined,
+                operationName: undefined
+            });
         }
     };
 
@@ -111,6 +109,8 @@ const DataMapperForm = (props: AddMediatorProps) => {
         const value = e ?? formValues[id];
         const newErrors = { ...errors };
         let error;
+        const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+        const nameWithoutSpecialCharactorsRegex = /^[a-zA-Z0-9 ]*$/;
         if (isRequired && !value) {
             error = "This field is required";
         } else if (validation === "e-mail" && !value.match(emailRegex)) {
@@ -143,8 +143,8 @@ const DataMapperForm = (props: AddMediatorProps) => {
         }
     }
 
-   return (
-       <div style={{ padding: "10px" }}>
+    return (
+        <div style={{ padding: "10px" }}>
 
             <ComponentCard sx={cardStyle} disbaleHoverEffect>
                 <h3>Properties</h3>
@@ -183,13 +183,13 @@ const DataMapperForm = (props: AddMediatorProps) => {
                             }}
                             required={false}
                         />}
-                        {createOption === "existing" && <AutoComplete items={dmConfigs} 
-                            label="Configuration" 
-                            value={configName} 
+                        {createOption === "existing" && <AutoComplete items={dmConfigs}
+                            label="Configuration"
+                            value={configName}
                             onValueChange={(e: any) => {
                                 setConfigName(e);
                             }} />
-                            }
+                        }
                         {errors["configurationLocalPath"] && <Error>{errors["configurationLocalPath"]}</Error>}
                     </Field>
 
@@ -224,7 +224,7 @@ const DataMapperForm = (props: AddMediatorProps) => {
 
                     <Field>
                         <label>Input Type</label>
-                        <AutoComplete items={[ "JSON", "XML", "CSV"]} value={formValues['inputType']} onValueChange={(e: any) => {
+                        <AutoComplete items={["JSON", "XML", "CSV"]} value={formValues['inputType']} onValueChange={(e: any) => {
                             setFormValues({ ...formValues, "inputType": e });
                             formValidators["inputType"](e);
                         }} />

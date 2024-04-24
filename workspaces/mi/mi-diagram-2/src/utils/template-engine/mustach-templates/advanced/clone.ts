@@ -9,6 +9,8 @@
 
 import { Clone } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import Mustache from "mustache";
+import { checkAttributesExist } from "../../../commons";
+import { clone } from "lodash";
 
 export function getCloneMustacheTemplate() {
     return `
@@ -41,56 +43,112 @@ export function getCloneMustacheTemplate() {
     {{^sequenceRegistryKey}}
     <sequence />
     {{/sequenceRegistryKey}}
+</target>
 {{/isRegistrySeqAndEndpoint}}
 {{/editClone}}
 {{/newMediator}}`;
 }
 
-export function getCloneXml(data: { [key: string]: any }) {
+export function getCloneXml(data: { [key: string]: any }, dirtyFields?: any, defaultValues?: any) {
     delete data.soapAction;
     delete data.toAddress;
-    if (data.newMediator) {
-        if (data.targets && data.targets.length > 0) {
+    if (defaultValues == undefined || Object.keys(defaultValues).length == 0) {
+        return getNewMediator(data);
+    }
 
-            const targets = data.targets.map((target: string[]) => {
-                let isRegistrySeqAndEndpoint = false;
-                let sequenceRegistryKey = target[1];
-                let endpointRegistryKey = target[3];
+    return getEdits(data, dirtyFields, defaultValues);
+}
 
-                if (target[0] == "REGISTRY_REFERENCE" && target[2] == "REGISTRY_REFERENCE") {
-                    isRegistrySeqAndEndpoint = true;
-                }
+function getNewMediator(data: { [key: string]: any }) {
+    let newData = { ...data };
+    newData.newMediator = true;
+    if (newData.targets && newData.targets.length > 0) {
 
-                if (target[0] == "NONE") {
-                    sequenceRegistryKey = undefined;
-                } else if (target[0] == "ANONYMOUS") {
-                    sequenceRegistryKey = undefined
-                }
+        const targets = newData.targets.map((target: string[]) => {
+            return processTargetData(target);
+        });
+        newData.targets = targets;
+    }
+    const output = Mustache.render(getCloneMustacheTemplate(), newData).trim();
+    return output;
+}
 
-                if (target[2] == "NONE") {
-                    endpointRegistryKey = undefined;
-                } else if (target[2] == "ANONYMOUS") {
-                    endpointRegistryKey = undefined
-                }
+function processTargetData(target: string[]) {
+    let isRegistrySeqAndEndpoint = false;
+    let sequenceRegistryKey = target[1];
+    let endpointRegistryKey = target[3];
 
-                if (target[0] == "NONE" && target[2] == "NONE") {
-                    isRegistrySeqAndEndpoint = true;
-                }
+    if (target[0] == "REGISTRY_REFERENCE" && target[2] == "REGISTRY_REFERENCE") {
+        isRegistrySeqAndEndpoint = true;
+    }
 
-                return ({
-                    isRegistrySeqAndEndpoint: isRegistrySeqAndEndpoint,
-                    sequenceRegistryKey: sequenceRegistryKey,
-                    endpointRegistryKey: endpointRegistryKey,
-                    soapAction: target[4],
-                    toAddress: target[5]
-                })
-            });
-            data.targets = targets;
+    if (target[0] == "NONE") {
+        sequenceRegistryKey = undefined;
+    } else if (target[0] == "ANONYMOUS") {
+        sequenceRegistryKey = undefined
+    }
+
+    if (target[2] == "NONE") {
+        endpointRegistryKey = undefined;
+    } else if (target[2] == "ANONYMOUS") {
+        endpointRegistryKey = undefined
+    }
+
+    if (target[0] == "NONE" && target[2] == "NONE") {
+        isRegistrySeqAndEndpoint = true;
+    }
+
+    return ({
+        isRegistrySeqAndEndpoint: isRegistrySeqAndEndpoint,
+        sequenceRegistryKey: sequenceRegistryKey,
+        endpointRegistryKey: endpointRegistryKey,
+        soapAction: target[4],
+        toAddress: target[5]
+    });
+}
+
+function getEdits(data: { [key: string]: any }, dirtyFields: any, defaultValues: any) {
+
+    let edits: { [key: string]: any }[] = [];
+
+    let cloneAttributes = ["cloneId", "sequentialMediation", "continueParent", "description"];
+    let dirtyKeys = Object.keys(dirtyFields);
+
+    if (checkAttributesExist(dirtyKeys, cloneAttributes)) {
+        let cloneData = { ...data };
+        cloneData.editClone = true;
+        let range = defaultValues.ranges.clone;
+        let editRange = {
+            start: range.startTagRange.start,
+            end: range.startTagRange.end
+        }
+        let output = Mustache.render(getCloneMustacheTemplate(), cloneData).trim();
+        let edit = {
+            text: output,
+            range: editRange
+        }
+        edits.push(edit);
+    }
+
+    if (dirtyFields.targets) {
+        for (let i = 0; i < data.targets.length; i++) {
+            let targetData = processTargetData(data.targets[i]);
+            let range = defaultValues.ranges.targets[i];
+            let editRange = {
+                start: range.startTagRange.start,
+                end: range.endTagRange.end ? range.endTagRange.end : range.startTagRange.end
+            }
+            let output = Mustache.render(getCloneMustacheTemplate(), targetData).trim();
+            let edit = {
+                text: output,
+                range: editRange
+            }
+            edits.push(edit);
         }
     }
 
-    const output = Mustache.render(getCloneMustacheTemplate(), data).trim();
-    return output;
+    edits.sort((a, b) => b.range.start.line - a.range.start.line);
+    return edits;
 }
 
 export function getCloneFormDataFromSTNode(data: { [key: string]: any }, node: Clone) {
@@ -108,6 +166,10 @@ export function getCloneFormDataFromSTNode(data: { [key: string]: any }, node: C
             const endpointType = target.endpointAttribute ? "REGISTRY_REFERENCE" : target.endpoint ? "ANONYMOUS" : "NONE";
             return [sequenceType, target.sequenceAttribute, endpointType, target.endpointAttribute, target.soapAction, target.to, target.range];
         });
+    }
+    data.ranges = {
+        clone: node.range,
+        targets: node.target.map((target) => target.range)
     }
     return data;
 }

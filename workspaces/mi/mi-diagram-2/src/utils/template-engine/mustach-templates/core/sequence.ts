@@ -30,3 +30,11 @@ export function getSequenceDataFromSTNode(data: { [key: string]: any }) {
     }
     return data;
 }
+
+export function getSequenceDescription(data: { [key: string]: any }) {
+    if (data.staticReferenceKey) {
+        return data.staticReferenceKey;
+    } else if (data.dynamicReferenceKey) {
+        return data.dynamicReferenceKey;
+    }
+}

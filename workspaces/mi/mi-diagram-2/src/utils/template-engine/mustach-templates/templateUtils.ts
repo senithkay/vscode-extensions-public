@@ -120,7 +120,7 @@ export function getMustacheTemplate(name: string) {
             return getAggregateMustacheTemplate();
         case MEDIATORS.ITERATE:
             return getIterateMustacheTemplate();
-        case MEDIATORS.FOREACH:
+        case MEDIATORS.FOREACHMEDIATOR:
             return getForeachMustacheTemplate();
         //Filter Mediators
         case MEDIATORS.FILTER:
@@ -201,13 +201,13 @@ export function getMustacheTemplate(name: string) {
     }
 }
 
-export function getXML(name: string, data: { [key: string]: any }) {
+export function getXML(name: string, data: { [key: string]: any }, dirtyFields?: any, defaultValues?: any) {
     switch (name) {
         //Advanced Mediators
         case MEDIATORS.CACHE:
-            return getCacheXml(data);
+            return getCacheXml(data, dirtyFields, defaultValues);
         case MEDIATORS.CLONE:
-            return getCloneXml(data);
+            return getCloneXml(data, dirtyFields, defaultValues);
         case MEDIATORS.DATASERVICECALL:
             return getDataSerivceCallXml(data);
         case MEDIATORS.TRANSACTION:
@@ -216,7 +216,7 @@ export function getXML(name: string, data: { [key: string]: any }) {
             return getEventXml(data);
         //Core Mediators
         case MEDIATORS.CALL:
-            return getCallXml(data);
+            return getCallXml(data, dirtyFields, defaultValues);
         case MEDIATORS.LOG:
             return getLogXml(data);
         case MEDIATORS.CALLOUT:
@@ -241,12 +241,12 @@ export function getXML(name: string, data: { [key: string]: any }) {
         case MEDIATORS.AGGREGATE:
             return getAggregateXml(data);
         case MEDIATORS.ITERATE:
-            return getIterateXml(data);
-        case MEDIATORS.FOREACH:
+            return getIterateXml(data, dirtyFields, defaultValues);
+        case MEDIATORS.FOREACHMEDIATOR:
             return getForeachXml(data);
         //Filter Mediators
         case MEDIATORS.FILTER:
-            return getFilterXml(data);
+            return getFilterXml(data, dirtyFields, defaultValues);
         case MEDIATORS.SWITCH:
             return getSwitchXml(data);
         case MEDIATORS.THROTTLE:
@@ -359,7 +359,7 @@ export function getDataFromXML(name: string, node: STNode) {
             return getAggregateFormDataFromSTNode(formData, node as Aggregate);
         case MEDIATORS.ITERATE:
             return getIterateFormDataFromSTNode(formData, node as Iterate);
-        case MEDIATORS.FOREACH:
+        case MEDIATORS.FOREACHMEDIATOR:
             return getForEachFormDataFromSTNode(formData, node as Foreach);
         //Filter Mediators
         case MEDIATORS.FILTER:

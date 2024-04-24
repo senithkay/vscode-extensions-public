@@ -9,6 +9,7 @@
 
 import Mustache from "mustache";
 import { Call } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { checkAttributesExist } from "../../../commons";
 
 export function getCallMustacheTemplate() {
   return `
@@ -78,7 +79,7 @@ export function getCallMustacheTemplate() {
 `
 }
 
-export function getCallXml(data: { [key: string]: any }) {
+export function getCallXml(data: { [key: string]: any }, dirtyFields?: any, defaultValues?: any) {
 
   data.sourceOrTargetOrEndpoint = true;
 
@@ -107,17 +108,80 @@ export function getCallXml(data: { [key: string]: any }) {
   if (data.endpointType == "XPATH" || data.endpointType == "REGISTRYKEY") {
     data.registryOrXpathEndpoint = true;
   }
+  if (data.endopint) {
+    delete data.endpointXpath;
+    data.registryOrXpathEndpoint = true;
+    data.endpointRegistryKey = data.endopint;
+  }
   if (data.endpointType == "XPATH") {
     delete data.endpointRegistryKey;
   } else if (data.endpointType == "REGISTRYKEY") {
     delete data.endpointXpath;
   }
 
-  let output = Mustache.render(getCallMustacheTemplate(), data).trim();
-  if (!data.isNewMediator && !data.editCall && output != "") {
-    output = "\t" + output;
+  if (defaultValues == undefined || Object.keys(defaultValues).length == 0) {
+    return getNewMediator(data);
   }
+
+  return getEdits(data, dirtyFields, defaultValues);
+}
+
+function getNewMediator(data: { [key: string]: any }) {
+  let newData = { ...data };
+  newData.isNewMediator = true;
+  let output = Mustache.render(getCallMustacheTemplate(), newData).trim();
   return output;
+}
+
+function getEdits(data: { [key: string]: any }, dirtyFields: any, defaultValues: any) {
+
+  let callTagAttributes = ["enableBlockingCalls", "initAxis2ClientOptions", "description"];
+  let endpointTagAttributes = ["endpointType", "endpointXpath", "endpointRegistryKey", "endopint"];
+  let sourceTagAttributes = ["sourceType", "contentType", "sourceProperty", "sourcePayload", "sourceXPath"];
+  let targetTagAttributes = ["targetType", "targetProperty"];
+  let dirtyKeys = Object.keys(dirtyFields);
+  let edits: { [key: string]: any }[] = [];
+
+  if (checkAttributesExist(dirtyKeys, callTagAttributes)) {
+    edits.push(getEdit("Call", data, defaultValues, true));
+  }
+  if (checkAttributesExist(dirtyKeys, endpointTagAttributes)) {
+    edits.push(getEdit("Endpoint", data, defaultValues, false));
+  }
+  if (checkAttributesExist(dirtyKeys, sourceTagAttributes)) {
+    edits.push(getEdit("Source", data, defaultValues, false));
+  }
+  if (checkAttributesExist(dirtyKeys, targetTagAttributes)) {
+    edits.push(getEdit("Target", data, defaultValues, false));
+  }
+  edits.sort((a, b) => b.range.start.line - a.range.start.line);
+  return edits;
+}
+
+function getEdit(key: string, data: { [key: string]: any }, defaultValues: any, editStartTagOnly: boolean) {
+
+  let newData = { ...data };
+  newData["edit" + key] = true;
+  let output = Mustache.render(getCallMustacheTemplate(), newData).trim();
+  let range = defaultValues.ranges[key.toLowerCase()];
+  let editRange;
+  if (range) {
+    editRange = {
+      start: range.startTagRange.start,
+      end: editStartTagOnly ? range.startTagRange.end : (range.endTagRange.end ? range.endTagRange.end : range.startTagRange.end)
+    }
+  } else {
+    let callRange = defaultValues.ranges.call;
+    editRange = {
+      start: callRange.endTagRange.start,
+      end: callRange.endTagRange.start
+    }
+  }
+  let edit = {
+    text: output,
+    range: editRange
+  }
+  return edit;
 }
 
 export function getCallFormDataFromSTNode(data: { [key: string]: any }, node: Call) {
@@ -125,12 +189,13 @@ export function getCallFormDataFromSTNode(data: { [key: string]: any }, node: Ca
   data.description = node.description;
   data.contentType = node.source?.contentType;
   data.sourceType = node.source?.type;
-  data.sourceProperty = node.source?.content;
+  data.sourceProperty = node.source?.textNode;
   data.targetType = node.target?.type;
-  data.targetProperty = node.target?.content;
+  data.targetProperty = node.target?.textNode;
   data.initAxis2ClientOptions = node.initAxis2ClientOptions != undefined ? node.initAxis2ClientOptions : true;
   data.endpointXpath = node.endpoint?.keyExpression;
   data.endpointRegistryKey = node.endpoint?.key;
+  data.endopint = node.endpoint?.key;
   if (data.endpointXpath) {
     data.endpointType = "XPATH";
   } else if (data.endpointRegistryKey) {

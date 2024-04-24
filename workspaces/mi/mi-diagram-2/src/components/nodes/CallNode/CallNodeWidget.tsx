@@ -93,8 +93,8 @@ namespace S {
 
     export const EndpointContainer = styled.div`
         position: absolute;
-        left: 222.5px;
-        top: 9px;
+        left: 252.5px;
+        top: 18px;
     `;
 
     export const EndpointTextWrapper = styled(Description)`
@@ -127,7 +127,6 @@ export function CallNodeWidget(props: CallNodeWidgetProps) {
     const endpointHasDiagnotics = node.endpointHasDiagnostics();
     const endpointTooltip = endpointHasDiagnotics ? node.getEndpointDiagnostics().map(diagnostic => diagnostic.message).join("\n") : undefined;
     const nodeDescription = getNodeDescription(node.stNode);
-    const circleDescription = getNodeDescription(node.endpoint);
     const hasBreakpoint = node.hasBreakpoint();
     const isActiveBreakpoint = node.isActiveBreakpoint();
 
@@ -295,7 +294,7 @@ export function CallNodeWidget(props: CallNodeWidgetProps) {
             </S.CircleContainer>
 
             {node.endpoint ? (
-                <S.EndpointTextWrapper>{circleDescription}</S.EndpointTextWrapper>
+                <S.EndpointTextWrapper>{getNodeDescription(node.endpoint)}</S.EndpointTextWrapper>
             ) : (
                 <S.EndpointContainer>
                     <S.StyledButton appearance="icon" onClick={handlePlusNode}>

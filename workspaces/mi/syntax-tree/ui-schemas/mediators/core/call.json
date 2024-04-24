@@ -17,7 +17,7 @@
                     "XPATH"
                 ],
                 "required": true,
-                "keyType":"endopint",
+                "keyType":"endpoint",
                 "helpTip": "Choose an existing endpoint, or specify a new one"
             }
         },

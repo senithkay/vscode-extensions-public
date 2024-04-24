@@ -63,4 +63,6 @@ export * from './components/Commons/RequiredInput';
 
 export * from './components/FormView/FormView';
 
+export * from './components/ExpressionField/ExpressionInput';
+
 export * from './styles';
