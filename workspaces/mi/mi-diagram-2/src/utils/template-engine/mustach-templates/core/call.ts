@@ -134,13 +134,21 @@ function getEdits(data: { [key: string]: any }, dirtyFields: any, defaultValues:
   let endpointTagAttributes = ["endpointType", "endpointXpath", "endpointRegistryKey"];
   let sourceTagAttributes = ["sourceType", "contentType", "sourceProperty", "sourcePayload", "sourceXPath"];
   let targetTagAttributes = ["targetType", "targetProperty"];
+  let dirtyKeys = Object.keys(dirtyFields);
   let edits: { [key: string]: any }[] = [];
 
-  edits.push(getEdit("Call", data, defaultValues, true));
-  edits.push(getEdit("Endpoint", data, defaultValues, false));
-  edits.push(getEdit("Source", data, defaultValues, false));
-  edits.push(getEdit("Target", data, defaultValues, false));
-
+  if (checkAttributesExist(dirtyKeys, callTagAttributes)) {
+    edits.push(getEdit("Call", data, defaultValues, true));
+  }
+  if (checkAttributesExist(dirtyKeys, endpointTagAttributes)) {
+    edits.push(getEdit("Endpoint", data, defaultValues, false));
+  }
+  if (checkAttributesExist(dirtyKeys, sourceTagAttributes)) {
+    edits.push(getEdit("Source", data, defaultValues, false));
+  }
+  if (checkAttributesExist(dirtyKeys, targetTagAttributes)) {
+    edits.push(getEdit("Target", data, defaultValues, false));
+  }
   edits.sort((a, b) => b.range.start.line - a.range.start.line);
   return edits;
 }
@@ -151,9 +159,18 @@ function getEdit(key: string, data: { [key: string]: any }, defaultValues: any, 
   newData["edit" + key] = true;
   let output = Mustache.render(getCallMustacheTemplate(), newData).trim();
   let range = defaultValues.ranges[key.toLowerCase()];
-  let editRange = {
-    start: range.startTagRange.start,
-    end: range.endTagRange.end ? range.endTagRange.end : range.startTagRange.end
+  let editRange;
+  if (range) {
+    editRange = {
+      start: range.startTagRange.start,
+      end: editStartTagOnly ? range.startTagRange.end : (range.endTagRange.end ? range.endTagRange.end : range.startTagRange.end)
+    }
+  } else {
+    let callRange = defaultValues.ranges.call;
+    editRange = {
+      start: callRange.endTagRange.start,
+      end: callRange.endTagRange.start
+    }
   }
   let edit = {
     text: output,
@@ -167,9 +184,9 @@ export function getCallFormDataFromSTNode(data: { [key: string]: any }, node: Ca
   data.description = node.description;
   data.contentType = node.source?.contentType;
   data.sourceType = node.source?.type;
-  data.sourceProperty = node.source?.content;
+  data.sourceProperty = node.source?.textNode;
   data.targetType = node.target?.type;
-  data.targetProperty = node.target?.content;
+  data.targetProperty = node.target?.textNode;
   data.initAxis2ClientOptions = node.initAxis2ClientOptions != undefined ? node.initAxis2ClientOptions : true;
   data.endpointXpath = node.endpoint?.keyExpression;
   data.endpointRegistryKey = node.endpoint?.key;
