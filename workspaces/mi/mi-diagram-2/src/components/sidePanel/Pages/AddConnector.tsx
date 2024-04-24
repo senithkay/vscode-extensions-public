@@ -189,15 +189,17 @@ const AddConnector = (props: AddConnectorProps) => {
 
             const operationName = props.formData?.operationName ?? props.operationName ??
                 sidePanelContext.formValues.operationName;
-                
-            const root = template.ele(`${connectorName}${operationName ? `.${operationName}` : ''}`);
-            root.att('configKey', formValues['configKey']);
+
+            const root = template.ele(`${connectorName}${operationName ? `.${operationName}` : ''}`)
+                .att('configKey', formValues['configKey']);
+
             // Fill the values
             Object.keys(formValues).forEach((key) => {
                 if (key !== 'configRef' && key !== 'configKey') {
                     root.ele(key).txt(formValues[key]);
                 }
             });
+
             const modifiedXml = template.end({ prettyPrint: true, headless: true });
 
             rpcClient.getMiDiagramRpcClient().applyEdit({
