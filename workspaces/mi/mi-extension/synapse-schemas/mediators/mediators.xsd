@@ -147,7 +147,7 @@
             <xs:element ref="brs:rule" />
             <xs:element ref="bam" />
             <xs:element ref="publishEvent" />
-            <xs:element ref="ntlm" />
+            <xs:element ref="NTLM" />
             <xs:group ref="connectors" />
         </xs:choice>
     </xs:group>

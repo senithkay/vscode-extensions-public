@@ -14,7 +14,7 @@ import { features } from "process";
 export function getXsltMustacheTemplate() {
 
   return `
-    <xslt {{#description}}description="{{description}}"{{/description}} {{#key}}key="{{key}}"{{/key}} {{#sourceXPath}}source="{{sourceXPath}}"{{/sourceXPath}} >
+    <xslt {{#description}}description="{{description}}"{{/description}} {{#xsltSchemaKey}}key="{{xsltSchemaKey}}"{{/xsltSchemaKey}} {{#sourceXPath}}source="{{sourceXPath}}"{{/sourceXPath}} >
         {{#properties}}
         <property name="{{propertyName}}" {{#propertyValue}}value="{{propertyValue}}"{{/propertyValue}} {{#propertyExpression}}expression="{{propertyExpression}}"{{/propertyExpression}} />
         {{/properties}}
@@ -30,19 +30,12 @@ export function getXsltMustacheTemplate() {
 
 export function getXsltXml(data: { [key: string]: any }) {
 
-  if (data.xsltSchemaKeyType == "Dynamic") {
-    data.key = "{" + data.xsltDynamicSchemaKey + "}";
-    delete data.xsltStaticSchemaKey;
-  }
-  else {
-    data.key = data.xsltStaticSchemaKey;
-    delete data.xsltDynamicSchemaKey;
-  }
-  data.properties = data.properties?.map((property: string[]) => {
+  data.sourceXPath = data?.sourceXPath?.value;
+  data.properties = data.properties?.map((property: any[]) => {
     return {
       propertyName: property[0],
-      propertyValue: property[1] == "LITERAL" ? property[2] : undefined,
-      propertyExpression: property[1] == "EXPRESSION" ? property[3] : undefined
+      propertyValue: property[1]?.isExpression ? undefined : property[1]?.value,
+      propertyExpression: property[1]?.isExpression ? property[1]?.value : undefined,
     }
   });
   data.features = data.features?.map((feature: string[]) => {
@@ -63,7 +56,7 @@ export function getXsltXml(data: { [key: string]: any }) {
 
 export function getXsltFormDataFromSTNode(data: { [key: string]: any }, node: Xslt) {
 
-  data.sourceXPath = node.source;
+  data.sourceXPath = { isExpression: true, value: node.source };
   data.description = node.description;
   if (node.key) {
     const regex = /{([^}]*)}/;
@@ -78,7 +71,8 @@ export function getXsltFormDataFromSTNode(data: { [key: string]: any }, node: Xs
   }
   if (node.property) {
     data.properties = node.property.map((property) => {
-      return [property.name, property.value ? "LITERAL" : "EXPRESSION", property.value, property.expression];
+      let isExpression = property.value ? false : true;
+      return [property.name, { isExpression: isExpression, value: property.value ?? property.expression }];
     });
   } else {
     data.properties = [];

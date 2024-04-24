@@ -10,40 +10,31 @@ export function getScriptMustacheTemplate() {
 </script>
     {{/hasScriptKey}}
     {{^hasScriptKey}}
-    {{#scriptBody}}
     <script {{#description}}description="{{description}}" {{/description}}{{#scriptLanguage}}language="{{scriptLanguage}}" {{/scriptLanguage}}><![CDATA[{{#scriptBody}}{{{scriptBody}}}{{/scriptBody}}]]></script>
-    {{/scriptBody}}
-    {{^scriptBody}}
-    <script {{#description}}description="{{description}}" {{/description}}{{#mediateFunction}}function="{{mediateFunction}}" {{/mediateFunction}}{{#scriptStaticKey}}key="{{scriptStaticKey}}" {{/scriptStaticKey}}{{#scriptDynamicKey}}key="{{scriptDynamicKey}}" {{/scriptDynamicKey}}{{#scriptLanguage}}language="{{scriptLanguage}}" {{/scriptLanguage}} />
-    {{/scriptBody}}
     {{/hasScriptKey}}`;
 }
 
 export function getScriptXml(data: { [key: string]: any }) {
 
-    let hasScriptKey = false;
-    let scriptKeys;
-    if (data.scriptKeys && data.scriptKeys.length > 0) {
-        hasScriptKey = true;
-        scriptKeys = data.scriptKeys.map((key: string[]) => {
-            return {
-                keyName: key[0],
-                keyValue: key[1]
-            }
-        });
+    if (data.scriptType == "INLINE") {
+
+    } else {
+        if (data.scriptKeys && data.scriptKeys.length > 0) {
+            data.hasScriptKey = true;
+            data.scriptKeys = data.scriptKeys.map((key: string[]) => {
+                return {
+                    keyName: key[0],
+                    keyValue: key[1]
+                }
+            });
+        }
+
+        if (data.scriptDynamicKey && !data.scriptDynamicKey.startsWith("{")) {
+            data.scriptDynamicKey = "{" + data.scriptDynamicKey + "}";
+        }
     }
 
-    if (data.scriptDynamicKey && !data.scriptDynamicKey.startsWith("{")) {
-        data.scriptDynamicKey = "{" + data.scriptDynamicKey + "}";
-    }
-
-    const modifiedData = {
-        ...data,
-        scriptKeys: scriptKeys,
-        hasScriptKey: hasScriptKey
-    }
-
-    const output = Mustache.render(getScriptMustacheTemplate(), modifiedData);
+    const output = Mustache.render(getScriptMustacheTemplate(), data);
     return output.trim();
 }
 
@@ -81,4 +72,4 @@ function getScriptBody(content: string[]) {
         const match = c.match(/<!\[CDATA\[(.*?)]]>/);
         return body = match ? match[1] : null;
     };
-} 
+}

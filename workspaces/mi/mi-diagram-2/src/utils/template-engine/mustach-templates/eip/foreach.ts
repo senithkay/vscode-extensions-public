@@ -12,55 +12,77 @@ import Mustache from "mustache";
 
 export function getForeachMustacheTemplate() {
     return `
-    {{#editForeach}}
+    {{#isNewMediator}}
     {{#isAnnonymousSequence}}
     <foreach expression="{{forEachExpression}}" id="{{forEachID}}" {{#description}}description="{{description}}"{{/description}}>
-    {{/isAnnonymousSequence}}
-    {{^isAnnonymousSequence}}
-    <foreach expression="{{forEachExpression}}" id="{{forEachID}}" {{#sequenceName}}sequence="{{sequenceName}}"{{/sequenceName}} {{#sequenceKey}}sequence="{{sequenceKey}}"{{/sequenceKey}} {{#description}}description="{{description}}"{{/description}} />
-    {{/isAnnonymousSequence}}
-    {{/editForeach}}
-    {{^editForeach}}
-    {{#isAnnonymousSequence}}
-    <foreach expression="{{forEachExpression}}" id="{{forEachID}}">
-        <sequence/>
+    <sequence />
     </foreach>
     {{/isAnnonymousSequence}}
     {{^isAnnonymousSequence}}
     <foreach expression="{{forEachExpression}}" id="{{forEachID}}" {{#sequenceName}}sequence="{{sequenceName}}"{{/sequenceName}} {{#sequenceKey}}sequence="{{sequenceKey}}"{{/sequenceKey}} {{#description}}description="{{description}}"{{/description}} />
     {{/isAnnonymousSequence}}
+    {{/isNewMediator}}
+    {{^isNewMediator}}
+    {{#editForeach}}
+    {{#isAnnonymousSequence}}
+    <foreach expression="{{forEachExpression}}" id="{{forEachID}}" {{#description}}description="{{description}}"{{/description}}>
+    {{#addSequence}}
+    <sequence />
+    </foreach>
+    {{/addSequence}}
+    {{/isAnnonymousSequence}}
+    {{^isAnnonymousSequence}}
+    <foreach expression="{{forEachExpression}}" id="{{forEachID}}" {{#sequenceName}}sequence="{{sequenceName}}"{{/sequenceName}} {{#sequenceKey}}sequence="{{sequenceKey}}"{{/sequenceKey}} {{#description}}description="{{description}}"{{/description}} />
+    {{/isAnnonymousSequence}}
     {{/editForeach}}
+    {{/isNewMediator}}
     `;
 }
 
-export function getForeachXml(data: { [key: string]: any }) {
+export function getForeachXml(data: { [key: string]: any }, dirtyFields?: any, defaultValues?: any) {
 
-    let isAnnonymousSequence = false;
-    if (data.sequenceType === "ANONYMOUS") {
-        isAnnonymousSequence = true;
+    if (data.sequenceType === "Anonymous") {
+        data.isAnnonymousSequence = true;
     }
-    const modifiedData = {
-        ...data,
-        isAnnonymousSequence: isAnnonymousSequence
+    data.forEachExpression = data?.forEachExpression?.value;
+    if (defaultValues == undefined || Object.keys(defaultValues).length == 0) {
+        data.isNewMediator = true;
+        const output = Mustache.render(getForeachMustacheTemplate(), data)?.trim();
+        return output;
+    } else {
+        data.editForeach = true;
+        let range = defaultValues.range;
+        let editRange = range.startTagRange;
+        if (defaultValues.sequenceType == "Anonymous" && data.sequenceType == "Key") {
+            editRange = {
+                start: range.startTagRange.start,
+                end: range.endTagRange.end ? range.endTagRange.end : range.endTagRange.start
+            }
+        } else if (defaultValues.sequenceType == "Key" && data.sequenceType == "Anonymous") {
+            data.isAnnonymousSequence = true;
+            data.addSequence = true;
+            editRange = {
+                start: range.startTagRange.start,
+                end: range.endTagRange.end ? range.endTagRange.end : range.endTagRange.start
+            }
+        }
+        const output = Mustache.render(getForeachMustacheTemplate(), data)?.trim();
+        return [{
+            text: output,
+            range: editRange
+        }];
     }
-
-    const output = Mustache.render(getForeachMustacheTemplate(), modifiedData)?.trim();
-    return output;
 }
 
 export function getForEachFormDataFromSTNode(data: { [key: string]: any }, node: Foreach) {
     data.forEachID = node.id;
-    data.forEachExpression = node.expression;
+    data.forEachExpression = { isExpression: true, value: node.expression };
     if (node.sequenceAttribute) {
-        if (node.sequenceAttribute.startsWith("gov:") || node.sequenceAttribute.startsWith("conf:")) {
-            data.sequenceType = "REGISTRY_REFERENCE";
-            data.sequenceKey = node.sequenceAttribute;
-        } else {
-            data.sequenceType = "NAMED_REFERENCE";
-            data.sequenceName = node.sequenceAttribute;
-        }
+        data.sequenceType = "Key";
+        data.sequenceKey = node.sequenceAttribute;
+
     } else if (node.sequence) {
-        data.sequenceType = "ANONYMOUS";
+        data.sequenceType = "Anonymous";
     }
     data.prevSequenceType = data.sequenceType;
     data.description = node.description;

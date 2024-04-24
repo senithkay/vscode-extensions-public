@@ -19,9 +19,9 @@ export function getFastXSLTMustacheTemplate() {
 export function getFastXSLTXml(data: { [key: string]: any }) {
 
     if (data.fastXsltSchemaType == "Static") {
-        data.key = data.fastXsltStaticSchemaKey;
+        data.key = data.fastXsltStaticSchemaKey?.value;
     } else if (data.fastXsltSchemaType == "Dynamic") {
-        data.key = "{" + data.fastXsltDynamicSchemaKey + "}";
+        data.key = "{" + data.fastXsltDynamicSchemaKey?.value + "}";
     }
     const output = Mustache.render(getFastXSLTMustacheTemplate(), data)?.trim();
     return output;
@@ -34,10 +34,10 @@ export function getFastXSLTFormDataFromSTNode(data: { [key: string]: any }, node
         const match = node.key.match(regex);
         if (match && match.length > 1) {
             data.fastXsltSchemaType = "Dynamic";
-            data.fastXsltDynamicSchemaKey = match[1];
+            data.fastXsltDynamicSchemaKey = { isExpression: true, value: match[1] };
         } else {
             data.fastXsltSchemaType = "Static";
-            data.fastXsltStaticSchemaKey = node.key;
+            data.fastXsltStaticSchemaKey = { isExpression: true, value: node.key };
         }
     }
     return data;
