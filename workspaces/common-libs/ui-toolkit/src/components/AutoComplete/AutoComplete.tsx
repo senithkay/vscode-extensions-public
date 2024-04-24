@@ -15,7 +15,6 @@ import React, { Fragment, ReactNode, useEffect, useMemo, useRef, useState } from
 import { css, cx } from "@emotion/css";
 import { Combobox, Transition } from '@headlessui/react'
 
-// import { Dropdown } from "./Dropdown";
 import styled from '@emotion/styled';
 import { RequiredFormInput } from '../Commons/RequiredInput';
 import { Control, Controller } from 'react-hook-form';
@@ -23,6 +22,7 @@ import { Control, Controller } from 'react-hook-form';
 export interface ComboboxOptionProps {
     active?: boolean;
     display?: boolean;
+    width?: number;
 }
 
 export interface DropdownContainerProps {
@@ -119,6 +119,7 @@ export const NothingFound = styled.div`
 `;
 
 const DropdownContainer: React.FC<DropdownContainerProps> = styled.div`
+    position: absolute;
     max-height: 100px;
     overflow: auto;
     background-color: var(--vscode-editor-background);
@@ -129,6 +130,7 @@ const DropdownContainer: React.FC<DropdownContainerProps> = styled.div`
     padding-bottom: 5px;
     z-index: 1;
     display: ${(props: DropdownContainerProps) => (props.display ? 'block' : 'none')};
+    width: ${(props: DropdownContainerProps) => (props.dropdownWidth ? `${props.dropdownWidth - 2}px` : 'auto')};
     ul {
         margin: 0;
         padding: 0;
@@ -228,7 +230,8 @@ export const AutoComplete = React.forwardRef<HTMLInputElement, AutoCompleteProps
     const [isUpButton, setIsUpButton] = useState(false);
     const [dropdownWidth, setDropdownWidth] = useState<number>();
     const inputRef = useRef(null);
-    const btnId = useMemo(() => name || getItemKey(items[0]), [name, items]);
+    const inputWrapperRef = useRef(null);
+    const btnId = useMemo(() => name || label || getItemKey(items[0]), [name, items, label]);
 
     const handleChange = (item: string | ItemComponent) => {
         onValueChange && onValueChange(getItemKey(item));
@@ -281,7 +284,7 @@ export const AutoComplete = React.forwardRef<HTMLInputElement, AutoCompleteProps
     };
 
     useEffect(() => {
-        setDropdownWidth(inputRef.current?.clientWidth);
+        setDropdownWidth(inputWrapperRef.current?.clientWidth);
     }, []);
 
     return (
@@ -292,7 +295,7 @@ export const AutoComplete = React.forwardRef<HTMLInputElement, AutoCompleteProps
                     {(required && label) && (<RequiredFormInput />)}
                 </LabelContainer>
                 <div>
-                    <ComboboxInputWrapper>
+                    <ComboboxInputWrapper ref={inputWrapperRef}>
                         <Combobox.Input
                             id={id}
                             ref={inputRef}
