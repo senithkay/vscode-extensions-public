@@ -22,6 +22,7 @@ interface SidePanelContext {
     title?: string;
     isFormOpen?: boolean;
     connectors?: any[];
+    iconPath?: string;
     setSidePanelState?: Dispatch<SetStateAction<any>>;
 }
 
