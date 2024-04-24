@@ -287,6 +287,7 @@ const AddConnector = (props: AddConnectorProps) => {
                 );
             case 'connection':
                 formValues[element.name] = formValues[element.name] ?? element.allowedConnectionTypes[0];
+                formValues['configKey'] = formValues['configKey'] ?? connections[0];
                 return (<>
                     <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", width: '100%', gap: '10px' }}>
                         <div style={{ display: "flex", alignItems: "center", gap: '10px' }}>
@@ -299,7 +300,7 @@ const AddConnector = (props: AddConnectorProps) => {
                     </div>
                     <AutoComplete
                         items={connections}
-                        value={formValues['configKey'] ?? connections[0]}
+                        value={formValues['configKey']}
                         onValueChange={(e: any) => {
                             setFormValues({ ...formValues, ['configKey']: e });
                             formValidators[element.name](e);
