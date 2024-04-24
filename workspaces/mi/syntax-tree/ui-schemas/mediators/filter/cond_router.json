@@ -2,7 +2,7 @@
   "name": "ConditionalRouter",
   "type": "mediator",
   "title": "Conditional Router Mediator",
-  "help": "",
+  "help": "Routes messages to target sequence only if conditions are met.",
   "elements": [
     {
       "type": "attributeGroup",

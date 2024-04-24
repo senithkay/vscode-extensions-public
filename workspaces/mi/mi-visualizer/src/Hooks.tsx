@@ -10,7 +10,7 @@ import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 
-export const useIOTypes = (filePath: string, functionName: string) => {
+export const useIOTypes = (filePath: string, functionName: string, interfacesSource: string) => {
     const { rpcClient } = useVisualizerContext();
     const getIOTypes = async () => {
         try {
@@ -29,7 +29,7 @@ export const useIOTypes = (filePath: string, functionName: string) => {
         isFetching: isFetchingIOTypes,
         isError: isTypeError,
         refetch
-    } = useQuery(['getIOTypes', { filePath, functionName }], () => getIOTypes(), {});
+    } = useQuery(['getIOTypes', { filePath, functionName, interfacesSource }], () => getIOTypes(), {});
 
     return {dmIOTypes, isFetchingIOTypes, isTypeError, refetch};
 };

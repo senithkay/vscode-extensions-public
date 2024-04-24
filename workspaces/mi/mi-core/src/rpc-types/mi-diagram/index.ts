@@ -147,6 +147,7 @@ import {
     GetAllArtifactsResponse,
     GetConnectionFormRequest,
     GetConnectionFormResponse,
+    DeleteArtifactRequest,
 } from "./types";
 
 export interface MiDiagramAPI {
@@ -211,7 +212,7 @@ export interface MiDiagramAPI {
     highlightCode: (params: HighlightCodeRequest) => void;
     getWorkspaceContext: () => Promise<GetWorkspaceContextResponse>;
     getProjectUuid: () => Promise<GetProjectUuidResponse>;
-    initUndoRedoManager: (params: UndoRedoParams) => void;
+    initUndoRedoManager: (params: UndoRedoParams) => Promise<void>;
     undo: (params: UndoRedoParams) => void;
     redo: (params: UndoRedoParams) => void;
     getDefinition: (params: GetDefinitionRequest) => Promise<GetDefinitionResponse>;
@@ -239,4 +240,5 @@ export interface MiDiagramAPI {
     logoutFromMIAccount: () => void;
     getAllRegistryPaths: (params: GetAllRegistryPathsRequest) => Promise<GetAllRegistryPathsResponse>;
     getAllArtifacts: (params: GetAllArtifactsRequest) => Promise<GetAllArtifactsResponse>;
+    deleteArtifact: (params: DeleteArtifactRequest) => Promise<void>;
 }

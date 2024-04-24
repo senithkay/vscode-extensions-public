@@ -42,12 +42,12 @@ export interface HttpEndpointArgs {
     outboundPolicyKey: string;
     suspendErrorCodes: string;
     initialDuration: number;
-    maximumDuration: number;
+    maximumDuration: number | null;
     progressionFactor: number;
     retryErrorCodes: string;
     retryCount: number;
     retryDelay: number;
-    timeoutDuration: number;
+    timeoutDuration: number | null;
     timeoutAction: string | null;
     templateName: string;
     requireTemplateParameters: boolean;
@@ -89,7 +89,7 @@ export function getHttpEndpointMustacheTemplate() {
                     {{#refreshToken}}<refreshToken>{{refreshToken}}</refreshToken>{{/refreshToken}}{{^refreshToken}}{{/refreshToken}}
                     {{#clientId}}<clientId>{{clientId}}</clientId>{{/clientId}}{{^clientId}}<clientId/>{{/clientId}}
                     {{#clientSecret}}<clientSecret>{{clientSecret}}</clientSecret>{{/clientSecret}}{{^clientSecret}}<clientSecret/>{{/clientSecret}}
-                    {{#tokenUrl}}<tokenUrl>{{tokenUrl}}</tokenUrl>{{/tokenUrl}}{{^tokenUrl}}<tokenUrl/>{{/tokenUrl}}
+                    {{#tokenUrl}}<tokenUrl>{{{tokenUrl}}}</tokenUrl>{{/tokenUrl}}{{^tokenUrl}}<tokenUrl/>{{/tokenUrl}}
                     {{#requireOauthParameters}}<requestParameters>{{/requireOauthParameters}}
                     {{#oauthProperties}}
                         <parameter name="{{key}}">{{{value}}}</parameter>
@@ -144,6 +144,8 @@ export function getHttpEndpointXml(data: HttpEndpointArgs) {
 
     assignNullToEmptyStrings(data);
 
+    data.maximumDuration = data.maximumDuration === Number.MAX_SAFE_INTEGER ? null : data.maximumDuration;
+    data.timeoutDuration = data.timeoutDuration === Number.MAX_SAFE_INTEGER ? null : data.timeoutDuration;
     data.timeoutAction = (data.timeoutAction === 'Never' || data.timeoutAction === null) ? null : data.timeoutAction.toLowerCase();
     if (data.timeoutDuration != null || data.timeoutAction != null) {
         timeout = true;

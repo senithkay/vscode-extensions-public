@@ -10,12 +10,13 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import * as os from 'os';
+import * as fs from 'fs';
 import { Uri, ViewColumn } from 'vscode';
 import { getComposerJSFiles } from '../util';
 import { RPCLayer } from '../RPCLayer';
 import { extension } from '../MIExtensionContext';
 import { debounce } from 'lodash';
-import { navigate } from '../stateMachine';
+import { navigate, StateMachine } from '../stateMachine';
 import { MACHINE_VIEW } from '@wso2-enterprise/mi-core';
 import { COMMANDS } from '../constants';
 
@@ -34,7 +35,9 @@ export class VisualizerWebview {
         // Handle the text change and diagram update with rpc notification
         const refreshDiagram = debounce(async () => {
             if (this.getWebview()) {
-                await vscode.commands.executeCommand(COMMANDS.REFRESH_COMMAND); // Refresh the project explore view
+                if (StateMachine.context().isMiProject) {
+                    await vscode.commands.executeCommand(COMMANDS.REFRESH_COMMAND); // Refresh the project explore view
+                }
                 navigate();
             }
         }, 500);
@@ -46,9 +49,24 @@ export class VisualizerWebview {
     }
 
     private static createWebview(view: MACHINE_VIEW, beside: boolean): vscode.WebviewPanel {
+        let title: string;
+        switch (view) {
+            case MACHINE_VIEW.Overview:
+                title = MACHINE_VIEW.Overview;
+                break;
+            case MACHINE_VIEW.ADD_ARTIFACT:
+                title = MACHINE_VIEW.ADD_ARTIFACT;
+                break;
+            case MACHINE_VIEW.UnsupportedProject:
+                title = MACHINE_VIEW.UnsupportedProject;
+                break;
+            default:
+                title = 'Design View';
+                break;
+        }
         const panel = vscode.window.createWebviewPanel(
             VisualizerWebview.viewType,
-            view || MACHINE_VIEW.Overview,
+            title,
             beside ? ViewColumn.Beside : ViewColumn.Active,
             {
                 enableScripts: true,
@@ -67,7 +85,15 @@ export class VisualizerWebview {
 
     public getIconPath(iconPath: string, name: string): string | undefined {
         const panel = this.getWebview();
-        const iconPathUri = vscode.Uri.file(path.join(iconPath, name).toString());
+        let iconPathUri;
+
+        // Check if PNG file exists
+        if (fs.existsSync(path.join(iconPath, name + '.png'))) {
+            iconPathUri = vscode.Uri.file(path.join(iconPath, name + '.png').toString());
+        } else {
+            // If PNG does not exist, use GIF
+            iconPathUri = vscode.Uri.file(path.join(iconPath, name + '.gif').toString());
+        }
 
         if (panel) {
             const iconUri = panel.webview.asWebviewUri(iconPathUri);

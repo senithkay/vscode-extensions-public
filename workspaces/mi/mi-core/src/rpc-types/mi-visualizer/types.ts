@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { HistoryEntry } from "../../history";
-import { AIVisualizerLocation, EVENT_TYPE, VisualizerLocation } from "../../state-machine-types";
+import { AIVisualizerLocation, EVENT_TYPE, POPUP_EVENT_TYPE, PopupVisualizerLocation, VisualizerLocation } from "../../state-machine-types";
 
 export interface WorkspacesResponse {
     workspaces: WorkspaceFolder[];
@@ -111,9 +111,10 @@ export interface SampleDownloadRequest {
 }
 
 export interface OpenViewRequest {
-    type: EVENT_TYPE;
-    location: VisualizerLocation | AIVisualizerLocation;
+    type: EVENT_TYPE | POPUP_EVENT_TYPE;
+    location: VisualizerLocation | AIVisualizerLocation | PopupVisualizerLocation;
     isAiWebview?: boolean;
+    isPopup?: boolean;
 }
 
 export interface HistoryEntryResponse {
@@ -126,5 +127,5 @@ export interface ToggleDisplayOverviewRequest {
 
 export interface GoToSourceRequest {
     filePath: string;
-    position: Range;
+    position?: Range;
 }

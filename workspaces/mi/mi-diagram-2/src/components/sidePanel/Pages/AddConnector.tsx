@@ -19,10 +19,10 @@ import AddConnection from './AddConnection';
 
 const cardStyle = {
     display: "block",
-    margin: "5px 0",
+    margin: "5px 5px",
     padding: "10px 15px 15px 15px",
     width: "auto",
-    cursor: "auto"
+    cursor: "auto",
 };
 
 const Error = styled.span`
@@ -183,8 +183,13 @@ const AddConnector = (props: AddConnectorProps) => {
         } else {
             const template = create();
 
-            const connectorName = props.formData?.connectorName ?? props.connectorName.toLowerCase().replace(/\s/g, '');
-            const operationName = props.formData?.operationName ?? props.operationName;
+            const connectorName = props.formData?.connectorName ??
+                props.connectorName?.toLowerCase().replace(/\s/g, '') ??
+                sidePanelContext.formValues.connectorName;
+
+            const operationName = props.formData?.operationName ?? props.operationName ??
+                sidePanelContext.formValues.operationName;
+                
             const root = template.ele(`${connectorName}${operationName ? `.${operationName}` : ''}`);
             root.att('configKey', formValues['configKey']);
             // Fill the values
@@ -264,6 +269,20 @@ const AddConnector = (props: AddConnectorProps) => {
                     </>
 
                 );
+            case 'textAreaOrExpression':
+                return (
+                    <TextField
+                        label={element.displayName}
+                        size={50}
+                        value={formValues[element.name] || ''}
+                        onTextChange={(e: any) => {
+                            setFormValues({ ...formValues, [element.name]: e });
+                            formValidators[element.name](e);
+                        }}
+                        required={element.required === 'true'}
+                        placeholder={element.helpTip}
+                    />
+                );
             case 'connection':
                 formValues[element.name] = formValues[element.name] ?? element.allowedConnectionTypes[0];
                 return (<>
@@ -301,10 +320,14 @@ const AddConnector = (props: AddConnectorProps) => {
             } else if (element.type === 'attributeGroup') {
                 return (
                     <>
-                        <h3 style={{ margin: 0 }}>{element.value.groupName}</h3>
-                        <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                            {renderForm(element.value.elements)}
-                        </ComponentCard>
+                        {element.value.groupName === "General" ? renderForm(element.value.elements) :
+                            <>
+                                <ComponentCard sx={cardStyle} disbaleHoverEffect>
+                                    <h3 style={{ margin: '0 0 15px 0' }}>{element.value.groupName}</h3>
+                                    {renderForm(element.value.elements)}
+                                </ComponentCard>
+                            </>
+                        }
                     </>
                 );
             }
@@ -340,9 +363,7 @@ const AddConnector = (props: AddConnectorProps) => {
                     connectorName={props.formData?.connectorName ?? props.connectorName.toLowerCase().replace(/\s/g, '')} />
                 :
                 <>
-                    <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                        {renderForm(props.formData.elements)}
-                    </ComponentCard>
+                    {renderForm(props.formData.elements)}
                     <div style={{ display: "flex", textAlign: "right", justifyContent: "flex-end", marginTop: "10px" }}>
                         <Button
                             appearance="primary"

@@ -71,7 +71,7 @@ const AddConnection = (props: AddConnectionProps) => {
                     documentUri: props.documentUri,
                     connectorName: props.connectorName
                 });
-                
+
                 const connectionUiSchema = connectorData.connectionUiSchema[connectionType as any];
 
                 const connectionFormJSON = await rpcClient.getMiDiagramRpcClient().getConnectionForm({ uiSchemaPath: connectionUiSchema });
@@ -168,6 +168,20 @@ const AddConnection = (props: AddConnectionProps) => {
                         placeholder={element.helpTip}
                     />
                 );
+            case 'stringOrExpresion':
+                return (
+                    <TextField
+                        label={element.displayName}
+                        size={50}
+                        value={formValues[element.name] || ''}
+                        onTextChange={(e: any) => {
+                            setFormValues({ ...formValues, [element.name]: e });
+                            formValidators[element.name](e);
+                        }}
+                        required={element.required === 'true'}
+                        placeholder={element.helpTip}
+                    />
+                );
             case 'booleanOrExpression':
                 return (
                     <>
@@ -200,6 +214,20 @@ const AddConnection = (props: AddConnectionProps) => {
                             required={element.required === 'true'} />
                     </>
 
+                );
+            case 'textAreaOrExpression':
+                return (
+                    <TextField
+                        label={element.displayName}
+                        size={50}
+                        value={formValues[element.name] || ''}
+                        onTextChange={(e: any) => {
+                            setFormValues({ ...formValues, [element.name]: e });
+                            formValidators[element.name](e);
+                        }}
+                        required={element.required === 'true'}
+                        placeholder={element.helpTip}
+                    />
                 );
             case 'connection':
                 formValues[element.name] = formValues[element.name] ?? element.allowedConnectionTypes[0];
@@ -245,10 +273,14 @@ const AddConnection = (props: AddConnectionProps) => {
             } else if (element.type === 'attributeGroup') {
                 return (
                     <>
-                        <h3 style={{ margin: 0 }}>{element.value.groupName}</h3>
-                        <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                            {renderForm(element.value.elements)}
-                        </ComponentCard>
+                        {element.value.groupName === "General" ? renderForm(element.value.elements) :
+                            <>
+                                <ComponentCard sx={cardStyle} disbaleHoverEffect>
+                                    <h3 style={{ margin: '0 0 15px 0' }}>{element.value.groupName}</h3>
+                                    {renderForm(element.value.elements)}
+                                </ComponentCard>
+                            </>
+                        }
                     </>
                 );
             }
@@ -282,9 +314,7 @@ const AddConnection = (props: AddConnectionProps) => {
                 </VSCodeDropdown>
                 {formData && formData.elements && formData.elements.length > 0 && (
                     <>
-                        <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                            {renderForm(formData.elements)}
-                        </ComponentCard>
+                        {renderForm(formData.elements)}
                         <div style={{ display: "flex", textAlign: "right", justifyContent: "flex-end", marginTop: "10px", gap: "10px" }}>
                             <Button
                                 appearance="secondary"

@@ -2,7 +2,7 @@
   "name": "Smooks",
   "type": "mediator",
   "title": "Smooks Mediator",
-  "help": "",
+  "help": "Applies lightweight message transformations (XML, non-XML).",
   "elements": [
     {
       "type": "attributeGroup",

@@ -16,6 +16,7 @@ import { FieldValues, useController, UseControllerProps } from "react-hook-form"
 
 type FilterType =
     | "sequence"
+    | "proxyService"
     | "endpoint"
     | "messageStore"
     | "messageProcessor"
@@ -55,7 +56,7 @@ export interface IKeylookup {
     onBlur?: React.FocusEventHandler<HTMLInputElement>;
     onChange?: React.ChangeEventHandler<HTMLInputElement>;
     // Document path
-    path: string;
+    path?: string;
     // Artifact type to be fetched
     filterType: FilterType;
     // Callback to filter the fetched artifacts

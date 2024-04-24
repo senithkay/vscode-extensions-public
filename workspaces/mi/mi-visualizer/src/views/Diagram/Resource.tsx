@@ -16,8 +16,8 @@ import { VSCodeTag } from "@vscode/webview-ui-toolkit/react";
 import { getColorByMethod } from "@wso2-enterprise/service-designer";
 import { View, ViewContent, ViewHeader } from "../../components/View";
 import { generateResourceData, getResourceDeleteRanges, onResourceEdit } from "../../utils/form";
-import { EditAPIForm, EditResourceForm } from "../Forms/EditForms/EditResourceForm";
 import styled from "@emotion/styled";
+import { ResourceForm, ResourceType } from "../Forms/ResourceForm";
 
 interface ColoredTagProps {
     color: string;
@@ -39,7 +39,7 @@ export interface ResourceViewProps {
 export const ResourceView = ({ model: resourceModel, documentUri, diagnostics }: ResourceViewProps) => {
     const { rpcClient } = useVisualizerContext();
     const model = resourceModel as APIResource;
-    const data = generateResourceData(model) as EditAPIForm
+    const data = generateResourceData(model) as ResourceType;
     const [isFaultFlow, setFlow] = React.useState<boolean>(false);
     const [isFormOpen, setFormOpen] = React.useState(false);
 
@@ -52,9 +52,9 @@ export const ResourceView = ({ model: resourceModel, documentUri, diagnostics }:
         setFormOpen(true);
     }
 
-    const onSave = (data: EditAPIForm) => {
+    const onSave = (data: ResourceType) => {
         const ranges: Range[] = getResourceDeleteRanges(model, data);
-        onResourceEdit(data, model.range.startTagRange, ranges, documentUri, rpcClient);
+        onResourceEdit(data, model.range, ranges, documentUri, rpcClient);
         setFormOpen(false);
     }
 
@@ -92,9 +92,9 @@ export const ResourceView = ({ model: resourceModel, documentUri, diagnostics }:
                     isFaultFlow={isFaultFlow}
                     isFormOpen={isFormOpen}
                 />
-                <EditResourceForm
+                <ResourceForm
                     isOpen={isFormOpen}
-                    resourceData={data}
+                    formData={data}
                     documentUri={documentUri}
                     onCancel={() => setFormOpen(false)}
                     onSave={onSave}

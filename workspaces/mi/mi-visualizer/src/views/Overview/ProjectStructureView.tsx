@@ -7,13 +7,11 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { ProjectStructureEntry, ProjectStructureResponse, ProjectDirectoryMap, EsbDirectoryMap, EVENT_TYPE, MACHINE_VIEW } from '@wso2-enterprise/mi-core';
-import { Codicon, ComponentCard } from '@wso2-enterprise/ui-toolkit';
+import { EVENT_TYPE, MACHINE_VIEW } from '@wso2-enterprise/mi-core';
+import { Alert, Codicon, ContextMenu } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
-import path from 'path';
-import { VSCodeButton, VSCodeDataGrid, VSCodeDataGridRow, VSCodeDataGridCell } from "@vscode/webview-ui-toolkit/react";
-
+import { Fragment } from 'react';
 
 interface ArtifactType {
     title: string;
@@ -38,7 +36,7 @@ const artifactTypeMap: Record<string, ArtifactType> = {
         command: "MI.project-explorer.add-endpoint",
         view: MACHINE_VIEW.EndPointForm,
         icon: "plug",
-        description: (entry: any) => `Endpoint SubType: ${entry.subType}`,
+        description: (entry: any) => `Type: ${entry.subType}`,
         path: (entry: any) => entry.path,
     },
     sequences: {
@@ -102,25 +100,17 @@ const artifactTypeMap: Record<string, ArtifactType> = {
         command: "MI.project-explorer.add-template",
         view: MACHINE_VIEW.TemplateForm,
         icon: "file-code",
-        description: (entry: any) => `Template SubType: ${entry.subType}`,
+        description: (entry: any) => `Type: ${entry.subType}`,
         path: (entry: any) => entry.path,
     },
     // Add more artifact types as needed
 };
 
-
-
-
-
-const Listing = styled.div({
-    marginTop: "2em"
-})
-
 const ProjectStructureView = (props: { projectStructure: any, workspaceDir: string }) => {
     const { projectStructure } = props;
     const { rpcClient } = useVisualizerContext();
 
-    const handleClick = async (documentUri: string, view: MACHINE_VIEW) => {
+    const goToView = async (documentUri: string, view: MACHINE_VIEW) => {
         const type = view === MACHINE_VIEW.EndPointForm ? 'endpoint' : 'template';
         if (view === MACHINE_VIEW.EndPointForm || view === MACHINE_VIEW.TemplateForm) {
             view = await getView(documentUri);
@@ -128,11 +118,13 @@ const ProjectStructureView = (props: { projectStructure: any, workspaceDir: stri
         rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view, documentUri, customProps: {type: type} }});
     };
 
-    const handlePlusClick = async (key: string, command: string) => {
-        const dir = path.join(props.workspaceDir, 'src', 'main', 'wso2mi', 'artifacts', key);
-        const entry = { info: { path: dir } };
-        await rpcClient.getMiDiagramRpcClient().executeCommand({ commands: [command, entry] });
-    };
+    const goToSource = (filePath: string) => {
+        rpcClient.getMiVisualizerRpcClient().goToSource({ filePath });
+    }
+
+    const deleteArtifact = (path: string) => {
+        rpcClient.getMiDiagramRpcClient().deleteArtifact({ path, enableUndo: true });
+    }
 
     const ifHasEntries = () => {
         const artifacts = projectStructure.directoryMap.src.main.wso2mi.artifacts;
@@ -171,14 +163,14 @@ const ProjectStructureView = (props: { projectStructure: any, workspaceDir: stri
     }
 
     return (
-        <Listing>
+        <Fragment>
             {/* If has entries render content*/}
             {ifHasEntries() &&
                 <>
                     {Object.entries(projectStructure.directoryMap.src.main.wso2mi.artifacts)
                         .filter(([key, value]) => artifactTypeMap.hasOwnProperty(key) && Array.isArray(value) && value.length > 0)
                         .map(([key, value]) => (
-                            <div style={{ marginBottom: '2em' }}>
+                            <div>
                                 <h3>{artifactTypeMap[key].title}</h3>
                                 {Object.entries(value).map(([_, entry]) => (
                                     <Entry
@@ -186,7 +178,10 @@ const ProjectStructureView = (props: { projectStructure: any, workspaceDir: stri
                                         icon={artifactTypeMap[key].icon}
                                         name={entry.name}
                                         description={artifactTypeMap[key].description(entry)}
-                                        onClick={() => { handleClick(artifactTypeMap[key].path(entry), artifactTypeMap[key].view) }}
+                                        onClick={() => goToView(artifactTypeMap[key].path(entry), artifactTypeMap[key].view)}
+                                        goToView={() => goToView(artifactTypeMap[key].path(entry), artifactTypeMap[key].view)}
+                                        goToSource={() => goToSource(artifactTypeMap[key].path(entry))}
+                                        deleteArtifact={() => deleteArtifact(artifactTypeMap[key].path(entry))}
                                     />
                                 ))}
                             </div>
@@ -195,8 +190,14 @@ const ProjectStructureView = (props: { projectStructure: any, workspaceDir: stri
                 </>
             }
             {/* else render message */}
-            {!ifHasEntries() && <div> No entries found </div>}
-        </Listing>
+            {!ifHasEntries() && (
+                <Alert
+                    title="No artifacts were found"
+                    subTitle="Add artifacts to your project to see them here"
+                    variant="primary"
+                />
+            )}
+        </Fragment>
     );
 };
 
@@ -204,22 +205,26 @@ interface EntryProps {
     icon: string; // Changed to string to use codicon names
     name: string;
     description: string;
-    onClick: () => void; // Added onClick callback prop
+    // Context menu action callbacks
+    onClick: () => void;
+    goToView: () => void;
+    goToSource: () => void;
+    deleteArtifact: () => void;
 }
 
 const EntryContainer = styled.div`
     display: flex;
     align-items: center;
     margin-bottom: 10px;
-    cursor: pointer;
     padding: 10px;
+    cursor: pointer;
     background-color: var(--vscode-editorHoverWidget-background);
     &:hover {
         background-color: var(--vscode-list-hoverBackground);
     }
 `;
 
-const Entry: React.FC<EntryProps> = ({ icon, name, description, onClick }) => {
+const Entry: React.FC<EntryProps> = ({ icon, name, description, onClick, goToView, goToSource, deleteArtifact }) => {
     return (
         <EntryContainer onClick={onClick}>
             <div style={{ width: 'auto', display: 'flex', justifyContent: 'center', alignItems: 'center', marginRight: '10px' }}>
@@ -232,7 +237,26 @@ const Entry: React.FC<EntryProps> = ({ icon, name, description, onClick }) => {
                 {description}
             </div>
             <div style={{ marginLeft: 'auto' }}>
-                <Codicon name="more" />
+                <ContextMenu
+                    menuSx={{ transform: "translateX(-50%)" }}
+                    menuItems={[
+                        {
+                            id: "goToView",
+                            label: "View",
+                            onClick: goToView,
+                        },
+                        {
+                            id: "goToSource",
+                            label: "Go to Source",
+                            onClick: goToSource,
+                        },
+                        {
+                            id: "deleteArtifact",
+                            label: "Delete",
+                            onClick: deleteArtifact
+                        }
+                    ]}
+                />
             </div>
         </EntryContainer>
     );

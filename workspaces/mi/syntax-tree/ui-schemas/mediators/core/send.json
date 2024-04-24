@@ -2,7 +2,7 @@
     "name": "send",
     "type":"mediator",
     "title": "Send Mediator",
-    "help": "",
+    "help": "Invokes external service in non-blocking mode.",
     "elements": [
         {
             "type": "attributeGroup",

@@ -52,6 +52,7 @@ import {
     DataSourceTemplate,
     DownloadConnectorRequest,
     DownloadConnectorResponse,
+    DeleteArtifactRequest,
     ESBConfigsResponse,
     EndpointDirectoryResponse,
     EndpointsAndSequencesResponse,
@@ -171,6 +172,7 @@ import {
     createTask,
     createTemplate,
     downloadConnector,
+    deleteArtifact,
     executeCommand,
     getAIResponse,
     getAPIDirectory,
@@ -494,8 +496,8 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
         return this._messenger.sendRequest(getProjectUuid, HOST_EXTENSION);
     }
 
-    initUndoRedoManager(params: UndoRedoParams): void {
-        return this._messenger.sendNotification(initUndoRedoManager, HOST_EXTENSION, params);
+    initUndoRedoManager(params: UndoRedoParams): Promise<void> {
+        return this._messenger.sendRequest(initUndoRedoManager, HOST_EXTENSION, params);
     }
 
     undo(params: UndoRedoParams): void {
@@ -605,5 +607,9 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
     getAllArtifacts(params: GetAllArtifactsRequest): Promise<GetAllArtifactsResponse> {
         return this._messenger.sendRequest(getAllArtifacts, HOST_EXTENSION, params);
 
+    }
+
+    deleteArtifact(params: DeleteArtifactRequest): Promise<void> {
+        return this._messenger.sendRequest(deleteArtifact, HOST_EXTENSION, params);
     }
 }
