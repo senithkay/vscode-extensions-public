@@ -26,7 +26,7 @@ import { ObjectOutputFieldWidget } from "../ObjectOutput/ObjectOutputFieldWidget
 import { ValueConfigMenu, ValueConfigOption } from "../commons/DataManipulationWidget/ValueConfigButton";
 import { ValueConfigMenuItem } from "../commons/DataManipulationWidget/ValueConfigButton/ValueConfigMenuItem";
 import { getDiagnostics } from "../../utils/diagnostics-utils";
-import { getDefaultValue, getEditorLineAndColumn, isConnectedViaLink } from "../../utils/common-utils";
+import { getDefaultValue, getEditorLineAndColumn, getTypeName, isConnectedViaLink } from "../../utils/common-utils";
 import { DiagnosticTooltip } from "../../Diagnostic/DiagnosticTooltip";
 import { TreeBody } from "../commons/Tree/Tree";
 import { createSourceForUserInput } from "../../utils/modification-utils";
@@ -67,8 +67,9 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
     const [portState, setPortState] = useState<PortState>(PortState.Unselected);
     const [isAddingElement, setIsAddingElement] = useState(false);
     const collapsedFieldsStore = useDMCollapsedFieldsStore();
-    
-    const {kind: typeName, fieldName} = field.type;
+
+    const typeName = getTypeName(field.type);
+    const fieldName = field.type.fieldName;
     const fieldId = fieldIndex !== undefined
         ? `${parentId}.${fieldIndex}${fieldName ? `.${fieldName}` : ''}`
         : `${parentId}${fieldName ? `.${fieldName}` : ''}`;

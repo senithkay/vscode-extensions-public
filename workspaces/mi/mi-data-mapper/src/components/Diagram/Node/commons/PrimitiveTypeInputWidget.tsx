@@ -15,6 +15,7 @@ import { DataMapperPortWidget, PortState, InputOutputPortModel } from '../../Por
 import { InputSearchHighlight } from './Search';
 import { TreeContainer, TreeHeader } from './Tree/Tree';
 import { useIONodesStyles } from "../../../styles";
+import { getTypeName } from "../../utils/common-utils";
 
 export interface PrimitiveTypeItemWidgetProps {
     id: string; // this will be the root ID used to prepend for UUIDs of nested fields
@@ -31,7 +32,7 @@ export function PrimitiveTypeInputWidget(props: PrimitiveTypeItemWidgetProps) {
     const [ portState, setPortState ] = useState<PortState>(PortState.Unselected);
     const classes = useIONodesStyles();
 
-    const typeName = dmType.kind;
+    const typeName = getTypeName(dmType);
     const portOut = getPort(`${id}.OUT`);
 
     const handlePortState = (state: PortState) => {

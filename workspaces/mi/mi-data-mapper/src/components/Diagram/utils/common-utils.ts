@@ -239,6 +239,19 @@ export function getFieldNames(expr: PropertyAccessExpression) {
     return processedFieldNames;
 }
 
+export function getTypeName(field: DMType): string {
+	if (!field) {
+		return '';
+	}
+
+	let typeName = field?.typeName || field.kind;
+
+    if (field.kind === TypeKind.Array && field?.memberType) {
+		typeName = `${getTypeName(field.memberType)}[]`;
+	}
+
+	return typeName;
+}
 
 export const getOptionalField = (field: DMType): DMType | undefined => {
     if (field.typeName === TypeKind.Interface && field.optional) {

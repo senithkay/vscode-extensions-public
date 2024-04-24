@@ -18,7 +18,7 @@ import { DataMapperNodeModel } from "../commons/DataMapperNode";
 import { getFilteredMappings, getSearchFilteredOutput, hasNoOutputMatchFound } from "../../utils/search-utils";
 import { enrichAndProcessType } from "../../utils/type-utils";
 import { OBJECT_OUTPUT_TARGET_PORT_PREFIX } from "../../utils/constants";
-import { findInputNode, getInputPort, getOutputPort } from "../../utils/common-utils";
+import { findInputNode, getInputPort, getOutputPort, getTypeName } from "../../utils/common-utils";
 import { InputOutputPortModel } from "../../Port";
 import { DataMapperLinkModel } from "../../Link";
 import { ExpressionLabelModel } from "../../Label";
@@ -60,7 +60,7 @@ export class ObjectOutputNode extends DataMapperNodeModel {
             const collapsedFields = useDMCollapsedFieldsStore.getState().collapsedFields;
             const [valueEnrichedType, type] = enrichAndProcessType(this.dmType, this.value && this.value.getExpression());
             this.dmType = type;
-            this.typeName = valueEnrichedType.type.typeName;
+            this.typeName = getTypeName(valueEnrichedType.type);
 
             this.hasNoMatchingFields = hasNoOutputMatchFound(this._originalType, valueEnrichedType);
     

@@ -18,7 +18,7 @@ import { DMTypeWithValue } from "../../Mappings/DMTypeWithValue";
 import { MappingMetadata } from "../../Mappings/FieldAccessToSpecificFied";
 import { InputOutputPortModel } from "../../Port";
 import { ARRAY_OUTPUT_TARGET_PORT_PREFIX } from "../../utils/constants";
-import { findInputNode, getInputPort, getOutputPort } from "../../utils/common-utils";
+import { findInputNode, getInputPort, getOutputPort, getTypeName } from "../../utils/common-utils";
 import { getDiagnostics } from "../../utils/diagnostics-utils";
 import { enrichAndProcessType } from "../../utils/type-utils";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
@@ -27,7 +27,7 @@ import { getFilteredMappings, getSearchFilteredOutput, hasNoOutputMatchFound } f
 export const ARRAY_OUTPUT_NODE_TYPE = "data-mapper-node-array-output";
 const NODE_ID = "array-output-node";
 
-export class ListConstructorNode extends DataMapperNodeModel {
+export class ArrayOutputNode extends DataMapperNodeModel {
     public dmType: DMType;
     public dmTypeWithValue: DMTypeWithValue;
     public typeName: string;
@@ -59,7 +59,7 @@ export class ListConstructorNode extends DataMapperNodeModel {
             const collapsedFields = useDMCollapsedFieldsStore.getState().collapsedFields;
             const [valueEnrichedType, type] = enrichAndProcessType(this.dmType, this.value && this.value.getExpression());
             this.dmType = type;
-            this.typeName = !this.typeName ? valueEnrichedType.type.typeName : this.typeName;
+            this.typeName = getTypeName(valueEnrichedType.type);
 
             this.hasNoMatchingFields = hasNoOutputMatchFound(this._originalType, valueEnrichedType);
             this.dmTypeWithValue = valueEnrichedType;

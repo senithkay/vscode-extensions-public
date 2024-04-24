@@ -112,7 +112,7 @@ function getValueNodeAndNextNodeForParentType(
             && val.getName() === originalType?.fieldName
         ) as PropertyAssignment;
 
-        if (parentType.type.typeName === TypeKind.Array) {
+        if (parentType.type.kind === TypeKind.Array) {
             return [node, node];
         } else if (propertyAssignment) {
             return [propertyAssignment, propertyAssignment?.getInitializer()];

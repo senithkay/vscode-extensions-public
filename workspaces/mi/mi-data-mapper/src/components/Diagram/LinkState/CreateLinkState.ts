@@ -12,7 +12,7 @@ import { Action, ActionEvent, InputType, State } from '@projectstorm/react-canva
 import { DiagramEngine, LinkModel, PortModel } from '@projectstorm/react-diagrams-core';
 
 import { ExpressionLabelModel } from "../Label";
-import { ObjectOutputNode, InputNode, LinkConnectorNode } from '../Node';
+import { ObjectOutputNode, InputNode, LinkConnectorNode, ArrayOutputNode } from '../Node';
 import { InputOutputPortModel } from '../Port/model/InputOutputPortModel';
 import { IntermediatePortModel } from '../Port/IntermediatePort';
 
@@ -33,7 +33,7 @@ export class CreateLinkState extends State<DiagramEngine> {
 					let element = this.engine.getActionEventBus().getModelForEvent(actionEvent);
 
 					if (!(element instanceof PortModel)) {
-						if (element instanceof ObjectOutputNode) {
+						if (element instanceof ArrayOutputNode || element instanceof ObjectOutputNode) {
 							const recordFieldElement = (event.target as Element).closest('div[id^="recordfield"]')
 							if (recordFieldElement) {
 								const fieldId = (recordFieldElement.id.split("-"))[1] + ".IN";

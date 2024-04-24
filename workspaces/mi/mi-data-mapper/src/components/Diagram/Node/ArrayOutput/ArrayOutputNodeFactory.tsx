@@ -17,14 +17,14 @@ import { ARRAY_OUTPUT_TARGET_PORT_PREFIX } from '../../utils/constants';
 import { ArrayTypeOutputWidget } from "./ArrayOutputWidget";
 import { OutputSearchNoResultFound, SearchNoResultFoundKind } from "../commons/Search";
 
-import { ListConstructorNode, ARRAY_OUTPUT_NODE_TYPE } from './ArrayOutputNode';
+import { ArrayOutputNode, ARRAY_OUTPUT_NODE_TYPE } from './ArrayOutputNode';
 
-export class ArrayOutputNodeFactory extends AbstractReactFactory<ListConstructorNode, DiagramEngine> {
+export class ArrayOutputNodeFactory extends AbstractReactFactory<ArrayOutputNode, DiagramEngine> {
 	constructor() {
 		super(ARRAY_OUTPUT_NODE_TYPE);
 	}
 
-	generateReactWidget(event: { model: ListConstructorNode; }): JSX.Element {
+	generateReactWidget(event: { model: ArrayOutputNode; }): JSX.Element {
 		return (
 			<>
 				{event.model.hasNoMatchingFields ? (
