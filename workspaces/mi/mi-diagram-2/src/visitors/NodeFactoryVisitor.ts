@@ -716,7 +716,6 @@ export class NodeFactoryVisitor implements Visitor {
     }
 
     endVisitBean(node: Bean): void {
-        this.parents.pop();
         this.skipChildrenVisit = false;
     }
 
@@ -735,7 +734,6 @@ export class NodeFactoryVisitor implements Visitor {
     }
 
     endVisitPojoCommand(node: PojoCommand): void {
-        this.parents.pop();
         this.skipChildrenVisit = false;
     }
 
@@ -745,7 +743,6 @@ export class NodeFactoryVisitor implements Visitor {
     }
 
     endVisitEjb(node: Ejb): void {
-        this.parents.pop();
         this.skipChildrenVisit = false;
     }
 
@@ -755,7 +752,6 @@ export class NodeFactoryVisitor implements Visitor {
     }
 
     endVisitScript(node: Script): void {
-        this.parents.pop();
         this.skipChildrenVisit = false;
     }
 
@@ -765,7 +761,6 @@ export class NodeFactoryVisitor implements Visitor {
     }
 
     endVisitSpring(node: Spring): void {
-        this.parents.pop();
         this.skipChildrenVisit = false;
     }
 
@@ -776,7 +771,6 @@ export class NodeFactoryVisitor implements Visitor {
     }
 
     endVisitBam(node: Bam): void {
-        this.parents.pop();
         this.skipChildrenVisit = false;
     }
 
@@ -786,7 +780,6 @@ export class NodeFactoryVisitor implements Visitor {
     }
 
     endVisitOauthService(node: OauthService): void {
-        this.parents.pop();
         this.skipChildrenVisit = false;
     }
 
@@ -796,7 +789,6 @@ export class NodeFactoryVisitor implements Visitor {
     }
 
     endVisitBuilder(node: Builder): void {
-        this.parents.pop();
         this.skipChildrenVisit = false;
     }
 
@@ -806,7 +798,6 @@ export class NodeFactoryVisitor implements Visitor {
     }
 
     endVisitPublishEvent(node: PublishEvent): void {
-        this.parents.pop();
         this.skipChildrenVisit = false;
     }
 
@@ -833,7 +824,6 @@ export class NodeFactoryVisitor implements Visitor {
     }
 
     endVisitRule(node: Rule): void {
-        this.parents.pop();
         this.skipChildrenVisit = false;
     }
 
@@ -843,7 +833,6 @@ export class NodeFactoryVisitor implements Visitor {
     }
 
     endVisitNtlm(node: Ntlm): void {
-        this.parents.pop();
         this.skipChildrenVisit = false;
     }
 
@@ -854,7 +843,6 @@ export class NodeFactoryVisitor implements Visitor {
     }
 
     endVisitDatamapper(node: Datamapper): void {
-        this.parents.pop();
         this.skipChildrenVisit = false;
     }
 
@@ -873,7 +861,6 @@ export class NodeFactoryVisitor implements Visitor {
     }
 
     endVisitFastXSLT(node: FastXSLT): void {
-        this.parents.pop();
         this.skipChildrenVisit = false;
     }
 
@@ -883,7 +870,6 @@ export class NodeFactoryVisitor implements Visitor {
     }
 
     endVisitMakefault(node: Makefault): void {
-        this.parents.pop();
         this.skipChildrenVisit = false;
     }
 
@@ -893,7 +879,6 @@ export class NodeFactoryVisitor implements Visitor {
     }
 
     endVisitJsontransform(node: Jsontransform): void {
-        this.parents.pop();
         this.skipChildrenVisit = false;
     }
 
@@ -903,7 +888,6 @@ export class NodeFactoryVisitor implements Visitor {
     }
 
     endVisitSmooks(node: Smooks): void {
-        this.parents.pop();
         this.skipChildrenVisit = false;
     }
 
@@ -913,7 +897,6 @@ export class NodeFactoryVisitor implements Visitor {
     }
 
     endVisitXquery(node: Xquery): void {
-        this.parents.pop();
         this.skipChildrenVisit = false;
     }
 
@@ -923,7 +906,6 @@ export class NodeFactoryVisitor implements Visitor {
     }
 
     endVisitXslt(node: Xslt): void {
-        this.parents.pop();
         this.skipChildrenVisit = false;
     }
 

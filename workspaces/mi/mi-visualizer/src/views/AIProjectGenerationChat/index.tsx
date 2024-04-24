@@ -147,7 +147,7 @@ export function AIProjectGenerationChat() {
                         { role: "User", content: machineView.initialPrompt, type: "initial_prompt" },
                     ]);
                     addChatEntry("user", machineView.initialPrompt);
-                    handleSend(false);
+                    handleSend(false, true);
                     rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.clearAIPrompt"] });
                 } else {
                     if (storedChatArray) {
@@ -255,7 +255,7 @@ export function AIProjectGenerationChat() {
 
     async function generateSuggestions() {
         try {
-            setIsLoading(true);
+            // setIsLoading(true);
             setIsSuggestionLoading(true); // Set loading state to true at the start
             const url = backendRootUri + MI_SUGGESTIVE_QUESTIONS_BACKEND_URL;
             var context: GetWorkspaceContextResponse[] = [];
@@ -309,15 +309,15 @@ export function AIProjectGenerationChat() {
         }
     }
 
-    async function handleSend(isQuestion: boolean = false) {
+    async function handleSend(isQuestion: boolean = false, isInitialPrompt: boolean = false) {
         console.log(chatArray);
         var context: GetWorkspaceContextResponse[] = [];
         setMessages(prevMessages => prevMessages.filter((message, index) => message.type !== 'label'));
         setMessages(prevMessages => prevMessages.filter((message, index) => message.type !== 'question'));
 
-        setIsLoading(true);
+        // setIsLoading(true);
         let assistant_response = "";
-        if (!isQuestion) {
+        if (!isQuestion && !isInitialPrompt) {
             addChatEntry("user", userInput);
         }
         setUserInput("");
@@ -540,7 +540,7 @@ export function AIProjectGenerationChat() {
                 { role: "User", content: questionText, type: "user_message" },
             ]);
 
-            handleSend(true);
+            handleSend(true,false);
         }
     }
 
@@ -566,7 +566,7 @@ export function AIProjectGenerationChat() {
 
     const handleTextKeydown = (event: any) => {
         if (event.key === "Enter" && userInput !== "") {
-            handleSend(false);
+            handleSend(false,false);
             setUserInput("");
         }
     };
@@ -672,12 +672,13 @@ export function AIProjectGenerationChat() {
                         placeholder="Type a command to test"
                         innerHTML="true"
                         style={{ width: "calc(100% - 35px)" }}
+                        // disabled = {isLoading}
                     >
                     </VSCodeTextField>
                     <VSCodeButton
                         appearance="secondary"
-                        onClick={() => handleSend(false)}
-                        disabled={isLoading}
+                        onClick={() => handleSend(false,false)}
+                        // disabled={isLoading}
                         style={{ width: "35px" }}>
                         <span className="codicon codicon-send"></span>
                     </VSCodeButton>
