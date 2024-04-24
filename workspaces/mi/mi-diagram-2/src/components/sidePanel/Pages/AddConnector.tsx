@@ -123,7 +123,7 @@ const AddConnector = (props: AddConnectorProps) => {
                 });
 
                 const filteredConnections = connectorData.connections.filter(
-                    connection => allowedTypes.includes(connection.connectionType));
+                    connection => allowedTypes?.includes(connection.connectionType));
                 const connectorNames = filteredConnections.map(connector => connector.name);
 
                 setConnections(connectorNames);
@@ -191,7 +191,7 @@ const AddConnector = (props: AddConnectorProps) => {
                 sidePanelContext.formValues.operationName;
 
             const root = template.ele(`${connectorName}${operationName ? `.${operationName}` : ''}`)
-                .att('configKey', formValues['configKey']);
+                .att('configKey', formValues['configRef']);
 
             // Fill the values
             Object.keys(formValues).forEach((key) => {
@@ -299,9 +299,9 @@ const AddConnector = (props: AddConnectorProps) => {
                     </div>
                     <AutoComplete
                         items={connections}
-                        value={formValues['configKey'] ?? connections[0]}
+                        value={formValues[element.name]}
                         onValueChange={(e: any) => {
-                            setFormValues({ ...formValues, ['configKey']: e });
+                            setFormValues({ ...formValues, [element.name]: e });
                             formValidators[element.name](e);
                         }}
                         sx={{ color: 'var(--vscode-editor-foreground)', width: '100%', marginBottom: "10px" }} />
