@@ -47,11 +47,18 @@ export function getCalloutXml(data: { [key: string]: any }) {
   const envelopePayload = data.payloadType === "ENVELOPE";
   const xpathTarget = data.resultType === "XPATH";
   const propertyTarget = data.resultType === "PROPERTY";
-  const targetMessageXPath = data.resultMessageXPath;
+  // const targetMessageXPath = data.resultMessageXPath;
   const targetProperty = data.resultContextProperty;
   const securityEnabled = data.securityType === "TRUE";
   const configurationEnabled = data.pathToAxis2Repository ?? data.pathToAxis2Xml !== null;
   const policies = data.policies === "TRUE";
+
+  if (xpathPayload) {
+    data.payloadMessageXPath = data.payloadMessageXPath?.value;
+  }
+  if (xpathTarget) {
+    data.targetMessageXPath = data.resultMessageXPath?.value;
+  }
   const modifiedData = {
     ...data,
     xpathPayload: xpathPayload,
@@ -61,7 +68,6 @@ export function getCalloutXml(data: { [key: string]: any }) {
     propertyTarget: propertyTarget,
     securityEnabled: securityEnabled,
     configurationEnabled: configurationEnabled,
-    targetMessageXPath: targetMessageXPath,
     targetProperty: targetProperty,
     policies: policies,
   }
@@ -92,7 +98,7 @@ export function getCalloutFormDataFromSTNode(data: { [key: string]: any }, node:
         data.payloadProperty = sourceOrTargetOrConfiguration.source.key;
       } else if (sourceOrTargetOrConfiguration.source.xpath) {
         data.payloadType = "XPATH";
-        data.payloadMessageXPath = sourceOrTargetOrConfiguration.source.xpath;
+        data.payloadMessageXPath = { isExpression: true, value: sourceOrTargetOrConfiguration.source.xpath };
       } else {
         data.payloadType = "ENVELOPE";
       }
@@ -103,7 +109,7 @@ export function getCalloutFormDataFromSTNode(data: { [key: string]: any }, node:
         data.resultContextProperty = sourceOrTargetOrConfiguration.target.key;
       } else if (sourceOrTargetOrConfiguration.target.xpath) {
         data.resultType = "XPATH";
-        data.resultContextProperty = sourceOrTargetOrConfiguration.target.key;
+        data.resultMessageXPath = { isExpression: true, value: sourceOrTargetOrConfiguration.target.key };
       }
     }
     data.securityType = "FALSE";

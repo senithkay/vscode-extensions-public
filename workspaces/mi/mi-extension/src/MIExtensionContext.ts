@@ -13,6 +13,8 @@ import { ExtensionContext } from "vscode";
 export class MIExtensionContext {
     public context!: ExtensionContext;
     public webviewReveal!: boolean;
+    public initialPrompt?: string;
+    public preserveActivity!: boolean;
 }
 
 export const extension = new MIExtensionContext();

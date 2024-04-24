@@ -166,28 +166,28 @@ const CARD_WRAPPER_DATA = {
             {
                 title: 'Address Endpoint Template',
                 icon: 'code',
-                description: 'Description',
+                description: 'Specifies a communication URL',
             },
             {
                 title: 'Default Endpoint Template',
                 icon: 'code',
-                description: 'Description',
+                description: 'Adds QoS to the To address',
             },
             {
                 title: 'HTTP Endpoint Template',
                 icon: 'code',
-                description: 'Description',
-            },
-            {
-                title: 'Sequence Template',
-                icon: 'code',
-                description: 'Description',
+                description: 'Defines REST endpoints',
             },
             {
                 title: 'WSDL Endpoint Template',
                 icon: 'code',
-                description: 'Description',
-            }
+                description: 'Connects to WSDL definitions',
+            },
+            {
+                title: 'Sequence Template',
+                icon: 'code',
+                description: 'Sequential processing specification',
+            },
         ]
     },
     LOCAL_ENTRY: {

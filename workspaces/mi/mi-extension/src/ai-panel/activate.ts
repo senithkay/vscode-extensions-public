@@ -12,16 +12,17 @@ import { COMMANDS } from '../constants';
 import { StateMachineAI, openAIWebview } from './aiMachine';
 import { AI_EVENT_TYPE, AI_MACHINE_VIEW, EVENT_TYPE } from '@wso2-enterprise/mi-core';
 import { exchangeAuthCode } from './auth';
+import { extension } from '../MIExtensionContext';
 
 export function activateAiPanel(context: vscode.ExtensionContext) {
     context.subscriptions.push(
         vscode.commands.registerCommand(COMMANDS.OPEN_AI_PANEL, (initialPrompt?: string) => {
-            openAIWebview();
+            openAIWebview(initialPrompt);
         })
     );
     context.subscriptions.push(
         vscode.commands.registerCommand(COMMANDS.CLEAR_AI_PROMPT, () => {
-            StateMachineAI.sendEvent(AI_EVENT_TYPE.CLEAR_PROMPT);
+            extension.initialPrompt = undefined;
         })
     );
 

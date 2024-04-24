@@ -342,18 +342,12 @@ export function EditProxyForm({ proxyData, isOpen, documentUri, onCancel, onSave
     proxyData.parameters?.forEach((param: any, index: number) => {
         paramConfigs.paramValues.push({
             id: index,
-            parameters: [
+            paramValues: [
                 {
-                    id: 0,
                     value: param.name,
-                    label: "Name",
-                    type: "TextField",
                 },
                 {
-                    id: 1,
                     value: param.textNode,
-                    label: "Value",
-                    type: "TextField",    
                 }
             ],
             key: param.name,
@@ -365,12 +359,9 @@ export function EditProxyForm({ proxyData, isOpen, documentUri, onCancel, onSave
     proxyData.policies?.forEach((policy: any, index: number) => {
         policyConfigs.paramValues.push({
             id: index,
-            parameters: [
+            paramValues: [
                 {
-                    id: 0,
                     value: policy.key,
-                    label: "Service Policy",
-                    type: "Dropdown",
                 }
             ],
             key: (index + 1).toString(),
@@ -382,18 +373,12 @@ export function EditProxyForm({ proxyData, isOpen, documentUri, onCancel, onSave
     proxyData.publishWSDL?.resource?.forEach((resource: any, index: number) => {
         resourceConfigs.paramValues.push({
             id: index,
-            parameters: [
+            paramValues: [
                 {
-                    id: 0,
-                    value: resource.location,
-                    label: "Location",
-                    type: "TextField",
+                    value: resource.location
                 },
                 {
-                    id: 1,
                     value: resource.key,
-                    label: "Key",
-                    type: "TextField",    
                 }
             ],
             key: resource.key,

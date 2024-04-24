@@ -2,7 +2,7 @@
     "name": "property",
     "type": "mediator",
     "title": "Property Mediator",
-    "help": "",
+    "help": "Manipulates message properties by setting and/or removing property values, supporting both constant and dynamically generated values through XPath expressions.",
     "elements": [
         {
             "type": "attribute",
@@ -71,7 +71,7 @@
             "value": {
                 "name": "OMValue",
                 "displayName": "OM",
-                "inputType": "textfeild",
+                "inputType": "string",
                 "defaultValue": "",
                 "required": true,
                 "helpTip": "Value",

@@ -53,6 +53,7 @@ import {
     DataSourceTemplate,
     DownloadConnectorRequest,
     DownloadConnectorResponse,
+    DeleteArtifactRequest,
     ESBConfigsResponse,
     EVENT_TYPE,
     EndpointDirectoryResponse,
@@ -155,6 +156,7 @@ import {
     getSTRequest,
     getSTResponse,
     AI_EVENT_TYPE,
+    POPUP_EVENT_TYPE,
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
 import { error } from "console";
@@ -166,7 +168,7 @@ import * as vscode from 'vscode';
 import { Position, Range, Selection, TextEdit, Uri, ViewColumn, WorkspaceEdit, commands, window, workspace } from "vscode";
 import { extension } from '../../MIExtensionContext';
 import { COMMANDS, DEFAULT_PROJECT_VERSION, MI_COPILOT_BACKEND_URL } from "../../constants";
-import { StateMachine, openView } from "../../stateMachine";
+import { StateMachine, navigate, openView } from "../../stateMachine";
 import { UndoRedoManager } from "../../undoRedoManager";
 import { createFolderStructure, getAddressEndpointXmlWrapper, getDefaultEndpointXmlWrapper, getFailoverXmlWrapper, getHttpEndpointXmlWrapper, getInboundEndpointXmlWrapper, getLoadBalanceXmlWrapper, getMessageProcessorXmlWrapper, getMessageStoreXmlWrapper, getProxyServiceXmlWrapper, getRegistryResourceContent, getTaskXmlWrapper, getTemplateEndpointXmlWrapper, getTemplateXmlWrapper, getWsdlEndpointXmlWrapper } from "../../util";
 import { addNewEntryToArtifactXML, changeRootPomPackaging, createMetadataFilesForRegistryCollection, detectMediaType, getAvailableRegistryResources, getMediatypeAndFileExtension, addSynapseDependency } from "../../util/fileOperations";
@@ -179,7 +181,9 @@ import { rootPomXmlContent } from "../../util/templates";
 import { replaceFullContentToFile } from "../../util/workspace";
 import { VisualizerWebview } from "../../visualizer/webview";
 import { StateMachineAI } from '../../ai-panel/aiMachine';
+import fetch from 'node-fetch';
 import path = require("path");
+import { openPopupView } from "../../stateMachinePopup";
 
 const { XMLParser, XMLBuilder } = require("fast-xml-parser");
 
@@ -321,7 +325,15 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
     </api>`;
 
             const filePath = path.join(directory, `${name}.xml`);
-            fs.writeFileSync(filePath, xmlData);
+            const sanitizedXmlData = xmlData.replace(/^\s*[\r\n]/gm, '');
+            fs.writeFileSync(filePath, sanitizedXmlData);
+            await this.rangeFormat({
+                uri: filePath,
+                range: {
+                    start: { line: 0, character: 0 },
+                    end: { line: sanitizedXmlData.split('\n').length + 1, character: 0 }
+                }
+            });
             commands.executeCommand(COMMANDS.REFRESH_COMMAND);
             resolve({ path: filePath });
         });
@@ -449,7 +461,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             const xmlData = getLoadBalanceXmlWrapper(templateParams);
             const sanitizedXmlData = xmlData.replace(/^\s*[\r\n]/gm, '');
             if (params.getContentOnly) {
-                resolve({path: "", content: sanitizedXmlData});
+                resolve({ path: "", content: sanitizedXmlData });
             } else {
                 let filePath: string;
                 if (directory.endsWith('.xml')) {
@@ -463,10 +475,11 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     uri: filePath,
                     range: {
                         start: { line: 0, character: 0 },
-                        end: { line:  sanitizedXmlData.split('\n').length + 1, character: 0 }
+                        end: { line: sanitizedXmlData.split('\n').length + 1, character: 0 }
                     }
                 });
                 commands.executeCommand(COMMANDS.REFRESH_COMMAND);
+                openPopupView(POPUP_EVENT_TYPE.CLOSE_VIEW, { view: null, recentIdentifier: templateParams.name });
                 resolve({ path: filePath, content: "" });
             }
         });
@@ -491,7 +504,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
                 resolve({
                     name,
-                    algorithm: loadbalance.algorithm,
+                    algorithm: loadbalance.algorithm === 'roundRobin' ? 'org.apache.synapse.endpoints.algorithms.RoundRobin' : loadbalance.algorithm,
                     failover: String(loadbalance.failover) ?? 'false',
                     buildMessage: String(loadbalance.buildMessage) ?? 'false',
                     sessionManagement: session?.type ?? 'none',
@@ -522,7 +535,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             const xmlData = getFailoverXmlWrapper(templateParams);
             const sanitizedXmlData = xmlData.replace(/^\s*[\r\n]/gm, '');
             if (params.getContentOnly) {
-                resolve({path: "", content: sanitizedXmlData});
+                resolve({ path: "", content: sanitizedXmlData });
             } else {
                 let filePath: string;
                 if (directory.endsWith('.xml')) {
@@ -536,10 +549,11 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     uri: filePath,
                     range: {
                         start: { line: 0, character: 0 },
-                        end: { line:  sanitizedXmlData.split('\n').length + 1, character: 0 }
+                        end: { line: sanitizedXmlData.split('\n').length + 1, character: 0 }
                     }
                 });
                 commands.executeCommand(COMMANDS.REFRESH_COMMAND);
+                openPopupView(POPUP_EVENT_TYPE.CLOSE_VIEW, { view: null, recentIdentifier: templateParams.name });
                 resolve({ path: filePath, content: "" });
             }
         });
@@ -585,7 +599,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             const xmlData = getRecipientEPXml(templateParams);
             const sanitizedXmlData = xmlData.replace(/^\s*[\r\n]/gm, '');
             if (params.getContentOnly) {
-                resolve({path: "", content: sanitizedXmlData});
+                resolve({ path: "", content: sanitizedXmlData });
             } else {
                 let filePath: string;
                 if (directory.endsWith('.xml')) {
@@ -599,10 +613,11 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     uri: filePath,
                     range: {
                         start: { line: 0, character: 0 },
-                        end: { line:  sanitizedXmlData.split('\n').length + 1, character: 0 }
+                        end: { line: sanitizedXmlData.split('\n').length + 1, character: 0 }
                     }
                 });
                 commands.executeCommand(COMMANDS.REFRESH_COMMAND);
+                openPopupView(POPUP_EVENT_TYPE.CLOSE_VIEW, { view: null, recentIdentifier: templateParams.name });
                 resolve({ path: filePath, content: "" });
             }
         });
@@ -646,7 +661,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             const xmlData = getTemplateEndpointXmlWrapper(templateParams);
             const sanitizedXmlData = xmlData.replace(/^\s*[\r\n]/gm, '');
             if (params.getContentOnly) {
-                resolve({path: "", content: sanitizedXmlData});
+                resolve({ path: "", content: sanitizedXmlData });
             } else {
                 let filePath: string;
                 if (directory.endsWith('.xml')) {
@@ -660,10 +675,11 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     uri: filePath,
                     range: {
                         start: { line: 0, character: 0 },
-                        end: { line:  sanitizedXmlData.split('\n').length + 1, character: 0 }
+                        end: { line: sanitizedXmlData.split('\n').length + 1, character: 0 }
                     }
                 });
                 commands.executeCommand(COMMANDS.REFRESH_COMMAND);
+                openPopupView(POPUP_EVENT_TYPE.CLOSE_VIEW, { view: null, recentIdentifier: templateParams.name });
                 resolve({ path: filePath, content: "" });
             }
         });
@@ -783,6 +799,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             const getTemplateParams = params;
 
             const xmlData = getMessageStoreXmlWrapper(getTemplateParams);
+            const sanitizedXmlData = xmlData.replace(/^\s*[\r\n]/gm, '');
             let filePath = params.directory;
 
             if (filePath.includes('messageStores')) {
@@ -794,7 +811,14 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 filePath = path.join(filePath, `${params.name}.xml`);
             }
 
-            fs.writeFileSync(filePath, xmlData);
+            fs.writeFileSync(filePath, sanitizedXmlData);
+            await this.rangeFormat({
+                uri: filePath,
+                range: {
+                    start: { line: 0, character: 0 },
+                    end: { line: sanitizedXmlData.split('\n').length + 1, character: 0 }
+                }
+            });
             commands.executeCommand(COMMANDS.REFRESH_COMMAND);
             resolve({ path: filePath });
         });
@@ -857,6 +881,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     customParameters: [] as Parameter[],
                     sslVersion: "",
                     failOverMessageStore: "",
+                    namespaces: []
                 };
                 switch (className) {
                     case 'org.apache.synapse.message.store.impl.jms.JmsStore':
@@ -879,6 +904,23 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                         break;
                 }
                 if (jsonData && jsonData.messageStore && jsonData.messageStore.parameter) {
+
+                    const xmlnsValues: { prefix: string, uri: string }[] = [];
+                    if (Array.isArray(jsonData.messageStore.parameter)) {
+                        jsonData.messageStore.parameter.forEach((element) => {
+                            if (element["@_"]['@_name'] === 'store.resequence.id.path') {
+                                for (const key in element["@_"]) {
+                                    if (key.startsWith('@_xmlns')) {
+                                        const [_, prefix, value] = key.split(':');
+                                        const xmlnsValue = element["@_"][key];
+                                        xmlnsValues.push({ prefix, uri: xmlnsValue });
+                                    }
+                                }
+                            }
+                        });
+                    }
+                    response.namespaces = xmlnsValues;
+
                     parameters = Array.isArray(jsonData.messageStore.parameter)
                         ? jsonData.messageStore.parameter.map((param: any) => ({
                             name: param["@_"]['@_name'],
@@ -912,7 +954,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                         'store.jdbc.connection.url': 'url',
                         'store.jdbc.username': 'user',
                         'store.jdbc.password': 'password',
-                        'store.jdbc.ds': 'dataSourceName',
+                        'store.jdbc.dsName': 'dataSourceName',
                         'store.rabbitmq.username': 'userName',
                         'store.rabbitmq.password': 'password',
                         'store.rabbitmq.host.name': 'rabbitMQServerHostName',
@@ -990,16 +1032,28 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
                 let isWso2Mb = false;
                 const params: { [key: string]: string | number | boolean } = {};
-                jsonData.inboundEndpoint.parameters.parameter.map((param: any) => {
-                    if (param["@_name"] === 'rabbitmq.channel.consumer.qos') {
-                        params["rabbitmq.channel.consumer.qos.type"] = param["@_key"] ? 'registry' : 'inline';
-                    }
-                    if (param["@_name"] === 'connectionfactory.TopicConnectionFactory' || param["@_name"] === 'connectionfactory.QueueConnectionFactory') {
-                        params["mb.connection.url"] = param["#text"];
-                        isWso2Mb = true;
-                    }
-                    params[param["@_name"]] = param["#text"] ?? param["@_key"];
-                });
+                if (Array.isArray(jsonData.inboundEndpoint.parameters.parameter)) {
+                    jsonData.inboundEndpoint.parameters.parameter.map((param: any) => {
+                        if (param["@_name"] === 'rabbitmq.channel.consumer.qos') {
+                            params["rabbitmq.channel.consumer.qos.type"] = param["@_key"] ? 'registry' : 'inline';
+                        }
+                        if (param["@_name"] === 'connectionfactory.TopicConnectionFactory' || param["@_name"] === 'connectionfactory.QueueConnectionFactory') {
+                            params["mb.connection.url"] = param["#text"];
+                            isWso2Mb = true;
+                        }
+                        if (jsonData.inboundEndpoint["@_protocol"] === 'kafka' && (param["@_name"] === 'topics' || param["@_name"] === 'topic.filter')) {
+                            params["topics"] = param["@_name"];
+                            params["topic.name"] = param["#text"];
+                        }
+                        params[param["@_name"]] = param["#text"] ?? param["@_key"];
+                    });
+                } else {
+                    params[jsonData.inboundEndpoint.parameters.parameter["@_name"]] = jsonData.inboundEndpoint.parameters.parameter["#text"];
+                }
+
+                if (jsonData.inboundEndpoint["@_class"]) {
+                    params["class"] = jsonData.inboundEndpoint["@_class"];
+                }
 
                 const response: GetInboundEndpointResponse = {
                     name: jsonData.inboundEndpoint["@_name"],
@@ -1185,8 +1239,14 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
     async createTask(params: CreateTaskRequest): Promise<CreateTaskResponse> {
         return new Promise(async (resolve) => {
             const { directory, ...templateParams } = params;
-
-            const xmlData = getTaskXmlWrapper(templateParams);
+            // limit saving default values
+            const tempParams = templateParams.taskProperties.filter((prop: any) =>
+                prop.value !== '' && prop.value !== undefined && prop.value !== false);
+            const mustacheParams = {
+                ...templateParams,
+                taskProperties: tempParams
+            };
+            const xmlData = getTaskXmlWrapper(mustacheParams);
 
             let filePath: string;
 
@@ -1225,7 +1285,8 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     triggerType: 'simple',
                     triggerCount: 1,
                     triggerInterval: 1,
-                    triggerCron: ''
+                    triggerCron: '',
+                    taskProperties: []
                 };
 
                 if (jsonData.task.trigger["@_"]["@_count"] !== undefined) {
@@ -1236,20 +1297,53 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     response.triggerType = 'cron';
                     response.triggerCron = jsonData.task.trigger["@_"]["@_cron"];
                 }
+                if (jsonData.task.property) {
+                    response.taskProperties = Array.isArray(jsonData.task.property) ?
+                        jsonData.task.property.map((prop: any) => ({
+                            key: prop["@_"]["@_name"],
+                            value: prop["@_"]["@_value"],
+                            isLiteral: true
+                        })) :
+                        [{
+                            key: jsonData.task.property["@_"]["@_name"],
+                            value: jsonData.task.property["@_"]["@_value"],
+                            isLiteral: true
+                        }];
+                    const builder = new XMLBuilder(options);
+                    const message = jsonData.task.property.filter((prop: any) => prop["@_"]["@_name"] === "message");
+                    if (message.length > 0) {
+                        response.taskProperties = response.taskProperties.filter(prop => prop.key !== "message");
+                        if (message[0]["@_"]["@_value"] === undefined) {
+                            delete message[0]["@_"];
+                            let xml = builder.build(message[0]);
+                            response.taskProperties.push({
+                                key: "message",
+                                value: xml,
+                                isLiteral: false
+                            });
+                        } else {
+                            response.taskProperties.push({
+                                key: "message",
+                                value: message[0]["@_"]["@_value"],
+                                isLiteral: true
+                            });
+                        }
+                    }
+                    resolve(response);
+                }
 
-                resolve(response);
+                resolve({
+                    name: '',
+                    group: '',
+                    implementation: '',
+                    pinnedServers: '',
+                    triggerType: 'simple',
+                    triggerCount: 1,
+                    triggerInterval: 1,
+                    triggerCron: '',
+                    taskProperties: []
+                });
             }
-
-            resolve({
-                name: '',
-                group: '',
-                implementation: '',
-                pinnedServers: '',
-                triggerType: 'simple',
-                triggerCount: 1,
-                triggerInterval: 1,
-                triggerCron: ''
-            });
         });
     }
 
@@ -1257,11 +1351,11 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         return new Promise(async (resolve) => {
             const {
                 directory, templateName, templateType, address, uriTemplate, httpMethod,
-                wsdlUri, wsdlService, wsdlPort, traceEnabled, statisticsEnabled } = params;
+                wsdlUri, wsdlService, wsdlPort, traceEnabled, statisticsEnabled, parameters } = params;
 
             const getTemplateParams = {
                 templateName, templateType, address, uriTemplate, httpMethod,
-                wsdlUri, wsdlService, wsdlPort, traceEnabled, statisticsEnabled
+                wsdlUri, wsdlService, wsdlPort, traceEnabled, statisticsEnabled, parameters
             };
 
             const xmlData = getTemplateXmlWrapper(getTemplateParams);
@@ -1320,7 +1414,8 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     wsdlService: '',
                     wsdlPort: null,
                     traceEnabled: false,
-                    statisticsEnabled: false
+                    statisticsEnabled: false,
+                    parameters: []
                 };
 
                 if (jsonData.template.endpoint?.address) {
@@ -1347,6 +1442,16 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                         response.traceEnabled = jsonData.template.sequence["@_"]["@_trace"] !== undefined;
                         response.statisticsEnabled = jsonData.template.sequence["@_"]["@_statistics"] !== undefined;
                     }
+                    if (jsonData.template.parameter != undefined) {
+                        const params = jsonData.template.parameter;
+                        if (Array.isArray(params)) {
+                            params.forEach((param: any) => {
+                                response.parameters.push(param["@_"]["@_name"]);
+                            });
+                        } else {
+                            response.parameters.push(params["@_"]["@_name"]);
+                        }
+                    }
                 }
 
                 resolve(response);
@@ -1365,11 +1470,11 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 resolve({ path: "", content: sanitizedXmlData });
             } else {
                 const { templateName, endpointName } = getHttpEndpointParams;
+                const fileName = templateName?.length > 0 ? templateName : endpointName;
                 let filePath: string;
                 if (directory.endsWith('.xml')) {
                     filePath = directory;
                 } else {
-                    const fileName = templateName?.length > 0 ? templateName : endpointName;
                     filePath = path.join(directory, `${fileName}.xml`);
                 }
 
@@ -1382,6 +1487,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     }
                 });
                 commands.executeCommand(COMMANDS.REFRESH_COMMAND);
+                openPopupView(POPUP_EVENT_TYPE.CLOSE_VIEW, { view: null, recentIdentifier: fileName });
                 resolve({ path: filePath, content: "" });
             }
         });
@@ -1393,11 +1499,11 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         const templateParams = endpointSyntaxTree.syntaxTree.template != undefined ? endpointSyntaxTree.syntaxTree.template : null;
         const endpointParams = endpointSyntaxTree.syntaxTree.template?.endpoint ?? endpointSyntaxTree.syntaxTree.endpoint;
         const httpParams = endpointParams.http;
-        const endpointOverallParams = httpParams.enableSecAndEnableRMAndEnableAddressing;
-        const authenticationParams = endpointOverallParams.authentication;
-        const suspensionParams = endpointOverallParams.markForSuspension;
-        const failureParams = endpointOverallParams.suspendOnFailure;
-        const timeoutParams = endpointOverallParams.timeout;
+        const endpointOverallParams = httpParams?.enableSecAndEnableRMAndEnableAddressing;
+        const authenticationParams = endpointOverallParams?.authentication;
+        const suspensionParams = endpointOverallParams?.markForSuspension;
+        const failureParams = endpointOverallParams?.suspendOnFailure;
+        const timeoutParams = endpointOverallParams?.timeout;
 
         return new Promise(async (resolve) => {
             const filePath = params.path;
@@ -1405,11 +1511,11 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             if (fs.existsSync(filePath)) {
                 let response: RetrieveHttpEndpointResponse = {
                     endpointName: endpointParams.name,
-                    traceEnabled: httpParams.trace != undefined ? httpParams.trace : 'disable',
-                    statisticsEnabled: httpParams.statistics != undefined ? httpParams.statistics : 'disable',
-                    uriTemplate: httpParams.uriTemplate,
-                    httpMethod: httpParams.method != undefined ? httpParams.method.toUpperCase() : 'leave_as_is',
-                    description: endpointParams.description,
+                    traceEnabled: httpParams?.trace != undefined ? httpParams?.trace : 'disable',
+                    statisticsEnabled: httpParams?.statistics != undefined ? httpParams?.statistics : 'disable',
+                    uriTemplate: httpParams?.uriTemplate,
+                    httpMethod: httpParams?.method != undefined ? httpParams?.method.toUpperCase() : 'leave_as_is',
+                    description: endpointParams?.description,
                     requireProperties: false,
                     properties: [],
                     authType: "",
@@ -1425,24 +1531,24 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     password: "",
                     requireOauthParameters: false,
                     oauthProperties: [],
-                    addressingEnabled: endpointOverallParams.enableAddressing != undefined ? 'enable' : 'disable',
-                    addressingVersion: endpointOverallParams.enableAddressing != undefined ? endpointOverallParams.enableAddressing.version : '',
-                    addressListener: (endpointOverallParams.enableAddressing != undefined && endpointOverallParams.enableAddressing.separateListener) ? 'enable' : 'disable',
-                    securityEnabled: endpointOverallParams.enableSec != undefined ? 'enable' : 'disable',
-                    seperatePolicies: endpointOverallParams.enableSec != undefined ? endpointOverallParams.enableSec.policy !== undefined ? true : false : false,
-                    policyKey: endpointOverallParams.enableSec != undefined ? endpointOverallParams.enableSec.policy ?? '' : '',
-                    inboundPolicyKey: endpointOverallParams.enableSec != undefined ? endpointOverallParams.enableSec.inboundPolicy ?? '' : '',
-                    outboundPolicyKey: endpointOverallParams.enableSec != undefined ? endpointOverallParams.enableSec.outboundPolicy ?? '' : '',
-                    suspendErrorCodes: failureParams.errorCodes != undefined ? failureParams.errorCodes.textNode : '',
-                    initialDuration: failureParams.initialDuration != undefined ? failureParams.initialDuration.textNode : -1,
-                    maximumDuration: failureParams.maximumDuration != undefined ? failureParams.maximumDuration.textNode : Number.MAX_SAFE_INTEGER,
-                    progressionFactor: failureParams.progressionFactor != undefined ? failureParams.progressionFactor.textNode : 1.0,
-                    retryErrorCodes: suspensionParams.errorCodes != undefined ? suspensionParams.errorCodes.textNode : '',
-                    retryCount: suspensionParams.retriesBeforeSuspension != undefined ? suspensionParams.retriesBeforeSuspension.textNode : 0,
-                    retryDelay: suspensionParams.retryDelay != undefined ? suspensionParams.retryDelay.textNode : 0,
-                    timeoutDuration: (timeoutParams != undefined && timeoutParams.content[0] != undefined) ? timeoutParams.content[0].textNode : 0,
-                    timeoutAction: (timeoutParams != undefined && timeoutParams.content[1] != undefined) ? timeoutParams.content[1].textNode : '',
-                    templateName: templateParams != null ? templateParams.name : '',
+                    addressingEnabled: endpointOverallParams?.enableAddressing != undefined ? 'enable' : 'disable',
+                    addressingVersion: endpointOverallParams?.enableAddressing != undefined ? endpointOverallParams?.enableAddressing?.version : '',
+                    addressListener: (endpointOverallParams?.enableAddressing != undefined && endpointOverallParams?.enableAddressing?.separateListener) ? 'enable' : 'disable',
+                    securityEnabled: endpointOverallParams?.enableSec != undefined ? 'enable' : 'disable',
+                    seperatePolicies: endpointOverallParams?.enableSec != undefined ? endpointOverallParams?.enableSec?.policy !== undefined ? false : true : false,
+                    policyKey: endpointOverallParams?.enableSec != undefined ? endpointOverallParams?.enableSec?.policy ?? '' : '',
+                    inboundPolicyKey: endpointOverallParams?.enableSec != undefined ? endpointOverallParams?.enableSec?.inboundPolicy ?? '' : '',
+                    outboundPolicyKey: endpointOverallParams?.enableSec != undefined ? endpointOverallParams?.enableSec?.outboundPolicy ?? '' : '',
+                    suspendErrorCodes: failureParams?.errorCodes != undefined ? failureParams?.errorCodes.textNode : '',
+                    initialDuration: failureParams?.initialDuration != undefined ? failureParams?.initialDuration.textNode : -1,
+                    maximumDuration: failureParams?.maximumDuration != undefined ? failureParams?.maximumDuration.textNode : Number.MAX_SAFE_INTEGER,
+                    progressionFactor: failureParams?.progressionFactor != undefined ? failureParams?.progressionFactor.textNode : 1.0,
+                    retryErrorCodes: suspensionParams?.errorCodes != undefined ? suspensionParams?.errorCodes.textNode : '',
+                    retryCount: suspensionParams?.retriesBeforeSuspension != undefined ? suspensionParams?.retriesBeforeSuspension.textNode : 0,
+                    retryDelay: suspensionParams?.retryDelay != undefined ? suspensionParams?.retryDelay.textNode : 0,
+                    timeoutDuration: (timeoutParams != undefined && timeoutParams?.content[0] != undefined) ? timeoutParams?.content[0].textNode : Number.MAX_SAFE_INTEGER,
+                    timeoutAction: (timeoutParams != undefined && timeoutParams?.content[1] != undefined) ? timeoutParams?.content[1].textNode : '',
+                    templateName: templateParams != null || templateParams != undefined ? templateParams.name : '',
                     requireTemplateParameters: false,
                     templateParameters: []
                 };
@@ -1542,11 +1648,11 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 resolve({ path: "", content: sanitizedXmlData });
             } else {
                 const { templateName, endpointName } = getAddressEndpointParams;
+                const fileName = templateName?.length > 0 ? templateName : endpointName;
                 let filePath: string;
                 if (directory.endsWith('.xml')) {
                     filePath = directory;
                 } else {
-                    const fileName = templateName?.length > 0 ? templateName : endpointName;
                     filePath = path.join(directory, `${fileName}.xml`);
                 }
 
@@ -1559,6 +1665,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     }
                 });
                 commands.executeCommand(COMMANDS.REFRESH_COMMAND);
+                openPopupView(POPUP_EVENT_TYPE.CLOSE_VIEW, { view: null, recentIdentifier: fileName });
                 resolve({ path: filePath, content: "" });
             }
         });
@@ -1570,9 +1677,9 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         const templateParams = endpointSyntaxTree.syntaxTree.template != undefined ? endpointSyntaxTree.syntaxTree.template : null;
         const endpointParams = endpointSyntaxTree.syntaxTree.template?.endpoint ?? endpointSyntaxTree.syntaxTree.endpoint;
         const addressParams = endpointParams.address;
-        const suspensionParams = addressParams.markForSuspension;
-        const failureParams = addressParams.suspendOnFailure;
-        const timeoutParams = addressParams.timeout;
+        const suspensionParams = addressParams?.markForSuspension;
+        const failureParams = addressParams?.suspendOnFailure;
+        const timeoutParams = addressParams?.timeout;
 
         return new Promise(async (resolve) => {
             const filePath = params.path;
@@ -1580,32 +1687,32 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             if (fs.existsSync(filePath)) {
                 let response: RetrieveAddressEndpointResponse = {
                     endpointName: endpointParams.name,
-                    format: addressParams.format != undefined ? addressParams.format.toUpperCase() : 'LEAVE_AS_IS',
-                    traceEnabled: addressParams.trace != undefined ? addressParams.trace : 'disable',
-                    statisticsEnabled: addressParams.statistics != undefined ? addressParams.statistics : 'disable',
-                    uri: addressParams.uri,
-                    optimize: addressParams.optimize != undefined ? addressParams.optimize.toUpperCase() : 'LEAVE_AS_IS',
-                    description: endpointParams.description,
+                    format: addressParams?.format != undefined ? addressParams?.format.toUpperCase() : 'LEAVE_AS_IS',
+                    traceEnabled: addressParams?.trace != undefined ? addressParams?.trace : 'disable',
+                    statisticsEnabled: addressParams?.statistics != undefined ? addressParams?.statistics : 'disable',
+                    uri: addressParams?.uri,
+                    optimize: addressParams?.optimize != undefined ? addressParams?.optimize.toUpperCase() : 'LEAVE_AS_IS',
+                    description: endpointParams?.description,
                     requireProperties: false,
                     properties: [],
-                    addressingEnabled: addressParams.enableAddressing != undefined ? 'enable' : 'disable',
-                    addressingVersion: addressParams.enableAddressing != undefined ? addressParams.enableAddressing.version : '',
-                    addressListener: (addressParams.enableAddressing != undefined && addressParams.enableAddressing.separateListener) ? 'enable' : 'disable',
-                    securityEnabled: addressParams.enableSec != undefined ? 'enable' : 'disable',
-                    seperatePolicies: addressParams.enableSec != undefined ? addressParams.enableSec.policy !== undefined ? true : false : false,
-                    policyKey: addressParams.enableSec != undefined ? addressParams.enableSec.policy ?? '' : '',
-                    inboundPolicyKey: addressParams.enableSec != undefined ? addressParams.enableSec.inboundPolicy ?? '' : '',
-                    outboundPolicyKey: addressParams.enableSec != undefined ? addressParams.enableSec.outboundPolicy ?? '' : '',
-                    suspendErrorCodes: failureParams.errorCodes != undefined ? failureParams.errorCodes.textNode : '',
-                    initialDuration: failureParams.initialDuration != undefined ? failureParams.initialDuration.textNode : -1,
-                    maximumDuration: failureParams.maximumDuration != undefined ? failureParams.maximumDuration.textNode : Number.MAX_SAFE_INTEGER,
-                    progressionFactor: failureParams.progressionFactor != undefined ? failureParams.progressionFactor.textNode : 1.0,
-                    retryErrorCodes: suspensionParams.errorCodes != undefined ? suspensionParams.errorCodes.textNode : '',
-                    retryCount: suspensionParams.retriesBeforeSuspension != undefined ? suspensionParams.retriesBeforeSuspension.textNode : 0,
-                    retryDelay: suspensionParams.retryDelay != undefined ? suspensionParams.retryDelay.textNode : 0,
-                    timeoutDuration: (timeoutParams != undefined && timeoutParams.content[0] != undefined) ? timeoutParams.content[0].textNode : Number.MAX_SAFE_INTEGER,
-                    timeoutAction: (timeoutParams != undefined && timeoutParams.content[1] != undefined) ? timeoutParams.content[1].textNode : '',
-                    templateName: templateParams != null ? templateParams.name : '',
+                    addressingEnabled: addressParams?.enableAddressing != undefined ? 'enable' : 'disable',
+                    addressingVersion: addressParams?.enableAddressing != undefined ? addressParams?.enableAddressing.version : '',
+                    addressListener: (addressParams?.enableAddressing != undefined && addressParams?.enableAddressing.separateListener) ? 'enable' : 'disable',
+                    securityEnabled: addressParams?.enableSec != undefined ? 'enable' : 'disable',
+                    seperatePolicies: addressParams?.enableSec != undefined ? addressParams?.enableSec.policy !== undefined ? false : true : false,
+                    policyKey: addressParams?.enableSec != undefined ? addressParams?.enableSec.policy ?? '' : '',
+                    inboundPolicyKey: addressParams?.enableSec != undefined ? addressParams?.enableSec.inboundPolicy ?? '' : '',
+                    outboundPolicyKey: addressParams?.enableSec != undefined ? addressParams?.enableSec.outboundPolicy ?? '' : '',
+                    suspendErrorCodes: failureParams?.errorCodes != undefined ? failureParams?.errorCodes.textNode : '',
+                    initialDuration: failureParams?.initialDuration != undefined ? failureParams?.initialDuration.textNode : -1,
+                    maximumDuration: failureParams?.maximumDuration != undefined ? failureParams?.maximumDuration.textNode : Number.MAX_SAFE_INTEGER,
+                    progressionFactor: failureParams?.progressionFactor != undefined ? failureParams?.progressionFactor.textNode : 1.0,
+                    retryErrorCodes: suspensionParams?.errorCodes != undefined ? suspensionParams?.errorCodes.textNode : '',
+                    retryCount: suspensionParams?.retriesBeforeSuspension != undefined ? suspensionParams?.retriesBeforeSuspension.textNode : 0,
+                    retryDelay: suspensionParams?.retryDelay != undefined ? suspensionParams?.retryDelay.textNode : 0,
+                    timeoutDuration: (timeoutParams != undefined && timeoutParams?.content[0] != undefined) ? timeoutParams?.content[0].textNode : Number.MAX_SAFE_INTEGER,
+                    timeoutAction: (timeoutParams != undefined && timeoutParams?.content[1] != undefined) ? timeoutParams?.content[1].textNode : '',
+                    templateName: templateParams != null || templateParams != undefined ? templateParams.name : '',
                     requireTemplateParameters: false,
                     templateParameters: []
                 };
@@ -1651,11 +1758,11 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 resolve({ path: "", content: sanitizedXmlData });
             } else {
                 const { templateName, endpointName } = getWsdlEndpointParams;
+                const fileName = templateName?.length > 0 ? templateName : endpointName;
                 let filePath: string;
                 if (directory.endsWith('.xml')) {
                     filePath = directory;
                 } else {
-                    const fileName = templateName?.length > 0 ? templateName : endpointName;
                     filePath = path.join(directory, `${fileName}.xml`);
                 }
 
@@ -1668,6 +1775,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     }
                 });
                 commands.executeCommand(COMMANDS.REFRESH_COMMAND);
+                openPopupView(POPUP_EVENT_TYPE.CLOSE_VIEW, { view: null, recentIdentifier: fileName });
                 resolve({ path: filePath, content: "" });
             }
         });
@@ -1679,9 +1787,9 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         const templateParams = endpointSyntaxTree.syntaxTree.template != undefined ? endpointSyntaxTree.syntaxTree.template : null;
         const endpointParams = endpointSyntaxTree.syntaxTree.template?.endpoint ?? endpointSyntaxTree.syntaxTree.endpoint;
         const wsdlParams = endpointParams.wsdl;
-        const suspensionParams = wsdlParams.markForSuspension;
-        const failureParams = wsdlParams.suspendOnFailure;
-        const timeoutParams = wsdlParams.timeout;
+        const suspensionParams = wsdlParams?.markForSuspension;
+        const failureParams = wsdlParams?.suspendOnFailure;
+        const timeoutParams = wsdlParams?.timeout;
 
         return new Promise(async (resolve) => {
             const filePath = params.path;
@@ -1689,34 +1797,34 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             if (fs.existsSync(filePath)) {
                 let response: RetrieveWsdlEndpointResponse = {
                     endpointName: endpointParams.name,
-                    format: wsdlParams.format != undefined ? wsdlParams.format.toUpperCase() : 'LEAVE_AS_IS',
-                    traceEnabled: wsdlParams.trace != undefined ? wsdlParams.trace : 'disable',
-                    statisticsEnabled: wsdlParams.statistics != undefined ? wsdlParams.statistics : 'disable',
-                    optimize: wsdlParams.optimize != undefined ? wsdlParams.optimize.toUpperCase() : 'LEAVE_AS_IS',
-                    description: endpointParams.description,
-                    wsdlUri: wsdlParams.uri,
-                    wsdlService: wsdlParams.service,
-                    wsdlPort: wsdlParams.port,
+                    format: wsdlParams?.format != undefined ? wsdlParams?.format.toUpperCase() : 'LEAVE_AS_IS',
+                    traceEnabled: wsdlParams?.trace != undefined ? wsdlParams?.trace : 'disable',
+                    statisticsEnabled: wsdlParams?.statistics != undefined ? wsdlParams?.statistics : 'disable',
+                    optimize: wsdlParams?.optimize != undefined ? wsdlParams?.optimize.toUpperCase() : 'LEAVE_AS_IS',
+                    description: endpointParams?.description,
+                    wsdlUri: wsdlParams?.uri,
+                    wsdlService: wsdlParams?.service,
+                    wsdlPort: wsdlParams?.port,
                     requireProperties: false,
                     properties: [],
-                    addressingEnabled: wsdlParams.enableAddressing != undefined ? 'enable' : 'disable',
-                    addressingVersion: wsdlParams.enableAddressing != undefined ? wsdlParams.enableAddressing.version : '',
-                    addressListener: (wsdlParams.enableAddressing != undefined && wsdlParams.enableAddressing.separateListener) ? 'enable' : 'disable',
-                    securityEnabled: wsdlParams.enableSec != undefined ? 'enable' : 'disable',
-                    seperatePolicies: wsdlParams.enableSec != undefined ? wsdlParams.enableSec.policy !== undefined ? true : false : false,
-                    policyKey: wsdlParams.enableSec != undefined ? wsdlParams.enableSec.policy ?? '' : '',
-                    inboundPolicyKey: wsdlParams.enableSec != undefined ? wsdlParams.enableSec.inboundPolicy ?? '' : '',
-                    outboundPolicyKey: wsdlParams.enableSec != undefined ? wsdlParams.enableSec.outboundPolicy ?? '' : '',
-                    suspendErrorCodes: failureParams.errorCodes != undefined ? failureParams.errorCodes.textNode : '',
-                    initialDuration: failureParams.initialDuration != undefined ? failureParams.initialDuration.textNode : -1,
-                    maximumDuration: failureParams.maximumDuration != undefined ? failureParams.maximumDuration.textNode : Number.MAX_SAFE_INTEGER,
-                    progressionFactor: failureParams.progressionFactor != undefined ? failureParams.progressionFactor.textNode : 1.0,
-                    retryErrorCodes: suspensionParams.errorCodes != undefined ? suspensionParams.errorCodes.textNode : '',
-                    retryCount: suspensionParams.retriesBeforeSuspension != undefined ? suspensionParams.retriesBeforeSuspension.textNode : 0,
-                    retryDelay: suspensionParams.retryDelay != undefined ? suspensionParams.retryDelay.textNode : 0,
-                    timeoutDuration: (timeoutParams != undefined && timeoutParams.content[0] != undefined) ? timeoutParams.content[0].textNode : 0,
-                    timeoutAction: (timeoutParams != undefined && timeoutParams.content[1] != undefined) ? timeoutParams.content[1].textNode : '',
-                    templateName: templateParams != null ? templateParams.name : '',
+                    addressingEnabled: wsdlParams?.enableAddressing != undefined ? 'enable' : 'disable',
+                    addressingVersion: wsdlParams?.enableAddressing != undefined ? wsdlParams?.enableAddressing.version : '',
+                    addressListener: (wsdlParams?.enableAddressing != undefined && wsdlParams?.enableAddressing.separateListener) ? 'enable' : 'disable',
+                    securityEnabled: wsdlParams?.enableSec != undefined ? 'enable' : 'disable',
+                    seperatePolicies: wsdlParams?.enableSec != undefined ? wsdlParams?.enableSec.policy !== undefined ? false : true : false,
+                    policyKey: wsdlParams?.enableSec != undefined ? wsdlParams?.enableSec.policy ?? '' : '',
+                    inboundPolicyKey: wsdlParams?.enableSec != undefined ? wsdlParams?.enableSec.inboundPolicy ?? '' : '',
+                    outboundPolicyKey: wsdlParams?.enableSec != undefined ? wsdlParams?.enableSec.outboundPolicy ?? '' : '',
+                    suspendErrorCodes: failureParams?.errorCodes != undefined ? failureParams?.errorCodes.textNode : '',
+                    initialDuration: failureParams?.initialDuration != undefined ? failureParams?.initialDuration.textNode : -1,
+                    maximumDuration: failureParams?.maximumDuration != undefined ? failureParams?.maximumDuration.textNode : Number.MAX_SAFE_INTEGER,
+                    progressionFactor: failureParams?.progressionFactor != undefined ? failureParams?.progressionFactor.textNode : 1.0,
+                    retryErrorCodes: suspensionParams?.errorCodes != undefined ? suspensionParams?.errorCodes.textNode : '',
+                    retryCount: suspensionParams?.retriesBeforeSuspension != undefined ? suspensionParams?.retriesBeforeSuspension.textNode : 0,
+                    retryDelay: suspensionParams?.retryDelay != undefined ? suspensionParams?.retryDelay.textNode : 0,
+                    timeoutDuration: (timeoutParams != undefined && timeoutParams?.content[0] != undefined) ? timeoutParams?.content[0].textNode : Number.MAX_SAFE_INTEGER,
+                    timeoutAction: (timeoutParams != undefined && timeoutParams?.content[1] != undefined) ? timeoutParams?.content[1].textNode : '',
+                    templateName: templateParams != null || templateParams != undefined ? templateParams.name : '',
                     requireTemplateParameters: false,
                     templateParameters: []
                 };
@@ -1761,12 +1869,12 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             if (params.getContentOnly) {
                 resolve({ path: "", content: sanitizedXmlData });
             } else {
+                const { templateName, endpointName } = getDefaultEndpointParams;
+                const fileName = templateName?.length > 0 ? templateName : endpointName;
                 let filePath: string;
                 if (directory.endsWith('.xml')) {
                     filePath = directory;
                 } else {
-                    const { templateName, endpointName } = getDefaultEndpointParams;
-                    const fileName = templateName?.length > 0 ? templateName : endpointName;
                     filePath = path.join(directory, `${fileName}.xml`);
                 }
 
@@ -1779,6 +1887,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     }
                 });
                 commands.executeCommand(COMMANDS.REFRESH_COMMAND);
+                openPopupView(POPUP_EVENT_TYPE.CLOSE_VIEW, { view: null, recentIdentifier: fileName });
                 resolve({ path: filePath, content: "" });
             }
         });
@@ -1790,9 +1899,9 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         const templateParams = endpointSyntaxTree.syntaxTree.template != undefined ? endpointSyntaxTree.syntaxTree.template : null;
         const endpointParams = endpointSyntaxTree.syntaxTree.template?.endpoint ?? endpointSyntaxTree.syntaxTree.endpoint;
         const defaultParams = endpointParams._default;
-        const suspensionParams = defaultParams.markForSuspension;
-        const failureParams = defaultParams.suspendOnFailure;
-        const timeoutParams = defaultParams.timeout;
+        const suspensionParams = defaultParams?.markForSuspension;
+        const failureParams = defaultParams?.suspendOnFailure;
+        const timeoutParams = defaultParams?.timeout;
 
         return new Promise(async (resolve) => {
             const filePath = params.path;
@@ -1800,31 +1909,31 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             if (fs.existsSync(filePath)) {
                 let response: RetrieveDefaultEndpointResponse = {
                     endpointName: endpointParams.name,
-                    format: defaultParams.format != undefined ? defaultParams.format.toUpperCase() : 'LEAVE_AS_IS',
-                    traceEnabled: defaultParams.trace != undefined ? defaultParams.trace : 'disable',
-                    statisticsEnabled: defaultParams.statistics != undefined ? defaultParams.statistics : 'disable',
-                    optimize: defaultParams.optimize != undefined ? defaultParams.optimize.toUpperCase() : 'LEAVE_AS_IS',
-                    description: endpointParams.description,
+                    format: defaultParams?.format != undefined ? defaultParams?.format.toUpperCase() : 'LEAVE_AS_IS',
+                    traceEnabled: defaultParams?.trace != undefined ? defaultParams?.trace : 'disable',
+                    statisticsEnabled: defaultParams?.statistics != undefined ? defaultParams?.statistics : 'disable',
+                    optimize: defaultParams?.optimize != undefined ? defaultParams?.optimize.toUpperCase() : 'LEAVE_AS_IS',
+                    description: endpointParams?.description,
                     requireProperties: false,
                     properties: [],
-                    addressingEnabled: defaultParams.enableAddressing != undefined ? 'enable' : 'disable',
-                    addressingVersion: defaultParams.enableAddressing != undefined ? defaultParams.enableAddressing.version : '',
-                    addressListener: (defaultParams.enableAddressing != undefined && defaultParams.enableAddressing.separateListener) ? 'enable' : 'disable',
-                    securityEnabled: defaultParams.enableSec != undefined ? 'enable' : 'disable',
-                    seperatePolicies: defaultParams.enableSec != undefined ? defaultParams.enableSec.policy !== undefined ? true : false : false,
-                    policyKey: defaultParams.enableSec != undefined ? defaultParams.enableSec.policy ?? '' : '',
-                    inboundPolicyKey: defaultParams.enableSec != undefined ? defaultParams.enableSec.inboundPolicy ?? '' : '',
-                    outboundPolicyKey: defaultParams.enableSec != undefined ? defaultParams.enableSec.outboundPolicy ?? '' : '',
-                    suspendErrorCodes: failureParams.errorCodes != undefined ? failureParams.errorCodes.textNode : '',
-                    initialDuration: failureParams.initialDuration != undefined ? failureParams.initialDuration.textNode : -1,
-                    maximumDuration: failureParams.maximumDuration != undefined ? failureParams.maximumDuration.textNode : Number.MAX_SAFE_INTEGER,
-                    progressionFactor: failureParams.progressionFactor != undefined ? failureParams.progressionFactor.textNode : 1.0,
-                    retryErrorCodes: suspensionParams.errorCodes != undefined ? suspensionParams.errorCodes.textNode : '',
-                    retryCount: suspensionParams.retriesBeforeSuspension != undefined ? suspensionParams.retriesBeforeSuspension.textNode : 0,
-                    retryDelay: suspensionParams.retryDelay != undefined ? suspensionParams.retryDelay.textNode : 0,
-                    timeoutDuration: (timeoutParams != undefined && timeoutParams.content[0] != undefined) ? timeoutParams.content[0].textNode : Number.MAX_SAFE_INTEGER,
-                    timeoutAction: (timeoutParams != undefined && timeoutParams.content[1] != undefined) ? timeoutParams.content[1].textNode : '',
-                    templateName: templateParams != null ? templateParams.name : '',
+                    addressingEnabled: defaultParams?.enableAddressing != undefined ? 'enable' : 'disable',
+                    addressingVersion: defaultParams?.enableAddressing != undefined ? defaultParams?.enableAddressing.version : '',
+                    addressListener: (defaultParams?.enableAddressing != undefined && defaultParams?.enableAddressing.separateListener) ? 'enable' : 'disable',
+                    securityEnabled: defaultParams?.enableSec != undefined ? 'enable' : 'disable',
+                    seperatePolicies: defaultParams?.enableSec != undefined ? defaultParams?.enableSec.policy !== undefined ? false : true : false,
+                    policyKey: defaultParams?.enableSec != undefined ? defaultParams?.enableSec.policy ?? '' : '',
+                    inboundPolicyKey: defaultParams?.enableSec != undefined ? defaultParams?.enableSec.inboundPolicy ?? '' : '',
+                    outboundPolicyKey: defaultParams?.enableSec != undefined ? defaultParams?.enableSec.outboundPolicy ?? '' : '',
+                    suspendErrorCodes: failureParams?.errorCodes != undefined ? failureParams?.errorCodes.textNode : '',
+                    initialDuration: failureParams?.initialDuration != undefined ? failureParams?.initialDuration.textNode : -1,
+                    maximumDuration: failureParams?.maximumDuration != undefined ? failureParams?.maximumDuration.textNode : Number.MAX_SAFE_INTEGER,
+                    progressionFactor: failureParams?.progressionFactor != undefined ? failureParams?.progressionFactor.textNode : 1.0,
+                    retryErrorCodes: suspensionParams?.errorCodes != undefined ? suspensionParams?.errorCodes.textNode : '',
+                    retryCount: suspensionParams?.retriesBeforeSuspension != undefined ? suspensionParams?.retriesBeforeSuspension.textNode : 0,
+                    retryDelay: suspensionParams?.retryDelay != undefined ? suspensionParams?.retryDelay.textNode : 0,
+                    timeoutDuration: (timeoutParams != undefined && timeoutParams?.content[0] != undefined) ? timeoutParams?.content[0].textNode : Number.MAX_SAFE_INTEGER,
+                    timeoutAction: (timeoutParams != undefined && timeoutParams?.content[1] != undefined) ? timeoutParams?.content[1].textNode : '',
+                    templateName: templateParams != null || templateParams != undefined ? templateParams.name : '',
                     requireTemplateParameters: false,
                     templateParameters: []
                 };
@@ -2561,14 +2670,14 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         return { formJSON: formJSON };
     }
 
-    async undo(params: UndoRedoParams): Promise<void> {
+    undo(params: UndoRedoParams): void {
         const lastsource = undoRedo.undo();
         if (lastsource) {
             fs.writeFileSync(params.path, lastsource);
         }
     }
 
-    async redo(params: UndoRedoParams): Promise<void> {
+    redo(params: UndoRedoParams): void {
         const lastsource = undoRedo.redo();
         if (lastsource) {
             fs.writeFileSync(params.path, lastsource);
@@ -2965,10 +3074,21 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
     async logoutFromMIAccount(): Promise<void> {
         const confirm = await window.showInformationMessage('Are you sure you want to logout?', 'Yes', 'No');
         if (confirm === 'Yes') {
+            const token = await extension.context.secrets.get('MIAIUser');
+            const clientId = 'rTEgoRFEQMc1baXcsO6_AU1ugjAa';
+
+            await fetch('https://api.asgardeo.io/t/wso2midev/oauth2/revoke', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: `token=${token}&client_id=${clientId}`
+            });
+
             await extension.context.secrets.delete('MIAIUser');
             await extension.context.secrets.delete('MIAIRefreshToken');
             StateMachineAI.sendEvent(AI_EVENT_TYPE.LOGOUT);
-        }else {
+        } else {
             return;
         }
     }
@@ -3007,11 +3127,11 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             endpointList.map((member: any) => {
                 if (isLoadBalanceEp) {
                     if (member.endpoint?.key) {
-                        endpoints.push({type: 'static', value: member.endpoint.key});
+                        endpoints.push({ type: 'static', value: member.endpoint.key });
                     }
                 } else {
                     if (member.key) {
-                        endpoints.push({type: 'static', value: member.key});
+                        endpoints.push({ type: 'static', value: member.key });
                     }
                 }
             });
@@ -3023,9 +3143,34 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
             let match;
             while ((match = endpointRegex.exec(xmlString)) !== null) {
-                endpoints.push({type: 'inline', value: builder.build(parser.parse(match[0])) as string});
+                endpoints.push({ type: 'inline', value: builder.build(parser.parse(match[0])) as string });
             }
             resolve(endpoints);
+        });
+    }
+
+    async deleteArtifact(params: DeleteArtifactRequest): Promise<void> {
+        return new Promise(async (resolve) => {
+            // Initialize undo redo manager with the file content
+            if (params.enableUndo) {
+                await this.initUndoRedoManager({ path: params.path });
+            }
+
+            await workspace.fs.delete(Uri.file(params.path));
+            await vscode.commands.executeCommand(COMMANDS.REFRESH_COMMAND); // Refresh the project explore view
+            navigate();
+
+            if (params.enableUndo) {
+                undoRedo.addModification('');
+                const selection = await vscode.window.showInformationMessage('Do you want to undo the deletion?', 'Undo');
+                if (selection === 'Undo') {
+                    this.undo({ path: params.path });
+                    await vscode.commands.executeCommand(COMMANDS.REFRESH_COMMAND);
+                    navigate();
+                }
+            }
+
+            resolve();
         });
     }
 }

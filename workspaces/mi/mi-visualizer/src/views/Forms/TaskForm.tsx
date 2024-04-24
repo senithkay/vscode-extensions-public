@@ -8,13 +8,17 @@
  */
 
 import { useEffect, useState } from "react";
-import { Button, TextField, RadioButtonGroup, FormView, FormGroup, FormActions } from "@wso2-enterprise/ui-toolkit";
+import { Button, TextField, RadioButtonGroup, FormView, FormGroup, FormActions, Dropdown, CheckBoxGroup, CheckBox, Typography, FormCheckBox } from "@wso2-enterprise/ui-toolkit";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { CreateTaskRequest, EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
 import { yupResolver } from "@hookform/resolvers/yup"
 import * as yup from "yup";
 import { useForm } from "react-hook-form";
-
+import { FormKeylookup } from "@wso2-enterprise/mi-diagram-2";
+import CodeMirror from "@uiw/react-codemirror";
+import { xml } from "@codemirror/lang-xml";
+import { oneDark } from "@codemirror/theme-one-dark";
+import { XMLValidator } from "fast-xml-parser";
 export interface Region {
     label: string;
     value: string;
@@ -33,6 +37,15 @@ type InputsFields = {
     triggerCount?: number;
     triggerInterval?: number;
     triggerCron?: string;
+    format?: string;
+    to?: string;
+    message?: string;
+    soapAction?: string;
+    proxyName?: string;
+    registryKey?: string;
+    sequenceName?: string;
+    invokeHandlers?: boolean;
+    injectTo?: string;
 };
 
 const initialInboundEndpoint: InputsFields = {
@@ -43,7 +56,10 @@ const initialInboundEndpoint: InputsFields = {
     triggerType: "simple",
     triggerCount: 1,
     triggerInterval: 1,
-    triggerCron: ""
+    triggerCron: "",
+    invokeHandlers: false,
+    format: "soap12",
+    injectTo: "main",
 };
 
 export function TaskForm(props: TaskFormProps) {
@@ -56,6 +72,18 @@ export function TaskForm(props: TaskFormProps) {
         : "Edit Scheduled Task : " + props.path.replace(/^.*[\\/]/, '').split(".")[0];
     const [artifactNames, setArtifactNames] = useState([]);
     const [workspaceFileNames, setWorkspaceFileNames] = useState([]);
+    const [messageIsXML, setMessageIsXML] = useState(false);
+    const [xmlErrors, setXmlErrors] = useState({
+        code: "",
+        col: 0,
+        line: 0,
+        msg: ""
+    });
+    const [validationMessage, setValidationMessage] = useState(true);
+    const [message, setMessage] = useState({
+        isError: false,
+        text: ""
+    });
 
     const schema = yup.object({
         name: yup.string().required("Task Name is required")
@@ -85,7 +113,24 @@ export function TaskForm(props: TaskFormProps) {
             is: 'cron',
             then: (schema) => schema.required("Trigger cron is required"),
             otherwise: (schema) => schema.notRequired().default(''),
-        })
+        }),
+        format: yup.mixed().oneOf(["soap11", "soap12", "pox", "get"]).default("soap12"),
+        to: yup.string().matches(/^[a-zA-Z0-9-._~:\/?#\[\]@!\$&'\(\)\*\+,;=]*$/, "Invalid characters in the URL").notRequired(),
+        injectTo: yup.mixed().oneOf(["proxy", "sequence", "main"]).default("main"),
+        proxyName: yup.string().when('injectTo', {
+            is: 'proxy',
+            then: () => yup.string().required('Proxy name is required'),
+            otherwise: () => yup.string().notRequired()
+        }),
+        sequenceName: yup.string().when('injectTo', {
+            is: 'sequence',
+            then: () => yup.string().required('Sequence name is required'),
+            otherwise: () => yup.string().notRequired()
+        }),
+        soapAction: yup.string().notRequired(),
+        message: yup.string().notRequired(),
+        invokeHandlers: yup.boolean().default(false),
+        registryKey: yup.string().notRequired(),
     })
 
     const {
@@ -93,6 +138,9 @@ export function TaskForm(props: TaskFormProps) {
         register,
         formState: { errors, isDirty },
         handleSubmit,
+        getValues,
+        setValue,
+        control,
         watch,
     } = useForm({
         defaultValues: initialInboundEndpoint,
@@ -100,6 +148,7 @@ export function TaskForm(props: TaskFormProps) {
         mode: "onChange"
     });
 
+    useEffect(() => { console.log(errors) }, [errors]);
     useEffect(() => {
         (async () => {
             if (props.path && props.path.endsWith(".xml")) {
@@ -108,6 +157,18 @@ export function TaskForm(props: TaskFormProps) {
                     setIsNewTask(false);
                     reset(taskRes);
                     setSavedTaskName(taskRes.name);
+                    if (taskRes.taskProperties) {
+                        setValue("format", taskRes.taskProperties.find((prop: any) => prop.key === "format")?.value);
+                        setValue("to", taskRes.taskProperties.find((prop: any) => prop.key === "to")?.value);
+                        setValue("message", taskRes.taskProperties.find((prop: any) => prop.key === "message")?.value);
+                        setMessageIsXML(!taskRes.taskProperties.find((prop: any) => prop.key === "message")?.isLiteral);
+                        setValue("soapAction", taskRes.taskProperties.find((prop: any) => prop.key === "soapAction")?.value);
+                        setValue("injectTo", taskRes.taskProperties.find((prop: any) => prop.key === "injectTo")?.value);
+                        setValue("registryKey", taskRes.taskProperties.find((prop: any) => prop.key === "registryKey")?.value);
+                        setValue("invokeHandlers", Boolean(taskRes.taskProperties.find((prop: any) => prop.key === "invokeHandlers")?.value));
+                        setValue("proxyName", taskRes.taskProperties.find((prop: any) => prop.key === "proxyName")?.value);
+                        setValue("sequenceName", taskRes.taskProperties.find((prop: any) => prop.key === "sequenceName")?.value);
+                    }
                 }
             }
         })();
@@ -126,17 +187,23 @@ export function TaskForm(props: TaskFormProps) {
         })();
     }, []);
 
-    const renderProps = (fieldName: keyof InputsFields) => {
-        return {
-            id: fieldName,
-            ...register(fieldName),
-            errorMsg: errors[fieldName] && errors[fieldName].message.toString()
-        }
-    };
-
     const handleCreateTask = async (values: any) => {
+        let taskProperties = [];
+        taskProperties.push({ key: "format", value: values.format, isLiteral: true });
+        taskProperties.push({ key: "to", value: values.to, isLiteral: true });
+        taskProperties.push({ key: "message", value: values.message, isLiteral: !messageIsXML });
+        taskProperties.push({ key: "soapAction", value: values.soapAction, isLiteral: true });
+        taskProperties.push({ key: "injectTo", value: values.injectTo, isLiteral: true });
+        if (values.injectTo === "proxy") {
+            taskProperties.push({ key: "proxyName", value: values.proxyName, isLiteral: true });
+        } else if (values.injectTo === "sequence") {
+            taskProperties.push({ key: "sequenceName", value: values.sequenceName, isLiteral: true });
+        }
+        taskProperties.push({ key: "registryKey", value: values.registryKey, isLiteral: true });
+        taskProperties.push({ key: "invokeHandlers", value: values.invokeHandlers, isLiteral: true });
         const taskRequest: CreateTaskRequest = {
             ...values,
+            taskProperties: taskProperties,
             directory: props.path
         };
         await rpcClient.getMiDiagramRpcClient().createTask(taskRequest);
@@ -147,67 +214,196 @@ export function TaskForm(props: TaskFormProps) {
         rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Overview } });
     };
 
+    const handleXMLInputChange = (text: string) => {
+        setValue("message", text, { shouldDirty: true });
+        setValidationMessage(isValidXML(text));
+    };
+
+    const isValidXML = (xmlString: string) => {
+        const result = XMLValidator.validate(xmlString);
+        if (result !== true) {
+            setXmlErrors({ code: result.err.code, col: result.err.col, line: result.err.line, msg: result.err.msg });
+            return false;
+        }
+        return result;
+    };
+
+    const handleMessage = (text: string, isError: boolean = false) => {
+        setMessage({ isError, text });
+    }
+
+    useEffect(() => {
+        if (messageIsXML && !validationMessage) {
+            handleMessage(`Error ${xmlErrors.code} , ${xmlErrors.msg} in line ${xmlErrors.line}, from ${xmlErrors.col} `, true);
+        } else {
+            handleMessage("", false);
+        }
+    }, [getValues("message"), messageIsXML]);
+
     return (
         <FormView title={formTitle} onClose={openOverview}>
             <TextField
+                id="name"
                 required
                 autoFocus
                 label="Task Name"
                 placeholder="Name"
-                {...renderProps("name")}
+                errorMsg={errors.name?.message}
+                {...register("name")}
             />
             <TextField
+                id="pinnedServers"
                 label="Pinned Servers"
                 placeholder="Servers"
-                {...renderProps("pinnedServers")}
+                errorMsg={errors.pinnedServers?.message}
+                {...register("pinnedServers")}
+            />
+            <Dropdown
+                id="format"
+                label="Format"
+                items={[{ value: "soap12" }, { value: "soap11" }, { value: "pox" }, { value: "get" }]}
+                {...register('format')}
+            />
+            <TextField
+                id="to"
+                description="Endpoint address if the message should be sent to a specific endpoint."
+                label="To"
+                errorMsg={errors.to?.message}
+                {...register("to")}
+            />
+            <Typography variant="body3">Message</Typography>
+            <CheckBox
+                label="message format is XML"
+                value="xml"
+                checked={messageIsXML}
+                onChange={(isChecked: boolean) => setMessageIsXML(isChecked)}
+            />
+            {message && <span style={{ color: message.isError ? "#f48771" : "" }}>{message.text}</span>}
+            <CodeMirror
+                value={getValues("message")}
+                theme={oneDark}
+                extensions={[xml()]}
+                height="200px"
+                autoFocus
+                editable={true}
+                indentWithTab={true}
+                onChange={handleXMLInputChange}
+                options={{
+                    lineNumbers: true,
+                    lint: true,
+                    mode: "xml",
+                    columns: 100,
+                    columnNumbers: true,
+                    lineWrapping: true,
+                }}
+            />
+            <TextField
+                id="soapAction"
+                description="This is the SOAP action to use when sending the message to the endpoint."
+                label="SOAP Action"
+                errorMsg={errors.soapAction?.message}
+                {...register("soapAction")}
+            />
+            <Dropdown
+                id="injectTo"
+                label="Message inject destination"
+                items={[{ value: "main" }, { value: "sequence" }, { value: "proxy" }]}
+                {...register("injectTo")}
+            />
+            {watch("injectTo") === 'proxy' && (<>
+                <FormKeylookup
+                    id="proxyName"
+                    control={control}
+                    label="Proxy service name"
+                    name="proxyName"
+                    filterType="proxyService"
+                    path={props.path}
+                    errorMsg={errors.proxyName?.message}
+                    {...register("proxyName")}
+                />
+            </>)}
+            {watch("injectTo") === 'sequence' && (<>
+                <FormKeylookup
+                    filter={(value: string) => !value.endsWith(".xml")}
+                    id="sequenceName"
+                    control={control}
+                    label="Sequence name"
+                    name="proxyName"
+                    filterType="sequence"
+                    path={props.path}
+                    errorMsg={errors.sequenceName?.message}
+                    {...register("sequenceName")}
+                />
+            </>)}
+            <FormCheckBox
+                control={control}
+                label="Invoke handlers when calling sequence"
+                {...register("invokeHandlers")}
+            />
+            <TextField
+                id="registryKey"
+                label="Registry path for message to inject"
+                errorMsg={errors.registryKey?.message}
+                {...register("registryKey")}
             />
             <FormGroup title="Trigger Information of the Task" isCollapsed={false}>
                 <RadioButtonGroup
+                    id="triggerType"
                     label="Trigger Type"
                     options={[{ content: "Simple", value: "simple" }, { content: "Cron", value: "cron" }]}
-                    {...renderProps("triggerType")}
+                    {...register("triggerType")}
                 />
                 {watch("triggerType") === 'simple' ? (
                     <>
                         <TextField
+                            id="triggerCount"
                             label="Count"
-                            {...renderProps("triggerCount")}
+                            errorMsg={errors.triggerCount?.message}
+                            {...register("triggerCount")}
                         />
                         <TextField
+                            id="triggerInterval"
                             required
                             label="Interval (in seconds)"
-                            {...renderProps("triggerInterval")}
+                            errorMsg={errors.triggerInterval?.message}
+                            {...register("triggerInterval")}
                         />
                     </>
                 ) : (
                     <>
                         <TextField
+                            id="triggerCron"
                             required
                             label="Cron"
-                            {...renderProps("triggerCron")}
+                            errorMsg={errors.triggerCron?.message}
+                            {...register("triggerCron")}
                         />
                     </>
                 )}
             </FormGroup>
             <FormGroup title="Advanced">
                 <TextField
+                    id="group"
                     required
                     label="Task Group"
                     placeholder="Group"
-                    {...renderProps("group")}
+                    errorMsg={errors.group?.message}
+                    {...register("group")}
                 />
                 <TextField
+                    id="implementation"
                     required
                     label="Task Implementation"
                     placeholder="Implementation"
-                    {...renderProps("implementation")}
+                    errorMsg={errors.implementation?.message}
+                    {...register("implementation")}
                 />
             </FormGroup>
             <FormActions>
                 <Button
                     appearance="primary"
                     onClick={handleSubmit(handleCreateTask)}
-                    disabled={(!isDirty && !isNewTask)}
+                    disabled={!isDirty}
                 >
                     {isNewTask ? "Create" : "Save Changes"}
                 </Button>

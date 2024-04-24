@@ -190,7 +190,8 @@ export const StateMachineAI = {
     sendEvent: (eventType: AI_EVENT_TYPE) => { aiStateService.send({ type: eventType }); },
 };
 
-export function openAIWebview() {
+export function openAIWebview(initialPrompt?: string) {
+    extension.initialPrompt = typeof initialPrompt === 'string' ? initialPrompt : undefined;
     if (!AiPanelWebview.currentPanel) {
         AiPanelWebview.currentPanel = new AiPanelWebview();
     } else {

@@ -22,3 +22,60 @@ export interface UpdateFileContentRequest {
     filePath: string;
     fileContent: string;
 }
+
+export interface GenerateDMInputRequest {
+    filePath: string;
+    dmLocation: string;
+    dmName: string;
+}
+
+export interface GenerateDMInputResponse {
+    success: boolean;
+}
+
+export interface BrowseSchemaRequest {
+    defaultUri: string;
+}
+
+export interface BrowseSchemaResponse {
+    filePath: string;
+}
+
+export interface LoadDMConfigsRequest {
+    filePath: string;
+}
+
+export interface LoadDMConfigsResponse {
+    dmConfigs: string[];
+}
+
+export interface ConvertRegPathToAbsPathRequest {
+    regPath: string;
+    sourcePath: string;
+}
+
+export interface ConvertRegPathToAbsPathResponse {
+    absPath: string;
+    configName: string;
+}
+
+export interface ImportDMSchemaRequest {
+    importPath: string;
+    sourcePath: string;
+    resourceName: string;
+    ioType: string;
+    schemaType: string;
+}
+
+export interface ImportDMSchemaResponse {
+    success: boolean;
+}
+
+export interface UpdateDMCRequest {
+    dmName: string;
+    sourcePath: string;
+}
+
+export interface UpdateDMCResponse {
+    success: boolean;
+}

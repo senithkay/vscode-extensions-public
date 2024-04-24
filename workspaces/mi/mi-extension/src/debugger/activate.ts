@@ -12,8 +12,10 @@ import { CancellationToken, DebugConfiguration, ProviderResult, WorkspaceFolder 
 import { MiDebugAdapter } from './debugAdapter';
 import { COMMANDS, SELECTED_SERVER_PATH } from '../constants';
 import { extension } from '../MIExtensionContext';
-import { executeBuildTask, executeTasks, updateServerPathAndGet } from './debugHelper';
+import { executeBuildTask, executeTasks, getServerPath } from './debugHelper';
 import { getBuildTask } from './tasks';
+import { StateMachine, navigate, openView } from '../stateMachine';
+import { EVENT_TYPE } from '@wso2-enterprise/mi-core';
 
 
 class MiConfigurationProvider implements vscode.DebugConfigurationProvider {
@@ -22,7 +24,7 @@ class MiConfigurationProvider implements vscode.DebugConfigurationProvider {
         // if launch.json is missing or empty
         if (!config.type && !config.request && !config.name) {
             config.type = 'mi';
-            config.name = 'MI: Run';
+            config.name = 'MI: Run and Debug';
             config.request = 'launch';
         }
 
@@ -31,19 +33,18 @@ class MiConfigurationProvider implements vscode.DebugConfigurationProvider {
 }
 
 export function activateDebugger(context: vscode.ExtensionContext) {
-
     vscode.commands.registerCommand(COMMANDS.BUILD_AND_RUN_PROJECT, async () => {
-        updateServerPathAndGet().then(async (serverPath) => {
+        getServerPath().then(async (serverPath) => {
             if (!serverPath) {
                 vscode.window.showErrorMessage("Server path not found");
                 return;
             }
-            await executeTasks(serverPath);
+            await executeTasks(serverPath, false);
         });
     });
 
     vscode.commands.registerCommand(COMMANDS.BUILD_PROJECT, async () => {
-        updateServerPathAndGet().then(async (serverPath) => {
+        getServerPath().then(async (serverPath) => {
             if (!serverPath) {
                 vscode.window.showErrorMessage("Server path not found");
                 return;
@@ -102,13 +103,26 @@ export function activateDebugger(context: vscode.ExtensionContext) {
         provideDebugConfigurations(folder: WorkspaceFolder | undefined): ProviderResult<DebugConfiguration[]> {
             return [
                 {
-                    name: "MI: Run",
+                    name: "MI: Run and Debug",
                     request: "launch",
                     type: "mi"
                 }
             ];
         }
     }, vscode.DebugConfigurationProviderTriggerKind.Dynamic));
+
+    // TODO: Check the possibility of using event to get the triggered breakpoint in the diagram
+    // context.subscriptions.push(vscode.debug.onDidReceiveDebugSessionCustomEvent((e) => {
+    //     if(e.event === 'StackTraceUpdated') {
+    //         const stateContext = StateMachine.context();
+    //         openView(EVENT_TYPE.OPEN_VIEW, stateContext);
+    //     }
+    // }));
+
+    // Listener to support reflect breakpoint changes in diagram when debugger is inactive
+    context.subscriptions.push(vscode.debug.onDidChangeBreakpoints((session) => {
+        navigate();
+    }));
 
     const factory = new InlineDebugAdapterFactory();
     context.subscriptions.push(vscode.debug.registerDebugAdapterDescriptorFactory('mi', factory));

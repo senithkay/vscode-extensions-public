@@ -107,11 +107,6 @@ const initialMessageStore: InputsFields = {
     failOverMessageStore: ""
 };
 
-const generateDisplayValue = (paramValues: any) => {
-    const result: string = paramValues.parameters[1].value;
-    return result.trim();
-};
-
 const paramConfigs: ParamConfig = {
     paramValues: [],
     paramFields: [
@@ -131,26 +126,43 @@ const paramConfigs: ParamConfig = {
         }]
 }
 
+const namespaceConfigs: ParamConfig = {
+    paramValues: [],
+    paramFields: [
+        {
+            id: 0,
+            type: "TextField",
+            label: "Prefix",
+            defaultValue: "",
+            isRequired: true
+        },
+        {
+            id: 1,
+            type: "TextField",
+            label: "URI",
+            defaultValue: "",
+            isRequired: true
+        }]
+}
+
 export function MessageStoreWizard(props: MessageStoreWizardProps) {
     const { rpcClient } = useVisualizerContext();
     const [artifactNames, setArtifactNames] = useState([]);
     const [workspaceFileNames, setWorkspaceFileNames] = useState([]);
     const [rows, setRows] = useState<CustomParameter[]>([]);
-    const [isNewStore, setIsNewStore] = useState(true);
+    const isNewStore = !props.path.endsWith(".xml");
     const [preConfiguredProfile, setPreConfiguredProfile] = useState("Other");
     const [rdbmsType, setRdbmsType] = useState("Other");
     const [type, setType] = useState("");
-    const [message, setMessage] = useState({
-        isError: false,
-        text: ""
-    });
     const [params, setParams] = useState(paramConfigs);
+    const [namespaceParams, setNamespaceParams] = useState(namespaceConfigs);
     const [storeName, setStoreName] = useState("");
     const [messageStoreNames, setMessageStoreNames] = useState<string[]>([]);
+    const [paramsUpdated, setParamsUpdated] = useState(false);
 
     const schema = yup.
         object({
-            name: yup.string().required("Message Store name is required").matches(/^[a-zA-Z0-9]*$/, "Invalid characters in message store name")
+            name: yup.string().required("Message Store name is required").matches(/^[a-zA-Z0-9_-]*$/, "Invalid characters in message store name")
                 .test('validateSequenceName',
                     'An artifact with same name already exists', value => {
                         return !(workspaceFileNames.includes(value) && storeName !== value)
@@ -167,7 +179,9 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
             }),
             providerURL: yup.string().required().when('type', {
                 is: "JMS Message Store",
-                then: (schema) => schema.required("Provide URL is required").matches(/^[a-zA-Z0-9-._~:\/?#\[\]@!\$&'\(\)\*\+,;=]*$/, "Invalid characters in Provider URL"),
+                then: (schema) => schema.required("Provide URL is required")
+                    .matches(/^\{.+\}$|^(https?|ftp):\/\/(([a-z\d]([a-z\d-]*[a-z\d])?\.)+[a-z]{2,}|localhost(:[\d]*)?)(\/[-a-z\d%_.~+]*)*(\?[;&a-z\d%_.~+=-]*)?(\#[-a-z\d_]*)?$/i,
+                        "Invalid Provider URL"),
                 otherwise: (schema) => schema.notRequired()
             }),
             providerClass: yup.string().required().when('type', {
@@ -232,7 +246,7 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
     const {
         reset,
         register,
-        formState: { errors, isDirty, isValid },
+        formState: { errors, isDirty },
         handleSubmit,
         getValues,
         watch,
@@ -250,12 +264,26 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                 return {
                     ...param,
                     key: param.parameters[0].value,
-                    value: generateDisplayValue(param),
-                    icon: "query"
+                    value: param.parameters[1].value,
                 }
             })
         };
         setParams(modifiedParams);
+        setParamsUpdated(true);
+    };
+
+    const handleNamespacesChange = (params: any) => {
+        const modifiedParams = {
+            ...params, paramValues: params.paramValues.map((param: any) => {
+                return {
+                    ...param,
+                    key: param.parameters[0].value,
+                    value: param.parameters[1].value,
+                }
+            })
+        };
+        setNamespaceParams(modifiedParams);
+        setParamsUpdated(true);
     };
 
     const setMessageStoreType = (type: string) => {
@@ -277,22 +305,22 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
             switch (rdbmsType) {
                 case "MySQL":
                     setValue("driver", "com.mysql.jdbc.Driver", { shouldValidate: true, shouldDirty: true });
-                    setValue("url", "jdbc:mysql://localhost:3306/test", { shouldValidate: true, shouldDirty: true });
+                    setValue("url", "jdbc:mysql://localhost:3306/<dbName>", { shouldValidate: true, shouldDirty: true });
                     setValue("user", "root", { shouldValidate: true, shouldDirty: true });
                     break;
                 case "Oracle":
                     setValue("driver", "oracle.jdbc.driver.OracleDriver", { shouldValidate: true, shouldDirty: true });
-                    setValue("url", "jdbc:oracle:thin:@localhost:1521:xe", { shouldValidate: true, shouldDirty: true });
-                    setValue("user", "root", { shouldValidate: true, shouldDirty: true });
+                    setValue("url", "jdbc:oracle:thin:@SERVER_NAME:PORT/SID", { shouldValidate: true, shouldDirty: true });
+                    setValue("user", "oracle", { shouldValidate: true, shouldDirty: true });
                     break;
                 case "MS SQL":
                     setValue("driver", "com.microsoft.sqlserver.jdbc.SQLServerDriver", { shouldValidate: true, shouldDirty: true });
-                    setValue("url", "jdbc:sqlserver://localhost:1433;databaseName=test", { shouldValidate: true, shouldDirty: true });
-                    setValue("user", "root", { shouldValidate: true, shouldDirty: true });
+                    setValue("url", "jdbc:sqlserver://<IP>:1433;databaseName=<dbName>;SendStringParametersAsUnicode=false", { shouldValidate: true, shouldDirty: true });
+                    setValue("user", "sa", { shouldValidate: true, shouldDirty: true });
                     break;
                 case "PostgreSQL":
                     setValue("driver", "org.postgresql.Driver", { shouldValidate: true, shouldDirty: true });
-                    setValue("url", "jdbc:postgresql://localhost:5432/test", { shouldValidate: true, shouldDirty: true });
+                    setValue("url", "jdbc:postgresql://localhost:5432/<dbName>", { shouldValidate: true, shouldDirty: true });
                     setValue("user", "root", { shouldValidate: true, shouldDirty: true });
                     break;
                 case "Other":
@@ -342,7 +370,7 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
     }, [storeName]);
 
     useEffect(() => {
-        if (props.path) {
+        if (props.path.endsWith(".xml")) {
             (async () => {
                 const messageStore = await rpcClient.getMiDiagramRpcClient().getMessageStore({ path: props.path });
                 if (messageStore.name) {
@@ -354,6 +382,8 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                         setValue("connectionInformationType", "Pool");
                     }
                     if (messageStore.type === "Custom Message Store") {
+                        paramConfigs.paramValues = [];
+                        setParams(paramConfigs);
                         messageStore.customParameters.map((param: any) => {
                             setParams((prev: any) => {
                                 return {
@@ -380,12 +410,45 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                             });
                         });
                     };
+                    namespaceConfigs.paramValues = [];
+                    setNamespaceParams(namespaceConfigs);
+                    messageStore.namespaces.map((param: any) => {
+                        setNamespaceParams((prev: any) => {
+                            return {
+                                ...prev,
+                                paramValues: [...prev.paramValues, {
+                                    id: prev.paramValues.length,
+                                    parameters: [{
+                                        id: 0,
+                                        value: param.prefix,
+                                        label: "Prefix",
+                                        type: "TextField",
+                                    },
+                                        {
+                                            id: 1,
+                                            value: param.uri,
+                                            label: "URI",
+                                            type: "TextField",
+                                        }],
+                                    key: param.prefix,
+                                    value: param.uri,
+                                }
+                                ]
+                            }
+                        });
+                    });
                     setStoreName(messageStore.name);
-                    setIsNewStore(false);
                     setType(messageStore.type);
                     reset(messageStore);
                 }
             })();
+        } else {
+            reset(initialMessageStore);
+            paramConfigs.paramValues = [];
+            setParams(paramConfigs);
+            namespaceConfigs.paramValues = [];
+            setNamespaceParams(namespaceConfigs);
+            setMessageStoreType("");
         }
     }, [props.path]);
 
@@ -441,7 +504,7 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                 setValue("trustStoreType", "JKS", { shouldValidate: true, shouldDirty: true });
                 setValue("trustStorePassword", "", { shouldValidate: true, shouldDirty: true });
                 setValue("keyStoreLocation", "", { shouldValidate: true, shouldDirty: true });
-                setValue("keyStoreType", "PKC12", { shouldValidate: true, shouldDirty: true });
+                setValue("keyStoreType", "PKCS12", { shouldValidate: true, shouldDirty: true });
                 setValue("keyStorePassword", "", { shouldValidate: true, shouldDirty: true });
                 setValue("sslVersion", "SSL", { shouldValidate: true, shouldDirty: true });
             }
@@ -477,11 +540,18 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
 
     const handleCreateMessageStore = async (values: InputsFields) => {
         if (getValues("type") === "Custom Message Store") {
-            setValue("customParameters", []);
+            let customProperties: any = [];
             params.paramValues.map((param: any) => {
-                setValue("customParameters", [{ name: param.parameters[0].value, value: param.parameters[1].value }]);
-            })
+                customProperties.push({ name: param.parameters[0].value, value: param.parameters[1].value });
+            });
+            setValue("customParameters", customProperties);
         }
+
+        let namespaces: any = [];
+        namespaceParams.paramValues.map((param: any) => {
+            namespaces.push({ prefix: param.parameters[0].value, uri: param.parameters[1].value });
+        });
+
         const createMessageStoreParams: CreateMessageStoreRequest = {
             directory: props.path,
             name: values.name,
@@ -520,8 +590,9 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
             enableProducerGuaranteedDelivery: values.enableProducerGuaranteedDelivery,
             failOverMessageStore: values.failOverMessageStore,
             customParameters: removeDuplicateParameters(),
+            namespaces: namespaces
         };
-        const file = await rpcClient.getMiDiagramRpcClient().createMessageStore(createMessageStoreParams);
+        await rpcClient.getMiDiagramRpcClient().createMessageStore(createMessageStoreParams);
         openOverview();
     };
 
@@ -604,6 +675,7 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                                     placeholder="Password"
                                     label="Password"
                                     size={100}
+                                    type="password"
                                     {...renderProps("password")}
                                 />
                                 <FormCheckBox
@@ -737,6 +809,7 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                                     placeholder="Password"
                                     label="Password"
                                     size={100}
+                                    type="password"
                                     {...renderProps("password")}
                                 />
                                 <TextField
@@ -801,7 +874,7 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                                             placeholder="Password"
                                             label="Password"
                                             size={100}
-                                            required
+                                            type="password"
                                             {...renderProps("password")}
                                         />
                                     </>
@@ -915,7 +988,7 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                                             placeholder="Password"
                                             label="Password"
                                             size={100}
-                                            required
+                                            type="password"
                                             {...renderProps("password")}
                                         />
                                     </>
@@ -945,6 +1018,11 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                                     size={100}
                                     {...renderProps("xPath")}
                                 />
+                                <span>Resequence Path Namespaces</span>
+                                <ParamManager
+                                    paramConfigs={namespaceParams}
+                                    readonly={false}
+                                    onChange={handleNamespacesChange} />
                             </FormGroup>
                         </>
                     )}
@@ -966,7 +1044,6 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
 
                     )}
                     <FormActions>
-                        {message && <span style={{ color: message.isError ? "#f48771" : "" }}>{message.text}</span>}
                         <Button
                             appearance="secondary"
                             onClick={handleCancel}
@@ -978,7 +1055,7 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                             onClick={handleSubmit((values) => {
                                 handleCreateMessageStore(values);
                             })}
-                            disabled={!isDirty}
+                            disabled={!(isDirty || paramsUpdated)}
                         >
                             {isNewStore ? "Create" : "Update"}
                         </Button>

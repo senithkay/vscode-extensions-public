@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import React, { ReactNode, useState } from "react";
+import React, { ReactNode, useEffect, useState } from "react";
 import {
     VSCodeButton,
     VSCodeDataGrid,
@@ -15,9 +15,9 @@ import {
     VSCodeProgressRing,
 } from "@vscode/webview-ui-toolkit/react";
 import styled from "@emotion/styled";
-import { Overlay } from "../Commons/Overlay";
 import { Codicon } from "../Codicon/Codicon";
-import { ClickAwayListener } from "../ClickAwayListener/ClickAwayListener";
+import { createPortal } from "react-dom";
+import { Overlay } from "../Commons/Overlay";
 
 interface Item {
     id: number | string;
@@ -25,6 +25,9 @@ interface Item {
     onClick: () => void;
     disabled?: boolean;
 }
+
+type Position = "top-left" | "top-right" | "bottom-left" | "bottom-right" | "top" | "bottom" | "left" | "right";
+
 export interface ContextMenuProps {
     id?: string;
     className?: string;
@@ -37,18 +40,22 @@ export interface ContextMenuProps {
     sx?: React.CSSProperties;
     iconSx?: React.CSSProperties;
     menuSx?: React.CSSProperties;
+    position?: Position;
 }
 
 interface ContainerProps {
     sx?: any;
+    top?: number;
+    left?: number;
 }
 
 const VSCodeDataGridInlineCell = styled(VSCodeDataGridCell)`
     color: var(--vscode-inputOption-activeForeground);
     text-align: left;
-    width: 220px;
     display: flex;
-    align-items: center;
+    justify-content: flex-start;
+    flex-grow: 1;
+    white-space: nowrap;
     padding: 6px 10px;
     &:hover {
         color: var(--button-primary-foreground);
@@ -56,12 +63,21 @@ const VSCodeDataGridInlineCell = styled(VSCodeDataGridCell)`
     };
 `;
 
+const VSCodeDataGridFlexRow = styled(VSCodeDataGridRow)`
+    display: flex;
+    padding: calc((var(--design-unit) / 4) * 1px) 0;
+    box-sizing: border-box;
+    width: 100%;
+    background: transparent;
+`;
+
 const ExpandedMenu = styled.div<ContainerProps>`
     position: absolute;
-    margin-top: 40px;
-    z-index: 200;
+    z-index: 1001;
     background: var(--vscode-editor-background);
     box-shadow: var(--vscode-widget-shadow) 0px 4px 10px;
+    top: ${(props: ContainerProps) => `${props.top}px`};
+    left: ${(props: ContainerProps) => `${props.left}px`};
     ${(props: ContextMenuProps) => props.sx};
 `;
 
@@ -83,8 +99,54 @@ const Container = styled.div`
 `;
 
 export const ContextMenu: React.FC<ContextMenuProps> = (props: ContextMenuProps) => {
-    const { id, className, isLoading, isOpen, menuId, sx, iconSx, menuSx, menuItems, icon } = props;
+    const { id, className, isLoading, isOpen, menuId, sx, iconSx, menuSx, menuItems, icon, position = "bottom" } = props;
     const [isMenuOpen, setIsMenuOpen] = useState(isOpen);
+    const [expandMenuWidth, setExpandMenuWidth] = useState(0);
+    const [expandMenuHeight, setExpandMenuHeight] = useState(0);
+
+    const iconRef = React.useRef<HTMLDivElement>(null);
+    // X and Y coordinates of the icon middle point
+    const iconMiddlePointX = iconRef.current?.getBoundingClientRect().left + iconRef.current?.getBoundingClientRect().width / 2;
+    const iconMiddlePointY = iconRef.current?.getBoundingClientRect().top + iconRef.current?.getBoundingClientRect().height / 2;
+
+    const expandMenuRef = React.useRef<HTMLDivElement>(null);
+    // Top and Left coordinates of the expanded menu
+    let top = 0;
+    let left = 0;
+    switch (position) {
+        case "top-left":
+            top = iconMiddlePointY - expandMenuHeight;
+            left = iconMiddlePointX - expandMenuWidth;
+            break;
+        case "top-right":
+            top = iconMiddlePointY - expandMenuHeight;
+            left = iconMiddlePointX;
+            break;
+        case "bottom-left":
+            top = iconMiddlePointY;
+            left = iconMiddlePointX - expandMenuWidth;
+            break;
+        case "bottom-right":
+            top = iconMiddlePointY;
+            left = iconMiddlePointX;
+            break;
+        case "top":
+            top = iconMiddlePointY - expandMenuHeight;
+            left = iconMiddlePointX - expandMenuWidth / 2;
+            break;
+        case "bottom":
+            top = iconMiddlePointY;
+            left = iconMiddlePointX - expandMenuWidth / 2;
+            break;
+        case "left":
+            top = iconMiddlePointY - expandMenuHeight / 2;
+            left = iconMiddlePointX - expandMenuWidth;
+            break;
+        case "right":
+            top = iconMiddlePointY - expandMenuHeight / 2;
+            left = iconMiddlePointX;
+            break;
+    }
 
     const handleClick = (event: React.MouseEvent<HTMLElement, MouseEvent>) => {
         event.stopPropagation();
@@ -96,27 +158,35 @@ export const ContextMenu: React.FC<ContextMenuProps> = (props: ContextMenuProps)
         setIsMenuOpen(false);
     };
 
+    useEffect(() => {
+        if (isMenuOpen) {
+            setExpandMenuWidth(expandMenuRef.current?.clientWidth || 0);
+            setExpandMenuHeight(expandMenuRef.current?.clientHeight || 0);
+        }
+    }, [isMenuOpen]);
+
     return (
-        <ClickAwayListener onClickAway={() => setIsMenuOpen(false)}>
+        <>
             <Container id={id} className={className}>
                 {isLoading ? (
                     <SmallProgressRing />
                 ) : (
                     iconSx ? (
-                        <IconWrapper onClick={handleClick} id={`component-list-menu-${menuId ? menuId : "btn"}`}>
+                        <IconWrapper ref={iconRef} onClick={handleClick} id={`component-list-menu-${menuId ? menuId : "btn"}`}>
                             {icon ? icon : <Codicon name="ellipsis" iconSx={iconSx} sx={sx}/>}
                         </IconWrapper>
                     ) : (
-                        <VSCodeButton appearance="icon" onClick={handleClick} title="More Actions" id={`component-list-menu-${menuId ? menuId : "btn"}`}>
+                        <VSCodeButton ref={iconRef} appearance="icon" onClick={handleClick} title="More Actions" id={`component-list-menu-${menuId ? menuId : "btn"}`}>
                             {icon ? icon : <Codicon name="ellipsis"/>}
                         </VSCodeButton>
                     )
                 )}
-                {isMenuOpen && (
-                    <ExpandedMenu sx={menuSx}>
+                {isMenuOpen &&
+                createPortal(
+                    <ExpandedMenu ref={expandMenuRef} sx={menuSx} top={top} left={left}>
                         <VSCodeDataGrid aria-label="Context Menu">
                             {menuItems?.map(item => (
-                                <VSCodeDataGridRow
+                                <VSCodeDataGridFlexRow
                                     key={item.id}
                                     onClick={(event: React.MouseEvent<HTMLElement, MouseEvent>) => {
                                         if (!item?.disabled) {
@@ -134,13 +204,14 @@ export const ContextMenu: React.FC<ContextMenuProps> = (props: ContextMenuProps)
                                     id={`component-list-menu-${item.id}`}
                                 >
                                     <VSCodeDataGridInlineCell>{item.label}</VSCodeDataGridInlineCell>
-                                </VSCodeDataGridRow>
+                                </VSCodeDataGridFlexRow>
                             ))}
                         </VSCodeDataGrid>
-                    </ExpandedMenu>
+                    </ExpandedMenu>,
+                    document.body
                 )}
-                {isMenuOpen && <Overlay onClose={handleMenuClose} />}
             </Container>
-        </ClickAwayListener>
+            {isMenuOpen && <Overlay onClose={handleMenuClose} />}
+        </>
     );
 };

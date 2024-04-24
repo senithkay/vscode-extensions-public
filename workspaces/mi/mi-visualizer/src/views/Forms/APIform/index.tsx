@@ -16,7 +16,7 @@ import { EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
 import { Range } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { getXML } from "../../../utils/template-engine/mustache-templates/templateUtils";
 import { SERVICE } from "../../../constants";
-import Handler from "./Handler";
+import { FormHandler } from "./Handler";
 import { yupResolver } from "@hookform/resolvers/yup"
 import * as yup from "yup";
 import { useForm } from "react-hook-form";
@@ -48,10 +48,11 @@ export interface APIData {
     trace?: boolean;
     statistics?: boolean;
     version?: string;
+    versionType?: "none" | "context" | "url";
     swaggerdefPath?: string;
     apiRange?: Range;
     handlersRange?: Range;
-    handlers?: [];
+    handlers?: any[];
 }
 
 const initialAPI: APIData = {
@@ -62,6 +63,7 @@ const initialAPI: APIData = {
     trace: false,
     statistics: false,
     version: "",
+    versionType: "none",
     swaggerdefPath: "",
     apiRange: undefined,
     handlersRange: undefined,
@@ -77,8 +79,6 @@ type VersionType = "none" | "context" | "url";
 
 export function APIWizard({ apiData, path }: APIWizardProps) {
     const { rpcClient } = useVisualizerContext();
-    const [versionType, setVersionType] = useState("none");
-    const [handlers, setHandlers] = useState([]);
     const [artifactNames, setArtifactNames] = useState([]);
     const [workspaceFileNames, setWorkspaceFileNames] = useState([]);
 
@@ -86,17 +86,30 @@ export function APIWizard({ apiData, path }: APIWizardProps) {
         apiName: yup.string().required("API Name is required").matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in name")
             .test('validateApiName',
                 'An artifact with same name already exists', value => {
-                    return !(workspaceFileNames.includes(value))
+                    return (value === apiData?.apiName) || !(workspaceFileNames.includes(value))
                 }).test('validateArtifactName',
                     'A registry resource with this artifact name already exists', value => {
-                        return !(artifactNames.includes(value))
+                        return (value === apiData?.apiName) || !(artifactNames.includes(value))
                     }),
         apiContext: yup.string().required("API Context is required"),
         hostName: yup.string(),
         port: yup.string(),
         trace: yup.boolean(),
         statistics: yup.boolean(),
-        version: yup.string(),
+        versionType: yup.string().oneOf(["none", "url", "context"]).required(),
+        version: yup.string()
+            .when("versionType", {
+                is: "none",
+                then: schema => schema.transform(() => undefined),
+            })
+            .when("versionType", {
+                is: "context",
+                then: schema => schema.matches(/^(\d+\.\d+\.\d+)$/, "Invalid version format"),
+            })
+            .when("versionType", {
+                is: "url",
+                then: schema => schema.matches(/^https?:\/\/.*/, "Invalid URL format"),
+            }),
         swaggerdefPath: yup.string(),
         apiRange: yup.object(),
         handlersRange: yup.object(),
@@ -106,15 +119,20 @@ export function APIWizard({ apiData, path }: APIWizardProps) {
     const {
         reset,
         register,
-        formState: { errors, isDirty },
+        formState: { errors, isValid, isDirty },
         handleSubmit,
         watch,
         setValue,
         control
     } = useForm({
+        defaultValues: initialAPI,
         resolver: yupResolver(schema),
         mode: "onChange"
     });
+
+    // Watchers
+    const handlers = watch("handlers");
+    const versionType = watch("versionType");
 
     const identifyVersionType = (version: string): VersionType => {
         if (!version) {
@@ -131,11 +149,11 @@ export function APIWizard({ apiData, path }: APIWizardProps) {
             const versionType = identifyVersionType(apiData.version);
 
             reset(apiData);
-            setVersionType(versionType);
-            setHandlers(apiData.handlers ?? []);
-        } else {
-            reset(initialAPI);
+            setValue("versionType", versionType);
+            setValue("handlers", apiData.handlers ?? []);
         }
+
+        return () => reset(initialAPI);
     }, [apiData]);
 
     useEffect(() => {
@@ -165,19 +183,15 @@ export function APIWizard({ apiData, path }: APIWizardProps) {
         }
     };
 
-    const handleVersionTypeChange = (type: string) => {
-        setVersionType(type);
-    };
-
     const addNewHandler = () => {
         if (handlers.length === 0) {
-            setHandlers([{ name: "", properties: [] }]);
+            setValue("handlers", [{ name: "", properties: [] }]);
             return;
         }
 
         const lastHandler = handlers[handlers.length - 1];
         if (lastHandler.name === "" || lastHandler.properties.length === 0) return;
-        setHandlers([...handlers, { name: "", properties: [] }]);
+        setValue("handlers", [...handlers, { name: "", properties: [] }]);
     }
 
     const handleCreateAPI = async (values: any) => {
@@ -190,7 +204,7 @@ export function APIWizard({ apiData, path }: APIWizardProps) {
                 name: values.apiName,
                 context: values.apiContext,
                 swaggerDef: values.swaggerdefPath,
-                type: versionType,
+                type: values.versionType,
                 version: values.version
             }
             const file = await rpcClient.getMiDiagramRpcClient().createAPI(createAPIParams);
@@ -203,8 +217,8 @@ export function APIWizard({ apiData, path }: APIWizardProps) {
                 context: values.apiContext,
                 hostName: values.hostName,
                 version: values.version,
-                type: versionType,
-                version_type: versionType,
+                type: values.versionType,
+                version_type: values.versionType,
                 port: values.port === "0" ? undefined : values.port,
                 trace: values.trace ? "enable" : undefined,
                 statistics: values.statistics ? "enable" : undefined,
@@ -231,7 +245,7 @@ export function APIWizard({ apiData, path }: APIWizardProps) {
     };
 
     const handleSwaggerPathSelection = async () => {
-        const projectDirectory = await rpcClient.getMiDiagramRpcClient().askProjectDirPath();
+        const projectDirectory = await rpcClient.getMiDiagramRpcClient().askFileDirPath();
         setValue("swaggerdefPath", projectDirectory.path);
     }
 
@@ -269,9 +283,8 @@ export function APIWizard({ apiData, path }: APIWizardProps) {
                 <Dropdown
                     id="version-type"
                     label="Version Type"
-                    value={versionType}
                     items={versionLabels}
-                    onValueChange={handleVersionTypeChange}
+                    {...register("versionType")}
                 />
                 {versionType !== "none" && (
                     <TextField
@@ -302,13 +315,14 @@ export function APIWizard({ apiData, path }: APIWizardProps) {
                             Add Handler
                         </Button>
                     </TitleBar>
-                    {handlers.map((handler, index) => (
-                        <Handler
+                    {handlers?.map((handler, index) => (
+                        <FormHandler
                             key={index}
-                            id={index}
+                            handlerId={index}
                             last={handlers.length - 1}
                             handler={handler}
-                            setHandlers={setHandlers}
+                            name="handlers"
+                            control={control}
                         />
                     ))}
                 </FieldGroup>
@@ -324,7 +338,7 @@ export function APIWizard({ apiData, path }: APIWizardProps) {
                 <Button
                     appearance="primary"
                     onClick={handleSubmit(handleCreateAPI)}
-                    disabled={!isDirty}
+                    disabled={!isValid || !isDirty}
                 >
                     {apiData ? "Save changes" : "Create"}
                 </Button>

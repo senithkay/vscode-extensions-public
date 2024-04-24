@@ -62,6 +62,7 @@ export const TextArea = React.forwardRef<HTMLTextAreaElement, TextAreaProps>(
                     resize={resize}
                     id={id}
                     className={className}
+                    style={{ width: "100%" }}
                     {...rest}
                     { ...!props.name ? { value: props.value ? props.value : ""} : {} } // If name is not provided, then value should be empty (for react-hook-form)
                     onChange={handleChange}

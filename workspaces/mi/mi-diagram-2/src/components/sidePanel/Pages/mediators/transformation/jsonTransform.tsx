@@ -6,18 +6,20 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
 */
+// AUTO-GENERATED FILE. DO NOT MODIFY.
 
-
-import React, { useEffect, useState } from 'react';
-import { Button, ComponentCard, ParamConfig, ParamManager, TextField } from '@wso2-enterprise/ui-toolkit';
+import React, { useEffect } from 'react';
+import { Button, ComponentCard, ExpressionFieldValue, ParamManager, ProgressIndicator, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
 import { AddMediatorProps } from '../common';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
 import { MEDIATORS } from '../../../../../resources/constants';
+import { Controller, useForm } from 'react-hook-form';
+import { Keylookup } from '../../../../Form';
 
-const cardStyle = {
+const cardStyle = { 
     display: "block",
     margin: "15px 0",
     padding: "0 15px 15px 15px",
@@ -34,202 +36,167 @@ const Field = styled.div`
    margin-bottom: 12px;
 `;
 
-const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g;
-const nameWithoutSpecialCharactorsRegex = /^[a-zA-Z0-9]+$/g;
-
-const generateDisplayValue = (paramValues: any) => {
-    const result: string = paramValues.parameters[1].value;
-    return result.trim();
-};
-
 const JSONTransformForm = (props: AddMediatorProps) => {
     const { rpcClient } = useVisualizerContext();
     const sidePanelContext = React.useContext(SidePanelContext);
-    const [formValues, setFormValues] = useState({} as { [key: string]: any });
-    const [errors, setErrors] = useState({} as any);
+    const [ isLoading, setIsLoading ] = React.useState(true);
 
-    const paramConfigs: ParamConfig = {
-        paramValues: [],
-        paramFields: [
-            {
-                id: 0,
-                type: "TextField",
-                label: "Property Name",
-                defaultValue: "",
-                isRequired: false
-            },
-            {
-                id: 1,
-                type: "TextField",
-                label: "Property Value",
-                defaultValue: "",
-                isRequired: false
-            },]
-    };
-
-    const [params, setParams] = useState(paramConfigs);
-
-    const handleOnChange = (params: any) => {
-        const modifiedParams = { ...params, paramValues: params.paramValues.map((param: any) => {
-            return {
-                ...param,
-                key: param.parameters[0].value,
-                value: generateDisplayValue(param),
-                icon: "query"
-            }
-        })};
-        setParams(modifiedParams);
-    };
+    const { control, formState: { errors, dirtyFields }, handleSubmit, watch, reset } = useForm();
 
     useEffect(() => {
-        if (sidePanelContext.formValues && Object.keys(sidePanelContext.formValues).length > 0) {
-            setFormValues({ ...formValues, ...sidePanelContext.formValues });
-            if (sidePanelContext.formValues["jsonTransformProperties"] && sidePanelContext.formValues["jsonTransformProperties"].length > 0) {
-                const paramValues = sidePanelContext.formValues["jsonTransformProperties"].map((property: string, index: string) => (
+        reset({
+            schema: sidePanelContext?.formValues?.schema || "",
+            jsonTransformProperties: {
+                paramValues: sidePanelContext?.formValues?.jsonTransformProperties && sidePanelContext?.formValues?.jsonTransformProperties.map((property: string|ExpressionFieldValue[], index: string) => (
                     {
                         id: index,
-                        parameters: [
-                            {
-                                id: 0,
-                                label: "propertyName",
-                                type: "TextField",
-                                value: property[0],
-                                isRequired: false
-                            },
-                            {
-                                id: 1,
-                                label: "propertyValue",
-                                type: "TextField",
-                                value: property[1],
-                                isRequired: false
-                            }
-                        ],
-                        key: property[0],
-                        value: property[1],
-                        icon: "query"
-                    })
-                )
-                setParams({ ...params, paramValues: paramValues });
-            }
-        } else {
-            setFormValues({
-                "jsonTransformProperties": [] as string[][],
-            });
-        }
+                        key: typeof property[0] === 'object' ? property[0].value : property[0],
+                        value: typeof property[1] === 'object' ? property[1].value : property[1],
+                        icon: 'query',
+                        paramValues: [
+                            { value: property[0] },
+                            { value: property[1] },
+                        ]
+                    }
+                )) || [] as string[][],
+                paramFields: [
+                    {
+                        "type": "TextField",
+                        "label": "Property Name",
+                        "defaultValue": "",
+                        "isRequired": false, 
+                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
+                            sidePanelContext.setSidePanelState({
+                                ...sidePanelContext,
+                                expressionEditor: {
+                                    isOpen: true,
+                                    value,
+                                    setValue
+                                }
+                            });
+                        }},
+                    {
+                        "type": "TextField",
+                        "label": "Property Value",
+                        "defaultValue": "",
+                        "isRequired": false, 
+                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
+                            sidePanelContext.setSidePanelState({
+                                ...sidePanelContext,
+                                expressionEditor: {
+                                    isOpen: true,
+                                    value,
+                                    setValue
+                                }
+                            });
+                        }},
+                ]
+            },
+            description: sidePanelContext?.formValues?.description || "",
+        });
+        setIsLoading(false);
     }, [sidePanelContext.formValues]);
 
-    const onClick = async () => {
-        const newErrors = {} as any;
-        Object.keys(formValidators).forEach((key) => {
-            const error = formValidators[key]();
-            if (error) {
-                newErrors[key] = (error);
+    const onClick = async (values: any) => {
+        
+        values["jsonTransformProperties"] = values.jsonTransformProperties.paramValues.map((param: any) => param.paramValues.map((p: any) => p.value));
+        const xml = getXML(MEDIATORS.JSONTRANSFORM, values, dirtyFields, sidePanelContext.formValues);
+        if (Array.isArray(xml)) {
+            for (let i = 0; i < xml.length; i++) {
+                await rpcClient.getMiDiagramRpcClient().applyEdit({
+                    documentUri: props.documentUri, range: xml[i].range, text: xml[i].text
+                });
             }
-        });
-        formValues["jsonTransformProperties"] = params.paramValues.map((param: any) => [param.parameters[0].value, param.parameters[1].value]);
-        if (Object.keys(newErrors).length > 0) {
-            setErrors(newErrors);
         } else {
-            const xml = getXML(MEDIATORS.JSONTRANSFORM, formValues);
             rpcClient.getMiDiagramRpcClient().applyEdit({
                 documentUri: props.documentUri, range: props.nodePosition, text: xml
             });
-            sidePanelContext.setSidePanelState({
-                ...sidePanelContext,
-                isOpen: false,
-                isEditing: false,
-                formValues: undefined,
-                nodeRange: undefined,
-                operationName: undefined
-            });
         }
+        sidePanelContext.setSidePanelState({
+            ...sidePanelContext,
+            isOpen: false,
+            isEditing: false,
+            formValues: undefined,
+            nodeRange: undefined,
+            operationName: undefined
+        });
     };
 
-    const formValidators: { [key: string]: (e?: any) => string | undefined } = {
-        "schema": (e?: any) => validateField("schema", e, false),
-        "description": (e?: any) => validateField("description", e, false),
-
-    };
-
-    const validateField = (id: string, e: any, isRequired: boolean, validation?: "e-mail" | "nameWithoutSpecialCharactors" | "custom", regex?: string): string => {
-        const value = e ?? formValues[id];
-        const newErrors = { ...errors };
-        let error;
-        if (isRequired && !value) {
-            error = "This field is required";
-        } else if (validation === "e-mail" && !value.match(emailRegex)) {
-            error = "Invalid e-mail address";
-        } else if (validation === "nameWithoutSpecialCharactors" && !value.match(nameWithoutSpecialCharactorsRegex)) {
-            error = "Invalid name";
-        } else if (validation === "custom" && !value.match(regex)) {
-            error = "Invalid input";
-        } else {
-            delete newErrors[id];
-            setErrors(newErrors);
-        }
-        setErrors({ ...errors, [id]: error });
-        return error;
-    };
-
+    if (isLoading) {
+        return <ProgressIndicator/>;
+    }
     return (
-        <div style={{ padding: "10px" }}>
-
-            <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                <h3>Properties</h3>
+        <>
+            <Typography sx={{ padding: "10px 15px", borderBottom: "1px solid var(--vscode-editorWidget-border)" }} variant="body3">Controls XML to JSON transformations inside a mediation.</Typography>
+            <div style={{ padding: "20px" }}>
 
                 <Field>
-                    <TextField
-                        label="Schema"
-                        size={50}
-                        placeholder=""
-                        value={formValues["schema"]}
-                        onTextChange={(e: any) => {
-                            setFormValues({ ...formValues, "schema": e });
-                            formValidators["schema"](e);
-                        }}
-                        required={false}
+                    <Controller
+                        name="schema"
+                        control={control}
+                        render={({ field }) => (
+                            <Keylookup
+                                value={field.value}
+                                label="Schema"
+                                allowItemCreate={false}
+                                onValueChange={field.onChange}
+                            />
+                        )}
                     />
-                    {errors["schema"] && <Error>{errors["schema"]}</Error>}
+                    {errors.schema && <Error>{errors.schema.message.toString()}</Error>}
                 </Field>
 
                 <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                    <h3>JSON Transform Properties</h3>
+                    <Typography variant="h3">JSON Transform Properties</Typography>
+                    <Typography variant="body3">Editing of the properties of an object JSON Transform Mediator Property</Typography>
 
-                    {formValues["jsonTransformProperties"] && (
-                        <ParamManager
-                            paramConfigs={params}
-                            readonly={false}
-                            onChange={handleOnChange} />
-                    )}
+                    <Controller
+                        name="jsonTransformProperties"
+                        control={control}
+                        render={({ field: { onChange, value } }) => (
+                            <ParamManager
+                                paramConfigs={value}
+                                readonly={false}
+                                onChange= {(values) => {
+                                    values.paramValues = values.paramValues.map((param: any, index: number) => {
+                                        const paramValues = param.paramValues;
+                                        param.key = paramValues[0].value;
+                                        param.value = paramValues[1].value;
+                                        if (paramValues[1]?.value?.isExpression) {
+                                            param.namespaces = paramValues[1].value.namespaces;
+                                        }
+                                        param.icon = 'query';
+                                        return param;
+                                    });
+                                    onChange(values);
+                                }}
+                            />
+                        )}
+                    />
                 </ComponentCard>
                 <Field>
-                    <TextField
-                        label="Description"
-                        size={50}
-                        placeholder=""
-                        value={formValues["description"]}
-                        onTextChange={(e: any) => {
-                            setFormValues({ ...formValues, "description": e });
-                            formValidators["description"](e);
-                        }}
-                        required={false}
+                    <Controller
+                        name="description"
+                        control={control}
+                        render={({ field }) => (
+                            <TextField {...field} label="Description" size={50} placeholder="" />
+                        )}
                     />
-                    {errors["description"] && <Error>{errors["description"]}</Error>}
+                    {errors.description && <Error>{errors.description.message.toString()}</Error>}
                 </Field>
 
-            </ComponentCard>
 
-
-            <div style={{ display: "flex", textAlign: "right", justifyContent: "flex-end", marginTop: "10px" }}>
-                <Button
-                    appearance="primary"
-                    onClick={onClick}
-                >
+                <div style={{ textAlign: "right", marginTop: "10px", float: "right" }}>
+                    <Button
+                        appearance="primary"
+                        onClick={handleSubmit(onClick)}
+                    >
                     Submit
-                </Button>
-            </div>
+                    </Button>
+                </div>
 
-        </div>
+            </div>
+        </>
     );
 };
 

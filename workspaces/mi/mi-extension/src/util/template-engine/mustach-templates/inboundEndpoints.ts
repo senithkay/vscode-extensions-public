@@ -27,7 +27,7 @@ export interface GetInboundTemplatesArgs {
 
 export function getInboundEndpointMustacheTemplate() {
     return `<?xml version="1.0" encoding="UTF-8"?>
-<inboundEndpoint name="{{name}}" {{#class}}class="{{class}}" {{/class}}{{#showSequence}}onError="{{errorSequence}}" sequence="{{sequence}}" {{/showSequence}}{{#protocol}}protocol="{{protocol}}" {{/protocol}}{{#statistics}}statistics="enable" {{/statistics}}{{#suspend}}suspend="{{suspend}}" {{/suspend}}{{#trace}}trace="enable" {{/trace}}xmlns="http://ws.apache.org/ns/synapse">
+<inboundEndpoint name="{{name}}" {{#classAttr}}class="{{classAttr}}" {{/classAttr}}onError="{{errorSequence}}" sequence="{{sequence}}" {{#protocol}}protocol="{{protocol}}" {{/protocol}}{{#statistics}}statistics="enable" {{/statistics}}{{#suspend}}suspend="{{suspend}}" {{/suspend}}{{#trace}}trace="enable" {{/trace}}xmlns="http://ws.apache.org/ns/synapse">
     <parameters>
     {{#params}}
         {{^custom}}<parameter name="{{key}}">{{{value}}}</parameter>{{/custom}}{{#custom}}{{{custom}}}{{/custom}}
@@ -41,11 +41,12 @@ export function getInboundEndpointdXml(data: GetInboundTemplatesArgs) {
     const protocol =
         data.type === 'custom' ? false : data.type === 'wso2_mb' ? 'jms' : data.type;
 
-    const showSequence = !['cxf_ws_rm', 'feed', 'http', 'https'].includes(data.type);
-
+    let classAttr = '';
     let params: Parameter[] = [];
     Object.entries(parameters ?? {}).map(([key, value]) => {
-        params.push({ key, value });
+        if (value !== undefined && value !== '' && value !== null) {
+            params.push({ key, value });
+        }
     });
 
     if (data.type === 'rabbitmq') {
@@ -93,10 +94,16 @@ export function getInboundEndpointdXml(data: GetInboundTemplatesArgs) {
         }
     }
 
+    const classParam = params.find((param) => param.key === 'class');
+    if (classParam?.value) {
+        classAttr = classParam.value as string;
+        params = params.filter((param) => param.key !== 'class');
+    }
+
     const modifiedData = {
         ...mainData,
+        classAttr,
         isCustomType: data.type === 'custom',
-        showSequence,
         protocol,
         statistics: mainData?.statistics ? 'enable' : undefined,
         trace: mainData?.trace ? 'enable' : undefined,

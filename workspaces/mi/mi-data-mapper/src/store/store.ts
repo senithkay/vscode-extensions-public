@@ -21,6 +21,13 @@ export interface DataMapperCollapsedFieldsState {
     setCollapsedFields: (fields: string[]) => void;
 }
 
+export interface DataMapperSidePanelState {
+    sidePanelOpen: boolean;
+    setSidePanelOpen: (sidePanelOpen: boolean) => void;
+    sidePanelIOType: string;
+    setSidePanelIOType: (sidePanelIOType: string) => void;
+}
+
 export const useDMSearchStore = create<DataMapperSearchState>((set) => ({
     inputSearch: "",
     outputSearch: "",
@@ -32,4 +39,11 @@ export const useDMSearchStore = create<DataMapperSearchState>((set) => ({
 export const useDMCollapsedFieldsStore = create<DataMapperCollapsedFieldsState>((set) => ({
     collapsedFields: [],
     setCollapsedFields: (collapsedFields: string[])  => set({ collapsedFields }),
+}));
+
+export const useDMSidePanelStore = create<DataMapperSidePanelState>((set) => ({
+    sidePanelOpen: false,
+    setSidePanelOpen: (sidePanelOpen: boolean) => set({ sidePanelOpen }),
+    sidePanelIOType: 'input',
+    setSidePanelIOType: (sidePanelIOType: string) => set({ sidePanelIOType }),
 }));

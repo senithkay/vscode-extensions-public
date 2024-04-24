@@ -58,8 +58,6 @@ const initialInboundEndpoint: InboundEndpoint = {
     parameters: {}
 };
 
-const hideSubFormTypes = ['HTTP', 'HTTPS', 'CXF_WS_RM', 'FEED'];
-
 const customSequenceType = {
     content: "custom-sequence",
     value: "custom",
@@ -72,7 +70,6 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
 
     const [selectedParams, setSelectedParams] = useState<{ [key: string]: { [key: string]: Paramater; } }>({});
     const [sequences, setSequences] = useState([]);
-    const [showHiddenForm, setShowHiddenForm] = useState(false);
     const [schemaParams, setSchemaParams] = useState({});
 
     const [selected, setSelected] = useState({
@@ -83,8 +80,8 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
     const schema = yup.object({
         name: yup.string().required("Name is required").matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in name"),
         type: yup.string().required("Type is required"),
-        sequence: yup.string(),
-        errorSequence: yup.string(),
+        sequence: yup.string().required("Sequence is required"),
+        errorSequence: yup.string().required("Error Sequence is required"),
         suspend: yup.boolean(),
         trace: yup.boolean(),
         statistics: yup.boolean(),
@@ -122,7 +119,6 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
             if (!isNewInboundEndpoint) {
                 const { parameters, ...data } = await rpcClient.getMiDiagramRpcClient().getInboundEndpoint({ path: props.path });
                 data.type = data.type.toUpperCase();
-                setShowHiddenForm(hideSubFormTypes.includes(data.type));
 
                 if (sequenceList.data[1].includes(data.sequence)) {
                     handleSequenceChange("sequence", data.sequence, false);
@@ -172,7 +168,6 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
     const readyForm = (type: string) => {
         const params = inboundEndpointParams[type.toLowerCase()];
         setSelectedParams(params)
-        setShowHiddenForm(hideSubFormTypes.includes(type));
 
         const schemaItems: { [key: string]: any } = {};
 
@@ -181,16 +176,52 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
                 const param = params[group][prop];
 
                 if (param.validate) {
-                    const validationType = param.validate?.type;
-                    const schemaItem = validationType === 'number'
-                        ? yup.number().required("This field is required").typeError("Invalid number")
-                        : yup.string().required("This field is required");
+                    let schemaItem;
 
-                    if (param.validate.min !== undefined) {
-                        schemaItem.min(param.validate.min, `Minimum value is ${param.validate.min}`);
-                    }
-                    if (param.validate.max !== undefined) {
-                        schemaItem.max(param.validate.max, `Maximum value is ${param.validate.max}`);
+                    if (param.validate?.type === 'string' && param.validate?.required) {
+                        schemaItem = yup.string().required("This field is required");
+                    } else if (param.validate?.type === 'number' && param.validate?.required) {
+                        if (param.validate?.min !== undefined && param.validate?.max !== undefined) {
+                            schemaItem = yup.number().required("This field is required")
+                                .typeError("Invalid number")
+                                .min(param.validate?.min, `Minimum value is ${param.validate?.min}`)
+                                .max(param.validate?.max, `Maximum value is ${param.validate?.max}`);
+                        }
+                        else if (param.validate?.min !== undefined) {
+                            schemaItem = yup.number().required("This field is required")
+                                .typeError("Invalid number")
+                                .min(param.validate?.min, `Minimum value is ${param.validate?.min}`);
+                        }
+                        else if (param.validate?.max !== undefined) {
+                            schemaItem = yup.number().required("This field is required")
+                                .typeError("Invalid number")
+                                .max(param.validate?.max, `Maximum value is ${param.validate?.max}`);
+                        } else {
+                            schemaItem = yup.number().required("This field is required")
+                                .typeError("Invalid number");
+                        }
+                    } else if (param.validate?.type === 'number') {
+                        if (param.validate?.min !== undefined && param.validate?.max !== undefined) {
+                            schemaItem = yup.number()
+                                .typeError("Invalid number")
+                                .min(param.validate?.min, `Minimum value is ${param.validate?.min}`)
+                                .max(param.validate?.max, `Maximum value is ${param.validate?.max}`);
+                        }
+                        else if (param.validate?.min !== undefined) {
+                            schemaItem = yup.number()
+                                .typeError("Invalid number")
+                                .min(param.validate?.min, `Minimum value is ${param.validate?.min}`);
+                        }
+                        else if (param.validate?.max !== undefined) {
+                            schemaItem = yup.number()
+                                .typeError("Invalid number")
+                                .max(param.validate?.max, `Maximum value is ${param.validate?.max}`);
+                        } else {
+                            schemaItem = yup.number()
+                                .typeError("Invalid number");
+                        }
+                    } else {
+                        schemaItem = yup.string().notRequired();
                     }
 
                     schemaItems[prop.split('.').join('-')] = schemaItem;
@@ -256,42 +287,40 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
                         placeholder="Name"
                         {...renderProps("name")}
                     />
-                    {!showHiddenForm && (
-                        <>
-                            <div>
-                                <Dropdown
-                                    id="sequence"
-                                    label="Sequence"
-                                    value={selected.sequence}
-                                    items={sequences}
-                                    onValueChange={(value: string) => handleSequenceChange("sequence", value)}
-                                />
-                                {selected.sequence === customSequenceType.value && <>
-                                    <TextField
-                                        required
-                                        placeholder="Custom Sequence Name"
-                                        {...renderProps("sequence")}
-                                    />
-                                </>}
-                            </div>
-                            <div>
-                                <Dropdown
-                                    id="errorSequence"
-                                    label="Error Sequence"
-                                    value={selected.errorSequence}
-                                    items={sequences}
-                                    onValueChange={(value: string) => handleSequenceChange("errorSequence", value)}
-                                />
-                                {selected.errorSequence === customSequenceType.value && <>
-                                    <TextField
-                                        required
-                                        placeholder="Custom on-error Sequence Name"
-                                        {...renderProps("errorSequence")}
-                                    />
-                                </>}
-                            </div>
-                        </>
-                    )}
+                    <div>
+                        <Dropdown
+                            required
+                            id="sequence"
+                            label="Sequence"
+                            value={selected.sequence}
+                            items={sequences}
+                            onValueChange={(value: string) => handleSequenceChange("sequence", value)}
+                        />
+                        {selected.sequence === customSequenceType.value && <>
+                            <TextField
+                                required
+                                placeholder="Custom Sequence Name"
+                                {...renderProps("sequence")}
+                            />
+                        </>}
+                    </div>
+                    <div>
+                        <Dropdown
+                            required
+                            id="errorSequence"
+                            label="Error Sequence"
+                            value={selected.errorSequence}
+                            items={[...sequences, { content: 'fault', value: 'fault' }]}
+                            onValueChange={(value: string) => handleSequenceChange("errorSequence", value)}
+                        />
+                        {selected.errorSequence === customSequenceType.value && <>
+                            <TextField
+                                required
+                                placeholder="Custom on-error Sequence Name"
+                                {...renderProps("errorSequence")}
+                            />
+                        </>}
+                    </div>
                     <CheckboxGroup>
                         <FormCheckBox
                             name="suspend"

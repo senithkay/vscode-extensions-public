@@ -32,7 +32,7 @@ export class AiPanelWebview {
     private static createWebview(): vscode.WebviewPanel {
         const panel = vscode.window.createWebviewPanel(
             AiPanelWebview.viewType,
-            "AI Panel",
+            "MI Copilot",
             ViewColumn.Beside,
             {
                 enableScripts: true,
@@ -68,7 +68,7 @@ export class AiPanelWebview {
             body, html, #root {
                 height: 100%;
                 margin: 0;
-                padding: 5px;
+                padding: 0px;
                 overflow: hidden;
             }
           </style>

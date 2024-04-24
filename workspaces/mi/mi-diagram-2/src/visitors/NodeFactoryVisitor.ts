@@ -85,6 +85,8 @@ import { Diagnostic } from "vscode-languageserver-types";
 import { ReferenceNodeModel } from "../components/nodes/ReferenceNode/ReferenceNodeModel";
 import { PlusNodeModel } from "../components/nodes/PlusNode/PlusNodeModel";
 import { ConnectorNodeModel } from "../components/nodes/ConnectorNode/ConnectorNodeModel";
+import { DataMapperNodeModel } from "../components/nodes/DataMapperNode/DataMapperNodeModel";
+import { BreakpointPosition, GetBreakpointsResponse } from "@wso2-enterprise/mi-core";
 
 interface BranchData {
     name: string;
@@ -104,7 +106,8 @@ enum DiagramType {
 
 const RESTRICTED_NODE_TYPES = ["target"]
 
-export type AnyNode = MediatorNodeModel | StartNodeModel | ConditionNodeModel | EndNodeModel | CallNodeModel | EmptyNodeModel | GroupNodeModel | PlusNodeModel;
+export type AnyNode = MediatorNodeModel | StartNodeModel | ConditionNodeModel | EndNodeModel | CallNodeModel | EmptyNodeModel |
+                         GroupNodeModel | PlusNodeModel | DataMapperNodeModel;
 
 export class NodeFactoryVisitor implements Visitor {
     nodes: AnyNode[] = [];
@@ -117,15 +120,31 @@ export class NodeFactoryVisitor implements Visitor {
     private documentUri: string;
     private diagramType: DiagramType;
     private resource: DiagramService;
+    private breakpointPositions: BreakpointPosition[];
+    private activatedBreakpoint: number;
 
-    constructor(documentUri: string, model: DiagramService) {
+
+    constructor(documentUri: string, model: DiagramService, breakpoints: GetBreakpointsResponse) {
         this.documentUri = documentUri;
         this.resource = model;
+        this.breakpointPositions = breakpoints.breakpoints;
+        this.activatedBreakpoint = breakpoints.activeBreakpoint;
     }
 
     private createNodeAndLinks(params: createNodeAndLinks): void {
         let { node, name, type, data } = params;
 
+        for(const breakpoint of this.breakpointPositions) {
+            if(breakpoint.line === node.range.startTagRange.start.line) {
+                node.hasBreakpoint = true;
+                break;
+            }
+        }
+
+        if(this.activatedBreakpoint === node.range.startTagRange.start.line) {
+            node.isActiveBreakpoint = true;
+        }
+        
         // create node
         let diagramNode: AnyNode;
         switch (type) {
@@ -159,9 +178,12 @@ export class NodeFactoryVisitor implements Visitor {
             case NodeTypes.CONNECTOR_NODE:
                 diagramNode = new ConnectorNodeModel(node, name, this.documentUri);
                 break;
+            case NodeTypes.DATAMAPPER_NODE:
+                diagramNode = new DataMapperNodeModel(node, name, this.documentUri, this.parents[this.parents.length - 1], this.previousSTNodes);
+                break;
             default:
                 type = NodeTypes.MEDIATOR_NODE;
-                diagramNode = new MediatorNodeModel(node, name, this.documentUri, this.parents[this.parents.length - 1], this.previousSTNodes);
+                diagramNode = new MediatorNodeModel(NodeTypes.MEDIATOR_NODE, node, name, this.documentUri, this.parents[this.parents.length - 1], this.previousSTNodes);
                 break;
         }
         diagramNode.setPosition(node.viewState.x, node.viewState.y);
@@ -621,10 +643,10 @@ export class NodeFactoryVisitor implements Visitor {
         this.skipChildrenVisit = false;
     }
     beginVisitForeach(node: Foreach): void {
-        this.createNodeAndLinks(({ node, name: MEDIATORS.FOREACH, type: NodeTypes.GROUP_NODE }))
+        this.createNodeAndLinks(({ node, name: MEDIATORS.FOREACHMEDIATOR, type: NodeTypes.GROUP_NODE }))
         this.parents.push(node);
 
-        this.visitSubSequences(node, MEDIATORS.FOREACH, {
+        this.visitSubSequences(node, MEDIATORS.FOREACHMEDIATOR, {
             Sequence: node.sequence
         }, NodeTypes.GROUP_NODE, false)
         this.skipChildrenVisit = true;
@@ -704,7 +726,6 @@ export class NodeFactoryVisitor implements Visitor {
     }
 
     endVisitClass(node: Class): void {
-        this.parents.pop();
         this.skipChildrenVisit = false;
     }
 
@@ -828,7 +849,7 @@ export class NodeFactoryVisitor implements Visitor {
 
     //Transformation Mediators
     beginVisitDatamapper(node: Datamapper): void {
-        this.createNodeAndLinks({ node, name: MEDIATORS.DATAMAPPER });
+        this.createNodeAndLinks({ node, name: MEDIATORS.DATAMAPPER, type: NodeTypes.DATAMAPPER_NODE });
         this.skipChildrenVisit = true;
     }
 
@@ -843,7 +864,6 @@ export class NodeFactoryVisitor implements Visitor {
     }
 
     endVisitEnrich(node: Enrich): void {
-        this.parents.pop();
         this.skipChildrenVisit = false;
     }
 

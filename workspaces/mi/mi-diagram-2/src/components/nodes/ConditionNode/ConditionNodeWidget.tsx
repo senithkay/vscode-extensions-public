@@ -77,6 +77,8 @@ export function ConditionNodeWidget(props: CallNodeWidgetProps) {
     const [popoverAnchorEl, setPopoverAnchorEl] = React.useState(null);
     const sidePanelContext = React.useContext(SidePanelContext);
     const description = getNodeDescription(node.stNode);
+    const hasBreakpoint = node.hasBreakpoint();
+    const isActiveBreakpoint = node.isActiveBreakpoint();
 
     const handleOnClickMenu = (event: any) => {
         setIsPopoverOpen(!isPopoverOpen);
@@ -88,6 +90,32 @@ export function ConditionNodeWidget(props: CallNodeWidgetProps) {
         setIsPopoverOpen(false);
     }
 
+    const handleAddBreakpoint = async () => {
+        const file = node.documentUri;
+        const line = node.stNode.range.startTagRange.start.line;
+        const request = {
+            filePath: file,
+            breakpoint: {
+                line: line
+            }
+        }
+
+        await rpcClient.getMiDebuggerRpcClient().addBreakpointToSource(request);
+    };
+
+    const removeBreakpoint = async () => {
+        const file = node.documentUri;
+        const line = node.stNode.range.startTagRange.start.line;
+        const request = {
+            filePath: file,
+            breakpoint: {
+                line: line
+            }
+        }
+
+        await rpcClient.getMiDebuggerRpcClient().removeBreakpointFromSource(request);
+    };
+
     return (
         <div >
             <Tooltip content={tooltip} position={'bottom'} containerPosition={'absolute'}>
@@ -96,6 +124,9 @@ export function ConditionNodeWidget(props: CallNodeWidgetProps) {
                     onMouseLeave={() => setIsHovered(false)}
                     onClick={(e) => node.onClicked(e, node, rpcClient, sidePanelContext)}
                 >
+                    {hasBreakpoint && (
+                        <div style={{ position: "absolute", left: -5, width: 15, height: 15, top:22, borderRadius: "50%", backgroundColor: "red" }}></div>
+                    )}
                     <PortWidget port={node.getPort("in")!} engine={engine} />
                     <svg width="65" height="65" viewBox="0 0 70 70">
                         <rect
@@ -105,9 +136,9 @@ export function ConditionNodeWidget(props: CallNodeWidgetProps) {
                             height="50"
                             rx="5"
                             ry="5"
-                            fill={Colors.SURFACE_BRIGHT}
+                            fill={isActiveBreakpoint ? Colors.DEBUGGER_BREAKPOINT_BACKGROUND : Colors.SURFACE_BRIGHT}
                             stroke={
-                                node.hasDiagnotics() ? Colors.ERROR : node.isSelected() ? Colors.SECONDARY : isHovered ? Colors.SECONDARY : Colors.OUTLINE_VARIANT
+                                node.hasDiagnotics() ? Colors.ERROR : node.isSelected() ? Colors.SECONDARY : (isHovered || isActiveBreakpoint) ? Colors.SECONDARY : Colors.OUTLINE_VARIANT
                             }
                             strokeWidth={2}
                             transform="rotate(45 28 28)"
@@ -150,6 +181,10 @@ export function ConditionNodeWidget(props: CallNodeWidgetProps) {
                 <ClickAwayListener onClickAway={handlePopoverClose}>
                     <Menu>
                         <MenuItem key={'delete-btn'} item={{ label: 'Delete', id: "delete", onClick: () => node.delete(rpcClient) }} />
+                        {hasBreakpoint ?
+                            <MenuItem key={'remove-breakpoint-btn'} item={{ label: 'Remove Breakpoint', id: "removeBreakpoint", onClick: removeBreakpoint }} /> :
+                            <MenuItem key={'breakpoint-btn'} item={{ label: 'Add Breakpoint', id: "addBreakpoint", onClick: handleAddBreakpoint }} />
+                        }
                     </Menu>
                 </ClickAwayListener>
             </Popover>

@@ -49,6 +49,7 @@ export * from './components/RadioButtonGroup/RadioButtonGroup';
 export * from './components/Accordion/Accordion';
 export * from './components/SyntaxHighlighter/SyntaxHighlighter';
 export * from './components/Drawer/Drawer';
+export * from './components/Alert/Alert';
 
 export * from './components/SampleForm/Header/Header';
 export * from './components/SampleForm/HorizontalIcons/HorizontalIcons';
@@ -61,5 +62,7 @@ export * from './components/Commons/ErrorBanner';
 export * from './components/Commons/RequiredInput';
 
 export * from './components/FormView/FormView';
+
+export * from './components/ExpressionField/ExpressionInput';
 
 export * from './styles';

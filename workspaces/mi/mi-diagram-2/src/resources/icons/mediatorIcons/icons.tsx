@@ -56,7 +56,7 @@ export function getSVGIcon(mediator: string, returnPath: boolean = false) {
         case MEDIATORS.FILTER.toLowerCase():
             icon = require("./FilterMediator.svg");
             break;
-        case MEDIATORS.FOREACH.toLowerCase():
+        case MEDIATORS.FOREACHMEDIATOR.toLowerCase():
             icon = require("./ForEachMediator.svg");
             break;
         case MEDIATORS.HEADER.toLowerCase():

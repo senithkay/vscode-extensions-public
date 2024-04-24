@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { GetAvailableResourcesRequest, GetAvailableResourcesResponse, GetDefinitionRequest, GetDefinitionResponse, GetDiagnosticsReqeust, GetDiagnosticsResponse, ProjectStructureResponse, GetAvailableConnectorRequest, GetAvailableConnectorResponse, UpdateConnectorRequest, GetConnectorConnectionsRequest, GetConnectorConnectionsResponse } from "@wso2-enterprise/mi-core";
+import { GetAvailableResourcesRequest, GetAvailableResourcesResponse, GetBreakpointInfoRequest, GetBreakpointInfoResponse, GetDefinitionRequest, GetDefinitionResponse, GetDiagnosticsReqeust, GetDiagnosticsResponse, ProjectStructureResponse, GetAvailableConnectorRequest, GetAvailableConnectorResponse, UpdateConnectorRequest, GetConnectorConnectionsRequest, GetConnectorConnectionsResponse, ValidateBreakpointsRequest, ValidateBreakpointsResponse, StepOverBreakpointRequest, StepOverBreakpointResponse } from "@wso2-enterprise/mi-core";
 import { readFileSync } from "fs";
 import { CancellationToken, FormattingOptions, Position, Range, Uri, workspace } from "vscode";
 import { CompletionParams, LanguageClient, TextEdit } from "vscode-languageclient/node";
@@ -146,7 +146,11 @@ export class ExtendedLanguageClient extends LanguageClient {
     }
 
     async getAvailableResources(req: GetAvailableResourcesRequest): Promise<GetAvailableResourcesResponse> {
-        return this.sendRequest("synapse/availableResources", { documentIdentifier: { uri: Uri.parse(req.documentIdentifier).toString() }, "resourceType": req.resourceType });
+        let uri: string | undefined;
+        if(req.documentIdentifier){
+            uri = Uri.parse(req.documentIdentifier).toString();
+        }
+        return this.sendRequest("synapse/availableResources", { documentIdentifier: { uri: uri }, "resourceType": req.resourceType });
     }
 
     async getDiagnostics(req: GetDiagnosticsReqeust): Promise<GetDiagnosticsResponse> {
@@ -168,4 +172,17 @@ export class ExtendedLanguageClient extends LanguageClient {
     async getConnectorConnections(req: GetConnectorConnectionsRequest): Promise<GetConnectorConnectionsResponse> {
         return this.sendRequest("synapse/connectorConnections", { documentIdentifier: { uri: Uri.parse(req.documentUri).toString() }, "connectorName": req.connectorName });
     }
+
+    async validateBreakpoints(req: ValidateBreakpointsRequest): Promise<ValidateBreakpointsResponse> {
+        return this.sendRequest("synapse/validateBreakpoints", req);
+    }
+
+    async getBreakpointInfo(req: GetBreakpointInfoRequest): Promise<GetBreakpointInfoResponse> {
+        return this.sendRequest("synapse/getBreakpointInfo", req);
+    }
+
+    async getStepOverBreakpoint(req: StepOverBreakpointRequest): Promise<StepOverBreakpointResponse> {
+        return this.sendRequest("synapse/stepOverBreakpoint", req);
+    }
+    
 }

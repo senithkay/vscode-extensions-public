@@ -1,13 +1,14 @@
-import { Codicon, ProgressRing, Switch } from '@wso2-enterprise/ui-toolkit';
+import { Codicon, Drawer, ProgressRing, Switch } from '@wso2-enterprise/ui-toolkit';
 import React, { useEffect, useState, useContext } from 'react';
 import styled from '@emotion/styled';
 import { Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 import SidePanelContext from './SidePanelContexProvider';
 import { MediatorPage } from './mediators';
 import { AIPage } from './ai';
+import ExpressionEditor from './expressionEditor/ExpressionEditor';
 
 const SidePanelContainer = styled.div`
-    padding: 15px 0 15px 15px;
+    padding: 15px;
 
     *{font-family: var(--font-family)}
 `;
@@ -143,7 +144,26 @@ const SidePanelList = (props: SidePanelListProps) => {
                             {isAddMediator && <MediatorPage nodePosition={props.nodePosition} documentUri={props.documentUri} setContent={setContent} />}
                             {isGenerate && <AIPage />}
                         </>}
-                        <div style={{ marginBottom: "30px" }}>{pageStack.length > 0 && pageStack[pageStack.length - 1]}</div>
+                        <div style={{ marginBottom: "30px" }}>
+                            <Drawer
+                                isOpen={pageStack.length > 0}
+                                id="drawer1"
+                                width={300}
+                                isSelected={true}
+                                sx={{ width: "100%", top: "0", position: "relative", border: "none", boxShadow: "none", transition: "none" }}
+                            >
+                                {pageStack.length > 0 && pageStack[pageStack.length - 1]}
+                            </Drawer>
+                            <Drawer
+                                isOpen={sidePanelContext.expressionEditor?.isOpen}
+                                id="drawer2"
+                                width={300}
+                                isSelected={true}
+                                sx={{ width: "100%", top: "60px", border: "none", boxShadow: "none" }}
+                            >
+                                {sidePanelContext.expressionEditor?.isOpen && <ExpressionEditor />}
+                            </Drawer>
+                        </div>
                     </div>
                 </>}
         </SidePanelContainer>

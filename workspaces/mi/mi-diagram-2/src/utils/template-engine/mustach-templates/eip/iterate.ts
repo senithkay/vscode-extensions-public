@@ -9,6 +9,7 @@
 
 import { Iterate } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import Mustache from "mustache";
+import { checkAttributesExist } from "../../../commons";
 
 export function getIterateMustacheTemplate() {
     return `
@@ -20,17 +21,17 @@ export function getIterateMustacheTemplate() {
         </target>
         {{/isAnnonymousSequence}}
         {{^isAnnonymousSequence}}
-        <target {{#sequenceKey}}sequence="{{sequenceKey}}"{{/sequenceKey}} {{#sequenceName}}sequence="{{sequenceName}}"{{/sequenceName}} />
+        <target sequence="{{sequenceKey}}" />
         {{/isAnnonymousSequence}}
     </iterate>
     {{/isNewMediator}}
     {{^isNewMediator}}
     {{#editIterate}}
     {{#isSelfClosed}}
-    <iterate {{#preservePayload}}attachPath="{{attachPath}}"{{/preservePayload}} {{#continueParent}}continueParent="{{continueParent}}"{{/continueParent}} expression="{{iterateExpression}}" id="{{iterateID}}" {{#preservePayload}}preservePayload="{{preservePayload}}"{{/preservePayload}} {{#sequentialMediation}}sequential="{{sequentialMediation}}"{{/sequentialMediation}} />
+    <iterate {{#preservePayload}}attachPath="{{attachPath}}"{{/preservePayload}} {{#continueParent}}continueParent="{{continueParent}}"{{/continueParent}} expression="{{iterateExpression}}" id="{{iterateID}}" {{#preservePayload}}preservePayload="{{preservePayload}}"{{/preservePayload}} {{#sequentialMediation}}sequential="{{sequentialMediation}}" {{/sequentialMediation}}{{#description}}description="{{description}}"{{/description}} />
     {{/isSelfClosed}}
     {{^isSelfClosed}}
-    <iterate {{#preservePayload}}attachPath="{{attachPath}}"{{/preservePayload}} {{#continueParent}}continueParent="{{continueParent}}"{{/continueParent}} expression="{{iterateExpression}}" id="{{iterateID}}" {{#preservePayload}}preservePayload="{{preservePayload}}"{{/preservePayload}} {{#sequentialMediation}}sequential="{{sequentialMediation}}"{{/sequentialMediation}} >
+    <iterate {{#preservePayload}}attachPath="{{attachPath}}"{{/preservePayload}} {{#continueParent}}continueParent="{{continueParent}}"{{/continueParent}} expression="{{iterateExpression}}" id="{{iterateID}}" {{#preservePayload}}preservePayload="{{preservePayload}}"{{/preservePayload}} {{#sequentialMediation}}sequential="{{sequentialMediation}}" {{/sequentialMediation}}{{#description}}description="{{description}}"{{/description}} >
     {{/isSelfClosed}}
     {{/editIterate}}
     {{#editTarget}}
@@ -40,55 +41,91 @@ export function getIterateMustacheTemplate() {
     </target>
     {{/isAnnonymousSequence}}
     {{^isAnnonymousSequence}}
-    <target {{#sequenceKey}}sequence="{{sequenceKey}}"{{/sequenceKey}} {{#sequenceName}}sequence="{{sequenceName}}"{{/sequenceName}} />
+    <target sequence="{{sequenceKey}}" />
     {{/isAnnonymousSequence}}
     {{/editTarget}}
     {{/isNewMediator}}
     `;
 }
 
-export function getIterateXml(data: { [key: string]: any }) {
+export function getIterateXml(data: { [key: string]: any }, dirtyFields?: any, defaultValues?: any) {
 
     if (data.sequenceType === "ANONYMOUS") {
-        delete data.sequenceName;
         delete data.sequenceKey;
         data.isAnnonymousSequence = true;
-    } else if (data.sequenceType == "REGISTRY_REFERENCE") {
-        delete data.sequenceName;
-    } else {
-        delete data.sequenceKey;
+    }
+    data.iterateExpression = data?.iterateExpression?.value;
+    data.attachPath = data?.attachPath?.value;
+
+    if (defaultValues == undefined || Object.keys(defaultValues).length == 0) {
+        data.isNewMediator = true;
+        const output = Mustache.render(getIterateMustacheTemplate(), data).trim();
+        return output;
+    }
+    return getEdits(data, dirtyFields, defaultValues);
+}
+
+function getEdits(data: { [key: string]: any }, dirtyFields: any, defaultValues: any) {
+
+    let dirtyKeys = Object.keys(dirtyFields);
+    let iteratTagAttributes = ["attachPath", "continueParent", "iterateExpression", "iterateID", "preservePayload", "sequentialMediation", "description"];
+    let targetTagAttributes = ["sequenceKey"];
+
+    let edits: { [key: string]: any }[] = [];
+    if (checkAttributesExist(dirtyKeys, iteratTagAttributes)) {
+        let dataCopy = { ...data }
+        dataCopy.selfClosed = defaultValues.selfClosed;
+        dataCopy.editIterate = true;
+        let range = defaultValues.ranges.iterate;
+        let editRange = {
+            start: range.startTagRange.start,
+            end: range.startTagRange.end
+        }
+        let output = Mustache.render(getIterateMustacheTemplate(), dataCopy)?.trim();
+        let edit = {
+            range: editRange,
+            text: output
+        }
+        edits.push(edit);
     }
 
-    const output = Mustache.render(getIterateMustacheTemplate(), data).trim();
-    return output;
+    if (checkAttributesExist(dirtyKeys, targetTagAttributes)) {
+        let dataCopy = { ...data }
+        dataCopy.editTarget = true;
+        let range = defaultValues.ranges.target;
+        let editRange = {
+            start: range.startTagRange.start,
+            end: range.endTagRange.end ? range.endTagRange.end : range.startTagRange.end
+        }
+        let output = Mustache.render(getIterateMustacheTemplate(), dataCopy)?.trim();
+        let edit = {
+            range: editRange,
+            text: output
+        }
+        edits.push(edit);
+    }
+    return edits;
 }
 
 export function getIterateFormDataFromSTNode(data: { [key: string]: any }, node: Iterate) {
-    data.attachPath = node.attachPath;
+    data.attachPath = { isExpression: true, value: node.attachPath };
     data.continueParent = node.continueParent;
-    data.iterateExpression = node.expression;
+    data.iterateExpression = { isExpression: true, value: node.expression };
     data.iterateID = node.id;
     data.preservePayload = node.preservePayload;
     data.sequentialMediation = node.sequential;
     const sequence = node.target?.sequenceAttribute;
     if (sequence) {
-        if (sequence.includes("gov:") || sequence.includes("conf:")) {
-            data.sequenceKey = sequence;
-            data.sequenceType = "REGISTRY_REFERENCE";
-            data.prevSeqType = "REGISTRY_REFERENCE";
-        } else {
-            data.sequenceName = sequence;
-            data.sequenceType = "NAMED_REFERENCE";
-            data.prevSeqType = "NAMED_REFERENCE";
-        }
+        data.sequenceType = "Key"
+        data.sequenceKey = sequence;
     } else {
-        data.sequenceType = "ANONYMOUS";
-        data.prevSeqType = "ANONYMOUS";
+        data.sequenceType = "Anonymous";
     }
     data.description = node.description;
     data.ranges = {
         iterate: node.range,
         target: node.target.range
     }
+    data.isSelfClosed = node.selfClosed;
     return data;
 }

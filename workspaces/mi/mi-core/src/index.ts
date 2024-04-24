@@ -25,6 +25,10 @@ export * from "./rpc-types/mi-visualizer/index";
 export * from "./rpc-types/mi-visualizer/rpc-type";
 export * from "./rpc-types/mi-visualizer/types";
 
+export * from "./rpc-types/mi-debugger/index";
+export * from "./rpc-types/mi-debugger/rpc-type";
+export * from "./rpc-types/mi-debugger/types";
+
 export * from "./rpc-types/mi-data-mapper/index";
 export * from "./rpc-types/mi-data-mapper/rpc-type";
 export * from "./rpc-types/mi-data-mapper/types";

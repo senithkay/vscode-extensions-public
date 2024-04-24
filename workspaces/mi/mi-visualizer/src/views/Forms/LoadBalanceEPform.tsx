@@ -31,6 +31,7 @@ export interface Region {
 
 export interface LoadBalanceWizardProps {
     path: string;
+    isPopup?: boolean;
 }
 
 type Endpoint = {
@@ -286,7 +287,7 @@ export function LoadBalanceWizard(props: LoadBalanceWizardProps) {
     };
 
     const openOverview = () => {
-        rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Overview } });
+        rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Overview }, isPopup: props.isPopup });
     };
 
     const changeType = () => {
@@ -296,12 +297,13 @@ export function LoadBalanceWizard(props: LoadBalanceWizardProps) {
                 view: MACHINE_VIEW.EndPointForm,
                 documentUri: props.path,
                 customProps: { type: 'endpoint' }
-            }
+            },
+            isPopup: props.isPopup
         });
     }
 
     return (
-        <FormView title="Endpoint Artifact" onClose={openOverview}>
+        <FormView title="Endpoint Artifact" onClose={openOverview} hideClose={props.isPopup}>
             <TypeChip
                 type={"Load Balance Endpoint"}
                 onClick={changeType}
