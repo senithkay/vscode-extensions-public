@@ -11,20 +11,27 @@ import * as React from "react";
 import { useStyles } from "./style";
 import { Typography } from "../../Typography/Typography";
 import { Codicon } from "../../Codicon/Codicon";
+import { useErrorBoundary } from "react-error-boundary";
+import { Button } from "../../Button/Button";
+import { Icon } from "../../Icon/Icon";
 
 export interface ErrorProps {
     errorMsg?: string;
 }
 
-export function ErrorScreen (props: ErrorProps) {
+export function ErrorScreen(props: ErrorProps) {
     const classes = useStyles();
+    const { resetBoundary } = useErrorBoundary();
 
     return (
         <div className={classes.root}>
-            <Codicon name="error" sx={{height: "100px", width: "100px"}} iconSx={{ fontSize: 100, color: "var(--vscode-errorForeground)" }} />
+            <Codicon name="error" sx={{ height: "100px", width: "100px" }} iconSx={{ fontSize: 100, color: "var(--vscode-errorForeground)" }} />
             <Typography variant="h4" className={classes.errorTitle}>
                 {props.errorMsg ? props.errorMsg : "A problem occurred."}
             </Typography>
+            <Button appearance="icon" onClick={resetBoundary}>
+                <Icon name="refresh" isCodicon sx={{ width: 24, height: 24 }} iconSx={{ fontSize: 24 }}/>
+            </Button>
             <Typography variant="body2" className={classes.errorMsg}>
                 Please raise an issue in our <a href="https://github.com/wso2/ballerina-plugin-vscode/issues">issue tracker</a>
             </Typography>
