@@ -255,7 +255,7 @@ export function AIProjectGenerationChat() {
 
     async function generateSuggestions() {
         try {
-            setIsLoading(true);
+            // setIsLoading(true);
             setIsSuggestionLoading(true); // Set loading state to true at the start
             const url = backendRootUri + MI_SUGGESTIVE_QUESTIONS_BACKEND_URL;
             var context: GetWorkspaceContextResponse[] = [];
@@ -315,7 +315,7 @@ export function AIProjectGenerationChat() {
         setMessages(prevMessages => prevMessages.filter((message, index) => message.type !== 'label'));
         setMessages(prevMessages => prevMessages.filter((message, index) => message.type !== 'question'));
 
-        setIsLoading(true);
+        // setIsLoading(true);
         let assistant_response = "";
         if (!isQuestion && !isInitialPrompt) {
             addChatEntry("user", userInput);
@@ -672,12 +672,13 @@ export function AIProjectGenerationChat() {
                         placeholder="Type a command to test"
                         innerHTML="true"
                         style={{ width: "calc(100% - 35px)" }}
+                        // disabled = {isLoading}
                     >
                     </VSCodeTextField>
                     <VSCodeButton
                         appearance="secondary"
                         onClick={() => handleSend(false,false)}
-                        disabled={isLoading}
+                        // disabled={isLoading}
                         style={{ width: "35px" }}>
                         <span className="codicon codicon-send"></span>
                     </VSCodeButton>
