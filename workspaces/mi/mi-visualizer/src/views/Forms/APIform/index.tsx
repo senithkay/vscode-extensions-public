@@ -245,7 +245,7 @@ export function APIWizard({ apiData, path }: APIWizardProps) {
     };
 
     const handleSwaggerPathSelection = async () => {
-        const projectDirectory = await rpcClient.getMiDiagramRpcClient().askProjectDirPath();
+        const projectDirectory = await rpcClient.getMiDiagramRpcClient().askFileDirPath();
         setValue("swaggerdefPath", projectDirectory.path);
     }
 
