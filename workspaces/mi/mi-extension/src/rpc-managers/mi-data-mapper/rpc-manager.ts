@@ -178,6 +178,9 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
                 if (workspaceFolder) {
                     const dataMapperConfigFolder = path.join(
                         workspaceFolder.uri.fsPath,  'src', 'main', 'wso2mi', 'resources', 'registry', 'gov', 'datamapper');
+                    if (!fs.existsSync(dataMapperConfigFolder)) {
+                        fs.mkdirSync(dataMapperConfigFolder, { recursive: true });
+                    }
                     const tsFilePath = path.join(dataMapperConfigFolder, `${dmName}.ts`);
                     if (!fs.existsSync(tsFilePath)) {
                         fs.writeFileSync(tsFilePath, dmContent);

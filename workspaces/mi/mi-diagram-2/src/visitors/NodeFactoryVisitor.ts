@@ -726,7 +726,6 @@ export class NodeFactoryVisitor implements Visitor {
     }
 
     endVisitClass(node: Class): void {
-        this.parents.pop();
         this.skipChildrenVisit = false;
     }
 
@@ -865,7 +864,6 @@ export class NodeFactoryVisitor implements Visitor {
     }
 
     endVisitEnrich(node: Enrich): void {
-        this.parents.pop();
         this.skipChildrenVisit = false;
     }
 
