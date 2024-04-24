@@ -25,8 +25,8 @@ export class History {
         this.historyStack.push(item);
     }
     
-    public pop(): void {
-        this.historyStack.pop();
+    public pop(): HistoryEntry | undefined {
+        return this.historyStack.pop();
     }
     
     public select(index: number): void {

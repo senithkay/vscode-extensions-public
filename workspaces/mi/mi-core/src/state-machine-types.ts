@@ -21,6 +21,7 @@ export enum ColorThemeKind {
 
 export enum MACHINE_VIEW {
     Welcome = "Welcome to MI",
+    ADD_ARTIFACT = "Add Artifact",
     Overview = "MI Overview",
     UnsupportedProject = "Unsupported Project",
     Diagram = "MI Diagram",
@@ -108,8 +109,9 @@ export interface CommandProps {
 
 interface DataMapperProps {
     filePath: string;
-    functionName: string;
-    fileContent: string;
+    functionName?: string;
+    fileContent?: string;
+    interfacesSource?: string;
 }
 
 // State Machine context values

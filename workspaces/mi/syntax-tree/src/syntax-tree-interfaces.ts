@@ -16,6 +16,8 @@ export interface STNode {
     tag: string;
     viewState?: ViewState;
     diagnostics?: Diagnostic[];
+    hasBreakpoint?: boolean;
+    isActiveBreakpoint?: boolean;
 }
 
 export interface ViewState {
@@ -1074,7 +1076,7 @@ export interface APIResource extends STNode {
     outSequence: Sequence;
     faultSequence: Sequence;
     methods: [string];
-    protocol: string;
+    protocol: [string];
     inSequenceAttribute: string;
     outSequenceAttribute: string;
     faultSequenceAttribute: string;

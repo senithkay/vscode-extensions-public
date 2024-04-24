@@ -1,13 +1,14 @@
-import { Codicon, ProgressRing, Switch } from '@wso2-enterprise/ui-toolkit';
+import { Codicon, Drawer, ProgressRing, Switch } from '@wso2-enterprise/ui-toolkit';
 import React, { useEffect, useState, useContext } from 'react';
 import styled from '@emotion/styled';
 import { Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 import SidePanelContext from './SidePanelContexProvider';
 import { MediatorPage } from './mediators';
 import { AIPage } from './ai';
+import ExpressionEditor from './expressionEditor/ExpressionEditor';
 
 const SidePanelContainer = styled.div`
-    padding: 15px 0 15px 15px;
+    padding: 15px;
 
     *{font-family: var(--font-family)}
 `;
@@ -110,20 +111,6 @@ const SidePanelList = (props: SidePanelListProps) => {
                         {(pageStack.length === 0 || sidePanelContext.isEditing) ? <div></div> :
                             <Codicon name="arrow-left" sx={{ width: "20px", position: "absolute", left: "0px", paddingLeft: "25px" }} onClick={handleGoBack} />}
 
-                        {pageStack.length === 0 && <Switch
-                            leftLabel="Add"
-                            rightLabel="Generate"
-                            checked={isGenerate}
-                            checkedColor="var(--vscode-button-background)"
-                            enableTransition={true}
-                            onChange={handleGenerateClick}
-                            sx={{
-                                "margin": "auto",
-                                fontFamily: "var(--font-family)",
-                                fontSize: "var(--type-ramp-base-font-size)",
-                            }}
-                        />}
-
                         {pageStack.length > 0 && title !== undefined && <h3 style={{ textAlign: "center", width: "355px" }}>{title}</h3>}
                         <Codicon name="close" sx={{ textAlign: "right", width: "20px", position: "absolute", right: "0px", paddingRight: "16px" }} onClick={handleClose} />
                     </ButtonContainer>
@@ -131,14 +118,33 @@ const SidePanelList = (props: SidePanelListProps) => {
                     {/* Content */}
                     <div style={{
                         overflowY: "auto",
-                        height: "calc(100vh - 70px)",
+                        height: "calc(100vh - 40px)",
                         scrollbarWidth: "none"
                     }}>
                         {pageStack.length === 0 && <>
                             {isAddMediator && <MediatorPage nodePosition={props.nodePosition} documentUri={props.documentUri} setContent={setContent} />}
                             {isGenerate && <AIPage />}
                         </>}
-                        <div style={{ marginBottom: "30px" }}>{pageStack.length > 0 && pageStack[pageStack.length - 1]}</div>
+                        <div style={{ marginBottom: "30px" }}>
+                            <Drawer
+                                isOpen={pageStack.length > 0}
+                                id="drawer1"
+                                width={300}
+                                isSelected={true}
+                                sx={{ width: "100%", top: "0", position: "relative", border: "none", boxShadow: "none", transition: "none" }}
+                            >
+                                {pageStack.length > 0 && pageStack[pageStack.length - 1]}
+                            </Drawer>
+                            <Drawer
+                                isOpen={sidePanelContext.expressionEditor?.isOpen}
+                                id="drawer2"
+                                width={300}
+                                isSelected={true}
+                                sx={{ width: "100%", top: "60px", border: "none", boxShadow: "none" }}
+                            >
+                                {sidePanelContext.expressionEditor?.isOpen && <ExpressionEditor />}
+                            </Drawer>
+                        </div>
                     </div>
                 </>}
         </SidePanelContainer>

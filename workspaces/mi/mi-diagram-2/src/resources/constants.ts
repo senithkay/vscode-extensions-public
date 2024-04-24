@@ -27,6 +27,7 @@ export enum DefaultColors {
     OUTLINE_VARIANT = "#a8a8a8",
 
     ERROR = "#ED2633",
+    DEBUGGER_BREAKPOINT_BACKGROUND = "#ffcc004d",
 }
 
 export enum VSCodeColors {
@@ -50,6 +51,11 @@ export enum VSCodeColors {
     OUTLINE_VARIANT = "var(--vscode-dropdown-border)",
 
     ERROR = "var(--vscode-errorForeground)",
+
+    INPUT_OPTION_ACTIVE = "var(--vscode-inputOption-activeBackground)",
+    INPUT_OPTION_INACTIVE = "var(--vscode-inputOption-inactiveBackground)",
+    INPUT_OPTION_HOVER = "var(--vscode-inputOption-hoverBackground)",
+    INPUT_OPTION_ACTIVE_BORDER = "var(--vscode-inputOption-activeBorder)",
 }
 
 export const Colors = {
@@ -78,6 +84,13 @@ export const Colors = {
         DefaultColors.OUTLINE_VARIANT,
 
     ERROR: VSCodeColors.ERROR || DefaultColors.ERROR,
+
+    INPUT_OPTION_ACTIVE: VSCodeColors.INPUT_OPTION_ACTIVE,
+    INPUT_OPTION_INACTIVE: VSCodeColors.INPUT_OPTION_INACTIVE,
+    INPUT_OPTION_HOVER: VSCodeColors.INPUT_OPTION_HOVER,
+    INPUT_OPTION_ACTIVE_BORDER: VSCodeColors.INPUT_OPTION_ACTIVE_BORDER,
+
+    DEBUGGER_BREAKPOINT_BACKGROUND: DefaultColors.DEBUGGER_BREAKPOINT_BACKGROUND,
 };
 
 export const NODE_GAP = {
@@ -142,8 +155,8 @@ export const NODE_DIMENSIONS = {
         HEIGHT: 24,
     },
     CONNECTOR: {
-        WIDTH: 120,
-        HEIGHT: 40,
+        WIDTH: 150,
+        HEIGHT: 60,
     },
     BORDER: 1,
 };
@@ -165,7 +178,7 @@ export const MEDIATORS = {
     FASTXSLT: "FastXSLT",
     FAULT: "Fault",
     FILTER: "Filter",
-    FOREACH: "ForEach",
+    FOREACHMEDIATOR: "ForEach",
     HEADER: "Header",
     ITERATE: "Iterate",
     JSONTRANSFORM: "JSONTransform",
@@ -229,6 +242,7 @@ export enum NodeTypes {
     PLUS_NODE = "plus-node",
     EMPTY_NODE = "empty-node",
     CONNECTOR_NODE = "connector-node",
+    DATAMAPPER_NODE = "datamapper-node",
 }
 
 export const NODE_LINK = "node-link";

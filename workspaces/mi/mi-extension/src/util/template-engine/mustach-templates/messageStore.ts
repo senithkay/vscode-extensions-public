@@ -54,6 +54,7 @@ export interface GetMessageStoreTemplatesArgs {
     providerClass: string;
     customParameters: Record[];
     failOverMessageStore: string;
+    namespaces: any;
 }
 const classPool: { [key: string]: string } = {
     "JMS Message Store": "org.apache.synapse.message.store.impl.jms.JmsStore",
@@ -90,7 +91,7 @@ const paramPool: { [key: string]: Parameter } = {
     "JDBC Message Store DS": {
         "store.producer.guaranteed.delivery.enable": "enableProducerGuaranteedDelivery",
         "store.jdbc.table": "dataBaseTable",
-        "store.jdbc.ds": "dataSourceName",
+        "store.jdbc.dsName": "dataSourceName",
         "store.failover.message.store.name": "failOverMessageStore"
     },
     "WSO2 MB Message Store": {
@@ -136,7 +137,7 @@ const paramPool: { [key: string]: Parameter } = {
         "store.resequence.timeout": "pollingCount",
         "store.producer.guaranteed.delivery.enable": "enableProducerGuaranteedDelivery",
         "store.jdbc.table": "dataBaseTable",
-        "store.jdbc.ds": "dataSourceName",
+        "store.jdbc.dsName": "dataSourceName",
         "store.failover.message.store.name": "failOverMessageStore"
     }
 };
@@ -150,7 +151,7 @@ export function getMessageStoreMustacheTemplate() {
         {{/value}}   
     {{/params}}
         {{#isResequence}}
-        <parameter expression="{{xPath}}" name="store.resequence.id.path"/>
+        <parameter expression="{{{xPath}}}" name="store.resequence.id.path" {{#namespaces}}xmlns:{{prefix}}="{{uri}}"{{/namespaces}}/>
         {{/isResequence}}    
     </messageStore>`;
 }
@@ -180,6 +181,8 @@ export function getMessageStoreXml(data: GetMessageStoreTemplatesArgs) {
         }
     }
     var className = classPool[data.type] ? classPool[data.type] : data.providerClass;
+
+    data.namespaces = data.namespaces.length > 0 ? data.namespaces : null;
 
     const modifiedData = {
         ...data,

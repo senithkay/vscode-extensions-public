@@ -101,9 +101,9 @@ export function DataSourceWizard(props: DataSourceFormProps) {
                                         id: i++,
                                         key: "Property " + i,
                                         value: key + " : " + value,
-                                        parameters: [
-                                            { id: i + 1, value: key.toString(), type: "TextField", icon: "query", label: "" },
-                                            { id: i + 2, value: value.toString(), type: "TextField", icon: "query", label: "" }
+                                        paramValues: [
+                                            { value: key.toString() },
+                                            { value: value.toString() }
                                         ]
                                     };
                                 }),
@@ -123,9 +123,9 @@ export function DataSourceWizard(props: DataSourceFormProps) {
                                         id: i++,
                                         key: "Property " + i,
                                         value: key + " : " + value,
-                                        parameters: [
-                                            { id: i + 1, value: key.toString(), type: "TextField", icon: "query", label: "" },
-                                            { id: i + 2, value: value.toString(), type: "TextField", icon: "query", label: "" }
+                                        paramValues: [
+                                            { value: key.toString() },
+                                            { value: value.toString() }
                                         ]
                                     };
                                 }),
@@ -181,8 +181,8 @@ export function DataSourceWizard(props: DataSourceFormProps) {
         }
         if (dsClassName) {
             const dsPropertiesMap = dsProperties.paramValues.reduce((map, entry) => {
-                const key = entry.parameters[0].value.toString();
-                const value = entry.parameters[1].value.toString();
+                const key = entry.paramValues[0].value.toString();
+                const value = entry.paramValues[1].value.toString();
                 map[key] = value;
                 return map;
             }, {} as { [key: string]: string });
@@ -190,8 +190,8 @@ export function DataSourceWizard(props: DataSourceFormProps) {
         }
         if (jndiProperties.paramValues.length > 0) {
             const jndiPropertiesMap = jndiProperties.paramValues.reduce((map, entry) => {
-                const key = entry.parameters[0].value.toString();
-                const value = entry.parameters[1].value.toString();
+                const key = entry.paramValues[0].value.toString();
+                const value = entry.paramValues[1].value.toString();
                 map[key] = value;
                 return map;
             }, {} as { [key: string]: string });

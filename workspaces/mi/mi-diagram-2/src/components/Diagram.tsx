@@ -32,6 +32,7 @@ import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { KeyboardNavigationManager } from "../utils/keyboard-navigation-manager";
 import { Diagnostic } from "vscode-languageserver-types";
 import { APIResource } from "@wso2-enterprise/mi-syntax-tree/src";
+import {  GetBreakpointsResponse } from "@wso2-enterprise/mi-core";
 
 export interface DiagramProps {
     model: DiagramService;
@@ -167,12 +168,14 @@ export function Diagram(props: DiagramProps) {
         }
     }, [isFormOpen]);
 
-    const updateDiagramData = (data: DiagramData[]) => {
+    const updateDiagramData = async (data: DiagramData[]) => {
         const updatedDiagramData: any = {};
         let canvasWidth = 0;
         let canvasHeight = 0;
+        const currentBreakpoints: GetBreakpointsResponse = await rpcClient.getMiDebuggerRpcClient().getBreakpoints({ filePath: props.documentUri });
+        
         data.forEach((dataItem) => {
-            const { nodes, links, width, height } = getDiagramData(dataItem.model);
+            const { nodes, links, width, height } = getDiagramData(dataItem.model, currentBreakpoints);
             drawDiagram(nodes as any, links, dataItem.engine, (newModel: DiagramModel) => {
                 updatedDiagramData[dataItem.modelType] = {
                     ...diagramData[dataItem.modelType],
@@ -192,7 +195,7 @@ export function Diagram(props: DiagramProps) {
         });
     };
 
-    const getDiagramData = (model: STNode) => {
+    const getDiagramData = (model: STNode, breakpoints: GetBreakpointsResponse) => {
         // run sizing visitor
         const sizingVisitor = new SizingVisitor(diagnostics || []);
         traversNode(model, sizingVisitor);
@@ -204,7 +207,7 @@ export function Diagram(props: DiagramProps) {
         const height = positionVisitor.getSequenceHeight();
 
         // run node visitor
-        const nodeVisitor = new NodeFactoryVisitor(props.documentUri, model as any);
+        const nodeVisitor = new NodeFactoryVisitor(props.documentUri, model as any, breakpoints);
         traversNode(model, nodeVisitor);
         const nodes = nodeVisitor.getNodes();
         const links = nodeVisitor.getLinks();

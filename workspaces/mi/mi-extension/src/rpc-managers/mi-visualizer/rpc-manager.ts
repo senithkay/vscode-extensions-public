@@ -31,7 +31,7 @@ import {
     EVENT_TYPE,
 } from "@wso2-enterprise/mi-core";
 import fetch from 'node-fetch';
-import { workspace, window } from "vscode";
+import { workspace, window, commands, Uri, ViewColumn } from "vscode";
 import { history } from "../../history";
 import { StateMachine, navigate, openView } from "../../stateMachine";
 import { goToSource, handleOpenFile } from "../../util/fileOperations";
@@ -81,8 +81,8 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
     }
 
     goBack(): void {
-        history.pop();
-        navigate();
+        const entry = history.pop();
+        navigate(entry);
     }
 
     async fetchSamplesFromGithub(): Promise<GettingStartedData> {

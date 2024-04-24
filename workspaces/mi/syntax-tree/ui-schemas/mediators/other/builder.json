@@ -1,8 +1,8 @@
 {
-  "name": "Command",
+  "name": "Builder",
   "type": "mediator",
-  "title": "Command Mediator",
-  "help": "",
+  "title": "Builder Mediator",
+  "help": "Builds (converts to XML) messages even with Binary Relay enabled in the server.",
   "elements": [
     {
       "type": "attributeGroup",
@@ -20,41 +20,33 @@
               "tableValue": "builderClass",
               "elements": [
                 {
-                  "type": "attributeGroup",
+                  "type": "attribute",
                   "value": {
-                    "groupName": "Properties",
-                    "elements": [
-                      {
-                        "type": "attribute",
-                        "value": {
-                          "name": "contentType",
-                          "displayName": "Content Type",
-                          "inputType": "string",
-                          "required": false,
-                          "helpTip": ""
-                        }
-                      },
-                      {
-                        "type": "attribute",
-                        "value": {
-                          "name": "builderClass",
-                          "displayName": "Builder Class",
-                          "inputType": "string",
-                          "required": false,
-                          "helpTip": ""
-                        }
-                      },
-                      {
-                        "type": "attribute",
-                        "value": {
-                          "name": "formatterClass",
-                          "displayName": "Formatter Class",
-                          "inputType": "expression",
-                          "required": false,
-                          "helpTip": ""
-                        }
-                      }
-                    ]
+                    "name": "contentType",
+                    "displayName": "Content Type",
+                    "inputType": "string",
+                    "required": false,
+                    "helpTip": ""
+                  }
+                },
+                {
+                  "type": "attribute",
+                  "value": {
+                    "name": "builderClass",
+                    "displayName": "Builder Class",
+                    "inputType": "string",
+                    "required": false,
+                    "helpTip": ""
+                  }
+                },
+                {
+                  "type": "attribute",
+                  "value": {
+                    "name": "formatterClass",
+                    "displayName": "Formatter Class",
+                    "inputType": "expression",
+                    "required": false,
+                    "helpTip": ""
                   }
                 }
               ]

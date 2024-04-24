@@ -28,6 +28,7 @@ namespace S {
         selected: boolean;
         hovered: boolean;
         hasError: boolean;
+        isActiveBreakpoint?: boolean;
     };
     export const Node = styled.div<NodeStyleProp>`
         display: flex;
@@ -40,7 +41,7 @@ namespace S {
             ${(props: NodeStyleProp) =>
             props.hasError ? Colors.ERROR : props.selected ? Colors.SECONDARY : props.hovered ? Colors.SECONDARY : Colors.OUTLINE_VARIANT};
         border-radius: 10px;
-        background-color: ${Colors.SURFACE_BRIGHT};
+        background-color: ${(props: NodeStyleProp) => props?.isActiveBreakpoint ? Colors.DEBUGGER_BREAKPOINT_BACKGROUND : Colors.SURFACE_BRIGHT};
         color: ${Colors.ON_SURFACE};
         cursor: pointer;
         font-family: var(--font-family);
@@ -92,8 +93,8 @@ namespace S {
 
     export const EndpointContainer = styled.div`
         position: absolute;
-        left: 222.5px;
-        top: 9px;
+        left: 252.5px;
+        top: 18px;
     `;
 
     export const EndpointTextWrapper = styled(Description)`
@@ -126,7 +127,8 @@ export function CallNodeWidget(props: CallNodeWidgetProps) {
     const endpointHasDiagnotics = node.endpointHasDiagnostics();
     const endpointTooltip = endpointHasDiagnotics ? node.getEndpointDiagnostics().map(diagnostic => diagnostic.message).join("\n") : undefined;
     const nodeDescription = getNodeDescription(node.stNode);
-    const circleDescription = getNodeDescription(node.endpoint);
+    const hasBreakpoint = node.hasBreakpoint();
+    const isActiveBreakpoint = node.isActiveBreakpoint();
 
     useEffect(() => {
         if (!node.isSelected()) {
@@ -181,17 +183,47 @@ export function CallNodeWidget(props: CallNodeWidgetProps) {
         setIsPopoverOpen(false);
     }
 
+    const handleAddBreakpoint = async () => {
+        const file = node.documentUri;
+        const line = node.stNode.range.startTagRange.start.line;
+        const request = {
+            filePath: file,
+            breakpoint: {
+                line: line
+            }
+        }
+
+        await rpcClient.getMiDebuggerRpcClient().addBreakpointToSource(request);
+    };
+
+    const removeBreakpoint = async () => {
+        const file = node.documentUri;
+        const line = node.stNode.range.startTagRange.start.line;
+        const request = {
+            filePath: file,
+            breakpoint: {
+                line: line
+            }
+        }
+
+        await rpcClient.getMiDebuggerRpcClient().removeBreakpointFromSource(request);
+    };
+
     return (
         <div>
             <Tooltip content={!isPopoverOpen ? tooltip : ""} position={'bottom'} containerPosition={'absolute'}>
                 <S.Node
                     selected={node.isSelected()}
                     hasError={hasDiagnotics}
-                    hovered={isHovered}
+                    hovered={isHovered || isActiveBreakpoint}
+                    isActiveBreakpoint={isActiveBreakpoint}
                     onMouseEnter={() => setIsHovered(true)}
                     onMouseLeave={() => setIsHovered(false)}
                     onClick={(e) => node.onClicked(e, node, rpcClient, sidePanelContext)}
                 >
+                    {hasBreakpoint && (
+                        <div style={{ position: "absolute", left: -5, width: 15, height: 15, borderRadius: "50%", backgroundColor: "red" }}></div>
+                    )}
                     <S.TopPortWidget port={node.getPort("in")!} engine={engine} />
                     <div style={{ display: "flex", flexDirection: "row", width: NODE_DIMENSIONS.DEFAULT.WIDTH }}>
                         <S.IconContainer>{getSVGIcon(node.stNode.tag)}</S.IconContainer>
@@ -265,7 +297,7 @@ export function CallNodeWidget(props: CallNodeWidgetProps) {
             </S.CircleContainer>
 
             {node.endpoint ? (
-                <S.EndpointTextWrapper>{circleDescription}</S.EndpointTextWrapper>
+                <S.EndpointTextWrapper>{getNodeDescription(node.endpoint)}</S.EndpointTextWrapper>
             ) : (
                 <S.EndpointContainer>
                     <S.StyledButton appearance="icon" onClick={handlePlusNode}>
@@ -286,6 +318,10 @@ export function CallNodeWidget(props: CallNodeWidgetProps) {
                     <Menu>
                         <MenuItem key={'delete-btn'} item={{ label: 'Delete', id: "delete", onClick: () => node.delete(rpcClient) }} />
                         <MenuItem key={'delete-endpoint-btn'} item={{ label: 'Delete Endpoint', id: "delete-endpoint", onClick: handleOnDeleteEndpointClick }} />
+                        {hasBreakpoint ?
+                            <MenuItem key={'remove-breakpoint-btn'} item={{ label: 'Remove Breakpoint', id: "removeBreakpoint", onClick: removeBreakpoint }} /> :
+                            <MenuItem key={'breakpoint-btn'} item={{ label: 'Add Breakpoint', id: "addBreakpoint", onClick: handleAddBreakpoint }} />
+                        }
                     </Menu>
                 </ClickAwayListener>
             </Popover>

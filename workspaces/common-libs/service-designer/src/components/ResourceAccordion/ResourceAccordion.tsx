@@ -116,6 +116,8 @@ const colors = {
     "POST": '#49cc90',
     "DELETE": '#f93e3e',
     "PATCH": '#986ee2',
+    "OPTIONS": '#0d5aa7',
+    "HEAD": '#9012fe'
 }
 
 export function getColorByMethod(method: string) {
@@ -130,6 +132,10 @@ export function getColorByMethod(method: string) {
             return colors.DELETE;
         case "PATCH":
             return colors.PATCH;
+        case "OPTIONS":
+            return colors.OPTIONS;
+        case "HEAD":
+            return colors.HEAD;
         default:
             return '#FFF'; // Default color
     }
@@ -272,6 +278,7 @@ const ResourceAccordion = (params: ResourceAccordionProps) => {
                                         sx={{ transform: "translateX(-50%)" }}
                                         iconSx={verticalIconStyles}
                                         menuItems={additionalActions}
+                                        position='bottom-left'
                                     />
                                     <>
                                         More Actions

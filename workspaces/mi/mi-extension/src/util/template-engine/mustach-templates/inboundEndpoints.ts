@@ -39,8 +39,8 @@ export function getInboundEndpointMustacheTemplate() {
 export function getInboundEndpointdXml(data: GetInboundTemplatesArgs) {
     const { parameters, ...mainData } = data;
     const protocol =
-    data.type === 'custom' ? false : data.type === 'wso2_mb' ? 'jms' : data.type;
-    
+        data.type === 'custom' ? false : data.type === 'wso2_mb' ? 'jms' : data.type;
+
     let classAttr = '';
     let params: Parameter[] = [];
     Object.entries(parameters ?? {}).map(([key, value]) => {
@@ -92,11 +92,11 @@ export function getInboundEndpointdXml(data: GetInboundTemplatesArgs) {
             params.push({ key: 'topic.filter', value: topicName?.value ?? 'sample-topic-filter' });
             params.push({ key: 'filter.from.whitelist', value: 'true' });
         }
-    } else if (data.type === 'custom') {
-        const classParam = params.find((param) => param.key === 'class');
-        if (classParam?.value) {
-            classAttr = classParam.value as string;
-        }
+    }
+
+    const classParam = params.find((param) => param.key === 'class');
+    if (classParam?.value) {
+        classAttr = classParam.value as string;
         params = params.filter((param) => param.key !== 'class');
     }
 

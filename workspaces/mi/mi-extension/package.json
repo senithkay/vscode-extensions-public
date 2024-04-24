@@ -34,6 +34,11 @@
         "path": "./syntaxes/xml.tmLanguage.json"
       }
     ],
+    "breakpoints": [
+      {
+          "language": "SynapseXml"
+      }
+  ],
     "debuggers": [
       {
         "type": "mi",
@@ -129,8 +134,9 @@
       },
       {
         "command": "MI.openAiPanel",
-        "title": "Open MI Ai",
-        "category": "MI"
+        "title": "Open AI Panel",
+        "category": "MI",
+        "icon": "$(wand)"
       },
       {
         "command": "MI.project-explorer.add",
@@ -280,7 +286,7 @@
       {
         "command": "MI.show.source",
         "title": "Show Source",
-        "icon": "$(distro-source-view)",
+        "icon": "$(code)",
         "category": "MI"
       },
       {
@@ -330,13 +336,18 @@
           "title": "Build and Run Project"
         },
         {
+          "command": "MI.openAiPanel",
+          "group": "navigation@1",
+          "title": "Open AI Panel"
+        },
+        {
           "command": "MI.project-explorer.open-service-designer-beside",
           "when": "editorLangId == SynapseXml",
           "group": "navigation@3"
         },
         {
-          "when": "showGoToSource && editorLangId !== SynapseXml",
           "command": "MI.show.source",
+          "when": "showGoToSource && editorLangId !== SynapseXml",
           "group": "navigation@3"
         }
       ],
@@ -469,7 +480,8 @@
     "rimraf": "~5.0.5",
     "@wso2-enterprise/mi-visualizer": "workspace:*",
     "@wso2-enterprise/mi-rpc-client": "workspace:*",
-    "ts-morph": "^22.0.0"
+    "ts-morph": "^22.0.0",
+    "await-notify": "^1.0.1"
   },
   "dependencies": {
     "copyfiles": "^2.4.1",
@@ -500,6 +512,11 @@
     "unzipper": "~0.10.14",
     "vscode-debugadapter": "^1.51.0",
     "vscode-debugprotocol": "^1.51.0",
-    "tree-kill": "^1.2.2"
+    "tree-kill": "^1.2.2",
+    "node-loader": "~2.0.0",
+    "json-schema-to-typescript": "13.1.2",
+    "@types/to-json-schema": "0.2.4",
+    "to-json-schema": "0.2.4",
+    "xml2js":"0.6.2"
   }
 }

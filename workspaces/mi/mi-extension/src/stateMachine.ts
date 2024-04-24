@@ -4,7 +4,7 @@ import * as vscode from 'vscode';
 import { Uri, ViewColumn, window } from 'vscode';
 import { MILanguageClient } from './lang-client/activator';
 import { extension } from './MIExtensionContext';
-import { EVENT_TYPE, MACHINE_VIEW, MachineStateValue, SyntaxTreeMi, VisualizerLocation, webviewReady } from '@wso2-enterprise/mi-core';
+import { EVENT_TYPE, HistoryEntry, MACHINE_VIEW, MachineStateValue, SyntaxTreeMi, VisualizerLocation, webviewReady } from '@wso2-enterprise/mi-core';
 import { ExtendedLanguageClient } from './lang-client/ExtendedLanguageClient';
 import { VisualizerWebview } from './visualizer/webview';
 import { RPCLayer } from './RPCLayer';
@@ -14,7 +14,7 @@ import { openAIWebview } from './ai-panel/aiMachine';
 import { AiPanelWebview } from './ai-panel/webview';
 import { activateProjectExplorer } from './project-explorer/activate';
 import { StateMachineAI } from './ai-panel/aiMachine';
-import { getSourceCode } from './util/dataMapper';
+import { getSources } from './util/dataMapper';
 import { StateMachinePopup } from './stateMachinePopup';
 
 interface MachineContext extends VisualizerLocation {
@@ -40,7 +40,19 @@ const stateMachine = createMachine<MachineContext>({
                 onDone: [
                     {
                         target: 'projectDetected',
-                        cond: (context, event) => event.data.isProject === true, // Assuming true means project detected
+                        cond: (context, event) =>
+                            event.data.isProject === true && event.data.emptyProject === true, // Assuming true means project detected
+                        actions: assign({
+                            view: (context, event) => MACHINE_VIEW.ADD_ARTIFACT,
+                            projectUri: (context, event) => event.data.projectUri,
+                            isMiProject: (context, event) => true,
+                            displayOverview: (context, event) => true,
+                        })
+                    },
+                    {
+                        target: 'projectDetected',
+                        cond: (context, event) =>
+                            event.data.isProject === true && event.data.emptyProject === false, // Assuming true means project detected
                         actions: assign({
                             view: (context, event) => MACHINE_VIEW.Overview,
                             projectUri: (context, event) => event.data.projectUri,
@@ -195,6 +207,7 @@ const stateMachine = createMachine<MachineContext>({
                                 position: (context, event) => event.viewLocation.position,
                                 projectOpened: (context, event) => true,
                                 customProps: (context, event) => event.viewLocation.customProps,
+                                dataMapperProps: (context, event) => event.viewLocation.dataMapperProps,
                                 stNode: (context, event) => undefined,
                                 diagnostics: (context, event) => undefined,
                             })
@@ -208,7 +221,7 @@ const stateMachine = createMachine<MachineContext>({
                                 position: (context, event) => event.viewLocation.position,
                                 projectOpened: (context, event) => true,
                                 customProps: (context, event) => event.viewLocation.customProps,
-                                dataMapperProps: (context, event) => event.data?.dataMapperProps
+                                dataMapperProps: (context, event) => event.viewLocation.dataMapperProps
                             })
                         },
                         FILE_EDIT: {
@@ -314,28 +327,17 @@ const stateMachine = createMachine<MachineContext>({
                                         viewLocation.view = MACHINE_VIEW.ResourceView;
                                         viewLocation.stNode = node.api.resource[context.identifier];
                                     }
+                                    openDataMapperViewIfAvailable(context, viewLocation);
                                     break;
                                 case !!node.proxy:
                                     viewLocation.view = MACHINE_VIEW.ProxyView;
                                     viewLocation.stNode = node.proxy;
+                                    openDataMapperViewIfAvailable(context, viewLocation);
                                     break;
                                 case !!node.sequence:
                                     viewLocation.view = MACHINE_VIEW.SequenceView;
                                     viewLocation.stNode = node.sequence;
-                                    break;
-                                case !!node.sequence:
-                                    // TODO: Use node.dataMapper to identify the data mapper function
-                                    const filePath = "/Users/madusha/play/mi/mi-hw/HelloWorldService/src/main/wso2mi/resources/data-mapper/sample2.ts";
-                                    const functionName = "tnfStd2Person";
-
-                                    const fileContent = getSourceCode(filePath);
-                                    viewLocation.dataMapperProps = {
-                                        filePath: filePath,
-                                        functionName: functionName,
-                                        fileContent: fileContent
-                                    };
-
-                                    viewLocation.view = MACHINE_VIEW.DataMapperView;
+                                    openDataMapperViewIfAvailable(context, viewLocation);
                                     break;
                                 default:
                                     // Handle default case
@@ -417,11 +419,33 @@ export function openView(type: EVENT_TYPE, viewLocation?: VisualizerLocation) {
     stateService.send({ type: type, viewLocation: viewLocation });
 }
 
-export function navigate() {
+export function openDataMapperViewIfAvailable(context: MachineContext, viewLocation: VisualizerLocation) {
+    if (context.dataMapperProps?.filePath) {
+        const filePath = context.dataMapperProps?.filePath!;
+        const functionName = "mapFunction";
+
+        const [fnSource, interfacesSource] = getSources(filePath);
+        viewLocation.dataMapperProps = {
+            filePath: filePath,
+            functionName: functionName,
+            fileContent: fnSource,
+            interfacesSource: interfacesSource
+        };
+
+        viewLocation.view = MACHINE_VIEW.DataMapperView;
+    }
+}
+
+export function navigate(entry?: HistoryEntry) {
     const historyStack = history.get();
     if (historyStack.length === 0) {
-        history.push({ location: { view: MACHINE_VIEW.Overview, } });
-        stateService.send({ type: "NAVIGATE", viewLocation: { view: MACHINE_VIEW.Overview } });
+        if (entry) {
+            history.push({ location: entry.location });
+            stateService.send({ type: "NAVIGATE", viewLocation: entry!.location });
+        } else {
+            history.push({ location: { view: MACHINE_VIEW.Overview } });
+            stateService.send({ type: "NAVIGATE", viewLocation: { view: MACHINE_VIEW.Overview } });
+        }
     } else {
         const location = historyStack[historyStack.length - 1].location;
         stateService.send({ type: "NAVIGATE", viewLocation: location });
@@ -431,11 +455,12 @@ export function navigate() {
 function updateProjectExplorer(location: VisualizerLocation | undefined) {
     if (location && location.documentUri) {
         const projectRoot = vscode.workspace.getWorkspaceFolder(vscode.Uri.parse(location.documentUri));
-        if (projectRoot) {
+        if (projectRoot && !extension.preserveActivity) {
             location.projectUri = projectRoot.uri.fsPath;
-            vscode.commands.executeCommand(COMMANDS.REVEAL_ITEM_COMMAND, location);
+            if (StateMachine.context().isMiProject) {
+                vscode.commands.executeCommand(COMMANDS.REVEAL_ITEM_COMMAND, location);
+            }
         }
-
     }
     const webview = VisualizerWebview.currentPanel?.getWebview();
     if (webview) {
@@ -446,7 +471,7 @@ function updateProjectExplorer(location: VisualizerLocation | undefined) {
 }
 
 async function checkIfMiProject() {
-    let isProject = false, isUnsupportedProject = false, displayOverview = true;
+    let isProject = false, isUnsupportedProject = false, displayOverview = true, emptyProject = false;
     let projectUri = '';
     try {
         // Check for pom.xml files excluding node_modules directory
@@ -474,6 +499,12 @@ async function checkIfMiProject() {
     }
 
     if (isProject) {
+        // Check if the project is empty
+        const files = await vscode.workspace.findFiles('src/main/wso2mi/artifacts/*/*.xml', '**/node_modules/**', 1);
+        if (files.length === 0) {
+            emptyProject = true;
+        }
+
         projectUri = vscode.workspace.workspaceFolders![0].uri.fsPath;
         vscode.commands.executeCommand('setContext', 'MI.status', 'projectDetected');
         vscode.commands.executeCommand('setContext', 'MI.projectType', 'miProject'); // for command enablements
@@ -499,6 +530,7 @@ async function checkIfMiProject() {
         isProject,
         isUnsupportedProject,
         displayOverview,
-        projectUri // Return the path of the detected project
+        projectUri, // Return the path of the detected project
+        emptyProject
     };
 }

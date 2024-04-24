@@ -6,23 +6,24 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
 */
+// AUTO-GENERATED FILE. DO NOT MODIFY.
 
-
-import React, { useEffect, useState } from 'react';
-import { Button, ComponentCard, TextField } from '@wso2-enterprise/ui-toolkit';
+import React, { useEffect } from 'react';
+import { Button, ProgressIndicator, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
 import { AddMediatorProps } from '../common';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
 import { MEDIATORS } from '../../../../../resources/constants';
+import { Controller, useForm } from 'react-hook-form';
 
 const cardStyle = { 
-   display: "block",
-   margin: "15px 0",
-   padding: "0 15px 15px 15px",
-   width: "auto",
-   cursor: "auto"
+    display: "block",
+    margin: "15px 0",
+    padding: "0 15px 15px 15px",
+    width: "auto",
+    cursor: "auto"
 };
 
 const Error = styled.span`
@@ -34,108 +35,75 @@ const Field = styled.div`
    margin-bottom: 12px;
 `;
 
-const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g;
-const nameWithoutSpecialCharactorsRegex = /^[a-zA-Z0-9]+$/g;
-
 const DropForm = (props: AddMediatorProps) => {
-   const { rpcClient } = useVisualizerContext();
-   const sidePanelContext = React.useContext(SidePanelContext);
-   const [formValues, setFormValues] = useState({} as { [key: string]: any });
-   const [errors, setErrors] = useState({} as any);
+    const { rpcClient } = useVisualizerContext();
+    const sidePanelContext = React.useContext(SidePanelContext);
+    const [ isLoading, setIsLoading ] = React.useState(true);
 
-   useEffect(() => {
-       if (sidePanelContext.formValues && Object.keys(sidePanelContext.formValues).length > 0) {
-           setFormValues({ ...formValues, ...sidePanelContext.formValues });
-       } else {
-           setFormValues({});
-       }
-   }, [sidePanelContext.formValues]);
+    const { control, formState: { errors, dirtyFields }, handleSubmit, watch, reset } = useForm();
 
-   const onClick = async () => {
-       const newErrors = {} as any;
-       Object.keys(formValidators).forEach((key) => {
-           const error = formValidators[key]();
-           if (error) {
-               newErrors[key] = (error);
-           }
-       });
-       if (Object.keys(newErrors).length > 0) {
-           setErrors(newErrors);
-       } else {
-           const xml = getXML(MEDIATORS.DROP, formValues);
-           rpcClient.getMiDiagramRpcClient().applyEdit({
-               documentUri: props.documentUri, range: props.nodePosition, text: xml
-           });
-           sidePanelContext.setSidePanelState({
-                ...sidePanelContext,
-                isOpen: false,
-                isEditing: false,
-                formValues: undefined,
-                nodeRange: undefined,
-                operationName: undefined
-              });
-       }
-   };
+    useEffect(() => {
+        reset({
+            description: sidePanelContext?.formValues?.description || "",
+        });
+        setIsLoading(false);
+    }, [sidePanelContext.formValues]);
 
-   const formValidators: { [key: string]: (e?: any) => string | undefined } = {
-       "description": (e?: any) => validateField("description", e, false),
+    const onClick = async (values: any) => {
+        
+        const xml = getXML(MEDIATORS.DROP, values, dirtyFields, sidePanelContext.formValues);
+        if (Array.isArray(xml)) {
+            for (let i = 0; i < xml.length; i++) {
+                await rpcClient.getMiDiagramRpcClient().applyEdit({
+                    documentUri: props.documentUri, range: xml[i].range, text: xml[i].text
+                });
+            }
+        } else {
+            rpcClient.getMiDiagramRpcClient().applyEdit({
+                documentUri: props.documentUri, range: props.nodePosition, text: xml
+            });
+        }
+        sidePanelContext.setSidePanelState({
+            ...sidePanelContext,
+            isOpen: false,
+            isEditing: false,
+            formValues: undefined,
+            nodeRange: undefined,
+            operationName: undefined
+        });
+    };
 
-   };
-
-   const validateField = (id: string, e: any, isRequired: boolean, validation?: "e-mail" | "nameWithoutSpecialCharactors" | "custom", regex?: string): string => {
-       const value = e ?? formValues[id];
-       const newErrors = { ...errors };
-       let error;
-       if (isRequired && !value) {
-           error = "This field is required";
-       } else if (validation === "e-mail" && !value.match(emailRegex)) {
-           error = "Invalid e-mail address";
-       } else if (validation === "nameWithoutSpecialCharactors" && !value.match(nameWithoutSpecialCharactorsRegex)) {
-           error = "Invalid name";
-       } else if (validation === "custom" && !value.match(regex)) {
-           error = "Invalid input";
-       } else {
-           delete newErrors[id];
-           setErrors(newErrors);
-       }
-       setErrors({ ...errors, [id]: error });
-       return error;
-   };
-
-   return (
-       <div style={{ padding: "10px" }}>
-
-            <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                <h3>Properties</h3>
+    if (isLoading) {
+        return <ProgressIndicator/>;
+    }
+    return (
+        <>
+            <Typography sx={{ padding: "10px 15px", borderBottom: "1px solid var(--vscode-editorWidget-border)" }} variant="body3">Stops processing of the current message and terminates message flow.</Typography>
+            <div style={{ padding: "20px" }}>
 
                 <Field>
-                    <TextField
-                        label="Description"
-                        size={50}
-                        placeholder="Description"
-                        value={formValues["description"]}
-                        onTextChange={(e: any) => {
-                            setFormValues({ ...formValues, "description": e });
-                            formValidators["description"](e);
-                        }}
-                        required={false}
+                    <Controller
+                        name="description"
+                        control={control}
+                        render={({ field }) => (
+                            <TextField {...field} label="Description" size={50} placeholder="Description" />
+                        )}
                     />
-                    {errors["description"] && <Error>{errors["description"]}</Error>}
+                    {errors.description && <Error>{errors.description.message.toString()}</Error>}
                 </Field>
 
-            </ComponentCard>
 
-
-            <div style={{ display: "flex", textAlign: "right", justifyContent: "flex-end", marginTop: "10px" }}>
-                <Button
-                    appearance="primary"
-                    onClick={onClick}
-                >
+                <div style={{ textAlign: "right", marginTop: "10px", float: "right" }}>
+                    <Button
+                        appearance="primary"
+                        onClick={handleSubmit(onClick)}
+                    >
                     Submit
-                </Button>
-            </div>
+                    </Button>
+                </div>
 
-        </div>
+            </div>
+        </>
     );
 };
 

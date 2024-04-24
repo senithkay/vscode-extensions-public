@@ -11,11 +11,11 @@ export function getClassMustacheTemplate() {
 
 export function getClassXml(data: { [key: string]: any }) {
 
-    const properties = data.properties.map((property: string[]) => {
+    const properties = data.properties.map((property: any[]) => {
         return {
             propertyName: property[0],
-            value: property[2],
-            isExpression: property[1] == "EXPRESSION"
+            value: property[1].value,
+            isExpression: property[1].isExpression
         }
     });
     data = {
@@ -31,7 +31,8 @@ export function getClassFormDataFromSTNode(data: { [key: string]: any }, node: C
 
     if (node.property) {
         data.properties = node.property.map((property) => {
-            return [property.name, property.value ? "LITERAL" : "EXPRESSION", property.value ?? property.expression];
+            let isExpression = property?.value ? false : true;
+            return [property.name, { isExpression: isExpression, value: property.value ?? property.expression }];
         });
     }
 

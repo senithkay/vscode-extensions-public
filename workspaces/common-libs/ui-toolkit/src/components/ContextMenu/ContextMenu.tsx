@@ -16,8 +16,8 @@ import {
 } from "@vscode/webview-ui-toolkit/react";
 import styled from "@emotion/styled";
 import { Codicon } from "../Codicon/Codicon";
-import { ClickAwayListener } from "../ClickAwayListener/ClickAwayListener";
 import { createPortal } from "react-dom";
+import { Overlay } from "../Commons/Overlay";
 
 interface Item {
     id: number | string;
@@ -53,7 +53,9 @@ const VSCodeDataGridInlineCell = styled(VSCodeDataGridCell)`
     color: var(--vscode-inputOption-activeForeground);
     text-align: left;
     display: flex;
-    align-items: center;
+    justify-content: flex-start;
+    flex-grow: 1;
+    white-space: nowrap;
     padding: 6px 10px;
     &:hover {
         color: var(--button-primary-foreground);
@@ -61,9 +63,17 @@ const VSCodeDataGridInlineCell = styled(VSCodeDataGridCell)`
     };
 `;
 
+const VSCodeDataGridFlexRow = styled(VSCodeDataGridRow)`
+    display: flex;
+    padding: calc((var(--design-unit) / 4) * 1px) 0;
+    box-sizing: border-box;
+    width: 100%;
+    background: transparent;
+`;
+
 const ExpandedMenu = styled.div<ContainerProps>`
     position: absolute;
-    z-index: 200;
+    z-index: 1001;
     background: var(--vscode-editor-background);
     box-shadow: var(--vscode-widget-shadow) 0px 4px 10px;
     top: ${(props: ContainerProps) => `${props.top}px`};
@@ -138,8 +148,14 @@ export const ContextMenu: React.FC<ContextMenuProps> = (props: ContextMenuProps)
             break;
     }
 
-    const handleClick = () => {
+    const handleClick = (event: React.MouseEvent<HTMLElement, MouseEvent>) => {
+        event.stopPropagation();
         setIsMenuOpen(true);
+    };
+
+    const handleMenuClose = (event: React.MouseEvent<HTMLElement, MouseEvent>) => {
+        event.stopPropagation();
+        setIsMenuOpen(false);
     };
 
     useEffect(() => {
@@ -150,7 +166,7 @@ export const ContextMenu: React.FC<ContextMenuProps> = (props: ContextMenuProps)
     }, [isMenuOpen]);
 
     return (
-        <ClickAwayListener onClickAway={() => setIsMenuOpen(false)}>
+        <>
             <Container id={id} className={className}>
                 {isLoading ? (
                     <SmallProgressRing />
@@ -170,7 +186,7 @@ export const ContextMenu: React.FC<ContextMenuProps> = (props: ContextMenuProps)
                     <ExpandedMenu ref={expandMenuRef} sx={menuSx} top={top} left={left}>
                         <VSCodeDataGrid aria-label="Context Menu">
                             {menuItems?.map(item => (
-                                <VSCodeDataGridRow
+                                <VSCodeDataGridFlexRow
                                     key={item.id}
                                     onClick={(event: React.MouseEvent<HTMLElement, MouseEvent>) => {
                                         if (!item?.disabled) {
@@ -188,13 +204,14 @@ export const ContextMenu: React.FC<ContextMenuProps> = (props: ContextMenuProps)
                                     id={`component-list-menu-${item.id}`}
                                 >
                                     <VSCodeDataGridInlineCell>{item.label}</VSCodeDataGridInlineCell>
-                                </VSCodeDataGridRow>
+                                </VSCodeDataGridFlexRow>
                             ))}
                         </VSCodeDataGrid>
                     </ExpandedMenu>,
                     document.body
                 )}
             </Container>
-        </ClickAwayListener>
+            {isMenuOpen && <Overlay onClose={handleMenuClose} />}
+        </>
     );
 };

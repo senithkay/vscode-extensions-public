@@ -272,6 +272,7 @@ export interface CreateMessageStoreRequest {
     providerClass: string;
     customParameters: Record[];
     failOverMessageStore: string;
+    namespaces: any;
 }
 
 export interface CreateMessageStoreResponse {
@@ -316,6 +317,7 @@ export interface GetMessageStoreResponse {
     customParameters: Record[];
     failOverMessageStore: string;
     connectionInformationType?: string;
+    namespaces: any;
 }
 
 export interface GetMessageStoreRequest {
@@ -870,6 +872,13 @@ export interface CreateTaskRequest {
     triggerCount: number;
     triggerInterval: number;
     triggerCron: string;
+    taskProperties: taskProperty[];
+}
+
+export interface taskProperty {
+    key: string;
+    value: string;
+    isLiteral: boolean
 }
 
 export interface CreateTaskResponse {
@@ -889,6 +898,7 @@ export interface GetTaskResponse {
     triggerCount: number;
     triggerInterval: number;
     triggerCron: string;
+    taskProperties: taskProperty[];
 }
 
 export interface CreateTemplateRequest {
@@ -903,6 +913,7 @@ export interface CreateTemplateRequest {
     wsdlPort: number | null;
     traceEnabled: boolean;
     statisticsEnabled: boolean;
+    parameters: any;
     getContentOnly: boolean;
 }
 
@@ -926,6 +937,7 @@ export interface RetrieveTemplateResponse {
     wsdlPort: number | null;
     traceEnabled: boolean;
     statisticsEnabled: boolean;
+    parameters: any;
 }
 
 export interface ProjectRootResponse {
@@ -1221,3 +1233,9 @@ export interface GetAllArtifactsRequest {
 export interface GetAllArtifactsResponse {
     artifacts: string[]
 }
+
+export interface DeleteArtifactRequest {
+    path: string;
+    enableUndo?: boolean;
+}
+

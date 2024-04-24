@@ -34,7 +34,6 @@ export function DataMapperHeader(props: DataMapperHeaderProps) {
                     <FilterBar>
                         <HeaderSearchBox />
                     </FilterBar>
-                    <ConfigureButton onClick={onConfigOpen}/>
                 </>
             )}
             {onClose && (

@@ -18,6 +18,7 @@ import { AiPanelWebview } from './ai-panel/webview';
 import { StateMachineAI } from './ai-panel/aiMachine';
 import { registerMiDataMapperRpcHandlers } from './rpc-managers/mi-data-mapper/rpc-handler';
 import { extension } from './MIExtensionContext';
+import { registerMiDebuggerRpcHandlers } from './rpc-managers/mi-debugger/rpc-handler';
 import { StateMachinePopup } from './stateMachinePopup';
 
 export class RPCLayer {
@@ -54,6 +55,7 @@ export class RPCLayer {
         registerMiDiagramRpcHandlers(RPCLayer._messenger);
         registerMiVisualizerRpcHandlers(RPCLayer._messenger);
         registerMiDataMapperRpcHandlers(RPCLayer._messenger);
+        registerMiDebuggerRpcHandlers(RPCLayer._messenger);
         // ----- AI Webview RPC Methods
         RPCLayer._messenger.onRequest(getAIVisualizerState, () => getAIContext());
         RPCLayer._messenger.onRequest(sendAIStateEvent, (event: AI_EVENT_TYPE) => StateMachineAI.sendEvent(event));

@@ -9,6 +9,7 @@
 
 import React, { Dispatch, SetStateAction } from "react";
 import { Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
+import { ExpressionFieldValue } from "@wso2-enterprise/ui-toolkit";
 
 interface SidePanelContext {
     // Mediator related
@@ -22,6 +23,11 @@ interface SidePanelContext {
     title?: string;
     isFormOpen?: boolean;
     connectors?: any[];
+    expressionEditor?: {
+        isOpen: boolean;
+        value: ExpressionFieldValue;
+        setValue: (value: ExpressionFieldValue) => void;
+    }
     setSidePanelState?: Dispatch<SetStateAction<any>>;
 }
 
@@ -36,6 +42,11 @@ const SidePanelContext = React.createContext<SidePanelContext>({
     title: undefined,
     isFormOpen: false,
     connectors: [],
+    expressionEditor: {
+        isOpen: false,
+        value: undefined,
+        setValue: () => {},
+    },
     setSidePanelState: () => {},
 })
 

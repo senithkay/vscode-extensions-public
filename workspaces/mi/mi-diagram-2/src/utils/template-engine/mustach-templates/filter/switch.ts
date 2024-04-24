@@ -78,3 +78,7 @@ export function getNewSwitchCaseXml() {
   return `<case regex="case">
   </case>`;
 }
+
+export function getSwitchDescription(node: Switch) {
+  return node.source;
+}
