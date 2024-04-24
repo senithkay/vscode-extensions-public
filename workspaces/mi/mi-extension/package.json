@@ -286,7 +286,7 @@
       {
         "command": "MI.show.source",
         "title": "Show Source",
-        "icon": "$(distro-source-view)",
+        "icon": "$(code)",
         "category": "MI"
       },
       {
@@ -346,8 +346,8 @@
           "group": "navigation@3"
         },
         {
-          "when": "showGoToSource && editorLangId !== SynapseXml",
           "command": "MI.show.source",
+          "when": "showGoToSource && editorLangId !== SynapseXml",
           "group": "navigation@3"
         }
       ],

@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 export function getEditServiceTemplate() {
-    return `<api{{#hostName}} hostname="{{hostName}}"{{/hostName}} name="{{{name}}}"{{#port}} port="{{port}}"{{/port}}{{#statistics}} statistics="enable"{{/statistics}}{{#trace}} trace="enable"{{/trace}} context="{{{context}}}"{{#version}} version="{{{version}}}" version-type="{{version_type}}" {{/version}} xmlns="http://ws.apache.org/ns/synapse">`
+    return `<api{{#hostName}} hostname="{{hostName}}"{{/hostName}} name="{{{name}}}"{{#port}} port="{{port}}"{{/port}}{{#statistics}} statistics="enable"{{/statistics}}{{#trace}} trace="enable"{{/trace}} context="{{{context}}}"{{#version}} version="{{{version}}}" version-type="{{version_type}}"{{/version}} xmlns="http://ws.apache.org/ns/synapse">`
 }
 
 export function getHandlersTemplate() {
@@ -21,7 +21,7 @@ export function getHandlersTemplate() {
 };
 
 export function getAddApiResourceTemplate() {
-    return `<resource methods="{{methods}}"{{#protocol}} protocol="{{{protocol}}}"{{/protocol}}{{#uri_template}} uri-template="{{{uri_template}}}"{{/uri_template}}{{#url_mapping}} url-mapping="{{{url_mapping}}}"{{/url_mapping}}>
+    return `<resource methods="{{methods}}"{{#protocol}} protocol="{{{protocol}}}"{{/protocol}}{{#uri_template}} uri-template="{{{uri_template}}}"{{/uri_template}}{{#url_mapping}} url-mapping="{{{url_mapping}}}"{{/url_mapping}}{{#version}} version="{{{version}}}" version-type="{{version_type}}"{{/version}}>
     <inSequence>
     </inSequence>
     <faultSequence>
