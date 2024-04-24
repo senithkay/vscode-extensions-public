@@ -37,7 +37,7 @@ export const useStyles = () => ({
         height: "100%"
     }),
     link: css({
-        color: "var(--vscode-editor-editor-selectionBackground)",
+        color: "var(--vscode-editor-selectionBackground)",
         textDecoration: "underline",
         "&:hover, &:focus, &:active": {
             color: "var(--vscode-editor-selectionBackground)",
