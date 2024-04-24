@@ -108,6 +108,11 @@ export function getCallXml(data: { [key: string]: any }, dirtyFields?: any, defa
   if (data.endpointType == "XPATH" || data.endpointType == "REGISTRYKEY") {
     data.registryOrXpathEndpoint = true;
   }
+  if (data.endopint) {
+    delete data.endpointXpath;
+    data.registryOrXpathEndpoint = true;
+    data.endpointRegistryKey = data.endopint;
+  }
   if (data.endpointType == "XPATH") {
     delete data.endpointRegistryKey;
   } else if (data.endpointType == "REGISTRYKEY") {
@@ -131,7 +136,7 @@ function getNewMediator(data: { [key: string]: any }) {
 function getEdits(data: { [key: string]: any }, dirtyFields: any, defaultValues: any) {
 
   let callTagAttributes = ["enableBlockingCalls", "initAxis2ClientOptions", "description"];
-  let endpointTagAttributes = ["endpointType", "endpointXpath", "endpointRegistryKey"];
+  let endpointTagAttributes = ["endpointType", "endpointXpath", "endpointRegistryKey", "endopint"];
   let sourceTagAttributes = ["sourceType", "contentType", "sourceProperty", "sourcePayload", "sourceXPath"];
   let targetTagAttributes = ["targetType", "targetProperty"];
   let dirtyKeys = Object.keys(dirtyFields);
@@ -190,6 +195,7 @@ export function getCallFormDataFromSTNode(data: { [key: string]: any }, node: Ca
   data.initAxis2ClientOptions = node.initAxis2ClientOptions != undefined ? node.initAxis2ClientOptions : true;
   data.endpointXpath = node.endpoint?.keyExpression;
   data.endpointRegistryKey = node.endpoint?.key;
+  data.endopint = node.endpoint?.key;
   if (data.endpointXpath) {
     data.endpointType = "XPATH";
   } else if (data.endpointRegistryKey) {

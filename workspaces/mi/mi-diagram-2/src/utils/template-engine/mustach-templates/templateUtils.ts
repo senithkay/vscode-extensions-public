@@ -241,7 +241,7 @@ export function getXML(name: string, data: { [key: string]: any }, dirtyFields?:
         case MEDIATORS.AGGREGATE:
             return getAggregateXml(data);
         case MEDIATORS.ITERATE:
-            return getIterateXml(data);
+            return getIterateXml(data, dirtyFields, defaultValues);
         case MEDIATORS.FOREACHMEDIATOR:
             return getForeachXml(data);
         //Filter Mediators
