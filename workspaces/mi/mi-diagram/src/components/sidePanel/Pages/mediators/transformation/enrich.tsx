@@ -121,7 +121,7 @@ const EnrichForm = (props: AddMediatorProps) => {
                         {errors.sourceType && <Error>{errors.sourceType.message.toString()}</Error>}
                     </Field>
 
-                    {watch("sourceType") && watch("sourceType").toLowerCase() == "custom" &&
+                    {watch("sourceType") == "custom" &&
                     <Field>
                         <Controller
                             name="sourceXPath"
@@ -148,7 +148,7 @@ const EnrichForm = (props: AddMediatorProps) => {
                     </Field>
                     }
 
-                    {watch("sourceType") && watch("sourceType").toLowerCase() == "property" &&
+                    {watch("sourceType") == "property" &&
                     <Field>
                         <Controller
                             name="sourceProperty"
@@ -161,7 +161,7 @@ const EnrichForm = (props: AddMediatorProps) => {
                     </Field>
                     }
 
-                    {watch("sourceType") && watch("sourceType").toLowerCase() == "inline" &&
+                    {watch("sourceType") == "inline" &&
                     <Field>
                         <Controller
                             name="inlineType"
@@ -176,7 +176,7 @@ const EnrichForm = (props: AddMediatorProps) => {
                     </Field>
                     }
 
-                    {watch("sourceType") && watch("sourceType").toLowerCase() == "inline" &&watch("inlineType") && watch("inlineType").toLowerCase() == "inline xml/json"  &&
+                    {((watch("sourceType") == "inline") &&(watch("inlineType") == "Inline XML/JSON") ) &&
                     <Field>
                         <Controller
                             name="sourceXML"
@@ -189,7 +189,7 @@ const EnrichForm = (props: AddMediatorProps) => {
                     </Field>
                     }
 
-                    {watch("inlineType") && watch("inlineType").toLowerCase() == "registrykey" &&
+                    {watch("inlineType") == "RegistryKey" &&
                     <Field>
                         <Controller
                             name="inlineRegistryKey"
@@ -238,7 +238,7 @@ const EnrichForm = (props: AddMediatorProps) => {
                         {errors.targetType && <Error>{errors.targetType.message.toString()}</Error>}
                     </Field>
 
-                    {watch("targetType") && watch("targetType").toLowerCase() == "custom" ||watch("targetType") && watch("targetType").toLowerCase() == "key"  &&
+                    {((watch("targetType") == "custom") ||(watch("targetType") == "key") ) &&
                     <Field>
                         <Controller
                             name="targetXPathJsonPath"
@@ -251,7 +251,7 @@ const EnrichForm = (props: AddMediatorProps) => {
                     </Field>
                     }
 
-                    {watch("targetType") && watch("targetType").toLowerCase() == "property" &&
+                    {watch("targetType") == "property" &&
                     <Field>
                         <Controller
                             name="targetProperty"

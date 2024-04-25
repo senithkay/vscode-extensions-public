@@ -557,7 +557,7 @@ const RuleForm = (props: AddMediatorProps) => {
                         {errors.ruleSetSourceType && <Error>{errors.ruleSetSourceType.message.toString()}</Error>}
                     </Field>
 
-                    {watch("ruleSetSourceType") && watch("ruleSetSourceType").toLowerCase() == "inline" &&
+                    {watch("ruleSetSourceType") == "INLINE" &&
                     <Field>
                         <Controller
                             name="ruleSetSourceCode"
@@ -570,7 +570,7 @@ const RuleForm = (props: AddMediatorProps) => {
                     </Field>
                     }
 
-                    {watch("ruleSetSourceType") && watch("ruleSetSourceType").toLowerCase() == "registry_reference" &&
+                    {watch("ruleSetSourceType") == "REGISTRY_REFERENCE" &&
                     <Field>
                         <Controller
                             name="inlineRegistryKey"
@@ -583,7 +583,7 @@ const RuleForm = (props: AddMediatorProps) => {
                     </Field>
                     }
 
-                    {watch("ruleSetSourceType") && watch("ruleSetSourceType").toLowerCase() == "url" &&
+                    {watch("ruleSetSourceType") == "URL" &&
                     <Field>
                         <Controller
                             name="ruleSetURL"

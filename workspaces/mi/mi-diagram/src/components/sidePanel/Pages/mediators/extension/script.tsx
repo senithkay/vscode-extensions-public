@@ -160,7 +160,7 @@ const ScriptForm = (props: AddMediatorProps) => {
                     {errors.scriptType && <Error>{errors.scriptType.message.toString()}</Error>}
                 </Field>
 
-                {watch("scriptType") && watch("scriptType").toLowerCase() == "inline" &&
+                {watch("scriptType") == "INLINE" &&
                 <Field>
                     <Controller
                         name="scriptBody"
@@ -173,7 +173,7 @@ const ScriptForm = (props: AddMediatorProps) => {
                 </Field>
                 }
 
-                {watch("scriptType") && watch("scriptType").toLowerCase() == "registry_reference" &&
+                {watch("scriptType") == "REGISTRY_REFERENCE" &&
                 <Field>
                     <Controller
                         name="scriptKey"
@@ -191,7 +191,7 @@ const ScriptForm = (props: AddMediatorProps) => {
                 </Field>
                 }
 
-                {watch("scriptType") && watch("scriptType").toLowerCase() == "registry_reference" &&
+                {watch("scriptType") == "REGISTRY_REFERENCE" &&
                 <Field>
                     <Controller
                         name="mediateFunction"

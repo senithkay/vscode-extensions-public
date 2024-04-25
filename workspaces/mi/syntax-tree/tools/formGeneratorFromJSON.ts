@@ -80,47 +80,54 @@ const getValueString = (element: any) => {
     return "value";
 }
 
-function generateEnabledCondition(enableCondition: any, indentation: number) {
+function generateEnabledCondition(enableCondition: any, indentation: number, isSubCondition?: boolean) {
     let fields = "";
-    let conditionType = "&&";
     let conditions = "";
 
     const getCondition = (condition: string, value: string) => {
         if (typeof value === "boolean" || value === "true" || value === "false") {
-            return `watch("${condition}") == ${Boolean(value)}`;
+            return `watch("${condition}") == ${value}`;
         } else {
-            return `watch("${condition}") && watch("${condition}").toLowerCase() == "${value.toLowerCase()}"`;
+            return `watch("${condition}") == "${value}"`;
         }
     }
 
     if (enableCondition.length > 1) {
         const condition = enableCondition[0];
+        let conditionType;
         if (condition === "OR") {
             conditionType = "||";
         } else if (condition === "NOT") {
-            conditionType = "!";
+            conditions += "!";
+        } else {
+            conditionType = "&&";
         }
+        conditions += "(";
+
         for (let i = 1; i < enableCondition.length; i++) {
             const conditionElement = enableCondition[i];
+
+            if (Array.isArray(conditionElement)) {
+                conditions += generateEnabledCondition(conditionElement, indentation, true);
+                continue;
+            }
+
             const condition = Object.keys(conditionElement)[0];
             const value = conditionElement[condition];
 
-            conditions += `${getCondition(condition, value)} ${i != enableCondition.length - 1 ? conditionType : ""}`
+            conditions += `(${getCondition(condition, value)}) ${i != enableCondition.length - 1 ? conditionType : ""}`
         }
 
-        fields +=
-            fixIndentation(`
-                        {${conditions} &&`, indentation);
+        fields += `${conditions})`;
     } else {
         const conditionElement = enableCondition[0];
         const condition = Object.keys(conditionElement)[0];
         const value = conditionElement[condition];
 
-        fields +=
-            fixIndentation(`
-                        {${getCondition(condition, value)} &&`, indentation);
+        fields += `${getCondition(condition, value)}`;
     }
-    return fields;
+    return !isSubCondition ? fixIndentation(`
+        {${fields} &&`, indentation) : fields;
 }
 
 const getRegexAndMessage = (validation: string, validationRegEx: string) => {

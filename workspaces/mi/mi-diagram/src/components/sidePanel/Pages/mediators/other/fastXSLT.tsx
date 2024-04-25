@@ -100,7 +100,7 @@ const FastXSLTForm = (props: AddMediatorProps) => {
                         {errors.fastXsltSchemaType && <Error>{errors.fastXsltSchemaType.message.toString()}</Error>}
                     </Field>
 
-                    {watch("fastXsltSchemaType") && watch("fastXsltSchemaType").toLowerCase() == "dynamic" &&
+                    {watch("fastXsltSchemaType") == "dynamic" &&
                     <Field>
                         <Controller
                             name="fastXsltDynamicSchemaKey"
@@ -127,7 +127,7 @@ const FastXSLTForm = (props: AddMediatorProps) => {
                     </Field>
                     }
 
-                    {watch("fastXsltSchemaType") && watch("fastXsltSchemaType").toLowerCase() == "static" &&
+                    {watch("fastXsltSchemaType") == "static" &&
                     <Field>
                         <Controller
                             name="fastXsltStaticSchemaKey"

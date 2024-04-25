@@ -98,7 +98,7 @@ const FilterForm = (props: AddMediatorProps) => {
                     {errors.conditionType && <Error>{errors.conditionType.message.toString()}</Error>}
                 </Field>
 
-                {watch("conditionType") && watch("conditionType").toLowerCase() == "source and regular expression" &&
+                {watch("conditionType") == "Source and Regular Expression" &&
                 <Field>
                     <Controller
                         name="source"
@@ -125,7 +125,7 @@ const FilterForm = (props: AddMediatorProps) => {
                 </Field>
                 }
 
-                {watch("conditionType") && watch("conditionType").toLowerCase() == "source and regular expression" &&
+                {watch("conditionType") == "Source and Regular Expression" &&
                 <Field>
                     <Controller
                         name="regularExpression"
@@ -138,7 +138,7 @@ const FilterForm = (props: AddMediatorProps) => {
                 </Field>
                 }
 
-                {watch("conditionType") && watch("conditionType").toLowerCase() == "xpath" &&
+                {watch("conditionType") == "XPath" &&
                 <Field>
                     <Controller
                         name="xPath"

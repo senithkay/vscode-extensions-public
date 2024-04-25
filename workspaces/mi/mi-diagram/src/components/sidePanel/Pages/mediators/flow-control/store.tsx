@@ -96,7 +96,7 @@ const StoreForm = (props: AddMediatorProps) => {
                     {errors.messageStore && <Error>{errors.messageStore.message.toString()}</Error>}
                 </Field>
 
-                {watch("messageStore") && watch("messageStore").toLowerCase() == "select expresison" &&
+                {watch("messageStore") == "Select Expresison" &&
                 <Field>
                     <Controller
                         name="expression"

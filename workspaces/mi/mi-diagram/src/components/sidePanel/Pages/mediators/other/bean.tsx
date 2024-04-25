@@ -107,7 +107,7 @@ const BeanForm = (props: AddMediatorProps) => {
                         {errors.action && <Error>{errors.action.message.toString()}</Error>}
                     </Field>
 
-                    {watch("action") && watch("action").toLowerCase() == "create" &&
+                    {watch("action") == "CREATE" &&
                     <Field>
                         <Controller
                             name="class"
@@ -131,7 +131,7 @@ const BeanForm = (props: AddMediatorProps) => {
                         {errors.var && <Error>{errors.var.message.toString()}</Error>}
                     </Field>
 
-                    {watch("action") && watch("action").toLowerCase() == "set_property" ||watch("action") && watch("action").toLowerCase() == "get_property"  &&
+                    {((watch("action") == "SET_PROPERTY") ||(watch("action") == "GET_PROPERTY") ) &&
                     <Field>
                         <Controller
                             name="property"
@@ -160,7 +160,7 @@ const BeanForm = (props: AddMediatorProps) => {
                             {errors.valueType && <Error>{errors.valueType.message.toString()}</Error>}
                         </Field>
 
-                        {watch("valueType") && watch("valueType").toLowerCase() == "literal" &&
+                        {watch("valueType") == "LITERAL" &&
                         <Field>
                             <Controller
                                 name="valueLiteral"
@@ -173,7 +173,7 @@ const BeanForm = (props: AddMediatorProps) => {
                         </Field>
                         }
 
-                        {watch("valueType") && watch("valueType").toLowerCase() == "expression" &&
+                        {watch("valueType") == "EXPRESSION" &&
                         <Field>
                             <Controller
                                 name="valueExpression"
@@ -218,7 +218,7 @@ const BeanForm = (props: AddMediatorProps) => {
                             {errors.targetType && <Error>{errors.targetType.message.toString()}</Error>}
                         </Field>
 
-                        {watch("targetType") && watch("targetType").toLowerCase() == "literal" &&
+                        {watch("targetType") == "LITERAL" &&
                         <Field>
                             <Controller
                                 name="targetLiteral"
@@ -231,7 +231,7 @@ const BeanForm = (props: AddMediatorProps) => {
                         </Field>
                         }
 
-                        {watch("targetType") && watch("targetType").toLowerCase() == "expression" &&
+                        {watch("targetType") == "EXPRESSION" &&
                         <Field>
                             <Controller
                                 name="targetExpression"
