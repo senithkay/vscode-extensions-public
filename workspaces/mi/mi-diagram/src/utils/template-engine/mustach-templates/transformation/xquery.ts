@@ -23,9 +23,10 @@ export function getXqueryMustacheTemplate() {
 
 export function getXqueryXml(data: { [key: string]: any }) {
 
+  data.targetXPath = data.targetXPath?.value;
   if (data.scriptKeyType == "Static") delete data.dynamicScriptKey;
   else {
-    data.dynamicScriptKey = "{" + data.dynamicScriptKey + "}";
+    data.dynamicScriptKey = "{" + data.dynamicScriptKey?.value + "}";
     delete data.staticScriptKey;
   }
   data.variables = data.variables?.map((variable: string[]) => {
@@ -48,7 +49,7 @@ export function getXqueryFormDataFromSTNode(data: { [key: string]: any }, node: 
     const match = node.key.match(regex);
     if (match && match.length > 1) {
       data.scriptKeyType = "Dynamic";
-      data.dynamicScriptKey = match[1];
+      data.dynamicScriptKey = { isExpression: true, value: match[1] };
       delete data.staticScriptKey;
     } else {
       data.scriptKeyType = "Static";
@@ -57,7 +58,7 @@ export function getXqueryFormDataFromSTNode(data: { [key: string]: any }, node: 
     }
   }
 
-  data.targetXPath = node.target;
+  data.targetXPath = { isExpression: true, value: node.target };
   data.description = node.description;
   if (node.variable) {
     data.variables = node.variable.map((var1) => {
