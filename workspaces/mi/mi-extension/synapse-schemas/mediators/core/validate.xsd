@@ -35,7 +35,7 @@
             </xs:documentation>
         </xs:annotation>
         <xs:complexType>
-            <xs:choice>
+            <xs:sequence>
                 <xs:element name="property" minOccurs="0" maxOccurs="unbounded">
                     <xs:complexType>
                         <xs:attribute name="name" type="xs:string" use="required" />
@@ -52,6 +52,13 @@
                         <xs:attribute name="key" type="xs:string" use="required" />
                     </xs:complexType>
                 </xs:element>
+                <xs:element ref="feature" minOccurs="0" maxOccurs="unbounded" />
+                <xs:element name="resource" minOccurs="0" maxOccurs="unbounded">
+                    <xs:complexType>
+                        <xs:attribute name="key" type="xs:string" use="required" />
+                        <xs:attribute name="location" type="xs:string" use="required" />
+                    </xs:complexType>
+                </xs:element>
                 <xs:element name="on-fail" minOccurs="1" maxOccurs="1">
                     <xs:annotation>
                         <xs:documentation>
@@ -63,14 +70,7 @@
                         <xs:group ref="mediatorList" minOccurs="1" maxOccurs="unbounded" />
                     </xs:complexType>
                 </xs:element>
-                <xs:element ref="feature" minOccurs="0" maxOccurs="unbounded" />
-                <xs:element name="resource" minOccurs="0" maxOccurs="unbounded">
-                    <xs:complexType>
-                        <xs:attribute name="key" type="xs:string" use="required" />
-                        <xs:attribute name="location" type="xs:string" use="required" />
-                    </xs:complexType>
-                </xs:element>
-            </xs:choice>
+            </xs:sequence>
             <xs:attribute name="cache-schema" type="xs:boolean" use="optional" />
             <xs:attribute name="source" type="xs:string" use="optional" />
             <xs:attribute name="description" type="xs:string" use="optional" />

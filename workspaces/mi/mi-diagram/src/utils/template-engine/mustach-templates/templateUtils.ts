@@ -230,7 +230,7 @@ export function getXML(name: string, data: { [key: string]: any }, dirtyFields?:
         case MEDIATORS.STORE:
             return getStoreXml(data);
         case MEDIATORS.VALIDATE:
-            return getValidateXml(data);
+            return getValidateXml(data, dirtyFields, defaultValues);
         case MEDIATORS.SEND:
             return getSendXml(data);
         case MEDIATORS.PAYLOAD:
