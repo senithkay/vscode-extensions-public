@@ -15,7 +15,7 @@ import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
-import { ENDPOINTS } from '../../../../../constants';
+import { ENDPOINTS } from '../../../../../resources/constants';
 import { AddMediatorProps } from '../../mediators/common';
 
 const cardStyle = { 
@@ -45,7 +45,7 @@ const RecipientListEndpointForm = (props: AddMediatorProps) => {
    const [errors, setErrors] = useState({} as any);
 
    useEffect(() => {
-       if (sidePanelContext.formValues) {
+       if (sidePanelContext.formValues && Object.keys(sidePanelContext.formValues).length > 0) {
            setFormValues({ ...formValues, ...sidePanelContext.formValues });
        } else {
            setFormValues({
@@ -71,10 +71,14 @@ const RecipientListEndpointForm = (props: AddMediatorProps) => {
            rpcClient.getMiDiagramRpcClient().applyEdit({
                documentUri: props.documentUri, range: props.nodePosition, text: xml
            });
-           sidePanelContext.setIsOpen(false);
-           sidePanelContext.setFormValues(undefined);
-           sidePanelContext.setNodeRange(undefined);
-           sidePanelContext.setOperationName(undefined);
+           sidePanelContext.setSidePanelState({
+                ...sidePanelContext,
+                isOpen: false,
+                isEditing: false,
+                formValues: undefined,
+                nodeRange: undefined,
+                operationName: undefined
+              });
        }
    };
 
@@ -124,7 +128,7 @@ const RecipientListEndpointForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["endpointName"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "endpointName": e });
                             formValidators["endpointName"](e);
                         }}
@@ -135,7 +139,7 @@ const RecipientListEndpointForm = (props: AddMediatorProps) => {
 
                 <Field>
                     <label>Endpoint Type</label>
-                    <AutoComplete items={["Inline", "Value", "XPath"]} selectedItem={formValues["endpointType"]} onChange={(e: any) => {
+                    <AutoComplete identifier='endpoint-type' items={["Inline", "Value", "XPath"]} value={formValues["endpointType"]} onValueChange={(e: any) => {
                         setFormValues({ ...formValues, "endpointType": e });
                         formValidators["endpointType"](e);
                     }} />
@@ -148,7 +152,7 @@ const RecipientListEndpointForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["endpointValue"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "endpointValue": e });
                             formValidators["endpointValue"](e);
                         }}
@@ -163,7 +167,7 @@ const RecipientListEndpointForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["maxCache"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "maxCache": e });
                             formValidators["maxCache"](e);
                         }}
@@ -181,7 +185,7 @@ const RecipientListEndpointForm = (props: AddMediatorProps) => {
                                 size={50}
                                 placeholder=""
                                 value={formValues["name"]}
-                                onChange={(e: any) => {
+                                onTextChange={(e: any) => {
                                     setFormValues({ ...formValues, "name": e });
                                     formValidators["name"](e);
                                 }}
@@ -192,7 +196,7 @@ const RecipientListEndpointForm = (props: AddMediatorProps) => {
 
                         <Field>
                             <label>Scope</label>
-                            <AutoComplete items={["default", "transport", "axis2", "axis2-client"]} selectedItem={formValues["scope"]} onChange={(e: any) => {
+                            <AutoComplete identifier='scope' items={["default", "transport", "axis2", "axis2-client"]} value={formValues["scope"]} onValueChange={(e: any) => {
                                 setFormValues({ ...formValues, "scope": e });
                                 formValidators["scope"](e);
                             }} />
@@ -201,7 +205,7 @@ const RecipientListEndpointForm = (props: AddMediatorProps) => {
 
                         <Field>
                             <label>Value Type</label>
-                            <AutoComplete items={["LITERAL", "EXPRESSION"]} selectedItem={formValues["valueType"]} onChange={(e: any) => {
+                            <AutoComplete identifier='value-type' items={["LITERAL", "EXPRESSION"]} value={formValues["valueType"]} onValueChange={(e: any) => {
                                 setFormValues({ ...formValues, "valueType": e });
                                 formValidators["valueType"](e);
                             }} />
@@ -215,7 +219,7 @@ const RecipientListEndpointForm = (props: AddMediatorProps) => {
                                     size={50}
                                     placeholder=""
                                     value={formValues["value"]}
-                                    onChange={(e: any) => {
+                                    onTextChange={(e: any) => {
                                         setFormValues({ ...formValues, "value": e });
                                         formValidators["value"](e);
                                     }}
@@ -232,7 +236,7 @@ const RecipientListEndpointForm = (props: AddMediatorProps) => {
                                     size={50}
                                     placeholder=""
                                     value={formValues["valueExpression"]}
-                                    onChange={(e: any) => {
+                                    onTextChange={(e: any) => {
                                         setFormValues({ ...formValues, "valueExpression": e });
                                         formValidators["valueExpression"](e);
                                     }}
@@ -293,7 +297,7 @@ const RecipientListEndpointForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["description"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "description": e });
                             formValidators["description"](e);
                         }}
@@ -305,7 +309,7 @@ const RecipientListEndpointForm = (props: AddMediatorProps) => {
             </ComponentCard>
 
 
-            <div style={{ textAlign: "right", marginTop: "10px" }}>
+            <div style={{ display: "flex", textAlign: "right", justifyContent: "flex-end", marginTop: "10px" }}>
                 <Button
                     appearance="primary"
                     onClick={onClick}

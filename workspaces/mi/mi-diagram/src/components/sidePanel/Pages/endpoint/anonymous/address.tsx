@@ -15,7 +15,7 @@ import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
-import { ENDPOINTS } from '../../../../../constants';
+import { ENDPOINTS } from '../../../../../resources/constants';
 import { AddMediatorProps } from '../../mediators/common';
 
 const cardStyle = { 
@@ -45,7 +45,7 @@ const AddressEndpointForm = (props: AddMediatorProps) => {
    const [errors, setErrors] = useState({} as any);
 
    useEffect(() => {
-       if (sidePanelContext.formValues) {
+       if (sidePanelContext.formValues && Object.keys(sidePanelContext.formValues).length > 0) {
            setFormValues({ ...formValues, ...sidePanelContext.formValues });
        } else {
            setFormValues({
@@ -79,10 +79,14 @@ const AddressEndpointForm = (props: AddMediatorProps) => {
            rpcClient.getMiDiagramRpcClient().applyEdit({
                documentUri: props.documentUri, range: props.nodePosition, text: xml
            });
-           sidePanelContext.setIsOpen(false);
-           sidePanelContext.setFormValues(undefined);
-           sidePanelContext.setNodeRange(undefined);
-           sidePanelContext.setOperationName(undefined);
+           sidePanelContext.setSidePanelState({
+                ...sidePanelContext,
+                isOpen: false,
+                isEditing: false,
+                formValues: undefined,
+                nodeRange: undefined,
+                operationName: undefined
+              });
        }
    };
 
@@ -144,7 +148,7 @@ const AddressEndpointForm = (props: AddMediatorProps) => {
 
                 <Field>
                     <label>Format</label>
-                    <AutoComplete items={["LEAVE_AS_IS", "soap11", "soap12", "pox", "get", "rest"]} selectedItem={formValues["format"]} onChange={(e: any) => {
+                    <AutoComplete identifier={"formalt"} items={["LEAVE_AS_IS", "soap11", "soap12", "pox", "get", "rest"]} value={formValues["format"]} onValueChange={(e: any) => {
                         setFormValues({ ...formValues, "format": e });
                         formValidators["format"](e);
                     }} />
@@ -175,7 +179,7 @@ const AddressEndpointForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["uri"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "uri": e });
                             formValidators["uri"](e);
                         }}
@@ -198,7 +202,7 @@ const AddressEndpointForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["suspendErrorCodes"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "suspendErrorCodes": e });
                                 formValidators["suspendErrorCodes"](e);
                             }}
@@ -213,7 +217,7 @@ const AddressEndpointForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["suspendInitialDuration"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "suspendInitialDuration": e });
                                 formValidators["suspendInitialDuration"](e);
                             }}
@@ -228,7 +232,7 @@ const AddressEndpointForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["suspendMaximumDuration"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "suspendMaximumDuration": e });
                                 formValidators["suspendMaximumDuration"](e);
                             }}
@@ -243,7 +247,7 @@ const AddressEndpointForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["suspendProgressionFactor"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "suspendProgressionFactor": e });
                                 formValidators["suspendProgressionFactor"](e);
                             }}
@@ -263,7 +267,7 @@ const AddressEndpointForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["retryErrorCodes"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "retryErrorCodes": e });
                                 formValidators["retryErrorCodes"](e);
                             }}
@@ -278,7 +282,7 @@ const AddressEndpointForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["retryCount"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "retryCount": e });
                                 formValidators["retryCount"](e);
                             }}
@@ -293,7 +297,7 @@ const AddressEndpointForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["retryDelay"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "retryDelay": e });
                                 formValidators["retryDelay"](e);
                             }}
@@ -345,7 +349,7 @@ const AddressEndpointForm = (props: AddMediatorProps) => {
                             size={50}
                             placeholder=""
                             value={formValues["timeoutDuration"]}
-                            onChange={(e: any) => {
+                            onTextChange={(e: any) => {
                                 setFormValues({ ...formValues, "timeoutDuration": e });
                                 formValidators["timeoutDuration"](e);
                             }}
@@ -356,7 +360,7 @@ const AddressEndpointForm = (props: AddMediatorProps) => {
 
                     <Field>
                         <label>Timeout Action</label>
-                        <AutoComplete items={["never", "discard", "fault"]} selectedItem={formValues["timeoutAction"]} onChange={(e: any) => {
+                        <AutoComplete identifier='timeout-action' items={["never", "discard", "fault"]} value={formValues["timeoutAction"]} onValueChange={(e: any) => {
                             setFormValues({ ...formValues, "timeoutAction": e });
                             formValidators["timeoutAction"](e);
                         }} />
@@ -367,7 +371,7 @@ const AddressEndpointForm = (props: AddMediatorProps) => {
 
                 <Field>
                     <label>Optimize</label>
-                    <AutoComplete items={["LEAVE_AS_IS", "mtom", "swa"]} selectedItem={formValues["optimize"]} onChange={(e: any) => {
+                    <AutoComplete identifier='optimize' items={["LEAVE_AS_IS", "mtom", "swa"]} value={formValues["optimize"]} onValueChange={(e: any) => {
                         setFormValues({ ...formValues, "optimize": e });
                         formValidators["optimize"](e);
                     }} />
@@ -379,7 +383,7 @@ const AddressEndpointForm = (props: AddMediatorProps) => {
 
                     <Field>
                         <label>Failover Retry Type</label>
-                        <AutoComplete items={["RETRY_ERROR_CODES", "NON_RETRY_ERROR_CODES"]} selectedItem={formValues["failoverRetryType"]} onChange={(e: any) => {
+                        <AutoComplete identifier="failover-retry-type" items={["RETRY_ERROR_CODES", "NON_RETRY_ERROR_CODES"]} value={formValues["failoverRetryType"]} onValueChange={(e: any) => {
                             setFormValues({ ...formValues, "failoverRetryType": e });
                             formValidators["failoverRetryType"](e);
                         }} />
@@ -393,7 +397,7 @@ const AddressEndpointForm = (props: AddMediatorProps) => {
                                 size={50}
                                 placeholder=""
                                 value={formValues["failoverRetryErrorCodes"]}
-                                onChange={(e: any) => {
+                                onTextChange={(e: any) => {
                                     setFormValues({ ...formValues, "failoverRetryErrorCodes": e });
                                     formValidators["failoverRetryErrorCodes"](e);
                                 }}
@@ -410,7 +414,7 @@ const AddressEndpointForm = (props: AddMediatorProps) => {
                                 size={50}
                                 placeholder=""
                                 value={formValues["failoverNonRetryErrorCodes"]}
-                                onChange={(e: any) => {
+                                onTextChange={(e: any) => {
                                     setFormValues({ ...formValues, "failoverNonRetryErrorCodes": e });
                                     formValidators["failoverNonRetryErrorCodes"](e);
                                 }}
@@ -436,7 +440,7 @@ const AddressEndpointForm = (props: AddMediatorProps) => {
                                 size={50}
                                 placeholder=""
                                 value={formValues["name"]}
-                                onChange={(e: any) => {
+                                onTextChange={(e: any) => {
                                     setFormValues({ ...formValues, "name": e });
                                     formValidators["name"](e);
                                 }}
@@ -447,7 +451,7 @@ const AddressEndpointForm = (props: AddMediatorProps) => {
 
                         <Field>
                             <label>Scope</label>
-                            <AutoComplete items={["default", "transport", "axis2", "axis2-client"]} selectedItem={formValues["scope"]} onChange={(e: any) => {
+                            <AutoComplete identifier='scope' items={["default", "transport", "axis2", "axis2-client"]} value={formValues["scope"]} onValueChange={(e: any) => {
                                 setFormValues({ ...formValues, "scope": e });
                                 formValidators["scope"](e);
                             }} />
@@ -456,7 +460,7 @@ const AddressEndpointForm = (props: AddMediatorProps) => {
 
                         <Field>
                             <label>Value Type</label>
-                            <AutoComplete items={["LITERAL", "EXPRESSION"]} selectedItem={formValues["valueType"]} onChange={(e: any) => {
+                            <AutoComplete identifier='value-type' items={["LITERAL", "EXPRESSION"]} value={formValues["valueType"]} onValueChange={(e: any) => {
                                 setFormValues({ ...formValues, "valueType": e });
                                 formValidators["valueType"](e);
                             }} />
@@ -470,7 +474,7 @@ const AddressEndpointForm = (props: AddMediatorProps) => {
                                     size={50}
                                     placeholder=""
                                     value={formValues["value"]}
-                                    onChange={(e: any) => {
+                                    onTextChange={(e: any) => {
                                         setFormValues({ ...formValues, "value": e });
                                         formValidators["value"](e);
                                     }}
@@ -487,7 +491,7 @@ const AddressEndpointForm = (props: AddMediatorProps) => {
                                     size={50}
                                     placeholder=""
                                     value={formValues["valueExpression"]}
-                                    onChange={(e: any) => {
+                                    onTextChange={(e: any) => {
                                         setFormValues({ ...formValues, "valueExpression": e });
                                         formValidators["valueExpression"](e);
                                     }}
@@ -548,7 +552,7 @@ const AddressEndpointForm = (props: AddMediatorProps) => {
                         size={50}
                         placeholder=""
                         value={formValues["description"]}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, "description": e });
                             formValidators["description"](e);
                         }}
@@ -560,7 +564,7 @@ const AddressEndpointForm = (props: AddMediatorProps) => {
             </ComponentCard>
 
 
-            <div style={{ textAlign: "right", marginTop: "10px" }}>
+            <div style={{ display: "flex", textAlign: "right", justifyContent: "flex-end", marginTop: "10px" }}>
                 <Button
                     appearance="primary"
                     onClick={onClick}

@@ -7,6 +7,30 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-function getSequenceMustacheTemplate() {
-    return `<sequence {{#staticReferenceKey}}key="{{staticReferenceKey}}"{{/staticReferenceKey}} {{#dynamicReferenceKey}}key="{{dynamicReferenceKey}}"{{/dynamicReferenceKey}} {{#description}}description="{{description}}"{{/description}}/>`;
+import Mustache from "mustache";
+
+export function getSequenceMustacheTemplate() {
+    return `<sequence {{#referingSequence}}key="{{referingSequence}}"{{/referingSequence}} {{#description}}description="{{description}}"{{/description}}/>`;
+}
+
+export function getSequenceXml(data: { [key: string]: any }) {
+
+    return Mustache.render(getSequenceMustacheTemplate(), data);
+}
+
+export function getSequenceDataFromSTNode(data: { [key: string]: any }) {
+    if (data.staticReferenceKey) {
+        data.referringSequenceType = "Static";
+    } else if (data.dynamicReferenceKey) {
+        data.referringSequenceType = "Dynamic";
+    }
+    return data;
+}
+
+export function getSequenceDescription(data: { [key: string]: any }) {
+    if (data.staticReferenceKey) {
+        return data.staticReferenceKey;
+    } else if (data.dynamicReferenceKey) {
+        return data.dynamicReferenceKey;
+    }
 }

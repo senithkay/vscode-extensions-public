@@ -3128,7 +3128,7 @@ importers:
       tslint-react-hooks: 2.2.2_t7b5rvrgqeu75u2a5tstpdiwve
       typescript: 5.3.3
 
-  ../../workspaces/mi/mi-diagram-2:
+  ../../workspaces/mi/mi-diagram:
     specifiers:
       '@emotion/react': ~11.11.4
       '@emotion/styled': ~11.11.0
@@ -3386,7 +3386,7 @@ importers:
       '@vscode/webview-ui-toolkit': ^1.2.0
       '@wso2-enterprise/mi-core': workspace:*
       '@wso2-enterprise/mi-data-mapper': workspace:*
-      '@wso2-enterprise/mi-diagram-2': workspace:*
+      '@wso2-enterprise/mi-diagram': workspace:*
       '@wso2-enterprise/mi-rpc-client': workspace:*
       '@wso2-enterprise/mi-syntax-tree': workspace:*
       '@wso2-enterprise/service-designer': workspace:*
@@ -3431,7 +3431,7 @@ importers:
       '@vscode/webview-ui-toolkit': 1.4.0_react@18.2.0
       '@wso2-enterprise/mi-core': link:../mi-core
       '@wso2-enterprise/mi-data-mapper': link:../mi-data-mapper
-      '@wso2-enterprise/mi-diagram-2': link:../mi-diagram-2
+      '@wso2-enterprise/mi-diagram': link:../mi-diagram
       '@wso2-enterprise/mi-rpc-client': link:../mi-rpc-client
       '@wso2-enterprise/mi-syntax-tree': link:../syntax-tree
       '@wso2-enterprise/service-designer': link:../../common-libs/service-designer

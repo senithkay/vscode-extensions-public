@@ -19,7 +19,7 @@ import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { useForm } from "react-hook-form";
-import { FormKeylookup } from "@wso2-enterprise/mi-diagram-2";
+import { FormKeylookup } from "@wso2-enterprise/mi-diagram";
 import { set } from "lodash";
 
 export type EditSequenceFields = {
