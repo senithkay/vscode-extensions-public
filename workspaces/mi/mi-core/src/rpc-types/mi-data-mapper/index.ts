@@ -18,6 +18,7 @@ import {
     ConvertRegPathToAbsPathResponse,
     ImportDMSchemaRequest,
     ImportDMSchemaResponse,
+    UpdateDMCRequest
 } from "./types";
 
 export interface MIDataMapperAPI {
@@ -27,4 +28,5 @@ export interface MIDataMapperAPI {
     convertRegPathToAbsPath: (params: ConvertRegPathToAbsPathRequest) => Promise<ConvertRegPathToAbsPathResponse>;
     importDMSchema: (params: ImportDMSchemaRequest) => Promise<ImportDMSchemaResponse>;
     createDMFiles: (params: GenerateDMInputRequest) => Promise<GenerateDMInputResponse>;
+    updateDMCFileContent: (params: UpdateDMCRequest) => void;
 }

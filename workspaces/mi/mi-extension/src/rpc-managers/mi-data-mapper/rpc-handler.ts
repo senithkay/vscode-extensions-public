@@ -25,6 +25,7 @@ import {
     UpdateDMCRequest,
     updateDMC,
     createDMFiles,
+    updateDMCFileContent
 } from "@wso2-enterprise/mi-core";
 import { Messenger } from "vscode-messenger";
 import { MiDataMapperRpcManager } from "./rpc-manager";
@@ -39,4 +40,5 @@ export function registerMiDataMapperRpcHandlers(messenger: Messenger) {
     messenger.onRequest(importDMSchema, (args: ImportDMSchemaRequest) => rpcManger.importDMSchema(args));
     messenger.onRequest(updateDMC, (args: UpdateDMCRequest) => rpcManger.updateDMC(args));
     messenger.onRequest(createDMFiles, (args: GenerateDMInputRequest) => rpcManger.createDMFiles(args));
+    messenger.onRequest(updateDMCFileContent, (args: UpdateDMCRequest) => rpcManger.updateDMCFileContent(args));
 }

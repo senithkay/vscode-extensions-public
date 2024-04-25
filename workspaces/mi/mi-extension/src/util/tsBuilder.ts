@@ -8,15 +8,41 @@
  * 
  */
 
-import { compileFromFile } from 'json-schema-to-typescript'
+import { compileFromFile } from './../datamapper/schema-to-typescript'
+import  { FromSchema, JSONSchema } from 'json-schema-to-ts';
 import * as fs from "fs";
 import * as os from 'os';
 import path = require("path");
 import { Uri, workspace } from "vscode";
+import { convertTypeScriptToJavascript } from './schemaBuilder';
 
 export function generateTSInterfacesFromSchemaFile(schemaPath: string): Promise<string> {
     const ts = compileFromFile(schemaPath, {bannerComment: ""});
     return ts;
+}
+
+export function generateTypescriptFromSchema(schema: any): string {
+    const dogSchema = {
+        type: "object",
+        properties: {
+          name: { type: "string" },
+          age: { type: "integer" },
+          hobbies: { type: "array", items: { type: "string" } },
+          favoriteFood: {
+            type: "object",
+            properties: {
+              name: { type: "string" },
+              calories: { type: "number" },
+            }
+           },
+        },
+        required: ["name", "age"],
+      } as const;
+      
+      type Dog = FromSchema<typeof dogSchema>;
+      type DogType = typeof dogSchema;
+      // write the Dog type to a file
+      return '';
 }
 
 export async function updateDMC(dmName:string, sourcePath: string): Promise<string> {
@@ -56,6 +82,22 @@ export async function updateDMC(dmName:string, sourcePath: string): Promise<stri
             tsContent += "interface OutputRoot {\n}\n";
         }
         fs.writeFileSync(tsFilepath, tsContent);
+        const jsContent = convertTypeScriptToJavascript(tsContent);
+        fs.writeFileSync(dmcFilePath, jsContent);
+    }
+    return "";
+}
+
+export async function updateDMCContent(dmName:string, sourcePath: string): Promise<string> {
+    const workspaceFolder = workspace.getWorkspaceFolder(Uri.file(sourcePath));
+    if (workspaceFolder) {
+        const dataMapperConfigFolder = path.join(
+            workspaceFolder.uri.fsPath,  'src', 'main', 'wso2mi', 'resources', 'registry', 'gov', 'datamapper');
+        const tsFilepath = path.join(dataMapperConfigFolder, `${dmName}.ts`);
+        const dmcFilePath = path.join(dataMapperConfigFolder, `${dmName}.dmc`);
+        const tsContent = fs.readFileSync(tsFilepath, 'utf8');
+        const jsContent = convertTypeScriptToJavascript(tsContent);
+        fs.writeFileSync(dmcFilePath, jsContent);
     }
     return "";
 }

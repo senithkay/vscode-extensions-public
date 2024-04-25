@@ -32,7 +32,8 @@ import {
     UpdateDMCRequest,
     UpdateDMCResponse,
     updateDMC,
-    createDMFiles
+    createDMFiles,
+    updateDMCFileContent
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -74,5 +75,9 @@ export class MiDataMapperRpcClient implements MIDataMapperAPI {
 
     createDMFiles(params: GenerateDMInputRequest): Promise<GenerateDMInputResponse> {
         return this._messenger.sendRequest(createDMFiles, HOST_EXTENSION, params);
+    }
+
+    updateDMCFileContent(params: UpdateDMCRequest): void {
+        return this._messenger.sendNotification(updateDMCFileContent, HOST_EXTENSION, params);
     }
 }

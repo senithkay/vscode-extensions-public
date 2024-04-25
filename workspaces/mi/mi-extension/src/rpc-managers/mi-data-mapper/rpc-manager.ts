@@ -31,7 +31,7 @@ import { Project } from "ts-morph";
 import { navigate } from "../../stateMachine";
 import { generateSchemaForJSON, generateSchemaForJSONSchema, generateSchemaForXML, Schema } from "../../util/schemaBuilder";
 import { JSONSchema3or4 } from "to-json-schema";
-import { updateDMC } from "../../util/tsBuilder";
+import { updateDMC, updateDMCContent } from "../../util/tsBuilder";
 import * as fs from "fs";
 import * as os from 'os';
 import { window, Uri, workspace } from "vscode";
@@ -166,6 +166,13 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
                 console.error(error);
                 reject(error);
             }
+        });
+    }
+
+    async updateDMCFileContent(params: UpdateDMCRequest): Promise<void> {
+        const { dmName, sourcePath } = params;
+        updateDMCContent(dmName, sourcePath).then(() => {
+            // navigate();
         });
     }
 

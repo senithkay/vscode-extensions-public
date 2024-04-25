@@ -36,3 +36,4 @@ export const convertRegPathToAbsPath: RequestType<ConvertRegPathToAbsPathRequest
 export const importDMSchema: RequestType<ImportDMSchemaRequest, ImportDMSchemaResponse> = { method: `${_preFix}/importDMSchema` };
 export const updateDMC: RequestType<UpdateDMCRequest, UpdateDMCResponse> = { method: `${_preFix}/updateDMC` };
 export const createDMFiles: RequestType<GenerateDMInputRequest, GenerateDMInputResponse> = { method: `${_preFix}/createDMFiles` };
+export const updateDMCFileContent: RequestType<UpdateDMCRequest, void> = { method: `${_preFix}/updateDMCFileContent` };
