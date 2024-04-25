@@ -240,7 +240,7 @@ const XQueryForm = (props: AddMediatorProps) => {
                         {errors.scriptKeyType && <Error>{errors.scriptKeyType.message.toString()}</Error>}
                     </Field>
 
-                    {watch("scriptKeyType") && watch("scriptKeyType").toLowerCase() == "static" &&
+                    {watch("scriptKeyType") == "Static" &&
                     <Field>
                         <Controller
                             name="staticScriptKey"
@@ -253,7 +253,7 @@ const XQueryForm = (props: AddMediatorProps) => {
                     </Field>
                     }
 
-                    {watch("scriptKeyType") && watch("scriptKeyType").toLowerCase() == "dynamic" &&
+                    {watch("scriptKeyType") == "Dynamic" &&
                     <Field>
                         <Controller
                             name="dynamicScriptKey"

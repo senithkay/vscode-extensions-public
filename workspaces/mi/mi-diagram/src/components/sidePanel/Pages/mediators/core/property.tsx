@@ -126,7 +126,7 @@ const PropertyForm = (props: AddMediatorProps) => {
                     {errors.propertyAction && <Error>{errors.propertyAction.message.toString()}</Error>}
                 </Field>
 
-                {watch("propertyDataType") && watch("propertyDataType").toLowerCase() == "om"  &&
+                {!((watch("propertyDataType") == "OM") ) &&
                 <Field>
                     <Controller
                         name="value"
@@ -153,7 +153,7 @@ const PropertyForm = (props: AddMediatorProps) => {
                 </Field>
                 }
 
-                {watch("propertyDataType") && watch("propertyDataType").toLowerCase() == "om" &&
+                {watch("propertyDataType") == "OM" &&
                 <Field>
                     <Controller
                         name="OMValue"
@@ -180,7 +180,7 @@ const PropertyForm = (props: AddMediatorProps) => {
                 </Field>
 
                 <FormGroup title="Advanced">
-                    {watch("propertyDataType") && watch("propertyDataType").toLowerCase() == "string" &&
+                    {watch("propertyDataType") == "STRING" &&
                     <Field>
                         <Controller
                             name="valueStringPattern"
@@ -193,7 +193,7 @@ const PropertyForm = (props: AddMediatorProps) => {
                     </Field>
                     }
 
-                    {watch("propertyDataType") && watch("propertyDataType").toLowerCase() == "string" &&
+                    {watch("propertyDataType") == "STRING" &&
                     <Field>
                         <Controller
                             name="valueStringCapturingGroup"

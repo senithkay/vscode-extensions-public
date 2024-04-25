@@ -100,7 +100,7 @@ const EventForm = (props: AddMediatorProps) => {
                         {errors.topicType && <Error>{errors.topicType.message.toString()}</Error>}
                     </Field>
 
-                    {watch("topicType") && watch("topicType").toLowerCase() == "static" &&
+                    {watch("topicType") == "static" &&
                     <Field>
                         <Controller
                             name="staticTopic"
@@ -113,7 +113,7 @@ const EventForm = (props: AddMediatorProps) => {
                     </Field>
                     }
 
-                    {watch("topicType") && watch("topicType").toLowerCase() == "dynamic" &&
+                    {watch("topicType") == "dynamic" &&
                     <Field>
                         <Controller
                             name="dynamicTopic"

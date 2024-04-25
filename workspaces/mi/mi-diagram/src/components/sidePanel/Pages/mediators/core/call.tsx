@@ -116,7 +116,7 @@ const CallForm = (props: AddMediatorProps) => {
                     {errors.endopint && <Error>{errors.endopint.message.toString()}</Error>}
                 </Field>
 
-                {watch("endopint") && watch("endopint").toLowerCase() == "inline" &&
+                {watch("endopint") == "INLINE" &&
                 <Field>
                     <Controller
                         name="inlineEndpoint"
@@ -129,7 +129,7 @@ const CallForm = (props: AddMediatorProps) => {
                 </Field>
                 }
 
-                {watch("endpoint") && watch("endpoint").toLowerCase() == "registrykey" &&
+                {watch("endpoint") == "REGISTRYKEY" &&
                 <Field>
                     <Controller
                         name="endpointRegistryKey"
@@ -142,7 +142,7 @@ const CallForm = (props: AddMediatorProps) => {
                 </Field>
                 }
 
-                {watch("endpoint") && watch("endpoint").toLowerCase() == "xpath" &&
+                {watch("endpoint") == "XPATH" &&
                 <Field>
                     <Controller
                         name="endpointXpath"
@@ -207,7 +207,7 @@ const CallForm = (props: AddMediatorProps) => {
                         {errors.sourceType && <Error>{errors.sourceType.message.toString()}</Error>}
                     </Field>
 
-                    {watch("sourceType") && watch("sourceType").toLowerCase() == "property" &&
+                    {watch("sourceType") == "property" &&
                     <Field>
                         <Controller
                             name="sourceProperty"
@@ -220,7 +220,7 @@ const CallForm = (props: AddMediatorProps) => {
                     </Field>
                     }
 
-                    {watch("sourceType") && watch("sourceType").toLowerCase() == "property" ||watch("sourceType") && watch("sourceType").toLowerCase() == "inline" ||watch("sourceType") && watch("sourceType").toLowerCase() == "custom"  &&
+                    {((watch("sourceType") == "property") ||(watch("sourceType") == "inline") ||(watch("sourceType") == "custom") ) &&
                     <Field>
                         <Controller
                             name="contentType"
@@ -233,7 +233,7 @@ const CallForm = (props: AddMediatorProps) => {
                     </Field>
                     }
 
-                    {watch("sourceType") && watch("sourceType").toLowerCase() == "inline" &&
+                    {watch("sourceType") == "inline" &&
                     <Field>
                         <Controller
                             name="sourcePayload"
@@ -246,7 +246,7 @@ const CallForm = (props: AddMediatorProps) => {
                     </Field>
                     }
 
-                    {watch("sourceType") && watch("sourceType").toLowerCase() == "custom" &&
+                    {watch("sourceType") == "custom" &&
                     <Field>
                         <Controller
                             name="sourceXPath"
@@ -286,7 +286,7 @@ const CallForm = (props: AddMediatorProps) => {
                         {errors.targetType && <Error>{errors.targetType.message.toString()}</Error>}
                     </Field>
 
-                    {watch("targetType") && watch("targetType").toLowerCase() == "property" &&
+                    {watch("targetType") == "property" &&
                     <Field>
                         <Controller
                             name="targetProperty"

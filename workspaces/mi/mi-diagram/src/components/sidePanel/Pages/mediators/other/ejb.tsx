@@ -294,7 +294,7 @@ const EJBForm = (props: AddMediatorProps) => {
                         {errors.sessionIdType && <Error>{errors.sessionIdType.message.toString()}</Error>}
                     </Field>
 
-                    {watch("sessionIdType") && watch("sessionIdType").toLowerCase() == "literal" &&
+                    {watch("sessionIdType") == "LITERAL" &&
                     <Field>
                         <Controller
                             name="sessionIdLiteral"
@@ -307,7 +307,7 @@ const EJBForm = (props: AddMediatorProps) => {
                     </Field>
                     }
 
-                    {watch("sessionIdType") && watch("sessionIdType").toLowerCase() == "expression" &&
+                    {watch("sessionIdType") == "EXPRESSION" &&
                     <Field>
                         <Controller
                             name="sessionIdExpression"

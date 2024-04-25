@@ -240,7 +240,7 @@ const ThrottleForm = (props: AddMediatorProps) => {
                         {errors.onAcceptBranchsequenceType && <Error>{errors.onAcceptBranchsequenceType.message.toString()}</Error>}
                     </Field>
 
-                    {watch("onAcceptBranchsequenceType") && watch("onAcceptBranchsequenceType").toLowerCase() == "registry_reference" &&
+                    {watch("onAcceptBranchsequenceType") == "REGISTRY_REFERENCE" &&
                     <Field>
                         <Controller
                             name="onAcceptBranchsequenceKey"
@@ -271,7 +271,7 @@ const ThrottleForm = (props: AddMediatorProps) => {
                         {errors.onRejectBranchsequenceType && <Error>{errors.onRejectBranchsequenceType.message.toString()}</Error>}
                     </Field>
 
-                    {watch("onRejectBranchsequenceType") && watch("onRejectBranchsequenceType").toLowerCase() == "registry_reference" &&
+                    {watch("onRejectBranchsequenceType") == "REGISTRY_REFERENCE" &&
                     <Field>
                         <Controller
                             name="onRejectBranchsequenceKey"
@@ -330,7 +330,7 @@ const ThrottleForm = (props: AddMediatorProps) => {
                             )}
                         />
                     </ComponentCard>
-                    {watch("policyType") && watch("policyType").toLowerCase() == "registry_reference" &&
+                    {watch("policyType") == "REGISTRY_REFERENCE" &&
                     <Field>
                         <Controller
                             name="policyKey"
