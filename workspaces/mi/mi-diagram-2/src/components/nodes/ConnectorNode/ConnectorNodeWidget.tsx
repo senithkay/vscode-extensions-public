@@ -150,6 +150,7 @@ export function ConnectorNodeWidget(props: ConnectorNodeWidgetProps) {
                 connectorName: connectorData.name,
                 operationName: node.stNode.tag.split(".")[1]
             },
+            iconPath: iconPath,
             parentNode: node.mediatorName
         });
     }

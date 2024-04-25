@@ -32,7 +32,6 @@ const Error = styled.span`
 interface AddConnectionProps {
     nodePosition: Range;
     documentUri: string;
-    uiSchemaPath?: string;
     onNewConnection: (connectionName: string) => void;
     cancelConnection: () => void;
     allowedConnectionTypes: string[];
@@ -53,7 +52,7 @@ const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g;
 const nameWithoutSpecialCharactorsRegex = /^[a-zA-Z0-9]+$/g;
 
 const AddConnection = (props: AddConnectionProps) => {
-    const { allowedConnectionTypes, uiSchemaPath, documentUri, onNewConnection, cancelConnection } = props;
+    const { allowedConnectionTypes, documentUri, onNewConnection, cancelConnection } = props;
     const { rpcClient } = useVisualizerContext();
 
     const sidePanelContext = React.useContext(SidePanelContext);

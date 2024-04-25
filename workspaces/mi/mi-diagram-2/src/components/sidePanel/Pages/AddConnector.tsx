@@ -34,7 +34,6 @@ interface AddConnectorProps {
     formData: any;
     nodePosition: Range;
     documentUri: string;
-    uiSchemaPath: string;
     connectorName?: string;
     operationName?: string;
 }
@@ -53,7 +52,7 @@ const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g;
 const nameWithoutSpecialCharactorsRegex = /^[a-zA-Z0-9]+$/g;
 
 const AddConnector = (props: AddConnectorProps) => {
-    const { formData, nodePosition, documentUri, uiSchemaPath } = props;
+    const { formData, nodePosition, documentUri } = props;
     const { rpcClient } = useVisualizerContext();
 
     const sidePanelContext = React.useContext(SidePanelContext);
@@ -287,6 +286,7 @@ const AddConnector = (props: AddConnectorProps) => {
                 );
             case 'connection':
                 formValues[element.name] = formValues[element.name] ?? element.allowedConnectionTypes[0];
+                formValues['configKey'] = formValues['configKey'] ?? connections[0];
                 return (<>
                     <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", width: '100%', gap: '10px' }}>
                         <div style={{ display: "flex", alignItems: "center", gap: '10px' }}>
@@ -299,7 +299,7 @@ const AddConnector = (props: AddConnectorProps) => {
                     </div>
                     <AutoComplete
                         items={connections}
-                        value={formValues['configKey'] ?? connections[0]}
+                        value={formValues['configKey']}
                         onValueChange={(e: any) => {
                             setFormValues({ ...formValues, ['configKey']: e });
                             formValidators[element.name](e);
@@ -359,7 +359,6 @@ const AddConnector = (props: AddConnectorProps) => {
                     allowedConnectionTypes={allowedConnectionTypes}
                     nodePosition={sidePanelContext.nodeRange}
                     documentUri={documentUri}
-                    uiSchemaPath={uiSchemaPath}
                     onNewConnection={onNewConnection}
                     cancelConnection={cancelConnection}
                     connectorName={props.formData?.connectorName ?? props.connectorName.toLowerCase().replace(/\s/g, '')} />
