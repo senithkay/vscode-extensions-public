@@ -22,6 +22,10 @@ export const getChoreoExecPath = () => {
     return path.join(getChoreoBinPath(), OS === "win32" ? "choreo.exe" : "choreo");
 };
 
+export const getChoreoEnv = (): string => {
+    return workspace.getConfiguration().get<string>("Advanced.ChoreoEnvironment") || "prod";
+};
+
 const getChoreoBinPath = () => {
     return path.join(ext.context.globalStorageUri.path, "choreo-cli-rpc", getCliVersion(), "bin");
 };

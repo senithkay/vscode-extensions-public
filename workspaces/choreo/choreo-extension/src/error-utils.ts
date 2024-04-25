@@ -3,7 +3,6 @@ import { ResponseError } from "vscode-jsonrpc";
 import { ErrorCode } from "./choreo-rpc/constants";
 import { getLogger } from "./logger/logger";
 import { authStore } from "./stores/auth-store";
-import { openBillingPortal } from "./utils";
 import { choreoEnvConfig } from "./auth/auth";
 
 export function handlerError(err: any) {
