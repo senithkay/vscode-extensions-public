@@ -139,7 +139,7 @@ const RecipientListEndpointForm = (props: AddMediatorProps) => {
 
                 <Field>
                     <label>Endpoint Type</label>
-                    <AutoComplete items={["Inline", "Value", "XPath"]} value={formValues["endpointType"]} onValueChange={(e: any) => {
+                    <AutoComplete identifier='endpoint-type' items={["Inline", "Value", "XPath"]} value={formValues["endpointType"]} onValueChange={(e: any) => {
                         setFormValues({ ...formValues, "endpointType": e });
                         formValidators["endpointType"](e);
                     }} />
@@ -196,7 +196,7 @@ const RecipientListEndpointForm = (props: AddMediatorProps) => {
 
                         <Field>
                             <label>Scope</label>
-                            <AutoComplete items={["default", "transport", "axis2", "axis2-client"]} value={formValues["scope"]} onValueChange={(e: any) => {
+                            <AutoComplete identifier='scope' items={["default", "transport", "axis2", "axis2-client"]} value={formValues["scope"]} onValueChange={(e: any) => {
                                 setFormValues({ ...formValues, "scope": e });
                                 formValidators["scope"](e);
                             }} />
@@ -205,7 +205,7 @@ const RecipientListEndpointForm = (props: AddMediatorProps) => {
 
                         <Field>
                             <label>Value Type</label>
-                            <AutoComplete items={["LITERAL", "EXPRESSION"]} value={formValues["valueType"]} onValueChange={(e: any) => {
+                            <AutoComplete identifier='value-type' items={["LITERAL", "EXPRESSION"]} value={formValues["valueType"]} onValueChange={(e: any) => {
                                 setFormValues({ ...formValues, "valueType": e });
                                 formValidators["valueType"](e);
                             }} />

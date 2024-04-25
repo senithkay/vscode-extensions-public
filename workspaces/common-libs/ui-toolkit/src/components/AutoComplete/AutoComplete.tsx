@@ -22,7 +22,6 @@ import { Control, Controller } from 'react-hook-form';
 export interface ComboboxOptionProps {
     active?: boolean;
     display?: boolean;
-    width?: number;
 }
 
 export interface DropdownContainerProps {
@@ -151,23 +150,31 @@ export interface ItemComponent {
     item: ReactNode; // For rendering option
 }
 
-export interface AutoCompleteProps {
+interface BaseProps {
     id?: string;
     items: (string | ItemComponent)[];
     required?: boolean;
-    label?: string;
-    notItemsFoundMessage?: string;
     widthOffset?: number;
     nullable?: boolean;
     allowItemCreate?: boolean;
     sx?: React.CSSProperties;
     borderBox?: boolean;
     onValueChange?: (item: string, index?: number) => void;
-    name?: string;
     value?: string;
     onBlur?: React.FocusEventHandler<HTMLInputElement>;
     onCreateButtonClick?: () => void;
+    notItemsFoundMessage?: string;
 }
+
+// Define the conditional properties
+type ConditionalProps = 
+    | { label: string; name: string; identifier?: never }
+    | { label: string; name?: never; identifier?: never }
+    | { label?: never; name: string; identifier?: never }
+    | { label?: never; name?: never; identifier: string };
+
+// Combine the base properties with conditional properties
+export type AutoCompleteProps = BaseProps & ConditionalProps;
 
 const ComboboxOption: React.FC<ComboboxOptionProps> = styled.div`
     position: relative;
@@ -224,6 +231,7 @@ export const AutoComplete = React.forwardRef<HTMLInputElement, AutoCompleteProps
         onBlur,
         onValueChange,
         onCreateButtonClick,
+        identifier
     } = props;
     const [query, setQuery] = useState('');
     const [isTextFieldFocused, setIsTextFieldFocused] = useState(false);
@@ -231,7 +239,7 @@ export const AutoComplete = React.forwardRef<HTMLInputElement, AutoCompleteProps
     const [dropdownWidth, setDropdownWidth] = useState<number>();
     const inputRef = useRef(null);
     const inputWrapperRef = useRef(null);
-    const btnId = useMemo(() => name || label || getItemKey(items[0]), [name, items, label]);
+    const btnId = useMemo(() => name || label || identifier || getItemKey(items[0]), [name, items, label, identifier]);
 
     const handleChange = (item: string | ItemComponent) => {
         onValueChange && onValueChange(getItemKey(item));
