@@ -42,7 +42,7 @@
                         </xs:documentation>
                     </xs:annotation>
                     <xs:complexType>
-                        <xs:group ref="mediatorList" minOccurs="1" maxOccurs="unbounded" />
+                        <xs:group ref="mediatorList" minOccurs="0" maxOccurs="unbounded" />
                         <xs:attribute name="sequence" type="xs:string" use="optional" />
                     </xs:complexType>
                 </xs:element>

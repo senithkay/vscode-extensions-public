@@ -6269,7 +6269,7 @@ importers:
         specifier: ~3.0.0
         version: 3.0.0(@typescript-eslint/eslint-plugin@6.19.0)(eslint@8.56.0)
 
-  workspaces/mi/mi-diagram-2:
+  workspaces/mi/mi-diagram:
     dependencies:
       '@emotion/react':
         specifier: ~11.11.4
@@ -6592,9 +6592,9 @@ importers:
       '@wso2-enterprise/mi-core':
         specifier: workspace:*
         version: link:../mi-core
-      '@wso2-enterprise/mi-diagram-2':
+      '@wso2-enterprise/mi-diagram':
         specifier: workspace:*
-        version: link:../mi-diagram-2
+        version: link:../mi-diagram
       '@wso2-enterprise/mi-rpc-client':
         specifier: workspace:*
         version: link:../mi-rpc-client

@@ -12,11 +12,7 @@
         "@typescript-eslint/no-explicit-any": "off",
         "@typescript-eslint/no-unused-vars": "off",
         "unused-imports/no-unused-imports": "error",
-        "no-useless-escape": "off"
-    },
-    "ignorePatterns": [
-        "storybook-static/**/*",
-        "node_modules/**/*",
-        "lib/**/*",
-    ]
+        "no-useless-escape": "off",
+        "indent": ["error", 4]
+    }
 }

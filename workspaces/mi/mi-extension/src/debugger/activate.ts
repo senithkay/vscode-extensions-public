@@ -24,7 +24,7 @@ class MiConfigurationProvider implements vscode.DebugConfigurationProvider {
         // if launch.json is missing or empty
         if (!config.type && !config.request && !config.name) {
             config.type = 'mi';
-            config.name = 'MI: Run';
+            config.name = 'MI: Run and Debug';
             config.request = 'launch';
         }
 
@@ -103,7 +103,7 @@ export function activateDebugger(context: vscode.ExtensionContext) {
         provideDebugConfigurations(folder: WorkspaceFolder | undefined): ProviderResult<DebugConfiguration[]> {
             return [
                 {
-                    name: "MI: Run",
+                    name: "MI: Run and Debug",
                     request: "launch",
                     type: "mi"
                 }

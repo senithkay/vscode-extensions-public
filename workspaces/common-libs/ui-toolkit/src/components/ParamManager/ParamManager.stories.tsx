@@ -9,11 +9,11 @@
  */
 import React, { useState } from "react";
 import { storiesOf } from "@storybook/react";
-import { ParamConfig, ParamField, ParamManager, Parameters } from "./ParamManager";
+import { ParamConfig, ParamField, ParamManager, ParamValueConfig } from "./ParamManager";
 
-const generateSpaceSeperatedStringFromParamValues = (paramValues: Parameters) => {
+const generateSpaceSeperatedStringFromParamValues = (paramValues: ParamValueConfig) => {
     let result = "";
-    paramValues.parameters.forEach(param => {
+    paramValues.paramValues.forEach(param => {
         result += param.value + " ";
     });
     return result.trim();
@@ -24,46 +24,24 @@ const paramConfigs: ParamConfig = {
     paramValues: [
         {
             id: 0,
-            parameters: [
+            paramValues: [
                 {
-                    id: 0,
-                    label: "Type",
-                    type: "TextField",
                     value: "int",
-                    isRequired: true
-                },
-                {
-                    id: 1,
-                    label: "Name",
-                    type: "TextField",
+                }, {
                     value: "var1",
-                    isRequired: true
-                },
-                {
-                    id: 2,
-                    label: "Dropdown Sample",
-                    type: "Dropdown",
+                }, {
                     value: "0",
-                    isRequired: false,
-                    values: ["0", "1", "2"],
-                },
-                {
-                    id: 3,
-                    label: "Is Required",
-                    type: "Checkbox",
+                }, {
                     value: true,
-                    isRequired: false
+                }, {
+                    value: "This is a description",
                 },
                 {
-                    id: 4,
-                    label: "Description",
-                    type: "TextArea",
-                    value: "This is a description",
-                    isRequired: false
+                    value: "Test2",
                 }
             ],
             key: "Key",
-            value: "Int var1 0 true This is a description",
+            value: "int var1 0 true This is a description Test2",
             icon: "query"
         }
     ],
@@ -71,7 +49,7 @@ const paramConfigs: ParamConfig = {
         {
             type: "TextField",
             label: "Type",
-            defaultValue: "John Doe",
+            defaultValue: "int",
             isRequired: true
         },
         {
@@ -98,6 +76,16 @@ const paramConfigs: ParamConfig = {
             label: "Description",
             defaultValue: "This is a description",
             isRequired: false
+        },
+        {
+            id: 4,
+            type: "AutoComplete",
+            label: "Auto Complete",
+            defaultValue: "Test",
+            values: ["Test1", "Test2", "Test3"],
+            isRequired: true,
+            nullable: true,
+            noItemsFoundMessage: "No items",
         }
     ]
 };
@@ -118,7 +106,7 @@ const ParamManagerDefault = () => {
 
     return (
         <>
-            <ParamManager paramConfigs={params} readonly={false} onChange={handleOnChange} />
+            <ParamManager paramConfigs={params} readonly={false} addParamText="New Param" onChange={handleOnChange} />
         </>
     );
 };

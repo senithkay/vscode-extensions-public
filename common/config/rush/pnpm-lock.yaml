@@ -3128,10 +3128,11 @@ importers:
       tslint-react-hooks: 2.2.2_t7b5rvrgqeu75u2a5tstpdiwve
       typescript: 5.3.3
 
-  ../../workspaces/mi/mi-diagram-2:
+  ../../workspaces/mi/mi-diagram:
     specifiers:
       '@emotion/react': ~11.11.4
       '@emotion/styled': ~11.11.0
+      '@hookform/resolvers': ~3.3.4
       '@projectstorm/geometry': ^6.7.4
       '@projectstorm/react-canvas-core': ^6.7.4
       '@projectstorm/react-diagrams': ^6.7.4
@@ -3166,14 +3167,16 @@ importers:
       mustache: ~4.2.0
       react: ~18.2.0
       react-dom: ~18.2.0
-      react-hook-form: 7.51.2
+      react-hook-form: ~7.51.2
       storybook: ^7.6.17
       typescript: ^4.3.5
       vscode-languageserver-types: ~3.17.5
       xmlbuilder2: ~3.1.1
+      yup: ~1.4.0
     dependencies:
       '@emotion/react': 11.11.4_eteh3so6nztr56vqc4nbg6qqla
       '@emotion/styled': 11.11.0_ihbmxtfl4qsypabejwwqftkmtq
+      '@hookform/resolvers': 3.3.4_react-hook-form@7.51.2
       '@projectstorm/geometry': 6.7.4
       '@projectstorm/react-canvas-core': 6.7.4_zrp62gez7omnrwllyfdlincg3a
       '@projectstorm/react-diagrams': 6.7.4_qudwbk4fbis32hnzuxpdo4wjza
@@ -3200,6 +3203,7 @@ importers:
       react-hook-form: 7.51.2_react@18.2.0
       vscode-languageserver-types: 3.17.5
       xmlbuilder2: 3.1.1
+      yup: 1.4.0
     devDependencies:
       '@storybook/addon-essentials': 7.6.17_jq2v3mgqnxhjqzsfthu2a3rfwm
       '@storybook/addon-interactions': 7.6.17
@@ -3382,7 +3386,7 @@ importers:
       '@vscode/webview-ui-toolkit': ^1.2.0
       '@wso2-enterprise/mi-core': workspace:*
       '@wso2-enterprise/mi-data-mapper': workspace:*
-      '@wso2-enterprise/mi-diagram-2': workspace:*
+      '@wso2-enterprise/mi-diagram': workspace:*
       '@wso2-enterprise/mi-rpc-client': workspace:*
       '@wso2-enterprise/mi-syntax-tree': workspace:*
       '@wso2-enterprise/service-designer': workspace:*
@@ -3427,7 +3431,7 @@ importers:
       '@vscode/webview-ui-toolkit': 1.4.0_react@18.2.0
       '@wso2-enterprise/mi-core': link:../mi-core
       '@wso2-enterprise/mi-data-mapper': link:../mi-data-mapper
-      '@wso2-enterprise/mi-diagram-2': link:../mi-diagram-2
+      '@wso2-enterprise/mi-diagram': link:../mi-diagram
       '@wso2-enterprise/mi-rpc-client': link:../mi-rpc-client
       '@wso2-enterprise/mi-syntax-tree': link:../syntax-tree
       '@wso2-enterprise/service-designer': link:../../common-libs/service-designer

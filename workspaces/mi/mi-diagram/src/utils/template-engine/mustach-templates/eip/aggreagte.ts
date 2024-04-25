@@ -1,0 +1,153 @@
+/**
+ * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
+
+import { Aggregate } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import Mustache from "mustache";
+import { checkAttributesExist } from "../../../commons";
+
+export function getAggregateMustacheTemplate() {
+    return `
+    {{#isNewMediator}}
+    <aggregate id="{{aggregateID}}" >
+{{#correlationExpression}}<correlateOn expression="{{correlationExpression}}" />{{/correlationExpression}}
+        <completeCondition timeout="{{completionTimeout}}">
+            <messageCount {{#completionMax}}max="{{completionMax}}" {{/completionMax}}{{#completionMin}}min="{{completionMin}}" {{/completionMin}}/>
+        </completeCondition>
+        <onComplete aggregateElementType="{{aggregateElementType}}" enclosingElementProperty="{{enclosingElementProperty}}" expression="{{aggregationExpression}}" {{#sequenceKey}}sequence="{{sequenceKey}}"{{/sequenceKey}} ></onComplete>
+    </aggregate>
+    {{/isNewMediator}}
+    {{^isNewMediator}}
+    {{#editAggregate}}
+    <aggregate id="{{aggregateID}}" >
+    {{/editAggregate}}
+    {{#editCorrelateOn}}
+    {{#correlationExpression}}<correlateOn expression="{{correlationExpression}}" />{{/correlationExpression}}
+    {{/editCorrelateOn}}
+    {{#editCompleteCondition}}
+    <completeCondition timeout="{{completionTimeout}}">
+        <messageCount {{#completionMax}}max="{{completionMax}}" {{/completionMax}}{{#completionMin}}min="{{completionMin}}" {{/completionMin}}/>
+    </completeCondition>
+    {{/editCompleteCondition}}
+    {{#editOnComplete}}
+    <onComplete aggregateElementType="{{aggregateElementType}}" enclosingElementProperty="{{enclosingElementProperty}}" expression="{{aggregationExpression}}" {{#sequenceKey}}sequence="{{sequenceKey}}"{{/sequenceKey}} >
+    {{/editOnComplete}}
+    {{/isNewMediator}}
+    `;
+}
+
+export function getAggregateXml(data: { [key: string]: any }, dirtyFields?: any, defaultValues?: any) {
+
+    data.completionMax = data.completionMaxMessages?.isExpression ? "{" + data.completionMaxMessages.value + "}" : data.completionMaxMessages.value;
+    data.completionMin = data.completionMinMessages?.isExpression ? "{" + data.completionMinMessages.value + "}" : data.completionMinMessages.value;
+    data.correlationExpression = data.correlationExpression?.value;
+    data.aggregationExpression = data.aggregationExpression?.value;
+    data.aggregateElementType = data.aggregateElementType.toLowerCase();
+    if (data.sequenceType == "ANONYMOUS") {
+        delete data.sequenceKey;
+    }
+    if (defaultValues == undefined || Object.keys(defaultValues).length == 0) {
+        data.isNewMediator = true;
+        const output = Mustache.render(getAggregateMustacheTemplate(), data)?.trim();
+        return output;
+    }
+    return getEdits(data, dirtyFields, defaultValues);
+}
+
+function getEdits(data: { [key: string]: any }, dirtyFields?: any, defaultValues?: any) {
+
+    let aggregatteTagAttributes = ["aggregateID"];
+    let correlateOnAttributes = ["correlationExpression"];
+    let completeConditionAttributes = ["completionTimeout", "completionMaxMessages", "completionMinMessages"];
+    let onCompleteAttributes = ["aggregateElementType", "enclosingElementProperty", "aggregationExpression", "sequenceKey", "sequenceType"];
+    let dirtyFieldsKeys = Object.keys(dirtyFields);
+
+    let edits: { [key: string]: any }[] = [];
+
+    if (checkAttributesExist(dirtyFieldsKeys, aggregatteTagAttributes)) {
+        edits.push(getEdit("aggregate", data, defaultValues, true));
+    }
+
+    if (checkAttributesExist(dirtyFieldsKeys, correlateOnAttributes)) {
+        edits.push(getEdit("correlateOn", data, defaultValues, false));
+    }
+
+    if (checkAttributesExist(dirtyFieldsKeys, completeConditionAttributes)) {
+        edits.push(getEdit("completeCondition", data, defaultValues, false));
+    }
+
+    if (checkAttributesExist(dirtyFieldsKeys, onCompleteAttributes)) {
+        edits.push(getEdit("onComplete", data, defaultValues, true));
+    }
+
+    edits.sort((a, b) => b.range.start.line - a.range.start.line);
+    return edits;
+}
+
+function getEdit(key: string, data: { [key: string]: any }, defaultValues: any, editStartTagOnly: boolean) {
+    let dataCopy = { ...data };
+    let editKey = "edit" + key.charAt(0).toUpperCase() + key.slice(1);
+    dataCopy[editKey] = true;
+    let range = defaultValues.ranges[key];
+    let editRange;
+    if (range) {
+        editRange = {
+            start: range.startTagRange.start,
+            end: editStartTagOnly ? range.startTagRange.end : (range.endTagRange.end ? range.endTagRange.end : range.startTagRange.end)
+        }
+    } else {
+        let aggregateRange = defaultValues.ranges.aggregate;
+        editRange = {
+            start: aggregateRange.endTagRange.start,
+            end: aggregateRange.endTagRange.start
+        }
+    }
+    let output = Mustache.render(getAggregateMustacheTemplate(), dataCopy)?.trim();
+    let edit = {
+        text: output,
+        range: editRange
+    };
+    return edit;
+}
+
+export function getAggregateFormDataFromSTNode(data: { [key: string]: any }, node: Aggregate) {
+
+    data.description = node.description;
+    data.aggregateID = node.id;
+    data.correlationExpression = { isExpression: true, value: node.correlateOnOrCompleteConditionOrOnComplete?.correlateOn?.expression };
+    data.completionTimeout = node.correlateOnOrCompleteConditionOrOnComplete?.completeCondition?.timeout;
+    const max = node.correlateOnOrCompleteConditionOrOnComplete?.completeCondition?.messageCount?.max;
+    if (max && max.startsWith("{")) {
+        const regex = /{([^}]*)}/;
+        const match = max.match(regex);
+        data.completionMaxMessages = { isExpression: true, value: match.length > 1 ? match[1] : max };
+    } else if (max) {
+        data.completionMaxMessages = { isExpression: false, value: max };
+    }
+    const min = node.correlateOnOrCompleteConditionOrOnComplete?.completeCondition?.messageCount?.min;
+    if (min && min.startsWith("{")) {
+        const regex = /{([^}]*)}/;
+        const match = min.match(regex);
+        data.completionMinMessages = { isExpression: true, value: match.length > 1 ? match[1] : min };
+    } else if (min) {
+        data.completionMinMessagesValue = { isExpression: false, value: min };
+    }
+    data.aggregateElementType = node.correlateOnOrCompleteConditionOrOnComplete?.onComplete?.aggregateElementType?.toUpperCase();
+    data.enclosingElementProperty = node.correlateOnOrCompleteConditionOrOnComplete?.onComplete?.enclosingElementProperty;
+    data.aggregationExpression = { isExpression: true, value: node.correlateOnOrCompleteConditionOrOnComplete?.onComplete?.expression };
+    data.sequenceKey = node.correlateOnOrCompleteConditionOrOnComplete?.onComplete?.sequenceAttribute;
+    data.sequenceType = data.sequenceKey ? "REGISTRY_REFERENCE" : "ANONYMOUS";
+    data.ranges = {
+        aggregate: node.range,
+        correlateOn: node.correlateOnOrCompleteConditionOrOnComplete?.correlateOn?.range,
+        completeCondition: node.correlateOnOrCompleteConditionOrOnComplete?.completeCondition?.range,
+        onComplete: node.correlateOnOrCompleteConditionOrOnComplete?.onComplete?.range
+    }
+
+    return data;
+}

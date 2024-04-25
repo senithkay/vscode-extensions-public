@@ -8,20 +8,49 @@
  */
 
 import { Header } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import Mustache from "mustache";
 
 export function getHeaderMustacheTemplate() {
-    return `<header name="{{headerName}}" action="{{headerAction}}" scope="{{scope}}" {{#expression}}expression="{{expression}}"{{/expression}} {{#value}}value="{{value}}"{{/value}} {{#description}}description="{{description}}"{{/description}}/>`;
+    return `<header {{#headerName}}name="{{value}}" {{/headerName}}{{#headerAction}}action="{{headerAction}}" {{/headerAction}}{{#scope}}scope="{{scope}}" {{/scope}}{{#valueExpression}}expression="{{value}}" {{/valueExpression}}{{#valueLiteral}}value="{{valueLiteral}}" {{/valueLiteral}}{{#description}}description="{{description}}" {{/description}}{{^valueInline}}/{{/valueInline}}>
+    {{#valueInline}}
+    {{{valueInline}}}
+</header>{{/valueInline}}`;
+}
+
+export function getHeaderXml(data: { [key: string]: any }) {
+    if (data.headerAction == "remove") {
+        delete data.valueExpression;
+        delete data.valueLiteral;
+        delete data.valueInline;
+    }
+    if (data.valueType == "LITERAL") {
+        delete data.valueExpression;
+        delete data.valueInline;
+    } else if (data.valueType == "EXPRESSION") {
+        delete data.valueLiteral;
+        delete data.valueInline;
+    } else {
+        delete data.valueExpression;
+        delete data.valueLiteral;
+    }
+    const output = Mustache.render(getHeaderMustacheTemplate(), data)?.trim();
+    return output;
 }
 
 export function getHeaderFormDataFromSTNode(data: { [key: string]: any }, node: Header) {
     if (node.name) {
-        data.headerName = node.name;
+        data.headerName = { isExpression: true, value: node.name };
     }
     if (node.action) {
         data.headerAction = node.action;
     }
-    if (node.scope) {
-        data.scope = node.scope;
+    data.valueType = node.any ? "INLINE" : node.value !== undefined ? "LITERAL" : "EXPRESSION";
+    if (data.valueType == "EXPRESSION") {
+        data.valueExpression = { isExpression: true, value: node.expression };
+    } else if (data.valueType == "LITERAL") {
+        data.valueLiteral = node.value;
+    } else {
+        data.valueInline = node.any;
     }
     return data;
 }

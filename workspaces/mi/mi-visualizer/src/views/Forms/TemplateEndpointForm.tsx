@@ -17,7 +17,7 @@ import * as yup from "yup";
 import { useForm } from "react-hook-form";
 import { TypeChip } from "./Commons";
 import AddToRegistry, { getArtifactNamesAndRegistryPaths, formatRegistryPath, saveToRegistry } from "./AddToRegistry";
-import { FormKeylookup } from "@wso2-enterprise/mi-diagram-2";
+import { FormKeylookup } from "@wso2-enterprise/mi-diagram";
 
 const FieldGroup = styled.div`
     display: flex;

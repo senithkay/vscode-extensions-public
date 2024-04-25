@@ -13,7 +13,7 @@ import React from 'react';
 import { ActionButtons } from '../ActionButtons/ActionButtons';
 import { EditorContainer, EditorContent } from './styles';
 import { Param, TypeResolver } from './TypeResolver';
-import { ParamField, Parameters, isFieldEnabled } from './ParamManager';
+import { ParamField, Parameters, isFieldEnabled, getParamFieldLabelFromParamId } from './ParamManager';
 
 export interface ParamProps {
     parameters: Parameters;
@@ -22,11 +22,6 @@ export interface ParamProps {
     onChange: (param: Parameters) => void;
     onSave?: (param: Parameters) => void;
     onCancel?: (param?: Parameters) => void;
-}
-
-const getParamFieldLabelFromParamId = (paramFields: ParamField[], paramId: number) => {
-    const paramField = paramFields[paramId];
-    return paramField?.label;
 }
 
 export function ParamEditor(props: ParamProps) {

@@ -17,7 +17,20 @@ import { Codicon } from '../Codicon/Codicon';
 import { Param } from './TypeResolver';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
+import { ExpressionFieldValue } from '../ExpressionField/ExpressionInput';
 
+export interface ParamValue {
+    value: string | boolean | ExpressionFieldValue;
+    isEnabled?: boolean;
+}
+
+export interface ParamValueConfig {
+    id: number;
+    paramValues: ParamValue[];
+    key: string;
+    value: string;
+    icon?: string | React.ReactElement; // Icon for the parameter. Icon name or React element should be passed
+}
 export interface Parameters {
     id: number;
     parameters: Param[];
@@ -36,16 +49,21 @@ export interface EnableCondition {
 
 export interface ParamField {
     id?: number;
-    type: "TextField" | "Dropdown" | "Checkbox" | "TextArea";
+    type: "TextField" | "Dropdown" | "Checkbox" | "TextArea" | "AutoComplete";
     label: string;
     defaultValue: string | boolean;
     isRequired?: boolean;
-    values?: string[]; // For Dropdown
+    values?: string[]; // For Dropdown and AutoComplete
+    nullable?: boolean;
+    allowItemCreate?: boolean;
+    noItemsFoundMessage?: string;
     enableCondition?: (ConditionParams | string)[];
+    openExpressionEditor?: () => void; // For ExpressionField
+    canChange?: boolean; // For ExpressionField
 }
 
 export interface ParamConfig {
-    paramValues: Parameters[];
+    paramValues: ParamValueConfig[];
     paramFields: ParamField[];
 }
 
@@ -53,6 +71,7 @@ export interface ParamManagerProps {
     paramConfigs: ParamConfig;
     onChange?: (parameters: ParamConfig) => void,
     readonly?: boolean;
+    addParamText?: string;
 }
 
 const AddButtonWrapper = styled.div`
@@ -102,7 +121,7 @@ export function isFieldEnabled(params: Param[], enableCondition?: EnableConditio
         });
     });
     enableCondition["AND"]?.forEach(item => {
-        paramEnabled = !paramEnabled ? false : paramEnabled; 
+        paramEnabled = !paramEnabled ? false : paramEnabled;
         for (const par of params) {
             if (item[par.id]) {
                 const satisfiedConditionValue = item[par.id];
@@ -147,7 +166,7 @@ const getNewParam = (fields: ParamField[], index: number): Parameters => {
             type: field.type,
             value: field.defaultValue,
             values: field.values,
-            isRequired: field.isRequired,            
+            isRequired: field.isRequired,
             enableCondition: field.enableCondition ? convertToObject(field.enableCondition) : undefined
         });
     });
@@ -171,8 +190,59 @@ export function findFieldFromParam(field: ParamField[], value: Param): ParamFiel
     return field?.find(item => item.label === value?.label) || null;
 }
 
+export const getParamFieldLabelFromParamId = (paramFields: ParamField[], paramId: number) => {
+    const paramField = paramFields[paramId];
+    return paramField?.label;
+}
+
+const getParamFieldTypeFromParamId = (paramFields: ParamField[], paramId: number) => {
+    const paramField = paramFields[paramId];
+    return paramField?.type;
+}
+
+const getParamFieldIsRequiredFromParamId = (paramFields: ParamField[], paramId: number) => {
+    const paramField = paramFields[paramId];
+    return paramField?.isRequired;
+}
+
+const getParamFieldValuesFromParamId = (paramFields: ParamField[], paramId: number) => {
+    const paramField = paramFields[paramId];
+    return paramField?.values;
+}
+
+const getParamFieldNullableFromParamId = (paramFields: ParamField[], paramId: number) => {
+    const paramField = paramFields[paramId];
+    return paramField?.nullable;
+}
+
+const getParamFieldNoItemsFoundMessageFromParamId = (paramFields: ParamField[], paramId: number) => {
+    const paramField = paramFields[paramId];
+    return paramField?.noItemsFoundMessage;
+}
+
+const getParamFieldAllowItemCreateFromParamId = (paramFields: ParamField[], paramId: number) => {
+    const paramField = paramFields[paramId];
+    return paramField?.allowItemCreate;
+}
+
+const getParamFieldEnableConditionFromParamId = (paramFields: ParamField[], paramId: number): EnableCondition => {
+    const paramField = paramFields[paramId];
+    const enableCondition = convertToObject(paramField.enableCondition);
+    return enableCondition === null ? undefined : enableCondition;
+}
+
+const getParamFieldOpenExpressionEditorFromParamId = (paramFields: ParamField[], paramId: number) => {
+    const paramField = paramFields[paramId];
+    return paramField?.openExpressionEditor;
+}
+
+const getPramFieldCanChangeFromParamId = (paramFields: ParamField[], paramId: number) => {
+    const paramField = paramFields[paramId];
+    return paramField?.canChange;
+}
+
 export function ParamManager(props: ParamManagerProps) {
-    const { paramConfigs , readonly, onChange } = props;
+    const { paramConfigs, readonly, addParamText = "Add Parameter", onChange } = props;
     const [editingSegmentId, setEditingSegmentId] = useState<number>(-1);
     const [isNew, setIsNew] = useState(false);
 
@@ -180,11 +250,42 @@ export function ParamManager(props: ParamManagerProps) {
         setEditingSegmentId(param.id);
     };
 
+    const paramValues: Parameters[] = paramConfigs.paramValues.map(paramValue => {
+        const params: Param[] = paramValue.paramValues.map((paramVal, id) => {
+            const param: Param = {
+                id: id,
+                label: getParamFieldLabelFromParamId(paramConfigs.paramFields, id),
+                type: getParamFieldTypeFromParamId(paramConfigs.paramFields, id),
+                value: paramVal.value,
+                isEnabled: paramVal.isEnabled,
+                isRequired: getParamFieldIsRequiredFromParamId(paramConfigs.paramFields, id),
+                values: getParamFieldValuesFromParamId(paramConfigs.paramFields, id),
+                enableCondition: getParamFieldEnableConditionFromParamId(paramConfigs.paramFields, id),
+                openExpressionEditor: getParamFieldOpenExpressionEditorFromParamId(paramConfigs.paramFields, id),
+                canChange: getPramFieldCanChangeFromParamId(paramConfigs.paramFields, id),
+                nullable: getParamFieldNullableFromParamId(paramConfigs.paramFields, id),
+                allowItemCreate: getParamFieldAllowItemCreateFromParamId(paramConfigs.paramFields, id),
+                noItemsFoundMessage: getParamFieldNoItemsFoundMessageFromParamId(paramConfigs.paramFields, id)
+            };
+            return param;
+        });
+        return { ...paramValue, parameters: params };
+    });
+
     const onAddClick = () => {
-        const updatedParameters = [...paramConfigs.paramValues];
+        const updatedParameters: ParamValueConfig[] = [...paramConfigs.paramValues];
         setEditingSegmentId(updatedParameters.length);
         const newParams: Parameters = getNewParam(paramConfigs.paramFields, updatedParameters.length);
-        updatedParameters.push(newParams);
+        const paramValues = newParams.parameters.map(param => {
+            return {
+                value: param.value,
+                isEnabled: param.isEnabled
+            };
+        });
+        updatedParameters.push({
+            ...newParams,
+            paramValues: paramValues
+        });
         onChange({ ...paramConfigs, paramValues: updatedParameters });
         setIsNew(true);
     };
@@ -203,10 +304,19 @@ export function ParamManager(props: ParamManagerProps) {
     };
 
     const onChangeParam = (paramConfig: Parameters) => {
-        const updatedParameters = [...paramConfigs.paramValues];
+        const updatedParameters: ParamValueConfig[] = [...paramConfigs.paramValues];
         const index = updatedParameters.findIndex(param => param.id === paramConfig.id);
         if (index !== -1) {
-            updatedParameters[index] = paramConfig;
+            const paramValues = paramConfig.parameters.map(param => {
+                return {
+                    value: param.value,
+                    isEnabled: param.isEnabled
+                };
+            });
+            updatedParameters[index] = {
+                ...paramConfig,
+                paramValues: paramValues
+            };
         }
         onChange({ ...paramConfigs, paramValues: updatedParameters });
     };
@@ -239,8 +349,8 @@ export function ParamManager(props: ParamManagerProps) {
     };
 
     const paramComponents: React.ReactElement[] = [];
-    paramConfigs?.paramValues
-        .forEach((param , index) => {
+    paramValues
+        .forEach((param, index) => {
             if (editingSegmentId === index) {
                 paramComponents.push(
                     <ParamEditor
@@ -276,7 +386,7 @@ export function ParamManager(props: ParamManagerProps) {
                 <AddButtonWrapper>
                     <LinkButton sx={readonly && { color: "var(--vscode-badge-background)" }} onClick={!readonly && onAddClick} >
                         <Codicon name="add" />
-                        <>Add Parameter</>
+                        <>{addParamText}</>
                     </LinkButton>
                 </AddButtonWrapper>
             )}

@@ -119,6 +119,7 @@ export const BuildPackConfig = (props: BuildPackConfigProps) => {
                 </DirectoryContainer>
                 {supportedVersions?.length > 0 && (
                     <AutoComplete
+                        identifier="supported-version"
                         items={supportedVersions ?? []}
                         value={formData.selectedBuildPackVersion}
                         onValueChange={handleVersionChange}

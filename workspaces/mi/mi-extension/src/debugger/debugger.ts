@@ -11,7 +11,7 @@ import * as net from 'net';
 import { EventEmitter } from 'events';
 import { DebugProtocol } from 'vscode-debugprotocol';
 import { StateMachine, openView } from '../stateMachine';
-import { BreakpointInfo, EVENT_TYPE, GetBreakpointInfoRequest, GetBreakpointInfoResponse, StepOverBreakpointResponse, ValidateBreakpointsRequest, ValidateBreakpointsResponse } from '@wso2-enterprise/mi-core';
+import { BreakpointInfo, BreakpointSequence, EVENT_TYPE, GetBreakpointInfoRequest, GetBreakpointInfoResponse, StepOverBreakpointResponse, ValidateBreakpointsRequest, ValidateBreakpointsResponse } from '@wso2-enterprise/mi-core';
 import { isPortActivelyListening } from './debugHelper';
 import { VisualizerWebview } from '../visualizer/webview';
 import { extension } from '../MIExtensionContext';
@@ -21,6 +21,13 @@ export interface RuntimeBreakpoint {
     line: number;
     verified: boolean;
     filePath: string;
+}
+
+export interface RuntimeBreakpointInfo {
+    key: string;
+    mediationPosition: string;
+    sequenceType: string;
+    completeInfo: BreakpointInfo;
 }
 
 export class Debugger extends EventEmitter {
@@ -40,6 +47,7 @@ export class Debugger extends EventEmitter {
 
     // Mapping between debugger runtime and RuntimeBreakpoint
     private debuggingRuntimeBreakpointMap = new Map<BreakpointInfo, RuntimeBreakpoint>();
+    private runtimeVscodeBreakpointMap = new Map<RuntimeBreakpointInfo, RuntimeBreakpoint>();
 
     // since we want to send breakpoint events, we will assign an id to every event
     // so that the frontend can match events with breakpoints.
@@ -105,7 +113,32 @@ export class Debugger extends EventEmitter {
                 const breakpointInfo = await this.getBreakpointInformation(breakpointPerFile);
                 // map the runtime breakpoint to the breakpoint info
                 for (let i = 0; i < breakpointPerFile.length; i++) {
-                    this.debuggingRuntimeBreakpointMap.set(breakpointInfo[i], breakpointPerFile[i]);
+                    //this.debuggingRuntimeBreakpointMap.set(breakpointInfo[i], breakpointPerFile[i]);
+
+                    // check if breakpointInfo has sequence
+                    const currentInfo = breakpointInfo[i];
+                    if (currentInfo && currentInfo.sequence !== undefined) {
+                        const sequence: BreakpointSequence = currentInfo.sequence;
+                        // map for api
+                        if (sequence.api) {
+                            const key = sequence.api['api-key'];
+                            const mediationPosition = sequence.api['mediator-position'];
+                            const sequenceType = sequence.api['sequence-type'];
+
+                            const runtimeBreakpointInfo: RuntimeBreakpointInfo = {
+                                key: key,
+                                mediationPosition: mediationPosition,
+                                sequenceType: sequenceType,
+                                completeInfo: breakpointInfo[i]
+                            };
+                            this.runtimeVscodeBreakpointMap.set(runtimeBreakpointInfo, breakpointPerFile[i]);
+                        } else {
+                            // TODO: map for other types
+                            this.debuggingRuntimeBreakpointMap.set(breakpointInfo[i], breakpointPerFile[i]);
+                        }
+                    } else {
+                        this.debuggingRuntimeBreakpointMap.set(breakpointInfo[i], breakpointPerFile[i]);
+                    }
                 }
 
                 if (this.isDebuggerActive) {
@@ -165,6 +198,15 @@ export class Debugger extends EventEmitter {
             if (value.filePath === this.normalizePathAndCasing(path)) {
                 this.sendClearBreakpointCommand(key);
                 this.debuggingRuntimeBreakpointMap.delete(key);
+            }
+        }
+
+        // clear the runtimeVscodeBreakpointMap fields with the matching path
+        for (const [key, value] of this.runtimeVscodeBreakpointMap) {
+            if (value.filePath === this.normalizePathAndCasing(path)) {
+                // get complete info and sendClarBreakpointCommand
+                this.sendClearBreakpointCommand(key.completeInfo);
+                this.runtimeVscodeBreakpointMap.delete(key);
             }
         }
     }
@@ -254,7 +296,7 @@ export class Debugger extends EventEmitter {
                     const message = incompleteMessage.slice(0, newlineIndex);
 
                     // Call a function with the received message
-                    // console.log('Received event:', message);
+                    console.log('Received event:', message);
 
                     // convert to eventData to json
                     const eventDataJson = JSON.parse(message);
@@ -279,13 +321,36 @@ export class Debugger extends EventEmitter {
                         delete eventInfo.event;
                         const event: BreakpointInfo = eventInfo;
 
-                        // Convert objects to strings before using them as keys in the map
-                        const eventString = JSON.stringify(event.sequence);
-                        const breakpointKey = Array.from(this.debuggingRuntimeBreakpointMap.keys()).find(key => JSON.stringify(key.sequence) === eventString);
-                        if (breakpointKey) {
-                            const breakpoint = this.debuggingRuntimeBreakpointMap.get(breakpointKey);
-                            this.currentDebugpoint = breakpoint;
-                            this.sendEvent('breakpointValidated', breakpoint);
+                        if (event.sequence) {
+                            const sequence: BreakpointSequence = event.sequence;
+                            // map for api
+                            if (sequence.api) {
+                                const key = sequence.api['api-key'];
+                                const mediationPosition = sequence.api['mediator-position'];
+                                const sequenceType = sequence.api['sequence-type'];
+
+                                // check  if there values are present in the key of runtimeVscodeBreakpointMap
+                                const breakpointKey = Array.from(this.runtimeVscodeBreakpointMap.keys()).find(
+                                    (runtimeBreakpointInfo) => runtimeBreakpointInfo.key === key &&
+                                        runtimeBreakpointInfo.mediationPosition === mediationPosition &&
+                                        runtimeBreakpointInfo.sequenceType === sequenceType);
+
+                                if (breakpointKey) {
+                                    const breakpoint = this.runtimeVscodeBreakpointMap.get(breakpointKey);
+                                    this.currentDebugpoint = breakpoint;
+                                    this.sendEvent('breakpointValidated', breakpoint);
+                                }
+                            } else {
+                                // Convert objects to strings before using them as keys in the map
+                                const eventString = JSON.stringify(event.sequence);
+                                const breakpointKey = Array.from(this.debuggingRuntimeBreakpointMap.keys()).find(key => JSON.stringify(key.sequence) === eventString);
+                                if (breakpointKey) {
+                                    const breakpoint = this.debuggingRuntimeBreakpointMap.get(breakpointKey);
+                                    this.currentDebugpoint = breakpoint;
+                                    this.sendEvent('breakpointValidated', breakpoint);
+                                }
+
+                            }
                         }
                     }
                     resolve();
@@ -310,7 +375,7 @@ export class Debugger extends EventEmitter {
             let incompleteMessage = '';
 
             // Send request on the command port
-            // console.log('\nSending request:', request);
+            console.log('\nSending request:', request);
             this.commandClient?.write(request);
 
             // Listen for response from the command port
@@ -328,7 +393,7 @@ export class Debugger extends EventEmitter {
                     const message = incompleteMessage.slice(0, newlineIndex);
 
                     // Call a function with the received message
-                    // console.log('Received response:', message);
+                    console.log('Received response:', message);
                     resolve(message); // Resolve the promise with the message
 
                     // Remove the processed message from incompleteMessage

@@ -21,7 +21,7 @@
     targetNamespace="http://ws.apache.org/ns/synapse"
     xmlns="http://ws.apache.org/ns/synapse">
 
-    <xs:element name="ntlm">
+    <xs:element name="NTLM">
         <xs:annotation>
             <xs:documentation source="description"> Performs NTLM authentication. </xs:documentation>
         </xs:annotation>

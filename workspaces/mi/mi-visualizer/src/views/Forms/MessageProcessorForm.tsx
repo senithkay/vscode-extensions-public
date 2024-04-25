@@ -16,7 +16,7 @@ import { TypeChip } from "./Commons";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { FormKeylookup } from "@wso2-enterprise/mi-diagram-2";
+import { FormKeylookup } from "@wso2-enterprise/mi-diagram";
 
 interface OptionProps {
     value: string;
