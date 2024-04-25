@@ -10,9 +10,9 @@
 import React, { useMemo, useState } from "react";
 
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
-import { Button, Codicon, Icon, Item, Menu, MenuItem, ProgressRing } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, Icon, ProgressRing } from "@wso2-enterprise/ui-toolkit";
 import { TypeKind } from "@wso2-enterprise/mi-core";
-import { Block, Node, ObjectLiteralExpression } from "ts-morph";
+import { ArrayLiteralExpression, Block, Node, ObjectLiteralExpression, ReturnStatement } from "ts-morph";
 import classnames from "classnames";
 
 import { useIONodesStyles } from "../../../styles";
@@ -42,7 +42,7 @@ export interface ArrayOutputFieldWidgetProps {
     fieldIndex?: number;
     treeDepth?: number;
     deleteField?: (node: Node) => Promise<void>;
-    isReturnTypeDesc?: boolean;
+    asOutput ?: boolean;
     hasHoveredParent?: boolean;
 }
 
@@ -57,7 +57,7 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
         fieldIndex,
         treeDepth = 0,
         deleteField,
-        isReturnTypeDesc,
+        asOutput,
         hasHoveredParent
     } = props;
     const classes = useIONodesStyles();
@@ -83,6 +83,7 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
     const hasValue = valExpr && !!valExpr.getText();
     const elements = field.elements;
     const searchValue = useDMSearchStore.getState().outputSearch;
+    const isReturnStmtMissing = asOutput && !body;
 
     const connectedViaLink = useMemo(() => {
         return hasValue ? isConnectedViaLink(valExpr) : false;
@@ -300,7 +301,15 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
         setIsAddingElement(true)
         try {
             const defaultValue = getDefaultValue(typeKind);
-            arrayLitExpr.addElement(defaultValue);
+            let targetExpr = arrayLitExpr;
+            if (isReturnStmtMissing) {
+                const fnBody = context.functionST.getBody() as Block;
+                fnBody.addStatements([`return [];`]);
+                const returnStatement = fnBody.getStatements()
+                    .find(statement => Node.isReturnStatement(statement)) as ReturnStatement;
+                targetExpr = returnStatement.getExpression() as ArrayLiteralExpression;
+            }
+            targetExpr.addElement(defaultValue);
             context.applyModifications();
         } finally {
             setIsAddingElement(false);
@@ -328,7 +337,7 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
         <div
             className={classnames(classes.treeLabelArray, hasHoveredParent ? classes.treeLabelParentHovered : "")}
         >
-            {!isReturnTypeDesc && (
+            {!asOutput && (
                 <div
                     id={"recordfield-" + fieldId}
                     className={classnames(classes.ArrayFieldRow,
@@ -378,7 +387,7 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
                     )}
                 </div>
             )}
-            {expanded && hasValue && arrayLitExpr && (
+            {((expanded && hasValue && arrayLitExpr) || isReturnStmtMissing) && (
                 <div data-testid={`array-widget-${portIn?.getName()}-values`}>
                     <div className={classes.innerTreeLabel}>
                         <span>[</span>

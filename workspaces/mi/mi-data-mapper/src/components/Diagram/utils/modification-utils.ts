@@ -20,7 +20,7 @@ import { DataMapperLinkModel } from "../Link";
 import { InputOutputPortModel, IntermediatePortModel } from "../Port";
 import { DataMapperNodeModel } from "../Node/commons/DataMapperNode";
 import { getFieldIndexes, getFieldNameFromOutputPort, getLinebreak, getPropertyAssignment } from "./common-utils";
-import { LinkConnectorNode, ObjectOutputNode } from "../Node";
+import { ArrayOutputNode, LinkConnectorNode, ObjectOutputNode } from "../Node";
 import { ExpressionLabelModel } from "../Label";
 import { DMTypeWithValue } from "../Mappings/DMTypeWithValue";
 import { getPosition, isPositionsEquals } from "./st-utils";
@@ -67,10 +67,18 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 		} else {
 			// When the return statement is not available in the function body
 			const fnBody = targetNode.context.functionST.getBody() as Block;
-			fnBody.addStatements([`return {}`]);
+			fnBody.addStatements([`return {};`]);
 			const returnStatement = fnBody.getStatements()
 				.find(statement => Node.isReturnStatement(statement)) as ReturnStatement;
 			objectLitExpr = returnStatement.getExpression() as ObjectLiteralExpression;
+		}
+	} else if (targetNode instanceof ArrayOutputNode) {
+		const targetExpr = targetNode.value.getExpression();
+		if (Node.isArrayLiteralExpression(targetExpr)
+			&& fieldIndexes !== undefined
+			&& !!fieldIndexes.length
+		) {
+			objectLitExpr = getNextObjectLitExpr(targetExpr);
 		}
 	}
 
@@ -145,7 +153,6 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 	}
 
     applyModifications();
-	return source;
 
 	function createPropAssignment(missingFields: string[]): string {
 		return missingFields.length > 0
@@ -154,7 +161,7 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 	}
 
 	function getNextObjectLitExpr(arrayLitExpr: ArrayLiteralExpression): ObjectLiteralExpression {
-		const targetExpr = arrayLitExpr.getElements()[fieldIndexes.pop() * 2];
+		const targetExpr = arrayLitExpr.getElements()[fieldIndexes.pop()];
 		if (Node.isObjectLiteralExpression(targetExpr)) {
 			return targetExpr;
 		} else if (Node.isArrayLiteralExpression(targetExpr)) {
@@ -322,7 +329,7 @@ export function modifySourceForMultipleMappings(link: DataMapperLinkModel) {
 					}
 				} else if (targerPortLink.getLabels().length > 0) {
 					valueNode = (targerPortLink.getLabels()[0] as ExpressionLabelModel).valueNode;
-				} else if (targetNode instanceof ObjectOutputNode) {
+				} else if (targetNode instanceof ObjectOutputNode || targetNode instanceof ArrayOutputNode) {
 					const linkConnector = targetNode.getModel().getNodes().find(node =>
 						node instanceof LinkConnectorNode
 						&& node.targetPort.portName === (targerPortLink.getTargetPort() as InputOutputPortModel).portName

@@ -72,7 +72,7 @@ export class ObjectOutputNode extends DataMapperNodeModel {
                 this.dmTypeWithValue = valueEnrichedType;
 
                 if (this.dmTypeWithValue.childrenTypes.length) {
-                    this.dmTypeWithValue.childrenTypes.forEach((field) => {
+                    this.dmTypeWithValue.childrenTypes.forEach(field => {
                         this.addPortsForOutputField(
                             field, "IN", this.rootName, undefined, OBJECT_OUTPUT_TARGET_PORT_PREFIX,
                             parentPort, collapsedFields, parentPort.collapsed

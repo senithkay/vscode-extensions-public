@@ -22,11 +22,11 @@ import {
 import { PropertyAccessNodeFindingVisitor } from "../../Visitors/PropertyAccessNodeFindingVisitor";
 import { NodePosition, getPosition, isPositionsEquals, traversNode } from "./st-utils";
 import { DataMapperNodeModel } from "../Node/commons/DataMapperNode";
-import { InputNode, ObjectOutputNode } from "../Node";
+import { ArrayOutputNode, InputNode, ObjectOutputNode } from "../Node";
 import { InputOutputPortModel } from "../Port";
 import { ArrayElement, DMTypeWithValue } from "../Mappings/DMTypeWithValue";
 import { useDMSearchStore } from "../../../store/store";
-import { OBJECT_OUTPUT_TARGET_PORT_PREFIX, PRIMITIVE_TYPE_TARGET_PORT_PREFIX } from "./constants";
+import { ARRAY_OUTPUT_TARGET_PORT_PREFIX, OBJECT_OUTPUT_TARGET_PORT_PREFIX, PRIMITIVE_TYPE_TARGET_PORT_PREFIX } from "./constants";
 
 export function getPropertyAccessNodes(node: Node): (Identifier | PropertyAccessExpression)[] {
     const propertyAccessNodeVisitor: PropertyAccessNodeFindingVisitor = new PropertyAccessNodeFindingVisitor();
@@ -116,10 +116,11 @@ export function getOutputPort(
     fields: Node[],
     dmTypeWithValue: DMTypeWithValue,
     portPrefix: string,
-    getPort: (portId: string) => InputOutputPortModel
+    getPort: (portId: string) => InputOutputPortModel,
+    arrayOutputRootName?: string
 ): [InputOutputPortModel, InputOutputPortModel] {
 
-    let portIdBuffer = portPrefix;
+    let portIdBuffer = `${portPrefix}${arrayOutputRootName ? `.${arrayOutputRootName}` : ''}`;
     let nextTypeNode = dmTypeWithValue;
 
     for (let i = 0; i < fields.length; i++) {
@@ -328,7 +329,7 @@ export function getFieldNameFromOutputPort(outputPort: InputOutputPortModel): st
 }
 
 export function getPropertyAssignment(objectLitExpr: ObjectLiteralExpression, targetFieldName: string) {
-	return objectLitExpr.getProperties()?.find((property) =>
+	return objectLitExpr && objectLitExpr.getProperties()?.find((property) =>
 		Node.isPropertyAssignment(property) && property.getName() === targetFieldName
 	) as PropertyAssignment;
 }
@@ -353,6 +354,8 @@ export function getTargetPortPrefix(node: NodeModel): string {
 	switch (true) {
 		case node instanceof ObjectOutputNode:
 			return OBJECT_OUTPUT_TARGET_PORT_PREFIX;
+        case node instanceof ArrayOutputNode:
+            return ARRAY_OUTPUT_TARGET_PORT_PREFIX;
         // TODO: Update cases for other node types
 		default:
 			return PRIMITIVE_TYPE_TARGET_PORT_PREFIX;

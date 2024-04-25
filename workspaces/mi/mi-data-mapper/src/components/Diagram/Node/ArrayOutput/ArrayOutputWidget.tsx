@@ -130,7 +130,7 @@ export function ArrayTypeOutputWidget(props: ArrayTypeOutputWidgetProps) {
 						{label}
 					</span>
 				</TreeHeader>
-				{expanded && dmTypeWithValue && isBodyArrayLitExpr && (
+				{expanded && dmTypeWithValue && (
 					<TreeBody>
 						<ArrayOutputFieldWidget
 							key={id}
@@ -141,7 +141,7 @@ export function ArrayTypeOutputWidget(props: ArrayTypeOutputWidgetProps) {
 							parentObjectLiteralExpr={undefined}
 							context={context}
 							deleteField={deleteField}
-							isReturnTypeDesc={true}
+							asOutput={true}
 						/>
 					</TreeBody>
 				)}
