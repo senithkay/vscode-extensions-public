@@ -3,7 +3,12 @@ import { ChoreoBuildPackNames, ChoreoComponentType, WebAppSPATypes } from "@wso2
 
 export const componentFormSchema = z
     .object({
-        name: z.string().min(1, "Required"),
+        name: z
+            .string()
+            .min(1, "Required")
+            .max(60, "Max length exceeded")
+            .regex(/^[A-Za-z]/, "Needs to start with alphabetic letter")
+            .regex(/^[A-Za-z\s\d\-_]+$/, "Cannot have special characters"),
         type: z.string().min(1, "Required"),
         buildPackLang: z.string().min(1, "Required"),
         subPath: z.string().min(1, "Required"),

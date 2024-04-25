@@ -1,4 +1,4 @@
-import React, { ComponentProps, FC, ReactNode } from "react";
+import React, { ComponentProps, FC, HTMLProps, ReactNode } from "react";
 import { VSCodeTextField } from "@vscode/webview-ui-toolkit/react";
 import { FormElementWrap } from "../FormElementWrap";
 import classnames from "classnames";
@@ -15,10 +15,11 @@ export interface Props {
     disabled?: boolean;
     placeholder?: string;
     type?:TextFieldType
+    wrapClassName?: HTMLProps<HTMLElement>["className"];
 }
 
 export const TextField: FC<Props> = (props) => {
-    const { label, required, loading, name, control, disabled, type, placeholder } = props;
+    const { label, required, loading, name, control, disabled, type, placeholder, wrapClassName } = props;
     
     return (
         <Controller
@@ -30,6 +31,7 @@ export const TextField: FC<Props> = (props) => {
                     label={label}
                     required={required}
                     loading={loading}
+                    className={wrapClassName}
                 >
                     <VSCodeTextField
                         onInput={field.onChange}

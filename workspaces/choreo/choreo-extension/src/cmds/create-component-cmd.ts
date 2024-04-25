@@ -64,8 +64,24 @@ export function createNewComponentCommand(context: ExtensionContext) {
                         const newProjectName = await window.showInputBox({
                             placeHolder: "project-name",
                             title: "New Project Name",
-                            validateInput: (val) =>
-                                projectCache?.some((item) => item.name === val) ? "Project name already exists" : null,
+                            validateInput: (val) => {
+                                if (!val) {
+                                    return "Project name is required";
+                                }
+                                if (projectCache?.some((item) => item.name === val)) {
+                                    return "Project name already exists";
+                                }
+                                if (val?.length > 60 || val?.length < 3) {
+                                    return "Project name must be between 3 and 60 characters";
+                                }
+                                if (!/^[A-Za-z]/.test(val)) {
+                                    return "Project name must start with an alphabetic letter";
+                                }
+                                if (!/^[A-Za-z\s\d\-_]+$/.test(val)) {
+                                    return "Project name cannot have any special characters";
+                                }
+                                return null;
+                            },
                         });
 
                         if (!newProjectName) {
@@ -73,7 +89,10 @@ export function createNewComponentCommand(context: ExtensionContext) {
                         }
 
                         selectedProject = await window.withProgress(
-                            { title: `Creating new project ${newProjectName}...`, location: ProgressLocation.Notification },
+                            {
+                                title: `Creating new project ${newProjectName}...`,
+                                location: ProgressLocation.Notification,
+                            },
                             () =>
                                 ext.clients.rpcClient.createProject({
                                     orgHandler: selectedOrg.handle,
@@ -107,8 +126,6 @@ export function createNewComponentCommand(context: ExtensionContext) {
         })
     );
 }
-
-
 
 export const submitCreateComponentHandler = async ({
     createParams,

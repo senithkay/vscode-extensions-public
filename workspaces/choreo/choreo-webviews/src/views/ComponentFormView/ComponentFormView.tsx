@@ -1,5 +1,4 @@
-import React, { FC, ReactNode, useEffect, useState } from "react";
-import { Divider } from "@wso2-enterprise/ui-toolkit";
+import React, { FC, ReactNode, useEffect } from "react";
 import { TextField } from "../../components/FormElements/TextField";
 import { Dropdown } from "../../components/FormElements/Dropdown";
 import { DirectorySelect } from "../../components/FormElements/DirectorySelect";
@@ -9,8 +8,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import {
     ChoreoBuildPackNames,
     ChoreoComponentType,
-    CommandIds,
-    ICreateComponentParams,
     NewComponentWebviewProps,
     SubmitComponentCreateReq,
     WebAppSPATypes,
@@ -23,6 +20,8 @@ import { componentFormSchema } from "./componentFormSchema";
 import { Button } from "../../components/Button";
 import { makeURLSafe } from "../../utilities/helpers";
 import { Codicon } from "../../components/Codicon";
+import { Divider } from "../../components/Divider";
+import { useAutoAnimate } from "@formkit/auto-animate/react";
 
 type ComponentFormType = z.infer<typeof componentFormSchema>;
 
@@ -33,6 +32,11 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({
     directoryName,
     initialValues,
 }) => {
+    const [formSections] = useAutoAnimate({ duration: 100 });
+    const [compDetailsSections] = useAutoAnimate({ duration: 100 });
+    const [sourceDetailsSections] = useAutoAnimate({ duration: 100 });
+    const [buildConfigSections] = useAutoAnimate({ duration: 100 });
+
     const form = useForm<ComponentFormType>({
         resolver: zodResolver(componentFormSchema),
         mode: "all",
@@ -53,6 +57,7 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({
         },
     });
 
+    const name = form.watch("name");
     const selectedType = form.watch("type");
     const selectedLang = form.watch("buildPackLang");
     const subPath = form.watch("subPath");
@@ -69,12 +74,6 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({
         enabled: selectedType === ChoreoComponentType.Service,
     });
 
-    useEffect(() => {
-        if (!hasEndpoints && !port) {
-            form.setError("port", { message: "Required" });
-        }
-    }, [port, hasEndpoints]);
-
     const { isLoading: isLoadingBuildPacks, data: buildpacks = [] } = useQuery({
         queryKey: ["build-packs", { selectedType, orgId: organization?.id }],
         queryFn: () =>
@@ -83,16 +82,20 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({
                 orgUuid: organization.uuid,
                 orgId: organization.id.toString(),
             }),
+        onSuccess: (buildpacks = []) => {
+            if (
+                form.getValues("buildPackLang") &&
+                buildpacks.length > 0 &&
+                !buildpacks.find((item) => item.language === form.getValues("buildPackLang"))
+            ) {
+                // Reset build pack selection if its invalid
+                form.setValue("buildPackLang", "");
+                form.setValue("langVersion", "");
+            }
+        },
         refetchOnWindowFocus: false,
         enabled: !!selectedType,
     });
-
-    useEffect(() => {
-        if (buildpacks.length > 0 && !buildpacks.find((item) => item.language === form.getValues("buildPackLang"))) {
-            form.setValue("buildPackLang", buildpacks[0]?.language ?? "");
-            form.setValue("langVersion", "");
-        }
-    }, [form, buildpacks]);
 
     const { isLoading: isLoadingRemotes, data: gitRemotes = [] } = useQuery({
         queryKey: ["get-git-remotes", { subPath }],
@@ -141,6 +144,15 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({
                 orgId: organization.id.toString(),
             }),
         enabled: !!repoUrl,
+    });
+
+    const { data: components = [] } = useQuery({
+        queryKey: ["project-components", { project: project.handler, orgId: organization.id }],
+        queryFn: async () =>
+            ChoreoWebViewAPI.getInstance()
+                .getChoreoRpcClient()
+                .getComponentList({ orgId: organization.id.toString(), projectHandle: project.handler }),
+        refetchOnWindowFocus: false,
     });
 
     const selectedBuildPack = buildpacks?.find((item) => item.language === selectedLang);
@@ -192,10 +204,22 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({
         },
     });
 
-    const onSubmit: SubmitHandler<ComponentFormType> = (data) => createComponent(data);
+    const onSubmit: SubmitHandler<ComponentFormType> = (data) => {
+        const hasDuplicateName = components.some((item) => item.metadata.name === makeURLSafe(name))
+        const needPort = !hasEndpoints && !port
+        if (hasDuplicateName) {
+            form.setError("name", { message: "Name already exists" });
+        }
+        if (needPort) {
+            form.setError("port", { message: "Required" });
+        }
 
-    const additionalConfigs: ReactNode[] = [];
+        if (!hasDuplicateName && !needPort) {
+            createComponent(data);
+        }
+    };
 
+    const buildConfigs: ReactNode[] = [];
     if (
         [
             ChoreoBuildPackNames.Ballerina,
@@ -205,43 +229,49 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({
     ) {
         // do nothing
     } else if (selectedLang === ChoreoBuildPackNames.Docker) {
-        additionalConfigs.push(<TextField label="Dockerfile path" required name="dockerFile" control={form.control} />);
+        buildConfigs.push(
+            <TextField label="Dockerfile path" key="docker-path" required name="dockerFile" control={form.control} />
+        );
         if (selectedType === ChoreoComponentType.WebApplication) {
-            additionalConfigs.push(<TextField label="Port" required name="port" control={form.control} />);
+            buildConfigs.push(<TextField label="Port" key="port" required name="port" control={form.control} />);
         }
     } else if (WebAppSPATypes.includes(selectedLang as ChoreoBuildPackNames)) {
-        additionalConfigs.push(
+        buildConfigs.push(
             <TextField
                 label="Node Version"
+                key="node-version"
                 required
                 name="spaNodeVersion"
                 control={form.control}
                 placeholder="20.0.0"
             />
         );
-        additionalConfigs.push(
+        buildConfigs.push(
             <TextField
                 label="Build Command"
+                key="build-command"
                 required
                 name="spaBuildCommand"
                 control={form.control}
                 placeholder="npm run build"
             />
         );
-        additionalConfigs.push(
+        buildConfigs.push(
             <TextField
                 label="Build Output Directory"
+                key="spa-out-dir"
                 required
                 name="spaOutputDir"
                 control={form.control}
                 placeholder="build"
             />
         );
-    } else {
+    } else if (selectedLang) {
         // Build pack type
-        additionalConfigs.push(
+        buildConfigs.push(
             <Dropdown
                 label="Language Version"
+                key="lang-version"
                 required
                 name="langVersion"
                 control={form.control}
@@ -250,24 +280,26 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({
             />
         );
 
-        if (selectedType === ChoreoComponentType.Service && !hasEndpoints) {
-            additionalConfigs.push(
-                <TextField label="Port" required name="port" control={form.control} placeholder="8080" />
-            );
-            additionalConfigs.push(
-                <Dropdown
-                    label="Visibility"
-                    required
-                    name="visibility"
-                    items={["Public", "Organization", "Project"]}
-                    control={form.control}
-                />
-            );
-        } else if (selectedType === ChoreoComponentType.WebApplication) {
-            additionalConfigs.push(
-                <TextField label="Port" required name="port" control={form.control} placeholder="8080" />
+        if (selectedType === ChoreoComponentType.WebApplication) {
+            buildConfigs.push(
+                <TextField label="Port" key="port" required name="port" control={form.control} placeholder="8080" />
             );
         }
+    }
+
+    const endpointConfigs: ReactNode[] = [];
+    if (selectedType === ChoreoComponentType.Service && !hasEndpoints) {
+        endpointConfigs.push(<TextField label="Port" required name="port" control={form.control} placeholder="8080" />);
+        endpointConfigs.push(
+            <Dropdown
+                label="Visibility"
+                key="visibility"
+                required
+                name="visibility"
+                items={["Public", "Organization", "Project"]}
+                control={form.control}
+            />
+        );
     }
 
     let invalidRepoMsg: ReactNode = "";
@@ -326,73 +358,103 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({
                         </h1>
                     </div>
 
-                    <h1 className="text-xl font-bold">Component Details</h1>
-                    <Divider />
-                    <div className="grid md:grid-cols-2 gap-4 md:gap-6">
-                        <TextField
-                            label="Name"
-                            required
-                            name="name"
-                            placeholder="component-name"
-                            control={form.control}
-                        />
-                        <DirectorySelect
-                            name="subPath"
-                            label="Directory"
-                            required
-                            control={form.control}
-                            basePath={directoryPath}
-                            directoryName={directoryName}
-                        />
-                        <Dropdown
-                            label="Repository"
-                            required
-                            name="repoUrl"
-                            control={form.control}
-                            items={gitRemotes}
-                            disabled={gitRemotes?.length === 0}
-                            loading={isLoadingRemotes}
-                            wrapClassName="col-span-full"
-                        />
-                        {invalidRepoMsg && (
-                            <Banner type="warning" className="col-span-full">
-                                {invalidRepoMsg}
-                            </Banner>
+                    <div className="flex flex-col gap-6" ref={formSections}>
+                        <div>
+                            <FormSectionHeader title="Component Details" />
+                            <div className="grid md:grid-cols-2 gap-4" ref={compDetailsSections}>
+                                <TextField
+                                    label="Name"
+                                    required
+                                    name="name"
+                                    placeholder="component-name"
+                                    control={form.control}
+                                />
+                                <Dropdown
+                                    label="Type"
+                                    required
+                                    name="type"
+                                    items={[
+                                        { label: "Service", value: ChoreoComponentType.Service },
+                                        // TODO: add back after fixing deployment
+                                        // { label: "Scheduled Task", value: ChoreoComponentType.ScheduledTask },
+                                        { label: "Manual Trigger", value: ChoreoComponentType.ManualTrigger },
+                                        { label: "Web Application", value: ChoreoComponentType.WebApplication },
+                                        { label: "Webhook", value: ChoreoComponentType.Webhook },
+                                    ]}
+                                    control={form.control}
+                                />
+                                {selectedType && (
+                                    <Dropdown
+                                        label="Build Pack"
+                                        required
+                                        name="buildPackLang"
+                                        control={form.control}
+                                        items={buildpacks?.map((item) => ({
+                                            label: item.displayName,
+                                            value: item.language,
+                                        }))}
+                                        loading={isLoadingBuildPacks && !!selectedType}
+                                        disabled={buildpacks.length === 0}
+                                    />
+                                )}
+                            </div>
+                        </div>
+                        <div>
+                            <FormSectionHeader title="Component Source" />
+                            <div className="grid md:grid-cols-2 gap-4">
+                                <DirectorySelect
+                                    name="subPath"
+                                    label="Directory"
+                                    required
+                                    control={form.control}
+                                    basePath={directoryPath}
+                                    directoryName={directoryName}
+                                    wrapClassName="col-span-full"
+                                />
+                                <div className="grid md:grid-cols-2 gap-4 col-span-full" ref={sourceDetailsSections}>
+                                    <Dropdown
+                                        label="Repository"
+                                        required
+                                        name="repoUrl"
+                                        control={form.control}
+                                        items={gitRemotes}
+                                        disabled={gitRemotes?.length === 0}
+                                        loading={isLoadingRemotes}
+                                    />
+                                    {invalidRepoMsg && (
+                                        <Banner type="warning" className="col-span-full md:order-last">
+                                            {invalidRepoMsg}
+                                        </Banner>
+                                    )}
+                                    {repoUrl && (
+                                        <Dropdown
+                                            label="Branch"
+                                            required
+                                            name="branch"
+                                            control={form.control}
+                                            items={branches}
+                                            disabled={branches?.length === 0 || !isRepoAuthorizedResp?.isAccessible}
+                                            loading={isLoadingBranches}
+                                        />
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                        {buildConfigs.length > 0 && (
+                            <div>
+                                <FormSectionHeader title="Build Configurations" />
+                                <div className="grid md:grid-cols-2 gap-4" ref={buildConfigSections}>
+                                    {buildConfigs}
+                                </div>
+                            </div>
                         )}
-                        <Dropdown
-                            label="Branch"
-                            required
-                            name="branch"
-                            control={form.control}
-                            items={branches}
-                            disabled={branches?.length === 0 || !isRepoAuthorizedResp?.isAccessible}
-                            loading={isLoadingBranches}
-                        />
-                        <Dropdown
-                            label="Type"
-                            required
-                            name="type"
-                            items={[
-                                { label: "Service", value: ChoreoComponentType.Service },
-                                { label: "Scheduled Task", value: ChoreoComponentType.ScheduledTask },
-                                { label: "Manual Trigger", value: ChoreoComponentType.ManualTrigger },
-                                { label: "Web Application", value: ChoreoComponentType.WebApplication },
-                                { label: "Webhook", value: ChoreoComponentType.Webhook },
-                            ]}
-                            control={form.control}
-                        />
-                        <Dropdown
-                            label="Build Pack"
-                            required
-                            name="buildPackLang"
-                            control={form.control}
-                            items={buildpacks?.map((item) => ({ label: item.displayName, value: item.language }))}
-                            loading={isLoadingBuildPacks && !!selectedType}
-                            disabled={buildpacks.length === 0}
-                        />
-                        {...additionalConfigs}
+                        {endpointConfigs.length > 0 && (
+                            <div>
+                                <FormSectionHeader title="Endpoint Configurations" />
+                                <div className="grid md:grid-cols-2 gap-4">{endpointConfigs}</div>
+                            </div>
+                        )}
                     </div>
-
                     <div className="flex gap-3 justify-end pt-6 pb-4">
                         <Button onClick={() => ChoreoWebViewAPI.getInstance().closeWebView()} appearance="secondary">
                             Cancel
@@ -407,6 +469,15 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({
                     </div>
                 </form>
             </div>
+        </div>
+    );
+};
+
+const FormSectionHeader = ({ title }: { title: string }) => {
+    return (
+        <div className="flex items-center gap-2 mb-2">
+            <h1 className="text-lg opacity-50">{title}</h1>
+            <Divider className="flex-1" />
         </div>
     );
 };

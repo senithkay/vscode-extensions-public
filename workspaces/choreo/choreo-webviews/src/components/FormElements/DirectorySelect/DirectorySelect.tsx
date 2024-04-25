@@ -1,4 +1,4 @@
-import React, { FC, ReactNode } from "react";
+import React, { FC, HTMLProps, ReactNode } from "react";
 import { FormElementWrap } from "../FormElementWrap";
 import classnames from "classnames";
 import { Control, Controller } from "react-hook-form";
@@ -12,10 +12,11 @@ interface Props {
     control?: Control;
     basePath: string;
     directoryName?: string;
+    wrapClassName?: HTMLProps<HTMLElement>["className"];
 }
 
 export const DirectorySelect: FC<Props> = (props) => {
-    const { label, required, control, name, basePath, directoryName = "" } = props;
+    const { label, required, control, name, basePath, directoryName = "", wrapClassName } = props;
 
     const { mutate: handleClick, isLoading } = useMutation({
         mutationFn: async (onSelect: (path: string) => void) => {
@@ -57,6 +58,7 @@ export const DirectorySelect: FC<Props> = (props) => {
                         label={label}
                         required={required}
                         loading={isLoading}
+                        className={wrapClassName}
                     >
                         <div
                             onClick={

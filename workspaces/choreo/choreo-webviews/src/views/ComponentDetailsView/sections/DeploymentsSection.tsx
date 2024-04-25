@@ -242,7 +242,13 @@ const EnvItem: FC<{
                                     </GridColumnItem>
                                 )}
                                 {deploymentStatus?.invokeUrl && (
-                                    <GridColumnItem label="Invoke URL">{deploymentStatus?.invokeUrl}</GridColumnItem>
+                                    <EndpointItem
+                                        type="Invoke URL"
+                                        name="invoke-url"
+                                        state="Active"
+                                        url={deploymentStatus?.invokeUrl}
+                                        showOpen={true}
+                                    />
                                 )}
                                 {isServiceType && (
                                     <>
@@ -338,11 +344,10 @@ const EndpointItem: FC<{
     type: string;
     name: string;
     url: string;
-    hasMultiple: boolean;
-    state: string;
+    hasMultiple?: boolean;
+    state?: string;
     showOpen?: boolean;
-}> = ({ name, type, url, hasMultiple, state, showOpen }) => {
-    
+}> = ({ name, type, url, hasMultiple, state = "", showOpen }) => {
     const { mutate: copyUrl } = useMutation({
         mutationFn: (url: string) => clipboardy.write(url),
         onSuccess: () => ChoreoWebViewAPI.getInstance().showInfoMsg("The URL has been copied to the clipboard."),

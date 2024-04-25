@@ -49,6 +49,23 @@ export const getTypeForDisplayType = (displayType: string): string => {
     }
 };
 
+export const getFriendlyComponentType = (componentType: string): string => {
+    switch (componentType) {
+        case ChoreoComponentType.Service:
+            return "Service";
+        case ChoreoComponentType.ManualTrigger:
+            return "Manual Trigger"
+        case ChoreoComponentType.ScheduledTask:
+            return "Scheduled Task"
+        case ChoreoComponentType.WebApplication:
+            return "Web Application"
+            case ChoreoComponentType.Webhook:
+                return "Webhook"
+        default:
+            return componentType;
+    }
+};
+
 export const getBuildpackForComponent = (component: ComponentKind) => {
     let lang = "";
     if (component.spec.build?.buildpack?.language) {

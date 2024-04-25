@@ -25,7 +25,12 @@ export const dataCacheStore = createStore(
                 set(({ state }) => ({ state: { ...state, orgs: updatedOrgs } }));
             },
             setProjects: (orgHandle, projects) => {
-                const updatedProjects = get().state?.orgs?.[orgHandle]?.projects || {};
+                const updatedProjects: {
+                    [projectHandle: string]: {
+                        data?: Project;
+                        components?: { [componentHandle: string]: { data?: ComponentKind } };
+                    };
+                } = {};
                 projects.forEach((item) => {
                     updatedProjects[item.handler] = {
                         components: updatedProjects[item.handler]?.components || {},
@@ -41,8 +46,10 @@ export const dataCacheStore = createStore(
                 set(({ state }) => ({ state: { ...state, orgs: updatedOrgs } }));
             },
             getProjects: (orgHandle) => {
-                const projectList = Object.values(get().state.orgs?.[orgHandle]?.projects ?? {}).filter(item=>item.data).map(item=>item.data)
-                return projectList as Project[]
+                const projectList = Object.values(get().state.orgs?.[orgHandle]?.projects ?? {})
+                    .filter((item) => item.data)
+                    .map((item) => item.data);
+                return projectList as Project[];
             },
             setComponents: (orgHandle, projectHandle, components) => {
                 const newComponents: { [componentHandle: string]: { data?: ComponentKind } } = {};
@@ -54,21 +61,25 @@ export const dataCacheStore = createStore(
                     ...(get().state?.orgs ?? {}),
                     [orgHandle]: {
                         ...(get().state?.orgs?.[orgHandle] ?? {}),
-                        projects:{
+                        projects: {
                             ...(get().state?.orgs?.[orgHandle]?.projects ?? {}),
                             [projectHandle]: {
                                 ...(get().state?.orgs?.[orgHandle]?.projects?.[projectHandle] ?? {}),
                                 components: newComponents,
                             },
-                        }
+                        },
                     },
                 };
 
                 set(({ state }) => ({ state: { ...state, orgs: updatedOrgs } }));
             },
-            getComponents: (orgHandle,projectHandle) => {
-                const componentList = Object.values(get().state.orgs?.[orgHandle]?.projects?.[projectHandle]?.components ?? {}).filter(item=>item.data).map(item=>item.data)
-                return componentList as ComponentKind[]
+            getComponents: (orgHandle, projectHandle) => {
+                const componentList = Object.values(
+                    get().state.orgs?.[orgHandle]?.projects?.[projectHandle]?.components ?? {}
+                )
+                    .filter((item) => item.data)
+                    .map((item) => item.data);
+                return componentList as ComponentKind[];
             },
         }),
         getGlobalStateStore("data-cache-zustand-storage-v1")

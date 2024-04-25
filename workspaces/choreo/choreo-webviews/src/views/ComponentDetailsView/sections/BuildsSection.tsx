@@ -337,7 +337,7 @@ const BuiltItemRow: FC<Props & { item: BuildKind }> = ({
                 <div className="flex gap-2 justify-start md:justify-between items-center flex-row-reverse md:flex-row">
                     <div>{status}</div>
                     <div className="flex gap-1">
-                        {["success", "failed"].includes(item.status?.conclusion) && (
+                        {["success", "failure"].includes(item.status?.conclusion) && (
                             <Button
                                 appearance="icon"
                                 title="View Logs"

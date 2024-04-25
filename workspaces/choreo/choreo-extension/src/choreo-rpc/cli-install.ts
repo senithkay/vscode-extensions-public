@@ -7,7 +7,7 @@ import axios from "axios";
 import { ext } from "../extensionVariables";
 import { workspace } from "vscode";
 
-export const getCliVersion = ():string =>{
+export const getCliVersion = (): string => {
     const packageJson = JSON.parse(fs.readFileSync(path.join(ext.context.extensionPath, "package.json"), "utf8"));
     return packageJson?.cliVersion;
 };
@@ -17,8 +17,9 @@ export const getChoreoExecPath = () => {
     if (executablePath) {
         return executablePath;
     }
-    
-    return path.join(getChoreoBinPath(), "choreo");
+    const OS = os.platform();
+
+    return path.join(getChoreoBinPath(), OS === "win32" ? "choreo.exe" : "choreo");
 };
 
 const getChoreoBinPath = () => {
@@ -42,6 +43,8 @@ export const downloadCLI = async () => {
         FILE_TYPE = ".tar.gz";
     } else if (OS === "darwin") {
         FILE_TYPE = ".zip";
+    } else if (OS === "win32") {
+        FILE_TYPE = ".zip";
     } else {
         throw new Error(`Unsupported OS: ${OS}`);
     }
@@ -57,18 +60,24 @@ export const downloadCLI = async () => {
     if (FILE_TYPE === ".tar.gz") {
         execSync(`tar -xzf ${CHOREO_TMP_FILE_DEST} -C ${CHOREO_TMP_DIR}`);
     } else if (FILE_TYPE === ".zip") {
-        execSync(`unzip -q ${CHOREO_TMP_FILE_DEST} -d ${CHOREO_TMP_DIR}`);
+        if (OS === "darwin") {
+            execSync(`unzip -q ${CHOREO_TMP_FILE_DEST} -d ${CHOREO_TMP_DIR}`);
+        } else if (OS === "win32") {
+            execSync(`powershell.exe -Command "Expand-Archive '${CHOREO_TMP_FILE_DEST}' -DestinationPath '${CHOREO_TMP_DIR}' -Force"`);
+        }
     }
 
     console.log(`Moving executable to ${CHOREO_BIN_DIR}`);
-    await fs.promises.copyFile(`${CHOREO_TMP_DIR}/choreo`, CHOREO_CLI_EXEC);
-    await fs.promises.rm(`${CHOREO_TMP_DIR}/choreo`);
+    await fs.promises.copyFile(`${CHOREO_TMP_DIR}/${OS === "win32" ? "choreo.exe" : "choreo"}`, CHOREO_CLI_EXEC);
+    await fs.promises.rm(`${CHOREO_TMP_DIR}/${OS === "win32" ? "choreo.exe" : "choreo"}`);
 
     console.log("Cleaning up...");
     await fs.promises.rm(CHOREO_TMP_DIR, { recursive: true });
 
     process.chdir(CHOREO_BIN_DIR);
-    fs.promises.chmod(CHOREO_CLI_EXEC, 0o755);
+    if(OS !== "win32"){
+        fs.promises.chmod(CHOREO_CLI_EXEC, 0o755);
+    }
 
     console.log("Choreo RPC server was installed successfully 🎉");
 };
