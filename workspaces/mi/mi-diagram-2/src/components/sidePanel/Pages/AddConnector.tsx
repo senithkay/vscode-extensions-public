@@ -259,6 +259,7 @@ const AddConnector = (props: AddConnectorProps) => {
                     <>
                         <label>{element.displayName}</label> {element.required && <RequiredFormInput />}
                         <AutoComplete
+                            identifier={element.displayName}
                             items={element.comboValues}
                             value={formValues[element.name]}
                             onValueChange={(e: any) => {
@@ -298,6 +299,7 @@ const AddConnector = (props: AddConnectorProps) => {
                         </LinkButton>
                     </div>
                     <AutoComplete
+                        identifier={element.displayName}
                         items={connections}
                         value={formValues['configKey']}
                         onValueChange={(e: any) => {

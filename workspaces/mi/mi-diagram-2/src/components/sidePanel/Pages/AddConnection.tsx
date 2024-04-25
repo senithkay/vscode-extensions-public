@@ -203,6 +203,7 @@ const AddConnection = (props: AddConnectionProps) => {
                     <>
                         <label>{element.displayName}</label> {element.required && <RequiredFormInput />}
                         <AutoComplete
+                            identifier={element.displayName}
                             items={element.comboValues}
                             value={formValues[element.name]}
                             onValueChange={(e: any) => {

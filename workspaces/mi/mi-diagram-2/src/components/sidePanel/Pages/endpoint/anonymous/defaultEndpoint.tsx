@@ -144,7 +144,7 @@ const DefaultEndpointForm = (props: AddMediatorProps) => {
 
                 <Field>
                     <label>Format</label>
-                    <AutoComplete items={["LEAVE_AS_IS", "soap11", "soap12", "pox", "get", "rest"]} value={formValues["format"]} onValueChange={(e: any) => {
+                    <AutoComplete identifier='format' items={["LEAVE_AS_IS", "soap11", "soap12", "pox", "get", "rest"]} value={formValues["format"]} onValueChange={(e: any) => {
                         setFormValues({ ...formValues, "format": e });
                         formValidators["format"](e);
                     }} />
@@ -341,7 +341,7 @@ const DefaultEndpointForm = (props: AddMediatorProps) => {
 
                     <Field>
                         <label>Timeout Action</label>
-                        <AutoComplete items={["never", "discard", "fault"]} value={formValues["timeoutAction"]} onValueChange={(e: any) => {
+                        <AutoComplete identifier='timeout-action' items={["never", "discard", "fault"]} value={formValues["timeoutAction"]} onValueChange={(e: any) => {
                             setFormValues({ ...formValues, "timeoutAction": e });
                             formValidators["timeoutAction"](e);
                         }} />
@@ -352,7 +352,7 @@ const DefaultEndpointForm = (props: AddMediatorProps) => {
 
                 <Field>
                     <label>Optimize</label>
-                    <AutoComplete items={["LEAVE_AS_IS", "mtom", "swa"]} value={formValues["optimize"]} onValueChange={(e: any) => {
+                    <AutoComplete identifier='optimize' items={["LEAVE_AS_IS", "mtom", "swa"]} value={formValues["optimize"]} onValueChange={(e: any) => {
                         setFormValues({ ...formValues, "optimize": e });
                         formValidators["optimize"](e);
                     }} />
@@ -406,7 +406,7 @@ const DefaultEndpointForm = (props: AddMediatorProps) => {
 
                         <Field>
                             <label>Scope</label>
-                            <AutoComplete items={["default", "transport", "axis2", "axis2-client"]} value={formValues["scope"]} onValueChange={(e: any) => {
+                            <AutoComplete identifier='scope' items={["default", "transport", "axis2", "axis2-client"]} value={formValues["scope"]} onValueChange={(e: any) => {
                                 setFormValues({ ...formValues, "scope": e });
                                 formValidators["scope"](e);
                             }} />
@@ -415,7 +415,7 @@ const DefaultEndpointForm = (props: AddMediatorProps) => {
 
                         <Field>
                             <label>Value Type</label>
-                            <AutoComplete items={["LITERAL", "EXPRESSION"]} value={formValues["valueType"]} onValueChange={(e: any) => {
+                            <AutoComplete identifier='value-type' items={["LITERAL", "EXPRESSION"]} value={formValues["valueType"]} onValueChange={(e: any) => {
                                 setFormValues({ ...formValues, "valueType": e });
                                 formValidators["valueType"](e);
                             }} />

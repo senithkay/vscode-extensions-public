@@ -38,11 +38,10 @@ type FilterType =
     | "yaml";
 
 // Interfaces
-export interface IKeylookup {
+interface IKeylookupBase {
     // AutoComplete props
     id?: string;
     required?: boolean;
-    label?: string;
     notItemsFoundMessage?: string;
     widthOffset?: number;
     nullable?: boolean;
@@ -52,7 +51,6 @@ export interface IKeylookup {
     errorMsg?: string;
     value?: string;
     onValueChange?: (item: string, index?: number) => void;
-    name?: string;
     onBlur?: React.FocusEventHandler<HTMLInputElement>;
     onChange?: React.ChangeEventHandler<HTMLInputElement>;
     // Document path
@@ -64,7 +62,17 @@ export interface IKeylookup {
     onCreateButtonClick?: (fetchItems: any, handleValueChange: any) => void;
 }
 
-export type IFormKeylookup<T extends FieldValues> = IKeylookup & UseControllerProps<T>;
+// Define the conditional properties
+type ConditionalProps = 
+    | { label: string; name: string; identifier?: never }
+    | { label: string; name?: never; identifier?: never }
+    | { label?: never; name: string; identifier?: never }
+    | { label?: never; name?: never; identifier: string };
+
+// Combine the base properties with conditional properties
+export type IKeylookup = IKeylookupBase & ConditionalProps;
+
+export type IFormKeylookup<T extends FieldValues> = IKeylookupBase & { label?: string} & UseControllerProps<T>;
 
 // Styles
 const Container = styled.div({
@@ -186,10 +194,10 @@ export const Keylookup = (props: IKeylookup) => {
 };
 
 export const FormKeylookup = <T extends FieldValues>(props: IFormKeylookup<T>) => {
-    const { control, name, ...rest } = props;
+    const { control, name, label, ...rest } = props;
     const {
         field: { value, onChange },
     } = useController({ name, control });
 
-    return <Keylookup {...rest} name={name} value={value} onValueChange={onChange} />;
+    return <Keylookup {...rest} name={name} label={label} value={value} onValueChange={onChange} />;
 };

@@ -113,7 +113,7 @@ const NamedEndpointForm = (props: AddMediatorProps) => {
 
                 <Field>
                     <label>Referring Endpoint Type</label>
-                    <AutoComplete items={["Static", "dynamic"]} value={formValues["referringEndpointType"]} onValueChange={(e: any) => {
+                    <AutoComplete identifier='referring-endpoint-type' items={["Static", "dynamic"]} value={formValues["referringEndpointType"]} onValueChange={(e: any) => {
                         setFormValues({ ...formValues, "referringEndpointType": e });
                         formValidators["referringEndpointType"](e);
                     }} />

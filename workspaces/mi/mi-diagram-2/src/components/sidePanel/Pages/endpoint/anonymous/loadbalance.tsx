@@ -175,7 +175,7 @@ const LoadbalanceEndpointForm = (props: AddMediatorProps) => {
 
                     <Field>
                         <label>Session Type</label>
-                        <AutoComplete items={["NONE", "http", "soap", "simpleClientSession"]} value={formValues["sessionType"]} onValueChange={(e: any) => {
+                        <AutoComplete identifier='session-type' items={["NONE", "http", "soap", "simpleClientSession"]} value={formValues["sessionType"]} onValueChange={(e: any) => {
                             setFormValues({ ...formValues, "sessionType": e });
                             formValidators["sessionType"](e);
                         }} />
@@ -219,7 +219,7 @@ const LoadbalanceEndpointForm = (props: AddMediatorProps) => {
 
                         <Field>
                             <label>Scope</label>
-                            <AutoComplete items={["default", "transport", "axis2", "axis2-client"]} value={formValues["scope"]} onValueChange={(e: any) => {
+                            <AutoComplete identifier='scope' items={["default", "transport", "axis2", "axis2-client"]} value={formValues["scope"]} onValueChange={(e: any) => {
                                 setFormValues({ ...formValues, "scope": e });
                                 formValidators["scope"](e);
                             }} />
@@ -228,7 +228,7 @@ const LoadbalanceEndpointForm = (props: AddMediatorProps) => {
 
                         <Field>
                             <label>Value Type</label>
-                            <AutoComplete items={["LITERAL", "EXPRESSION"]} value={formValues["valueType"]} onValueChange={(e: any) => {
+                            <AutoComplete identifier='value-type' items={["LITERAL", "EXPRESSION"]} value={formValues["valueType"]} onValueChange={(e: any) => {
                                 setFormValues({ ...formValues, "valueType": e });
                                 formValidators["valueType"](e);
                             }} />

@@ -93,6 +93,7 @@ export function RepoBranchSelector(props: RepoBranchSelectorProps) {
             <label htmlFor="branch-drop-down">Branch</label>
             <BranchSelectorContainer>
                 <AutoComplete
+                    identifier="branch"
                     items={repoBranches ?? []}
                     value={branch}
                     onValueChange={handleBranchChange}
