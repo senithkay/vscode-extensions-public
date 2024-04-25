@@ -293,7 +293,7 @@ export function getXML(name: string, data: { [key: string]: any }, dirtyFields?:
         case MEDIATORS.PUBLISHEVENT:
             return getPublishEventXml(data);
         case MEDIATORS.ENTITLEMENT:
-            return getEntitlementXml(data);
+            return getEntitlementXml(data, dirtyFields, defaultValues);
         case MEDIATORS.RULE:
             return getRuleXml(data);
         case MEDIATORS.NTLM:
