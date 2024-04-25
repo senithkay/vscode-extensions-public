@@ -30,7 +30,7 @@ export async function getAuthUrl(callbackUri: string): Promise<string> {
     //     + `&state=${stateBase64}&code_challenge=${this._challenge.code_challenge}`;
 
     const state = encodeURIComponent(btoa(JSON.stringify({ callbackUri: 'vscode://wso2.micro-integrator/signin' })));
-    return `https://api.asgardeo.io/t/wso2midev/oauth2/authorize?response_type=code&redirect_uri=https://cce0dad8-6788-4dad-b618-debceac51c0d.e1-eu-north-azure.choreoapps.dev&client_id=i42PUygaucczvuPmhZFw5x8Lmswa&scope=openid%20email&state=${state}`;
+    return `https://api.asgardeo.io/t/wso2midev/oauth2/authorize?response_type=code&redirect_uri=https://583e69e7-6d33-4706-9a4f-2918707bb736.e1-us-east-azure.choreoapps.dev&client_id=i42PUygaucczvuPmhZFw5x8Lmswa&scope=openid%20email&state=${state}`;
 }
 
 export async function exchangeAuthCodeNew(authCode: string): Promise<AccessToken> {
@@ -39,7 +39,7 @@ export async function exchangeAuthCodeNew(authCode: string): Promise<AccessToken
         code: authCode,
         grant_type: 'authorization_code',
         // redirect_uri: 'vscode://wso2.micro-integrator/signin',
-        redirect_uri: 'https://cce0dad8-6788-4dad-b618-debceac51c0d.e1-eu-north-azure.choreoapps.dev',
+        redirect_uri: 'https://583e69e7-6d33-4706-9a4f-2918707bb736.e1-us-east-azure.choreoapps.dev',
         scope: 'openid email'
     });
     try {

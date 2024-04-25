@@ -184,6 +184,7 @@ import { StateMachineAI } from '../../ai-panel/aiMachine';
 import fetch from 'node-fetch';
 import path = require("path");
 import { openPopupView } from "../../stateMachinePopup";
+import { template } from "lodash";
 
 const { XMLParser, XMLBuilder } = require("fast-xml-parser");
 
@@ -2486,13 +2487,36 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     switch (tag) {
                         case 'api':
                             fileType = 'apis';
-                            fileType = 'apis';
                             break;
                         case 'endpoint':
                             fileType = 'endpoints';
                             break;
                         case 'sequence':
                             fileType = 'sequences'
+                            break;
+                        case 'proxy':
+                            fileType = 'proxy-services';
+                            break;
+                        case 'inboundEndpoint':
+                            fileType = 'inbound-endpoints';
+                            break;
+                        case 'messageStore':
+                            fileType = 'message-stores';
+                            break;
+                        case 'messageProcessor':
+                            fileType = 'message-processors';
+                            break;
+                        case 'task':
+                            fileType = 'tasks';
+                            break;
+                        case 'localEntry':
+                            fileType = 'local-entries';
+                            break;
+                        case 'template':
+                            fileType = 'templates';
+                            break;
+                        case 'registry':
+                            fileType = 'registry';
                             break;
                         default:
                             fileType = '';
