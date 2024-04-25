@@ -10,15 +10,11 @@
 import Mustache from "mustache";
 
 export function getSequenceMustacheTemplate() {
-    return `<sequence {{#staticReferenceKey}}key="{{staticReferenceKey}}"{{/staticReferenceKey}} {{#dynamicReferenceKey}}key="{{dynamicReferenceKey}}"{{/dynamicReferenceKey}} {{#description}}description="{{description}}"{{/description}}/>`;
+    return `<sequence {{#referingSequence}}key="{{referingSequence}}"{{/referingSequence}} {{#description}}description="{{description}}"{{/description}}/>`;
 }
 
 export function getSequenceXml(data: { [key: string]: any }) {
-    if (data.referringSequenceType === "Static") {
-        delete data.dynamicReferenceKey;
-    } else if (data.referringSequenceType === "Dynamic") {
-        delete data.staticReferenceKey;
-    }
+
     return Mustache.render(getSequenceMustacheTemplate(), data);
 }
 

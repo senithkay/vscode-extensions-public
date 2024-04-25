@@ -21,6 +21,7 @@ export function getSmooksMustacheTemplate() {
 
 export function getSmooksXml(data: { [key: string]: any }) {
 
+    data.inputExpression = data.inputExpression?.value;
     if (data.outputMethod == "Property") {
         delete data.outputExpression;
     } else if (data.outputMethod == "Expression") {
@@ -37,7 +38,7 @@ export function getSmooksFormDataFromSTNode(data: { [key: string]: any }, node: 
 
     data.description = node.description;
     data.configurationKey = node.configKey;
-    data.inputExpression = node.input?.expression;
+    data.inputExpression = { isExpression: true, value: node.input?.expression };
     data.inputType = node.input?.type;
     data.outputType = node.output?.type;
     if (node.output?.expression) {

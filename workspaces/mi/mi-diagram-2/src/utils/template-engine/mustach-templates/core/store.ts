@@ -15,23 +15,12 @@ export function getStoreMustacheTemplate() {
 }
 
 export function getStoreXml(data: { [key: string]: any }) {
-    if (data.expression && !data.expression?.startsWith("{")) {
-        data.messageStore = "{" + data.expression + "}";
-    }
 
     return Mustache.render(getStoreMustacheTemplate(), data).trim();
 
 }
 
 export function getStoreFormDataFromSTNode(data: { [key: string]: any }, node: Store) {
-    if (data.messageStore?.startsWith("{")) {
-        data.specifyAs = "Expression";
-        const regex = /{([^}]*)}/;
-        const match = data.messageStore.match(regex);
-        data.expression = match.length > 1 ? match[1] : data.messageStore;
-    } else {
-        data.specifyAs = "Value";
-    }
+
     return data;
 }
-

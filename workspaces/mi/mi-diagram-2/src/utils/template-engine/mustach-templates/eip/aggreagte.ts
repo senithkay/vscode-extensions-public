@@ -9,6 +9,7 @@
 
 import { Aggregate } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import Mustache from "mustache";
+import { checkAttributesExist } from "../../../commons";
 
 export function getAggregateMustacheTemplate() {
     return `
@@ -34,52 +35,111 @@ export function getAggregateMustacheTemplate() {
     </completeCondition>
     {{/editCompleteCondition}}
     {{#editOnComplete}}
-    <onComplete aggregateElementType="{{aggregateElementType}}" enclosingElementProperty="{{enclosingElementProperty}}" expression="{{aggregationExpression}}" {{#sequenceKey}}sequence="{{sequenceKey}}"{{/sequenceKey}} ></onComplete>
+    <onComplete aggregateElementType="{{aggregateElementType}}" enclosingElementProperty="{{enclosingElementProperty}}" expression="{{aggregationExpression}}" {{#sequenceKey}}sequence="{{sequenceKey}}"{{/sequenceKey}} >
     {{/editOnComplete}}
     {{/isNewMediator}}
     `;
 }
 
-export function getAggregateXml(data: { [key: string]: any }) {
+export function getAggregateXml(data: { [key: string]: any }, dirtyFields?: any, defaultValues?: any) {
 
-    data.completionMax = data.completionMaxMessagesType == "EXPRESSION" ? "{" + data.completionMaxMessages + "}" : data.completionMaxMessagesValue;
-    data.completionMin = data.completionMinMessagesType == "EXPRESSION" ? "{" + data.completionMinMessages + "}" : data.completionMinMessagesValue;
-
+    data.completionMax = data.completionMaxMessages?.isExpression ? "{" + data.completionMaxMessages.value + "}" : data.completionMaxMessages.value;
+    data.completionMin = data.completionMinMessages?.isExpression ? "{" + data.completionMinMessages.value + "}" : data.completionMinMessages.value;
+    data.correlationExpression = data.correlationExpression?.value;
+    data.aggregationExpression = data.aggregationExpression?.value;
     data.aggregateElementType = data.aggregateElementType.toLowerCase();
+    if (data.sequenceType == "ANONYMOUS") {
+        delete data.sequenceKey;
+    }
+    if (defaultValues == undefined || Object.keys(defaultValues).length == 0) {
+        data.isNewMediator = true;
+        const output = Mustache.render(getAggregateMustacheTemplate(), data)?.trim();
+        return output;
+    }
+    return getEdits(data, dirtyFields, defaultValues);
+}
 
-    const output = Mustache.render(getAggregateMustacheTemplate(), data)?.trim();
-    return output;
+function getEdits(data: { [key: string]: any }, dirtyFields?: any, defaultValues?: any) {
+
+    let aggregatteTagAttributes = ["aggregateID"];
+    let correlateOnAttributes = ["correlationExpression"];
+    let completeConditionAttributes = ["completionTimeout", "completionMaxMessages", "completionMinMessages"];
+    let onCompleteAttributes = ["aggregateElementType", "enclosingElementProperty", "aggregationExpression", "sequenceKey", "sequenceType"];
+    let dirtyFieldsKeys = Object.keys(dirtyFields);
+
+    let edits: { [key: string]: any }[] = [];
+
+    if (checkAttributesExist(dirtyFieldsKeys, aggregatteTagAttributes)) {
+        edits.push(getEdit("aggregate", data, defaultValues, true));
+    }
+
+    if (checkAttributesExist(dirtyFieldsKeys, correlateOnAttributes)) {
+        edits.push(getEdit("correlateOn", data, defaultValues, false));
+    }
+
+    if (checkAttributesExist(dirtyFieldsKeys, completeConditionAttributes)) {
+        edits.push(getEdit("completeCondition", data, defaultValues, false));
+    }
+
+    if (checkAttributesExist(dirtyFieldsKeys, onCompleteAttributes)) {
+        edits.push(getEdit("onComplete", data, defaultValues, true));
+    }
+
+    edits.sort((a, b) => b.range.start.line - a.range.start.line);
+    return edits;
+}
+
+function getEdit(key: string, data: { [key: string]: any }, defaultValues: any, editStartTagOnly: boolean) {
+    let dataCopy = { ...data };
+    let editKey = "edit" + key.charAt(0).toUpperCase() + key.slice(1);
+    dataCopy[editKey] = true;
+    let range = defaultValues.ranges[key];
+    let editRange;
+    if (range) {
+        editRange = {
+            start: range.startTagRange.start,
+            end: editStartTagOnly ? range.startTagRange.end : (range.endTagRange.end ? range.endTagRange.end : range.startTagRange.end)
+        }
+    } else {
+        let aggregateRange = defaultValues.ranges.aggregate;
+        editRange = {
+            start: aggregateRange.endTagRange.start,
+            end: aggregateRange.endTagRange.start
+        }
+    }
+    let output = Mustache.render(getAggregateMustacheTemplate(), dataCopy)?.trim();
+    let edit = {
+        text: output,
+        range: editRange
+    };
+    return edit;
 }
 
 export function getAggregateFormDataFromSTNode(data: { [key: string]: any }, node: Aggregate) {
 
     data.description = node.description;
     data.aggregateID = node.id;
-    data.correlationExpression = node.correlateOnOrCompleteConditionOrOnComplete?.correlateOn?.expression;
+    data.correlationExpression = { isExpression: true, value: node.correlateOnOrCompleteConditionOrOnComplete?.correlateOn?.expression };
     data.completionTimeout = node.correlateOnOrCompleteConditionOrOnComplete?.completeCondition?.timeout;
     const max = node.correlateOnOrCompleteConditionOrOnComplete?.completeCondition?.messageCount?.max;
     if (max && max.startsWith("{")) {
         const regex = /{([^}]*)}/;
         const match = max.match(regex);
-        data.completionMaxMessages = match.length > 1 ? match[1] : max;
-        data.completionMaxMessagesType = "EXPRESSION";
+        data.completionMaxMessages = { isExpression: true, value: match.length > 1 ? match[1] : max };
     } else if (max) {
-        data.completionMaxMessagesValue = max;
-        data.completionMaxMessagesType = "VALUE";
+        data.completionMaxMessages = { isExpression: false, value: max };
     }
     const min = node.correlateOnOrCompleteConditionOrOnComplete?.completeCondition?.messageCount?.min;
     if (min && min.startsWith("{")) {
         const regex = /{([^}]*)}/;
         const match = min.match(regex);
-        data.completionMinMessages = match.length > 1 ? match[1] : min;
-        data.completionMinMessagesType = "EXPRESSION";
+        data.completionMinMessages = { isExpression: true, value: match.length > 1 ? match[1] : min };
     } else if (min) {
-        data.completionMinMessagesValue = min;
-        data.completionMinMessagesType = "VALUE";
+        data.completionMinMessagesValue = { isExpression: false, value: min };
     }
     data.aggregateElementType = node.correlateOnOrCompleteConditionOrOnComplete?.onComplete?.aggregateElementType?.toUpperCase();
     data.enclosingElementProperty = node.correlateOnOrCompleteConditionOrOnComplete?.onComplete?.enclosingElementProperty;
-    data.aggregationExpression = node.correlateOnOrCompleteConditionOrOnComplete?.onComplete?.expression;
+    data.aggregationExpression = { isExpression: true, value: node.correlateOnOrCompleteConditionOrOnComplete?.onComplete?.expression };
     data.sequenceKey = node.correlateOnOrCompleteConditionOrOnComplete?.onComplete?.sequenceAttribute;
     data.sequenceType = data.sequenceKey ? "REGISTRY_REFERENCE" : "ANONYMOUS";
     data.ranges = {

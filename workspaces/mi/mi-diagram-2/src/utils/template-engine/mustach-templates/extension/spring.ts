@@ -2,6 +2,6 @@
 export function getSpringMustacheTemplate() {
 
     return `
-    <spring:spring bean="{{beanName}}" description="{{description}}," key="{{configurationKey}}" xmlns:spring="http://ws.apache.org/ns/synapse"/>
+    <spring:spring {{#beanName}}bean="{{beanName}}"{{/beanName}} {{#description}}description="{{description}}"{{/description}} {{#configurationKey}}key="{{configurationKey}}"{{/configurationKey}} xmlns:spring="http://ws.apache.org/ns/synapse"/>
     `;
 }

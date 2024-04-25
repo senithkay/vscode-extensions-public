@@ -13,17 +13,37 @@ import Mustache from "mustache";
 export function getNtlmMustacheTemplate() {
 
     return `
-    <ntlm {{#description}}description="{{description}}"{{/description}} domain="{{domain}}" host="{{host}}" ntlmVersion="{{ntlmVersion}}" password="{{password}}" username="{{username}}"/>
+    <NTLM {{#description}}description="{{description}}"{{/description}} domain="{{domain}}" host="{{host}}" ntlmVersion="{{ntlmVersion}}" password="{{password}}" username="{{username}}"/>
     `;
 }
 
 export function getNtlmXml(data: { [key: string]: any }) {
 
-    if (data.usernameValueType == "EXPRESSION") data.username = "{" + data.username + "}";
-    if (data.passwordValueType == "EXPRESSION") data.password = "{" + data.password + "}";
-    if (data.hostValueType == "EXPRESSION") data.host = "{" + data.host + "}";
-    if (data.domainValueType == "EXPRESSION") data.domain = "{" + data.domain + "}";
-    if (data.ntlmVersionValueType == "EXPRESSION") data.ntlmVersion = "{" + data.ntlmVersion + "}";
+    if (data.username?.isExpression) {
+        data.username = "{" + data.username?.value + "}";
+    } else {
+        data.username = data.username?.value;
+    }
+    if (data.password?.isExpression) {
+        data.password = "{" + data.password?.value + "}";
+    } else {
+        data.password = data.password?.value;
+    }
+    if (data.host?.isExpression) {
+        data.host = "{" + data.host?.value + "}";
+    } else {
+        data.host = data.host?.value;
+    }
+    if (data.domain?.isExpression) {
+        data.domain = "{" + data.domain?.value + "}";
+    } else {
+        data.domain = data.domain?.value;
+    }
+    if (data.ntlmVersion?.isExpression) {
+        data.ntlmVersion = "{" + data.ntlmVersion?.value + "}";
+    } else {
+        data.ntlmVersion = data.ntlmVersion?.value;
+    }
 
     const output = Mustache.render(getNtlmMustacheTemplate(), data)?.trim();
     return output;
@@ -32,45 +52,44 @@ export function getNtlmXml(data: { [key: string]: any }) {
 export function getNtlmFormDataFromSTNode(data: { [key: string]: any }, node: Ntlm) {
 
     if (node.username.includes("{")) {
-        data.usernameValueType = "EXPRESSION";
         data.username = node.username?.slice(1, -1);
+        data.username = { isExpression: true, value: data.username };
     } else {
-        data.usernameValueType = "LITERAL";
         data.username = node.username;
+        data.username = { isExpression: false, value: data.username };
     }
 
     if (node.password.includes("{")) {
-        data.passwordValueType = "EXPRESSION";
         data.password = node.password?.slice(1, -1);
+        data.password = { isExpression: true, value: data.password };
     } else {
-        data.passwordValueType = "LITERAL";
         data.password = node.password;
+        data.password = { isExpression: false, value: data.password };
     }
 
     if (node.host.includes("{")) {
-        data.hostValueType = "EXPRESSION";
         data.host = node.host?.slice(1, -1);
+        data.host = { isExpression: true, value: data.host };
     } else {
-        data.hostValueType = "LITERAL";
         data.host = node.host;
+        data.host = { isExpression: false, value: data.host };
     }
 
     if (node.domain.includes("{")) {
-        data.domainValueType = "EXPRESSION";
         data.domain = node.domain?.slice(1, -1);
+        data.domain = { isExpression: true, value: data.domain };
     } else {
-        data.domainValueType = "LITERAL";
         data.domain = node.domain;
+        data.domain = { isExpression: false, value: data.domain };
     }
 
     if (node.ntlmVersion.includes("{")) {
-        data.ntlmVersionValueType = "EXPRESSION";
         data.ntlmVersion = node.ntlmVersion?.slice(1, -1);
+        data.ntlmVersion = { isExpression: true, value: data.ntlmVersion };
     } else {
-        data.versionValueType = "LITERAL";
-        data.version = node.ntlmVersion;
+        data.ntlmVersion = node.ntlmVersion;
+        data.ntlmVersion = { isExpression: false, value: data.ntlmVersion };
     }
-
 
     return data;
 }
