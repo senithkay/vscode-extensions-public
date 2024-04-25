@@ -135,6 +135,9 @@ export async function executeTasks(serverPath: string, isDebug: boolean): Promis
     if (!portsInUse) {
         return new Promise<void>(async (resolve) => {
             const runTask = getRunTask(serverPath, isDebug);
+            runTask.presentationOptions = {
+                panel: vscode.TaskPanelKind.Shared
+            };
             await vscode.tasks.executeTask(runTask);
             console.log('Running the server');
 

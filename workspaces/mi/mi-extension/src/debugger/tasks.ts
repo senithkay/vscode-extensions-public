@@ -40,7 +40,7 @@ export function getCopyTask(serverPath: string, targetDirectory: vscode.Uri): vs
 
 export function getRunTask(serverPath: string, isDebug: boolean): vscode.Task {
     let command;
-    if(isDebug) {
+    if (isDebug) {
         command = serverPath + '/bin/micro-integrator.sh -Desb.debug=true';
     } else {
         command = serverPath + '/bin/micro-integrator.sh';
@@ -50,7 +50,19 @@ export function getRunTask(serverPath: string, isDebug: boolean): vscode.Task {
         vscode.TaskScope.Workspace,
         'run',
         'mi',
-        new vscode.ShellExecution(command)
+        new vscode.ShellExecution(command),
     );
     return runTask;
+}
+
+export function getStopTask(serverPath: string): vscode.Task {
+    const command = serverPath + '/bin/micro-integrator.sh stop';
+    const stopTask = new vscode.Task(
+        { type: 'mi-stop' },
+        vscode.TaskScope.Workspace,
+        'stop',
+        'mi',
+        new vscode.ShellExecution(command)
+    );
+    return stopTask;
 }

@@ -17,6 +17,7 @@ import { StateMachine, navigate, openView } from '../stateMachine';
 import { EVENT_TYPE } from '@wso2-enterprise/mi-core';
 import { VisualizerWebview } from '../visualizer/webview';
 import { extension } from '../MIExtensionContext';
+import { getStopTask } from './tasks';
 
 export class MiDebugAdapter extends LoggingDebugSession {
     private _configurationDone = new Subject();
@@ -231,6 +232,7 @@ export class MiDebugAdapter extends LoggingDebugSession {
     }
 
 
+    private currentServerPath;
     protected launchRequest(response: DebugProtocol.LaunchResponse, args?: DebugProtocol.LaunchRequestArguments, request?: DebugProtocol.Request): void {
         this._configurationDone.wait().then(() => {
             getServerPath().then((serverPath) => {
@@ -238,6 +240,7 @@ export class MiDebugAdapter extends LoggingDebugSession {
                     response.success = false;
                     this.sendResponse(response);
                 } else {
+                    this.currentServerPath = serverPath;
                     executeTasks(serverPath, true)
                         .then(async () => {
                             await this.debuggerHandler?.initializeDebugger();
@@ -251,16 +254,19 @@ export class MiDebugAdapter extends LoggingDebugSession {
         });
     }
 
-    protected disconnectRequest(response: DebugProtocol.DisconnectResponse, args: DebugProtocol.DisconnectArguments, request?: DebugProtocol.Request): void {
+    protected async disconnectRequest(response: DebugProtocol.DisconnectResponse, args: DebugProtocol.DisconnectArguments, request?: DebugProtocol.Request): Promise<void> {
         const taskExecution = vscode.tasks.taskExecutions.find(execution => execution.task.name === 'run');
         if (taskExecution) {
             this.debuggerHandler?.closeDebugger();
-            taskExecution.terminate();
+            const stopTask = getStopTask(this.currentServerPath);
+            stopTask.presentationOptions.close = true;
+            vscode.tasks.executeTask(stopTask);
             response.success = true;
+            this.sendResponse(response);
         } else {
             response.success = false;
+            this.sendResponse(response);
         }
-        this.sendResponse(response);
     }
 
     protected async attachRequest(response: DebugProtocol.AttachResponse, args: DebugProtocol.LaunchRequestArguments) {

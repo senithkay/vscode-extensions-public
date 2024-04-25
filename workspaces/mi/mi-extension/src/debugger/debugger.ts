@@ -382,6 +382,7 @@ export class Debugger extends EventEmitter {
             this.commandClient?.once('data', (data) => {
                 // Convert buffer to string
                 const receivedData = data.toString();
+                console.log('Received data from commandClient, waiting for complete data:', receivedData);
 
                 // Append the received data to incompleteMessage
                 incompleteMessage += receivedData;
@@ -466,8 +467,10 @@ export class Debugger extends EventEmitter {
 
     public closeDebugger(): void {
         // Close connections to command and event ports
-        this.commandClient?.end();
-        this.eventClient?.end();
+        this.commandClient?.destroy();
+        this.eventClient?.destroy();
+        // remove all the listeners
+        this.removeAllListeners();
         extension.preserveActivity = false;
     }
 
