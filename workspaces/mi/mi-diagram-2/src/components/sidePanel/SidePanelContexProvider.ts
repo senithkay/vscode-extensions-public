@@ -23,6 +23,7 @@ interface SidePanelContext {
     title?: string;
     isFormOpen?: boolean;
     connectors?: any[];
+    iconPath?: string;
     expressionEditor?: {
         isOpen: boolean;
         value: ExpressionFieldValue;

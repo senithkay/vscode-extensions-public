@@ -68,8 +68,7 @@ export function Mediators(props: MediatorProps) {
                 const connecterForm = <AddConnector
                     formData={sidePanelContext.formValues.form}
                     nodePosition={sidePanelContext.nodeRange}
-                    documentUri={props.documentUri}
-                    uiSchemaPath={sidePanelContext.formValues.uiSchemaPath} />;
+                    documentUri={props.documentUri} />;
                 setContent(connecterForm, FirstCharToUpperCase(sidePanelContext.formValues.title));
                 return <></>;
             }

@@ -26,11 +26,18 @@ export function getFaultMustacheTemplate() {
 
 export function getFaultXml(data: { [key: string]: any }) {
 
-    if (data.detailType == "EXPRESSION") delete data.detailValue;
-    else delete data.detailExpression;
+    if (data.detail?.isExpression) {
+        data.detailExpression = data.detail.value;
+    }
+    else {
+        data.detailValue = data.detail.value;
+    }
 
-    if (data.reasonType == "EXPRESSION") delete data.reasonValue;
-    else delete data.reasonExpression;
+    if (data.reason?.isExpression) {
+        data.reasonExpression = data.reason.value;
+    } else {
+        data.reasonValue = data.reason.value;
+    }
 
     if (data.soapVersion == "soap11") {
         data.code = data.soap11;
@@ -48,20 +55,16 @@ export function getFaultXml(data: { [key: string]: any }) {
 
 export function getFaultFormDataFromSTNode(data: { [key: string]: any }, node: Makefault) {
 
-    if (node.detail.expression) {
-        data.detailType = "EXPRESSION";
-        data.detailExpression = node.detail.expression;
+    if (node.detail?.expression) {
+        data.detail = { isExpression: true, value: node.detail?.expression };
     } else {
-        data.detailType = "VALUE";
-        data.detailValue = node.detail.textNode;
+        data.detail = { isExpression: false, value: node.detail?.textNode };
     }
 
-    if (node.reason.expression) {
-        data.reasonType = "EXPRESSION";
-        data.reasonExpression = node.reason.expression;
+    if (node.reason?.expression) {
+        data.reason = { isExpression: true, value: node.reason?.expression };
     } else {
-        data.reasonType = "VALUE";
-        data.reasonValue = node.reason.value;
+        data.reason = { isExpression: false, value: node.reason?.value };
     }
     data.soapVersion = node.version;
     data.description = node.description;

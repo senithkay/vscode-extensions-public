@@ -13,11 +13,11 @@ import Mustache from 'mustache';
 export function getBuilderMustacheTemplate() {
 
     return `
-    <builder{{#description}} description="{{description}}" {{/description}}>
+    <syn:builder{{#description}} description="{{description}}" {{/description}} xmlns:syn="http://ws.apache.org/ns/synapse">
         {{#messageBuilders}}
         <messageBuilder class="{{builderClass}}" contentType="{{contentType}}" formatterClass="{{formatterClass}}"/>
         {{/messageBuilders}}
-    </builder>
+    </syn:builder>
     `;
 }
 

@@ -12,7 +12,7 @@ import { getCallFormDataFromSTNode, getCallMustacheTemplate, getCallXml } from "
 import { Call, Callout, Header, Log, STNode, CallTemplate, PayloadFactory, Property, Jsontransform, Xquery, Xslt, DataServiceCall, DbMediator, Class, PojoCommand, Ejb, ConditionalRouter, Switch, Bean, Script, Store, Validate, PropertyGroup, Transaction, Event, Clone, Cache, Send, Aggregate, Iterate, Filter, NamedEndpoint, Foreach, Bam, OauthService, Builder, PublishEvent, EntitlementService, Rule, Ntlm, Enrich, FastXSLT, Makefault, Smooks, Throttle } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { getLogFormDataFromSTNode, getLogMustacheTemplate, getLogXml } from "./core/log";
 import { getCalloutFormDataFromSTNode, getCalloutMustacheTemplate, getCalloutXml } from "./core/callout";
-import { getHeaderFormDataFromSTNode, getHeaderMustacheTemplate } from "./core/header";
+import { getHeaderFormDataFromSTNode, getHeaderMustacheTemplate, getHeaderXml } from "./core/header";
 import { getCallTemplateFormDataFromSTNode, getCallTemplateMustacheTemplate, getCallTemplateXml } from "./core/call-template";
 import { getPayloadMustacheTemplate, getPayloadFormDataFromSTNode, getPayloadXml } from "./transformation/payloadFactory";
 import { getPropertyFormDataFromSTNode, getPropertyMustacheTemplate, getPropertyXml } from "./core/property";
@@ -235,15 +235,17 @@ export function getXML(name: string, data: { [key: string]: any }, dirtyFields?:
             return getSendXml(data);
         case MEDIATORS.PAYLOAD:
             return getPayloadXml(data);
+        case MEDIATORS.HEADER:
+            return getHeaderXml(data);
         case ENDPOINTS.NAMED:
             return getNamedEndpointXml(data);
         //EIP Mediators
         case MEDIATORS.AGGREGATE:
-            return getAggregateXml(data);
+            return getAggregateXml(data, dirtyFields, defaultValues);
         case MEDIATORS.ITERATE:
             return getIterateXml(data, dirtyFields, defaultValues);
         case MEDIATORS.FOREACHMEDIATOR:
-            return getForeachXml(data);
+            return getForeachXml(data, dirtyFields, defaultValues);
         //Filter Mediators
         case MEDIATORS.FILTER:
             return getFilterXml(data, dirtyFields, defaultValues);

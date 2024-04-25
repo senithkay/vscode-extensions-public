@@ -32,9 +32,12 @@ export function getEnrichXml(data: { [key: string]: any }) {
 
     let isSourceInlined = data.sourceType === "inline";
 
-    if (data.sourceType == "property") delete data.sourceXPath;
-    else if (data.sourceType == "custom") delete data.sourceProperty;
-    else {
+    if (data.sourceType == "property") {
+        delete data.sourceXPath;
+    } else if (data.sourceType == "custom") {
+        data.sourceXPath = data.sourceXPath?.value;
+        delete data.sourceProperty;
+    } else {
         delete data.sourceProperty;
         delete data.sourceXPath;
     }
@@ -77,7 +80,7 @@ export function getEnrichFormDataFromSTNode(data: { [key: string]: any }, node: 
     } else if (data.sourceType == "property") {
         data.sourceProperty = node.source?.property;
     } else if (data.sourceType == "custom") {
-        data.sourceXPath = node.source?.xpath;
+        data.sourceXPath = { isExpression: true, value: node.source?.xpath };
     }
 
     data.targetAction = node.target?.action;

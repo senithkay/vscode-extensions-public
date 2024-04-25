@@ -12,7 +12,7 @@ import Mustache from "mustache";
 
 export function getJsonTransformMustacheTemplate() {
   return `
-    <jsontransform description="{{description}}" schema="{{schema}}" >
+    <jsontransform description="{{description}}" schema="{{{schema}}}" >
         {{#jsonTransformProperties}}
         <property name="{{propertyName}}" value="{{propertyValue}}" />
         {{/jsonTransformProperties}}

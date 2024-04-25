@@ -37,6 +37,14 @@ const BtnStyle = {
     },
 };
 
+const IconContainer = styled.div`
+    width: 40px;
+
+    & img {
+        width: 25px;
+    }
+`;
+
 export interface SidePanelListProps {
     nodePosition: Range;
     documentUri: string;
@@ -49,9 +57,11 @@ const SidePanelList = (props: SidePanelListProps) => {
     const sidePanelContext = useContext(SidePanelContext);
     const [pageStack, setPageStack] = useState<any[]>([]);
     const [title, setTitle] = useState<string>("");
+    const [iconpath, setIconPath] = useState<string>(undefined);
 
     useEffect(() => {
         setPageStack([]);
+        setIconPath(sidePanelContext.iconPath);
     }, [sidePanelContext.operationName]);
 
     // show/hide back button based on pageStack length
@@ -94,9 +104,10 @@ const SidePanelList = (props: SidePanelListProps) => {
         setAddMediator(isGenerate);
     };
 
-    const setContent = async (content: any, title: string) => {
+    const setContent = async (content: any, title: string, iconPath?: string) => {
         setPageStack([...pageStack, content]);
         setTitle(title);
+        setIconPath(iconPath);
     };
 
     return (
@@ -111,7 +122,15 @@ const SidePanelList = (props: SidePanelListProps) => {
                         {(pageStack.length === 0 || sidePanelContext.isEditing) ? <div></div> :
                             <Codicon name="arrow-left" sx={{ width: "20px", position: "absolute", left: "0px", paddingLeft: "25px" }} onClick={handleGoBack} />}
 
-                        {pageStack.length > 0 && title !== undefined && <h3 style={{ textAlign: "center", width: "355px" }}>{title}</h3>}
+                        {(pageStack.length > 0) && iconpath !== undefined && (
+                            <IconContainer>
+                                <img
+                                    src={iconpath}
+                                    alt="Icon"
+                                />
+                            </IconContainer>
+                        )}
+                        {pageStack.length > 0 && title !== undefined && <h3 style={{ textAlign: "center", width: "fit-content" }}>{title}</h3>}
                         <Codicon name="close" sx={{ textAlign: "right", width: "20px", position: "absolute", right: "0px", paddingRight: "16px" }} onClick={handleClose} />
                     </ButtonContainer>
 
