@@ -25,16 +25,24 @@ export function getSendMustacheTemplate() {
   `;
 }
 
-export function getSendXml(data: { [key: string]: any }) {
+export function getSendXml(data: { [key: string]: any }, dirtyFields?: any, defaultValues?: any) {
   if (data.receivingSequenceType == "Static") {
-    data.receivingSequence = data.staticReceivingSequence;
+    data.receivingSequence = data.staticReceivingSequence.value;
   } else if (data.receivingSequenceType == "Dynamic") {
-    data.receivingSequence = "{" + data.dynamicReceivingSequence + "}";
+    data.receivingSequence = "{" + data.dynamicReceivingSequence.value + "}";
   }
-
-  const output = Mustache.render(getSendMustacheTemplate(), data).trim();
-  return output;
-
+  if (defaultValues == undefined || Object.keys(defaultValues).length == 0) {
+    data.isNewMediator = true;
+    const output = Mustache.render(getSendMustacheTemplate(), data).trim();
+    return output;
+  } else {
+    data.selfClosed = defaultValues.selfClosed;
+    const output = Mustache.render(getSendMustacheTemplate(), data).trim();
+    return [{
+      range: defaultValues.range.startTagRange,
+      text: output
+    }];
+  }
 }
 
 export function getSendFormDataFromSTNode(data: { [key: string]: any }, node: Send) {
@@ -43,8 +51,16 @@ export function getSendFormDataFromSTNode(data: { [key: string]: any }, node: Se
   data.description = node.description;
   data.selfClosed = node.selfClosed;
   data.receivingSequenceType = node.receive ? (node.receive.startsWith("{") ? "Dynamic" : "Static") : "Default";
-  if (data.receivingSequenceType == "Static") data.staticReceivingSequence = node.receive;
-  if (data.receivingSequenceType == "Dynamic") data.dynamicReceivingSequence = node.receive;
+  if (data.receivingSequenceType == "Static") data.staticReceivingSequence = { isExpression: false, value: node.receive };
+  if (data.receivingSequenceType == "Dynamic") {
+    let value = node.receive;
+    const regex = /{([^}]*)}/;
+    const match = value.match(regex);
+    if (match && match.length > 1) {
+      value = match[1];
+    }
+    data.dynamicReceivingSequence = { isExpression: true, value: value };
+  }
   data.range = node.range;
   return data;
 }

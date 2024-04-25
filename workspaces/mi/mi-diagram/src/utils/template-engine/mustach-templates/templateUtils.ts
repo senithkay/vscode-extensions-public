@@ -232,7 +232,7 @@ export function getXML(name: string, data: { [key: string]: any }, dirtyFields?:
         case MEDIATORS.VALIDATE:
             return getValidateXml(data, dirtyFields, defaultValues);
         case MEDIATORS.SEND:
-            return getSendXml(data);
+            return getSendXml(data, dirtyFields, defaultValues);
         case MEDIATORS.PAYLOAD:
             return getPayloadXml(data);
         case MEDIATORS.HEADER:
