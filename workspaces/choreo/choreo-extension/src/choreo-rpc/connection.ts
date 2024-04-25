@@ -4,7 +4,7 @@ import * as os from 'os'
 import { getLogger } from '../logger/logger';
 import * as path from 'path';
 import { workspace } from 'vscode';
-import { getChoreoExecPath } from './cli-install';
+import { getChoreoEnv, getChoreoExecPath } from './cli-install';
 
 
 
@@ -15,7 +15,11 @@ export class StdioConnection {
         const executablePath = getChoreoExecPath();
         console.log("Starting RPC server, path:", executablePath);
         getLogger().debug("Starting RPC server" + executablePath);
-        this._serverProcess = spawn(executablePath, ['start-rpc-server']);
+        this._serverProcess = spawn(executablePath, ['start-rpc-server'], {
+            env: {
+                "CHOREO_ENV": getChoreoEnv()
+            }
+        });
         this._connection = createMessageConnection(
             new StreamMessageReader(this._serverProcess.stdout),
             new StreamMessageWriter(this._serverProcess.stdin));
