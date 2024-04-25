@@ -7,11 +7,15 @@ export function getBeanMustacheTemplate() {
 
 export function getBeanXml(data: { [key: string]: any }) {
 
-    if (data.targetExpression && !data.targetExpression.startsWith("{")) {
-        data.targetExpression = "{" + data.targetExpression + "}";
+    if (data.targetType == "LITERAL") delete data.targetExpression;
+    else delete data.targetLiteral;
+    if (data.valueType == "LITERAL") delete data.valueExpression;
+    else delete data.valueLiteral;
+    if (data.targetExpression && !data.targetExpression.value.startsWith("{")) {
+        data.targetExpression = "{" + data.targetExpression?.value + "}";
     }
-    if (data.valueExpression && !data.valueExpression.startsWith("{")) {
-        data.valueExpression = "{" + data.valueExpression + "}";
+    if (data.valueExpression && !data.valueExpression.value.startsWith("{")) {
+        data.valueExpression = "{" + data.valueExpression?.value + "}";
     }
 
     const output = Mustache.render(getBeanMustacheTemplate(), data);
@@ -20,15 +24,24 @@ export function getBeanXml(data: { [key: string]: any }) {
 
 export function getBeanFormDataFromSTNode(data: { [key: string]: any }, node: Bean) {
 
-    if (node.target && node.target.startsWith("{")) {
+    let regex = /{([^}]*)}/;
+    let targetMatch = node.target?.match(regex);
+    if (targetMatch && targetMatch.length > 1) {
         data.targetType = "EXPRESSION";
-    } else if (node.target) {
-        data.targetType = "LITERAL"
+        data.targetExpression = { isExpression: true, value: targetMatch[1] }
+    } else {
+        data.targetType = "LITERAL";
+        delete data.targetExpression;
+        data.targetLiteral = node.target;
     }
-    if (node.value && node.value.startsWith("{")) {
+    let valueMatch = node.value?.match(regex);
+    if (valueMatch && valueMatch.length > 1) {
         data.valueType = "EXPRESSION";
-    } else if (node.value) {
-        data.valueType = "LITERAL"
+        data.valueExpression = { isExpression: true, value: valueMatch[1] }
+    } else {
+        data.valueType = "LITERAL";
+        delete data.valueExpression;
+        data.valueLiteral = node.value;
     }
     data.class = node.clazz;
     return data;
