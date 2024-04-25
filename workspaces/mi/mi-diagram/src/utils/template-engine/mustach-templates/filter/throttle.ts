@@ -9,14 +9,15 @@
 
 import { OperatorContentType, Policy, Throttle } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import Mustache from "mustache";
+import { checkAttributesExist } from "../../../commons";
 
 export function getThrottleMustacheTemplate() {
 
     return `
     {{#newMediator}}
         <throttle description="{{description}}" id="{{groupId}}" {{#onAcceptBranchsequenceKey}}onAccept="{{onAcceptBranchsequenceKey}}"{{/onAcceptBranchsequenceKey}} {{#onRejectBranchsequenceKey}}onReject="{{onRejectBranchsequenceKey}}"{{/onRejectBranchsequenceKey}} >
-            {{#policyKey}}<policy key={{policyKey}}/>{{/policyKey}}
-            {{^policyKey}}
+            {{#policyKey}}<policy key="{{policyKey}}"/>{{/policyKey}}
+            {{#hasPolicyEntries}}
             <policy>
                 <wsp:Policy wsu:id="WSO2MediatorThrottlingPolicy" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd">
                     <throttle:MediatorThrottleAssertion xmlns:throttle="http://www.wso2.org/products/wso2commons/throttle">
@@ -35,7 +36,7 @@ export function getThrottleMustacheTemplate() {
                     </throttle:MediatorThrottleAssertion>
                 </wsp:Policy>
             </policy>
-            {{/policyKey}}
+            {{/hasPolicyEntries}}
             {{^onAcceptBranchsequenceKey}}
             <onAccept></onAccept>
             {{/onAcceptBranchsequenceKey}}
@@ -54,7 +55,7 @@ export function getThrottleMustacheTemplate() {
             {{/selfClosed}}
             {{/editThrottle}}
         {{#editPolicy}}
-            {{#policyKey}}<policy key={{policyKey}} />{{/policyKey}}
+            {{#policyKey}}<policy key="{{policyKey}}" />{{/policyKey}}
             {{^policyKey}}
                 <policy>
                     <wsp:Policy wsu:id="WSO2MediatorThrottlingPolicy" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd">
@@ -90,22 +91,95 @@ export function getThrottleMustacheTemplate() {
     `;
 }
 
-export function getThrottleXml(data: { [key: string]: any }) {
+export function getThrottleXml(data: { [key: string]: any }, dirtyFields?: any, defaultValues?: any) {
 
-    if (data.policyType == "INLINE") delete data.policyKey;
-    else data.policyKey = data.policyKey ? data.policyKey : "";
-    data.policyEntries = data.policyEntries?.map((entry: string[]) => {
-        return {
-            throttleType: entry[0],
-            throttleRange: entry[1],
-            accessType: entry[2],
-            maxRequestCount: entry[3],
-            unitTime: entry[4],
-            prohibitPeriod: entry[5]
+    if (data.policyType == "INLINE") {
+        delete data.policyKey;
+        data.policyEntries = data.policyEntries?.map((entry: string[]) => {
+            return {
+                throttleType: entry[0],
+                throttleRange: entry[1],
+                accessType: entry[2],
+                maxRequestCount: entry[3],
+                unitTime: entry[4],
+                prohibitPeriod: entry[5]
+            }
+        });
+        data.hasPolicyEntries = data.policyEntries?.length > 0;
+    } else {
+        delete data.policyEntries;
+        data.policyKey = data.policyKey ? data.policyKey : "";
+    }
+    if (data.onAcceptBranchsequenceType == "ANONYMOUS") {
+        delete data.onAcceptBranchsequenceKey;
+    }
+    if (data.onRejectBranchsequenceType == "ANONYMOUS") {
+        delete data.onRejectBranchsequenceKey;
+    }
+    if (defaultValues == undefined || Object.keys(defaultValues).length == 0) {
+        data.newMediator = true;
+        const output = Mustache.render(getThrottleMustacheTemplate(), data)?.trim();
+        return output;
+    }
+    return getEdits(data, dirtyFields, defaultValues);
+}
+
+function getEdits(data: { [key: string]: any }, dirtyFields?: any, defaultValues?: any) {
+
+    let throttleTagAttributes = ["groupId", "description", "onAcceptBranchsequenceKey", "onRejectBranchsequenceKey", "onAcceptBranchsequenceType", "onRejectBranchsequenceType"];
+    let policyTagAttributes = ["policyType", "policyKey", "maximumConcurrentAccess", "policyEntries"];
+    let onAcceptTagAttributes = ["onAcceptBranchsequenceType", "onAcceptBranchsequenceKey"];
+    let onRejectTagAttributes = ["onRejectBranchsequenceType", "onRejectBranchsequenceKey"];
+    let dirtyFieldsKeys = Object.keys(dirtyFields);
+
+    let edits: { [key: string]: any }[] = [];
+
+    if (checkAttributesExist(dirtyFieldsKeys, throttleTagAttributes)) {
+        edits.push(getEdit("throttle", data, defaultValues, true));
+    }
+
+    if (checkAttributesExist(dirtyFieldsKeys, policyTagAttributes)) {
+        edits.push(getEdit("policy", data, defaultValues, false));
+    }
+
+    if (checkAttributesExist(dirtyFieldsKeys, onAcceptTagAttributes)) {
+        if (!(defaultValues.onAcceptBranchsequenceType == "ANONYMOUS" && data.onAcceptBranchsequenceType == "ANONYMOUS") && !(data.onAcceptBranchsequenceType == "ANONYMOUS" && defaultValues.ranges.onAccept)) {
+            edits.push(getEdit("onAccept", data, defaultValues, false));
         }
-    });
-    const output = Mustache.render(getThrottleMustacheTemplate(), data)?.trim();
-    return output;
+    }
+
+    if (checkAttributesExist(dirtyFieldsKeys, onRejectTagAttributes)) {
+        if (!(defaultValues.onRejectBranchsequenceType == "ANONYMOUS" && data.onRejectBranchsequenceType == "ANONYMOUS") && !(data.onRejectBranchsequenceType == "ANONYMOUS" && defaultValues.ranges.onReject)) {
+            edits.push(getEdit("onReject", data, defaultValues, false));
+        }
+    }
+    return edits;
+}
+
+function getEdit(key: string, data: { [key: string]: any }, defaultValues: any, editStartTagOnly: boolean) {
+    let dataCopy = { ...data };
+    let editKey = "edit" + key.charAt(0).toUpperCase() + key.slice(1);
+    dataCopy[editKey] = true;
+    let range = defaultValues.ranges[key];
+    let editRange;
+    if (range) {
+        editRange = {
+            start: range.startTagRange.start,
+            end: editStartTagOnly ? range.startTagRange.end : (range.endTagRange.end ? range.endTagRange.end : range.startTagRange.end)
+        }
+    } else {
+        let throttleRange = defaultValues.ranges.throttle;
+        editRange = {
+            start: throttleRange.endTagRange.start,
+            end: throttleRange.endTagRange.start
+        }
+    }
+    let output = Mustache.render(getThrottleMustacheTemplate(), dataCopy)?.trim();
+    let edit = {
+        text: output,
+        range: editRange
+    };
+    return edit;
 }
 
 export function getThrottleFormDataFromSTNode(data: { [key: string]: any }, node: Throttle) {

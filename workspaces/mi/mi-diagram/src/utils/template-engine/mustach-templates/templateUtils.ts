@@ -252,7 +252,7 @@ export function getXML(name: string, data: { [key: string]: any }, dirtyFields?:
         case MEDIATORS.SWITCH:
             return getSwitchXml(data);
         case MEDIATORS.THROTTLE:
-            return getThrottleXml(data);
+            return getThrottleXml(data, dirtyFields, defaultValues);
         //Transformation Mediators
         case MEDIATORS.PAYLOAD:
             return getPayloadXml(data);
