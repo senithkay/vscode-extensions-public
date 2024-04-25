@@ -31,7 +31,7 @@ import { FailoverWizard } from './views/Forms/FailoverEndpointForm';
 import { APIResource, NamedSequence, Proxy } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 import { ProxyView, ResourceView, SequenceView } from './views/Diagram';
 import { RecipientWizard } from './views/Forms/RecipientEndpointForm';
-import { Diagram } from '@wso2-enterprise/mi-diagram-2';
+import { Diagram } from '@wso2-enterprise/mi-diagram';
 import { TemplateEndpointWizard } from './views/Forms/TemplateEndpointForm';
 import { UnsupportedProject, UnsupportedProjectProps } from './views/UnsupportedProject';
 import { DataMapper } from './views/DataMapper';

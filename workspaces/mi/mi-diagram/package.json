@@ -1,5 +1,5 @@
 {
-    "name": "@wso2-enterprise/mi-diagram-2",
+    "name": "@wso2-enterprise/mi-diagram",
     "version": "1.0.0",
     "description": "",
     "main": "lib/index.js",

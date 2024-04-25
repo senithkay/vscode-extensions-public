@@ -9,7 +9,7 @@
 import React from "react";
 import { Diagnostic } from "vscode-languageserver-types";
 import { NamedSequence } from "@wso2-enterprise/mi-syntax-tree/lib/src";
-import { Diagram } from "@wso2-enterprise/mi-diagram-2";
+import { Diagram } from "@wso2-enterprise/mi-diagram";
 import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { View, ViewContent, ViewHeader } from "../../components/View";
