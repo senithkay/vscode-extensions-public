@@ -11,15 +11,25 @@ import Mustache from "mustache";
 import { Property } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 
 export function getPropertyMustacheTemplate() {
-    return `<property {{#propertyName}}name="{{propertyName}}" {{/propertyName}}{{#propertyScope}}scope="{{propertyScope}}" {{/propertyScope}}{{#propertyDataType}}type="{{propertyDataType}}" {{/propertyDataType}}{{#expression}}expression="{{expression}}" {{/expression}}{{#propertyAction}}action="{{propertyAction}}" {{/propertyAction}}{{#description}}description="{{description}}" {{/description}}{{#value}}value="{{value}}" {{/value}}{{#valueStringPattern}}pattern="{{valueStringPattern}}" {{/valueStringPattern}}{{#valueStringCapturingGroup}}group="{{valueStringCapturingGroup}}" {{/valueStringCapturingGroup}}/>`;
+    return `{{#isOM}}
+    <property {{#propertyName}}name="{{propertyName}}" {{/propertyName}}{{#propertyScope}}scope="{{propertyScope}}" {{/propertyScope}}{{#propertyDataType}}type="{{propertyDataType}}" {{/propertyDataType}}{{#expression}}expression="{{expression}}" {{/expression}}{{#propertyAction}}action="{{propertyAction}}" {{/propertyAction}}{{#description}}description="{{description}}" {{/description}}{{#value}}value="{{value}}" {{/value}}{{#valueStringPattern}}pattern="{{valueStringPattern}}" {{/valueStringPattern}}{{#valueStringCapturingGroup}}group="{{valueStringCapturingGroup}}" {{/valueStringCapturingGroup}}>{{{OMValue}}}</property>    
+    {{/isOM}}
+    {{^isOM}}
+    <property {{#propertyName}}name="{{propertyName}}" {{/propertyName}}{{#propertyScope}}scope="{{propertyScope}}" {{/propertyScope}}{{#propertyDataType}}type="{{propertyDataType}}" {{/propertyDataType}}{{#expression}}expression="{{expression}}" {{/expression}}{{#propertyAction}}action="{{propertyAction}}" {{/propertyAction}}{{#description}}description="{{description}}" {{/description}}{{#value}}value="{{value}}" {{/value}}{{#valueStringPattern}}pattern="{{valueStringPattern}}" {{/valueStringPattern}}{{#valueStringCapturingGroup}}group="{{valueStringCapturingGroup}}" {{/valueStringCapturingGroup}}/>
+    {{/isOM}}`;
 }
 
 export function getPropertyXml(data: { [key: string]: any }) {
+    if (data.propertyDataType == "OM") {
+        data.isOM = true;
+    }
     data.propertyScope = data.propertyScope?.toLowerCase();
     return Mustache.render(getPropertyMustacheTemplate(), data).trim();
 }
 
 export function getPropertyFormDataFromSTNode(data: { [key: string]: any }, node: Property) {
+    data.OMValue = node.any;
+    data.description = node.description;
     if (node.name) {
         data.propertyName = node.name;
         data.newPropertyName = node.name;
@@ -39,7 +49,6 @@ export function getPropertyFormDataFromSTNode(data: { [key: string]: any }, node
     if (node.group) {
         data.valueStringCapturingGroup = node.group;
     }
-
     return data;
 }
 
