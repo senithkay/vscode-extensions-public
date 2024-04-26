@@ -64,17 +64,8 @@ const CallTemplateForm = (props: AddMediatorProps) => {
                         "type": "TextField",
                         "label": "Parameter Name",
                         "defaultValue": "",
-                        "isRequired": false, 
-                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                            sidePanelContext.setSidePanelState({
-                                ...sidePanelContext,
-                                expressionEditor: {
-                                    isOpen: true,
-                                    value,
-                                    setValue
-                                }
-                            });
-                        }},
+                        "isRequired": false
+                    },
                     {
                         "type": "ExprField",
                         "label": "Parameter Value",

@@ -387,17 +387,22 @@ const generateForm = (jsonData: any): string => {
                             ...(enableCondition) && { enableCondition: generateParammanagerCondition(enableCondition, tableKeys) },
                         }, null, "\t")},`, 8);
 
-                    paramFields += paramField.slice(0, -3) + `, 
-                    openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                        sidePanelContext.setSidePanelState({
-                            ...sidePanelContext,
-                            expressionEditor: {
-                                isOpen: true,
-                                value,
-                                setValue
-                            }
-                        });
-                    }` + paramField.slice(-2);
+                    if (type === 'ExprField') {
+                        paramFields += paramField.slice(0, -3) + `, 
+                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
+                            sidePanelContext.setSidePanelState({
+                                ...sidePanelContext,
+                                expressionEditor: {
+                                    isOpen: true,
+                                    value,
+                                    setValue
+                                }
+                            });
+                        }` + paramField.slice(-2);
+
+                    } else {
+                        paramFields += paramField;
+                    }
 
                     paramValues +=
                         fixIndentation(`

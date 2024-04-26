@@ -63,17 +63,8 @@ const ClassForm = (props: AddMediatorProps) => {
                         "type": "TextField",
                         "label": "Arg Name",
                         "defaultValue": "",
-                        "isRequired": false, 
-                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                            sidePanelContext.setSidePanelState({
-                                ...sidePanelContext,
-                                expressionEditor: {
-                                    isOpen: true,
-                                    value,
-                                    setValue
-                                }
-                            });
-                        }},
+                        "isRequired": false
+                    },
                     {
                         "type": "ExprField",
                         "label": "Arg Value",
