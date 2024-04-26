@@ -336,6 +336,7 @@ const XQueryForm = (props: AddMediatorProps) => {
                                 )}
                             />
                         </ComponentCard>
+
                     </ComponentCard>
 
                     <Field>

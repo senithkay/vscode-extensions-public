@@ -298,6 +298,7 @@ const XSLTForm = (props: AddMediatorProps) => {
                             )}
                         />
                     </ComponentCard>
+
                     <ComponentCard sx={cardStyle} disbaleHoverEffect>
                         <Typography variant="h3">Resources</Typography>
                         <Typography variant="body3">Editing of the properties of an object XSLT Resource</Typography>
@@ -326,6 +327,7 @@ const XSLTForm = (props: AddMediatorProps) => {
                             )}
                         />
                     </ComponentCard>
+
                     <ComponentCard sx={cardStyle} disbaleHoverEffect>
                         <Typography variant="h3">Features</Typography>
                         <Typography variant="body3">Editing of the properties of an object XSLT Features</Typography>
@@ -354,6 +356,7 @@ const XSLTForm = (props: AddMediatorProps) => {
                             )}
                         />
                     </ComponentCard>
+
                 </FormGroup>
 
                 <Field>

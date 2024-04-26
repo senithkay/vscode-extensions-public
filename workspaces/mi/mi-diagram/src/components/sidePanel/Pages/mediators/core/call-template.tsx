@@ -174,6 +174,7 @@ const CallTemplateForm = (props: AddMediatorProps) => {
                         )}
                     />
                 </ComponentCard>
+
                 <Field>
                     <Controller
                         name="onError"
