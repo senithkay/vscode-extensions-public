@@ -32,6 +32,9 @@ import { ExtendedLanguageClient } from './ExtendedLanguageClient';
 import { GoToDefinitionProvider } from './DefinitionProvider';
 import { FormattingProvider } from './FormattingProvider';
 
+import util = require('util');
+const exec = util.promisify(require('child_process').exec);
+
 export interface ScopeInfo {
     scope: "default" | "global" | "workspace" | "folder";
     configurationTarget: boolean | undefined;
@@ -46,8 +49,14 @@ let vmArgsCache: any;
 let ignoreVMArgs = false;
 const main: string = 'org.eclipse.lemminx.XMLServerLauncher';
 
+// Compatibility related
+const versionRegex = /(\d+\.\d+\.?\d*)/g;
+const INCOMPATIBLE_ERROR_NAME = "IncompatibleJDKVersion";
+
 export class MILanguageClient {
     private static _instance: MILanguageClient;
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    private COMPATIBLE_JDK_VERSION = "11"; // Minimum JDK version required to run the language server
     public languageClient: ExtendedLanguageClient | undefined;
 
     constructor(private context: ExtensionContext) { }
@@ -60,9 +69,37 @@ export class MILanguageClient {
         return this._instance;
     }
 
+    private isCompatibleJDKVersion(version: string): boolean {
+        const match = version.match(versionRegex);
+        if (match) {
+            const jdkVersion = match[0].split(".")[0];
+            if (parseInt(jdkVersion) < parseInt(this.COMPATIBLE_JDK_VERSION)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    private async checkJDKCompatibility(): Promise<boolean> {
+        const { stderr } = await exec('java -version');
+        const isCompatible = this.isCompatibleJDKVersion(stderr);
+        return isCompatible;
+    }
+
     private async launch() {
         try {
             const { JAVA_HOME } = process.env;
+
+            const isJDKCompatible = await this.checkJDKCompatibility();
+            if (!isJDKCompatible) {
+                window.showErrorMessage(
+                    `Incompatible JDK version detected. Please install JDK ${this.COMPATIBLE_JDK_VERSION} or above.`
+                );
+                const err = new Error(`Incompatible JDK version detected. Please install JDK ${this.COMPATIBLE_JDK_VERSION} or above.`);
+                err.name = INCOMPATIBLE_ERROR_NAME;
+                throw err;
+            }
 
             if (JAVA_HOME) {
                 let executable: string = path.join(JAVA_HOME, 'bin', 'java');
@@ -133,9 +170,11 @@ export class MILanguageClient {
             } else {
                 throw new Error("JAVA_HOME is not set");
             }
-        } catch (error) {
+        } catch (error: Error) {
             console.error("Failed to launch the language client: ", error);
-            window.showErrorMessage("Failed to launch the language client. Please check the console for more details.");
+            if (error.name !== INCOMPATIBLE_ERROR_NAME) {
+                window.showErrorMessage("Failed to launch the language client. Please check the console for more details.");
+            }
         }
 
         function getXMLSettings(): JSON {
