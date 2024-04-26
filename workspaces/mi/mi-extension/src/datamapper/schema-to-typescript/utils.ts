@@ -206,31 +206,6 @@ export function error(...messages: any[]): void {
   if (!process.env.VERBOSE) {
     return console.error(messages)
   }
-  console.error(getStyledTextForLogging('red')?.('error'), ...messages)
-}
-
-type LogStyle = 'blue' | 'cyan' | 'green' | 'magenta' | 'red' | 'white' | 'yellow'
-
-function getStyledTextForLogging(style: LogStyle): ((text: string) => string) | undefined {
-  if (!process.env.VERBOSE) {
-    return
-  }
-  switch (style) {
-    case 'blue':
-      return require('cli-color').whiteBright.bgBlue
-    case 'cyan':
-      return require('cli-color').whiteBright.bgCyan
-    case 'green':
-      return require('cli-color').whiteBright.bgGreen
-    case 'magenta':
-      return require('cli-color').whiteBright.bgMagenta
-    case 'red':
-      return require('cli-color').whiteBright.bgRedBright
-    case 'white':
-      return require('cli-color').black.bgWhite
-    case 'yellow':
-      return require('cli-color').whiteBright.bgYellow
-  }
 }
 
 /**

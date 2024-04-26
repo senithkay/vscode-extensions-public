@@ -58,6 +58,7 @@ export function MIDataMapper(props: MIDataMapperProps) {
     const isSidePanelOpen = useDMSidePanelStore(state => state.sidePanelOpen);
     const setSidePanelOpen = useDMSidePanelStore(state => state.setSidePanelOpen);
     const sidePanelIOType = useDMSidePanelStore(state => state.sidePanelIOType);
+    const isSchemaOverridden = useDMSidePanelStore(state => state.isSchemaOverridden);
     const { rpcClient } = useVisualizerContext();
 
     useEffect(() => {
@@ -93,7 +94,7 @@ export function MIDataMapper(props: MIDataMapperProps) {
                 />
             )}
             <ImportDataForm isOpen={isSidePanelOpen} onCancel={() => setSidePanelOpen(false)} 
-                    configName={configName} documentUri={filePath} ioType={sidePanelIOType} />
+                    configName={configName} documentUri={filePath} ioType={sidePanelIOType} overwriteSchema={isSchemaOverridden} />
         </div>
     )
 }

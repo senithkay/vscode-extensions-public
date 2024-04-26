@@ -38,6 +38,7 @@ export function InputNodeWidget(props: InputNodeWidgetProps) {
     const collapsedFieldsStore = useDMCollapsedFieldsStore();
     const setSidePanelOpen = useDMSidePanelStore(state => state.setSidePanelOpen);
     const setSidePanelIOType = useDMSidePanelStore(state => state.setSidePanelIOType);
+    const setIsSchemaOverridden = useDMSidePanelStore(state => state.setIsSchemaOverridden);
     
     const classes = useIONodesStyles();
     const typeName = getTypeName(dmType);
@@ -89,6 +90,7 @@ export function InputNodeWidget(props: InputNodeWidgetProps) {
     const onRightClick = (event: React.MouseEvent) => {
         event.preventDefault(); 
         setSidePanelIOType("Input");
+        setIsSchemaOverridden(true);
         setSidePanelOpen(true);
     };
     

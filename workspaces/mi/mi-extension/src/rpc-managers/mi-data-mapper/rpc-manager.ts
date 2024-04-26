@@ -77,6 +77,17 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
 
     async browseSchema(params: BrowseSchemaRequest): Promise<BrowseSchemaResponse> {
         return new Promise(async (resolve) => {
+            if (params.overwriteSchema) {
+                const response = await window.showInformationMessage(
+                    "Are you sure you want to override the existing schema?",
+                    { modal: true }, 
+                    "Yes", 
+                    "No"
+                );
+                if (!response || response === "No") {
+                    return;
+                }
+            }
             const selectedFile = await window.showOpenDialog({
                 defaultUri: Uri.file(os.homedir()),
                 canSelectFiles: true,
@@ -87,6 +98,7 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
             if (selectedFile) {
                 resolve({ filePath: selectedFile[0].fsPath });
             }
+            return;
         });
     }
 

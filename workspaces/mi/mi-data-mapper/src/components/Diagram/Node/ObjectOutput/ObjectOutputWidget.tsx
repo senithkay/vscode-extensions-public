@@ -58,6 +58,7 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 	const collapsedFieldsStore = useDMCollapsedFieldsStore();
 	const setSidePanelOpen = useDMSidePanelStore(state => state.setSidePanelOpen);
     const setSidePanelIOType = useDMSidePanelStore(state => state.setSidePanelIOType);
+	const setIsSchemaOverridden = useDMSidePanelStore(state => state.setIsSchemaOverridden);
 
 	const fields = dmTypeWithValue && dmTypeWithValue.childrenTypes;
 	const hasValue = fields && fields.length > 0;
@@ -113,6 +114,7 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 	const onRightClick = (event: React.MouseEvent) => {
         event.preventDefault(); 
         setSidePanelIOType("Output");
+		setIsSchemaOverridden(true);
         setSidePanelOpen(true);
     };
 

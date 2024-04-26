@@ -45,11 +45,12 @@ export type ImportDataWizardProps = {
     configName: string;
     documentUri: string;
     ioType: string;
+    overwriteSchema: boolean;
 };
 
 
 export function ImportDataForm(props: ImportDataWizardProps) {
-    const { configName, documentUri, ioType } = props;
+    const { configName, documentUri, ioType, overwriteSchema } = props;
     const { rpcClient } = useVisualizerContext();
     const setSidePanelOpen = useDMSidePanelStore(state => state.setSidePanelOpen);
     const [selectedResourceType, setSelectedResourceType] = React.useState<string>("JSON");
@@ -60,7 +61,8 @@ export function ImportDataForm(props: ImportDataWizardProps) {
             canSelectFolders: false,
             canSelectMany: false,
             defaultUri: "",
-            title: "Select a file to be imported as registry resource"
+            title: "Select a file to be imported as registry resource",
+            overwriteSchema: overwriteSchema,
         }
         await rpcClient.getMiDataMapperRpcClient().browseSchema(request).then(response => {
             const filePathStr = response.filePath;

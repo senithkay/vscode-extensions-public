@@ -35,6 +35,7 @@ export interface GenerateDMInputResponse {
 
 export interface BrowseSchemaRequest {
     defaultUri: string;
+    overwriteSchema?: boolean;
 }
 
 export interface BrowseSchemaResponse {
