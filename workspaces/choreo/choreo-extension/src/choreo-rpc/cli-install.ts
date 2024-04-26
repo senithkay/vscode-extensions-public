@@ -27,7 +27,7 @@ export const getChoreoEnv = (): string => {
 };
 
 const getChoreoBinPath = () => {
-    return path.join(ext.context.globalStorageUri.path, "choreo-cli-rpc", getCliVersion(), "bin");
+    return path.join(ext.context.globalStorageUri.fsPath, "choreo-cli-rpc", getCliVersion(), "bin");
 };
 
 export const downloadCLI = async () => {
@@ -38,9 +38,9 @@ export const downloadCLI = async () => {
     const CLI_VERSION = getCliVersion();
     const CHOREO_TMP_DIR = await fs.promises.mkdtemp(path.join(os.tmpdir(), `choreo-cli-rpc-${CLI_VERSION}`));
 
-    await fs.promises.mkdir(CHOREO_BIN_DIR, { recursive: true });
+    fs.mkdirSync(CHOREO_BIN_DIR, { recursive: true });
 
-    const FILE_NAME = `choreo-cli-${CLI_VERSION}-${OS}-${ARCH}`;
+    const FILE_NAME = `choreo-cli-${CLI_VERSION}-${OS === 'win32' ? "windows" : OS}-${ARCH}`;
     let FILE_TYPE = "";
 
     if (OS === "linux") {
