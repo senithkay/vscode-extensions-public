@@ -59,7 +59,7 @@ type InputsFields = {
 
 const initialEndpoint: InputsFields = {
     name: '',
-    buildMessage: 'true',
+    buildMessage: 'false',
     description: '',
     endpoints: [],
     properties: [],

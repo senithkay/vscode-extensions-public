@@ -63,9 +63,9 @@ type InputsFields = {
 
 const initialEndpoint: InputsFields = {
     name: '',
-    algorithm: 'roundRobin',
-    failover: 'false',
-    buildMessage: 'true',
+    algorithm: 'org.apache.synapse.endpoints.algorithms.RoundRobin',
+    failover: 'true',
+    buildMessage: 'false',
     sessionManagement: 'none',
     sessionTimeout: 0,
     description: '',

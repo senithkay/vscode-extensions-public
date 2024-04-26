@@ -45,7 +45,7 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
         uriTemplate: yup
             .string()
             .required("URI template is required")
-            .matches(/^\$.+$|^\{.+\}$|^(https?|ftp):\/\/(([a-z\d]([a-z\d-]*[a-z\d])?\.)+[a-z]{2,}|localhost(:[\d]*)?)(\/[-a-z\d%_.~+]*)*(\?[;&a-z\d%_.~+=-]*)?(\#[-a-z\d_]*)?$/i,
+            .matches(/^\$.+$|^\{.+\}$|^(https?|ftp):\/\/(([a-z\d]([a-z\d-]*[a-z\d])?\.)+[a-z]{2,}|localhost(:[\d]*)?)(\/[-a-z\d%_.~+{}]*)*(\?[;&a-z\d%_.~+=-{}]*)?(\#[-a-z\d_]*)?$/i,
                 "Invalid URI format"),
         httpMethod: yup.string().required("HTTP method is required"),
         description: yup.string(),
@@ -228,6 +228,7 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
                 );
             } else {
                 reset(initialEndpoint);
+                isTemplate ? setValue("endpointName", "$name") : setValue("endpointName", "");
             }
 
             const result = await getArtifactNamesAndRegistryPaths(props.path, rpcClient);

@@ -304,6 +304,7 @@ export function DefaultEndpointWizard(props: DefaultEndpointWizardProps) {
                     existingEndpoint.timeoutAction.charAt(0).toUpperCase() + existingEndpoint.timeoutAction.slice(1));
             } else {
                 reset(newDefaultEndpoint);
+                isTemplate ? setValue("endpointName", "$name") : setValue("endpointName", "");
             }
 
             const result = await getArtifactNamesAndRegistryPaths(props.path, rpcClient);
@@ -466,7 +467,7 @@ export function DefaultEndpointWizard(props: DefaultEndpointWizardProps) {
                     </FormGroup>
                 </>
             )}
-            <FormGroup title="Basic Properties" isCollapsed={isTemplate}>
+            <FormGroup title="Basic Properties" isCollapsed={false}>
                 <TextField
                     placeholder="Endpoint Name"
                     label="Endpoint Name"
