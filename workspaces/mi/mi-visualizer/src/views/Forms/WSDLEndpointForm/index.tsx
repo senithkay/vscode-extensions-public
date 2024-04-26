@@ -48,7 +48,7 @@ export function WsdlEndpointWizard(props: WsdlEndpointWizardProps) {
         wsdlUri: yup
             .string()
             .required("WSDL URI is required")
-            .matches(/^\$.+$|^\{.+\}$|^(https?|ftp):\/\/(([a-z\d]([a-z\d-]*[a-z\d])?\.)+[a-z]{2,}|localhost(:[\d]*)?)(\/[-a-z\d%_.~+]*)*(\?[;&a-z\d%_.~+=-]*)?(\#[-a-z\d_]*)?([?.]wsdl)$/i,
+            .matches(/^\$.+$|^\{.+\}$|^(https?|ftp):\/\/(([a-z\d]([a-z\d-]*[a-z\d])?\.)+[a-z]{2,}|localhost(:[\d]*)?)(\/[-a-z\d%_.~+{}]*)*(\?[;&a-z\d%_.~+=-{}]*)?(\#[-a-z\d_]*)?([?.]wsdl)$/i,
                 "Invalid WSDL URI format"),
         wsdlService: yup.string().required("WSDL Service is required"),
         wsdlPort: yup.string().required("WSDL Port is required"),
@@ -172,6 +172,7 @@ export function WsdlEndpointWizard(props: WsdlEndpointWizardProps) {
                 );
             } else {
                 reset(initialEndpoint);
+                isTemplate ? setValue("endpointName", "$name") : setValue("endpointName", "");
             }
 
             const result = await getArtifactNamesAndRegistryPaths(props.path, rpcClient);

@@ -116,7 +116,7 @@ export function AddressEndpointWizard(props: AddressEndpointWizardProps) {
         traceEnabled: yup.string().notRequired().default("disable"),
         statisticsEnabled: yup.string().notRequired().default("disable"),
         uri: yup.string().required("Address Endpoint URI is required")
-            .matches(/^\$.+$|^\{.+\}$|^(https?|ftp):\/\/(([a-z\d]([a-z\d-]*[a-z\d])?\.)+[a-z]{2,}|localhost(:[\d]*)?)(\/[-a-z\d%_.~+]*)*(\?[;&a-z\d%_.~+=-]*)?(\#[-a-z\d_]*)?$/i,
+            .matches(/^\$.+$|^\{.+\}$|^(https?|ftp):\/\/(([a-z\d]([a-z\d-]*[a-z\d])?\.)+[a-z]{2,}|localhost(:[\d]*)?)(\/[-a-z\d%_.~+{}]*)*(\?[;&a-z\d%_.~+=-{}]*)?(\#[-a-z\d_]*)?$/i,
                 "Invalid URI format"),
         optimize: yup.string().notRequired().default("LEAVE_AS_IS"),
         description: yup.string().notRequired().default(""),
@@ -309,6 +309,7 @@ export function AddressEndpointWizard(props: AddressEndpointWizardProps) {
                     existingEndpoint.timeoutAction.charAt(0).toUpperCase() + existingEndpoint.timeoutAction.slice(1));
             } else {
                 reset(newAddressEndpoint);
+                isTemplate ? setValue("endpointName", "$name") : setValue("endpointName", "");
             }
 
             const result = await getArtifactNamesAndRegistryPaths(props.path, rpcClient);

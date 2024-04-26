@@ -31,7 +31,7 @@ export interface GetLoadBalanceEPTemplatesArgs {
 export function getLoadBalanceEPMustacheTemplate() {
     return `<?xml version="1.0" encoding="UTF-8"?>
 <endpoint name="{{name}}" xmlns="http://ws.apache.org/ns/synapse">
-    <loadbalance algorithm="{{algorithm}}" {{#buildMessage}}buildMessage="true" {{/buildMessage}}failover="{{failover}}">
+    <loadbalance algorithm="{{algorithm}}" {{#buildMessage}}buildMessage="true"{{/buildMessage}} {{#failover}}failover="false"{{/failover}}>
         {{#endpoints}}
         {{#inline}}{{{value}}}{{/inline}}{{#static}}<endpoint key="{{value}}"/>{{/static}}
         {{/endpoints}}
@@ -61,7 +61,8 @@ const getIndentedValue = (xmlString: string, indentBy: number = 8): string => {
 export function getLoadBalanceEPXml(data: GetLoadBalanceEPTemplatesArgs) {
     const modifiedData = {
         ...data,
-        buildMessage: data.buildMessage === "true" ?? undefined,
+        buildMessage: data.buildMessage === "true" ? data.buildMessage : undefined,
+        failover: data.failover === "false" ? data.failover : undefined,
         endpoints: data.endpoints.map((endpoint) => {
             return {
                 type: endpoint.type,
