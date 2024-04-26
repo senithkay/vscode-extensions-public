@@ -19,9 +19,13 @@ export interface Namespace {
     uri: string;
 }
 
-const ExpressionEditor = () => {
-    const sidePanelContext = React.useContext(SidePanelContext);
-    const data: ExpressionFieldValue = sidePanelContext?.expressionEditor?.value;
+export interface ExpressionEditorProps {
+    value: ExpressionFieldValue;
+    handleOnCancel: () => void;
+    handleOnSave: (data: ExpressionFieldValue) => void;
+}
+const ExpressionEditor = (props: ExpressionEditorProps) => {
+    const data: ExpressionFieldValue = props.value;
 
     const { control, handleSubmit } = useForm({
         defaultValues: {
@@ -60,33 +64,10 @@ const ExpressionEditor = () => {
     });
 
     const onSubmit = (data: any) => {
-        data.namespaces = data.namespaces.paramValues.map((param: any) => { return { 'prefix': param.key, 'uri': param.value } });
-
-        sidePanelContext.setSidePanelState({
-            ...sidePanelContext,
-            expressionEditor: {
-                isOpen: false,
-                value: {
-                    expressionValue: data.expressionValue,
-                    namespaces: data.namespaces,
-                }
-            }
-        });
-
-        sidePanelContext.expressionEditor.setValue({
-            isExpression: true,
+        props.handleOnSave({
             value: data.expressionValue,
-            namespaces: data.namespaces,
-        });
-    };
-
-    const handleOnCancel = () => {
-        sidePanelContext.setSidePanelState({
-            ...sidePanelContext,
-            expressionEditor: {
-                ...sidePanelContext.expressionEditor,
-                isOpen: false,
-            }
+            namespaces: data.namespaces.paramValues.map((param: any) => { return { 'prefix': param.key, 'uri': param.value } }),
+            isExpression: true
         });
     }
 
@@ -127,7 +108,7 @@ const ExpressionEditor = () => {
                 </div>
                 <ActionButtons
                     primaryButton={{ text: "Save", onClick: handleSubmit(onSubmit) }}
-                    secondaryButton={{ text: "Cancel", onClick: handleOnCancel }}
+                    secondaryButton={{ text: "Cancel", onClick: props.handleOnCancel }}
                     sx={{ justifyContent: "flex-end" }}
                 />
             </form >
