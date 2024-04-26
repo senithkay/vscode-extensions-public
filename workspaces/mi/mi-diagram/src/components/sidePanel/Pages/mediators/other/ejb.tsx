@@ -278,6 +278,7 @@ const EJBForm = (props: AddMediatorProps) => {
                         )}
                     />
                 </ComponentCard>
+
                 <ComponentCard sx={cardStyle} disbaleHoverEffect>
                     <Typography variant="h3">Session</Typography>
 

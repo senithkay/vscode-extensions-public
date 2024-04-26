@@ -270,6 +270,7 @@ const ValidateForm = (props: AddMediatorProps) => {
                         )}
                     />
                 </ComponentCard>
+
                 <ComponentCard sx={cardStyle} disbaleHoverEffect>
                     <Typography variant="h3">Features</Typography>
                     <Typography variant="body3">Editing of the properties of an object Validate Feature</Typography>
@@ -298,6 +299,7 @@ const ValidateForm = (props: AddMediatorProps) => {
                         )}
                     />
                 </ComponentCard>
+
                 <ComponentCard sx={cardStyle} disbaleHoverEffect>
                     <Typography variant="h3">Resources</Typography>
                     <Typography variant="body3">Editing of the properties of an object Validate Resource</Typography>
@@ -326,6 +328,7 @@ const ValidateForm = (props: AddMediatorProps) => {
                         )}
                     />
                 </ComponentCard>
+
                 <Field>
                     <Controller
                         name="description"

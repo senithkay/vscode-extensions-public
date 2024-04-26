@@ -204,6 +204,7 @@ const ScriptForm = (props: AddMediatorProps) => {
                 </Field>
                 }
 
+                {watch("scriptType") == "REGISTRY_REFERENCE" &&
                 <ComponentCard sx={cardStyle} disbaleHoverEffect>
                     <Typography variant="h3">Script Keys</Typography>
                     <Typography variant="body3">Editing of the properties of an object Registry Key Property</Typography>
@@ -232,6 +233,8 @@ const ScriptForm = (props: AddMediatorProps) => {
                         )}
                     />
                 </ComponentCard>
+                }
+
                 <Field>
                     <Controller
                         name="description"

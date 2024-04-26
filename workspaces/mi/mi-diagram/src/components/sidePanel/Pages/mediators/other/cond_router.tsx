@@ -62,7 +62,6 @@ const ConditionalRouterForm = (props: AddMediatorProps) => {
                 )) || [] as string[][],
                 paramFields: [
                     {
-                        "type": "TextField",
                         "label": "Break After Route",
                         "defaultValue": "",
                         "isRequired": false, 
@@ -188,6 +187,7 @@ const ConditionalRouterForm = (props: AddMediatorProps) => {
                             )}
                         />
                     </ComponentCard>
+
                     <Field>
                         <Controller
                             name="description"

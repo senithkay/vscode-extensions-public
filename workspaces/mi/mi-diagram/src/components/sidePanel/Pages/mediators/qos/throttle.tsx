@@ -302,6 +302,7 @@ const ThrottleForm = (props: AddMediatorProps) => {
                         {errors.policyType && <Error>{errors.policyType.message.toString()}</Error>}
                     </Field>
 
+                    {watch("policyType") == "INLINE" &&
                     <ComponentCard sx={cardStyle} disbaleHoverEffect>
                         <Typography variant="h3">Policy Entries</Typography>
                         <Typography variant="body3">Editing of the properties of an object ThrottlePolicyEntry</Typography>
@@ -330,6 +331,8 @@ const ThrottleForm = (props: AddMediatorProps) => {
                             )}
                         />
                     </ComponentCard>
+                    }
+
                     {watch("policyType") == "REGISTRY_REFERENCE" &&
                     <Field>
                         <Controller

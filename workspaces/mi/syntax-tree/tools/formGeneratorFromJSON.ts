@@ -155,8 +155,14 @@ const generateForm = (jsonData: any): string => {
 
     const generateFormItems = (elements: any[], indentation: number, parentName?: string) => {
         elements.forEach((element, index) => {
+            const { name, displayName, enableCondition, inputType, required, helpTip, allowedConnectionTypes, validation, validationRegEx } = element.value;
+
+            if (enableCondition) {
+                fields += generateEnabledCondition(enableCondition, indentation);
+                indentation += 4;
+            }
+
             if (element.type === 'attribute') {
-                const { name, displayName, enableCondition, inputType, required, helpTip, allowedConnectionTypes, validation, validationRegEx } = element.value;
                 let defaultValue = element.value.defaultValue;
                 const inputName = keys.includes(name.trim().replace(/\s/g, '_')) ? (parentName ? `${parentName}${name.trim().replace(/\s/g, '_')}` : name.trim().replace(/\s/g, '_')) : name.trim().replace(/\s/g, '_');
                 keys.push(inputName);
@@ -170,11 +176,6 @@ const generateForm = (jsonData: any): string => {
                     pattern: { value: ${regex}, message: "${message}" }` : ""}
                 }
                 `, 32) : "";
-
-                if (enableCondition) {
-                    fields += generateEnabledCondition(enableCondition, indentation);
-                    indentation += 4;
-                }
 
                 fields +=
                     fixIndentation(`
@@ -292,20 +293,12 @@ const generateForm = (jsonData: any): string => {
                             )}
                         />
                         {errors.${inputName} && <Error>{errors.${inputName}.message.toString()}</Error>}
-                    </Field>${enableCondition ? `
-                }\n` : "\n"}`, indentation);
+                    </Field>`, indentation);
 
-                indentation -= enableCondition ? 4 : 0;
 
             } else if (element.type === 'attributeGroup') {
-                const enableCondition = element.value.enableCondition;
                 const isCollapsible = element.value.isCollapsible;
                 const groupName = element.value.groupName;
-
-                if (enableCondition) {
-                    fields += generateEnabledCondition(enableCondition, indentation);
-                    indentation += 4;
-                }
 
                 if (isCollapsible) {
                     fields += fixIndentation(`
@@ -326,10 +319,6 @@ const generateForm = (jsonData: any): string => {
                     </ComponentCard>`, indentation);
                 }
 
-                indentation -= enableCondition ? 4 : 0;
-                fields +=
-                    fixIndentation(`${enableCondition ? `
-                }\n` : "\n"}`, indentation);
             } else if (element.type === 'table') {
                 const value = element.value;
                 const inputName = value.name.trim();
@@ -447,6 +436,14 @@ const generateForm = (jsonData: any): string => {
                 fields += fixIndentation(`
                 </ComponentCard>`, indentation);
             }
+
+            if (enableCondition) {
+                fields += `\n}`;
+
+                indentation -= 4;
+            }
+            fields += `\n`;
+
         });
     };
 
