@@ -9,15 +9,16 @@
 
 import { EntitlementService } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import Mustache from "mustache";
+import { checkAttributesExist } from "../../../commons";
 
 export function getEntitlementMustacheTemplate() {
     return `
     {{#newMediator}}
     {{#selfClosed}}
-    <entitlementService callbackClass="{{callbackClassName}}" {{#client}}client="{{client}}"{{/client}} remoteServicePassword="{{password}}" remoteServiceUrl="{{entitlementServerURL}}" remoteServiceUserName="{{username}}" {{#thriftHost}}thriftHost="{{thriftHost}}"{{/thriftHost}} {{#thriftPort}}thriftPort="{{thriftPort}}"{{/thriftPort}} {{#onAcceptSequenceKey}}onAccept="{{onAcceptSequenceKey}}"{{/onAcceptSequenceKey}} {{#onRejectSequenceKey}}onReject="{{onRejectSequenceKey}}"{{/onRejectSequenceKey}} {{#obligationsSequenceKey}}obligations="{{obligationsSequenceKey}}"{{/obligationsSequenceKey}} {{#adviceSequenceKey}}advice="{{adviceSequenceKey}}"{{/adviceSequenceKey}}/>
+    <entitlementService callbackClass="{{callbackClassName}}" {{#client}}client="{{client}}"{{/client}} remoteServicePassword="{{password}}" remoteServiceUrl="{{entitlementServerURL}}" remoteServiceUserName="{{username}}" {{#thriftHost}}thriftHost="{{thriftHost}}"{{/thriftHost}} {{#thriftPort}}thriftPort="{{thriftPort}}"{{/thriftPort}} {{#onAcceptSequenceKey}}onAccept="{{onAcceptSequenceKey}}"{{/onAcceptSequenceKey}} {{#onRejectSequenceKey}}onReject="{{onRejectSequenceKey}}"{{/onRejectSequenceKey}} {{#obligationsSequenceKey}}obligations="{{obligationsSequenceKey}}"{{/obligationsSequenceKey}} {{#adviceSequenceKey}}advice="{{adviceSequenceKey}}"{{/adviceSequenceKey}} {{#description}}description="{{description}}"{{/description}}/>
     {{/selfClosed}}
     {{^selfClosed}}
-    <entitlementService callbackClass="{{callbackClassName}}" {{#client}}client="{{client}}"{{/client}} remoteServicePassword="{{password}}" remoteServiceUrl="{{entitlementServerURL}}" remoteServiceUserName="{{username}}" {{#thriftHost}}thriftHost="{{thriftHost}}"{{/thriftHost}} {{#thriftPort}}thriftPort="{{thriftPort}}"{{/thriftPort}} {{#onAcceptSequenceKey}}onAccept="{{onAcceptSequenceKey}}"{{/onAcceptSequenceKey}} {{#onRejectSequenceKey}}onReject="{{onRejectSequenceKey}}"{{/onRejectSequenceKey}} {{#obligationsSequenceKey}}obligations="{{obligationsSequenceKey}}"{{/obligationsSequenceKey}} {{#adviceSequenceKey}}advice="{{adviceSequenceKey}}"{{/adviceSequenceKey}}>
+    <entitlementService callbackClass="{{callbackClassName}}" {{#client}}client="{{client}}"{{/client}} remoteServicePassword="{{password}}" remoteServiceUrl="{{entitlementServerURL}}" remoteServiceUserName="{{username}}" {{#thriftHost}}thriftHost="{{thriftHost}}"{{/thriftHost}} {{#thriftPort}}thriftPort="{{thriftPort}}"{{/thriftPort}} {{#onAcceptSequenceKey}}onAccept="{{onAcceptSequenceKey}}"{{/onAcceptSequenceKey}} {{#onRejectSequenceKey}}onReject="{{onRejectSequenceKey}}"{{/onRejectSequenceKey}} {{#obligationsSequenceKey}}obligations="{{obligationsSequenceKey}}"{{/obligationsSequenceKey}} {{#adviceSequenceKey}}advice="{{adviceSequenceKey}}"{{/adviceSequenceKey}} {{#description}}description="{{description}}"{{/description}}>
         {{^onRejectSequenceKey}}<onReject></onReject>{{/onRejectSequenceKey}}
         {{^onAcceptSequenceKey}}<onAccept></onAccept>{{/onAcceptSequenceKey}}
         {{^obligationsSequenceKey}}<obligations></obligations>{{/obligationsSequenceKey}}
@@ -27,69 +28,148 @@ export function getEntitlementMustacheTemplate() {
     {{/newMediator}}
     {{^newMediator}}
     {{#editEntitlement}}
-    <entitlementService callbackClass="{{callbackClassName}}" {{#client}}client="{{client}}"{{/client}} remoteServicePassword="{{password}}" remoteServiceUrl="{{entitlementServerURL}}" remoteServiceUserName="{{username}}" {{#thriftHost}}thriftHost="{{thriftHost}}"{{/thriftHost}} {{#thriftPort}}thriftPort="{{thriftPort}}"{{/thriftPort}} {{#onAcceptSequenceKey}}onAccept="{{onAcceptSequenceKey}}"{{/onAcceptSequenceKey}} {{#onRejectSequenceKey}}onReject="{{onRejectSequenceKey}}"{{/onRejectSequenceKey}} {{#obligationsSequenceKey}}obligations="{{obligationsSequenceKey}}"{{/obligationsSequenceKey}} {{#adviceSequenceKey}}advice="{{adviceSequenceKey}}"{{/adviceSequenceKey}}>
+    <entitlementService callbackClass="{{callbackClassName}}" {{#client}}client="{{client}}"{{/client}} remoteServicePassword="{{password}}" remoteServiceUrl="{{entitlementServerURL}}" remoteServiceUserName="{{username}}" {{#thriftHost}}thriftHost="{{thriftHost}}"{{/thriftHost}} {{#thriftPort}}thriftPort="{{thriftPort}}"{{/thriftPort}} {{#onAcceptSequenceKey}}onAccept="{{onAcceptSequenceKey}}"{{/onAcceptSequenceKey}} {{#onRejectSequenceKey}}onReject="{{onRejectSequenceKey}}"{{/onRejectSequenceKey}} {{#obligationsSequenceKey}}obligations="{{obligationsSequenceKey}}"{{/obligationsSequenceKey}} {{#adviceSequenceKey}}advice="{{adviceSequenceKey}}"{{/adviceSequenceKey}} {{#description}}description="{{description}}"{{/description}}>
     {{/editEntitlement}}
-    {{#addReject}}
+    {{#addOnReject}}
     <onReject></onReject>
-    {{/addReject}}
-    {{#addAccept}}
+    {{/addOnReject}}
+    {{#addOnAccept}}
     <onAccept></onAccept>
-    {{/addAccept}}
+    {{/addOnAccept}}
     {{#addObligation}}
     <obligations></obligations>
     {{/addObligation}}
     {{#addAdvice}}
     <advice></advice>
     {{/addAdvice}}
-    {{#removeReject}}{{/removeReject}}
-    {{#removeAccept}}{{/removeAccept}}
-    {{#removeObligation}}{{/removeObligation}}
-    {{#removeAdvice}}{{/removeAdvice}}
+    {{#removeSequence}}{{/removeSequence}}
     {{/newMediator}}
     `;
 }
 
-export function getEntitlementXml(data: { [key: string]: any }) {
+export function getEntitlementXml(data: { [key: string]: any }, dirtyFields?: any, defaultValues?: any) {
 
     let client = data.entitlementClientType;
     if (client === "SOAP - Basic Auth (WSO2 IS 4.0.0 or later)") {
-        client = "basicAuth";
+        data.client = "basicAuth";
     } else if (client === "THRIFT") {
-        client = "thrift";
+        data.client = "thrift";
     } else if (client === "SOAP - Authentication Admin (WSO2 IS 3.2.3 or earlier)") {
-        client = "soap";
+        data.client = "soap";
     } else if (client === "WSXACML") {
-        client = "wsXacml";
+        data.client = "wsXacml";
     }
 
     const callbackHandler = data.callbackHandler;
-    let callbackClassName = "";
+    data.callbackClassName = "";
     if (callbackHandler === "UT") {
-        callbackClassName = "org.wso2.carbon.identity.entitlement.mediator.callback.UTEntitlementCallbackHandler";
+        data.callbackClassName = "org.wso2.carbon.identity.entitlement.mediator.callback.UTEntitlementCallbackHandler";
     } else if (callbackHandler === "X509") {
-        callbackClassName = "org.wso2.carbon.identity.entitlement.mediator.callback.X509EntitlementCallbackHandler";
+        data.callbackClassName = "org.wso2.carbon.identity.entitlement.mediator.callback.X509EntitlementCallbackHandler";
     } else if (callbackHandler === "SAML") {
-        callbackClassName = "org.wso2.carbon.identity.entitlement.mediator.callback.SAMLEntitlementCallbackHandler";
+        data.callbackClassName = "org.wso2.carbon.identity.entitlement.mediator.callback.SAMLEntitlementCallbackHandler";
     } else if (callbackHandler === "Kerberos") {
-        callbackClassName = "org.wso2.carbon.identity.entitlement.mediator.callback.KerberosEntitlementCallbackHandler";
+        data.callbackClassName = "org.wso2.carbon.identity.entitlement.mediator.callback.KerberosEntitlementCallbackHandler";
     } else if (callbackHandler === "Custom") {
-        callbackClassName = data.callbackClassName;
+        data.callbackClassName = data.callbackClassName;
     }
-    data.callbackClassName = callbackClassName;
 
     if (data.onAcceptSequenceType == "ANONYMOUS") delete data.onAcceptSequenceKey;
     if (data.onRejectSequenceType == "ANONYMOUS") delete data.onRejectSequenceKey;
     if (data.obligationsSequenceType == "ANONYMOUS") delete data.obligationsSequenceKey;
     if (data.adviceSequenceType == "ANONYMOUS") delete data.adviceSequenceKey;
 
-    const modifiedData = {
-        ...data,
-        client: client
+    if (defaultValues === undefined || Object.keys(defaultValues).length == 0) {
+        data.newMediator = true;
+        const output = Mustache.render(getEntitlementMustacheTemplate(), data)?.trim();
+        return output;
+    }
+    return getEdits(data, dirtyFields, defaultValues);
+}
+
+function getEdits(data: { [key: string]: any }, dirtyFields: any, defaultValues: any) {
+
+    let dirtyKeys = Object.keys(dirtyFields);
+    let entitlementTagAttributes = ["callbackClassName", "client", "password", "entitlementServerURL", "username", "thriftHost", "thriftPort",
+        "onAcceptSequenceKey", "onRejectSequenceKey", "obligationsSequenceKey", "adviceSequenceKey", "onAcceptSequenceType", "onRejectSequenceType",
+        "obligationsSequenceType", "adviceSequenceType", "description"];
+    let onAcceptTagAttributes = ["onAcceptSequenceType"];
+    let onRejectTagAttributes = ["onRejectSequenceType"];
+    let adviceTagAttributes = ["adviceSequenceType"];
+    let obligationTagAttributes = ["obligationsSequenceType"];
+    let edits: { [key: string]: any }[] = [];
+
+    if (checkAttributesExist(dirtyKeys, entitlementTagAttributes)) {
+        edits.push(getEdit("edit", "entitlement", data, defaultValues, true));
     }
 
-    const output = Mustache.render(getEntitlementMustacheTemplate(), modifiedData)?.trim();
-    return output;
+    if (checkAttributesExist(dirtyKeys, onAcceptTagAttributes)) {
+        let onAcceptData = { ...data };
+        setEditSeqData(onAcceptData, "onAccept", defaultValues);
+        if (onAcceptData.needEdit) { edits.push(getEdit("add", "onAccept", onAcceptData, defaultValues, false)); }
+    }
+
+    if (checkAttributesExist(dirtyKeys, onRejectTagAttributes)) {
+        let onRejectData = { ...data };
+        setEditSeqData(onRejectData, "onReject", defaultValues);
+        if (onRejectData.needEdit) { edits.push(getEdit("add", "onReject", onRejectData, defaultValues, false)); }
+    }
+
+    if (checkAttributesExist(dirtyKeys, adviceTagAttributes)) {
+        let adviceData = { ...data };
+        setEditSeqData(adviceData, "advice", defaultValues);
+        if (adviceData.needEdit) { edits.push(getEdit("add", "advice", adviceData, defaultValues, false)); }
+    }
+
+    if (checkAttributesExist(dirtyKeys, obligationTagAttributes)) {
+        let obligationData = { ...data };
+        setEditSeqData(obligationData, "obligation", defaultValues);
+        if (obligationData.needEdit) { edits.push(getEdit("add", "obligation", obligationData, defaultValues, false)); }
+    }
+    edits.sort((a, b) => b.range.start - a.range.start);
+    return edits;
 }
+
+function setEditSeqData(data: { [key: string]: any }, key: string, defaultValues: any) {
+    if (defaultValues[key + "SequenceType"] == "REGISTRY_REFERENCE" && data[key + "SequenceType"] == "ANONYMOUS") {
+        if (!defaultValues.ranges[key]) {
+            data.needEdit = true;
+            data["add" + key.charAt(0).toUpperCase() + key.slice(1)] = true;
+        }
+    } else if (defaultValues[key + "SequenceType"] == "ANONYMOUS" && data[key + "SequenceType"] == "REGISTRY_REFERENCE") {
+        data.needEdit = true;
+        data.removeSequence = true;
+    }
+}
+
+function getEdit(prefix: string, key: string, data: { [key: string]: any }, defaultValues: any, editStartTagOnly: boolean) {
+    let dataCopy = { ...data };
+    if (!data.removeSequence) {
+        let editKey = prefix + key.charAt(0).toUpperCase() + key.slice(1);
+        dataCopy[editKey] = true;
+    }
+    let range = defaultValues.ranges[key];
+    let editRange;
+    if (range) {
+        editRange = {
+            start: range.startTagRange.start,
+            end: editStartTagOnly ? range.startTagRange.end : (range.endTagRange.end ? range.endTagRange.end : range.startTagRange.end)
+        }
+    } else {
+        let entitlementRange = defaultValues.ranges.entitlement;
+        editRange = {
+            start: entitlementRange.endTagRange.start,
+            end: entitlementRange.endTagRange.start
+        }
+    }
+    let output = Mustache.render(getEntitlementMustacheTemplate(), dataCopy)?.trim();
+    let edit = {
+        text: output,
+        range: editRange
+    };
+    return edit;
+}
+
 
 export function getEntitlementFormDataFromSTNode(data: { [key: string]: any }, node: EntitlementService) {
 
@@ -118,6 +198,7 @@ export function getEntitlementFormDataFromSTNode(data: { [key: string]: any }, n
         data.callbackClassName = callbackClassName;
     }
 
+    data.description = node.description;
     data.client = node.client;
     data.password = node.remoteServicePassword;
     data.entitlementServerURL = node.remoteServiceUrl;
@@ -129,15 +210,15 @@ export function getEntitlementFormDataFromSTNode(data: { [key: string]: any }, n
     data.obligationsSequenceKey = node.obligationsAttribute;
     data.adviceSequenceKey = node.adviceAttribute;
 
-    data.onAcceptSequenceType = node.onAccept ? "ANONYMOUS" : "REGISTRY_REFERENCE";
-    data.onRejectSequenceType = node.onReject ? "ANONYMOUS" : "REGISTRY_REFERENCE";
-    data.obligationsSequenceType = node.obligations ? "ANONYMOUS" : "REGISTRY_REFERENCE";
-    data.adviceSequenceType = node.advice ? "ANONYMOUS" : "REGISTRY_REFERENCE";
+    data.onAcceptSequenceType = data.onAcceptSequenceKey ? "REGISTRY_REFERENCE" : "ANONYMOUS";
+    data.onRejectSequenceType = data.onRejectSequenceKey ? "REGISTRY_REFERENCE" : "ANONYMOUS";
+    data.obligationsSequenceType = data.obligationsSequenceKey ? "REGISTRY_REFERENCE" : "ANONYMOUS";
+    data.adviceSequenceType = data.adviceSequenceKey ? "REGISTRY_REFERENCE" : "ANONYMOUS";
 
     data.ranges = {
         entitlement: node.range,
-        accept: node.onAccept?.range,
-        reject: node.onReject?.range,
+        onAccept: node.onAccept?.range,
+        onReject: node.onReject?.range,
         advice: node.advice?.range,
         obligation: node.obligations?.range
     }

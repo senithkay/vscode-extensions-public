@@ -34,7 +34,7 @@
                   "value": {
                     "name": "breakAfterRoute",
                     "displayName": "Break After Route",
-                    "inputType": "string",
+                    "inputType": "checkbox",
                     "required": false,
                     "helpTip": ""
                   }

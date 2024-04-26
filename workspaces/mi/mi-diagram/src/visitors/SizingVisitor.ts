@@ -437,7 +437,7 @@ export class SizingVisitor implements Visitor {
         }, NodeTypes.GROUP_NODE);
     }
     endVisitRule = (node: Rule): void => this.calculateBasicMediator(node);
-    endVisitNtlm = (node: Ntlm): void => this.calculateBasicMediator(node);
+    endVisitNTLM = (node: Ntlm): void => this.calculateBasicMediator(node);
 
     //Transformation Mediators
     endVisitDatamapper = (node: Datamapper): void => this.calculateBasicMediator(node);

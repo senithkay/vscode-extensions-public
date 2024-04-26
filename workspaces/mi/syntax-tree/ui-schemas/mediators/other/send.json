@@ -68,7 +68,7 @@
                                         "helpTip": "",
                                         "enableCondition": [
                                             {
-                                                "receivingSequenceType": "static"
+                                                "receivingSequenceType": "Static"
                                             }
                                         ]
                                     }
@@ -84,7 +84,7 @@
                                         "helpTip": "",
                                         "enableCondition": [
                                             {
-                                                "receivingSequenceType": "dynamic"
+                                                "receivingSequenceType": "Dynamic"
                                             }
                                         ]
                                     }
@@ -105,12 +105,7 @@
                             "inputType": "string",
                             "defaultValue": "",
                             "required": false,
-                            "helpTip": "",
-                            "enableCondition": [
-                                {
-                                    "receivingSequenceType": "default"
-                                }
-                            ]
+                            "helpTip": ""
                         }
                     }
                 ]

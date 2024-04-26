@@ -15,15 +15,18 @@ export function getEjbMustacheTemplate() {
 
 export function getEjbXml(data: { [key: string]: any }) {
 
-    if (data.sessionIdExpression && !data.sessionIdExpression.startsWith("{")) {
-        data.sessionIdExpression = "{" + data.sessionIdExpression + "}";
+    if (data.sessionIdType == "EXPRESSION") {
+        data.sessionIdExpression = "{" + data.sessionIdExpression?.value + "}";
+        delete data.sessionIdLiteral;
+    } else {
+        delete data.sessionIdExpression;
     }
 
     let argsAvailable = false
     const methodArguments = data.methodArguments.map((property: string[]) => {
         argsAvailable = true;
         return {
-            value: property[0] == "EXPRESSION" && !property[1].startsWith("{") ? "{" + property[1] + "}" : property[1]
+            value: property[1] == "EXPRESSION" ? "{" + property[3] + "}" : property[2]
         }
     });
 
@@ -39,16 +42,31 @@ export function getEjbXml(data: { [key: string]: any }) {
 
 export function getEjbFormDataFromSTNode(data: { [key: string]: any }, node: Ejb) {
 
+    let regex = /{([^}]*)}/;
+    data.class = node.clazz;
     if (node.args) {
         if (node.args.arg) {
             data.methodArguments = node.args.arg.map((arg) => {
-                return [arg.value.startsWith("{") ? "EXPRESSION" : "LITERAL", arg.value];
+                let valueMatch = arg.value.match(regex);
+                let value;
+                let expression;
+                if (valueMatch && valueMatch.length > 1) {
+                    expression = valueMatch[1];
+                } else {
+                    value = arg.value;
+                }
+                return ["", arg.value.startsWith("{") ? "EXPRESSION" : "LITERAL", value, expression];
             });
         }
     }
-    data.sessionIdType = "LITERAL";
-    if (node.id && node.id.startsWith("{")) {
+    let sessionIdMatch = node.id?.match(regex);
+    if (sessionIdMatch && sessionIdMatch.length > 1) {
         data.sessionIdType = "EXPRESSION";
+        data.sessionIdExpression = { isExpression: true, value: sessionIdMatch[1] }
+    } else {
+        data.sessionIdType = "LITERAL";
+        delete data.sessionIdExpression;
+        data.sessionIdLiteral = node.id;
     }
     return data;
 }

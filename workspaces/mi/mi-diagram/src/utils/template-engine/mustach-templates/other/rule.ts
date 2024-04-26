@@ -22,7 +22,7 @@ export function getRuleMustacheTemplate() {
         </brs:ruleSet>
         <brs:input namespace="{{inputNamespace}}" wrapperElementName="{{inputWrapperName}}" >
             {{#facts}}
-            <brs:fact elementName="{{factName}}" namespace="{{inputNamespace}}" type="{{factType}}" xpath="{{{propertyExpression}}}" />
+            <brs:fact elementName="{{elementName}}" namespace="{{inputNamespace}}" type="{{factType}}" xpath="{{{propertyExpression}}}" />
             {{/facts}}
         </brs:input>
         <brs:output namespace="{{outputNamespace}}" wrapperElementName="{{outputWrapperName}}" >
@@ -36,18 +36,23 @@ export function getRuleMustacheTemplate() {
 
 export function getRuleXml(data: { [key: string]: any }) {
 
-    data.facts = data.facts.map((fact: string[]) => {
+    data.sourceXPath = data.sourceXPath?.value;
+    data.targetResultXPath = data.targetResultXPath?.value;
+    data.targetXPath = data.targetXPath?.value;
+    data.facts = data.factsConfiguration?.map((fact: string[]) => {
+        let type_value = getTypeAndValue(fact);
         return {
             elementName: fact[2],
-            factType: fact[0],
-            propertyExpression: fact[5]
+            factType: type_value[0],
+            propertyExpression: type_value[1]
         }
     });
-    data.results = data.results.map((result: string[]) => {
+    data.results = data.resultsConfiguration?.map((result: string[]) => {
+        let type_value = getTypeAndValue(result);
         return {
             resultName: result[2],
-            resultType: result[0],
-            propertyExpression: result[5]
+            resultType: type_value[0],
+            propertyExpression: type_value[1]
         }
     });
     if (data.ruleSetSourceType == "URL") {
@@ -64,14 +69,30 @@ export function getRuleXml(data: { [key: string]: any }) {
     return output;
 }
 
+function getTypeAndValue(fact: string[]) {
+    let factType = fact[0];
+    if (fact[0] == "CUSTOM") {
+        factType = fact[1];
+    }
+    let value;
+    if (fact[3] == "LITERAL") {
+        value = fact[4];
+    } else if (fact[3] == "EXPRESSION") {
+        value = fact[5];
+    } else if (fact[3] == "REGISTRY_REFERENCE") {
+        value = fact[6];
+    }
+    return [factType, value];
+}
+
 export function getRuleFormDataFromSTNode(data: { [key: string]: any }, node: Rule) {
 
     data.description = node.description;
-    data.sourceXPath = node.source?.xpath;
+    data.sourceXPath = { isExpression: true, value: node.source?.xpath };
     data.sourceValue = node.source?.value;
     data.targetAction = node.target?.action;
-    data.targetResultXPath = node.target?.resultXpath;
-    data.targetXPath = node.target?.xpath;
+    data.targetResultXPath = { isExpression: true, value: node.target?.resultXpath };
+    data.targetXPath = { isExpression: true, value: node.target?.xpath };
     data.targetValue = node.target?.value;
     data.ruleSetType = node.ruleSet?.rule?.resourceType;
     data.ruleSetSourceType = node.ruleSet?.rule?.sourceType;
@@ -88,7 +109,7 @@ export function getRuleFormDataFromSTNode(data: { [key: string]: any }, node: Ru
     data.outputNamespace = node.output?.namespace;
     data.outputWrapperName = node.output?.wrapperElementName;
     const factTypes = ["dom", "message", "context", "omelement", "mediator"]
-    data.facts = node.input?.fact?.map((fact) => {
+    data.factsConfiguration = node.input?.fact?.map((fact) => {
         let type = fact.type;
         let customType;
         if (!factTypes.includes(type)) {
@@ -111,7 +132,7 @@ export function getRuleFormDataFromSTNode(data: { [key: string]: any }, node: Ru
         }
         return [type, customType, fact.elementName, valueType, literal, expression, regKey]
     });
-    data.results = node.output?.fact?.map((result) => {
+    data.resultsConfiguration = node.output?.fact?.map((result) => {
         let type = result.type;
         let customType;
         if (!factTypes.includes(type)) {

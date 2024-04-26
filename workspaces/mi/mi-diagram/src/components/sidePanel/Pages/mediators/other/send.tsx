@@ -131,7 +131,7 @@ const SendForm = (props: AddMediatorProps) => {
                             {errors.receivingSequenceType && <Error>{errors.receivingSequenceType.message.toString()}</Error>}
                         </Field>
 
-                        {watch("receivingSequenceType") == "static" &&
+                        {watch("receivingSequenceType") == "Static" &&
                             <Field>
                                 <Controller
                                     name="staticReceivingSequence"
@@ -158,7 +158,7 @@ const SendForm = (props: AddMediatorProps) => {
                             </Field>
                         }
 
-                        {watch("receivingSequenceType") == "dynamic" &&
+                        {watch("receivingSequenceType") == "Dynamic" &&
                             <Field>
                                 <Controller
                                     name="dynamicReceivingSequence"
@@ -188,7 +188,6 @@ const SendForm = (props: AddMediatorProps) => {
                     </ComponentCard>
                     }
 
-                    {watch("receivingSequenceType") == "default" &&
                     <Field>
                         <Controller
                             name="description"
@@ -199,7 +198,6 @@ const SendForm = (props: AddMediatorProps) => {
                         />
                         {errors.description && <Error>{errors.description.message.toString()}</Error>}
                     </Field>
-                    }
 
                 </ComponentCard>
 
