@@ -18,7 +18,7 @@ import { InputSearchHighlight } from '../commons/Search';
 import { TreeBody, TreeContainer, TreeHeader } from '../commons/Tree/Tree';
 import { InputNodeTreeItemWidget } from "./InputNodeTreeItemWidget";
 import { useIONodesStyles } from "../../../styles";
-import { useDMCollapsedFieldsStore } from '../../../../store/store';
+import { useDMCollapsedFieldsStore, useDMSidePanelStore } from '../../../../store/store';
 import { getTypeName } from "../../utils/common-utils";
 
 export interface InputNodeWidgetProps {
@@ -36,6 +36,8 @@ export function InputNodeWidget(props: InputNodeWidgetProps) {
     const [ portState, setPortState ] = useState<PortState>(PortState.Unselected);
     const [isHovered, setIsHovered] = useState(false);
     const collapsedFieldsStore = useDMCollapsedFieldsStore();
+    const setSidePanelOpen = useDMSidePanelStore(state => state.setSidePanelOpen);
+    const setSidePanelIOType = useDMSidePanelStore(state => state.setSidePanelIOType);
     
     const classes = useIONodesStyles();
     const typeName = getTypeName(dmType);
@@ -84,8 +86,15 @@ export function InputNodeWidget(props: InputNodeWidgetProps) {
         setIsHovered(false);
     };
 
+    const onRightClick = (event: React.MouseEvent) => {
+        event.preventDefault(); 
+        setSidePanelIOType("Input");
+        setSidePanelOpen(true);
+    };
+    
+
     return (
-        <TreeContainer data-testid={`${id}-node`}>
+        <TreeContainer data-testid={`${id}-node`} onContextMenu={onRightClick}>
             <TreeHeader
                 id={"recordfield-" + id}
                 isSelected={portState !== PortState.Unselected}
