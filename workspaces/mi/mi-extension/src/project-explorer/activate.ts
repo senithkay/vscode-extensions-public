@@ -123,6 +123,10 @@ export async function activateProjectExplorer(context: ExtensionContext) {
 		commands.executeCommand('workbench.files.action.focusFilesExplorer');
 	});
 
+	commands.registerCommand(COMMANDS.SHOW_DATA_MAPPER, async (entry: string) => {
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.DataMapperView, documentUri: entry });
+	});
+
 	commands.registerCommand(COMMANDS.DELETE_REGISTERY_RESOURCE_COMMAND, async (entry: ProjectExplorerEntry) => {
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.Overview });
 		if (entry.info && entry.info?.path) {

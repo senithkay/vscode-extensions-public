@@ -144,7 +144,47 @@ function generateTreeData(project: vscode.WorkspaceFolder, data: ProjectStructur
 		generateTreeDataOfArtifacts(project, data, projectRoot);
 		generateTreeDataOfRegistry(project, data, projectRoot);
 		generateTreeDataOfClassMediator(project, data, projectRoot);
+		generateTreeDataOfDataMappings(project, data, projectRoot);
 		return projectRoot;
+	}
+}
+
+function generateTreeDataOfDataMappings(project: vscode.WorkspaceFolder, data: ProjectStructureResponse, projectRoot: ProjectExplorerEntry) {
+	const directoryMap = data.directoryMap;
+	const resources = (directoryMap as any)?.src?.main?.wso2mi.resources.registry;
+	const govResources = resources['gov'];
+	if (govResources && govResources.folders.length > 0 ) {
+		const dataMapperResources = govResources.folders.find((folder: any) => folder.name === 'datamapper');
+		const parentEntry = new ProjectExplorerEntry(
+			'Data Mappers',
+			isCollapsibleState(dataMapperResources.files.length > 0),
+			{ name: 'datamapper', path: dataMapperResources.path, type: 'datamapper'},
+			'arrow-both'
+		);
+		parentEntry.contextValue = 'data-mapper';
+		parentEntry.id = 'data-mapper';
+		parentEntry.children = parentEntry.children ?? [];
+		for (const file of dataMapperResources.files) {
+			const key = file['name'];
+			if (!key.endsWith('.ts')) {
+				continue;
+			}
+			const configName = key.replace('.ts', '');
+			const dataMapperEntry = new ProjectExplorerEntry(
+				configName,
+				isCollapsibleState(false),
+				{ name: configName, path: file.path, type: 'dataMapper' },
+				'file-code'
+			);
+			dataMapperEntry.contextValue = 'data-mapper';
+			dataMapperEntry.command = {
+				"title": "Open Data Mapper",
+				"command": COMMANDS.SHOW_DATA_MAPPER,
+				"arguments": [vscode.Uri.parse(file.path)]
+			};
+			parentEntry.children.push(dataMapperEntry);
+		}
+		projectRoot.children?.push(parentEntry);
 	}
 }
 

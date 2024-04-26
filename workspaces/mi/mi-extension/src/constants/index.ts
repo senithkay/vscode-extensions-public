@@ -63,6 +63,7 @@ export const COMMANDS = {
     BUILD_AND_RUN_PROJECT: 'MI.build-and-run',
     ADD_DATA_SOURCE_COMMAND: 'MI.project-explorer.add-data-source',
     SHOW_DATA_SOURCE: 'MI.show.data-source',
+    SHOW_DATA_MAPPER: 'MI.show.data-mapper',
 };
 
 export const DEFAULT_PROJECT_VERSION = "1.0.0";
