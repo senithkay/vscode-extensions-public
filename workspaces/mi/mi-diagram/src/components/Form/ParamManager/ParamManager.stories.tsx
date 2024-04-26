@@ -43,10 +43,13 @@ const paramConfigs: ParamConfig = {
                 },
                 {
                     value: "Test2",
+                },
+                {
+                    value: "query",
                 }
             ],
             key: "Key",
-            value: "int var1 0 true This is a description Test2",
+            value: "int var1 0 true This is a description Test2 query",
             icon: "query"
         }
     ],
@@ -88,6 +91,15 @@ const paramConfigs: ParamConfig = {
             label: "Auto Complete",
             defaultValue: "Test",
             values: ["Test1", "Test2", "Test3"],
+            isRequired: true,
+            nullable: true,
+            noItemsFoundMessage: "No items",
+        },
+        {
+            id: 4,
+            type: "KeyLookup",
+            label: "Key Lookup",
+            defaultValue: "Key Lookup Value",
             isRequired: true,
             nullable: true,
             noItemsFoundMessage: "No items",

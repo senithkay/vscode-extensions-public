@@ -17,6 +17,7 @@ import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { ExpressionFieldValue } from '../ExpressionField/ExpressionInput';
 import { Codicon, LinkButton } from '@wso2-enterprise/ui-toolkit';
+import { FilterType } from '../Keylookup/Keylookup';
 
 export interface ParamValue {
     value: string | boolean | ExpressionFieldValue;
@@ -48,7 +49,7 @@ export interface EnableCondition {
 
 export interface ParamField {
     id?: number;
-    type: "TextField" | "Dropdown" | "Checkbox" | "TextArea" | "AutoComplete";
+    type: "TextField" | "Dropdown" | "Checkbox" | "TextArea" | "AutoComplete" | "KeyLookup";
     label: string;
     defaultValue: string | boolean;
     isRequired?: boolean;
@@ -59,6 +60,8 @@ export interface ParamField {
     enableCondition?: (ConditionParams | string)[];
     openExpressionEditor?: () => void; // For ExpressionField
     canChange?: boolean; // For ExpressionField
+    filter?: (value: string) => boolean; // For KeyLookup
+    filterType?: FilterType; // For KeyLookup
 }
 
 export interface ParamConfig {
@@ -240,6 +243,16 @@ const getPramFieldCanChangeFromParamId = (paramFields: ParamField[], paramId: nu
     return paramField?.canChange;
 }
 
+const getPramFilterFromParamId = (paramFields: ParamField[], paramId: number) => {
+    const paramField = paramFields[paramId];
+    return paramField?.filter;
+}
+
+const getPramFilterTypeFromParamId = (paramFields: ParamField[], paramId: number) => {
+    const paramField = paramFields[paramId];
+    return paramField?.filterType;
+}
+
 export function ParamManager(props: ParamManagerProps) {
     const { paramConfigs, readonly, addParamText = "Add Parameter", onChange } = props;
     const [editingSegmentId, setEditingSegmentId] = useState<number>(-1);
@@ -264,7 +277,9 @@ export function ParamManager(props: ParamManagerProps) {
                 canChange: getPramFieldCanChangeFromParamId(paramConfigs.paramFields, id),
                 nullable: getParamFieldNullableFromParamId(paramConfigs.paramFields, id),
                 allowItemCreate: getParamFieldAllowItemCreateFromParamId(paramConfigs.paramFields, id),
-                noItemsFoundMessage: getParamFieldNoItemsFoundMessageFromParamId(paramConfigs.paramFields, id)
+                noItemsFoundMessage: getParamFieldNoItemsFoundMessageFromParamId(paramConfigs.paramFields, id),
+                filter: getPramFilterFromParamId(paramConfigs.paramFields, id),
+                filterType: getPramFilterTypeFromParamId(paramConfigs.paramFields, id)
             };
             return param;
         });
