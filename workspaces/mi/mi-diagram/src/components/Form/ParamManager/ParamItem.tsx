@@ -14,6 +14,7 @@ import { useDrag, useDrop } from 'react-dnd';
 import { Codicon, Icon } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { css } from "@emotion/react";
+import { cx } from "@emotion/css";
 
 
 export interface ContainerProps {
@@ -245,7 +246,3 @@ export function ParamItem(props: ParamItemProps) {
         </HeaderLabel>
     );
 }
-function cx(arg0: any) {
-    throw new Error("Function not implemented.");
-}
-

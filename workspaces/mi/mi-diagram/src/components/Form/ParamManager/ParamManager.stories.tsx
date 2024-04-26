@@ -8,8 +8,13 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import React, { useState } from "react";
-import { storiesOf } from "@storybook/react";
 import { ParamConfig, ParamField, ParamManager, ParamValueConfig } from "./ParamManager";
+
+// Default export defining the component's metadata
+export default {
+    title: 'ParamManager',
+    component: ParamManager,
+};
 
 const generateSpaceSeperatedStringFromParamValues = (paramValues: ParamValueConfig) => {
     let result = "";
@@ -90,28 +95,22 @@ const paramConfigs: ParamConfig = {
     ]
 };
 
-const ParamManagerDefault = () => {
+// Story for ParamManagerDefault
+export const Default = () => {
     const [params, setParams] = useState(paramConfigs);
     const handleOnChange = (params: ParamConfig) => {
-        const modifiedParams = { ...params, paramValues: params.paramValues.map(param => {
-            return {
+        const modifiedParams = {
+            ...params, paramValues: params.paramValues.map(param => ({
                 ...param,
                 icon: "query",
                 key: `Key`,
                 value: generateSpaceSeperatedStringFromParamValues(param)
-            }
-        })};
+            }))
+        };
         setParams(modifiedParams);
     };
-
-    return (
-        <>
-            <ParamManager paramConfigs={params} readonly={false} addParamText="New Param" onChange={handleOnChange} />
-        </>
-    );
+    return <ParamManager paramConfigs={params} readonly={false} addParamText="New Param" onChange={handleOnChange} />;
 };
-
-storiesOf("Param Manager").add("Manager", () => <ParamManagerDefault />);
 
 // Add a sample enableCondition (ConditionParams | string)[] object
 const paramFields: ParamField[] = [
@@ -152,28 +151,22 @@ const config: ParamConfig = {
     paramFields: paramFields
 };
 
-const EnableCondition = () => {
+// Story for EnableCondition
+export const WithEnableCondition = () => {
     const [params, setParams] = useState(config);
     const handleOnChange = (params: ParamConfig) => {
-        const modifiedParams = { ...params, paramValues: params.paramValues.map(param => {
-            return {
+        const modifiedParams = {
+            ...params, paramValues: params.paramValues.map(param => ({
                 ...param,
                 icon: "query",
                 key: `Key`,
                 value: generateSpaceSeperatedStringFromParamValues(param)
-            }
-        })};
+            }))
+        };
         setParams(modifiedParams);
     };
-
-    return (
-        <>
-            <ParamManager paramConfigs={params} readonly={false} onChange={handleOnChange} />
-        </>
-    );
+    return <ParamManager paramConfigs={params} readonly={false} onChange={handleOnChange} />;
 };
-
-storiesOf("Param Manager").add("Enable Condition", () => <EnableCondition />);
 
 // Add a sample enableCondition (ConditionParams | string)[] object
 const paramFieldsWithEmptyLogicalExpr: ParamField[] = [
@@ -213,7 +206,7 @@ const emptyLogicalExpr: ParamConfig = {
     paramFields: paramFieldsWithEmptyLogicalExpr
 };
 
-const EmptyLogicCondition = () => {
+export const EmptyLogicCondition = () => {
     const [params, setParams] = useState(emptyLogicalExpr);
     const handleOnChange = (params: ParamConfig) => {
         const modifiedParams = { ...params, paramValues: params.paramValues.map(param => {
@@ -233,5 +226,3 @@ const EmptyLogicCondition = () => {
         </>
     );
 };
-
-storiesOf("Param Manager").add("Empty Logical Condition", () => <EmptyLogicCondition />);
