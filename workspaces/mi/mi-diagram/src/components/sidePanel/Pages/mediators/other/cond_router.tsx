@@ -62,8 +62,9 @@ const ConditionalRouterForm = (props: AddMediatorProps) => {
                 )) || [] as string[][],
                 paramFields: [
                     {
+                        "type": "Checkbox",
                         "label": "Break After Route",
-                        "defaultValue": "",
+                        "defaultValue": false,
                         "isRequired": false, 
                         openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
                             sidePanelContext.setSidePanelState({

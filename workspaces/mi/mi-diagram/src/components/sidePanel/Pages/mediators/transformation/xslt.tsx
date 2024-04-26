@@ -172,8 +172,9 @@ const XSLTForm = (props: AddMediatorProps) => {
                             });
                         }},
                     {
+                        "type": "Checkbox",
                         "label": "Feature Enabled",
-                        "defaultValue": "",
+                        "defaultValue": false,
                         "isRequired": false, 
                         openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
                             sidePanelContext.setSidePanelState({

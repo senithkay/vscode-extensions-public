@@ -109,8 +109,9 @@ const PayloadForm = (props: AddMediatorProps) => {
                             });
                         }},
                     {
+                        "type": "Checkbox",
                         "label": "Literal",
-                        "defaultValue": "",
+                        "defaultValue": false,
                         "isRequired": false, 
                         openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
                             sidePanelContext.setSidePanelState({
