@@ -12,12 +12,11 @@ import React, { useState } from 'react';
 import styled from '@emotion/styled';
 import { ParamEditor } from './ParamEditor';
 import { ParamItem } from './ParamItem';
-import { LinkButton } from '../LinkButton/LinkButton';
-import { Codicon } from '../Codicon/Codicon';
 import { Param } from './TypeResolver';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { ExpressionFieldValue } from '../ExpressionField/ExpressionInput';
+import { Codicon, LinkButton } from '@wso2-enterprise/ui-toolkit';
 
 export interface ParamValue {
     value: string | boolean | ExpressionFieldValue;

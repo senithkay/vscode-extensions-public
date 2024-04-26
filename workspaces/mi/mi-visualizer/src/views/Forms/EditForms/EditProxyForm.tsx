@@ -12,8 +12,6 @@ import {
     TextField,
     CheckBoxGroup,
     Dropdown,
-    ParamConfig,
-    ParamManager,
     FormGroup,
     FormActions,
     FormCheckBox,
@@ -31,6 +29,7 @@ import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { useForm } from "react-hook-form";
+import { ParamConfig, ParamManager } from "@wso2-enterprise/mi-diagram";
 
 export type Protocol = "http" | "https";
 

@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import React, {useEffect, useState} from "react";
-import {Button, TextField, Dropdown, RadioButtonGroup, FormCheckBox, FormView, FormGroup, FormActions, ParamConfig, ParamManager} from "@wso2-enterprise/ui-toolkit";
+import {Button, TextField, Dropdown, RadioButtonGroup, FormCheckBox, FormView, FormGroup, FormActions} from "@wso2-enterprise/ui-toolkit";
 import {useVisualizerContext} from "@wso2-enterprise/mi-rpc-client";
 import {EVENT_TYPE, MACHINE_VIEW, UpdateDefaultEndpointRequest} from "@wso2-enterprise/mi-core";
 import {TypeChip} from "./Commons";
@@ -15,7 +15,7 @@ import {useForm} from "react-hook-form";
 import * as yup from "yup";
 import {yupResolver} from "@hookform/resolvers/yup";
 import AddToRegistry, {formatRegistryPath, saveToRegistry, getArtifactNamesAndRegistryPaths} from "./AddToRegistry";
-import { FormKeylookup } from "@wso2-enterprise/mi-diagram";
+import { FormKeylookup, ParamConfig, ParamManager } from "@wso2-enterprise/mi-diagram";
 
 interface OptionProps {
     value: string;

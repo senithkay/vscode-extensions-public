@@ -39,12 +39,15 @@
         "vscode-languageserver-types": "~3.17.5",
         "@emotion/styled": "~11.11.0",
         "@emotion/react": "~11.11.4",
+        "@emotion/css": "^11.10.5",
         "eslint-plugin-react-hooks": "~4.6.0",
         "eslint-plugin-unused-imports": "~3.1.0",
         "xmlbuilder2": "~3.1.1",
         "react-hook-form": "~7.51.2",
         "yup": "~1.4.0",
-        "@hookform/resolvers": "~3.3.4"
+        "@hookform/resolvers": "~3.3.4",
+        "react-dnd": "16.0.1",
+        "react-dnd-html5-backend": "16.0.1"
     },
     "devDependencies": {
         "@storybook/addon-essentials": "^7.6.17",

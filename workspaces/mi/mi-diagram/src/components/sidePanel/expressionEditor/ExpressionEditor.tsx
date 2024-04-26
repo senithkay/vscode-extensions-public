@@ -10,9 +10,11 @@
 import React from "react";
 
 import { useForm, Controller } from 'react-hook-form';
-import { ExpressionFieldValue, TextField } from '@wso2-enterprise/ui-toolkit';
-import { ActionButtons, ParamManager } from '@wso2-enterprise/ui-toolkit';
+import { TextField } from '@wso2-enterprise/ui-toolkit';
+import { ActionButtons } from '@wso2-enterprise/ui-toolkit';
 import SidePanelContext from "../SidePanelContexProvider";
+import { ExpressionFieldValue } from "../../Form/ExpressionField/ExpressionInput";
+import { ParamConfig, ParamManager } from "../../Form/ParamManager/ParamManager";
 
 export interface Namespace {
     prefix: string;
@@ -111,7 +113,7 @@ const ExpressionEditor = () => {
                                 paramConfigs={value}
                                 readonly={false}
                                 addParamText="Add Namespace"
-                                onChange={(values) => {
+                                onChange={(values: ParamConfig) => {
                                     values.paramValues = values.paramValues.map((param: any) => {
                                         const paramValues = param.paramValues;
                                         param.key = paramValues[0].value;

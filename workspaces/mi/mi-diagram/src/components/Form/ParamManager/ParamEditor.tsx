@@ -10,10 +10,10 @@
 
 import React from 'react';
 
-import { ActionButtons } from '../ActionButtons/ActionButtons';
-import { EditorContainer, EditorContent } from './styles';
 import { Param, TypeResolver } from './TypeResolver';
 import { ParamField, Parameters, isFieldEnabled, getParamFieldLabelFromParamId } from './ParamManager';
+import { ActionButtons } from '@wso2-enterprise/ui-toolkit';
+import styled from '@emotion/styled';
 
 export interface ParamProps {
     parameters: Parameters;
@@ -23,6 +23,21 @@ export interface ParamProps {
     onSave?: (param: Parameters) => void;
     onCancel?: (param?: Parameters) => void;
 }
+
+const EditorContainer = styled.div`
+    display: flex;
+    margin: 10px 0;
+    flex-direction: column;
+    border-radius: 5px;
+    padding: 10px;
+    border: 1px solid var(--vscode-dropdown-border);
+`;
+
+const EditorContent = styled.div`
+    display: flex;
+    flex-direction: column;
+    padding: 10px 0;
+`;
 
 export function ParamEditor(props: ParamProps) {
     const { parameters, paramFields, onChange, onSave, onCancel } = props;

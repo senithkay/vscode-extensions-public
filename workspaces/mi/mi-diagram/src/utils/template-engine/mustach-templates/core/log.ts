@@ -9,7 +9,7 @@
 
 import Mustache from "mustache";
 import { Log } from "@wso2-enterprise/mi-syntax-tree/lib/src";
-import { ExpressionFieldValue } from "@wso2-enterprise/ui-toolkit";
+import { ExpressionFieldValue } from "../../../../components/Form/ExpressionField/ExpressionInput";
 
 export function getLogMustacheTemplate() {
   return `<log {{#category}}category="{{category}}"{{/category}} {{#level}}level="{{level}}"{{/level}} {{#separator}}separator="{{separator}}"{{/separator}} {{#description}}description="{{description}}"{{/description}}>

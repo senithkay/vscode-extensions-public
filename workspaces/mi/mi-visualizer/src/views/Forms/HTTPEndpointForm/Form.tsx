@@ -7,8 +7,8 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { TextField, Dropdown, RadioButtonGroup, FormGroup, ParamManager, FormCheckBox } from "@wso2-enterprise/ui-toolkit";
-import { FormKeylookup } from "@wso2-enterprise/mi-diagram";
+import { TextField, Dropdown, RadioButtonGroup, FormGroup, FormCheckBox } from "@wso2-enterprise/ui-toolkit";
+import { FormKeylookup, ParamManager } from "@wso2-enterprise/mi-diagram";
 
 interface OptionProps {
     value: string;

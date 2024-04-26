@@ -9,13 +9,7 @@
 
 import React, { useEffect, useRef } from "react";
 import styled from "@emotion/styled";
-import { RequiredFormInput } from "../Commons/RequiredInput";
-import { Typography } from "../Typography/Typography";
-import { TextField } from "../TextField/TextField";
-import { Container } from "../AutoComplete/AutoComplete";
-import { Codicon } from "../Codicon/Codicon";
-import { Tooltip } from "../Tooltip/Tooltip";
-import { FlexLabelContainer, Label, Link } from "../../styles";
+import { Codicon, Container, RequiredFormInput, TextField, Tooltip, Typography } from "@wso2-enterprise/ui-toolkit";
 
 const Colors = {
     INPUT_OPTION_ACTIVE: "var(--vscode-inputOption-activeBackground)",
@@ -34,6 +28,26 @@ const ExButtonWrapper = styled.div<{ isActive: boolean }>`
     &:hover {
         background-color: ${(props: { isActive: any; }) => props.isActive ? Colors.INPUT_OPTION_ACTIVE : Colors.INPUT_OPTION_HOVER};
     }
+`;
+
+const Label = styled.label`
+    font-size: var(--type-ramp-base-font-size);
+    color: var(--vscode-editor-foreground);
+`;
+
+const FlexLabelContainer = styled.div`
+    display: flex;
+    flex-direction: row;
+    margin-bottom: 4px;
+`;
+
+const Link = styled.a`
+    cursor: pointer;
+    font-size: 12px;
+    margin-left: auto;
+    margin-right: 15px;
+    margin-bottom: -5px;
+    color: var(--vscode-editor-foreground);
 `;
 
 interface Namespace {

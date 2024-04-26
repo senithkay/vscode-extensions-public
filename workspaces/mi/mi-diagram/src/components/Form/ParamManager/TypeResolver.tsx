@@ -8,13 +8,10 @@
  */
 
 import React from "react";
-import { TextField } from "../TextField/TextField";
-import { Dropdown } from "../Dropdown/Dropdown";
 import { VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
-import { TextArea } from "../TextArea/TextArea";
 import { EnableCondition } from "./ParamManager";
 import { ExpressionField, ExpressionFieldValue } from "../ExpressionField/ExpressionInput";
-import { AutoComplete } from "../AutoComplete/AutoComplete";
+import { AutoComplete, Dropdown, TextArea, TextField } from "@wso2-enterprise/ui-toolkit";
 
 export interface Param {
     id: number;
