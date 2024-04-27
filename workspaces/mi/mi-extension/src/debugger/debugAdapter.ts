@@ -288,6 +288,21 @@ export class MiDebugAdapter extends LoggingDebugSession {
         });
     }
 
+    protected stepInRequest(response: DebugProtocol.StepInResponse, args: DebugProtocol.StepInArguments, request?: DebugProtocol.Request | undefined): void {
+        this.debuggerHandler?.sendResumeCommand().then((res) => {
+            response.success = true;
+            this.sendResponse(response);
+        });
+    }
+
+    protected stepOutRequest(response: DebugProtocol.StepOutResponse, args: DebugProtocol.StepOutArguments, request?: DebugProtocol.Request | undefined): void {
+        this.debuggerHandler?.sendResumeCommand().then((res) => {
+            response.success = true;
+            this.sendResponse(response);
+        });
+    }
+
+
     protected threadsRequest(response: DebugProtocol.ThreadsResponse): void {
         // return a default thread.
         response.body = {
