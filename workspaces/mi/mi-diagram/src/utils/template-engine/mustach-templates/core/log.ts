@@ -45,7 +45,7 @@ export function getLogFormDataFromSTNode(data: { [key: string]: any }, node: Log
 
   if (node.property) {
     data.properties = node.property.map((property) => {
-      return [property.name, { value: property.value || property.expression, isExpression: !!property.expression, namespaces: [{ prefix: "ns", uri: "http://www.w3.org/2005/xpath-functions"}]}];
+      return [property.name, { value: property.value || property.expression, isExpression: !!property.expression, namespaces: []}];
     });
   }
 

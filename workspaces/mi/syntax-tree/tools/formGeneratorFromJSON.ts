@@ -140,6 +140,18 @@ const getRegexAndMessage = (validation: string, validationRegEx: string) => {
     return { regex, message };
 }
 
+const getDefaultValue = (defaultValue: string) => {
+    if (defaultValue === undefined) {
+        return '""';
+    } else if (typeof defaultValue === 'string') {
+        return `"${defaultValue.replaceAll('"', '\\"')}"`;
+    } else if (typeof defaultValue === "boolean" || defaultValue === "true" || defaultValue === "false") {
+        return defaultValue;
+    } else {
+        return JSON.stringify(defaultValue);
+    }
+}
+
 const generateForm = (jsonData: any): string => {
     const operationName = jsonData.name;
     const description = jsonData.help;
@@ -275,17 +287,9 @@ const generateForm = (jsonData: any): string => {
                         fixIndentation(comboStr, indentation);
                 }
 
-                if (defaultValue === undefined) {
-                    defaultValue = '""';
-                } else if (typeof defaultValue === 'string') {
-                    defaultValue = `"${defaultValue.replaceAll('"', '\\"')}"`;
-                } else {
-                    defaultValue = JSON.stringify(defaultValue);
-                }
-
                 defaultValues +=
                     fixIndentation(`
-                ${inputName}: sidePanelContext?.formValues?.${inputName} || ${defaultValue},`, 8);
+                ${inputName}: sidePanelContext?.formValues?.${inputName} || ${getDefaultValue(defaultValue)},`, 8);
 
                 indentation -= 4;
                 fields +=
@@ -350,7 +354,9 @@ const generateForm = (jsonData: any): string => {
                 const tableKeys: string[] = [];
                 elements.forEach((attribute: any, index: number) => {
                     const { name, displayName, enableCondition, inputType, required, comboValues, validation, validationRegEx } = attribute.value;
-                    let defaultValue = attribute.value.defaultValue;
+                    let defaultValue: any = getDefaultValue(attribute.value.defaultValue);
+                    defaultValue = typeof defaultValue === 'string' ? defaultValue.replaceAll("\"", "") : defaultValue;
+
                     tableKeys.push(name);
                     const isRequired = required == 'true';
 
@@ -359,9 +365,14 @@ const generateForm = (jsonData: any): string => {
                         type = 'TextField';
                     } else if (inputType === 'stringOrExpression') {
                         type = 'ExprField';
-                        defaultValue = { isExpression: false, value: defaultValue || '' };
+                        defaultValue = { isExpression: false, value: defaultValue };
                     } else if (inputType === 'connection' || inputType === 'comboOrExpression' || inputType === 'combo') {
                         type = 'Dropdown';
+                    } else if (inputType === 'checkbox') {
+                        type = "Checkbox";
+                        if (!defaultValue) {
+                            defaultValue = false;
+                        }
                     }
 
                     const paramField =
@@ -369,24 +380,29 @@ const generateForm = (jsonData: any): string => {
                         ${JSON.stringify({
                             type: type,
                             label: displayName,
-                            defaultValue: defaultValue || '',
+                            defaultValue: defaultValue,
                             isRequired: isRequired,
                             ...(type === 'ExprField') && { canChange: inputType === 'stringOrExpression' },
                             ...(type === 'Dropdown') && { values: comboValues.map((value: string) => `${value}`), },
                             ...(enableCondition) && { enableCondition: generateParammanagerCondition(enableCondition, tableKeys) },
                         }, null, "\t")},`, 8);
 
-                    paramFields += paramField.slice(0, -3) + `, 
-                    openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                        sidePanelContext.setSidePanelState({
-                            ...sidePanelContext,
-                            expressionEditor: {
-                                isOpen: true,
-                                value,
-                                setValue
-                            }
-                        });
-                    }` + paramField.slice(-2);
+                    if (type === 'ExprField') {
+                        paramFields += paramField.slice(0, -3) + `, 
+                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
+                            sidePanelContext.setSidePanelState({
+                                ...sidePanelContext,
+                                expressionEditor: {
+                                    isOpen: true,
+                                    value,
+                                    setValue
+                                }
+                            });
+                        }` + paramField.slice(-2);
+
+                    } else {
+                        paramFields += paramField;
+                    }
 
                     paramValues +=
                         fixIndentation(`
