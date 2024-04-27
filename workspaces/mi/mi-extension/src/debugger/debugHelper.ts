@@ -10,35 +10,15 @@
 
 import * as vscode from 'vscode';
 import * as childprocess from 'child_process';
-import { COMMANDS, PORTS_TO_CHECK, SELECTED_SERVER_PATH } from '../constants';
+import { COMMANDS } from '../constants';
 import { extension } from '../MIExtensionContext';
 import { getCopyTask, getBuildTask, getRunTask } from './tasks';
 import * as fs from 'fs';
 import * as path from 'path';
-
-export async function isPortInUse(port: number): Promise<boolean> {
-    return new Promise<boolean>((resolve) => {
-        if (process.platform === 'win32') {
-            const command = `netstat -an | find "LISTENING" | find ":${port}"`;
-            childprocess.exec(command, (error, stdout, stderr) => {
-                if (error) {
-                    resolve(false);
-                } else {
-                    resolve(stdout.trim() !== '');
-                }
-            });
-        } else {
-            const command = `lsof -i :${port}`;
-            childprocess.exec(command, (error, stdout, stderr) => {
-                if (error) {
-                    resolve(false);
-                } else {
-                    resolve(stdout.trim() !== '');
-                }
-            });
-        }
-    });
-}
+import { COMMAND_PORT, READINESS_ENDPOINT, SELECTED_SERVER_PATH } from './constants';
+import { reject } from 'lodash';
+import axios from 'axios';
+import * as net from 'net';
 
 export async function isPortActivelyListening(port: number, timeout: number): Promise<boolean> {
     return new Promise<boolean>((resolve) => {
@@ -55,7 +35,7 @@ export async function isPortActivelyListening(port: number, timeout: number): Pr
                             resolve(true);
                         } else {
                             console.log('retrying');
-                            setTimeout(checkPort, 1000); // Check again after 1 second
+                            setTimeout(checkPort, 1000);
                         }
                     });
                 } else {
@@ -65,102 +45,170 @@ export async function isPortActivelyListening(port: number, timeout: number): Pr
                             resolve(true);
                         } else {
                             console.log('retrying');
-                            setTimeout(checkPort, 1000); // Check again after 1 second
+                            setTimeout(checkPort, 1000);
                         }
                     });
                 }
             }
         };
 
-        checkPort(); // Start checking the port
+        checkPort();
     });
 }
 
-export async function checkPorts(): Promise<boolean> {
-    for (const port of PORTS_TO_CHECK) {
-        const inUse = await isPortInUse(port);
-        if (inUse) {
-            return true;
-        }
-    }
-    return false;
+function checkServerLiveness(): Promise<boolean> {
+    return new Promise((resolve) => {
+        const socket = new net.Socket();
+
+        socket.on('connect', () => {
+            socket.destroy(); // Close the connection
+            resolve(true); // Port is up
+        });
+
+        socket.on('error', () => {
+            socket.destroy();
+            resolve(false); // Port is not up
+        });
+
+        socket.connect(8290, 'localhost'); // Attempt to connect to the 8290 server port
+    });
+}
+
+export function checkServerReadiness(): Promise<void> {
+    const startTime = Date.now();
+    const maxTimeout = 10000;
+    const retryInterval = 2000;
+
+    return new Promise((resolve, reject) => {
+        const checkReadiness = () => {
+            axios.get(READINESS_ENDPOINT)
+                .then((response: { status: number; data: any; }) => {
+                    if (response.status === 200) {
+                        if (response.data.status === 'ready') {
+                            console.log('Server is ready with CApp deployed');
+                            resolve();
+                        } else {
+                            reject(response.data.status);
+                        }
+
+                    } else {
+                        const elapsedTime = Date.now() - startTime;
+                        if (elapsedTime < maxTimeout) {
+                            console.log(`CApp not yet deployed. Retrying in ${retryInterval / 1000} seconds...`);
+                            setTimeout(checkReadiness, retryInterval);
+                        } else {
+                            reject('Max timeout reached. Server is not ready with deployed CApp.');
+                        }
+                    }
+                })
+                .catch((error) => {
+                    const elapsedTime = Date.now() - startTime;
+                    if (elapsedTime < maxTimeout) {
+                        console.log(`Error checking readiness: ${error.message}. Retrying in ${retryInterval / 1000} seconds...`);
+                        setTimeout(checkReadiness, retryInterval);
+                    } else {
+                        reject(`CApp has not properly deployed: ${error.message}`);
+                    }
+                });
+        };
+        checkReadiness();
+    });
 }
 
 export async function executeCopyTask(task: vscode.Task) {
-    await vscode.tasks.executeTask(task);
-
-    return new Promise<void>(resolve => {
+    return new Promise<void>(async resolve => {
+        await vscode.tasks.executeTask(task);
         let disposable = vscode.tasks.onDidEndTaskProcess(async e => {
             if (e.exitCode === 0) {
                 disposable.dispose();
                 resolve();
             } else {
-                vscode.window.showErrorMessage(`Task '${task.name}' failed.`);
+                reject(`Task '${task.name}' failed.`);
             }
         });
     });
 }
 
 export async function executeBuildTask(task: vscode.Task, serverPath: string) {
-    await deleteCapp(serverPath);
-    await vscode.tasks.executeTask(task);
-
-    return new Promise<void>(resolve => {
-        let disposable = vscode.tasks.onDidEndTaskProcess(async e => {
-            if (e.exitCode === 0) {
-                disposable.dispose();
-                // Check if the target directory exists in the workspace
-                const workspaceFolders = vscode.workspace.workspaceFolders;
-                if (workspaceFolders && workspaceFolders.length > 0) {
-                    const targetDirectory = vscode.Uri.joinPath(workspaceFolders[0].uri, "target");
-                    if (fs.existsSync(targetDirectory.fsPath)) {
-                        const copyTask = getCopyTask(serverPath, targetDirectory);
-                        await executeCopyTask(copyTask);
+    return new Promise<void>(async (resolve, reject) => {
+        deleteCapp(serverPath).then(async () => {
+            await vscode.tasks.executeTask(task);
+            let disposable = vscode.tasks.onDidEndTaskProcess(async e => {
+                if (e.exitCode === 0) {
+                    disposable.dispose();
+                    // Check if the target directory exists in the workspace
+                    const workspaceFolders = vscode.workspace.workspaceFolders;
+                    if (workspaceFolders && workspaceFolders.length > 0) {
+                        const targetDirectory = vscode.Uri.joinPath(workspaceFolders[0].uri, "target");
+                        if (fs.existsSync(targetDirectory.fsPath)) {
+                            const copyTask = getCopyTask(serverPath, targetDirectory);
+                            executeCopyTask(copyTask).then(() => {
+                                resolve();
+                            }).catch((error) => {
+                                reject(error);
+                            });
+                        }
                     }
+                } else {
+                    reject(`Task '${task.name}' failed.`);
                 }
-                resolve();
-            } else {
-                vscode.window.showErrorMessage(`Task '${task.name}' failed.`);
-            }
+            });
+        }).catch((error) => {
+            console.error(`Error deleting capp files: ${error}`);
+            reject(error);
         });
     });
 }
 
 export async function executeTasks(serverPath: string, isDebug: boolean): Promise<void> {
     const buildTask = getBuildTask();
-    await executeBuildTask(buildTask, serverPath);
-
-    const portsInUse = await checkPorts();
-
-    if (!portsInUse) {
-        return new Promise<void>(async (resolve) => {
-            const runTask = getRunTask(serverPath, isDebug);
-            runTask.presentationOptions = {
-                panel: vscode.TaskPanelKind.Shared
-            };
-            await vscode.tasks.executeTask(runTask);
-            console.log('Running the server');
-
-            // promise is resolved once the port is actively listening only
-
-            const commandPort = 9005;
-            const maxTimeout = 10000;
-            isPortActivelyListening(commandPort, maxTimeout).then((isListening) => {
-                if (isListening) {
-                    console.log('Port is actively listening');
-                    resolve();
-                    // Proceed with connecting to the port
-                } else {
-                    console.log('Port is not actively listening or timeout reached');
-                    resolve();
-                    // TODO: Handle the case where the port is not actively listening or timeout reached
+    const maxTimeout = 10000;
+    return new Promise<void>(async (resolve, reject) => {
+        executeBuildTask(buildTask, serverPath).then(async () => {
+            console.log('Build task executed successfully');
+            const isServerRunning = await checkServerLiveness();
+            if (!isServerRunning) {
+                const runTask = getRunTask(serverPath, isDebug);
+                runTask.presentationOptions = {
+                    panel: vscode.TaskPanelKind.Shared
+                };
+                await vscode.tasks.executeTask(runTask);
+                if (isDebug) {
+                    // check if server command port is active
+                    isPortActivelyListening(COMMAND_PORT, maxTimeout).then((isListening) => {
+                        if (isListening) {
+                            console.log('Server command port is actively listening');
+                            resolve();
+                            // Proceed with connecting to the port
+                        } else {
+                            console.log('Port is not actively listening or timeout reached');
+                            reject(`Server command port is not actively listening or timeout reached`);
+                        }
+                    });
                 }
-            });
-
+            } else {
+                // Server could be running in the background without debug mode, but we need to rerun to support this mode
+                if (isDebug) {
+                    isPortActivelyListening(COMMAND_PORT, maxTimeout).then((isListening) => {
+                        if (isListening) {
+                            console.log('Server command port is actively listening');
+                            resolve();
+                            // Proceed with connecting to the port
+                        } else {
+                            console.log('Server is running, but command port not acitve');
+                            reject(`Server is not running in debug mode. Stop any running servers and try again.`);
+                        }
+                    });
+                } else {
+                    vscode.window.showInformationMessage('Server is already running');
+                    resolve();
+                }
+            }
+        }).catch((error) => {
+            reject(error);
+            console.error(`Error executing tasks: ${error}`);
         });
-    } else {
-        vscode.window.showInformationMessage('Server is already running');
-    }
+    });
 }
 
 export async function getServerPath(): Promise<string | undefined> {
@@ -174,21 +222,26 @@ export async function getServerPath(): Promise<string | undefined> {
 }
 
 export async function deleteCapp(serverPath: string): Promise<void> {
-    const targetPath = serverPath + '/repository/deployment/server/carbonapps';
-    if (process.platform === 'win32') {
-        targetPath.replace(/\//g, '\\');
-    }
-
-    try {
-        const files = await fs.promises.readdir(targetPath);
-
-        for (const file of files) {
-            if (file.endsWith('.car')) {
-                const filePath = path.join(targetPath, file);
-                await fs.promises.unlink(filePath);
-            }
+    return new Promise<void>(async (resolve, reject) => {
+        const targetPath = serverPath + '/repository/deployment/server/carbonapps';
+        if (process.platform === 'win32') {
+            targetPath.replace(/\//g, '\\');
         }
-    } catch (err) {
-        console.error(`Error deleting files: ${err}`);
-    }
+
+        try {
+            const files = await fs.promises.readdir(targetPath);
+
+            for (const file of files) {
+                if (file.endsWith('.car')) {
+                    const filePath = path.join(targetPath, file);
+                    await fs.promises.unlink(filePath);
+                }
+            }
+
+            resolve();
+        } catch (err) {
+            console.error(`Error deleting files: ${err}`);
+            reject(err);
+        }
+    });
 }

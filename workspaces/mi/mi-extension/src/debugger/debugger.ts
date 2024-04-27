@@ -12,7 +12,7 @@ import { EventEmitter } from 'events';
 import { DebugProtocol } from 'vscode-debugprotocol';
 import { StateMachine, openView } from '../stateMachine';
 import { BreakpointInfo, BreakpointSequence, EVENT_TYPE, GetBreakpointInfoRequest, GetBreakpointInfoResponse, StepOverBreakpointResponse, ValidateBreakpointsRequest, ValidateBreakpointsResponse } from '@wso2-enterprise/mi-core';
-import { isPortActivelyListening } from './debugHelper';
+import { checkServerReadiness } from './debugHelper';
 import { VisualizerWebview } from '../visualizer/webview';
 import { extension } from '../MIExtensionContext';
 
@@ -225,37 +225,42 @@ export class Debugger extends EventEmitter {
 
     public async initializeDebugger(): Promise<void> {
         return new Promise(async (resolve, reject) => {
-            await this.startDebugger();
-            extension.preserveActivity = true;
+            this.startDebugger().then(() => {
+                extension.preserveActivity = true;
+                //checkServerLiveness().then(() => {
+                    checkServerReadiness().then(() => {
+                        this.sendResumeCommand().then(async () => {
+                            const runtimeBreakpoints = this.getRuntimeBreakpoints(this.getCurrentFilePath());
+                            const runtimeBreakpointInfo = await this.getBreakpointInformation(runtimeBreakpoints);
 
-            // TODO: Move to constants
-            const readinessPort = 9201;
-            const maxTimeout = 12000;
-            isPortActivelyListening(readinessPort, maxTimeout).then((isListening) => {
-                if (isListening) {
-                    this.sendResumeCommand().then(async () => {
-                        const runtimeBreakpoints = this.getRuntimeBreakpoints(this.getCurrentFilePath());
-                        const runtimeBreakpointInfo = await this.getBreakpointInformation(runtimeBreakpoints);
+                            for (const info of runtimeBreakpointInfo) {
+                                await this.sendClearBreakpointCommand(info);
+                                await this.sendSetBreakpointCommand(info);
 
-                        for (const info of runtimeBreakpointInfo) {
-                            await this.sendClearBreakpointCommand(info);
-                            await this.sendSetBreakpointCommand(info);
-                        }
-                        resolve();
+                                // TODO: Handle issue where invalid breakpoint positions are sent from the server 
+                            }
+                            resolve();
+                        }).catch((error) => {
+                            console.error('Error while resuming the debugger:', error);
+                            reject(error);
+                        });
+
+                    }).catch((error) => {
+                        console.error('Error while checking server readiness:', error);
+                        reject(error);
                     });
-                } else {
-                    resolve();
-                }
+
+            }).catch((error) => {
+                console.error('Error while connecting the debugger to the MI server:', error);
+                reject(error);
             });
         });
     }
 
-    // TODO: handle failures on server starts
     public startDebugger(): Promise<void> {
-        this.commandClient = new net.Socket();
-        this.eventClient = new net.Socket();
-
         return new Promise((resolve, reject) => {
+            this.commandClient = new net.Socket();
+            this.eventClient = new net.Socket();
             // Connect to the command port
             this.commandClient?.connect(this.commandPort, this.host, () => {
                 console.log('Connected to command port');
@@ -272,6 +277,7 @@ export class Debugger extends EventEmitter {
             // Connect to the event port
             this.eventClient?.connect(this.eventPort, this.host, () => {
                 console.log('Connected to event port');
+                resolve();
             });
 
             // Error handling for the event client
@@ -358,11 +364,6 @@ export class Debugger extends EventEmitter {
                     // Remove the processed message from incompleteMessage
                     incompleteMessage = incompleteMessage.slice(newlineIndex + 1);
                 }
-            });
-
-            //TODO: Error handling for the event client
-            this.eventClient?.on('error', (error) => {
-                console.error('Event client error:', error);
             });
         });
     }

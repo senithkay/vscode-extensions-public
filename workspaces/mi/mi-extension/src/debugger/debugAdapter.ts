@@ -243,11 +243,19 @@ export class MiDebugAdapter extends LoggingDebugSession {
                     this.currentServerPath = serverPath;
                     executeTasks(serverPath, true)
                         .then(async () => {
-                            await this.debuggerHandler?.initializeDebugger();
-                            this.sendResponse(response);
+                            this.debuggerHandler?.initializeDebugger().then(() => {
+                                response.success = true;
+                                this.sendResponse(response);
+                            }).catch(error => {
+                                vscode.window.showErrorMessage(`Error while initializing the Debugger: ${error}`);
+                                response.success = false;
+                                this.sendResponse(response);
+                            });
                         })
                         .catch(error => {
-                            vscode.window.showErrorMessage(`Error while launching run and debug`);
+                            response.success = false;
+                            this.sendResponse(response);
+                            vscode.window.showErrorMessage(`Error while launching run and debug: ${error}`);
                         });
                 }
             });
