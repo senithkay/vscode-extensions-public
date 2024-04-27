@@ -402,12 +402,6 @@ export class Debugger extends EventEmitter {
                     incompleteMessage = incompleteMessage.slice(newlineIndex + 1);
                 }
             });
-
-            // Error handling for the command client
-            this.commandClient?.once('error', (error) => {
-                console.error('Command client error:', error);
-                reject(error); // Reject the promise if there's an error
-            });
         });
     }
 
