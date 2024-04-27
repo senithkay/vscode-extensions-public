@@ -250,12 +250,7 @@ export function DefaultEndpointWizard(props: DefaultEndpointWizardProps) {
                             ...prev,
                             paramValues: [...prev.paramValues, {
                                 id: prev.paramValues.length,
-                                parameters: [{
-                                    id: 0,
-                                    value: param,
-                                    label: "Parameter",
-                                    type: "TextField",
-                                }],
+                                paramValues: [{ value: param }],
                                 key: i++,
                                 value: param,
                             }
@@ -271,25 +266,11 @@ export function DefaultEndpointWizard(props: DefaultEndpointWizardProps) {
                             ...prev,
                             paramValues: [...prev.paramValues, {
                                 id: prev.paramValues.length,
-                                parameters: [{
-                                    id: 0,
-                                    value: param.name,
-                                    label: "Name",
-                                    type: "TextField",
-                                },
-                                    {
-                                        id: 1,
-                                        value: param.value,
-                                        label: "Value",
-                                        type: "TextField",
-                                    },
-                                    {
-                                        id: 2,
-                                        value: param.scope,
-                                        label: "Scope",
-                                        type: "Dropdown",
-                                        values: ["default", "transport", "axis2", "axis2-client"]
-                                    }],
+                                paramValues: [
+                                    { value: param.name },
+                                    { value: param.value },
+                                    { value: param.scope }
+                                ],
                                 key: param.name,
                                 value: "value:" + param.value + "; scope:" + param.scope + ";",
                             }
@@ -350,7 +331,7 @@ export function DefaultEndpointWizard(props: DefaultEndpointWizardProps) {
                 return {
                     ...param,
                     key: i++,
-                    value: param.parameters[0].value
+                    value: param.paramValues[0].value
                 }
             })
         };
@@ -362,7 +343,7 @@ export function DefaultEndpointWizard(props: DefaultEndpointWizardProps) {
             ...params, paramValues: params.paramValues.map((param: any) => {
                 return {
                     ...param,
-                    key: param.parameters[0].value,
+                    key: param.paramValues[0].value,
                     value: generateDisplayValue(param)
                 }
             })
@@ -371,7 +352,7 @@ export function DefaultEndpointWizard(props: DefaultEndpointWizardProps) {
     };
 
     const generateDisplayValue = (paramValues: any) => {
-        const result: string = "value:" + paramValues.parameters[1].value + "; scope:" + paramValues.parameters[2].value + ";";
+        const result: string = "value:" + paramValues.paramValues[1].value + "; scope:" + paramValues.paramValues[2].value + ";";
         return result.trim();
     };
 
@@ -379,15 +360,15 @@ export function DefaultEndpointWizard(props: DefaultEndpointWizardProps) {
 
         let templateParameters: any = [];
         templateParams.paramValues.map((param: any) => {
-            templateParameters.push(param.parameters[0].value);
+            templateParameters.push(param.paramValues[0].value);
         })
 
         let endpointProperties: any = [];
         additionalParams.paramValues.map((param: any) => {
             endpointProperties.push({
-                name: param.parameters[0].value,
-                value: param.parameters[1].value,
-                scope: param.parameters[2].value
+                name: param.paramValues[0].value,
+                value: param.paramValues[1].value,
+                scope: param.paramValues[2].value
             });
         })
 
