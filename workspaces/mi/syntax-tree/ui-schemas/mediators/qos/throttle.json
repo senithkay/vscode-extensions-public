@@ -119,6 +119,22 @@
                         }
                     },
                     {
+                        "type": "attribute",
+                        "value": {
+                            "name": "maximumConcurrentAccess",
+                            "displayName": "Maxmium Concurrent Access",
+                            "inputType": "string",
+                            "defaultValue": "0",
+                            "required": false,
+                            "helpTip": "",
+                            "enableCondition": [
+                                {
+                                    "policyType": "INLINE"
+                                }
+                            ]
+                        }
+                    },
+                    {
                         "type": "table",
                         "value": {
                             "name": "policyEntries",
