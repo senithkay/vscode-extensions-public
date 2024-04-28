@@ -36,7 +36,7 @@ import SwitchForm from "../Pages/mediators/flow-control/switch";
 import ValidateForm from "../Pages/mediators/flow-control/validate";
 import BamForm from "../Pages/mediators/other/bam";
 import BeanForm from "../Pages/mediators/other/bean";
-import CommandForm from "../Pages/mediators/other/builder";
+import CommandForm from "../Pages/mediators/other/command";
 import CalloutForm from "../Pages/mediators/other/callout";
 import ConditionalRouterForm from "../Pages/mediators/other/cond_router";
 import EJBForm from "../Pages/mediators/other/ejb";

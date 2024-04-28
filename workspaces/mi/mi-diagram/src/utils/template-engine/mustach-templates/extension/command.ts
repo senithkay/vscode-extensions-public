@@ -5,7 +5,7 @@ export function getCommandMustacheTemplate() {
 
   return `<pojoCommand {{#description}}description="{{description}}" {{/description}}{{#className}}name="{{className}}"{{/className}} >
         {{#properties}}
-        <property {{#messageAction}}action="{{messageAction}}" {{/messageAction}}{{#contextAction}}action="{{contextAction}}" {{/contextAction}}{{#valueContextPropertyName}}context-name="{{valueContextPropertyName}}" {{/valueContextPropertyName}}{{#propertyName}}name="{{propertyName}}" {{/propertyName}}{{#valueLiteral}}value="{{valueLiteral}}" {{/valueLiteral}}{{#valueMessageElementXpath}}expression="{{valueMessageElementXpath}}"{{/valueMessageElementXpath}} />
+        <property {{#messageAction}}action="{{messageAction}}" {{/messageAction}}{{#contextAction}}action="{{contextAction}}" {{/contextAction}}{{#valueContextPropertyName}}context-name="{{valueContextPropertyName}}" {{/valueContextPropertyName}}{{#propertyName}}name="{{propertyName}}" {{/propertyName}}{{#valueLiteral}}value="{{valueLiteral}}" {{/valueLiteral}}{{#valueMessageElementXpath}}expression="{{{valueMessageElementXpath}}}"{{/valueMessageElementXpath}} />
         {{/properties}}
 </pojoCommand>`;
 }
@@ -16,10 +16,10 @@ export function getCommandXml(data: { [key: string]: any }) {
     return {
       propertyName: property[0],
       valueLiteral: property[1] == "LITERAL" ? property[2] : undefined,
-      valueContextPropertyName: property[1] == "CONTEXT_PROPERTY" ? property[2] : undefined,
-      valueMessageElementXpath: property[1] == "MESSAGE_ELEMENT" ? property[2] : undefined,
-      contextAction: property[1] == "CONTEXT_PROPERTY" ? property[3] : undefined,
-      messageAction: property[1] == "MESSAGE_ELEMENT" ? property[4] : undefined
+      valueContextPropertyName: property[1] == "CONTEXT_PROPERTY" ? property[5] : undefined,
+      valueMessageElementXpath: property[1] == "MESSAGE_ELEMENT" ? property[4] : undefined,
+      contextAction: property[1] == "CONTEXT_PROPERTY" ? property[6] : undefined,
+      messageAction: property[1] == "MESSAGE_ELEMENT" ? property[3] : undefined
     }
   });
   data = {
@@ -36,8 +36,8 @@ export function getCommandFormDataFromSTNode(data: { [key: string]: any }, node:
   if (node.property) {
     data.properties = node.property.map((property) => {
       const propertyType = property.value ? "LITERAL" : property.contextName ? "CONTEXT_PROPERTY" : "MESSAGE_ELEMENT";
-      return [property.name, propertyType, property.value ?? property.expression ?? property.contextName,
-      propertyType == "CONTEXT_PROPERTY" ? property.action : undefined, propertyType == "MESSAGE_ELEMENT" ? property.action : undefined];
+      return [property.name, propertyType, property.value, propertyType == "MESSAGE_ELEMENT" ? property.action : undefined, property.expression, property.contextName,
+      propertyType == "CONTEXT_PROPERTY" ? property.action : undefined];
     });
   }
 
