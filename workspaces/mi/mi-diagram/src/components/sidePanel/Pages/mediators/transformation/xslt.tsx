@@ -109,6 +109,7 @@ const XSLTForm = (props: AddMediatorProps) => {
                         "isRequired": false
                     },
                     {
+                        "type": "TextField",
                         "label": "Resource Registry Key",
                         "defaultValue": "",
                         "isRequired": false
