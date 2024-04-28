@@ -14,7 +14,7 @@ export function getJsonTransformMustacheTemplate() {
   return `
     <jsontransform description="{{description}}" schema="{{{schema}}}" >
         {{#jsonTransformProperties}}
-        <property name="{{propertyName}}" value="{{propertyValue}}" />
+        <property name="{{propertyName}}" value="{{{propertyValue}}}" />
         {{/jsonTransformProperties}}
     </jsontransform>
     `;
