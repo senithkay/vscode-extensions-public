@@ -14,31 +14,31 @@ export function getSwitchMustacheTemplate() {
 
   return `
     {{#isNewMediator}}
-    <switch {{#description}}description="{{description}}"{{/description}} {{#sourceXPath}}source="{{sourceXPath}}"{{/sourceXPath}} >
+    <switch {{#description}}description="{{description}}"{{/description}} {{#sourceXPath}}source="{{{sourceXPath}}}"{{/sourceXPath}} >
         {{#caseBranches}}
         <case regex="{{caseRegex}}"></case>
         {{/caseBranches}}
-        <default />
+        <default></default>
     </switch>
     {{/isNewMediator}}
     {{^isNewMediator}}
     {{#editSwitch}}
     {{#switchSelfClosed}}
-    <switch {{#description}}description="{{description}}"{{/description}} {{#sourceXPath}}source="{{sourceXPath}}"{{/sourceXPath}} />
+    <switch {{#description}}description="{{description}}"{{/description}} {{#sourceXPath}}source="{{{sourceXPath}}}"{{/sourceXPath}} />
     {{/switchSelfClosed}}
     {{^switchSelfClosed}}
-    <switch {{#description}}description="{{description}}"{{/description}} {{#sourceXPath}}source="{{sourceXPath}}"{{/sourceXPath}}>
+    <switch {{#description}}description="{{description}}"{{/description}} {{#sourceXPath}}source="{{{sourceXPath}}}"{{/sourceXPath}}>
     {{/switchSelfClosed}}
     {{/editSwitch}}
     {{#newCase}}
-    <case regex="{{caseRegex}}"></case>
+    <case regex="{{{caseRegex}}}"></case>
     {{/newCase}}
     {{#editCase}}
     {{#caseSelfClosed}}
-    <case regex="{{caseRegex}}"></case>
+    <case regex="{{{caseRegex}}}"></case>
     {{/caseSelfClosed}}
     {{^caseSelfClosed}}
-    <case regex="{{caseRegex}}" >
+    <case regex="{{{caseRegex}}}" >
     {{/caseSelfClosed}}
     {{/editCase}}
     {{/isNewMediator}}    

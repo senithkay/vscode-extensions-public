@@ -58,7 +58,7 @@ export interface TBindingOperationFault extends TExtensibleDocumented, STNode {
 }
 
 export interface CallSource extends STNode {
-    content: any[];
+    content: any;
     contentType: string;
     type: string;
 }
