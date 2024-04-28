@@ -15,7 +15,7 @@ export function getXqueryMustacheTemplate() {
   return `
     <xquery {{#staticScriptKey}}key="{{staticScriptKey}}"{{/staticScriptKey}} {{#dynamicScriptKey}}key="{{dynamicScriptKey}}"{{/dynamicScriptKey}} {{#targetXPath}}target="{{targetXPath}}"{{/targetXPath}} {{#description}}description="{{description}}"{{/description}} >
         {{#variables}}        
-            <variable name="{{variableName}}" type="{{variableType}}" {{#variableKey}}key="{{variableKey}}"{{/variableKey}} {{#variableLiteral}}value="{{variableLiteral}}"{{/variableLiteral}} {{#variableExpression}}expression="{{variableExpression}}"{{/variableExpression}} />
+            <variable name="{{variableName}}" type="{{variableType}}" {{#variableKey}}key="{{variableKey}}"{{/variableKey}} {{#variableLiteral}}value="{{variableLiteral}}"{{/variableLiteral}} {{#variableExpression}}expression="{{{variableExpression}}}"{{/variableExpression}} />
         {{/variables}}
     </xquery>
     `;
