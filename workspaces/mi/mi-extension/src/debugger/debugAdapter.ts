@@ -107,18 +107,6 @@ export class MiDebugAdapter extends LoggingDebugSession {
         }
     }
 
-    // requestSeq = 0;
-    // handleMessage(msg: DebugProtocol.ProtocolMessage): void {
-    //     console.log('Message received', msg);
-    //     this.requestSeq = msg.seq;
-    //     super.handleMessage(msg);
-    // }
-
-    // sendEvent(event: DebugProtocol.Event): void {
-    //     console.log('Event sent', event);
-    //     super.sendEvent(event);
-    // }
-
 
     //TODO: Remove unwanted capabilities
     protected initializeRequest(response: DebugProtocol.InitializeResponse, args: DebugProtocol.InitializeRequestArguments): void {
@@ -268,6 +256,7 @@ export class MiDebugAdapter extends LoggingDebugSession {
             this.debuggerHandler?.closeDebugger();
             const stopTask = getStopTask(this.currentServerPath);
             stopTask.presentationOptions.close = true;
+            stopTask.presentationOptions.showReuseMessage = false;
             vscode.tasks.executeTask(stopTask);
             response.success = true;
             this.sendResponse(response);

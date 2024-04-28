@@ -216,17 +216,17 @@ export async function getServerPath(): Promise<string | undefined> {
     if (!currentPath) {
         await vscode.commands.executeCommand(COMMANDS.CHANGE_SERVER_PATH);
         const updatedPath: string | undefined = extension.context.globalState.get(SELECTED_SERVER_PATH);
-        return updatedPath as string;
+        if (updatedPath) {
+            return path.normalize(updatedPath);
+        }
+        return updatedPath;
     }
-    return currentPath as string;
+    return path.normalize(currentPath);
 }
 
 export async function deleteCapp(serverPath: string): Promise<void> {
     return new Promise<void>(async (resolve, reject) => {
-        const targetPath = serverPath + '/repository/deployment/server/carbonapps';
-        if (process.platform === 'win32') {
-            targetPath.replace(/\//g, '\\');
-        }
+        const targetPath = path.join(serverPath, 'repository', 'deployment', 'server', 'carbonapps');
 
         try {
             const files = await fs.promises.readdir(targetPath);
@@ -237,7 +237,6 @@ export async function deleteCapp(serverPath: string): Promise<void> {
                     await fs.promises.unlink(filePath);
                 }
             }
-
             resolve();
         } catch (err) {
             console.error(`Error deleting files: ${err}`);
