@@ -12,14 +12,16 @@ import Mustache from "mustache";
 
 export function getSendMustacheTemplate() {
   return `{{#isNewMediator}}
-  <send {{#skipSerialization}}skipSerialization="{{skipSerialization}}" {{/skipSerialization}}{{#receivingSequence}}receive="{{receivingSequence}}" {{/receivingSequence}}{{#buildMessageBeforeSending}}buildmessage="{{buildMessageBeforeSending}}" {{/buildMessageBeforeSending}}{{#description}}description="{{description}}" {{/description}}/>
+  <send {{#skipSerialization}}skipSerialization="{{skipSerialization}}" {{/skipSerialization}}{{#receivingSequence}}receive="{{{receivingSequence}}}" {{/receivingSequence}}{{#buildMessageBeforeSending}}buildmessage="{{buildMessageBeforeSending}}" {{/buildMessageBeforeSending}}{{#description}}description="{{description}}" {{/description}}{{^isAnonymous}}/>{{/isAnonymous}}{{#isAnonymous}}>
+  </send>{{/isAnonymous}}
   {{/isNewMediator}}
   {{^isNewMediator}}
   {{#selfClosed}}
-  <send {{#skipSerialization}}skipSerialization="{{skipSerialization}}" {{/skipSerialization}}{{#receivingSequence}}receive="{{receivingSequence}}" {{/receivingSequence}}{{#buildMessageBeforeSending}}buildmessage="{{buildMessageBeforeSending}}" {{/buildMessageBeforeSending}}{{#description}}description="{{description}}" {{/description}}/>
+  <send {{#skipSerialization}}skipSerialization="{{skipSerialization}}" {{/skipSerialization}}{{#receivingSequence}}receive="{{{receivingSequence}}}" {{/receivingSequence}}{{#buildMessageBeforeSending}}buildmessage="{{buildMessageBeforeSending}}" {{/buildMessageBeforeSending}}{{#description}}description="{{description}}" {{/description}}{{^isAnonymous}}/>{{/isAnonymous}}{{#isAnonymous}}>
+  </send>{{/isAnonymous}}
 {{/selfClosed}}
 {{^selfClosed}}
-<send {{#skipSerialization}}skipSerialization="{{skipSerialization}}" {{/skipSerialization}}{{#receivingSequence}}receive="{{receivingSequence}}" {{/receivingSequence}}{{#buildMessageBeforeSending}}buildmessage="{{buildMessageBeforeSending}}" {{/buildMessageBeforeSending}}{{#description}}description="{{description}}" {{/description}}>
+<send {{#skipSerialization}}skipSerialization="{{skipSerialization}}" {{/skipSerialization}}{{#receivingSequence}}receive="{{{receivingSequence}}}" {{/receivingSequence}}{{#buildMessageBeforeSending}}buildmessage="{{buildMessageBeforeSending}}" {{/buildMessageBeforeSending}}{{#description}}description="{{description}}" {{/description}}>
 {{/selfClosed}}
 {{/isNewMediator}}
   `;
@@ -30,6 +32,8 @@ export function getSendXml(data: { [key: string]: any }, dirtyFields?: any, defa
     data.receivingSequence = data.staticReceivingSequence.value;
   } else if (data.receivingSequenceType == "Dynamic") {
     data.receivingSequence = "{" + data.dynamicReceivingSequence.value + "}";
+  } else {
+    data.isAnonymous = true;
   }
   if (defaultValues == undefined || Object.keys(defaultValues).length == 0) {
     data.isNewMediator = true;

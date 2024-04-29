@@ -88,7 +88,7 @@ const CommandForm = (props: AddMediatorProps) => {
                         "isRequired": false,
                         "enableCondition": [
                             {
-                                "-1": "LITERAL"
+                                "1": "LITERAL"
                             }
                         ]
                     },
@@ -104,7 +104,7 @@ const CommandForm = (props: AddMediatorProps) => {
                         ],
                         "enableCondition": [
                             {
-                                "-1": "MESSAGE_ELEMENT"
+                                "1": "MESSAGE_ELEMENT"
                             }
                         ]
                     },
@@ -115,7 +115,7 @@ const CommandForm = (props: AddMediatorProps) => {
                         "isRequired": false,
                         "enableCondition": [
                             {
-                                "-1": "MESSAGE_ELEMENT"
+                                "1": "MESSAGE_ELEMENT"
                             }
                         ]
                     },
@@ -126,7 +126,7 @@ const CommandForm = (props: AddMediatorProps) => {
                         "isRequired": false,
                         "enableCondition": [
                             {
-                                "-1": "CONTEXT_PROPERTY"
+                                "1": "CONTEXT_PROPERTY"
                             }
                         ]
                     },
@@ -142,7 +142,7 @@ const CommandForm = (props: AddMediatorProps) => {
                         ],
                         "enableCondition": [
                             {
-                                "-1": "CONTEXT_PROPERTY"
+                                "1": "CONTEXT_PROPERTY"
                             }
                         ]
                     },

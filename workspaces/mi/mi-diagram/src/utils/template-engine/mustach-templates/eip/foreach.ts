@@ -14,25 +14,25 @@ export function getForeachMustacheTemplate() {
     return `
     {{#isNewMediator}}
     {{#isAnnonymousSequence}}
-    <foreach expression="{{forEachExpression}}" id="{{forEachID}}" {{#description}}description="{{description}}"{{/description}}>
-    <sequence />
+    <foreach expression="{{{forEachExpression}}}" id="{{forEachID}}" {{#description}}description="{{description}}"{{/description}}>
+    <sequence></sequence>
     </foreach>
     {{/isAnnonymousSequence}}
     {{^isAnnonymousSequence}}
-    <foreach expression="{{forEachExpression}}" id="{{forEachID}}" {{#sequenceName}}sequence="{{sequenceName}}"{{/sequenceName}} {{#sequenceKey}}sequence="{{sequenceKey}}"{{/sequenceKey}} {{#description}}description="{{description}}"{{/description}} />
+    <foreach expression="{{{forEachExpression}}}" id="{{forEachID}}" {{#sequenceName}}sequence="{{sequenceName}}"{{/sequenceName}} {{#sequenceKey}}sequence="{{sequenceKey}}"{{/sequenceKey}} {{#description}}description="{{description}}"{{/description}} />
     {{/isAnnonymousSequence}}
     {{/isNewMediator}}
     {{^isNewMediator}}
     {{#editForeach}}
     {{#isAnnonymousSequence}}
-    <foreach expression="{{forEachExpression}}" id="{{forEachID}}" {{#description}}description="{{description}}"{{/description}}>
+    <foreach expression="{{{forEachExpression}}}" id="{{forEachID}}" {{#description}}description="{{description}}"{{/description}}>
     {{#addSequence}}
-    <sequence />
+    <sequence></sequence>
     </foreach>
     {{/addSequence}}
     {{/isAnnonymousSequence}}
     {{^isAnnonymousSequence}}
-    <foreach expression="{{forEachExpression}}" id="{{forEachID}}" {{#sequenceName}}sequence="{{sequenceName}}"{{/sequenceName}} {{#sequenceKey}}sequence="{{sequenceKey}}"{{/sequenceKey}} {{#description}}description="{{description}}"{{/description}} />
+    <foreach expression="{{{forEachExpression}}}" id="{{forEachID}}" {{#sequenceName}}sequence="{{sequenceName}}"{{/sequenceName}} {{#sequenceKey}}sequence="{{sequenceKey}}"{{/sequenceKey}} {{#description}}description="{{description}}"{{/description}} />
     {{/isAnnonymousSequence}}
     {{/editForeach}}
     {{/isNewMediator}}

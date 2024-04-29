@@ -7,6 +7,15 @@ export function getBeanMustacheTemplate() {
 
 export function getBeanXml(data: { [key: string]: any }) {
 
+    if(data.action != "CREATE") {
+        delete data.class;
+    }
+    if (data.action != "SET_PROPERTY" && data.action != "REMOVE_PROPERTY") {
+        delete data.property;
+        delete data.valueType;
+        delete data.valueLiteral;
+        delete data.valueExpression;
+    }
     if (data.targetType == "LITERAL") delete data.targetExpression;
     else delete data.targetLiteral;
     if (data.valueType == "LITERAL") delete data.valueExpression;

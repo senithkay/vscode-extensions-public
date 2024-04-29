@@ -65,7 +65,7 @@
                     "helpTip": "",
                     "enableCondition": [
                       {
-                        "propertyValueType": "LITERAL"
+                        "valueType": "LITERAL"
                       }
                     ]
                   }
@@ -85,7 +85,7 @@
                     "required": false,
                     "enableCondition": [
                       {
-                        "propertyValueType": "MESSAGE_ELEMENT"
+                        "valueType": "MESSAGE_ELEMENT"
                       }
                     ],
                     "helpTip": ""
@@ -101,7 +101,7 @@
                     "helpTip": "",
                     "enableCondition": [
                       {
-                        "propertyValueType": "MESSAGE_ELEMENT"
+                        "valueType": "MESSAGE_ELEMENT"
                       }
                     ]
                   }
@@ -116,7 +116,7 @@
                     "helpTip": "",
                     "enableCondition": [
                       {
-                        "propertyValueType": "CONTEXT_PROPERTY"
+                        "valueType": "CONTEXT_PROPERTY"
                       }
                     ]
                   }
@@ -136,7 +136,7 @@
                     "required": false,
                     "enableCondition": [
                       {
-                        "propertyValueType": "CONTEXT_PROPERTY"
+                        "valueType": "CONTEXT_PROPERTY"
                       }
                     ],
                     "helpTip": ""

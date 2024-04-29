@@ -109,7 +109,7 @@ const XQueryForm = (props: AddMediatorProps) => {
                         "isRequired": false,
                         "enableCondition": [
                             {
-                                "1": "LITERAL"
+                                "2": "LITERAL"
                             }
                         ]
                     },
@@ -120,7 +120,7 @@ const XQueryForm = (props: AddMediatorProps) => {
                         "isRequired": false,
                         "enableCondition": [
                             {
-                                "1": "EXPRESSION"
+                                "2": "EXPRESSION"
                             }
                         ]
                     },

@@ -26,7 +26,8 @@ export function getCacheMustacheTemplate() {
     {{/is611Compatible}}
     {{^is611Compatible}}
     <cache collector="false" {{#description}}description="{{description}}"{{/description}} maxMessageSize="{{maxMessageSize}}" timeout="{{cacheTimeout}}">
-        <onCacheHit {{#sequenceKey}}sequence="{{sequenceKey}}"{{/sequenceKey}} />
+        {{#isAnonymousSequence}}<onCacheHit></onCacheHit>{{/isAnonymousSequence}} 
+        {{^isAnonymousSequence}}<onCacheHit sequence="{{sequenceKey}}" />{{/isAnonymousSequence}}
         <protocol type="{{cacheProtocolType}}">
             <methods>{{cacheProtocolMethods}}</methods>
             <headersToExcludeInHash>{{headersToExcludeInHash}}</headersToExcludeInHash>
@@ -76,7 +77,8 @@ export function getCacheMustacheTemplate() {
     {{/isCollector}}
     {{/isEditImplementation}}
     {{#isEditOnCacheHit}}
-    <onCacheHit {{#sequenceKey}}sequence="{{sequenceKey}}"{{/sequenceKey}} />
+    {{#isAnonymousSequence}}<onCacheHit></onCacheHit>{{/isAnonymousSequence}} 
+    {{^isAnonymousSequence}}<onCacheHit sequence="{{sequenceKey}}" />{{/isAnonymousSequence}}
     {{/isEditOnCacheHit}}
     {{/isNewMediator}}
     `;
@@ -93,6 +95,9 @@ export function getCacheXml(data: { [key: string]: any }, dirtyFields?: any, def
         data.is611Compatible = true;
     }
 
+    if (data.sequenceType === "ANONYMOUS") {
+        data.isAnonymousSequence = true;
+    }
     if (defaultValues == undefined || Object.keys(defaultValues).length == 0) {
         data.isNewMediator = true;
         const output = getXML(data);
@@ -109,7 +114,7 @@ function getEdits(data: { [key: string]: any }, dirtyFields: any, defaultValues:
 
     let cacheTagAttributes = ["id", "collector", "cacheTimeout", "maxMessageSize", "scope", "hashGeneratorAttribute", "description"];
     let protocolTagAttributes = ["cacheMediatorImplementation", "cacheProtocolType", "cacheProtocolMethods", "headersToIncludeInHash", "headersToExcludeInHash", "responseCodes", "enableCacheControl", "includeAgeHeader", "hashGenerator"];
-    let onCacheHitTagAttributes = ["sequenceKey"];
+    let onCacheHitTagAttributes = ["sequenceType", "sequenceKey"];
     let implementationTagAttributes = ["maxEntryCount", "implementationType"];
 
     let dirtyKeys = Object.keys(dirtyFields);
@@ -151,9 +156,15 @@ function getEdits(data: { [key: string]: any }, dirtyFields: any, defaultValues:
         onCacheHitData.isEditOnCacheHit = true;
         const output = getXML(onCacheHitData);
         let range = defaultValues.ranges.onCacheHit;
-        let editRange: Range = {
-            start: range.startTagRange.start,
-            end: range.endTagRange.end ? range.endTagRange.end : range.startTagRange.end
+        let editRange;
+        if (range) {
+            editRange = { start: range.startTagRange.start, end: range.endTagRange.end ? range.endTagRange.end : range.startTagRange.end };
+        } else {
+            let cacheRange = defaultValues.ranges.cache;
+            editRange = {
+                start: cacheRange.endTagRange.start,
+                end: cacheRange.endTagRange.start
+            };
         }
         let edit = {
             text: output,

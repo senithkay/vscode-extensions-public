@@ -13,8 +13,8 @@ import Mustache from "mustache";
 export function getSmooksMustacheTemplate() {
     return `
     <smooks config-key="{{configurationKey}}" description="{{description}}" >
-        <input {{#inputExpression}}expression="{{inputExpression}}"{{/inputExpression}} {{#inputType}}type="{{inputType}}"{{/inputType}} />
-        <output {{#outputAction}}action="{{outputAction}}"{{/outputAction}} {{#outputExpression}}expression="{{outputExpression}}"{{/outputExpression}} {{#outputProperty}}property="{{outputProperty}}"{{/outputProperty}} type="{{outputType}}" />
+        <input {{#inputExpression}}expression="{{{inputExpression}}}"{{/inputExpression}} {{#inputType}}type="{{inputType}}"{{/inputType}} />
+        <output {{#outputAction}}action="{{outputAction}}"{{/outputAction}} {{#outputExpression}}expression="{{{outputExpression}}}"{{/outputExpression}} {{#outputProperty}}property="{{outputProperty}}"{{/outputProperty}} type="{{outputType}}" />
     </smooks>
     `;
 }

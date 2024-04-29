@@ -15,7 +15,7 @@ export function getFilterMustacheTemplate() {
 
     return `
     {{#isNewMediator}}
-    <filter {{#description}}description="{{description}}" {{/description}}{{#regularExpression}}regex="{{regularExpression}}" {{/regularExpression}}{{#source}}source="{{source}}" {{/source}}{{#xPath}}xpath="{{xPath}}" {{/xPath}}>
+    <filter {{#description}}description="{{description}}" {{/description}}{{#regularExpression}}regex="{{regularExpression}}" {{/regularExpression}}{{#source}}source="{{{source}}}" {{/source}}{{#xPath}}xpath="{{{xPath}}}" {{/xPath}}>
         <then>
         </then>
         <else>
@@ -24,10 +24,10 @@ export function getFilterMustacheTemplate() {
     {{/isNewMediator}}
     {{^isNewMediator}}
     {{#selfClosed}}
-    <filter {{#description}}description="{{description}}" {{/description}}{{#regularExpression}}regex="{{regularExpression}}" {{/regularExpression}}{{#source}}source="{{source}}" {{/source}}{{#xPath}}xpath="{{xPath}}" {{/xPath}}/>
+    <filter {{#description}}description="{{description}}" {{/description}}{{#regularExpression}}regex="{{regularExpression}}" {{/regularExpression}}{{#source}}source="{{{source}}}" {{/source}}{{#xPath}}xpath="{{{xPath}}}" {{/xPath}}/>
     {{/selfClosed}}
     {{^selfClosed}}
-    <filter {{#description}}description="{{description}}" {{/description}}{{#regularExpression}}regex="{{regularExpression}}" {{/regularExpression}}{{#source}}source="{{source}}" {{/source}}{{#xPath}}xpath="{{xPath}}" {{/xPath}}>
+    <filter {{#description}}description="{{description}}" {{/description}}{{#regularExpression}}regex="{{regularExpression}}" {{/regularExpression}}{{#source}}source="{{{source}}}" {{/source}}{{#xPath}}xpath="{{{xPath}}}" {{/xPath}}>
     {{/selfClosed}}
     {{/isNewMediator}}         
     `;
@@ -35,7 +35,7 @@ export function getFilterMustacheTemplate() {
 
 export function getFilterXml(data: { [key: string]: any }, dirtyFields?: any, defaultValues?: any) {
     if (data.conditionType == "Source and Regular Expression") {
-        data.regularExpression = data.regularExpression?.value;
+        data.source = data.source?.value;
         delete data.xPath;
     } else if (data.conditionType == "XPath") {
         data.xPath = data.xPath?.value;
@@ -49,7 +49,7 @@ export function getFilterXml(data: { [key: string]: any }, dirtyFields?: any, de
         return output;
     }
     const output = Mustache.render(getFilterMustacheTemplate(), data)?.trim();
-    let range = data.range.startTagRange;
+    let range = defaultValues.range.startTagRange;
     let edits = [{ range, text: output }];
     return edits;
 }
@@ -59,9 +59,9 @@ export function getFilterFormDataFromSTNode(data: { [key: string]: any }, node: 
     data.regularExpression = node.regex;
     data.source = { isExpression: true, value: node.source };
     data.xPath = { isExpression: true, value: node.xpath };
-    if (data.xPath) {
+    if (data.xPath?.value) {
         data.conditionType = "XPath";
-    } else if (data.source || data.regex) {
+    } else if (data.source?.value || data.regex) {
         data.conditionType = "Source and Regular Expression";
     }
     data.selfClosed = node.selfClosed;

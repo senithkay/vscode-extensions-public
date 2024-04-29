@@ -76,7 +76,7 @@ const ConditionalRouterForm = (props: AddMediatorProps) => {
                     {
                         "type": "TextField",
                         "label": "Evaluator Expression",
-                        "defaultValue": "",
+                        "defaultValue": "<equal  type='param' source='foo' value='bar'/>",
                         "isRequired": false
                     },
                 ]

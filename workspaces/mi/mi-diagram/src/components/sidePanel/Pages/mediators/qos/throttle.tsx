@@ -50,6 +50,7 @@ const ThrottleForm = (props: AddMediatorProps) => {
             onRejectBranchsequenceType: sidePanelContext?.formValues?.onRejectBranchsequenceType || "ANONYMOUS",
             onRejectBranchsequenceKey: sidePanelContext?.formValues?.onRejectBranchsequenceKey || "",
             policyType: sidePanelContext?.formValues?.policyType || "INLINE",
+            maximumConcurrentAccess: sidePanelContext?.formValues?.maximumConcurrentAccess || "0",
             policyEntries: {
                 paramValues: sidePanelContext?.formValues?.policyEntries && sidePanelContext?.formValues?.policyEntries.map((property: string|ExpressionFieldValue[], index: string) => (
                     {
@@ -247,6 +248,19 @@ const ThrottleForm = (props: AddMediatorProps) => {
                         />
                         {errors.policyType && <Error>{errors.policyType.message.toString()}</Error>}
                     </Field>
+
+                    {watch("policyType") == "INLINE" &&
+                        <Field>
+                            <Controller
+                                name="maximumConcurrentAccess"
+                                control={control}
+                                render={({ field }) => (
+                                    <TextField {...field} label="Maxmium Concurrent Access" size={50} placeholder="" />
+                                )}
+                            />
+                            {errors.maximumConcurrentAccess && <Error>{errors.maximumConcurrentAccess.message.toString()}</Error>}
+                        </Field>
+                    }
 
                     {watch("policyType") == "INLINE" &&
                     <ComponentCard sx={cardStyle} disbaleHoverEffect>

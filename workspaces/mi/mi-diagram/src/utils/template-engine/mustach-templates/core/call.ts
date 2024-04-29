@@ -30,7 +30,7 @@ export function getCallMustacheTemplate() {
     <source contentType="{{contentType}}" type="inline">{{{sourcePayload}}}</source>
     {{/inlineSource}}
     {{#customSource}}
-    <source contentType="{{contentType}}" type="custom">{{sourceXPath}}</source>
+    <source contentType="{{contentType}}" type="custom">{{#sourceXPath}}{{value}}{{/sourceXPath}}</source>
     {{/customSource}}
     {{#bodyTarget}}
     <target type="{{targetType}}"/>
@@ -64,7 +64,7 @@ export function getCallMustacheTemplate() {
   <source contentType="{{contentType}}" type="inline">{{{sourcePayload}}}</source>
 {{/inlineSource}}
 {{#customSource}}
-  <source contentType="{{contentType}}" type="custom">{{sourceXPath}}</source>
+  <source contentType="{{contentType}}" type="custom">{{#sourceXPath}}{{value}}{{/sourceXPath}}</source>
 {{/customSource}}
 {{/editSource}}
 {{#editTarget}}
@@ -189,7 +189,13 @@ export function getCallFormDataFromSTNode(data: { [key: string]: any }, node: Ca
   data.description = node.description;
   data.contentType = node.source?.contentType;
   data.sourceType = node.source?.type;
-  data.sourceProperty = node.source?.textNode;
+  if (data.sourceType == "custom") {
+    data.sourceXPath = { isExpression: true, value: node.source?.content };
+  } else if (data.sourceType == "property") {
+    data.sourceProperty = node.source?.content;
+  } else if (data.sourceType == "inline") {
+    data.sourcePayload = node.source?.content;
+  }
   data.targetType = node.target?.type;
   data.targetProperty = node.target?.textNode;
   data.initAxis2ClientOptions = node.initAxis2ClientOptions != undefined ? node.initAxis2ClientOptions : true;

@@ -55,6 +55,7 @@
                     "name": "evaluatorExpression",
                     "displayName": "Evaluator Expression",
                     "inputType": "string",
+                    "defaultValue": "<equal  type='param' source='foo' value='bar'/>",
                     "required": true,
                     "helpTip": ""
                   }
