@@ -1,4 +1,9 @@
-import { ComponentDisplayType, ComponentKind, ChoreoImplementationType, ChoreoComponentType } from "@wso2-enterprise/choreo-core";
+import {
+    ComponentDisplayType,
+    ComponentKind,
+    ChoreoImplementationType,
+    ChoreoComponentType,
+} from "@wso2-enterprise/choreo-core";
 
 export const getTypeForDisplayType = (displayType: string): string => {
     switch (displayType) {
@@ -6,46 +11,43 @@ export const getTypeForDisplayType = (displayType: string): string => {
         case ComponentDisplayType.Service:
         case ComponentDisplayType.ByocService:
         case ComponentDisplayType.GraphQL:
-        case ComponentDisplayType.ByocRestApi:
         case ComponentDisplayType.MiApiService:
-        case ComponentDisplayType.ByoiService:
-        case ComponentDisplayType.BuildpackService:
-        case ComponentDisplayType.BuildpackRestApi:
         case ComponentDisplayType.MiRestApi:
-        case ComponentDisplayType.ThirdPartyAPI:
+        case ComponentDisplayType.BuildpackService:
+        case ComponentDisplayType.BuildRestApi:
+        case ComponentDisplayType.Websocket:
             return ChoreoComponentType.Service;
-        case ComponentDisplayType.BuildpackJob:
-        case ComponentDisplayType.ByoiJob:
-        case ComponentDisplayType.ByocJob:
-        case ComponentDisplayType.MiJob:
         case ComponentDisplayType.ManualTrigger:
+        case ComponentDisplayType.ByocJob:
+        case ComponentDisplayType.BuildpackJob:
+        case ComponentDisplayType.MiJob:
             return ChoreoComponentType.ManualTrigger;
-        case ComponentDisplayType.BuildpackCronJob:
-        case ComponentDisplayType.ByoiCronjob:
-        case ComponentDisplayType.ByocCronjob:
-        case ComponentDisplayType.MiCronjob:
         case ComponentDisplayType.ScheduledTask:
+        case ComponentDisplayType.ByocCronjob:
+        case ComponentDisplayType.BuildpackCronJob:
+        case ComponentDisplayType.MiCronjob:
             return ChoreoComponentType.ScheduledTask;
-        case ComponentDisplayType.BuildpackWebhook:
-        case ComponentDisplayType.ByocWebhook:
         case ComponentDisplayType.Webhook:
+        case ComponentDisplayType.MiWebhook:
+        case ComponentDisplayType.ByocWebhook:
+        case ComponentDisplayType.BuildpackWebhook:
+        case ComponentDisplayType.BallerinaWebhook:
             return ChoreoComponentType.Webhook;
         case ComponentDisplayType.Proxy:
             return "api-proxy";
         case ComponentDisplayType.ByocWebApp:
         case ComponentDisplayType.ByocWebAppDockerLess:
         case ComponentDisplayType.BuildpackWebApp:
-        case ComponentDisplayType.ByoiWebApp:
             return ChoreoComponentType.WebApplication;
         case ComponentDisplayType.MiEventHandler:
         case ComponentDisplayType.BallerinaEventHandler:
+        case ComponentDisplayType.BuildpackEventHandler:
+        case ComponentDisplayType.ByocEventHandler:
             return "event-handler";
-        case ComponentDisplayType.ByocTestRunner:
-        case ComponentDisplayType.PostmanTestRunner:
         case ComponentDisplayType.BuildpackTestRunner:
             return "test";
         default:
-            return "";
+            return displayType;
     }
 };
 

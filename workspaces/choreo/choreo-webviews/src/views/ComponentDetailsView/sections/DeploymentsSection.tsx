@@ -97,7 +97,7 @@ const EnvItem: FC<{
     refetchEndpoint: () => void;
 }> = ({ organization, project, deploymentTrack, component, env, endpoints, refetchEndpoint }) => {
     const isServiceType = getTypeForDisplayType(component.spec.type) === "service";
-    const [envDetailsRef] = useAutoAnimate({ duration: 100 });
+    const [envDetailsRef] = useAutoAnimate();
 
     const {
         data: deploymentStatus,

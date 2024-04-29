@@ -8,14 +8,15 @@ interface Props extends PropsWithChildren {
     required?: boolean;
     errorMsg?: string;
     loading?: boolean;
-    className?: HTMLProps<HTMLElement>["className"];
+    wrapClassName?: HTMLProps<HTMLElement>["className"];
+    labelWrapClassName?: HTMLProps<HTMLElement>["className"];
 }
 
 export const FormElementWrap: FC<Props> = (props) => {
-    const { label, required, errorMsg, loading, className, children } = props;
+    const { label, required, errorMsg, loading, wrapClassName, labelWrapClassName, children } = props;
     return (
-        <div className={classNames("w-full flex flex-col", className)}>
-            <div className="flex justify-between gap-1">
+        <div className={classNames("w-full flex flex-col", wrapClassName)}>
+            <div className={classNames("flex justify-between gap-1",labelWrapClassName)}>
                 <span className="flex gap-1">
                     <label>{label}</label>
                     {required && <RequiredFormInput />}

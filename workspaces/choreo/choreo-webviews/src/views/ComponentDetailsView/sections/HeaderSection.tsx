@@ -32,7 +32,7 @@ export const HeaderSection: FC<ComponentsDetailsWebviewProps> = ({
             <div className="flex gap-2">
                 <div className="flex items-center flex-wrap gap-3 md:mb-1 flex-1">
                     <h1 className="text-2xl md:text-3xl font-bold">{component.metadata.displayName}</h1>
-                    <h2 className="text-2xl md:text-3xl font-extralight opacity-40 hidden sm:block">
+                    <h2 className="text-2xl md:text-3xl font-thin opacity-30 hidden sm:block">
                         {getFriendlyComponentType(getTypeForDisplayType(component?.spec?.type))}
                     </h2>
                 </div>

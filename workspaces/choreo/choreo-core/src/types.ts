@@ -666,28 +666,33 @@ export enum ComponentDisplayType {
     ByocWebApp = 'byocWebApp',
     ByocWebAppDockerLess = 'byocWebAppsDockerfileLess',
     ByocRestApi = 'byocRestApi',
-    ByocWebhook = 'byocWebhook',
+    ByocEventHandler = 'byocEventHandler',
     MiRestApi = 'miRestApi',
     MiEventHandler = 'miEventHandler',
     Service = 'ballerinaService',
     ByocService = 'byocService',
+    ByocWebhook = 'byocWebhook',
     MiApiService = 'miApiService',
     MiCronjob = 'miCronjob',
     MiJob = 'miJob',
+    MiWebhook = 'miWebhook',
     ByoiService = 'byoiService',
     ByoiJob = 'byoiJob',
     ByoiCronjob = 'byoiCronjob',
     ByoiWebApp = 'byoiWebApp',
     ByocTestRunner = 'byocTestRunner',
     BuildpackService = 'buildpackService',
-    BuildpackWebhook = 'buildpackWebhook',
+    BuildpackEventHandler = 'buildpackEventHandler',
     BuildpackJob = 'buildpackJob',
     BuildpackTestRunner = 'buildpackTestRunner',
     BuildpackCronJob = 'buildpackCronjob',
     BuildpackWebApp = 'buildpackWebApp',
-    BuildpackRestApi = 'buildpackRestApi',
+    BuildpackWebhook = 'buildpackWebhook',
+    BuildRestApi = 'buildpackRestApi',
     PostmanTestRunner = 'byocTestRunnerDockerfileLess',
     BallerinaEventHandler = 'ballerinaEventHandler',
+    BallerinaService = 'ballerinaService',
+    BallerinaWebhook = 'ballerinaWebhook',
 }
 
 export interface ComponentWizardWebAppConfig {
@@ -994,7 +999,7 @@ export interface ComponentYamlContent {
     };
 }
 
-
+// TODO: remove?
 export enum CellComponentType {
     SERVICE = 'service',
     WEB_APP = 'web-app',
@@ -1006,6 +1011,7 @@ export enum CellComponentType {
     TEST = 'test',
 }
 
+// TODO: remove?
 export function getGeneralizedCellComponentType(
     type: ComponentDisplayType
 ): CellComponentType {
@@ -1017,8 +1023,8 @@ export function getGeneralizedCellComponentType(
         case ComponentDisplayType.MiApiService:
         case ComponentDisplayType.MiRestApi:
         case ComponentDisplayType.BuildpackService:
-        case ComponentDisplayType.BuildpackRestApi:
-        case ComponentDisplayType.Websocket:
+        // case ComponentDisplayType.BuildpackRestApi:
+        // case ComponentDisplayType.Websocket:
             return CellComponentType.SERVICE;
         case ComponentDisplayType.ManualTrigger:
         case ComponentDisplayType.ByocJob:

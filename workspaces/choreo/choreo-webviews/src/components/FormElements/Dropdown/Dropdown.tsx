@@ -27,7 +27,8 @@ export const Dropdown: FC<Props> = (props) => {
                     label={label}
                     required={required}
                     loading={loading}
-                    className={wrapClassName}
+                    wrapClassName={wrapClassName}
+                    labelWrapClassName="mb-[1px]"
                 >
                     <VSCodeDropdown
                         className={classnames(

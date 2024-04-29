@@ -8,7 +8,7 @@ import { useAutoAnimate } from '@formkit/auto-animate/react'
 
 export const ComponentListView: FC<ComponentsListActivityViewProps> = ({ directoryPath }) => {
     const { links, isLoading, activeComponentPath } = useLinkedDirContext();
-    const [componentListRef] = useAutoAnimate({duration: 100});
+    const [componentListRef] = useAutoAnimate();
 
     if (!directoryPath) {
         return <InvalidWorkspaceView />;

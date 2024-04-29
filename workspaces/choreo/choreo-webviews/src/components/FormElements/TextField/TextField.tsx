@@ -31,7 +31,7 @@ export const TextField: FC<Props> = (props) => {
                     label={label}
                     required={required}
                     loading={loading}
-                    className={wrapClassName}
+                    wrapClassName={wrapClassName}
                 >
                     <VSCodeTextField
                         onInput={field.onChange}

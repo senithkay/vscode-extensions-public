@@ -33,7 +33,7 @@ export const BuildsSection: FC<Props> = (props) => {
     const { component, organization, project, deploymentTrack } = props;
     const [hasOngoingBuilds, setHasOngoingBuilds] = useState(false);
     const [visibleBuildCount, setVisibleBuildCount] = useState(5);
-    const [buildListRef] = useAutoAnimate({ duration: 100 })
+    const [buildListRef] = useAutoAnimate()
 
 
     const { isLoading: isLoadingCommits, data: commits = [] } = useQuery({
@@ -162,7 +162,7 @@ export const BuildsSection: FC<Props> = (props) => {
                 <div>Started</div>
                 <div>Status</div>
             </div>
-            <div className="min-h-44" ref={buildListRef}>
+            <div className="lg:min-h-44" ref={buildListRef}>
                 {isLoadingBuilds ? (
                     <>
                         {Array.from(new Array(5)).map((_, index) => (
@@ -195,7 +195,7 @@ export const BuildsSection: FC<Props> = (props) => {
                     <>
                         {builds.length === 0 ? (
                             <>
-                                <div className="flex flex-col items-center justify-center gap-3 min-h-44">
+                                <div className="flex flex-col items-center justify-center gap-3 lg:min-h-44 p-8">
                                     <p className="text-center opacity-40 font-light text-sm">
                                         There aren't any builds available
                                     </p>
@@ -340,7 +340,7 @@ const BuiltItemRow: FC<Props & { item: BuildKind }> = ({
                         {["success", "failure"].includes(item.status?.conclusion) && (
                             <Button
                                 appearance="icon"
-                                title="View Logs"
+                                title="View Build Logs"
                                 onClick={() => showBuiltLogs(item.status?.runId)}
                                 disabled={isLoadingBuildLogs}
                             >

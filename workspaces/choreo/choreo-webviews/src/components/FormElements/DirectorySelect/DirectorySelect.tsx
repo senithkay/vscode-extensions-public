@@ -58,7 +58,7 @@ export const DirectorySelect: FC<Props> = (props) => {
                         label={label}
                         required={required}
                         loading={isLoading}
-                        className={wrapClassName}
+                        wrapClassName={wrapClassName}
                     >
                         <div
                             onClick={

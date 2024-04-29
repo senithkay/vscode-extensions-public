@@ -33,10 +33,10 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({
     directoryName,
     initialValues,
 }) => {
-    const [formSections] = useAutoAnimate({ duration: 100 });
-    const [compDetailsSections] = useAutoAnimate({ duration: 100 });
-    const [sourceDetailsSections] = useAutoAnimate({ duration: 100 });
-    const [buildConfigSections] = useAutoAnimate({ duration: 100 });
+    const [formSections] = useAutoAnimate();
+    const [compDetailsSections] = useAutoAnimate();
+    const [sourceDetailsSections] = useAutoAnimate();
+    const [buildConfigSections] = useAutoAnimate();
 
     const form = useForm<ComponentFormType>({
         resolver: zodResolver(componentFormSchema),
@@ -83,20 +83,21 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({
                 orgUuid: organization.uuid,
                 orgId: organization.id.toString(),
             }),
-        onSuccess: (buildpacks = []) => {
-            if (
-                form.getValues("buildPackLang") &&
-                buildpacks.length > 0 &&
-                !buildpacks.find((item) => item.language === form.getValues("buildPackLang"))
-            ) {
-                // Reset build pack selection if its invalid
-                form.setValue("buildPackLang", "");
-                form.setValue("langVersion", "");
-            }
-        },
         refetchOnWindowFocus: false,
         enabled: !!selectedType,
     });
+
+    useEffect(()=>{
+        if (
+            selectedLang &&
+            buildpacks.length > 0 &&
+            !buildpacks.find((item) => item.language === selectedLang)
+        ) {
+            // Reset build pack selection if its invalid
+            form.setValue("buildPackLang", "");
+            form.setValue("langVersion", "");
+        }
+    },[form, selectedLang, buildpacks])
 
     const { isLoading: isLoadingRemotes, data: gitRemotes = [] } = useQuery({
         queryKey: ["get-git-remotes", { directoryFsPath, subPath }],
@@ -456,7 +457,7 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({
                             </div>
                         )}
                     </div>
-                    <div className="flex gap-3 justify-end pt-6 pb-4">
+                    <div className="flex gap-3 justify-end pt-8 pb-4">
                         <Button onClick={() => ChoreoWebViewAPI.getInstance().closeWebView()} appearance="secondary">
                             Cancel
                         </Button>
