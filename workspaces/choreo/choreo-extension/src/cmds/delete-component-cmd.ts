@@ -59,7 +59,8 @@ export function deleteComponentCommand(context: ExtensionContext) {
                                         orgId: selectedOrg.id.toString(),
                                         orgHandler: selectedOrg.handle,
                                         projectId: selectedProject.id,
-                                        compHandler: selectedComponent.metadata.name,
+                                        componentId: selectedComponent.metadata.id,
+                                        componentName: selectedComponent.metadata.displayName,
                                     });
 
                                     closeWebviewPanel(

@@ -26,6 +26,7 @@ import { initRPCServer } from "./choreo-rpc/activate";
 import { linkedDirectoryStore } from "./stores/linked-dir-store";
 import { authStore } from "./stores/auth-store";
 import { dataCacheStore } from "./stores/data-cache-store";
+import { CommandIds } from "@wso2-enterprise/choreo-core";
 
 export async function activate(context: vscode.ExtensionContext) {
     activateTelemetry(context);
@@ -49,6 +50,7 @@ export async function activate(context: vscode.ExtensionContext) {
             authStore.getState().initAuth();
             linkedDirectoryStore.getState().refreshState();
 
+            activateCmds(context);
             activateActivityBarWebViews(context); // activity web views
             activateURIHandlers();
             // setupGithubAuthStatusCheck(); // TODO: remove
@@ -61,8 +63,10 @@ export async function activate(context: vscode.ExtensionContext) {
             getLogger().error("Failed to initialize rpc client", e);
         });
 
-    activateCmds(context);
     // activateStatusBarItem();
+    commands.registerCommand(CommandIds.OpenWalkthrough, () => {
+        commands.executeCommand(`workbench.action.openWalkthrough`, `wso2.choreo#choreo.getStarted`, false);
+    });
     registerPreInitHandlers();
     return ext.api;
 }

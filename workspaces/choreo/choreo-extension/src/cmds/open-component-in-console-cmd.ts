@@ -43,7 +43,7 @@ export function openComponentInConsoleCommand(context: ExtensionContext) {
                         // TODO: Replace selectedComponent.metadata.name, if available
                         const url = `${choreoEnvConfig.getConsoleUrl()}/organizations/${selectedOrg?.handle}/projects/${
                             selectedProject.id
-                        }/components/${selectedComponent.metadata.name}`;
+                        }/components/${selectedComponent.metadata.handler}`;
                         const consoleUrl = Uri.parse(url);
                         env.openExternal(consoleUrl);
                     }

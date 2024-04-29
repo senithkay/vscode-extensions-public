@@ -66,7 +66,7 @@ export interface SubmitComponentCreateReq  {
    endpoint?: { networkVisibility: string; port: number; }
 }
 
-export interface ViewBuildLogsReq { orgId: string; orgHandler: string; componentName: string; projectId: string; buildId: number;}
+export interface ViewBuildLogsReq { orgId: string; orgHandler: string; componentId: string; projectId: string; buildId: number;}
 export interface ViewRuntimeLogsReq {
    type: {label: string, flag: "component-application" | "component-gateway"};
    orgName: string;

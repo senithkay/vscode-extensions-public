@@ -53,7 +53,7 @@ export function registerChoreoRpcResolver(messenger: Messenger, rpcClient: IChor
     messenger.onRequest(ChoreoRpcIsRepoAuthorizedRequest, (params) => rpcClient.isRepoAuthorized(params));
     messenger.onRequest(ChoreoRpcDeleteComponentRequest, async (params) => {
         return window.withProgress(
-            { title: `Deleting component ${params.compHandler}...`, location: ProgressLocation.Notification },
+            { title: `Deleting component ${params.componentName}...`, location: ProgressLocation.Notification },
             () => rpcClient.deleteComponent(params)
         );
     });

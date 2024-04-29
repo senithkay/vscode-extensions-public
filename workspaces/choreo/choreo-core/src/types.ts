@@ -173,6 +173,8 @@ export interface ComponentKindMetadata {
     name: string;
     displayName: string;
     projectName: string;
+    id: string;
+    handler: string;
 }
 
 export interface ComponentKindSpec {
@@ -688,6 +690,7 @@ export enum ComponentDisplayType {
     BuildpackCronJob = 'buildpackCronjob',
     BuildpackWebApp = 'buildpackWebApp',
     BuildpackWebhook = 'buildpackWebhook',
+    BuildpackRestApi = 'buildpackRestApi',
     BuildRestApi = 'buildpackRestApi',
     PostmanTestRunner = 'byocTestRunnerDockerfileLess',
     BallerinaEventHandler = 'ballerinaEventHandler',

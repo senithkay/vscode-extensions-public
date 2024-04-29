@@ -9,7 +9,7 @@ export interface GetComponentItemReq { orgId: string; projectHandle: string; com
 export interface GetComponentsReq { orgId: string; projectHandle: string }
 export interface CreateLinkReq { componentDir: string; orgHandle: string; projectHandle: string; componentHandle: string; }
 export interface CreateProjectReq { orgId: string; orgHandler: string; projectName: string; region: string; }
-export interface DeleteCompReq { orgId: string; orgHandler: string; projectId: string; compHandler: string; }
+export interface DeleteCompReq { orgId: string; orgHandler: string; projectId: string; componentId: string; componentName: string; }
 export interface CreateComponentReq {
     orgId: string;
     projectHandle: string;
@@ -40,11 +40,11 @@ export interface CreateBuildReq {
     subPath: string;
 }
 
-export interface GetDeploymentTracksReq { orgId: string; orgHandler: string; projectId: string; compHandler: string; }
-export interface GetCommitsReq { orgId: string; orgHandler: string; projectId: string; compHandler: string; branch: string}
+export interface GetDeploymentTracksReq { orgId: string; orgHandler: string; projectId: string; componentId: string; }
+export interface GetCommitsReq { orgId: string; orgHandler: string; componentId: string; branch: string}
 export interface GetProjectEnvsReq { orgId: string; orgUuid: string; projectId: string;}
-export interface GetComponentEndpointsReq { orgId: string; orgHandler: string; projectId: string; compHandler: string; deploymentTrackId: string}
-export interface GetDeploymentStatusReq { orgId: string; orgHandler: string; orgUuid: string; projectId: string; compHandler: string; deploymentTrackId: string; envId: string}
+export interface GetComponentEndpointsReq { orgId: string; orgHandler: string; componentId: string; deploymentTrackId: string}
+export interface GetDeploymentStatusReq { orgId: string; orgHandler: string; orgUuid: string; componentId: string; deploymentTrackId: string; envId: string}
 export interface CreateDeploymentReq { orgId: string; orgHandler: string; componentName: string; projectHandle: string; projectId: string; deploymentTrackId: string; commitHash: string; envName: string; envId: string; buildRef: string}
 export interface IsRepoAuthorizedResp { retrievedRepos: boolean; isAccessible: boolean }
 

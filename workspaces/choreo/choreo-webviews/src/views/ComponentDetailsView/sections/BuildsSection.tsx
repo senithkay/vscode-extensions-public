@@ -48,10 +48,9 @@ export const BuildsSection: FC<Props> = (props) => {
         ],
         queryFn: () =>
             ChoreoWebViewAPI.getInstance().getChoreoRpcClient().getCommits({
-                compHandler: component.metadata.name,
+                componentId: component.metadata.id,
                 orgHandler: organization.handle,
                 orgId: organization.id.toString(),
-                projectId: project.id,
                 branch: deploymentTrack.branch,
             }),
         enabled: !!deploymentTrack,
@@ -265,7 +264,7 @@ const BuiltItemRow: FC<Props & { item: BuildKind; index: number }> = ({
     const { mutate: showBuiltLogs, isLoading: isLoadingBuildLogs } = useMutation({
         mutationFn: async (buildId: number) => {
             await ChoreoWebViewAPI.getInstance().viewBuildLogs({
-                componentName: component.metadata.name,
+                componentId: component.metadata.id,
                 orgHandler: organization.handle,
                 orgId: organization.id.toString(),
                 projectId: project.id,
@@ -366,16 +365,6 @@ const BuiltItemRow: FC<Props & { item: BuildKind; index: number }> = ({
                 <div className="flex gap-2 justify-start md:justify-between items-center flex-row-reverse md:flex-row">
                     <div>{status}</div>
                     <div className="flex gap-1">
-                        {["success", "failure"].includes(item.status?.conclusion) && (
-                            <Button
-                                appearance="icon"
-                                title="View Build Logs"
-                                onClick={() => showBuiltLogs(item.status?.runId)}
-                                disabled={isLoadingBuildLogs}
-                            >
-                                <Codicon name="console" />
-                            </Button>
-                        )}
                         {item.status?.conclusion === "success" && index === 0 && (
                             <Button
                                 appearance="icon"
@@ -384,6 +373,16 @@ const BuiltItemRow: FC<Props & { item: BuildKind; index: number }> = ({
                                 disabled={isDeploying}
                             >
                                 <Codicon name="rocket" />
+                            </Button>
+                        )}
+                        {["success", "failure"].includes(item.status?.conclusion) && (
+                            <Button
+                                appearance="icon"
+                                title="View Build Logs"
+                                onClick={() => showBuiltLogs(item.status?.runId)}
+                                disabled={isLoadingBuildLogs}
+                            >
+                                <Codicon name="console" />
                             </Button>
                         )}
                     </div>

@@ -21,7 +21,7 @@ export const ComponentDetailsView: FC<ComponentsDetailsWebviewProps> = (props) =
         ],
         queryFn: () =>
             ChoreoWebViewAPI.getInstance().getChoreoRpcClient().getDeploymentTracks({
-                compHandler: component.metadata.name,
+                componentId: component.metadata.id,
                 orgHandler: organization.handle,
                 orgId: organization.id.toString(),
                 projectId: project.id,

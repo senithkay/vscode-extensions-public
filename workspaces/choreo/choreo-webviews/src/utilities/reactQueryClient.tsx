@@ -49,7 +49,7 @@ export const ChoreoWebviewQueryClientProvider = ({ type, children }: { type: str
             client={queryClient}
             persistOptions={{
                 persister: workspaceStatePersister(`react-query-persister-${type}`),
-                buster: "choreo-webview-cache-v1",
+                buster: "choreo-webview-cache-v2",
             }}
         >
             {children}
