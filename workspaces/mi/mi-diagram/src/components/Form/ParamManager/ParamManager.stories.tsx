@@ -172,7 +172,8 @@ const nestedParamConfigs: ParamConfig = {
             type: "ParamManager",
             paramManager: {
                 paramConfigs: paramConfigs,
-                openInDrawer: true
+                openInDrawer: true,
+                addParamText: "New Item"
             }
         }
     ]

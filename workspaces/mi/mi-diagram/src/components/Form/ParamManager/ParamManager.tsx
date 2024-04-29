@@ -261,6 +261,11 @@ const getPramOpenInDrawerFromParamId = (paramFields: ParamField[], paramId: numb
     return paramField?.paramManager?.openInDrawer;
 }
 
+const getAddParamTextFromParamId = (paramFields: ParamField[], paramId: number) => {
+    const paramField = paramFields[paramId];
+    return paramField?.paramManager?.addParamText;
+}
+
 export function ParamManager(props: ParamManagerProps) {
     const { paramConfigs, readonly, openInDrawer, addParamText = "Add Parameter", onChange } = props;
 
@@ -289,7 +294,8 @@ export function ParamManager(props: ParamManagerProps) {
                 noItemsFoundMessage: getParamFieldNoItemsFoundMessageFromParamId(paramConfigs.paramFields, id),
                 filter: getPramFilterFromParamId(paramConfigs.paramFields, id),
                 filterType: getPramFilterTypeFromParamId(paramConfigs.paramFields, id),
-                openInDrawer: getPramOpenInDrawerFromParamId(paramConfigs.paramFields, id)
+                openInDrawer: getPramOpenInDrawerFromParamId(paramConfigs.paramFields, id),
+                addParamText: getAddParamTextFromParamId(paramConfigs.paramFields, id)
             };
             return param;
         });

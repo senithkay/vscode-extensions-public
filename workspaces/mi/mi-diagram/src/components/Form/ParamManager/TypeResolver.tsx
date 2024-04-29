@@ -43,6 +43,7 @@ export interface Param {
     openExpressionEditor?: () => void; // For ExpressionField
     canChange?: boolean; // For ExpressionField
     openInDrawer?: boolean; // For ParamManager
+    addParamText?: string; // For ParamManager
 }
 
 interface TypeResolverProps {
@@ -178,6 +179,7 @@ export function TypeResolver(props: TypeResolverProps) {
                             onChange({ ...param, value: newParams });
                         }}
                         openInDrawer={param.openInDrawer}
+                        addParamText={param.addParamText}
                     />
                 ) : (
                     <ParamManagerContainer>
@@ -187,6 +189,7 @@ export function TypeResolver(props: TypeResolverProps) {
                                 onChange({ ...param, value: newParams });
                             }}
                             openInDrawer={param.openInDrawer}
+                            addParamText={param.addParamText}
                         />
                     </ParamManagerContainer>
                 )
