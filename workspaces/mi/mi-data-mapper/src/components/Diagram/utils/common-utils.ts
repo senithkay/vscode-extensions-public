@@ -16,7 +16,8 @@ import {
     ObjectLiteralExpression,
     ParameterDeclaration,
     PropertyAccessExpression,
-    PropertyAssignment
+    PropertyAssignment,
+    Expression
 } from "ts-morph";
 
 import { PropertyAccessNodeFindingVisitor } from "../../Visitors/PropertyAccessNodeFindingVisitor";
@@ -381,8 +382,28 @@ export function getEditorLineAndColumn(node: Node): Range {
     };
 }
 
+export function canConnectWithLinkConnector(
+    properyAccessNodes: (Identifier | PropertyAccessExpression)[],
+    expr: Expression
+): boolean {
+    const noOfPropAccessNodes = properyAccessNodes.length;
+    const isCallExpr = noOfPropAccessNodes === 1 && isNodeCallExpression(properyAccessNodes[0]);
+    return noOfPropAccessNodes > 1 || (noOfPropAccessNodes === 1  && (isConditionalExpression(expr) || isCallExpr));
+}
+
 export function hasCallExpressions(node: Node): boolean {
     return Node.isPropertyAssignment(node) && Node.isCallExpression(node.getInitializer());
+}
+
+export function isNodeCallExpression(node: Node): boolean {
+    if (Node.isCallExpression(node)) {
+        return true
+    }
+    const parentNode = node.getParent();
+    if (parentNode) {
+        return isNodeCallExpression(parentNode);
+    }
+    return false;
 }
 
 function getInnerExpr(node: PropertyAccessExpression): Node {

@@ -12,7 +12,7 @@ import { ObjectOutputNode, InputNode, LinkConnectorNode, ArrayOutputNode } from 
 import { DataMapperNodeModel } from "../Diagram/Node/commons/DataMapperNode";
 import { DataMapperContext } from "../../utils/DataMapperContext/DataMapperContext";
 import { InputDataImportNodeModel, OutputDataImportNodeModel } from "../Diagram/Node/DataImport/DataImportNode";
-import { getPropertyAccessNodes, isConditionalExpression } from "../Diagram/utils/common-utils";
+import { canConnectWithLinkConnector, getPropertyAccessNodes, isConditionalExpression } from "../Diagram/utils/common-utils";
 import { DMType, TypeKind } from "@wso2-enterprise/mi-core";
 
 export class NodeInitVisitor implements Visitor {
@@ -36,11 +36,7 @@ export class NodeInitVisitor implements Visitor {
 
         if (initializer && !this.isObjectOrArrayLiteralExpression(initializer)) {
             const propAccessNodes = getPropertyAccessNodes(initializer);
-            if (propAccessNodes.length > 1
-                || (propAccessNodes.length === 1
-                    && isConditionalExpression(initializer)
-                )
-            ) {
+            if (canConnectWithLinkConnector(propAccessNodes, initializer)) {
                 const linkConnectorNode = this.createLinkConnectorNode(
                     node, node.getName(), parent, propAccessNodes, this.mapIdentifiers.slice(0)
                 );
@@ -61,11 +57,7 @@ export class NodeInitVisitor implements Visitor {
             elements.forEach(element => {
                 if (!this.isObjectOrArrayLiteralExpression(element)) {
                     const propAccessNodes = getPropertyAccessNodes(element);
-                    if (propAccessNodes.length > 1
-                        || (propAccessNodes.length === 1
-                            && isConditionalExpression(element)
-                        )
-                    ) {
+                    if (canConnectWithLinkConnector(propAccessNodes, element)) {
                         const linkConnectorNode = this.createLinkConnectorNode(
                             element, "", parent, propAccessNodes, [...this.mapIdentifiers, element]
                         );
