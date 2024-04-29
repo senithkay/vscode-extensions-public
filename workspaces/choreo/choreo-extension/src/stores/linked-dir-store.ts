@@ -56,16 +56,16 @@ const getLinkedDirs = async (previousLink?: ComponentLink[]) => {
             const workspaceDir = workspace.getWorkspaceFolder(linkFile);
             if (workspaceDir) {
                 const relativePath = workspace.asRelativePath(linkFile);
-                const componentFullPath = path.dirname(path.dirname(linkFile.path));
+                const componentFullPath = path.dirname(path.dirname(linkFile.fsPath));
                 const componentRelativePath =
-                    componentFullPath === workspaceDir.uri.path ? "." : workspace.asRelativePath(componentFullPath);
+                    componentFullPath === workspaceDir.uri.fsPath ? "." : workspace.asRelativePath(componentFullPath);
 
                 const linkItem: ComponentLink = {
                     workspaceName: workspaceDir.name,
-                    workspacePath: workspaceDir.uri.path,
+                    workspacePath: workspaceDir.uri.fsPath,
                     componentFullPath: componentFullPath,
                     componentRelativePath: componentRelativePath,
-                    linkFullPath: linkFile.path,
+                    linkFullPath: linkFile.fsPath,
                     linkRelativePath: relativePath,
                     linkContent: linkContent,
                 };

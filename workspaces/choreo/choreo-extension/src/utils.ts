@@ -29,7 +29,7 @@ export const deleteLinkFile = async (orgHandle: string, projectHandle: string, c
             parsedData.project === projectHandle &&
             parsedData.org === orgHandle
         ) {
-            unlinkSync(linkFile.path);
+            unlinkSync(linkFile.fsPath);
             await linkedDirectoryStore.getState().refreshState();
             break;
         }

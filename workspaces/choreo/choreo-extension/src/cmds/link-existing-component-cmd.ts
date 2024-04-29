@@ -38,11 +38,11 @@ export function linkExistingComponentCommand(context: ExtensionContext) {
                         throw new Error("Component directory is required to link with a component");
                     }
 
-                    if (!componentDir[0].path.startsWith(directory.uri.path)) {
+                    if (!componentDir[0].fsPath.startsWith(directory.uri.fsPath)) {
                         throw new Error("Component directory must be within your workspace");
                     }
 
-                    const gitRoot = await getGitRoot(context, directory.uri.path);
+                    const gitRoot = await getGitRoot(context, directory.uri.fsPath);
                     if (!gitRoot) {
                         throw new Error("Selected directory is not within a git directory");
                     }
@@ -76,7 +76,10 @@ export function linkExistingComponentCommand(context: ExtensionContext) {
                     let matchingComponents: ComponentKind[] = [];
                     for (const component of components) {
                         const compPath = path.join(gitRoot, component.spec.source.github?.path!);
-                        if (fs.existsSync(compPath) && compPath === componentDir[0].path) {
+                        if (
+                            path.normalize(compPath).toLowerCase() ===
+                            path.normalize(componentDir[0].fsPath.toLowerCase())
+                        ) {
                             matchingComponents.push(component);
                         }
                     }

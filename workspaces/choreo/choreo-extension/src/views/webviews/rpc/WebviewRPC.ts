@@ -149,7 +149,7 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
     messenger.onRequest(OpenSubDialogRequest, async (options: OpenDialogOptions) => {
         try {
             const result = await window.showOpenDialog({ ...options, defaultUri: Uri.parse(options.defaultUri) });
-            return result?.map((file) => file.fsPath);
+            return result?.map((file) => file.path);
         } catch (error: any) {
             getLogger().error(error.message);
             return [];

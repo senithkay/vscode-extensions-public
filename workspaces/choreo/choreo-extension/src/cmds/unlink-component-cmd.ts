@@ -40,11 +40,11 @@ export function unlinkComponentCommand(context: ExtensionContext) {
                             throw new Error("Component directory is required to link proceed with unlinking");
                         }
 
-                        if (!componentDir[0].path.startsWith(directory.uri.path)) {
+                        if (!componentDir[0].fsPath.startsWith(directory.uri.fsPath)) {
                             throw new Error("Component directory must be within your workspace");
                         }
 
-                        componentPath = componentDir[0].path;
+                        componentPath = componentDir[0].fsPath;
                     }
 
                     const linkFilePath = path.join(componentPath, ".choreo", "link.yaml");

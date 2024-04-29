@@ -108,6 +108,7 @@ export function createNewComponentCommand(context: ExtensionContext) {
                     }
                     componentWizard = new ComponentFormView(ext.context.extensionUri, {
                         directoryPath: workspaceDir.uri.path,
+                        directoryFsPath: workspaceDir.uri.fsPath,
                         directoryName: workspaceDir.name,
                         organization: selectedOrg,
                         project: selectedProject as Project,

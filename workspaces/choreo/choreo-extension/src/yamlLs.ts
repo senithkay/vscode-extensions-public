@@ -57,7 +57,7 @@ async function registerYamlLanguageServer(): Promise<void> {
             if (parsedUri.scheme !== SCHEMA) {
                 return undefined;
             }
-            if (!parsedUri.path || !parsedUri.path.startsWith("/")) {
+            if (!parsedUri.fsPath || !parsedUri.fsPath.startsWith("/")) {
                 return undefined;
             }
 

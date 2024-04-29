@@ -49,7 +49,7 @@ export function viewComponentCommand(context: ExtensionContext) {
                             parsedData.project === selectedProject.handler &&
                             parsedData.org === selectedOrg.handle
                         ) {
-                            matchingPath = path.dirname(path.dirname(linkFile.path));
+                            matchingPath = path.dirname(path.dirname(linkFile.fsPath));
                             break;
                         }
                     }

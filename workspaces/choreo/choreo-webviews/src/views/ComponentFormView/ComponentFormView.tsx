@@ -29,6 +29,7 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({
     project,
     organization,
     directoryPath,
+    directoryFsPath,
     directoryName,
     initialValues,
 }) => {
@@ -67,7 +68,7 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({
     const { data: hasEndpoints } = useQuery({
         queryKey: ["directory-has-endpoints", { directoryPath, subPath }],
         queryFn: async () => {
-            const compPath = await ChoreoWebViewAPI.getInstance().joinFilePaths([directoryPath, subPath]);
+            const compPath = await ChoreoWebViewAPI.getInstance().joinFilePaths([directoryFsPath, subPath]);
             return ChoreoWebViewAPI.getInstance().readServiceEndpoints(compPath);
         },
         select: (resp) => resp?.endpoints?.length > 0,
@@ -98,8 +99,8 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({
     });
 
     const { isLoading: isLoadingRemotes, data: gitRemotes = [] } = useQuery({
-        queryKey: ["get-git-remotes", { subPath }],
-        queryFn: () => ChoreoWebViewAPI.getInstance().getGitRemotes([directoryPath, subPath]),
+        queryKey: ["get-git-remotes", { directoryFsPath, subPath }],
+        queryFn: () => ChoreoWebViewAPI.getInstance().getGitRemotes([directoryFsPath, subPath]),
     });
 
     useEffect(() => {
@@ -116,7 +117,7 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({
                 orgId: organization.id.toString(),
             }),
         refetchOnWindowFocus: false,
-        enabled: gitRemotes.length > 0,
+        enabled: !!repoUrl,
     });
 
     useEffect(() => {
@@ -168,7 +169,7 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({
         mutationFn: async (data: ComponentFormType) => {
             const componentName = makeURLSafe(data.name);
 
-            const componentDir = await ChoreoWebViewAPI.getInstance().joinFilePaths([directoryPath, data.subPath]);
+            const componentDir = await ChoreoWebViewAPI.getInstance().joinFilePaths([directoryFsPath, data.subPath]);
 
             const createCompCommandParams: SubmitComponentCreateReq = {
                 org: organization,
@@ -326,7 +327,7 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({
                     >
                         here
                     </VSCodeLink>
-                    . {isRepoAuthorizedResp?.retrievedRepos ? "(Only public repos are allowed for the free tier.)" : ""}
+                    . {isRepoAuthorizedResp?.retrievedRepos ? "(Only public repos are allowed within the free tier.)" : ""}
                 </div>
                 <Button
                     appearance="icon"
@@ -475,7 +476,7 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({
 
 const FormSectionHeader = ({ title }: { title: string }) => {
     return (
-        <div className="flex items-center gap-2 mb-2">
+        <div className="flex items-center sm:gap-4 gap-2 mb-2">
             <h1 className="text-lg opacity-50">{title}</h1>
             <Divider className="flex-1" />
         </div>

@@ -85,7 +85,7 @@ export class ComponentsView implements vscode.WebviewViewProvider {
 						document.getElementById("root"), 
 						${JSON.stringify({
 							type: "ComponentsListActivityView",
-							directoryPath: vscode.workspace.workspaceFolders?.[0]?.uri?.path
+							directoryPath: vscode.workspace.workspaceFolders?.[0]?.uri?.fsPath
 						} as WebviewProps)}
 					);
 				  }
