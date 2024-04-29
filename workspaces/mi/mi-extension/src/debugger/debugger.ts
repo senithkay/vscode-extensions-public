@@ -10,11 +10,12 @@
 import * as net from 'net';
 import { EventEmitter } from 'events';
 import { DebugProtocol } from 'vscode-debugprotocol';
-import { StateMachine, openView } from '../stateMachine';
+import { StateMachine, navigate, openView } from '../stateMachine';
 import { BreakpointInfo, BreakpointSequence, EVENT_TYPE, GetBreakpointInfoRequest, GetBreakpointInfoResponse, StepOverBreakpointResponse, ValidateBreakpointsRequest, ValidateBreakpointsResponse } from '@wso2-enterprise/mi-core';
 import { checkServerReadiness } from './debugHelper';
 import { VisualizerWebview } from '../visualizer/webview';
 import { extension } from '../MIExtensionContext';
+import { ViewColumn } from 'vscode';
 
 export interface RuntimeBreakpoint {
     id: number;
@@ -228,27 +229,27 @@ export class Debugger extends EventEmitter {
             this.startDebugger().then(() => {
                 extension.preserveActivity = true;
                 //checkServerLiveness().then(() => {
-                    checkServerReadiness().then(() => {
-                        this.sendResumeCommand().then(async () => {
-                            const runtimeBreakpoints = this.getRuntimeBreakpoints(this.getCurrentFilePath());
-                            const runtimeBreakpointInfo = await this.getBreakpointInformation(runtimeBreakpoints);
+                checkServerReadiness().then(() => {
+                    this.sendResumeCommand().then(async () => {
+                        const runtimeBreakpoints = this.getRuntimeBreakpoints(this.getCurrentFilePath());
+                        const runtimeBreakpointInfo = await this.getBreakpointInformation(runtimeBreakpoints);
 
-                            for (const info of runtimeBreakpointInfo) {
-                                await this.sendClearBreakpointCommand(info);
-                                await this.sendSetBreakpointCommand(info);
+                        for (const info of runtimeBreakpointInfo) {
+                            await this.sendClearBreakpointCommand(info);
+                            await this.sendSetBreakpointCommand(info);
 
-                                // TODO: Handle issue where invalid breakpoint positions are sent from the server 
-                            }
-                            resolve();
-                        }).catch((error) => {
-                            console.error('Error while resuming the debugger:', error);
-                            reject(error);
-                        });
-
+                            // TODO: Handle issue where invalid breakpoint positions are sent from the server 
+                        }
+                        resolve();
                     }).catch((error) => {
-                        console.error('Error while checking server readiness:', error);
+                        console.error('Error while resuming the debugger:', error);
                         reject(error);
                     });
+
+                }).catch((error) => {
+                    console.error('Error while checking server readiness:', error);
+                    reject(error);
+                });
 
             }).catch((error) => {
                 console.error('Error while connecting the debugger to the MI server:', error);
@@ -312,7 +313,8 @@ export class Debugger extends EventEmitter {
 
                         const stateContext = StateMachine.context();
                         if (VisualizerWebview.currentPanel?.getWebview()?.visible && stateContext.stNode) {
-                            openView(EVENT_TYPE.OPEN_VIEW, stateContext);
+                            navigate();
+                            VisualizerWebview.currentPanel!.getWebview()?.reveal(ViewColumn.Beside);
                         }
                     }
 

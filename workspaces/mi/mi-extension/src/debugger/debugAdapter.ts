@@ -18,6 +18,7 @@ import { EVENT_TYPE } from '@wso2-enterprise/mi-core';
 import { VisualizerWebview } from '../visualizer/webview';
 import { extension } from '../MIExtensionContext';
 import { getStopTask } from './tasks';
+import { ViewColumn } from 'vscode';
 
 export class MiDebugAdapter extends LoggingDebugSession {
     private _configurationDone = new Subject();
@@ -47,10 +48,10 @@ export class MiDebugAdapter extends LoggingDebugSession {
 
             if (VisualizerWebview.currentPanel?.getWebview()?.visible && stateContext.stNode) {
                 this.sendEvent(new StoppedEvent('breakpoint', MiDebugAdapter.threadID));
-                extension.webviewReveal = true;
+
                 setTimeout(() => {
-                    extension.webviewReveal = true;
-                    openView(EVENT_TYPE.OPEN_VIEW, stateContext);
+                    navigate();
+                    VisualizerWebview.currentPanel!.getWebview()?.reveal(ViewColumn.Beside);
                 }, 150);
             } else {
                 this.sendEvent(new StoppedEvent('breakpoint', MiDebugAdapter.threadID));
