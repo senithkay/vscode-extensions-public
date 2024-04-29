@@ -393,6 +393,7 @@
         <xs:attribute name="format" use="optional">
             <xs:simpleType>
                 <xs:restriction base="xs:string">
+                    <xs:enumeration value="rest" />
                     <xs:enumeration value="soap11" />
                     <xs:enumeration value="soap12" />
                     <xs:enumeration value="pox" />
@@ -488,6 +489,7 @@
                     <xs:attribute name="version" use="optional">
                         <xs:simpleType>
                             <xs:restriction base="xs:string">
+                                <xs:enumeration value="submission" />
                                 <xs:enumeration value="final" />
                                 <xs:enumeration value="discard" />
                                 <xs:enumeration value="fault" />
