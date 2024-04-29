@@ -318,6 +318,9 @@ export function AIProjectGenerationChat() {
     }
 
     async function handleSend(isQuestion: boolean = false, isInitialPrompt: boolean = false) {
+        if(userInput === "") {
+            return;
+        }
         console.log(chatArray);
         var context: GetWorkspaceContextResponse[] = [];
         setMessages(prevMessages => prevMessages.filter((message, index) => message.type !== 'label'));
