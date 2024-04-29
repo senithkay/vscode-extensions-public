@@ -685,20 +685,19 @@ export function AIProjectGenerationChat() {
                 </>
                 ))}
                 <FlexRow>
-                    <VSCodeTextField
+                <VSCodeTextField
                         value={userInput}
                         onInput={(e: any) => setUserInput(e.target.value)}
                         onKeyDown={(event: any) => handleTextKeydown(event)}
                         placeholder="Type a command to test"
                         innerHTML="true"
                         style={{ width: "calc(100% - 35px)" }}
-                        // disabled = {isLoading}
+                        {...(isLoading ? { disabled: true } : {})}
                     >
                     </VSCodeTextField>
                     <VSCodeButton
                         appearance="secondary"
                         onClick={() => isLoading ? handleStop() : handleSend(false,false)}
-                        // disabled={isLoading}
                         style={{ width: "35px" }}>
                         <span className={`codicon ${isLoading ? 'codicon-debug-stop' : 'codicon-send'}`}></span>
                     </VSCodeButton>
