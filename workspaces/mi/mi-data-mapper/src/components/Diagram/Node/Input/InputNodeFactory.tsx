@@ -17,6 +17,7 @@ import { InputNodeWidget } from "./InputNodeWidget";
 import { InputSearchNoResultFound, SearchNoResultFoundKind } from "../commons/Search";
 
 import { InputNode, INPUT_NODE_TYPE } from './InputNode';
+import { PrimitiveTypeInputWidget } from '../commons/PrimitiveTypeInputWidget';
 
 export class InputNodeFactory extends AbstractReactFactory<InputNode, DiagramEngine> {
     constructor() {
@@ -38,6 +39,15 @@ export class InputNodeFactory extends AbstractReactFactory<InputNode, DiagramEng
                 />
             );
         }
+        return (
+            <PrimitiveTypeInputWidget
+                engine={this.engine}
+                id={event.model.value.getName()}
+                dmType={event.model.dmType}
+                getPort={(portId: string) => event.model.getPort(portId) as InputOutputPortModel}
+                valueLabel={event.model.value.getName()}
+            />
+        )
     }
 
     generateModel(): InputNode {
