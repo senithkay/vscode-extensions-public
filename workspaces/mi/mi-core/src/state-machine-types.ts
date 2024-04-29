@@ -64,7 +64,7 @@ export enum AI_MACHINE_VIEW {
 }
 
 export type MachineStateValue =
-    | 'initialize' | 'projectDetected' | 'unsupportedProject' | 'LSInit' | 'ready' | 'disabled'
+    | 'initialize' | 'projectDetected' | 'oldProjectDetected' | 'LSInit' | 'ready' | 'disabled'
     | { ready: 'viewReady' } | { ready: 'viewEditing' }
     | { newProject: 'viewReady' };
 
@@ -124,7 +124,7 @@ export interface VisualizerLocation {
     identifier?: string;
     position?: any;
     projectOpened?: boolean;
-    isMiProject?: boolean;
+    isOldProject?: boolean;
     displayOverview?: boolean;
     customProps?: any;
     dataMapperProps?: DataMapperProps;
