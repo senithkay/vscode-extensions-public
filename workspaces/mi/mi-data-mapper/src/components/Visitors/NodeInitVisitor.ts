@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { Node, PropertyAssignment, ObjectLiteralExpression, FunctionDeclaration, ReturnStatement, ArrayLiteralExpression } from "ts-morph";
+import { Node, PropertyAssignment, ObjectLiteralExpression, FunctionDeclaration, ReturnStatement, ArrayLiteralExpression, Identifier, PropertyAccessExpression } from "ts-morph";
 import { Visitor } from "../../ts/base-visitor";
 import { ObjectOutputNode, InputNode, LinkConnectorNode, ArrayOutputNode } from "../Diagram/Node";
 import { DataMapperNodeModel } from "../Diagram/Node/commons/DataMapperNode";
@@ -26,64 +26,23 @@ export class NodeInitVisitor implements Visitor {
     ) {}
 
     beginVisitFunctionDeclaration(node: FunctionDeclaration): void {
-        const param = node.getParameters()[0];
-        const inputType = param
-            && this.context.inputTrees.find(inputTree => inputTree.typeName === param.getType().getText());
-    
-        if (inputType && this.hasFields(inputType)) {
-            // Create input node
-            const paramNode = new InputNode(this.context, param);
-            paramNode.setPosition(0, 0);
-            this.inputNode = paramNode;
-        } else {
-            // Create input data import node
-            this.inputNode = new InputDataImportNodeModel();
-        }
-
-        const returnType = node.getReturnType();
-        const outputType = returnType && !returnType.isVoid() && this.context.outputTree;
-
-        if (outputType && this.hasFields(outputType)) {
-            const body = node.getBody();
-
-            if (Node.isBlock(body)) {
-                const returnStatement = body.getStatements()
-                    .find((statement) => Node.isReturnStatement(statement)) as ReturnStatement;
-    
-                // Create output node
-                if (returnType.isInterface()) {
-                    this.outputNode = new ObjectOutputNode(this.context, returnStatement);
-                } else if (returnType.isArray()) {
-                    this.outputNode = new ArrayOutputNode(this.context, returnStatement);
-                }
-            }
-        } else {
-            // Create output data import node
-            this.outputNode = new OutputDataImportNodeModel();
-        }
+        this.inputNode = this.createInputNode(node);
+        this.outputNode = this.createOutputNode(node);
     }
 
     beginVisitPropertyAssignment(node: PropertyAssignment, parent?: Node): void {
         const initializer = node.getInitializer();
         this.mapIdentifiers.push(node)
 
-        if (initializer
-            && !Node.isObjectLiteralExpression(initializer)
-            && !Node.isArrayLiteralExpression(initializer)
-        ) {
-            const propertyAccessNodes = getPropertyAccessNodes(initializer);
-            if (propertyAccessNodes.length > 1
-                || (propertyAccessNodes.length === 1
+        if (initializer && !this.isObjectOrArrayLiteralExpression(initializer)) {
+            const propAccessNodes = getPropertyAccessNodes(initializer);
+            if (propAccessNodes.length > 1
+                || (propAccessNodes.length === 1
                     && isConditionalExpression(initializer)
                 )
-            ){
-                const linkConnectorNode = new LinkConnectorNode(
-                    this.context,
-                    node,
-                    node.getName(),
-                    parent,
-                    propertyAccessNodes,
-                    this.mapIdentifiers.slice(0)
+            ) {
+                const linkConnectorNode = this.createLinkConnectorNode(
+                    node, node.getName(), parent, propAccessNodes, this.mapIdentifiers.slice(0)
                 );
                 this.intermediateNodes.push(linkConnectorNode);
             }
@@ -97,20 +56,18 @@ export class NodeInitVisitor implements Visitor {
     beginVisitArrayLiteralExpression(node: ArrayLiteralExpression, parent?: Node): void {
         this.mapIdentifiers.push(node);
         const elements = node.getElements();
+
         if (elements) {
             elements.forEach(element => {
-                let innerExpr = element;
-                if (!Node.isObjectLiteralExpression(innerExpr) && !Node.isArrayLiteralExpression(innerExpr)) {
-                    const propertyAccessNodes = getPropertyAccessNodes(innerExpr);
-                    if (propertyAccessNodes.length > 1
-                        || (propertyAccessNodes.length === 1 && isConditionalExpression(innerExpr))) {
-                        const linkConnectorNode = new LinkConnectorNode(
-                            this.context,
-                            innerExpr,
-                            "",
-                            parent,
-                            propertyAccessNodes,
-                            [...this.mapIdentifiers, innerExpr]
+                if (!this.isObjectOrArrayLiteralExpression(element)) {
+                    const propAccessNodes = getPropertyAccessNodes(element);
+                    if (propAccessNodes.length > 1
+                        || (propAccessNodes.length === 1
+                            && isConditionalExpression(element)
+                        )
+                    ) {
+                        const linkConnectorNode = this.createLinkConnectorNode(
+                            element, "", parent, propAccessNodes, [...this.mapIdentifiers, element]
                         );
                         this.intermediateNodes.push(linkConnectorNode);
                     }
@@ -143,12 +100,75 @@ export class NodeInitVisitor implements Visitor {
         return nodes;
     }
 
-    hasFields(type: DMType): boolean {
+    private createInputNode(node: FunctionDeclaration): InputNode | InputDataImportNodeModel {
+        const param = node.getParameters()[0];
+        const inputType = param && this.context.inputTrees.find(inputTree =>
+            inputTree.typeName === param.getType().getText());
+    
+        if (inputType && this.hasFields(inputType)) {
+            // Create input node
+            const inputNode = new InputNode(this.context, param);
+            inputNode.setPosition(0, 0);
+            return inputNode;
+        } else {
+            // Create input data import node
+            return new InputDataImportNodeModel();
+        }
+    }
+    
+    private createOutputNode(node: FunctionDeclaration): ArrayOutputNode | ObjectOutputNode | OutputDataImportNodeModel {
+        const returnType = node.getReturnType();
+        const outputType = returnType && !returnType.isVoid() && this.context.outputTree;
+    
+        if (outputType && this.hasFields(outputType)) {
+            const body = node.getBody();
+    
+            if (Node.isBlock(body)) {
+                const returnStatement = body.getStatements().find((statement) =>
+                    Node.isReturnStatement(statement)) as ReturnStatement;
+        
+                // Create output node based on return type
+                if (returnType.isInterface()) {
+                    return new ObjectOutputNode(this.context, returnStatement);
+                } else if (returnType.isArray()) {
+                    return new ArrayOutputNode(this.context, returnStatement);
+                }
+            }
+        }
+    
+        // Create output data import node
+        return new OutputDataImportNodeModel();
+    }
+
+    private createLinkConnectorNode(
+        node: Node,
+        label: string,
+        parent: Node | undefined,
+        propertyAccessNodes: (Identifier | PropertyAccessExpression)[],
+        fields: Node[]
+    ): LinkConnectorNode {
+
+        return new LinkConnectorNode(
+            this.context,
+            node,
+            label,
+            parent,
+            propertyAccessNodes,
+            fields
+        );
+    }
+
+    private hasFields(type: DMType): boolean {
         if (type.kind === TypeKind.Interface) {
             return type.fields && type.fields.length > 0;
         } else if (type.kind === TypeKind.Array) {
             return this.hasFields(type.memberType);
         }
         return false;
+    }
+
+    private isObjectOrArrayLiteralExpression(node: Node): boolean {
+        return Node.isObjectLiteralExpression(node)
+            || Node.isArrayLiteralExpression(node);
     }
 }
