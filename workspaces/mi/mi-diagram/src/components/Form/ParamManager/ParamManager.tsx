@@ -409,7 +409,6 @@ export function ParamManager(props: ParamManagerProps) {
                 );
             }
         });
-    console.log("ParamManager", openInDrawer);
 
     return (
         <div>
