@@ -19,7 +19,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ChoreoWebViewAPI } from "../../../utilities/WebViewRpc";
 import { getShortenedHash, getTimeAgo } from "../../../utilities/helpers";
 import { CommitLink } from "../../../components/CommitLink";
-import { useAutoAnimate } from '@formkit/auto-animate/react'
+import { useAutoAnimate } from "@formkit/auto-animate/react";
 
 interface Props {
     component: ComponentKind;
@@ -33,8 +33,8 @@ export const BuildsSection: FC<Props> = (props) => {
     const { component, organization, project, deploymentTrack } = props;
     const [hasOngoingBuilds, setHasOngoingBuilds] = useState(false);
     const [visibleBuildCount, setVisibleBuildCount] = useState(5);
-    const [buildListRef] = useAutoAnimate()
-
+    const [buildListRef] = useAutoAnimate();
+    const queryClient = useQueryClient();
 
     const { isLoading: isLoadingCommits, data: commits = [] } = useQuery({
         queryKey: [
@@ -91,6 +91,20 @@ export const BuildsSection: FC<Props> = (props) => {
             await ChoreoWebViewAPI.getInstance().getChoreoRpcClient().createBuild(params);
         },
         onSuccess: () => {
+            const buildQueryKey = [
+                "get-builds",
+                {
+                    component: component.metadata.name,
+                    organization: organization.handle,
+                    project: project.handler,
+                    branch: deploymentTrack?.branch,
+                },
+            ];
+            const currentBuilds: BuildKind[] = queryClient.getQueryData(buildQueryKey) ?? [];
+            queryClient.setQueryData(buildQueryKey, [
+                { status: { status: "Triggered" } } as BuildKind,
+                ...currentBuilds,
+            ]);
             refetchBuilds();
             ChoreoWebViewAPI.getInstance().showInfoMsg(`Build for selected commit has been successfully triggered`);
         },
@@ -127,7 +141,7 @@ export const BuildsSection: FC<Props> = (props) => {
                     displayType: component.spec.type,
                     gitRepoUrl: component.spec.source.github?.repository,
                     gitBranch: component.spec.source.github?.branch,
-                    subPath: component.spec.source.github?.path
+                    subPath: component.spec.source.github?.path,
                 });
             }
         },
@@ -140,7 +154,7 @@ export const BuildsSection: FC<Props> = (props) => {
                 <Button
                     onClick={() => refetchBuilds()}
                     appearance="icon"
-                    title={`${isRefetchingBuilds ? "Refreshing": "Refresh"} Build List`}
+                    title={`${isRefetchingBuilds ? "Refreshing" : "Refresh"} Build List`}
                     className="opacity-50"
                     disabled={isRefetchingBuilds}
                 >
@@ -166,28 +180,7 @@ export const BuildsSection: FC<Props> = (props) => {
                 {isLoadingBuilds ? (
                     <>
                         {Array.from(new Array(5)).map((_, index) => (
-                            <div
-                                key={index}
-                                className="grid grid-cols-2 md:grid-cols-4 py-1 hover:bg-vsc-editorHoverWidget-background"
-                            >
-                                <GridColumnItem label="Build ID" index={0}>
-                                    <SkeletonText className="w-20" />
-                                </GridColumnItem>
-                                <GridColumnItem label="Commit" index={1}>
-                                    <div className="w-full flex justify-end md:justify-start">
-                                        <SkeletonText className="w-12" />
-                                    </div>
-                                </GridColumnItem>
-                                <GridColumnItem label="Started" index={2}>
-                                    <SkeletonText className="w-20" />
-                                </GridColumnItem>
-                                <GridColumnItem label="Status" index={3}>
-                                    <div className="flex gap-2 justify-start md:justify-between items-center flex-row-reverse md:flex-row">
-                                        <SkeletonText className="w-12" />
-                                        <SkeletonText className="w-10" />
-                                    </div>
-                                </GridColumnItem>
-                            </div>
+                            <LoadingBuildRow key={index} />
                         ))}
                         <div className="h-10 hidden lg:block" />
                     </>
@@ -204,8 +197,19 @@ export const BuildsSection: FC<Props> = (props) => {
                             </>
                         ) : (
                             <>
-                                {builds?.slice(0, visibleBuildCount)?.map((item) => (
-                                    <BuiltItemRow key={item.status?.runId} item={item} {...props} />
+                                {builds?.slice(0, visibleBuildCount)?.map((item, index) => (
+                                    <>
+                                        {item.status.status === "Triggered" ? (
+                                            <LoadingBuildRow key={index} />
+                                        ) : (
+                                            <BuiltItemRow
+                                                key={item.status?.runId}
+                                                item={item}
+                                                index={index}
+                                                {...props}
+                                            />
+                                        )}
+                                    </>
                                 ))}
                                 {builds.length > visibleBuildCount && (
                                     <div className="flex flex-row justify-end mt-2">
@@ -223,13 +227,38 @@ export const BuildsSection: FC<Props> = (props) => {
     );
 };
 
-const BuiltItemRow: FC<Props & { item: BuildKind }> = ({
+const LoadingBuildRow = () => {
+    return (
+        <div className="grid grid-cols-2 md:grid-cols-4 py-1 hover:bg-vsc-editorHoverWidget-background">
+            <GridColumnItem label="Build ID" index={0}>
+                <SkeletonText className="w-20" />
+            </GridColumnItem>
+            <GridColumnItem label="Commit" index={1}>
+                <div className="w-full flex justify-end md:justify-start">
+                    <SkeletonText className="w-12" />
+                </div>
+            </GridColumnItem>
+            <GridColumnItem label="Started" index={2}>
+                <SkeletonText className="w-20" />
+            </GridColumnItem>
+            <GridColumnItem label="Status" index={3}>
+                <div className="flex gap-2 justify-start md:justify-between items-center flex-row-reverse md:flex-row">
+                    <SkeletonText className="w-12" />
+                    <SkeletonText className="w-10" />
+                </div>
+            </GridColumnItem>
+        </div>
+    );
+};
+
+const BuiltItemRow: FC<Props & { item: BuildKind; index: number }> = ({
     item,
     component,
     envs,
     organization,
     project,
     deploymentTrack,
+    index,
 }) => {
     const queryClient = useQueryClient();
 
@@ -321,7 +350,7 @@ const BuiltItemRow: FC<Props & { item: BuildKind }> = ({
     return (
         <div className="grid grid-cols-2 md:grid-cols-4 py-1 hover:bg-vsc-editorHoverWidget-background">
             <GridColumnItem label="Build ID" index={0}>
-                {item.status?.runId}
+                {item.status?.runId || "-"}
             </GridColumnItem>
             <GridColumnItem label="Commit ID" index={1}>
                 <CommitLink
@@ -347,7 +376,7 @@ const BuiltItemRow: FC<Props & { item: BuildKind }> = ({
                                 <Codicon name="console" />
                             </Button>
                         )}
-                        {item.status?.conclusion === "success" && (
+                        {item.status?.conclusion === "success" && index === 0 && (
                             <Button
                                 appearance="icon"
                                 title="Deploy Build"

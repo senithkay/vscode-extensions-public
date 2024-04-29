@@ -1,6 +1,6 @@
 import React, { FC } from "react";
 import { IRightPanelSectionItem, RightPanelSection, RightPanelSectionItem } from "./RightPanelSection";
-import { ChoreoBuildPackNames, ComponentKind, WebAppSPATypes } from "@wso2-enterprise/choreo-core";
+import { ChoreoBuildPackNames, ComponentDisplayType, ComponentKind, WebAppSPATypes } from "@wso2-enterprise/choreo-core";
 import { getBuildpackForComponent, getTypeForDisplayType } from "../utils";
 
 export const BuildConfigsSection: FC<{ component: ComponentKind }> = ({ component }) => {
@@ -18,6 +18,8 @@ export const BuildConfigsSection: FC<{ component: ComponentKind }> = ({ componen
 const getBuildConfigViewList = (component: ComponentKind): IRightPanelSectionItem[] => {
     const componentBuildPack = getBuildpackForComponent(component);
     const buildConfigs: IRightPanelSectionItem[] = [{ label: "Build Pack", value: componentBuildPack }];
+
+    console.log('component', component)
 
     if (componentBuildPack !== ChoreoBuildPackNames.Docker) {
         buildConfigs.push({
@@ -40,7 +42,7 @@ const getBuildConfigViewList = (component: ComponentKind): IRightPanelSectionIte
         if (getTypeForDisplayType(component.spec.type) === "web-app") {
             buildConfigs.push({ label: "Port", value: component.spec?.build?.docker?.port });
         }
-    } else if (WebAppSPATypes.includes(component.spec?.type as ChoreoBuildPackNames)) {
+    } else if (component.spec?.type === ComponentDisplayType.ByocWebAppDockerLess) {
         buildConfigs.push({ label: "Build Command", value: component.spec?.build?.webapp?.buildCommand });
         buildConfigs.push({ label: "Node Version ", value: component.spec?.build?.webapp?.nodeVersion });
         buildConfigs.push({ label: "Output Directory", value: component.spec?.build?.webapp?.outputDir });

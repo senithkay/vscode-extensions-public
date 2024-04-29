@@ -49,7 +49,6 @@ export async function activate(context: vscode.ExtensionContext) {
             authStore.getState().initAuth();
             linkedDirectoryStore.getState().refreshState();
 
-            activateCmds(context);
             activateActivityBarWebViews(context); // activity web views
             activateURIHandlers();
             // setupGithubAuthStatusCheck(); // TODO: remove
@@ -62,6 +61,7 @@ export async function activate(context: vscode.ExtensionContext) {
             getLogger().error("Failed to initialize rpc client", e);
         });
 
+    activateCmds(context);
     // activateStatusBarItem();
     registerPreInitHandlers();
     return ext.api;
