@@ -42,6 +42,8 @@ export interface Param {
     values?: string[]; // For Dropdown
     openExpressionEditor?: () => void; // For ExpressionField
     canChange?: boolean; // For ExpressionField
+    openInDrawer?: boolean; // For ParamManager
+    addParamText?: string; // For ParamManager
 }
 
 interface TypeResolverProps {
@@ -169,14 +171,28 @@ export function TypeResolver(props: TypeResolverProps) {
             );
         case "ParamManager":
             return (
-                <ParamManagerContainer>
+                param.openInDrawer ?
+                (
                     <ParamManager
                         paramConfigs={value as ParamConfig}
                         onChange={(newParams: ParamConfig) => {
                             onChange({ ...param, value: newParams });
                         }}
+                        openInDrawer={param.openInDrawer}
+                        addParamText={param.addParamText}
                     />
-                </ParamManagerContainer>
+                ) : (
+                    <ParamManagerContainer>
+                        <ParamManager
+                            paramConfigs={value as ParamConfig}
+                            onChange={(newParams: ParamConfig) => {
+                                onChange({ ...param, value: newParams });
+                            }}
+                            openInDrawer={param.openInDrawer}
+                            addParamText={param.addParamText}
+                        />
+                    </ParamManagerContainer>
+                )
             );
         default:
             return null;

@@ -32,7 +32,7 @@ const SidePanelContainer = styled.div<SidePanelProps>`
     background-color: var(--vscode-editor-background);
     color: var(--vscode-editor-foreground);
     box-shadow: 0 5px 10px 0 var(--vscode-badge-background);
-    z-index: 200;
+    z-index: 2000;
     opacity: ${(props: SidePanelProps) => props.isOpen ? 1 : 0};
     display: ${(props: SidePanelProps) => !props.isOpen && "none" };
     ${(props: SidePanelProps) => props.sx};
