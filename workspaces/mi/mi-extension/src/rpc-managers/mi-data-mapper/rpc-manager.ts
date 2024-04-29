@@ -29,13 +29,15 @@ import {
 import { fetchIOTypes } from "../../util/dataMapper";
 import { Project } from "ts-morph";
 import { navigate } from "../../stateMachine";
-import { generateSchemaForJSON, generateSchemaForJSONSchema, generateSchemaForXML, Schema } from "../../util/schemaBuilder";
+import { Schema, generateSchema } from "../../util/schemaBuilder";
 import { JSONSchema3or4 } from "to-json-schema";
 import { updateDMC, updateDMCContent } from "../../util/tsBuilder";
 import * as fs from "fs";
 import * as os from 'os';
 import { window, Uri, workspace } from "vscode";
 import path = require("path");
+import { extension } from "../../MIExtensionContext";
+import { MiDiagramRpcManager } from "../mi-diagram/rpc-manager";
 
 export class MiDataMapperRpcManager implements MIDataMapperAPI {
     async getIOTypes(params: IOTypeRequest): Promise<IOTypeResponse> {
@@ -79,7 +81,7 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
         return new Promise(async (resolve) => {
             if (params.overwriteSchema) {
                 const response = await window.showInformationMessage(
-                    "Are you sure you want to override the existing schema?",
+                    "Are you sure you want to override the existing schema?\n\nPlease note that this will remove all existing mappings.",
                     { modal: true }, 
                     "Yes", 
                     "No"
@@ -140,17 +142,8 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
     async importDMSchema(params: ImportDMSchemaRequest): Promise<ImportDMSchemaResponse> {
         return new Promise(async (resolve, reject) => {
             const { importPath, resourceName, sourcePath, ioType, schemaType } = params;
-            const dmInput = fs.readFileSync(importPath, 'utf8');
             let schema: Schema|JSONSchema3or4;
-            if (schemaType === 'json') {
-                schema = generateSchemaForJSON(dmInput, schemaType, ioType);
-            } else if (schemaType === 'xml') {
-                schema = generateSchemaForXML(dmInput, schemaType, ioType);
-            } else if (schemaType === 'jsonschema') {
-                schema = generateSchemaForJSONSchema(dmInput, schemaType, ioType);
-            } else {
-                throw new Error("Unsupported file type.");
-            }
+            schema = await generateSchema(ioType, schemaType, schemaType, extension.context, importPath);
             const workspaceFolder = workspace.getWorkspaceFolder(Uri.file(sourcePath));
             if (workspaceFolder) {
                 const dataMapperConfigFolder = path.join(
@@ -194,6 +187,7 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
                 const dmContent = `interface InputRoot {\n}\n\ninterface OutputRoot {\n}\n\nfunction mapFunction(input: InputRoot): OutputRoot {\nreturn {}\n};`;
                 const { filePath, dmName } = params;
                 const workspaceFolder = workspace.getWorkspaceFolder(Uri.file(filePath));
+                let miDiagramRpcManager: MiDiagramRpcManager = new MiDiagramRpcManager();
                 if (workspaceFolder) {
                     const dataMapperConfigFolder = path.join(
                         workspaceFolder.uri.fsPath,  'src', 'main', 'wso2mi', 'resources', 'registry', 'gov', 'datamapper');
@@ -206,15 +200,48 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
                     }
                     const dmcFilePath = path.join(dataMapperConfigFolder, `${dmName}.dmc`);
                     if (!fs.existsSync(dmcFilePath)) {
-                        fs.writeFileSync(dmcFilePath, "");
+                        miDiagramRpcManager.createRegistryResource({
+                            filePath: "",
+                            projectDirectory: workspaceFolder.uri.fsPath,
+                            templateType: "Data Mapper",
+                            resourceName: dmName,
+                            artifactName: dmName,
+                            registryRoot: "gov",
+                            registryPath: "/datamapper",
+                            createOption : "new",
+                            content: ""
+                        
+                        });
                     }
                     const inputSchemaFilePath = path.join(dataMapperConfigFolder, `${dmName}_inputSchema.json`);
                     if (!fs.existsSync(inputSchemaFilePath)) {
-                        fs.writeFileSync(inputSchemaFilePath, "");
+                        miDiagramRpcManager.createRegistryResource({
+                            filePath: "",
+                            projectDirectory: workspaceFolder.uri.fsPath,
+                            templateType: "Data Mapper Schema",
+                            resourceName: `${dmName}_inputSchema`,
+                            artifactName: `${dmName}_inputSchema`,
+                            registryRoot: "gov",
+                            registryPath: "/datamapper",
+                            createOption : "new",
+                            content: ""
+                        
+                        });
                     }
                     const outputSchemaFilePath = path.join(dataMapperConfigFolder, `${dmName}_outputSchema.json`);
                     if (!fs.existsSync(outputSchemaFilePath)) {
-                        fs.writeFileSync(outputSchemaFilePath, "");
+                        miDiagramRpcManager.createRegistryResource({
+                            filePath: "",
+                            projectDirectory: workspaceFolder.uri.fsPath,
+                            templateType: "Data Mapper Schema",
+                            resourceName: `${dmName}_outputSchema`,
+                            artifactName: `${dmName}_outputSchema`,
+                            registryRoot: "gov",
+                            registryPath: "/datamapper",
+                            createOption : "new",
+                            content: ""
+                        
+                        });
                     }
                     resolve({success: true});
                 }

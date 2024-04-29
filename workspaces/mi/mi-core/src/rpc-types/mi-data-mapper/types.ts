@@ -80,3 +80,14 @@ export interface UpdateDMCRequest {
 export interface UpdateDMCResponse {
     success: boolean;
 }
+
+export interface SchemaGenRequest {
+    filePath: string;
+    delimiter: string;
+    type: string;
+    title: string;
+}
+
+export interface SchemaGenResponse {
+    schema: string;
+}

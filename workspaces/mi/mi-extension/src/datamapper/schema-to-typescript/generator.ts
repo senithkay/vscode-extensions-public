@@ -330,7 +330,6 @@ function generateComment(comment?: string, deprecated?: boolean): string {
 function generateStandaloneEnum(ast: TEnum, options: Options): string {
   return (
     (hasComment(ast) ? generateComment(ast.comment, ast.deprecated) + '\n' : '') +
-    'export ' +
     (options.enableConstEnums ? 'const ' : '') +
     `enum ${toSafeString(ast.standaloneName)} {` +
     '\n' +
@@ -343,7 +342,7 @@ function generateStandaloneEnum(ast: TEnum, options: Options): string {
 function generateStandaloneInterface(ast: TNamedInterface, options: Options): string {
   return (
     (hasComment(ast) ? generateComment(ast.comment, ast.deprecated) + '\n' : '') +
-    `export interface ${toSafeString(ast.standaloneName)} ` +
+    `interface ${toSafeString(ast.standaloneName)} ` +
     (ast.superTypes.length > 0
       ? `extends ${ast.superTypes.map(superType => toSafeString(superType.standaloneName)).join(', ')} `
       : '') +
@@ -354,7 +353,7 @@ function generateStandaloneInterface(ast: TNamedInterface, options: Options): st
 function generateStandaloneType(ast: ASTWithStandaloneName, options: Options): string {
   return (
     (hasComment(ast) ? generateComment(ast.comment) + '\n' : '') +
-    `export type ${toSafeString(ast.standaloneName)} = ${generateType(
+    `type ${toSafeString(ast.standaloneName)} = ${generateType(
       omit<AST>(ast, 'standaloneName') as AST /* TODO */,
       options,
     )}`

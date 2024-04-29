@@ -16,6 +16,8 @@ import getBabelOptions from "recast/parsers/_babel_options";
 import { parser } from "recast/parsers/babel";
 import { parse, print } from "recast";
 import { transformFromAstSync } from "@babel/core";
+import { MILanguageClient } from "./../lang-client/activator";
+import { ExtensionContext } from "vscode";
 
 const HTTP_WSO2JSONSCHEMA_ORG = "http://wso2jsonschema.org";
 const HTTP_JSON_SCHEMA_ORG_DRAFT_04_SCHEMA = "http://wso2.org/json-schema/wso2-data-mapper-v5.0.0/schema#";
@@ -66,16 +68,34 @@ export function generateSchemaForJSONSchema(fileContent: string, fileType: strin
     return schema;
 }
 
-export function generateSchemaForXML(fileContent: string, fileType: string, title: string): Schema {
-    const parser = new xmltojs.Parser();
-    let input: JSON;
-    let schema: Schema = {};
-    parser.parseString(fileContent, (err: any, result: any) => {
-        input = result;
-        // todo: replace attributes with elements
-        schema = generateSchemaForJSON(JSON.stringify(input), fileType, title);
+export async function generateSchemaForXML(fileContent: string, fileType: string, title: string, context: ExtensionContext, filePath: string): Promise<Schema> {
+    const langClient = (await MILanguageClient.getInstance(context)).languageClient!;
+    const response = await langClient.generateSchema({
+      filePath: filePath,
+      delimiter: "",
+      type: "XML",
+      title: title
     });
+    let schema = JSON.parse(response.schema);
+
     return schema;
+}
+
+export async function generateSchema(ioType: string, fileType: string, title: string, context: ExtensionContext, filePath: string): Promise<Schema> {
+  const langClient = (await MILanguageClient.getInstance(context)).languageClient!;
+  const response = await langClient.generateSchema({
+    filePath: filePath,
+    delimiter: "",
+    type: fileType.toUpperCase(),
+    title: title
+  });
+  let schema = JSON.parse(response.schema);
+  if (ioType.toLowerCase() === "input") {
+      schema.title = "InputRoot";
+  } else {
+      schema.title = "OutputRoot";
+  }
+  return schema;
 }
 
 export function convertTypeScriptToJavascript(fileContent: string): string {

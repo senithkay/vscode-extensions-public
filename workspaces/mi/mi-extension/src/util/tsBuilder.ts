@@ -79,8 +79,11 @@ export async function updateDMC(dmName:string, sourcePath: string): Promise<stri
             }
             tsContent += `${outputTSInterfaces}\n\n`;
         } else {
-            tsContent += "interface OutputRoot {\n}\n";
+            tsContent += "interface OutputRoot {\n}\n\n";
         }
+        tsContent += `function map_S_IRoot_S_ORoot() {
+            return mapFunction(inputIRoot);
+        }\n`;
         fs.writeFileSync(tsFilepath, tsContent);
         const jsContent = convertTypeScriptToJavascript(tsContent);
         fs.writeFileSync(dmcFilePath, jsContent);

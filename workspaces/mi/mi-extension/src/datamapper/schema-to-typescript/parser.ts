@@ -212,13 +212,12 @@ function parseNonLiteral(
         type: 'NUMBER',
       }
     case 'OBJECT':
-      return newInterface(schema as SchemaSchema, options, processed, usedNames, keyName)
-      // return {
-      //   keyName,
-      //   standaloneName: standaloneName(schema, keyNameFromDefinition, usedNames, options),
-      //   type: 'OBJECT',
-      //   deprecated: schema.deprecated,
-      // }
+      return {
+        keyName,
+        standaloneName: standaloneName(schema, keyNameFromDefinition, usedNames, options),
+        type: 'OBJECT',
+        deprecated: schema.deprecated,
+      }
     case 'ONE_OF':
       return {
         deprecated: schema.deprecated,
@@ -285,6 +284,9 @@ function parseNonLiteral(
         type: 'UNION',
       }
     case 'UNNAMED_SCHEMA':
+      if (schema.type === 'object' && schema.properties && keyNameFromDefinition === undefined) {
+        return newInterface(schema as SchemaSchema, options, processed, usedNames, keyName, keyName);
+      }
       return newInterface(schema as SchemaSchema, options, processed, usedNames, keyName, keyNameFromDefinition)
     case 'UNTYPED_ARRAY':
       // normalised to not be undefined
@@ -325,8 +327,12 @@ function standaloneName(
   usedNames: UsedNames,
   options: Options,
 ): string | undefined {
+  if ((schema.type === 'object') && schema.properties) {
+    const name = options.customName?.(schema, keyNameFromDefinition) || schema.title || schema.$id || keyNameFromDefinition
+    return generateName(name, usedNames)
+  }
   const name =
-    options.customName?.(schema, keyNameFromDefinition) || schema.title || schema.$id || keyNameFromDefinition
+    options.customName?.(schema, keyNameFromDefinition) || schema.title || keyNameFromDefinition
   if (name) {
     return generateName(name, usedNames)
   }
