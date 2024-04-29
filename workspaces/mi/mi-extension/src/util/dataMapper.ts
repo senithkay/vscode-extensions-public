@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { ts, Node, Project, SourceFile, Type, ParameterDeclaration } from 'ts-morph';
+import { Node, Project, SourceFile, Type } from 'ts-morph';
 import * as path from 'path';
 import { DMType, TypeKind } from '@wso2-enterprise/mi-core';
 
@@ -67,40 +67,74 @@ function findInputsAndOutput(functionName: string, sourceFile: SourceFile) {
 // Function to extract type information
 function getTypeInfo(typeNode: Type, sourceFile: SourceFile): DMType {
     if (typeNode.isInterface()) {
-        const typeName = typeNode.getText();
-        const interfaceNode = sourceFile.getInterface(typeName);
-
-        if (interfaceNode) {
-            const fields = interfaceNode.getMembers().map(member => {
-                if (Node.isPropertySignature(member)) {
-                    return {
-                        ...getTypeInfo(member.getType()!, sourceFile),
-                        fieldName: member.getName()
-                    }
-                }
-            }).filter(Boolean) as DMType[];
-            return {
-                kind: TypeKind.Interface,
-                typeName,
-                fields
-            };
-        }
-    }
-    else if (typeNode.isArray()) {
-        const elementType = getTypeInfo(typeNode.getArrayElementType()!, sourceFile);
-        return {
-            kind: TypeKind.Array,
-            memberType: elementType
-        };
+        return getTypeInfoForInterface(typeNode, sourceFile);
+    } else if (typeNode.isArray()) {
+        return getTypeInfoForArray(typeNode, sourceFile);
+    } else if (typeNode.isObject()) {
+        return getTypeInfoForObject(typeNode, sourceFile);
     } else if (typeNode.isString()) {
         return { kind: TypeKind.String };
     } else if (typeNode.isBoolean()) {
         return { kind: TypeKind.Boolean };
     } else if (typeNode.isNumber()) {
         return { kind: TypeKind.Number };
-    } else if (typeNode.isObject()) {
-        return { kind: TypeKind.Object };
     }
 
     return { kind: TypeKind.Unknown };
+}
+
+function getTypeInfoForInterface(typeNode: Type, sourceFile: SourceFile): DMType {
+    const typeName = typeNode.getText();
+    const interfaceNode = sourceFile.getInterface(typeName);
+
+    if (!interfaceNode) {
+        return { kind: TypeKind.Unknown };
+    }
+
+    const fields = interfaceNode.getMembers().map(member => {
+        if (Node.isPropertySignature(member)) {
+            return {
+                ...getTypeInfo(member.getType()!, sourceFile),
+                fieldName: member.getName()
+            };
+        }
+    }).filter(Boolean) as DMType[];
+
+    return {
+        kind: TypeKind.Interface,
+        typeName,
+        fields
+    };
+}
+
+function getTypeInfoForArray(typeNode: Type, sourceFile: SourceFile): DMType {
+    const elementType = getTypeInfo(typeNode.getArrayElementType()!, sourceFile);
+    return {
+        kind: TypeKind.Array,
+        memberType: elementType
+    };
+}
+
+function getTypeInfoForObject(typeNode: Type, sourceFile: SourceFile): DMType {
+    const properties = typeNode.getProperties();
+    const fields: DMType[] = [];
+
+    properties.forEach(property => {
+        const decls = property.getDeclarations();
+        const dmType = decls.map(decl => {
+            if (Node.isPropertySignature(decl)) {
+                return {
+                    ...getTypeInfo(decl.getType()!, sourceFile),
+                    fieldName: decl.getName()
+                };
+            }
+        }).filter(Boolean) as DMType[];
+        fields.push(...dmType);
+    });
+
+    return {
+        kind: TypeKind.Interface,
+        typeName: 'Object',
+        fields
+    };
 }
