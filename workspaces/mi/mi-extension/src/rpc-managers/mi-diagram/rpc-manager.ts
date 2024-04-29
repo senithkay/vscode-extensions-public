@@ -3103,9 +3103,9 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         const confirm = await window.showInformationMessage('Are you sure you want to logout?', 'Yes', 'No');
         if (confirm === 'Yes') {
             const token = await extension.context.secrets.get('MIAIUser');
-            const clientId = 'rTEgoRFEQMc1baXcsO6_AU1ugjAa';
+            const clientId = 'i42PUygaucczvuPmhZFw5x8Lmswa';
 
-            await fetch('https://api.asgardeo.io/t/wso2midev/oauth2/revoke', {
+            let response = await fetch('https://api.asgardeo.io/t/wso2midev/oauth2/revoke', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded'
