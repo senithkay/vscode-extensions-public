@@ -12,20 +12,20 @@ import React, { useMemo, useState } from "react";
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import { Button, Codicon, ProgressRing } from "@wso2-enterprise/ui-toolkit";
 import { TypeKind } from "@wso2-enterprise/mi-core";
-import { Node } from "ts-morph";
-
+import { Block, Node } from "ts-morph";
 import classnames from "classnames";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { DMTypeWithValue } from "../../Mappings/DMTypeWithValue";
 import { DataMapperPortWidget, PortState, InputOutputPortModel } from "../../Port";
 import { OutputSearchHighlight } from "../commons/Search";
-
 import { ValueConfigMenu, ValueConfigOption } from "../commons/DataManipulationWidget/ValueConfigButton";
 import { ValueConfigMenuItem } from "../commons/DataManipulationWidget/ValueConfigButton/ValueConfigMenuItem";
 import { useIONodesStyles } from "../../../styles";
 import { useDMCollapsedFieldsStore } from '../../../../store/store';
-import { getDefaultValue, getEditorLineAndColumn, isConnectedViaLink } from "../../utils/common-utils";
+import { getDefaultValue, getEditorLineAndColumn, getTypeName, isConnectedViaLink } from "../../utils/common-utils";
+import { createSourceForUserInput } from "../../utils/modification-utils";
+import { ArrayOutputFieldWidget } from "../ArrayOutput/ArrayOuptutFieldWidget";
 
 export interface ObjectOutputFieldWidgetProps {
     parentId: string;
@@ -60,17 +60,18 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
     const [portState, setPortState] = useState<PortState>(PortState.Unselected);
     const collapsedFieldsStore = useDMCollapsedFieldsStore();
 
-    let fieldName = field.type.fieldName;
+    let fieldName = field.type.fieldName || '';
     let indentation = treeDepth * 16;
     let expanded = true;
 
-    const typeName = field.type.kind;
-    const isArray = typeName === TypeKind.Array;
-    const isRecord = typeName === TypeKind.Interface;
+    const typeName = getTypeName(field.type);
+    const typeKind = field.type.kind;
+    const isArray = typeKind === TypeKind.Array;
+    const isInterface = typeKind === TypeKind.Interface;
 
     const fieldId = fieldIndex !== undefined
         ? `${parentId}.${fieldIndex}${fieldName && `.${fieldName}`}`
-        : `${parentId}.${fieldName}`;
+        : `${parentId}${fieldName && `.${fieldName}`}`;
     const portIn = getPort(fieldId + ".IN");
 
     const propertyAssignment = field.hasValue() && Node.isPropertyAssignment(field.value) && field.value;
@@ -79,7 +80,7 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
         && propertyAssignment.getInitializer()
         && !!propertyAssignment.getInitializer().getText();
 
-    const fields = isRecord && field.childrenTypes;
+    const fields = isInterface && field.childrenTypes;
     const isWithinArray = fieldIndex !== undefined;
 
     const connectedViaLink = useMemo(() => {
@@ -89,13 +90,14 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
         return false;
     }, [field]);
 
-    const value: string = !isArray && !isRecord && hasValue && propertyAssignment.getInitializer().getText();
+    const value: string = !isArray && !isInterface && hasValue && propertyAssignment.getInitializer().getText();
 
     const handleAddValue = async () => {
         setIsLoading(true);
         try {
             const defaultValue = getDefaultValue(field.type.kind);
-            // TODO: Implement updating source with default value
+            const fnBody = context.functionST.getBody() as Block;
+            await createSourceForUserInput(field, objectLiteralExpr, defaultValue, fnBody, context.applyModifications);
         } finally {
             setIsLoading(false);
         }
@@ -151,7 +153,7 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
         if (hasValue
             && !connectedViaLink
             && !hasDefaultValue
-            && (isRecord || hasValueWithoutLink)
+            && (isInterface || hasValueWithoutLink)
         ) {
             portIn?.setDescendantHasValue();
             isDisabled = true;
@@ -175,7 +177,7 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
         <span style={{ marginRight: "auto" }} data-testid={`record-widget-field-label-${portIn?.getName()}`}>
             <span
                 className={classnames(classes.valueLabel,
-                    isDisabled && !hasHoveredParent ? classes.valueLabelDisabled : ""
+                    isDisabled && !hasHoveredParent ? classes.labelDisabled : ""
                 )}
                 style={{ marginLeft: fields ? 0 : indentation + 24 }}
             >
@@ -186,7 +188,7 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
             {typeName && (
                 <span
                     className={classnames(classes.outputTypeLabel,
-                        isDisabled && !hasHoveredParent ? classes.typeLabelDisabled : ""
+                        isDisabled && !hasHoveredParent ? classes.labelDisabled : ""
                     )}
                 >
                     {typeName || ''}
@@ -257,6 +259,21 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
                         </>
                     )}
                 </div>
+            )}
+            {isArray && (
+                <ArrayOutputFieldWidget
+                    key={fieldId}
+                    engine={engine}
+                    field={field}
+                    getPort={getPort}
+                    parentId={parentId}
+                    parentObjectLiteralExpr={objectLiteralExpr}
+                    context={context}
+                    fieldIndex={fieldIndex}
+                    treeDepth={treeDepth}
+                    deleteField={deleteField}
+                    hasHoveredParent={isHovered || hasHoveredParent}
+                />
             )}
             {fields && expanded &&
                 fields.map((subField, index) => {
