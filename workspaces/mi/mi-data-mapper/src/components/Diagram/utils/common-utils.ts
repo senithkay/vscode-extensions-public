@@ -381,6 +381,10 @@ export function getEditorLineAndColumn(node: Node): Range {
     };
 }
 
+export function hasCallExpressions(node: Node): boolean {
+    return Node.isPropertyAssignment(node) && Node.isCallExpression(node.getInitializer());
+}
+
 function getInnerExpr(node: PropertyAccessExpression): Node {
     let valueExpr = node.getExpression();
     while (valueExpr && Node.isPropertyAccessExpression(valueExpr)) {
