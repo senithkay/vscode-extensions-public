@@ -20,7 +20,7 @@ export interface DrawerItemProps {
     id?: string;
     isOpen: boolean;
     isSelected: boolean;
-    width: number;
+    width?: number;
     children?: React.ReactNode;
     sx?: any;
 }
@@ -31,7 +31,7 @@ const DrawerContainer = styled.div<DrawerContainerProps>`
     height: 100%;
     background-color: #fff;
     border: 1px solid #ddd;
-    top: 20px;
+    top: 0;
     right: 0;
     transform: translateX(${(props: DrawerContainerProps) => (props.isOpen ? '0' : '100%')});
     z-index: ${(props: DrawerContainerProps) => (props.isSelected ? 1 : 0)};
