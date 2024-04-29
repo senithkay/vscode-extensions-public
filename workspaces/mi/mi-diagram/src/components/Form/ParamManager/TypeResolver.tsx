@@ -9,16 +9,26 @@
 
 import React from "react";
 import { VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
-import { EnableCondition } from "./ParamManager";
+import { EnableCondition, ParamConfig, ParamManager } from "./ParamManager";
 import { ExpressionField, ExpressionFieldValue } from "../ExpressionField/ExpressionInput";
 import { AutoComplete, Dropdown, TextArea, TextField } from "@wso2-enterprise/ui-toolkit";
 import { FilterType, Keylookup } from "../Keylookup/Keylookup";
+import styled from "@emotion/styled";
+
+const ParamManagerContainer = styled.div`
+    display: flex;
+    margin: 10px 0;
+    flex-direction: column;
+    border-radius: 5px;
+    padding: 10px;
+    border: 1px solid var(--vscode-dropdown-border);
+`;
 
 export interface Param {
     id: number;
     label: string;
-    type: "TextField" | "Dropdown" | "Checkbox" | "TextArea" | "ExprField" | "AutoComplete" | "KeyLookup";
-    value: string | boolean | ExpressionFieldValue; // Boolean is for Checkbox
+    type: "TextField" | "Dropdown" | "Checkbox" | "TextArea" | "ExprField" | "AutoComplete" | "KeyLookup"| "ParamManager";
+    value: string | boolean | ExpressionFieldValue | ParamConfig; // Boolean is for Checkbox
     isRequired?: boolean;
     errorMessage?: string;
     disabled?: boolean;
@@ -156,6 +166,17 @@ export function TypeResolver(props: TypeResolverProps) {
                     filter={filter}
                     filterType={filterType}
                 />
+            );
+        case "ParamManager":
+            return (
+                <ParamManagerContainer>
+                    <ParamManager
+                        paramConfigs={value as ParamConfig}
+                        onChange={(newParams: ParamConfig) => {
+                            onChange({ ...param, value: newParams });
+                        }}
+                    />
+                </ParamManagerContainer>
             );
         default:
             return null;

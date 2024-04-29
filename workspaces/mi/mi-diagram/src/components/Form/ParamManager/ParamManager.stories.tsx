@@ -8,7 +8,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import React, { useState } from "react";
-import { ParamConfig, ParamField, ParamManager, ParamValueConfig } from "./ParamManager";
+import { ParamConfig, ParamField, ParamManager, ParamValue, ParamValueConfig } from "./ParamManager";
 
 // Default export defining the component's metadata
 export default {
@@ -18,9 +18,34 @@ export default {
 
 const generateSpaceSeperatedStringFromParamValues = (paramValues: ParamValueConfig) => {
     let result = "";
-    paramValues.paramValues.forEach(param => {
-        result += param.value + " ";
+    paramValues?.paramValues?.forEach(param => {
+        // if param.value is an object
+        if (typeof param.value === "string") {
+            result += param.value + " ";
+        } else {
+            const pc = param?.value as ParamConfig;
+            pc?.paramValues?.forEach(p => {
+                result += p.key + " ";
+            });
+        }
     });
+    return result.trim();
+};
+
+const generateSpaceSeperatedStringFromParamValue = (paramValues: ParamValueConfig) => {
+    let result = "";
+    paramValues?.paramValues?.forEach(param => {
+        // if param.value is an object
+        if (typeof param.value === "string") {
+            result += param.value + " ";
+        } else {
+            const pc = param?.value as ParamConfig;
+            pc?.paramValues?.forEach(p => {
+                result += p.key + " ";
+            });
+        }
+    });
+
     return result.trim();
 };
 
@@ -119,6 +144,68 @@ export const Default = () => {
                 value: generateSpaceSeperatedStringFromParamValues(param)
             }))
         };
+        setParams(modifiedParams);
+    };
+    return <ParamManager paramConfigs={params} readonly={false} addParamText="New Param" onChange={handleOnChange} />;
+};
+
+// Sample object for Nested ParamManager
+const nestedParamConfigs: ParamConfig = {
+    paramValues: [
+        // {
+        //     id: 0,
+        //     paramValues: [
+        //     ],
+        //     key: "Key",
+        //     value: "int var1 0 true This is a description Test2 query",
+        //     icon: "query"
+        // }
+    ],
+    paramFields: [
+        {
+            type: "TextField",
+            label: "Type",
+            defaultValue: "int",
+            isRequired: true
+        },
+        {
+            type: "ParamManager",
+            paramManager: {
+                paramConfigs: paramConfigs
+                // isDrawe: false
+            }
+        }
+    ]
+};
+
+// Story for Nested ParamManager
+export const NestedParamManager = () => {
+    const [params, setParams] = useState(nestedParamConfigs);
+    const handleOnChange = (params: ParamConfig) => {
+        const modifiedParams = {
+            ...params, paramValues: params.paramValues.map(param => ({
+                ...param,
+                icon: "query",
+                key: `Key`,
+                value: generateSpaceSeperatedStringFromParamValues(param)
+            }))
+        };
+        modifiedParams.paramValues.forEach((paramValueConf: ParamValueConfig) => {
+            paramValueConf.paramValues.forEach((paramValue: ParamValue) => {
+                if (typeof paramValue.value === "object") {
+                    const paramConfig = paramValue.value as ParamConfig;
+                    paramConfig.paramValues.forEach((pv: ParamValueConfig, i: number) => {
+                        let result = "";
+                        pv.paramValues.forEach((pvConf: ParamValue) => {
+                            result += pvConf.value + " ";
+                        });
+                        pv.value = result.trim();
+                        pv.icon = "query";
+                        pv.key = `Key ${i}`;
+                    });
+                }
+            });
+        });
         setParams(modifiedParams);
     };
     return <ParamManager paramConfigs={params} readonly={false} addParamText="New Param" onChange={handleOnChange} />;

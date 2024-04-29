@@ -20,7 +20,7 @@ import { Codicon, LinkButton } from '@wso2-enterprise/ui-toolkit';
 import { FilterType } from '../Keylookup/Keylookup';
 
 export interface ParamValue {
-    value: string | boolean | ExpressionFieldValue;
+    value: string | boolean | ExpressionFieldValue | ParamConfig;
     isEnabled?: boolean;
 }
 
@@ -49,9 +49,9 @@ export interface EnableCondition {
 
 export interface ParamField {
     id?: number;
-    type: "TextField" | "Dropdown" | "Checkbox" | "TextArea" | "AutoComplete" | "KeyLookup";
-    label: string;
-    defaultValue: string | boolean;
+    type: "TextField" | "Dropdown" | "Checkbox" | "TextArea" | "AutoComplete" | "KeyLookup" | "ParamManager";
+    label?: string;
+    defaultValue?: string | boolean;
     isRequired?: boolean;
     values?: string[]; // For Dropdown and AutoComplete
     nullable?: boolean;
@@ -62,6 +62,7 @@ export interface ParamField {
     canChange?: boolean; // For ExpressionField
     filter?: (value: string) => boolean; // For KeyLookup
     filterType?: FilterType; // For KeyLookup
+    paramManager?: ParamManagerProps; // For nested ParamManager
 }
 
 export interface ParamConfig {
@@ -166,7 +167,7 @@ const getNewParam = (fields: ParamField[], index: number): Parameters => {
             id: index,
             label: field.label,
             type: field.type,
-            value: field.defaultValue,
+            value: field.defaultValue || field?.paramManager?.paramConfigs,
             values: field.values,
             isRequired: field.isRequired,
             enableCondition: field.enableCondition ? convertToObject(field.enableCondition) : undefined
