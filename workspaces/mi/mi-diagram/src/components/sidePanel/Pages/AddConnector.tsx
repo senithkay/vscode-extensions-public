@@ -8,20 +8,22 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { Button, ComponentCard, RequiredFormInput, TextField } from '@wso2-enterprise/ui-toolkit';
-import { VSCodeDropdown, VSCodeOption } from '@vscode/webview-ui-toolkit/react';
+import { AutoComplete, Button, ComponentCard, RequiredFormInput, TextField, LinkButton } from '@wso2-enterprise/ui-toolkit';
+import { VSCodeCheckbox, VSCodeDropdown, VSCodeOption } from '@vscode/webview-ui-toolkit/react';
 import styled from '@emotion/styled';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import SidePanelContext from '../SidePanelContexProvider';
 import { create } from 'xmlbuilder2';
 import { Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
+import AddConnection from './AddConnection';
+import { ParamConfig, ParamManager } from '../../Form/ParamManager/ParamManager';
 
 const cardStyle = {
     display: "block",
-    margin: "5px 0",
+    margin: "5px 5px",
     padding: "10px 15px 15px 15px",
     width: "auto",
-    cursor: "auto"
+    cursor: "auto",
 };
 
 const Error = styled.span`
@@ -33,6 +35,8 @@ interface AddConnectorProps {
     formData: any;
     nodePosition: Range;
     documentUri: string;
+    connectorName?: string;
+    operationName?: string;
 }
 
 interface Element {
@@ -49,17 +53,91 @@ const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g;
 const nameWithoutSpecialCharactorsRegex = /^[a-zA-Z0-9]+$/g;
 
 const AddConnector = (props: AddConnectorProps) => {
+    const { formData, nodePosition, documentUri } = props;
     const { rpcClient } = useVisualizerContext();
 
     const sidePanelContext = React.useContext(SidePanelContext);
     const [formValues, setFormValues] = useState({} as any);
     const [errors, setErrors] = useState({} as any);
+    const [isAddingConnection, setIsAddingConnection] = useState(false);
+    const [connections, setConnections] = useState([] as any);
+    const [allowedConnectionTypes, setAllowedConnectionTypes] = useState([]);
 
     const formValidators: { [key: string]: (e?: any) => string | undefined } = {};
 
+    const paramConfigs: ParamConfig = {
+        paramValues: [],
+        paramFields: [
+            {
+                id: 0,
+                type: "TextField",
+                label: "Key",
+                defaultValue: "",
+                isRequired: true
+            },
+            {
+                id: 1,
+                type: "TextField",
+                label: "Value",
+                defaultValue: "",
+                isRequired: true
+            }]
+    };
+
+    const [params, setParams] = useState(paramConfigs);
+
+    const handleOnChange = (params: any) => {
+        const modifiedParams = {
+            ...params, paramValues: params.paramValues.map((param: any) => {
+                return {
+                    ...param,
+                    key: param.parameters[0].value,
+                    value: param.parameters[1].value,
+                    icon: "query"
+                }
+            })
+        };
+        setParams(modifiedParams);
+    };
+
+    useEffect(() => {
+        if (props.formData && props.formData !== "") {
+            const findAllowedConnectionTypes = (elements: any): string[] | undefined => {
+                for (let element of elements) {
+                    if (element.type === 'attribute' && element.value.inputType === 'connection') {
+                        return element.value.allowedConnectionTypes;
+                    }
+                    if (element.type === 'attributeGroup') {
+                        return findAllowedConnectionTypes(element.value.elements);
+                    }
+                }
+            };
+
+            (async () => {
+                const allowedTypes = findAllowedConnectionTypes(props.formData.elements);
+                setAllowedConnectionTypes(allowedTypes);
+
+                const connectorData = await rpcClient.getMiDiagramRpcClient().getConnectorConnections({
+                    documentUri: props.documentUri,
+                    connectorName: props.formData?.connectorName ?? props.connectorName.toLowerCase().replace(/\s/g, '')
+                });
+
+                const filteredConnections = connectorData.connections.filter(
+                    connection => allowedTypes?.includes(connection.connectionType));
+                const connectorNames = filteredConnections.map(connector => connector.name);
+
+                setConnections(connectorNames);
+            })();
+        }
+    }, [props.formData]);
+
     useEffect(() => {
         if (sidePanelContext.formValues && Object.keys(sidePanelContext.formValues).length > 0) {
-            setFormValues({ ...formValues, ...sidePanelContext.formValues, "isCallChanged": false, "isEndpointChanged": false, "isSourceChanged": false, "isTargetChanged": false });
+            const parametersValues = sidePanelContext.formValues.parameters.map((param: any) => ({
+                [param.name]: param.value
+            }));
+            const flattenedParameters = Object.assign({}, ...parametersValues);
+            setFormValues({ ...formValues, ...flattenedParameters });
         }
     }, [sidePanelContext.formValues]);
 
@@ -83,6 +161,10 @@ const AddConnector = (props: AddConnectorProps) => {
         return error;
     };
 
+    const cancelConnection = () => {
+        setIsAddingConnection(false);
+    }
+
     const onClick = async () => {
         const newErrors = {} as any;
         Object.keys(formValidators).forEach((key) => {
@@ -91,23 +173,53 @@ const AddConnector = (props: AddConnectorProps) => {
                 newErrors[key] = (error);
             }
         });
+
+        params.paramValues.forEach(param => {
+            formValues[param.key] = param.value;
+        });
+
         if (Object.keys(newErrors).length > 0) {
             setErrors(newErrors);
         } else {
             const template = create();
-            const root = template.ele(`${props.formData.connectorName}${props.formData.operationName ? `.${props.formData.operationName}` : ''}`);
+
+            const connectorName = props.formData?.connectorName ??
+                props.connectorName?.toLowerCase().replace(/\s/g, '') ??
+                sidePanelContext.formValues.connectorName;
+
+            const operationName = props.formData?.operationName ?? props.operationName ??
+                sidePanelContext.formValues.operationName;
+
+            const root = template.ele(`${connectorName}${operationName ? `.${operationName}` : ''}`);
+                root.att('configKey', formValues['configKey']);
+
             // Fill the values
             Object.keys(formValues).forEach((key) => {
-                root.ele(key).txt(formValues[key]);
+                if (key !== 'configRef' && key !== 'configKey') {
+                    root.ele(key).txt(formValues[key]);
+                }
             });
+
             const modifiedXml = template.end({ prettyPrint: true, headless: true });
-            
+
             rpcClient.getMiDiagramRpcClient().applyEdit({
-                documentUri: props.documentUri, range: props.nodePosition, text: modifiedXml
+                documentUri: documentUri, range: nodePosition, text: modifiedXml
             });
-            sidePanelContext.setIsOpen(false);
+            sidePanelContext.setSidePanelState({
+                ...sidePanelContext,
+                isOpen: false,
+                isEditing: false,
+                formValues: undefined,
+                nodeRange: undefined,
+                operationName: undefined
+            });
         }
     };
+
+    const onNewConnection = async (connectionName: string) => {
+        setConnections([...connections, connectionName]);
+        setIsAddingConnection(false);
+    }
 
     const renderFormElement = (element: Element) => {
         switch (element.inputType) {
@@ -118,7 +230,55 @@ const AddConnector = (props: AddConnectorProps) => {
                         label={element.displayName}
                         size={50}
                         value={formValues[element.name] || ''}
-                        onChange={(e: any) => {
+                        onTextChange={(e: any) => {
+                            setFormValues({ ...formValues, [element.name]: e });
+                            formValidators[element.name](e);
+                        }}
+                        required={element.required === 'true'}
+                        placeholder={element.helpTip}
+                    />
+                );
+            case 'booleanOrExpression':
+                return (
+                    <>
+                        <label>{element.displayName}</label> {element.required && <RequiredFormInput />}
+                        <div style={{ display: "flex", flexDirection: "row", width: '100%', gap: '10px' }}>
+                            <VSCodeCheckbox
+                                label={element.displayName}
+                                checked={formValues[element.name] || false}
+                                onChange={(e: any) => {
+                                    setFormValues({ ...formValues, [element.name]: e.target.checked });
+                                    formValidators[element.name](e.target.checked);
+                                }}
+                                required={element.required === 'true'}
+                            />
+                        </div>
+                    </>
+                );
+            case 'comboOrExpression':
+                return (
+                    <>
+                        <label>{element.displayName}</label> {element.required && <RequiredFormInput />}
+                        <AutoComplete
+                            identifier={element.displayName}
+                            items={element.comboValues}
+                            value={formValues[element.name]}
+                            onValueChange={(e: any) => {
+                                setFormValues({ ...formValues, [element.name]: e });
+                                formValidators[element.name](e);
+                            }}
+                            allowItemCreate={true}
+                            required={element.required === 'true'} />
+                    </>
+
+                );
+            case 'textAreaOrExpression':
+                return (
+                    <TextField
+                        label={element.displayName}
+                        size={50}
+                        value={formValues[element.name] || ''}
+                        onTextChange={(e: any) => {
                             setFormValues({ ...formValues, [element.name]: e });
                             formValidators[element.name](e);
                         }}
@@ -127,30 +287,27 @@ const AddConnector = (props: AddConnectorProps) => {
                     />
                 );
             case 'connection':
-                formValues[element.name] = element.allowedConnectionTypes[0];
+                formValues[element.name] = formValues[element.name] ?? element.allowedConnectionTypes[0];
+                formValues['configKey'] = formValues['configKey'] ?? connections[0];
                 return (<>
-                    <label>{element.displayName}</label> {element.required && <RequiredFormInput />}
-                    <VSCodeDropdown
-                        label={element.displayName}
-                        value={formValues[element.name]}
-                        autoWidth={true}
-                        onChange={(e: any) => {
-                            setFormValues({ ...formValues, [element.name]: e.target.value });
+                    <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", width: '100%', gap: '10px' }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: '10px' }}>
+                            <label>{element.displayName}</label>
+                            {element.required && <RequiredFormInput />}
+                        </div>
+                        <LinkButton onClick={() => setIsAddingConnection(true)}>
+                            Add new connection
+                        </LinkButton>
+                    </div>
+                    <AutoComplete
+                        identifier={element.displayName}
+                        items={connections}
+                        value={formValues['configKey']}
+                        onValueChange={(e: any) => {
+                            setFormValues({ ...formValues, ['configKey']: e });
                             formValidators[element.name](e);
                         }}
-                        style={{ color: 'var(--vscode-editor-foreground)', width: '100%' }}
-                    >
-                        {
-                            element.allowedConnectionTypes.map((value: string) => (
-                                <VSCodeOption
-                                    style={{
-                                        color: 'var(--vscode-editor-foreground)',
-                                        background: 'var(--vscode-editor-background)'
-                                    }}>{value}
-                                </VSCodeOption>
-                            ))
-                        }
-                    </VSCodeDropdown>
+                        sx={{ color: 'var(--vscode-editor-foreground)', width: '100%', marginBottom: "10px" }} />
                 </>);
             default:
                 return null;
@@ -168,10 +325,14 @@ const AddConnector = (props: AddConnectorProps) => {
             } else if (element.type === 'attributeGroup') {
                 return (
                     <>
-                        <h3 style={{ margin: 0 }}>{element.value.groupName}</h3>
-                        <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                            {renderForm(element.value.elements)}
-                        </ComponentCard>
+                        {element.value.groupName === "General" ? renderForm(element.value.elements) :
+                            <>
+                                <ComponentCard sx={cardStyle} disbaleHoverEffect>
+                                    <h3 style={{ margin: '0 0 15px 0' }}>{element.value.groupName}</h3>
+                                    {renderForm(element.value.elements)}
+                                </ComponentCard>
+                            </>
+                        }
                     </>
                 );
             }
@@ -181,17 +342,42 @@ const AddConnector = (props: AddConnectorProps) => {
 
     return (
         <div style={{ padding: "10px" }}>
-            <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                {renderForm(props.formData.elements)}
-            </ComponentCard>
-            <div style={{ textAlign: "right", marginTop: "10px" }}>
-                <Button
-                    appearance="primary"
-                    onClick={onClick}
-                >
-                    Submit
-                </Button>
-            </div>
+            {!formData ? (
+                <>
+                    <ParamManager
+                        paramConfigs={params}
+                        readonly={false}
+                        onChange={handleOnChange} />
+                    <div style={{ display: "flex", textAlign: "right", justifyContent: "flex-end", marginTop: "10px" }}>
+                        <Button
+                            appearance="primary"
+                            onClick={onClick}
+                        >
+                            Submit
+                        </Button>
+                    </div>
+                </>
+            ) : isAddingConnection ?
+                <AddConnection
+                    allowedConnectionTypes={allowedConnectionTypes}
+                    nodePosition={sidePanelContext.nodeRange}
+                    documentUri={documentUri}
+                    onNewConnection={onNewConnection}
+                    cancelConnection={cancelConnection}
+                    connectorName={props.formData?.connectorName ?? props.connectorName.toLowerCase().replace(/\s/g, '')} />
+                :
+                <>
+                    {renderForm(props.formData.elements)}
+                    <div style={{ display: "flex", textAlign: "right", justifyContent: "flex-end", marginTop: "10px" }}>
+                        <Button
+                            appearance="primary"
+                            onClick={onClick}
+                        >
+                            Submit
+                        </Button>
+                    </div>
+                </>
+            }
         </div>
     );
 };

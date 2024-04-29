@@ -183,35 +183,37 @@ export const ContextMenu: React.FC<ContextMenuProps> = (props: ContextMenuProps)
                 )}
                 {isMenuOpen &&
                 createPortal(
-                    <ExpandedMenu ref={expandMenuRef} sx={menuSx} top={top} left={left}>
-                        <VSCodeDataGrid aria-label="Context Menu">
-                            {menuItems?.map(item => (
-                                <VSCodeDataGridFlexRow
-                                    key={item.id}
-                                    onClick={(event: React.MouseEvent<HTMLElement, MouseEvent>) => {
-                                        if (!item?.disabled) {
-                                            event.stopPropagation();
-                                            if (item?.onClick) {
-                                                item.onClick();
+                    <>
+                        <ExpandedMenu ref={expandMenuRef} sx={menuSx} top={top} left={left}>
+                            <VSCodeDataGrid aria-label="Context Menu">
+                                {menuItems?.map(item => (
+                                    <VSCodeDataGridFlexRow
+                                        key={item.id}
+                                        onClick={(event: React.MouseEvent<HTMLElement, MouseEvent>) => {
+                                            if (!item?.disabled) {
+                                                event.stopPropagation();
+                                                if (item?.onClick) {
+                                                    item.onClick();
+                                                }
+                                                setIsMenuOpen(false);
                                             }
-                                            setIsMenuOpen(false);
-                                        }
-                                    }}
-                                    style={{
-                                        cursor: item.disabled ? "not-allowed" : "pointer",
-                                        opacity: item.disabled ? 0.5 : 1,
-                                    }}
-                                    id={`component-list-menu-${item.id}`}
-                                >
-                                    <VSCodeDataGridInlineCell>{item.label}</VSCodeDataGridInlineCell>
-                                </VSCodeDataGridFlexRow>
-                            ))}
-                        </VSCodeDataGrid>
-                    </ExpandedMenu>,
+                                        }}
+                                        style={{
+                                            cursor: item.disabled ? "not-allowed" : "pointer",
+                                            opacity: item.disabled ? 0.5 : 1,
+                                        }}
+                                        id={`component-list-menu-${item.id}`}
+                                    >
+                                        <VSCodeDataGridInlineCell>{item.label}</VSCodeDataGridInlineCell>
+                                    </VSCodeDataGridFlexRow>
+                                ))}
+                            </VSCodeDataGrid>
+                        </ExpandedMenu>
+                        {isMenuOpen && <Overlay onClose={handleMenuClose} />}
+                    </>,
                     document.body
                 )}
             </Container>
-            {isMenuOpen && <Overlay onClose={handleMenuClose} />}
         </>
     );
 };

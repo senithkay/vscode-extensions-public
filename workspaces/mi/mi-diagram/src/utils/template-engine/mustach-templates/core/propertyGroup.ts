@@ -7,22 +7,43 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
+import { PropertyGroup } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import Mustache from "mustache";
+
 export function getPropertyGroupMustacheTemplate() {
     return `<propertyGroup {{#description}}description="{{description}}"{{/description}}>
     {{#properties}}
-        <property 
-name="{{propertyName}}" 
-scope="{{propertyScope}}" 
-type="{{propertyDataType}}" 
-action="{{propertyAction}}"
-{{#newPropertyName}} expression="{{newPropertyName}}"{{/newPropertyName}} 
-{{#description}} description="{{description}}"{{/description}} 
-{{#valueType}} valueType="{{valueType}}"{{/valueType}} 
-{{#value}} value="{{value}}"{{/value}} 
-{{#valueExpression}} valueExpression="{{valueExpression}}"{{/valueExpression}} 
-{{#valueStringPattern}} pattern="{{valueStringPattern}}"{{/valueStringPattern}} 
-{{#valueStringCapturingGroup}} group="{{valueStringCapturingGroup}}"{{/valueStringCapturingGroup}} 
-        />
+    <property {{#newPropertyName}}name="{{newPropertyName}}" {{/newPropertyName}}{{#propertyScope}}scope="{{propertyScope}}" {{/propertyScope}}{{#propertyDataType}}type="{{propertyDataType}}" {{/propertyDataType}}{{#expression}}expression="{{expression}}" {{/expression}}{{#propertyAction}}action="{{propertyAction}}" {{/propertyAction}}{{#description}}description="{{description}}" {{/description}}{{#value}}value="{{value}}" {{/value}}{{#valueStringPattern}}pattern="{{valueStringPattern}}" {{/valueStringPattern}}{{#valueStringCapturingGroup}}group="{{valueStringCapturingGroup}}" {{/valueStringCapturingGroup}}/>
     {{/properties}}
 </propertyGroup>`;
+}
+
+export function getPropertyGroupXml(data: { [key: string]: any }) {
+    const properties = data.properties.map((property: any[]) => {
+        return {
+            newPropertyName: property[0],
+            propertyDataType: property[1],
+            propertyAction: property[2],
+            value: property[3]?.isExpression ? undefined : property[3]?.value,
+            expression: property[3]?.isExpression ? property[3]?.value : undefined,
+            propertyScope: property[5]?.toLowerCase(),
+            valueStringPattern: property[4],
+            valueStringCapturingGroup: property[6],
+            description: property[7]
+        }
+    });
+    const modifiedData = {
+        ...data,
+        properties
+    }
+    return Mustache.render(getPropertyGroupMustacheTemplate(), modifiedData).trim();
+}
+
+export function getPropertyGroupFormDataFromSTNode(data: { [key: string]: any }, node: PropertyGroup) {
+
+    data.properties = node.property.map(property => {
+        let isExpression = property.value ? "LITERAL" : "EXPRESSION";
+        return [property.name, property.type, property.action, { isExpression: isExpression, value: property.value ?? property.expression }, property.pattern, property.scope, property.group, property.description];
+    })
+    return data;
 }

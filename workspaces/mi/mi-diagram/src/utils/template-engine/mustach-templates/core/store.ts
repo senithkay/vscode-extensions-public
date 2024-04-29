@@ -7,12 +7,20 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-function getStoreMustacheTemplate() {
-    return `<store messageStore="{{messageStore}}" 
-       {{#sequence}}sequence="{{sequence}}"{{/sequence}} 
-       {{#description}}description="{{description}}"{{/description}}>
-    {{#parameters}}
-    <parameter name="{{name}}" value="{{value}}" {{#description}}description="{{description}}"{{/description}}/>
-    {{/parameters}}
-</store>`;
+import { Store } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import Mustache from "mustache";
+
+export function getStoreMustacheTemplate() {
+    return `<store {{#messageStore}}messageStore="{{messageStore}}" {{/messageStore}}{{#onStoreSequence}}sequence="{{onStoreSequence}}" {{/onStoreSequence}}{{#description}}description="{{description}}" {{/description}} />`;
+}
+
+export function getStoreXml(data: { [key: string]: any }) {
+
+    return Mustache.render(getStoreMustacheTemplate(), data).trim();
+
+}
+
+export function getStoreFormDataFromSTNode(data: { [key: string]: any }, node: Store) {
+
+    return data;
 }

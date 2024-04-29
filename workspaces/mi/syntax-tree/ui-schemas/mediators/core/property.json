@@ -34,7 +34,13 @@
                     "JSON"
                 ],
                 "required": true,
-                "helpTip": "Property Data Type"
+                "helpTip": "Property Data Type",
+                "enableCondition": [
+                    "NOT",
+                    {
+                        "propertyAction": "remove"
+                    }
+                ]
             }
         },
         {
@@ -62,7 +68,16 @@
                 "required": true,
                 "helpTip": "Value",
                 "enableCondition": [
-                        "NOT", {"propertyDataType": "OM"}
+                    "NOT",
+                    [
+                        "OR",
+                        {
+                            "propertyDataType": "OM"
+                        },
+                        {
+                            "propertyAction": "remove"
+                        }
+                    ]
                 ]
             }
         },
@@ -71,12 +86,14 @@
             "value": {
                 "name": "OMValue",
                 "displayName": "OM",
-                "inputType": "textfeild",
+                "inputType": "string",
                 "defaultValue": "",
                 "required": true,
                 "helpTip": "Value",
                 "enableCondition": [
-                        {"propertyDataType": "OM"}
+                    {
+                        "propertyDataType": "OM"
+                    }
                 ]
             }
         },
@@ -117,8 +134,12 @@
                             "required": false,
                             "helpTip": "Value String Pattern",
                             "enableCondition": [
+                                "AND",
                                 {
                                     "propertyDataType": "STRING"
+                                },
+                                {
+                                    "propertyAction": "set"
                                 }
                             ]
                         }
@@ -133,8 +154,12 @@
                             "required": false,
                             "helpTip": "Value String Capturing Group",
                             "enableCondition": [
+                                "AND",
                                 {
                                     "propertyDataType": "STRING"
+                                },
+                                {
+                                    "propertyAction": "set"
                                 }
                             ]
                         }

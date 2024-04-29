@@ -1,0 +1,175 @@
+/**
+ * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ * 
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+*/
+
+import React, { useEffect, useRef } from "react";
+import styled from "@emotion/styled";
+import { Codicon, Container, RequiredFormInput, TextField, Tooltip, Typography } from "@wso2-enterprise/ui-toolkit";
+
+const Colors = {
+    INPUT_OPTION_ACTIVE: "var(--vscode-inputOption-activeBackground)",
+    INPUT_OPTION_INACTIVE: "var(--vscode-inputOption-inactiveBackground)",
+    INPUT_OPTION_HOVER: "var(--vscode-inputOption-hoverBackground)",
+    INPUT_OPTION_ACTIVE_BORDER: "var(--vscode-inputOption-activeBorder)",
+}
+
+const ExButtonWrapper = styled.div<{ isActive: boolean }>`
+    margin-left: -14px;
+    margin-top: -2px;
+    padding: 3px;
+    cursor: pointer;
+    background-color: ${(props: { isActive: any; }) => props.isActive ? Colors.INPUT_OPTION_ACTIVE : Colors.INPUT_OPTION_INACTIVE};
+    border: 1px solid ${(props: { isActive: any; }) => props.isActive ? Colors.INPUT_OPTION_ACTIVE_BORDER : "transparent"};
+    &:hover {
+        background-color: ${(props: { isActive: any; }) => props.isActive ? Colors.INPUT_OPTION_ACTIVE : Colors.INPUT_OPTION_HOVER};
+    }
+`;
+
+const Label = styled.label`
+    font-size: var(--type-ramp-base-font-size);
+    color: var(--vscode-editor-foreground);
+`;
+
+const FlexLabelContainer = styled.div`
+    display: flex;
+    flex-direction: row;
+    margin-bottom: 4px;
+`;
+
+const Link = styled.a`
+    cursor: pointer;
+    font-size: 12px;
+    margin-left: auto;
+    margin-right: 15px;
+    margin-bottom: -5px;
+    color: var(--vscode-editor-foreground);
+`;
+
+interface Namespace {
+    prefix: string;
+    uri: string;
+}
+export interface ExpressionFieldValue {
+    isExpression: boolean;
+    value: string;
+    namespaces: Namespace[];
+}
+
+export interface ExpressionFieldProps {
+    id?: string;
+    label: string;
+    placeholder?: string;
+    value?: ExpressionFieldValue;
+    required?: boolean;
+    disabled?: boolean;
+    openExpressionEditor?: (value: any, setValue: any) => void;
+    onChange?: any;
+    canChange: boolean;
+    sx?: any;
+    errorMsg?: string;
+}
+
+interface ExBtnComponentProps {
+    label: string;
+    ref: React.Ref<HTMLInputElement>;
+    required: boolean;
+    disabled: boolean;
+    isExActive: boolean;
+    openExpressionEditor: (value: any, setValue: any) => void;
+    placeholder: string;
+    setIsExpression: React.Dispatch<React.SetStateAction<boolean>>;
+    value: ExpressionFieldValue;
+    setValue: any;
+    onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+    canChange: boolean;
+}
+
+const ExButton = (props: { isActive: boolean, onClick: () => void }) => {
+    return (
+        <ExButtonWrapper isActive={props.isActive} onClick={props.onClick}>
+            <Typography sx={
+                {
+                    textAlign: "center",
+                    margin: 0
+                }} variant="h6">EX</Typography>
+        </ExButtonWrapper>
+    );
+}
+
+const ExBtnComponent = (props: ExBtnComponentProps) => {
+    const { label, required, isExActive, disabled, openExpressionEditor, placeholder, setIsExpression: setIsExpression, value, setValue, onChange, canChange } = props;
+
+    return <>
+        <FlexLabelContainer>
+            <Label>{label}</Label>
+            {(required && label) && (<RequiredFormInput />)}
+            {isExActive && (
+                <Link onClick={() => openExpressionEditor(value, setValue)}>
+                    <Tooltip content="Open Expression editor" position="left">
+                        <Codicon name="edit" />
+                    </Tooltip>
+                </Link>
+            )}
+        </FlexLabelContainer>
+        <TextField
+            placeholder={placeholder}
+            disabled={disabled}
+            icon={{
+                iconComponent: <ExButton isActive={isExActive} onClick={() => {
+                    if (canChange) {
+                        setIsExpression(!isExActive);
+                    }
+                }} />,
+                position: "end"
+            }}
+            value={value.value}
+            onTextChange={event => onChange({ isExpression: isExActive, value: event } as any)}
+        />
+    </>;
+}
+
+export const ExpressionField = React.forwardRef<HTMLInputElement, ExpressionFieldProps>((props, ref) => {
+    const { label, placeholder, required, disabled, openExpressionEditor, onChange, canChange, sx } = props;
+    let value = props.value;
+    const [isExpression, setIsExpression] = React.useState(value?.isExpression || false);
+
+    const textFieldRef = useRef<HTMLInputElement | null>(null);
+    React.useImperativeHandle(ref, () => textFieldRef.current);
+    useEffect(() => {
+        if (isExpression) {
+            value.isExpression = true;
+        } else {
+            value.isExpression = false;
+        }
+        onChange(value);
+    }, [isExpression]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    const setValue = (val: ExpressionFieldValue) => {
+        value = val;
+        onChange(value);
+    };
+
+    return <Container sx={sx}>
+        <ExBtnComponent
+            label={label}
+            ref={textFieldRef}
+            required={required}
+            disabled={disabled}
+            isExActive={isExpression}
+            openExpressionEditor={openExpressionEditor}
+            placeholder={placeholder}
+            setIsExpression={setIsExpression}
+            value={value}
+            setValue={setValue}
+            onChange={onChange}
+            canChange={canChange}
+        />
+
+    </Container>
+});
+ExpressionField.displayName = "ExprField";

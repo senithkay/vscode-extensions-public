@@ -11,7 +11,7 @@ import { Action, ActionEvent, InputType } from "@projectstorm/react-canvas-core"
 import { InputOutputPortModel } from "../Port";
 import { DataMapperLinkModel } from "../Link";
 import { LinkConnectorNode } from "../Node/LinkConnector";
-import { DiagramEngine } from "@projectstorm/react-diagrams-core";
+import { DiagramEngine, NodeModel } from "@projectstorm/react-diagrams-core";
 import {
     INPUT_NODE_DEFAULT_RIGHT_X,
     MIN_VISIBLE_HEIGHT,
@@ -31,10 +31,12 @@ export class IONodesScrollCanvasAction extends Action {
             fire: (actionEvent: ActionEvent<any>) => {
                 const { event } = actionEvent;
                 const { clientX, deltaY } = event;
+                const zoomOffset = 100 / defaultModelOptions.zoom;
 
                 for (let layer of this.engine.getModel().getLayers()) {
                     layer.allowRepaint(false);
                 }
+                const model = this.engine.getModel();
                 event.stopPropagation();
 
                 const element = this.engine.getActionEventBus().getModelForEvent(actionEvent);
@@ -44,28 +46,25 @@ export class IONodesScrollCanvasAction extends Action {
 
                 if (!element) {
                     // Scroll on empty space
-                    const zoomOffset = 100 / defaultModelOptions.zoom;
                     const outputNodeDefaultLeftX =
-                        (window.innerWidth - VISUALIZER_PADDING) * zoomOffset - IO_NODE_DEFAULT_WIDTH;
+                        ((window.innerWidth - VISUALIZER_PADDING) - IO_NODE_DEFAULT_WIDTH) * zoomOffset;
                     const scrolledX = clientX * zoomOffset;
                     if (scrolledX >= 0 && scrolledX <= INPUT_NODE_DEFAULT_RIGHT_X) {
                         isInputScrollable = true;
-                    } else if (scrolledX >= outputNodeDefaultLeftX && scrolledX <= window.innerWidth - VISUALIZER_PADDING) {
+                    } else if (scrolledX >= outputNodeDefaultLeftX && scrolledX <= (window.innerWidth - VISUALIZER_PADDING) * zoomOffset) {
                         isOutputScrollable = true;
-                    } else {
-                        return;
                     }
                 } else {
                     isInputScrollable = isInputNode(element);
                     isOutputScrollable = isOutputNode(element);
                 }
 
-                let yDelta = options.inverseZoom ? -deltaY : deltaY;
+                let yDelta = options.inverseZoom ? - deltaY : deltaY;
                 const diagramEngine = this.engine as DiagramEngine;
+                const inputNodes = getInputNodes(diagramEngine);
+                const ouputNode = getOutputNode(diagramEngine);
 
                 if (isInputScrollable) {
-
-                    const inputNodes = diagramEngine.getModel().getNodes().filter(node => isInputNode(node));
 
                     const firstNode = inputNodes[0];
                     const lastNode = inputNodes[inputNodes.length - 1];
@@ -90,9 +89,8 @@ export class IONodesScrollCanvasAction extends Action {
                     inputNodes.forEach(element => {
                         element.setPosition(element.getX(), element.getY() - yDelta);
                     });
-                } else if (isOutputScrollable) {
 
-                    const ouputNode = diagramEngine.getModel().getNodes().filter(node => isOutputNode(node))[0];
+                } else if (isOutputScrollable) {
 
                     if (ouputNode) {
                         let newY = ouputNode.getY() - yDelta;
@@ -107,22 +105,12 @@ export class IONodesScrollCanvasAction extends Action {
                         }
                         ouputNode.setPosition(ouputNode.getX(), ouputNode.getY() - yDelta);
                     }
+                    repositionIntermediateNodes(ouputNode);
 
-                    // Reposition the intermediate nodes
-                    const ports = ouputNode.getPorts();
-                    for (const port of Object.values(ports)) {
-                        if (port instanceof InputOutputPortModel) {
-                            // Output port can only have one link, hence the first link is considered
-                            const link = Object.values(port.getLinks())[0];
-                            if (link instanceof DataMapperLinkModel) {
-                                const sourceNode = link.getSourcePort().getNode();
-                                const targetPortPosition = link.getTargetPort().getPosition();
-                                if (sourceNode instanceof LinkConnectorNode) {
-                                    sourceNode.setPosition(sourceNode.getX(), targetPortPosition.y - 4.5);
-                                }
-                            }
-                        }
-                    }
+                } else {
+                    yDelta = getYDeltaForGlobalScroll(diagramEngine, yDelta, zoomOffset);
+					const offsetY = Math.min(0, model.getOffsetY() - yDelta);
+                    model.setOffset(model.getOffsetX(), offsetY);
                 }
 
                 this.engine.repaintCanvas();
@@ -134,4 +122,56 @@ export class IONodesScrollCanvasAction extends Action {
             },
         });
     }
+}
+
+function getInputNodes(diagramEngine: DiagramEngine) {
+    return diagramEngine.getModel().getNodes().filter(node => isInputNode(node));
+}
+
+function getOutputNode(diagramEngine: DiagramEngine) {
+    return diagramEngine.getModel().getNodes().filter(node => isOutputNode(node))[0];
+}
+
+function repositionIntermediateNodes(outputNode: NodeModel) {
+    const ports = outputNode.getPorts();
+    for (const port of Object.values(ports)) {
+        if (port instanceof InputOutputPortModel) {
+            // Output port can only have one link, hence the first link is considered
+            const link = Object.values(port.getLinks())[0];
+            if (link instanceof DataMapperLinkModel) {
+                const sourceNode = link.getSourcePort().getNode();
+                const targetPortPosition = link.getTargetPort().getPosition();
+                if (sourceNode instanceof LinkConnectorNode) {
+                    sourceNode.setPosition(sourceNode.getX(), targetPortPosition.y - 4.5);
+                }
+            }
+        }
+    }
+}
+
+
+function getYDeltaForGlobalScroll(diagramEngine: DiagramEngine, yDelta: number, zoomOffset: number) {
+    let newYDelta = yDelta;
+    const model = diagramEngine.getModel();
+    const offsetY = model.getOffsetY() * zoomOffset;
+
+    const lastInputNode = getInputNodes(diagramEngine).pop();
+    const outputNode = getOutputNode(diagramEngine);
+
+    const nodeWithMaxBottomY = [lastInputNode, outputNode].reduce((prevNode, currentNode) => {
+        return prevNode.getBoundingBox().getBottomLeft().y > currentNode.getBoundingBox().getBottomLeft().y
+            ? prevNode
+            : currentNode;
+    });
+
+    const nodeOffsetY = nodeWithMaxBottomY.getY() < 0 ? nodeWithMaxBottomY.getY() : 0;
+    let newY = offsetY - yDelta;
+    const visibleHeight = newY + nodeWithMaxBottomY.height + nodeOffsetY;
+
+    if (visibleHeight < MIN_VISIBLE_HEIGHT ) {
+        // If the tallest node is at the bottom of the canvas, do not scroll further
+        newYDelta = offsetY + nodeWithMaxBottomY.height - MIN_VISIBLE_HEIGHT + nodeOffsetY;
+    }
+
+    return newYDelta;
 }

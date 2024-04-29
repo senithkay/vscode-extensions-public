@@ -7,8 +7,8 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { TextField, Dropdown, RadioButtonGroup, FormGroup, ParamManager, FormCheckBox } from "@wso2-enterprise/ui-toolkit";
-import { FormKeylookup } from "@wso2-enterprise/mi-diagram-2";
+import { TextField, Dropdown, RadioButtonGroup, FormGroup, FormCheckBox } from "@wso2-enterprise/ui-toolkit";
+import { FormKeylookup, ParamManager } from "@wso2-enterprise/mi-diagram";
 
 interface OptionProps {
     value: string;
@@ -70,7 +70,7 @@ const Form = ({
     ];
 
     const generateDisplayValue = (paramValues: any) => {
-        const result: string = "value:" + paramValues.parameters[1].value + "; scope:" + paramValues.parameters[2].value + ";";
+        const result: string = "value:" + paramValues.paramValues[1].value + "; scope:" + paramValues.paramValues[2].value + ";";
         return result.trim();
     };
 
@@ -81,7 +81,7 @@ const Form = ({
                 return {
                     ...param,
                     key: index + 1,
-                    value: param.parameters[0].value
+                    value: param.paramValues[0].value
                 }
             })
         };
@@ -89,7 +89,7 @@ const Form = ({
 
         const templateParameters: any = [];
         modifiedParams.paramValues.map((param: any) => {
-            templateParameters.push(param.parameters[0].value);
+            templateParameters.push(param.paramValues[0].value);
         })
         setValue('templateParameters', templateParameters)
     };
@@ -100,7 +100,7 @@ const Form = ({
             paramValues: params.paramValues.map((param: any) => {
                 return {
                     ...param,
-                    key: param.parameters[0].value,
+                    key: param.paramValues[0].value,
                     value: generateDisplayValue(param)
                 }
             })
@@ -110,9 +110,9 @@ const Form = ({
         const endpointProperties: any = [];
         modifiedParams.paramValues.map((param: any) => {
             endpointProperties.push({
-                name: param.parameters[0].value,
-                value: param.parameters[1].value,
-                scope: param.parameters[2].value
+                name: param.paramValues[0].value,
+                value: param.paramValues[1].value,
+                scope: param.paramValues[2].value
             });
         });
         setValue('properties', endpointProperties);
@@ -124,8 +124,8 @@ const Form = ({
             paramValues: params.paramValues.map((param: any) => {
                 return {
                     ...param,
-                    key: param.parameters[0].value,
-                    value: param.parameters[1].value
+                    key: param.paramValues[0].value,
+                    value: param.paramValues[1].value
                 }
             })
         };
@@ -134,8 +134,8 @@ const Form = ({
         const oauthProperties: any = [];
         modifiedParams.paramValues.map((param: any) => {
             oauthProperties.push({
-                key: param.parameters[0].value,
-                value: param.parameters[1].value
+                key: param.paramValues[0].value,
+                value: param.paramValues[1].value
             });
         });
         setValue('oauthProperties', oauthProperties);

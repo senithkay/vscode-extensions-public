@@ -20,13 +20,12 @@ import { OutputSearchNoResultFound, SearchNoResultFoundKind } from "../commons/S
 
 import { ObjectOutputNode, OBJECT_OUTPUT_NODE_TYPE } from './ObjectOutputNode';
 
-export class ExpressionFunctionBodyFactory extends AbstractReactFactory<ObjectOutputNode, DiagramEngine> {
+export class ObjectOutputNodeFactory extends AbstractReactFactory<ObjectOutputNode, DiagramEngine> {
 	constructor() {
 		super(OBJECT_OUTPUT_NODE_TYPE);
 	}
 
 	generateReactWidget(event: { model: ObjectOutputNode; }): JSX.Element {
-		let valueLabel: string;
 		return (
 			<>
 				{event.model.hasNoMatchingFields ? (
@@ -41,7 +40,6 @@ export class ExpressionFunctionBodyFactory extends AbstractReactFactory<ObjectOu
 						getPort={(portId: string) => event.model.getPort(portId) as InputOutputPortModel}
 						context={event.model.context}
 						mappings={event.model.mappings}
-						valueLabel={valueLabel}
 						deleteField={(node: Node) => event.model.deleteField(node)}
 						originalTypeName={event.model.dmType?.fieldName}
 					/>

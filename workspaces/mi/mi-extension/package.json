@@ -71,7 +71,7 @@
           },
           "integrationStudio.rootUrl": {
             "type": "string",
-            "default": "https://e95488c8-8511-4882-967f-ec3ae2a0f86f-dev.e1-eu-north-azure.choreoapis.dev/mi-ai-deployments/micopilot/mi-copilot-backend-be2/v1.0",
+            "default": "https://e95488c8-8511-4882-967f-ec3ae2a0f86f-dev.e1-us-east-azure.choreoapis.dev/miaideployments/micopilot/mi-copilot-backend-be2/v1.0",
             "description": "Root URL for Backend Services"
           }
         }
@@ -286,7 +286,7 @@
       {
         "command": "MI.show.source",
         "title": "Show Source",
-        "icon": "$(distro-source-view)",
+        "icon": "$(code)",
         "category": "MI"
       },
       {
@@ -346,8 +346,8 @@
           "group": "navigation@3"
         },
         {
-          "when": "showGoToSource && editorLangId !== SynapseXml",
           "command": "MI.show.source",
+          "when": "showGoToSource && editorLangId !== SynapseXml",
           "group": "navigation@3"
         }
       ],

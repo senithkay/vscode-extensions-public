@@ -80,7 +80,7 @@ export const generateProxyData = (model: Proxy): EditProxyForm => {
         policies: model.policies,
         publishWSDL: {
             ...model.publishWSDL,
-            inlineWsdl: model.publishWSDL?.inlineWsdl ? inlineFormatter(model.publishWSDL.inlineWsdl) : "</definition>",
+            inlineWsdl: model.publishWSDL?.inlineWsdl ? inlineFormatter(model.publishWSDL.inlineWsdl) : "<wsdl:definitions/>",
         },
         wsdlType: model.publishWSDL
             ? model.publishWSDL.endpoint
@@ -253,8 +253,8 @@ export const onProxyEdit = async (
     const formValues = {
         tag : "proxy",
         name: data.name,
-        enableSec: data.enableSec,
-        enableAddressing: data.enableAddressing,
+        enableSec: data.enableSec.selfClosed,
+        enableAddressing: data.enableAddressing.selfClosed,
         target: data.target,
         parameters: data.parameters,
         policies: data.policies,
@@ -271,12 +271,10 @@ export const onProxyEdit = async (
         ...(data.trace && { trace: "enable" }),
         ...(data.statistics && { statistics: "enable" }),
     }
-    console.log(data);
     const tags = [ "other" , "target" , "proxy"];
     for (const tag of tags) {
         formValues.tag = tag;
         const xml = getXML(SERVICE.EDIT_PROXY, formValues);
-        console.log(formValues);
         const ranges:Range = proxyRange(model,tag);
         await rpcClient.getMiDiagramRpcClient().applyEdit({
             text: xml,

@@ -306,42 +306,47 @@ const stateMachine = createMachine<MachineContext>({
         findView: (context, event): Promise<VisualizerLocation> => {
             return new Promise(async (resolve, reject) => {
                 const langClient = StateMachine.context().langClient!;
-            const viewLocation = context;
+                const viewLocation = context;
                 if (context.view?.includes("Form")) {
                     return resolve(viewLocation);
                 }
                 if (context.documentUri) {
-                    const response = await langClient.getSyntaxTree({
-                        documentIdentifier: {
-                            uri: context.documentUri!
-                        },
-                    });
-                    if (response?.syntaxTree) {
-                        const node: SyntaxTreeMi = response.syntaxTree;
-                        switch (true) {
-                            case !!node.api:
-                                viewLocation.view = MACHINE_VIEW.ServiceDesigner;
-                                viewLocation.stNode = node.api;
-                                if (context.identifier?.toString()) {
-                                    viewLocation.view = MACHINE_VIEW.ResourceView;
-                                    viewLocation.stNode = node.api.resource[context.identifier];
-                                }
-                                openDataMapperViewIfAvailable(context, viewLocation);
-                                break;
-                            case !!node.proxy:
-                                viewLocation.view = MACHINE_VIEW.ProxyView;
-                                viewLocation.stNode = node.proxy;
-                                openDataMapperViewIfAvailable(context, viewLocation);
-                                break;
-                            case !!node.sequence:
-                                viewLocation.view = MACHINE_VIEW.SequenceView;
-                                viewLocation.stNode = node.sequence;
-                                openDataMapperViewIfAvailable(context, viewLocation);
-                                break;
-                            default:
-                                // Handle default case
-                                break;
+                    try {
+                        const response = await langClient.getSyntaxTree({
+                            documentIdentifier: {
+                                uri: context.documentUri!
+                            },
+                        });
+                        if (response?.syntaxTree) {
+                            const node: SyntaxTreeMi = response.syntaxTree;
+                            switch (true) {
+                                case !!node.api:
+                                    viewLocation.view = MACHINE_VIEW.ServiceDesigner;
+                                    viewLocation.stNode = node.api;
+                                    if (context.identifier?.toString()) {
+                                        viewLocation.view = MACHINE_VIEW.ResourceView;
+                                        viewLocation.stNode = node.api.resource[context.identifier];
+                                    }
+                                    openDataMapperViewIfAvailable(context, viewLocation);
+                                    break;
+                                case !!node.proxy:
+                                    viewLocation.view = MACHINE_VIEW.ProxyView;
+                                    viewLocation.stNode = node.proxy;
+                                    openDataMapperViewIfAvailable(context, viewLocation);
+                                    break;
+                                case !!node.sequence:
+                                    viewLocation.view = MACHINE_VIEW.SequenceView;
+                                    viewLocation.stNode = node.sequence;
+                                    openDataMapperViewIfAvailable(context, viewLocation);
+                                    break;
+                                default:
+                                    // Handle default case
+                                    break;
+                            }
                         }
+                    } catch (error) {
+                        viewLocation.stNode = undefined;
+                        console.log("Error occured", error);
                     }
                 }
                 if (viewLocation.view === MACHINE_VIEW.ResourceView) {
@@ -414,7 +419,7 @@ export function openView(type: EVENT_TYPE, viewLocation?: VisualizerLocation) {
     stateService.send({ type: type, viewLocation: viewLocation });
 }
 
-export function openDataMapperViewIfAvailable(context: MachineContext,  viewLocation: VisualizerLocation) {
+export function openDataMapperViewIfAvailable(context: MachineContext, viewLocation: VisualizerLocation) {
     if (context.dataMapperProps?.filePath) {
         const filePath = context.dataMapperProps?.filePath!;
         const functionName = "mapFunction";
@@ -499,7 +504,7 @@ async function checkIfMiProject() {
         if (files.length === 0) {
             emptyProject = true;
         }
-        
+
         projectUri = vscode.workspace.workspaceFolders![0].uri.fsPath;
         vscode.commands.executeCommand('setContext', 'MI.status', 'projectDetected');
         vscode.commands.executeCommand('setContext', 'MI.projectType', 'miProject'); // for command enablements

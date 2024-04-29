@@ -14,7 +14,7 @@ import { LICENSE_HEADER } from "./commons";
 
 function toCamelCase(text: string): string {
     const words = text.split(" ");
-    return words.map((word, index) => 
+    return words.map((word, index) =>
         index === 0 ? word.toLowerCase() : word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
     ).join("");
 }
@@ -35,252 +35,431 @@ function fixIndentation(str: string, parentIndent: number) {
     }).join('\n');
 }
 
-function generateEnabledCondition(enableCondition: any, indentation: number) {
-    let fields = "";
-    let conditionType = "&&";
-    let conditions = "";
+function generateParammanagerCondition(enableCondition: any, keys: string[]) {
+    let fields = [];
+    let conditions: any = {};
 
     if (enableCondition.length > 1) {
         const condition = enableCondition[0];
-        if (condition === "OR") {
-            conditionType = "||";
-        } else if (condition === "NOT") {
-            conditionType = "!";
-        }
+
         for (let i = 1; i < enableCondition.length; i++) {
             const conditionElement = enableCondition[i];
             const condition = Object.keys(conditionElement)[0];
+            const conditionKey = keys.indexOf(Object.keys(conditionElement)[0]);
             const value = conditionElement[condition];
 
-            if (typeof value === "boolean" || value === "true" || value === "false") {
-                conditions += `formValues["${condition}"] == ${Boolean(value)} ${i != enableCondition.length - 1 ? conditionType : ""}`;
+            conditions[conditionKey] = value;
+        }
+        fields.push(condition);
 
-            } else {
-                conditions += `formValues["${condition}"] && formValues["${condition}"].toLowerCase() == "${value.toLowerCase()}" ${i != enableCondition.length - 1 ? conditionType : ""}`;
+    } else {
+        const conditionElement = enableCondition[0];
+        const condition = Object.keys(conditionElement)[0];
+        const conditionKey = keys.indexOf(Object.keys(conditionElement)[0]);
+        const value = conditionElement[condition];
+
+        conditions[conditionKey] = value;
+    }
+    fields.push(conditions);
+    return fields;
+}
+
+const getIndexByKeyName = (key: string, elements: any[]) => {
+    const index = elements.findIndex((element: any) => element?.value?.name === key);
+    if (index === -1 && key !== '{row.number}') {
+        throw new Error(`Key ${key} not found in elements`);
+    }
+    return index;
+}
+
+const getValueString = (element: any) => {
+    const inputType = element.value.inputType;
+    if (inputType.includes('Expression')) {
+        return "value.value";
+    }
+    return "value";
+}
+
+function generateEnabledCondition(enableCondition: any, indentation: number, isSubCondition?: boolean) {
+    let fields = "";
+    let conditions = "";
+
+    const getCondition = (condition: string, value: string) => {
+        if (typeof value === "boolean" || value === "true" || value === "false") {
+            return `watch("${condition}") == ${value}`;
+        } else {
+            return `watch("${condition}") == "${value}"`;
+        }
+    }
+
+    if (enableCondition.length > 1) {
+        const condition = enableCondition[0];
+        let conditionType;
+        if (condition === "OR") {
+            conditionType = "||";
+        } else if (condition === "NOT") {
+            conditions += "!";
+        } else {
+            conditionType = "&&";
+        }
+        conditions += "(";
+
+        for (let i = 1; i < enableCondition.length; i++) {
+            const conditionElement = enableCondition[i];
+
+            if (Array.isArray(conditionElement)) {
+                conditions += generateEnabledCondition(conditionElement, indentation, true);
+                continue;
             }
 
+            const condition = Object.keys(conditionElement)[0];
+            const value = conditionElement[condition];
+
+            conditions += `(${getCondition(condition, value)}) ${i != enableCondition.length - 1 ? conditionType : ""}`
         }
 
-        fields +=
-            fixIndentation(`
-                        {${conditions}&&`, indentation);
+        fields += `${conditions})`;
     } else {
         const conditionElement = enableCondition[0];
         const condition = Object.keys(conditionElement)[0];
         const value = conditionElement[condition];
 
-        if (typeof value === "boolean" || value === "true" || value === "false") {
-            conditions += `formValues["${condition}"] == ${value}`;
-
-        } else {
-            conditions += `formValues["${condition}"] && formValues["${condition}"].toLowerCase() == "${value.toLowerCase()}"`;
-        }
-
-        fields +=
-            fixIndentation(`
-                        {${conditions} &&`, indentation);
+        fields += `${getCondition(condition, value)}`;
     }
-    return fields;
+    return !isSubCondition ? fixIndentation(`
+        {${fields} &&`, indentation) : fields;
+}
+
+const getRegexAndMessage = (validation: string, validationRegEx: string) => {
+    const regex = validation === 'e-mail' ? '/^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$/g' :
+        validation === 'nameWithoutSpecialCharactors' ? '/^[a-zA-Z0-9]+$/' :
+            validationRegEx;
+    const message = validation === 'e-mail' ? 'Invalid e-mail address' :
+        validation === 'nameWithoutSpecialCharactors' ? 'Invalid name' :
+            'Invalid input';
+    return { regex, message };
+}
+
+const getDefaultValue = (defaultValue: string) => {
+    if (defaultValue === undefined) {
+        return '""';
+    } else if (typeof defaultValue === 'string') {
+        return `"${defaultValue.replaceAll('"', '\\"')}"`;
+    } else if (typeof defaultValue === "boolean" || defaultValue === "true" || defaultValue === "false") {
+        return defaultValue;
+    } else {
+        return JSON.stringify(defaultValue);
+    }
 }
 
 const generateForm = (jsonData: any): string => {
     const operationName = jsonData.name;
-    const connectorName = jsonData.connectorName;
+    const description = jsonData.help;
     const operationNameCapitalized = `${operationName.split(/[-\s*]/)
         .map((word: string) => capitalizeFirstLetter(word))
         .join('')}Form`;
 
     let componentContent = '';
-    let formValidators = '\n';
     let fields = '';
     let defaultValues = '';
-    let paramFields = '';
-    let paramFieldNames: string[] = [];
-    let tableName = "properties";
+    let valueChanges = '';
     const keys: string[] = [];
 
     const generateFormItems = (elements: any[], indentation: number, parentName?: string) => {
         elements.forEach((element, index) => {
+            const { name, displayName, enableCondition, inputType, required, helpTip, allowedConnectionTypes, validation, validationRegEx } = element.value;
+
+            if (enableCondition) {
+                fields += generateEnabledCondition(enableCondition, indentation);
+                indentation += 4;
+            }
+
             if (element.type === 'attribute') {
-                const { name, displayName, defaultValue, enableCondition, inputType, required, helpTip, allowedConnectionTypes, validation, validationRegEx } = element.value;
+                let defaultValue = element.value.defaultValue;
                 const inputName = keys.includes(name.trim().replace(/\s/g, '_')) ? (parentName ? `${parentName}${name.trim().replace(/\s/g, '_')}` : name.trim().replace(/\s/g, '_')) : name.trim().replace(/\s/g, '_');
                 keys.push(inputName);
                 const isRequired = required == 'true';
 
-                formValidators += `"${inputName}": (e?: any) => validateField("${inputName}", e, ${isRequired}${validation ? `, "${validation}"` : ""}${validationRegEx ? `, "${validationRegEx}"` : ""}),\n`;
+                const { regex, message } = getRegexAndMessage(validation, validationRegEx);
 
-                if (defaultValue) {
-                    defaultValues +=
-                        fixIndentation(`
-                    "${inputName}": ${typeof defaultValue === "boolean" ? Boolean(defaultValue) : `"${defaultValue}"`},`, 8);
+                const rules = isRequired || validation ? fixIndentation(`
+                {
+                    ${isRequired ? 'required: "This field is required",' : ''}${validation ? `
+                    pattern: { value: ${regex}, message: "${message}" }` : ""}
                 }
-
-                if (enableCondition) {
-                    fields += generateEnabledCondition(enableCondition, indentation);
-                    indentation += 4;
-                }
+                `, 32) : "";
 
                 fields +=
                     fixIndentation(`
-                    <Field>`, indentation);
+                    <Field>
+                    <Controller
+                            name="${inputName}"
+                            control={control}${rules ? `
+                            rules={${rules}}` : ""}
+                            render={({ field }) => (`, indentation);
                 indentation += 4;
-                if (inputType === 'stringOrExpression' || inputType === 'string' || inputType === 'registry' || inputType === 'expression') {
+                if (inputType === 'string' || inputType === 'registry' || inputType === 'editableCombo') {
 
                     fields +=
                         fixIndentation(`
-                        <TextField
-                            label="${displayName}"
-                            size={50}
-                            placeholder="${helpTip}"
-                            value={formValues["${inputName}"]}
-                            onTextChange={(e: any) => {
-                                setFormValues({ ...formValues, "${inputName}": e });
-                                formValidators["${inputName}"](e);
+                        <TextField {...field} label="${displayName}" size={50} placeholder="${helpTip}" />`, indentation);
+                } else if (inputType === 'textArea') {
+
+                    fields +=
+                        fixIndentation(`
+                        <TextArea {...field} label="${displayName}" placeholder="${helpTip}" />`, indentation);
+                } else if (inputType === 'stringOrExpression' || inputType === 'expression') {
+                    defaultValue = { isExpression: true, value: defaultValue || '' };
+                    fields +=
+                        fixIndentation(`
+                        <ExpressionField 
+                            {...field} label="${displayName}"
+                            placeholder="${helpTip}" 
+                            canChange={${inputType === 'stringOrExpression'}}
+                            openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => {
+                                sidePanelContext.setSidePanelState({
+                                    ...sidePanelContext,
+                                    expressionEditor: {
+                                        isOpen: true,
+                                        value,
+                                        setValue
+                                    }
+                                });
                             }}
-                            required={${isRequired}}
-                        />
-                        {errors["${inputName}"] && <Error>{errors["${inputName}"]}</Error>}`, indentation);
+                         />`, indentation);
                 } else if (inputType === 'connection') {
 
                     let dropdownStr = '';
-                    dropdownStr += `
-                    <label>${displayName}</label> ${isRequired ? `<RequiredFormInput />` : ''}
-                    <VSCodeDropdown
-                        label="${displayName}"
-                        value={formValues["${inputName}"]}
-                        autoWidth={true}
-                        onValueChange={(e: any) => {
-                            setFormValues({ ...formValues, "${inputName}": e.target.value });
-                            formValidators["${inputName}"](e);
-                        }}
-                        style={{ color: 'var(--vscode-editor-foreground)', width: '100%' }}
-                    >`;
-
-                    allowedConnectionTypes.map((value: string) => (
+                    dropdownStr += `Z
+                            <VSCodeDropdown
+                                label="${displayName}"
+                                autoWidth={true}
+                                {...field}
+                                style={{ color: 'var(--vscode-editor-foreground)', width: '100%' }}
+                            >
+                            ${allowedConnectionTypes.map((value: string) => (
                         dropdownStr += `
-                        <VSCodeOption
-                            style={{
-                                color: 'var(--vscode-editor-foreground)',
-                                background: 'var(--vscode-editor-background)'
-                            }}>${value}</VSCodeOption>`
-                    ));
+                                <VSCodeOption
+                                    style={{
+                                        color: 'var(--vscode-editor-foreground)',
+                                        background: 'var(--vscode-editor-background)'
+                                    }}>${value}</VSCodeOption>`
+                    ))}
+                            </VSCodeDropdown>`;
 
-                    dropdownStr += `
-                    </VSCodeDropdown>
-                    {errors["${inputName}"] && <Error>{errors["${inputName}"]}</Error>}`;
                     fields +=
                         fixIndentation(dropdownStr, indentation);
                 } else if (inputType === 'comboOrExpression' || inputType === 'combo') {
 
                     const comboValues = element.value.comboValues.map((value: string) => `"${value}"`).toString().replaceAll(",", ", ");
                     const comboStr = `
-                        <label>${displayName}</label> ${isRequired ? `<RequiredFormInput />` : ''}
-                        <AutoComplete name="${toCamelCase(displayName)}" items={[${comboValues}]} selectedItem={formValues["${inputName}"]} onValueChange={(e: any) => {
-                            setFormValues({ ...formValues, "${inputName}": e });
-                            formValidators["${inputName}"](e);
-                        }} />
-                        {errors["${inputName}"] && <Error>{errors["${inputName}"]}</Error>}`;
+                        <AutoComplete label="${displayName}" name="${toCamelCase(displayName)}" items={[${comboValues}]} value={field.value} onValueChange={(e: any) => {
+                            field.onChange(e);
+                        }} />`;
                     fields +=
                         fixIndentation(comboStr, indentation);
                 } else if (inputType === 'checkbox') {
-                    if (!defaultValue) {
-                        defaultValues +=
-                            fixIndentation(`
-                        "${inputName}": false,`, 8);
-                    }
-
                     const checkboxStr = `
-                        <VSCodeCheckbox type="checkbox" checked={formValues["${inputName}"]} onChange={(e: any) => {
-                            setFormValues({ ...formValues, "${inputName}": e.target.checked });
-                            formValidators["${inputName}"](e);
-                        }
-                        }>${displayName} ${isRequired ? `<RequiredFormInput />` : ''}</VSCodeCheckbox>
-                        {errors["${inputName}"] && <Error>{errors["${inputName}"]}</Error>}`;
+                        <VSCodeCheckbox {...field} type="checkbox" checked={field.value} onChange={(e: any) => {field.onChange(e.target.checked)}}>${displayName}</VSCodeCheckbox>`;
 
                     fields +=
                         fixIndentation(checkboxStr, indentation);
+                } else if (inputType === 'key' || inputType === 'keyOrExpression' || inputType === 'comboOrKey') {
+                    const filterType = element.value.keyType;
+
+                    let addNewStr = '';
+                    if (inputType === 'comboOrKey') {
+                        addNewStr = `
+                        onCreateButtonClick={(fetchItems: any, handleValueChange: any) => {
+                            openPopup(rpcClient, "${filterType}", fetchItems, handleValueChange);
+                        }}`;
+                    }
+
+                    const comboStr = `
+                        <Keylookup
+                            value={field.value}${element.value.keyType ? `
+                            filterType='${filterType}'` : ''}
+                            label="${element.value.displayName}"
+                            allowItemCreate={${inputType === 'keyOrExpression'}} ${addNewStr}
+                            onValueChange={field.onChange}
+                        />`;
+                    fields +=
+                        fixIndentation(comboStr, indentation);
                 }
+
+                defaultValues +=
+                    fixIndentation(`
+                ${inputName}: sidePanelContext?.formValues?.${inputName} || ${getDefaultValue(defaultValue)},`, 8);
+
                 indentation -= 4;
                 fields +=
                     fixIndentation(`
-                    </Field>${enableCondition ? `
-                }\n` : "\n"}`, indentation);
+                            )}
+                        />
+                        {errors.${inputName} && <Error>{errors.${inputName}.message.toString()}</Error>}
+                    </Field>`, indentation);
 
-                indentation -= enableCondition ? 4 : 0;
 
             } else if (element.type === 'attributeGroup') {
-                const enableCondition = element.value.enableCondition;
-                if (enableCondition) {
-                    fields += generateEnabledCondition(enableCondition, indentation);
-                    indentation += 4;
-                }
-                if (parentName !== "table") {
+                const isCollapsible = element.value.isCollapsible;
+                const groupName = element.value.groupName;
+
+                if (isCollapsible) {
+                    fields += fixIndentation(`
+                    <FormGroup title="${groupName}">`, indentation);
+                } else {
                     fields += fixIndentation(`
                     <ComponentCard sx={cardStyle} disbaleHoverEffect>   
-                        <h3>${element.value.groupName}</h3>\n`, indentation);
+                        <Typography variant="h3">${groupName}</Typography>\n`, indentation);
                 }
 
                 generateFormItems(element.value.elements, indentation + 4, `${element.value.groupName.trim().replace(/\s/g, '_')}.`);
 
-                if (parentName !== "table") {
+                if (isCollapsible) {
+                    fields += fixIndentation(`
+                    </FormGroup>`, indentation);
+                } else {
                     fields += fixIndentation(`
                     </ComponentCard>`, indentation);
                 }
 
-                indentation -= enableCondition ? 4 : 0;
-                fields +=
-                    fixIndentation(`${enableCondition ? `
-                }\n` : "\n"}`, indentation);
             } else if (element.type === 'table') {
-                const inputName = element.value.name.trim();
-                tableName = inputName;
+                const value = element.value;
+                const inputName = value.name.trim();
+                const name = value.displayName;
+                const description = value.description;
+
                 fields +=
                     fixIndentation(`
-                    <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                        <h3>${element.value.displayName}</h3>\n`, indentation);
-                defaultValues +=
+                <ComponentCard sx={cardStyle} disbaleHoverEffect>
+                <Typography variant="h3">${name}</Typography>
+                ${description ? `<Typography variant="body3">${description}</Typography>` : ""}\n`, indentation);
+
+                const elements = value.elements;
+                const tableKey = getIndexByKeyName(value.tableKey, elements);
+                const tableValue = getIndexByKeyName(value.tableValue, elements);
+
+                let paramValues = '';
+                let paramFields = '';
+
+                paramValues +=
+                    fixIndentation(`sidePanelContext?.formValues?.${inputName} && sidePanelContext?.formValues?.${inputName}.map((property: string|ExpressionFieldValue[], index: string) => (
+                        {
+                            id: index,
+                            key: ${tableKey === -1 ? "index" : `typeof property[${tableKey}] === 'object' ? property[${tableKey}].value : property[${tableKey}]`},
+                            value: typeof property[${tableValue}] === 'object' ? property[${tableValue}].value : property[${tableValue}],
+                            icon: 'query',
+                            paramValues: [`, 24);
+
+                const tableKeys: string[] = [];
+                elements.forEach((attribute: any, index: number) => {
+                    const { name, displayName, enableCondition, inputType, required, comboValues, validation, validationRegEx } = attribute.value;
+                    let defaultValue: any = getDefaultValue(attribute.value.defaultValue);
+                    defaultValue = typeof defaultValue === 'string' ? defaultValue.replaceAll("\"", "") : defaultValue;
+
+                    tableKeys.push(name);
+                    const isRequired = required == 'true';
+
+                    let type;
+                    if (inputType === 'string' || inputType === 'registry' || inputType === 'expression') {
+                        type = 'TextField';
+                    } else if (inputType === 'stringOrExpression') {
+                        type = 'ExprField';
+                        defaultValue = { isExpression: false, value: defaultValue };
+                    } else if (inputType === 'connection' || inputType === 'comboOrExpression' || inputType === 'combo') {
+                        type = 'Dropdown';
+                    } else if (inputType === 'checkbox') {
+                        type = "Checkbox";
+                        if (!defaultValue) {
+                            defaultValue = false;
+                        }
+                    }
+
+                    const paramField =
+                        fixIndentation(`
+                        ${JSON.stringify({
+                            type: type,
+                            label: displayName,
+                            defaultValue: defaultValue,
+                            isRequired: isRequired,
+                            ...(type === 'ExprField') && { canChange: inputType === 'stringOrExpression' },
+                            ...(type === 'Dropdown') && { values: comboValues.map((value: string) => `${value}`), },
+                            ...(enableCondition) && { enableCondition: generateParammanagerCondition(enableCondition, tableKeys) },
+                        }, null, "\t")},`, 8);
+
+                    if (type === 'ExprField') {
+                        paramFields += paramField.slice(0, -3) + `, 
+                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
+                            sidePanelContext.setSidePanelState({
+                                ...sidePanelContext,
+                                expressionEditor: {
+                                    isOpen: true,
+                                    value,
+                                    setValue
+                                }
+                            });
+                        }` + paramField.slice(-2);
+
+                    } else {
+                        paramFields += paramField;
+                    }
+
+                    paramValues +=
+                        fixIndentation(`
+                        { value: property[${index}] },`, 8);
+                })
+                paramValues +=
                     fixIndentation(`
-                    "${inputName}": [] as string[][],`, 8);
-                const elements = element.value.form.elements;
+                            ]
+                        }
+                    )) || [] as string[][],`, 8);
 
-                const name = elements[0].value.elements[0].value.name;
-                const type = elements[0].value.elements[1].value.name;
-                const value = elements[0].value.elements[2] ? elements[0].value.elements[2].value.name : "";
+                defaultValues += fixIndentation(`
+                    ${inputName}: {
+                        paramValues: ${paramValues}
+                        paramFields: [${paramFields}
+                        ]
+                    },`, 8);
 
-                paramFields +=  fixIndentation(`
-                {
-                    type: "TextField",
-                    label: "${name}",
-                    defaultValue: "Name",
-                    isRequired: true
-                },
-                {
-                    type: "Dropdown",
-                    label: "${type}",
-                    defaultValue: "LITERAL",
-                    isRequired: true,
-                    values: ["LITERAL", "EXPRESSION"]
-                },
-                {
-                    type: "TextField",
-                    label: "${value}",
-                    defaultValue: "value",
-                    isRequired: true
-                },`, 8);
-
-                paramFieldNames = [name, type, value];
+                valueChanges += fixIndentation(`
+                    values["${inputName}"] = values.${inputName}.paramValues.map((param: any) => param.paramValues.map((p: any) => p.value));`, 8);
 
                 fields += fixIndentation(`
-                    {formValues["${inputName}"] && (
-                        <ParamManager
-                            paramConfigs={params}
-                            readonly={false}
-                            onChange= {handleOnChange} />
-                    )}`, indentation);
+                    <Controller
+                        name="${inputName}"
+                        control={control}
+                        render={({ field: { onChange, value } }) => (
+                            <ParamManager
+                                paramConfigs={value}
+                                readonly={false}
+                                onChange= {(values) => {
+                                    values.paramValues = values.paramValues.map((param: any, index: number) => {
+                                        const paramValues = param.paramValues;
+                                        param.key = ${tableKey === -1 ? "index" : `paramValues[${tableKey}].${getValueString(elements[tableKey])}`};
+                                        param.value = paramValues[${tableValue}].${getValueString(elements[tableValue])};
+                                        if (paramValues[1]?.value?.isExpression) {
+                                            param.namespaces = paramValues[1].value.namespaces;
+                                        }
+                                        param.icon = 'query';
+                                        return param;
+                                    });
+                                    onChange(values);
+                                }}
+                            />
+                        )}
+                    />`, indentation);
 
                 fields += fixIndentation(`
                 </ComponentCard>`, indentation);
             }
+
+            if (enableCondition) {
+                fields += `\n}`;
+
+                indentation -= 4;
+            }
+            fields += `\n`;
+
         });
     };
 
@@ -290,14 +469,16 @@ const generateForm = (jsonData: any): string => {
         fixIndentation(
             `${LICENSE_HEADER}
 import React, { useEffect, useState } from 'react';
-import { AutoComplete, Button, ComponentCard, ParamConfig, ParamManager, colors, RequiredFormInput, TextField } from '@wso2-enterprise/ui-toolkit';
+import { AutoComplete, Button, Codicon, ComponentCard, ExpressionField, ExpressionFieldValue, FormGroup, FlexLabelContainer, Label, Link, ParamConfig, ParamManager, ProgressIndicator, colors, RequiredFormInput, TextField, TextArea, Tooltip, Typography } from '@wso2-enterprise/ui-toolkit';
 import { VSCodeCheckbox, VSCodeDropdown, VSCodeOption, VSCodeDataGrid, VSCodeDataGridRow, VSCodeDataGridCell } from '@vscode/webview-ui-toolkit/react';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
-import { AddMediatorProps } from '../common';
+import { AddMediatorProps, openPopup } from '../common';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
 import { MEDIATORS } from '../../../../../resources/constants';
+import { Controller, useForm } from 'react-hook-form';
+import { Keylookup } from '../../../../Form';
 
 const cardStyle = { 
     display: "block", 
@@ -316,132 +497,64 @@ const Field = styled.div\`
     margin-bottom: 12px;
 \`;
 
-const emailRegex = /^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$/g;
-const nameWithoutSpecialCharactorsRegex = /^[a-zA-Z0-9]+$/g;
-
 const ${operationNameCapitalized} = (props: AddMediatorProps) => {
     const { rpcClient } = useVisualizerContext();
     const sidePanelContext = React.useContext(SidePanelContext);
-    const [formValues, setFormValues] = useState({} as { [key: string]: any });
-    const [errors, setErrors] = useState({} as any);
+    const [ isLoading, setIsLoading ] = React.useState(true);
 
-    const paramConfigs: ParamConfig = {
-        paramValues: [],
-        paramFields: [${paramFields}]
-    };
- 
-    const [params, setParams] = useState(paramConfigs);
- 
-    const handleOnChange = (params: any) => {
-        setParams(params);
-    };
+    const { control, formState: { errors, dirtyFields }, handleSubmit, watch, reset } = useForm();
 
     useEffect(() => {
-        if (sidePanelContext.formValues && Object.keys(sidePanelContext.formValues).length > 0) {
-            setFormValues({ ...formValues, ...sidePanelContext.formValues });
-            if (sidePanelContext.formValues["${tableName}"] && sidePanelContext.formValues["${tableName}"].length > 0 ) {
-                const paramValues = sidePanelContext.formValues["${tableName}"].map((property: string, index: string) => (
-                    {
-                        id: index,
-                        parameters: [
-                            {
-                                id: 0,
-                                label: "${paramFieldNames[0]}",
-                                type: "TextField",
-                                value: property[0],
-                                isRequired: true
-                            },
-                            {
-                                id: 1,
-                                label: "${paramFieldNames[1]}",
-                                type: "TextField",
-                                value: property[1],
-                                isRequired: true
-                            },
-                            {
-                                id: 2,
-                                label: "${paramFieldNames[2]}",
-                                type: "TextField",
-                                value: property[2],
-                                isRequired: true
-                            }
-                        ]
-                    })
-                )
-                setParams({ ...params, paramValues: paramValues });
-            } 
-        } else {
-            setFormValues({
-                ${defaultValues}
-            });
-        }
+        reset({${defaultValues}
+        });
+        setIsLoading(false);
     }, [sidePanelContext.formValues]);
 
-    const onClick = async () => {
-        const newErrors = {} as any;
-        Object.keys(formValidators).forEach((key) => {
-            const error = formValidators[key]();
-            if (error) {
-                newErrors[key] = (error);
+    const onClick = async (values: any) => {
+        ${valueChanges}
+        const xml = getXML(MEDIATORS.${operationNameCapitalized.toUpperCase().substring(0, operationNameCapitalized.length - 4)}, values, dirtyFields, sidePanelContext.formValues);
+        if (Array.isArray(xml)) {
+            for (let i = 0; i < xml.length; i++) {
+                await rpcClient.getMiDiagramRpcClient().applyEdit({
+                    documentUri: props.documentUri, range: xml[i].range, text: xml[i].text
+                });
             }
-        });
-        formValues["${tableName}"] = params.paramValues.map((param: any) => [param.parameters[0].value, param.parameters[1].value, param.parameters[2].value]);
-        if (Object.keys(newErrors).length > 0) {
-            setErrors(newErrors);
         } else {
-            const xml = getXML(MEDIATORS.${operationNameCapitalized.toUpperCase().substring(0, operationNameCapitalized.length - 4)}, formValues);
             rpcClient.getMiDiagramRpcClient().applyEdit({
                 documentUri: props.documentUri, range: props.nodePosition, text: xml
             });
-            sidePanelContext.setSidePanelState({
-                ...sidePanelContext,
-                isOpen: false,
-                isEditing: false,
-                formValues: undefined,
-                nodeRange: undefined,
-                operationName: undefined
-            });
         }
+        sidePanelContext.setSidePanelState({
+            ...sidePanelContext,
+            isOpen: false,
+            isEditing: false,
+            formValues: undefined,
+            nodeRange: undefined,
+            operationName: undefined
+        });
     };
 
-    const formValidators: { [key: string]: (e?: any) => string | undefined } = {${fixIndentation(formValidators, 8)}
-    };
-
-    const validateField = (id: string, e: any, isRequired: boolean, validation?: "e-mail" | "nameWithoutSpecialCharactors" | "custom", regex?: string): string => {
-        const value = e ?? formValues[id];
-        const newErrors = { ...errors };
-        let error;
-        if (isRequired && !value) {
-            error = "This field is required";
-        } else if (validation === "e-mail" && !value.match(emailRegex)) {
-            error = "Invalid e-mail address";
-        } else if (validation === "nameWithoutSpecialCharactors" && !value.match(nameWithoutSpecialCharactorsRegex)) {
-            error = "Invalid name";
-        } else if (validation === "custom" && !value.match(regex)) {
-            error = "Invalid input";
-        } else {
-            delete newErrors[id];
-            setErrors(newErrors);
-        }
-        setErrors({ ...errors, [id]: error });
-        return error;
-    };
-
+    if (isLoading) {
+        return <ProgressIndicator/>;
+    }
     return (
-        <div style={{ padding: "10px" }}>\n`, 0);
+        <>
+        <Typography sx={{ padding: "10px 15px", borderBottom: "1px solid var(--vscode-editorWidget-border)" }} variant="body3">${description || ""}</Typography>
+        <div style={{ padding: "20px" }}>\n`, 0);
     componentContent += fields;
 
     componentContent += fixIndentation(`
 
-            <div style={{ textAlign: "right", marginTop: "10px" }}>    
+            <div style={{ textAlign: "right", marginTop: "10px", float: "right" }}>    
                 <Button
                     appearance="primary"
-                    onClick={onClick}
+                    onClick={handleSubmit(onClick)}
                 >
                     Submit
                 </Button>
             </div>\n
         </div>
+        </>
     );
 };
 
@@ -482,26 +595,40 @@ const generateForms = () => {
     const jsonFiles = getFiles(source, []).filter(file => file.endsWith('.json'));
     console.log(`Found ${jsonFiles.length} json files`);
 
+    const failedFiles: string[] = [];
     jsonFiles.forEach((file) => {
         const fileContent = fs.readFileSync(file, 'utf8');
-        const jsonData = JSON.parse(fileContent);
+        const fileName = path.basename(file);
         const reltivePath = path.relative(source, file);
         const destinationPath = path.join(destination, reltivePath).replace('.json', '.tsx');
 
-        if (jsonData.name) {
-            console.log(`Generating form for ${file}`);
-            console.log('-----------------------------------');
-
-            const componentContent = generateForm(jsonData);
-            if (!fs.existsSync(destinationPath)) {
-                // console.log(componentContent);
-                fs.writeFileSync(destinationPath, componentContent);
-            } else {
-                console.log(`${destinationPath} already exists. Skipping...`);
+        if (fs.existsSync(destinationPath)) {
+            const existingContent = fs.readFileSync(destinationPath, 'utf8');
+            const isAutoGenerated = existingContent.includes("// AUTO-GENERATED FILE. DO NOT MODIFY.");
+            if (!isAutoGenerated) {
+                console.log(`Skipping ${fileName} as it is not auto-generated`);
+                return;
             }
-            
-            console.log('---------------END-----------------');
         }
+
+        try {
+            const jsonData = JSON.parse(fileContent);
+            if (jsonData.name) {
+                console.log(`Generating form for ${fileName}`);
+
+                const componentContent = generateForm(jsonData);
+                if (!fs.existsSync(path.dirname(destinationPath))) {
+                    fs.mkdirSync(path.dirname(destinationPath), { recursive: true });
+                }
+                fs.writeFileSync(destinationPath, componentContent);
+                console.log(`\x1b[32mSuccessfully generated form for ${fileName}\x1b[0m`);
+            }
+        } catch (e) {
+            console.error(`\x1b[31mError generating form for ${fileName}\x1b[0m`);
+            console.error(e);
+            failedFiles.push(fileName);
+        }
+        console.log('---------------END-----------------');
     });
 
     // lint generated files
@@ -516,6 +643,12 @@ const generateForms = () => {
         console.log(stderr);
     }
     );
+
+    if (failedFiles.length > 0) {
+        console.log(`\x1b[31mFailed to generate forms for the following files: (${failedFiles.length})\n${failedFiles.join('\n')}\x1b[0m`);
+    } else {
+        console.log(`\x1b[32mSuccessfully generated forms for ${jsonFiles.length} files\x1b[0m`);
+    }
 }
 
 generateForms();

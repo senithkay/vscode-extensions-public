@@ -151,7 +151,7 @@ export function getMessageStoreMustacheTemplate() {
         {{/value}}   
     {{/params}}
         {{#isResequence}}
-        <parameter expression="{{{xPath}}}" name="store.resequence.id.path" {{#namespaces}}xmlns:{{prefix}}="{{uri}}"{{/namespaces}}/>
+        <parameter expression="{{{xPath}}}" name="store.resequence.id.path" {{#namespaces}}xmlns:{{{prefix}}}="{{{uri}}}" {{/namespaces}}/>
         {{/isResequence}}    
     </messageStore>`;
 }
@@ -186,7 +186,7 @@ export function getMessageStoreXml(data: GetMessageStoreTemplatesArgs) {
 
     const modifiedData = {
         ...data,
-        isResequence: data.type === 'Resequence Message Store',
+        isResequence: data.type === 'Resequence Message Store' && data.xPath,
         className,
         params
     };

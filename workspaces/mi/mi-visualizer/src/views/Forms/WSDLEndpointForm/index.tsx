@@ -48,7 +48,7 @@ export function WsdlEndpointWizard(props: WsdlEndpointWizardProps) {
         wsdlUri: yup
             .string()
             .required("WSDL URI is required")
-            .matches(/^\$.+$|^\{.+\}$|^(https?|ftp):\/\/(([a-z\d]([a-z\d-]*[a-z\d])?\.)+[a-z]{2,}|localhost(:[\d]*)?)(\/[-a-z\d%_.~+]*)*(\?[;&a-z\d%_.~+=-]*)?(\#[-a-z\d_]*)?([?.]wsdl)$/i,
+            .matches(/^\$.+$|^\{.+\}$|^(https?|ftp):\/\/(([a-z\d]([a-z\d-]*[a-z\d])?\.)+[a-z]{2,}|localhost(:[\d]*)?)(\/[-a-z\d%_.~+{}]*)*(\?[;&a-z\d%_.~+=-{}]*)?(\#[-a-z\d_]*)?([?.]wsdl)$/i,
                 "Invalid WSDL URI format"),
         wsdlService: yup.string().required("WSDL Service is required"),
         wsdlPort: yup.string().required("WSDL Port is required"),
@@ -145,7 +145,7 @@ export function WsdlEndpointWizard(props: WsdlEndpointWizardProps) {
                     paramFields: prev.paramFields,
                     paramValues: existingEndpoint.templateParameters.map((param: any, index: number) => ({
                         id: prev.paramValues.length + index,
-                        parameters: [{ id: 0, value: param, label: "Parameter", type: "TextField", }],
+                        paramValues: [{ value: param }],
                         key: index + 1,
                         value: param,
                     }))
@@ -155,10 +155,10 @@ export function WsdlEndpointWizard(props: WsdlEndpointWizardProps) {
                     paramFields: prev.paramFields,
                     paramValues: existingEndpoint.properties.map((param: any, index: number) => ({
                         id: prev.paramValues.length + index,
-                        parameters: [
-                            { id: 0, value: param.name, label: "Name", type: "TextField" },
-                            { id: 1, value: param.value, label: "Value", type: "TextField" },
-                            { id: 2, value: param.scope, label: "Scope", type: "Dropdown", values: ["default", "transport", "axis2", "axis2-client"] }
+                        paramValues: [
+                            { value: param.name },
+                            { value: param.value },
+                            { value: param.scope }
                         ],
                         key: param.name,
                         value: "value:" + param.value + "; scope:" + param.scope + ";",
@@ -172,6 +172,7 @@ export function WsdlEndpointWizard(props: WsdlEndpointWizardProps) {
                 );
             } else {
                 reset(initialEndpoint);
+                isTemplate ? setValue("endpointName", "$name") : setValue("endpointName", "");
             }
 
             const result = await getArtifactNamesAndRegistryPaths(props.path, rpcClient);

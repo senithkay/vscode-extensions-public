@@ -14,7 +14,7 @@ import { yupResolver } from "@hookform/resolvers/yup"
 import * as yup from "yup";
 import { useForm } from "react-hook-form";
 import AddToRegistry, { getArtifactNamesAndRegistryPaths, formatRegistryPath, saveToRegistry } from "./AddToRegistry";
-import { FormKeylookup } from "@wso2-enterprise/mi-diagram-2";
+import { FormKeylookup } from "@wso2-enterprise/mi-diagram";
 
 export interface SequenceWizardProps {
     path: string;

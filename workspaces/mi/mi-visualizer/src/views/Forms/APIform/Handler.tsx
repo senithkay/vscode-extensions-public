@@ -11,6 +11,7 @@ import styled from "@emotion/styled";
 import { TextField, Button, Codicon } from "@wso2-enterprise/ui-toolkit";
 import PropTable from "./PropTable";
 import { useState } from "react";
+import { FieldValues, useController, UseControllerProps } from "react-hook-form";
 
 const Container = styled.div`
     padding: 15px 30px;
@@ -34,75 +35,74 @@ const TitleBar = styled.div({
     gap: 20,
 });
 
-const Handler = ({ id, last, handler, setHandlers }: any) => {
+type HandlerBaseProps = {
+    handlerId: number;
+    last: number;
+    handler: any;
+}
+
+type HandlerProps = HandlerBaseProps & {
+    handlers: any[];
+    onChangeHandlers: (handlers: any) => void;
+}
+
+type FormHandlerProps<T extends FieldValues> = HandlerBaseProps & UseControllerProps<T>;
+
+const Handler = ({ handlerId, last, handler, handlers, onChangeHandlers }: HandlerProps) => {
     const [showProps, setShowProps] = useState(false);
 
     const onClassNameChange = (text: string) => {
-        setHandlers((handlers: any) => {
-            const newHandlers = [...handlers];
-            newHandlers[id] = { ...newHandlers[id], name: text };
-            return newHandlers;
-        });
+        const newHandlers = [...handlers];
+        newHandlers[handlerId] = { ...newHandlers[handlerId], name: text };
+        onChangeHandlers(newHandlers);
     }
 
     const moveUp = () => {
-        if (id === 0) return;
-        setHandlers((handlers: any) => {
-            const newHandlers = [...handlers];
-            const temp = newHandlers[id];
-            newHandlers[id] = newHandlers[id - 1];
-            newHandlers[id - 1] = temp;
-            return newHandlers;
-        });
+        if (handlerId === 0) return;
+        const newHandlers = [...handlers];
+        const temp = newHandlers[handlerId];
+        newHandlers[handlerId] = newHandlers[handlerId - 1];
+        newHandlers[handlerId - 1] = temp;
+        onChangeHandlers(newHandlers);
     }
 
     const moveDown = () => {
-        if (id === last) return;
-        setHandlers((handlers: any) => {
-            const newHandlers = [...handlers];
-            const temp = newHandlers[id];
-            newHandlers[id] = newHandlers[id + 1];
-            newHandlers[id + 1] = temp;
-            return newHandlers;
-        });
+        if (handlerId === last) return;
+        const newHandlers = [...handlers];
+        const temp = newHandlers[handlerId];
+        newHandlers[handlerId] = newHandlers[handlerId + 1];
+        newHandlers[handlerId + 1] = temp;
+        onChangeHandlers(newHandlers);
     }
 
     const onHandlerDelete = () => {
-        setHandlers((handlers: any) => {
-            const newHandlers = [...handlers];
-            newHandlers.splice(id, 1);
-            return newHandlers;
-        });
+        const newHandlers = [...handlers];
+        newHandlers.splice(handlerId, 1);
+        onChangeHandlers(newHandlers);
     }
 
     const onPropertyAdd = () => {
         setShowProps(true);
 
         if (handler.properties.length === 0) {
-            setHandlers((handlers: any) => {
-                const newHandlers = [...handlers];
-                newHandlers[id].properties.push({ name: '', value: '' });
-                return newHandlers;
-            });
+            const newHandlers = [...handlers];
+            newHandlers[handlerId].properties.push({ name: '', value: '' });
+            onChangeHandlers(newHandlers);
             return;
         }
 
         const lastProp = handler.properties[handler.properties.length - 1];
         if (lastProp.name === '' || lastProp.value === '') return;
 
-        setHandlers((handlers: any) => {
-            const newHandlers = [...handlers];
-            newHandlers[id].properties.push({ name: '', value: '' });
-            return newHandlers;
-        });
+        const newHandlers = [...handlers];
+        newHandlers[handlerId].properties.push({ name: '', value: '' });
+        onChangeHandlers(newHandlers);
     }
 
     const onPropertiesChange = (properties: []) => {
-        setHandlers((handlers: any) => {
-            const newHandlers = [...handlers];
-            newHandlers[id] = { ...newHandlers[id], properties: properties };
-            return newHandlers;
-        });
+        const newHandlers = [...handlers];
+        newHandlers[handlerId] = { ...newHandlers[handlerId], properties: properties };
+        onChangeHandlers(newHandlers);
     }
 
     return (
@@ -134,9 +134,26 @@ const Handler = ({ id, last, handler, setHandlers }: any) => {
                     Add Property
                 </Button>
             </TitleBar>
-            {showProps && <PropTable classId={id} properties={handler.properties} onPropertiesChange={onPropertiesChange} />}
+            {showProps && <PropTable classId={handlerId} properties={handler.properties} onPropertiesChange={onPropertiesChange} />}
         </Container>
     )
 }
 
 export default Handler;
+
+export const FormHandler = <T extends FieldValues>({ handlerId: id, last, handler, name, control }: FormHandlerProps<T>) => {
+    const {
+        field: { value, onChange }
+    } = useController({ name, control });
+
+    return (
+        <Handler
+            handlerId={id}
+            last={last}
+            handler={handler}
+            handlers={value}
+            onChangeHandlers={onChange}
+        />
+    );
+};
+

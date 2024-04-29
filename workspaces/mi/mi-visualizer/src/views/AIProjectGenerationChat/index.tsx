@@ -106,6 +106,9 @@ const codeBlocks: string[] = [];
 var projectUuid = "";
 var backendRootUri = "";
 
+let controller = new AbortController();
+let signal = controller.signal;
+
 export function AIProjectGenerationChat() {
     const { rpcClient } = useVisualizerContext();
     const [state, setState] = useState<VisualizerLocation | null>(null);
@@ -147,7 +150,7 @@ export function AIProjectGenerationChat() {
                         { role: "User", content: machineView.initialPrompt, type: "initial_prompt" },
                     ]);
                     addChatEntry("user", machineView.initialPrompt);
-                    handleSend(false);
+                    handleSend(false, true);
                     rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.clearAIPrompt"] });
                 } else {
                     if (storedChatArray) {
@@ -241,6 +244,10 @@ export function AIProjectGenerationChat() {
         console.log("Suggestions: " + isSuggestionLoading);
     }, [isSuggestionLoading]);
 
+    useEffect(() => {
+        console.log("is Loading: " + isLoading);
+    }, [isLoading]);
+
     function getStatusText(status: number) {
         switch (status) {
             case 400: return 'Bad Request';
@@ -282,6 +289,7 @@ export function AIProjectGenerationChat() {
                     'Authorization': `Bearer ${token.token}`,
                 },
                 body: JSON.stringify({ messages: chatArray, context: context[0].context, num_suggestions: 1, type: "artifact_gen" }),
+                signal: signal,
             });
             if (!response.ok) {
                 throw new Error("Failed to fetch initial questions");
@@ -309,7 +317,7 @@ export function AIProjectGenerationChat() {
         }
     }
 
-    async function handleSend(isQuestion: boolean = false) {
+    async function handleSend(isQuestion: boolean = false, isInitialPrompt: boolean = false) {
         console.log(chatArray);
         var context: GetWorkspaceContextResponse[] = [];
         setMessages(prevMessages => prevMessages.filter((message, index) => message.type !== 'label'));
@@ -317,7 +325,7 @@ export function AIProjectGenerationChat() {
 
         setIsLoading(true);
         let assistant_response = "";
-        if (!isQuestion) {
+        if (!isQuestion && !isInitialPrompt) {
             addChatEntry("user", userInput);
         }
         setUserInput("");
@@ -375,6 +383,7 @@ export function AIProjectGenerationChat() {
                 'Authorization': `Bearer ${token.token}`,
             },
             body: JSON.stringify({ messages: chatArray, context: context[0].context }),
+            signal: signal,
         })
         if (!response.ok) {
             setIsLoading(false);
@@ -458,6 +467,17 @@ export function AIProjectGenerationChat() {
         localStorage.setItem(`codeBlocks-AIGenerationChat-${projectUuid}`, JSON.stringify(codeBlocks));
 
     };
+    async function handleStop() {
+        // Abort the fetch
+        controller.abort();
+    
+        // Create a new AbortController for future fetches
+        controller = new AbortController();
+        signal = controller.signal;
+    
+        setIsLoading(false);
+        setIsCodeLoading(false);
+    }
 
     const handleAddtoWorkspace = async () => {
 
@@ -540,7 +560,7 @@ export function AIProjectGenerationChat() {
                 { role: "User", content: questionText, type: "user_message" },
             ]);
 
-            handleSend(true);
+            handleSend(true,false);
         }
     }
 
@@ -566,7 +586,7 @@ export function AIProjectGenerationChat() {
 
     const handleTextKeydown = (event: any) => {
         if (event.key === "Enter" && userInput !== "") {
-            handleSend(false);
+            handleSend(false,false);
             setUserInput("");
         }
     };
@@ -672,14 +692,15 @@ export function AIProjectGenerationChat() {
                         placeholder="Type a command to test"
                         innerHTML="true"
                         style={{ width: "calc(100% - 35px)" }}
+                        // disabled = {isLoading}
                     >
                     </VSCodeTextField>
                     <VSCodeButton
                         appearance="secondary"
-                        onClick={() => handleSend(false)}
-                        disabled={isLoading}
+                        onClick={() => isLoading ? handleStop() : handleSend(false,false)}
+                        // disabled={isLoading}
                         style={{ width: "35px" }}>
-                        <span className="codicon codicon-send"></span>
+                        <span className={`codicon ${isLoading ? 'codicon-debug-stop' : 'codicon-send'}`}></span>
                     </VSCodeButton>
                 </FlexRow>
             </Footer>

@@ -9,12 +9,13 @@
 
 import styled from "@emotion/styled";
 import React, { useEffect, useState } from "react";
-import { Dropdown, Button, TextField, Typography, Accordion, CheckBox, ParamManager, TextArea } from "@wso2-enterprise/ui-toolkit";
+import { Dropdown, Button, TextField, Typography, Accordion, CheckBox, TextArea } from "@wso2-enterprise/ui-toolkit";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { driverMap, engineOptions, propertyParamConfigs } from "./types";
 import { EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
 import { dataSourceParams } from "./ParamTemplate";
 import ParamField from "../Commons/ParamField";
+import { ParamManager } from "@wso2-enterprise/mi-diagram";
 
 const WizardContainer = styled.div`
     width: 95%;
@@ -94,16 +95,16 @@ export function DataSourceWizard(props: DataSourceFormProps) {
                         setUseDatasourceFactory(response.jndiConfig.useDataSourceFactory);
                         if (response.jndiConfig.properties) {
                             let i = 0;
-                            setJndiProperties((prevState) => ({
+                            setJndiProperties((prevState: any) => ({
                                 ...prevState,
                                 paramValues: Object.entries(response.jndiConfig.properties).map(([key, value]) => {
                                     return {
                                         id: i++,
                                         key: "Property " + i,
                                         value: key + " : " + value,
-                                        parameters: [
-                                            { id: i + 1, value: key.toString(), type: "TextField", icon: "query", label: "" },
-                                            { id: i + 2, value: value.toString(), type: "TextField", icon: "query", label: "" }
+                                        paramValues: [
+                                            { value: key.toString() },
+                                            { value: value.toString() }
                                         ]
                                     };
                                 }),
@@ -116,16 +117,16 @@ export function DataSourceWizard(props: DataSourceFormProps) {
                         setDSClassName(response.externalDSClassName);
                         if (response.dataSourceProperties) {
                             let i = 0;
-                            setDsProperties((prevState) => ({
+                            setDsProperties((prevState: any) => ({
                                 ...prevState,
                                 paramValues: Object.entries(response.dataSourceProperties).map(([key, value]) => {
                                     return {
                                         id: i++,
                                         key: "Property " + i,
                                         value: key + " : " + value,
-                                        parameters: [
-                                            { id: i + 1, value: key.toString(), type: "TextField", icon: "query", label: "" },
-                                            { id: i + 2, value: value.toString(), type: "TextField", icon: "query", label: "" }
+                                        paramValues: [
+                                            { value: key.toString() },
+                                            { value: value.toString() }
                                         ]
                                     };
                                 }),
@@ -180,18 +181,18 @@ export function DataSourceWizard(props: DataSourceFormProps) {
             request.dataSourceConfigParameters = filteredParamState;
         }
         if (dsClassName) {
-            const dsPropertiesMap = dsProperties.paramValues.reduce((map, entry) => {
-                const key = entry.parameters[0].value.toString();
-                const value = entry.parameters[1].value.toString();
+            const dsPropertiesMap = dsProperties.paramValues.reduce((map: any, entry: any) => {
+                const key = entry.paramValues[0].value.toString();
+                const value = entry.paramValues[1].value.toString();
                 map[key] = value;
                 return map;
             }, {} as { [key: string]: string });
             request.dataSourceProperties = dsPropertiesMap;
         }
         if (jndiProperties.paramValues.length > 0) {
-            const jndiPropertiesMap = jndiProperties.paramValues.reduce((map, entry) => {
-                const key = entry.parameters[0].value.toString();
-                const value = entry.parameters[1].value.toString();
+            const jndiPropertiesMap = jndiProperties.paramValues.reduce((map: any, entry: any) => {
+                const key = entry.paramValues[0].value.toString();
+                const value = entry.paramValues[1].value.toString();
                 map[key] = value;
                 return map;
             }, {} as { [key: string]: string });

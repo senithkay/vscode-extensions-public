@@ -14,7 +14,7 @@ import { CreateTaskRequest, EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi
 import { yupResolver } from "@hookform/resolvers/yup"
 import * as yup from "yup";
 import { useForm } from "react-hook-form";
-import { FormKeylookup } from "@wso2-enterprise/mi-diagram-2";
+import { FormKeylookup } from "@wso2-enterprise/mi-diagram";
 import CodeMirror from "@uiw/react-codemirror";
 import { xml } from "@codemirror/lang-xml";
 import { oneDark } from "@codemirror/theme-one-dark";

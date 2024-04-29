@@ -1,5 +1,6 @@
 export const SAMPLE_ICONS_GITHUB_URL = "https://raw.githubusercontent.com/wso2/integration-studio/main/SamplesForVSCode/icons/";
-export const MI_COPILOT_BACKEND_URL = "https://e95488c8-8511-4882-967f-ec3ae2a0f86f-dev.e1-eu-north-azure.choreoapis.dev/mi-ai-deployments/micopilot/mi-copilot-backend-be2/v1.0";
+export const MI_COPILOT_BACKEND_URL = "https://e95488c8-8511-4882-967f-ec3ae2a0f86f-dev.e1-us-east-azure.choreoapis.dev/miaideployments/micopilot/mi-copilot-backend-be2/v1.0";
+export const HEALTH_CHECK_BACKEND_URL = '/health';
 
 export const COMMANDS = {
     OPEN_PROJECT: "MI.openProject",

@@ -9,6 +9,11 @@
 import { Diagnostic, Node } from "ts-morph";
 
 export function getDiagnostics(node: Node): Diagnostic[] {
+
+    if (!node) {
+        return [];
+    }
+
     const diagnostics = node.getSourceFile().getPreEmitDiagnostics();
     let targetNode = node;
 

@@ -9,21 +9,27 @@
 
 import Mustache from "mustache";
 import { Log } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { ExpressionFieldValue } from "../../../../components/Form/ExpressionField/ExpressionInput";
 
 export function getLogMustacheTemplate() {
   return `<log {{#category}}category="{{category}}"{{/category}} {{#level}}level="{{level}}"{{/level}} {{#separator}}separator="{{separator}}"{{/separator}} {{#description}}description="{{description}}"{{/description}}>
 {{#properties}}
-    <property name="{{propertyName}}" {{#value}}value="{{value}}"{{/value}} {{#expression}}expression="{{expression}}"{{/expression}} />
+    <property name="{{propertyName}}" {{#value}}value="{{value}}"{{/value}} {{#expression}}expression="{{expression}}" {{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}} {{/expression}} />
 {{/properties}}
 </log>`;
 }
 
 export function getLogXml(data: { [key: string]: any }) {
   data.level = data.level.toLowerCase();
-  const properties = data.properties.map((property: string[]) => {
+  const properties = data.properties.map((property: string | ExpressionFieldValue[]) => {
+    const value = property[1] as ExpressionFieldValue;
+    const isExpressionValue = value.isExpression;
+    const namespaces = value.namespaces;
     return {
       propertyName: property[0],
-      value: property[2]
+      ...(!isExpressionValue) && { value: value.value },
+      ...(isExpressionValue) && { expression: value.value },
+      namespaces
     }
   });
   const modifiedData = {
@@ -39,9 +45,17 @@ export function getLogFormDataFromSTNode(data: { [key: string]: any }, node: Log
 
   if (node.property) {
     data.properties = node.property.map((property) => {
-      return [property.name, property.value ? "LITERAL" : "EXPRESSION", property.value ?? property.expression];
+      return [property.name, { value: property.value || property.expression, isExpression: !!property.expression, namespaces: []}];
     });
   }
 
   return data;
+}
+
+export function getLogDescription(node: Log) {
+  if (node.property) {
+    return node.property.map((property: any) => {
+      return property.name;
+    }).join(", ");
+  }
 }

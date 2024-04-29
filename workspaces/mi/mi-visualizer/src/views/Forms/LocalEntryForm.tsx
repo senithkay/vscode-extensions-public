@@ -13,6 +13,7 @@ import { Button, TextField, FormView, FormActions, FormCheckBox } from "@wso2-en
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import CodeMirror from "@uiw/react-codemirror";
 import { xml } from "@codemirror/lang-xml";
+import { oneDark } from "@codemirror/theme-one-dark";
 import { CreateLocalEntryRequest, CreateLocalEntryResponse, EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
 import { XMLValidator } from "fast-xml-parser";
 import { useForm } from "react-hook-form";
@@ -86,7 +87,6 @@ export function LocalEntryWizard(props: LocalEntryWizardProps) {
         isError: false,
         text: ""
     });
-    const [isXML, setIsXML] = useState(true);
 
     const schema = yup.object({
         name: yup.string().required("Local Entry Name is required").matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in Local Entry name")
@@ -184,9 +184,7 @@ export function LocalEntryWizard(props: LocalEntryWizardProps) {
     }, [props.path]);
 
     useEffect(() => {
-        if (!isXML) {
-            handleMessage("Entered In-Line Xml Should be in XML", true);
-        } else if (!validationMessage) {
+        if (!validationMessage) {
             handleMessage(`Error ${xmlErrors.code} , ${xmlErrors.msg} in line ${xmlErrors.line}, from ${xmlErrors.col} `, true);
         } else {
             handleMessage("", false);
@@ -215,11 +213,6 @@ export function LocalEntryWizard(props: LocalEntryWizardProps) {
     };
 
     const handleXMLInputChange = (text: string) => {
-        if (text.toLowerCase().startsWith("<xml" || "<xml>" || "<?xml" || "<?xml>")) {
-            setIsXML(true);
-        } else {
-            setIsXML(false);
-        }
         setValue("inLineXmlValue", text);
         setValidationMessage(isValidXML(text));
     }
@@ -293,6 +286,7 @@ export function LocalEntryWizard(props: LocalEntryWizardProps) {
                     {getValues("type") === "In-Line XML Entry" && (
                         <CodeMirror
                             value={getValues("inLineXmlValue")}
+                            theme={oneDark}
                             extensions={[xml()]}
                             height="200px"
                             autoFocus

@@ -10,7 +10,7 @@
 import React from 'react';
 
 import { css } from '@emotion/css';
-import { Button, ContextMenu, Icon, Item } from '@wso2-enterprise/ui-toolkit';
+import { Button, ContextMenu, Icon, Item, Typography } from '@wso2-enterprise/ui-toolkit';
 
 const useStyles = () => ({
     itemContainer: css({
@@ -57,7 +57,7 @@ export function ValueConfigMenu(props: ValueConfigMenuProps) {
                     key={menuItem.title}
                     data-testid={`value-config-${portName}-item-${menuItem.title}`}
                 >
-                    <div>{menuItem.title}</div>
+                    <Typography variant='body3'>{menuItem.title}</Typography>
                     {menuItem?.warningMsg && (
                         <Button
                             appearance="icon"
@@ -77,6 +77,6 @@ export function ValueConfigMenu(props: ValueConfigMenuProps) {
     });
 
     return (
-        <ContextMenu iconSx={{ transform: "rotate(90deg)" }} menuItems={items} />
+        <ContextMenu iconSx={{ transform: "rotate(90deg)" }} menuItems={items} position='bottom-left' />
     );
 }

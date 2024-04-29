@@ -9,20 +9,23 @@
 
 import Mustache from "mustache";
 import { CallTemplate } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { ExpressionFieldValue } from "../../../../components/Form/ExpressionField/ExpressionInput";
 
 export function getCallTemplateMustacheTemplate() {
-  return `<call-template target="{{targetTemplate}}"{{#onError}} onError="{{onError}}"{{/onError}}{{#description}} description="{{description}}"{{/description}}>
+  return `<call-template {{#targetTemplate}}target="{{targetTemplate}}" {{/targetTemplate}}{{#onError}}onError="{{onError}}" {{/onError}}{{#description}}description="{{description}}" {{/description}}>
 {{#parameterName}}
-<with-param name="{{parameterName}}" {{#parameterValue}}value="{{parameterValue}}"{{/parameterValue}} {{#parameterExpression}}value="{{parameterExpression}}"{{/parameterExpression}}/>
+  <with-param {{#parameterName}}name="{{parameterName}}" {{/parameterName}}{{#parameterValue}}value="{{parameterValue}}" {{/parameterValue}}/>
 {{/parameterName}}
 </call-template>`;
 }
 
 export function getCallTemplateXml(data: { [key: string]: any }) {
-  const parameterName = data.parameterNameTable.map((property: string[]) => {
+  const parameterName = data.parameterNameTable.map((property: any[]) => {
+    const value = property[1] as ExpressionFieldValue;
+    const isExpressionValue = value.isExpression;
     return {
       parameterName: property[0],
-      parameterValue: property[2]
+      parameterValue: isExpressionValue ? `{${value.value}}` : value.value,
     }
   });
   const modifiedData = {
@@ -30,13 +33,17 @@ export function getCallTemplateXml(data: { [key: string]: any }) {
     parameterName
   }
 
-  return Mustache.render(getCallTemplateMustacheTemplate(), modifiedData);
+  return Mustache.render(getCallTemplateMustacheTemplate(), modifiedData).trim();
 }
 
 export function getCallTemplateFormDataFromSTNode(data: { [key: string]: any }, node: CallTemplate) {
   if (node.withParam) {
     data.parameterNameTable = node.withParam.map((property) => {
-      return [property.name, property.value ? "LITERAL" : "EXPRESSION", property.value];
+      const isExpression = property.value.startsWith("{");
+      const regex = /{([^}]*)}/;
+      const match = property.value.match(regex);
+      const value = match?.length > 1 ? match[1] : property.value;
+      return [property.name, { value: value, isExpression }];
     });
   }
 

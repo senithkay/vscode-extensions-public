@@ -6,17 +6,18 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import React, { useEffect, useState } from "react";
-import { AutoComplete, Button, TextField, ParamManager, ParamConfig, FormView, FormGroup, FormActions, FormCheckBox, FormAutoComplete } from "@wso2-enterprise/ui-toolkit";
+import { useEffect, useState } from "react";
+import { AutoComplete, Button, TextField, FormView, FormGroup, FormActions, FormCheckBox, FormAutoComplete, Dropdown } from "@wso2-enterprise/ui-toolkit";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { preConfiguredProfiles, rdbmsTypes } from './types';
-import { rabbitMQInitialValues, jmsInitialValues, jdbcInitialValues, wso2MbInitialValues, resequenceInitialValues, poolInitialValues, carbonDatasourceInitialValues, sslInitialValues } from './typeValues';
+import { rabbitMQInitialValues, jmsInitialValues, jdbcInitialValues, wso2MbInitialValues, resequenceInitialValues, poolInitialValues, carbonDatasourceInitialValues} from './typeValues';
 import { CreateMessageStoreRequest, EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { useForm } from "react-hook-form";
 import CardWrapper from "../Commons/CardWrapper";
 import { TypeChip } from "../Commons";
+import { ParamConfig, ParamManager } from "@wso2-enterprise/mi-diagram";
 
 export type CustomParameter = {
     name: string,
@@ -42,6 +43,7 @@ type InputsFields = {
     rabbitMQServerHostName?: string;
     rabbitMQServerPort?: string;
     dataBaseTable?: string;
+    rdbmsType?: string;
     driver?: string;
     url?: string;
     user?: string;
@@ -94,6 +96,7 @@ const initialMessageStore: InputsFields = {
     routineKey: "",
     virtualHost: "",
     dataBaseTable: "",
+    rdbmsType: "Other",
     driver: "",
     url: "",
     user: "",
@@ -152,7 +155,6 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
     const [rows, setRows] = useState<CustomParameter[]>([]);
     const isNewStore = !props.path.endsWith(".xml");
     const [preConfiguredProfile, setPreConfiguredProfile] = useState("Other");
-    const [rdbmsType, setRdbmsType] = useState("Other");
     const [type, setType] = useState("");
     const [params, setParams] = useState(paramConfigs);
     const [namespaceParams, setNamespaceParams] = useState(namespaceConfigs);
@@ -200,12 +202,12 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                 otherwise: (schema) => schema.notRequired()
             }),
             dataBaseTable: yup.string().required().when('type', {
-                is: "JDBC Message Store" || "Resequence Message Store",
+                is: (value: string) => ["JDBC Message Store", "Resequence Message Store"].includes(value),
                 then: (schema) => schema.required("Data Base Table is required"),
                 otherwise: (schema) => schema.notRequired()
             }),
             driver: yup.string().required().when('type', {
-                is: "JDBC Message Store" || "Resequence Message Store",
+                is: (value: string) => ["JDBC Message Store", "Resequence Message Store"].includes(value),
                 then: (schema) => schema.required().when('connectionInformationType', {
                     is: "Pool",
                     then: (schema) => schema.required("Driver is required").matches(/^[a-zA-Z0-9._]*$/, "Invalid characters in Driver"),
@@ -214,16 +216,16 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                 otherwise: (schema) => schema.notRequired()
             }),
             url: yup.string().required().when('type', {
-                is: "JDBC Message Store" || "Resequence Message Store",
+                is: (value: string) => ["JDBC Message Store", "Resequence Message Store"].includes(value),
                 then: (schema) => schema.required().when('connectionInformationType', {
                     is: "Pool",
-                    then: (schema) => schema.required("JDBC URL is required").matches(/^[a-zA-Z0-9-._~:\/?#\[\]@!\$&'\(\)\*\+,;=]*$/, "Invalid characters in url"),
+                    then: (schema) => schema.required("JDBC URL is required").matches(/((?:jdbc):[^\s$.?#\d<>]+\/\/[^\s$.?#<>]+(:[0-9]{1,5})?\/[^\s$.?#<>]+$|(?:jdbc):[^\s$.?#\d<>]+:[^\s$.?#\d<>]+:[^\s$.?#\d<>@]+:([0-9]{1,5})\/[^\s$.?#<>]+$)/, "Invalid characters in url"),
                     otherwise: (schema) => schema.notRequired()
                 }),
                 otherwise: (schema) => schema.notRequired()
             }),
             user: yup.string().required().when('type', {
-                is: "JDBC Message Store" || "Resequence Message Store",
+                is: (value: string) => ["JDBC Message Store", "Resequence Message Store"].includes(value),
                 then: (schema) => schema.required().when('connectionInformationType', {
                     is: "Pool",
                     then: (schema) => schema.required("User Name is required"),
@@ -246,7 +248,7 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
     const {
         reset,
         register,
-        formState: { errors, isDirty },
+        formState: { errors, isDirty, isValid },
         handleSubmit,
         getValues,
         watch,
@@ -263,8 +265,8 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
             ...params, paramValues: params.paramValues.map((param: any) => {
                 return {
                     ...param,
-                    key: param.parameters[0].value,
-                    value: param.parameters[1].value,
+                    key: param.paramValues[0].value,
+                    value: param.paramValues[1].value,
                 }
             })
         };
@@ -277,8 +279,8 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
             ...params, paramValues: params.paramValues.map((param: any) => {
                 return {
                     ...param,
-                    key: param.parameters[0].value,
-                    value: param.parameters[1].value,
+                    key: param.paramValues[0].value,
+                    value: param.paramValues[1].value,
                 }
             })
         };
@@ -302,7 +304,7 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
 
     useEffect(() => {
         if (isNewStore) {
-            switch (rdbmsType) {
+            switch (getValues("rdbmsType")) {
                 case "MySQL":
                     setValue("driver", "com.mysql.jdbc.Driver", { shouldValidate: true, shouldDirty: true });
                     setValue("url", "jdbc:mysql://localhost:3306/<dbName>", { shouldValidate: true, shouldDirty: true });
@@ -315,7 +317,7 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                     break;
                 case "MS SQL":
                     setValue("driver", "com.microsoft.sqlserver.jdbc.SQLServerDriver", { shouldValidate: true, shouldDirty: true });
-                    setValue("url", "jdbc:sqlserver://<IP>:1433;databaseName=<dbName>;SendStringParametersAsUnicode=false", { shouldValidate: true, shouldDirty: true });
+                    setValue("url", "jdbc:sqlserver://<IP>:1433;databaseName=dbName;SendStringParametersAsUnicode=false", { shouldValidate: true, shouldDirty: true });
                     setValue("user", "sa", { shouldValidate: true, shouldDirty: true });
                     break;
                 case "PostgreSQL":
@@ -330,7 +332,7 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                     break;
             }
         }
-    }, [rdbmsType]);
+    }, [watch("rdbmsType")]);
 
     useEffect(() => {
         if (isNewStore) {
@@ -362,7 +364,7 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                 setMessageStoreNames(messageStoreNames);
             }
         })();
-    }, []);
+    }, [props.path]);
 
     // Avoid using the same store as on error store
     useEffect(() => {
@@ -390,17 +392,11 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                                     ...prev,
                                     paramValues: [...prev.paramValues, {
                                         id: prev.paramValues.length,
-                                        parameters: [{
-                                            id: 0,
+                                        paramValues: [{
                                             value: param.name,
-                                            label: "Name",
-                                            type: "TextField",
                                         },
                                         {
-                                            id: 1,
                                             value: param.value,
-                                            label: "Value",
-                                            type: "TextField",
                                         }],
                                         key: param.name,
                                         value: param.value,
@@ -418,18 +414,12 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                                 ...prev,
                                 paramValues: [...prev.paramValues, {
                                     id: prev.paramValues.length,
-                                    parameters: [{
-                                        id: 0,
+                                    paramValues: [{
                                         value: param.prefix,
-                                        label: "Prefix",
-                                        type: "TextField",
                                     },
-                                        {
-                                            id: 1,
-                                            value: param.uri,
-                                            label: "URI",
-                                            type: "TextField",
-                                        }],
+                                    {
+                                        value: param.uri,
+                                    }],
                                     key: param.prefix,
                                     value: param.uri,
                                 }
@@ -478,18 +468,16 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                 reset({ ...getValues(), ...jmsInitialValues() });
             }
             else if (type === "RabbitMQ Message Store") {
-                reset({ ...getValues(), ...rabbitMQInitialValues() });
+                reset({ ...getValues(), ...rabbitMQInitialValues(), ...poolInitialValues()});
             }
             else if (type === "JDBC Message Store") {
                 reset({ ...getValues(), ...jdbcInitialValues() });
-                setValue("connectionInformationType", "Pool");
             }
             else if (type === "WSO2 MB Message Store") {
                 reset({ ...getValues(), ...wso2MbInitialValues() });
             }
             else if (type === "Resequence Message Store") {
-                reset({ ...getValues(), ...resequenceInitialValues() });
-                setValue("connectionInformationType", "Pool");
+                reset({ ...getValues(), ...resequenceInitialValues(), ...poolInitialValues()});
             }
             else if (type === "Custom Message Store") {
                 setRows([]);
@@ -524,10 +512,6 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
         setPreConfiguredProfile(profile);
     }
 
-    const handleRdbmsTypeChange = (type: string) => {
-        setRdbmsType(type);
-    }
-
     const removeDuplicateParameters = () => {
         const uniqueParameters = watch("customParameters")?.filter((parameter, index, self) =>
             index === self.findIndex((t) => (
@@ -542,14 +526,14 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
         if (getValues("type") === "Custom Message Store") {
             let customProperties: any = [];
             params.paramValues.map((param: any) => {
-                customProperties.push({ name: param.parameters[0].value, value: param.parameters[1].value });
+                customProperties.push({ name: param.paramValues[0].value, value: param.paramValues[1].value });
             });
             setValue("customParameters", customProperties);
         }
 
         let namespaces: any = [];
         namespaceParams.paramValues.map((param: any) => {
-            namespaces.push({ prefix: param.parameters[0].value, uri: param.parameters[1].value });
+            namespaces.push({ prefix: param.paramValues[0].value, uri: param.paramValues[1].value });
         });
 
         const createMessageStoreParams: CreateMessageStoreRequest = {
@@ -842,12 +826,12 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                                 {getValues("connectionInformationType") === "Pool" && (
                                     <>
                                         {isNewStore && (
-                                            <AutoComplete
+                                            <FormAutoComplete
+                                                name="rdbmsType"
                                                 label="RDBMS Type"
                                                 items={rdbmsTypes}
-                                                value={rdbmsType}
-                                                onValueChange={handleRdbmsTypeChange}
-                                                sx={{ width: "100%" }} />
+                                                control={control}
+                                                {...register("rdbmsType")}/>
                                         )}
                                         <TextField
                                             placeholder="Driver"
@@ -956,12 +940,12 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                                 {watch("connectionInformationType") === "Pool" && (
                                     <>
                                         {isNewStore && (
-                                            <AutoComplete
+                                            <FormAutoComplete
+                                                name="rdbmsType"
                                                 label="RDBMS Type"
                                                 items={rdbmsTypes}
-                                                value={rdbmsType}
-                                                onValueChange={handleRdbmsTypeChange}
-                                                sx={{ width: "100%" }} />
+                                                control={control}
+                                                {...register("rdbmsType")}/>
                                         )}
                                         <TextField
                                             placeholder="Driver"
@@ -1022,7 +1006,8 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                                 <ParamManager
                                     paramConfigs={namespaceParams}
                                     readonly={false}
-                                    onChange={handleNamespacesChange} />
+                                    onChange={handleNamespacesChange} 
+                                    addParamText="Add Path Namespaces"/>
                             </FormGroup>
                         </>
                     )}
@@ -1055,7 +1040,7 @@ export function MessageStoreWizard(props: MessageStoreWizardProps) {
                             onClick={handleSubmit((values) => {
                                 handleCreateMessageStore(values);
                             })}
-                            disabled={!(isDirty || paramsUpdated)}
+                            disabled={!(isDirty || paramsUpdated) || !isValid}
                         >
                             {isNewStore ? "Create" : "Update"}
                         </Button>

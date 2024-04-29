@@ -9,7 +9,7 @@
 
 import styled from "@emotion/styled";
 import { useEffect, useState } from "react";
-import { Button, Dropdown, TextField, FormView, FormGroup, FormActions, ParamManager, FormCheckBox, FormAutoComplete } from "@wso2-enterprise/ui-toolkit";
+import { Button, Dropdown, TextField, FormView, FormGroup, FormActions, FormCheckBox, FormAutoComplete } from "@wso2-enterprise/ui-toolkit";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
 import { yupResolver } from "@hookform/resolvers/yup"
@@ -17,7 +17,7 @@ import * as yup from "yup";
 import { useForm } from "react-hook-form";
 import { TypeChip } from "./Commons";
 import AddToRegistry, { getArtifactNamesAndRegistryPaths, formatRegistryPath, saveToRegistry } from "./AddToRegistry";
-import { FormKeylookup } from "@wso2-enterprise/mi-diagram-2";
+import { FormKeylookup, ParamManager } from "@wso2-enterprise/mi-diagram";
 
 const FieldGroup = styled.div`
     display: flex;
@@ -151,9 +151,9 @@ export function TemplateEndpointWizard(props: TemplateEndpointWizardProps) {
                         paramValues: endpoint.parameters.map((property: any, index: Number) => {
                             return {
                                 id: prev.paramValues.length + index,
-                                parameters: [
-                                    { id: 0, label: 'Name', type: 'TextField', value: property.name, isRequired: true },
-                                    { id: 1, label: 'Value', type: 'TextField', value: property.value, isRequired: true },
+                                paramValues: [
+                                    { value: property.name },
+                                    { value: property.value }
                                 ],
                                 key: property.name,
                                 value: property.value,
@@ -189,16 +189,16 @@ export function TemplateEndpointWizard(props: TemplateEndpointWizardProps) {
                 paramValues: config.paramValues.map((param: any) => {
                     return {
                         ...param,
-                        key: param.parameters[0].value,
-                        value: param.parameters[1].value ?? '',
+                        key: param.paramValues[0].value,
+                        value: param.paramValues[1].value ?? '',
                     }
                 })
             };
         })
 
         setValue('parameters', config.paramValues.map((param: any) => ({
-            name: param.parameters[0].value,
-            value: param.parameters[1].value
+            name: param.paramValues[0].value,
+            value: param.paramValues[1].value
         })), { shouldDirty: true });
     }
 

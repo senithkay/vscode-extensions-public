@@ -14,6 +14,8 @@ import { EVENT_TYPE, AIVisualizerLocation, AIMachineStateValue, AI_EVENT_TYPE } 
 import { AiPanelWebview } from './webview';
 import { getAuthUrl } from './auth';
 import { extension } from '../MIExtensionContext';
+import fetch from 'node-fetch';
+import { HEALTH_CHECK_BACKEND_URL } from '../constants';
 
 interface ChatEntry {
     role: string;
@@ -145,8 +147,24 @@ async function checkToken(context, event) {
         try {
             const token = await extension.context.secrets.get('MIAIUser');
             if (token) {
+                const config = vscode.workspace.getConfiguration('integrationStudio');
+                const ROOT_URL = config.get('rootUrl') as string;
+                const url = ROOT_URL + HEALTH_CHECK_BACKEND_URL;
+                console.log("URL: " + url);
                 console.log("Token found: " + token);
-                resolve(token);
+                const response = await fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`,
+                    },
+                });
+                console.log("Response: " + JSON.stringify(response));
+                if (response.ok) {
+                    resolve(token);
+                } else {
+                    resolve(undefined);
+                }
             } else {
                 resolve(undefined);
             }
@@ -191,7 +209,7 @@ export const StateMachineAI = {
 };
 
 export function openAIWebview(initialPrompt?: string) {
-    extension.initialPrompt = initialPrompt;
+    extension.initialPrompt = typeof initialPrompt === 'string' ? initialPrompt : undefined;
     if (!AiPanelWebview.currentPanel) {
         AiPanelWebview.currentPanel = new AiPanelWebview();
     } else {

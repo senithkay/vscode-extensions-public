@@ -94,7 +94,7 @@
               "displayName": "Args",
               "title": "Payload Factory Argument",
               "description": "Editing of the properties of an object Payload Factory Argument",
-              "tableKey": "${rowNumber}",
+              "tableKey": "{row.number}",
               "tableValue": "argumentValue",
               "elements": [
                 {

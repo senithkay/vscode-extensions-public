@@ -1,16 +1,16 @@
 {
   "compilerOptions": {
     "module": "ESNext",
-    "target": "ES6",
+    "target": "es2022",
     "useDefineForClassFields": true,
-    "lib": ["ES6", "DOM", "DOM.Iterable"],
+    "lib": ["es2022", "DOM", "DOM.Iterable"],
     "skipLibCheck": true,
     "outDir": "./lib",
     "rootDir": "./src",
     
     "moduleResolution": "node",
     "resolveJsonModule": true,
-    "isolatedModules": true,
+    "isolatedModules": false,
     "jsx": "react",
     "sourceMap": true,
     "declaration": true,
@@ -33,10 +33,12 @@
     "typeRoots": [
       "node_modules/@types"
     ],
+    "paths": {
+      "react": [
+        "./node_modules/@types/react"
+      ]
+    },
   },
-  "include": [
-      "src"
-  ],
   "exclude": [
       "node_modules",
       "lib"

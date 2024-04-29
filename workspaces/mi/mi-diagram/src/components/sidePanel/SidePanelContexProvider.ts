@@ -9,39 +9,47 @@
 
 import React, { Dispatch, SetStateAction } from "react";
 import { Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
+import { ExpressionFieldValue } from "../Form/ExpressionField/ExpressionInput";
 
 interface SidePanelContext {
-    setIsOpen: Dispatch<SetStateAction<boolean>>;
+    // Mediator related
     isOpen: boolean;
-    setIsEditing: Dispatch<SetStateAction<boolean>>;
     isEditing: boolean;
-    setNodeRange: Dispatch<SetStateAction<Range>>;
     nodeRange?: Range;
-    setOperationName?: Dispatch<SetStateAction<string>>;
     operationName?: string;
-    setFormValues?: Dispatch<SetStateAction<{ [key: string]: any }>>;
+    parentNode?: string;
+    previousNode?: string;
     formValues?: { [key: string]: any };
-    setShowBackBtn: Dispatch<SetStateAction<boolean>>;
-    showBackBtn: boolean;
-    setBackBtn: Dispatch<SetStateAction<number>>;
-    backBtn: number;
+    title?: string;
+    isFormOpen?: boolean;
+    connectors?: any[];
+    iconPath?: string;
+    expressionEditor?: {
+        isOpen: boolean;
+        value: ExpressionFieldValue;
+        setValue: (value: ExpressionFieldValue) => void;
+    }
+    setSidePanelState?: Dispatch<SetStateAction<any>>;
 }
 
 const SidePanelContext = React.createContext<SidePanelContext>({
-    setIsOpen: () => { },
     isOpen: false,
-    setIsEditing: () => { },
     isEditing: false,
-    setNodeRange: () => { },
     nodeRange: undefined,
-    setOperationName: () => { },
     operationName: undefined,
-    setFormValues: () => { },
+    parentNode: undefined,
+    previousNode: undefined,
     formValues: {},
-    setShowBackBtn: () => { },
-    showBackBtn: false,
-    setBackBtn: () => { },
-    backBtn: undefined,
+    title: undefined,
+    isFormOpen: false,
+    connectors: [],
+    expressionEditor: {
+        isOpen: false,
+        value: undefined,
+        setValue: () => {},
+    },
+    setSidePanelState: () => {},
 })
+
 export const SidePanelProvider = SidePanelContext.Provider
 export default SidePanelContext
