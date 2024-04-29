@@ -140,7 +140,7 @@ const HeaderForm = (props: AddMediatorProps) => {
                     {errors.scope && <Error>{errors.scope.message.toString()}</Error>}
                 </Field>
 
-                {watch("headerAction") && watch("headerAction").toLowerCase() == "set" &&
+                {watch("headerAction") == "set" &&
                 <ComponentCard sx={cardStyle} disbaleHoverEffect>
                     <Typography variant="h3">HeaderValue</Typography>
 
@@ -157,7 +157,7 @@ const HeaderForm = (props: AddMediatorProps) => {
                         {errors.valueType && <Error>{errors.valueType.message.toString()}</Error>}
                     </Field>
 
-                    {watch("valueType") && watch("valueType").toLowerCase() == "literal" &&
+                    {watch("valueType") == "LITERAL" &&
                         <Field>
                             <Controller
                                 name="valueLiteral"
@@ -170,7 +170,7 @@ const HeaderForm = (props: AddMediatorProps) => {
                         </Field>
                     }
 
-                    {watch("valueType") && watch("valueType").toLowerCase() == "expression" &&
+                    {watch("valueType") == "EXPRESSION" &&
                         <Field>
                             <Controller
                                 name="valueExpression"
@@ -197,7 +197,7 @@ const HeaderForm = (props: AddMediatorProps) => {
                         </Field>
                     }
 
-                    {watch("valueType") && watch("valueType").toLowerCase() == "inline" &&
+                    {watch("valueType") == "INLINE" &&
                         <Field>
                             <Controller
                                 name="valueInline"

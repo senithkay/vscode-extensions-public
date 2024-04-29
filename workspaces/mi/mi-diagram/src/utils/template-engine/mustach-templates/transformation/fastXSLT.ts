@@ -12,7 +12,7 @@ import Mustache from "mustache";
 
 export function getFastXSLTMustacheTemplate() {
     return `
-    <fastXSLT {{#description}}description="{{description}}"{{/description}} key="{{key}}" />
+    <fastXSLT {{#description}}description="{{description}}"{{/description}} key="{{{key}}}" />
     `;
 }
 

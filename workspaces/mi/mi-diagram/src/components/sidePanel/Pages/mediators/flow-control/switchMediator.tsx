@@ -64,17 +64,8 @@ const SwitchForm = (props: AddMediatorProps) => {
                         "type": "TextField",
                         "label": "Case Regex",
                         "defaultValue": ".*+",
-                        "isRequired": false, 
-                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                            sidePanelContext.setSidePanelState({
-                                ...sidePanelContext,
-                                expressionEditor: {
-                                    isOpen: true,
-                                    value,
-                                    setValue
-                                }
-                            });
-                        }},
+                        "isRequired": false
+                    },
                 ]
             },
             description: sidePanelContext?.formValues?.description || "",
@@ -168,6 +159,7 @@ const SwitchForm = (props: AddMediatorProps) => {
                         )}
                     />
                 </ComponentCard>
+
                 <Field>
                     <Controller
                         name="description"

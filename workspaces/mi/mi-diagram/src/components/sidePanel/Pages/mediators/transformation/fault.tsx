@@ -106,7 +106,7 @@ const FaultForm = (props: AddMediatorProps) => {
                     {errors.soapVersion && <Error>{errors.soapVersion.message.toString()}</Error>}
                 </Field>
 
-                {watch("soapVersion") && watch("soapVersion").toLowerCase() == "soap11" &&
+                {watch("soapVersion") == "soap11" &&
                 <Field>
                     <Controller
                         name="soap11"
@@ -121,7 +121,7 @@ const FaultForm = (props: AddMediatorProps) => {
                 </Field>
                 }
 
-                {watch("soapVersion") && watch("soapVersion").toLowerCase() == "soap12" &&
+                {watch("soapVersion") == "soap12" &&
                 <Field>
                     <Controller
                         name="code"
@@ -136,7 +136,7 @@ const FaultForm = (props: AddMediatorProps) => {
                 </Field>
                 }
 
-                {watch("soapVersion") && watch("soapVersion").toLowerCase() == "soap12" &&
+                {watch("soapVersion") == "soap12" &&
                 <Field>
                     <Controller
                         name="Role"
@@ -149,7 +149,7 @@ const FaultForm = (props: AddMediatorProps) => {
                 </Field>
                 }
 
-                {watch("soapVersion") && watch("soapVersion").toLowerCase() == "soap12" &&
+                {watch("soapVersion") == "soap12" &&
                 <Field>
                     <Controller
                         name="node"
@@ -162,7 +162,7 @@ const FaultForm = (props: AddMediatorProps) => {
                 </Field>
                 }
 
-                {watch("soapVersion") && watch("soapVersion").toLowerCase() == "soap11" &&
+                {watch("soapVersion") == "soap11" &&
                 <Field>
                     <Controller
                         name="actor"

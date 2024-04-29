@@ -99,31 +99,14 @@ const PayloadForm = (props: AddMediatorProps) => {
                             {
                                 "-1": "a"
                             }
-                        ], 
-                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                            sidePanelContext.setSidePanelState({
-                                ...sidePanelContext,
-                                expressionEditor: {
-                                    isOpen: true,
-                                    value,
-                                    setValue
-                                }
-                            });
-                        }},
+                        ]
+                    },
                     {
+                        "type": "Checkbox",
                         "label": "Literal",
-                        "defaultValue": "",
-                        "isRequired": false, 
-                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                            sidePanelContext.setSidePanelState({
-                                ...sidePanelContext,
-                                expressionEditor: {
-                                    isOpen: true,
-                                    value,
-                                    setValue
-                                }
-                            });
-                        }},
+                        "defaultValue": false,
+                        "isRequired": false
+                    },
                 ]
             },
             description: sidePanelContext?.formValues?.description || "",
@@ -203,7 +186,7 @@ const PayloadForm = (props: AddMediatorProps) => {
                     {errors.templateType && <Error>{errors.templateType.message.toString()}</Error>}
                 </Field>
 
-                {watch("payloadFormat") && watch("payloadFormat").toLowerCase() == "registry reference" &&
+                {watch("payloadFormat") == "Registry Reference" &&
                 <Field>
                     <Controller
                         name="payloadKey"
@@ -219,7 +202,7 @@ const PayloadForm = (props: AddMediatorProps) => {
                 <ComponentCard sx={cardStyle} disbaleHoverEffect>
                     <Typography variant="h3">Payload</Typography>
 
-                    {watch("payloadFormat") && watch("payloadFormat").toLowerCase() == "inline" &&
+                    {watch("payloadFormat") == "Inline" &&
                     <Field>
                         <Controller
                             name="payload"
@@ -260,6 +243,7 @@ const PayloadForm = (props: AddMediatorProps) => {
                             )}
                         />
                     </ComponentCard>
+
                 </ComponentCard>
 
                 <Field>

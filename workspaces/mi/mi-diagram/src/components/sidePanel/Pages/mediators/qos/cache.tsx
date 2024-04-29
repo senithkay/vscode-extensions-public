@@ -122,7 +122,7 @@ const CacheForm = (props: AddMediatorProps) => {
                 <ComponentCard sx={cardStyle} disbaleHoverEffect>
                     <Typography variant="h3">Properties</Typography>
 
-                    {watch("cacheMediatorImplementation") && watch("cacheMediatorImplementation").toLowerCase() == "611 compatible" &&
+                    {watch("cacheMediatorImplementation") == "611 Compatible" &&
                     <Field>
                         <Controller
                             name="cacheType"
@@ -137,7 +137,7 @@ const CacheForm = (props: AddMediatorProps) => {
                     </Field>
                     }
 
-                    {watch("cacheMediatorImplementation") && watch("cacheMediatorImplementation").toLowerCase() == "611 compatible" &&watch("cacheType") && watch("cacheType").toLowerCase() == "finder"  &&
+                    {((watch("cacheMediatorImplementation") == "611 Compatible") &&(watch("cacheType") == "FINDER") ) &&
                     <Field>
                         <Controller
                             name="id"
@@ -150,7 +150,7 @@ const CacheForm = (props: AddMediatorProps) => {
                     </Field>
                     }
 
-                    {watch("cacheType") && watch("cacheType").toLowerCase() == "finder" &&
+                    {watch("cacheType") == "FINDER" &&
                     <Field>
                         <Controller
                             name="cacheTimeout"
@@ -163,7 +163,7 @@ const CacheForm = (props: AddMediatorProps) => {
                     </Field>
                     }
 
-                    {watch("cacheType") && watch("cacheType").toLowerCase() == "finder" &&
+                    {watch("cacheType") == "FINDER" &&
                     <Field>
                         <Controller
                             name="maxMessageSize"
@@ -176,7 +176,7 @@ const CacheForm = (props: AddMediatorProps) => {
                     </Field>
                     }
 
-                    {watch("cacheMediatorImplementation") && watch("cacheMediatorImplementation").toLowerCase() == "611 compatible" &&
+                    {watch("cacheMediatorImplementation") == "611 Compatible" &&
                     <Field>
                         <Controller
                             name="scope"
@@ -191,7 +191,7 @@ const CacheForm = (props: AddMediatorProps) => {
                     </Field>
                     }
 
-                    {watch("cacheMediatorImplementation") && watch("cacheMediatorImplementation").toLowerCase() == "611 compatible" &&watch("cacheType") && watch("cacheType").toLowerCase() == "finder"  &&
+                    {((watch("cacheMediatorImplementation") == "611 Compatible") &&(watch("cacheType") == "FINDER") ) &&
                     <Field>
                         <Controller
                             name="hashGeneratorAttribute"
@@ -209,7 +209,7 @@ const CacheForm = (props: AddMediatorProps) => {
                 <ComponentCard sx={cardStyle} disbaleHoverEffect>
                     <Typography variant="h3">Implementation</Typography>
 
-                    {watch("cacheType") && watch("cacheType").toLowerCase() == "finder" &&
+                    {watch("cacheType") == "FINDER" &&
                     <Field>
                         <Controller
                             name="maxEntryCount"
@@ -222,7 +222,7 @@ const CacheForm = (props: AddMediatorProps) => {
                     </Field>
                     }
 
-                    {watch("cacheMediatorImplementation") && watch("cacheMediatorImplementation").toLowerCase() == "611 compatible" &&watch("cacheType") && watch("cacheType").toLowerCase() == "finder"  &&
+                    {((watch("cacheMediatorImplementation") == "611 Compatible") &&(watch("cacheType") == "FINDER") ) &&
                     <Field>
                         <Controller
                             name="implementationType"
@@ -242,7 +242,7 @@ const CacheForm = (props: AddMediatorProps) => {
                 <ComponentCard sx={cardStyle} disbaleHoverEffect>
                     <Typography variant="h3">On Cache Hit</Typography>
 
-                    {watch("cacheType") && watch("cacheType").toLowerCase() == "finder" &&
+                    {watch("cacheType") == "FINDER" &&
                     <Field>
                         <Controller
                             name="sequenceType"
@@ -257,7 +257,7 @@ const CacheForm = (props: AddMediatorProps) => {
                     </Field>
                     }
 
-                    {watch("sequenceType") && watch("sequenceType").toLowerCase() == "registry_reference" &&watch("cacheType") && watch("cacheType").toLowerCase() == "finder"  &&
+                    {((watch("sequenceType") == "REGISTRY_REFERENCE") &&(watch("cacheType") == "FINDER") ) &&
                     <Field>
                         <Controller
                             name="sequenceKey"
@@ -275,7 +275,7 @@ const CacheForm = (props: AddMediatorProps) => {
                 <ComponentCard sx={cardStyle} disbaleHoverEffect>
                     <Typography variant="h3">Protocol</Typography>
 
-                    {watch("cacheMediatorImplementation") && watch("cacheMediatorImplementation").toLowerCase() == "default" &&watch("cacheType") && watch("cacheType").toLowerCase() == "finder"  &&
+                    {((watch("cacheMediatorImplementation") == "Default") &&(watch("cacheType") == "FINDER") ) &&
                     <Field>
                         <Controller
                             name="cacheProtocolType"
@@ -290,7 +290,7 @@ const CacheForm = (props: AddMediatorProps) => {
                     </Field>
                     }
 
-                    {watch("cacheMediatorImplementation") && watch("cacheMediatorImplementation").toLowerCase() == "default" &&watch("cacheType") && watch("cacheType").toLowerCase() == "finder"  &&
+                    {((watch("cacheMediatorImplementation") == "Default") &&(watch("cacheType") == "FINDER") ) &&
                     <Field>
                         <Controller
                             name="cacheProtocolMethods"
@@ -303,7 +303,7 @@ const CacheForm = (props: AddMediatorProps) => {
                     </Field>
                     }
 
-                    {watch("cacheMediatorImplementation") && watch("cacheMediatorImplementation").toLowerCase() == "default" &&watch("cacheType") && watch("cacheType").toLowerCase() == "finder"  &&
+                    {((watch("cacheMediatorImplementation") == "Default") &&(watch("cacheType") == "FINDER") ) &&
                     <Field>
                         <Controller
                             name="headersToExcludeInHash"
@@ -316,7 +316,7 @@ const CacheForm = (props: AddMediatorProps) => {
                     </Field>
                     }
 
-                    {watch("cacheMediatorImplementation") && watch("cacheMediatorImplementation").toLowerCase() == "default" &&watch("cacheType") && watch("cacheType").toLowerCase() == "finder"  &&
+                    {((watch("cacheMediatorImplementation") == "Default") &&(watch("cacheType") == "FINDER") ) &&
                     <Field>
                         <Controller
                             name="headersToIncludeInHash"
@@ -329,7 +329,7 @@ const CacheForm = (props: AddMediatorProps) => {
                     </Field>
                     }
 
-                    {watch("cacheMediatorImplementation") && watch("cacheMediatorImplementation").toLowerCase() == "default" &&watch("cacheType") && watch("cacheType").toLowerCase() == "finder"  &&
+                    {((watch("cacheMediatorImplementation") == "Default") &&(watch("cacheType") == "FINDER") ) &&
                     <Field>
                         <Controller
                             name="responseCodes"
@@ -342,7 +342,7 @@ const CacheForm = (props: AddMediatorProps) => {
                     </Field>
                     }
 
-                    {watch("cacheMediatorImplementation") && watch("cacheMediatorImplementation").toLowerCase() == "default" &&watch("cacheType") && watch("cacheType").toLowerCase() == "finder"  &&
+                    {((watch("cacheMediatorImplementation") == "Default") &&(watch("cacheType") == "FINDER") ) &&
                     <Field>
                         <Controller
                             name="enableCacheControl"
@@ -355,7 +355,7 @@ const CacheForm = (props: AddMediatorProps) => {
                     </Field>
                     }
 
-                    {watch("cacheMediatorImplementation") && watch("cacheMediatorImplementation").toLowerCase() == "default" &&watch("cacheType") && watch("cacheType").toLowerCase() == "finder"  &&
+                    {((watch("cacheMediatorImplementation") == "Default") &&(watch("cacheType") == "FINDER") ) &&
                     <Field>
                         <Controller
                             name="includeAgeHeader"
@@ -368,7 +368,7 @@ const CacheForm = (props: AddMediatorProps) => {
                     </Field>
                     }
 
-                    {watch("cacheMediatorImplementation") && watch("cacheMediatorImplementation").toLowerCase() == "default" &&watch("cacheType") && watch("cacheType").toLowerCase() == "finder"  &&
+                    {((watch("cacheMediatorImplementation") == "Default") &&(watch("cacheType") == "FINDER") ) &&
                     <Field>
                         <Controller
                             name="hashGenerator"

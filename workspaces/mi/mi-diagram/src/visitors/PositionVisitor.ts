@@ -352,7 +352,7 @@ export class PositionVisitor implements Visitor {
     }
     endVisitEntitlementService = (node: EntitlementService): void => this.setSkipChildrenVisit(false);
     beginVisitRule = (node: Rule): void => this.setBasicMediatorPosition(node);
-    beginVisitNtlm = (node: Ntlm): void => this.setBasicMediatorPosition(node);
+    beginVisitNTLM = (node: Ntlm): void => this.setBasicMediatorPosition(node);
     //Transformation Mediators
     beginVisitDatamapper = (node: Datamapper): void => this.setBasicMediatorPosition(node);
     beginVisitEnrich = (node: Enrich): void => this.setBasicMediatorPosition(node);

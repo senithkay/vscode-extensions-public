@@ -35,7 +35,6 @@ export const ProxyView = ({ model: ProxyModel, documentUri, diagnostics }: Proxy
     };
 
     const handleEditProxy = () => {
-        console.log(model);
         setFormOpen(true);
     }
     const onSave = (data: EditProxyForm) => {

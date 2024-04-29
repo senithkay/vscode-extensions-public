@@ -101,6 +101,7 @@ const PropertyForm = (props: AddMediatorProps) => {
                     {errors.propertyName && <Error>{errors.propertyName.message.toString()}</Error>}
                 </Field>
 
+            {!((watch("propertyAction") == "remove") ) &&
                 <Field>
                     <Controller
                         name="propertyDataType"
@@ -113,6 +114,7 @@ const PropertyForm = (props: AddMediatorProps) => {
                     />
                     {errors.propertyDataType && <Error>{errors.propertyDataType.message.toString()}</Error>}
                 </Field>
+                }
 
                 <Field>
                     <Controller
@@ -127,7 +129,7 @@ const PropertyForm = (props: AddMediatorProps) => {
                     {errors.propertyAction && <Error>{errors.propertyAction.message.toString()}</Error>}
                 </Field>
 
-                {watch("propertyDataType") && watch("propertyDataType").toLowerCase() == "om"  &&
+            {!(((watch("propertyDataType") == "OM") ||(watch("propertyAction") == "remove") )) &&
                 <Field>
                     <Controller
                         name="value"
@@ -154,7 +156,7 @@ const PropertyForm = (props: AddMediatorProps) => {
                 </Field>
                 }
 
-                {watch("propertyDataType") && watch("propertyDataType").toLowerCase() == "om" &&
+            {watch("propertyDataType") == "OM" &&
                 <Field>
                     <Controller
                         name="OMValue"
@@ -181,7 +183,7 @@ const PropertyForm = (props: AddMediatorProps) => {
                 </Field>
 
                 <FormGroup title="Advanced">
-                    {watch("propertyDataType") && watch("propertyDataType").toLowerCase() == "string" &&
+                {((watch("propertyDataType") == "STRING") &&(watch("propertyAction") == "set") ) &&
                     <Field>
                         <Controller
                             name="valueStringPattern"
@@ -194,7 +196,7 @@ const PropertyForm = (props: AddMediatorProps) => {
                     </Field>
                     }
 
-                    {watch("propertyDataType") && watch("propertyDataType").toLowerCase() == "string" &&
+                {((watch("propertyDataType") == "STRING") &&(watch("propertyAction") == "set") ) &&
                     <Field>
                         <Controller
                             name="valueStringCapturingGroup"

@@ -115,7 +115,7 @@ const SendForm = (props: AddMediatorProps) => {
                     </Field>
                     }
 
-                    {watch("skipSerialization") == true &&
+                    {watch("skipSerialization") == false &&
                     <ComponentCard sx={cardStyle} disbaleHoverEffect>
                         <Typography variant="h3">Receiving Sequence</Typography>
 
@@ -132,7 +132,7 @@ const SendForm = (props: AddMediatorProps) => {
                             {errors.receivingSequenceType && <Error>{errors.receivingSequenceType.message.toString()}</Error>}
                         </Field>
 
-                        {watch("receivingSequenceType") && watch("receivingSequenceType").toLowerCase() == "static" &&
+                        {watch("receivingSequenceType") == "Static" &&
                             <Field>
                                 <Controller
                                     name="staticReceivingSequence"
@@ -159,7 +159,7 @@ const SendForm = (props: AddMediatorProps) => {
                             </Field>
                         }
 
-                        {watch("receivingSequenceType") && watch("receivingSequenceType").toLowerCase() == "dynamic" &&
+                        {watch("receivingSequenceType") == "Dynamic" &&
                             <Field>
                                 <Controller
                                     name="dynamicReceivingSequence"
@@ -189,7 +189,6 @@ const SendForm = (props: AddMediatorProps) => {
                     </ComponentCard>
                     }
 
-                    {watch("receivingSequenceType") && watch("receivingSequenceType").toLowerCase() == "default" &&
                     <Field>
                         <Controller
                             name="description"
@@ -200,7 +199,6 @@ const SendForm = (props: AddMediatorProps) => {
                         />
                         {errors.description && <Error>{errors.description.message.toString()}</Error>}
                     </Field>
-                    }
 
                 </ComponentCard>
 

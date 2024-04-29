@@ -161,7 +161,7 @@ const CalloutForm = (props: AddMediatorProps) => {
                         {errors.initAxis2ClientOptions && <Error>{errors.initAxis2ClientOptions.message.toString()}</Error>}
                     </Field>
 
-                    {watch("endpointType") && watch("endpointType").toLowerCase() == "url" &&
+                    {watch("endpointType") == "URL" &&
                     <Field>
                         <Controller
                             name="serviceURL"
@@ -174,7 +174,7 @@ const CalloutForm = (props: AddMediatorProps) => {
                     </Field>
                     }
 
-                    {watch("endpointType") && watch("endpointType").toLowerCase() == "addressendpoint" &&
+                    {watch("endpointType") == "AddressEndpoint" &&
                     <Field>
                         <Controller
                             name="addressEndpoint"
@@ -205,7 +205,7 @@ const CalloutForm = (props: AddMediatorProps) => {
                         {errors.payloadType && <Error>{errors.payloadType.message.toString()}</Error>}
                     </Field>
 
-                    {watch("payloadType") && watch("payloadType").toLowerCase() == "xpath" &&
+                    {watch("payloadType") == "XPATH" &&
                     <Field>
                         <Controller
                             name="payloadMessageXPath"
@@ -232,7 +232,7 @@ const CalloutForm = (props: AddMediatorProps) => {
                     </Field>
                     }
 
-                    {watch("payloadType") && watch("payloadType").toLowerCase() == "property" &&
+                    {watch("payloadType") == "PROPERTY" &&
                     <Field>
                         <Controller
                             name="payloadProperty"
@@ -263,7 +263,7 @@ const CalloutForm = (props: AddMediatorProps) => {
                         {errors.resultType && <Error>{errors.resultType.message.toString()}</Error>}
                     </Field>
 
-                    {watch("resultType") && watch("resultType").toLowerCase() == "xpath" &&
+                    {watch("resultType") == "XPATH" &&
                     <Field>
                         <Controller
                             name="resultMessageXPath"
@@ -290,7 +290,7 @@ const CalloutForm = (props: AddMediatorProps) => {
                     </Field>
                     }
 
-                    {watch("resultType") && watch("resultType").toLowerCase() == "property" &&
+                    {watch("resultType") == "PROPERTY" &&
                     <Field>
                         <Controller
                             name="resultContextProperty"
@@ -321,7 +321,7 @@ const CalloutForm = (props: AddMediatorProps) => {
                         {errors.securityType && <Error>{errors.securityType.message.toString()}</Error>}
                     </Field>
 
-                    {watch("securityType") && watch("securityType").toLowerCase() == "true" &&
+                    {watch("securityType") == "TRUE" &&
                     <Field>
                         <Controller
                             name="policies"
@@ -336,7 +336,7 @@ const CalloutForm = (props: AddMediatorProps) => {
                     </Field>
                     }
 
-                    {watch("securityType") && watch("securityType").toLowerCase() == "true" &&watch("policies") && watch("policies").toLowerCase() == "false"  &&
+                    {((watch("securityType") == "TRUE") &&(watch("policies") == "FALSE") ) &&
                     <Field>
                         <Controller
                             name="policyKey"
@@ -349,7 +349,7 @@ const CalloutForm = (props: AddMediatorProps) => {
                     </Field>
                     }
 
-                    {watch("securityType") && watch("securityType").toLowerCase() == "true" &&watch("policies") && watch("policies").toLowerCase() == "true"  &&
+                    {((watch("securityType") == "TRUE") &&(watch("policies") == "TRUE") ) &&
                     <Field>
                         <Controller
                             name="outboundPolicyKey"
@@ -362,7 +362,7 @@ const CalloutForm = (props: AddMediatorProps) => {
                     </Field>
                     }
 
-                    {watch("securityType") && watch("securityType").toLowerCase() == "true" &&watch("policies") && watch("policies").toLowerCase() == "true"  &&
+                    {((watch("securityType") == "TRUE") &&(watch("policies") == "TRUE") ) &&
                     <Field>
                         <Controller
                             name="inboundPolicyKey"

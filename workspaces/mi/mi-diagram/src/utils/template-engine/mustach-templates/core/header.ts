@@ -11,7 +11,7 @@ import { Header } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import Mustache from "mustache";
 
 export function getHeaderMustacheTemplate() {
-    return `<header {{#headerName}}name="{{value}}" {{/headerName}}{{#headerAction}}action="{{headerAction}}" {{/headerAction}}{{#scope}}scope="{{scope}}" {{/scope}}{{#valueExpression}}expression="{{value}}" {{/valueExpression}}{{#valueLiteral}}value="{{valueLiteral}}" {{/valueLiteral}}{{#description}}description="{{description}}" {{/description}}{{^valueInline}}/{{/valueInline}}>
+    return `<header {{#headerName}}name="{{value}}" {{/headerName}}{{#headerAction}}action="{{headerAction}}" {{/headerAction}}{{#scope}}scope="{{scope}}" {{/scope}}{{#valueExpression}}expression="{{{value}}}" {{/valueExpression}}{{#valueLiteral}}value="{{valueLiteral}}" {{/valueLiteral}}{{#description}}description="{{description}}" {{/description}}{{^valueInline}}/{{/valueInline}}>
     {{#valueInline}}
     {{{valueInline}}}
 </header>{{/valueInline}}`;

@@ -144,7 +144,7 @@ const EntitlementForm = (props: AddMediatorProps) => {
                     {errors.callbackHandler && <Error>{errors.callbackHandler.message.toString()}</Error>}
                 </Field>
 
-                {watch("callbackHandler") && watch("callbackHandler").toLowerCase() == "custom" &&
+                {watch("callbackHandler") == "Custom" &&
                 <Field>
                     <Controller
                         name="callbackClassName"
@@ -170,7 +170,7 @@ const EntitlementForm = (props: AddMediatorProps) => {
                     {errors.entitlementClientType && <Error>{errors.entitlementClientType.message.toString()}</Error>}
                 </Field>
 
-                {watch("entitlementClientType") && watch("entitlementClientType").toLowerCase() == "thrift" &&
+                {watch("entitlementClientType") == "THRIFT" &&
                 <Field>
                     <Controller
                         name="thriftHost"
@@ -183,7 +183,7 @@ const EntitlementForm = (props: AddMediatorProps) => {
                 </Field>
                 }
 
-                {watch("entitlementClientType") && watch("entitlementClientType").toLowerCase() == "thrift" &&
+                {watch("entitlementClientType") == "THRIFT" &&
                 <Field>
                     <Controller
                         name="thriftPort"
@@ -212,7 +212,7 @@ const EntitlementForm = (props: AddMediatorProps) => {
                         {errors.onAcceptSequenceType && <Error>{errors.onAcceptSequenceType.message.toString()}</Error>}
                     </Field>
 
-                    {watch("onAcceptSequenceType") && watch("onAcceptSequenceType").toLowerCase() == "registry_reference" &&
+                    {watch("onAcceptSequenceType") == "REGISTRY_REFERENCE" &&
                     <Field>
                         <Controller
                             name="onAcceptSequenceKey"
@@ -249,7 +249,7 @@ const EntitlementForm = (props: AddMediatorProps) => {
                         {errors.onRejectSequenceType && <Error>{errors.onRejectSequenceType.message.toString()}</Error>}
                     </Field>
 
-                    {watch("onRejectSequenceType") && watch("onRejectSequenceType").toLowerCase() == "registry_reference" &&
+                    {watch("onRejectSequenceType") == "REGISTRY_REFERENCE" &&
                     <Field>
                         <Controller
                             name="onRejectSequenceKey"
@@ -286,7 +286,7 @@ const EntitlementForm = (props: AddMediatorProps) => {
                         {errors.obligationsSequenceType && <Error>{errors.obligationsSequenceType.message.toString()}</Error>}
                     </Field>
 
-                    {watch("obligationsSequenceType") && watch("obligationsSequenceType").toLowerCase() == "registry_reference" &&
+                    {watch("obligationsSequenceType") == "REGISTRY_REFERENCE" &&
                     <Field>
                         <Controller
                             name="obligationsSequenceKey"
@@ -323,7 +323,7 @@ const EntitlementForm = (props: AddMediatorProps) => {
                         {errors.adviceSequenceType && <Error>{errors.adviceSequenceType.message.toString()}</Error>}
                     </Field>
 
-                    {watch("adviceSequenceType") && watch("adviceSequenceType").toLowerCase() == "registry_reference" &&
+                    {watch("adviceSequenceType") == "REGISTRY_REFERENCE" &&
                     <Field>
                         <Controller
                             name="adviceSequenceKey"

@@ -151,9 +151,9 @@ export function TemplateEndpointWizard(props: TemplateEndpointWizardProps) {
                         paramValues: endpoint.parameters.map((property: any, index: Number) => {
                             return {
                                 id: prev.paramValues.length + index,
-                                parameters: [
-                                    { id: 0, label: 'Name', type: 'TextField', value: property.name, isRequired: true },
-                                    { id: 1, label: 'Value', type: 'TextField', value: property.value, isRequired: true },
+                                paramValues: [
+                                    { value: property.name },
+                                    { value: property.value }
                                 ],
                                 key: property.name,
                                 value: property.value,
@@ -189,16 +189,16 @@ export function TemplateEndpointWizard(props: TemplateEndpointWizardProps) {
                 paramValues: config.paramValues.map((param: any) => {
                     return {
                         ...param,
-                        key: param.parameters[0].value,
-                        value: param.parameters[1].value ?? '',
+                        key: param.paramValues[0].value,
+                        value: param.paramValues[1].value ?? '',
                     }
                 })
             };
         })
 
         setValue('parameters', config.paramValues.map((param: any) => ({
-            name: param.parameters[0].value,
-            value: param.parameters[1].value
+            name: param.paramValues[0].value,
+            value: param.paramValues[1].value
         })), { shouldDirty: true });
     }
 

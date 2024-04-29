@@ -72,17 +72,8 @@ const XQueryForm = (props: AddMediatorProps) => {
                         "type": "TextField",
                         "label": "Variable Name",
                         "defaultValue": "",
-                        "isRequired": false, 
-                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                            sidePanelContext.setSidePanelState({
-                                ...sidePanelContext,
-                                expressionEditor: {
-                                    isOpen: true,
-                                    value,
-                                    setValue
-                                }
-                            });
-                        }},
+                        "isRequired": false
+                    },
                     {
                         "type": "Dropdown",
                         "label": "Variable Type",
@@ -101,17 +92,8 @@ const XQueryForm = (props: AddMediatorProps) => {
                             "LONG",
                             "FLOAT",
                             "STRING"
-                        ], 
-                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                            sidePanelContext.setSidePanelState({
-                                ...sidePanelContext,
-                                expressionEditor: {
-                                    isOpen: true,
-                                    value,
-                                    setValue
-                                }
-                            });
-                        }},
+                        ]
+                    },
                     {
                         "type": "Dropdown",
                         "label": "Variable Option",
@@ -120,17 +102,8 @@ const XQueryForm = (props: AddMediatorProps) => {
                         "values": [
                             "LITERAL",
                             "EXPRESSION"
-                        ], 
-                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                            sidePanelContext.setSidePanelState({
-                                ...sidePanelContext,
-                                expressionEditor: {
-                                    isOpen: true,
-                                    value,
-                                    setValue
-                                }
-                            });
-                        }},
+                        ]
+                    },
                     {
                         "type": "TextField",
                         "label": "Variable Literal",
@@ -138,19 +111,10 @@ const XQueryForm = (props: AddMediatorProps) => {
                         "isRequired": false,
                         "enableCondition": [
                             {
-                                "1": "LITERAL"
+                                "2": "LITERAL"
                             }
-                        ], 
-                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                            sidePanelContext.setSidePanelState({
-                                ...sidePanelContext,
-                                expressionEditor: {
-                                    isOpen: true,
-                                    value,
-                                    setValue
-                                }
-                            });
-                        }},
+                        ]
+                    },
                     {
                         "type": "TextField",
                         "label": "Variable Expression",
@@ -158,34 +122,16 @@ const XQueryForm = (props: AddMediatorProps) => {
                         "isRequired": false,
                         "enableCondition": [
                             {
-                                "1": "EXPRESSION"
+                                "2": "EXPRESSION"
                             }
-                        ], 
-                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                            sidePanelContext.setSidePanelState({
-                                ...sidePanelContext,
-                                expressionEditor: {
-                                    isOpen: true,
-                                    value,
-                                    setValue
-                                }
-                            });
-                        }},
+                        ]
+                    },
                     {
                         "type": "TextField",
                         "label": "Variable Key",
                         "defaultValue": "",
-                        "isRequired": false, 
-                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                            sidePanelContext.setSidePanelState({
-                                ...sidePanelContext,
-                                expressionEditor: {
-                                    isOpen: true,
-                                    value,
-                                    setValue
-                                }
-                            });
-                        }},
+                        "isRequired": false
+                    },
                 ]
             },
             description: sidePanelContext?.formValues?.description || "",
@@ -242,7 +188,7 @@ const XQueryForm = (props: AddMediatorProps) => {
                         {errors.scriptKeyType && <Error>{errors.scriptKeyType.message.toString()}</Error>}
                     </Field>
 
-                    {watch("scriptKeyType") && watch("scriptKeyType").toLowerCase() == "static" &&
+                    {watch("scriptKeyType") == "Static" &&
                     <Field>
                         <Controller
                             name="staticScriptKey"
@@ -255,7 +201,7 @@ const XQueryForm = (props: AddMediatorProps) => {
                     </Field>
                     }
 
-                    {watch("scriptKeyType") && watch("scriptKeyType").toLowerCase() == "dynamic" &&
+                    {watch("scriptKeyType") == "Dynamic" &&
                     <Field>
                         <Controller
                             name="dynamicScriptKey"
@@ -338,6 +284,7 @@ const XQueryForm = (props: AddMediatorProps) => {
                                 )}
                             />
                         </ComponentCard>
+
                     </ComponentCard>
 
                     <Field>

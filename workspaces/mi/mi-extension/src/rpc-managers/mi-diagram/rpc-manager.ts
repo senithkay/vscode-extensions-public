@@ -184,6 +184,7 @@ import { StateMachineAI } from '../../ai-panel/aiMachine';
 import fetch from 'node-fetch';
 import path = require("path");
 import { openPopupView } from "../../stateMachinePopup";
+import { template } from "lodash";
 
 const { XMLParser, XMLBuilder } = require("fast-xml-parser");
 
@@ -517,9 +518,9 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
             resolve({
                 name: '',
-                algorithm: 'roundRobin',
-                failover: 'false',
-                buildMessage: 'true',
+                algorithm: 'org.apache.synapse.endpoints.algorithms.RoundRobin',
+                failover: 'true',
+                buildMessage: 'false',
                 sessionManagement: 'none',
                 sessionTimeout: 0,
                 description: '',
@@ -766,22 +767,23 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     sourceURL: ""
                 };
                 if (jsonData && jsonData.localEntry) {
-                    if (jsonData.localEntry["#text"]) {
+                    const firstEntryKey = Object.keys(jsonData.localEntry)[0];
+                    if (jsonData.localEntry["#text"] ) {
                         response.type = "In-Line Text Entry";
                         response.inLineTextValue = jsonData.localEntry["#text"];
-                    } else if (jsonData.localEntry.xml) {
+                    } else if (firstEntryKey) {
                         response.type = "In-Line XML Entry";
-                        if (jsonData.localEntry.xml["@_"]["xmlns"] === '') {
-                            delete jsonData.localEntry.xml["@_"]["xmlns"];
-                        }
-                        const xmlObj = {
-                            xml: {
-                                ...jsonData.localEntry.xml
+                        const firstEntryKey = Object.keys(jsonData.localEntry)[0];
+                        if(firstEntryKey){
+                            const xmlObj = {
+                                [firstEntryKey]: {
+                                    ...jsonData.localEntry[firstEntryKey]
+                                }
                             }
+                            const builder = new XMLBuilder(options);
+                            let xml = builder.build(xmlObj).replace(/&apos;/g, "'");
+                            response.inLineXmlValue = xml;
                         }
-                        const builder = new XMLBuilder(options);
-                        let xml = builder.build(xmlObj);
-                        response.inLineXmlValue = xml;
                     } else if (jsonData.localEntry["@_"]["src"]) {
                         response.type = "Source URL Entry";
                         response.sourceURL = jsonData.localEntry["@_"]["src"];
@@ -789,7 +791,9 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 }
                 resolve(response);
             }
-            return error("File not found");
+            else {
+                return error("File not found");
+            }
         });
     }
 
@@ -2486,13 +2490,36 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     switch (tag) {
                         case 'api':
                             fileType = 'apis';
-                            fileType = 'apis';
                             break;
                         case 'endpoint':
                             fileType = 'endpoints';
                             break;
                         case 'sequence':
                             fileType = 'sequences'
+                            break;
+                        case 'proxy':
+                            fileType = 'proxy-services';
+                            break;
+                        case 'inboundEndpoint':
+                            fileType = 'inbound-endpoints';
+                            break;
+                        case 'messageStore':
+                            fileType = 'message-stores';
+                            break;
+                        case 'messageProcessor':
+                            fileType = 'message-processors';
+                            break;
+                        case 'task':
+                            fileType = 'tasks';
+                            break;
+                        case 'localEntry':
+                            fileType = 'local-entries';
+                            break;
+                        case 'template':
+                            fileType = 'templates';
+                            break;
+                        case 'registry':
+                            fileType = 'registry';
                             break;
                         default:
                             fileType = '';

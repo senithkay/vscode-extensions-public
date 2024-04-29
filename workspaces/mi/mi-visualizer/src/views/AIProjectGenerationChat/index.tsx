@@ -106,6 +106,9 @@ const codeBlocks: string[] = [];
 var projectUuid = "";
 var backendRootUri = "";
 
+let controller = new AbortController();
+let signal = controller.signal;
+
 export function AIProjectGenerationChat() {
     const { rpcClient } = useVisualizerContext();
     const [state, setState] = useState<VisualizerLocation | null>(null);
@@ -241,6 +244,10 @@ export function AIProjectGenerationChat() {
         console.log("Suggestions: " + isSuggestionLoading);
     }, [isSuggestionLoading]);
 
+    useEffect(() => {
+        console.log("is Loading: " + isLoading);
+    }, [isLoading]);
+
     function getStatusText(status: number) {
         switch (status) {
             case 400: return 'Bad Request';
@@ -255,7 +262,7 @@ export function AIProjectGenerationChat() {
 
     async function generateSuggestions() {
         try {
-            // setIsLoading(true);
+            setIsLoading(true);
             setIsSuggestionLoading(true); // Set loading state to true at the start
             const url = backendRootUri + MI_SUGGESTIVE_QUESTIONS_BACKEND_URL;
             var context: GetWorkspaceContextResponse[] = [];
@@ -282,6 +289,7 @@ export function AIProjectGenerationChat() {
                     'Authorization': `Bearer ${token.token}`,
                 },
                 body: JSON.stringify({ messages: chatArray, context: context[0].context, num_suggestions: 1, type: "artifact_gen" }),
+                signal: signal,
             });
             if (!response.ok) {
                 throw new Error("Failed to fetch initial questions");
@@ -315,7 +323,7 @@ export function AIProjectGenerationChat() {
         setMessages(prevMessages => prevMessages.filter((message, index) => message.type !== 'label'));
         setMessages(prevMessages => prevMessages.filter((message, index) => message.type !== 'question'));
 
-        // setIsLoading(true);
+        setIsLoading(true);
         let assistant_response = "";
         if (!isQuestion && !isInitialPrompt) {
             addChatEntry("user", userInput);
@@ -375,6 +383,7 @@ export function AIProjectGenerationChat() {
                 'Authorization': `Bearer ${token.token}`,
             },
             body: JSON.stringify({ messages: chatArray, context: context[0].context }),
+            signal: signal,
         })
         if (!response.ok) {
             setIsLoading(false);
@@ -458,6 +467,17 @@ export function AIProjectGenerationChat() {
         localStorage.setItem(`codeBlocks-AIGenerationChat-${projectUuid}`, JSON.stringify(codeBlocks));
 
     };
+    async function handleStop() {
+        // Abort the fetch
+        controller.abort();
+    
+        // Create a new AbortController for future fetches
+        controller = new AbortController();
+        signal = controller.signal;
+    
+        setIsLoading(false);
+        setIsCodeLoading(false);
+    }
 
     const handleAddtoWorkspace = async () => {
 
@@ -677,10 +697,10 @@ export function AIProjectGenerationChat() {
                     </VSCodeTextField>
                     <VSCodeButton
                         appearance="secondary"
-                        onClick={() => handleSend(false,false)}
+                        onClick={() => isLoading ? handleStop() : handleSend(false,false)}
                         // disabled={isLoading}
                         style={{ width: "35px" }}>
-                        <span className="codicon codicon-send"></span>
+                        <span className={`codicon ${isLoading ? 'codicon-debug-stop' : 'codicon-send'}`}></span>
                     </VSCodeButton>
                 </FlexRow>
             </Footer>

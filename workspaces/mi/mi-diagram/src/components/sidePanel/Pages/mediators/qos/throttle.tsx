@@ -52,6 +52,7 @@ const ThrottleForm = (props: AddMediatorProps) => {
             onRejectBranchsequenceType: sidePanelContext?.formValues?.onRejectBranchsequenceType || "ANONYMOUS",
             onRejectBranchsequenceKey: sidePanelContext?.formValues?.onRejectBranchsequenceKey || "",
             policyType: sidePanelContext?.formValues?.policyType || "INLINE",
+            maximumConcurrentAccess: sidePanelContext?.formValues?.maximumConcurrentAccess || "0",
             policyEntries: {
                 paramValues: sidePanelContext?.formValues?.policyEntries && sidePanelContext?.formValues?.policyEntries.map((property: string|ExpressionFieldValue[], index: string) => (
                     {
@@ -78,32 +79,14 @@ const ThrottleForm = (props: AddMediatorProps) => {
                         "values": [
                             "IP",
                             "DOMAIN"
-                        ], 
-                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                            sidePanelContext.setSidePanelState({
-                                ...sidePanelContext,
-                                expressionEditor: {
-                                    isOpen: true,
-                                    value,
-                                    setValue
-                                }
-                            });
-                        }},
+                        ]
+                    },
                     {
                         "type": "TextField",
                         "label": "Throttle Range",
                         "defaultValue": "other",
-                        "isRequired": false, 
-                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                            sidePanelContext.setSidePanelState({
-                                ...sidePanelContext,
-                                expressionEditor: {
-                                    isOpen: true,
-                                    value,
-                                    setValue
-                                }
-                            });
-                        }},
+                        "isRequired": false
+                    },
                     {
                         "type": "Dropdown",
                         "label": "Access Type",
@@ -113,62 +96,26 @@ const ThrottleForm = (props: AddMediatorProps) => {
                             "Allow",
                             "Deny",
                             "Control"
-                        ], 
-                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                            sidePanelContext.setSidePanelState({
-                                ...sidePanelContext,
-                                expressionEditor: {
-                                    isOpen: true,
-                                    value,
-                                    setValue
-                                }
-                            });
-                        }},
+                        ]
+                    },
                     {
                         "type": "TextField",
                         "label": "Max Request Count",
                         "defaultValue": "0",
-                        "isRequired": false, 
-                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                            sidePanelContext.setSidePanelState({
-                                ...sidePanelContext,
-                                expressionEditor: {
-                                    isOpen: true,
-                                    value,
-                                    setValue
-                                }
-                            });
-                        }},
+                        "isRequired": false
+                    },
                     {
                         "type": "TextField",
                         "label": "Unit Time",
                         "defaultValue": "0",
-                        "isRequired": false, 
-                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                            sidePanelContext.setSidePanelState({
-                                ...sidePanelContext,
-                                expressionEditor: {
-                                    isOpen: true,
-                                    value,
-                                    setValue
-                                }
-                            });
-                        }},
+                        "isRequired": false
+                    },
                     {
                         "type": "TextField",
                         "label": "Prohibit Period",
                         "defaultValue": "0",
-                        "isRequired": false, 
-                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                            sidePanelContext.setSidePanelState({
-                                ...sidePanelContext,
-                                expressionEditor: {
-                                    isOpen: true,
-                                    value,
-                                    setValue
-                                }
-                            });
-                        }},
+                        "isRequired": false
+                    },
                 ]
             },
             policyKey: sidePanelContext?.formValues?.policyKey || "",
@@ -242,7 +189,7 @@ const ThrottleForm = (props: AddMediatorProps) => {
                         {errors.onAcceptBranchsequenceType && <Error>{errors.onAcceptBranchsequenceType.message.toString()}</Error>}
                     </Field>
 
-                    {watch("onAcceptBranchsequenceType") && watch("onAcceptBranchsequenceType").toLowerCase() == "registry_reference" &&
+                    {watch("onAcceptBranchsequenceType") == "REGISTRY_REFERENCE" &&
                     <Field>
                         <Controller
                             name="onAcceptBranchsequenceKey"
@@ -273,7 +220,7 @@ const ThrottleForm = (props: AddMediatorProps) => {
                         {errors.onRejectBranchsequenceType && <Error>{errors.onRejectBranchsequenceType.message.toString()}</Error>}
                     </Field>
 
-                    {watch("onRejectBranchsequenceType") && watch("onRejectBranchsequenceType").toLowerCase() == "registry_reference" &&
+                    {watch("onRejectBranchsequenceType") == "REGISTRY_REFERENCE" &&
                     <Field>
                         <Controller
                             name="onRejectBranchsequenceKey"
@@ -304,6 +251,20 @@ const ThrottleForm = (props: AddMediatorProps) => {
                         {errors.policyType && <Error>{errors.policyType.message.toString()}</Error>}
                     </Field>
 
+                    {watch("policyType") == "INLINE" &&
+                        <Field>
+                            <Controller
+                                name="maximumConcurrentAccess"
+                                control={control}
+                                render={({ field }) => (
+                                    <TextField {...field} label="Maxmium Concurrent Access" size={50} placeholder="" />
+                                )}
+                            />
+                            {errors.maximumConcurrentAccess && <Error>{errors.maximumConcurrentAccess.message.toString()}</Error>}
+                        </Field>
+                    }
+
+                    {watch("policyType") == "INLINE" &&
                     <ComponentCard sx={cardStyle} disbaleHoverEffect>
                         <Typography variant="h3">Policy Entries</Typography>
                         <Typography variant="body3">Editing of the properties of an object ThrottlePolicyEntry</Typography>
@@ -332,7 +293,9 @@ const ThrottleForm = (props: AddMediatorProps) => {
                             )}
                         />
                     </ComponentCard>
-                    {watch("policyType") && watch("policyType").toLowerCase() == "registry_reference" &&
+                    }
+
+                    {watch("policyType") == "REGISTRY_REFERENCE" &&
                     <Field>
                         <Controller
                             name="policyKey"

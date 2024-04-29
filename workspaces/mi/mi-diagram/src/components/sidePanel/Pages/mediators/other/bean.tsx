@@ -108,7 +108,7 @@ const BeanForm = (props: AddMediatorProps) => {
                         {errors.action && <Error>{errors.action.message.toString()}</Error>}
                     </Field>
 
-                    {watch("action") && watch("action").toLowerCase() == "create" &&
+                    {watch("action") == "CREATE" &&
                     <Field>
                         <Controller
                             name="class"
@@ -132,7 +132,7 @@ const BeanForm = (props: AddMediatorProps) => {
                         {errors.var && <Error>{errors.var.message.toString()}</Error>}
                     </Field>
 
-                    {watch("action") && watch("action").toLowerCase() == "set_property" ||watch("action") && watch("action").toLowerCase() == "get_property"  &&
+                    {((watch("action") == "SET_PROPERTY") ||(watch("action") == "GET_PROPERTY") ) &&
                     <Field>
                         <Controller
                             name="property"
@@ -145,6 +145,7 @@ const BeanForm = (props: AddMediatorProps) => {
                     </Field>
                     }
 
+                    {watch("action") == "SET_PROPERTY" &&
                     <ComponentCard sx={cardStyle} disbaleHoverEffect>
                         <Typography variant="h3">Value</Typography>
 
@@ -161,48 +162,50 @@ const BeanForm = (props: AddMediatorProps) => {
                             {errors.valueType && <Error>{errors.valueType.message.toString()}</Error>}
                         </Field>
 
-                        {watch("valueType") && watch("valueType").toLowerCase() == "literal" &&
-                        <Field>
-                            <Controller
-                                name="valueLiteral"
-                                control={control}
-                                render={({ field }) => (
-                                    <TextField {...field} label="Value Literal" size={50} placeholder="" />
-                                )}
-                            />
-                            {errors.valueLiteral && <Error>{errors.valueLiteral.message.toString()}</Error>}
-                        </Field>
+                        {watch("valueType") == "LITERAL" &&
+                            <Field>
+                                <Controller
+                                    name="valueLiteral"
+                                    control={control}
+                                    render={({ field }) => (
+                                        <TextField {...field} label="Value Literal" size={50} placeholder="" />
+                                    )}
+                                />
+                                {errors.valueLiteral && <Error>{errors.valueLiteral.message.toString()}</Error>}
+                            </Field>
                         }
 
-                        {watch("valueType") && watch("valueType").toLowerCase() == "expression" &&
-                        <Field>
-                            <Controller
-                                name="valueExpression"
-                                control={control}
-                                render={({ field }) => (
-                                    <ExpressionField
-                                        {...field} label="Value Expression"
-                                        placeholder=""
-                                        canChange={false}
-                                        openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => {
-                                            sidePanelContext.setSidePanelState({
-                                                ...sidePanelContext,
-                                                expressionEditor: {
-                                                    isOpen: true,
-                                                    value,
-                                                    setValue
-                                                }
-                                            });
-                                        }}
-                                    />
-                                )}
-                            />
-                            {errors.valueExpression && <Error>{errors.valueExpression.message.toString()}</Error>}
-                        </Field>
+                        {watch("valueType") == "EXPRESSION" &&
+                            <Field>
+                                <Controller
+                                    name="valueExpression"
+                                    control={control}
+                                    render={({ field }) => (
+                                        <ExpressionField
+                                            {...field} label="Value Expression"
+                                            placeholder=""
+                                            canChange={false}
+                                            openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => {
+                                                sidePanelContext.setSidePanelState({
+                                                    ...sidePanelContext,
+                                                    expressionEditor: {
+                                                        isOpen: true,
+                                                        value,
+                                                        setValue
+                                                    }
+                                                });
+                                            }}
+                                        />
+                                    )}
+                                />
+                                {errors.valueExpression && <Error>{errors.valueExpression.message.toString()}</Error>}
+                            </Field>
                         }
 
                     </ComponentCard>
+                    }
 
+                    {watch("action") == "GET_PROPERTY" &&
                     <ComponentCard sx={cardStyle} disbaleHoverEffect>
                         <Typography variant="h3">Target</Typography>
 
@@ -219,47 +222,48 @@ const BeanForm = (props: AddMediatorProps) => {
                             {errors.targetType && <Error>{errors.targetType.message.toString()}</Error>}
                         </Field>
 
-                        {watch("targetType") && watch("targetType").toLowerCase() == "literal" &&
-                        <Field>
-                            <Controller
-                                name="targetLiteral"
-                                control={control}
-                                render={({ field }) => (
-                                    <TextField {...field} label="Target Literal" size={50} placeholder="" />
-                                )}
-                            />
-                            {errors.targetLiteral && <Error>{errors.targetLiteral.message.toString()}</Error>}
-                        </Field>
+                        {watch("targetType") == "LITERAL" &&
+                            <Field>
+                                <Controller
+                                    name="targetLiteral"
+                                    control={control}
+                                    render={({ field }) => (
+                                        <TextField {...field} label="Target Literal" size={50} placeholder="" />
+                                    )}
+                                />
+                                {errors.targetLiteral && <Error>{errors.targetLiteral.message.toString()}</Error>}
+                            </Field>
                         }
 
-                        {watch("targetType") && watch("targetType").toLowerCase() == "expression" &&
-                        <Field>
-                            <Controller
-                                name="targetExpression"
-                                control={control}
-                                render={({ field }) => (
-                                    <ExpressionField
-                                        {...field} label="Target Expression"
-                                        placeholder=""
-                                        canChange={false}
-                                        openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => {
-                                            sidePanelContext.setSidePanelState({
-                                                ...sidePanelContext,
-                                                expressionEditor: {
-                                                    isOpen: true,
-                                                    value,
-                                                    setValue
-                                                }
-                                            });
-                                        }}
-                                    />
-                                )}
-                            />
-                            {errors.targetExpression && <Error>{errors.targetExpression.message.toString()}</Error>}
-                        </Field>
+                        {watch("targetType") == "EXPRESSION" &&
+                            <Field>
+                                <Controller
+                                    name="targetExpression"
+                                    control={control}
+                                    render={({ field }) => (
+                                        <ExpressionField
+                                            {...field} label="Target Expression"
+                                            placeholder=""
+                                            canChange={false}
+                                            openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => {
+                                                sidePanelContext.setSidePanelState({
+                                                    ...sidePanelContext,
+                                                    expressionEditor: {
+                                                        isOpen: true,
+                                                        value,
+                                                        setValue
+                                                    }
+                                                });
+                                            }}
+                                        />
+                                    )}
+                                />
+                                {errors.targetExpression && <Error>{errors.targetExpression.message.toString()}</Error>}
+                            </Field>
                         }
 
                     </ComponentCard>
+                    }
 
                     <Field>
                         <Controller

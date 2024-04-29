@@ -827,12 +827,12 @@ export class NodeFactoryVisitor implements Visitor {
         this.skipChildrenVisit = false;
     }
 
-    beginVisitNtlm(node: Ntlm): void {
+    beginVisitNTLM(node: Ntlm): void {
         this.createNodeAndLinks({ node, name: MEDIATORS.NTLM });
         this.skipChildrenVisit = true;
     }
 
-    endVisitNtlm(node: Ntlm): void {
+    endVisitNTLM(node: Ntlm): void {
         this.skipChildrenVisit = false;
     }
 

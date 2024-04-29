@@ -110,7 +110,7 @@ export const initialEndpoint: InputsFields = {
     retryErrorCodes: "",
     retryCount: 0,
     retryDelay: 0,
-    timeoutDuration: 0,
+    timeoutDuration: Number.MAX_SAFE_INTEGER,
     timeoutAction: "Never",
 
     // Template Configuration

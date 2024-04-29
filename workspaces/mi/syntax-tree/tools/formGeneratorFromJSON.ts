@@ -80,47 +80,54 @@ const getValueString = (element: any) => {
     return "value";
 }
 
-function generateEnabledCondition(enableCondition: any, indentation: number) {
+function generateEnabledCondition(enableCondition: any, indentation: number, isSubCondition?: boolean) {
     let fields = "";
-    let conditionType = "&&";
     let conditions = "";
 
     const getCondition = (condition: string, value: string) => {
         if (typeof value === "boolean" || value === "true" || value === "false") {
-            return `watch("${condition}") == ${Boolean(value)}`;
+            return `watch("${condition}") == ${value}`;
         } else {
-            return `watch("${condition}") && watch("${condition}").toLowerCase() == "${value.toLowerCase()}"`;
+            return `watch("${condition}") == "${value}"`;
         }
     }
 
     if (enableCondition.length > 1) {
         const condition = enableCondition[0];
+        let conditionType;
         if (condition === "OR") {
             conditionType = "||";
         } else if (condition === "NOT") {
-            conditionType = "!";
+            conditions += "!";
+        } else {
+            conditionType = "&&";
         }
+        conditions += "(";
+
         for (let i = 1; i < enableCondition.length; i++) {
             const conditionElement = enableCondition[i];
+
+            if (Array.isArray(conditionElement)) {
+                conditions += generateEnabledCondition(conditionElement, indentation, true);
+                continue;
+            }
+
             const condition = Object.keys(conditionElement)[0];
             const value = conditionElement[condition];
 
-            conditions += `${getCondition(condition, value)} ${i != enableCondition.length - 1 ? conditionType : ""}`
+            conditions += `(${getCondition(condition, value)}) ${i != enableCondition.length - 1 ? conditionType : ""}`
         }
 
-        fields +=
-            fixIndentation(`
-                        {${conditions} &&`, indentation);
+        fields += `${conditions})`;
     } else {
         const conditionElement = enableCondition[0];
         const condition = Object.keys(conditionElement)[0];
         const value = conditionElement[condition];
 
-        fields +=
-            fixIndentation(`
-                        {${getCondition(condition, value)} &&`, indentation);
+        fields += `${getCondition(condition, value)}`;
     }
-    return fields;
+    return !isSubCondition ? fixIndentation(`
+        {${fields} &&`, indentation) : fields;
 }
 
 const getRegexAndMessage = (validation: string, validationRegEx: string) => {
@@ -131,6 +138,18 @@ const getRegexAndMessage = (validation: string, validationRegEx: string) => {
         validation === 'nameWithoutSpecialCharactors' ? 'Invalid name' :
             'Invalid input';
     return { regex, message };
+}
+
+const getDefaultValue = (defaultValue: string) => {
+    if (defaultValue === undefined) {
+        return '""';
+    } else if (typeof defaultValue === 'string') {
+        return `"${defaultValue.replaceAll('"', '\\"')}"`;
+    } else if (typeof defaultValue === "boolean" || defaultValue === "true" || defaultValue === "false") {
+        return defaultValue;
+    } else {
+        return JSON.stringify(defaultValue);
+    }
 }
 
 const generateForm = (jsonData: any): string => {
@@ -148,8 +167,14 @@ const generateForm = (jsonData: any): string => {
 
     const generateFormItems = (elements: any[], indentation: number, parentName?: string) => {
         elements.forEach((element, index) => {
+            const { name, displayName, enableCondition, inputType, required, helpTip, allowedConnectionTypes, validation, validationRegEx } = element.value;
+
+            if (enableCondition) {
+                fields += generateEnabledCondition(enableCondition, indentation);
+                indentation += 4;
+            }
+
             if (element.type === 'attribute') {
-                const { name, displayName, enableCondition, inputType, required, helpTip, allowedConnectionTypes, validation, validationRegEx } = element.value;
                 let defaultValue = element.value.defaultValue;
                 const inputName = keys.includes(name.trim().replace(/\s/g, '_')) ? (parentName ? `${parentName}${name.trim().replace(/\s/g, '_')}` : name.trim().replace(/\s/g, '_')) : name.trim().replace(/\s/g, '_');
                 keys.push(inputName);
@@ -163,11 +188,6 @@ const generateForm = (jsonData: any): string => {
                     pattern: { value: ${regex}, message: "${message}" }` : ""}
                 }
                 `, 32) : "";
-
-                if (enableCondition) {
-                    fields += generateEnabledCondition(enableCondition, indentation);
-                    indentation += 4;
-                }
 
                 fields +=
                     fixIndentation(`
@@ -267,17 +287,9 @@ const generateForm = (jsonData: any): string => {
                         fixIndentation(comboStr, indentation);
                 }
 
-                if (defaultValue === undefined) {
-                    defaultValue = '""';
-                } else if (typeof defaultValue === 'string') {
-                    defaultValue = `"${defaultValue.replaceAll('"', '\\"')}"`;
-                } else {
-                    defaultValue = JSON.stringify(defaultValue);
-                }
-
                 defaultValues +=
                     fixIndentation(`
-                ${inputName}: sidePanelContext?.formValues?.${inputName} || ${defaultValue},`, 8);
+                ${inputName}: sidePanelContext?.formValues?.${inputName} || ${getDefaultValue(defaultValue)},`, 8);
 
                 indentation -= 4;
                 fields +=
@@ -285,20 +297,12 @@ const generateForm = (jsonData: any): string => {
                             )}
                         />
                         {errors.${inputName} && <Error>{errors.${inputName}.message.toString()}</Error>}
-                    </Field>${enableCondition ? `
-                }\n` : "\n"}`, indentation);
+                    </Field>`, indentation);
 
-                indentation -= enableCondition ? 4 : 0;
 
             } else if (element.type === 'attributeGroup') {
-                const enableCondition = element.value.enableCondition;
                 const isCollapsible = element.value.isCollapsible;
                 const groupName = element.value.groupName;
-
-                if (enableCondition) {
-                    fields += generateEnabledCondition(enableCondition, indentation);
-                    indentation += 4;
-                }
 
                 if (isCollapsible) {
                     fields += fixIndentation(`
@@ -319,10 +323,6 @@ const generateForm = (jsonData: any): string => {
                     </ComponentCard>`, indentation);
                 }
 
-                indentation -= enableCondition ? 4 : 0;
-                fields +=
-                    fixIndentation(`${enableCondition ? `
-                }\n` : "\n"}`, indentation);
             } else if (element.type === 'table') {
                 const value = element.value;
                 const inputName = value.name.trim();
@@ -354,7 +354,9 @@ const generateForm = (jsonData: any): string => {
                 const tableKeys: string[] = [];
                 elements.forEach((attribute: any, index: number) => {
                     const { name, displayName, enableCondition, inputType, required, comboValues, validation, validationRegEx } = attribute.value;
-                    let defaultValue = attribute.value.defaultValue;
+                    let defaultValue: any = getDefaultValue(attribute.value.defaultValue);
+                    defaultValue = typeof defaultValue === 'string' ? defaultValue.replaceAll("\"", "") : defaultValue;
+
                     tableKeys.push(name);
                     const isRequired = required == 'true';
 
@@ -363,9 +365,14 @@ const generateForm = (jsonData: any): string => {
                         type = 'TextField';
                     } else if (inputType === 'stringOrExpression') {
                         type = 'ExprField';
-                        defaultValue = { isExpression: false, value: defaultValue || '' };
+                        defaultValue = { isExpression: false, value: defaultValue };
                     } else if (inputType === 'connection' || inputType === 'comboOrExpression' || inputType === 'combo') {
                         type = 'Dropdown';
+                    } else if (inputType === 'checkbox') {
+                        type = "Checkbox";
+                        if (!defaultValue) {
+                            defaultValue = false;
+                        }
                     }
 
                     const paramField =
@@ -373,24 +380,29 @@ const generateForm = (jsonData: any): string => {
                         ${JSON.stringify({
                             type: type,
                             label: displayName,
-                            defaultValue: defaultValue || '',
+                            defaultValue: defaultValue,
                             isRequired: isRequired,
                             ...(type === 'ExprField') && { canChange: inputType === 'stringOrExpression' },
                             ...(type === 'Dropdown') && { values: comboValues.map((value: string) => `${value}`), },
                             ...(enableCondition) && { enableCondition: generateParammanagerCondition(enableCondition, tableKeys) },
                         }, null, "\t")},`, 8);
 
-                    paramFields += paramField.slice(0, -3) + `, 
-                    openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                        sidePanelContext.setSidePanelState({
-                            ...sidePanelContext,
-                            expressionEditor: {
-                                isOpen: true,
-                                value,
-                                setValue
-                            }
-                        });
-                    }` + paramField.slice(-2);
+                    if (type === 'ExprField') {
+                        paramFields += paramField.slice(0, -3) + `, 
+                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
+                            sidePanelContext.setSidePanelState({
+                                ...sidePanelContext,
+                                expressionEditor: {
+                                    isOpen: true,
+                                    value,
+                                    setValue
+                                }
+                            });
+                        }` + paramField.slice(-2);
+
+                    } else {
+                        paramFields += paramField;
+                    }
 
                     paramValues +=
                         fixIndentation(`
@@ -440,6 +452,14 @@ const generateForm = (jsonData: any): string => {
                 fields += fixIndentation(`
                 </ComponentCard>`, indentation);
             }
+
+            if (enableCondition) {
+                fields += `\n}`;
+
+                indentation -= 4;
+            }
+            fields += `\n`;
+
         });
     };
 

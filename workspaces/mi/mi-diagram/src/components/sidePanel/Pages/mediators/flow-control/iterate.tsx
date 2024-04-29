@@ -205,7 +205,7 @@ const IterateForm = (props: AddMediatorProps) => {
                         {errors.sequenceType && <Error>{errors.sequenceType.message.toString()}</Error>}
                     </Field>
 
-                    {watch("sequenceType") && watch("sequenceType").toLowerCase() == "key" &&
+                    {watch("sequenceType") == "Key" &&
                     <Field>
                         <Controller
                             name="sequenceKey"

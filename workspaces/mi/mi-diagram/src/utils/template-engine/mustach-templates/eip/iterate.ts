@@ -17,7 +17,7 @@ export function getIterateMustacheTemplate() {
     <iterate {{#preservePayload}}attachPath="{{attachPath}}"{{/preservePayload}} {{#continueParent}}continueParent="{{continueParent}}"{{/continueParent}} expression="{{iterateExpression}}" id="{{iterateID}}" {{#preservePayload}}preservePayload="{{preservePayload}}"{{/preservePayload}} {{#sequentialMediation}}sequential="{{sequentialMediation}}"{{/sequentialMediation}} {{#description}}description="{{description}}"{{/description}} >
         {{#isAnnonymousSequence}}
         <target>
-            <sequence/>
+            <sequence></sequence>
         </target>
         {{/isAnnonymousSequence}}
         {{^isAnnonymousSequence}}
@@ -37,7 +37,7 @@ export function getIterateMustacheTemplate() {
     {{#editTarget}}
     {{#isAnnonymousSequence}}
     <target>
-        <sequence/>
+        <sequence></sequence>
     </target>
     {{/isAnnonymousSequence}}
     {{^isAnnonymousSequence}}
@@ -50,7 +50,7 @@ export function getIterateMustacheTemplate() {
 
 export function getIterateXml(data: { [key: string]: any }, dirtyFields?: any, defaultValues?: any) {
 
-    if (data.sequenceType === "ANONYMOUS") {
+    if (data.sequenceType === "Anonymous") {
         delete data.sequenceKey;
         data.isAnnonymousSequence = true;
     }

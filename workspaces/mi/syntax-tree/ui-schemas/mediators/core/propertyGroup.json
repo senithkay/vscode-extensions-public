@@ -44,7 +44,13 @@
                 "JSON"
               ],
               "required": true,
-              "helpTip": "Property Data Type"
+              "helpTip": "Property Data Type",
+              "enableCondition": [
+                "NOT",
+                {
+                  "propertyAction": "remove"
+                }
+              ]
             }
           },
           {
@@ -72,9 +78,15 @@
               "required": true,
               "helpTip": "Value",
               "enableCondition": [
-                "NOT",
+                "AND",
+                [
+                  "NOT",
+                  {
+                    "propertyDataType": "OM"
+                  }
+                ],
                 {
-                  "propertyDataType": "OM"
+                  "propertyAction": "set"
                 }
               ]
             }
@@ -84,7 +96,7 @@
             "value": {
               "name": "OMValue",
               "displayName": "OM",
-              "inputType": "textfeild",
+              "inputType": "string",
               "defaultValue": "",
               "required": true,
               "helpTip": "Value",
@@ -117,42 +129,41 @@
             }
           },
           {
-            "type": "attributeGroup",
+            "type": "attribute",
             "value": {
-              "groupName": "Advanced",
-              "isCollapsible": true,
-              "elements": [
+              "name": "valueStringPattern",
+              "displayName": "Value String Pattern",
+              "inputType": "string",
+              "defaultValue": "",
+              "required": false,
+              "helpTip": "Value String Pattern",
+              "enableCondition": [
+                "AND",
                 {
-                  "type": "attribute",
-                  "value": {
-                    "name": "valueStringPattern",
-                    "displayName": "Value String Pattern",
-                    "inputType": "string",
-                    "defaultValue": "",
-                    "required": false,
-                    "helpTip": "Value String Pattern",
-                    "enableCondition": [
-                      {
-                        "propertyDataType": "STRING"
-                      }
-                    ]
-                  }
+                  "propertyDataType": "STRING"
                 },
                 {
-                  "type": "attribute",
-                  "value": {
-                    "name": "valueStringCapturingGroup",
-                    "displayName": "Value String Capturing Group",
-                    "inputType": "string",
-                    "defaultValue": "0",
-                    "required": false,
-                    "helpTip": "Value String Capturing Group",
-                    "enableCondition": [
-                      {
-                        "propertyDataType": "STRING"
-                      }
-                    ]
-                  }
+                  "propertyAction": "set"
+                }
+              ]
+            }
+          },
+          {
+            "type": "attribute",
+            "value": {
+              "name": "valueStringCapturingGroup",
+              "displayName": "Value String Capturing Group",
+              "inputType": "string",
+              "defaultValue": "0",
+              "required": false,
+              "helpTip": "Value String Capturing Group",
+              "enableCondition": [
+                "AND",
+                {
+                  "propertyDataType": "STRING"
+                },
+                {
+                  "propertyAction": "set"
                 }
               ]
             }

@@ -178,7 +178,7 @@ const SmooksForm = (props: AddMediatorProps) => {
                         {errors.outputMethod && <Error>{errors.outputMethod.message.toString()}</Error>}
                     </Field>
 
-                    {watch("outputMethod") && watch("outputMethod").toLowerCase() == "property" &&
+                    {watch("outputMethod") == "Property" &&
                     <Field>
                         <Controller
                             name="outputProperty"
@@ -191,7 +191,7 @@ const SmooksForm = (props: AddMediatorProps) => {
                     </Field>
                     }
 
-                    {watch("outputMethod") && watch("outputMethod").toLowerCase() == "expression" &&
+                    {watch("outputMethod") == "Expression" &&
                     <Field>
                         <Controller
                             name="outputAction"
@@ -206,7 +206,7 @@ const SmooksForm = (props: AddMediatorProps) => {
                     </Field>
                     }
 
-                    {watch("outputMethod") && watch("outputMethod").toLowerCase() == "expression" &&
+                    {watch("outputMethod") == "Expression" &&
                     <Field>
                         <Controller
                             name="outputExpression"

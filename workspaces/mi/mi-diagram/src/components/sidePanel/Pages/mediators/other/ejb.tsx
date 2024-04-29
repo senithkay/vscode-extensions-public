@@ -73,17 +73,8 @@ const EJBForm = (props: AddMediatorProps) => {
                         "type": "TextField",
                         "label": "Property Name",
                         "defaultValue": "",
-                        "isRequired": false, 
-                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                            sidePanelContext.setSidePanelState({
-                                ...sidePanelContext,
-                                expressionEditor: {
-                                    isOpen: true,
-                                    value,
-                                    setValue
-                                }
-                            });
-                        }},
+                        "isRequired": false
+                    },
                     {
                         "type": "Dropdown",
                         "label": "Property Value Type",
@@ -92,17 +83,8 @@ const EJBForm = (props: AddMediatorProps) => {
                         "values": [
                             "LITERAL",
                             "EXPRESSION"
-                        ], 
-                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                            sidePanelContext.setSidePanelState({
-                                ...sidePanelContext,
-                                expressionEditor: {
-                                    isOpen: true,
-                                    value,
-                                    setValue
-                                }
-                            });
-                        }},
+                        ]
+                    },
                     {
                         "type": "TextField",
                         "label": "Property Value",
@@ -112,17 +94,8 @@ const EJBForm = (props: AddMediatorProps) => {
                             {
                                 "1": "LITERAL"
                             }
-                        ], 
-                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                            sidePanelContext.setSidePanelState({
-                                ...sidePanelContext,
-                                expressionEditor: {
-                                    isOpen: true,
-                                    value,
-                                    setValue
-                                }
-                            });
-                        }},
+                        ]
+                    },
                     {
                         "type": "TextField",
                         "label": "Property Expression",
@@ -132,17 +105,8 @@ const EJBForm = (props: AddMediatorProps) => {
                             {
                                 "1": "EXPRESSION"
                             }
-                        ], 
-                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                            sidePanelContext.setSidePanelState({
-                                ...sidePanelContext,
-                                expressionEditor: {
-                                    isOpen: true,
-                                    value,
-                                    setValue
-                                }
-                            });
-                        }},
+                        ]
+                    },
                 ]
             },
             sessionIdType: sidePanelContext?.formValues?.sessionIdType || "LITERAL",
@@ -280,6 +244,7 @@ const EJBForm = (props: AddMediatorProps) => {
                         )}
                     />
                 </ComponentCard>
+
                 <ComponentCard sx={cardStyle} disbaleHoverEffect>
                     <Typography variant="h3">Session</Typography>
 
@@ -296,7 +261,7 @@ const EJBForm = (props: AddMediatorProps) => {
                         {errors.sessionIdType && <Error>{errors.sessionIdType.message.toString()}</Error>}
                     </Field>
 
-                    {watch("sessionIdType") && watch("sessionIdType").toLowerCase() == "literal" &&
+                    {watch("sessionIdType") == "LITERAL" &&
                     <Field>
                         <Controller
                             name="sessionIdLiteral"
@@ -309,7 +274,7 @@ const EJBForm = (props: AddMediatorProps) => {
                     </Field>
                     }
 
-                    {watch("sessionIdType") && watch("sessionIdType").toLowerCase() == "expression" &&
+                    {watch("sessionIdType") == "EXPRESSION" &&
                     <Field>
                         <Controller
                             name="sessionIdExpression"

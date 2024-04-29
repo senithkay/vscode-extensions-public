@@ -70,32 +70,14 @@ const ScriptForm = (props: AddMediatorProps) => {
                         "type": "TextField",
                         "label": "Key Name",
                         "defaultValue": "",
-                        "isRequired": false, 
-                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                            sidePanelContext.setSidePanelState({
-                                ...sidePanelContext,
-                                expressionEditor: {
-                                    isOpen: true,
-                                    value,
-                                    setValue
-                                }
-                            });
-                        }},
+                        "isRequired": false
+                    },
                     {
                         "type": "TextField",
                         "label": "Key Value",
                         "defaultValue": "",
-                        "isRequired": false, 
-                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                            sidePanelContext.setSidePanelState({
-                                ...sidePanelContext,
-                                expressionEditor: {
-                                    isOpen: true,
-                                    value,
-                                    setValue
-                                }
-                            });
-                        }},
+                        "isRequired": false
+                    },
                 ]
             },
             description: sidePanelContext?.formValues?.description || "",
@@ -162,7 +144,7 @@ const ScriptForm = (props: AddMediatorProps) => {
                     {errors.scriptType && <Error>{errors.scriptType.message.toString()}</Error>}
                 </Field>
 
-                {watch("scriptType") && watch("scriptType").toLowerCase() == "inline" &&
+                {watch("scriptType") == "INLINE" &&
                 <Field>
                     <Controller
                         name="scriptBody"
@@ -175,7 +157,7 @@ const ScriptForm = (props: AddMediatorProps) => {
                 </Field>
                 }
 
-                {watch("scriptType") && watch("scriptType").toLowerCase() == "registry_reference" &&
+                {watch("scriptType") == "REGISTRY_REFERENCE" &&
                 <Field>
                     <Controller
                         name="scriptKey"
@@ -193,7 +175,7 @@ const ScriptForm = (props: AddMediatorProps) => {
                 </Field>
                 }
 
-                {watch("scriptType") && watch("scriptType").toLowerCase() == "registry_reference" &&
+                {watch("scriptType") == "REGISTRY_REFERENCE" &&
                 <Field>
                     <Controller
                         name="mediateFunction"
@@ -206,6 +188,7 @@ const ScriptForm = (props: AddMediatorProps) => {
                 </Field>
                 }
 
+                {watch("scriptType") == "REGISTRY_REFERENCE" &&
                 <ComponentCard sx={cardStyle} disbaleHoverEffect>
                     <Typography variant="h3">Script Keys</Typography>
                     <Typography variant="body3">Editing of the properties of an object Registry Key Property</Typography>
@@ -234,6 +217,8 @@ const ScriptForm = (props: AddMediatorProps) => {
                         )}
                     />
                 </ComponentCard>
+                }
+
                 <Field>
                     <Controller
                         name="description"

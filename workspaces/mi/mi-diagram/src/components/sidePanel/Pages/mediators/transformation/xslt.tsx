@@ -67,17 +67,8 @@ const XSLTForm = (props: AddMediatorProps) => {
                         "type": "TextField",
                         "label": "Property Name",
                         "defaultValue": "",
-                        "isRequired": false, 
-                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                            sidePanelContext.setSidePanelState({
-                                ...sidePanelContext,
-                                expressionEditor: {
-                                    isOpen: true,
-                                    value,
-                                    setValue
-                                }
-                            });
-                        }},
+                        "isRequired": false
+                    },
                     {
                         "type": "ExprField",
                         "label": "Property Value",
@@ -117,31 +108,14 @@ const XSLTForm = (props: AddMediatorProps) => {
                         "type": "TextField",
                         "label": "Location",
                         "defaultValue": "",
-                        "isRequired": false, 
-                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                            sidePanelContext.setSidePanelState({
-                                ...sidePanelContext,
-                                expressionEditor: {
-                                    isOpen: true,
-                                    value,
-                                    setValue
-                                }
-                            });
-                        }},
+                        "isRequired": false
+                    },
                     {
+                        "type": "TextField",
                         "label": "Resource Registry Key",
                         "defaultValue": "",
-                        "isRequired": false, 
-                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                            sidePanelContext.setSidePanelState({
-                                ...sidePanelContext,
-                                expressionEditor: {
-                                    isOpen: true,
-                                    value,
-                                    setValue
-                                }
-                            });
-                        }},
+                        "isRequired": false
+                    },
                 ]
             },
             features: {
@@ -162,31 +136,14 @@ const XSLTForm = (props: AddMediatorProps) => {
                         "type": "TextField",
                         "label": "Feature Name",
                         "defaultValue": "",
-                        "isRequired": false, 
-                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                            sidePanelContext.setSidePanelState({
-                                ...sidePanelContext,
-                                expressionEditor: {
-                                    isOpen: true,
-                                    value,
-                                    setValue
-                                }
-                            });
-                        }},
+                        "isRequired": false
+                    },
                     {
+                        "type": "Checkbox",
                         "label": "Feature Enabled",
-                        "defaultValue": "",
-                        "isRequired": false, 
-                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                            sidePanelContext.setSidePanelState({
-                                ...sidePanelContext,
-                                expressionEditor: {
-                                    isOpen: true,
-                                    value,
-                                    setValue
-                                }
-                            });
-                        }},
+                        "defaultValue": false,
+                        "isRequired": false
+                    },
                 ]
             },
             description: sidePanelContext?.formValues?.description || "",
@@ -300,6 +257,7 @@ const XSLTForm = (props: AddMediatorProps) => {
                             )}
                         />
                     </ComponentCard>
+
                     <ComponentCard sx={cardStyle} disbaleHoverEffect>
                         <Typography variant="h3">Resources</Typography>
                         <Typography variant="body3">Editing of the properties of an object XSLT Resource</Typography>
@@ -328,6 +286,7 @@ const XSLTForm = (props: AddMediatorProps) => {
                             )}
                         />
                     </ComponentCard>
+
                     <ComponentCard sx={cardStyle} disbaleHoverEffect>
                         <Typography variant="h3">Features</Typography>
                         <Typography variant="body3">Editing of the properties of an object XSLT Features</Typography>
@@ -356,6 +315,7 @@ const XSLTForm = (props: AddMediatorProps) => {
                             )}
                         />
                     </ComponentCard>
+
                 </FormGroup>
 
                 <Field>

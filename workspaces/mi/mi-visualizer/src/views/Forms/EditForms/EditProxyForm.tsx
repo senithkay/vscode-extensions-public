@@ -16,19 +16,19 @@ import {
     FormActions,
     FormCheckBox,
     FormView,
-    Dialog
 } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { VSCodeRadio, VSCodeRadioGroup } from "@vscode/webview-ui-toolkit/react";
 import CodeMirror from "@uiw/react-codemirror";
 import { xml } from "@codemirror/lang-xml";
 import { oneDark } from "@codemirror/theme-one-dark";
-import { linter } from "@codemirror/lint";
 import {XMLBuilder, XMLParser, XMLValidator} from "fast-xml-parser";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { useForm } from "react-hook-form";
+import { getArtifactNamesAndRegistryPaths } from "../AddToRegistry";
+import { FormKeylookup } from "@wso2-enterprise/mi-diagram";
 import { ParamConfig, ParamManager } from "@wso2-enterprise/mi-diagram";
 
 export type Protocol = "http" | "https";
@@ -72,6 +72,7 @@ type InputsFields = {
     wsdlUrl?: string;
     registryKey?: string;
     wsdlEndpoint?: string;
+    parametersUpdated?: boolean;
 }    
 
 export type Parameter = {
@@ -80,7 +81,7 @@ export type Parameter = {
 }
 
 export type STNode = {
-    hasTextNode: boolean;
+    selfClosed: boolean;
 }
 
 export type Resource = {
@@ -186,19 +187,53 @@ namespace Section {
 
 export function EditProxyForm({ proxyData, isOpen, documentUri, onCancel, onSave }: ProxyProps) {
     const { rpcClient } = useVisualizerContext();
-    const [proxyNames, setProxyNames] = useState<string[]>([]);
+    const [workspaceFileNames, setWorkspaceFileNames] = useState<string[]>([]);
     const [proxyArtifactsNames, setProxyArtifactsNames] = useState<string[]>([]);
     const schema = yup
     .object({
         name: yup.string().required("Proxy  Name is required").matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in Proxy name")
               .test('validateMessageStoreName',
-              'Message Store file name already exists', value => {
-                  return !proxyNames.includes(value)
+              'An artifact with same name already exists', value => {
+                  return !(workspaceFileNames.includes(value) && proxyData.name !== value)
               }).test('validateMessageStoreName',
-                  'Message Store artifact name already exists', value => {
-                      return !proxyArtifactsNames.includes(value)
+                  'A registry resource with this artifact name already exists', value => {
+                      return !(proxyArtifactsNames.includes(value) && proxyData.name !== value)
                   }),
+        endpointType: yup.string(),
+        endpoint: yup.string().when('endpointType', {
+            is: "named",
+            then: (schema)=>schema.required("Endpoint is required"),
+            otherwise: (schema)=>schema.notRequired()
+        }),
+        faultSequenceType: yup.string(),
+        faultSequence: yup.string().when('faultSequenceType', {
+            is: "named",
+            then: (schema)=>schema.required("Fault Sequence is required"),
+            otherwise: (schema)=>schema.notRequired()
+        }),
+        inSequenceType: yup.string(),
+        inSequence: yup.string().when('inSequenceType', {
+            is: "named",
+            then: (schema)=>schema.required("In Sequence is required"),
+            otherwise: (schema)=>schema.notRequired()
+        }),
+        outSequenceType: yup.string(),
+        outSequence: yup.string().when('outSequenceType', {
+            is: "named",
+            then: (schema)=>schema.required("Out Sequence is required"),
+            otherwise: (schema)=>schema.notRequired()
+        }),          
         wsdlType: yup.string(),
+        registryKey: yup.string().when('wsdlType', {
+            is: "REGISTRY_KEY",
+            then: (schema)=>schema.required("Registry Key is required"),
+            otherwise: (schema)=>schema.notRequired()
+        }),
+        wsdlEndpoint: yup.string().when('wsdlType', {
+            is: "ENDPOINT",
+            then: (schema)=>schema.required("WSDL Endpoint is required"),
+            otherwise: (schema)=>schema.notRequired()
+        }),
         transports: yup.string().required("Transports are required"),
         wsdlInLine: yup.string().required().when('wsdlType', {
             is: "INLINE",
@@ -230,7 +265,7 @@ export function EditProxyForm({ proxyData, isOpen, documentUri, onCancel, onSave
             rabbitmq: proxyData.transports.includes("rabbitmq"),
             hl7: proxyData.transports.includes("hl7"),
         },
-        enableAddressing: proxyData.enableAddressing?.hasTextNode ?? false,
+        enableAddressing: proxyData.enableAddressing?.selfClosed ?? false,
         endpointType :  proxyData.target?.endpointAttribute ? "named" : "inline",
         endpoint: proxyData.target?.endpointAttribute ,
         faultSequenceType: proxyData.target?.faultSequenceAttribute ? "named" : "inline",
@@ -241,13 +276,14 @@ export function EditProxyForm({ proxyData, isOpen, documentUri, onCancel, onSave
         outSequenceType: proxyData.target?.outSequenceAttribute ? "named" : "inline",
         outSequenceEdited: false,
         outSequence: proxyData.target?.outSequenceAttribute,
-        securityEnabled: proxyData.enableSec?.hasTextNode ?? false,
+        securityEnabled: proxyData.enableSec?.selfClosed ?? false,
         wsdlType: proxyData.wsdlType ?? "NONE",
         wsdlInLine: proxyData.publishWSDL?.inlineWsdl,
         preservePolicy: proxyData.publishWSDL?.preservePolicy ??true,
         wsdlUrl: proxyData.publishWSDL?.uri ?? "http://default/wsdl/url",
-        registryKey: proxyData.publishWSDL?.key ?? "default_registry_key",
-        wsdlEndpoint: proxyData.publishWSDL?.endpoint ?? "default_endpoint"
+        registryKey: proxyData.publishWSDL?.key ,
+        wsdlEndpoint: proxyData.publishWSDL?.endpoint,
+        parametersUpdated: false
     }
     const {
         reset,
@@ -263,16 +299,9 @@ export function EditProxyForm({ proxyData, isOpen, documentUri, onCancel, onSave
         resolver: yupResolver(schema), 
         mode: "onChange"
     });
-    const [sequences, setSequences] = useState<string[]>([]);
-    const [endpoints, setEndpoints] = useState<string[]>([]);
-    const [wsdlRegistries, setWsdlRegistries] = useState<string[]>([]);
-    const [policyRegistries, setPolicyRegistries] = useState<string[]>([]);
     const [parameters, setParameters] = useState<Parameter[]>([]);
     const [servicePolicies, setServicePolicies] = useState<ProxyPolicy[]>([]);
-    const [isResourceAvailable, setResourceAvailability] = useState<boolean>(true);
-    const [resourceType, setResourceType] = useState<string>("");
     const [wsdlResources, setWsdlResources] = useState<Resource[]>([]);
-    const [isXML, setIsXML] = useState(true);
     const [xmlErrors, setXmlErrors] = useState({
         code: '',
         col: 0,
@@ -310,12 +339,12 @@ export function EditProxyForm({ proxyData, isOpen, documentUri, onCancel, onSave
         paramFields: [
         {
             id: 0,
-            type: "Dropdown",
+            type: "AutoComplete",
             label: "Service Policy",
             defaultValue: "value",
             isRequired: true,
-            values: []
-        }]
+            values: [],
+            allowItemCreate: true}]
     }
     const [policies, setPolicies] = useState(policyConfigs);
     const resourceConfigs:ParamConfig = {
@@ -351,7 +380,6 @@ export function EditProxyForm({ proxyData, isOpen, documentUri, onCancel, onSave
             ],
             key: param.name,
             value: param.textNode,
-            icon: "query"
         });
     });
 
@@ -365,7 +393,6 @@ export function EditProxyForm({ proxyData, isOpen, documentUri, onCancel, onSave
             ],
             key: (index + 1).toString(),
             value: policy.key,
-            icon: "query"
         });
     });
     
@@ -382,7 +409,6 @@ export function EditProxyForm({ proxyData, isOpen, documentUri, onCancel, onSave
             ],
             key: resource.key,
             value: resource.location,
-            icon: "query"
         });
     });
 
@@ -390,12 +416,13 @@ export function EditProxyForm({ proxyData, isOpen, documentUri, onCancel, onSave
         const modifiedParams = { ...params, paramValues: params.paramValues.map((param: any) => {
             return {
                 ...param,
-                key: type !== "policies" ? param.parameters[0].value : param.key,
-                value: type !== "policies" ? param.parameters[1].value  : param.parameters[0].value ?? "",
+                key: type !== "policies" ? param.paramValues[0].value : param.key,
+                value: type !== "policies" ? param.paramValues[1].value  : param.paramValues[0].value ?? "",
                 icon: "query"
             }
         })};
         type === "parameters" ? setParams(modifiedParams) : type === "policies" ? setPolicies(modifiedParams) : setResources(modifiedParams);
+        setValue("parametersUpdated", true);
     };
 
     const renderProps = (fieldName: keyof InputsFields) => {
@@ -411,17 +438,7 @@ export function EditProxyForm({ proxyData, isOpen, documentUri, onCancel, onSave
             isError: isError,
             text: text,
         });
-    }
-
-    const resourceAvailabilityDialog = (resourceType: string, isAvailable: boolean) => {
-        return (
-        <Dialog id='notFound' isOpen={!isAvailable} >
-        <h2>
-            There is no {resourceType} available for this service. Please add a {resourceType}.
-        </h2>
-        <Button appearance="secondary" onClick={()=> { setResourceAvailability(true)}}>Continue</Button>
-        </Dialog>);
-    }             
+    }            
 
     const removeDuplicateResources = () => {
         const uniqueResources = wsdlResources?.filter((resource, index, self) =>
@@ -462,21 +479,21 @@ export function EditProxyForm({ proxyData, isOpen, documentUri, onCancel, onSave
 
     const parametersParser = () => {
         params.paramValues.map((param: any) => {
-            parameters.push({name: param.parameters[0].value, textNode: param.parameters[1].value});
+            parameters.push({name: param.paramValues[0].value, textNode: param.paramValues[1].value});
         })
         return removeDuplicateParameters();
     }
 
     const policiesParser = () => {
         policies.paramValues.map((policy: any) => {
-            servicePolicies.push({key: policy.parameters[0].value});
+            servicePolicies.push({key: policy.paramValues[0].value});
         })
         return removeDuplicatePolicies();
     }
 
     const resourcesParser = () => {
         resources.paramValues.map((resource: any) => {
-            wsdlResources.push({location: resource.parameters[0].value, key: resource.parameters[1].value});
+            wsdlResources.push({location: resource.paramValues[0].value, key: resource.paramValues[1].value});
         })
         return removeDuplicateResources();
     }
@@ -491,11 +508,6 @@ export function EditProxyForm({ proxyData, isOpen, documentUri, onCancel, onSave
     };
   
     const handleXMLInputChange = (text: string) => {
-        if (text.toLowerCase().startsWith("<wsdl:definitions" || "<wsdl:definitions>" || "<?wsdl:definitions" || "<?wsdl:definitions>")) {
-            setIsXML(true);
-        } else {
-            setIsXML(false);
-        }
         setValue("wsdlInLine", text);
         setValidationMessage(isValidXML(text));
     };
@@ -526,53 +538,15 @@ export function EditProxyForm({ proxyData, isOpen, documentUri, onCancel, onSave
 
     React.useEffect(() => {
         (async () => {
-            //transportParser(proxyData.transports);
-            handleXMLInputChange(proxyData.publishWSDL?.inlineWsdl);
             let resources:string[] = []
-            const sequence = await rpcClient.getMiDiagramRpcClient().getAvailableResources({
-                documentIdentifier: documentUri,
-                resourceType: "sequence",
-            });
-            const wsdl_registry = await rpcClient.getMiDiagramRpcClient().getAvailableResources({
-                documentIdentifier: documentUri,
-                resourceType: "wsdl",
-            });
             const policy_registry = await rpcClient.getMiDiagramRpcClient().getAvailableResources({
                 documentIdentifier: documentUri,
                 resourceType: "ws_policy",
             });
-            console.log(sequence);
-            console.log(policy_registry);
-            const endpoint = await rpcClient.getMiDiagramRpcClient().getAvailableResources({
-                documentIdentifier: documentUri,
-                resourceType: "endpoint",
-            });
-            if (sequences) {
-                const sequenceNames = sequence.resources.map((resource) => resource.name);
-                const registrySequences = sequence.registryResources.map((resource)=>resource.registryKey.replace(".xml",""))
-                setSequences([...sequenceNames,...registrySequences]);
-                setValue("inSequence", sequenceNames[0]);
-                setValue("outSequence", sequenceNames[0]);
-                setValue("faultSequence", sequenceNames[0]);
-            }
-            if (endpoints) {
-                const endpointNames = endpoint.resources.map((resource) => resource.name);
-                const registryEndpoints = endpoint.registryResources.map((resource)=>resource.registryKey)
-                setEndpoints([...endpointNames,...registryEndpoints]);
-                setValue("endpoint", endpointNames[0]);
-            }
-            if(wsdl_registry) {
-                const registryNames = wsdl_registry.registryResources.map((resource) => resource.registryKey);
-                setWsdlRegistries(registryNames);
-                setValue("registryKey", registryNames[0]);
-            }
             if(policy_registry) {
                 const policyNames = policy_registry.registryResources.map((resource) => resource.registryKey);
                 resources = [...resources, ...policyNames]
-                setPolicyRegistries(policyNames);
-                setValue("wsdlEndpoint", policyNames[0]);
             }
-            console.log(resources);
             setPolicies({
                 ...policies,
                 paramFields:policies.paramFields.map((param:any)=>{
@@ -588,37 +562,26 @@ export function EditProxyForm({ proxyData, isOpen, documentUri, onCancel, onSave
 
     useEffect(() => {
         (async () => {
-            const proxy = await rpcClient.getMiDiagramRpcClient().getAvailableResources({
-                documentIdentifier: documentUri,
-                resourceType: "proxyService",
+            const result = await getArtifactNamesAndRegistryPaths(documentUri, rpcClient);
+            setProxyArtifactsNames(result.artifactNamesArr);
+            const artifactRes = await rpcClient.getMiDiagramRpcClient().getAllArtifacts({
+                path: documentUri,
             });
-            console.log(proxy);
-            if(proxy.resources) {
-                const proxyNames = proxy.resources.map((resource: any) => resource.name.replace(proxyData.name, ""));
-                setProxyNames(proxyNames);
-                console.log(proxyNames);
-                const proxyArtifactsNames = proxy.resources.map((resource) => resource.artifactPath.replace(".xml",'').replace(proxyData.name,""));
-                setProxyArtifactsNames(proxyArtifactsNames);
-                console.log(proxyArtifactsNames);
-            }
+            setWorkspaceFileNames(artifactRes.artifacts);
         })();
     }, [proxyData]);
     
     useEffect(() => {
         setValue("transports", transportGenerator(), { shouldValidate: true ,shouldDirty: true });
-        console.log(watch("transports"));
     }, [watch("transport.http"), watch("transport.https"), watch("transport.jms"), watch("transport.vfs"), watch("transport.local"), watch("transport.malito"), watch("transport.fix"), watch("transport.rabbitmq"), watch("transport.hl7")]);
 
     useEffect(() => {
-        if(!isXML) {
-            handleMessage("Entered In-Line Xml Should be in XML", true);
-        } else if(!validationMessage) {
+        if(!validationMessage) {
             handleMessage(`Error ${xmlErrors.code} , ${xmlErrors.msg} in line ${xmlErrors.line}, from ${xmlErrors.col} `, true);
         } else {
             handleMessage("", false);
         }
-    }, [getValues("wsdlInLine")]);
-
+    }, [watch("wsdlInLine")]);
 
     return (
         <FormView title="Edit Proxy" onClose={onCancel}>
@@ -643,7 +606,7 @@ export function EditProxyForm({ proxyData, isOpen, documentUri, onCancel, onSave
                         <FormCheckBox label="Start On Load" {...register("startOnLoad")} control={control} />
                     </CheckBoxGroup>
                     <span>Transports</span>
-                    <CheckBoxGroup columns={3}  >
+                    <CheckBoxGroup columns={5}  >
                         <FormCheckBox label="HTTP" {...register("transport.http")} control={control}/>
                         <FormCheckBox label="HTTPS" {...register("transport.https")} control={control}/>
                         <FormCheckBox label="JMS" {...register("transport.jms")} control={control}/>
@@ -655,7 +618,7 @@ export function EditProxyForm({ proxyData, isOpen, documentUri, onCancel, onSave
                         <FormCheckBox label="HL7" {...register("transport.hl7")} control={control}/>
                     </CheckBoxGroup>
                     <span style={{ color:"#f48771" }}>{errors["transports"]?.message.toString()}</span>
-                    <FormGroup title="Advanced Options">
+                    <FormGroup title="Advanced Options" >
                         <React.Fragment>
                             <CheckBoxContainer>
                                 <label>End Point</label>
@@ -668,13 +631,13 @@ export function EditProxyForm({ proxyData, isOpen, documentUri, onCancel, onSave
                                 </VSCodeRadioGroup>
                             </CheckBoxContainer>
                             {watch("endpointType") === "named" && (
-                                <Dropdown
-                                    items={endpoints.map((sequence, index) => ({
-                                        id: index.toString(),
-                                        content: sequence,
-                                        value: sequence,
-                                    }))}
+                                <FormKeylookup
+                                    label="Endpoint"
+                                    name="endpoint"
+                                    filterType="endpoint"
+                                    path={documentUri}
                                     {...renderProps("endpoint")}
+                                    control={control}
                                 />
                             )}
                             <ContentSeperator></ContentSeperator>
@@ -689,14 +652,13 @@ export function EditProxyForm({ proxyData, isOpen, documentUri, onCancel, onSave
                                 </VSCodeRadioGroup>
                             </CheckBoxContainer>
                             {watch("inSequenceType") === "named" && (
-                                <Dropdown
-                                    items={sequences.map((sequence, index) => ({
-                                        id: index.toString(),
-                                        content: sequence,
-                                        value: sequence,
-                                    }))}
+                                <FormKeylookup
+                                    label="In Sequence"
+                                    name="inSequence"
+                                    filterType="sequence"
+                                    path={documentUri}
                                     {...renderProps("inSequence")}
-                                />
+                                    control={control}/>
                             )}
                             <ContentSeperator></ContentSeperator>
                             <CheckBoxContainer>
@@ -710,14 +672,13 @@ export function EditProxyForm({ proxyData, isOpen, documentUri, onCancel, onSave
                                 </VSCodeRadioGroup>
                             </CheckBoxContainer>
                             {watch("outSequenceType") === "named" && (
-                                <Dropdown
-                                    items={sequences.map((sequence, index) => ({
-                                        id: index.toString(),
-                                        content: sequence,
-                                        value: sequence,
-                                    }))}
+                                <FormKeylookup
+                                    label="Out Sequence"
+                                    name="outSequence"
+                                    filterType="sequence"
+                                    path={documentUri}
                                     {...renderProps("outSequence")}
-                                />
+                                    control={control}/>
                             )}
                             <ContentSeperator></ContentSeperator>
                             <CheckBoxContainer>
@@ -731,14 +692,13 @@ export function EditProxyForm({ proxyData, isOpen, documentUri, onCancel, onSave
                                 </VSCodeRadioGroup>
                             </CheckBoxContainer>
                             {watch("faultSequenceType") === "named" && (
-                                <Dropdown
-                                    items={sequences.map((sequence, index) => ({
-                                        id: index.toString(),
-                                        content: sequence,
-                                        value: sequence,
-                                    }))}
+                                <FormKeylookup
+                                    label="Fault Sequence"
+                                    name="faultSequence"
+                                    filterType="sequence"
+                                    path={documentUri}
                                     {...renderProps("faultSequence")}
-                                />
+                                    control={control}/>
                             )}
                             <ContentSeperator></ContentSeperator>
                             <h3>Service Parameters</h3>
@@ -754,7 +714,8 @@ export function EditProxyForm({ proxyData, isOpen, documentUri, onCancel, onSave
                             <ParamManager
                                 paramConfigs={policies}
                                 readonly={false}
-                                onChange={(param)=>handleOnChange(param,"policies")} />    
+                                onChange={(param)=>handleOnChange(param,"policies")}
+                                addParamText="Add Policy" />    
                             <ContentSeperator></ContentSeperator>
                             <h3>WDSL</h3>
                             <Dropdown
@@ -798,28 +759,25 @@ export function EditProxyForm({ proxyData, isOpen, documentUri, onCancel, onSave
                                 />
                             )}
                             {watch("wsdlType") === "REGISTRY_KEY" && (
-                                <Dropdown
-                                    items={wsdlRegistries.map((sequence, index) => ({
-                                        id: index.toString(),
-                                        content: sequence,
-                                        value: sequence,
-                                    }))}
+                                <FormKeylookup
                                     label="Registry Key"
+                                    name="registryKey"
+                                    filterType="wsdl"
+                                    path={documentUri}
                                     {...renderProps("registryKey")}
+                                    control={control}
                                 />
                             )}
                             {watch("wsdlType") === "ENDPOINT" && (
                                 <>
                                     <FormCheckBox label="Preserve Policy" {...register("preservePolicy")} control={control} />
-                                    <Dropdown                                       
-                                        items={endpoints.map((sequence, index) => ({
-                                            id: index.toString(),
-                                            content: sequence,
-                                            value: sequence,
-                                        }))}
+                                    <FormKeylookup
                                         label="WSDL Endpoint"
+                                        name="wsdlEndpoint"
+                                        filterType="endpoint"
+                                        path={documentUri}
                                         {...renderProps("wsdlEndpoint")}
-                                    />
+                                        control={control}/>
                                 </>
                             )}
                             {watch("wsdlType") !== "NONE" && watch("wsdlType") !=="ENDPOINT" && (
@@ -828,7 +786,8 @@ export function EditProxyForm({ proxyData, isOpen, documentUri, onCancel, onSave
                                     <ParamManager
                                         paramConfigs={resources}
                                         readonly={false}
-                                        onChange={(param)=>handleOnChange(param,"resources")} />
+                                        onChange={(param)=>handleOnChange(param,"resources")}
+                                        addParamText="Add WSDL Policy" />
                                 </>
                             )}
                         </React.Fragment>
@@ -842,10 +801,10 @@ export function EditProxyForm({ proxyData, isOpen, documentUri, onCancel, onSave
                             onClick={handleSubmit((values) => {
                                 onSave({
                                     enableSec: {
-                                        hasTextNode: values.securityEnabled,
+                                        selfClosed: values.securityEnabled,
                                     },
                                     enableAddressing: {
-                                        hasTextNode: false,
+                                        selfClosed: values.enableAddressing,
                                     },
                                     policies: policiesParser(),
                                     publishWSDL:{
@@ -880,7 +839,7 @@ export function EditProxyForm({ proxyData, isOpen, documentUri, onCancel, onSave
                                 },
                                 )
                             })}
-                            disabled={!isValid || !isDirty || !validationMessage}
+                            disabled={!isValid || !(isDirty || getValues("parametersUpdated")) || !validationMessage}
                         >
                             Update
                         </Button>

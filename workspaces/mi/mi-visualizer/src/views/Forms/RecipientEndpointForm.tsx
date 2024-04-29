@@ -166,10 +166,10 @@ export function RecipientWizard(props: RecipientWizardProps) {
                         paramValues: endpoint.properties.map((property: any, index: Number) => {
                             return {
                                 id: prev.paramValues.length + index,
-                                parameters: [
-                                    { id: 0, label: 'Name', type: 'TextField', value: property.name, isRequired: true },
-                                    { id: 1, label: 'Value', type: 'TextField', value: property.value, isRequired: true },
-                                    { id: 2, label: 'Scope', type: 'Dropdown', value: property.scope, values: ["default", "transport", "axis2", "axis2-client"], isRequired: true },
+                                paramValues: [
+                                    { value: property.name },
+                                    { value: property.value },
+                                    { value: property.scope }
                                 ],
                                 key: property.name,
                                 value: "value:" + property.value + "; scope:" + property.scope + ";"
@@ -220,7 +220,7 @@ export function RecipientWizard(props: RecipientWizardProps) {
                 paramValues: config.paramValues.map((param: any) => {
                     return {
                         ...param,
-                        key: param.parameters[0].value,
+                        key: param.paramValues[0].value,
                         value: generateDisplayValue(param)
                     }
                 })
@@ -228,14 +228,14 @@ export function RecipientWizard(props: RecipientWizardProps) {
         })
 
         setValue('properties', config.paramValues.map((param: any) => ({
-            name: param.parameters[0].value,
-            value: param.parameters[1].value,
-            scope: param.parameters[2].value ?? 'default',
+            name: param.paramValues[0].value,
+            value: param.paramValues[1].value,
+            scope: param.paramValues[2].value ?? 'default',
         })), { shouldDirty: true });
     }
 
     const generateDisplayValue = (paramValues: any) => {
-        const result: string = "value:" + paramValues.parameters[1].value + "; scope:" + paramValues.parameters[2].value + ";";
+        const result: string = "value:" + paramValues.paramValues[1].value + "; scope:" + paramValues.paramValues[2].value + ";";
         return result.trim();
     };
 
