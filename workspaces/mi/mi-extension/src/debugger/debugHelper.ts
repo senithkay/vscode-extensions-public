@@ -97,7 +97,7 @@ export function checkServerReadiness(): Promise<void> {
                             console.log(`CApp not yet deployed. Retrying in ${retryInterval / 1000} seconds...`);
                             setTimeout(checkReadiness, retryInterval);
                         } else {
-                            reject('Max timeout reached. Server is not ready with deployed CApp.');
+                            reject('CApp has encountered deployment issues. Please refer to the terminal for error logs.');
                         }
                     }
                 })
@@ -107,7 +107,7 @@ export function checkServerReadiness(): Promise<void> {
                         console.log(`Error checking readiness: ${error.message}. Retrying in ${retryInterval / 1000} seconds...`);
                         setTimeout(checkReadiness, retryInterval);
                     } else {
-                        reject(`CApp has not properly deployed: ${error.message}`);
+                        reject(`CApp has encountered deployment issues. Please refer to the terminal for error logs.`);
                     }
                 });
         };
@@ -182,7 +182,7 @@ export async function executeTasks(serverPath: string, isDebug: boolean): Promis
                             // Proceed with connecting to the port
                         } else {
                             console.log('Port is not actively listening or timeout reached');
-                            reject(`Server command port is not actively listening or timeout reached`);
+                            reject(`Server command port isn't actively listening. Stop any running MI servers and restart the debugger.`);
                         }
                     });
                 }
@@ -196,7 +196,7 @@ export async function executeTasks(serverPath: string, isDebug: boolean): Promis
                             // Proceed with connecting to the port
                         } else {
                             console.log('Server is running, but command port not acitve');
-                            reject(`Server is not running in debug mode. Stop any running servers and try again.`);
+                            reject(`Server command port isn't actively listening. Stop any running MI servers and restart the debugger.`);
                         }
                     });
                 } else {
