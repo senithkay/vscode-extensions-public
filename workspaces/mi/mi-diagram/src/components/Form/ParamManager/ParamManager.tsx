@@ -12,15 +12,15 @@ import React, { useState } from 'react';
 import styled from '@emotion/styled';
 import { ParamEditor } from './ParamEditor';
 import { ParamItem } from './ParamItem';
-import { LinkButton } from '../LinkButton/LinkButton';
-import { Codicon } from '../Codicon/Codicon';
 import { Param } from './TypeResolver';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { ExpressionFieldValue } from '../ExpressionField/ExpressionInput';
+import { Codicon, LinkButton } from '@wso2-enterprise/ui-toolkit';
+import { FilterType } from '../Keylookup/Keylookup';
 
 export interface ParamValue {
-    value: string | boolean | ExpressionFieldValue;
+    value: string | boolean | ExpressionFieldValue | ParamConfig;
     isEnabled?: boolean;
 }
 
@@ -49,9 +49,9 @@ export interface EnableCondition {
 
 export interface ParamField {
     id?: number;
-    type: "TextField" | "Dropdown" | "Checkbox" | "TextArea" | "AutoComplete";
-    label: string;
-    defaultValue: string | boolean;
+    type: "TextField" | "Dropdown" | "Checkbox" | "TextArea" | "AutoComplete" | "KeyLookup" | "ParamManager";
+    label?: string;
+    defaultValue?: string | boolean;
     isRequired?: boolean;
     values?: string[]; // For Dropdown and AutoComplete
     nullable?: boolean;
@@ -60,6 +60,9 @@ export interface ParamField {
     enableCondition?: (ConditionParams | string)[];
     openExpressionEditor?: () => void; // For ExpressionField
     canChange?: boolean; // For ExpressionField
+    filter?: (value: string) => boolean; // For KeyLookup
+    filterType?: FilterType; // For KeyLookup
+    paramManager?: ParamManagerProps; // For nested ParamManager
 }
 
 export interface ParamConfig {
@@ -164,7 +167,7 @@ const getNewParam = (fields: ParamField[], index: number): Parameters => {
             id: index,
             label: field.label,
             type: field.type,
-            value: field.defaultValue,
+            value: field.defaultValue || field?.paramManager?.paramConfigs,
             values: field.values,
             isRequired: field.isRequired,
             enableCondition: field.enableCondition ? convertToObject(field.enableCondition) : undefined
@@ -241,6 +244,16 @@ const getPramFieldCanChangeFromParamId = (paramFields: ParamField[], paramId: nu
     return paramField?.canChange;
 }
 
+const getPramFilterFromParamId = (paramFields: ParamField[], paramId: number) => {
+    const paramField = paramFields[paramId];
+    return paramField?.filter;
+}
+
+const getPramFilterTypeFromParamId = (paramFields: ParamField[], paramId: number) => {
+    const paramField = paramFields[paramId];
+    return paramField?.filterType;
+}
+
 export function ParamManager(props: ParamManagerProps) {
     const { paramConfigs, readonly, addParamText = "Add Parameter", onChange } = props;
     const [editingSegmentId, setEditingSegmentId] = useState<number>(-1);
@@ -265,7 +278,9 @@ export function ParamManager(props: ParamManagerProps) {
                 canChange: getPramFieldCanChangeFromParamId(paramConfigs.paramFields, id),
                 nullable: getParamFieldNullableFromParamId(paramConfigs.paramFields, id),
                 allowItemCreate: getParamFieldAllowItemCreateFromParamId(paramConfigs.paramFields, id),
-                noItemsFoundMessage: getParamFieldNoItemsFoundMessageFromParamId(paramConfigs.paramFields, id)
+                noItemsFoundMessage: getParamFieldNoItemsFoundMessageFromParamId(paramConfigs.paramFields, id),
+                filter: getPramFilterFromParamId(paramConfigs.paramFields, id),
+                filterType: getPramFilterTypeFromParamId(paramConfigs.paramFields, id)
             };
             return param;
         });

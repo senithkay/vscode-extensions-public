@@ -12,8 +12,6 @@ import {
     TextField,
     CheckBoxGroup,
     Dropdown,
-    ParamConfig,
-    ParamManager,
     FormGroup,
     FormActions,
     FormCheckBox,
@@ -31,6 +29,7 @@ import * as yup from "yup";
 import { useForm } from "react-hook-form";
 import { getArtifactNamesAndRegistryPaths } from "../AddToRegistry";
 import { FormKeylookup } from "@wso2-enterprise/mi-diagram";
+import { ParamConfig, ParamManager } from "@wso2-enterprise/mi-diagram";
 
 export type Protocol = "http" | "https";
 

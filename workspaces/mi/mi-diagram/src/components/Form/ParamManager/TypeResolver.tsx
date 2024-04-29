@@ -8,19 +8,27 @@
  */
 
 import React from "react";
-import { TextField } from "../TextField/TextField";
-import { Dropdown } from "../Dropdown/Dropdown";
 import { VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
-import { TextArea } from "../TextArea/TextArea";
-import { EnableCondition } from "./ParamManager";
+import { EnableCondition, ParamConfig, ParamManager } from "./ParamManager";
 import { ExpressionField, ExpressionFieldValue } from "../ExpressionField/ExpressionInput";
-import { AutoComplete } from "../AutoComplete/AutoComplete";
+import { AutoComplete, Dropdown, TextArea, TextField } from "@wso2-enterprise/ui-toolkit";
+import { FilterType, Keylookup } from "../Keylookup/Keylookup";
+import styled from "@emotion/styled";
+
+const ParamManagerContainer = styled.div`
+    display: flex;
+    margin: 10px 0;
+    flex-direction: column;
+    border-radius: 5px;
+    padding: 10px;
+    border: 1px solid var(--vscode-dropdown-border);
+`;
 
 export interface Param {
     id: number;
     label: string;
-    type: "TextField" | "Dropdown" | "Checkbox" | "TextArea" | "ExprField" | "AutoComplete";
-    value: string | boolean | ExpressionFieldValue; // Boolean is for Checkbox
+    type: "TextField" | "Dropdown" | "Checkbox" | "TextArea" | "ExprField" | "AutoComplete" | "KeyLookup"| "ParamManager";
+    value: string | boolean | ExpressionFieldValue | ParamConfig; // Boolean is for Checkbox
     isRequired?: boolean;
     errorMessage?: string;
     disabled?: boolean;
@@ -29,6 +37,8 @@ export interface Param {
     allowItemCreate?: boolean;
     noItemsFoundMessage?: string;
     enableCondition?: EnableCondition;
+    filter?: (value: string) => boolean; // For KeyLookup
+    filterType?: FilterType; // For KeyLookup
     values?: string[]; // For Dropdown
     openExpressionEditor?: () => void; // For ExpressionField
     canChange?: boolean; // For ExpressionField
@@ -42,7 +52,7 @@ interface TypeResolverProps {
 export function TypeResolver(props: TypeResolverProps) {
     const { param, onChange } = props;
     const { id, label, type, value, isRequired, values, disabled, errorMessage, openExpressionEditor,
-        canChange, allowItemCreate, noItemsFoundMessage, nullable } = param;
+        canChange, allowItemCreate, noItemsFoundMessage, nullable, filter, filterType } = param;
 
     const handleOnChange = (newValue: string | boolean) => {
         onChange({ ...param, value: newValue }, param.enableCondition);
@@ -140,6 +150,33 @@ export function TypeResolver(props: TypeResolverProps) {
                     nullable={nullable}
                     notItemsFoundMessage={noItemsFoundMessage}
                 />
+            );
+        case "KeyLookup":
+            return (
+                <Keylookup
+                    sx={{marginBottom: 5}}
+                    id={`key-lookup-${id}`}
+                    label={label}
+                    value={value as string}
+                    required={isRequired}
+                    onValueChange={handleOnChange}
+                    allowItemCreate={allowItemCreate}
+                    nullable={nullable}
+                    notItemsFoundMessage={noItemsFoundMessage}
+                    filter={filter}
+                    filterType={filterType}
+                />
+            );
+        case "ParamManager":
+            return (
+                <ParamManagerContainer>
+                    <ParamManager
+                        paramConfigs={value as ParamConfig}
+                        onChange={(newParams: ParamConfig) => {
+                            onChange({ ...param, value: newParams });
+                        }}
+                    />
+                </ParamManagerContainer>
             );
         default:
             return null;

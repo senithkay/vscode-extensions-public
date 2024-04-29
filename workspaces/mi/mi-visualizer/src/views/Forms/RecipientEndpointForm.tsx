@@ -9,7 +9,7 @@
 
 import styled from "@emotion/styled";
 import { useEffect, useState } from "react";
-import { Button, TextField, FormView, FormGroup, FormActions, ParamManager, FormCheckBox } from "@wso2-enterprise/ui-toolkit";
+import { Button, TextField, FormView, FormGroup, FormActions, FormCheckBox } from "@wso2-enterprise/ui-toolkit";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
 import { Endpoint, EndpointList, InlineButtonGroup, TypeChip } from "./Commons";
@@ -18,6 +18,7 @@ import * as yup from "yup";
 import { useForm } from "react-hook-form";
 import AddToRegistry, { getArtifactNamesAndRegistryPaths, formatRegistryPath, saveToRegistry } from "./AddToRegistry";
 import { set } from "lodash";
+import { ParamManager } from "@wso2-enterprise/mi-diagram";
 
 const FieldGroup = styled.div`
     display: flex;

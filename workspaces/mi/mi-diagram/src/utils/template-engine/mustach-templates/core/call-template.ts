@@ -9,7 +9,7 @@
 
 import Mustache from "mustache";
 import { CallTemplate } from "@wso2-enterprise/mi-syntax-tree/lib/src";
-import { ExpressionFieldValue } from "@wso2-enterprise/ui-toolkit";
+import { ExpressionFieldValue } from "../../../../components/Form/ExpressionField/ExpressionInput";
 
 export function getCallTemplateMustacheTemplate() {
   return `<call-template {{#targetTemplate}}target="{{targetTemplate}}" {{/targetTemplate}}{{#onError}}onError="{{onError}}" {{/onError}}{{#description}}description="{{description}}" {{/description}}>

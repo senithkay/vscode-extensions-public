@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { useEffect, useState } from "react";
-import { AutoComplete, Button, TextField, ParamManager, ParamConfig, FormView, FormGroup, FormActions, FormCheckBox, FormAutoComplete, Dropdown } from "@wso2-enterprise/ui-toolkit";
+import { AutoComplete, Button, TextField, FormView, FormGroup, FormActions, FormCheckBox, FormAutoComplete, Dropdown } from "@wso2-enterprise/ui-toolkit";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { preConfiguredProfiles, rdbmsTypes } from './types';
 import { rabbitMQInitialValues, jmsInitialValues, jdbcInitialValues, wso2MbInitialValues, resequenceInitialValues, poolInitialValues, carbonDatasourceInitialValues} from './typeValues';
@@ -17,6 +17,7 @@ import * as yup from "yup";
 import { useForm } from "react-hook-form";
 import CardWrapper from "../Commons/CardWrapper";
 import { TypeChip } from "../Commons";
+import { ParamConfig, ParamManager } from "@wso2-enterprise/mi-diagram";
 
 export type CustomParameter = {
     name: string,

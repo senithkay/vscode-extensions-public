@@ -8,14 +8,44 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import React, { useState } from "react";
-import { storiesOf } from "@storybook/react";
-import { ParamConfig, ParamField, ParamManager, ParamValueConfig } from "./ParamManager";
+import { ParamConfig, ParamField, ParamManager, ParamValue, ParamValueConfig } from "./ParamManager";
+
+// Default export defining the component's metadata
+export default {
+    title: 'ParamManager',
+    component: ParamManager,
+};
 
 const generateSpaceSeperatedStringFromParamValues = (paramValues: ParamValueConfig) => {
     let result = "";
-    paramValues.paramValues.forEach(param => {
-        result += param.value + " ";
+    paramValues?.paramValues?.forEach(param => {
+        // if param.value is an object
+        if (typeof param.value === "string") {
+            result += param.value + " ";
+        } else {
+            const pc = param?.value as ParamConfig;
+            pc?.paramValues?.forEach(p => {
+                result += p.key + " ";
+            });
+        }
     });
+    return result.trim();
+};
+
+const generateSpaceSeperatedStringFromParamValue = (paramValues: ParamValueConfig) => {
+    let result = "";
+    paramValues?.paramValues?.forEach(param => {
+        // if param.value is an object
+        if (typeof param.value === "string") {
+            result += param.value + " ";
+        } else {
+            const pc = param?.value as ParamConfig;
+            pc?.paramValues?.forEach(p => {
+                result += p.key + " ";
+            });
+        }
+    });
+
     return result.trim();
 };
 
@@ -38,10 +68,13 @@ const paramConfigs: ParamConfig = {
                 },
                 {
                     value: "Test2",
+                },
+                {
+                    value: "query",
                 }
             ],
             key: "Key",
-            value: "int var1 0 true This is a description Test2",
+            value: "int var1 0 true This is a description Test2 query",
             icon: "query"
         }
     ],
@@ -86,32 +119,97 @@ const paramConfigs: ParamConfig = {
             isRequired: true,
             nullable: true,
             noItemsFoundMessage: "No items",
+        },
+        {
+            id: 4,
+            type: "KeyLookup",
+            label: "Key Lookup",
+            defaultValue: "Key Lookup Value",
+            isRequired: true,
+            nullable: true,
+            noItemsFoundMessage: "No items",
         }
     ]
 };
 
-const ParamManagerDefault = () => {
+// Story for ParamManagerDefault
+export const Default = () => {
     const [params, setParams] = useState(paramConfigs);
     const handleOnChange = (params: ParamConfig) => {
-        const modifiedParams = { ...params, paramValues: params.paramValues.map(param => {
-            return {
+        const modifiedParams = {
+            ...params, paramValues: params.paramValues.map(param => ({
                 ...param,
                 icon: "query",
                 key: `Key`,
                 value: generateSpaceSeperatedStringFromParamValues(param)
-            }
-        })};
+            }))
+        };
         setParams(modifiedParams);
     };
-
-    return (
-        <>
-            <ParamManager paramConfigs={params} readonly={false} addParamText="New Param" onChange={handleOnChange} />
-        </>
-    );
+    return <ParamManager paramConfigs={params} readonly={false} addParamText="New Param" onChange={handleOnChange} />;
 };
 
-storiesOf("Param Manager").add("Manager", () => <ParamManagerDefault />);
+// Sample object for Nested ParamManager
+const nestedParamConfigs: ParamConfig = {
+    paramValues: [
+        // {
+        //     id: 0,
+        //     paramValues: [
+        //     ],
+        //     key: "Key",
+        //     value: "int var1 0 true This is a description Test2 query",
+        //     icon: "query"
+        // }
+    ],
+    paramFields: [
+        {
+            type: "TextField",
+            label: "Type",
+            defaultValue: "int",
+            isRequired: true
+        },
+        {
+            type: "ParamManager",
+            paramManager: {
+                paramConfigs: paramConfigs
+                // isDrawe: false
+            }
+        }
+    ]
+};
+
+// Story for Nested ParamManager
+export const NestedParamManager = () => {
+    const [params, setParams] = useState(nestedParamConfigs);
+    const handleOnChange = (params: ParamConfig) => {
+        const modifiedParams = {
+            ...params, paramValues: params.paramValues.map(param => ({
+                ...param,
+                icon: "query",
+                key: `Key`,
+                value: generateSpaceSeperatedStringFromParamValues(param)
+            }))
+        };
+        modifiedParams.paramValues.forEach((paramValueConf: ParamValueConfig) => {
+            paramValueConf.paramValues.forEach((paramValue: ParamValue) => {
+                if (typeof paramValue.value === "object") {
+                    const paramConfig = paramValue.value as ParamConfig;
+                    paramConfig.paramValues.forEach((pv: ParamValueConfig, i: number) => {
+                        let result = "";
+                        pv.paramValues.forEach((pvConf: ParamValue) => {
+                            result += pvConf.value + " ";
+                        });
+                        pv.value = result.trim();
+                        pv.icon = "query";
+                        pv.key = `Key ${i}`;
+                    });
+                }
+            });
+        });
+        setParams(modifiedParams);
+    };
+    return <ParamManager paramConfigs={params} readonly={false} addParamText="New Param" onChange={handleOnChange} />;
+};
 
 // Add a sample enableCondition (ConditionParams | string)[] object
 const paramFields: ParamField[] = [
@@ -152,28 +250,22 @@ const config: ParamConfig = {
     paramFields: paramFields
 };
 
-const EnableCondition = () => {
+// Story for EnableCondition
+export const WithEnableCondition = () => {
     const [params, setParams] = useState(config);
     const handleOnChange = (params: ParamConfig) => {
-        const modifiedParams = { ...params, paramValues: params.paramValues.map(param => {
-            return {
+        const modifiedParams = {
+            ...params, paramValues: params.paramValues.map(param => ({
                 ...param,
                 icon: "query",
                 key: `Key`,
                 value: generateSpaceSeperatedStringFromParamValues(param)
-            }
-        })};
+            }))
+        };
         setParams(modifiedParams);
     };
-
-    return (
-        <>
-            <ParamManager paramConfigs={params} readonly={false} onChange={handleOnChange} />
-        </>
-    );
+    return <ParamManager paramConfigs={params} readonly={false} onChange={handleOnChange} />;
 };
-
-storiesOf("Param Manager").add("Enable Condition", () => <EnableCondition />);
 
 // Add a sample enableCondition (ConditionParams | string)[] object
 const paramFieldsWithEmptyLogicalExpr: ParamField[] = [
@@ -213,7 +305,7 @@ const emptyLogicalExpr: ParamConfig = {
     paramFields: paramFieldsWithEmptyLogicalExpr
 };
 
-const EmptyLogicCondition = () => {
+export const EmptyLogicCondition = () => {
     const [params, setParams] = useState(emptyLogicalExpr);
     const handleOnChange = (params: ParamConfig) => {
         const modifiedParams = { ...params, paramValues: params.paramValues.map(param => {
@@ -233,5 +325,3 @@ const EmptyLogicCondition = () => {
         </>
     );
 };
-
-storiesOf("Param Manager").add("Empty Logical Condition", () => <EmptyLogicCondition />);

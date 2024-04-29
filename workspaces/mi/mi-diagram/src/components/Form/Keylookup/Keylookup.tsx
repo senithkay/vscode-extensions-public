@@ -14,7 +14,7 @@ import styled from "@emotion/styled";
 import { VSCodeTag } from "@vscode/webview-ui-toolkit/react";
 import { FieldValues, useController, UseControllerProps } from "react-hook-form";
 
-type FilterType =
+export type FilterType =
     | "sequence"
     | "proxyService"
     | "endpoint"

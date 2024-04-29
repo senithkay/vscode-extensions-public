@@ -1,4 +1,4 @@
-import { Codicon, Drawer, ExpressionFieldValue, ProgressRing, Switch } from '@wso2-enterprise/ui-toolkit';
+import { Codicon, Drawer, ProgressRing, Switch } from '@wso2-enterprise/ui-toolkit';
 import React, { useEffect, useState, useContext } from 'react';
 import styled from '@emotion/styled';
 import { Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
@@ -6,6 +6,7 @@ import SidePanelContext from './SidePanelContexProvider';
 import { MediatorPage } from './mediators';
 import { AIPage } from './ai';
 import ExpressionEditor from './expressionEditor/ExpressionEditor';
+import { ExpressionFieldValue } from '../Form/ExpressionField/ExpressionInput';
 
 const SidePanelContainer = styled.div`
     padding: 15px;
