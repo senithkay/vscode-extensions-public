@@ -72,6 +72,7 @@ export interface ParamConfig {
 
 export interface ParamManagerProps {
     paramConfigs: ParamConfig;
+    openInDrawer?: boolean;
     onChange?: (parameters: ParamConfig) => void,
     readonly?: boolean;
     addParamText?: string;
@@ -170,7 +171,8 @@ const getNewParam = (fields: ParamField[], index: number): Parameters => {
             value: field.defaultValue || field?.paramManager?.paramConfigs,
             values: field.values,
             isRequired: field.isRequired,
-            enableCondition: field.enableCondition ? convertToObject(field.enableCondition) : undefined
+            enableCondition: field.enableCondition ? convertToObject(field.enableCondition) : undefined,
+            openInDrawer: field?.paramManager?.openInDrawer
         });
     });
     // Modify the fields to set field is enabled or not
@@ -254,8 +256,14 @@ const getPramFilterTypeFromParamId = (paramFields: ParamField[], paramId: number
     return paramField?.filterType;
 }
 
+const getPramOpenInDrawerFromParamId = (paramFields: ParamField[], paramId: number) => {
+    const paramField = paramFields[paramId];
+    return paramField?.paramManager?.openInDrawer;
+}
+
 export function ParamManager(props: ParamManagerProps) {
-    const { paramConfigs, readonly, addParamText = "Add Parameter", onChange } = props;
+    const { paramConfigs, readonly, openInDrawer, addParamText = "Add Parameter", onChange } = props;
+
     const [editingSegmentId, setEditingSegmentId] = useState<number>(-1);
     const [isNew, setIsNew] = useState(false);
 
@@ -280,7 +288,8 @@ export function ParamManager(props: ParamManagerProps) {
                 allowItemCreate: getParamFieldAllowItemCreateFromParamId(paramConfigs.paramFields, id),
                 noItemsFoundMessage: getParamFieldNoItemsFoundMessageFromParamId(paramConfigs.paramFields, id),
                 filter: getPramFilterFromParamId(paramConfigs.paramFields, id),
-                filterType: getPramFilterTypeFromParamId(paramConfigs.paramFields, id)
+                filterType: getPramFilterTypeFromParamId(paramConfigs.paramFields, id),
+                openInDrawer: getPramOpenInDrawerFromParamId(paramConfigs.paramFields, id)
             };
             return param;
         });
@@ -369,6 +378,7 @@ export function ParamManager(props: ParamManagerProps) {
             if (editingSegmentId === index) {
                 paramComponents.push(
                     <ParamEditor
+                        openInDrawer={openInDrawer}
                         parameters={param}
                         paramFields={paramConfigs.paramFields}
                         isTypeReadOnly={false}
@@ -393,6 +403,7 @@ export function ParamManager(props: ParamManagerProps) {
                 );
             }
         });
+    console.log("ParamManager", openInDrawer);
 
     return (
         <div>
