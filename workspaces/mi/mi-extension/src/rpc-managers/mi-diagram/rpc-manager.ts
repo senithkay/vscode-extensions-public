@@ -2634,7 +2634,10 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 fs.mkdirSync(connectorDirectory, { recursive: true });
             }
 
-            const connectorPath = path.join(rootPath, 'src', 'main', 'wso2mi', 'resources', 'connectors', `${connector.replace(/\s+/g, '')}-${version}.zip`)
+            // Extract the zip name from the URL
+            const zipName = path.basename(url);
+
+            const connectorPath = path.join(connectorDirectory, zipName);
 
             if (!fs.existsSync(connectorPath)) {
                 const response = await axios.get(url, {
@@ -2644,9 +2647,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     }
                 });
 
-                const writer = fs.createWriteStream(
-                    path.resolve(rootPath, 'src', 'main', 'wso2mi', 'resources', 'connectors', `${connector.replace(/\s+/g, '')}-${version}.zip`)
-                );
+                const writer = fs.createWriteStream(connectorPath);
 
                 response.data.pipe(writer);
 
