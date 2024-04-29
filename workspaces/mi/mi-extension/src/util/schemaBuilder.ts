@@ -56,6 +56,11 @@ export function generateSchemaForJSON(fileContent: string, fileType: string, tit
     return schema;
 }
 
+export function convertToJSONSchema(fileContent: string): JSONSchema3or4 {
+    let schema = JSON.parse(fileContent);
+    return schema;
+}
+
 export function generateSchemaForJSONSchema(fileContent: string, fileType: string, title: string): JSONSchema3or4 {
     let schema = JSON.parse(fileContent);
     schema.$schema = HTTP_JSON_SCHEMA_ORG_DRAFT_04_SCHEMA;

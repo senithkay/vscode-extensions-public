@@ -327,10 +327,6 @@ function standaloneName(
   usedNames: UsedNames,
   options: Options,
 ): string | undefined {
-  if ((schema.type === 'object') && schema.properties) {
-    const name = options.customName?.(schema, keyNameFromDefinition) || schema.title || schema.$id || keyNameFromDefinition
-    return generateName(name, usedNames)
-  }
   const name =
     options.customName?.(schema, keyNameFromDefinition) || schema.title || keyNameFromDefinition
   if (name) {

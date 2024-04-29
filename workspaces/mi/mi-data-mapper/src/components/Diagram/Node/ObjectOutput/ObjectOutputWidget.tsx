@@ -109,7 +109,6 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 			</span>
 		</span>
 	);
-	};
 
 	const onRightClick = (event: React.MouseEvent) => {
         event.preventDefault(); 

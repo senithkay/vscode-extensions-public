@@ -14,7 +14,8 @@ import * as fs from "fs";
 import * as os from 'os';
 import path = require("path");
 import { Uri, workspace } from "vscode";
-import { convertTypeScriptToJavascript } from './schemaBuilder';
+import { convertTypeScriptToJavascript, convertToJSONSchema } from './schemaBuilder';
+import { JSONSchema3or4 } from 'to-json-schema';
 
 export function generateTSInterfacesFromSchemaFile(schemaPath: string): Promise<string> {
     const ts = compileFromFile(schemaPath, {bannerComment: ""});
@@ -61,6 +62,10 @@ export async function updateDMC(dmName:string, sourcePath: string): Promise<stri
 
         const inputSchemaContent = fs.readFileSync(inputSchemaPath, 'utf8');
         const outputSchemaContent = fs.readFileSync(outputSchemaPath, 'utf8');
+        const inputSchema:JSONSchema3or4 = convertToJSONSchema(inputSchemaContent);
+        const outputSchema:JSONSchema3or4 = convertToJSONSchema(outputSchemaContent);
+        const inputSchemaTitle = inputSchema.title || "InputRoot";
+        const outputSchemaTitle = outputSchema.title || "OutputRoot";
 
         if (inputSchemaContent.length > 0) {
             let inputTSInterfaces = await generateTSInterfacesFromSchemaFile(inputSchemaPath);
@@ -81,9 +86,7 @@ export async function updateDMC(dmName:string, sourcePath: string): Promise<stri
         } else {
             tsContent += "interface OutputRoot {\n}\n\n";
         }
-        tsContent += `function map_S_IRoot_S_ORoot() {
-            return mapFunction(inputIRoot);
-        }\n`;
+        tsContent += `function map_S_${inputSchemaTitle}_S_${outputSchemaTitle}() {\n\treturn mapFunction(input${inputSchemaTitle});\n}\n`;
         fs.writeFileSync(tsFilepath, tsContent);
         const jsContent = convertTypeScriptToJavascript(tsContent);
         fs.writeFileSync(dmcFilePath, jsContent);
