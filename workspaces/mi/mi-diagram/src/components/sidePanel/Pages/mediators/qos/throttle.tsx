@@ -181,7 +181,7 @@ const ThrottleForm = (props: AddMediatorProps) => {
                             name="onAcceptBranchsequenceType"
                             control={control}
                             render={({ field }) => (
-                                <AutoComplete label="On Accept Branchsequence Type" name="onAcceptBranchsequenceType" items={["ANONYMOUS", "REGISTRY_REFERENCE"]} value={field.value} onValueChange={(e: any) => {
+                                <AutoComplete label="On Accept Branch Sequence Type" name="onAcceptBranchSequenceType" items={["ANONYMOUS", "REGISTRY_REFERENCE"]} value={field.value} onValueChange={(e: any) => {
                                     field.onChange(e);
                                 }} />
                             )}
@@ -195,7 +195,7 @@ const ThrottleForm = (props: AddMediatorProps) => {
                             name="onAcceptBranchsequenceKey"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="On Accept Branchsequence Key" size={50} placeholder="" />
+                                <TextField {...field} label="On Accept Branch Sequence Key" size={50} placeholder="" />
                             )}
                         />
                         {errors.onAcceptBranchsequenceKey && <Error>{errors.onAcceptBranchsequenceKey.message.toString()}</Error>}
@@ -212,7 +212,7 @@ const ThrottleForm = (props: AddMediatorProps) => {
                             name="onRejectBranchsequenceType"
                             control={control}
                             render={({ field }) => (
-                                <AutoComplete label="On Reject Branchsequence Type" name="onRejectBranchsequenceType" items={["ANONYMOUS", "REGISTRY_REFERENCE"]} value={field.value} onValueChange={(e: any) => {
+                                <AutoComplete label="On Reject Branch Sequence Type" name="onRejectBranchSequenceType" items={["ANONYMOUS", "REGISTRY_REFERENCE"]} value={field.value} onValueChange={(e: any) => {
                                     field.onChange(e);
                                 }} />
                             )}
@@ -226,7 +226,7 @@ const ThrottleForm = (props: AddMediatorProps) => {
                             name="onRejectBranchsequenceKey"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="On Reject Branchsequence Key" size={50} placeholder="" />
+                                <TextField {...field} label="On Reject Branch Sequence Key" size={50} placeholder="" />
                             )}
                         />
                         {errors.onRejectBranchsequenceKey && <Error>{errors.onRejectBranchsequenceKey.message.toString()}</Error>}

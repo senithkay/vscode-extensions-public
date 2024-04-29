@@ -173,7 +173,7 @@
             "value": {
               "name": "targetXPathJsonPath",
               "displayName": "Target XPath / JSONPath",
-              "inputType": "string",
+              "inputType": "expression",
               "defaultValue": "",
               "required": true,
               "helpTip": "",

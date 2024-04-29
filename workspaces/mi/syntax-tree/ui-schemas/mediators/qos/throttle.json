@@ -31,7 +31,7 @@
                         "type": "attribute",
                         "value": {
                             "name": "onAcceptBranchsequenceType",
-                            "displayName": "On Accept Branchsequence Type",
+                            "displayName": "On Accept Branch Sequence Type",
                             "inputType": "combo",
                             "defaultValue": "ANONYMOUS",
                             "comboValues": [
@@ -46,7 +46,7 @@
                         "type": "attribute",
                         "value": {
                             "name": "onAcceptBranchsequenceKey",
-                            "displayName": "On Accept Branchsequence Key",
+                            "displayName": "On Accept Branch Sequence Key",
                             "inputType": "registry",
                             "required": false,
                             "helpTip": "",
@@ -69,7 +69,7 @@
                         "type": "attribute",
                         "value": {
                             "name": "onRejectBranchsequenceType",
-                            "displayName": "On Reject Branchsequence Type",
+                            "displayName": "On Reject Branch Sequence Type",
                             "inputType": "combo",
                             "defaultValue": "ANONYMOUS",
                             "comboValues": [
@@ -84,7 +84,7 @@
                         "type": "attribute",
                         "value": {
                             "name": "onRejectBranchsequenceKey",
-                            "displayName": "On Reject Branchsequence Key",
+                            "displayName": "On Reject Branch Sequence Key",
                             "inputType": "registry",
                             "required": false,
                             "helpTip": "",
