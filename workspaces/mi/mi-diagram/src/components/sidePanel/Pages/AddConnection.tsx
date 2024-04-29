@@ -15,7 +15,6 @@ import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import SidePanelContext from '../SidePanelContexProvider';
 import { create } from 'xmlbuilder2';
 import { Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
-import { ExpressionField, ExpressionFieldValue } from '../../Form/ExpressionField/ExpressionInput';
 
 const cardStyle = {
     display: "block",
@@ -241,33 +240,6 @@ const AddConnection = (props: AddConnectionProps) => {
                         }}
                         required={element.required === 'true'}
                         placeholder={element.helpTip}
-                    />
-                );
-            case 'integerOrExpression':
-                return (
-                    <ExpressionField
-                        label={element.displayName}
-                        placeholder={element.helpTip}
-                        value={{
-                            "isExpression": true,
-                            "value": formValues[element.name]?.value ?? '',
-                            "namespaces": formValues[element.name]?.namespaces ?? []
-                        }}
-                        canChange={true}
-                        onChange={(e: any) => {
-                            setFormValues({ ...formValues, [element.name]: e });
-                            formValidators[element.name](e.value);
-                        }}
-                        openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => {
-                            sidePanelContext.setSidePanelState({
-                                ...sidePanelContext,
-                                expressionEditor: {
-                                    isOpen: true,
-                                    value,
-                                    setValue
-                                }
-                            });
-                        }}
                     />
                 );
             case 'connection':
