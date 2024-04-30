@@ -62,6 +62,7 @@ const PropertyGroupForm = (props: AddMediatorProps) => {
                             { value: property[5] },
                             { value: property[6] },
                             { value: property[7] },
+                            { value: property[8] },
                         ]
                     }
                 )) || [] as string[][],
@@ -87,6 +88,12 @@ const PropertyGroupForm = (props: AddMediatorProps) => {
                             "SHORT",
                             "OM",
                             "JSON"
+                        ],
+                        "enableCondition": [
+                            "NOT",
+                            {
+                                "-1": "remove"
+                            }
                         ]
                     },
                     {
@@ -109,9 +116,15 @@ const PropertyGroupForm = (props: AddMediatorProps) => {
                         "isRequired": false,
                         "canChange": true,
                         "enableCondition": [
-                            "NOT",
+                            "AND",
+                            [
+                                "NOT",
+                                {
+                                    "1": "OM"
+                                }
+                            ],
                             {
-                                "1": "OM"
+                                "2": "set"
                             }
                         ], 
                         openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
@@ -125,6 +138,7 @@ const PropertyGroupForm = (props: AddMediatorProps) => {
                             });
                         }},
                     {
+                        "type": "TextField",
                         "label": "OM",
                         "defaultValue": "",
                         "isRequired": false,
@@ -151,8 +165,34 @@ const PropertyGroupForm = (props: AddMediatorProps) => {
                         ]
                     },
                     {
+                        "type": "TextField",
+                        "label": "Value String Pattern",
                         "defaultValue": "",
-                        "isRequired": false
+                        "isRequired": false,
+                        "enableCondition": [
+                            "AND",
+                            {
+                                "1": "STRING"
+                            },
+                            {
+                                "2": "set"
+                            }
+                        ]
+                    },
+                    {
+                        "type": "TextField",
+                        "label": "Value String Capturing Group",
+                        "defaultValue": "0",
+                        "isRequired": false,
+                        "enableCondition": [
+                            "AND",
+                            {
+                                "1": "STRING"
+                            },
+                            {
+                                "2": "set"
+                            }
+                        ]
                     },
                     {
                         "type": "TextField",

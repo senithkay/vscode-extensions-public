@@ -17,9 +17,9 @@ import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
 import { MEDIATORS } from '../../../../../resources/constants';
 import { Controller, useForm } from 'react-hook-form';
+import { Keylookup } from '../../../../Form';
 import { ExpressionFieldValue } from '../../../../Form/ExpressionField/ExpressionInput';
 import { ParamManager } from '../../../../Form/ParamManager/ParamManager';
-import { Keylookup } from '../../../../Form';
 
 const cardStyle = { 
     display: "block",
@@ -253,16 +253,16 @@ const ThrottleForm = (props: AddMediatorProps) => {
                     </Field>
 
                     {watch("policyType") == "INLINE" &&
-                        <Field>
-                            <Controller
-                                name="maximumConcurrentAccess"
-                                control={control}
-                                render={({ field }) => (
-                                    <TextField {...field} label="Maxmium Concurrent Access" size={50} placeholder="" />
-                                )}
-                            />
-                            {errors.maximumConcurrentAccess && <Error>{errors.maximumConcurrentAccess.message.toString()}</Error>}
-                        </Field>
+                    <Field>
+                        <Controller
+                            name="maximumConcurrentAccess"
+                            control={control}
+                            render={({ field }) => (
+                                <TextField {...field} label="Maxmium Concurrent Access" size={50} placeholder="" />
+                            )}
+                        />
+                        {errors.maximumConcurrentAccess && <Error>{errors.maximumConcurrentAccess.message.toString()}</Error>}
+                    </Field>
                     }
 
                     {watch("policyType") == "INLINE" &&
@@ -302,14 +302,14 @@ const ThrottleForm = (props: AddMediatorProps) => {
                             name="policyKey"
                             control={control}
                             render={({ field }) => (
-                        <Keylookup
-                            value={field.value}
-                            filterType='ws_policy'
-                            label="Policy Key"
-                            allowItemCreate={false}
-                            onValueChange={field.onChange}
-                        />
-                    )}
+                                <Keylookup
+                                    value={field.value}
+                                    filterType='ws_policy'
+                                    label="Policy Key"
+                                    allowItemCreate={false}
+                                    onValueChange={field.onChange}
+                                />
+                            )}
                         />
                         {errors.policyKey && <Error>{errors.policyKey.message.toString()}</Error>}
                     </Field>

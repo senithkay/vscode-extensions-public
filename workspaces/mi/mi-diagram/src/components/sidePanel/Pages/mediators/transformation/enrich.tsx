@@ -56,7 +56,7 @@ const EnrichForm = (props: AddMediatorProps) => {
             inlineRegistryKey: sidePanelContext?.formValues?.inlineRegistryKey || "",
             targetAction: sidePanelContext?.formValues?.targetAction || "replace",
             targetType: sidePanelContext?.formValues?.targetType || "custom",
-            targetXPathJsonPath: sidePanelContext?.formValues?.targetXPathJsonPath || { "isExpression": true, "value": "" },
+            targetXPathJsonPath: sidePanelContext?.formValues?.targetXPathJsonPath || {"isExpression":true,"value":""},
             targetProperty: sidePanelContext?.formValues?.targetProperty || "",
             description: sidePanelContext?.formValues?.description || "",
         });

@@ -96,9 +96,7 @@ const PayloadForm = (props: AddMediatorProps) => {
                         ],
                         "enableCondition": [
                             "isExpression",
-                            {
-                                "-1": "a"
-                            }
+                            "argumentValue"
                         ]
                     },
                     {

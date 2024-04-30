@@ -35,33 +35,22 @@ function fixIndentation(str: string, parentIndent: number) {
     }).join('\n');
 }
 
-function generateParammanagerCondition(enableCondition: any, keys: string[]) {
-    let fields = [];
-    let conditions: any = {};
-
-    if (enableCondition.length > 1) {
-        const condition = enableCondition[0];
-
-        for (let i = 1; i < enableCondition.length; i++) {
-            const conditionElement = enableCondition[i];
-            const condition = Object.keys(conditionElement)[0];
-            const conditionKey = keys.indexOf(Object.keys(conditionElement)[0]);
-            const value = conditionElement[condition];
-
-            conditions[conditionKey] = value;
+function generateParammanagerCondition(enableCondition: any[], keys: string[]) {
+    enableCondition.forEach((conditionElement: any) => {
+        if (Array.isArray(conditionElement)) {
+            return generateParammanagerCondition(conditionElement, keys);
         }
-        fields.push(condition);
-
-    } else {
-        const conditionElement = enableCondition[0];
+        if (typeof conditionElement !== 'object') {
+            return;
+        }
         const condition = Object.keys(conditionElement)[0];
-        const conditionKey = keys.indexOf(Object.keys(conditionElement)[0]);
+        const conditionKey = keys.indexOf(condition);
         const value = conditionElement[condition];
+        delete conditionElement[condition];
+        conditionElement[conditionKey] = value;
+    });
 
-        conditions[conditionKey] = value;
-    }
-    fields.push(conditions);
-    return fields;
+    return enableCondition;
 }
 
 const getIndexByKeyName = (key: string, elements: any[]) => {
@@ -469,7 +458,7 @@ const generateForm = (jsonData: any): string => {
         fixIndentation(
             `${LICENSE_HEADER}
 import React, { useEffect, useState } from 'react';
-import { AutoComplete, Button, Codicon, ComponentCard, ExpressionField, ExpressionFieldValue, FormGroup, FlexLabelContainer, Label, Link, ParamConfig, ParamManager, ProgressIndicator, colors, RequiredFormInput, TextField, TextArea, Tooltip, Typography } from '@wso2-enterprise/ui-toolkit';
+import { AutoComplete, Button, Codicon, ComponentCard, FormGroup, FlexLabelContainer, Label, Link, ParamConfig, ProgressIndicator, colors, RequiredFormInput, TextField, TextArea, Tooltip, Typography } from '@wso2-enterprise/ui-toolkit';
 import { VSCodeCheckbox, VSCodeDropdown, VSCodeOption, VSCodeDataGrid, VSCodeDataGridRow, VSCodeDataGridCell } from '@vscode/webview-ui-toolkit/react';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
@@ -479,6 +468,8 @@ import { getXML } from '../../../../../utils/template-engine/mustach-templates/t
 import { MEDIATORS } from '../../../../../resources/constants';
 import { Controller, useForm } from 'react-hook-form';
 import { Keylookup } from '../../../../Form';
+import { ExpressionField, ExpressionFieldValue } from '../../../../Form/ExpressionField/ExpressionInput';
+import { ParamManager } from '../../../../Form/ParamManager/ParamManager';
 
 const cardStyle = { 
     display: "block", 
