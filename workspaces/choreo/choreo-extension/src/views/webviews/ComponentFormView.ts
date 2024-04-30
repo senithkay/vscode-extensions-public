@@ -10,6 +10,7 @@ import * as vscode from "vscode";
 import { WebViewPanelRpc } from "./rpc/WebviewRPC";
 import { getUri } from "./utils";
 import { NewComponentWebviewProps, Organization, Project } from "@wso2-enterprise/choreo-core";
+import { dataCacheStore } from "../../stores/data-cache-store";
 
 
 interface IComponentCreateFormParams {
@@ -78,6 +79,7 @@ export class ComponentFormView {
                   document.getElementById("root"),
                   ${JSON.stringify({
                       type: "NewComponentForm",
+                      existingComponents: dataCacheStore.getState().getComponents(params.organization.handle, params.project.handler),
                       ...params
                   } as NewComponentWebviewProps)}
                 );

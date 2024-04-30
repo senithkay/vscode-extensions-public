@@ -21,7 +21,7 @@ export const FormElementWrap: FC<Props> = (props) => {
                     <label>{label}</label>
                     {required && <RequiredFormInput />}
                 </span>
-                {errorMsg && <label className="text-vsc-errorForeground line-clamp-1 text-right">{errorMsg}</label>}
+                {errorMsg && <label className="text-vsc-errorForeground text-right">{errorMsg}</label>}
             </div>
             <div className="grid grid-cols-1">{children}</div>
             {loading && (

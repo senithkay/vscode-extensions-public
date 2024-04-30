@@ -1,7 +1,7 @@
 import React, { FC, ReactNode, useEffect } from "react";
 import { TextField } from "../../components/FormElements/TextField";
 import { Dropdown } from "../../components/FormElements/Dropdown";
-import { DirectorySelect } from "../../components/FormElements/DirectorySelect";
+import { PathSelect } from "../../components/FormElements/PathSelect";
 import { z } from "zod";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -16,7 +16,7 @@ import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { VSCodeLink } from "@vscode/webview-ui-toolkit/react";
 import { Banner } from "../../components/Banner";
-import { componentFormSchema } from "./componentFormSchema";
+import { componentFormSchema, getComponentFormSchema } from "./componentFormSchema";
 import { Button } from "../../components/Button";
 import { makeURLSafe } from "../../utilities/helpers";
 import { Codicon } from "../../components/Codicon";
@@ -32,6 +32,7 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({
     directoryFsPath,
     directoryName,
     initialValues,
+    existingComponents,
 }) => {
     const [formSections] = useAutoAnimate();
     const [compDetailsSections] = useAutoAnimate();
@@ -39,7 +40,11 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({
     const [buildConfigSections] = useAutoAnimate();
 
     const form = useForm<ComponentFormType>({
-        resolver: zodResolver(componentFormSchema),
+        resolver: zodResolver(
+            getComponentFormSchema(existingComponents, directoryFsPath),
+            { async: true },
+            { mode: "async" }
+        ),
         mode: "all",
         defaultValues: {
             name: "",
@@ -58,12 +63,10 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({
         },
     });
 
-    const name = form.watch("name");
     const selectedType = form.watch("type");
     const selectedLang = form.watch("buildPackLang");
     const subPath = form.watch("subPath");
     const repoUrl = form.watch("repoUrl");
-    const port = form.watch("port");
 
     const { data: hasEndpoints } = useQuery({
         queryKey: ["directory-has-endpoints", { directoryPath, subPath }],
@@ -87,17 +90,13 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({
         enabled: !!selectedType,
     });
 
-    useEffect(()=>{
-        if (
-            selectedLang &&
-            buildpacks.length > 0 &&
-            !buildpacks.find((item) => item.language === selectedLang)
-        ) {
+    useEffect(() => {
+        if (selectedLang && buildpacks.length > 0 && !buildpacks.find((item) => item.language === selectedLang)) {
             // Reset build pack selection if its invalid
             form.setValue("buildPackLang", "");
             form.setValue("langVersion", "");
         }
-    },[form, selectedLang, buildpacks])
+    }, [form, selectedLang, buildpacks]);
 
     const { isLoading: isLoadingRemotes, data: gitRemotes = [] } = useQuery({
         queryKey: ["get-git-remotes", { directoryFsPath, subPath }],
@@ -146,15 +145,6 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({
                 orgId: organization.id.toString(),
             }),
         enabled: !!repoUrl,
-    });
-
-    const { data: components = [] } = useQuery({
-        queryKey: ["project-components", { project: project.handler, orgId: organization.id }],
-        queryFn: async () =>
-            ChoreoWebViewAPI.getInstance()
-                .getChoreoRpcClient()
-                .getComponentList({ orgId: organization.id.toString(), projectHandle: project.handler }),
-        refetchOnWindowFocus: false,
     });
 
     const selectedBuildPack = buildpacks?.find((item) => item.language === selectedLang);
@@ -206,20 +196,7 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({
         },
     });
 
-    const onSubmit: SubmitHandler<ComponentFormType> = (data) => {
-        const hasDuplicateName = components.some((item) => item.metadata.name === makeURLSafe(name))
-        const needPort = !hasEndpoints && !port
-        if (hasDuplicateName) {
-            form.setError("name", { message: "Name already exists" });
-        }
-        if (needPort) {
-            form.setError("port", { message: "Required" });
-        }
-
-        if (!hasDuplicateName && !needPort) {
-            createComponent(data);
-        }
-    };
+    const onSubmit: SubmitHandler<ComponentFormType> = (data) => createComponent(data);
 
     const buildConfigs: ReactNode[] = [];
     if (
@@ -232,7 +209,17 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({
         // do nothing
     } else if (selectedLang === ChoreoBuildPackNames.Docker) {
         buildConfigs.push(
-            <TextField label="Dockerfile path" key="docker-path" required name="dockerFile" control={form.control} />
+            <PathSelect
+                name="dockerFile"
+                label="Dockerfile path"
+                required
+                control={form.control}
+                basePath={directoryPath}
+                directoryName={directoryName}
+                type="file"
+                key="docker-path"
+                promptTitle="Select Dockerfile"
+            />
         );
         if (selectedType === ChoreoComponentType.WebApplication) {
             buildConfigs.push(<TextField label="Port" key="port" required name="port" control={form.control} />);
@@ -328,7 +315,10 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({
                     >
                         here
                     </VSCodeLink>
-                    . {isRepoAuthorizedResp?.retrievedRepos ? "(Only public repos are allowed within the free tier.)" : ""}
+                    .{" "}
+                    {isRepoAuthorizedResp?.retrievedRepos
+                        ? "(Only public repos are allowed within the free tier.)"
+                        : ""}
                 </div>
                 <Button
                     appearance="icon"
@@ -404,13 +394,15 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({
                         <div>
                             <FormSectionHeader title="Component Source" />
                             <div className="grid md:grid-cols-2 gap-4">
-                                <DirectorySelect
+                                <PathSelect
                                     name="subPath"
-                                    label="Directory"
+                                    label={selectedLang === ChoreoBuildPackNames.Docker ? "Docker Context" : "Directory"}
                                     required
                                     control={form.control}
                                     basePath={directoryPath}
                                     directoryName={directoryName}
+                                    type="directory"
+                                    promptTitle="Select Component Directory"
                                     wrapClassName="col-span-full"
                                 />
                                 <div className="grid md:grid-cols-2 gap-4 col-span-full" ref={sourceDetailsSections}>

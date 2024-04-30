@@ -106,6 +106,8 @@ import {
     SubmitComponentCreateReq,
     ChoreoComponentType,
     GetSubPath,
+    GetDirectoryFileNames,
+    FileExists,
 } from "@wso2-enterprise/choreo-core";
 import { registerChoreoProjectRPCHandlers, registerChoreoCellViewRPCHandlers } from "@wso2-enterprise/choreo-client";
 import { registerChoreoGithubRPCHandlers } from "@wso2-enterprise/choreo-client/lib/github/rpc";
@@ -118,7 +120,7 @@ import { getLogger } from "../../../logger/logger";
 import { initGit } from "../../../git/main";
 import { dirname, join } from "path";
 import { sendTelemetryEvent, sendTelemetryException } from "../../../telemetry/utils";
-import { existsSync, mkdirSync, readFileSync, unlinkSync, writeFileSync } from "fs";
+import { accessSync, existsSync, mkdirSync, readFileSync, readdirSync, statSync, unlinkSync } from "fs";
 import { authStore } from "../../../stores/auth-store";
 import { linkedDirectoryStore } from "../../../stores/linked-dir-store";
 import { webviewStateStore } from "../../../stores/webview-state-store";
@@ -261,6 +263,16 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
         await env.openExternal(ghURL);
     });
     messenger.onRequest(SubmitComponentCreate, submitCreateComponentHandler);
+    messenger.onRequest(GetDirectoryFileNames, (dirPath: string)=>{
+        return readdirSync(dirPath)?.filter(fileName => statSync(join(dirPath, fileName)).isFile());
+    });      
+    messenger.onRequest(FileExists, (filePath: string) => {
+        try {
+            return statSync(filePath).isFile();
+        } catch (err) {
+            return false;
+        }
+    });    
     // TODO remove old ones
 
 

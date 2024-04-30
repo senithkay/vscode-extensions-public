@@ -40,7 +40,11 @@ export async function activate(context: vscode.ExtensionContext) {
     await authStore.persist.rehydrate();
     await linkedDirectoryStore.persist.rehydrate();
     await dataCacheStore.persist.rehydrate();
+
+    // Set context values
     authStore.subscribe(({ state }) => vscode.commands.executeCommand("setContext", "isLoggedIn", !!state.userInfo));
+    linkedDirectoryStore.subscribe(({ state }) => vscode.commands.executeCommand("setContext", "isLoadingLinkedDirs", state.loading));
+    vscode.commands.executeCommand("setContext", "isValidWorkspace", !!workspace.workspaceFolders?.length);
 
     initRPCServer()
         .then(async () => {

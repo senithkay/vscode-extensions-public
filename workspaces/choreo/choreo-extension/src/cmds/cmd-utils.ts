@@ -30,7 +30,7 @@ export const selectComponent = async (
             });
             dataCacheStore.getState().setComponents(org.handle, project.handler, components);
 
-            if (components.length === 0) {
+            if (!components || components.length === 0) {
                 throw new Error(
                     "You do not have any existing components in your project. Please retry after creating one."
                 );
@@ -64,7 +64,7 @@ export const selectProject = async (
             const projects = await ext.clients.rpcClient.getProjects(org.id.toString());
             dataCacheStore.getState().setProjects(org.handle, projects);
 
-            if (projects.length === 0) {
+            if (!projects || projects.length === 0) {
                 throw new Error("You do not have any existing components or projects. Please try creating one.");
             }
 
@@ -162,7 +162,7 @@ export const selectOrg = async (userInfo: UserInfo, selectTitle = "Select organi
         detail: `Handle: ${item.handle}`,
     }));
 
-    if (items.length === 0) {
+    if (!items || items.length === 0) {
         throw new Error("Please visit Choreo to create a new organization");
     }
 
@@ -186,7 +186,7 @@ export const selectOrg = async (userInfo: UserInfo, selectTitle = "Select organi
 };
 
 export const resolveWorkspaceDirectory = async (): Promise<WorkspaceFolder> => {
-    if (workspace.workspaceFolders?.length === 0) {
+    if (!workspace.workspaceFolders || workspace.workspaceFolders?.length === 0) {
         throw new Error("Directory is required in order to proceed");
     } else if (workspace.workspaceFolders?.length === 1) {
         return workspace.workspaceFolders[0];
@@ -209,7 +209,7 @@ export const resolveQuickPick = async <T>(
     quickPickTitle = "selectItem",
     emptyError = "No items found to pick"
 ): Promise<T> => {
-    if (items?.length === 0) {
+    if (!items || items?.length === 0) {
         throw new Error(emptyError);
     } else if (items?.length === 1) {
         return items[0]?.item;

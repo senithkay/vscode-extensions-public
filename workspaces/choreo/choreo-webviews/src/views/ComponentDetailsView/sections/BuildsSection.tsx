@@ -201,12 +201,7 @@ export const BuildsSection: FC<Props> = (props) => {
                                         {item.status.status === "Triggered" ? (
                                             <LoadingBuildRow key={index} />
                                         ) : (
-                                            <BuiltItemRow
-                                                key={item.status?.runId}
-                                                item={item}
-                                                index={index}
-                                                {...props}
-                                            />
+                                            <BuiltItemRow key={item.status?.runId} item={item} {...props} />
                                         )}
                                     </>
                                 ))}
@@ -250,14 +245,13 @@ const LoadingBuildRow = () => {
     );
 };
 
-const BuiltItemRow: FC<Props & { item: BuildKind; index: number }> = ({
+const BuiltItemRow: FC<Props & { item: BuildKind }> = ({
     item,
     component,
     envs,
     organization,
     project,
     deploymentTrack,
-    index,
 }) => {
     const queryClient = useQueryClient();
 
@@ -365,7 +359,7 @@ const BuiltItemRow: FC<Props & { item: BuildKind; index: number }> = ({
                 <div className="flex gap-2 justify-start md:justify-between items-center flex-row-reverse md:flex-row">
                     <div>{status}</div>
                     <div className="flex gap-1">
-                        {item.status?.conclusion === "success" && index === 0 && (
+                        {item.status?.conclusion === "success" && (
                             <Button
                                 appearance="icon"
                                 title="Deploy Build"

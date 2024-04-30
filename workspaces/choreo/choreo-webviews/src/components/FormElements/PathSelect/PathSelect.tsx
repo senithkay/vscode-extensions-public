@@ -13,18 +13,20 @@ interface Props {
     basePath: string;
     directoryName?: string;
     wrapClassName?: HTMLProps<HTMLElement>["className"];
+    type?: 'file' | 'directory';
+    promptTitle?: string;
 }
 
-export const DirectorySelect: FC<Props> = (props) => {
-    const { label, required, control, name, basePath, directoryName = "", wrapClassName } = props;
+export const PathSelect: FC<Props> = (props) => {
+    const { label, required, control, name, basePath, directoryName = "", wrapClassName, type = 'directory', promptTitle = 'Select Directory' } = props;
 
     const { mutate: handleClick, isLoading } = useMutation({
         mutationFn: async (onSelect: (path: string) => void) => {
             const paths = await ChoreoWebViewAPI.getInstance().showOpenSubDialog({
-                canSelectFiles: false,
-                canSelectFolders: true,
+                canSelectFiles: type === 'file',
+                canSelectFolders: type === 'directory',
                 canSelectMany: false,
-                title: "Select Component Directory",
+                title: promptTitle,
                 defaultUri: basePath,
                 filters: {},
             });
@@ -73,7 +75,7 @@ export const DirectorySelect: FC<Props> = (props) => {
                             ref={field.ref}
                         >
                             <div className="hidden sm:block line-clamp-1 bg-vsc-button-secondaryBackground text-vsc-button-secondaryForeground border-r-2 border-vsc-menu-border">
-                                <div className="h-full px-3 flex items-center justify-center">Choose Directory</div>
+                                <div className="h-full px-3 flex items-center justify-center">Choose {type}</div>
                             </div>
                             <div className="flex-1 flex items-center px-2 line-clamp-1">{joinedData}</div>
                         </div>

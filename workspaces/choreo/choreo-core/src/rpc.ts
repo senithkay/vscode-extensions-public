@@ -58,6 +58,8 @@ export const ViewRuntimeLogs: RequestType<ViewRuntimeLogsReq, void> = { method: 
 export const TriggerGithubAuthFlow: RequestType<string, void> = { method: 'triggerGithubAuthFlow' };
 export const TriggerGithubInstallFlow: RequestType<string, void> = { method: 'triggerGithubInstallFlow' };
 export const SubmitComponentCreate: RequestType<SubmitComponentCreateReq, ComponentKind> = { method: 'submitComponentCreate' };
+export const GetDirectoryFileNames: RequestType<string, string[]> = { method: 'getDirectoryFileNames' };
+export const FileExists: RequestType<string, boolean> = { method: 'fileExists' };
 
 export interface SubmitComponentCreateReq  {
    org: Organization;

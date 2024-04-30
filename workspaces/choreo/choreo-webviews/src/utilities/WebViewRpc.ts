@@ -134,6 +134,8 @@ import {
     SubmitComponentCreateReq,
     ComponentKind,
     GetSubPath,
+    GetDirectoryFileNames,
+    FileExists,
 } from "@wso2-enterprise/choreo-core";
 import { IChoreoProjectClient } from "@wso2-enterprise/choreo-client/lib/project/types";
 import { ChoreoProjectClientRPCWebView } from "@wso2-enterprise/choreo-client/lib/project/rpc";
@@ -286,6 +288,15 @@ export class ChoreoWebViewAPI {
     public async submitComponentCreate(params: SubmitComponentCreateReq): Promise<ComponentKind> {
         return this._messenger.sendRequest(SubmitComponentCreate, HOST_EXTENSION, params);
     }
+
+    public async getDirectoryFileNames(path: string): Promise<string[]> {
+        return this._messenger.sendRequest(GetDirectoryFileNames, HOST_EXTENSION, path);
+    }
+
+    public async fileExist(path: string): Promise<boolean> {
+        return this._messenger.sendRequest(FileExists, HOST_EXTENSION, path);
+    }
+    
     // todo: remove old ones
 
     public async getLoginStatus(): Promise<ChoreoLoginStatus> {

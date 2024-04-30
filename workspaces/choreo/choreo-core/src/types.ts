@@ -16,6 +16,7 @@ export interface NewComponentWebviewProps {
     directoryName: string;
     organization: Organization;
     project: Project;
+    existingComponents: ComponentKind[];
     initialValues?: { type?: string; buildPackLang?: string; subPath?: string; };
 }
 export interface ComponentsDetailsWebviewProps {
@@ -766,6 +767,7 @@ export enum GoogleProviderBuildPackNames {
     GO = "go",
     RUBY = "ruby",
     PHP = "php",
+    DOTNET = "dotnet",
 }
 
 
