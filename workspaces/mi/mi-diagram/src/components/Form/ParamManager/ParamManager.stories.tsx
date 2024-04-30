@@ -149,18 +149,66 @@ export const Default = () => {
     return <ParamManager paramConfigs={params} readonly={false} addParamText="New Param" onChange={handleOnChange} />;
 };
 
+// Sample object for ParamManager
+const nestedParamrConfig: ParamConfig = {
+    paramValues: [],
+    paramFields: [
+        {
+            type: "TextField",
+            label: "Type",
+            defaultValue: "int",
+            isRequired: true
+        },
+        {
+            type: "TextField",
+            label: "Name",
+            defaultValue: "var",
+            isRequired: true
+        },
+        {
+            type: "Dropdown",
+            label: "Dropdown Sample",
+            defaultValue: "0",
+            isRequired: false,
+            values: ["0", "1", "2"]
+        },
+        {
+            type: "Checkbox",
+            label: "Is Required",
+            defaultValue: true,
+            isRequired: false
+        },
+        {
+            type: "TextArea",
+            label: "Description",
+            defaultValue: "This is a description",
+            isRequired: false
+        },
+        {
+            id: 4,
+            type: "AutoComplete",
+            label: "Auto Complete",
+            defaultValue: "Test",
+            values: ["Test1", "Test2", "Test3"],
+            isRequired: true,
+            nullable: true,
+            noItemsFoundMessage: "No items",
+        },
+        {
+            id: 4,
+            type: "KeyLookup",
+            label: "Key Lookup",
+            defaultValue: "Key Lookup Value",
+            isRequired: true,
+            nullable: true,
+            noItemsFoundMessage: "No items",
+        }
+    ]
+};
+
 // Sample object for Nested ParamManager
 const nestedParamConfigs: ParamConfig = {
-    paramValues: [
-        // {
-        //     id: 0,
-        //     paramValues: [
-        //     ],
-        //     key: "Key",
-        //     value: "int var1 0 true This is a description Test2 query",
-        //     icon: "query"
-        // }
-    ],
+    paramValues: [],
     paramFields: [
         {
             type: "TextField",
@@ -171,7 +219,7 @@ const nestedParamConfigs: ParamConfig = {
         {
             type: "ParamManager",
             paramManager: {
-                paramConfigs: paramConfigs,
+                paramConfigs: nestedParamrConfig,
                 openInDrawer: true,
                 addParamText: "New Item"
             }
