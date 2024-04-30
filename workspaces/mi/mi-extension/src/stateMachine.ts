@@ -427,12 +427,11 @@ const stateMachine = createMachine<MachineContext>({
             });
         },
         disableExtension: (context, event) => {
-            return async (resolve, reject) => {
+            return new Promise(async (resolve, reject) => {
                 vscode.commands.executeCommand('setContext', 'MI.status', 'disabled');
-                // TODO: Display the error message to the user
-                // User should be able to see the error message and retry
                 updateProjectExplorer(context);
-            };
+                resolve(true);
+            });
         }
     }
 });
