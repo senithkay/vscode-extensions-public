@@ -33,9 +33,15 @@ const Container = styled.div`
     }
 `;
 
-const Title = styled.div`
-    font-size: 26px;
+const TitlePanel = styled.div`
+    display: flex;
+    flex-direction: column;
+`;
+
+const Headline = styled.div`
+    font-size: 2.7em;
     font-weight: 400;
+    font-size: 2.7em;
     white-space: nowrap;
     padding-bottom: 10px;
 `;
@@ -73,7 +79,12 @@ export const DisabledView = () => {
 
     return (
         <Container>
-            <Title>Extension Disabled</Title>
+            <TitlePanel>
+                <Headline>Micro Integrator (MI) for VS Code</Headline>
+                <span>
+                    The extension is currently disabled due to the following errors. Please resolve the errors and retry.
+                </span>
+            </TitlePanel>
             <ErrorContainer>
                 <div>
                     {errors?.map((error, index) => (
