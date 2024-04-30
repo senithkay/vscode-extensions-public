@@ -9,7 +9,6 @@
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda
 import React, { useEffect, useState } from 'react';
 
-import { css } from '@emotion/css';
 import { SelectionBoxLayerFactory } from "@projectstorm/react-canvas-core";
 import {
 	DefaultDiagramState,
@@ -26,7 +25,6 @@ import {
 import { ErrorNodeKind } from "../DataMapper/Error/DataMapperError";
 import { DataMapperCanvasContainerWidget } from './Canvas/DataMapperCanvasContainerWidget';
 import { DataMapperCanvasWidget } from './Canvas/DataMapperCanvasWidget';
-import { DataMapperLinkModel } from './Link/model/DataMapperLink';
 import { DefaultState as LinkState } from './LinkState/DefaultState';
 import { DataMapperNodeModel } from './Node/commons/DataMapperNode';
 import { LinkConnectorNode, LinkConnectorNodeFactory } from './Node/LinkConnector';
@@ -42,29 +40,7 @@ import { ExpressionLabelFactory } from './Label';
 import { DataMapperLinkFactory } from './Link';
 import { RightAngleLinkFactory } from './Link/RightAngleLink/RightAngleLinkFactory';
 import * as Nodes from "./Node";
-import { Icon } from '@wso2-enterprise/ui-toolkit';
 import { DataImportNodeFactory } from './Node/DataImport/DataImportNodeFactory';
-
-const classes = {
-	buttonWrap: css({
-		position: 'absolute',
-		bottom: 50,
-		right: 20
-	}),
-	iconWrap: css({
-		marginBottom: 10,
-		background: "var(--vscode-input-background)",
-		height: 32,
-		width: 32,
-		borderRadius: 32,
-		display: 'flex',
-		alignItems: 'center',
-		justifyContent: 'center',
-		cursor: 'pointer',
-		transitionDuration: '0.2s',
-		'&:hover': { opacity: 0.5 },
-	}),
-};
 
 interface DataMapperDiagramProps {
 	nodes?: DataMapperNodeModel[];
@@ -161,13 +137,6 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 		}
 	}, [diagramModel, isFetching, screenWidth]);
 
-	const resetZoomAndOffset = () => {
-		const currentModel = engine.getModel();
-		currentModel.setZoomLevel(defaultModelOptions.zoom);
-		currentModel.setOffset(0, 0);
-		engine.setModel(currentModel);
-	};
-
 	const handleResize = debounce((e: any) => {
 		setScreenWidth(window.innerWidth);
 	}, 100);
@@ -175,41 +144,12 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 	return (
 		<>
 			{engine && engine.getModel() && (
-				<>
-					<DataMapperCanvasContainerWidget hideCanvas={hideCanvas}>
-						<DataMapperCanvasWidget engine={engine} />
-					</DataMapperCanvasContainerWidget>
-					<div className={classes.buttonWrap}>
-						<div
-							className={classes.iconWrap}
-							onClick={resetZoomAndOffset}
-							data-testid={"reset-zoom"}
-						>
-							<Icon
-								name="cached-round"
-								sx={{ height: "fit-content", width: "fit-content" }}
-								iconSx={{ fontSize: "18px", color: "var(--vscode-input-placeholderForeground)" }}
-							/>
-						</div>
-						<div
-							className={classes.iconWrap}
-							onClick={() => void engine.zoomToFitNodes({ margin: 0 })}
-							data-testid={"fit-to-screen"}
-						>
-							
-							<Icon
-								name="fit-to-screen"
-								sx={{ height: "fit-content", width: "fit-content" }}
-								iconSx={{ fontSize: "14px", color: "var(--vscode-input-placeholderForeground)" }}
-							/>
-						</div>
-					</div>
-				</>
+				<DataMapperCanvasContainerWidget hideCanvas={hideCanvas}>
+					<DataMapperCanvasWidget engine={engine} />
+				</DataMapperCanvasContainerWidget>
 			)}
 		</>
 	);
-
-
 }
 
 export default React.memo(DataMapperDiagram);
