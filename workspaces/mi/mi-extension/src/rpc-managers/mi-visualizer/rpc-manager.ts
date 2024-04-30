@@ -38,6 +38,7 @@ import { goToSource, handleOpenFile } from "../../util/fileOperations";
 import { openAIWebview } from "../../ai-panel/aiMachine";
 import { extension } from "../../MIExtensionContext";
 import { openPopupView } from "../../stateMachinePopup";
+import { outputChannel } from "../../util/logger";
 
 export class MiVisualizerRpcManager implements MIVisualizerAPI {
     async getWorkspaces(): Promise<WorkspacesResponse> {
@@ -182,5 +183,10 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
             await commands.executeCommand('workbench.action.reloadWindow');
             resolve();
         });
+    }
+
+    focusOutput(): void {
+        // Focus on the output channel
+        outputChannel.show();
     }
 }

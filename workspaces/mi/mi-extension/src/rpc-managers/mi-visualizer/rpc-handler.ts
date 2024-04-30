@@ -28,6 +28,7 @@ import {
     openView,
     ToggleDisplayOverviewRequest,
     goToSource,
+    focusOutput,
     reloadWindow
 } from "@wso2-enterprise/mi-core";
 import { Messenger } from "vscode-messenger";
@@ -49,4 +50,5 @@ export function registerMiVisualizerRpcHandlers(messenger: Messenger) {
     messenger.onNotification(goSelected, (args: number) => rpcManger.goSelected(args));
     messenger.onRequest(toggleDisplayOverview, (args: ToggleDisplayOverviewRequest) => rpcManger.toggleDisplayOverview(args));
     messenger.onNotification(goToSource, (args: GoToSourceRequest) => rpcManger.goToSource(args));
+    messenger.onNotification(focusOutput, () => rpcManger.focusOutput());
 }

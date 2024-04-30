@@ -34,6 +34,7 @@ import {
     goSelected,
     openView,
     reloadWindow,
+    focusOutput,
     goToSource
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
@@ -100,5 +101,9 @@ export class MiVisualizerRpcClient implements MIVisualizerAPI {
 
     goToSource(params: GoToSourceRequest): void {
         return this._messenger.sendNotification(goToSource, HOST_EXTENSION, params);
+    }
+
+    focusOutput(): void {
+        return this._messenger.sendNotification(focusOutput, HOST_EXTENSION);
     }
 }

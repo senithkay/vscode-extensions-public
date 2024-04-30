@@ -29,3 +29,4 @@ export const goHome: NotificationType<void> = { method: `${_preFix}/goHome` };
 export const goSelected: NotificationType<number> = { method: `${_preFix}/goSelected` };
 export const toggleDisplayOverview: RequestType<ToggleDisplayOverviewRequest, void> = { method: `${_preFix}/toggleDisplayOverview` };
 export const goToSource: NotificationType<GoToSourceRequest> = { method: `${_preFix}/goToSource` };
+export const focusOutput: NotificationType<void> = { method: `${_preFix}/focusOutput` };

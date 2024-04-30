@@ -26,4 +26,5 @@ export interface MIVisualizerAPI {
     goSelected: (params: number) => void;
     toggleDisplayOverview: (params: ToggleDisplayOverviewRequest) => void;
     goToSource: (params: GoToSourceRequest) => void;
+    focusOutput: () => void;
 }
