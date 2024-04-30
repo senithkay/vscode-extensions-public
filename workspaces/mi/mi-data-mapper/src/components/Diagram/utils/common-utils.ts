@@ -10,7 +10,6 @@ import { NodeModel } from "@projectstorm/react-diagrams";
 import { DMType, TypeKind, Range } from "@wso2-enterprise/mi-core";
 import {
     ts,
-    ArrowFunction,
     Identifier,
     Node,
     ObjectLiteralExpression,
