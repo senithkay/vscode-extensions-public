@@ -16,6 +16,7 @@ export interface MIVisualizerAPI {
     getProjectStructure: (params: ProjectStructureRequest) => Promise<ProjectStructureResponse>;
     getCurrentThemeKind: () => Promise<ColorThemeKind>;
     openView: (params: OpenViewRequest) => void;
+    reloadWindow: () => Promise<void>;
     goBack: () => void;
     fetchSamplesFromGithub: () => Promise<GettingStartedData>;
     downloadSelectedSampleFromGithub: (params: SampleDownloadRequest) => void;

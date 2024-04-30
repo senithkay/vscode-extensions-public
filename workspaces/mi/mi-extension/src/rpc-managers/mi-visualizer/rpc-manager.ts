@@ -31,7 +31,7 @@ import {
     EVENT_TYPE,
 } from "@wso2-enterprise/mi-core";
 import fetch from 'node-fetch';
-import { workspace, window, commands, Uri, ViewColumn } from "vscode";
+import { workspace, window, commands } from "vscode";
 import { history } from "../../history";
 import { StateMachine, navigate, openView } from "../../stateMachine";
 import { goToSource, handleOpenFile } from "../../util/fileOperations";
@@ -175,5 +175,12 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
 
     goToSource(params: GoToSourceRequest): void {
         goToSource(params.filePath, params.position);
+    }
+
+    reloadWindow(): Promise<void> {
+        return new Promise(async (resolve) => {
+            await commands.executeCommand('workbench.action.reloadWindow');
+            resolve();
+        });
     }
 }
