@@ -46,6 +46,13 @@ const ErrorContainer = styled.div`
     gap: 32px;
 `;
 
+const ActionButtons = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: end;
+    gap: 24px;
+`;
+
 export const DisabledView = () => {
     const { rpcClient } = useVisualizerContext();
     const [errors, setErrors] = useState<ErrorType[]>([]);
@@ -55,6 +62,10 @@ export const DisabledView = () => {
             setErrors(state.errors);
         });
     });
+
+    const handleFocusOutput = () => {
+        rpcClient.getMiVisualizerRpcClient().focusOutput();
+    };
 
     const handleRetry = () => {
         rpcClient.getMiVisualizerRpcClient().reloadWindow();
@@ -69,12 +80,16 @@ export const DisabledView = () => {
                         <Alert key={index} variant="error" title={error.title} subTitle={error.message} />
                     ))}
                 </div>
-                <div>
-                    <LinkButton sx={{ marginLeft: "auto" }} onClick={handleRetry}>
+                <ActionButtons>
+                    <LinkButton onClick={handleFocusOutput}>
+                        <Codicon name="eye" iconSx={{ fontSize: "18px" }} />
+                        <Typography variant="body2">Show Logs</Typography>
+                    </LinkButton>
+                    <LinkButton onClick={handleRetry}>
                         <Codicon name="refresh" iconSx={{ fontSize: "18px" }} />
                         <Typography variant="body2">Retry</Typography>
                     </LinkButton>
-                </div>
+                </ActionButtons>
             </ErrorContainer>
         </Container>
     );
