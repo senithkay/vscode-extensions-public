@@ -116,8 +116,6 @@ export function ConnectorPage(props: ConnectorPageProps) {
                 return { ...connector, iconPathUri };
             }));
             setLocalConnectors(connectorsWithIcons);
-        } else if (connectorData === null) {
-            rpcClient.getMiDiagramRpcClient().reloadWindow();
         }
     };
 
@@ -249,12 +247,23 @@ export function ConnectorPage(props: ConnectorPageProps) {
                 }
             }
 
-            if (!downloadSuccess) {
+            if (downloadSuccess) {
+                const status = await rpcClient.getMiDiagramRpcClient().getAddConnectorStatus();
+
+                if (status.connector === connector.name && status.isSuccess) {
+                    generateForm(connector, operation);
+                }
+            } else {
                 console.error('Failed to download connector after 3 attempts');
             }
             setIsDownloading(false);
+        } else {
+            // Generate form for local connector
+            generateForm(connector, operation);
         }
+    }
 
+    const generateForm = async (connector: any, operation: string) => {
         setIsGeneratingForm(true);
 
         // Add 1s timeout to unzip the downloaded connected
@@ -279,8 +288,6 @@ export function ConnectorPage(props: ConnectorPageProps) {
                 operationName={operation} />;
 
             props.setContent(connecterForm, `${sidePanelContext.isEditing ? "Edit" : "Add"} ${operation}`, iconPathUri.uri);
-        } else if (connectorData === null) {
-            rpcClient.getMiDiagramRpcClient().reloadWindow();
         } else {
             fetchLocalConnectorData();
         }

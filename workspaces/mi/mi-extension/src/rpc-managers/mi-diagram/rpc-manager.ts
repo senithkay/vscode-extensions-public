@@ -21,6 +21,7 @@ import {
     Connector,
     ConnectorRequest,
     ConnectorResponse,
+    ConnectorStatusResponse,
     ConnectorsResponse,
     CreateAPIRequest,
     CreateAPIResponse,
@@ -161,10 +162,11 @@ import {
 import axios from 'axios';
 import { error } from "console";
 import * as fs from "fs";
+import { copy } from 'fs-extra';
 import fetch from 'node-fetch';
 import * as os from 'os';
-import * as tmp from 'tmp';
 import { Transform } from 'stream';
+import * as tmp from 'tmp';
 import { v4 as uuidv4 } from 'uuid';
 import * as vscode from 'vscode';
 import { Position, Range, Selection, TextEdit, Uri, ViewColumn, WorkspaceEdit, commands, window, workspace } from "vscode";
@@ -185,7 +187,6 @@ import { rootPomXmlContent } from "../../util/templates";
 import { replaceFullContentToFile } from "../../util/workspace";
 import { VisualizerWebview } from "../../visualizer/webview";
 import path = require("path");
-import { copy } from 'fs-extra';
 import { template } from "lodash";
 
 const { XMLParser, XMLBuilder } = require("fast-xml-parser");
@@ -3210,6 +3211,22 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
     async reloadWindow(): Promise<void> {
         await vscode.commands.executeCommand('workbench.action.reloadWindow');
+    }
+
+    async getAddConnectorStatus(): Promise<ConnectorStatusResponse> {
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            const res = await langClient.getAddConnectorStatus();
+            resolve(res);
+        })
+    }
+
+    async getRemoveConnectorStatus(): Promise<ConnectorStatusResponse> {
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            const res = await langClient.getRemoveConnectorStatus();
+            resolve(res);
+        })
     }
 }
 

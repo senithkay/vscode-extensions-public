@@ -148,6 +148,7 @@ import {
     GetConnectionFormRequest,
     GetConnectionFormResponse,
     DeleteArtifactRequest,
+    ConnectorStatusResponse,
 } from "./types";
 
 export interface MiDiagramAPI {
@@ -241,5 +242,7 @@ export interface MiDiagramAPI {
     getAllRegistryPaths: (params: GetAllRegistryPathsRequest) => Promise<GetAllRegistryPathsResponse>;
     getAllArtifacts: (params: GetAllArtifactsRequest) => Promise<GetAllArtifactsResponse>;
     deleteArtifact: (params: DeleteArtifactRequest) => Promise<void>;
+    getAddConnectorStatus: () => Promise<ConnectorStatusResponse>;
+    getRemoveConnectorStatus: () => Promise<ConnectorStatusResponse>;
     reloadWindow: () => void;
 }

@@ -19,6 +19,7 @@ import {
     CommandsResponse,
     ConnectorRequest,
     ConnectorResponse,
+    ConnectorStatusResponse,
     ConnectorsResponse,
     CreateAPIRequest,
     CreateAPIResponse,
@@ -176,6 +177,7 @@ import {
     executeCommand,
     getAIResponse,
     getAPIDirectory,
+    getAddConnectorStatus,
     getAddressEndpoint,
     getAllArtifacts,
     getAllRegistryPaths,
@@ -206,6 +208,7 @@ import {
     getProjectRoot,
     getProjectUuid,
     getRecipientEndpoint,
+    getRemoveConnectorStatus,
     getSTRequest,
     getSTResponse,
     getSelectiveWorkspaceContext,
@@ -600,18 +603,25 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
     logoutFromMIAccount(): void {
         return this._messenger.sendNotification(logoutFromMIAccount, HOST_EXTENSION);
     }
-    
+
     getAllRegistryPaths(params: GetAllRegistryPathsRequest): Promise<GetAllRegistryPathsResponse> {
         return this._messenger.sendRequest(getAllRegistryPaths, HOST_EXTENSION, params);
     }
 
     getAllArtifacts(params: GetAllArtifactsRequest): Promise<GetAllArtifactsResponse> {
         return this._messenger.sendRequest(getAllArtifacts, HOST_EXTENSION, params);
-
     }
 
     deleteArtifact(params: DeleteArtifactRequest): Promise<void> {
         return this._messenger.sendRequest(deleteArtifact, HOST_EXTENSION, params);
+    }
+
+    getAddConnectorStatus(): Promise<ConnectorStatusResponse> {
+        return this._messenger.sendRequest(getAddConnectorStatus, HOST_EXTENSION);
+    }
+
+    getRemoveConnectorStatus(): Promise<ConnectorStatusResponse> {
+        return this._messenger.sendRequest(getRemoveConnectorStatus, HOST_EXTENSION);
     }
 
     reloadWindow(): void {

@@ -1239,3 +1239,8 @@ export interface DeleteArtifactRequest {
     enableUndo?: boolean;
 }
 
+export interface ConnectorStatusResponse {
+    connector: string;
+    isSuccess: boolean;
+    message: string;
+}
