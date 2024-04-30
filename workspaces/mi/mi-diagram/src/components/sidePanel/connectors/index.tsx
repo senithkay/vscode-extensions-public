@@ -252,6 +252,8 @@ export function ConnectorPage(props: ConnectorPageProps) {
 
                 if (status.connector === connector.name && status.isSuccess) {
                     generateForm(connector, operation);
+                } else {
+                    console.error(status.message);
                 }
             } else {
                 console.error('Failed to download connector after 3 attempts');
