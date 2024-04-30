@@ -11,6 +11,7 @@
 import {
     GoToSourceRequest,
     HistoryEntry,
+    LogRequest,
     OpenViewRequest,
     ProjectStructureRequest,
     SampleDownloadRequest,
@@ -28,6 +29,7 @@ import {
     openView,
     ToggleDisplayOverviewRequest,
     goToSource,
+    log,
     focusOutput,
     reloadWindow
 } from "@wso2-enterprise/mi-core";
@@ -51,4 +53,5 @@ export function registerMiVisualizerRpcHandlers(messenger: Messenger) {
     messenger.onRequest(toggleDisplayOverview, (args: ToggleDisplayOverviewRequest) => rpcManger.toggleDisplayOverview(args));
     messenger.onNotification(goToSource, (args: GoToSourceRequest) => rpcManger.goToSource(args));
     messenger.onNotification(focusOutput, () => rpcManger.focusOutput());
+    messenger.onNotification(log, (args: LogRequest) => rpcManger.log(args));
 }

@@ -17,6 +17,7 @@ import {
     GoToSourceRequest,
     HistoryEntry,
     HistoryEntryResponse,
+    LogRequest,
     MIVisualizerAPI,
     OpenViewRequest,
     ProjectStructureRequest,
@@ -38,7 +39,7 @@ import { goToSource, handleOpenFile } from "../../util/fileOperations";
 import { openAIWebview } from "../../ai-panel/aiMachine";
 import { extension } from "../../MIExtensionContext";
 import { openPopupView } from "../../stateMachinePopup";
-import { outputChannel } from "../../util/logger";
+import { log, outputChannel } from "../../util/logger";
 
 export class MiVisualizerRpcManager implements MIVisualizerAPI {
     async getWorkspaces(): Promise<WorkspacesResponse> {
@@ -188,5 +189,10 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
     focusOutput(): void {
         // Focus on the output channel
         outputChannel.show();
+    }
+
+    log(params: LogRequest): void {
+        // Logs the message to the output channel
+        log(params.message);
     }
 }

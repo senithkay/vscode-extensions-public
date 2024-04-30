@@ -130,3 +130,8 @@ export interface GoToSourceRequest {
     filePath: string;
     position?: Range;
 }
+
+export interface LogRequest {
+    message: string;
+}
+

@@ -14,6 +14,7 @@ import {
     GoToSourceRequest,
     HistoryEntry,
     HistoryEntryResponse,
+    LogRequest,
     MIVisualizerAPI,
     OpenViewRequest,
     ProjectStructureRequest,
@@ -32,6 +33,7 @@ import {
     goBack,
     goHome,
     goSelected,
+    log,
     openView,
     reloadWindow,
     focusOutput,
@@ -105,5 +107,9 @@ export class MiVisualizerRpcClient implements MIVisualizerAPI {
 
     focusOutput(): void {
         return this._messenger.sendNotification(focusOutput, HOST_EXTENSION);
+    }
+
+    log(params: LogRequest): void {
+        return this._messenger.sendNotification(log, HOST_EXTENSION, params);
     }
 }
