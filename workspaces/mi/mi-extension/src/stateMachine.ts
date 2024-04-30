@@ -4,7 +4,15 @@ import * as vscode from 'vscode';
 import { Uri, ViewColumn, window } from 'vscode';
 import { MILanguageClient } from './lang-client/activator';
 import { extension } from './MIExtensionContext';
-import { EVENT_TYPE, HistoryEntry, MACHINE_VIEW, MachineStateValue, SyntaxTreeMi, VisualizerLocation, webviewReady } from '@wso2-enterprise/mi-core';
+import { 
+    EVENT_TYPE,
+    HistoryEntry,
+    MACHINE_VIEW,
+    MachineStateValue,
+    SyntaxTreeMi,
+    VisualizerLocation,
+    webviewReady
+} from '@wso2-enterprise/mi-core';
 import { ExtendedLanguageClient } from './lang-client/ExtendedLanguageClient';
 import { VisualizerWebview } from './visualizer/webview';
 import { RPCLayer } from './RPCLayer';
@@ -20,7 +28,6 @@ import { log } from './util/logger';
 
 interface MachineContext extends VisualizerLocation {
     langClient: ExtendedLanguageClient | null;
-    errorCode: string | null;
 }
 
 const stateMachine = createMachine<MachineContext>({
@@ -30,7 +37,7 @@ const stateMachine = createMachine<MachineContext>({
     predictableActionArguments: true,
     context: {
         langClient: null,
-        errorCode: null,
+        errors: [],
         view: MACHINE_VIEW.Welcome
     },
     states: {
@@ -98,13 +105,21 @@ const stateMachine = createMachine<MachineContext>({
                 onError: {
                     target: 'disabled',
                     actions: assign({
-                        errorCode: (context, event) => event.data
+                        view: (context, event) => MACHINE_VIEW.Disabled,
+                        errors: (context, event) => event.data
                     })
                 }
             }
         },
         projectDetected: {
-            entry: 'activateProjectExplorer',
+            invoke: {
+                src: 'activateProjectExplorer',
+                onDone: {
+                    target: 'projectExplorerActivated'
+                }
+            }
+        },
+        oldProjectDetected: {
             invoke: {
                 src: 'openWebPanel',
                 onDone: {
@@ -112,7 +127,7 @@ const stateMachine = createMachine<MachineContext>({
                 }
             }
         },
-        oldProjectDetected: {
+        projectExplorerActivated: {
             invoke: {
                 src: 'openWebPanel',
                 onDone: {
@@ -142,7 +157,8 @@ const stateMachine = createMachine<MachineContext>({
                 onError: {
                     target: 'disabled',
                     actions: assign({
-                        errorCode: (context, event) => event.data
+                        view: (context, event) => MACHINE_VIEW.Disabled,
+                        errors: (context, event) => event.data
                     })
                 }
             }
@@ -246,8 +262,18 @@ const stateMachine = createMachine<MachineContext>({
         },
         disabled: {
             invoke: {
-                src: 'disableExtension'
+                src: 'disableExtension',
+                onDone: {
+                    target: "idle"
+                }
             },
+        },
+        idle: {
+            on: {
+                RETRY: {
+                    target: "initialize"
+                }
+            }
         },
         newProject: {
             initial: "viewLoading",
@@ -277,27 +303,37 @@ const stateMachine = createMachine<MachineContext>({
     guards: {
 
     },
-    actions: {
-        activateProjectExplorer: (context, event) => {
-            activateProjectExplorer(extension.context);
-        }
-    },
     services: {
         waitForLS: (context, event) => {
             // replace this with actual promise that waits for LS to be ready
             return new Promise(async (resolve, reject) => {
-                const ls = (await MILanguageClient.getInstance(extension.context)).languageClient;
-                vscode.commands.executeCommand('setContext', 'MI.status', 'projectLoaded');
-                vscode.commands.executeCommand(COMMANDS.FOCUS_PROJECT_EXPLORER);
-                // Activate the AI Panel State machine after LS is loaded.
-                StateMachineAI.initialize();
-                StateMachinePopup.initialize();
-                resolve(ls);
+                try {
+                    const instance = await MILanguageClient.getInstance(extension.context);
+                    const errors = instance.getErrors();
+                    if (errors.length) {
+                        return reject(errors);
+                    }
+                    const ls = instance.languageClient;
+                    vscode.commands.executeCommand('setContext', 'MI.status', 'projectLoaded');
+                    vscode.commands.executeCommand(COMMANDS.FOCUS_PROJECT_EXPLORER);
+                    // Activate the AI Panel State machine after LS is loaded.
+                    StateMachineAI.initialize();
+                    StateMachinePopup.initialize();
+                    resolve(ls);
+                } catch (error) {
+                    reject(error);
+                }
+            });
+        },
+        activateProjectExplorer: (context, event) => {
+            return new Promise(async (resolve, reject) => {
+                await activateProjectExplorer(extension.context);
+                resolve(true);
             });
         },
         openWebPanel: (context, event) => {
             // Get context values from the project storage so that we can restore the earlier state when user reopens vscode
-            return new Promise((resolve, reject) => {
+            return new Promise(async (resolve, reject) => {
                 if (!VisualizerWebview.currentPanel) {
                     VisualizerWebview.currentPanel = new VisualizerWebview(context.view!, extension.webviewReveal);
                     RPCLayer._messenger.onNotification(webviewReady, () => {
@@ -395,6 +431,7 @@ const stateMachine = createMachine<MachineContext>({
                 vscode.commands.executeCommand('setContext', 'MI.status', 'disabled');
                 // TODO: Display the error message to the user
                 // User should be able to see the error message and retry
+                updateProjectExplorer(context);
             };
         }
     }

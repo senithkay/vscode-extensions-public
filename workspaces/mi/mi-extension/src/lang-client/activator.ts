@@ -26,7 +26,7 @@ import {
 } from 'vscode-languageclient';
 import { ServerOptions } from "vscode-languageclient/node";
 import { DidChangeConfigurationNotification, RequestType, TextDocumentPositionParams } from 'vscode-languageserver-protocol';
-
+import { ErrorType } from '@wso2-enterprise/mi-core';
 import { activateTagClosing, AutoCloseResult } from './tagClosing';
 import { ExtendedLanguageClient } from './ExtendedLanguageClient';
 import { GoToDefinitionProvider } from './DefinitionProvider';
@@ -44,20 +44,43 @@ namespace TagCloseRequest {
     export const method: string = 'xml/closeTag';
 }
 
+// Error types
+const ERRORS: Record<string, ErrorType> = {
+    INCOMPATIBLE_JDK: {
+        title: "Incompatible JDK Error",
+        message: "Incompatible JDK version detected. Please install JDK 11 or above."
+    },
+    JAVA_HOME: {
+        title: "Java Home Error",
+        message: "JAVA_HOME is not set."
+    },
+    LANG_CLIENT_START: {
+        title: "Lang Client Start Error",
+        message: "Could not start the Synapse Language Server."
+    },
+    // Common error
+    LANG_CLIENT: {
+        title: "Lang Client Error",
+        message: "Failed to launch the language client. Please check the console for more details."
+    },
+} as const;
+
+type LangClientErrorType = (typeof ERRORS)[keyof typeof ERRORS];
+
 let ignoreAutoCloseTags = false;
 let vmArgsCache: any;
 let ignoreVMArgs = false;
 const main: string = 'org.eclipse.lemminx.XMLServerLauncher';
 
-// Compatibility related
 const versionRegex = /(\d+\.\d+\.?\d*)/g;
-const INCOMPATIBLE_ERROR_NAME = "IncompatibleJDKVersion";
 
 export class MILanguageClient {
     private static _instance: MILanguageClient;
+    public languageClient: ExtendedLanguageClient | undefined;
+
     // eslint-disable-next-line @typescript-eslint/naming-convention
     private COMPATIBLE_JDK_VERSION = "11"; // Minimum JDK version required to run the language server
-    public languageClient: ExtendedLanguageClient | undefined;
+    private _errorStack: ErrorType[] = [];
 
     constructor(private context: ExtensionContext) { }
 
@@ -67,6 +90,14 @@ export class MILanguageClient {
             await this._instance.launch();
         }
         return this._instance;
+    }
+
+    public getErrors() {
+        return this._errorStack;
+    }
+
+    private updateErrors(error: LangClientErrorType) {
+        this._errorStack.push(error);
     }
 
     private isCompatibleJDKVersion(version: string): boolean {
@@ -80,8 +111,7 @@ export class MILanguageClient {
         return true;
     }
 
-    // eslint-disable-next-line @typescript-eslint/naming-convention
-    private async checkJDKCompatibility(): Promise<boolean> {
+    public async checkJDKCompatibility(): Promise<boolean> {
         const { stderr } = await exec('java -version');
         const isCompatible = this.isCompatibleJDKVersion(stderr);
         return isCompatible;
@@ -96,9 +126,8 @@ export class MILanguageClient {
                 window.showErrorMessage(
                     `Incompatible JDK version detected. Please install JDK ${this.COMPATIBLE_JDK_VERSION} or above.`
                 );
-                const err = new Error(`Incompatible JDK version detected. Please install JDK ${this.COMPATIBLE_JDK_VERSION} or above.`);
-                err.name = INCOMPATIBLE_ERROR_NAME;
-                throw err;
+                this.updateErrors(ERRORS.INCOMPATIBLE_JDK);
+                throw new Error(`Incompatible JDK version detected. Please install JDK ${this.COMPATIBLE_JDK_VERSION} or above.`);
             }
 
             if (JAVA_HOME) {
@@ -147,6 +176,7 @@ export class MILanguageClient {
                     initializationFailedHandler: (error) => {
                         console.log(error);
                         window.showErrorMessage("Could not start the Synapse Language Server.");
+                        this.updateErrors(ERRORS.LANG_CLIENT_START);
                         return false;
                     }
                 };
@@ -168,13 +198,13 @@ export class MILanguageClient {
                 registerDefinitionProvider(this.context, this.languageClient);
                 registerFormattingProvider(this.context, this.languageClient);
             } else {
+                this.updateErrors(ERRORS.JAVA_HOME);
                 throw new Error("JAVA_HOME is not set");
             }
-        } catch (error: Error) {
+        } catch (error) {
             console.error("Failed to launch the language client: ", error);
-            if (error.name !== INCOMPATIBLE_ERROR_NAME) {
-                window.showErrorMessage("Failed to launch the language client. Please check the console for more details.");
-            }
+            window.showErrorMessage("Failed to launch the language client. Please check the console for more details.");
+            this.updateErrors(ERRORS.LANG_CLIENT);
         }
 
         function getXMLSettings(): JSON {

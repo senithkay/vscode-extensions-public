@@ -24,6 +24,7 @@ export enum MACHINE_VIEW {
     ADD_ARTIFACT = "Add Artifact",
     Overview = "MI Overview",
     UnsupportedProject = "Unsupported Project",
+    Disabled = "MI Extension",
     Diagram = "MI Diagram",
     ResourceView = "Resource View",
     SequenceView = "Sequence View",
@@ -64,7 +65,7 @@ export enum AI_MACHINE_VIEW {
 }
 
 export type MachineStateValue =
-    | 'initialize' | 'projectDetected' | 'oldProjectDetected' | 'LSInit' | 'ready' | 'disabled'
+    | 'initialize' | 'projectDetected' | 'oldProjectDetected' | 'LSInit' | 'ready' | 'disabled' | 'idle'
     | { ready: 'viewReady' } | { ready: 'viewEditing' }
     | { newProject: 'viewReady' };
 
@@ -107,6 +108,11 @@ export interface CommandProps {
     isService?: boolean
 }
 
+export interface ErrorType {
+    title: string;
+    message: string;
+}
+
 interface DataMapperProps {
     filePath: string;
     functionName?: string;
@@ -119,6 +125,7 @@ export interface VisualizerLocation {
     view: MACHINE_VIEW | null;
     stNode?: STNode | DiagramService;
     diagnostics?: Diagnostic[]
+    errors?: ErrorType[];
     documentUri?: string;
     projectUri?: string;
     identifier?: string;
