@@ -95,6 +95,7 @@ export interface GettingStartedSample {
     title: string;
     description: string;
     zipFileName: string;
+    isAvailable?: boolean;
 }
 
 export interface GettingStartedCategory {

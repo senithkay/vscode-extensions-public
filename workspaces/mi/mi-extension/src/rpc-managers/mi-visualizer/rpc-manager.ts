@@ -115,7 +115,8 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
                         priority: samples[i][1],
                         title: samples[i][2],
                         description: samples[i][3],
-                        zipFileName: samples[i][4]
+                        zipFileName: samples[i][4],
+                        isAvailable: samples[i][5]
                     };
                     sampleList.push(sample);
                 }
