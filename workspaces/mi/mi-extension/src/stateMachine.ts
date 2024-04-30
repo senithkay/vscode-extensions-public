@@ -308,6 +308,7 @@ const stateMachine = createMachine<MachineContext>({
             // replace this with actual promise that waits for LS to be ready
             return new Promise(async (resolve, reject) => {
                 try {
+                    vscode.commands.executeCommand(COMMANDS.FOCUS_PROJECT_EXPLORER);
                     const instance = await MILanguageClient.getInstance(extension.context);
                     const errors = instance.getErrors();
                     if (errors.length) {
@@ -315,7 +316,6 @@ const stateMachine = createMachine<MachineContext>({
                     }
                     const ls = instance.languageClient;
                     vscode.commands.executeCommand('setContext', 'MI.status', 'projectLoaded');
-                    vscode.commands.executeCommand(COMMANDS.FOCUS_PROJECT_EXPLORER);
                     // Activate the AI Panel State machine after LS is loaded.
                     StateMachineAI.initialize();
                     StateMachinePopup.initialize();
