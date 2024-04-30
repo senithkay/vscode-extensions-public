@@ -163,6 +163,7 @@ import { error } from "console";
 import * as fs from "fs";
 import fetch from 'node-fetch';
 import * as os from 'os';
+import * as tmp from 'tmp';
 import { Transform } from 'stream';
 import { v4 as uuidv4 } from 'uuid';
 import * as vscode from 'vscode';
@@ -184,6 +185,7 @@ import { rootPomXmlContent } from "../../util/templates";
 import { replaceFullContentToFile } from "../../util/workspace";
 import { VisualizerWebview } from "../../visualizer/webview";
 import path = require("path");
+import { copy } from 'fs-extra';
 import { template } from "lodash";
 
 const { XMLParser, XMLBuilder } = require("fast-xml-parser");
@@ -2620,7 +2622,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
     }
 
     async downloadConnector(params: DownloadConnectorRequest): Promise<DownloadConnectorResponse> {
-        const { connector, url, version } = params;
+        const { url } = params;
         try {
             const workspaceFolders = workspace.workspaceFolders;
             if (!workspaceFolders) {
@@ -2646,25 +2648,29 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                         'User-Agent': 'My Client'
                     }
                 });
-
-                const writer = fs.createWriteStream(connectorPath);
-
+    
+                // Create a temporary file
+                const tmpobj = tmp.fileSync();
+                const writer = fs.createWriteStream(tmpobj.name);
+    
                 response.data.pipe(writer);
-
+    
                 return new Promise((resolve, reject) => {
-                    writer.on('finish', () => {
+                    writer.on('finish', async () => {
                         writer.close();
+                        // Copy the file from the temp location to the connectorPath
+                        await copy(tmpobj.name, connectorPath);
+                        // Remove the temporary file
+                        tmpobj.removeCallback();
                         resolve({ path: connectorPath });
                     });
                     writer.on('error', reject);
-                    resolve({ path: connectorPath });
                 });
             }
 
             return new Promise((resolve, reject) => {
                 resolve({ path: connectorPath });
             });
-
         } catch (error) {
             console.error('Error downloading connector:', error);
             throw new Error('Failed to download connector');
