@@ -40,12 +40,6 @@ const Title = styled.div`
     padding-bottom: 10px;
 `;
 
-const SubTitle = styled.div`
-    display: flex;
-    align-items: center;
-    gap: 16px;
-`;
-
 const ErrorContainer = styled.div`
     display: flex;
     flex-direction: column;
@@ -78,7 +72,7 @@ export const DisabledView = () => {
                 <div>
                     <LinkButton sx={{ marginLeft: "auto" }} onClick={handleRetry}>
                         <Codicon name="refresh" iconSx={{ fontSize: "18px" }} />
-                        <Typography variant="body2">Retry</Typography> 
+                        <Typography variant="body2">Retry</Typography>
                     </LinkButton>
                 </div>
             </ErrorContainer>
