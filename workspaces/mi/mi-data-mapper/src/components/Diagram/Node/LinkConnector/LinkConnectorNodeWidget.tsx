@@ -9,17 +9,22 @@
 // tslint:disable: jsx-no-multiline-js
 import * as React from 'react';
 
-import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
-import { Button, Codicon, Icon, ProgressRing, Tooltip } from '@wso2-enterprise/ui-toolkit';
+import { ProgressRing } from '@wso2-enterprise/ui-toolkit';
 import classnames from "classnames";
 import { Node } from "ts-morph";
 
-import { DataMapperPortWidget } from '../../Port';
 import { LinkConnectorNode } from './LinkConnectorNode';
 import { useIntermediateNodeStyles } from '../../../styles';
-import { getEditorLineAndColumn } from '../../utils/common-utils';
+import { getEditorLineAndColumn, hasCallExpressions } from '../../utils/common-utils';
 import { DiagnosticWidget } from '../../Diagnostic/DiagnosticWidget';
+import {
+    renderDeleteButton,
+    renderEditButton,
+    renderFunctionCallTooltip,
+    renderMultiInputExprTooltip,
+    renderPortWidget
+} from './LinkConnectorWidgetComponents';
 
 export interface LinkConnectorNodeWidgetProps {
     node: LinkConnectorNode;
@@ -31,6 +36,7 @@ export function LinkConnectorNodeWidget(props: LinkConnectorNodeWidgetProps) {
     const { goToSource } = node.context;
     const classes = useIntermediateNodeStyles();
     const diagnostic = node.hasError() ? node.diagnostics[0] : null;
+    const hasCallExprs = hasCallExpressions(node.valueNode);
 
     const [deleteInProgress, setDeleteInProgress] = React.useState(false);
 
@@ -53,51 +59,33 @@ export function LinkConnectorNodeWidget(props: LinkConnectorNodeWidgetProps) {
     };
 
     const loadingScreen = (
-        <ProgressRing sx={{ height: '16px', width: '16px' }} />
+        <div className={classnames(classes.element, classes.loadingContainer)}>
+            <ProgressRing sx={{ height: '16px', width: '16px' }} />
+        </div>
     );
 
     return (!node.hidden && (
-        <div className={classes.root} data-testid={`link-connector-node-${node?.value}`}>
-            <div className={classes.header}>
-                <DataMapperPortWidget engine={engine} port={node.inPort} dataTestId={`link-connector-node-${node?.value}-input`}/>
-                <Tooltip
-                    content={"Multi-Input Expression"}
-                    position="bottom-end"
-                >
-                    {(
-                        <Icon name="explicit-outlined" sx={{ height: "20px", width: "20px" }} iconSx={{ fontSize: "20px", color: "var(--vscode-input-placeholderForeground)" }} />
-                    )}
-                </Tooltip>
-                <Button
-                    appearance="icon"
-                    onClick={onClickEdit}
-                    data-testid={`link-connector-edit-${node?.value}`}
-                >
-                    <Codicon name="code" iconSx={{ color: "var(--vscode-input-placeholderForeground)" }} />
-                </Button>
-                {deleteInProgress ? (
-                    <div className={classnames(classes.element, classes.loadingContainer)}>
+            <div className={classes.root} data-testid={`link-connector-node-${node?.value}`}>
+                <div className={classes.header}>
+                    {renderPortWidget(engine, node.inPort, `${node?.value}-input`)}
+                    {hasCallExprs ? renderFunctionCallTooltip() :  renderMultiInputExprTooltip()}
+                    {renderEditButton(onClickEdit, node?.value)}
+                    {deleteInProgress ? (
                         {loadingScreen}
-                    </div>
-                ) : (
-                    <Button
-                        appearance="icon"
-                        onClick={onClickDelete} data-testid={`link-connector-delete-${node?.value}`}
-                    >
-                        <Codicon name="trash" iconSx={{ color: "var(--vscode-errorForeground)" }} />
-                    </Button>
-                )}
-                {diagnostic && (
-                    <DiagnosticWidget
-                        diagnostic={diagnostic}
-                        value={node.valueNode.getText()}
-                        onClick={onClickEdit}
-                        btnSx={{ margin: "0 2px" }}
-                    />
-                )}
-                <DataMapperPortWidget engine={engine} port={node.outPort} dataTestId={`link-connector-node-${node?.value}-output`}/>
+                    ) : (
+                        <>{renderDeleteButton(onClickDelete, node?.value)}</>
+                    )}
+                    {diagnostic && (
+                        <DiagnosticWidget
+                            diagnostic={diagnostic}
+                            value={node.valueNode.getText()}
+                            onClick={onClickEdit}
+                            btnSx={{ margin: "0 2px" }}
+                        />
+                    )}
+                    {renderPortWidget(engine, node.outPort, `${node?.value}-output`)}
+                </div>
             </div>
-        </div>
         )
     );
 }

@@ -96,7 +96,7 @@ export class ArrayOutputNode extends DataMapperNodeModel {
             const { fields, value, otherVal } = mapping;
             const field = fields[fields.length - 1];
 
-            if (!value || !value.getText()) {
+            if (!value || !value.getText() || (otherVal && Node.isCallExpression(otherVal))) {
                 // Unsupported mapping
                 return;
             }
