@@ -75,6 +75,7 @@ export function ImportDataForm(props: ImportDataWizardProps) {
                         sourcePath: documentUri,
                         ioType: ioType.toUpperCase(),
                         schemaType: selectedResourceType.toLowerCase(),
+                        configName: configName,
                     }
                     rpcClient.getMiDataMapperRpcClient().importDMSchema(request).then(response => {
                         rpcClient.getMiDataMapperRpcClient().updateDMC({

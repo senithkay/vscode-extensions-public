@@ -66,6 +66,7 @@ export interface ImportDMSchemaRequest {
     resourceName: string;
     ioType: string;
     schemaType: string;
+    configName: string;
 }
 
 export interface ImportDMSchemaResponse {

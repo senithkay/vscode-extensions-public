@@ -9,9 +9,7 @@
  */
 
 import { compileFromFile } from './../datamapper/schema-to-typescript'
-import  { FromSchema, JSONSchema } from 'json-schema-to-ts';
 import * as fs from "fs";
-import * as os from 'os';
 import path = require("path");
 import { Uri, workspace } from "vscode";
 import { convertTypeScriptToJavascript, convertToJSONSchema } from './schemaBuilder';
@@ -22,42 +20,17 @@ export function generateTSInterfacesFromSchemaFile(schemaPath: string): Promise<
     return ts;
 }
 
-export function generateTypescriptFromSchema(schema: any): string {
-    const dogSchema = {
-        type: "object",
-        properties: {
-          name: { type: "string" },
-          age: { type: "integer" },
-          hobbies: { type: "array", items: { type: "string" } },
-          favoriteFood: {
-            type: "object",
-            properties: {
-              name: { type: "string" },
-              calories: { type: "number" },
-            }
-           },
-        },
-        required: ["name", "age"],
-      } as const;
-      
-      type Dog = FromSchema<typeof dogSchema>;
-      type DogType = typeof dogSchema;
-      // write the Dog type to a file
-      return '';
-}
-
 export async function updateDMC(dmName:string, sourcePath: string): Promise<string> {
     const workspaceFolder = workspace.getWorkspaceFolder(Uri.file(sourcePath));
     if (workspaceFolder) {
         const dataMapperConfigFolder = path.join(
             workspaceFolder.uri.fsPath,  'src', 'main', 'wso2mi', 'resources', 'registry', 'gov', 'datamapper');
-        const tsFilepath = path.join(dataMapperConfigFolder, `${dmName}.ts`);
-        const inputSchemaPath = path.join(dataMapperConfigFolder, `${dmName}_inputSchema.json`);
-        const outputSchemaPath = path.join(dataMapperConfigFolder, `${dmName}_outputSchema.json`);
-        const dmcFilePath = path.join(dataMapperConfigFolder, `${dmName}.dmc`);
+        const tsFilepath = path.join(dataMapperConfigFolder, dmName, `${dmName}.ts`);
+        const inputSchemaPath = path.join(dataMapperConfigFolder, dmName,  `${dmName}_inputSchema.json`);
+        const outputSchemaPath = path.join(dataMapperConfigFolder, dmName, `${dmName}_outputSchema.json`);
+        const dmcFilePath = path.join(dataMapperConfigFolder, dmName, `${dmName}.dmc`);
 
         let tsContent = "";
-
         tsContent += `function mapFunction(input: InputRoot): OutputRoot {\nreturn {}\n};\n\n`;
 
         const inputSchemaContent = fs.readFileSync(inputSchemaPath, 'utf8');
@@ -99,8 +72,8 @@ export async function updateDMCContent(dmName:string, sourcePath: string): Promi
     if (workspaceFolder) {
         const dataMapperConfigFolder = path.join(
             workspaceFolder.uri.fsPath,  'src', 'main', 'wso2mi', 'resources', 'registry', 'gov', 'datamapper');
-        const tsFilepath = path.join(dataMapperConfigFolder, `${dmName}.ts`);
-        const dmcFilePath = path.join(dataMapperConfigFolder, `${dmName}.dmc`);
+        const tsFilepath = path.join(dataMapperConfigFolder, dmName, `${dmName}.ts`);
+        const dmcFilePath = path.join(dataMapperConfigFolder, dmName, `${dmName}.dmc`);
         const tsContent = fs.readFileSync(tsFilepath, 'utf8');
         const jsContent = convertTypeScriptToJavascript(tsContent);
         fs.writeFileSync(dmcFilePath, jsContent);

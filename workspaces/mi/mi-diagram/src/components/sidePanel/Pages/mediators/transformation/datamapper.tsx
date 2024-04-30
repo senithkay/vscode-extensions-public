@@ -55,9 +55,9 @@ const DataMapperForm = (props: AddMediatorProps) => {
 
     useEffect(() => {
         deriveConfigName();
-        formValues.configurationLocalPath = 'gov:/datamapper/' + configName + '.dmc';
-        formValues.inputSchemaLocalPath = 'gov:/datamapper/' + configName + '_inputSchema.json';
-        formValues.outputSchemaLocalPath = 'gov:/datamapper/' + configName + '_outputSchema.json';
+        formValues.configurationLocalPath = 'gov:/datamapper/' + configName + '/' + configName + '.dmc';
+        formValues.inputSchemaLocalPath = 'gov:/datamapper/' + configName + '/' + configName + '_inputSchema.json';
+        formValues.outputSchemaLocalPath = 'gov:/datamapper/' + configName + '/' + configName + '_outputSchema.json';
         formValues.inputType = sidePanelContext.formValues.inputType;
         formValues.outputType = sidePanelContext.formValues.outputType;
         setFormValues({ ...formValues });
@@ -223,7 +223,7 @@ const DataMapperForm = (props: AddMediatorProps) => {
 
                     <Field>
                         <label>Input Type</label>
-                        <AutoComplete identifier='input-type' items={["JSON", "XML", "CSV"]} value={formValues['inputType']} onValueChange={(e: any) => {
+                        <AutoComplete identifier='input-type' items={["JSON", "XML"]} value={formValues['inputType']} onValueChange={(e: any) => {
                             setFormValues({ ...formValues, "inputType": e });
                             formValidators["inputType"](e);
                         }} />
@@ -247,7 +247,7 @@ const DataMapperForm = (props: AddMediatorProps) => {
 
                     <Field>
                         <label>Output Type</label>
-                        <AutoComplete identifier='output-type' items={["JSON", "XML", "CSV"]} value={formValues['outputType']} onValueChange={(e: any) => {
+                        <AutoComplete identifier='output-type' items={["JSON", "XML"]} value={formValues['outputType']} onValueChange={(e: any) => {
                             setFormValues({ ...formValues, "outputType": e });
                             formValidators["outputType"](e);
                         }} />

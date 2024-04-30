@@ -157,32 +157,33 @@ function generateTreeDataOfDataMappings(project: vscode.WorkspaceFolder, data: P
 		const dataMapperResources = govResources.folders.find((folder: any) => folder.name === 'datamapper');
 		const parentEntry = new ProjectExplorerEntry(
 			'Data Mappers',
-			isCollapsibleState(dataMapperResources.files.length > 0),
+			isCollapsibleState(dataMapperResources.folders.length > 0),
 			{ name: 'datamapper', path: dataMapperResources.path, type: 'datamapper'},
 			'arrow-both'
 		);
 		parentEntry.contextValue = 'data-mapper';
 		parentEntry.id = 'data-mapper';
 		parentEntry.children = parentEntry.children ?? [];
-		for (const file of dataMapperResources.files) {
-			const key = file['name'];
-			if (!key.endsWith('.ts')) {
-				continue;
+		for (const folder of dataMapperResources.folders) {
+			for (const file of folder.files) {
+				if (!file.name.endsWith('.ts')) {
+					continue;
+				}
+				const configName = file.name.replace('.ts', '');
+				const dataMapperEntry = new ProjectExplorerEntry(
+					configName,
+					isCollapsibleState(false),
+					{ name: configName, path: file.path, type: 'dataMapper' },
+					'file-code'
+				);
+				dataMapperEntry.contextValue = 'data-mapper';
+				dataMapperEntry.command = {
+					"title": "Open Data Mapper",
+					"command": COMMANDS.SHOW_DATA_MAPPER,
+					"arguments": [vscode.Uri.parse(file.path)]
+				};
+				parentEntry.children.push(dataMapperEntry);
 			}
-			const configName = key.replace('.ts', '');
-			const dataMapperEntry = new ProjectExplorerEntry(
-				configName,
-				isCollapsibleState(false),
-				{ name: configName, path: file.path, type: 'dataMapper' },
-				'file-code'
-			);
-			dataMapperEntry.contextValue = 'data-mapper';
-			dataMapperEntry.command = {
-				"title": "Open Data Mapper",
-				"command": COMMANDS.SHOW_DATA_MAPPER,
-				"arguments": [vscode.Uri.parse(file.path)]
-			};
-			parentEntry.children.push(dataMapperEntry);
 		}
 		projectRoot.children?.push(parentEntry);
 	}
