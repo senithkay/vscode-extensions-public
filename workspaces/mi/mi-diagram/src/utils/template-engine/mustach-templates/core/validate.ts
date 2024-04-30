@@ -18,9 +18,9 @@ export function getValidateMustacheTemplate() {
     <schema key="{{key}}" />
     {{/schemas}}
     {{#features}}
-    <feature name="{{featureName}}" value="{{featureEnabled}}" />
+    <feature name="{{featureName}}" value="{{featureEnable}}" />
     {{/features}}
-    <on-fail />
+    <on-fail></on-fail>
     {{#resources}}
     <resource key="{{locationKey}}" location="{{location}}" />
     {{/resources}}
@@ -32,7 +32,7 @@ export function getValidateMustacheTemplate() {
     <schema key="{{key}}" />
     {{/schemas}}
     {{#features}}
-    <feature name="{{featureName}}" value="{{featureEnabled}}" />
+    <feature name="{{featureName}}" value="{{featureEnable}}" />
     {{/features}}
     {{#resources}}
     <resource key="{{locationKey}}" location="{{location}}" />
@@ -76,7 +76,7 @@ function getEdits(data: { [key: string]: any }, dirtyFields: any, defaultValues:
         let dirtyData = { ...data };
         let validateRange = defaultValues.ranges.validate;
         let onFailRange = defaultValues.ranges.onFail;
-        if (onFailRange) {
+        if (onFailRange && onFailRange.endTagRange?.end) {
             let startXml = Mustache.render(getValidateMustacheTemplate(), dirtyData)?.trim();
             let editRange = {
                 start: validateRange.startTagRange.start,

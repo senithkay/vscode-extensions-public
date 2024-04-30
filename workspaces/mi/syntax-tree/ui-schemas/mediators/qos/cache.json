@@ -44,12 +44,7 @@
                 "COLLECTOR"
               ],
               "required": false,
-              "helpTip": "",
-              "enableCondition": [
-                {
-                  "cacheMediatorImplementation": "611 Compatible"
-                }
-              ]
+              "helpTip": ""
             }
           },
           {
@@ -110,10 +105,10 @@
               "name": "scope",
               "displayName": "Scope",
               "inputType": "combo",
-              "defaultValue": "Per_Host",
+              "defaultValue": "per-host",
               "comboValues": [
-                "Per_Host",
-                "Per_Mediator"
+                "per-host",
+                "per-mediator"
               ],
               "required": false,
               "helpTip": "",
@@ -130,7 +125,7 @@
               "name": "hashGeneratorAttribute",
               "displayName": "HashGenerator Attribute",
               "inputType": "string",
-              "defaultValue": "",
+              "defaultValue": "org.wso2.carbon.mediator.cache.digest.DOMHASHGenerator",
               "required": false,
               "helpTip": "",
               "enableCondition": [
@@ -160,12 +155,7 @@
               "inputType": "string",
               "defaultValue": "1000",
               "required": false,
-              "helpTip": "",
-              "enableCondition": [
-                {
-                  "cacheType": "FINDER"
-                }
-              ]
+              "helpTip": ""
             }
           },
           {
@@ -185,12 +175,14 @@
                 "AND",
                 {
                   "cacheMediatorImplementation": "611 Compatible"
-                },
-                {
-                  "cacheType": "FINDER"
                 }
               ]
             }
+          }
+        ],
+        "enableCondition": [
+          {
+            "cacheType": "FINDER"
           }
         ]
       }
@@ -212,12 +204,7 @@
                 "REGISTRY_REFERENCE"
               ],
               "required": false,
-              "helpTip": "",
-              "enableCondition": [
-                {
-                  "cacheType": "FINDER"
-                }
-              ]
+              "helpTip": ""
             }
           },
           {
@@ -230,15 +217,16 @@
               "required": false,
               "helpTip": "",
               "enableCondition": [
-                "AND",
                 {
                   "sequenceType": "REGISTRY_REFERENCE"
-                },
-                {
-                  "cacheType": "FINDER"
                 }
               ]
             }
+          }
+        ],
+        "enableCondition": [
+          {
+            "cacheType": "FINDER"
           }
         ]
       }
@@ -259,16 +247,7 @@
                 "HTTP"
               ],
               "required": false,
-              "helpTip": "",
-              "enableCondition": [
-                "AND",
-                {
-                  "cacheMediatorImplementation": "Default"
-                },
-                {
-                  "cacheType": "FINDER"
-                }
-              ]
+              "helpTip": ""
             }
           },
           {
@@ -279,16 +258,7 @@
               "inputType": "string",
               "defaultValue": "*",
               "required": false,
-              "helpTip": "",
-              "enableCondition": [
-                "AND",
-                {
-                  "cacheMediatorImplementation": "Default"
-                },
-                {
-                  "cacheType": "FINDER"
-                }
-              ]
+              "helpTip": ""
             }
           },
           {
@@ -299,16 +269,7 @@
               "inputType": "string",
               "defaultValue": "",
               "required": false,
-              "helpTip": "",
-              "enableCondition": [
-                "AND",
-                {
-                  "cacheMediatorImplementation": "Default"
-                },
-                {
-                  "cacheType": "FINDER"
-                }
-              ]
+              "helpTip": ""
             }
           },
           {
@@ -319,16 +280,7 @@
               "inputType": "string",
               "defaultValue": "",
               "required": false,
-              "helpTip": "",
-              "enableCondition": [
-                "AND",
-                {
-                  "cacheMediatorImplementation": "Default"
-                },
-                {
-                  "cacheType": "FINDER"
-                }
-              ]
+              "helpTip": ""
             }
           },
           {
@@ -339,16 +291,7 @@
               "inputType": "string",
               "defaultValue": ".*",
               "required": false,
-              "helpTip": "",
-              "enableCondition": [
-                "AND",
-                {
-                  "cacheMediatorImplementation": "Default"
-                },
-                {
-                  "cacheType": "FINDER"
-                }
-              ]
+              "helpTip": ""
             }
           },
           {
@@ -359,16 +302,7 @@
               "inputType": "checkbox",
               "defaultValue": false,
               "required": false,
-              "helpTip": "",
-              "enableCondition": [
-                "AND",
-                {
-                  "cacheMediatorImplementation": "Default"
-                },
-                {
-                  "cacheType": "FINDER"
-                }
-              ]
+              "helpTip": ""
             }
           },
           {
@@ -379,16 +313,7 @@
               "inputType": "checkbox",
               "defaultValue": false,
               "required": false,
-              "helpTip": "",
-              "enableCondition": [
-                "AND",
-                {
-                  "cacheMediatorImplementation": "Default"
-                },
-                {
-                  "cacheType": "FINDER"
-                }
-              ]
+              "helpTip": ""
             }
           },
           {
@@ -399,17 +324,17 @@
               "inputType": "string",
               "defaultValue": "org.wso2.carbon.mediator.cache.digest.HttpRequestHashGenerator",
               "required": false,
-              "helpTip": "",
-              "enableCondition": [
-                "AND",
-                {
-                  "cacheMediatorImplementation": "Default"
-                },
-                {
-                  "cacheType": "FINDER"
-                }
-              ]
+              "helpTip": ""
             }
+          }
+        ],
+        "enableCondition": [
+          "AND",
+          {
+            "cacheMediatorImplementation": "Default"
+          },
+          {
+            "cacheType": "FINDER"
           }
         ]
       }

@@ -49,9 +49,16 @@ export function getEnrichXml(data: { [key: string]: any }) {
         delete data.sourceXML;
     }
 
-    if (data.targetType == "property") delete data.targetXPathJsonPath;
-    else if (data.targetType == "custom" || data.targetType == "key") delete data.targetProperty;
-    else {
+    if (data.targetType == "property") {
+        delete data.targetXPathJsonPath;
+    } else if (data.targetType == "custom") {
+        data.targetXPathJsonPath = data.targetXPathJsonPath?.value;
+        delete data.targetProperty;
+        delete data.targetType;
+    } else if (data.targetType == "key") {
+        data.targetXPathJsonPath = data.targetXPathJsonPath?.value;
+        delete data.targetProperty;
+    } else {
         delete data.targetXPathJsonPath;
         delete data.targetProperty;
     }
@@ -87,8 +94,11 @@ export function getEnrichFormDataFromSTNode(data: { [key: string]: any }, node: 
     data.targetType = node.target?.type;
     if (data.targetType == "property") {
         data.targetProperty = node.target?.property;
-    } else if (data.targetType == "custom" || data.targetType == "key") {
-        data.targetXPathJsonPath = node.target?.xpath;
+    } else if (data.targetType == "key") {
+        data.targetXPathJsonPath = { isExpression: true, value: node.target?.xpath };
+    } else if (node.target?.xpath) {
+        data.targetType = "custom";
+        data.targetXPathJsonPath = { isExpression: true, value: node.target?.xpath };
     }
     return data;
 }

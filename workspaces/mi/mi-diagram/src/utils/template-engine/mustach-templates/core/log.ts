@@ -14,7 +14,7 @@ import { ExpressionFieldValue } from "../../../../components/Form/ExpressionFiel
 export function getLogMustacheTemplate() {
   return `<log {{#category}}category="{{category}}"{{/category}} {{#level}}level="{{level}}"{{/level}} {{#separator}}separator="{{separator}}"{{/separator}} {{#description}}description="{{description}}"{{/description}}>
 {{#properties}}
-    <property name="{{propertyName}}" {{#value}}value="{{value}}"{{/value}} {{#expression}}expression="{{expression}}" {{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}} {{/expression}} />
+    <property name="{{{propertyName}}}" {{#value}}value="{{{value}}}"{{/value}} {{#expression}}expression="{{{expression}}}" {{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}} {{/expression}} />
 {{/properties}}
 </log>`;
 }

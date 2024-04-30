@@ -24,13 +24,13 @@ export function getCallMustacheTemplate() {
     <source type="body"/>
     {{/bodySource}}
     {{#propertySource}}
-    <source contentType="{{contentType}}" type="property">{{sourceProperty}}</source>
+    <source {{#contentType}}contentType="{{contentType}}"{{/contentType}} type="property">{{sourceProperty}}</source>
     {{/propertySource}}
     {{#inlineSource}}
-    <source contentType="{{contentType}}" type="inline">{{{sourcePayload}}}</source>
+    <source {{#contentType}}contentType="{{contentType}}"{{/contentType}} type="inline">{{{sourcePayload}}}</source>
     {{/inlineSource}}
     {{#customSource}}
-    <source contentType="{{contentType}}" type="custom">{{#sourceXPath}}{{value}}{{/sourceXPath}}</source>
+    <source {{#contentType}}contentType="{{contentType}}"{{/contentType}} type="custom">{{#sourceXPath}}{{value}}{{/sourceXPath}}</source>
     {{/customSource}}
     {{#bodyTarget}}
     <target type="{{targetType}}"/>
@@ -47,7 +47,7 @@ export function getCallMustacheTemplate() {
 <call {{#enableBlockingCalls}}blocking="{{enableBlockingCalls}}" {{^initAxis2ClientOptions}}initAxis2ClientOptions="false" {{/initAxis2ClientOptions}}{{/enableBlockingCalls}}{{#description}}description="{{description}}" {{/description}} ></call>
 {{/sourceOrTargetOrEndpoint}}
 {{#sourceOrTargetOrEndpoint}}
-<call {{#enableBlockingCalls}}blocking="{{enableBlockingCalls}}" {{/enableBlockingCalls}}{{^initAxis2ClientOptions}}initAxis2ClientOptions="false" {{/initAxis2ClientOptions}}{{#description}}description="{{description}}" {{/description}}>
+<call {{#enableBlockingCalls}}blocking="{{enableBlockingCalls}}" {{^initAxis2ClientOptions}}initAxis2ClientOptions="false" {{/initAxis2ClientOptions}}{{/enableBlockingCalls}}{{#description}}description="{{description}}" {{/description}}>
 {{/sourceOrTargetOrEndpoint}}
 {{/editCall}}
 {{#editEndpoint}}
@@ -58,13 +58,13 @@ export function getCallMustacheTemplate() {
   <source type="body"/>
 {{/bodySource}}
 {{#propertySource}}
-  <source contentType="{{contentType}}" type="property">{{sourceProperty}}</source>
+  <source {{#contentType}}contentType="{{contentType}}"{{/contentType}} type="property">{{sourceProperty}}</source>
 {{/propertySource}}
 {{#inlineSource}}
-  <source contentType="{{contentType}}" type="inline">{{{sourcePayload}}}</source>
+  <source {{#contentType}}contentType="{{contentType}}"{{/contentType}} type="inline">{{{sourcePayload}}}</source>
 {{/inlineSource}}
 {{#customSource}}
-  <source contentType="{{contentType}}" type="custom">{{#sourceXPath}}{{value}}{{/sourceXPath}}</source>
+  <source {{#contentType}}contentType="{{contentType}}"{{/contentType}} type="custom">{{#sourceXPath}}{{value}}{{/sourceXPath}}</source>
 {{/customSource}}
 {{/editSource}}
 {{#editTarget}}
@@ -117,6 +117,10 @@ export function getCallXml(data: { [key: string]: any }, dirtyFields?: any, defa
     delete data.endpointRegistryKey;
   } else if (data.endpointType == "REGISTRYKEY") {
     delete data.endpointXpath;
+  }
+
+  if (data.contentType && data.contentType.length == 0) {
+    delete data.contentType;
   }
 
   if (defaultValues == undefined || Object.keys(defaultValues).length == 0) {
