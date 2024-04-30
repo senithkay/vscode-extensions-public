@@ -198,6 +198,7 @@ const EnrichForm = (props: AddMediatorProps) => {
                             render={({ field }) => (
                                 <Keylookup
                                     value={field.value}
+                                    filterType='registry'
                                     label="Inline Registry Key"
                                     allowItemCreate={false}
                                     onValueChange={field.onChange}
