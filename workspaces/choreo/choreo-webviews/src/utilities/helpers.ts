@@ -1,4 +1,3 @@
-
 export const getShortenedHash = (hash: string) => hash?.substring(0, 8);
 
 export const getTimeAgo = (timestamp: string): string => {
@@ -30,6 +29,7 @@ export const getTimeAgo = (timestamp: string): string => {
 
 export const toTitleCase = (str: string): string => {
     return str?.toLowerCase()?.replace(/\b\w/g, (char) => char.toUpperCase());
-}
+};
 
-export const makeURLSafe = (input: string) => input?.trim()?.toLowerCase().replace(/\s+/g, "-")
+export const makeURLSafe = (input: string) => input?.trim()?.toLowerCase().replace(/\s+/g, "-");
+

@@ -45,7 +45,23 @@ export interface GetCommitsReq { orgId: string; orgHandler: string; componentId:
 export interface GetProjectEnvsReq { orgId: string; orgUuid: string; projectId: string;}
 export interface GetComponentEndpointsReq { orgId: string; orgHandler: string; componentId: string; deploymentTrackId: string}
 export interface GetDeploymentStatusReq { orgId: string; orgHandler: string; orgUuid: string; componentId: string; deploymentTrackId: string; envId: string}
-export interface CreateDeploymentReq { orgId: string; orgHandler: string; componentName: string; projectHandle: string; projectId: string; deploymentTrackId: string; commitHash: string; envName: string; envId: string; buildRef: string}
+export interface CreateDeploymentReq { 
+    orgId: string; 
+    orgHandler: string; 
+    componentName: string; 
+    componentId: string;
+    componentDisplayType: string;
+    projectHandle: string; 
+    projectId: string; 
+    deploymentTrackId: string; 
+    commitHash: string; 
+    envName: string; 
+    envId: string; 
+    buildRef: string;
+    cronExpression?: string;
+    cronTimezone?: string;
+}
+
 export interface IsRepoAuthorizedResp { retrievedRepos: boolean; isAccessible: boolean }
 
 export interface IChoreoRPCClient {

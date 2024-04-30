@@ -2,7 +2,7 @@ import React, { FC } from "react";
 import { RightPanelSection, RightPanelSectionItem } from "./RightPanelSection";
 import { useQuery } from "@tanstack/react-query";
 import { ChoreoWebViewAPI } from "../../../utilities/WebViewRpc";
-import { ComponentKind } from "@wso2-enterprise/choreo-core";
+import { ChoreoComponentType, ComponentKind } from "@wso2-enterprise/choreo-core";
 import { getTypeForDisplayType } from "../utils";
 import { Codicon } from "../../../components/Codicon";
 import { Button } from "../../../components/Button";
@@ -18,7 +18,7 @@ export const EndpointsSection: FC<Props> = ({ directoryPath, component }) => {
     const { data: endpointsResp } = useQuery({
         queryKey: ["get-service-endpoints", { directoryPath }],
         queryFn: () => ChoreoWebViewAPI.getInstance().readServiceEndpoints(directoryPath),
-        enabled: !!directoryPath && componentType === "service",
+        enabled: !!directoryPath && componentType === ChoreoComponentType.Service,
     });
 
     return (

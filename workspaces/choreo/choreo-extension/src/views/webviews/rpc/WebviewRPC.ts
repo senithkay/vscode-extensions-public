@@ -108,6 +108,7 @@ import {
     GetSubPath,
     GetDirectoryFileNames,
     FileExists,
+    ShowInputBox,
 } from "@wso2-enterprise/choreo-core";
 import { registerChoreoProjectRPCHandlers, registerChoreoCellViewRPCHandlers } from "@wso2-enterprise/choreo-client";
 import { registerChoreoGithubRPCHandlers } from "@wso2-enterprise/choreo-client/lib/github/rpc";
@@ -227,6 +228,17 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
             title: params.title,
         });
         return itemSelection as WebviewQuickPickItem;
+    });
+    messenger.onRequest(ShowInputBox, async ({regex, ...rest}) => {
+        return window.showInputBox({
+            ...rest,
+            validateInput: (val) => {
+                if(regex && !(new RegExp(regex.expression).test(val))){
+                    return regex.message;
+                }
+                return null;
+            }
+        });
     });
     let buildLogsOutputChannel: vscode.OutputChannel;
     messenger.onRequest(ViewBuildsLogs, async (params) => {

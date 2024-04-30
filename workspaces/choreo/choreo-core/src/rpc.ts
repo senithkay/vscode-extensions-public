@@ -51,6 +51,7 @@ export const RefreshLinkedDirState: NotificationType<void> = { method: 'refreshL
 export const DeleteFile: RequestType<string, void> = { method: 'deleteFile' };
 export const ShowConfirmMessage: RequestType<ShowConfirmBoxReq, boolean> = { method: 'showConfirmMessage' };
 export const ShowQuickPick: RequestType<ShowWebviewQuickPickItemsReq, WebviewQuickPickItem | undefined> = { method: 'showQuickPicks' };
+export const ShowInputBox: RequestType<ShowWebviewInputBoxReq, string | undefined> = { method: 'showWebviewInputBoxReq' };
 export const ViewComponentDetails: RequestType<ViewComponentDetailsReq, void> = { method: 'viewComponentDetails' };
 export const ReadServiceEndpoints: RequestType<string, ReadEndpointsResp> = { method: 'readServiceEndpoints' };
 export const ViewBuildsLogs: RequestType<ViewBuildLogsReq, void> = { method: 'viewBuildLogs' };
@@ -106,6 +107,12 @@ export interface ViewComponentDetailsReq {
 export interface ShowWebviewQuickPickItemsReq {
    items: WebviewQuickPickItem[];
    title: string;
+}
+
+export interface ShowWebviewInputBoxReq {
+   title: string;
+   placeholder?: string;
+   regex?:{expression: RegExp; message: string};
 }
 /////////////////////////////////////
 /////////////////////////////////////

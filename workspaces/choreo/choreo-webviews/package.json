@@ -28,7 +28,8 @@
     "react-hook-form": "^7.51.2",
     "@hookform/resolvers": "^3.3.4",
     "clipboardy": "^4.0.0",
-    "@formkit/auto-animate": "0.8.2"
+    "@formkit/auto-animate": "0.8.2",
+    "timezone-support": "^3.1.0"
   },
   "devDependencies": {
     "copyfiles": "~2.4.1",

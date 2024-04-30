@@ -3,7 +3,7 @@ import { FormElementWrap } from "../FormElementWrap";
 import classnames from "classnames";
 import { Control, Controller } from "react-hook-form";
 import { ChoreoWebViewAPI } from "../../../utilities/WebViewRpc";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 
 interface Props {
     name: string;
@@ -49,11 +49,6 @@ export const PathSelect: FC<Props> = (props) => {
             name={name}
             control={control}
             render={({ field, fieldState }) => {
-                const { data: joinedData } = useQuery({
-                    queryKey: ["get-joined-dir-path", { subPath: field.value, directoryName }],
-                    queryFn: () => ChoreoWebViewAPI.getInstance().joinFilePaths([directoryName, field.value]),
-                });
-
                 return (
                     <FormElementWrap
                         errorMsg={fieldState.error?.message}
@@ -77,7 +72,7 @@ export const PathSelect: FC<Props> = (props) => {
                             <div className="hidden sm:block line-clamp-1 bg-vsc-button-secondaryBackground text-vsc-button-secondaryForeground border-r-2 border-vsc-menu-border">
                                 <div className="h-full px-3 flex items-center justify-center">Choose {type}</div>
                             </div>
-                            <div className="flex-1 flex items-center px-2 line-clamp-1">{joinedData}</div>
+                            <div className="flex-1 flex items-center px-2 line-clamp-1"><span className="font-thin">{directoryName}/</span>{field.value}</div>
                         </div>
                     </FormElementWrap>
                 );

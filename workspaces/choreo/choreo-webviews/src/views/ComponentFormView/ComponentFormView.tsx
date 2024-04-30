@@ -54,7 +54,7 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({
             subPath: initialValues?.subPath ?? ".",
             repoUrl: "",
             branch: "",
-            dockerFile: "Dockerfile",
+            dockerFile: "",
             port: 8080,
             visibility: "Public",
             spaBuildCommand: "npm run build",
@@ -333,8 +333,6 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({
         );
     }
 
-    // TODO: add visibility (internal/external) for webhooks
-
     return (
         <div className="flex flex-row justify-center p-1 md:p-3 lg:p-4 xl:p-6">
             <div className="container">
@@ -367,8 +365,7 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({
                                     name="type"
                                     items={[
                                         { label: "Service", value: ChoreoComponentType.Service },
-                                        // TODO: add back after fixing deployment
-                                        // { label: "Scheduled Task", value: ChoreoComponentType.ScheduledTask },
+                                        { label: "Scheduled Task", value: ChoreoComponentType.ScheduledTask },
                                         { label: "Manual Trigger", value: ChoreoComponentType.ManualTrigger },
                                         { label: "Web Application", value: ChoreoComponentType.WebApplication },
                                         { label: "Webhook", value: ChoreoComponentType.Webhook },

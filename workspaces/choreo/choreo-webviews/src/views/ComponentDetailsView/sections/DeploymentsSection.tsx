@@ -1,5 +1,6 @@
 import React, { FC, ReactNode, useState } from "react";
 import {
+    ChoreoComponentType,
     CommitHistory,
     ComponentEP,
     ComponentKind,
@@ -53,7 +54,7 @@ export const DeploymentsSection: FC<Props> = (props) => {
                 componentId: component.metadata.id,
                 deploymentTrackId: deploymentTrack?.id,
             }),
-        enabled: !!deploymentTrack?.id && getTypeForDisplayType(component.spec.type) === "service",
+        enabled: !!deploymentTrack?.id && getTypeForDisplayType(component.spec.type) === ChoreoComponentType.Service,
         onSuccess: (data = []) => setHasInactiveEndpoints(data.some((item) => item.state !== "Active")),
         refetchInterval: hasInactiveEndpoints ? 10000 : false,
     });
@@ -95,7 +96,7 @@ const EnvItem: FC<{
     endpoints: ComponentEP[];
     refetchEndpoint: () => void;
 }> = ({ organization, project, deploymentTrack, component, env, endpoints, refetchEndpoint }) => {
-    const isServiceType = getTypeForDisplayType(component.spec.type) === "service";
+    const isServiceType = getTypeForDisplayType(component.spec.type) === ChoreoComponentType.Service;
     const [envDetailsRef] = useAutoAnimate();
 
     const {

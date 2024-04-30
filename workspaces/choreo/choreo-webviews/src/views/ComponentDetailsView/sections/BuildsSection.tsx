@@ -1,6 +1,7 @@
 import React, { FC, ReactNode, useState } from "react";
 import {
     BuildKind,
+    ChoreoComponentType,
     CommitHistory,
     ComponentKind,
     CreateBuildReq,
@@ -20,6 +21,8 @@ import { ChoreoWebViewAPI } from "../../../utilities/WebViewRpc";
 import { getShortenedHash, getTimeAgo } from "../../../utilities/helpers";
 import { CommitLink } from "../../../components/CommitLink";
 import { useAutoAnimate } from "@formkit/auto-animate/react";
+import { getTypeForDisplayType } from "../utils";
+import { listTimeZones } from "timezone-support";
 
 interface Props {
     component: ComponentKind;
@@ -269,10 +272,12 @@ const BuiltItemRow: FC<Props & { item: BuildKind }> = ({
 
     const { mutate: triggerDeployment, isLoading: isDeploying } = useMutation({
         mutationFn: async (params: { build: BuildKind; env: Environment }) => {
-            await ChoreoWebViewAPI.getInstance().getChoreoRpcClient().createDeployment({
+            const req: CreateDeploymentReq = {
                 commitHash: params.build.spec.revision,
                 buildRef: params.build.status.images?.[0]?.id,
                 componentName: component.metadata.name,
+                componentId: component.metadata.id,
+                componentDisplayType: component.spec.type,
                 envId: params.env.id,
                 envName: params.env.name,
                 deploymentTrackId: deploymentTrack?.id,
@@ -280,7 +285,36 @@ const BuiltItemRow: FC<Props & { item: BuildKind }> = ({
                 orgHandler: organization.handle,
                 projectId: project.id,
                 projectHandle: project.handler,
-            });
+            };
+            if (getTypeForDisplayType(component?.spec?.type) === ChoreoComponentType.ScheduledTask) {
+                const cronExpr = await ChoreoWebViewAPI.getInstance().showInputBox({
+                    title: "Enter Cron Expression",
+                    placeholder: "0 8 * * *",
+                    regex: {
+                        expression: /^((\*|\d+|\d+-\d+)(\/\d+)? ){4}(\*|\d+|\d+-\d+)(\/\d+)?$/,
+                        message: "Invalid cron expression",
+                    },
+                });
+                if (!cronExpr) {
+                    throw new Error("Failed to enter cron expression");
+                }
+                const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone?.toString() || "UTC";
+                const cronTz = await ChoreoWebViewAPI.getInstance().showQuickPicks({
+                    title: "Select Timezone",
+                    items: [
+                        { kind: WebviewQuickPickItemKind.Separator, label: "My Timezone" },
+                        { label: userTimeZone, alwaysShow: true, picked: true },
+                        { kind: WebviewQuickPickItemKind.Separator, label: "Other Timezones" },
+                        ...listTimeZones().map((label) => ({ label })),
+                    ],
+                });
+                if (!cronTz) {
+                    throw new Error("Failed to select timezone");
+                }
+                req.cronExpression = cronExpr;
+                req.cronTimezone = cronTz.label;
+            }
+            await ChoreoWebViewAPI.getInstance().getChoreoRpcClient().createDeployment(req);
         },
         onSuccess: (_, params) => {
             queryClient.refetchQueries({

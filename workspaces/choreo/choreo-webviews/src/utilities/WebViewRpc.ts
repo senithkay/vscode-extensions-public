@@ -136,6 +136,8 @@ import {
     GetSubPath,
     GetDirectoryFileNames,
     FileExists,
+    ShowWebviewInputBoxReq,
+    ShowInputBox,
 } from "@wso2-enterprise/choreo-core";
 import { IChoreoProjectClient } from "@wso2-enterprise/choreo-client/lib/project/types";
 import { ChoreoProjectClientRPCWebView } from "@wso2-enterprise/choreo-client/lib/project/rpc";
@@ -267,6 +269,10 @@ export class ChoreoWebViewAPI {
 
     public async showQuickPicks(params: ShowWebviewQuickPickItemsReq): Promise<WebviewQuickPickItem | undefined> {
         return this._messenger.sendRequest(ShowQuickPick, HOST_EXTENSION, params);
+    }
+
+    public async showInputBox(params: ShowWebviewInputBoxReq): Promise<string | undefined> {
+        return this._messenger.sendRequest(ShowInputBox, HOST_EXTENSION, params);
     }
 
     public async viewBuildLogs(params: ViewBuildLogsReq): Promise<void> {
