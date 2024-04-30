@@ -2657,7 +2657,6 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                         resolve({ path: connectorPath });
                     });
                     writer.on('error', reject);
-                    resolve({ path: connectorPath });
                 });
             }
 
