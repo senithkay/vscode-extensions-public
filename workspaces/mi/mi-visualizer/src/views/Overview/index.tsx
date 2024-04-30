@@ -31,6 +31,9 @@ export function Overview(props: OverviewProps) {
             setActiveWorkspaces(response.workspaces[0]);
             changeWorkspace(response.workspaces[0].fsPath);
             console.log(response.workspaces[0]);
+            rpcClient.getMiVisualizerRpcClient().log({
+                message: `Current workspace path: ${response.workspaces[0].fsPath}`
+            });
         });
     }, []);
 

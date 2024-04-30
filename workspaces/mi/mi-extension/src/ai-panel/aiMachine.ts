@@ -16,6 +16,7 @@ import { getAuthUrl } from './auth';
 import { extension } from '../MIExtensionContext';
 import fetch from 'node-fetch';
 import { HEALTH_CHECK_BACKEND_URL } from '../constants';
+import { log } from '../util/logger';
 
 interface ChatEntry {
     role: string;
@@ -168,7 +169,8 @@ async function checkToken(context, event) {
             } else {
                 resolve(undefined);
             }
-        } catch (error) {
+        } catch (error: any) {
+            log(error.toString());
             reject(error);
         }
     });

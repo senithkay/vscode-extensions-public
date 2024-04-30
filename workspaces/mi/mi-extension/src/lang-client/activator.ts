@@ -127,7 +127,6 @@ export class MILanguageClient {
                 const errorMessage = `Incompatible JDK version detected. Please install JDK ${this.COMPATIBLE_JDK_VERSION} or above.`;
                 window.showErrorMessage(errorMessage);
                 this.updateErrors(ERRORS.INCOMPATIBLE_JDK);
-                log(errorMessage);
                 throw new Error(errorMessage);
             }
 
@@ -178,9 +177,8 @@ export class MILanguageClient {
                     outputChannelName: 'Synapse Language Server',
                     initializationFailedHandler: (error) => {
                         console.log(error);
-                        const errorMessage = "Could not start the Synapse Language Server.";
-                        window.showErrorMessage(errorMessage);
-                        log(errorMessage);
+                        window.showErrorMessage("Could not start the Synapse Language Server.");
+                        log(error.toString());
                         this.updateErrors(ERRORS.LANG_CLIENT_START);
                         return false;
                     }
@@ -203,15 +201,15 @@ export class MILanguageClient {
                 registerDefinitionProvider(this.context, this.languageClient);
                 registerFormattingProvider(this.context, this.languageClient);
             } else {
-                log("The JAVA_HOME environment variable is not defined. Please make sure to set the JAVA_HOME environment variable to the installation directory of your JDK.");
+                log("Error: The JAVA_HOME environment variable is not defined. Please make sure to set the JAVA_HOME environment variable to the installation directory of your JDK.");
                 this.updateErrors(ERRORS.JAVA_HOME);
                 throw new Error("JAVA_HOME is not set");
             }
-        } catch (error) {
+        } catch (error: any) {
             const errorMessage = "Failed to launch the language client. Please check the console for more details.";
             console.error(errorMessage, error);
             window.showErrorMessage(errorMessage);
-            log(errorMessage);
+            log(error.toString());
             this.updateErrors(ERRORS.LANG_CLIENT);
         }
 
