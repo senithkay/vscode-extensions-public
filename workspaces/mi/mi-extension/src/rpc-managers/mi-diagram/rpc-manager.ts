@@ -162,6 +162,7 @@ import axios from 'axios';
 import { error } from "console";
 import * as fs from "fs";
 import * as os from 'os';
+import * as tmp from 'tmp';
 import { Transform } from 'stream';
 import { v4 as uuidv4 } from 'uuid';
 import * as vscode from 'vscode';
@@ -184,7 +185,6 @@ import { StateMachineAI } from '../../ai-panel/aiMachine';
 import fetch from 'node-fetch';
 import path = require("path");
 import { openPopupView } from "../../stateMachinePopup";
-import * as tmp from 'tmp';
 import { copy } from 'fs-extra';
 import { template } from "lodash";
 
@@ -2622,7 +2622,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
     }
 
     async downloadConnector(params: DownloadConnectorRequest): Promise<DownloadConnectorResponse> {
-        const { connector, url, version } = params;
+        const { url } = params;
         try {
             const workspaceFolders = workspace.workspaceFolders;
             if (!workspaceFolders) {
