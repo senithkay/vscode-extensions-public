@@ -116,6 +116,8 @@ export function ConnectorPage(props: ConnectorPageProps) {
                 return { ...connector, iconPathUri };
             }));
             setLocalConnectors(connectorsWithIcons);
+        } else if (connectorData === null) {
+            rpcClient.getMiDiagramRpcClient().reloadWindow();
         }
     };
 
@@ -262,6 +264,8 @@ export function ConnectorPage(props: ConnectorPageProps) {
                 operationName={operation} />;
 
             props.setContent(connecterForm, `${sidePanelContext.isEditing ? "Edit" : "Add"} ${operation}`, iconPathUri.uri);
+        } else if (connectorData === null) {
+            rpcClient.getMiDiagramRpcClient().reloadWindow();
         } else {
             fetchLocalConnectorData();
         }

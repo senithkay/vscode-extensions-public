@@ -10,6 +10,7 @@
  */
 import {
     AIUserInput,
+    AI_EVENT_TYPE,
     ApiDirectoryResponse,
     ApplyEditRequest,
     ApplyEditResponse,
@@ -51,9 +52,9 @@ import {
     CreateTemplateRequest,
     CreateTemplateResponse,
     DataSourceTemplate,
+    DeleteArtifactRequest,
     DownloadConnectorRequest,
     DownloadConnectorResponse,
-    DeleteArtifactRequest,
     ESBConfigsResponse,
     EVENT_TYPE,
     EndpointDirectoryResponse,
@@ -114,6 +115,7 @@ import {
     MigrateProjectRequest,
     MigrateProjectResponse,
     OpenDiagramRequest,
+    POPUP_EVENT_TYPE,
     ProjectDirResponse,
     ProjectRootResponse,
     RangeFormatRequest,
@@ -155,23 +157,26 @@ import {
     WriteContentToFileResponse,
     getSTRequest,
     getSTResponse,
-    AI_EVENT_TYPE,
-    POPUP_EVENT_TYPE,
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
 import { error } from "console";
 import * as fs from "fs";
+import { copy } from 'fs-extra';
+import fetch from 'node-fetch';
 import * as os from 'os';
 import { Transform } from 'stream';
+import * as tmp from 'tmp';
 import { v4 as uuidv4 } from 'uuid';
 import * as vscode from 'vscode';
 import { Position, Range, Selection, TextEdit, Uri, ViewColumn, WorkspaceEdit, commands, window, workspace } from "vscode";
 import { extension } from '../../MIExtensionContext';
+import { StateMachineAI } from '../../ai-panel/aiMachine';
 import { COMMANDS, DEFAULT_PROJECT_VERSION, MI_COPILOT_BACKEND_URL } from "../../constants";
 import { StateMachine, navigate, openView } from "../../stateMachine";
+import { openPopupView } from "../../stateMachinePopup";
 import { UndoRedoManager } from "../../undoRedoManager";
 import { createFolderStructure, getAddressEndpointXmlWrapper, getDefaultEndpointXmlWrapper, getFailoverXmlWrapper, getHttpEndpointXmlWrapper, getInboundEndpointXmlWrapper, getLoadBalanceXmlWrapper, getMessageProcessorXmlWrapper, getMessageStoreXmlWrapper, getProxyServiceXmlWrapper, getRegistryResourceContent, getTaskXmlWrapper, getTemplateEndpointXmlWrapper, getTemplateXmlWrapper, getWsdlEndpointXmlWrapper } from "../../util";
-import { addNewEntryToArtifactXML, changeRootPomPackaging, createMetadataFilesForRegistryCollection, detectMediaType, getAvailableRegistryResources, getMediatypeAndFileExtension, addSynapseDependency } from "../../util/fileOperations";
+import { addNewEntryToArtifactXML, addSynapseDependency, changeRootPomPackaging, createMetadataFilesForRegistryCollection, detectMediaType, getAvailableRegistryResources, getMediatypeAndFileExtension } from "../../util/fileOperations";
 import { importProject } from "../../util/migrationUtils";
 import { getDataserviceXml } from "../../util/template-engine/mustach-templates/Dataservice";
 import { getClassMediatorContent } from "../../util/template-engine/mustach-templates/classMediator";
@@ -180,8 +185,6 @@ import { getRecipientEPXml } from "../../util/template-engine/mustach-templates/
 import { rootPomXmlContent } from "../../util/templates";
 import { replaceFullContentToFile } from "../../util/workspace";
 import { VisualizerWebview } from "../../visualizer/webview";
-import { StateMachineAI } from '../../ai-panel/aiMachine';
-import fetch from 'node-fetch';
 import path = require("path");
 import { openPopupView } from "../../stateMachinePopup";
 import { template } from "lodash";
@@ -3200,6 +3203,10 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
             resolve();
         });
+    }
+
+    async reloadWindow(): Promise<void> {
+        await vscode.commands.executeCommand('workbench.action.reloadWindow');
     }
 }
 

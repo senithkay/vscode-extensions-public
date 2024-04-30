@@ -50,9 +50,9 @@ import {
     CreateTemplateRequest,
     CreateTemplateResponse,
     DataSourceTemplate,
+    DeleteArtifactRequest,
     DownloadConnectorRequest,
     DownloadConnectorResponse,
-    DeleteArtifactRequest,
     ESBConfigsResponse,
     EndpointDirectoryResponse,
     EndpointsAndSequencesResponse,
@@ -171,8 +171,8 @@ import {
     createSequence,
     createTask,
     createTemplate,
-    downloadConnector,
     deleteArtifact,
+    downloadConnector,
     executeCommand,
     getAIResponse,
     getAPIDirectory,
@@ -229,6 +229,7 @@ import {
     openFile,
     rangeFormat,
     redo,
+    reloadWindow,
     showErrorMessage,
     undo,
     updateAddressEndpoint,
@@ -611,5 +612,9 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     deleteArtifact(params: DeleteArtifactRequest): Promise<void> {
         return this._messenger.sendRequest(deleteArtifact, HOST_EXTENSION, params);
+    }
+
+    reloadWindow(): void {
+        return this._messenger.sendNotification(reloadWindow, HOST_EXTENSION);
     }
 }

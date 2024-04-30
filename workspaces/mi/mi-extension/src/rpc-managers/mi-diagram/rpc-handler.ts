@@ -28,8 +28,8 @@ import {
     CreateSequenceRequest,
     CreateTaskRequest,
     CreateTemplateRequest,
-    DeleteArtifactRequest,
     DataSourceTemplate,
+    DeleteArtifactRequest,
     DownloadConnectorRequest,
     GetAllArtifactsRequest,
     GetAllRegistryPathsRequest,
@@ -98,8 +98,8 @@ import {
     createSequence,
     createTask,
     createTemplate,
-    downloadConnector,
     deleteArtifact,
+    downloadConnector,
     executeCommand,
     getAIResponse,
     getAPIDirectory,
@@ -155,6 +155,7 @@ import {
     openFile,
     rangeFormat,
     redo,
+    reloadWindow,
     showErrorMessage,
     undo,
     updateAddressEndpoint,
@@ -166,7 +167,7 @@ import {
     updateRecipientEndpoint,
     updateTemplateEndpoint,
     updateWsdlEndpoint,
-    writeContentToFile
+    writeContentToFile,
 } from "@wso2-enterprise/mi-core";
 import { Messenger } from "vscode-messenger";
 import { MiDiagramRpcManager } from "./rpc-manager";
@@ -263,4 +264,5 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getAllRegistryPaths, (args: GetAllRegistryPathsRequest) => rpcManger.getAllRegistryPaths(args));
     messenger.onRequest(getAllArtifacts, (args: GetAllArtifactsRequest) => rpcManger.getAllArtifacts(args));
     messenger.onRequest(deleteArtifact, (args: DeleteArtifactRequest) => rpcManger.deleteArtifact(args));
+    messenger.onNotification(reloadWindow, () => rpcManger.reloadWindow());
 }

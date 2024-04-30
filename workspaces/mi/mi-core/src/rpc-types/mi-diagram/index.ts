@@ -241,4 +241,5 @@ export interface MiDiagramAPI {
     getAllRegistryPaths: (params: GetAllRegistryPathsRequest) => Promise<GetAllRegistryPathsResponse>;
     getAllArtifacts: (params: GetAllArtifactsRequest) => Promise<GetAllArtifactsResponse>;
     deleteArtifact: (params: DeleteArtifactRequest) => Promise<void>;
+    reloadWindow: () => void;
 }
