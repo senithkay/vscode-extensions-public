@@ -232,7 +232,8 @@
                         "value": {
                             "name": "policyKey",
                             "displayName": "Policy Key",
-                            "inputType": "registry",
+                            "inputType": "key",
+                            "keyType": "ws_policy",
                             "required": false,
                             "helpTip": "",
                             "enableCondition": [

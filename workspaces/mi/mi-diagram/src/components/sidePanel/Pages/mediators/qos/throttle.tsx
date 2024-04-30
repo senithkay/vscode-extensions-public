@@ -19,6 +19,7 @@ import { MEDIATORS } from '../../../../../resources/constants';
 import { Controller, useForm } from 'react-hook-form';
 import { ExpressionFieldValue } from '../../../../Form/ExpressionField/ExpressionInput';
 import { ParamManager } from '../../../../Form/ParamManager/ParamManager';
+import { Keylookup } from '../../../../Form';
 
 const cardStyle = { 
     display: "block",
@@ -301,8 +302,14 @@ const ThrottleForm = (props: AddMediatorProps) => {
                             name="policyKey"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Policy Key" size={50} placeholder="" />
-                            )}
+                        <Keylookup
+                            value={field.value}
+                            filterType='ws_policy'
+                            label="Policy Key"
+                            allowItemCreate={false}
+                            onValueChange={field.onChange}
+                        />
+                    )}
                         />
                         {errors.policyKey && <Error>{errors.policyKey.message.toString()}</Error>}
                     </Field>
