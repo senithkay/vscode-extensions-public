@@ -161,11 +161,9 @@ import {
 import axios from 'axios';
 import { error } from "console";
 import * as fs from "fs";
-import { copy } from 'fs-extra';
 import fetch from 'node-fetch';
 import * as os from 'os';
 import { Transform } from 'stream';
-import * as tmp from 'tmp';
 import { v4 as uuidv4 } from 'uuid';
 import * as vscode from 'vscode';
 import { Position, Range, Selection, TextEdit, Uri, ViewColumn, WorkspaceEdit, commands, window, workspace } from "vscode";
