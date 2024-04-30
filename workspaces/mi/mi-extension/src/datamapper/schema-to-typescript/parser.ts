@@ -237,24 +237,16 @@ function parseNonLiteral(
       }
     case 'TYPED_ARRAY':
       if (Array.isArray(schema.items)) {
-        // normalised to not be undefined
-        const minItems = schema.minItems!
-        const maxItems = schema.maxItems!
-        const arrayType: TTuple = {
-          deprecated: schema.deprecated,
-          keyName,
-          maxItems,
-          minItems,
-          standaloneName: standaloneName(schema, keyNameFromDefinition, usedNames, options),
-          params: schema.items.map(_ => parse(_, options, undefined, processed, usedNames)),
-          type: 'TUPLE',
+        if (schema.items.length > 0) {
+          schema.items = schema.items[0];
+          return {
+            deprecated: schema.deprecated,
+            keyName,
+            standaloneName: standaloneName(schema, keyNameFromDefinition, usedNames, options),
+            params: parse(schema.items!, options, `{keyNameFromDefinition}Items`, processed, usedNames),
+            type: 'ARRAY',
+          };
         }
-        if (schema.additionalItems === true) {
-          arrayType.spreadParam = options.unknownAny ? T_UNKNOWN : T_ANY
-        } else if (schema.additionalItems) {
-          arrayType.spreadParam = parse(schema.additionalItems, options, undefined, processed, usedNames)
-        }
-        return arrayType
       } else {
         return {
           deprecated: schema.deprecated,
@@ -428,35 +420,7 @@ function parseSchema(
     )
   }
 
-  // handle additionalProperties
-  switch (schema.additionalProperties) {
-    case undefined:
-    case true:
-      if (singlePatternProperty) {
-        return asts
-      }
-      return asts.concat({
-        ast: options.unknownAny ? T_UNKNOWN_ADDITIONAL_PROPERTIES : T_ANY_ADDITIONAL_PROPERTIES,
-        isPatternProperty: false,
-        isRequired: true,
-        isUnreachableDefinition: false,
-        keyName: '[k: string]',
-      })
-
-    case false:
-      return asts
-
-    // pass "true" as the last param because in TS, properties
-    // defined via index signatures are already optional
-    default:
-      return asts.concat({
-        ast: parse(schema.additionalProperties, options, '[k: string]', processed, usedNames),
-        isPatternProperty: false,
-        isRequired: true,
-        isUnreachableDefinition: false,
-        keyName: '[k: string]',
-      })
-  }
+  return asts
 }
 
 type Definitions = {[k: string]: LinkedJSONSchema}
