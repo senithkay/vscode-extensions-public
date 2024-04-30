@@ -246,4 +246,3 @@ export const getAllArtifacts: RequestType<GetAllArtifactsRequest, GetAllArtifact
 export const deleteArtifact: RequestType<DeleteArtifactRequest, void> = { method: `${_preFix}/deleteArtifact` };
 export const getAddConnectorStatus: RequestType<void, ConnectorStatusResponse> = { method: `${_preFix}/getAddConnectorStatus` };
 export const getRemoveConnectorStatus: RequestType<void, ConnectorStatusResponse> = { method: `${_preFix}/getRemoveConnectorStatus` };
-export const reloadWindow: NotificationType<void> = { method: `${_preFix}/reloadWindow` };

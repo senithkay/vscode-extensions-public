@@ -232,7 +232,6 @@ import {
     openFile,
     rangeFormat,
     redo,
-    reloadWindow,
     showErrorMessage,
     undo,
     updateAddressEndpoint,
@@ -622,9 +621,5 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     getRemoveConnectorStatus(): Promise<ConnectorStatusResponse> {
         return this._messenger.sendRequest(getRemoveConnectorStatus, HOST_EXTENSION);
-    }
-
-    reloadWindow(): void {
-        return this._messenger.sendNotification(reloadWindow, HOST_EXTENSION);
     }
 }

@@ -157,7 +157,6 @@ import {
     openFile,
     rangeFormat,
     redo,
-    reloadWindow,
     showErrorMessage,
     undo,
     updateAddressEndpoint,
@@ -268,5 +267,4 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(deleteArtifact, (args: DeleteArtifactRequest) => rpcManger.deleteArtifact(args));
     messenger.onRequest(getAddConnectorStatus, () => rpcManger.getAddConnectorStatus());
     messenger.onRequest(getRemoveConnectorStatus, () => rpcManger.getRemoveConnectorStatus());
-    messenger.onNotification(reloadWindow, () => rpcManger.reloadWindow());
 }

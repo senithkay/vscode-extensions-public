@@ -3209,10 +3209,6 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         });
     }
 
-    async reloadWindow(): Promise<void> {
-        await vscode.commands.executeCommand('workbench.action.reloadWindow');
-    }
-
     async getAddConnectorStatus(): Promise<ConnectorStatusResponse> {
         return new Promise(async (resolve) => {
             const langClient = StateMachine.context().langClient!;

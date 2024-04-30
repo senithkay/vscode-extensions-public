@@ -244,5 +244,4 @@ export interface MiDiagramAPI {
     deleteArtifact: (params: DeleteArtifactRequest) => Promise<void>;
     getAddConnectorStatus: () => Promise<ConnectorStatusResponse>;
     getRemoveConnectorStatus: () => Promise<ConnectorStatusResponse>;
-    reloadWindow: () => void;
 }
