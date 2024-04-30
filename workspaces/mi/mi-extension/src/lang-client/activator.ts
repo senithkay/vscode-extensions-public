@@ -33,6 +33,7 @@ import { GoToDefinitionProvider } from './DefinitionProvider';
 import { FormattingProvider } from './FormattingProvider';
 
 import util = require('util');
+import { log } from '../util/logger';
 const exec = util.promisify(require('child_process').exec);
 
 export interface ScopeInfo {
@@ -123,11 +124,11 @@ export class MILanguageClient {
 
             const isJDKCompatible = await this.checkJDKCompatibility();
             if (!isJDKCompatible) {
-                window.showErrorMessage(
-                    `Incompatible JDK version detected. Please install JDK ${this.COMPATIBLE_JDK_VERSION} or above.`
-                );
+                const errorMessage = `Incompatible JDK version detected. Please install JDK ${this.COMPATIBLE_JDK_VERSION} or above.`;
+                window.showErrorMessage(errorMessage);
                 this.updateErrors(ERRORS.INCOMPATIBLE_JDK);
-                throw new Error(`Incompatible JDK version detected. Please install JDK ${this.COMPATIBLE_JDK_VERSION} or above.`);
+                log(errorMessage);
+                throw new Error(errorMessage);
             }
 
             if (JAVA_HOME) {
@@ -139,7 +140,9 @@ export class MILanguageClient {
                 const args: string[] = [schemaPathArg, '-cp', langServerCP];
 
                 if (process.env.LSDEBUG === "true") {
-                    console.log('LSDEBUG is set to "true". Services will run on debug mode');
+                    const message = 'LSDEBUG is set to "true". Services will run on debug mode';
+                    console.log(message);
+                    log(message);
                     args.push('-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005,quiet=y');
                 }
 
@@ -175,7 +178,9 @@ export class MILanguageClient {
                     outputChannelName: 'Synapse Language Server',
                     initializationFailedHandler: (error) => {
                         console.log(error);
-                        window.showErrorMessage("Could not start the Synapse Language Server.");
+                        const errorMessage = "Could not start the Synapse Language Server.";
+                        window.showErrorMessage(errorMessage);
+                        log(errorMessage);
                         this.updateErrors(ERRORS.LANG_CLIENT_START);
                         return false;
                     }
@@ -198,12 +203,15 @@ export class MILanguageClient {
                 registerDefinitionProvider(this.context, this.languageClient);
                 registerFormattingProvider(this.context, this.languageClient);
             } else {
+                log("The JAVA_HOME environment variable is not defined. Please make sure to set the JAVA_HOME environment variable to the installation directory of your JDK.");
                 this.updateErrors(ERRORS.JAVA_HOME);
                 throw new Error("JAVA_HOME is not set");
             }
         } catch (error) {
-            console.error("Failed to launch the language client: ", error);
-            window.showErrorMessage("Failed to launch the language client. Please check the console for more details.");
+            const errorMessage = "Failed to launch the language client. Please check the console for more details.";
+            console.error(errorMessage, error);
+            window.showErrorMessage(errorMessage);
+            log(errorMessage);
             this.updateErrors(ERRORS.LANG_CLIENT);
         }
 

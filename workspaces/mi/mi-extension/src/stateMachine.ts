@@ -568,6 +568,7 @@ async function checkIfMiProject() {
     vscode.commands.registerCommand(COMMANDS.CREATE_PROJECT_COMMAND, () => {
         openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.ProjectCreationForm });
         console.log('Create New Project');
+        log('Create New Project');
     });
 
     return {
