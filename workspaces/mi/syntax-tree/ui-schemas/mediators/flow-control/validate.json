@@ -20,7 +20,7 @@
         "name": "enableSchemaCaching",
         "displayName": "Enable Schema Caching",
         "inputType": "checkbox",
-        "required": false,
+        "required": true,
         "helpTip": ""
       }
     },

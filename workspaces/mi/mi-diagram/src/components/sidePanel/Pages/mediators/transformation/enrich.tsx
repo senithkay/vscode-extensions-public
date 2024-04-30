@@ -56,7 +56,7 @@ const EnrichForm = (props: AddMediatorProps) => {
             inlineRegistryKey: sidePanelContext?.formValues?.inlineRegistryKey || "",
             targetAction: sidePanelContext?.formValues?.targetAction || "replace",
             targetType: sidePanelContext?.formValues?.targetType || "custom",
-            targetXPathJsonPath: sidePanelContext?.formValues?.targetXPathJsonPath || "",
+            targetXPathJsonPath: sidePanelContext?.formValues?.targetXPathJsonPath || { "isExpression": true, "value": "" },
             targetProperty: sidePanelContext?.formValues?.targetProperty || "",
             description: sidePanelContext?.formValues?.description || "",
         });
@@ -198,6 +198,7 @@ const EnrichForm = (props: AddMediatorProps) => {
                             render={({ field }) => (
                                 <Keylookup
                                     value={field.value}
+                                    filterType='registry'
                                     label="Inline Registry Key"
                                     allowItemCreate={false}
                                     onValueChange={field.onChange}
@@ -245,7 +246,21 @@ const EnrichForm = (props: AddMediatorProps) => {
                             name="targetXPathJsonPath"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Target XPath / JSONPath" size={50} placeholder="" />
+                                <ExpressionField
+                                    {...field} label="Target XPath / JSONPath"
+                                    placeholder=""
+                                    canChange={false}
+                                    openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => {
+                                        sidePanelContext.setSidePanelState({
+                                            ...sidePanelContext,
+                                            expressionEditor: {
+                                                isOpen: true,
+                                                value,
+                                                setValue
+                                            }
+                                        });
+                                    }}
+                                />
                             )}
                         />
                         {errors.targetXPathJsonPath && <Error>{errors.targetXPathJsonPath.message.toString()}</Error>}

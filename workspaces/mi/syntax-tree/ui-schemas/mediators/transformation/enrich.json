@@ -115,6 +115,7 @@
               "name": "inlineRegistryKey",
               "displayName": "Inline Registry Key",
               "inputType": "key",
+              "keyType": "registry",
               "defaultValue": "",
               "required": false,
               "helpTip": "",
@@ -173,7 +174,7 @@
             "value": {
               "name": "targetXPathJsonPath",
               "displayName": "Target XPath / JSONPath",
-              "inputType": "string",
+              "inputType": "expression",
               "defaultValue": "",
               "required": true,
               "helpTip": "",

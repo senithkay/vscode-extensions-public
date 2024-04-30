@@ -17,6 +17,7 @@ import { create } from 'xmlbuilder2';
 import { Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 import AddConnection from './AddConnection';
 import { ParamConfig, ParamManager } from '../../Form/ParamManager/ParamManager';
+import { ExpressionField, ExpressionFieldValue } from '../../Form/ExpressionField/ExpressionInput';
 
 const cardStyle = {
     display: "block",
@@ -191,12 +192,34 @@ const AddConnector = (props: AddConnectorProps) => {
                 sidePanelContext.formValues.operationName;
 
             const root = template.ele(`${connectorName}${operationName ? `.${operationName}` : ''}`);
-                root.att('configKey', formValues['configKey']);
+            root.att('configKey', formValues['configKey']);
 
             // Fill the values
             Object.keys(formValues).forEach((key) => {
                 if (key !== 'configRef' && key !== 'configKey') {
-                    root.ele(key).txt(formValues[key]);
+                    if (typeof formValues[key] === 'object' && formValues[key] !== null) {
+                        // Handle expression input type
+                        const namespaces = formValues[key].namespaces;
+                        const value = formValues[key].value;
+                        const isExpression = formValues[key].isExpression;
+
+                        if (isExpression) {
+                            if (namespaces && namespaces.length > 0) {
+                                // Generate XML with namespaces
+                                const element = root.ele(key);
+                                namespaces.forEach((namespace: any) => {
+                                    element.att(`xmlns:${namespace.prefix}`, namespace.uri);
+                                });
+                                element.txt(`{${value}}`);
+                            } else{
+                                root.ele(key).txt(`{${value}}`);
+                            }
+                        } else {
+                            root.ele(key).txt(value);
+                        }
+                    } else {
+                        root.ele(key).txt(formValues[key]);
+                    }
                 }
             });
 
@@ -224,6 +247,19 @@ const AddConnector = (props: AddConnectorProps) => {
     const renderFormElement = (element: Element) => {
         switch (element.inputType) {
             case 'string':
+                return (
+                    <TextField
+                        label={element.displayName}
+                        size={50}
+                        value={formValues[element.name] || ''}
+                        onTextChange={(e: any) => {
+                            setFormValues({ ...formValues, [element.name]: e });
+                            formValidators[element.name](e);
+                        }}
+                        required={element.required === 'true'}
+                        placeholder={element.helpTip}
+                    />
+                );
             case 'stringOrExpression':
                 return (
                     <TextField
@@ -284,6 +320,32 @@ const AddConnector = (props: AddConnectorProps) => {
                         }}
                         required={element.required === 'true'}
                         placeholder={element.helpTip}
+                    />
+                );
+            case 'integerOrExpression':
+                return (
+                    <ExpressionField
+                        label={element.displayName}
+                        placeholder={element.helpTip}
+                        value={{
+                            "isExpression":true,
+                            "value":formValues[element.name]?.value ?? '',
+                            "namespaces":formValues[element.name]?.namespaces ?? []}}
+                        canChange={true}
+                        onChange={(e: any) => {
+                            setFormValues({ ...formValues, [element.name]: e });
+                            formValidators[element.name](e.value);
+                        }}
+                        openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => {
+                            sidePanelContext.setSidePanelState({
+                                ...sidePanelContext,
+                                expressionEditor: {
+                                    isOpen: true,
+                                    value,
+                                    setValue
+                                }
+                            });
+                        }}
                     />
                 );
             case 'connection':

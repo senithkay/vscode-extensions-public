@@ -35,7 +35,8 @@ export type FilterType =
     | "xsd"
     | "xsl"
     | "xslt"
-    | "yaml";
+    | "yaml"
+    | "registry";
 
 // Interfaces
 interface IKeylookupBase {

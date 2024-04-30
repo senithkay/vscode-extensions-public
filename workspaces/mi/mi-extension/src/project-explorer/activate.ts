@@ -127,7 +127,7 @@ export function activateProjectExplorer(context: ExtensionContext) {
 		if (entry.info && entry.info?.path) {
 			const filePath = entry.info.path;
 			const fileName = path.basename(filePath);
-			window.showInformationMessage("Do you want to do delete : " + fileName, "Yes", "No")
+			window.showInformationMessage("Do you want to delete : " + fileName, { modal: true }, "Yes", "No")
 				.then(async answer => {
 					if (answer === "Yes") {
 						const res = await deleteRegistryResource(filePath);

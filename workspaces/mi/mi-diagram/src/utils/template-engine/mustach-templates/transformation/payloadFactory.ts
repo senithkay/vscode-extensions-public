@@ -77,6 +77,8 @@ export function getPayloadFormDataFromSTNode(data: { [key: string]: any }, node:
             let isExpression = arg.value ? false : true;
             return [{ isExpression: isExpression, value: arg.value ?? arg.expression }, arg.evaluator, arg.literal];
         });
+    } else {
+        data.args = [];
     }
 
     return data;

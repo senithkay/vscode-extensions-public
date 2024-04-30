@@ -58,7 +58,7 @@ const CallForm = (props: AddMediatorProps) => {
             contentType: sidePanelContext?.formValues?.contentType || "",
             sourcePayload: sidePanelContext?.formValues?.sourcePayload || "<inline xmlns=\"\"/>",
             sourceXPath: sidePanelContext?.formValues?.sourceXPath || {"isExpression":true,"value":""},
-            targetType: sidePanelContext?.formValues?.targetType || "body",
+            targetType: sidePanelContext?.formValues?.targetType || "none",
             targetProperty: sidePanelContext?.formValues?.targetProperty || "",
             description: sidePanelContext?.formValues?.description || "",
         });
@@ -279,7 +279,7 @@ const CallForm = (props: AddMediatorProps) => {
                             name="targetType"
                             control={control}
                             render={({ field }) => (
-                                <AutoComplete label="Target Type" name="targetType" items={["body", "property"]} value={field.value} onValueChange={(e: any) => {
+                                <AutoComplete label="Target Type" name="targetType" items={["none", "body", "property"]} value={field.value} onValueChange={(e: any) => {
                                     field.onChange(e);
                                 }} />
                             )}
