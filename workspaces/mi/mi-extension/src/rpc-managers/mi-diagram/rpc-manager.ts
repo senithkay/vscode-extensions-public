@@ -184,6 +184,8 @@ import { StateMachineAI } from '../../ai-panel/aiMachine';
 import fetch from 'node-fetch';
 import path = require("path");
 import { openPopupView } from "../../stateMachinePopup";
+import * as tmp from 'tmp';
+import { copy } from 'fs-extra';
 import { template } from "lodash";
 
 const { XMLParser, XMLBuilder } = require("fast-xml-parser");
@@ -2646,14 +2648,20 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                         'User-Agent': 'My Client'
                     }
                 });
-
-                const writer = fs.createWriteStream(connectorPath);
-
+    
+                // Create a temporary file
+                const tmpobj = tmp.fileSync();
+                const writer = fs.createWriteStream(tmpobj.name);
+    
                 response.data.pipe(writer);
-
+    
                 return new Promise((resolve, reject) => {
-                    writer.on('finish', () => {
+                    writer.on('finish', async () => {
                         writer.close();
+                        // Copy the file from the temp location to the connectorPath
+                        await copy(tmpobj.name, connectorPath);
+                        // Remove the temporary file
+                        tmpobj.removeCallback();
                         resolve({ path: connectorPath });
                     });
                     writer.on('error', reject);
@@ -2663,7 +2671,6 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             return new Promise((resolve, reject) => {
                 resolve({ path: connectorPath });
             });
-
         } catch (error) {
             console.error('Error downloading connector:', error);
             throw new Error('Failed to download connector');
