@@ -395,7 +395,7 @@ export function ParamManager(props: ParamManagerProps) {
                 )
             } else if ((editingSegmentId !== index)) {
                 paramComponents.push(
-                    <DndProvider backend={HTML5Backend}>
+                    <DndProvider backend={HTML5Backend} context={window}>
                         <ParamItem
                             moveItem={moveItem}
                             key={param.id}
