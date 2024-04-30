@@ -184,7 +184,6 @@ import { rootPomXmlContent } from "../../util/templates";
 import { replaceFullContentToFile } from "../../util/workspace";
 import { VisualizerWebview } from "../../visualizer/webview";
 import path = require("path");
-import { openPopupView } from "../../stateMachinePopup";
 import { template } from "lodash";
 
 const { XMLParser, XMLBuilder } = require("fast-xml-parser");
