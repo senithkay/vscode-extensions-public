@@ -9,17 +9,17 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { MouseEvent, ReactNode, useEffect, useState } from 'react';
 
-import { css } from '@emotion/css';
+import { DMType, TypeKind } from '@wso2-enterprise/mi-core';
 import { Button, Codicon, ProgressRing } from '@wso2-enterprise/ui-toolkit';
+import { css } from '@emotion/css';
 import classNames from "classnames";
+import { Node } from "ts-morph";
 
 import { DiagnosticWidget } from '../Diagnostic/DiagnosticWidget';
 import { InputOutputPortModel } from '../Port';
 import { getEditorLineAndColumn } from '../utils/common-utils';
-
 import { ExpressionLabelModel } from './ExpressionLabelModel';
-import { isSourcePortArray, isTargetPortArray } from '../utils/link-utils';
-import { DMType, TypeKind } from '@wso2-enterprise/mi-core';
+import { generateArrayToArrayMappingWithFn, isSourcePortArray, isTargetPortArray } from '../utils/link-utils';
 import { DataMapperLinkModel } from '../Link';
 import { useDMCollapsedFieldsStore } from '../../../store/store';
 import { CodeActionWidget } from '../CodeAction/CodeAction';
@@ -184,14 +184,39 @@ export function EditableLabelWidget(props: EditableLabelWidgetProps) {
     const onClickMapViaArrayFn = () => {
         if (target instanceof InputOutputPortModel) {
             const targetPortField = target.field;
-            if (targetPortField.typeName === TypeKind.Array && targetPortField?.memberType) {
+
+            if (targetPortField.kind === TypeKind.Array && targetPortField?.memberType) {
                 applyArrayFunction(link, targetPortField.memberType);
             }
         }
     };
 
-    const applyArrayFunction = (linkModel: DataMapperLinkModel, targetRecord: DMType) => {
-        // TODO: Add impl
+    const applyArrayFunction = (linkModel: DataMapperLinkModel, targetType: DMType) => {
+        if (linkModel.value
+            && (Node.isPropertyAccessExpression(linkModel.value) || Node.isIdentifier(linkModel.value))) {
+
+                let isOptionalSource = false;
+                const sourcePort = linkModel.getSourcePort();
+                const targetPort = linkModel.getTargetPort();
+
+                let targetExpr: Node = linkModel.value;
+                if (sourcePort instanceof InputOutputPortModel && sourcePort.field.optional) {
+                    isOptionalSource = true;
+                }
+                if (targetPort instanceof InputOutputPortModel) {
+                    const expr = targetPort.typeWithValue?.value;
+                    if (Node.isPropertyAssignment(expr)) {
+                        targetExpr = expr.getInitializer();
+                    } else {
+                        targetExpr = expr;
+                    }
+                }
+
+                const mapFnSrc = generateArrayToArrayMappingWithFn(linkModel.value.getText(), targetType);
+
+                targetExpr.replaceWithText(mapFnSrc);
+                void context.applyModifications();
+        }
     };
 
     const codeActions = [];
