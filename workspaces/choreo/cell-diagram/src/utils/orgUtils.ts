@@ -11,7 +11,7 @@ import { ProjectModel, ProjectPortModel } from "../components";
 import { CellBounds } from "../components/Cell/CellNode/CellModel";
 import { CommonModel, OrgDiagramData, Organization, ProjectGateway } from "../types";
 import { AdvancedLinkModel } from "../components/Project/AdvancedLink/AdvancedLinkModel";
-import { NAME_JOIN_CHAR, PROJECT_NODE } from "../resources";
+import { DIAGRAM_END, NAME_JOIN_CHAR, PROJECT_NODE } from "../resources";
 
 export function getDiagramDataFromOrg(org: Organization): OrgDiagramData {
     const projectNodes: Map<string, CommonModel> = generateProjectNodes(org);
@@ -31,6 +31,7 @@ function generateProjectNodes(org: Organization): Map<string, CommonModel> {
     const nodes: Map<string, CommonModel> = new Map<string, ProjectModel>();
     org.projects?.forEach((project, _key) => {
         const projectNode = new ProjectModel(project);
+        projectNode.setPosition(DIAGRAM_END, DIAGRAM_END);
         nodes.set(projectNode.getID(), projectNode);
 
         // add project connections
@@ -66,8 +67,6 @@ function generateProjectLinks(
                 return;
             }
             const targetGateway = connection.target as ProjectGateway;
-            console.log("targetGateway", targetGateway);
-            console.log("projectNodes", projectNodes);
             const targetNode = projectNodes.get(getProjectNameById(targetGateway.projectId));
             if (!(sourceNode && targetNode)) {
                 console.error("Source or target node not found for connection: ", connection);
