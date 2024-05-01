@@ -28,3 +28,4 @@ export function log(value: string): void {
 export function getOutputChannel() {
     return outputChannel;
 }
+
