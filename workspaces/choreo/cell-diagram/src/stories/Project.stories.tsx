@@ -358,6 +358,210 @@ const observabilityModel: Project = {
     modelVersion: "0.4.0",
 };
 
+const testModel: Project = {
+    id: "wknh",
+    name: "FinFlux",
+    components: [
+        {
+            id: "uatwvb",
+            label: "tickets",
+            version: "v1.0",
+            type: "service",
+            buildPack: "ballerina",
+            services: {
+                "Kanushka Gayan:wknh:uatwvb:Support": {
+                    id: "Kanushka Gayan:wknh:uatwvb:Support",
+                    label: "",
+                    type: "HTTP",
+                    dependencyIds: [],
+                    deploymentMetadata: {
+                        gateways: {
+                            internet: {
+                                isExposed: false,
+                            },
+                            intranet: {
+                                isExposed: true,
+                            },
+                        },
+                    },
+                },
+            },
+            connections: [
+                {
+                    id: "kanushkagayan:wknh:xxkhcb:dec73",
+                    onPlatform: true,
+                },
+                {
+                    id: "kanushkagayan:wknh:umaikp:ac468",
+                    onPlatform: true,
+                },
+            ],
+        },
+        {
+            id: "xxkhcb",
+            label: "notifications",
+            version: "v1.0",
+            type: "service",
+            buildPack: "ballerina",
+            services: {
+                "Kanushka Gayan:wknh:xxkhcb:Notification": {
+                    id: "Kanushka Gayan:wknh:xxkhcb:Notification",
+                    label: "",
+                    type: "HTTP",
+                    dependencyIds: [],
+                    deploymentMetadata: {
+                        gateways: {
+                            internet: {
+                                isExposed: true,
+                            },
+                            intranet: {
+                                isExposed: false,
+                            },
+                        },
+                    },
+                },
+            },
+            connections: [],
+        },
+        {
+            id: "xivajd",
+            label: "web-app",
+            version: "",
+            type: "web-app",
+            buildPack: "other",
+            services: {
+                "web-app": {
+                    id: "",
+                    label: "",
+                    type: "other",
+                    dependencyIds: [],
+                    deploymentMetadata: {
+                        gateways: {
+                            internet: {
+                                isExposed: true,
+                            },
+                            intranet: {
+                                isExposed: false,
+                            },
+                        },
+                    },
+                },
+            },
+            connections: [],
+        },
+        {
+            id: "hqlmlp",
+            label: "subscribe-webhook",
+            version: "v1.0",
+            type: "web-hook",
+            buildPack: "ballerina",
+            services: {
+                "subscribe-webhook": {
+                    id: "",
+                    label: "",
+                    type: "other",
+                    dependencyIds: [],
+                    deploymentMetadata: {
+                        gateways: {
+                            internet: {
+                                isExposed: true,
+                            },
+                            intranet: {
+                                isExposed: false,
+                            },
+                        },
+                    },
+                },
+            },
+            connections: [],
+        },
+        {
+            id: "wnodex",
+            label: "ticket-proxy",
+            version: "v1.0",
+            type: "api-proxy",
+            buildPack: "ballerina",
+            services: {
+                "ticket-proxy": {
+                    id: "",
+                    label: "",
+                    type: "other",
+                    dependencyIds: [],
+                    deploymentMetadata: {
+                        gateways: {
+                            internet: {
+                                isExposed: true,
+                            },
+                            intranet: {
+                                isExposed: false,
+                            },
+                        },
+                    },
+                },
+            },
+            connections: [],
+        },
+        {
+            id: "umaikp",
+            label: "transactions",
+            version: "v1.0",
+            type: "service",
+            buildPack: "ballerina",
+            services: {
+                "Kanushka Gayan:wknh:umaikp:Transaction": {
+                    id: "Kanushka Gayan:wknh:umaikp:Transaction",
+                    label: "",
+                    type: "HTTP",
+                    dependencyIds: [],
+                    deploymentMetadata: {
+                        gateways: {
+                            internet: {
+                                isExposed: false,
+                            },
+                            intranet: {
+                                isExposed: false,
+                            },
+                        },
+                    },
+                },
+            },
+            connections: [
+                {
+                    id: "kanushkagayan:wknh:xxkhcb:dec73",
+                    onPlatform: true,
+                },
+            ],
+        },
+        {
+            id: "loencn",
+            label: "accounts",
+            version: "v1.0",
+            type: "service",
+            buildPack: "ballerina",
+            services: {
+                "Kanushka Gayan:wknh:loencn:defaultEp": {
+                    id: "Kanushka Gayan:wknh:loencn:defaultEp",
+                    label: "",
+                    type: "HTTP",
+                    dependencyIds: [],
+                    deploymentMetadata: {
+                        gateways: {
+                            internet: {
+                                isExposed: false,
+                            },
+                            intranet: {
+                                isExposed: false,
+                            },
+                        },
+                    },
+                },
+            },
+            connections: [],
+        },
+    ],
+    modelVersion: "0.4.0",
+};
+
 storiesOf("Project", module).add("Empty cell", () => (
     <Container>
         <CellDiagram project={noComponentModel} />
@@ -394,8 +598,18 @@ storiesOf("Project", module).add("Project configurations", () => (
     </Container>
 ));
 
+storiesOf("Project", module).add("Test", () => (
+    <Container>
+        <CellDiagram project={testModel} />
+    </Container>
+));
+
 storiesOf("Project", module).add("Observability data and events", () => (
     <Container>
-        <CellDiagram project={observabilityModel} componentMenu={componentMenu} onComponentDoubleClick={handleComponentDoubleClick} />
+        <CellDiagram
+            project={observabilityModel}
+            componentMenu={componentMenu}
+            onComponentDoubleClick={handleComponentDoubleClick}
+        />
     </Container>
 ));

@@ -194,7 +194,6 @@ const multiProjectsOrgModel: Organization = {
                         boundary: CellBounds.WestBound,
                     },
                 },
-               
             ],
         },
         {
@@ -445,5 +444,14 @@ storiesOf("Org", module).add("Multi projects organization", () => (
 storiesOf("Org", module).add("Complex organization", () => (
     <Container>
         <CellDiagram organization={complexOrgModel} />
+    </Container>
+));
+
+import wso2OrgModel from "./wso2-org-model.json";
+// import wso2OrgModelNoDependencies from "./wso2-org-model-no-dep.json";
+
+storiesOf("Org", module).add("wso2 organization", () => (
+    <Container>
+        <CellDiagram organization={wso2OrgModel as Organization} animation={false} />
     </Container>
 ));
