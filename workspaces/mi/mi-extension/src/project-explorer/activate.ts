@@ -17,7 +17,6 @@ import path = require("path");
 import { deleteRegistryResource } from '../util/fileOperations';
 import { RpcClient } from '@wso2-enterprise/mi-rpc-client';
 import { extension } from '../MIExtensionContext';
-import { log } from '../util/logger';
 
 export async function activateProjectExplorer(context: ExtensionContext) {
 
@@ -70,49 +69,41 @@ export async function activateProjectExplorer(context: ExtensionContext) {
 	commands.registerCommand(COMMANDS.ADD_API_COMMAND, async (entry: ProjectExplorerEntry) => {
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.APIForm, documentUri: entry.info?.path });
 		console.log('Add API');
-		log('Added an API');
 	});
 
 	commands.registerCommand(COMMANDS.ADD_ENDPOINT_COMMAND, (entry: ProjectExplorerEntry) => {
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.EndPointForm, documentUri: entry.info?.path });
 		console.log('Add Endpoint');
-		log('Added an Endpoint');
 	});
 
 	commands.registerCommand(COMMANDS.ADD_SEQUENCE_COMMAND, (entry: ProjectExplorerEntry) => {
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.SequenceForm, documentUri: entry.info?.path });
 		console.log('Add Sequence');
-		log('Added a Sequence');
 	});
 
 	commands.registerCommand(COMMANDS.ADD_INBOUND_ENDPOINT_COMMAND, (entry: ProjectExplorerEntry) => {
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.InboundEPForm, documentUri: entry.info?.path });
 		console.log('Add Inbound API');
-		log('Added an Inbound API');
 	});
 
 	commands.registerCommand(COMMANDS.ADD_REGISTERY_RESOURCE_COMMAND, async (entry: ProjectExplorerEntry) => {
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.RegistryResourceForm, documentUri: entry.info?.path });
 		console.log('Add Registry Resource');
-		log('Added a Registry Resource');
 	});
 
 	commands.registerCommand(COMMANDS.ADD_CLASS_MEDIATOR_COMMAND, async (entry: ProjectExplorerEntry) => {
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.ClassMediatorForm, documentUri: entry.info?.path });
 		console.log('Add Class Mediator');
-		log('Added a Class Mediator');
 	});
 
 	commands.registerCommand(COMMANDS.ADD_MESSAGE_PROCESSOR_COMMAND, (entry: ProjectExplorerEntry) => {
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.MessageProcessorForm, documentUri: entry.info?.path });
 		console.log('Add Message Processor');
-		log('Added a Message Processor');
 	});
 
 	commands.registerCommand(COMMANDS.ADD_PROXY_SERVICE_COMMAND, (entry: ProjectExplorerEntry) => {
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.ProxyServiceForm, documentUri: entry.info?.path });
 		console.log('Add Proxy Service');
-		log('Added a Proxy Service');
 	});
 
 	commands.registerCommand(COMMANDS.ADD_TASK_COMMAND, (entry: ProjectExplorerEntry) => {
@@ -155,31 +146,26 @@ export async function activateProjectExplorer(context: ExtensionContext) {
 	commands.registerCommand(COMMANDS.ADD_MESSAGE_STORE_COMMAND, (entry: ProjectExplorerEntry) => {
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.MessageStoreForm, documentUri: entry.info?.path });
 		console.log('Add Message Store');
-		log('Added a Message Store');
 	});
 
 	commands.registerCommand(COMMANDS.ADD_TEMPLATE_COMMAND, (entry: ProjectExplorerEntry) => {
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.TemplateForm, documentUri: entry.info?.path });
 		console.log('Add Template');
-		log('Added a Template');
 	});
 
 	commands.registerCommand(COMMANDS.IMPORT_PROJECT_COMMAND, () => {
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.ImportProjectForm });
 		console.log('Import a Project');
-		log('Imported Project');
 	});
 
 	commands.registerCommand(COMMANDS.ADD_LOCAL_ENTRY_COMMAND, (entry: ProjectExplorerEntry) => {
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.LocalEntryForm, documentUri: entry.info?.path });
 		console.log('Add Local Entry');
-		log('Added a Local Entry');
 	});
 
 	commands.registerCommand(COMMANDS.ADD_DATA_SOURCE_COMMAND, (entry: ProjectExplorerEntry) => {
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.DataSourceForm, documentUri: entry.info?.path });
 		console.log('Add Data Source');
-		log('Added a Data Source');
 	});
 
 	commands.registerCommand(COMMANDS.REVEAL_ITEM_COMMAND, async (viewLocation: VisualizerLocation) => {
