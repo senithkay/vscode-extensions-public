@@ -55,9 +55,9 @@ function generateParammanagerCondition(enableCondition: any[], keys: string[]) {
 
 const getIndexByKeyName = (key: string, elements: any[]) => {
     const index = elements.findIndex((element: any) => element?.value?.name === key);
-    if (index === -1 && key !== '{row.number}') {
-        throw new Error(`Key ${key} not found in elements`);
-    }
+    // if (index === -1 && key !== '{row.number}') {
+    //     throw new Error(`Key ${key} not found in elements`);
+    // }
     return index;
 }
 
@@ -141,6 +141,125 @@ const getDefaultValue = (defaultValue: string) => {
     }
 }
 
+const getParamManagerConfig = (elements: any[], tableKey: number, tableValue: number, name: string) => {
+    let paramValues = '';
+    let paramFields = '';
+
+    paramValues +=
+        fixIndentation(`sidePanelContext?.formValues?.${name} && sidePanelContext?.formValues?.${name}.map((property: string|ExpressionFieldValue[], index: string) => (
+            {
+                id: index,
+                key: ${tableKey === -1 ? "index" : `typeof property[${tableKey}] === 'object' ? property[${tableKey}].value : property[${tableKey}]`},
+                value:  ${tableValue === -1 ? "index" : `typeof property[${tableValue}] === 'object' ? property[${tableValue}].value : property[${tableValue}]`},
+                icon: 'query',
+                paramValues: [`, 12);
+
+    const tableKeys: string[] = [];
+    elements.forEach((attribute: any, index: number) => {
+        const { name, displayName, enableCondition, inputType, required, comboValues, validation, validationRegEx } = attribute.value;
+        let defaultValue: any = getDefaultValue(attribute.value.defaultValue);
+        defaultValue = typeof defaultValue === 'string' ? defaultValue.replaceAll("\"", "") : defaultValue;
+
+        tableKeys.push(name);
+        const isRequired = required == 'true';
+
+        let type;
+        if (attribute.type === 'table') {
+            type = 'ParamManager';
+        } else if (inputType === 'string' || inputType === 'registry' || inputType === 'expression') {
+            type = 'TextField';
+        } else if (inputType === 'stringOrExpression') {
+            type = 'ExprField';
+            defaultValue = { isExpression: false, value: defaultValue };
+        } else if (inputType === 'connection' || inputType === 'comboOrExpression' || inputType === 'combo') {
+            type = 'Dropdown';
+        } else if (inputType === 'checkbox') {
+            type = "Checkbox";
+            if (!defaultValue) {
+                defaultValue = false;
+            }
+        }
+
+        const paramField =
+            fixIndentation(`
+                        ${JSON.stringify({
+                type: type,
+                label: displayName,
+                defaultValue: defaultValue,
+                isRequired: isRequired,
+                ...(type === 'ExprField') && { canChange: inputType === 'stringOrExpression' },
+                ...(type === 'Dropdown') && { values: comboValues.map((value: string) => `${value}`), },
+                ...(enableCondition) && { enableCondition: generateParammanagerCondition(enableCondition, tableKeys) },
+            }, null, "\t")},`, 8);
+
+        if (type === 'ExprField') {
+            paramFields += paramField.slice(0, -3) + `, 
+                openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
+                    sidePanelContext.setSidePanelState({
+                        ...sidePanelContext,
+                        expressionEditor: {
+                            isOpen: true,
+                            value,
+                            setValue
+                        }
+                    });
+                }` + paramField.slice(-2);
+
+        } else if (attribute.type === 'table') {
+            const { paramValues: paramValues2, paramFields: paramFields2 } = getParamManagerConfig(attribute.value.elements, tableKey, tableValue, name);
+            paramFields += paramField.slice(0, -3) + `, 
+                "paramManager": {
+                    paramConfigs: {
+                        paramValues: ${paramValues2}
+                        paramFields: [${paramFields2}
+                        ]
+                    },
+                    openInDrawer: true,
+                    addParamText: "New ${displayName}"
+                },    
+                ` + paramField.slice(-2);
+        } else {
+            paramFields += paramField;
+        }
+
+        paramValues +=
+            fixIndentation(`
+                { value: property[${index}] },`, 8);
+    })
+    paramValues +=
+        fixIndentation(`
+                    ]
+                }
+            )) || [] as string[][],`, 8);
+
+    return { paramValues, paramFields };
+}
+
+const getParamManagerOnChange = (varName: string, elements: any[], tableKey: string, tableValue: string) => {
+    const tableKeyIndex = getIndexByKeyName(tableKey, elements);
+    const tableValueIndex = getIndexByKeyName(tableValue, elements);
+    const isValueTypeTable = tableValueIndex !== -1 && elements[tableValueIndex].type === 'table';
+    let onChange = `${varName}.paramValues = ${varName}.paramValues.map((param: any, index: number) => {
+        const paramValues: ParamValue[] = param.paramValues;
+        param.key = ${tableKeyIndex !== -1 ? `paramValues[${tableKeyIndex}].value` : "index"};
+        param.value = ${tableValueIndex !== -1 ? isValueTypeTable ? `generateSpaceSeperatedStringFromParamValues(paramValues[${tableValueIndex}].value as ParamConfig)` : `paramValues[${tableValueIndex}].value` : "''"};
+        param.icon = 'query';` ;
+
+    elements.forEach((attribute: any, index: number) => {
+        if (attribute.type === 'table') {
+            const { elements, tableKey, tableValue } = attribute.value;
+            onChange += `
+
+            ${getParamManagerOnChange(`(paramValues[${index}].value as ParamConfig)`, elements, tableKey, tableValue)}
+            `;
+        }
+    });
+    onChange += `
+        return param;
+        });`;
+    return onChange;
+}
+
 const generateForm = (jsonData: any): string => {
     const operationName = jsonData.name;
     const description = jsonData.help;
@@ -187,12 +306,7 @@ const generateForm = (jsonData: any): string => {
                             rules={${rules}}` : ""}
                             render={({ field }) => (`, indentation);
                 indentation += 4;
-                if (inputType === 'string' || inputType === 'registry' || inputType === 'editableCombo') {
-
-                    fields +=
-                        fixIndentation(`
-                        <TextField {...field} label="${displayName}" size={50} placeholder="${helpTip}" />`, indentation);
-                } else if (inputType === 'textArea') {
+                if (inputType === 'textArea') {
 
                     fields +=
                         fixIndentation(`
@@ -274,6 +388,11 @@ const generateForm = (jsonData: any): string => {
                         />`;
                     fields +=
                         fixIndentation(comboStr, indentation);
+                } else {
+
+                    fields +=
+                        fixIndentation(`
+                        <TextField {...field} label="${displayName}" size={50} placeholder="${helpTip}" />`, indentation);
                 }
 
                 defaultValues +=
@@ -328,80 +447,7 @@ const generateForm = (jsonData: any): string => {
                 const tableKey = getIndexByKeyName(value.tableKey, elements);
                 const tableValue = getIndexByKeyName(value.tableValue, elements);
 
-                let paramValues = '';
-                let paramFields = '';
-
-                paramValues +=
-                    fixIndentation(`sidePanelContext?.formValues?.${inputName} && sidePanelContext?.formValues?.${inputName}.map((property: string|ExpressionFieldValue[], index: string) => (
-                        {
-                            id: index,
-                            key: ${tableKey === -1 ? "index" : `typeof property[${tableKey}] === 'object' ? property[${tableKey}].value : property[${tableKey}]`},
-                            value: typeof property[${tableValue}] === 'object' ? property[${tableValue}].value : property[${tableValue}],
-                            icon: 'query',
-                            paramValues: [`, 24);
-
-                const tableKeys: string[] = [];
-                elements.forEach((attribute: any, index: number) => {
-                    const { name, displayName, enableCondition, inputType, required, comboValues, validation, validationRegEx } = attribute.value;
-                    let defaultValue: any = getDefaultValue(attribute.value.defaultValue);
-                    defaultValue = typeof defaultValue === 'string' ? defaultValue.replaceAll("\"", "") : defaultValue;
-
-                    tableKeys.push(name);
-                    const isRequired = required == 'true';
-
-                    let type;
-                    if (inputType === 'string' || inputType === 'registry' || inputType === 'expression') {
-                        type = 'TextField';
-                    } else if (inputType === 'stringOrExpression') {
-                        type = 'ExprField';
-                        defaultValue = { isExpression: false, value: defaultValue };
-                    } else if (inputType === 'connection' || inputType === 'comboOrExpression' || inputType === 'combo') {
-                        type = 'Dropdown';
-                    } else if (inputType === 'checkbox') {
-                        type = "Checkbox";
-                        if (!defaultValue) {
-                            defaultValue = false;
-                        }
-                    }
-
-                    const paramField =
-                        fixIndentation(`
-                        ${JSON.stringify({
-                            type: type,
-                            label: displayName,
-                            defaultValue: defaultValue,
-                            isRequired: isRequired,
-                            ...(type === 'ExprField') && { canChange: inputType === 'stringOrExpression' },
-                            ...(type === 'Dropdown') && { values: comboValues.map((value: string) => `${value}`), },
-                            ...(enableCondition) && { enableCondition: generateParammanagerCondition(enableCondition, tableKeys) },
-                        }, null, "\t")},`, 8);
-
-                    if (type === 'ExprField') {
-                        paramFields += paramField.slice(0, -3) + `, 
-                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                            sidePanelContext.setSidePanelState({
-                                ...sidePanelContext,
-                                expressionEditor: {
-                                    isOpen: true,
-                                    value,
-                                    setValue
-                                }
-                            });
-                        }` + paramField.slice(-2);
-
-                    } else {
-                        paramFields += paramField;
-                    }
-
-                    paramValues +=
-                        fixIndentation(`
-                        { value: property[${index}] },`, 8);
-                })
-                paramValues +=
-                    fixIndentation(`
-                            ]
-                        }
-                    )) || [] as string[][],`, 8);
+                const { paramValues, paramFields } = getParamManagerConfig(elements, tableKey, tableValue, inputName);
 
                 defaultValues += fixIndentation(`
                     ${inputName}: {
@@ -422,16 +468,7 @@ const generateForm = (jsonData: any): string => {
                                 paramConfigs={value}
                                 readonly={false}
                                 onChange= {(values) => {
-                                    values.paramValues = values.paramValues.map((param: any, index: number) => {
-                                        const paramValues = param.paramValues;
-                                        param.key = ${tableKey === -1 ? "index" : `paramValues[${tableKey}].${getValueString(elements[tableKey])}`};
-                                        param.value = paramValues[${tableValue}].${getValueString(elements[tableValue])};
-                                        if (paramValues[1]?.value?.isExpression) {
-                                            param.namespaces = paramValues[1].value.namespaces;
-                                        }
-                                        param.icon = 'query';
-                                        return param;
-                                    });
+                                    ${getParamManagerOnChange("values", elements, value.tableKey, value.tableValue)}
                                     onChange(values);
                                 }}
                             />
@@ -458,7 +495,7 @@ const generateForm = (jsonData: any): string => {
         fixIndentation(
             `${LICENSE_HEADER}
 import React, { useEffect, useState } from 'react';
-import { AutoComplete, Button, Codicon, ComponentCard, FormGroup, FlexLabelContainer, Label, Link, ParamConfig, ProgressIndicator, colors, RequiredFormInput, TextField, TextArea, Tooltip, Typography } from '@wso2-enterprise/ui-toolkit';
+import { AutoComplete, Button, Codicon, ComponentCard, FormGroup, FlexLabelContainer, Label, Link, ProgressIndicator, colors, RequiredFormInput, TextField, TextArea, Tooltip, Typography } from '@wso2-enterprise/ui-toolkit';
 import { VSCodeCheckbox, VSCodeDropdown, VSCodeOption, VSCodeDataGrid, VSCodeDataGridRow, VSCodeDataGridCell } from '@vscode/webview-ui-toolkit/react';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
@@ -469,7 +506,8 @@ import { MEDIATORS } from '../../../../../resources/constants';
 import { Controller, useForm } from 'react-hook-form';
 import { Keylookup } from '../../../../Form';
 import { ExpressionField, ExpressionFieldValue } from '../../../../Form/ExpressionField/ExpressionInput';
-import { ParamManager } from '../../../../Form/ParamManager/ParamManager';
+import { ParamManager, ParamConfig, ParamValue } from '../../../../Form/ParamManager/ParamManager';
+import { generateSpaceSeperatedStringFromParamValues } from '../../../../../utils/commons';
 
 const cardStyle = { 
     display: "block", 
