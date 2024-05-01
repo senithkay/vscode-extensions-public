@@ -32,7 +32,6 @@ export function ComponentWidget(props: ComponentWidgetProps) {
 
     const displayName: string = node.component.label || node.component.id;
     const isDisabled = node.component.disabled?.status;
-    const tooltip = node.component.disabled?.reason;
 
     useEffect(() => {
         const listener = node.registerListener({
@@ -80,8 +79,6 @@ export function ComponentWidget(props: ComponentWidgetProps) {
 
     return (
         <ComponentNode
-            isSelected={node.getID() === selectedNodeId || node.isNodeSelected(selectedLink, node.getID())}
-            isFocused={node.getID() === focusedNodeId}
             onMouseOver={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
             onDoubleClick={handleOnWidgetDoubleClick}
@@ -95,7 +92,7 @@ export function ComponentWidget(props: ComponentWidgetProps) {
                 menuItems={componentMenu}
             />
             <Tooltip title={displayName} placement="bottom" enterNextDelay={500} arrow>
-                <ComponentName>{displayName}</ComponentName>
+                <ComponentName disabled={isDisabled}>{displayName}</ComponentName>
             </Tooltip>
             <PortsContainer>
                 <ComponentPortWidget port={node.getPort(`top-${node.getID()}`)} engine={engine} />
