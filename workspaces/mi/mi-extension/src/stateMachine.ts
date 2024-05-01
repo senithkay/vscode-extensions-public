@@ -323,7 +323,7 @@ const stateMachine = createMachine<MachineContext>({
         },
         openWebPanel: (context, event) => {
             // Get context values from the project storage so that we can restore the earlier state when user reopens vscode
-            return new Promise(async (resolve, reject) => {
+            return new Promise((resolve, reject) => {
                 if (!VisualizerWebview.currentPanel) {
                     VisualizerWebview.currentPanel = new VisualizerWebview(context.view!, extension.webviewReveal);
                     RPCLayer._messenger.onNotification(webviewReady, () => {
@@ -553,6 +553,11 @@ async function checkIfMiProject() {
         await extension.context.workspaceState.update('projectType', 'oldProject');
     } else {
         vscode.commands.executeCommand('setContext', 'MI.status', 'unknownProject');
+    }
+
+    if (projectUri) {
+        // Log project path
+        log(`Current workspace path: ${projectUri}`);
     }
 
     // Register Project Creation command in any of the above cases
