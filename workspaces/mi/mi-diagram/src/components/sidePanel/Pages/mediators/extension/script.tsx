@@ -19,7 +19,7 @@ import { MEDIATORS } from '../../../../../resources/constants';
 import { Controller, useForm } from 'react-hook-form';
 import { Keylookup } from '../../../../Form';
 import { ExpressionFieldValue } from '../../../../Form/ExpressionField/ExpressionInput';
-import { ParamManager } from '../../../../Form/ParamManager/ParamManager';
+import { ParamManager, ParamValue } from '../../../../Form/ParamManager/ParamManager';
 
 const cardStyle = { 
     display: "block",
@@ -57,7 +57,7 @@ const ScriptForm = (props: AddMediatorProps) => {
                     {
                         id: index,
                         key: typeof property[0] === 'object' ? property[0].value : property[0],
-                        value: typeof property[1] === 'object' ? property[1].value : property[1],
+                        value:  typeof property[1] === 'object' ? property[1].value : property[1],
                         icon: 'query',
                         paramValues: [
                             { value: property[0] },
@@ -202,12 +202,9 @@ const ScriptForm = (props: AddMediatorProps) => {
                                 readonly={false}
                                 onChange= {(values) => {
                                     values.paramValues = values.paramValues.map((param: any, index: number) => {
-                                        const paramValues = param.paramValues;
+                                        const paramValues: ParamValue[] = param.paramValues;
                                         param.key = paramValues[0].value;
                                         param.value = paramValues[1].value;
-                                        if (paramValues[1]?.value?.isExpression) {
-                                            param.namespaces = paramValues[1].value.namespaces;
-                                        }
                                         param.icon = 'query';
                                         return param;
                                     });
