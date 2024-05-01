@@ -7,14 +7,6 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-export const cloneAllComponentsCmdId = 'wso2.choreo.project.clone';
-export const cloneRepoToCurrentProjectWorkspaceCmdId = 'wso2.choreo.project.repo.clone';
-export const openProjectCmdId = 'wso2.choreo.project.open';
-export const deleteProjectCmdId = 'wso2.choreo.project.delete';
-export const choreoSignedInCtxKey = 'isSignedInToChoreo';
-export const openChoreoCellDiagram = 'wso2.choreo.cell.view';
-
-
 
 // Choreo login status
 // export const STATUS_LOGGED_IN = "LoggedIn";

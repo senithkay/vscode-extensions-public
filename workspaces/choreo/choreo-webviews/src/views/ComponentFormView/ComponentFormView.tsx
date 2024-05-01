@@ -69,13 +69,17 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({
     const repoUrl = form.watch("repoUrl");
 
     const { data: hasEndpoints } = useQuery({
-        queryKey: ["directory-has-endpoints", { directoryPath, subPath }],
+        queryKey: ["directory-has-endpoints", { directoryPath, subPath, selectedLang }],
         queryFn: async () => {
             const compPath = await ChoreoWebViewAPI.getInstance().joinFilePaths([directoryFsPath, subPath]);
             return ChoreoWebViewAPI.getInstance().readServiceEndpoints(compPath);
         },
-        select: (resp) => resp?.endpoints?.length > 0,
-        enabled: selectedType === ChoreoComponentType.Service,
+        select: (resp) =>
+            resp?.endpoints?.length > 0 ||
+            [ChoreoBuildPackNames.Ballerina, ChoreoBuildPackNames.MicroIntegrator].includes(
+                selectedLang as ChoreoBuildPackNames
+            ),
+        enabled: selectedType === ChoreoComponentType.Service && !!selectedLang,
     });
 
     const { isLoading: isLoadingBuildPacks, data: buildpacks = [] } = useQuery({
@@ -116,12 +120,11 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({
                 repoUrl,
                 orgId: organization.id.toString(),
             }),
-        refetchOnWindowFocus: false,
         enabled: !!repoUrl,
     });
 
     useEffect(() => {
-        if (branches.length > 0 && (!form.getValues("branch") || !branches.includes(form.getValues("branch")))) {
+        if (branches?.length > 0 && (!form.getValues("branch") || !branches.includes(form.getValues("branch")))) {
             if (branches.includes("main")) {
                 form.setValue("branch", "main");
             } else if (branches.includes("master")) {
@@ -219,6 +222,7 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({
                 type="file"
                 key="docker-path"
                 promptTitle="Select Dockerfile"
+                wrapClassName="col-span-full"
             />
         );
         if (selectedType === ChoreoComponentType.WebApplication) {
@@ -232,7 +236,7 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({
                 required
                 name="spaNodeVersion"
                 control={form.control}
-                placeholder="20.0.0"
+                placeholder="Eg: 18, 18.1.2"
             />
         );
         buildConfigs.push(
@@ -242,7 +246,7 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({
                 required
                 name="spaBuildCommand"
                 control={form.control}
-                placeholder="npm run build"
+                placeholder="npm run build / yarn build"
             />
         );
         buildConfigs.push(
@@ -277,7 +281,7 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({
     }
 
     const endpointConfigs: ReactNode[] = [];
-    if (selectedType === ChoreoComponentType.Service && !hasEndpoints) {
+    if (selectedType === ChoreoComponentType.Service && !!selectedLang && !hasEndpoints) {
         endpointConfigs.push(<TextField label="Port" required name="port" control={form.control} placeholder="8080" />);
         endpointConfigs.push(
             <Dropdown
@@ -366,7 +370,7 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({
                                     items={[
                                         { label: "Service", value: ChoreoComponentType.Service },
                                         { label: "Scheduled Task", value: ChoreoComponentType.ScheduledTask },
-                                        { label: "Manual Trigger", value: ChoreoComponentType.ManualTrigger },
+                                        { label: "Manual Task", value: ChoreoComponentType.ManualTrigger },
                                         { label: "Web Application", value: ChoreoComponentType.WebApplication },
                                         { label: "Webhook", value: ChoreoComponentType.Webhook },
                                     ]}
@@ -393,7 +397,9 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({
                             <div className="grid md:grid-cols-2 gap-4">
                                 <PathSelect
                                     name="subPath"
-                                    label={selectedLang === ChoreoBuildPackNames.Docker ? "Docker Context" : "Directory"}
+                                    label={
+                                        selectedLang === ChoreoBuildPackNames.Docker ? "Docker Context" : "Directory"
+                                    }
                                     required
                                     control={form.control}
                                     basePath={directoryPath}

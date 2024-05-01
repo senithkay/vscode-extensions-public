@@ -56,7 +56,7 @@ export const getFriendlyComponentType = (componentType: string): string => {
         case ChoreoComponentType.Service:
             return "Service";
         case ChoreoComponentType.ManualTrigger:
-            return "Manual Trigger"
+            return "Manual Task"
         case ChoreoComponentType.ScheduledTask:
             return "Scheduled Task"
         case ChoreoComponentType.WebApplication:

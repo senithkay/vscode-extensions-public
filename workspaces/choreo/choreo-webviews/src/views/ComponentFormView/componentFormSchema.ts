@@ -27,7 +27,7 @@ export const componentFormSchema = z.object({
     port: z.number({ coerce: true }),
     visibility: z.string(),
     spaBuildCommand: z.string(),
-    spaNodeVersion: z.string(),
+    spaNodeVersion: z.string().regex(/^(?=.*\d)\d+(\.\d+)*(?:-[a-zA-Z0-9]+)?$/,"Invalid Node version"),
     spaOutputDir: z.string(),
 });
 
@@ -73,7 +73,13 @@ export const getComponentFormSchema = (existingComponents: ComponentKind[] = [],
             ctx.addIssue({ path: ["name"], code: z.ZodIssueCode.custom, message: `Name already exists` });
         }
 
-        if (data.type === ChoreoComponentType.Service && !data.port) {
+        if (
+            data.type === ChoreoComponentType.Service &&
+            !data.port &&
+            ![ChoreoBuildPackNames.Ballerina, ChoreoBuildPackNames.MicroIntegrator].includes(
+                data.buildPackLang as ChoreoBuildPackNames
+            )
+        ) {
             const endpoints = await ChoreoWebViewAPI.getInstance().readServiceEndpoints(compPath);
             if (endpoints?.endpoints?.length === 0) {
                 ctx.addIssue({ path: ["port"], code: z.ZodIssueCode.custom, message: `Required` });
@@ -129,7 +135,7 @@ const getExpectedFiles = (buildpackType: string) => {
     const rubyBuildpackTypes = ["Gemfile", "*.rb"];
     const phpBuildpackTypes = ["composer.json", "*.php"];
     const nodejsBuildpackTypes = ["package.json", "*.js"];
-    const spaBuildpackTypes = ["package.json", "*.js"];
+    const spaBuildpackTypes = ["package.json"];
     const dotnetBuildpackTypes = ["*.csproj", "*.fsproj", "*.vbproj"];
     const ballerinaBuildpackTypes = ["Ballerina.toml"];
     const miBuildpackTypes = ["pom.xml"];

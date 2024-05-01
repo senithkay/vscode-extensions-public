@@ -28,7 +28,7 @@ export const getTimeAgo = (timestamp: string): string => {
 };
 
 export const toTitleCase = (str: string): string => {
-    return str?.toLowerCase()?.replace(/\b\w/g, (char) => char.toUpperCase());
+    return str?.replaceAll("_", " ")?.toLowerCase()?.replace(/\b\w/g, (char) => char.toUpperCase());
 };
 
 export const makeURLSafe = (input: string) => input?.trim()?.toLowerCase().replace(/\s+/g, "-");

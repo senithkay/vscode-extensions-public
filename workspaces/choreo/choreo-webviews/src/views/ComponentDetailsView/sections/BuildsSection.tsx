@@ -3,6 +3,7 @@ import {
     BuildKind,
     ChoreoComponentType,
     CommitHistory,
+    ComponentDeployment,
     ComponentKind,
     CreateBuildReq,
     CreateDeploymentReq,
@@ -10,6 +11,7 @@ import {
     Environment,
     Organization,
     Project,
+    WebviewQuickPickItem,
     WebviewQuickPickItemKind,
 } from "@wso2-enterprise/choreo-core";
 import { Button } from "../../../components/Button";
@@ -226,7 +228,7 @@ export const BuildsSection: FC<Props> = (props) => {
 
 const LoadingBuildRow = () => {
     return (
-        <div className="grid grid-cols-2 md:grid-cols-4 py-1 hover:bg-vsc-editorHoverWidget-background">
+        <div className="grid grid-cols-2 md:grid-cols-4 py-1 hover:bg-vsc-editorHoverWidget-background duration-200">
             <GridColumnItem label="Build ID" index={0}>
                 <SkeletonText className="w-20" />
             </GridColumnItem>
@@ -287,9 +289,20 @@ const BuiltItemRow: FC<Props & { item: BuildKind }> = ({
                 projectHandle: project.handler,
             };
             if (getTypeForDisplayType(component?.spec?.type) === ChoreoComponentType.ScheduledTask) {
+                const deploymentData: ComponentDeployment | undefined = queryClient.getQueryData([
+                    "get-deployment-status",
+                    {
+                        organization: organization.handle,
+                        project: project.handler,
+                        component: component.metadata.name,
+                        deploymentTrackId: deploymentTrack?.id,
+                        envId: params.env.id,
+                    },
+                ]);
                 const cronExpr = await ChoreoWebViewAPI.getInstance().showInputBox({
                     title: "Enter Cron Expression",
                     placeholder: "0 8 * * *",
+                    value: deploymentData?.cron || "",
                     regex: {
                         expression: /^((\*|\d+|\d+-\d+)(\/\d+)? ){4}(\*|\d+|\d+-\d+)(\/\d+)?$/,
                         message: "Invalid cron expression",
@@ -299,14 +312,26 @@ const BuiltItemRow: FC<Props & { item: BuildKind }> = ({
                     throw new Error("Failed to enter cron expression");
                 }
                 const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone?.toString() || "UTC";
+                const cronTzItems: WebviewQuickPickItem[] = [];
+                if (deploymentData?.cronTimezone) {
+                    cronTzItems.push(
+                        { kind: WebviewQuickPickItemKind.Separator, label: "Selected Timezone" },
+                        { label: deploymentData?.cronTimezone, alwaysShow: true, picked: true }
+                    );
+                } else {
+                    cronTzItems.push(
+                        { kind: WebviewQuickPickItemKind.Separator, label: "My Timezone" },
+                        { label: userTimeZone, alwaysShow: true, picked: true }
+                    );
+                }
+                cronTzItems.push(
+                    { kind: WebviewQuickPickItemKind.Separator, label: "Other Timezones" },
+                    ...listTimeZones().map((label) => ({ label }))
+                );
+
                 const cronTz = await ChoreoWebViewAPI.getInstance().showQuickPicks({
                     title: "Select Timezone",
-                    items: [
-                        { kind: WebviewQuickPickItemKind.Separator, label: "My Timezone" },
-                        { label: userTimeZone, alwaysShow: true, picked: true },
-                        { kind: WebviewQuickPickItemKind.Separator, label: "Other Timezones" },
-                        ...listTimeZones().map((label) => ({ label })),
-                    ],
+                    items: cronTzItems,
                 });
                 if (!cronTz) {
                     throw new Error("Failed to select timezone");
@@ -342,7 +367,7 @@ const BuiltItemRow: FC<Props & { item: BuildKind }> = ({
             });
 
             ChoreoWebViewAPI.getInstance().showInfoMsg(
-                `Deployment for ${params.env?.name} has been successfully triggered`
+                `Deployment of component ${component.metadata.displayName} for the ${params.env?.name} environment has been successfully triggered`
             );
         },
     });
@@ -375,7 +400,7 @@ const BuiltItemRow: FC<Props & { item: BuildKind }> = ({
     }
 
     return (
-        <div className="grid grid-cols-2 md:grid-cols-4 py-1 hover:bg-vsc-editorHoverWidget-background">
+        <div className="grid grid-cols-2 md:grid-cols-4 py-1 hover:bg-vsc-editorHoverWidget-background duration-200">
             <GridColumnItem label="Build ID" index={0}>
                 {item.status?.runId || "-"}
             </GridColumnItem>

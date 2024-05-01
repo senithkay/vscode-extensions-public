@@ -259,7 +259,7 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
     });
     const _getGithubUrlState = async (orgId: string):Promise<string> => {
         const callbackUrl = await env.asExternalUri(Uri.parse(`${env.uriScheme}://wso2.choreo/ghapp`));
-        const state = { origin: "vscode.choreo.ext", callbackUri: callbackUrl.toString(), orgId};
+        const state = { origin: "vscode.choreo.ext", orgId, callbackUri: callbackUrl.toString()};
         return Buffer.from(JSON.stringify(state), 'binary').toString('base64');
     };
     messenger.onRequest(TriggerGithubAuthFlow, async (orgId: string) => {

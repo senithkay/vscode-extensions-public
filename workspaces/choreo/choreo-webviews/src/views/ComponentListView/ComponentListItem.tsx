@@ -25,7 +25,7 @@ export const ComponentListItem: FC<Props> = ({ item, isListLoading, opened }) =>
     return (
         <div
             className={classNames({
-                "flex duration-100": true,
+                "flex duration-200": true,
                 "cursor-pointer hover:bg-vsc-list-hoverBackground": isItemEnriched && !opened,
                 "animate-pulse cursor-progress": !isItemEnriched && isListLoading,
                 "cursor-pointer bg-vsc-list-dropBackground": opened,

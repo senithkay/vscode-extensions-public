@@ -111,6 +111,7 @@ export interface ShowWebviewQuickPickItemsReq {
 
 export interface ShowWebviewInputBoxReq {
    title: string;
+   value?: string;
    placeholder?: string;
    regex?:{expression: RegExp; message: string};
 }
