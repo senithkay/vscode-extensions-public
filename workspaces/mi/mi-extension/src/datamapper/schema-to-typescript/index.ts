@@ -1,22 +1,30 @@
-import {readFileSync} from 'fs'
-import {JSONSchema4} from 'json-schema'
-import {ParserOptions as $RefOptions} from '@apidevtools/json-schema-ref-parser'
-import {cloneDeep, endsWith, merge} from 'lodash'
-import {dirname} from 'path'
-import {Options as PrettierOptions} from 'prettier'
-import {format} from './formatter'
-import {generate} from './generator'
-import {normalize} from './normalizer'
-import {optimize} from './optimizer'
-import {parse} from './parser'
-import {dereference} from './resolver'
-import {error, stripExtension, Try } from './utils'
-import {validate} from './validator'
-import {isDeepStrictEqual} from 'util'
-import {link} from './linker'
-import {validateOptions} from './optionValidator'
-import {JSONSchema as LinkedJSONSchema} from './types/JSONSchema'
-import yaml from 'js-yaml'
+/**
+ * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
+
+import {readFileSync} from 'fs';
+import {JSONSchema4} from 'json-schema';
+import {ParserOptions as $RefOptions} from '@apidevtools/json-schema-ref-parser';
+import {cloneDeep, endsWith, merge} from 'lodash';
+import {dirname} from 'path';
+import {Options as PrettierOptions} from 'prettier';
+import {format} from './formatter';
+import {generate} from './generator';
+import {normalize} from './normalizer';
+import {optimize} from './optimizer';
+import {parse} from './parser';
+import {dereference} from './resolver';
+import {error, stripExtension, Try } from './utils';
+import {validate} from './validator';
+import {link} from './linker';
+import {validateOptions} from './optionValidator';
+import {JSONSchema as LinkedJSONSchema} from './types/JSONSchema';
+import yaml from 'js-yaml';
 
 export {EnumJSONSchema, JSONSchema, NamedEnumJSONSchema, CustomTypeJSONSchema} from './types/JSONSchema'
 
