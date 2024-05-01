@@ -137,7 +137,7 @@ export const submitCreateComponentHandler = async ({
     const cleanCompName = makeURLSafe(createParams.name);
     await window.withProgress(
         {
-            title: `Creating new component ${createParams.name}...`,
+            title: `Creating new component ${createParams.displayName}...`,
             location: ProgressLocation.Notification,
         },
         () => ext.clients.rpcClient.createComponent(createParams)
