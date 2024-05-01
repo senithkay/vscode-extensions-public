@@ -39,9 +39,9 @@ export function CellDiagram(props: CellDiagramProps) {
             {isSafari ? (
                 <PromptScreen userMessage={"This browser is not supported. Please use a different browser."} />
             ) : organization ? (
-                <OrgDiagram organization={organization} />
+                <OrgDiagram organization={organization} {...props} />
             ) : project ? (
-                <ProjectDiagram project={project} />
+                <ProjectDiagram project={project} {...props} />
             ) : (
                 <PromptScreen userMessage={"Organization or Project model not provided."} />
             )}
