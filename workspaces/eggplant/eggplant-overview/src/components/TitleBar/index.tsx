@@ -13,7 +13,7 @@ import { VSCodeButton, VSCodeDivider } from "@vscode/webview-ui-toolkit/react";
 import { useVisualizerContext } from '@wso2-enterprise/eggplant-rpc-client';
 
 export function TitleBar(props: { clearSelection: () => void }) {
-    const { eggplantRpcClient } = useVisualizerContext();
+    const { rpcClient } = useVisualizerContext();
 
     const TitleBar = styled.div({
         width: "100%",
@@ -27,7 +27,7 @@ export function TitleBar(props: { clearSelection: () => void }) {
     });
 
     const handleDiagramView = () => {
-        eggplantRpcClient.getWebviewRpcClient().executeCommand({ command: "OPEN_LOW_CODE" });
+        rpcClient.getVisualizerRpcClient().executeCommand({ command: "OPEN_LOW_CODE" });
     }
 
     const handleHomeView = () => {

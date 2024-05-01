@@ -11,7 +11,7 @@ import { normalize } from "path";
 import { Position, Range, Uri, WorkspaceEdit, workspace } from "vscode";
 import { URI } from "vscode-uri";
 import { writeFileSync } from "fs";
-import { StateMachine } from "../stateMachine";
+import { StateMachine, undoRedoManager } from "../stateMachine";
 
 interface UpdateFileContentRequest {
     fileUri: string;
@@ -31,6 +31,7 @@ export async function updateFileContent(params: UpdateFileContentRequest): Promi
     const langClient = StateMachine.langClient();
     const normalizedFilePath = normalize(fileUri);
     const doc = workspace.textDocuments.find((doc) => normalize(doc.fileName) === normalizedFilePath);
+    undoRedoManager.addModification(content);
     if (doc) {
         const edit = new WorkspaceEdit();
         edit.replace(URI.file(normalizedFilePath), new Range(new Position(0, 0), doc.lineAt(doc.lineCount - 1).range.end), content);

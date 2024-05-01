@@ -6,34 +6,38 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import React, { ReactNode } from 'react';
+import React, { ComponentProps, ReactNode, useEffect, useRef } from 'react';
 import { VSCodeTextField } from "@vscode/webview-ui-toolkit/react";
 import { ErrorBanner } from "../Commons/ErrorBanner";
 import { RequiredFormInput } from "../Commons/RequiredInput";
-import styled from '@emotion/styled';
+import styled from "@emotion/styled";
+import { Typography } from "../Typography/Typography";
 
 interface IconProps {
     iconComponent: ReactNode;
     position?: "start" | "end";
+    onClick?: () => void;
 }
 
-export interface TextFieldProps {
-    value: string;
+interface InputProps {
+    startAdornment?: string | ReactNode;
+    endAdornment?: string | ReactNode;
+}
+
+export interface TextFieldProps extends ComponentProps<"input"> {
     label?: string;
     id?: string;
     autoFocus?: boolean;
     icon?: IconProps;
     size?: number;
-    type?: "email" | "password" | "tel" | "text" | "url";
-    disabled?: boolean;
     readonly?: boolean;
     required?: boolean;
     errorMsg?: string;
-    placeholder?: string;
+    description?: string | ReactNode;
     validationMessage?: string;
     sx?: any;
-    onChange?: (e: string) => void;
-    onBlur?: (e: string) => void;
+    onTextChange?: (text: string) => void;
+    InputProps?: InputProps;
 }
 
 interface ContainerProps {
@@ -50,17 +54,57 @@ const LabelContainer = styled.div<ContainerProps>`
     margin-bottom: 4px;
 `;
 
-export function TextField(props: TextFieldProps) {
-    const { label, type = "text", size = 20, disabled, icon, readonly, value = "", id, autoFocus, required, onChange,
-        onBlur, placeholder, validationMessage, errorMsg, sx
+const Description = styled.div<ContainerProps>`
+    color: var(--vscode-list-deemphasizedForeground);
+    margin-bottom: 4px;
+    text-align: left;
+`;
+
+export const TextField = React.forwardRef<HTMLInputElement, TextFieldProps>((props, ref) => {
+    const { label, type = "text", size = 20, disabled, icon, readonly, id, autoFocus, required,
+        placeholder, description, validationMessage, errorMsg, sx, InputProps, onTextChange, ...rest
     } = props;
-    const { iconComponent, position = "start" } = icon || {};
+
+    const [, setIsFocused] = React.useState(false);
+    const textFieldRef = useRef<HTMLInputElement | null>(null);
+    // Assign the forwarded ref to the textFieldRef
+    React.useImperativeHandle(ref, () => textFieldRef.current);
+
+    const { iconComponent, position = "start", onClick: iconClick } = icon || {};
     const handleChange = (e: any) => {
-        onChange && onChange(e.target.value);
-    }
+        onTextChange && onTextChange(e.target.value);
+        props.onChange && props.onChange(e);
+    };
+
+    const startAdornment = InputProps?.startAdornment ? (
+        typeof InputProps.startAdornment === "string" ? (
+            <Typography variant="body1">{InputProps.startAdornment}</Typography>
+        ) : (
+            InputProps.startAdornment
+        )
+    ) : undefined;
+
+    const endAdornment = InputProps?.endAdornment ? (
+        typeof InputProps.endAdornment === "string" ? (
+            <Typography variant="body1">{InputProps.endAdornment}</Typography>
+        ) : (
+            InputProps.endAdornment
+        )
+    ) : undefined;
+
+    useEffect(() => {
+        if (autoFocus && textFieldRef.current && !props.value) {
+            setIsFocused(true);
+            textFieldRef.current?.focus()
+        }
+    }, [autoFocus, props.value]);
+
     return (
         <Container sx={sx}>
+            {startAdornment && startAdornment}
             <VSCodeTextField
+                ref={textFieldRef}
+                style={{ width: "100%" }}
                 autoFocus={autoFocus}
                 type={type}
                 size={size}
@@ -68,22 +112,31 @@ export function TextField(props: TextFieldProps) {
                 readonly={readonly}
                 validationMessage={validationMessage}
                 placeholder={placeholder}
-                onInput={handleChange}
-                onBlur={onBlur}
-                value={value}
                 id={id}
+                {...rest}
+                { ...!props.name ? { value: props.value ? props.value : ""} : {} } // If name is not provided, then value should be empty (for react-hook-form)
+                onChange={handleChange}
+                onInput={handleChange}
+                value={props.value || ""}
             >
-                {iconComponent && (<span slot={position}>{iconComponent}</span>)}
+                {iconComponent && <span onClick={iconClick} slot={position}>{iconComponent}</span>}
                 <LabelContainer>
-                    <div style={{color: "var(--vscode-editor-foreground	)"}}> 
-                        <label htmlFor={`${id}-label`}>{label}</label> 
+                    <div style={{color: "var(--vscode-editor-foreground	)"}}>
+                        <label htmlFor={`${id}-label`}>{label}</label>
                     </div>
                     {(required && label) && (<RequiredFormInput />)}
                 </LabelContainer>
+                {description && (
+                    <Description>
+                        {description}
+                    </Description>
+                )}
             </VSCodeTextField>
             {errorMsg && (
                 <ErrorBanner errorMsg={errorMsg} />
             )}
+            {endAdornment && endAdornment}
         </Container>
     );
-}
+});
+TextField.displayName = "TextField";

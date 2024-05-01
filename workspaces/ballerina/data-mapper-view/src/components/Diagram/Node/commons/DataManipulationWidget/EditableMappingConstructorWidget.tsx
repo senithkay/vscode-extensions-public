@@ -9,7 +9,6 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useMemo, useState } from 'react';
 
-import { css } from '@emotion/css';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { AnydataType, STModification, TypeField } from "@wso2-enterprise/ballerina-core";
 import { NodePosition, STKindChecker, STNode } from '@wso2-enterprise/syntax-tree';
@@ -41,72 +40,8 @@ import { EditableRecordFieldWidget } from "./EditableRecordFieldWidget";
 import { ValueConfigMenu } from "./ValueConfigButton";
 import { ValueConfigMenuItem } from "./ValueConfigButton/ValueConfigMenuItem";
 import { Button, Codicon, ProgressRing } from '@wso2-enterprise/ui-toolkit';
+import { useIONodesStyles } from '../../../../styles';
 
-const useStyles = () => ({
-	root: css({
-		flexGrow: 1,
-		width: 400,
-		color: "var(--vscode-input-background)",
-		position: "relative",
-		backgroundColor: "var(--vscode-input-background)",
-		padding: "20px"
-	}),
-	header: css({
-		color: "black",
-		backgroundColor: "var(--vscode-editor-inactiveSelectionBackground)",
-		display: "flex",
-		height: "40px",
-		padding: "8px"
-	}),
-	typeLabel: css({
-		marginLeft: "3px",
-		padding: "5px",
-		color: "inherit",
-		fontWeight: 400,
-		fontSize: "13px",
-		minWidth: "100px",
-		marginRight: "24px"
-	}),
-	boldedTypeLabel: css({
-		fontWeight: 800,
-		fontSize: "14px",
-	}),
-	valueLabel: css({
-		padding: "5px",
-		color: "inherit",
-		fontSize: "13px",
-	}),
-	treeLabelInPort: css({
-		float: "left",
-		marginRight: "5px",
-		width: 'fit-content',
-		display: "flex",
-		alignItems: "center"
-	}),
-	label: css({
-		width: "300px",
-		whiteSpace: "nowrap",
-		overflow: "hidden",
-		display: "flex",
-		alignItems: "center",
-		textOverflow: "ellipsis",
-		"&:hover": {
-			overflow: "visible"
-		}
-	}),
-	expandIcon: css({
-		color: "var(--vscode-inputOption-activeForeground)",
-		height: "25px",
-		width: "25px",
-		marginLeft: "auto"
-	}),
-	loader: css({
-		float: "right",
-		marginLeft: "auto",
-		marginRight: '3px',
-		alignSelf: 'center'
-	})
-});
 export interface EditableMappingConstructorWidgetProps {
 	id: string; // this will be the root ID used to prepend for UUIDs of nested fields
 	editableRecordField: EditableRecordField;
@@ -138,7 +73,7 @@ export function EditableMappingConstructorWidget(props: EditableMappingConstruct
 		originalTypeName,
 		unionTypeInfo
 	} = props;
-	const classes = useStyles();
+	const classes = useIONodesStyles();
 
 	const [portState, setPortState] = useState<PortState>(PortState.Unselected);
 	const [isHovered, setIsHovered] = useState(false);
@@ -189,7 +124,7 @@ export function EditableMappingConstructorWidget(props: EditableMappingConstruct
 					{typeName && ":"}
 				</span>
 			)}
-			<span className={classes.typeLabel}>
+			<span className={classes.outputTypeLabel}>
 				{unionTypeInfo ? getUnionType() : typeName || ''}
 			</span>
 		</span>
@@ -349,7 +284,7 @@ export function EditableMappingConstructorWidget(props: EditableMappingConstruct
 					onMouseEnter={onMouseEnter}
 					onMouseLeave={onMouseLeave}
 				>
-					<span className={classes.treeLabelInPort}>
+					<span className={classes.inPort}>
 						{portIn && (isBodyMappingConstructor || !hasSyntaxDiagnostics) && (!hasValue
 								|| !expanded
 								|| !isBodyMappingConstructor

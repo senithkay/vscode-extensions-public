@@ -15,8 +15,8 @@ import { extension } from '../BalExtensionContext';
 export function activateSubscriptions() {
     const context = extension.context;
     context.subscriptions.push(
-        vscode.commands.registerCommand(PALETTE_COMMANDS.SHOW_VISUALIZER, (path, position) => {
-            openView("OPEN_VIEW", { documentUri: path || vscode.window.activeTextEditor.document.uri.fsPath, position: position });
+        vscode.commands.registerCommand(PALETTE_COMMANDS.SHOW_VISUALIZER, (path: vscode.Uri, position) => {
+            openView("OPEN_VIEW", { documentUri: path.fsPath || vscode.window.activeTextEditor.document.uri.fsPath, position: position });
         })
     );
     context.subscriptions.push(

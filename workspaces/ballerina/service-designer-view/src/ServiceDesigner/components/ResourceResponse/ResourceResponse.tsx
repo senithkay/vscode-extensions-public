@@ -17,7 +17,7 @@ import { ResponseEditor } from './ResponseEditor';
 import { HTTP_METHOD, getDefaultResponse, getResponseRecordCode, getResponseRecordDefCode, getSourceFromResponseCode } from '../../utils/utils';
 import { ResponseConfig } from '@wso2-enterprise/service-designer';
 import { NodePosition } from '@wso2-enterprise/syntax-tree';
-import { CommonRPCAPI } from '@wso2-enterprise/ballerina-core';
+import { CommonRPCAPI, STModification } from '@wso2-enterprise/ballerina-core';
 
 export interface ResourceParamProps {
     method: HTTP_METHOD;
@@ -28,6 +28,7 @@ export interface ResourceParamProps {
     serviceEndPosition?: NodePosition;
     commonRpcClient?: CommonRPCAPI;
     readonly?: boolean;
+    applyModifications?: (modifications: STModification[]) => Promise<void>;
 }
 
 const AddButtonWrapper = styled.div`
@@ -35,7 +36,7 @@ const AddButtonWrapper = styled.div`
 `;
 
 export function ResourceResponse(props: ResourceParamProps) {
-    const { method, response, isBallerniaExt, readonly, onChange, addNameRecord, serviceEndPosition, commonRpcClient } = props;
+    const { method, response, isBallerniaExt, readonly, onChange, addNameRecord, serviceEndPosition, commonRpcClient, applyModifications } = props;
     const [editingSegmentId, setEditingSegmentId] = useState<number>(-1);
     const [isNew, setIsNew] = useState(false);
 
@@ -48,7 +49,8 @@ export function ResourceResponse(props: ResourceParamProps) {
         setEditingSegmentId(updatedParameters.length);
         const newResp: ResponseConfig = {
             id: updatedParameters.length,
-            code: getDefaultResponse(method)
+            code: getDefaultResponse(method),
+            isNew: true
         };
         updatedParameters.push(newResp);
         onChange(updatedParameters);
@@ -80,7 +82,7 @@ export function ResourceResponse(props: ResourceParamProps) {
     const onSaveParam = (paramConfig: ResponseConfig, defineRecordName: string) => {
         const updatedParameters = [...response];
         let modifiedParamConfig: ResponseConfig;
-        if (paramConfig.type && (paramConfig.code !== getDefaultResponse(method))) {
+        if (paramConfig.type && (paramConfig.code !== getDefaultResponse(method)) && !paramConfig.type.includes("error")) {
             modifiedParamConfig = {
                 ...paramConfig,
                 source: getResponseRecordCode(paramConfig.code, paramConfig.type)
@@ -149,10 +151,11 @@ export function ResourceResponse(props: ResourceParamProps) {
                         serviceEndPosition={serviceEndPosition}
                         commonRpcClient={commonRpcClient}
                         isBallerniaExt={isBallerniaExt}
-                        isEdit={true}
+                        isEdit={!param.isNew}
                         onChange={onChangeParam}
                         onSave={onSaveParam}
                         onCancel={onParamEditCancel}
+                        applyModifications={applyModifications}
                     />
                 )
             } else if (editingSegmentId !== index) {

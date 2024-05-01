@@ -7,9 +7,10 @@
 * You may not alter or remove any copyright or other notice from copies of this content.
 */
 
+import { NOT_SUPPORTED_TYPE } from "../../interfaces/common";
 import { JsonToRecordRequest, JsonToRecordResponse, XMLToRecordRequest, XMLToRecordResponse } from "./interfaces";
 
 export interface RecordCreatorAPI {
-    convertJsonToRecord: (params: JsonToRecordRequest) => Promise<JsonToRecordResponse>;
-    convertXMLToRecord: (params: XMLToRecordRequest) => Promise<XMLToRecordResponse>;
+    convertJsonToRecord: (params: JsonToRecordRequest) => Promise<JsonToRecordResponse | NOT_SUPPORTED_TYPE>;
+    convertXMLToRecord: (params: XMLToRecordRequest) => Promise<XMLToRecordResponse | NOT_SUPPORTED_TYPE>;
 }

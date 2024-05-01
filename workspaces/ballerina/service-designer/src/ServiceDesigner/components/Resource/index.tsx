@@ -7,9 +7,8 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 // tslint:disable: jsx-no-multiline-js, jsx-no-lambda
+import { URI } from "vscode-uri";
 import React, { useContext, useEffect, useState } from "react";
-import { monaco } from "react-monaco-editor";
-
 import { Tooltip } from "@material-ui/core";
 import {
     BallerinaSTModifyResponse, CompletionResponse, ConfigOverlayFormStatus, CtrlClickWrapper, DiagramEditorLangClientInterface,
@@ -179,7 +178,7 @@ export function ResourceBody(props: ResourceBodyProps) {
         const record: STNode = records.get(recordName.replace(/[\[\]\?]/g, "").trim());
         if (record) {
             const request: TextDocumentPositionParams = {
-                textDocument: { uri: monaco.Uri.file(currentFile.path).toString() },
+                textDocument: { uri: URI.file(currentFile.path).toString() },
                 position: { line: record.position.startLine, character: record.position.startColumn }
             };
             return langClient.getDefinitionPosition(request);

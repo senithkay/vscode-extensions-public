@@ -7,32 +7,54 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useEffect } from "react";
-import { VisualizerLocation } from "@wso2-enterprise/ballerina-core";
+import React, { useEffect, useState } from "react";
 import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { SequenceModelResponse } from "@wso2-enterprise/ballerina-core";
+import { Diagram } from "@wso2-enterprise/sequence-diagram";
+import styled from "@emotion/styled";
+
+const Container = styled.div`
+    width: 100%;
+    height: calc(100vh - 50px);
+`;
+
+const MessageContainer = styled.div({
+    width: "100%",
+    height: "100%",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+});
 
 export function SequenceDiagram() {
     const { rpcClient } = useVisualizerContext();
-    const [visualizerLocation, setVisualizerLocation] = React.useState<VisualizerLocation>();
+
+    const [flowModel, setModel] = useState<SequenceModelResponse>(undefined);
 
     useEffect(() => {
-        if (rpcClient) {
-            rpcClient.getVisualizerLocation().then((value) => {
-                setVisualizerLocation(value);
-            });
-        }
-    }, [rpcClient]);
+        getSequenceModel();
+    }, []);
 
+    const getSequenceModel = () => {
+        rpcClient
+            .getSequenceDiagramRpcClient()
+            .getSequenceModel()
+            .then((model) => {
+                if ("participants" in model) {
+                    setModel(model as SequenceModelResponse);
+                }
+                // TODO: handle SequenceModelDiagnostic
+            });
+    };
+
+    console.log(">>> flowModel", flowModel);
 
     return (
         <>
-            <h1>Hello Sequence Diagram</h1>
-            <ul>
-                <li>{visualizerLocation?.view}</li>
-                <li>{visualizerLocation?.documentUri}</li>
-                <li>{visualizerLocation?.position?.startLine}</li>
-                <li>{visualizerLocation?.identifier}</li>
-            </ul>
+            <Container>
+                {flowModel && <Diagram model={flowModel} />}
+                {!flowModel && <MessageContainer>Loading sequence diagram ...</MessageContainer>}
+            </Container>
         </>
     );
 }

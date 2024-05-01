@@ -39,7 +39,8 @@ import {
     getSearchFilteredOutput,
     getTypeName,
     getTypeOfValue,
-    hasNoMatchFound
+    hasNoMatchFound,
+    isSelectClauseQueryExpr
 } from "../../utils/dm-utils";
 import { filterDiagnostics } from "../../utils/ls-utils";
 import { enrichAndProcessType } from "../../utils/type-utils";
@@ -47,6 +48,7 @@ import { LinkDeletingVisitor } from "../../visitors/LinkDeletingVistior";
 import { DataMapperNodeModel, TypeDescriptor } from "../commons/DataMapperNode";
 
 export const LIST_CONSTRUCTOR_NODE_TYPE = "data-mapper-node-list-constructor";
+const NODE_ID = "list-constructor-node";
 
 export class ListConstructorNode extends DataMapperNodeModel {
 
@@ -66,6 +68,7 @@ export class ListConstructorNode extends DataMapperNodeModel {
         public typeDef: TypeField,
         public queryExpr?: QueryExpression) {
         super(
+            NODE_ID,
             context,
             LIST_CONSTRUCTOR_NODE_TYPE
         );
@@ -104,9 +107,6 @@ export class ListConstructorNode extends DataMapperNodeModel {
             const parentPort = this.addPortsForHeaderField(this.typeDef, this.rootName, "IN",
                 LIST_CONSTRUCTOR_TARGET_PORT_PREFIX, this.context.collapsedFields, isSelectClause, this.recordField);
             if (valueEnrichedType.type.typeName === PrimitiveBalType.Array) {
-                if (isSelectClause) {
-                    this.recordField = valueEnrichedType.elements[0].member;
-                }
                 if (this.recordField?.elements && this.recordField.elements.length > 0) {
                     this.recordField.elements.forEach((field, index) => {
                         this.addPortsForOutputRecordField(field.member, "IN", this.rootName, index,
@@ -226,7 +226,7 @@ export class ListConstructorNode extends DataMapperNodeModel {
                 this.x = x;
                 this.y = y;
             }
-            super.setPosition(x, y || this.y);
+            super.setPosition(x, y);
         }
     }
 }

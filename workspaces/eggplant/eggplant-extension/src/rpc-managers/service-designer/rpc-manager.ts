@@ -13,7 +13,7 @@ import {
     RecordSTResponse,
     visitor as RecordsFinderVisitor,
     ServiceDesignerAPI,
-} from "@wso2-enterprise/ballerina-core";
+} from "@wso2-enterprise/eggplant-core";
 import { traversNode } from "@wso2-enterprise/syntax-tree";
 import { Uri } from "vscode";
 import { StateMachine } from "../../stateMachine";

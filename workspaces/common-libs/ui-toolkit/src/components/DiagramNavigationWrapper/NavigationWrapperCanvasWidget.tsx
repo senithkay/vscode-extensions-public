@@ -17,6 +17,10 @@ interface NavigationWrapperCanvasProps {
     diagramEngine: DiagramEngine;
     className?: string;
     focusedNode?: NodeModel;
+    disableZoom?: boolean;
+    disableMouseEvents?: boolean;
+    overflow?: string;
+    cursor?: string;
 }
 
 export function NavigationWrapperCanvasWidget(props: NavigationWrapperCanvasProps) {
@@ -32,7 +36,15 @@ export function NavigationWrapperCanvasWidget(props: NavigationWrapperCanvasProp
     }, [diagramEngine, focusedNode]);
 
     return (
-        <CustomCanvasWidget engine={diagramEngine} isNodeFocused={!!focusedNode} className={className} />
+        <CustomCanvasWidget
+            engine={diagramEngine}
+            isNodeFocused={!!focusedNode}
+            className={className}
+            disableZoom={props.disableZoom}
+            disableMouseEvents={props.disableMouseEvents}
+            overflow={props.overflow}
+            cursor={props.cursor}
+        />
     );
 }
 

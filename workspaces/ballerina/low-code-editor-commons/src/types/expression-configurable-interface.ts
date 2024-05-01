@@ -1,5 +1,4 @@
 import React from "react";
-import MonacoEditor from "react-monaco-editor";
 
 import { ExpressionInjectablesProps } from "./config-spec";
 
@@ -8,7 +7,7 @@ export interface ExpressionConfigurableProps {
     textLabel: string;
     expressionInjectables?: ExpressionInjectablesProps;
     model: any;
-    monacoRef: React.MutableRefObject<MonacoEditor>;
+    monacoRef: React.MutableRefObject<any>;
     showConfigurableView: boolean;
     setShowConfigurableView: (visible: boolean) => void;
 }

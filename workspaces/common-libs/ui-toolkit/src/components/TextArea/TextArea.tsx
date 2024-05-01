@@ -6,14 +6,13 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import React from 'react';
+import React, { ComponentProps } from 'react';
 import { VSCodeTextArea } from "@vscode/webview-ui-toolkit/react";
 import { ErrorBanner } from "../Commons/ErrorBanner";
 import { RequiredFormInput } from "../Commons/RequiredInput";
 import styled from '@emotion/styled';
 
-export interface TextAreaProps {
-    value: string;
+export interface TextAreaProps extends ComponentProps<"textarea"> {
     label?: string;
     id?: string;
     className?: string;
@@ -23,12 +22,10 @@ export interface TextAreaProps {
     placeholder?: string;
     cols?: number;
     rows?: number;
-    disabled?: boolean;
-    readonly?: boolean;
     resize?: string;
     validationMessage?: string;
     sx?: any;
-    onChange?: (e: string) => void;
+    onTextChange?: (text: string) => void;
 }
 
 interface ContainerProps {
@@ -45,36 +42,38 @@ const LabelContainer = styled.div<ContainerProps>`
     margin-bottom: 4px;
 `;
 
-export function TextArea(props: TextAreaProps) {
-    const { label, value, id, className, autoFocus, required, onChange, placeholder, validationMessage, cols = 40, 
-        rows, disabled, resize, readonly, errorMsg, sx
-    } = props;
-    const handleChange = (e: any) => {
-        onChange && onChange(e.target.value);
+export const TextArea = React.forwardRef<HTMLTextAreaElement, TextAreaProps>(
+    function TextArea(props: TextAreaProps, ref: React.ForwardedRef<HTMLTextAreaElement>) {
+        const { label, id, className, autoFocus, required, validationMessage, cols = 40, 
+            rows, resize, errorMsg, sx, onTextChange, ...rest
+        } = props;
+        const handleChange = (e: any) => {
+            onTextChange && onTextChange(e.target.value);
+            props.onChange && props.onChange(e);
+        };
+        return (
+            <Container sx={sx}>
+                <VSCodeTextArea
+                    ref={ref}
+                    autoFocus={autoFocus}
+                    validationMessage={validationMessage}
+                    cols={cols}
+                    rows={rows}
+                    resize={resize}
+                    id={id}
+                    className={className}
+                    {...rest}
+                    onChange={handleChange}
+                    onInput={(e: any) => { onTextChange && onTextChange(e.target.value) }}
+                >
+                    <LabelContainer><div style={{color: "var(--vscode-editor-foreground)"}}>
+                        <label htmlFor={`${id}-label`}>{label}</label></div> {(required && label) && (<RequiredFormInput />)}
+                    </LabelContainer>
+                </VSCodeTextArea>
+                {errorMsg && (
+                    <ErrorBanner errorMsg={errorMsg} />
+                )}
+            </Container>
+        );
     }
-    return (
-        <Container sx={sx}>
-            <VSCodeTextArea
-                autoFocus={autoFocus}
-                validationMessage={validationMessage}
-                placeholder={placeholder}
-                onInput={handleChange}
-                value={value}
-                cols={cols}
-                rows={rows}
-                disabled={disabled}
-                readOnly={readonly}
-                resize={resize}
-                id={id}
-                className={className}
-            >
-                <LabelContainer><div style={{color: "var(--vscode-editor-foreground)"}}>
-                    <label htmlFor={`${id}-label`}>{label}</label></div> {(required && label) && (<RequiredFormInput />)}
-                </LabelContainer>
-            </VSCodeTextArea>
-            {errorMsg && (
-                <ErrorBanner errorMsg={errorMsg} />
-            )}
-        </Container>
-    );
-}
+);

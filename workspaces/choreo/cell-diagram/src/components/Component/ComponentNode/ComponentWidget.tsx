@@ -17,6 +17,7 @@ import { DiagramContext } from "../../DiagramContext/DiagramContext";
 import { ComponentPortWidget } from "../ComponentPort/ComponentPortWidget";
 import { Tooltip } from "@mui/material";
 
+
 interface ComponentWidgetProps {
     node: ComponentModel;
     engine: DiagramEngine;
@@ -30,6 +31,8 @@ export function ComponentWidget(props: ComponentWidgetProps) {
     const headPorts = useRef<PortModel[]>([]);
 
     const displayName: string = node.component.label || node.component.id;
+    const isDisabled = node.component.disabled?.status;
+    const tooltip = node.component.disabled?.reason;
 
     useEffect(() => {
         const listener = node.registerListener({

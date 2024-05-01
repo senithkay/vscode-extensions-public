@@ -10,7 +10,7 @@
 import { DataMapperView } from "@wso2-enterprise/data-mapper-view";
 import React, { useEffect, useMemo, useState } from "react";
 import { useVisualizerContext } from "@wso2-enterprise/eggplant-rpc-client";
-import { SyntaxTreeResponse, STModification } from "@wso2-enterprise/ballerina-core";
+import { SyntaxTreeResponse, STModification } from "@wso2-enterprise/eggplant-core";
 import { useSyntaxTreeFromRange } from "../../hooks/LangServer";
 import { FunctionDefinition, ModulePart, NodePosition, STKindChecker } from "@wso2-enterprise/syntax-tree";
 import { URI } from "vscode-uri";
@@ -34,9 +34,9 @@ export function DataMapperWidget(props: DataMapperWidgetProps) {
     const { filePath, fnLocation, onFnChange } = props;
     const [rerender, setRerender] = useState(false);
     const { data, isFetching } = useSyntaxTreeFromRange(fnLocation , filePath, rerender);
-    const { eggplantRpcClient, viewLocation } = useVisualizerContext();
-    const langServerRpcClient = eggplantRpcClient.getLangServerRpcClient();
-    const libraryBrowserRpcClient = eggplantRpcClient.getLibraryBrowserRpcClient();
+    const { rpcClient } = useVisualizerContext();
+    const langServerRpcClient = rpcClient.getLangServerRpcClient();
+    const libraryBrowserRpcClient = rpcClient.getLibraryBrowserRpcClient();
     const [mapperData, setMapperData] = useState<SyntaxTreeResponse>(data);
     const [filePosition, setFilePosition] = useState<NodePosition>(null);
 
@@ -75,7 +75,7 @@ export function DataMapperWidget(props: DataMapperWidgetProps) {
 
     const closeDataMapper = () => {
         if (filePosition) {
-            eggplantRpcClient.getWebviewRpcClient().openVisualizerView({  
+            rpcClient.getVisualizerRpcClient().openView({  
                 position: {
                     startLine: filePosition.startLine ?? 0,
                     startColumn: filePosition.startColumn ?? 0,

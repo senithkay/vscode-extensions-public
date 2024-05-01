@@ -7,13 +7,15 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { NodePosition } from "@wso2-enterprise/syntax-tree";
+import { NodePosition, Diagnostic } from "@wso2-enterprise/syntax-tree";
+import { Item } from "@wso2-enterprise/ui-toolkit";
 
 export interface ResponseConfig {
     id: number;
     code?: number;
     type?: string;
     source?: string;
+    isNew?: boolean;
 }
 
 export enum PARAM_TYPES {
@@ -31,6 +33,7 @@ export interface ParameterConfig {
     option?: PARAM_TYPES;
     defaultValue?: string;
     isRequired?: boolean;
+    isNew?: boolean;
 }
 
 export interface ServiceData {
@@ -39,15 +42,19 @@ export interface ServiceData {
 }
 
 export interface Resource {
-    method: string;
+    methods: string[];
+    errors?: Diagnostic[];
     path: string;
     pathSegments?: ParameterConfig[];
     params?: ParameterConfig[];
     advancedParams?: Map<string, ParameterConfig>;
     payloadConfig?: ParameterConfig;
     responses?: ResponseConfig[];
+    expandable?: boolean;
     updatePosition?: NodePosition; // Insert or Edit position of the resource
     position?: NodePosition; // Actual position of the resource which is used to render the resource
+    addtionalInfo?: JSX.Element; // Addtional information to be displayed in the resource expanded view
+    additionalActions?: Item[]; // Additional actions for the resource
 }
 
 export interface PathConfig {
@@ -57,7 +64,7 @@ export interface PathConfig {
 
 export interface Service {
     path: string;
-    port: number;
+    port?: number;
     serviceType?: string;
     resources: Resource[];
     position?: NodePosition;

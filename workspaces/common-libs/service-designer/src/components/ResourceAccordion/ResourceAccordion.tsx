@@ -8,23 +8,28 @@
  */
 import React, { useState } from 'react';
 import styled from '@emotion/styled';
-import { Button, Codicon, Icon } from '@wso2-enterprise/ui-toolkit';
+import { Button, Codicon, Confirm, ContextMenu, Icon, LinkButton, Typography } from '@wso2-enterprise/ui-toolkit';
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import { AccordionTable } from '../AccordionTable/AccordionTable';
 import { Resource } from '../../definitions';
-import ConfirmDialog from '../ConfirmBox/ConfirmBox';
 
 type MethodProp = {
     color: string;
+    hasLeftMargin?: boolean;
 };
 
 type ContainerProps = {
     borderColor?: string;
+    haveErrors?: boolean;
 };
 
 type ButtonSectionProps = {
-    width?: number;
+    isExpanded?: boolean;
 };
+
+type HeaderProps = {
+    expandable?: boolean;
+}
 
 const AccordionContainer = styled.div<ContainerProps>`
     margin-top: 10px;
@@ -34,14 +39,35 @@ const AccordionContainer = styled.div<ContainerProps>`
         background-color: var(--vscode-list-hoverBackground);
         cursor: pointer;
     }
+    border: ${(p: ContainerProps) => p.haveErrors ? "1px solid red" : "none"};
 `;
 
-const AccordionHeader = styled.div`
+const AccordionHeader = styled.div<HeaderProps>`
     padding: 10px;
     cursor: pointer;
+    display: grid;
+    grid-template-columns: 3fr 1fr;
+`;
+
+const LinkButtonWrapper = styled.div`
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
+    height: 100%;
+    padding: 0 16px;
+
+    :hover {
+        outline: 1px solid var(--vscode-inputOption-activeBorder);
+    }
+`;
+
+const ButtonWrapper = styled.div`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    font-size: 10px;
+    width: 40px;
 `;
 
 const MethodBox = styled.div<MethodProp>`
@@ -49,6 +75,7 @@ const MethodBox = styled.div<MethodProp>`
     justify-content: center;
     height: 25px;
     width: 70px;
+    margin-left: ${(p: MethodProp) => p.hasLeftMargin ? "10px" : "0px"};
     text-align: center;
     padding: 3px 0px 3px 0px;
     background-color: ${(p: MethodProp) => p.color};
@@ -59,13 +86,21 @@ const MethodBox = styled.div<MethodProp>`
 
 const MethodSection = styled.div`
     display: flex;
-    justify-content: space-between;
+    gap: 4px;
 `;
+
+const verticalIconStyles = {
+    transform: "rotate(90deg)",
+    ":hover": {
+        backgroundColor: "var(--vscode-welcomePage-tileHoverBackground)",
+    }
+};
 
 const ButtonSection = styled.div<ButtonSectionProps>`
     display: flex;
-    justify-content: space-between;
-    width: ${(p: ButtonSectionProps) => `${p.width}px`};
+    align-items: center;
+    margin-left: auto;
+    gap: ${(p: ButtonSectionProps) => p.isExpanded ? "8px" : "6px"};
 `;
 
 const AccordionContent = styled.div`
@@ -85,6 +120,20 @@ const colors = {
     "PATCH": '#986ee2',
 }
 
+const ErrorMessage = styled.div`
+	display: flex;
+	flex-direction: row;
+	border: 1px solid;
+    padding: 10px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    color: #BB2124;
+`;
+
+const MessageIcon = styled.div`
+	margin-right: 10px;
+`;
+
 function getColorByMethod(method: string) {
     switch (method.toUpperCase()) {
         case "GET":
@@ -102,32 +151,22 @@ function getColorByMethod(method: string) {
     }
 }
 
-function getCalculateWidth(goToSource: (resource: Resource) =>  void, onEditResource: (resource: Resource) => void,
-    onDeleteResource: (resource: Resource) => void) {
-    let width = 15;
-    if (goToSource) {
-        width += 25;
-    }
-    if (onEditResource) {
-        width += 25;
-    }
-    if (onDeleteResource) {
-        width += 25;
-    }
-    return width;
-}
-
 export interface ResourceAccordionProps {
     resource: Resource;
-    goToSource: (resource: Resource) =>  void;
-    onEditResource: (resource: Resource) => void;
+    goToSource?: (resource: Resource) => void;
+    onEditResource?: (resource: Resource) => void;
     onDeleteResource?: (resource: Resource) => void;
+    onResourceImplement?: (resource: Resource) => void;
+    onResourceClick?: (resource: Resource) => void;
 }
 
 const ResourceAccordion = (params: ResourceAccordionProps) => {
-    const { resource, goToSource, onEditResource, onDeleteResource } = params;
+    const { resource, goToSource, onEditResource, onDeleteResource, onResourceImplement, onResourceClick } = params;
+    const { expandable = true, additionalActions } = resource;
     const [isOpen, setIsOpen] = useState(false);
     const [isConfirmOpen, setConfirmOpen] = useState(false);
+    const [confirmEl, setConfirmEl] = React.useState(null);
+
 
     const toggleAccordion = () => {
         setIsOpen(!isOpen);
@@ -149,6 +188,7 @@ const ResourceAccordion = (params: ResourceAccordionProps) => {
 
     const handleDeleteResource = (e: React.MouseEvent<HTMLElement | SVGSVGElement>) => {
         e.stopPropagation(); // Stop the event propagation
+        setConfirmEl(e.currentTarget);
         handleOpenConfirm();
     };
 
@@ -170,71 +210,167 @@ const ResourceAccordion = (params: ResourceAccordionProps) => {
         responses.push([`${response.code}`, response.type]);
     });
 
-    const handleConfirm = async () => {
-        // Handle confirmation logic
-        // Modify the resource object delete position to the model position
-        onDeleteResource && onDeleteResource(resource);
+    const handleConfirm = (status: boolean) => {
+        if (status) {
+            onDeleteResource && onDeleteResource(resource);
+        }
         setConfirmOpen(false);
+        setConfirmEl(null);
     };
 
-    const handleCloseConfirm = () => {
-        setConfirmOpen(false);
-    };
+    const handleResourceImplement = () => {
+        onResourceImplement(resource)
+    }
+
+    const handleResourceClick = (e: React.SyntheticEvent) => {
+        e.stopPropagation();
+        onResourceClick && onResourceClick(resource);
+        toggleAccordion();
+    }
 
     return (
-        <AccordionContainer borderColor={getColorByMethod(resource.method)}>
-            <AccordionHeader onClick={toggleAccordion}>
+        <AccordionContainer haveErrors={resource.errors.length > 0}>
+            <AccordionHeader onClick={handleResourceClick}>
                 <MethodSection>
-                    <MethodBox color={getColorByMethod(resource.method)}>{resource.method.toUpperCase()}</MethodBox>
+                    {resource?.methods?.map((method, index) => {
+                        return (
+                            <MethodBox key={index} color={getColorByMethod(method)} hasLeftMargin={index >= 1}>
+                                {method}
+                            </MethodBox>
+                        );
+                    })}
                     <MethodPath>{resource?.path}</MethodPath>
                 </MethodSection>
-                <ButtonSection width={getCalculateWidth(goToSource, onEditResource, onDeleteResource)}>
-                    {goToSource && (
-                        <VSCodeButton appearance="icon" title="Show Diagram" onClick={handleShowDiagram}>
-                            <Icon name='design-view' />
-                        </VSCodeButton>
+                <ButtonSection isExpanded={expandable && isOpen}>
+                    {onResourceImplement && (
+                        <LinkButtonWrapper>
+                            <LinkButton sx={{ gap: "4px" }} onClick={handleResourceImplement}>
+                                <Typography variant="h4">Implement</Typography>
+                                <Codicon name="arrow-right" />
+                            </LinkButton>
+                        </LinkButtonWrapper>
+                    )}
+                    {expandable && isOpen ? (
+                        <>
+                            {goToSource && (
+                                <ButtonWrapper>
+                                    <VSCodeButton appearance="icon" title="Show Diagram" onClick={handleShowDiagram}>
+                                        <Icon name='design-view' />
+                                    </VSCodeButton>
+                                    <>
+                                        Diagram
+                                    </>
+                                </ButtonWrapper>
+                            )}
+                            {onEditResource && (
+                                <ButtonWrapper>
+                                    <VSCodeButton appearance="icon" title="Edit Resource" onClick={handleEditResource}>
+                                        <Icon name="editIcon" />
+                                    </VSCodeButton>
+                                    <>
+                                        Edit
+                                    </>
+                                </ButtonWrapper>
+                            )}
+                            {onDeleteResource && (
+                                <ButtonWrapper>
+                                    <VSCodeButton appearance="icon" title="Delete Resource" onClick={handleDeleteResource}>
+                                        <Codicon name="trash" />
+                                    </VSCodeButton>
+                                    <>
+                                        Delete
+                                    </>
+                                </ButtonWrapper>
+                            )}
+                            {additionalActions && (
+                                <ButtonWrapper>
+                                    <ContextMenu
+                                        sx={{ transform: "translateX(-50%)" }}
+                                        iconSx={verticalIconStyles}
+                                        menuItems={additionalActions}
+                                    />
+                                    <>
+                                        More Actions
+                                    </>
+                                </ButtonWrapper>
+                            )}
+                        </>
+                    ) : (
+                        <>
+                            {goToSource && (
+                                <VSCodeButton appearance="icon" title="Show Diagram" onClick={handleShowDiagram}>
+                                    <Icon name='design-view' />
+                                </VSCodeButton>
+                            )}
+                            {onEditResource && (
+                                <VSCodeButton appearance="icon" title="Edit Resource" onClick={handleEditResource}>
+                                    <Icon name="editIcon" />
+                                </VSCodeButton>
+                            )}
+                            {onDeleteResource && (
+                                <VSCodeButton appearance="icon" title="Delete Resource" onClick={handleDeleteResource}>
+                                    <Codicon name="trash" />
+                                </VSCodeButton>
+                            )}
+                            {additionalActions && (
+                                <ContextMenu
+                                    sx={{ transform: "translateX(-50%)" }}
+                                    iconSx={verticalIconStyles}
+                                    menuItems={additionalActions}
+                                />
+                            )}
+                        </>
                     )}
 
-                    {onEditResource && (
-                        <VSCodeButton appearance="icon" title="Edit Resource" onClick={handleEditResource}>
-                            <Icon name="editIcon" />
-                        </VSCodeButton>
-                    )}
-
-                    {onDeleteResource && (
-                        <Button appearance='icon' onClick={handleDeleteResource}>
-                            <Codicon iconSx={{marginTop: -2}} name="trash" />
-                        </Button>
-                    )}
-
-                    {isOpen ? 
-                        <Button appearance='icon' onClick={handleDeleteResource}>
-                            <Codicon iconSx={{marginTop: -3}} name="chevron-up" />
-                        </Button>
-                        : 
-                        <Button appearance='icon' onClick={handleDeleteResource}>
-                            <Codicon iconSx={{marginTop: -3}} name="chevron-down" />
-                        </Button>
+                    {expandable ?
+                        isOpen ? (
+                            <Button appearance='icon' onClick={toggleAccordion}>
+                                <Codicon iconSx={{ marginTop: -3 }} name="chevron-up" />
+                            </Button>
+                        ) : (
+                            <Button appearance='icon' onClick={toggleAccordion}>
+                                <Codicon iconSx={{ marginTop: -3 }} name="chevron-down" />
+                            </Button>
+                        )
+                        : undefined
                     }
                 </ButtonSection>
             </AccordionHeader>
-            {isOpen && (
+            {expandable && isOpen && (
                 <AccordionContent>
                     {resourceParams?.length > 0 &&
-                        <AccordionTable key="params" titile="Parameters" headers={["Type", "Description"]} content={resourceParams} /> 
+                        <AccordionTable key="params" titile="Parameters" headers={["Type", "Description"]} content={resourceParams} />
                     }
-                    {payloadInfo.length > 0 && 
-                        <AccordionTable key="body" titile="Body"  headers={["Description"]} content={payloadInfo} />
+                    {payloadInfo.length > 0 &&
+                        <AccordionTable key="body" titile="Body" headers={["Description"]} content={payloadInfo} />
                     }
                     {responses.length > 0 &&
                         <AccordionTable key="responses" titile="Responses" headers={["Code", "Description"]} content={responses} />
                     }
+                    {resource?.addtionalInfo && resource?.addtionalInfo}
+
+                    {resource.errors.map((error, index) => {
+                        return (
+                            <ErrorMessage key={index}>
+                                <MessageIcon>
+                                    <Codicon name='error' />
+                                </MessageIcon>
+                                <div>
+                                    <Typography variant="caption">{error.message}</Typography>
+                                </div>
+                            </ErrorMessage>
+                        )
+                    })}
                 </AccordionContent>
             )}
-            <ConfirmDialog
+            <Confirm
                 isOpen={isConfirmOpen}
-                onClose={handleCloseConfirm}
                 onConfirm={handleConfirm}
+                confirmText="Okay"
+                message="Are you sure want to delete this resource?"
+                anchorEl={confirmEl}
+                anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+                transformOrigin={{ vertical: "top", horizontal: "right" }}
             />
         </AccordionContainer>
     );

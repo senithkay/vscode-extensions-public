@@ -32,6 +32,7 @@ export function ResourceParam(props: ResourceParamProps) {
     const [isNew, setIsNew] = useState(false);
 
     const onEdit = (param: ParameterConfig) => {
+        setIsNew(false);
         setEditingSegmentId(param.id);
     };
 
@@ -44,7 +45,8 @@ export function ResourceParam(props: ResourceParamProps) {
             type: "string",
             option: PARAM_TYPES.DEFAULT,
             defaultValue: "",
-            isRequired: true
+            isRequired: true,
+            isNew: true
         };
         updatedParameters.push(newParam);
         onChange(updatedParameters);
@@ -100,7 +102,7 @@ export function ResourceParam(props: ResourceParamProps) {
                             defaultValue: param.defaultValue,
                             isRequired: param.isRequired
                         }}
-                        isEdit={true}
+                        isEdit={!param.isNew}
                         optionList={[PARAM_TYPES.DEFAULT, PARAM_TYPES.HEADER]}
                         option={param.option}
                         isTypeReadOnly={false}

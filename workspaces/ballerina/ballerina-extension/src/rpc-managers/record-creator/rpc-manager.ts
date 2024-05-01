@@ -11,19 +11,25 @@
 import {
     JsonToRecordRequest,
     JsonToRecordResponse,
+    NOT_SUPPORTED_TYPE,
     RecordCreatorAPI,
     XMLToRecordRequest,
     XMLToRecordResponse
 } from "@wso2-enterprise/ballerina-core";
+import { StateMachine } from "../../stateMachine";
 
 export class RecordCreatorRpcManager implements RecordCreatorAPI {
-    async convertJsonToRecord(params: JsonToRecordRequest): Promise<JsonToRecordResponse> {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
+    async convertJsonToRecord(params: JsonToRecordRequest): Promise<JsonToRecordResponse | NOT_SUPPORTED_TYPE> {
+        return new Promise(async (resolve) => {
+            const response = await StateMachine.langClient().convertJsonToRecord(params);
+            resolve(response);
+        });
     }
 
-    async convertXMLToRecord(params: XMLToRecordRequest): Promise<XMLToRecordResponse> {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
+    async convertXMLToRecord(params: XMLToRecordRequest): Promise<XMLToRecordResponse | NOT_SUPPORTED_TYPE> {
+        return new Promise(async (resolve) => {
+            const response = await StateMachine.langClient().convertXMLToRecord(params);
+            resolve(response);
+        });
     }
 }

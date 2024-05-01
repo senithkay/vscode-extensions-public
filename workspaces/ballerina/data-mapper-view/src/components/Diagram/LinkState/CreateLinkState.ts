@@ -69,7 +69,7 @@ export class CreateLinkState extends State<DiagramEngine> {
 
 					if (element instanceof PortModel && !this.sourcePort) {
 						if (element instanceof RecordFieldPortModel) {
-							if (element.portType === "OUT") {
+							if (element.portType === "OUT" && !element.isDisabled()) {
 								this.sourcePort = element;
 								element.fireEvent({}, "mappingStartedFrom");
 								element.linkedPorts.forEach((linkedPort) => {
@@ -122,13 +122,15 @@ export class CreateLinkState extends State<DiagramEngine> {
 									})
 								}
 								this.sourcePort.removeLink(this.link);
-								this.sourcePort = element;
-								this.link?.setSourcePort(element);
-								element.fireEvent({}, "mappingStartedFrom");
-								if (element instanceof RecordFieldPortModel) {
-									element.linkedPorts.forEach((linkedPort) => {
-										linkedPort.fireEvent({}, "disableNewLinking")
-									})
+								if (!(element instanceof RecordFieldPortModel) || !element.isDisabled()) {
+									this.sourcePort = element;
+									this.link?.setSourcePort(element);
+									element.fireEvent({}, "mappingStartedFrom");
+									if (element instanceof RecordFieldPortModel) {
+										element.linkedPorts.forEach((linkedPort) => {
+											linkedPort.fireEvent({}, "disableNewLinking")
+										})
+									}
 								}
 							}
 						}
@@ -178,6 +180,10 @@ export class CreateLinkState extends State<DiagramEngine> {
 	}
 
 	clearState() {
+		if (this.sourcePort) {
+			this.sourcePort.fireEvent({}, "link-unselected");
+			this.sourcePort.removeLink(this.link);
+		}
 		this.link = undefined;
 		this.sourcePort = undefined;
 	}

@@ -11,11 +11,11 @@
 
 import { Messenger } from "vscode-messenger-webview";
 import { VisualizerRpcClient } from "./rpc-clients/visualizer/rpc-client";
-import { MachineStateValue, VisualizerLocation, getVisualizerLocation, onFileContentUpdate, stateChanged, vscode, webviewReady } from "@wso2-enterprise/ballerina-core";
+import { MachineStateValue, VisualizerLocation, getVisualizerLocation, stateChanged, vscode, webviewReady } from "@wso2-enterprise/ballerina-core";
 import { LangServerRpcClient } from "./rpc-clients/lang-server/rpc-client";
 import { LibraryBrowserRpcClient } from "./rpc-clients/library-browser/rpc-client";
 import { HOST_EXTENSION } from "vscode-messenger-common";
-import { CommonRpcClient, GraphqlDesignerRpcClient, PersistDiagramRpcClient, ProjectDesignDiagramRpcClient, ServiceDesignerRpcClient } from "./rpc-clients";
+import { CommonRpcClient, GraphqlDesignerRpcClient, PersistDiagramRpcClient, RecordCreatorRpcClient, ProjectDesignDiagramRpcClient, ServiceDesignerRpcClient, SequenceDiagramRpcClient } from "./rpc-clients";
 
 export class BallerinaRpcClient {
 
@@ -27,7 +27,9 @@ export class BallerinaRpcClient {
     private _commn: CommonRpcClient;
     private _persistDiagram: PersistDiagramRpcClient;
     private _GraphqlDesigner: GraphqlDesignerRpcClient;
+    private _RecordCreator: RecordCreatorRpcClient;
     private _ProjectDesignDiagram: ProjectDesignDiagramRpcClient;
+    private _SequenceDiagram: SequenceDiagramRpcClient;
 
     constructor() {
         this.messenger = new Messenger(vscode);
@@ -39,7 +41,9 @@ export class BallerinaRpcClient {
         this._commn = new CommonRpcClient(this.messenger);
         this._persistDiagram = new PersistDiagramRpcClient(this.messenger);
         this._GraphqlDesigner = new GraphqlDesignerRpcClient(this.messenger);
+        this._RecordCreator = new RecordCreatorRpcClient(this.messenger);
         this._ProjectDesignDiagram = new ProjectDesignDiagramRpcClient(this.messenger);
+        this._SequenceDiagram = new SequenceDiagramRpcClient(this.messenger);
     }
 
     getVisualizerRpcClient(): VisualizerRpcClient {
@@ -74,16 +78,20 @@ export class BallerinaRpcClient {
         return this._commn;
     }
 
+    getRecordCreatorRpcClient(): RecordCreatorRpcClient {
+        return this._RecordCreator;
+    }
+
+    getSequenceDiagramRpcClient(): SequenceDiagramRpcClient {
+        return this._SequenceDiagram;
+    }
+
     getVisualizerLocation(): Promise<VisualizerLocation> {
         return this.messenger.sendRequest(getVisualizerLocation, HOST_EXTENSION);
     }
 
     onStateChanged(callback: (state: MachineStateValue) => void) {
         this.messenger.onNotification(stateChanged, callback);
-    }
-
-    onFileContentUpdate(callback: () => void): void {
-        this.messenger.onNotification(onFileContentUpdate, callback);
     }
 
     webviewReady(): void {

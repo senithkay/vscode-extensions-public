@@ -44,6 +44,7 @@ import { PrimitiveTypeNode } from "../PrimitiveType";
 import { UnionTypeNode } from "../UnionType";
 
 export const LINK_CONNECTOR_NODE_TYPE = "link-connector-node";
+const NODE_ID = "link-connector-node";
 
 export class LinkConnectorNode extends DataMapperNodeModel {
 
@@ -68,6 +69,7 @@ export class LinkConnectorNode extends DataMapperNodeModel {
         public fnDefForFnCall?: FnDefInfo,
         public isPrimitiveTypeArrayElement?: boolean) {
         super(
+            NODE_ID,
             context,
             LINK_CONNECTOR_NODE_TYPE
         );
@@ -111,6 +113,7 @@ export class LinkConnectorNode extends DataMapperNodeModel {
                     const targetPortPrefix = getTargetPortPrefix(node);
                     if (STKindChecker.isFunctionDefinition(this.parentNode)
                         || STKindChecker.isQueryExpression(this.parentNode)
+                        || STKindChecker.isSpecificField(this.parentNode)
                         || STKindChecker.isBracedExpression(this.parentNode))
                     {
                         if (!(node instanceof MappingConstructorNode)) {

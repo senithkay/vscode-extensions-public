@@ -11,26 +11,32 @@ import React from 'react';
 
 import { css } from '@emotion/css';
 import { PrimitiveBalType, TypeField } from "@wso2-enterprise/ballerina-core";
-import { NodePosition, STKindChecker } from '@wso2-enterprise/syntax-tree';
+import { FunctionCall, NodePosition, STKindChecker,} from '@wso2-enterprise/syntax-tree';
 import classNames from "classnames";
 
 import { CodeActionWidget } from '../CodeAction/CodeAction';
 import { DiagnosticWidget } from '../Diagnostic/Diagnostic';
 import { DataMapperLinkModel } from "../Link";
 import {
-    canConvertLinkToQueryExpr,
-    generateQueryExpression
+    isSourcePortArray,
+    generateQueryExpression,
+    isTargetPortArray,
+    ClauseType
 } from '../Link/link-utils';
 import { RecordFieldPortModel } from '../Port';
 import {
     getBalRecFieldName,
     getFilteredUnionOutputTypes,
-    getLocalVariableNames
+    getLocalVariableNames,
+    getArrayMappingType,
+    getMappedFnNames,
+    getCollectClauseActions
 } from '../utils/dm-utils';
 import { handleCodeActions } from "../utils/ls-utils";
 
 import { ExpressionLabelModel } from './ExpressionLabelModel';
 import { Button, Codicon, ProgressRing } from '@wso2-enterprise/ui-toolkit';
+import { QueryExprMappingType } from '../Node';
 
 export interface EditableLabelWidgetProps {
     model: ExpressionLabelModel;
@@ -41,13 +47,14 @@ export const useStyles = () => ({
         width: '100%',
         backgroundColor: "var(--vscode-sideBar-background)",
         padding: "2px",
-        borderRadius: "6px",
+        borderRadius: "2px",
         display: "flex",
         color: "var(--vscode-checkbox-border)",
         alignItems: "center",
         "& > vscode-button > *": {
             margin: "0 2px"
-        }
+        },
+        border: "1px solid var(--vscode-welcomePage-tileBorder)",
     }),
     containerHidden: css({
         visibility: 'hidden',
@@ -108,15 +115,29 @@ export enum LinkState {
     LinkNotSelected
 }
 
+export enum ArrayMappingType {
+    ArrayToArray,
+    ArrayToSingleton
+}
+
+export const AggregationFunctions = ["avg", "count", "max", "min", "sum"];
+
 // now we can render all what we want in the label
 export function EditableLabelWidget(props: EditableLabelWidgetProps) {
+    const { link, context, value, field, editorLabel, deleteLink } = props.model;
+
     const [linkStatus, setLinkStatus] = React.useState<LinkState>(LinkState.LinkNotSelected);
-    const [canUseQueryExpr, setCanUseQueryExpr] = React.useState(false);
+    const [arrayMappingType, setArrayMappingType] = React.useState<ArrayMappingType>(undefined);
     const [codeActions, setCodeActions] = React.useState([]);
     const [deleteInProgress, setDeleteInProgress] = React.useState(false);
+
+    const source = link?.getSourcePort()
+    const target = link?.getTargetPort()
+
     const classes = useStyles();
-    const { link, context, value, field, editorLabel, deleteLink } = props.model;
     const diagnostic = link && link.hasError() ? link.diagnostics[0] : null;
+    const connectedViaCollectClause = context?.selection.selectedST?.mappingType
+        && context.selection.selectedST.mappingType === QueryExprMappingType.A2SWithCollect;
 
     React.useEffect(() => {
         async function genModel() {
@@ -141,7 +162,7 @@ export function EditableLabelWidget(props: EditableLabelWidgetProps) {
     };
 
     const onClickEdit = (evt?: React.MouseEvent<HTMLDivElement>) => {
-        const currentReference = (link.getSourcePort() as RecordFieldPortModel).fieldFQN;
+        const currentReference = (source as RecordFieldPortModel).fieldFQN;
         context.referenceManager.handleCurrentReferences([currentReference]);
         if (evt) {
             evt.preventDefault();
@@ -154,22 +175,31 @@ export function EditableLabelWidget(props: EditableLabelWidgetProps) {
         });
     };
 
-    const applyQueryExpression = (linkModel: DataMapperLinkModel, targetRecord: TypeField) => {
+    const applyQueryExpr = (linkModel: DataMapperLinkModel, targetRecord: TypeField, clause: ClauseType) => {
         if (linkModel.value
             && (STKindChecker.isFieldAccess(linkModel.value) || STKindChecker.isSimpleNameReference(linkModel.value))) {
 
                 let isOptionalSource = false;
                 const sourcePort = linkModel.getSourcePort();
+                const targetPort = linkModel.getTargetPort();
 
+                let position = linkModel.value.position as NodePosition;
                 if (sourcePort instanceof RecordFieldPortModel && sourcePort.field.optional) {
                     isOptionalSource = true;
+                }
+                if (targetPort instanceof RecordFieldPortModel) {
+                    const expr = targetPort.editableRecordField?.value;
+                    if (STKindChecker.isSpecificField(expr)) {
+                        position = expr.valueExpr.position as NodePosition;
+                    } else {
+                        position = expr.position as NodePosition;
+                    }
                 }
 
                 const localVariables = getLocalVariableNames(context.functionST);
 
                 const querySrc = generateQueryExpression(linkModel.value.source, targetRecord, isOptionalSource,
-                    [...localVariables]);
-                const position = linkModel.value.position as NodePosition;
+                    clause, [...localVariables]);
                 const modifications = [{
                     type: "INSERT",
                     config: {
@@ -191,7 +221,10 @@ export function EditableLabelWidget(props: EditableLabelWidgetProps) {
                     setLinkStatus(event.isSelected ? LinkState.LinkSelected : LinkState.LinkNotSelected);
                 },
             });
-            setCanUseQueryExpr(canConvertLinkToQueryExpr(link));
+            const isSourceArray = isSourcePortArray(source);
+            const isTargetArray = isTargetPortArray(target);
+            const mappingType = getArrayMappingType(isSourceArray, isTargetArray);
+            setArrayMappingType(mappingType);
         } else {
             setLinkStatus(LinkState.TemporaryLink);
         }
@@ -230,27 +263,48 @@ export function EditableLabelWidget(props: EditableLabelWidgetProps) {
     ];
 
     const onClickConvertToQuery = () => {
-        const targetPort = link.getTargetPort();
-
-        if (targetPort instanceof RecordFieldPortModel) {
-            const targetPortField = targetPort.field;
+        if (target instanceof RecordFieldPortModel) {
+            const targetPortField = target.field;
             if (targetPortField.typeName === PrimitiveBalType.Array && targetPortField?.memberType) {
-                applyQueryExpression(link, targetPortField.memberType);
+                applyQueryExpr(link, targetPortField.memberType, ClauseType.Select);
             } else if (targetPortField.typeName === PrimitiveBalType.Union){
                 const [type] = getFilteredUnionOutputTypes(targetPortField);
                 if (type.typeName === PrimitiveBalType.Array && type.memberType) {
-                    applyQueryExpression(link, type.memberType);
+                    applyQueryExpr(link, type.memberType, ClauseType.Select);
                 }
             }
         }
     };
 
+    const onClickAggregateViaQuery = () => {
+        if (target instanceof RecordFieldPortModel) {
+            const targetPortField = target.field;
+            if (targetPortField.typeName === PrimitiveBalType.Union){
+                const [type] = getFilteredUnionOutputTypes(targetPortField);
+                if (type.typeName === PrimitiveBalType.Array && type.memberType) {
+                    applyQueryExpr(link, type.memberType, ClauseType.Collect);
+                }
+            } else {
+                applyQueryExpr(link, targetPortField, ClauseType.Collect);
+            }
+        }
+    };
+
     const additionalActions = [];
-    if (canUseQueryExpr) {
+    if (arrayMappingType === ArrayMappingType.ArrayToArray) {
         additionalActions.push({
             title: "Convert to Query",
             onClick: onClickConvertToQuery
         });
+    } else if (arrayMappingType === ArrayMappingType.ArrayToSingleton) {
+        if (target instanceof RecordFieldPortModel && target.field.typeName === PrimitiveBalType.Record) {
+            // Add indexed query expression
+        } else {
+            additionalActions.push({
+                title: "Aggregate using Query",
+                onClick: onClickAggregateViaQuery
+            });
+        }
     }
 
     if (codeActions.length > 0 || additionalActions.length > 0) {
@@ -263,6 +317,25 @@ export function EditableLabelWidget(props: EditableLabelWidgetProps) {
                 btnSx={{ margin: "0 2px" }}
             />
         );
+    }
+
+    if (connectedViaCollectClause) {
+        const fnNames = getMappedFnNames(target);
+        // Getting the 0th element since ExpressionLabelWidget is only used for simple links
+        const fnName = fnNames && fnNames[0];
+        if (AggregationFunctions.includes(fnName)) {
+            const mappedExpr = (target as RecordFieldPortModel)?.editableRecordField?.value;
+            const additionalActions = getCollectClauseActions(fnName, mappedExpr as FunctionCall, context.applyModifications);
+            elements.push(<div className={classes.separator}/>);
+            elements.push(
+                <CodeActionWidget
+                    context={context}
+                    additionalActions={additionalActions}
+                    isConfiguration={true}
+                    btnSx={{ margin: "0 2px" }}
+                />
+            );
+        }
     }
 
     if (diagnostic) {
@@ -281,9 +354,6 @@ export function EditableLabelWidget(props: EditableLabelWidgetProps) {
     let isSourceCollapsed = false;
     let isTargetCollapsed = false;
     const collapsedFields = props.model?.context?.collapsedFields;
-
-    const source = props.model?.link?.getSourcePort()
-    const target = props.model?.link?.getTargetPort()
 
     if (source instanceof RecordFieldPortModel) {
         if (source?.parentId) {
@@ -328,7 +398,7 @@ export function EditableLabelWidget(props: EditableLabelWidgetProps) {
                 data-testid={`expression-label-for-${props.model?.link?.getSourcePort()?.getName()}-to-${props.model?.link?.getTargetPort()?.getName()}`}
                 className={classNames(
                     classes.container,
-                    linkStatus === LinkState.LinkNotSelected && !deleteInProgress && classes.containerHidden
+                    linkStatus === LinkState.LinkNotSelected && !deleteInProgress && !connectedViaCollectClause && classes.containerHidden
                 )}
             >
                 {elements}

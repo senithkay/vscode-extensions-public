@@ -14,6 +14,7 @@ import styled from "@emotion/styled";
 import { ComponentCard } from "@wso2-enterprise/ui-toolkit";
 import { useVisualizerContext } from "@wso2-enterprise/eggplant-rpc-client";
 import { VisualizerLocation } from "@wso2-enterprise/eggplant-core";
+import { STKindChecker } from "@wso2-enterprise/syntax-tree";
 import { SelectedComponent } from "./Overview";
 
 const colors = {
@@ -54,7 +55,7 @@ const Container = styled.div({
 
 export function ResourcesList(params: { component: SelectedComponent }) {
 
-    const { eggplantRpcClient } = useVisualizerContext();
+    const { rpcClient } = useVisualizerContext();
     const { component } = params;
 
     const handleResourceClick = (comp: any) => {
@@ -67,48 +68,49 @@ export function ResourcesList(params: { component: SelectedComponent }) {
         const context: VisualizerLocation = {
             documentUri: component.fileName,
             position: comp.position,
-            view: "Overview",
             identifier: component.serviceST.absoluteResourcePath.reduce((result, obj) => result + obj.value, "") + `/${comp.functionName.value}/${resourcePath}`
         }
-        eggplantRpcClient.getWebviewRpcClient().openVisualizerView(context);
+        rpcClient.getVisualizerRpcClient().openView(context);
     };
 
     // Your code here
     const getResources = () => {
         const components = component.serviceST.members.map((comp: any, compIndex: number) => {
-            let path = "/";
-            comp.relativeResourcePath.forEach((res: any) => {
-                path += res.source ? res.source : res.value;
-            })
-            return (
-                <ComponentCard
-                    key={compIndex}
-                    onClick={() => handleResourceClick(comp)}
-                    sx={{
-                        '&:hover, &.active': {
-                            '.icon svg g': {
-                                fill: 'var(--vscode-editor-foreground)'
+            if (STKindChecker.isResourceAccessorDefinition(comp)) {
+                let path = "/";
+                comp.relativeResourcePath.forEach((res: any) => {
+                    path += res.source ? res.source : res.value;
+                })
+                return (
+                    <ComponentCard
+                        key={compIndex}
+                        onClick={() => handleResourceClick(comp)}
+                        sx={{
+                            '&:hover, &.active': {
+                                '.icon svg g': {
+                                    fill: 'var(--vscode-editor-foreground)'
+                                },
+                                backgroundColor: 'var(--vscode-pickerGroup-border)',
+                                border: '1px solid var(--vscode-focusBorder)'
                             },
-                            backgroundColor: 'var(--vscode-pickerGroup-border)',
-                            border: '1px solid var(--vscode-focusBorder)'
-                        },
-                        alignItems: 'center',
-                        border: '1px solid var(--vscode-editor-foreground)',
-                        borderRadius: 5,
-                        display: 'flex',
-                        height: 15,
-                        justifyContent: 'space-between',
-                        marginBottom: 16,
-                        marginRight: 16,
-                        padding: 10,
-                        transition: '0.3s',
-                        width: "95%"
-                    }}
-                >
-                    <Method style={{ color: getColorByMethod(comp.functionName.value), width: "30px" }}>{comp.functionName.value}</Method>
-                    <span>{path}</span>
-                </ComponentCard>
-            )
+                            alignItems: 'center',
+                            border: '1px solid var(--vscode-editor-foreground)',
+                            borderRadius: 5,
+                            display: 'flex',
+                            height: 15,
+                            justifyContent: 'space-between',
+                            marginBottom: 16,
+                            marginRight: 16,
+                            padding: 10,
+                            transition: '0.3s',
+                            width: "95%"
+                        }}
+                    >
+                        <Method style={{ color: getColorByMethod(comp.functionName.value), width: "30px" }}>{comp.functionName.value}</Method>
+                        <span>{path}</span>
+                    </ComponentCard>
+                )
+            }
         });
         return components.length > 0 ? components : <p>No Resources Found</p>;
     }

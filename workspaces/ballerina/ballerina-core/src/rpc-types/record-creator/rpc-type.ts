@@ -8,9 +8,10 @@
  * 
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
+import { NOT_SUPPORTED_TYPE } from "../../interfaces/common";
 import { JsonToRecordRequest, JsonToRecordResponse, XMLToRecordRequest, XMLToRecordResponse } from "./interfaces";
 import { RequestType } from "vscode-messenger-common";
 
 const _preFix = "record-creator";
-export const convertJsonToRecord: RequestType<JsonToRecordRequest, JsonToRecordResponse> = { method: `${_preFix}/convertJsonToRecord` };
-export const convertXMLToRecord: RequestType<XMLToRecordRequest, XMLToRecordResponse> = { method: `${_preFix}/convertXMLToRecord` };
+export const convertJsonToRecord: RequestType<JsonToRecordRequest, JsonToRecordResponse | NOT_SUPPORTED_TYPE> = { method: `${_preFix}/convertJsonToRecord` };
+export const convertXMLToRecord: RequestType<XMLToRecordRequest, XMLToRecordResponse | NOT_SUPPORTED_TYPE> = { method: `${_preFix}/convertXMLToRecord` };

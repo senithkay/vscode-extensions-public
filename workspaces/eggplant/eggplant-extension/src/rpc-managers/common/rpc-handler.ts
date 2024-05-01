@@ -9,24 +9,18 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
-    DeleteSourceRequest,
     GoToSourceRequest,
-    UpdateSourceRequest,
     WorkspaceFileRequest,
-    deleteSource,
     getTypes,
     getWorkspaceFiles,
-    goToSource,
-    updateSource
-} from "@wso2-enterprise/ballerina-core";
+    goToSource
+} from "@wso2-enterprise/eggplant-core";
 import { Messenger } from "vscode-messenger";
 import { CommonRpcManager } from "./rpc-manager";
 
 export function registerCommonRpcHandlers(messenger: Messenger) {
     const rpcManger = new CommonRpcManager();
     messenger.onRequest(getTypes, () => rpcManger.getTypes());
-    messenger.onRequest(updateSource, (args: UpdateSourceRequest) => rpcManger.updateSource(args));
-    messenger.onRequest(deleteSource, (args: DeleteSourceRequest) => rpcManger.deleteSource(args));
     messenger.onNotification(goToSource, (args: GoToSourceRequest) => rpcManger.goToSource(args));
     messenger.onRequest(getWorkspaceFiles, (args: WorkspaceFileRequest) => rpcManger.getWorkspaceFiles(args));
 }

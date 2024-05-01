@@ -148,7 +148,6 @@ export class DagreEngine {
     angleLayout(g, spacing: number) {
         const nodes = g.nodes();
         let lastX = 0;
-        let angleNodeCount = 0;
 
         nodes.forEach((v) => {
             const node = g.node(v);
@@ -166,7 +165,6 @@ export class DagreEngine {
                     lastX += node.width + spacing;
                     node.x = lastX;
                 }
-                angleNodeCount++;
             }
         });
     }

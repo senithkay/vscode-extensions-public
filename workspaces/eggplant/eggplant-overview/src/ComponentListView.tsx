@@ -15,10 +15,11 @@ import { ComponentView } from "./ComponentView";
 import { ProjectComponentProcessor } from "./util/project-component-processor";
 import { Typography } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
-import { VisualizerLocation } from "@wso2-enterprise/eggplant-core";
+import { STByRangeRequest, VisualizerLocation } from "@wso2-enterprise/eggplant-core";
 import { useVisualizerContext } from "@wso2-enterprise/eggplant-rpc-client";
-import { STKindChecker } from "@wso2-enterprise/syntax-tree";
 import { SelectedComponent } from "./Overview";
+import { STKindChecker } from "@wso2-enterprise/syntax-tree";
+import { URI } from "vscode-uri";
 
 
 export interface ComponentViewInfo {
@@ -55,7 +56,7 @@ export function resetSelected() {
 }
 export function ComponentListView(props: { currentComponents: ComponentCollection | any, setSelectedComponent: React.Dispatch<SelectedComponent>, handleIsFetching: (value: boolean) => void }) {
 
-    const { eggplantRpcClient } = useVisualizerContext();
+    const { rpcClient } = useVisualizerContext();
 
     const [currentComponents, setCurrentComponents] = useState<ComponentCollection | any>([]);
     const [categories, setCategories] = useState<React.ReactElement[]>([]);
@@ -80,21 +81,30 @@ export function ComponentListView(props: { currentComponents: ComponentCollectio
 
     const handleComponentSelection = async (info: ComponentViewInfo) => {
         props.handleIsFetching(true);
-        console.log({
-            file: info.filePath,
-            position: info.position
-        })
         selected = info;
-        const context: VisualizerLocation = {
-            documentUri: info.filePath,
-            position: info.position,
-            identifier: info.name
-        }
-        const serviceST = await eggplantRpcClient.getWebviewRpcClient().getSTNodeFromLocation(context);
-        if (STKindChecker.isServiceDeclaration(serviceST)) {
-            props.setSelectedComponent({ fileName: info.filePath, serviceST });
+        const req: STByRangeRequest = {
+            documentIdentifier: { uri: URI.file(info.filePath).toString() },
+            lineRange: {
+                start: {
+                    line: info.position!.startLine as number,
+                    character: info.position!.startColumn as number
+                },
+                end: {
+                    line: info.position!.endLine as number,
+                    character: info.position!.endColumn as number
+                }
+            }
+        };
+        const serviceST = await rpcClient.getLangServerRpcClient().getSTByRange(req);
+        if (STKindChecker.isServiceDeclaration(serviceST.syntaxTree)) {
+            props.setSelectedComponent({ fileName: info.filePath, serviceST: serviceST.syntaxTree });
         } else {
-            eggplantRpcClient.getWebviewRpcClient().openVisualizerView(context);
+            const context: VisualizerLocation = {
+                documentUri: info.filePath,
+                position: info.position,
+                identifier: info.name
+            }
+            rpcClient.getVisualizerRpcClient().openView(context);
         }
         props.handleIsFetching(false);
     }
@@ -133,7 +143,7 @@ export function ComponentListView(props: { currentComponents: ComponentCollectio
                     );
                 }
             });
-            setCategories(res);
+        setCategories(res);
     }, [currentComponents]);
 
     return (

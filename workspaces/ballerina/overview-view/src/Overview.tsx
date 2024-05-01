@@ -14,7 +14,7 @@ import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client"
 
 import { ComponentListView } from './ComponentListView';
 import { TitleBar } from './components/TitleBar';
-import { WorkspacesFileResponse } from '@wso2-enterprise/ballerina-core';
+import { WorkspacesFileResponse, VisualizerLocation } from '@wso2-enterprise/ballerina-core';
 import { URI } from 'vscode-uri';
 // Create a interface for the data
 interface Data {
@@ -42,7 +42,8 @@ interface Module {
 
 export const SELECT_ALL_FILES = 'All';
 
-export function Overview() {
+export function Overview(props: { visualizerLocation: VisualizerLocation }) {
+    const { syntaxTree } = props.visualizerLocation;
     const [components, setComponents] = useState<Data>();
     const [query, setQuery] = useState("");
     const [loading, setLoading] = useState(true);
@@ -62,10 +63,10 @@ export function Overview() {
 
     const handleFileChange = async (value: string) => {
         setSelectedFile(value);
-        const componentResponse = (value === SELECT_ALL_FILES) ? 
-            await rpcClient.getLangServerRpcClient().getBallerinaProjectComponents(undefined) : 
-            await rpcClient.getLangServerRpcClient().getBallerinaProjectComponents({ 
-                documentIdentifiers : [{ uri: URI.file(value).toString()}]
+        const componentResponse = (value === SELECT_ALL_FILES) ?
+            await rpcClient.getLangServerRpcClient().getBallerinaProjectComponents(undefined) :
+            await rpcClient.getLangServerRpcClient().getBallerinaProjectComponents({
+                documentIdentifiers: [{ uri: URI.file(value).toString() }]
             });
         setComponents(componentResponse as Data);
     };
@@ -85,7 +86,7 @@ export function Overview() {
 
     useEffect(() => {
         fetchData();
-    }, []);
+    }, [syntaxTree]);
 
     if (loading) {
         // Render a loading indicator
@@ -167,9 +168,9 @@ export function Overview() {
 
     return (
         <>
-            <TitleBar query={query} selectedFile={selectedFile} workspacesFileResponse={workspaceInfo} onSelectedFileChange={handleFileChange} onQueryChange={handleSearch}/>
+            <TitleBar query={query} selectedFile={selectedFile} workspacesFileResponse={workspaceInfo} onSelectedFileChange={handleFileChange} onQueryChange={handleSearch} />
             {components ? (
-                <ComponentListView currentComponents={{packages: filteredComponents}} />
+                <ComponentListView currentComponents={{ packages: filteredComponents }} />
             ) : (
                 <div>No data available</div>
             )}

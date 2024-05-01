@@ -48,6 +48,7 @@ import { LinkDeletingVisitor } from "../../visitors/LinkDeletingVistior";
 import { DataMapperNodeModel, TypeDescriptor } from "../commons/DataMapperNode";
 
 export const MAPPING_CONSTRUCTOR_NODE_TYPE = "data-mapper-node-mapping-constructor";
+const NODE_ID = "mapping-constructor-node";
 
 export class MappingConstructorNode extends DataMapperNodeModel {
 
@@ -68,6 +69,7 @@ export class MappingConstructorNode extends DataMapperNodeModel {
         public typeDef: TypeField,
         public queryExpr?: QueryExpression) {
         super(
+            NODE_ID,
             context,
             MAPPING_CONSTRUCTOR_NODE_TYPE
         );
@@ -238,7 +240,7 @@ export class MappingConstructorNode extends DataMapperNodeModel {
                 this.x = x;
                 this.y = y;
             }
-            super.setPosition(x, y || this.y);
+            super.setPosition(x, y);
         }
     }
 }

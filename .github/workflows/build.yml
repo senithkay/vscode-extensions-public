@@ -33,13 +33,22 @@ on:
         description: Update EggPlant extension version
         type: boolean
         required: false
-        default: false                    
+        default: false    
+      mi:
+        description: Update MI extension version
+        type: boolean
+        required: false
+        default: false                            
       version:
         default: 'N/A'
         type: string
         required: false
       isReleaseBuild:  
         type: boolean
+        default: false
+      skipBallerinaUiTests:
+        type: boolean
+        required: false
         default: false
 
 env:
@@ -137,8 +146,10 @@ jobs:
           api-chat: ${{ inputs.api-chat }}
           apk: ${{ inputs.apk }}
           eggplant: ${{ inputs.eggplant }}
+          mi: ${{ inputs.mi }}
           version: ${{ inputs.version }}
           API_CHAT_API_KEY: ${{ secrets.API_CHAT_API_KEY }}  
+          token: ${{ secrets.PUBLISH_PAT }}
 
   ExtTest_Ballerina:
     name: Run Ballerina extension tests
@@ -188,7 +199,7 @@ jobs:
   UiTest_Ballerina:
     name: Run Ballerina e2e tests
     needs: Build_Stage
-    if: ${{ !inputs.isPreRelease || needs.Build_Stage.outputs.runBalExtTests == 'true' || github.base_ref == 'release-ballerina' }}
+    if: ${{ !inputs.skipBallerinaUiTests && (!inputs.isPreRelease || needs.Build_Stage.outputs.runBalExtTests == 'true' || github.base_ref == 'release-ballerina') }}
     timeout-minutes: 45
     runs-on: ubuntu-latest
     steps:

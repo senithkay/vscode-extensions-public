@@ -9,7 +9,6 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useState } from "react";
 
-import { css } from "@emotion/css";
 import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
 import { DiagramEngine, PortWidget } from '@projectstorm/react-diagrams';
 import { TypeField } from "@wso2-enterprise/ballerina-core";
@@ -21,55 +20,8 @@ import { InputSearchHighlight } from '../Search';
 import { TreeBody, TreeContainer, TreeHeader } from '../Tree/Tree';
 
 import { RecordFieldTreeItemWidget } from "./RecordFieldTreeItemWidget";
-
-const useStyles = () => ({
-    typeLabel: css({
-        marginLeft: "3px",
-        padding: "5px",
-        minWidth: "100px",
-        marginRight: "24px",
-    }),
-    valueLabel: css({
-        padding: "5px",
-    }),
-    treeLabelOutPort: css({
-        float: "right",
-        width: 'fit-content',
-        marginLeft: "auto",
-        display: "flex",
-        alignItems: "center"
-    }),
-    label: css({
-        display: "flex",
-        alignItems: "center",
-        width: "300px",
-        whiteSpace: "nowrap",
-        overflow: "hidden",
-        textOverflow: "ellipsis",
-        "&:hover": {
-            overflow: "visible"
-        },
-    }),
-    expandIcon: css({
-        color: "var(--vscode-inputOption-activeForeground)",
-        height: "25px",
-        width: "25px",
-        marginLeft: "auto"
-    }),
-    queryPortWrap: css({
-        position: 'absolute',
-        left: 0,
-        top: 0,
-        bottom: 0,
-        display: 'flex',
-        alignItems: 'center'
-    }),
-    nodeType: css({
-        float: 'right',
-        marginRight: 5,
-        color: "var(--vscode-pickerGroup-border)",
-    })
-});
+import classnames from "classnames";
+import { useIONodesStyles } from "../../../../styles";
 
 export interface RecordTypeTreeWidgetProps {
     id: string; // this will be the root ID used to prepend for UUIDs of nested fields
@@ -79,24 +31,26 @@ export interface RecordTypeTreeWidgetProps {
     handleCollapse: (portName: string, isExpanded?: boolean) => void;
     valueLabel?: string;
     nodeHeaderSuffix?: string;
+    hasLinkViaCollectClause?: boolean;
 }
 
 export function RecordTypeTreeWidget(props: RecordTypeTreeWidgetProps) {
-    const { engine, typeDesc, id, getPort, handleCollapse, valueLabel, nodeHeaderSuffix } = props;
-    const classes = useStyles();
+    const { engine, typeDesc, id, getPort, handleCollapse, valueLabel, nodeHeaderSuffix, hasLinkViaCollectClause } = props;
+    const classes = useIONodesStyles();
 
     const [ portState, setPortState ] = useState<PortState>(PortState.Unselected);
     const [isHovered, setIsHovered] = useState(false);
 
     const typeName = getTypeName(typeDesc);
 
-    const portIn = getPort(`${id}.IN`);
     const portOut = getPort(`${id}.OUT`);
+    const isPortDisabled = hasLinkViaCollectClause && Object.keys(portOut.getLinks()).length === 0;
+    portOut.isDisabledDueToCollectClause = isPortDisabled;
 
     const hasFields = !!typeDesc?.fields?.length;
 
     let expanded = true;
-    if ((portIn && portIn.collapsed) || (portOut && portOut.collapsed)) {
+    if (portOut && portOut.collapsed) {
         expanded = false;
     }
 
@@ -107,7 +61,7 @@ export function RecordTypeTreeWidget(props: RecordTypeTreeWidgetProps) {
                 {typeName && ":"}
             </span>
             {typeName && (
-                <span className={classes.typeLabel}>
+                <span className={classes.inputTypeLabel}>
                     {typeName}
                 </span>
             )}
@@ -144,6 +98,10 @@ export function RecordTypeTreeWidget(props: RecordTypeTreeWidgetProps) {
                 isSelected={portState !== PortState.Unselected}
                 onMouseEnter={onMouseEnter}
                 onMouseLeave={onMouseLeave}
+                className={classnames(
+                    isPortDisabled && !isHovered ? classes.treeLabelDisabled : "",
+                    isPortDisabled && isHovered ? classes.treeLabelDisableHover : "",
+                )}
             >
                 <span className={classes.label}>
                     {hasFields && (
@@ -159,9 +117,14 @@ export function RecordTypeTreeWidget(props: RecordTypeTreeWidgetProps) {
                     {label}
                     <span className={classes.nodeType}>{nodeHeaderSuffix}</span>
                 </span>
-                <span className={classes.treeLabelOutPort}>
+                <span className={classes.outPort}>
                     {portOut &&
-                        <DataMapperPortWidget engine={engine} port={portOut} handlePortState={handlePortState} />
+                        <DataMapperPortWidget
+                            engine={engine}
+                            port={portOut}
+                            handlePortState={handlePortState}
+                            disable={isPortDisabled}
+                        />
                     }
                 </span>
             </TreeHeader>
@@ -180,6 +143,7 @@ export function RecordTypeTreeWidget(props: RecordTypeTreeWidgetProps) {
                                     treeDepth={0}
                                     isOptional={typeDesc.optional}
                                     hasHoveredParent={isHovered}
+                                    hasLinkViaCollectClause={hasLinkViaCollectClause}
                                 />
                             );
                         })

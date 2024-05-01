@@ -9,20 +9,17 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
+    BallerinaDiagnosticsRequest,
+    BallerinaDiagnosticsResponse,
     CommonRPCAPI,
-    DeleteSourceRequest,
-    DeleteSourceResponse,
     GoToSourceRequest,
     TypeResponse,
-    UpdateSourceRequest,
-    UpdateSourceResponse,
     WorkspaceFileRequest,
     WorkspacesFileResponse,
-    deleteSource,
+    getBallerinaDiagnostics,
     getTypes,
     getWorkspaceFiles,
-    goToSource,
-    updateSource
+    goToSource
 } from "@wso2-enterprise/ballerina-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -38,19 +35,15 @@ export class CommonRpcClient implements CommonRPCAPI {
         return this._messenger.sendRequest(getTypes, HOST_EXTENSION);
     }
 
-    updateSource(params: UpdateSourceRequest): Promise<UpdateSourceResponse> {
-        return this._messenger.sendRequest(updateSource, HOST_EXTENSION, params);
-    }
-
-    deleteSource(params: DeleteSourceRequest): Promise<DeleteSourceResponse> {
-        return this._messenger.sendRequest(deleteSource, HOST_EXTENSION, params);
-    }
-
     goToSource(params: GoToSourceRequest): void {
         return this._messenger.sendNotification(goToSource, HOST_EXTENSION, params);
     }
 
     getWorkspaceFiles(params: WorkspaceFileRequest): Promise<WorkspacesFileResponse> {
         return this._messenger.sendRequest(getWorkspaceFiles, HOST_EXTENSION, params);
+    }
+
+    getBallerinaDiagnostics(params: BallerinaDiagnosticsRequest): Promise<BallerinaDiagnosticsResponse> {
+        return this._messenger.sendRequest(getBallerinaDiagnostics, HOST_EXTENSION, params);
     }
 }
