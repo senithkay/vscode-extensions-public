@@ -1,5 +1,5 @@
 {
-  "name": "DataService",
+  "name": "DataServiceCall",
   "type": "mediator",
   "title": "Data Service Mediator",
   "help": "Invokes data service operations.",
@@ -69,106 +69,88 @@
             "value": {
               "name": "operations",
               "displayName": "Operations",
-              "form": {
-                "title": "AbstractDSSOperation",
-                "description": "Editing of the properties of an object AbstractDSSOperation",
-                "elements": [
-                  {
-                    "type": "attributeGroup",
-                    "value": {
-                      "groupName": "Properties",
-                      "elements": [
-                        {
-                          "type": "attribute",
-                          "value": {
-                            "name": "operationName",
-                            "displayName": "OperationName",
-                            "inputType": "string",
-                            "required": false,
-                            "helpTip": ""
-                          }
-                        },
-                        {
-                          "type": "table",
-                          "value": {
-                            "name": "DSSProperties",
-                            "displayName": "DSS Properties",
-                            "title": "DSS Operation property",
-                            "description": "Editing of the properties of an object DSSoperationProperty",
-                            "tableKey": "propertyName",
-                            "tableValue": "propertyValue",
-                            "elements": [
-                              {
-                                "type": "attributeGroup",
-                                "value": {
-                                  "groupName": "Properties",
-                                  "elements": [
-                                    {
-                                      "type": "attribute",
-                                      "value": {
-                                        "name": "propertyName",
-                                        "displayName": "Property Name",
-                                        "inputType": "string",
-                                        "required": false,
-                                        "helpTip": ""
-                                      }
-                                    },
-                                    {
-                                      "type": "attribute",
-                                      "value": {
-                                        "name": "propertyValueType",
-                                        "displayName": "Property Value Type",
-                                        "inputType": "combo",
-                                        "defaultValue": "LITERAL",
-                                        "comboValues": [
-                                          "LITERAL",
-                                          "EXPRESSION"
-                                        ],
-                                        "required": false,
-                                        "helpTip": ""
-                                      }
-                                    },
-                                    {
-                                      "type": "attribute",
-                                      "value": {
-                                        "name": "propertyValue",
-                                        "displayName": "Property Value",
-                                        "inputType": "string",
-                                        "required": false,
-                                        "helpTip": "",
-                                        "enableCondition": [
-                                          {
-                                            "propertyValueType": "LITERAL"
-                                          }
-                                        ]
-                                      }
-                                    },
-                                    {
-                                      "type": "attribute",
-                                      "value": {
-                                        "name": "propertyExpression",
-                                        "displayName": "Property Expression",
-                                        "inputType": "expression",
-                                        "required": false,
-                                        "helpTip": "",
-                                        "enableCondition": [
-                                          {
-                                            "propertyValueType": "EXPRESSION"
-                                          }
-                                        ]
-                                      }
-                                    }
-                                  ]
-                                }
-                              }
-                            ]
-                          }
-                        }
-                      ]
-                    }
+              "description": "Editing of the properties of an object AbstractDSSOperation",
+              "tableKey": "operationName",
+              "tableValue": "DSSProperties",
+              "elements": [
+                {
+                  "type": "attribute",
+                  "value": {
+                    "name": "operationName",
+                    "displayName": "OperationName",
+                    "inputType": "string",
+                    "required": false,
+                    "helpTip": ""
                   }
-                ]
-              },
+                },
+                {
+                  "type": "table",
+                  "value": {
+                    "name": "DSSProperties",
+                    "displayName": "DSS Properties",
+                    "description": "Editing of the properties of an object DSSoperationProperty",
+                    "tableKey": "propertyName",
+                    "tableValue": "propertyValue",
+                    "elements": [
+                      {
+                        "type": "attribute",
+                        "value": {
+                          "name": "propertyName",
+                          "displayName": "Property Name",
+                          "inputType": "string",
+                          "required": false,
+                          "helpTip": ""
+                        }
+                      },
+                      {
+                        "type": "attribute",
+                        "value": {
+                          "name": "propertyValueType",
+                          "displayName": "Property Value Type",
+                          "inputType": "combo",
+                          "defaultValue": "LITERAL",
+                          "comboValues": [
+                            "LITERAL",
+                            "EXPRESSION"
+                          ],
+                          "required": false,
+                          "helpTip": ""
+                        }
+                      },
+                      {
+                        "type": "attribute",
+                        "value": {
+                          "name": "propertyValue",
+                          "displayName": "Property Value",
+                          "inputType": "string",
+                          "required": false,
+                          "helpTip": "",
+                          "enableCondition": [
+                            {
+                              "propertyValueType": "LITERAL"
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "type": "attribute",
+                        "value": {
+                          "name": "propertyExpression",
+                          "displayName": "Property Expression",
+                          "inputType": "expression",
+                          "required": false,
+                          "helpTip": "",
+                          "enableCondition": [
+                            {
+                              "propertyValueType": "EXPRESSION"
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                }
+              ],
               "enableCondition": [
                 {
                   "sourceType": "INLINE"
