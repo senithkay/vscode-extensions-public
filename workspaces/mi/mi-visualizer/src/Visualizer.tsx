@@ -70,7 +70,7 @@ const VisualizerComponent = React.memo(({ state }: { state: MachineStateValue })
             return <MainPanel />;
         case typeof state === 'object' && 'newProject' in state && state.newProject === "viewReady":
             return <WelcomePanel />;
-        case state === 'idle':
+        case state === 'disabled':
             return <DisabledView />
         default:
             return (
