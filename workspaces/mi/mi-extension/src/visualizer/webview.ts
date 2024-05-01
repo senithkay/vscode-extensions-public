@@ -43,6 +43,10 @@ export class VisualizerWebview {
         }, 500);
 
         vscode.workspace.onDidChangeTextDocument(async function (document) {
+            // Trigger refresh only if the document is a SynapseXml
+            if (document.document.languageId !== 'SynapseXml') {
+                return;
+            }
             await document.document.save();
             refreshDiagram();
         }, extension.context);
