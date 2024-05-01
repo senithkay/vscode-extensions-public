@@ -15,6 +15,7 @@ import { ComponentHeadWidget } from "./ComponentHead/ComponentHead";
 import { ComponentName, ComponentNode, PortsContainer } from "./styles";
 import { DiagramContext } from "../../DiagramContext/DiagramContext";
 import { ComponentPortWidget } from "../ComponentPort/ComponentPortWidget";
+import { Tooltip } from "@mui/material";
 
 interface ComponentWidgetProps {
     node: ComponentModel;
@@ -90,7 +91,9 @@ export function ComponentWidget(props: ComponentWidgetProps) {
                 isFocused={node.getID() === focusedNodeId || isHovered}
                 menuItems={componentMenu}
             />
-            <ComponentName>{displayName}</ComponentName>
+            <Tooltip title={displayName} placement="bottom" enterNextDelay={500} arrow>
+                <ComponentName>{displayName}</ComponentName>
+            </Tooltip>
             <PortsContainer>
                 <ComponentPortWidget port={node.getPort(`top-${node.getID()}`)} engine={engine} />
                 <ComponentPortWidget port={node.getPort(`bottom-${node.getID()}`)} engine={engine} />

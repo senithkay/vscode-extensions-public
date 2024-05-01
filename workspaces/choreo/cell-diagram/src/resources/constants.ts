@@ -65,7 +65,7 @@ export const LINE_MIN_WIDTH = 2;
 export const LINE_MAX_WIDTH = 10;
 
 export const LABEL_FONT_SIZE = 20;
-export const LABEL_MAX_WIDTH = 160;
+export const LABEL_MAX_WIDTH = 200;
 
 export const BORDER_GAP = 40;
 export const DIAGRAM_END = 1000;
