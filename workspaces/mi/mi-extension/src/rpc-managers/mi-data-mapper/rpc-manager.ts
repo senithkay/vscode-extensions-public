@@ -21,10 +21,7 @@ import {
     LoadDMConfigsResponse,
     ConvertRegPathToAbsPathRequest,
     ConvertRegPathToAbsPathResponse,
-    ImportDMSchemaRequest,
-    ImportDMSchemaResponse,
-    UpdateDMCRequest,
-    UpdateDMCResponse
+    UpdateDMCRequest
 } from "@wso2-enterprise/mi-core";
 import { fetchIOTypes } from "../../util/dataMapper";
 import { Project } from "ts-morph";
@@ -79,7 +76,9 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
 
     async browseSchema(params: BrowseSchemaRequest): Promise<BrowseSchemaResponse> {
         return new Promise(async (resolve) => {
-            if (params.overwriteSchema) {
+            const { documentUri, overwriteSchema, resourceName, sourcePath, ioType, schemaType, configName } = params;
+            const workspaceFolder = workspace.getWorkspaceFolder(Uri.file(documentUri));
+            if (overwriteSchema) {
                 const response = await window.showInformationMessage(
                     "Are you sure you want to override the existing schema?\n\nPlease note that this will remove all existing mappings.",
                     { modal: true }, 
@@ -95,15 +94,37 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
                 canSelectFiles: true,
                 canSelectFolders: false,
                 canSelectMany: false,
-                title: `Select a schema file`,
-                filters: {
-                    'JSON Files': ['json'],
-                    'XML Files': ['xml'],
-                }
+                title: `Select a schema file`
             });
             if (selectedFile) {
-                resolve({ filePath: selectedFile[0].fsPath });
-            }
+                const filePath = selectedFile[0].fsPath;
+                let schema: JSONSchema3or4;
+                try {
+                    schema = await generateSchema(ioType, schemaType, schemaType, extension.context, filePath);
+                } catch (error: any) {
+                    console.error(error);
+                    window.showErrorMessage("Error while generating schema. Please check the input file and Resource Type and try again.");
+                    resolve({success: false});
+                    return;
+                }
+                
+                if (workspaceFolder) {
+                    const dataMapperConfigFolder = path.join(
+                        workspaceFolder.uri.fsPath,  'src', 'main', 'wso2mi', 'resources', 'registry', 'gov', 'datamapper');
+                    const newFilePath = path.join(dataMapperConfigFolder, configName, `${resourceName}.json`);
+                    fs.writeFileSync(newFilePath, JSON.stringify(schema, null, 4));
+                }
+                try {
+                    await updateDMC(configName, sourcePath);
+                    navigate();
+                    resolve({success: true});
+                } catch (error: any) {
+                    console.error(error);
+                    window.showErrorMessage("Error while updating DMC file.");
+                    resolve({success: false});
+                }
+            };
+            resolve({success: false});
             return;
         });
     }
@@ -147,46 +168,9 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
         });
     }
 
-    async importDMSchema(params: ImportDMSchemaRequest): Promise<ImportDMSchemaResponse> {
-        return new Promise(async (resolve, reject) => {
-            const { importPath, resourceName, sourcePath, ioType, schemaType, configName } = params;
-            let schema: JSONSchema3or4;
-            schema = await generateSchema(ioType, schemaType, schemaType, extension.context, importPath);
-            const workspaceFolder = workspace.getWorkspaceFolder(Uri.file(sourcePath));
-            if (workspaceFolder) {
-                const dataMapperConfigFolder = path.join(
-                    workspaceFolder.uri.fsPath,  'src', 'main', 'wso2mi', 'resources', 'registry', 'gov', 'datamapper');
-                const newFilePath = path.join(dataMapperConfigFolder, configName, `${resourceName}.json`);
-                fs.writeFileSync(newFilePath, JSON.stringify(schema, null, 4));
-                resolve({success: true});
-            }
-            reject({success: false});
-        });
-    }
-
-    
-
-    async updateDMC(params: UpdateDMCRequest): Promise<UpdateDMCResponse> {
-        return new Promise((resolve, reject) => {
-            try {
-                const { dmName, sourcePath } = params;
-                updateDMC(dmName, sourcePath).then(() => {
-                    resolve({success: true});
-                    navigate();
-                });
-                resolve({success: false});
-            } catch (error: any) {
-                console.error(error);
-                reject(error);
-            }
-        });
-    }
-
     async updateDMCFileContent(params: UpdateDMCRequest): Promise<void> {
         const { dmName, sourcePath } = params;
-        updateDMCContent(dmName, sourcePath).then(() => {
-            // navigate();
-        });
+        updateDMCContent(dmName, sourcePath);
     }
 
     async createDMFiles(params: GenerateDMInputRequest): Promise<GenerateDMInputResponse> {

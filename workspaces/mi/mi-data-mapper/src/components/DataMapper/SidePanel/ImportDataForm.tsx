@@ -57,34 +57,21 @@ export function ImportDataForm(props: ImportDataWizardProps) {
 
     const loadSchema = async () => {
         const request = {
-            canSelectFiles: true,
-            canSelectFolders: false,
-            canSelectMany: false,
-            defaultUri: "",
-            title: "Select a file to be imported as registry resource",
+            documentUri: documentUri,
             overwriteSchema: overwriteSchema,
+            resourceName: configName + '_' + ioType.toLowerCase() + 'Schema',
+            sourcePath: documentUri,
+            ioType: ioType.toUpperCase(),
+            schemaType: selectedResourceType.toLowerCase(),
+            configName: configName,
         }
         await rpcClient.getMiDataMapperRpcClient().browseSchema(request).then(response => {
-            const filePathStr = response.filePath;
             setSidePanelOpen(false);
-            rpcClient.getMiDiagramRpcClient().getProjectRoot({ path: documentUri })
-                .then(response => {
-                    const request = {
-                        importPath: filePathStr,
-                        resourceName: configName + '_' + ioType.toLowerCase() + 'Schema',
-                        sourcePath: documentUri,
-                        ioType: ioType.toUpperCase(),
-                        schemaType: selectedResourceType.toLowerCase(),
-                        configName: configName,
-                    }
-                    rpcClient.getMiDataMapperRpcClient().importDMSchema(request).then(response => {
-                        rpcClient.getMiDataMapperRpcClient().updateDMC({
-                            sourcePath: documentUri,
-                            dmName: configName,
-                        });
-                    });
-                })
-            
+            if (response.success) {
+                console.log("Schema imported successfully");
+            } else {
+                console.error("Error while importing schema");
+            }
         }).catch(e => {
             console.error("Error while importing schema", e);
         });
