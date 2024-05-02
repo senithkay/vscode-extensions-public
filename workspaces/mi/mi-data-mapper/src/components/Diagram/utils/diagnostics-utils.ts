@@ -6,9 +6,14 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { Diagnostic, Node } from "ts-morph";
+import { Diagnostic, DiagnosticMessageChain, Node } from "ts-morph";
 
 export function getDiagnostics(node: Node): Diagnostic[] {
+
+    if (!node) {
+        return [];
+    }
+
     const diagnostics = node.getSourceFile().getPreEmitDiagnostics();
     let targetNode = node;
 
@@ -21,4 +26,15 @@ export function getDiagnostics(node: Node): Diagnostic[] {
         diagnostic.getStart() >= targetNode.getStart()
         && diagnostic.getStart() + diagnostic.getLength() <= targetNode.getEnd()
     );
+}
+
+export function getDiagnosticMessage(diagnostic: Diagnostic): string {
+    const msgText = diagnostic.getMessageText();
+
+    if (msgText instanceof DiagnosticMessageChain) {
+        // Return only the first message
+        return msgText.getMessageText();
+    }
+
+    return msgText;
 }

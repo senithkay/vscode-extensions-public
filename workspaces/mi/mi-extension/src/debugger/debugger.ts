@@ -10,11 +10,12 @@
 import * as net from 'net';
 import { EventEmitter } from 'events';
 import { DebugProtocol } from 'vscode-debugprotocol';
-import { StateMachine, openView } from '../stateMachine';
-import { BreakpointInfo, BreakpointSequence, EVENT_TYPE, GetBreakpointInfoRequest, GetBreakpointInfoResponse, StepOverBreakpointResponse, ValidateBreakpointsRequest, ValidateBreakpointsResponse } from '@wso2-enterprise/mi-core';
-import { isPortActivelyListening } from './debugHelper';
+import { StateMachine, navigate } from '../stateMachine';
+import { BreakpointInfo, SequenceBreakpoint, GetBreakpointInfoRequest, GetBreakpointInfoResponse, ValidateBreakpointsRequest, ValidateBreakpointsResponse, TemplateBreakpoint } from '@wso2-enterprise/mi-core';
+import { checkServerReadiness } from './debugHelper';
 import { VisualizerWebview } from '../visualizer/webview';
 import { extension } from '../MIExtensionContext';
+import { ViewColumn } from 'vscode';
 
 export interface RuntimeBreakpoint {
     id: number;
@@ -25,8 +26,8 @@ export interface RuntimeBreakpoint {
 
 export interface RuntimeBreakpointInfo {
     key: string;
-    mediationPosition: string;
-    sequenceType: string;
+    mediatorPosition: string;
+    sequenceType?: string;
     completeInfo: BreakpointInfo;
 }
 
@@ -113,30 +114,34 @@ export class Debugger extends EventEmitter {
                 const breakpointInfo = await this.getBreakpointInformation(breakpointPerFile);
                 // map the runtime breakpoint to the breakpoint info
                 for (let i = 0; i < breakpointPerFile.length; i++) {
-                    //this.debuggingRuntimeBreakpointMap.set(breakpointInfo[i], breakpointPerFile[i]);
 
                     // check if breakpointInfo has sequence
                     const currentInfo = breakpointInfo[i];
+                    // Information for the SequenceBreakpoint type
                     if (currentInfo && currentInfo.sequence !== undefined) {
-                        const sequence: BreakpointSequence = currentInfo.sequence;
-                        // map for api
-                        if (sequence.api) {
-                            const key = sequence.api['api-key'];
-                            const mediationPosition = sequence.api['mediator-position'];
-                            const sequenceType = sequence.api['sequence-type'];
+                        const sequence: SequenceBreakpoint = currentInfo.sequence;
+                        const sequenceData = this.mapSequenceInfo(sequence);
+                        // create runtime breakpoint info
+                        const runtimeBreakpointInfo: RuntimeBreakpointInfo = {
+                            key: sequenceData.key,
+                            mediatorPosition: sequenceData.mediatorPosition,
+                            sequenceType: sequenceData.sequenceType,
+                            completeInfo: breakpointInfo[i]
+                        };
+                        this.runtimeVscodeBreakpointMap.set(runtimeBreakpointInfo, breakpointPerFile[i]);
 
-                            const runtimeBreakpointInfo: RuntimeBreakpointInfo = {
-                                key: key,
-                                mediationPosition: mediationPosition,
-                                sequenceType: sequenceType,
-                                completeInfo: breakpointInfo[i]
-                            };
-                            this.runtimeVscodeBreakpointMap.set(runtimeBreakpointInfo, breakpointPerFile[i]);
-                        } else {
-                            // TODO: map for other types
-                            this.debuggingRuntimeBreakpointMap.set(breakpointInfo[i], breakpointPerFile[i]);
-                        }
+                    } else if (currentInfo && currentInfo.template) {
+                        const templateBreakpoint: TemplateBreakpoint = currentInfo.template;
+                        const templateData = this.mapTemplateInfo(templateBreakpoint);
+
+                        const runtimeBreakpointInfo: RuntimeBreakpointInfo = {
+                            key: templateData.key,
+                            mediatorPosition: templateData.mediatorPosition,
+                            completeInfo: breakpointInfo[i]
+                        };
+                        this.runtimeVscodeBreakpointMap.set(runtimeBreakpointInfo, breakpointPerFile[i]);
                     } else {
+                        // TODO: remove after testing
                         this.debuggingRuntimeBreakpointMap.set(breakpointInfo[i], breakpointPerFile[i]);
                     }
                 }
@@ -225,14 +230,10 @@ export class Debugger extends EventEmitter {
 
     public async initializeDebugger(): Promise<void> {
         return new Promise(async (resolve, reject) => {
-            await this.startDebugger();
-            extension.preserveActivity = true;
-
-            // TODO: Move to constants
-            const readinessPort = 9201;
-            const maxTimeout = 12000;
-            isPortActivelyListening(readinessPort, maxTimeout).then((isListening) => {
-                if (isListening) {
+            this.startDebugger().then(() => {
+                extension.preserveActivity = true;
+                //checkServerLiveness().then(() => {
+                checkServerReadiness().then(() => {
                     this.sendResumeCommand().then(async () => {
                         const runtimeBreakpoints = this.getRuntimeBreakpoints(this.getCurrentFilePath());
                         const runtimeBreakpointInfo = await this.getBreakpointInformation(runtimeBreakpoints);
@@ -240,22 +241,31 @@ export class Debugger extends EventEmitter {
                         for (const info of runtimeBreakpointInfo) {
                             await this.sendClearBreakpointCommand(info);
                             await this.sendSetBreakpointCommand(info);
+
+                            // TODO: Handle issue where invalid breakpoint positions are sent from the server 
                         }
                         resolve();
+                    }).catch((error) => {
+                        console.error('Error while resuming the debugger:', error);
+                        reject(error);
                     });
-                } else {
-                    resolve();
-                }
+
+                }).catch((error) => {
+                    console.error('Error while checking server readiness:', error);
+                    reject(error);
+                });
+
+            }).catch((error) => {
+                console.error('Error while connecting the debugger to the MI server:', error);
+                reject(error);
             });
         });
     }
 
-    // TODO: handle failures on server starts
     public startDebugger(): Promise<void> {
-        this.commandClient = new net.Socket();
-        this.eventClient = new net.Socket();
-
         return new Promise((resolve, reject) => {
+            this.commandClient = new net.Socket();
+            this.eventClient = new net.Socket();
             // Connect to the command port
             this.commandClient?.connect(this.commandPort, this.host, () => {
                 console.log('Connected to command port');
@@ -272,6 +282,7 @@ export class Debugger extends EventEmitter {
             // Connect to the event port
             this.eventClient?.connect(this.eventPort, this.host, () => {
                 console.log('Connected to event port');
+                resolve();
             });
 
             // Error handling for the event client
@@ -306,7 +317,8 @@ export class Debugger extends EventEmitter {
 
                         const stateContext = StateMachine.context();
                         if (VisualizerWebview.currentPanel?.getWebview()?.visible && stateContext.stNode) {
-                            openView(EVENT_TYPE.OPEN_VIEW, stateContext);
+                            navigate();
+                            VisualizerWebview.currentPanel!.getWebview()?.reveal(ViewColumn.Beside);
                         }
                     }
 
@@ -322,34 +334,32 @@ export class Debugger extends EventEmitter {
                         const event: BreakpointInfo = eventInfo;
 
                         if (event.sequence) {
-                            const sequence: BreakpointSequence = event.sequence;
-                            // map for api
-                            if (sequence.api) {
-                                const key = sequence.api['api-key'];
-                                const mediationPosition = sequence.api['mediator-position'];
-                                const sequenceType = sequence.api['sequence-type'];
+                            const sequence: SequenceBreakpoint = event.sequence;
+                            const sequenceData = this.mapSequenceInfo(sequence);
 
-                                // check  if there values are present in the key of runtimeVscodeBreakpointMap
-                                const breakpointKey = Array.from(this.runtimeVscodeBreakpointMap.keys()).find(
-                                    (runtimeBreakpointInfo) => runtimeBreakpointInfo.key === key &&
-                                        runtimeBreakpointInfo.mediationPosition === mediationPosition &&
-                                        runtimeBreakpointInfo.sequenceType === sequenceType);
+                            // check  if there values are present in the key of runtimeVscodeBreakpointMap
+                            const breakpointKey = Array.from(this.runtimeVscodeBreakpointMap.keys()).find(
+                                (runtimeBreakpointInfo) => runtimeBreakpointInfo.key === sequenceData.key &&
+                                    runtimeBreakpointInfo.mediatorPosition === sequenceData.mediatorPosition &&
+                                    runtimeBreakpointInfo.sequenceType === sequenceData.sequenceType);
 
-                                if (breakpointKey) {
-                                    const breakpoint = this.runtimeVscodeBreakpointMap.get(breakpointKey);
-                                    this.currentDebugpoint = breakpoint;
-                                    this.sendEvent('breakpointValidated', breakpoint);
-                                }
-                            } else {
-                                // Convert objects to strings before using them as keys in the map
-                                const eventString = JSON.stringify(event.sequence);
-                                const breakpointKey = Array.from(this.debuggingRuntimeBreakpointMap.keys()).find(key => JSON.stringify(key.sequence) === eventString);
-                                if (breakpointKey) {
-                                    const breakpoint = this.debuggingRuntimeBreakpointMap.get(breakpointKey);
-                                    this.currentDebugpoint = breakpoint;
-                                    this.sendEvent('breakpointValidated', breakpoint);
-                                }
+                            if (breakpointKey) {
+                                const breakpoint = this.runtimeVscodeBreakpointMap.get(breakpointKey);
+                                this.currentDebugpoint = breakpoint;
+                                this.sendEvent('breakpointValidated', breakpoint);
+                            }
+                        } else if (event.template) {
+                            const template: TemplateBreakpoint = event.template;
+                            const templateData = this.mapTemplateInfo(template);
 
+                            const breakpointKey = Array.from(this.runtimeVscodeBreakpointMap.keys()).find(
+                                (runtimeBreakpointInfo) => runtimeBreakpointInfo.key === templateData.key &&
+                                    runtimeBreakpointInfo.mediatorPosition === templateData.mediatorPosition);
+
+                            if (breakpointKey) {
+                                const breakpoint = this.runtimeVscodeBreakpointMap.get(breakpointKey);
+                                this.currentDebugpoint = breakpoint;
+                                this.sendEvent('breakpointValidated', breakpoint);
                             }
                         }
                     }
@@ -359,12 +369,40 @@ export class Debugger extends EventEmitter {
                     incompleteMessage = incompleteMessage.slice(newlineIndex + 1);
                 }
             });
-
-            //TODO: Error handling for the event client
-            this.eventClient?.on('error', (error) => {
-                console.error('Event client error:', error);
-            });
         });
+    }
+
+    private mapSequenceInfo(sequence: SequenceBreakpoint): { key: string, mediatorPosition: string, sequenceType: string } {
+        let key;
+        let mediatorPosition;
+        let sequenceType;
+
+        if (sequence.api) {
+            key = sequence.api['api-key'];
+            mediatorPosition = sequence.api['mediator-position'];
+            sequenceType = sequence.api['sequence-type'];
+        } else if (sequence.proxy) {
+            key = sequence.proxy['proxy-key'];
+            mediatorPosition = sequence.proxy['mediator-position'];
+            sequenceType = sequence.proxy['sequence-type'];
+        } else if (sequence.inbound) {
+            key = sequence.inbound['inbound-key'];
+            mediatorPosition = sequence.inbound['mediator-position'];
+            sequenceType = sequence.inbound['sequence-type'];
+        } else {
+            key = sequence['sequence-key'];
+            mediatorPosition = sequence['mediator-position'];
+            sequenceType = sequence['sequence-type'];
+        }
+
+        return { key, mediatorPosition, sequenceType };
+    }
+
+    private mapTemplateInfo(template: TemplateBreakpoint): { key: string, mediatorPosition: string } {
+        const key = template['template-key'];
+        const mediatorPosition = template['mediator-position'];
+
+        return { key, mediatorPosition };
     }
 
     public sendRequest(request: string): Promise<string> {
@@ -382,6 +420,7 @@ export class Debugger extends EventEmitter {
             this.commandClient?.once('data', (data) => {
                 // Convert buffer to string
                 const receivedData = data.toString();
+                console.log('Received data from commandClient, waiting for complete data:', receivedData);
 
                 // Append the received data to incompleteMessage
                 incompleteMessage += receivedData;
@@ -400,28 +439,32 @@ export class Debugger extends EventEmitter {
                     incompleteMessage = incompleteMessage.slice(newlineIndex + 1);
                 }
             });
-
-            // Error handling for the command client
-            this.commandClient?.once('error', (error) => {
-                console.error('Command client error:', error);
-                reject(error); // Reject the promise if there's an error
-            });
         });
     }
 
     public async sendPropertiesCommand(): Promise<JSON[]> {
-        const contextList = ["axis2", "axis2-client", "transport", "synapse"];
+        const contextList = ["axis2", "axis2-client", "transport", "operation", "synapse"];
         const variables: JSON[] = [];
+        const propertyMapping = {
+            "axis2Transport-properties": "Transport Scope Properties",
+            "axis2Operation-properties": "Operation Scope Properties",
+            "axis2Client-properties": "Axis2-Client Scope Properties",
+            "axis2-properties": "Axis2 Scope Properties",
+            "synapse-properties": "Synapse Scope Properties"
+        };
 
         for (const context of contextList) {
             let propertiesCommand: any = { "command": "get", "command-argument": "properties", "context": context };
-            if (context === "wire") {
-                // append the properties command with the field and value "property":{"property-name":"log"}
-                propertiesCommand = { "command": "get", "command-argument": "properties", "context": context, "property": { "property-name": "log" } };
-            }
             try {
                 const response = await this.sendRequest(JSON.stringify(propertiesCommand));
                 const jsonResponse = JSON.parse(response);
+                for (const key in propertyMapping) {
+                    if (jsonResponse[key]) {
+                        jsonResponse[propertyMapping[key]] = jsonResponse[key];
+                        delete jsonResponse[key];
+                    }
+                }
+
                 variables.push(jsonResponse);
             } catch (error) {
                 console.error(`Error sending request for ${context}:`, error);
@@ -432,6 +475,16 @@ export class Debugger extends EventEmitter {
 
     public async getVariables(): Promise<JSON[]> {
         const variables = await this.sendPropertiesCommand();
+        const axis2Properties = variables.find((variable) => variable["Axis2 Scope Properties"]);
+        if (!axis2Properties) {
+            return variables;
+        }
+        const envelope = axis2Properties["Axis2 Scope Properties"]["Envelope"];
+        if (envelope) {
+            const envelopeJson = JSON.stringify({ "Message Envelope": envelope });
+            const envelopeJsonResponse = JSON.parse(envelopeJson);
+            variables.push(envelopeJsonResponse);
+        }
         return variables;
     }
 
@@ -466,8 +519,10 @@ export class Debugger extends EventEmitter {
 
     public closeDebugger(): void {
         // Close connections to command and event ports
-        this.commandClient?.end();
-        this.eventClient?.end();
+        this.commandClient?.destroy();
+        this.eventClient?.destroy();
+        // remove all the listeners
+        this.removeAllListeners();
         extension.preserveActivity = false;
     }
 

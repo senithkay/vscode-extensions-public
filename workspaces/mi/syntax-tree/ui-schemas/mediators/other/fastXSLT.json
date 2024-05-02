@@ -35,7 +35,7 @@
               "helpTip": "",
               "enableCondition": [
                 {
-                  "fastXsltSchemaType": "dynamic"
+                  "fastXsltSchemaType": "Dynamic"
                 }
               ]
             }
@@ -51,7 +51,7 @@
               "helpTip": "",
               "enableCondition": [
                 {
-                  "fastXsltSchemaType": "static"
+                  "fastXsltSchemaType": "Static"
                 }
               ]
             }

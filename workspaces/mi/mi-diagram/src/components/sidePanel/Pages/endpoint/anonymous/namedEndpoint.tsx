@@ -14,7 +14,7 @@ import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
-import { ENDPOINTS } from '../../../../../constants';
+import { ENDPOINTS } from '../../../../../resources/constants';
 import { AddMediatorProps } from '../../mediators/common';
 
 const cardStyle = { 
@@ -44,7 +44,7 @@ const NamedEndpointForm = (props: AddMediatorProps) => {
    const [errors, setErrors] = useState({} as any);
 
    useEffect(() => {
-       if (sidePanelContext.formValues) {
+       if (sidePanelContext.formValues && Object.keys(sidePanelContext.formValues).length > 0) {
            setFormValues({ ...formValues, ...sidePanelContext.formValues });
        } else {
            setFormValues({
@@ -67,10 +67,14 @@ const NamedEndpointForm = (props: AddMediatorProps) => {
            rpcClient.getMiDiagramRpcClient().applyEdit({
                documentUri: props.documentUri, range: props.nodePosition, text: xml
            });
-           sidePanelContext.setIsOpen(false);
-           sidePanelContext.setFormValues(undefined);
-           sidePanelContext.setNodeRange(undefined);
-           sidePanelContext.setOperationName(undefined);
+           sidePanelContext.setSidePanelState({
+                ...sidePanelContext,
+                isOpen: false,
+                isEditing: false,
+                formValues: undefined,
+                nodeRange: undefined,
+                operationName: undefined
+              });
        }
    };
 
@@ -109,7 +113,7 @@ const NamedEndpointForm = (props: AddMediatorProps) => {
 
                 <Field>
                     <label>Referring Endpoint Type</label>
-                    <AutoComplete items={["Static", "dynamic"]} selectedItem={formValues["referringEndpointType"]} onChange={(e: any) => {
+                    <AutoComplete identifier='referring-endpoint-type' items={["Static", "dynamic"]} value={formValues["referringEndpointType"]} onValueChange={(e: any) => {
                         setFormValues({ ...formValues, "referringEndpointType": e });
                         formValidators["referringEndpointType"](e);
                     }} />
@@ -129,7 +133,7 @@ const NamedEndpointForm = (props: AddMediatorProps) => {
             </ComponentCard>
 
 
-            <div style={{ textAlign: "right", marginTop: "10px" }}>
+            <div style={{ display: "flex", textAlign: "right", justifyContent: "flex-end", marginTop: "10px" }}>
                 <Button
                     appearance="primary"
                     onClick={onClick}

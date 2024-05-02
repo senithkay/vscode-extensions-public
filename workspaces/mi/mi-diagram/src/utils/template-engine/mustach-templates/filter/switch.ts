@@ -1,0 +1,129 @@
+/**
+ * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
+
+import { Switch } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import Mustache from "mustache";
+
+export function getSwitchMustacheTemplate() {
+
+  return `
+    {{#isNewMediator}}
+    <switch {{#description}}description="{{description}}"{{/description}} {{#sourceXPath}}source="{{{sourceXPath}}}"{{/sourceXPath}} >
+        {{#caseBranches}}
+        <case regex="{{caseRegex}}"></case>
+        {{/caseBranches}}
+        <default></default>
+    </switch>
+    {{/isNewMediator}}
+    {{^isNewMediator}}
+    {{#editSwitch}}
+    {{#switchSelfClosed}}
+    <switch {{#description}}description="{{description}}"{{/description}} {{#sourceXPath}}source="{{{sourceXPath}}}"{{/sourceXPath}} />
+    {{/switchSelfClosed}}
+    {{^switchSelfClosed}}
+    <switch {{#description}}description="{{description}}"{{/description}} {{#sourceXPath}}source="{{{sourceXPath}}}"{{/sourceXPath}}>
+    {{/switchSelfClosed}}
+    {{/editSwitch}}
+    {{#newCase}}
+    <case regex="{{{caseRegex}}}"></case>
+    {{/newCase}}
+    {{#editCase}}
+    {{#caseSelfClosed}}
+    <case regex="{{{caseRegex}}}"></case>
+    {{/caseSelfClosed}}
+    {{^caseSelfClosed}}
+    <case regex="{{{caseRegex}}}" >
+    {{/caseSelfClosed}}
+    {{/editCase}}
+    {{/isNewMediator}}    
+    `;
+}
+
+export function getSwitchXml(data: { [key: string]: any }, dirtyFields?: any, defaultValues?: any) {
+
+  data.sourceXPath = data?.sourceXPath?.value;
+  if (defaultValues === undefined || Object.keys(defaultValues).length == 0) {
+    data.isNewMediator = true;
+    if (data.caseBranches) {
+      data.caseBranches = data.caseBranches.map((_case: string[]) => {
+        return { caseRegex: _case[0] }
+      });
+    }
+    const output = Mustache.render(getSwitchMustacheTemplate(), data)?.trim();
+    return output;
+  }
+  return getEdits(data, dirtyFields, defaultValues);
+}
+
+function getEdits(data: { [key: string]: any }, dirtyFields: any, defaultValues: any) {
+  let edits: { [key: string]: any }[] = [];
+  let dataCopy;
+  if (dirtyFields.sourceXPath || dirtyFields.description) {
+    dataCopy = { ...data }
+    dataCopy.editSwitch = true;
+    dataCopy.switchSelfClosed = defaultValues.switchSelfClosed;
+    let output = Mustache.render(getSwitchMustacheTemplate(), dataCopy)?.trim();
+    edits.push({
+      range: defaultValues.ranges.switch.startTagRange,
+      text: output
+    });
+  }
+  if (dirtyFields.caseBranches) {
+    for (let i = 0; i < data.caseBranches.length; i++) {
+      dataCopy = { ...data };
+      dataCopy.caseRegex = data.caseBranches[i][0];
+      let editRange;
+      if (defaultValues.caseBranches[i]) {
+        dataCopy.editCase = true;
+        dataCopy.caseSelfClosed = defaultValues.caseBranches[i][2];
+        editRange = defaultValues.caseBranches[i][1].startTagRange
+      } else {
+        dataCopy.newCase = true;
+        editRange = {
+          start: defaultValues.ranges._default.startTagRange.start,
+          end: defaultValues.ranges._default.startTagRange.start
+        }
+      }
+      let output = Mustache.render(getSwitchMustacheTemplate(), dataCopy)?.trim();
+      edits.push({
+        range: editRange,
+        text: output
+      });
+
+    }
+  }
+  edits.sort((a, b) => b.range.start.line - a.range.start.line);
+  return edits;
+}
+
+export function getSwitchFormDataFromSTNode(data: { [key: string]: any }, node: Switch) {
+
+  data.sourceXPath = { isExpression: true, value: node.source };
+  data.description = node.description;
+  if (node._case) {
+    data.caseBranches = node._case.map((_case) => {
+      return [_case.regex, _case.range, _case.selfClosed];
+    });
+  }
+  data.ranges = {
+    switch: node.range,
+    _default: node._default?.range
+  }
+  data.switchSelfClosed = node.selfClosed;
+  return data;
+}
+
+export function getNewSwitchCaseXml() {
+  return `<case regex="case">
+  </case>`;
+}
+
+export function getSwitchDescription(node: Switch) {
+  return node.source;
+}

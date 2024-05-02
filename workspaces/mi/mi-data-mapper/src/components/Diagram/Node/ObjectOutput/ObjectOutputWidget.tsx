@@ -24,6 +24,7 @@ import { useIONodesStyles } from '../../../styles';
 import { useDMCollapsedFieldsStore } from '../../../../store/store';
 import { getPosition } from '../../utils/st-utils';
 import { isEmptyValue } from '../../utils/common-utils';
+import { getDiagnostics } from '../../utils/diagnostics-utils';
 
 export interface ObjectOutputWidgetProps {
 	id: string; // this will be the root ID used to prepend for UUIDs of nested fields
@@ -33,7 +34,6 @@ export interface ObjectOutputWidgetProps {
 	engine: DiagramEngine;
 	getPort: (portId: string) => InputOutputPortModel;
 	context: IDataMapperContext;
-	valueLabel?: string;
 	mappings?: MappingMetadata[];
 	deleteField?: (node: Node) => Promise<void>;
 	originalTypeName?: string;
@@ -49,7 +49,6 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 		getPort,
 		context,
 		mappings,
-		valueLabel,
 		deleteField
 	} = props;
 	const classes = useIONodesStyles();
@@ -62,7 +61,7 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 	const hasValue = fields && fields.length > 0;
 	const isBodyObjectLiteralExpr = value && Node.isObjectLiteralExpression(value);
 
-	const hasSyntaxDiagnostics = false; // TODO: Find diagnostics for the value
+	const hasDiagnostics = getDiagnostics(dmTypeWithValue?.value).length > 0;
 	const hasEmptyFields = mappings && (mappings.length === 0 || !mappings.some(mapping => {
 		if (mapping.value && !mapping.value.wasForgotten()) {
 			return !isEmptyValue(getPosition(mapping.value));
@@ -78,20 +77,6 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 	}
 
 	const indentation = (portIn && (!hasValue || !expanded)) ? 0 : 24;
-
-	const label = (
-		<span style={{ marginRight: "auto" }}>
-			{valueLabel && (
-				<span className={classes.valueLabel}>
-					<OutputSearchHighlight>{valueLabel}</OutputSearchHighlight>
-					{typeName && ":"}
-				</span>
-			)}
-			<span className={classes.outputTypeLabel}>
-				{typeName || ''}
-			</span>
-		</span>
-	);
 
 	const handleExpand = () => {
 		const collapsedFields = collapsedFieldsStore.collapsedFields;
@@ -114,6 +99,14 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 		setIsHovered(false);
 	};
 
+	const label = (
+		<span style={{ marginRight: "auto" }}>
+			<span className={classes.outputTypeLabel}>
+				{typeName || ''}
+			</span>
+		</span>
+	);
+
 	return (
 		<>
 			<TreeContainer data-testid={`${id}-node`}>
@@ -124,7 +117,7 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 					onMouseLeave={onMouseLeave}
 				>
 					<span className={classes.inPort}>
-						{portIn && (isBodyObjectLiteralExpr || !hasSyntaxDiagnostics) && (!hasValue
+						{portIn && (isBodyObjectLiteralExpr || !hasDiagnostics) && (!hasValue
 								|| !expanded
 								|| !isBodyObjectLiteralExpr
 								|| hasEmptyFields

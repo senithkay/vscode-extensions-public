@@ -18,6 +18,7 @@ import { DataMapperPortWidget, PortState, InputOutputPortModel } from "../../Por
 import { InputSearchHighlight } from "../commons/Search";
 import { useIONodesStyles } from "../../../styles";
 import { useDMCollapsedFieldsStore } from '../../../../store/store';
+import { getTypeName } from "../../utils/common-utils";
 
 
 export interface InputNodeTreeItemWidgetProps {
@@ -38,7 +39,7 @@ export function InputNodeTreeItemWidget(props: InputNodeTreeItemWidgetProps) {
     const collapsedFieldsStore = useDMCollapsedFieldsStore();
 
     const fieldName = dmType.fieldName;
-    const typeName = dmType.kind;
+    const typeName = getTypeName(dmType);
     const fieldId = `${parentId}${isOptional ? `?.${fieldName}` : `.${fieldName}`}`;
     const portOut = getPort(`${fieldId}.OUT`);
 

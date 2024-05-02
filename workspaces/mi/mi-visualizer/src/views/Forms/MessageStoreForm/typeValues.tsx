@@ -32,6 +32,7 @@ export const jmsInitialValues=()=>({
 
 export const jdbcInitialValues=()=>({
     dataBaseTable: "",
+    connectionInformationType: "Pool"
 });
 
 export const wso2MbInitialValues=()=>({
@@ -46,9 +47,11 @@ export const resequenceInitialValues=()=>({
     dataBaseTable: "",
     pollingCount: "",
     xPath: "",
+    connectionInformationType: "Pool"
 });
 
 export const poolInitialValues=()=>({
+    rdbmsType: "Other",
     driver:"",
     url:"",
     user:"",
@@ -57,14 +60,4 @@ export const poolInitialValues=()=>({
 
 export const carbonDatasourceInitialValues=()=>({
     dataSourceName: ""
-});
-
-export const sslInitialValues=()=>({
-    keyStoreLocation: "",
-    keyStoreType: "PKCS12",
-    keyStorePassword: "",
-    trustStoreLocation: "",
-    trustStoreType: "JKS",
-    trustStorePassword: "",
-    sslVersion: "SSL"
 });

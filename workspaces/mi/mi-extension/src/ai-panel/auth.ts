@@ -11,6 +11,7 @@ import axios from 'axios';
 import { StateMachineAI } from './aiMachine';
 import { AI_EVENT_TYPE } from '@wso2-enterprise/mi-core';
 import { extension } from '../MIExtensionContext';
+import * as vscode from 'vscode';
 
 export interface AccessToken {
     accessToken: string;
@@ -24,26 +25,31 @@ const CommonReqHeaders = {
     'Accept': 'application/json'
 };
 
+const config = vscode.workspace.getConfiguration('integrationStudio');
+const AUTH_ORG = config.get('authOrg') as string;
+const AUTH_CLIENT_ID = config.get('authClientID') as string;
+const AUTH_REDIRECT_URL = config.get('authRedirectURL') as string;
+
 export async function getAuthUrl(callbackUri: string): Promise<string> {
 
     // return `${this._config.loginUrl}?profile=vs-code&client_id=${this._config.clientId}`
     //     + `&state=${stateBase64}&code_challenge=${this._challenge.code_challenge}`;
 
     const state = encodeURIComponent(btoa(JSON.stringify({ callbackUri: 'vscode://wso2.micro-integrator/signin' })));
-    return `https://api.asgardeo.io/t/wso2midev/oauth2/authorize?response_type=code&redirect_uri=https://cce0dad8-6788-4dad-b618-debceac51c0d.e1-eu-north-azure.choreoapps.dev&client_id=i42PUygaucczvuPmhZFw5x8Lmswa&scope=openid%20email&state=${state}`;
+    return `https://api.asgardeo.io/t/${AUTH_ORG}/oauth2/authorize?response_type=code&redirect_uri=${AUTH_REDIRECT_URL}&client_id=${AUTH_CLIENT_ID}&scope=openid%20email&state=${state}`;
 }
 
 export async function exchangeAuthCodeNew(authCode: string): Promise<AccessToken> {
     const params = new URLSearchParams({
-        client_id: 'i42PUygaucczvuPmhZFw5x8Lmswa',
+        client_id: AUTH_CLIENT_ID,
         code: authCode,
         grant_type: 'authorization_code',
         // redirect_uri: 'vscode://wso2.micro-integrator/signin',
-        redirect_uri: 'https://cce0dad8-6788-4dad-b618-debceac51c0d.e1-eu-north-azure.choreoapps.dev',
+        redirect_uri: AUTH_REDIRECT_URL,
         scope: 'openid email'
     });
     try {
-        const response = await axios.post('https://api.asgardeo.io/t/wso2midev/oauth2/token', params.toString(), { headers: CommonReqHeaders });
+        const response = await axios.post(`https://api.asgardeo.io/t/${AUTH_ORG}/oauth2/token`, params.toString(), { headers: CommonReqHeaders });
         return {
             accessToken: response.data.access_token,
             refreshToken: response.data.refresh_token,

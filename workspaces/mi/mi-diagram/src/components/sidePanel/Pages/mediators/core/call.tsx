@@ -6,24 +6,27 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
 */
+// AUTO-GENERATED FILE. DO NOT MODIFY.
 
-
-import React, { useEffect, useState } from 'react';
-import { AutoComplete, Button, ComponentCard, TextField } from '@wso2-enterprise/ui-toolkit';
+import React, { useEffect } from 'react';
+import { AutoComplete, Button, ComponentCard, ProgressIndicator, TextField, TextArea, Typography } from '@wso2-enterprise/ui-toolkit';
 import { VSCodeCheckbox } from '@vscode/webview-ui-toolkit/react';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
-import { AddMediatorProps } from '../common';
+import { AddMediatorProps, openPopup } from '../common';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
-import { MEDIATORS } from '../../../../../constants';
+import { MEDIATORS } from '../../../../../resources/constants';
+import { Controller, useForm } from 'react-hook-form';
+import { Keylookup } from '../../../../Form';
+import { ExpressionField, ExpressionFieldValue } from '../../../../Form/ExpressionField/ExpressionInput';
 
 const cardStyle = { 
-   display: "block",
-   margin: "15px 0",
-   padding: "0 15px 15px 15px",
-   width: "auto",
-   cursor: "auto"
+    display: "block",
+    margin: "15px 0",
+    padding: "0 15px 15px 15px",
+    width: "auto",
+    cursor: "auto"
 };
 
 const Error = styled.span`
@@ -35,288 +38,293 @@ const Field = styled.div`
    margin-bottom: 12px;
 `;
 
-const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g;
-const nameWithoutSpecialCharactorsRegex = /^[a-zA-Z0-9]+$/g;
-
 const CallForm = (props: AddMediatorProps) => {
-   const { rpcClient } = useVisualizerContext();
-   const sidePanelContext = React.useContext(SidePanelContext);
-   const [formValues, setFormValues] = useState({} as { [key: string]: any });
-   const [errors, setErrors] = useState({} as any);
+    const { rpcClient } = useVisualizerContext();
+    const sidePanelContext = React.useContext(SidePanelContext);
+    const [ isLoading, setIsLoading ] = React.useState(true);
 
-   useEffect(() => {
-       if (sidePanelContext.formValues) {
-           setFormValues({ ...formValues, ...sidePanelContext.formValues });
-       } else {
-           setFormValues({
-       "enableBlockingCalls": false,
-       "initAxis2ClientOptions": false,
-       "endpointType": "INLINE",
-       "sourceType": "none",
-       "targetType": "body",});
-       }
-   }, [sidePanelContext.formValues]);
+    const { control, formState: { errors, dirtyFields }, handleSubmit, watch, reset } = useForm();
 
-   const onClick = async () => {
-       const newErrors = {} as any;
-       Object.keys(formValidators).forEach((key) => {
-           const error = formValidators[key]();
-           if (error) {
-               newErrors[key] = (error);
-           }
-       });
-       if (Object.keys(newErrors).length > 0) {
-           setErrors(newErrors);
-       } else {
-           const xml = getXML(MEDIATORS.CALL, formValues);
-           rpcClient.getMiDiagramRpcClient().applyEdit({
-               documentUri: props.documentUri, range: props.nodePosition, text: xml
-           });
-           sidePanelContext.setIsOpen(false);
-           sidePanelContext.setFormValues(undefined);
-           sidePanelContext.setNodeRange(undefined);
-           sidePanelContext.setOperationName(undefined);
-       }
-   };
+    useEffect(() => {
+        reset({
+            endopint: sidePanelContext?.formValues?.endopint || "",
+            inlineEndpoint: sidePanelContext?.formValues?.inlineEndpoint || "<inline/>",
+            endpointRegistryKey: sidePanelContext?.formValues?.endpointRegistryKey || "",
+            endpointXpath: sidePanelContext?.formValues?.endpointXpath || {"isExpression":true,"value":""},
+            enableBlockingCalls: sidePanelContext?.formValues?.enableBlockingCalls || false,
+            initAxis2ClientOptions: sidePanelContext?.formValues?.initAxis2ClientOptions || false,
+            sourceType: sidePanelContext?.formValues?.sourceType || "none",
+            sourceProperty: sidePanelContext?.formValues?.sourceProperty || "",
+            contentType: sidePanelContext?.formValues?.contentType || "",
+            sourcePayload: sidePanelContext?.formValues?.sourcePayload || "<inline xmlns=\"\"/>",
+            sourceXPath: sidePanelContext?.formValues?.sourceXPath || {"isExpression":true,"value":""},
+            targetType: sidePanelContext?.formValues?.targetType || "none",
+            targetProperty: sidePanelContext?.formValues?.targetProperty || "",
+            description: sidePanelContext?.formValues?.description || "",
+        });
+        setIsLoading(false);
+    }, [sidePanelContext.formValues]);
 
-   const formValidators: { [key: string]: (e?: any) => string | undefined } = {
-       "enableBlockingCalls": (e?: any) => validateField("enableBlockingCalls", e, false),
-       "initAxis2ClientOptions": (e?: any) => validateField("initAxis2ClientOptions", e, false),
-       "endpointType": (e?: any) => validateField("endpointType", e, false),
-       "endpointRegistryKey": (e?: any) => validateField("endpointRegistryKey", e, false),
-       "endpointXpath": (e?: any) => validateField("endpointXpath", e, false),
-       "sourceType": (e?: any) => validateField("sourceType", e, false),
-       "sourceProperty": (e?: any) => validateField("sourceProperty", e, false),
-       "contentType": (e?: any) => validateField("contentType", e, false),
-       "sourceendpointType": (e?: any) => validateField("sourceendpointType", e, false),
-       "sourceXPath": (e?: any) => validateField("sourceXPath", e, false),
-       "targetType": (e?: any) => validateField("targetType", e, false),
-       "targetProperty": (e?: any) => validateField("targetProperty", e, false),
-       "description": (e?: any) => validateField("description", e, false),
+    const onClick = async (values: any) => {
+        
+        const xml = getXML(MEDIATORS.CALL, values, dirtyFields, sidePanelContext.formValues);
+        if (Array.isArray(xml)) {
+            for (let i = 0; i < xml.length; i++) {
+                await rpcClient.getMiDiagramRpcClient().applyEdit({
+                    documentUri: props.documentUri, range: xml[i].range, text: xml[i].text
+                });
+            }
+        } else {
+            rpcClient.getMiDiagramRpcClient().applyEdit({
+                documentUri: props.documentUri, range: props.nodePosition, text: xml
+            });
+        }
+        sidePanelContext.setSidePanelState({
+            ...sidePanelContext,
+            isOpen: false,
+            isEditing: false,
+            formValues: undefined,
+            nodeRange: undefined,
+            operationName: undefined
+        });
+    };
 
-   };
-
-   const validateField = (id: string, e: any, isRequired: boolean, validation?: "e-mail" | "nameWithoutSpecialCharactors" | "custom", regex?: string): string => {
-       const value = e ?? formValues[id];
-       const newErrors = { ...errors };
-       let error;
-       if (isRequired && !value) {
-           error = "This field is required";
-       } else if (validation === "e-mail" && !value.match(emailRegex)) {
-           error = "Invalid e-mail address";
-       } else if (validation === "nameWithoutSpecialCharactors" && !value.match(nameWithoutSpecialCharactorsRegex)) {
-           error = "Invalid name";
-       } else if (validation === "custom" && !value.match(regex)) {
-           error = "Invalid input";
-       } else {
-           delete newErrors[id];
-           setErrors(newErrors);
-       }
-       setErrors({ ...errors, [id]: error });
-       return error;
-   };
-
-   return (
-       <div style={{ padding: "10px" }}>
-
-            <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                <h3>Properties</h3>
+    if (isLoading) {
+        return <ProgressIndicator/>;
+    }
+    return (
+        <>
+            <Typography sx={{ padding: "10px 15px", borderBottom: "1px solid var(--vscode-editorWidget-border)" }} variant="body3">Invokes external services in blocking/non-blocking mode.</Typography>
+            <div style={{ padding: "20px" }}>
 
                 <Field>
-                    <VSCodeCheckbox type="checkbox" checked={formValues["enableBlockingCalls"]} onChange={(e: any) => {
-                        setFormValues({ ...formValues, "enableBlockingCalls": e.target.checked });
-                        formValidators["enableBlockingCalls"](e);
-                    }
-                    }>Enable Blocking Calls </VSCodeCheckbox>
-                    {errors["enableBlockingCalls"] && <Error>{errors["enableBlockingCalls"]}</Error>}
+                    <Controller
+                        name="endopint"
+                        control={control}
+                        render={({ field }) => (
+                            <Keylookup
+                                value={field.value}
+                                filterType='endpoint'
+                                label="Select Endpoint"
+                                allowItemCreate={false}
+                                onCreateButtonClick={(fetchItems: any, handleValueChange: any) => {
+                                    openPopup(rpcClient, "endpoint", fetchItems, handleValueChange);
+                                }}
+                                onValueChange={field.onChange}
+                            />
+                        )}
+                    />
+                    {errors.endopint && <Error>{errors.endopint.message.toString()}</Error>}
                 </Field>
 
+                {watch("endopint") == "INLINE" &&
                 <Field>
-                    <VSCodeCheckbox type="checkbox" checked={formValues["initAxis2ClientOptions"]} onChange={(e: any) => {
-                        setFormValues({ ...formValues, "initAxis2ClientOptions": e.target.checked });
-                        formValidators["initAxis2ClientOptions"](e);
-                    }
-                    }>Initialize Axis2 Client Options </VSCodeCheckbox>
-                    {errors["initAxis2ClientOptions"] && <Error>{errors["initAxis2ClientOptions"]}</Error>}
+                    <Controller
+                        name="inlineEndpoint"
+                        control={control}
+                        render={({ field }) => (
+                            <TextArea {...field} label="Inline Endpoint" placeholder="Define your endpoint as an XML" />
+                        )}
+                    />
+                    {errors.inlineEndpoint && <Error>{errors.inlineEndpoint.message.toString()}</Error>}
                 </Field>
+                }
+
+                {watch("endpoint") == "REGISTRYKEY" &&
+                <Field>
+                    <Controller
+                        name="endpointRegistryKey"
+                        control={control}
+                        render={({ field }) => (
+                            <TextField {...field} label="Endpoint Registry Key" size={50} placeholder="Endpoint Registry Key" />
+                        )}
+                    />
+                    {errors.endpointRegistryKey && <Error>{errors.endpointRegistryKey.message.toString()}</Error>}
+                </Field>
+                }
+
+                {watch("endpoint") == "XPATH" &&
+                <Field>
+                    <Controller
+                        name="endpointXpath"
+                        control={control}
+                        render={({ field }) => (
+                            <ExpressionField
+                                {...field} label="Endpoint Xpath"
+                                placeholder="Endpoint Xpath"
+                                canChange={false}
+                                openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => {
+                                    sidePanelContext.setSidePanelState({
+                                        ...sidePanelContext,
+                                        expressionEditor: {
+                                            isOpen: true,
+                                            value,
+                                            setValue
+                                        }
+                                    });
+                                }}
+                            />
+                        )}
+                    />
+                    {errors.endpointXpath && <Error>{errors.endpointXpath.message.toString()}</Error>}
+                </Field>
+                }
 
                 <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                    <h3>EndpointType</h3>
+                    <Typography variant="h3">Advanced</Typography>
 
                     <Field>
-                        <label>Endpoint Type</label>
-                        <AutoComplete items={["INLINE", "NONE", "REGISTRYKEY", "XPATH"]} selectedItem={formValues["endpointType"]} onChange={(e: any) => {
-                            setFormValues({ ...formValues, "endpointType": e });
-                            formValidators["endpointType"](e);
-                        }} />
-                        {errors["endpointType"] && <Error>{errors["endpointType"]}</Error>}
+                        <Controller
+                            name="enableBlockingCalls"
+                            control={control}
+                            render={({ field }) => (
+                                <VSCodeCheckbox {...field} type="checkbox" checked={field.value} onChange={(e: any) => {field.onChange(e.target.checked)}}>Enable Blocking Calls</VSCodeCheckbox>
+                            )}
+                        />
+                        {errors.enableBlockingCalls && <Error>{errors.enableBlockingCalls.message.toString()}</Error>}
                     </Field>
 
-                    {formValues["endpointType"] && formValues["endpointType"].toLowerCase() == "registrykey" &&
-                        <Field>
-                            <TextField
-                                label="Endpoint Registry Key"
-                                size={50}
-                                placeholder="Endpoint Registry Key"
-                                value={formValues["endpointRegistryKey"]}
-                                onChange={(e: any) => {
-                                    setFormValues({ ...formValues, "endpointRegistryKey": e });
-                                    formValidators["endpointRegistryKey"](e);
-                                }}
-                                required={false}
-                            />
-                            {errors["endpointRegistryKey"] && <Error>{errors["endpointRegistryKey"]}</Error>}
-                        </Field>
+                    <Field>
+                        <Controller
+                            name="initAxis2ClientOptions"
+                            control={control}
+                            render={({ field }) => (
+                                <VSCodeCheckbox {...field} type="checkbox" checked={field.value} onChange={(e: any) => {field.onChange(e.target.checked)}}>Initialize Axis2 Client Options</VSCodeCheckbox>
+                            )}
+                        />
+                        {errors.initAxis2ClientOptions && <Error>{errors.initAxis2ClientOptions.message.toString()}</Error>}
+                    </Field>
+
+                    <Field>
+                        <Controller
+                            name="sourceType"
+                            control={control}
+                            render={({ field }) => (
+                                <AutoComplete label="Source Type" name="sourceType" items={["none", "body", "property", "inline", "custom"]} value={field.value} onValueChange={(e: any) => {
+                                    field.onChange(e);
+                                }} />
+                            )}
+                        />
+                        {errors.sourceType && <Error>{errors.sourceType.message.toString()}</Error>}
+                    </Field>
+
+                    {watch("sourceType") == "property" &&
+                    <Field>
+                        <Controller
+                            name="sourceProperty"
+                            control={control}
+                            render={({ field }) => (
+                                <TextField {...field} label="Source Property" size={50} placeholder="Source Property" />
+                            )}
+                        />
+                        {errors.sourceProperty && <Error>{errors.sourceProperty.message.toString()}</Error>}
+                    </Field>
                     }
 
-                    {formValues["endpointType"] && formValues["endpointType"].toLowerCase() == "xpath" &&
-                        <Field>
-                            <TextField
-                                label="Endpoint Xpath"
-                                size={50}
-                                placeholder="Endpoint Xpath"
-                                value={formValues["endpointXpath"]}
-                                onChange={(e: any) => {
-                                    setFormValues({ ...formValues, "endpointXpath": e });
-                                    formValidators["endpointXpath"](e);
-                                }}
-                                required={false}
-                            />
-                            {errors["endpointXpath"] && <Error>{errors["endpointXpath"]}</Error>}
-                        </Field>
+                    {((watch("sourceType") == "property") ||(watch("sourceType") == "inline") ||(watch("sourceType") == "custom") ) &&
+                    <Field>
+                        <Controller
+                            name="contentType"
+                            control={control}
+                            render={({ field }) => (
+                                <TextField {...field} label="Content Type" size={50} placeholder="Content Type" />
+                            )}
+                        />
+                        {errors.contentType && <Error>{errors.contentType.message.toString()}</Error>}
+                    </Field>
+                    }
+
+                    {watch("sourceType") == "inline" &&
+                    <Field>
+                        <Controller
+                            name="sourcePayload"
+                            control={control}
+                            render={({ field }) => (
+                                <TextArea {...field} label="Source Payload" placeholder="" />
+                            )}
+                        />
+                        {errors.sourcePayload && <Error>{errors.sourcePayload.message.toString()}</Error>}
+                    </Field>
+                    }
+
+                    {watch("sourceType") == "custom" &&
+                    <Field>
+                        <Controller
+                            name="sourceXPath"
+                            control={control}
+                            render={({ field }) => (
+                                <ExpressionField
+                                    {...field} label="Source XPath"
+                                    placeholder="Source XPath"
+                                    canChange={false}
+                                    openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => {
+                                        sidePanelContext.setSidePanelState({
+                                            ...sidePanelContext,
+                                            expressionEditor: {
+                                                isOpen: true,
+                                                value,
+                                                setValue
+                                            }
+                                        });
+                                    }}
+                                />
+                            )}
+                        />
+                        {errors.sourceXPath && <Error>{errors.sourceXPath.message.toString()}</Error>}
+                    </Field>
+                    }
+
+                    <Field>
+                        <Controller
+                            name="targetType"
+                            control={control}
+                            render={({ field }) => (
+                                <AutoComplete label="Target Type" name="targetType" items={["none", "body", "property"]} value={field.value} onValueChange={(e: any) => {
+                                    field.onChange(e);
+                                }} />
+                            )}
+                        />
+                        {errors.targetType && <Error>{errors.targetType.message.toString()}</Error>}
+                    </Field>
+
+                    {watch("targetType") == "property" &&
+                    <Field>
+                        <Controller
+                            name="targetProperty"
+                            control={control}
+                            render={({ field }) => (
+                                <TextField {...field} label="Target Property" size={50} placeholder="Target Property" />
+                            )}
+                        />
+                        {errors.targetProperty && <Error>{errors.targetProperty.message.toString()}</Error>}
+                    </Field>
                     }
 
                 </ComponentCard>
 
                 <Field>
-                    <label>Source Type</label>
-                    <AutoComplete items={["none", "body", "property", "inline", "custom"]} selectedItem={formValues["sourceType"]} onChange={(e: any) => {
-                        setFormValues({ ...formValues, "sourceType": e });
-                        formValidators["sourceType"](e);
-                    }} />
-                    {errors["sourceType"] && <Error>{errors["sourceType"]}</Error>}
-                </Field>
-
-                {formValues["sourceType"] && formValues["sourceType"].toLowerCase() == "property" &&
-                    <Field>
-                        <TextField
-                            label="Source Property"
-                            size={50}
-                            placeholder="Source Property"
-                            value={formValues["sourceProperty"]}
-                            onChange={(e: any) => {
-                                setFormValues({ ...formValues, "sourceProperty": e });
-                                formValidators["sourceProperty"](e);
-                            }}
-                            required={false}
-                        />
-                        {errors["sourceProperty"] && <Error>{errors["sourceProperty"]}</Error>}
-                    </Field>
-                }
-
-                {formValues["sourceType"] && formValues["sourceType"].toLowerCase() == "property" ||formValues["sourceType"] && formValues["sourceType"].toLowerCase() == "inline" ||formValues["sourceType"] && formValues["sourceType"].toLowerCase() == "custom" &&
-                    <Field>
-                        <TextField
-                            label="Content Type"
-                            size={50}
-                            placeholder="Content Type"
-                            value={formValues["contentType"]}
-                            onChange={(e: any) => {
-                                setFormValues({ ...formValues, "contentType": e });
-                                formValidators["contentType"](e);
-                            }}
-                            required={false}
-                        />
-                        {errors["contentType"] && <Error>{errors["contentType"]}</Error>}
-                    </Field>
-                }
-
-                {formValues["sourceType"] && formValues["sourceType"].toLowerCase() == "inline" &&
-                    <Field>
-                        <TextField
-                            label="Source endpointType"
-                            size={50}
-                            placeholder="Source endpointType"
-                            value={formValues["sourceendpointType"]}
-                            onChange={(e: any) => {
-                                setFormValues({ ...formValues, "sourceendpointType": e });
-                                formValidators["sourceendpointType"](e);
-                            }}
-                            required={false}
-                        />
-                        {errors["sourceendpointType"] && <Error>{errors["sourceendpointType"]}</Error>}
-                    </Field>
-                }
-
-                <Field>
-                    <TextField
-                        label="Source XPath"
-                        size={50}
-                        placeholder="Source XPath"
-                        value={formValues["sourceXPath"]}
-                        onChange={(e: any) => {
-                            setFormValues({ ...formValues, "sourceXPath": e });
-                            formValidators["sourceXPath"](e);
-                        }}
-                        required={false}
+                    <Controller
+                        name="description"
+                        control={control}
+                        render={({ field }) => (
+                            <TextField {...field} label="Description" size={50} placeholder="Description" />
+                        )}
                     />
-                    {errors["sourceXPath"] && <Error>{errors["sourceXPath"]}</Error>}
+                    {errors.description && <Error>{errors.description.message.toString()}</Error>}
                 </Field>
 
-                <Field>
-                    <label>Target Type</label>
-                    <AutoComplete items={["body", "property"]} selectedItem={formValues["targetType"]} onChange={(e: any) => {
-                        setFormValues({ ...formValues, "targetType": e });
-                        formValidators["targetType"](e);
-                    }} />
-                    {errors["targetType"] && <Error>{errors["targetType"]}</Error>}
-                </Field>
 
-                {formValues["targetType"] && formValues["targetType"].toLowerCase() == "property" &&
-                    <Field>
-                        <TextField
-                            label="Target Property"
-                            size={50}
-                            placeholder="Target Property"
-                            value={formValues["targetProperty"]}
-                            onChange={(e: any) => {
-                                setFormValues({ ...formValues, "targetProperty": e });
-                                formValidators["targetProperty"](e);
-                            }}
-                            required={false}
-                        />
-                        {errors["targetProperty"] && <Error>{errors["targetProperty"]}</Error>}
-                    </Field>
-                }
-
-                <Field>
-                    <TextField
-                        label="Description"
-                        size={50}
-                        placeholder="Description"
-                        value={formValues["description"]}
-                        onChange={(e: any) => {
-                            setFormValues({ ...formValues, "description": e });
-                            formValidators["description"](e);
-                        }}
-                        required={false}
-                    />
-                    {errors["description"] && <Error>{errors["description"]}</Error>}
-                </Field>
-
-            </ComponentCard>
-
-
-            <div style={{ textAlign: "right", marginTop: "10px" }}>
-                <Button
-                    appearance="primary"
-                    onClick={onClick}
-                >
+                <div style={{ textAlign: "right", marginTop: "10px", float: "right" }}>
+                    <Button
+                        appearance="primary"
+                        onClick={handleSubmit(onClick)}
+                    >
                     Submit
-                </Button>
-            </div>
+                    </Button>
+                </div>
 
-        </div>
+            </div>
+        </>
     );
 };
 

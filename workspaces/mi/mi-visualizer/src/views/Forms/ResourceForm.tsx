@@ -25,7 +25,7 @@ import styled from "@emotion/styled";
 import { SIDE_PANEL_WIDTH } from "../../constants";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { FormKeylookup } from "@wso2-enterprise/mi-diagram-2";
+import { FormKeylookup } from "@wso2-enterprise/mi-diagram";
 
 // Styles
 const ActionContainer = styled.div`

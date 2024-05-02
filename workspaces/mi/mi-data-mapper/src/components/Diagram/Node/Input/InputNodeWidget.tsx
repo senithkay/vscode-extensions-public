@@ -19,6 +19,7 @@ import { TreeBody, TreeContainer, TreeHeader } from '../commons/Tree/Tree';
 import { InputNodeTreeItemWidget } from "./InputNodeTreeItemWidget";
 import { useIONodesStyles } from "../../../styles";
 import { useDMCollapsedFieldsStore } from '../../../../store/store';
+import { getTypeName } from "../../utils/common-utils";
 
 export interface InputNodeWidgetProps {
     id: string; // this will be the root ID used to prepend for UUIDs of nested fields
@@ -37,7 +38,7 @@ export function InputNodeWidget(props: InputNodeWidgetProps) {
     const collapsedFieldsStore = useDMCollapsedFieldsStore();
     
     const classes = useIONodesStyles();
-    const typeName = dmType.typeName;
+    const typeName = getTypeName(dmType);
 
     const portOut = getPort(`${id}.OUT`);
 

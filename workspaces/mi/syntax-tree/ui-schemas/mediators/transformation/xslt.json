@@ -92,7 +92,7 @@
                   "value": {
                     "name": "resourceRegistryKey",
                     "displayName": "Resource Registry Key",
-                    "inputType": "key",
+                    "inputType": "registry",
                     "defaultValue": "",
                     "required": false,
                     "helpTip": ""

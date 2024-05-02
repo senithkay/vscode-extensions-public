@@ -6,24 +6,26 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
 */
+// AUTO-GENERATED FILE. DO NOT MODIFY.
 
-
-import React, { useEffect, useState } from 'react';
-import { AutoComplete, Button, ComponentCard, TextField } from '@wso2-enterprise/ui-toolkit';
-import { VSCodeDataGrid, VSCodeDataGridRow, VSCodeDataGridCell } from '@vscode/webview-ui-toolkit/react';
+import React, { useEffect } from 'react';
+import { Button, ComponentCard, ProgressIndicator, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
 import { AddMediatorProps } from '../common';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
-import { MEDIATORS } from '../../../../../constants';
+import { MEDIATORS } from '../../../../../resources/constants';
+import { Controller, useForm } from 'react-hook-form';
+import { ExpressionFieldValue } from '../../../../Form/ExpressionField/ExpressionInput';
+import { ParamManager, ParamValue } from '../../../../Form/ParamManager/ParamManager';
 
 const cardStyle = { 
-   display: "block",
-   margin: "15px 0",
-   padding: "0 15px 15px 15px",
-   width: "auto",
-   cursor: "auto"
+    display: "block",
+    margin: "15px 0",
+    padding: "0 15px 15px 15px",
+    width: "auto",
+    cursor: "auto"
 };
 
 const Error = styled.span`
@@ -35,308 +37,258 @@ const Field = styled.div`
    margin-bottom: 12px;
 `;
 
-const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g;
-const nameWithoutSpecialCharactorsRegex = /^[a-zA-Z0-9]+$/g;
-
 const PropertyGroupForm = (props: AddMediatorProps) => {
-   const { rpcClient } = useVisualizerContext();
-   const sidePanelContext = React.useContext(SidePanelContext);
-   const [formValues, setFormValues] = useState({} as { [key: string]: any });
-   const [errors, setErrors] = useState({} as any);
+    const { rpcClient } = useVisualizerContext();
+    const sidePanelContext = React.useContext(SidePanelContext);
+    const [ isLoading, setIsLoading ] = React.useState(true);
 
-   useEffect(() => {
-       if (sidePanelContext.formValues) {
-           setFormValues({ ...formValues, ...sidePanelContext.formValues });
-       } else {
-           setFormValues({
-       "properties": [] as string[][],
-       "propertyDataType": "STRING",
-       "propertyAction": "set",
-       "propertyScope": "DEFAULT",
-       "valueType": "LITERAL",
-       "valueStringCapturingGroup": "0",});
-       }
-   }, [sidePanelContext.formValues]);
+    const { control, formState: { errors, dirtyFields }, handleSubmit, watch, reset } = useForm();
 
-   const onClick = async () => {
-       const newErrors = {} as any;
-       Object.keys(formValidators).forEach((key) => {
-           const error = formValidators[key]();
-           if (error) {
-               newErrors[key] = (error);
-           }
-       });
-       if (Object.keys(newErrors).length > 0) {
-           setErrors(newErrors);
-       } else {
-           const xml = getXML(MEDIATORS.PROPERTYGROUP, formValues);
-           rpcClient.getMiDiagramRpcClient().applyEdit({
-               documentUri: props.documentUri, range: props.nodePosition, text: xml
-           });
-           sidePanelContext.setIsOpen(false);
-           sidePanelContext.setFormValues(undefined);
-           sidePanelContext.setNodeRange(undefined);
-           sidePanelContext.setOperationName(undefined);
-       }
-   };
+    useEffect(() => {
+        reset({
+            properties: {
+                paramValues: sidePanelContext?.formValues?.properties && sidePanelContext?.formValues?.properties.map((property: string|ExpressionFieldValue[], index: string) => (
+                    {
+                        id: index,
+                        key: typeof property[0] === 'object' ? property[0].value : property[0],
+                        value:  typeof property[3] === 'object' ? property[3].value : property[3],
+                        icon: 'query',
+                        paramValues: [
+                            { value: property[0] },
+                            { value: property[1] },
+                            { value: property[2] },
+                            { value: property[3] },
+                            { value: property[4] },
+                            { value: property[5] },
+                            { value: property[6] },
+                            { value: property[7] },
+                            { value: property[8] },
+                        ]
+                    }
+                )) || [] as string[][],
+                paramFields: [
+                    {
+                        "type": "TextField",
+                        "label": "Property Name",
+                        "defaultValue": "",
+                        "isRequired": false
+                    },
+                    {
+                        "type": "Dropdown",
+                        "label": "Property Data Type",
+                        "defaultValue": "STRING",
+                        "isRequired": false,
+                        "values": [
+                            "STRING",
+                            "INTEGER",
+                            "BOOLEAN",
+                            "DOUBLE",
+                            "FLOAT",
+                            "LONG",
+                            "SHORT",
+                            "OM",
+                            "JSON"
+                        ],
+                        "enableCondition": [
+                            "NOT",
+                            {
+                                "-1": "remove"
+                            }
+                        ]
+                    },
+                    {
+                        "type": "Dropdown",
+                        "label": "Property Action",
+                        "defaultValue": "set",
+                        "isRequired": false,
+                        "values": [
+                            "set",
+                            "remove"
+                        ]
+                    },
+                    {
+                        "type": "ExprField",
+                        "label": "Property Value",
+                        "defaultValue": {
+                            "isExpression": false,
+                            "value": ""
+                        },
+                        "isRequired": false,
+                        "canChange": true,
+                        "enableCondition": [
+                            "AND",
+                            [
+                                "NOT",
+                                {
+                                    "1": "OM"
+                                }
+                            ],
+                            {
+                                "2": "set"
+                            }
+                        ], 
+                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
+                            sidePanelContext.setSidePanelState({
+                                ...sidePanelContext,
+                                expressionEditor: {
+                                    isOpen: true,
+                                    value,
+                                    setValue
+                                }
+                            });
+                        }},
+                    {
+                        "type": "TextField",
+                        "label": "OM",
+                        "defaultValue": "",
+                        "isRequired": false,
+                        "enableCondition": [
+                            {
+                                "1": "OM"
+                            }
+                        ]
+                    },
+                    {
+                        "type": "Dropdown",
+                        "label": "Property Scope",
+                        "defaultValue": "DEFAULT",
+                        "isRequired": false,
+                        "values": [
+                            "DEFAULT",
+                            "TRANSPORT",
+                            "AXIS2",
+                            "AXIS2_CLIENT",
+                            "OPERATION",
+                            "REGISTRY",
+                            "SYSTEM",
+                            "ANALYTICS"
+                        ]
+                    },
+                    {
+                        "type": "TextField",
+                        "label": "Value String Pattern",
+                        "defaultValue": "",
+                        "isRequired": false,
+                        "enableCondition": [
+                            "AND",
+                            {
+                                "1": "STRING"
+                            },
+                            {
+                                "2": "set"
+                            }
+                        ]
+                    },
+                    {
+                        "type": "TextField",
+                        "label": "Value String Capturing Group",
+                        "defaultValue": "0",
+                        "isRequired": false,
+                        "enableCondition": [
+                            "AND",
+                            {
+                                "1": "STRING"
+                            },
+                            {
+                                "2": "set"
+                            }
+                        ]
+                    },
+                    {
+                        "type": "TextField",
+                        "label": "Description",
+                        "defaultValue": "",
+                        "isRequired": false
+                    },
+                ]
+            },
+            description: sidePanelContext?.formValues?.description || "",
+        });
+        setIsLoading(false);
+    }, [sidePanelContext.formValues]);
 
-   const formValidators: { [key: string]: (e?: any) => string | undefined } = {
-       "description": (e?: any) => validateField("description", e, false),
-       "propertyName": (e?: any) => validateField("propertyName", e, false),
-       "newPropertyName": (e?: any) => validateField("newPropertyName", e, false),
-       "propertyDataType": (e?: any) => validateField("propertyDataType", e, false),
-       "propertyAction": (e?: any) => validateField("propertyAction", e, false),
-       "propertyScope": (e?: any) => validateField("propertyScope", e, false),
-       "valueType": (e?: any) => validateField("valueType", e, false),
-       "value": (e?: any) => validateField("value", e, false),
-       "valueExpression": (e?: any) => validateField("valueExpression", e, false),
-       "valueStringPattern": (e?: any) => validateField("valueStringPattern", e, false),
-       "valueStringCapturingGroup": (e?: any) => validateField("valueStringCapturingGroup", e, false),
-       "Properties.description": (e?: any) => validateField("Properties.description", e, false),
+    const onClick = async (values: any) => {
+        
+        values["properties"] = values.properties.paramValues.map((param: any) => param.paramValues.map((p: any) => p.value));
+        const xml = getXML(MEDIATORS.PROPERTYGROUP, values, dirtyFields, sidePanelContext.formValues);
+        if (Array.isArray(xml)) {
+            for (let i = 0; i < xml.length; i++) {
+                await rpcClient.getMiDiagramRpcClient().applyEdit({
+                    documentUri: props.documentUri, range: xml[i].range, text: xml[i].text
+                });
+            }
+        } else {
+            rpcClient.getMiDiagramRpcClient().applyEdit({
+                documentUri: props.documentUri, range: props.nodePosition, text: xml
+            });
+        }
+        sidePanelContext.setSidePanelState({
+            ...sidePanelContext,
+            isOpen: false,
+            isEditing: false,
+            formValues: undefined,
+            nodeRange: undefined,
+            operationName: undefined
+        });
+    };
 
-   };
-
-   const validateField = (id: string, e: any, isRequired: boolean, validation?: "e-mail" | "nameWithoutSpecialCharactors" | "custom", regex?: string): string => {
-       const value = e ?? formValues[id];
-       const newErrors = { ...errors };
-       let error;
-       if (isRequired && !value) {
-           error = "This field is required";
-       } else if (validation === "e-mail" && !value.match(emailRegex)) {
-           error = "Invalid e-mail address";
-       } else if (validation === "nameWithoutSpecialCharactors" && !value.match(nameWithoutSpecialCharactorsRegex)) {
-           error = "Invalid name";
-       } else if (validation === "custom" && !value.match(regex)) {
-           error = "Invalid input";
-       } else {
-           delete newErrors[id];
-           setErrors(newErrors);
-       }
-       setErrors({ ...errors, [id]: error });
-       return error;
-   };
-
-   return (
-       <div style={{ padding: "10px" }}>
-
-            <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                <h3>Properties</h3>
-
-                <Field>
-                    <TextField
-                        label="Description"
-                        size={50}
-                        placeholder="Description"
-                        value={formValues["description"]}
-                        onChange={(e: any) => {
-                            setFormValues({ ...formValues, "description": e });
-                            formValidators["description"](e);
-                        }}
-                        required={false}
-                    />
-                    {errors["description"] && <Error>{errors["description"]}</Error>}
-                </Field>
+    if (isLoading) {
+        return <ProgressIndicator/>;
+    }
+    return (
+        <>
+            <Typography sx={{ padding: "10px 15px", borderBottom: "1px solid var(--vscode-editorWidget-border)" }} variant="body3">Sets/removes multiple properties on message context efficiently.</Typography>
+            <div style={{ padding: "20px" }}>
 
                 <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                    <h3>Properties</h3>
+                    <Typography variant="h3">Properties</Typography>
+                    <Typography variant="body3">Editing of the properties of an object PropertyMediator</Typography>
 
-                        <Field>
-                            <label>Property Name</label>
-                            <AutoComplete items={["Action", "COPY_CONTENT_LENGTH_FROM_INCOMING", "CacheLevel", "ClientApiNonBlocking", "ConcurrentConsumers", "ContentType", "disableAddressingForOutMessages", "DISABLE_CHUNKING", "DISABLE_SMOOKS_RESULT_PAYLOAD", "ERROR_CODE", "ERROR_DETAIL", "ERROR_EXCEPTION", "ERROR_MESSAGE", "FAULTS_AS_HTTP_200", "FORCE_ERROR_ON_SOAP_FAULT", "FORCE_HTTP_1_0", "FORCE_HTTP_CONTENT_LENGTH", "FORCE_POST_PUT_NOBODY", "FORCE_SC_ACCEPTED", "FaultTo", "From", "HTTP_ETAG", "HTTP_SC", "JMS_COORELATION_ID", "messageType", "MESSAGE_FORMAT", "MaxConcurrentConsumers", "MercuryLastMessage", "MercurySequenceKey", "MessageID", "NO_ENTITY_BODY", "NO_KEEPALIVE", "OUT_ONLY", "OperationName", "POST_TO_URI", "preserveProcessedHeaders", "PRESERVE_WS_ADDRESSING", "REQUEST_HOST_HEADER", "RESPONSE", "REST_URL_POSTFIX", "RelatesTo", "ReplyTo", "SERVER_IP", "SYSTEM_DATE", "SYSTEM_TIME", "TRANSPORT_HEADERS", "TRANSPORT_IN_NAME", "To", "transportNonBlocking"]} selectedItem={formValues["propertyName"]} onChange={(e: any) => {
-                                setFormValues({ ...formValues, "propertyName": e });
-                                formValidators["propertyName"](e);
-                            }} />
-                            {errors["propertyName"] && <Error>{errors["propertyName"]}</Error>}
-                        </Field>
-
-                        <Field>
-                            <TextField
-                                label="New Property Name"
-                                size={50}
-                                placeholder="New Property Name"
-                                value={formValues["newPropertyName"]}
-                                onChange={(e: any) => {
-                                    setFormValues({ ...formValues, "newPropertyName": e });
-                                    formValidators["newPropertyName"](e);
+                    <Controller
+                        name="properties"
+                        control={control}
+                        render={({ field: { onChange, value } }) => (
+                            <ParamManager
+                                paramConfigs={value}
+                                readonly={false}
+                                onChange= {(values) => {
+                                    values.paramValues = values.paramValues.map((param: any, index: number) => {
+                                        const paramValues: ParamValue[] = param.paramValues;
+                                        param.key = paramValues[0].value;
+                                        param.value = paramValues[3].value;
+                                        param.icon = 'query';
+                                        return param;
+                                    });
+                                    onChange(values);
                                 }}
-                                required={false}
                             />
-                            {errors["newPropertyName"] && <Error>{errors["newPropertyName"]}</Error>}
-                        </Field>
+                        )}
+                    />
+                </ComponentCard>
 
-                        <Field>
-                            <label>Property Data Type</label>
-                            <AutoComplete items={["STRING", "INTEGER", "BOOLEAN", "DOUBLE", "FLOAT", "LONG", "SHORT", "OM", "JSON"]} selectedItem={formValues["propertyDataType"]} onChange={(e: any) => {
-                                setFormValues({ ...formValues, "propertyDataType": e });
-                                formValidators["propertyDataType"](e);
-                            }} />
-                            {errors["propertyDataType"] && <Error>{errors["propertyDataType"]}</Error>}
-                        </Field>
-
-                        <Field>
-                            <label>Property Action</label>
-                            <AutoComplete items={["set", "remove"]} selectedItem={formValues["propertyAction"]} onChange={(e: any) => {
-                                setFormValues({ ...formValues, "propertyAction": e });
-                                formValidators["propertyAction"](e);
-                            }} />
-                            {errors["propertyAction"] && <Error>{errors["propertyAction"]}</Error>}
-                        </Field>
-
-                        <Field>
-                            <label>Property Scope</label>
-                            <AutoComplete items={["DEFAULT", "TRANSPORT", "AXIS2", "AXIS2_CLIENT", "OPERATION", "REGISTRY", "SYSTEM", "ANALYTICS"]} selectedItem={formValues["propertyScope"]} onChange={(e: any) => {
-                                setFormValues({ ...formValues, "propertyScope": e });
-                                formValidators["propertyScope"](e);
-                            }} />
-                            {errors["propertyScope"] && <Error>{errors["propertyScope"]}</Error>}
-                        </Field>
-
-                        <Field>
-                            <label>Value Type</label>
-                            <AutoComplete items={["LITERAL", "EXPRESSION"]} selectedItem={formValues["valueType"]} onChange={(e: any) => {
-                                setFormValues({ ...formValues, "valueType": e });
-                                formValidators["valueType"](e);
-                            }} />
-                            {errors["valueType"] && <Error>{errors["valueType"]}</Error>}
-                        </Field>
-
-                        {formValues["valueType"] && formValues["valueType"].toLowerCase() == "literal" &&
-                            <Field>
-                                <TextField
-                                    label="Value"
-                                    size={50}
-                                    placeholder=""
-                                    value={formValues["value"]}
-                                    onChange={(e: any) => {
-                                        setFormValues({ ...formValues, "value": e });
-                                        formValidators["value"](e);
-                                    }}
-                                    required={false}
-                                />
-                                {errors["value"] && <Error>{errors["value"]}</Error>}
-                            </Field>
-                        }
-
-                        {formValues["valueType"] && formValues["valueType"].toLowerCase() == "expression" &&
-                            <Field>
-                                <TextField
-                                    label="Value Expression"
-                                    size={50}
-                                    placeholder=""
-                                    value={formValues["valueExpression"]}
-                                    onChange={(e: any) => {
-                                        setFormValues({ ...formValues, "valueExpression": e });
-                                        formValidators["valueExpression"](e);
-                                    }}
-                                    required={false}
-                                />
-                                {errors["valueExpression"] && <Error>{errors["valueExpression"]}</Error>}
-                            </Field>
-                        }
-
-                        <Field>
-                            <TextField
-                                label="Value String Pattern"
-                                size={50}
-                                placeholder="Value String Pattern"
-                                value={formValues["valueStringPattern"]}
-                                onChange={(e: any) => {
-                                    setFormValues({ ...formValues, "valueStringPattern": e });
-                                    formValidators["valueStringPattern"](e);
-                                }}
-                                required={false}
-                            />
-                            {errors["valueStringPattern"] && <Error>{errors["valueStringPattern"]}</Error>}
-                        </Field>
-
-                        <Field>
-                            <TextField
-                                label="Value String Capturing Group"
-                                size={50}
-                                placeholder="Value String Capturing Group"
-                                value={formValues["valueStringCapturingGroup"]}
-                                onChange={(e: any) => {
-                                    setFormValues({ ...formValues, "valueStringCapturingGroup": e });
-                                    formValidators["valueStringCapturingGroup"](e);
-                                }}
-                                required={false}
-                            />
-                            {errors["valueStringCapturingGroup"] && <Error>{errors["valueStringCapturingGroup"]}</Error>}
-                        </Field>
-
-                        <Field>
-                            <TextField
-                                label="Description"
-                                size={50}
-                                placeholder="Description"
-                                value={formValues["Properties.description"]}
-                                onChange={(e: any) => {
-                                    setFormValues({ ...formValues, "Properties.description": e });
-                                    formValidators["Properties.description"](e);
-                                }}
-                                required={false}
-                            />
-                            {errors["Properties.description"] && <Error>{errors["Properties.description"]}</Error>}
-                        </Field>
+                <Field>
+                    <Controller
+                        name="description"
+                        control={control}
+                        render={({ field }) => (
+                            <TextField {...field} label="Description" size={50} placeholder="Description" />
+                        )}
+                    />
+                    {errors.description && <Error>{errors.description.message.toString()}</Error>}
+                </Field>
 
 
-                <div style={{ textAlign: "right", marginTop: "10px" }}>
-                    <Button appearance="primary" onClick={() => {
-                        if (!(validateField("propertyName", formValues["propertyName"], true) || validateField("propertyDataType", formValues["propertyDataType"], true))) {
-                            setFormValues({
-                                ...formValues, "propertyName": undefined, "propertyDataType": undefined,
-                                "properties": [...formValues["properties"], [formValues["propertyName"], formValues["newPropertyName"], formValues["propertyDataType"]]]
-                            });
-                        }
-                    }}>
-                        Add
+                <div style={{ textAlign: "right", marginTop: "10px", float: "right" }}>
+                    <Button
+                        appearance="primary"
+                        onClick={handleSubmit(onClick)}
+                    >
+                    Submit
                     </Button>
                 </div>
-                {formValues["properties"] && formValues["properties"].length > 0 && (
-                    <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                        <h3>Properties Table</h3>
-                        <VSCodeDataGrid style={{ display: 'flex', flexDirection: 'column' }}>
-                            <VSCodeDataGridRow className="header" style={{ display: 'flex', background: 'gray' }}>
-                                <VSCodeDataGridCell key={0} style={{ flex: 1 }}>
-                                    Name
-                                </VSCodeDataGridCell>
-                                <VSCodeDataGridCell key={1} style={{ flex: 1 }}>
-                                    Value Type
-                                </VSCodeDataGridCell>
-                                <VSCodeDataGridCell key={2} style={{ flex: 1 }}>
-                                    Value
-                                </VSCodeDataGridCell>
-                            </VSCodeDataGridRow>
-                            {formValues["properties"].map((property: string, index: string) => (
-                                <VSCodeDataGridRow key={index} style={{ display: 'flex' }}>
-                                    <VSCodeDataGridCell key={0} style={{ flex: 1 }}>
-                                        {property[0]}
-                                    </VSCodeDataGridCell>
-                                    <VSCodeDataGridCell key={1} style={{ flex: 1 }}>
-                                        {property[1]}
-                                    </VSCodeDataGridCell>
-                                    <VSCodeDataGridCell key={2} style={{ flex: 1 }}>
-                                        {property[2]}
-                                    </VSCodeDataGridCell>
-                                </VSCodeDataGridRow>
-                            ))}
-                        </VSCodeDataGrid>
-                    </ComponentCard>
-                )}
-                </ComponentCard>
-            </ComponentCard>
 
-
-            <div style={{ textAlign: "right", marginTop: "10px" }}>
-                <Button
-                    appearance="primary"
-                    onClick={onClick}
-                >
-                    Submit
-                </Button>
             </div>
-
-        </div>
+        </>
     );
 };
 

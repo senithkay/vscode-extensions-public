@@ -17,7 +17,7 @@ import { getIONodeHeight } from '../Diagram/utils/diagram-utils';
 import { OverlayLayerModel } from '../Diagram/OverlayLayer/OverlayLayerModel';
 import { ErrorNodeKind } from '../DataMapper/Error/DataMapperError';
 import { useDMCollapsedFieldsStore, useDMSearchStore } from '../../store/store';
-import { ObjectOutputNode, InputNode } from '../Diagram/Node';
+import { ArrayOutputNode, InputNode, ObjectOutputNode } from '../Diagram/Node';
 import { GAP_BETWEEN_INPUT_NODES, IO_NODE_DEFAULT_WIDTH, OFFSETS, VISUALIZER_PADDING } from '../Diagram/utils/constants';
 import { LinkConnectorNode } from '../Diagram/Node/LinkConnector';
 import { InputDataImportNodeModel, OutputDataImportNodeModel } from '../Diagram/Node/DataImport/DataImportNode';
@@ -30,32 +30,25 @@ export const useRepositionedNodes = (nodes: DataMapperNodeModel[], zoomLevel: nu
     nodesClone.forEach(node => {
         const nodeHeight = node.height === 0 ? 800 : node.height;
         const exisitingNode = diagramModel.getNodes().find(n => (n as DataMapperNodeModel).id === node.id);
-        if (node instanceof ObjectOutputNode) {
+        if (node instanceof ObjectOutputNode
+            || node instanceof ArrayOutputNode
+            || node instanceof OutputDataImportNodeModel
+        ) {
             const x = (window.innerWidth - VISUALIZER_PADDING) * (100 / zoomLevel) - IO_NODE_DEFAULT_WIDTH;
             const y = exisitingNode && exisitingNode.getY() !== 0 ? exisitingNode.getY() : 0;
             node.setPosition(x, y);
         }
-        if (node instanceof InputNode) {
+        if (node instanceof InputNode || node instanceof InputDataImportNodeModel) {
             const x = OFFSETS.SOURCE_NODE.X;
             const computedY = prevBottomY + (prevBottomY ? GAP_BETWEEN_INPUT_NODES : 0);
             let y = exisitingNode && exisitingNode.getY() !== 0 ? exisitingNode.getY() : computedY;
 
             node.setPosition(x, y);
 
-            const nodeHeight = getIONodeHeight(node.numberOfFields);
-            prevBottomY = computedY + nodeHeight;
-        }
-        if (node instanceof OutputDataImportNodeModel){
-            const x = (window.innerWidth - VISUALIZER_PADDING) * (100 / zoomLevel) - IO_NODE_DEFAULT_WIDTH;
-            const y = exisitingNode && exisitingNode.getY() !== 0 ? exisitingNode.getY() : 0;
-            node.setPosition(x, y);
-        }
-        if (node instanceof InputDataImportNodeModel) {
-            const x = OFFSETS.SOURCE_NODE.X;
-            const computedY = prevBottomY + (prevBottomY ? GAP_BETWEEN_INPUT_NODES : 0);
-            let y = exisitingNode && exisitingNode.getY() !== 0 ? exisitingNode.getY() : computedY;
-
-            node.setPosition(x, y);
+            if (node instanceof InputNode) {
+                const nodeHeight = getIONodeHeight(node.numberOfFields);
+                prevBottomY = computedY + nodeHeight;
+            }
         }
     });
 

@@ -9,7 +9,7 @@
 import React from "react";
 import { Diagnostic } from "vscode-languageserver-types";
 import { Proxy } from "@wso2-enterprise/mi-syntax-tree/lib/src";
-import { Diagram } from "@wso2-enterprise/mi-diagram-2";
+import { Diagram } from "@wso2-enterprise/mi-diagram";
 import { Switch } from "@wso2-enterprise/ui-toolkit";
 import { View, ViewContent, ViewHeader } from "../../components/View";
 import { EditProxyForm, ProxyProps } from "../Forms/EditForms/EditProxyForm";
@@ -35,7 +35,6 @@ export const ProxyView = ({ model: ProxyModel, documentUri, diagnostics }: Proxy
     };
 
     const handleEditProxy = () => {
-        console.log(model);
         setFormOpen(true);
     }
     const onSave = (data: EditProxyForm) => {

@@ -17,6 +17,8 @@ import { StateMachine, navigate, openView } from '../stateMachine';
 import { EVENT_TYPE } from '@wso2-enterprise/mi-core';
 import { VisualizerWebview } from '../visualizer/webview';
 import { extension } from '../MIExtensionContext';
+import { getStopTask } from './tasks';
+import { ViewColumn } from 'vscode';
 
 export class MiDebugAdapter extends LoggingDebugSession {
     private _configurationDone = new Subject();
@@ -46,10 +48,10 @@ export class MiDebugAdapter extends LoggingDebugSession {
 
             if (VisualizerWebview.currentPanel?.getWebview()?.visible && stateContext.stNode) {
                 this.sendEvent(new StoppedEvent('breakpoint', MiDebugAdapter.threadID));
-                extension.webviewReveal = true;
+
                 setTimeout(() => {
-                    extension.webviewReveal = true;
-                    openView(EVENT_TYPE.OPEN_VIEW, stateContext);
+                    navigate();
+                    VisualizerWebview.currentPanel!.getWebview()?.reveal(ViewColumn.Beside);
                 }, 150);
             } else {
                 this.sendEvent(new StoppedEvent('breakpoint', MiDebugAdapter.threadID));
@@ -105,18 +107,6 @@ export class MiDebugAdapter extends LoggingDebugSession {
             return { name: name, value: String(val), variablesReference: 0 };
         }
     }
-
-    // requestSeq = 0;
-    // handleMessage(msg: DebugProtocol.ProtocolMessage): void {
-    //     console.log('Message received', msg);
-    //     this.requestSeq = msg.seq;
-    //     super.handleMessage(msg);
-    // }
-
-    // sendEvent(event: DebugProtocol.Event): void {
-    //     console.log('Event sent', event);
-    //     super.sendEvent(event);
-    // }
 
 
     //TODO: Remove unwanted capabilities
@@ -231,6 +221,7 @@ export class MiDebugAdapter extends LoggingDebugSession {
     }
 
 
+    private currentServerPath;
     protected launchRequest(response: DebugProtocol.LaunchResponse, args?: DebugProtocol.LaunchRequestArguments, request?: DebugProtocol.Request): void {
         this._configurationDone.wait().then(() => {
             getServerPath().then((serverPath) => {
@@ -238,29 +229,42 @@ export class MiDebugAdapter extends LoggingDebugSession {
                     response.success = false;
                     this.sendResponse(response);
                 } else {
+                    this.currentServerPath = serverPath;
                     executeTasks(serverPath, true)
                         .then(async () => {
-                            await this.debuggerHandler?.initializeDebugger();
-                            this.sendResponse(response);
+                            this.debuggerHandler?.initializeDebugger().then(() => {
+                                response.success = true;
+                                this.sendResponse(response);
+                            }).catch(error => {
+                                vscode.window.showErrorMessage(`Error while initializing the Debugger: ${error}`);
+                                response.success = false;
+                                this.sendResponse(response);
+                            });
                         })
                         .catch(error => {
-                            vscode.window.showErrorMessage(`Error while launching run and debug`);
+                            response.success = false;
+                            this.sendResponse(response);
+                            vscode.window.showErrorMessage(`Error while launching run and debug: ${error}`);
                         });
                 }
             });
         });
     }
 
-    protected disconnectRequest(response: DebugProtocol.DisconnectResponse, args: DebugProtocol.DisconnectArguments, request?: DebugProtocol.Request): void {
+    protected async disconnectRequest(response: DebugProtocol.DisconnectResponse, args: DebugProtocol.DisconnectArguments, request?: DebugProtocol.Request): Promise<void> {
         const taskExecution = vscode.tasks.taskExecutions.find(execution => execution.task.name === 'run');
         if (taskExecution) {
             this.debuggerHandler?.closeDebugger();
-            taskExecution.terminate();
+            const stopTask = getStopTask(this.currentServerPath);
+            stopTask.presentationOptions.close = true;
+            stopTask.presentationOptions.showReuseMessage = false;
+            vscode.tasks.executeTask(stopTask);
             response.success = true;
+            this.sendResponse(response);
         } else {
             response.success = false;
+            this.sendResponse(response);
         }
-        this.sendResponse(response);
     }
 
     protected async attachRequest(response: DebugProtocol.AttachResponse, args: DebugProtocol.LaunchRequestArguments) {
@@ -273,6 +277,21 @@ export class MiDebugAdapter extends LoggingDebugSession {
             this.sendResponse(response);
         });
     }
+
+    protected stepInRequest(response: DebugProtocol.StepInResponse, args: DebugProtocol.StepInArguments, request?: DebugProtocol.Request | undefined): void {
+        this.debuggerHandler?.sendResumeCommand().then((res) => {
+            response.success = true;
+            this.sendResponse(response);
+        });
+    }
+
+    protected stepOutRequest(response: DebugProtocol.StepOutResponse, args: DebugProtocol.StepOutArguments, request?: DebugProtocol.Request | undefined): void {
+        this.debuggerHandler?.sendResumeCommand().then((res) => {
+            response.success = true;
+            this.sendResponse(response);
+        });
+    }
+
 
     protected threadsRequest(response: DebugProtocol.ThreadsResponse): void {
         // return a default thread.

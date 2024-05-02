@@ -18,9 +18,10 @@ import { deleteRegistryResource } from '../util/fileOperations';
 import { RpcClient } from '@wso2-enterprise/mi-rpc-client';
 import { extension } from '../MIExtensionContext';
 
-export function activateProjectExplorer(context: ExtensionContext) {
+export async function activateProjectExplorer(context: ExtensionContext) {
 
 	const projectExplorerDataProvider = new ProjectExplorerEntryProvider(context);
+	await projectExplorerDataProvider.refresh();
 	const projectTree = window.createTreeView('MI.project-explorer', { treeDataProvider: projectExplorerDataProvider });
 	commands.registerCommand(COMMANDS.REFRESH_COMMAND, () => { return projectExplorerDataProvider.refresh(); });
 	commands.registerCommand(COMMANDS.ADD_COMMAND, () => {
@@ -127,7 +128,7 @@ export function activateProjectExplorer(context: ExtensionContext) {
 		if (entry.info && entry.info?.path) {
 			const filePath = entry.info.path;
 			const fileName = path.basename(filePath);
-			window.showInformationMessage("Do you want to do delete : " + fileName, "Yes", "No")
+			window.showInformationMessage("Do you want to delete : " + fileName, { modal: true }, "Yes", "No")
 				.then(async answer => {
 					if (answer === "Yes") {
 						const res = await deleteRegistryResource(filePath);

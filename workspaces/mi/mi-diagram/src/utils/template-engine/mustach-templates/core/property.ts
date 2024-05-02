@@ -7,16 +7,53 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
+import Mustache from "mustache";
 import { Property } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 
 export function getPropertyMustacheTemplate() {
-    return `<property 
-    name="{{newPropertyName}}" scope="{{propertyScope}}" type="{{propertyDataType}}"{{#expression}} expression="{{expression}}"{{/expression}} action="{{propertyAction}}"{{#description}} description="{{description}}"{{/description}}{{#value}} value="{{value}}"{{/value}}{{#valueStringPattern}} pattern="{{valueStringPattern}}"{{/valueStringPattern}}{{#valueStringCapturingGroup}} group="{{valueStringCapturingGroup}}"{{/valueStringCapturingGroup}}
-/>`;
+    return `{{#isOM}}
+    <property {{#propertyName}}name="{{propertyName}}" {{/propertyName}}{{#propertyScope}}scope="{{propertyScope}}" {{/propertyScope}}{{#propertyDataType}}type="{{propertyDataType}}" {{/propertyDataType}}{{#expression}}expression="{{{expression}}}" {{/expression}}{{#propertyAction}}action="{{propertyAction}}" {{/propertyAction}}{{#description}}description="{{description}}" {{/description}}{{#value}}value="{{value}}" {{/value}}{{#valueStringPattern}}pattern="{{valueStringPattern}}" {{/valueStringPattern}}{{#valueStringCapturingGroup}}group="{{valueStringCapturingGroup}}" {{/valueStringCapturingGroup}}>{{{OMValue}}}</property>    
+    {{/isOM}}
+    {{^isOM}}
+    <property {{#propertyName}}name="{{propertyName}}" {{/propertyName}}{{#propertyScope}}scope="{{propertyScope}}" {{/propertyScope}}{{#propertyDataType}}type="{{propertyDataType}}" {{/propertyDataType}}{{#expression}}expression="{{{expression}}}" {{/expression}}{{#propertyAction}}action="{{propertyAction}}" {{/propertyAction}}{{#description}}description="{{description}}" {{/description}}{{#value}}value="{{value}}" {{/value}}{{#valueStringPattern}}pattern="{{valueStringPattern}}" {{/valueStringPattern}}{{#valueStringCapturingGroup}}group="{{valueStringCapturingGroup}}" {{/valueStringCapturingGroup}}/>
+    {{/isOM}}`;
+}
+
+export function getPropertyXml(data: { [key: string]: any }) {
+    if (data.propertyDataType == "OM") {
+        data.isOM = true;
+    }
+    if (data.propertyDataType == "STRING") {
+        if (!data.valueStringPattern) {
+            delete data.valueStringCapturingGroup;
+        }
+    } else {
+        delete data.valueStringPattern;
+        delete data.valueStringCapturingGroup;
+    }
+    if (data.propertyAction == "set") {
+        delete data.propertyAction;
+    } else {
+        delete data.value;
+        delete data.propertyDataType;
+        delete data.valueStringPattern;
+        delete data.valueStringCapturingGroup;
+    }
+    if (data.value?.isExpression) {
+        data.expression = data.value?.value;
+        delete data.value;
+    } else {
+        data.value = data.value?.value;
+    }
+    data.propertyScope = data.propertyScope?.toLowerCase();
+    return Mustache.render(getPropertyMustacheTemplate(), data).trim();
 }
 
 export function getPropertyFormDataFromSTNode(data: { [key: string]: any }, node: Property) {
+    data.OMValue = node.any;
+    data.description = node.description;
     if (node.name) {
+        data.propertyName = node.name;
         data.newPropertyName = node.name;
     }
     if (node.type) {
@@ -34,6 +71,19 @@ export function getPropertyFormDataFromSTNode(data: { [key: string]: any }, node
     if (node.group) {
         data.valueStringCapturingGroup = node.group;
     }
-
+    data.value = { isExpression: false, value: "" };
+    if (node.value) {
+        data.value.isExpression = false;
+        data.value.value = node.value;
+    } else if (node.expression) {
+        data.value.isExpression = true;
+        data.value.value = node.expression;
+    }
     return data;
+}
+
+export function getPropertyDescription(node: Property) {
+    if (node.name) {
+        return node.name;
+    }
 }

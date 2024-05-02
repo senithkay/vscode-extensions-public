@@ -7,6 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
+export * from "./ArrayOutput";
 export * from "./ObjectOutput";
 export * from "./Input";
 export * from "./LinkConnector";
