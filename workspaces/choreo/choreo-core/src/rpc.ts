@@ -247,11 +247,7 @@ export const FireRefreshWorkspaceMetadata: RequestType<void, void> = { method: '
 
 
 // notification types
-export const LoginStatusChangedNotification: NotificationType<string> = { method: 'loginStatusChanged' };
-export const SelectedOrgChangedNotification: NotificationType<Organization> = { method: 'selectedOrgChanged' };
-export const SelectedProjectChangedNotification: NotificationType<string> = { method: 'selectedProjectChanged' };
 export const CloseWebViewNotification: NotificationType<void> = { method: 'close' };
-export const RefreshComponentsNotification: NotificationType<void> = { method: 'refreshComponents' };
 export const RefreshWorkspaceNotification: NotificationType<void> = { method: 'refreshWorkspace' };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

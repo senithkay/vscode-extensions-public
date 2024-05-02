@@ -15,10 +15,7 @@ import { Messenger } from "vscode-messenger";
 import { BROADCAST } from "vscode-messenger-common";
 import {
     ExecuteCommandRequest,
-    LoginStatusChangedNotification,
-    SelectedOrgChangedNotification,
     CloseWebViewNotification,
-    SelectedProjectChangedNotification,
     Project,
     GetProjectLocation,
     OpenExternal,
@@ -55,7 +52,6 @@ import {
     ChoreoComponentCreationParams,
     ReadEndpointsYaml,
     OpenBillingPortal,
-    RefreshComponentsNotification,
     FireRefreshComponentList,
     FireRefreshWorkspaceMetadata,
     OpenCellView,
@@ -549,9 +545,6 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
     //     };
     // });
 
-    messenger.onRequest(UpdateProjectOverview, (projectId: string) => {
-        ext.api.projectUpdated();
-    });
 
     messenger.onRequest(PushLocalComponentsToChoreo, async function (params: PushLocalComponentsToChoreoParams): Promise<string[]> {
         const { orgId, projectId, componentNames } = params;
@@ -578,24 +571,9 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
         );
     });
 
-    ext.api.onStatusChanged((newStatus) => {
-        messenger.sendNotification(LoginStatusChangedNotification, BROADCAST, newStatus);
-    });
-    ext.api.onOrganizationChanged((newOrg) => {
-        messenger.sendNotification(SelectedOrgChangedNotification, BROADCAST, newOrg);
-    });
-    ext.api.onChoreoProjectChanged((projectId) => {
-        messenger.sendNotification(SelectedProjectChangedNotification, BROADCAST, projectId);
-    });
-
-    ext.api.onRefreshComponentList(() => {
-        messenger.sendNotification(RefreshComponentsNotification, BROADCAST, null);
-    });
-
     ext.api.onRefreshWorkspaceMetadata(() => {
         messenger.sendNotification(RefreshWorkspaceNotification, BROADCAST, null);
     });
-
 
     messenger.onRequest(showOpenDialogRequest, async (options: OpenDialogOptions) => {
         try {
@@ -605,14 +583,6 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
             getLogger().error(error.message);
             return [];
         }
-    });
-
-    messenger.onRequest(FireRefreshComponentList, () => {
-        ext.api.refreshComponentList();
-    });
-
-    messenger.onRequest(FireRefreshWorkspaceMetadata, () => {
-        ext.api.refreshWorkspaceMetadata();
     });
 
     messenger.onRequest(GetLocalComponentDirMetaData, (params: getLocalComponentDirMetaDataRequest) => {
@@ -664,11 +634,7 @@ export class WebViewPanelRpc {
         if (!this._panel) {
             this._messenger.registerWebviewPanel(view, {
                 broadcastMethods: [
-                    "loginStatusChanged",
-                    "selectedOrgChanged",
-                    "selectedProjectChanged",
                     "ghapp/onGHAppAuthCallback",
-                    "refreshComponents",
                     "refreshWorkspace",
                     //new
                     ...NotificationsMethodList
@@ -705,11 +671,7 @@ export class WebViewViewRPC {
         if (!this._view) {
             this._messenger.registerWebviewView(view, {
                 broadcastMethods: [
-                    "loginStatusChanged",
-                    "selectedOrgChanged",
-                    "selectedProjectChanged",
                     "ghapp/onGHAppAuthCallback",
-                    "refreshComponents",
                     "refreshWorkspace",
                     // new
                     ...NotificationsMethodList

@@ -15,10 +15,7 @@ import {
     GetLoginStatusRequest,
     ExecuteCommandRequest,
     GetComponents,
-    LoginStatusChangedNotification,
-    SelectedOrgChangedNotification,
     ChoreoLoginStatus,
-    SelectedProjectChangedNotification,
     Organization,
     Project,
     CloseWebViewNotification,
@@ -75,7 +72,6 @@ import {
     GetComponentDevDeployment,
     OpenBillingPortal,
     Endpoint,
-    RefreshComponentsNotification,
     FireRefreshComponentList,
     AskProjectDirPath,
     CloneChoreoProjectWithDir,
@@ -461,24 +457,8 @@ export class ChoreoWebViewAPI {
         return this._messenger.sendRequest(OpenCellView, HOST_EXTENSION, undefined);
     }
 
-    public onLoginStatusChanged(callback: (newStatus: ChoreoLoginStatus) => void) {
-        this._messenger.onNotification(LoginStatusChangedNotification, callback);
-    }
-
-    public onRefreshComponents(callback: () => void) {
-        this._messenger.onNotification(RefreshComponentsNotification, callback);
-    }
-
     public onRefreshWorkspaceMetadata(callback: () => void) {
         this._messenger.onNotification(RefreshWorkspaceNotification, callback);
-    }
-
-    public onSelectedOrgChanged(callback: (newOrg: Organization) => void) {
-        this._messenger.onNotification(SelectedOrgChangedNotification, callback);
-    }
-
-    public onSelectedProjectChanged(callback: (projectId: string) => void) {
-        this._messenger.onNotification(SelectedProjectChangedNotification, callback);
     }
 
     public getProjectClient(): IChoreoProjectClient {

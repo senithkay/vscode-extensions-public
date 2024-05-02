@@ -33,7 +33,7 @@ export class ProjectOverview {
     }
     this._panel.onDidChangeViewState(e => {
       if (e.webviewPanel.visible) {
-        ext.api.projectUpdated();
+        // ext.api.projectUpdated();
       }
     });
   }
