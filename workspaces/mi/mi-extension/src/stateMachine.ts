@@ -342,6 +342,22 @@ const stateMachine = createMachine<MachineContext>({
                 if (context.view?.includes("Form")) {
                     return resolve(viewLocation);
                 }
+                if (context.view === MACHINE_VIEW.DataMapperView) {
+                    if (context.documentUri) {
+                        const filePath = context.documentUri;
+                        const functionName = "mapFunction";
+                
+                        const [fnSource, interfacesSource] = getSources(filePath);
+                        viewLocation.dataMapperProps = {
+                            filePath: filePath,
+                            functionName: functionName,
+                            fileContent: fnSource,
+                            interfacesSource: interfacesSource
+                        };
+                        viewLocation.view = MACHINE_VIEW.DataMapperView;
+                    }
+                    return resolve(viewLocation);
+                }
                 if (context.documentUri) {
                     try {
                         const response = await langClient.getSyntaxTree({
@@ -359,17 +375,18 @@ const stateMachine = createMachine<MachineContext>({
                                         viewLocation.view = MACHINE_VIEW.ResourceView;
                                         viewLocation.stNode = node.api.resource[context.identifier];
                                     }
-                                    openDataMapperViewIfAvailable(context, viewLocation);
                                     break;
                                 case !!node.proxy:
                                     viewLocation.view = MACHINE_VIEW.ProxyView;
                                     viewLocation.stNode = node.proxy;
-                                    openDataMapperViewIfAvailable(context, viewLocation);
                                     break;
                                 case !!node.sequence:
                                     viewLocation.view = MACHINE_VIEW.SequenceView;
                                     viewLocation.stNode = node.sequence;
-                                    openDataMapperViewIfAvailable(context, viewLocation);
+                                    break;
+                                case !!node.data_mapper:
+                                    viewLocation.view = MACHINE_VIEW.DataMapperView;
+                                    viewLocation.stNode = node.data_mapper;
                                     break;
                                 default:
                                     // Handle default case
@@ -450,23 +467,6 @@ export function openView(type: EVENT_TYPE, viewLocation?: VisualizerLocation) {
     updateProjectExplorer(viewLocation);
     const value = StateMachine.state();
     stateService.send({ type: type, viewLocation: viewLocation });
-}
-
-export function openDataMapperViewIfAvailable(context: MachineContext, viewLocation: VisualizerLocation) {
-    if (context.dataMapperProps?.filePath) {
-        const filePath = context.dataMapperProps?.filePath!;
-        const functionName = "mapFunction";
-
-        const [fnSource, interfacesSource] = getSources(filePath);
-        viewLocation.dataMapperProps = {
-            filePath: filePath,
-            functionName: functionName,
-            fileContent: fnSource,
-            interfacesSource: interfacesSource
-        };
-
-        viewLocation.view = MACHINE_VIEW.DataMapperView;
-    }
 }
 
 export function navigate(entry?: HistoryEntry) {

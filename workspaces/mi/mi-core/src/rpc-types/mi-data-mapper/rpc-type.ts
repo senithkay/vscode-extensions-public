@@ -20,10 +20,7 @@ import {
     LoadDMConfigsResponse,
     ConvertRegPathToAbsPathRequest,
     ConvertRegPathToAbsPathResponse,
-    ImportDMSchemaRequest,
-    ImportDMSchemaResponse,
-    UpdateDMCRequest,
-    UpdateDMCResponse
+    UpdateDMCRequest
 } from "./types";
 import { RequestType, NotificationType } from "vscode-messenger-common";
 
@@ -33,6 +30,5 @@ export const updateFileContent: NotificationType<UpdateFileContentRequest> = { m
 export const browseSchema: RequestType<BrowseSchemaRequest, BrowseSchemaResponse> = { method: `${_preFix}/browseSchema` };
 export const loadDMConfigs: RequestType<LoadDMConfigsRequest, LoadDMConfigsResponse> = { method: `${_preFix}/loadDMConfigs` };
 export const convertRegPathToAbsPath: RequestType<ConvertRegPathToAbsPathRequest, ConvertRegPathToAbsPathResponse> = { method: `${_preFix}/convertRegPathToAbsPath` };
-export const importDMSchema: RequestType<ImportDMSchemaRequest, ImportDMSchemaResponse> = { method: `${_preFix}/importDMSchema` };
-export const updateDMC: RequestType<UpdateDMCRequest, UpdateDMCResponse> = { method: `${_preFix}/updateDMC` };
 export const createDMFiles: RequestType<GenerateDMInputRequest, GenerateDMInputResponse> = { method: `${_preFix}/createDMFiles` };
+export const updateDMCFileContent: RequestType<UpdateDMCRequest, void> = { method: `${_preFix}/updateDMCFileContent` };

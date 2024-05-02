@@ -18,10 +18,11 @@ import { DataMapperHeader } from "./Header/DataMapperHeader";
 import { DataMapperNodeModel } from "../Diagram/Node/commons/DataMapperNode";
 import { NodeInitVisitor } from "../Visitors/NodeInitVisitor";
 import { traversNode } from "../Diagram/utils/st-utils";
-import { DMType, Range } from "@wso2-enterprise/mi-core";
+import { DMType, Range, updateDMCFileContent } from "@wso2-enterprise/mi-core";
 import { FunctionDeclaration } from "ts-morph";
 import { ImportDataForm } from "./SidePanel/ImportDataForm";
 import { useDMSidePanelStore } from "../../store/store";
+import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 
 const classes = {
     root: css({
@@ -57,6 +58,8 @@ export function MIDataMapper(props: MIDataMapperProps) {
     const isSidePanelOpen = useDMSidePanelStore(state => state.sidePanelOpen);
     const setSidePanelOpen = useDMSidePanelStore(state => state.setSidePanelOpen);
     const sidePanelIOType = useDMSidePanelStore(state => state.sidePanelIOType);
+    const isSchemaOverridden = useDMSidePanelStore(state => state.isSchemaOverridden);
+    const { rpcClient } = useVisualizerContext();
 
     useEffect(() => {
         async function generateNodes() {
@@ -69,6 +72,10 @@ export function MIDataMapper(props: MIDataMapperProps) {
             setNodes(nodeInitVisitor.getNodes());
         }
         generateNodes();
+        rpcClient.getMiDataMapperRpcClient().updateDMCFileContent({
+            dmName: configName,
+            sourcePath: filePath
+        });
     }, [fileContent]);
 
     return (
@@ -87,7 +94,7 @@ export function MIDataMapper(props: MIDataMapperProps) {
                 />
             )}
             <ImportDataForm isOpen={isSidePanelOpen} onCancel={() => setSidePanelOpen(false)} 
-                    configName={configName} documentUri={filePath} ioType={sidePanelIOType} />
+                    configName={configName} documentUri={filePath} ioType={sidePanelIOType} overwriteSchema={isSchemaOverridden} />
         </div>
     )
 }
