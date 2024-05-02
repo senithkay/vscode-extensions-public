@@ -404,10 +404,9 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 			explorerEntry.contextValue = 'endpoint';
 			explorerEntry.command = {
 				"title": "Show Endpoint",
-				"command": COMMANDS.SHOW_ENDPOINT,
+				"command": getViewCommand(entry.subType),
 				"arguments": [vscode.Uri.parse(entry.path), 'endpoint', undefined, false]
 			};
-			explorerEntry.command.command = getViewCommand(entry.subType);
 
 		} else if (entry.type === "SEQUENCE") {
 			let icon = 'code';
@@ -446,10 +445,9 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 			explorerEntry.contextValue = 'template';
 			explorerEntry.command = {
 				"title": "Show Template",
-				"command": COMMANDS.SHOW_TEMPLATE,
+				"command": getViewCommand(entry.subType),
 				"arguments": [vscode.Uri.parse(entry.path), 'template', undefined, false]
 			};
-			explorerEntry.command.command = getViewCommand(entry.subType);
 
 		} else if (entry.type === "TASK") {
 			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, 'code');
@@ -623,6 +621,8 @@ function getViewCommand(endpointType?: string) {
 		viewCommand = COMMANDS.SHOW_RECIPIENT_ENDPOINT;
 	} else if (endpointType === 'TEMPLATE_ENDPOINT') {
 		viewCommand = COMMANDS.SHOW_TEMPLATE_ENDPOINT;
+	} else if (endpointType === 'SEQUENCE') {
+		viewCommand = COMMANDS.SHOW_SEQUENCE_TEMPLATE_VIEW;
 	}
 	return viewCommand;
 }

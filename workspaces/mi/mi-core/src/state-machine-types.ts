@@ -28,6 +28,7 @@ export enum MACHINE_VIEW {
     Diagram = "MI Diagram",
     ResourceView = "Resource View",
     SequenceView = "Sequence View",
+    SequenceTemplateView = "Sequence Template View",
     ProxyView = "Proxy View",
     ServiceDesigner = "Service Designer",
     DataMapperView = "Data Mapper View",

@@ -24,6 +24,7 @@ import { activateProjectExplorer } from './project-explorer/activate';
 import { StateMachineAI } from './ai-panel/aiMachine';
 import { getSources } from './util/dataMapper';
 import { StateMachinePopup } from './stateMachinePopup';
+import { STNode } from '../../syntax-tree/lib/src';
 import { log } from './util/logger';
 
 interface MachineContext extends VisualizerLocation {
@@ -391,6 +392,7 @@ const stateMachine = createMachine<MachineContext>({
                                     break;
                                 default:
                                     // Handle default case
+                                    viewLocation.stNode = node as any as STNode;
                                     break;
                             }
                         }
