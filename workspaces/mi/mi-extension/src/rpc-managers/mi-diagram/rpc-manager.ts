@@ -59,6 +59,7 @@ import {
     EVENT_TYPE,
     EndpointDirectoryResponse,
     EndpointsAndSequencesResponse,
+    ExportProjectRequest,
     FileDirResponse,
     FileStructure,
     GetAllArtifactsRequest,
@@ -2779,6 +2780,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 canSelectMany: params.canSelectMany,
                 defaultUri: Uri.file(os.homedir()),
                 title: params.title,
+                ...params.openLabel && { openLabel: params.openLabel },
             });
             if (selectedFile) {
                 resolve({ filePath: selectedFile[0].fsPath });
@@ -3212,6 +3214,49 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         return new Promise(async (resolve) => {
             await commands.executeCommand(COMMANDS.BUILD_PROJECT, false);
             resolve();
+        });
+    }
+
+    async exportProject(params: ExportProjectRequest): Promise<void> {
+        return new Promise(async (resolve, reject) => {
+            const carFile = await vscode.workspace.findFiles(
+                new vscode.RelativePattern(params.projectPath, 'target/*.car'),
+                null,
+                1
+            );
+            if (carFile.length === 0) {
+                window.showErrorMessage('No .car file found in the target directory');
+                return reject('No .car file found in the target directory');
+            }
+
+            const selection = await vscode.window.showQuickPick(
+                [
+                    {
+                        label: "Select Destination",
+                        description: "Select a destination folder to export .car file",
+                    },
+                ],
+                {
+                    placeHolder: "Export Options",
+                }
+            );
+
+            if (selection) {
+                // Get the destination folder
+                const { filePath: destination } = await this.browseFile({
+                    canSelectFiles: false,
+                    canSelectFolders: true,
+                    canSelectMany: false,
+                    defaultUri: params.projectPath,
+                    title: "Select a folder to export the project",
+                    openLabel: "Select Folder"
+                });
+                if (destination) {
+                    const destinationPath = path.join(destination, path.basename(carFile[0].fsPath));
+                    fs.copyFileSync(carFile[0].fsPath, destinationPath);
+                    resolve();
+                }
+            }
         });
     }
 }
