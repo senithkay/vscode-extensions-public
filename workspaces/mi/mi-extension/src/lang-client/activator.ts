@@ -25,8 +25,8 @@ import {
     LanguageClientOptions
 } from 'vscode-languageclient';
 import { ServerOptions } from "vscode-languageclient/node";
-import { DidChangeConfigurationNotification, RequestType, TextDocumentPositionParams } from 'vscode-languageserver-protocol';
-import { ErrorType, onConnectorStatusUpdate } from '@wso2-enterprise/mi-core';
+import { DidChangeConfigurationNotification } from 'vscode-languageserver-protocol';
+import { ErrorType } from '@wso2-enterprise/mi-core';
 import { activateTagClosing, AutoCloseResult } from './tagClosing';
 import { ExtendedLanguageClient } from './ExtendedLanguageClient';
 import { GoToDefinitionProvider } from './DefinitionProvider';
@@ -34,8 +34,6 @@ import { FormattingProvider } from './FormattingProvider';
 
 import util = require('util');
 import { log } from '../util/logger';
-import { RPCLayer } from '../RPCLayer';
-import { VisualizerWebview } from '../visualizer/webview';
 const exec = util.promisify(require('child_process').exec);
 
 export interface ScopeInfo {
