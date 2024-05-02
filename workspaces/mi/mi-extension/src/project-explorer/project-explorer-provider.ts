@@ -56,7 +56,6 @@ export class ProjectExplorerEntryProvider implements vscode.TreeDataProvider<Pro
 
 	constructor(private context: vscode.ExtensionContext) {
 		this._data = [];
-		this.refresh();
 	}
 
 	getTreeItem(element: ProjectExplorerEntry): vscode.TreeItem | Thenable<vscode.TreeItem> {

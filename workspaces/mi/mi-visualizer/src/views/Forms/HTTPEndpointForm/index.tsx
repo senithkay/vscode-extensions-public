@@ -42,11 +42,8 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
                 .matches(/^[^@\\^+;:!%&,=*#[\]?'"<>{}() /]*$/, "Invalid characters in Endpoint Name"),
         traceEnabled: yup.string(),
         statisticsEnabled: yup.string(),
-        uriTemplate: yup
-            .string()
-            .required("URI template is required")
-            .matches(/^\$.+$|^\{.+\}$|^(https?|ftp):\/\/(([a-z\d]([a-z\d-]*[a-z\d])?\.)+[a-z]{2,}|localhost(:[\d]*)?)(\/[-a-z\d%_.~+{}]*)*(\?[;&a-z\d%_.~+=-{}]*)?(\#[-a-z\d_]*)?$/i,
-                "Invalid URI format"),
+        uriTemplate: yup.string().required("URI template is required")
+            .matches(/^\$.+$|^\{.+\}$|^\w\w+:\/.*|file:.*|mailto:.*|vfs:.*|jdbc:.*/, "Invalid URI format"),
         httpMethod: yup.string().required("HTTP method is required"),
         description: yup.string(),
         requireProperties: yup.boolean(),

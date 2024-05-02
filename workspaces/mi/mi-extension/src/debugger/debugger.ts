@@ -172,9 +172,9 @@ export class Debugger extends EventEmitter {
             breakpoints: [...breakpointPositions]
         };
 
-        const breakpointInfo1: GetBreakpointInfoResponse = await langClient.getBreakpointInfo(getBreakpointInfoRequest);
-        console.log('Breakpoint Info:', breakpointInfo1);
-        return breakpointInfo1.breakpointInfo;
+        const breakpointInfo: GetBreakpointInfoResponse = await langClient.getBreakpointInfo(getBreakpointInfoRequest);
+        console.log('Breakpoint Info:', breakpointInfo);
+        return breakpointInfo?.breakpointInfo;
     }
 
 
@@ -232,22 +232,23 @@ export class Debugger extends EventEmitter {
         return new Promise(async (resolve, reject) => {
             this.startDebugger().then(() => {
                 extension.preserveActivity = true;
-                //checkServerLiveness().then(() => {
                 checkServerReadiness().then(() => {
                     this.sendResumeCommand().then(async () => {
                         const runtimeBreakpoints = this.getRuntimeBreakpoints(this.getCurrentFilePath());
-                        const runtimeBreakpointInfo = await this.getBreakpointInformation(runtimeBreakpoints);
+                        if (runtimeBreakpoints.length > 0) {
+                            const runtimeBreakpointInfo = await this.getBreakpointInformation(runtimeBreakpoints);
 
-                        for (const info of runtimeBreakpointInfo) {
-                            await this.sendClearBreakpointCommand(info);
-                            await this.sendSetBreakpointCommand(info);
+                            for (const info of runtimeBreakpointInfo) {
+                                await this.sendClearBreakpointCommand(info);
+                                await this.sendSetBreakpointCommand(info);
 
-                            // TODO: Handle issue where invalid breakpoint positions are sent from the server 
+                                // TODO: Handle issue where invalid breakpoint positions are sent from the server 
+                            }
                         }
                         resolve();
                     }).catch((error) => {
                         console.error('Error while resuming the debugger:', error);
-                        reject(error);
+                        reject(`Error while resuming the debugger server: ${error}`);
                     });
 
                 }).catch((error) => {
@@ -257,7 +258,7 @@ export class Debugger extends EventEmitter {
 
             }).catch((error) => {
                 console.error('Error while connecting the debugger to the MI server:', error);
-                reject(error);
+                reject(`Error while connecting the debugger to the MI server: ${error}`);
             });
         });
     }
