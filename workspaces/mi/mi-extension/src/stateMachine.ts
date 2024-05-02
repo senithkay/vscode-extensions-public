@@ -286,6 +286,15 @@ const stateMachine = createMachine<MachineContext>({
                 // Activate the AI Panel State machine after LS is loaded.
                 StateMachineAI.initialize();
                 StateMachinePopup.initialize();
+
+                // Listen to the LS notification
+                if (ls) {
+                    ls.onNotification("synapse/addConnectorStatus", (connectionStatus: any) => {
+                        console.log("Connector status: " + connectionStatus);
+                        // Notify the visualizer
+                        VisualizerWebview.currentPanel?.notify(connectionStatus);
+                    });
+                }
                 resolve(ls);
             });
         },

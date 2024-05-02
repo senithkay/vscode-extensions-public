@@ -101,6 +101,18 @@ export class VisualizerWebview {
         }
     }
 
+    public notify(connectionStatus: any) {
+        const panel = this.getWebview();
+
+        if (panel) {
+            // Send a command from the extension to the webview
+            panel.webview.postMessage({
+                command: 'notify',
+                text: connectionStatus
+            });
+        }
+    }
+
     private getWebviewContent(webview: vscode.Webview) {
         // The JS file from the React build output
         const scriptUri = getComposerJSFiles(extension.context, 'Visualizer', webview).map(jsFile =>
