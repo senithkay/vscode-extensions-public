@@ -3,7 +3,7 @@ import Mustache from "mustache";
 import { transformNamespaces } from "../../../commons";
 
 export function getBeanMustacheTemplate() {
-    return `<bean {{#action}}action="{{action}}" {{/action}}{{#class}}class="{{class}}" {{/class}}{{#property}}property="{{property}}" {{/property}}{{#valueLiteral}}value="{{valueLiteral}}" {{/valueLiteral}}{{#valueExpression}}value="{{valueExpression}}" {{/valueExpression}}{{#targetLiteral}}target="{{targetLiteral}}" {{/targetLiteral}}{{#targetExpression}}target="{{targetExpression}}" {{/targetExpression}}{{#description}}description="{{description}}" {{/description}}{{#var}}var="{{var}}" {{/var}}{{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}}/>`;
+    return `<bean {{#action}}action="{{action}}" {{/action}}{{#class}}class="{{class}}" {{/class}}{{#property}}property="{{property}}" {{/property}}{{#valueLiteral}}value="{{{valueLiteral}}}" {{/valueLiteral}}{{#valueExpression}}value="{{{valueExpression}}}" {{/valueExpression}}{{#targetLiteral}}target="{{{targetLiteral}}}" {{/targetLiteral}}{{#targetExpression}}target="{{{targetExpression}}}" {{/targetExpression}}{{#description}}description="{{description}}" {{/description}}{{#var}}var="{{var}}" {{/var}}{{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}}/>`;
 }
 
 export function getBeanXml(data: { [key: string]: any }) {

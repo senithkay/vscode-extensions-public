@@ -15,9 +15,9 @@ export function getAggregateMustacheTemplate() {
     return `
     {{#isNewMediator}}
     <aggregate id="{{aggregateID}}" >
-{{#correlationExpression}}<correlateOn expression="{{value}}" {{#namespaces}}xmlns:{{prefix}}="{{uri}}" {{/namespaces}}/>{{/correlationExpression}}
+{{#correlationExpression}}<correlateOn expression="{{{value}}}" {{#namespaces}}xmlns:{{prefix}}="{{uri}}" {{/namespaces}}/>{{/correlationExpression}}
         <completeCondition timeout="{{completionTimeout}}">
-            <messageCount {{#completionMax}}max="{{completionMax}}" {{/completionMax}}{{#completionMin}}min="{{completionMin}}" {{/completionMin}}{{#messageCountNamespaces}}xmlns:{{prefix}}="{{uri}}" {{/messageCountNamespaces}}/>
+            <messageCount {{#completionMax}}max="{{{completionMax}}}" {{/completionMax}}{{#completionMin}}min="{{{completionMin}}}" {{/completionMin}}{{#messageCountNamespaces}}xmlns:{{prefix}}="{{uri}}" {{/messageCountNamespaces}}/>
         </completeCondition>
         <onComplete aggregateElementType="{{aggregateElementType}}" {{#enclosingElementProperty}}enclosingElementProperty="{{enclosingElementProperty}}"{{/enclosingElementProperty}} {{#aggregationExpression}}expression="{{value}}" {{#namespaces}}xmlns:{{prefix}}="{{uri}}" {{/namespaces}}{{/aggregationExpression}}{{#sequenceKey}}sequence="{{sequenceKey}}"{{/sequenceKey}} ></onComplete>
     </aggregate>
@@ -27,15 +27,15 @@ export function getAggregateMustacheTemplate() {
     <aggregate id="{{aggregateID}}" >
     {{/editAggregate}}
     {{#editCorrelateOn}}
-    {{#correlationExpression}}<correlateOn expression="{{value}}" {{#namespaces}}xmlns:{{prefix}}="{{uri}}" {{/namespaces}}/>{{/correlationExpression}}
+    {{#correlationExpression}}<correlateOn expression="{{{value}}}" {{#namespaces}}xmlns:{{prefix}}="{{uri}}" {{/namespaces}}/>{{/correlationExpression}}
     {{/editCorrelateOn}}
     {{#editCompleteCondition}}
     <completeCondition timeout="{{completionTimeout}}">
-        <messageCount {{#completionMax}}max="{{completionMax}}" {{/completionMax}}{{#completionMin}}min="{{completionMin}}" {{/completionMin}}{{#messageCountNamespaces}}xmlns:{{prefix}}="{{uri}}" {{/messageCountNamespaces}}/>
+        <messageCount {{#completionMax}}max="{{{completionMax}}}" {{/completionMax}}{{#completionMin}}min="{{{completionMin}}}" {{/completionMin}}{{#messageCountNamespaces}}xmlns:{{prefix}}="{{uri}}" {{/messageCountNamespaces}}/>
     </completeCondition>
     {{/editCompleteCondition}}
     {{#editOnComplete}}
-    <onComplete aggregateElementType="{{aggregateElementType}}" {{#enclosingElementProperty}}enclosingElementProperty="{{enclosingElementProperty}}"{{/enclosingElementProperty}} {{#aggregationExpression}}expression="{{value}}" {{#namespaces}}xmlns:{{prefix}}="{{uri}}" {{/namespaces}}{{/aggregationExpression}} {{#sequenceKey}}sequence="{{sequenceKey}}"{{/sequenceKey}} >
+    <onComplete aggregateElementType="{{aggregateElementType}}" {{#enclosingElementProperty}}enclosingElementProperty="{{{enclosingElementProperty}}}"{{/enclosingElementProperty}} {{#aggregationExpression}}expression="{{{value}}}" {{#namespaces}}xmlns:{{prefix}}="{{uri}}" {{/namespaces}}{{/aggregationExpression}} {{#sequenceKey}}sequence="{{sequenceKey}}"{{/sequenceKey}} >
     {{/editOnComplete}}
     {{/isNewMediator}}
     `;

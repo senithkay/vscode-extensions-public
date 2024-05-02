@@ -17,7 +17,7 @@ export function getSwitchMustacheTemplate() {
     {{#isNewMediator}}
     <switch {{#description}}description="{{description}}"{{/description}} {{#sourceXPath}}source="{{{value}}}"{{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}}{{/sourceXPath}} >
         {{#caseBranches}}
-        <case regex="{{caseRegex}}"></case>
+        <case regex="{{{caseRegex}}}"></case>
         {{/caseBranches}}
         <default></default>
     </switch>

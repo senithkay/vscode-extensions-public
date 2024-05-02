@@ -1685,12 +1685,12 @@ export interface RuleOutputFact {
     type: string;
 }
 
-export interface RuleSource {
+export interface RuleSource extends STNode {
     value: string;
     xpath: string;
 }
 
-export interface RuleTarget {
+export interface RuleTarget extends STNode {
     value: string;
     action: string;
     resultXpath: string;

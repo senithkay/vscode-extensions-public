@@ -5,7 +5,7 @@ import { transformNamespaces } from "../../../commons";
 export function getClassMustacheTemplate() {
     return `<class {{#description}}description="{{description}}" {{/description}}{{#className}}name="{{className}}" {{/className}} >
         {{#properties}}
-        <property {{#propertyName}}name="{{propertyName}}" {{/propertyName}}{{^isExpression}}value="{{value}}" {{/isExpression}}{{#isExpression}}expression="{{value}}" {{#namespaces}}xmlns:{{prefix}}="{{uri}}" {{/namespaces}}{{/isExpression}}/>
+        <property {{#propertyName}}name="{{{propertyName}}}" {{/propertyName}}{{^isExpression}}value="{{{value}}}" {{/isExpression}}{{#isExpression}}expression="{{{value}}}" {{#namespaces}}xmlns:{{prefix}}="{{uri}}" {{/namespaces}}{{/isExpression}}/>
         {{/properties}}
 </class>`;
 }

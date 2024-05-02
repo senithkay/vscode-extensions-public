@@ -15,7 +15,7 @@ export function getRuleMustacheTemplate() {
 
     return `
     <brs:rule description="{{description}}" xmlns:brs="http://wso2.org/carbon/rules">
-        <brs:source {{#sourceXPath}}xpath="{{{value}}}"{{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}}{{/sourceXPath}}>{{sourceValue}}</brs:source>
+        <brs:source {{#sourceXPath}}xpath="{{{value}}}"{{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}}{{/sourceXPath}}>{{{sourceValue}}}</brs:source>
         <brs:target action="{{targetAction}}" resultXpath="{{{targetResultXPath}}}" xpath="{{{targetXPath}}}"{{#targetNamespaces}} xmlns:{{prefix}}="{{uri}}"{{/targetNamespaces}}>{{targetValue}}</brs:target>
         <brs:ruleSet>
             <brs:properties />
@@ -23,12 +23,12 @@ export function getRuleMustacheTemplate() {
         </brs:ruleSet>
         <brs:input namespace="{{inputNamespace}}" wrapperElementName="{{inputWrapperName}}" >
             {{#facts}}
-            <brs:fact elementName="{{elementName}}" namespace="{{inputNamespace}}" type="{{factType}}" xpath="{{{propertyExpression}}}" />
+            <brs:fact elementName="{{{elementName}}}" namespace="{{inputNamespace}}" type="{{factType}}" xpath="{{{propertyExpression}}}" />
             {{/facts}}
         </brs:input>
         <brs:output namespace="{{outputNamespace}}" wrapperElementName="{{outputWrapperName}}" >
             {{#results}}
-            <brs:fact elementName="{{resultName}}" namespace="{{outputNamespace}}" type="{{resultType}}" />
+            <brs:fact elementName="{{{resultName}}}" namespace="{{outputNamespace}}" type="{{resultType}}" />
             {{/results}}
         </brs:output>
     </brs:rule>

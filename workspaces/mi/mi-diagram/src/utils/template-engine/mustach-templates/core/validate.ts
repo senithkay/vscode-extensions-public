@@ -14,7 +14,7 @@ import { transformNamespaces } from '../../../commons';
 export function getValidateMustacheTemplate() {
     return `
     {{#isNewMediator}}
-    <validate {{#source}}source="{{value}}"{{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}} {{/source}}{{#enableSchemaCaching}}cache-schema="{{enableSchemaCaching}}" {{/enableSchemaCaching}}{{#description}}description="{{description}}" {{/description}}>
+    <validate {{#source}}source="{{{value}}}"{{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}} {{/source}}{{#enableSchemaCaching}}cache-schema="{{enableSchemaCaching}}" {{/enableSchemaCaching}}{{#description}}description="{{description}}" {{/description}}>
     {{#schemas}}
     <schema key="{{key}}" />
     {{/schemas}}
@@ -28,7 +28,7 @@ export function getValidateMustacheTemplate() {
     </validate>
     {{/isNewMediator}}
     {{^isNewMediator}}
-    <validate {{#source}}source="{{value}}"{{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}} {{/source}}{{#enableSchemaCaching}}cache-schema="{{enableSchemaCaching}}" {{/enableSchemaCaching}}{{#description}}description="{{description}}" {{/description}}>
+    <validate {{#source}}source="{{{value}}}"{{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}} {{/source}}{{#enableSchemaCaching}}cache-schema="{{enableSchemaCaching}}" {{/enableSchemaCaching}}{{#description}}description="{{description}}" {{/description}}>
     {{#schemas}}
     <schema key="{{key}}" />
     {{/schemas}}
