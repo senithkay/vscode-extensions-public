@@ -103,7 +103,6 @@ import {
     executeCommand,
     getAIResponse,
     getAPIDirectory,
-    getAddConnectorStatus,
     getAddressEndpoint,
     getAllArtifacts,
     getAllRegistryPaths,
@@ -265,6 +264,4 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getAllRegistryPaths, (args: GetAllRegistryPathsRequest) => rpcManger.getAllRegistryPaths(args));
     messenger.onRequest(getAllArtifacts, (args: GetAllArtifactsRequest) => rpcManger.getAllArtifacts(args));
     messenger.onRequest(deleteArtifact, (args: DeleteArtifactRequest) => rpcManger.deleteArtifact(args));
-    messenger.onRequest(getAddConnectorStatus, () => rpcManger.getAddConnectorStatus());
-    messenger.onRequest(getRemoveConnectorStatus, () => rpcManger.getRemoveConnectorStatus());
 }

@@ -21,7 +21,6 @@ import {
     Connector,
     ConnectorRequest,
     ConnectorResponse,
-    ConnectorStatusResponse,
     ConnectorsResponse,
     CreateAPIRequest,
     CreateAPIResponse,
@@ -3207,22 +3206,6 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
             resolve();
         });
-    }
-
-    async getAddConnectorStatus(): Promise<ConnectorStatusResponse> {
-        return new Promise(async (resolve) => {
-            const langClient = StateMachine.context().langClient!;
-            const res = await langClient.getAddConnectorStatus();
-            resolve(res);
-        })
-    }
-
-    async getRemoveConnectorStatus(): Promise<ConnectorStatusResponse> {
-        return new Promise(async (resolve) => {
-            const langClient = StateMachine.context().langClient!;
-            const res = await langClient.getRemoveConnectorStatus();
-            resolve(res);
-        })
     }
 }
 

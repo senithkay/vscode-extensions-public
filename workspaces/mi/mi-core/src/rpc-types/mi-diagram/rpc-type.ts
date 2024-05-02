@@ -149,7 +149,6 @@ import {
     GetConnectionFormRequest,
     GetConnectionFormResponse,
     DeleteArtifactRequest,
-    ConnectorStatusResponse,
 } from "./types";
 import { RequestType, NotificationType } from "vscode-messenger-common";
 
@@ -244,5 +243,3 @@ export const logoutFromMIAccount: NotificationType<void> = { method: `${_preFix}
 export const getAllRegistryPaths: RequestType<GetAllRegistryPathsRequest, GetAllRegistryPathsResponse> = { method: `${_preFix}/getAllRegistryPaths` };
 export const getAllArtifacts: RequestType<GetAllArtifactsRequest, GetAllArtifactsResponse> = { method: `${_preFix}/getAllArtifacts` };
 export const deleteArtifact: RequestType<DeleteArtifactRequest, void> = { method: `${_preFix}/deleteArtifact` };
-export const getAddConnectorStatus: RequestType<void, ConnectorStatusResponse> = { method: `${_preFix}/getAddConnectorStatus` };
-export const getRemoveConnectorStatus: RequestType<void, ConnectorStatusResponse> = { method: `${_preFix}/getRemoveConnectorStatus` };

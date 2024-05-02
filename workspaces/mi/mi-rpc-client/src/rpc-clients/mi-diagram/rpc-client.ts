@@ -19,7 +19,6 @@ import {
     CommandsResponse,
     ConnectorRequest,
     ConnectorResponse,
-    ConnectorStatusResponse,
     ConnectorsResponse,
     CreateAPIRequest,
     CreateAPIResponse,
@@ -177,7 +176,6 @@ import {
     executeCommand,
     getAIResponse,
     getAPIDirectory,
-    getAddConnectorStatus,
     getAddressEndpoint,
     getAllArtifacts,
     getAllRegistryPaths,
@@ -613,13 +611,5 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     deleteArtifact(params: DeleteArtifactRequest): Promise<void> {
         return this._messenger.sendRequest(deleteArtifact, HOST_EXTENSION, params);
-    }
-
-    getAddConnectorStatus(): Promise<ConnectorStatusResponse> {
-        return this._messenger.sendRequest(getAddConnectorStatus, HOST_EXTENSION);
-    }
-
-    getRemoveConnectorStatus(): Promise<ConnectorStatusResponse> {
-        return this._messenger.sendRequest(getRemoveConnectorStatus, HOST_EXTENSION);
     }
 }
