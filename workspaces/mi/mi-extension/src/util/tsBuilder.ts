@@ -8,15 +8,15 @@
  * 
  */
 
-import { compileFromFile } from './../datamapper/schema-to-typescript'
+import { compile } from './../datamapper/schema-to-typescript';
 import * as fs from "fs";
 import path = require("path");
 import { Uri, workspace } from "vscode";
 import { convertTypeScriptToJavascript, convertToJSONSchema } from './schemaBuilder';
 import { JSONSchema3or4 } from 'to-json-schema';
 
-export function generateTSInterfacesFromSchemaFile(schemaPath: string): Promise<string> {
-    const ts = compileFromFile(schemaPath, {bannerComment: ""});
+export function generateTSInterfacesFromSchemaFile(schema: JSONSchema3or4): Promise<string> {
+    const ts = compile(schema, "Schema", {bannerComment: ""});
     return ts;
 }
 
@@ -38,29 +38,30 @@ export async function updateDMC(dmName:string, sourcePath: string): Promise<stri
         const outputSchema:JSONSchema3or4 = convertToJSONSchema(outputSchemaContent);
         const inputSchemaTitle = inputSchema.title || "InputRoot";
         const outputSchemaTitle = outputSchema.title || "OutputRoot";
+        const isInputArray = inputSchema.type === "array";
+        const isOutputArray = outputSchema.type === "array";
 
-        if (inputSchemaContent.length > 0) {
-            let inputTSInterfaces = await generateTSInterfacesFromSchemaFile(inputSchemaPath);
-            if (inputTSInterfaces.startsWith("export ")) {
-                inputTSInterfaces = inputTSInterfaces.replace("export ", "");
-            }
-            tsContent += `${inputTSInterfaces}\n\n`;
-        } else {
-            tsContent += "interface InputRoot {\n}\n\n";
+        if (isInputArray && inputSchema.items && inputSchema.items.length > 0) {
+            inputSchema.type = "object";
+            inputSchema.properties = inputSchema.items[0].properties;
         }
 
-        if (outputSchemaContent.length > 0) {
-            let outputTSInterfaces = await generateTSInterfacesFromSchemaFile(outputSchemaPath);
-            if (outputTSInterfaces.startsWith("export ")) {
-                outputTSInterfaces = outputTSInterfaces.replace("export ", "");
-            }
-            tsContent += `${outputTSInterfaces}\n\n`;
-        } else {
-            tsContent += "interface OutputRoot {\n}\n\n";
+        if (isOutputArray && outputSchema.items && outputSchema.items.length > 0) {
+            outputSchema.type = "object";
+            outputSchema.properties = outputSchema.items[0].properties;
         }
-        tsContent += `function mapFunction(input: InputRoot): OutputRoot {\nreturn {}\n};\n\n\n`;
-        tsContent += "// WARNING: Do not edit/remove below function\n";
-        tsContent += `function map_S_${inputSchemaTitle}_S_${outputSchemaTitle}() {\n\treturn mapFunction(input${inputSchemaTitle});\n}\n`;
+
+        const inputTSInterfaces = inputSchemaContent.length > 0 
+            ? await generateTSInterfacesFromSchemaFile(inputSchema) 
+            : "interface InputRoot {\n}\n\n";
+
+        const outputTSInterfaces = outputSchemaContent.length > 0 
+            ? await generateTSInterfacesFromSchemaFile(outputSchema) 
+            : "interface OutputRoot {\n}\n\n";
+
+        tsContent += `${inputTSInterfaces}\n${outputTSInterfaces}\nfunction mapFunction(input: InputRoot${isInputArray ? "[]" : ""}): OutputRoot${isOutputArray ? "[]" : ""} {\n`;
+        tsContent += `\treturn ${isOutputArray ? "[" : ""}{}${isOutputArray ? "]" : ""}\n}\n\n`;
+        tsContent += `// WARNING: Do not edit/remove below function\nfunction map_S_${inputSchemaTitle}_S_${outputSchemaTitle}() {\n\treturn mapFunction(input${inputSchemaTitle});\n}\n`;
         fs.writeFileSync(tsFilepath, tsContent);
         const jsContent = convertTypeScriptToJavascript(tsContent);
         fs.writeFileSync(dmcFilePath, jsContent);
