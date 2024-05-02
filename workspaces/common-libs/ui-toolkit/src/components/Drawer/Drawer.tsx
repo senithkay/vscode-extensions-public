@@ -27,7 +27,7 @@ export interface DrawerItemProps {
 
 const DrawerContainer = styled.div<DrawerContainerProps>`
     position: absolute;
-    width: 450px;
+    width: 400px;
     height: 100vh;
     top: 0;
     right: 0;
@@ -38,8 +38,8 @@ const DrawerContainer = styled.div<DrawerContainerProps>`
     box-shadow: 0 5px 10px 0 var(--vscode-badge-background);
     z-index: 2001;
     transition: transform 0.4s ease;
-    width: ${(props: DrawerContainerProps) => `${props.width}px`};
     ${(props: DrawerContainerProps) => props.sx};
+    width: ${(props: DrawerContainerProps) => (props.isOpen ? 400 : 0)};
 `;
 
 export const Drawer: React.FC<DrawerItemProps> = (props: DrawerItemProps) => {
