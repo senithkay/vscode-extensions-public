@@ -62,7 +62,7 @@ const ERRORS: Record<string, ErrorType> = {
     // Common error
     LANG_CLIENT: {
         title: "Lang Client Error",
-        message: "Failed to launch the language client. Please check the console for more details."
+        message: "Failed to launch the language client. Please check the output channel for more details."
     },
 } as const;
 
