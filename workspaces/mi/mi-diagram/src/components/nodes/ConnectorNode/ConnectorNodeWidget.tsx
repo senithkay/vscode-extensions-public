@@ -25,6 +25,7 @@ namespace S {
         selected: boolean;
         hovered: boolean;
         hasError: boolean;
+        isActiveBreakpoint?: boolean;
     };
     export const Node = styled.div<NodeStyleProp>`
         display: flex;
@@ -37,7 +38,7 @@ namespace S {
             ${(props: NodeStyleProp) =>
             props.hasError ? Colors.ERROR : props.selected ? Colors.SECONDARY : props.hovered ? Colors.SECONDARY : Colors.OUTLINE_VARIANT};
         border-radius: 10px;
-        background-color: ${Colors.SURFACE_BRIGHT};
+        background-color: ${(props: NodeStyleProp) => props?.isActiveBreakpoint ? Colors.DEBUGGER_BREAKPOINT_BACKGROUND : Colors.SURFACE_BRIGHT};
         color: ${Colors.ON_SURFACE};
         cursor: pointer;
     `;
@@ -101,6 +102,8 @@ export function ConnectorNodeWidget(props: ConnectorNodeWidgetProps) {
     const sidePanelContext = React.useContext(SidePanelContext);
     const { rpcClient } = useVisualizerContext();
     const hasDiagnotics = node.hasDiagnotics();
+    const hasBreakpoint = node.hasBreakpoint();
+    const isActiveBreakpoint = node.isActiveBreakpoint();
     const tooltip = hasDiagnotics ? node.getDiagnostics().map(diagnostic => diagnostic.message).join("\n") : undefined;
 
     useEffect(() => {
@@ -122,6 +125,32 @@ export function ConnectorNodeWidget(props: ConnectorNodeWidgetProps) {
         setIsPopoverOpen(!isPopoverOpen);
         setPopoverAnchorEl(event.currentTarget);
         event.stopPropagation();
+    };
+
+    const handleAddBreakpoint = async () => {
+        const file = node.documentUri;
+        const line = node.stNode.range.startTagRange.start.line;
+        const request = {
+            filePath: file,
+            breakpoint: {
+                line: line
+            }
+        }
+
+        await rpcClient.getMiDebuggerRpcClient().addBreakpointToSource(request);
+    };
+
+    const removeBreakpoint = async () => {
+        const file = node.documentUri;
+        const line = node.stNode.range.startTagRange.start.line;
+        const request = {
+            filePath: file,
+            breakpoint: {
+                line: line
+            }
+        }
+
+        await rpcClient.getMiDebuggerRpcClient().removeBreakpointFromSource(request);
     };
 
     const handlePopoverClose = () => {
@@ -161,11 +190,15 @@ export function ConnectorNodeWidget(props: ConnectorNodeWidgetProps) {
                 <S.Node
                     selected={node.isSelected()}
                     hasError={hasDiagnotics}
-                    hovered={isHovered}
+                    hovered={isHovered || isActiveBreakpoint}
+                    isActiveBreakpoint={isActiveBreakpoint}
                     onMouseEnter={() => setIsHovered(true)}
                     onMouseLeave={() => setIsHovered(false)}
                     onClick={(e) => handleOnClick()}
                 >
+                    {hasBreakpoint && (
+                        <div style={{ position: "absolute", left: -5, width: 15, height: 15, borderRadius: "50%", backgroundColor: "red" }}></div>
+                    )}
                     <S.TopPortWidget port={node.getPort("in")!} engine={engine} />
                     <S.Header>
                         {iconPath && (
@@ -195,6 +228,10 @@ export function ConnectorNodeWidget(props: ConnectorNodeWidgetProps) {
                 <ClickAwayListener onClickAway={handlePopoverClose}>
                     <Menu>
                         <MenuItem key={'delete-btn'} item={{ label: 'Delete', id: "delete", onClick: () => node.delete(rpcClient) }} />
+                        {hasBreakpoint ?
+                            <MenuItem key={'remove-breakpoint-btn'} item={{ label: 'Remove Breakpoint', id: "removeBreakpoint", onClick: removeBreakpoint }} /> :
+                            <MenuItem key={'breakpoint-btn'} item={{ label: 'Add Breakpoint', id: "addBreakpoint", onClick: handleAddBreakpoint }} />
+                        }
                     </Menu>
                 </ClickAwayListener>
             </Popover>
