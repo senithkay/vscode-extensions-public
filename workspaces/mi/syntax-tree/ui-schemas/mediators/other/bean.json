@@ -1,6 +1,6 @@
 {
   "name": "Bean",
-  "type":"mediator",
+  "type": "mediator",
   "title": "Bean Mediator",
   "help": "Manipulates JavaBean bound to message context as a property.",
   "elements": [
@@ -120,6 +120,11 @@
                     "helpTip": ""
                   }
                 }
+              ],
+              "enableCondition": [
+                {
+                  "action": "SET_PROPERTY"
+                }
               ]
             }
           },
@@ -172,6 +177,11 @@
                     "required": true,
                     "helpTip": ""
                   }
+                }
+              ],
+              "enableCondition": [
+                {
+                  "action": "GET_PROPERTY"
                 }
               ]
             }

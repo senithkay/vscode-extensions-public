@@ -9,7 +9,7 @@
 // AUTO-GENERATED FILE. DO NOT MODIFY.
 
 import React, { useEffect } from 'react';
-import { AutoComplete, Button, ExpressionField, ExpressionFieldValue, FormGroup, ProgressIndicator, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
+import { AutoComplete, Button, FormGroup, ProgressIndicator, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
 import { AddMediatorProps } from '../common';
@@ -17,6 +17,7 @@ import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
 import { MEDIATORS } from '../../../../../resources/constants';
 import { Controller, useForm } from 'react-hook-form';
+import { ExpressionField, ExpressionFieldValue } from '../../../../Form/ExpressionField/ExpressionInput';
 
 const cardStyle = { 
     display: "block",
@@ -100,6 +101,7 @@ const PropertyForm = (props: AddMediatorProps) => {
                     {errors.propertyName && <Error>{errors.propertyName.message.toString()}</Error>}
                 </Field>
 
+                {!((watch("propertyAction") == "remove") ) &&
                 <Field>
                     <Controller
                         name="propertyDataType"
@@ -112,6 +114,7 @@ const PropertyForm = (props: AddMediatorProps) => {
                     />
                     {errors.propertyDataType && <Error>{errors.propertyDataType.message.toString()}</Error>}
                 </Field>
+                }
 
                 <Field>
                     <Controller
@@ -126,7 +129,7 @@ const PropertyForm = (props: AddMediatorProps) => {
                     {errors.propertyAction && <Error>{errors.propertyAction.message.toString()}</Error>}
                 </Field>
 
-                {!((watch("propertyDataType") == "OM") ) &&
+                {!(((watch("propertyDataType") == "OM") ||(watch("propertyAction") == "remove") )) &&
                 <Field>
                     <Controller
                         name="value"
@@ -180,7 +183,7 @@ const PropertyForm = (props: AddMediatorProps) => {
                 </Field>
 
                 <FormGroup title="Advanced">
-                    {watch("propertyDataType") == "STRING" &&
+                    {((watch("propertyDataType") == "STRING") &&(watch("propertyAction") == "set") ) &&
                     <Field>
                         <Controller
                             name="valueStringPattern"
@@ -193,7 +196,7 @@ const PropertyForm = (props: AddMediatorProps) => {
                     </Field>
                     }
 
-                    {watch("propertyDataType") == "STRING" &&
+                    {((watch("propertyDataType") == "STRING") &&(watch("propertyAction") == "set") ) &&
                     <Field>
                         <Controller
                             name="valueStringCapturingGroup"

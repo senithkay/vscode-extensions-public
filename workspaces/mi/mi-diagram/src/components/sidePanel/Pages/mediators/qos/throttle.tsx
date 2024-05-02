@@ -9,7 +9,7 @@
 // AUTO-GENERATED FILE. DO NOT MODIFY.
 
 import React, { useEffect } from 'react';
-import { AutoComplete, Button, ComponentCard, ExpressionFieldValue, ParamManager, ProgressIndicator, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
+import { AutoComplete, Button, ComponentCard, ProgressIndicator, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
 import { AddMediatorProps } from '../common';
@@ -17,6 +17,9 @@ import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
 import { MEDIATORS } from '../../../../../resources/constants';
 import { Controller, useForm } from 'react-hook-form';
+import { Keylookup } from '../../../../Form';
+import { ExpressionFieldValue } from '../../../../Form/ExpressionField/ExpressionInput';
+import { ParamManager, ParamConfig, ParamValue } from '../../../../Form/ParamManager/ParamManager';
 
 const cardStyle = { 
     display: "block",
@@ -50,12 +53,13 @@ const ThrottleForm = (props: AddMediatorProps) => {
             onRejectBranchsequenceType: sidePanelContext?.formValues?.onRejectBranchsequenceType || "ANONYMOUS",
             onRejectBranchsequenceKey: sidePanelContext?.formValues?.onRejectBranchsequenceKey || "",
             policyType: sidePanelContext?.formValues?.policyType || "INLINE",
+            maximumConcurrentAccess: sidePanelContext?.formValues?.maximumConcurrentAccess || "0",
             policyEntries: {
-                paramValues: sidePanelContext?.formValues?.policyEntries && sidePanelContext?.formValues?.policyEntries.map((property: string|ExpressionFieldValue[], index: string) => (
+                paramValues: sidePanelContext?.formValues?.policyEntries && sidePanelContext?.formValues?.policyEntries.map((property: (string | ExpressionFieldValue | ParamConfig)[], index: string) => (
                     {
                         id: index,
-                        key: typeof property[0] === 'object' ? property[0].value : property[0],
-                        value: typeof property[2] === 'object' ? property[2].value : property[2],
+                        key: property[0],
+                        value:  property[2],
                         icon: 'query',
                         paramValues: [
                             { value: property[0] },
@@ -76,32 +80,14 @@ const ThrottleForm = (props: AddMediatorProps) => {
                         "values": [
                             "IP",
                             "DOMAIN"
-                        ], 
-                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                            sidePanelContext.setSidePanelState({
-                                ...sidePanelContext,
-                                expressionEditor: {
-                                    isOpen: true,
-                                    value,
-                                    setValue
-                                }
-                            });
-                        }},
+                        ]
+                    },
                     {
                         "type": "TextField",
                         "label": "Throttle Range",
                         "defaultValue": "other",
-                        "isRequired": false, 
-                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                            sidePanelContext.setSidePanelState({
-                                ...sidePanelContext,
-                                expressionEditor: {
-                                    isOpen: true,
-                                    value,
-                                    setValue
-                                }
-                            });
-                        }},
+                        "isRequired": false
+                    },
                     {
                         "type": "Dropdown",
                         "label": "Access Type",
@@ -111,62 +97,26 @@ const ThrottleForm = (props: AddMediatorProps) => {
                             "Allow",
                             "Deny",
                             "Control"
-                        ], 
-                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                            sidePanelContext.setSidePanelState({
-                                ...sidePanelContext,
-                                expressionEditor: {
-                                    isOpen: true,
-                                    value,
-                                    setValue
-                                }
-                            });
-                        }},
+                        ]
+                    },
                     {
                         "type": "TextField",
                         "label": "Max Request Count",
                         "defaultValue": "0",
-                        "isRequired": false, 
-                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                            sidePanelContext.setSidePanelState({
-                                ...sidePanelContext,
-                                expressionEditor: {
-                                    isOpen: true,
-                                    value,
-                                    setValue
-                                }
-                            });
-                        }},
+                        "isRequired": false
+                    },
                     {
                         "type": "TextField",
                         "label": "Unit Time",
                         "defaultValue": "0",
-                        "isRequired": false, 
-                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                            sidePanelContext.setSidePanelState({
-                                ...sidePanelContext,
-                                expressionEditor: {
-                                    isOpen: true,
-                                    value,
-                                    setValue
-                                }
-                            });
-                        }},
+                        "isRequired": false
+                    },
                     {
                         "type": "TextField",
                         "label": "Prohibit Period",
                         "defaultValue": "0",
-                        "isRequired": false, 
-                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                            sidePanelContext.setSidePanelState({
-                                ...sidePanelContext,
-                                expressionEditor: {
-                                    isOpen: true,
-                                    value,
-                                    setValue
-                                }
-                            });
-                        }},
+                        "isRequired": false
+                    },
                 ]
             },
             policyKey: sidePanelContext?.formValues?.policyKey || "",
@@ -232,7 +182,7 @@ const ThrottleForm = (props: AddMediatorProps) => {
                             name="onAcceptBranchsequenceType"
                             control={control}
                             render={({ field }) => (
-                                <AutoComplete label="On Accept Branchsequence Type" name="onAcceptBranchsequenceType" items={["ANONYMOUS", "REGISTRY_REFERENCE"]} value={field.value} onValueChange={(e: any) => {
+                                <AutoComplete label="On Accept Branch Sequence Type" name="onAcceptBranchSequenceType" items={["ANONYMOUS", "REGISTRY_REFERENCE"]} value={field.value} onValueChange={(e: any) => {
                                     field.onChange(e);
                                 }} />
                             )}
@@ -246,7 +196,7 @@ const ThrottleForm = (props: AddMediatorProps) => {
                             name="onAcceptBranchsequenceKey"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="On Accept Branchsequence Key" size={50} placeholder="" />
+                                <TextField {...field} label="On Accept Branch Sequence Key" size={50} placeholder="" />
                             )}
                         />
                         {errors.onAcceptBranchsequenceKey && <Error>{errors.onAcceptBranchsequenceKey.message.toString()}</Error>}
@@ -263,7 +213,7 @@ const ThrottleForm = (props: AddMediatorProps) => {
                             name="onRejectBranchsequenceType"
                             control={control}
                             render={({ field }) => (
-                                <AutoComplete label="On Reject Branchsequence Type" name="onRejectBranchsequenceType" items={["ANONYMOUS", "REGISTRY_REFERENCE"]} value={field.value} onValueChange={(e: any) => {
+                                <AutoComplete label="On Reject Branch Sequence Type" name="onRejectBranchSequenceType" items={["ANONYMOUS", "REGISTRY_REFERENCE"]} value={field.value} onValueChange={(e: any) => {
                                     field.onChange(e);
                                 }} />
                             )}
@@ -277,7 +227,7 @@ const ThrottleForm = (props: AddMediatorProps) => {
                             name="onRejectBranchsequenceKey"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="On Reject Branchsequence Key" size={50} placeholder="" />
+                                <TextField {...field} label="On Reject Branch Sequence Key" size={50} placeholder="" />
                             )}
                         />
                         {errors.onRejectBranchsequenceKey && <Error>{errors.onRejectBranchsequenceKey.message.toString()}</Error>}
@@ -302,6 +252,20 @@ const ThrottleForm = (props: AddMediatorProps) => {
                         {errors.policyType && <Error>{errors.policyType.message.toString()}</Error>}
                     </Field>
 
+                    {watch("policyType") == "INLINE" &&
+                    <Field>
+                        <Controller
+                            name="maximumConcurrentAccess"
+                            control={control}
+                            render={({ field }) => (
+                                <TextField {...field} label="Maxmium Concurrent Access" size={50} placeholder="" />
+                            )}
+                        />
+                        {errors.maximumConcurrentAccess && <Error>{errors.maximumConcurrentAccess.message.toString()}</Error>}
+                    </Field>
+                    }
+
+                    {watch("policyType") == "INLINE" &&
                     <ComponentCard sx={cardStyle} disbaleHoverEffect>
                         <Typography variant="h3">Policy Entries</Typography>
                         <Typography variant="body3">Editing of the properties of an object ThrottlePolicyEntry</Typography>
@@ -315,12 +279,9 @@ const ThrottleForm = (props: AddMediatorProps) => {
                                     readonly={false}
                                     onChange= {(values) => {
                                         values.paramValues = values.paramValues.map((param: any, index: number) => {
-                                            const paramValues = param.paramValues;
-                                            param.key = paramValues[0].value;
-                                            param.value = paramValues[2].value;
-                                            if (paramValues[1]?.value?.isExpression) {
-                                                param.namespaces = paramValues[1].value.namespaces;
-                                            }
+                                            const property: ParamValue[] = param.paramValues;
+                                            param.key = property[0].value;
+                                            param.value = property[2].value;
                                             param.icon = 'query';
                                             return param;
                                         });
@@ -330,13 +291,21 @@ const ThrottleForm = (props: AddMediatorProps) => {
                             )}
                         />
                     </ComponentCard>
+                    }
+
                     {watch("policyType") == "REGISTRY_REFERENCE" &&
                     <Field>
                         <Controller
                             name="policyKey"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Policy Key" size={50} placeholder="" />
+                                <Keylookup
+                                    value={field.value}
+                                    filterType='ws_policy'
+                                    label="Policy Key"
+                                    allowItemCreate={false}
+                                    onValueChange={field.onChange}
+                                />
                             )}
                         />
                         {errors.policyKey && <Error>{errors.policyKey.message.toString()}</Error>}

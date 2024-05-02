@@ -9,7 +9,7 @@
 // AUTO-GENERATED FILE. DO NOT MODIFY.
 
 import React, { useEffect } from 'react';
-import { Button, ComponentCard, ExpressionField, ExpressionFieldValue, ParamManager, ProgressIndicator, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
+import { Button, ComponentCard, ProgressIndicator, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
 import { AddMediatorProps } from '../common';
@@ -17,6 +17,8 @@ import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
 import { MEDIATORS } from '../../../../../resources/constants';
 import { Controller, useForm } from 'react-hook-form';
+import { ExpressionField, ExpressionFieldValue } from '../../../../Form/ExpressionField/ExpressionInput';
+import { ParamManager, ParamConfig, ParamValue } from '../../../../Form/ParamManager/ParamManager';
 
 const cardStyle = { 
     display: "block",
@@ -46,11 +48,11 @@ const SwitchForm = (props: AddMediatorProps) => {
         reset({
             sourceXPath: sidePanelContext?.formValues?.sourceXPath || {"isExpression":true,"value":""},
             caseBranches: {
-                paramValues: sidePanelContext?.formValues?.caseBranches && sidePanelContext?.formValues?.caseBranches.map((property: string|ExpressionFieldValue[], index: string) => (
+                paramValues: sidePanelContext?.formValues?.caseBranches && sidePanelContext?.formValues?.caseBranches.map((property: (string | ExpressionFieldValue | ParamConfig)[], index: string) => (
                     {
                         id: index,
                         key: index,
-                        value: typeof property[0] === 'object' ? property[0].value : property[0],
+                        value:  property[0],
                         icon: 'query',
                         paramValues: [
                             { value: property[0] },
@@ -62,17 +64,8 @@ const SwitchForm = (props: AddMediatorProps) => {
                         "type": "TextField",
                         "label": "Case Regex",
                         "defaultValue": ".*+",
-                        "isRequired": false, 
-                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                            sidePanelContext.setSidePanelState({
-                                ...sidePanelContext,
-                                expressionEditor: {
-                                    isOpen: true,
-                                    value,
-                                    setValue
-                                }
-                            });
-                        }},
+                        "isRequired": false
+                    },
                 ]
             },
             description: sidePanelContext?.formValues?.description || "",
@@ -151,12 +144,9 @@ const SwitchForm = (props: AddMediatorProps) => {
                                 readonly={false}
                                 onChange= {(values) => {
                                     values.paramValues = values.paramValues.map((param: any, index: number) => {
-                                        const paramValues = param.paramValues;
+                                        const property: ParamValue[] = param.paramValues;
                                         param.key = index;
-                                        param.value = paramValues[0].value;
-                                        if (paramValues[1]?.value?.isExpression) {
-                                            param.namespaces = paramValues[1].value.namespaces;
-                                        }
+                                        param.value = property[0].value;
                                         param.icon = 'query';
                                         return param;
                                     });
@@ -166,6 +156,7 @@ const SwitchForm = (props: AddMediatorProps) => {
                         )}
                     />
                 </ComponentCard>
+
                 <Field>
                     <Controller
                         name="description"

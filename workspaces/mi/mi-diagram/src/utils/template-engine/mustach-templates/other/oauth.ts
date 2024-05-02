@@ -12,7 +12,7 @@ import Mustache from "mustache";
 
 export function getOauthMustacheTemplate() {
     return `
-    <oauthService {{#description}}description="{{description}}"{{/description}} password="{{password}}" remoteServiceUrl="{{{remoteServiceURL}}}" username="{{username}}"/>
+    <oauthService {{#description}}description="{{description}}"{{/description}} password="{{{password}}}" remoteServiceUrl="{{{remoteServiceURL}}}" username="{{{username}}}"/>
     `;
 }
 

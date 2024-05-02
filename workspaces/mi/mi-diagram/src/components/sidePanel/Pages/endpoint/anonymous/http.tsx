@@ -9,7 +9,7 @@
 
 
 import React, { useEffect, useState } from 'react';
-import { AutoComplete, Button, Codicon, ComponentCard, Divider, ParamConfig, ParamManager, TextField } from '@wso2-enterprise/ui-toolkit';
+import { AutoComplete, Button, Codicon, ComponentCard, Divider, TextField } from '@wso2-enterprise/ui-toolkit';
 import { VSCodeCheckbox } from '@vscode/webview-ui-toolkit/react';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
@@ -17,6 +17,7 @@ import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
 import { ENDPOINTS, MEDIATORS } from '../../../../../resources/constants';
 import { AddMediatorProps } from '../../mediators/common';
+import { ParamConfig, ParamManager } from '../../../../Form/ParamManager/ParamManager';
 
 const cardStyle = {
     display: "block",

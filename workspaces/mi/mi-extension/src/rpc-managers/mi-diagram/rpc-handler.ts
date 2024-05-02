@@ -28,8 +28,8 @@ import {
     CreateSequenceRequest,
     CreateTaskRequest,
     CreateTemplateRequest,
-    DeleteArtifactRequest,
     DataSourceTemplate,
+    DeleteArtifactRequest,
     DownloadConnectorRequest,
     GetAllArtifactsRequest,
     GetAllRegistryPathsRequest,
@@ -98,8 +98,8 @@ import {
     createSequence,
     createTask,
     createTemplate,
-    downloadConnector,
     deleteArtifact,
+    downloadConnector,
     executeCommand,
     getAIResponse,
     getAPIDirectory,
@@ -166,7 +166,7 @@ import {
     updateRecipientEndpoint,
     updateTemplateEndpoint,
     updateWsdlEndpoint,
-    writeContentToFile
+    writeContentToFile,
 } from "@wso2-enterprise/mi-core";
 import { Messenger } from "vscode-messenger";
 import { MiDiagramRpcManager } from "./rpc-manager";

@@ -9,7 +9,7 @@
 // AUTO-GENERATED FILE. DO NOT MODIFY.
 
 import React, { useEffect } from 'react';
-import { Button, ComponentCard, ExpressionFieldValue, ParamManager, ProgressIndicator, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
+import { Button, ComponentCard, ProgressIndicator, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
 import { VSCodeCheckbox } from '@vscode/webview-ui-toolkit/react';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
@@ -18,6 +18,8 @@ import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
 import { MEDIATORS } from '../../../../../resources/constants';
 import { Controller, useForm } from 'react-hook-form';
+import { ExpressionFieldValue } from '../../../../Form/ExpressionField/ExpressionInput';
+import { ParamManager, ParamConfig, ParamValue } from '../../../../Form/ParamManager/ParamManager';
 
 const cardStyle = { 
     display: "block",
@@ -47,11 +49,11 @@ const ConditionalRouterForm = (props: AddMediatorProps) => {
         reset({
             continueAfterRoute: sidePanelContext?.formValues?.continueAfterRoute || "",
             conditionalRouteBranches: {
-                paramValues: sidePanelContext?.formValues?.conditionalRouteBranches && sidePanelContext?.formValues?.conditionalRouteBranches.map((property: string|ExpressionFieldValue[], index: string) => (
+                paramValues: sidePanelContext?.formValues?.conditionalRouteBranches && sidePanelContext?.formValues?.conditionalRouteBranches.map((property: (string | ExpressionFieldValue | ParamConfig)[], index: string) => (
                     {
                         id: index,
-                        key: typeof property[0] === 'object' ? property[0].value : property[0],
-                        value: typeof property[1] === 'object' ? property[1].value : property[1],
+                        key: property[0],
+                        value:  property[1],
                         icon: 'query',
                         paramValues: [
                             { value: property[0] },
@@ -62,50 +64,23 @@ const ConditionalRouterForm = (props: AddMediatorProps) => {
                 )) || [] as string[][],
                 paramFields: [
                     {
-                        "type": "TextField",
+                        "type": "Checkbox",
                         "label": "Break After Route",
-                        "defaultValue": "",
-                        "isRequired": false, 
-                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                            sidePanelContext.setSidePanelState({
-                                ...sidePanelContext,
-                                expressionEditor: {
-                                    isOpen: true,
-                                    value,
-                                    setValue
-                                }
-                            });
-                        }},
+                        "defaultValue": false,
+                        "isRequired": false
+                    },
                     {
                         "type": "TextField",
                         "label": "Target Sequence",
                         "defaultValue": "",
-                        "isRequired": false, 
-                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                            sidePanelContext.setSidePanelState({
-                                ...sidePanelContext,
-                                expressionEditor: {
-                                    isOpen: true,
-                                    value,
-                                    setValue
-                                }
-                            });
-                        }},
+                        "isRequired": false
+                    },
                     {
                         "type": "TextField",
                         "label": "Evaluator Expression",
-                        "defaultValue": "",
-                        "isRequired": false, 
-                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                            sidePanelContext.setSidePanelState({
-                                ...sidePanelContext,
-                                expressionEditor: {
-                                    isOpen: true,
-                                    value,
-                                    setValue
-                                }
-                            });
-                        }},
+                        "defaultValue": "<equal  type='param' source='foo' value='bar'/>",
+                        "isRequired": false
+                    },
                 ]
             },
             description: sidePanelContext?.formValues?.description || "",
@@ -173,12 +148,9 @@ const ConditionalRouterForm = (props: AddMediatorProps) => {
                                     readonly={false}
                                     onChange= {(values) => {
                                         values.paramValues = values.paramValues.map((param: any, index: number) => {
-                                            const paramValues = param.paramValues;
-                                            param.key = paramValues[0].value;
-                                            param.value = paramValues[1].value;
-                                            if (paramValues[1]?.value?.isExpression) {
-                                                param.namespaces = paramValues[1].value.namespaces;
-                                            }
+                                            const property: ParamValue[] = param.paramValues;
+                                            param.key = property[0].value;
+                                            param.value = property[1].value;
                                             param.icon = 'query';
                                             return param;
                                         });
@@ -188,6 +160,7 @@ const ConditionalRouterForm = (props: AddMediatorProps) => {
                             )}
                         />
                     </ComponentCard>
+
                     <Field>
                         <Controller
                             name="description"

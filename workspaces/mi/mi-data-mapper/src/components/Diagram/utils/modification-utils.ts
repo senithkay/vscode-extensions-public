@@ -7,14 +7,23 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { TypeKind } from "@wso2-enterprise/mi-core";
-import { ArrayLiteralExpression, Block, Node, ObjectLiteralExpression, ReturnStatement, Type } from "ts-morph";
+import {
+	ArrayLiteralExpression,
+	Block,
+	Node,
+	ObjectLiteralExpression,
+	PropertyAssignment,
+	ReturnStatement
+} from "ts-morph";
 
 import { DataMapperLinkModel } from "../Link";
 import { InputOutputPortModel, IntermediatePortModel } from "../Port";
 import { DataMapperNodeModel } from "../Node/commons/DataMapperNode";
 import { getFieldIndexes, getFieldNameFromOutputPort, getLinebreak, getPropertyAssignment } from "./common-utils";
-import { LinkConnectorNode, ObjectOutputNode } from "../Node";
+import { ArrayOutputNode, LinkConnectorNode, ObjectOutputNode } from "../Node";
 import { ExpressionLabelModel } from "../Label";
+import { DMTypeWithValue } from "../Mappings/DMTypeWithValue";
+import { getPosition, isPositionsEquals } from "./st-utils";
 
 export async function createSourceForMapping(link: DataMapperLinkModel) {
     if (!link.getSourcePort() || !link.getTargetPort()) {
@@ -58,10 +67,18 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 		} else {
 			// When the return statement is not available in the function body
 			const fnBody = targetNode.context.functionST.getBody() as Block;
-			fnBody.addStatements([`return {}`]);
+			fnBody.addStatements([`return {};`]);
 			const returnStatement = fnBody.getStatements()
 				.find(statement => Node.isReturnStatement(statement)) as ReturnStatement;
 			objectLitExpr = returnStatement.getExpression() as ObjectLiteralExpression;
+		}
+	} else if (targetNode instanceof ArrayOutputNode) {
+		const targetExpr = targetNode.value.getExpression();
+		if (Node.isArrayLiteralExpression(targetExpr)
+			&& fieldIndexes !== undefined
+			&& !!fieldIndexes.length
+		) {
+			objectLitExpr = getNextObjectLitExpr(targetExpr);
 		}
 	}
 
@@ -144,7 +161,7 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 	}
 
 	function getNextObjectLitExpr(arrayLitExpr: ArrayLiteralExpression): ObjectLiteralExpression {
-		const targetExpr = arrayLitExpr.getElements()[fieldIndexes.pop() * 2];
+		const targetExpr = arrayLitExpr.getElements()[fieldIndexes.pop()];
 		if (Node.isObjectLiteralExpression(targetExpr)) {
 			return targetExpr;
 		} else if (Node.isArrayLiteralExpression(targetExpr)) {
@@ -153,6 +170,111 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 	}
 
 	return `${lhs} = ${rhs}`;
+}
+
+export async function createSourceForUserInput(
+	field: DMTypeWithValue,
+	objectLitExpr: ObjectLiteralExpression,
+	newValue: string,
+	fnBody: Block,
+	applyModifications: () => void
+) {
+
+	let source: string;
+	let targetObjectLitExpr = objectLitExpr;
+	const parentFields: string[] = [];
+	let nextField = field;
+
+	while (nextField && nextField.parentType) {
+		const fieldName = nextField.type?.fieldName;
+		const innerExpr = nextField.hasValue() && nextField.value;
+
+		if (fieldName && !(innerExpr && Node.isObjectLiteralExpression(innerExpr))) {
+			parentFields.push(fieldName);
+		}
+
+		if (nextField.parentType.hasValue() && Node.isPropertyAssignment(nextField.parentType.value)) {
+			const parentField: PropertyAssignment = nextField.parentType.value;
+			const parentFieldInitializer = parentField.getInitializer();
+
+			if (!parentFieldInitializer.getText()) {
+				const valueExprSource = constructValueExprSource(fieldName, newValue, parentFields.reverse(), 0);
+				parentField.setInitializer(valueExprSource);
+				applyModifications();
+				return valueExprSource;
+			}
+
+			if (Node.isObjectLiteralExpression(parentFieldInitializer)) {
+				const propAssignment = getPropertyAssignment(parentFieldInitializer, fieldName);
+	
+				if (propAssignment && !propAssignment.getInitializer().getText()) {
+					const valExprSource = constructValueExprSource(fieldName, newValue, parentFields, 1);
+					propAssignment.setInitializer(valExprSource);
+					applyModifications();
+					return valExprSource;
+				}
+				source = createSpecificField(parentFields.reverse());
+				targetObjectLitExpr = parentFieldInitializer;
+			} else if (Node.isArrayLiteralExpression(parentFieldInitializer)
+				&& Node.isObjectLiteralExpression(parentFieldInitializer.getElements()[0])) {
+		
+				for (const expr of parentFieldInitializer.getElements()) {
+					if (Node.isObjectLiteralExpression(expr)
+						&& isPositionsEquals(getPosition(expr), getPosition(objectLitExpr))) {
+						const propAssignment = getPropertyAssignment(expr, fieldName);
+
+						if (propAssignment && !propAssignment.getInitializer().getText()) {
+							const valExprSource = constructValueExprSource(fieldName, newValue, parentFields, 1);
+							propAssignment.setInitializer(valExprSource);
+							applyModifications();
+							return valExprSource;
+						}
+						source = createSpecificField(parentFields.reverse());
+						targetObjectLitExpr = expr;
+					}
+				}
+			}
+			nextField = undefined;
+		} else {
+			nextField = nextField?.parentType;
+		}
+	}
+
+	if (!source) {
+		const propAssignment = Node.isObjectLiteralExpression(targetObjectLitExpr)
+			&& getPropertyAssignment(targetObjectLitExpr, field.type.fieldName);
+		if (propAssignment && !propAssignment.getInitializer().getText()) {
+			const valueExprSource = constructValueExprSource(field.originalType.fieldName, newValue, parentFields, 1);
+			propAssignment.setInitializer(valueExprSource);
+			applyModifications();
+			return valueExprSource;
+		}
+		source = createSpecificField(parentFields.reverse());
+	}
+
+	if (Node.isObjectLiteralExpression(targetObjectLitExpr)) {
+		targetObjectLitExpr.addProperty(writer => {
+			writer.writeLine(source);
+		});
+	} else {
+		if (!targetObjectLitExpr) {
+			// When the return statement is not available in the function body
+			fnBody.addStatements([`return {}`]);
+			const returnStatement = fnBody.getStatements()
+				.find(statement => Node.isReturnStatement(statement)) as ReturnStatement;
+			targetObjectLitExpr = returnStatement.getExpression() as ObjectLiteralExpression;
+		}
+		targetObjectLitExpr.replaceWithText(`{${source}}`);
+	}
+
+	applyModifications();
+	return source;
+
+	function createSpecificField(missingFields: string[]): string {
+		return missingFields.length > 1
+			? `\t${missingFields[0]}: {${createSpecificField(missingFields.slice(1))}}`
+			: `\t${missingFields[0]}: ${newValue}`;
+	}
 }
 
 function constructValueExprSource(lhs: string, rhs: string, fieldNames: string[], fieldIndex: number) {
@@ -207,7 +329,7 @@ export function modifySourceForMultipleMappings(link: DataMapperLinkModel) {
 					}
 				} else if (targerPortLink.getLabels().length > 0) {
 					valueNode = (targerPortLink.getLabels()[0] as ExpressionLabelModel).valueNode;
-				} else if (targetNode instanceof ObjectOutputNode) {
+				} else if (targetNode instanceof ObjectOutputNode || targetNode instanceof ArrayOutputNode) {
 					const linkConnector = targetNode.getModel().getNodes().find(node =>
 						node instanceof LinkConnectorNode
 						&& node.targetPort.portName === (targerPortLink.getTargetPort() as InputOutputPortModel).portName

@@ -9,9 +9,10 @@
 
 import { Header } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import Mustache from "mustache";
+import { transformNamespaces } from "../../../commons";
 
 export function getHeaderMustacheTemplate() {
-    return `<header {{#headerName}}name="{{value}}" {{/headerName}}{{#headerAction}}action="{{headerAction}}" {{/headerAction}}{{#scope}}scope="{{scope}}" {{/scope}}{{#valueExpression}}expression="{{value}}" {{/valueExpression}}{{#valueLiteral}}value="{{valueLiteral}}" {{/valueLiteral}}{{#description}}description="{{description}}" {{/description}}{{^valueInline}}/{{/valueInline}}>
+    return `<header {{#headerName}}name="{{{value}}}" {{#namespaces}}xmlns:{{prefix}}="{{{uri}}}" {{/namespaces}}{{/headerName}}{{#headerAction}}action="{{headerAction}}" {{/headerAction}}{{#scope}}scope="{{scope}}" {{/scope}}{{#valueExpression}}expression="{{{value}}}" {{#namespaces}}xmlns:{{prefix}}="{{uri}}" {{/namespaces}}{{/valueExpression}}{{#valueLiteral}}value="{{valueLiteral}}" {{/valueLiteral}}{{#description}}description="{{description}}" {{/description}}{{^valueInline}}/{{/valueInline}}>
     {{#valueInline}}
     {{{valueInline}}}
 </header>{{/valueInline}}`;
@@ -39,14 +40,14 @@ export function getHeaderXml(data: { [key: string]: any }) {
 
 export function getHeaderFormDataFromSTNode(data: { [key: string]: any }, node: Header) {
     if (node.name) {
-        data.headerName = { isExpression: true, value: node.name };
+        data.headerName = { isExpression: true, value: node.name, namespaces: transformNamespaces(node.namespaces) };
     }
     if (node.action) {
         data.headerAction = node.action;
     }
     data.valueType = node.any ? "INLINE" : node.value !== undefined ? "LITERAL" : "EXPRESSION";
     if (data.valueType == "EXPRESSION") {
-        data.valueExpression = { isExpression: true, value: node.expression };
+        data.valueExpression = { isExpression: true, value: node.expression, namespaces: transformNamespaces(node.namespaces) };
     } else if (data.valueType == "LITERAL") {
         data.valueLiteral = node.value;
     } else {

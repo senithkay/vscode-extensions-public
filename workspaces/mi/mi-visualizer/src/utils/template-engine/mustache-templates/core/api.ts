@@ -53,14 +53,14 @@ export const getEditProxyTemplate = (name:string) => {
             return `{{#wsdlEnabled}}
             <publishWSDL {{#publishWsdl.key}}key="{{{publishWsdl.key}}}"{{/publishWsdl.key}} {{#publishWsdl.preservePolicy}}preservePolicy="{{{publishWsdl.preservePolicy}}}"{{/publishWsdl.preservePolicy}} {{#publishWsdl.uri}}uri="{{{publishWsdl.uri}}}"{{/publishWsdl.uri}}>
                 {{#publishWsdl.inlineWsdl}}{{{publishWsdl.inlineWsdl}}}{{/publishWsdl.inlineWsdl}}
-                {{#publishWsdl.resource}}<resource key="{{key}}" location="{{location}}"/>{{/publishWsdl.resource}} 
+                {{#publishWsdl.resource}}<resource key="{{{key}}}" location="{{{location}}}"/>{{/publishWsdl.resource}} 
             </publishWSDL>
             {{/wsdlEnabled}}
             {{#policies}}
             <policy key="{{key}}"/>
             {{/policies}}
             {{#parameters}}
-            <parameter name="{{name}}">{{textNode}}</parameter>
+            <parameter name="{{{name}}}">{{{textNode}}}</parameter>
             {{/parameters}}
             {{#enableSec}}
             <enableSec/>

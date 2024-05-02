@@ -14,6 +14,7 @@ export interface STNode {
     textNode: string;
     range: TagRange;
     tag: string;
+    namespaces?: { [key: string]: string };
     viewState?: ViewState;
     diagnostics?: Diagnostic[];
     hasBreakpoint?: boolean;
@@ -58,7 +59,7 @@ export interface TBindingOperationFault extends TExtensibleDocumented, STNode {
 }
 
 export interface CallSource extends STNode {
-    content: any[];
+    content: any;
     contentType: string;
     type: string;
 }
@@ -1684,12 +1685,12 @@ export interface RuleOutputFact {
     type: string;
 }
 
-export interface RuleSource {
+export interface RuleSource extends STNode {
     value: string;
     xpath: string;
 }
 
-export interface RuleTarget {
+export interface RuleTarget extends STNode {
     value: string;
     action: string;
     resultXpath: string;
@@ -1762,7 +1763,7 @@ export interface Ntlm extends STNode {
     description: string;
 }
 
-export type DiagramService = APIResource | NamedSequence | Proxy;
+export type DiagramService = APIResource | NamedSequence | Proxy | Template;
 
 export interface Connector extends STNode {
     connectorName: string;

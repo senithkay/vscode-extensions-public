@@ -95,6 +95,7 @@ export interface GettingStartedSample {
     title: string;
     description: string;
     zipFileName: string;
+    isAvailable?: boolean;
 }
 
 export interface GettingStartedCategory {
@@ -129,3 +130,8 @@ export interface GoToSourceRequest {
     filePath: string;
     position?: Range;
 }
+
+export interface LogRequest {
+    message: string;
+}
+

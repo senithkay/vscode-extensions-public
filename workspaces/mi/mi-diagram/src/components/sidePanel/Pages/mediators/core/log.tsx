@@ -9,7 +9,7 @@
 // AUTO-GENERATED FILE. DO NOT MODIFY.
 
 import React, { useEffect } from 'react';
-import { AutoComplete, Button, ComponentCard, ExpressionFieldValue, ParamManager, ProgressIndicator, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
+import { AutoComplete, Button, ComponentCard, ProgressIndicator, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
 import { AddMediatorProps } from '../common';
@@ -17,6 +17,8 @@ import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
 import { MEDIATORS } from '../../../../../resources/constants';
 import { Controller, useForm } from 'react-hook-form';
+import { ExpressionFieldValue } from '../../../../Form/ExpressionField/ExpressionInput';
+import { ParamManager, ParamConfig, ParamValue } from '../../../../Form/ParamManager/ParamManager';
 
 const cardStyle = { 
     display: "block",
@@ -48,11 +50,11 @@ const LogForm = (props: AddMediatorProps) => {
             level: sidePanelContext?.formValues?.level || "SIMPLE",
             separator: sidePanelContext?.formValues?.separator || "",
             properties: {
-                paramValues: sidePanelContext?.formValues?.properties && sidePanelContext?.formValues?.properties.map((property: string|ExpressionFieldValue[], index: string) => (
+                paramValues: sidePanelContext?.formValues?.properties && sidePanelContext?.formValues?.properties.map((property: (string | ExpressionFieldValue | ParamConfig)[], index: string) => (
                     {
                         id: index,
-                        key: typeof property[0] === 'object' ? property[0].value : property[0],
-                        value: typeof property[1] === 'object' ? property[1].value : property[1],
+                        key: property[0],
+                        value:  (property[1] as ExpressionFieldValue).value,
                         icon: 'query',
                         paramValues: [
                             { value: property[0] },
@@ -65,17 +67,8 @@ const LogForm = (props: AddMediatorProps) => {
                         "type": "TextField",
                         "label": "Property Name",
                         "defaultValue": "",
-                        "isRequired": false, 
-                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                            sidePanelContext.setSidePanelState({
-                                ...sidePanelContext,
-                                expressionEditor: {
-                                    isOpen: true,
-                                    value,
-                                    setValue
-                                }
-                            });
-                        }},
+                        "isRequired": false
+                    },
                     {
                         "type": "ExprField",
                         "label": "Property Value",
@@ -195,12 +188,9 @@ const LogForm = (props: AddMediatorProps) => {
                                 readonly={false}
                                 onChange= {(values) => {
                                     values.paramValues = values.paramValues.map((param: any, index: number) => {
-                                        const paramValues = param.paramValues;
-                                        param.key = paramValues[0].value;
-                                        param.value = paramValues[1].value.value;
-                                        if (paramValues[1]?.value?.isExpression) {
-                                            param.namespaces = paramValues[1].value.namespaces;
-                                        }
+                                        const property: ParamValue[] = param.paramValues;
+                                        param.key = property[0].value;
+                                        param.value = (property[1].value as ExpressionFieldValue).value;
                                         param.icon = 'query';
                                         return param;
                                     });
@@ -210,6 +200,7 @@ const LogForm = (props: AddMediatorProps) => {
                         )}
                     />
                 </ComponentCard>
+
                 <Field>
                     <Controller
                         name="description"

@@ -42,11 +42,8 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
                 .matches(/^[^@\\^+;:!%&,=*#[\]?'"<>{}() /]*$/, "Invalid characters in Endpoint Name"),
         traceEnabled: yup.string(),
         statisticsEnabled: yup.string(),
-        uriTemplate: yup
-            .string()
-            .required("URI template is required")
-            .matches(/^\$.+$|^\{.+\}$|^(https?|ftp):\/\/(([a-z\d]([a-z\d-]*[a-z\d])?\.)+[a-z]{2,}|localhost(:[\d]*)?)(\/[-a-z\d%_.~+]*)*(\?[;&a-z\d%_.~+=-]*)?(\#[-a-z\d_]*)?$/i,
-                "Invalid URI format"),
+        uriTemplate: yup.string().required("URI template is required")
+            .matches(/^\$.+$|^\{.+\}$|^\w\w+:\/.*|file:.*|mailto:.*|vfs:.*|jdbc:.*/, "Invalid URI format"),
         httpMethod: yup.string().required("HTTP method is required"),
         description: yup.string(),
         requireProperties: yup.boolean(),
@@ -188,7 +185,7 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
                     paramFields: prev.paramFields,
                     paramValues: existingEndpoint.templateParameters.map((param: any, index: number) => ({
                         id: prev.paramValues.length + index,
-                        parameters: [{ id: 0, value: param, label: "Parameter", type: "TextField", }],
+                        paramValues: [{ value: param}],
                         key: index + 1,
                         value: param,
                     }))
@@ -198,10 +195,10 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
                     paramFields: prev.paramFields,
                     paramValues: existingEndpoint.properties.map((param: any, index: number) => ({
                         id: prev.paramValues.length + index,
-                        parameters: [
-                            { id: 0, value: param.name, label: "Name", type: "TextField" },
-                            { id: 1, value: param.value, label: "Value", type: "TextField" },
-                            { id: 2, value: param.scope, label: "Scope", type: "Dropdown", values: ["default", "transport", "axis2", "axis2-client"] }
+                        paramValues: [
+                            { value: param.name },
+                            { value: param.value },
+                            { value: param.scope }
                         ],
                         key: param.name,
                         value: "value:" + param.value + "; scope:" + param.scope + ";",
@@ -212,9 +209,9 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
                     paramFields: prev.paramFields,
                     paramValues: existingEndpoint.oauthProperties.map((param: any, index: number) => ({
                         id: prev.paramValues.length + index,
-                        parameters: [
-                            { id: 0, value: param.key, label: "Name", type: "TextField" },
-                            { id: 1, value: param.value, label: "Value", type: "TextField" }
+                        paramValues: [
+                            { value: param.key },
+                            { value: param.value }
                         ],
                         key: param.key,
                         value: param.value,
@@ -228,6 +225,7 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
                 );
             } else {
                 reset(initialEndpoint);
+                isTemplate ? setValue("endpointName", "$name") : setValue("endpointName", "");
             }
 
             const result = await getArtifactNamesAndRegistryPaths(props.path, rpcClient);

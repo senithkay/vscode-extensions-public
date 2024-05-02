@@ -9,7 +9,7 @@
 // AUTO-GENERATED FILE. DO NOT MODIFY.
 
 import React, { useEffect } from 'react';
-import { Button, ComponentCard, ExpressionFieldValue, ParamManager, ProgressIndicator, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
+import { Button, ComponentCard, ProgressIndicator, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
 import { AddMediatorProps } from '../common';
@@ -17,6 +17,8 @@ import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
 import { MEDIATORS } from '../../../../../resources/constants';
 import { Controller, useForm } from 'react-hook-form';
+import { ExpressionFieldValue } from '../../../../Form/ExpressionField/ExpressionInput';
+import { ParamManager, ParamConfig, ParamValue } from '../../../../Form/ParamManager/ParamManager';
 
 const cardStyle = { 
     display: "block",
@@ -45,11 +47,11 @@ const PropertyGroupForm = (props: AddMediatorProps) => {
     useEffect(() => {
         reset({
             properties: {
-                paramValues: sidePanelContext?.formValues?.properties && sidePanelContext?.formValues?.properties.map((property: string|ExpressionFieldValue[], index: string) => (
+                paramValues: sidePanelContext?.formValues?.properties && sidePanelContext?.formValues?.properties.map((property: (string | ExpressionFieldValue | ParamConfig)[], index: string) => (
                     {
                         id: index,
-                        key: typeof property[0] === 'object' ? property[0].value : property[0],
-                        value: typeof property[3] === 'object' ? property[3].value : property[3],
+                        key: property[0],
+                        value:  (property[3] as ExpressionFieldValue).value,
                         icon: 'query',
                         paramValues: [
                             { value: property[0] },
@@ -60,6 +62,7 @@ const PropertyGroupForm = (props: AddMediatorProps) => {
                             { value: property[5] },
                             { value: property[6] },
                             { value: property[7] },
+                            { value: property[8] },
                         ]
                     }
                 )) || [] as string[][],
@@ -68,17 +71,8 @@ const PropertyGroupForm = (props: AddMediatorProps) => {
                         "type": "TextField",
                         "label": "Property Name",
                         "defaultValue": "",
-                        "isRequired": false, 
-                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                            sidePanelContext.setSidePanelState({
-                                ...sidePanelContext,
-                                expressionEditor: {
-                                    isOpen: true,
-                                    value,
-                                    setValue
-                                }
-                            });
-                        }},
+                        "isRequired": false
+                    },
                     {
                         "type": "Dropdown",
                         "label": "Property Data Type",
@@ -94,17 +88,14 @@ const PropertyGroupForm = (props: AddMediatorProps) => {
                             "SHORT",
                             "OM",
                             "JSON"
-                        ], 
-                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                            sidePanelContext.setSidePanelState({
-                                ...sidePanelContext,
-                                expressionEditor: {
-                                    isOpen: true,
-                                    value,
-                                    setValue
-                                }
-                            });
-                        }},
+                        ],
+                        "enableCondition": [
+                            "NOT",
+                            {
+                                "-1": "remove"
+                            }
+                        ]
+                    },
                     {
                         "type": "Dropdown",
                         "label": "Property Action",
@@ -113,17 +104,8 @@ const PropertyGroupForm = (props: AddMediatorProps) => {
                         "values": [
                             "set",
                             "remove"
-                        ], 
-                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                            sidePanelContext.setSidePanelState({
-                                ...sidePanelContext,
-                                expressionEditor: {
-                                    isOpen: true,
-                                    value,
-                                    setValue
-                                }
-                            });
-                        }},
+                        ]
+                    },
                     {
                         "type": "ExprField",
                         "label": "Property Value",
@@ -134,9 +116,15 @@ const PropertyGroupForm = (props: AddMediatorProps) => {
                         "isRequired": false,
                         "canChange": true,
                         "enableCondition": [
-                            "NOT",
+                            "AND",
+                            [
+                                "NOT",
+                                {
+                                    "1": "OM"
+                                }
+                            ],
                             {
-                                "1": "OM"
+                                "2": "set"
                             }
                         ], 
                         openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
@@ -150,6 +138,7 @@ const PropertyGroupForm = (props: AddMediatorProps) => {
                             });
                         }},
                     {
+                        "type": "TextField",
                         "label": "OM",
                         "defaultValue": "",
                         "isRequired": false,
@@ -157,17 +146,8 @@ const PropertyGroupForm = (props: AddMediatorProps) => {
                             {
                                 "1": "OM"
                             }
-                        ], 
-                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                            sidePanelContext.setSidePanelState({
-                                ...sidePanelContext,
-                                expressionEditor: {
-                                    isOpen: true,
-                                    value,
-                                    setValue
-                                }
-                            });
-                        }},
+                        ]
+                    },
                     {
                         "type": "Dropdown",
                         "label": "Property Scope",
@@ -182,45 +162,44 @@ const PropertyGroupForm = (props: AddMediatorProps) => {
                             "REGISTRY",
                             "SYSTEM",
                             "ANALYTICS"
-                        ], 
-                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                            sidePanelContext.setSidePanelState({
-                                ...sidePanelContext,
-                                expressionEditor: {
-                                    isOpen: true,
-                                    value,
-                                    setValue
-                                }
-                            });
-                        }},
+                        ]
+                    },
                     {
+                        "type": "TextField",
+                        "label": "Value String Pattern",
                         "defaultValue": "",
-                        "isRequired": false, 
-                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                            sidePanelContext.setSidePanelState({
-                                ...sidePanelContext,
-                                expressionEditor: {
-                                    isOpen: true,
-                                    value,
-                                    setValue
-                                }
-                            });
-                        }},
+                        "isRequired": false,
+                        "enableCondition": [
+                            "AND",
+                            {
+                                "1": "STRING"
+                            },
+                            {
+                                "2": "set"
+                            }
+                        ]
+                    },
+                    {
+                        "type": "TextField",
+                        "label": "Value String Capturing Group",
+                        "defaultValue": "0",
+                        "isRequired": false,
+                        "enableCondition": [
+                            "AND",
+                            {
+                                "1": "STRING"
+                            },
+                            {
+                                "2": "set"
+                            }
+                        ]
+                    },
                     {
                         "type": "TextField",
                         "label": "Description",
                         "defaultValue": "",
-                        "isRequired": false, 
-                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                            sidePanelContext.setSidePanelState({
-                                ...sidePanelContext,
-                                expressionEditor: {
-                                    isOpen: true,
-                                    value,
-                                    setValue
-                                }
-                            });
-                        }},
+                        "isRequired": false
+                    },
                 ]
             },
             description: sidePanelContext?.formValues?.description || "",
@@ -274,12 +253,9 @@ const PropertyGroupForm = (props: AddMediatorProps) => {
                                 readonly={false}
                                 onChange= {(values) => {
                                     values.paramValues = values.paramValues.map((param: any, index: number) => {
-                                        const paramValues = param.paramValues;
-                                        param.key = paramValues[0].value;
-                                        param.value = paramValues[3].value.value;
-                                        if (paramValues[1]?.value?.isExpression) {
-                                            param.namespaces = paramValues[1].value.namespaces;
-                                        }
+                                        const property: ParamValue[] = param.paramValues;
+                                        param.key = property[0].value;
+                                        param.value = (property[3].value as ExpressionFieldValue).value;
                                         param.icon = 'query';
                                         return param;
                                     });
@@ -289,6 +265,7 @@ const PropertyGroupForm = (props: AddMediatorProps) => {
                         )}
                     />
                 </ComponentCard>
+
                 <Field>
                     <Controller
                         name="description"

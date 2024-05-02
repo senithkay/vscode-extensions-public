@@ -12,15 +12,15 @@ import React, { useState } from 'react';
 import styled from '@emotion/styled';
 import { ParamEditor } from './ParamEditor';
 import { ParamItem } from './ParamItem';
-import { LinkButton } from '../LinkButton/LinkButton';
-import { Codicon } from '../Codicon/Codicon';
 import { Param } from './TypeResolver';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { ExpressionFieldValue } from '../ExpressionField/ExpressionInput';
+import { Codicon, LinkButton } from '@wso2-enterprise/ui-toolkit';
+import { FilterType } from '../Keylookup/Keylookup';
 
 export interface ParamValue {
-    value: string | boolean | ExpressionFieldValue;
+    value: string | boolean | ExpressionFieldValue | ParamConfig;
     isEnabled?: boolean;
 }
 
@@ -40,26 +40,29 @@ export interface Parameters {
 }
 
 export interface ConditionParams {
-    [key: number]: string;
+    [key: number]: string | ConditionParams;
 }
 
 export interface EnableCondition {
-    [key: string]: ConditionParams[];
+    [key: string]: (ConditionParams | EnableCondition)[];
 }
 
 export interface ParamField {
     id?: number;
-    type: "TextField" | "Dropdown" | "Checkbox" | "TextArea" | "AutoComplete";
-    label: string;
-    defaultValue: string | boolean;
+    type: "TextField" | "Dropdown" | "Checkbox" | "TextArea" | "AutoComplete" | "KeyLookup" | "ParamManager";
+    label?: string;
+    defaultValue?: string | boolean;
     isRequired?: boolean;
     values?: string[]; // For Dropdown and AutoComplete
     nullable?: boolean;
     allowItemCreate?: boolean;
     noItemsFoundMessage?: string;
-    enableCondition?: (ConditionParams | string)[];
+    enableCondition?: (ConditionParams | string | ConditionParams[])[];
     openExpressionEditor?: () => void; // For ExpressionField
     canChange?: boolean; // For ExpressionField
+    filter?: (value: string) => boolean; // For KeyLookup
+    filterType?: FilterType; // For KeyLookup
+    paramManager?: ParamManagerProps; // For nested ParamManager
 }
 
 export interface ParamConfig {
@@ -69,6 +72,7 @@ export interface ParamConfig {
 
 export interface ParamManagerProps {
     paramConfigs: ParamConfig;
+    openInDrawer?: boolean;
     onChange?: (parameters: ParamConfig) => void,
     readonly?: boolean;
     addParamText?: string;
@@ -78,13 +82,13 @@ const AddButtonWrapper = styled.div`
 	margin: 8px 0;
 `;
 
-export function convertToObject(input: (ConditionParams | string)[]): EnableCondition {
+export function convertToObject(input: (ConditionParams | string | ConditionParams[])[]): EnableCondition {
     if (!input) {
         return null;
     }
     const result: EnableCondition = {};
     let currentKey: string | null = null;
-    let currentValues: ConditionParams[] = [];
+    let currentValues: (ConditionParams | EnableCondition) [] = [];
 
     for (const item of input) {
         if (typeof item === 'string') {
@@ -93,11 +97,15 @@ export function convertToObject(input: (ConditionParams | string)[]): EnableCond
                 currentValues = [];
             }
             currentKey = item;
-        } else {
+        } else if (isConditionParams(item)) {
             if (!currentKey) {
                 currentKey = null;
             }
             currentValues.push(item);
+        } else if (isConditionParamsArray(item)) {
+            const parms: ConditionParams[] = item;
+            const ec = convertToObject(parms);
+            currentValues.push(ec);
         }
     }
     if (currentValues.length > 0) {
@@ -106,10 +114,36 @@ export function convertToObject(input: (ConditionParams | string)[]): EnableCond
     return result;
 }
 
-// This function is used to check the field is enabled or not on the eneble condition
-export function isFieldEnabled(params: Param[], enableCondition?: EnableCondition): boolean {
+// Helper type guard to check a single ConditionParams
+function isConditionParams(obj: any): obj is ConditionParams {
+    if (typeof obj !== 'object' || obj === null) return false;
+    return Object.keys(obj).every(key => typeof obj[key] === 'string');
+}
+
+// Type guard to check if an object is a ConditionParams[]
+function isConditionParamsArray(obj: any): obj is ConditionParams[] {
+    return Array.isArray(obj) && obj.some(item => isConditionParams(item));
+}
+
+// Type guard to check if an object is an EnableCondition
+function isEnableCondition(obj: any): obj is EnableCondition {
+    return obj && typeof obj === 'object' && !Array.isArray(obj) &&
+           Object.keys(obj).every(key =>
+               Array.isArray(obj[key]) && obj[key].every((item: any) =>
+                   isConditionParams(item) || isEnableCondition(item)
+               )
+    );
+}
+
+// This function is used to check the field is enabled or not on the enable condition
+export function isFieldEnabled(params: Param[], ec?: EnableCondition): boolean {
     let paramEnabled = false;
-    enableCondition["OR"]?.forEach(item => {
+    const conditionParams = ec as { [key: string]: ConditionParams[] };
+    conditionParams["OR"]?.forEach(item => {
+        let isSubfieldEnabled = false;
+        if (isEnableCondition(item)) {
+            isSubfieldEnabled = isFieldEnabled(params, item);
+        }
         params.forEach(par => {
             if (item[par.id]) {
                 const satisfiedConditionValue = item[par.id];
@@ -119,21 +153,33 @@ export function isFieldEnabled(params: Param[], enableCondition?: EnableConditio
                 }
             }
         });
+        if (isSubfieldEnabled) {
+            paramEnabled = true;
+        }
     });
-    enableCondition["AND"]?.forEach(item => {
-        paramEnabled = !paramEnabled ? false : paramEnabled;
-        for (const par of params) {
-            if (item[par.id]) {
-                const satisfiedConditionValue = item[par.id];
-                // if all of the condition is not satisfied, then the param is enabled
-                paramEnabled = (par.value === satisfiedConditionValue);
-                if (!paramEnabled) {
-                    break;
+    if (conditionParams["AND"]) {
+        outer:
+        for (const item of conditionParams["AND"]) {
+            paramEnabled = !paramEnabled ? false : paramEnabled;
+            if (isEnableCondition(item)) {
+                if (!isFieldEnabled(params, item)) {
+                    paramEnabled = false;
+                    break outer;
+                }
+            }
+            for (const par of params) {
+                if (item[par.id]) {
+                    const satisfiedConditionValue = item[par.id];
+                    // if all of the condition is not satisfied, then the param is enabled
+                    paramEnabled = (par.value === satisfiedConditionValue);
+                    if (!paramEnabled) {
+                        break;
+                    }
                 }
             }
         }
-    });
-    enableCondition["NOT"]?.forEach(item => {
+    }
+    conditionParams["NOT"]?.forEach(item => {
         for (const par of params) {
             if (item[par.id]) {
                 const satisfiedConditionValue = item[par.id];
@@ -145,7 +191,7 @@ export function isFieldEnabled(params: Param[], enableCondition?: EnableConditio
             }
         }
     });
-    enableCondition["null"]?.forEach(item => {
+    conditionParams["null"]?.forEach(item => {
         params.forEach(par => {
             if (item[par.id]) {
                 const satisfiedConditionValue = item[par.id];
@@ -164,10 +210,11 @@ const getNewParam = (fields: ParamField[], index: number): Parameters => {
             id: index,
             label: field.label,
             type: field.type,
-            value: field.defaultValue,
+            value: field.defaultValue || field?.paramManager?.paramConfigs,
             values: field.values,
             isRequired: field.isRequired,
-            enableCondition: field.enableCondition ? convertToObject(field.enableCondition) : undefined
+            enableCondition: field.enableCondition ? convertToObject(field.enableCondition) : undefined,
+            openInDrawer: field?.paramManager?.openInDrawer
         });
     });
     // Modify the fields to set field is enabled or not
@@ -241,8 +288,29 @@ const getPramFieldCanChangeFromParamId = (paramFields: ParamField[], paramId: nu
     return paramField?.canChange;
 }
 
+const getPramFilterFromParamId = (paramFields: ParamField[], paramId: number) => {
+    const paramField = paramFields[paramId];
+    return paramField?.filter;
+}
+
+const getPramFilterTypeFromParamId = (paramFields: ParamField[], paramId: number) => {
+    const paramField = paramFields[paramId];
+    return paramField?.filterType;
+}
+
+const getPramOpenInDrawerFromParamId = (paramFields: ParamField[], paramId: number) => {
+    const paramField = paramFields[paramId];
+    return paramField?.paramManager?.openInDrawer;
+}
+
+const getAddParamTextFromParamId = (paramFields: ParamField[], paramId: number) => {
+    const paramField = paramFields[paramId];
+    return paramField?.paramManager?.addParamText;
+}
+
 export function ParamManager(props: ParamManagerProps) {
-    const { paramConfigs, readonly, addParamText = "Add Parameter", onChange } = props;
+    const { paramConfigs, readonly, openInDrawer, addParamText = "Add Parameter", onChange } = props;
+
     const [editingSegmentId, setEditingSegmentId] = useState<number>(-1);
     const [isNew, setIsNew] = useState(false);
 
@@ -265,7 +333,11 @@ export function ParamManager(props: ParamManagerProps) {
                 canChange: getPramFieldCanChangeFromParamId(paramConfigs.paramFields, id),
                 nullable: getParamFieldNullableFromParamId(paramConfigs.paramFields, id),
                 allowItemCreate: getParamFieldAllowItemCreateFromParamId(paramConfigs.paramFields, id),
-                noItemsFoundMessage: getParamFieldNoItemsFoundMessageFromParamId(paramConfigs.paramFields, id)
+                noItemsFoundMessage: getParamFieldNoItemsFoundMessageFromParamId(paramConfigs.paramFields, id),
+                filter: getPramFilterFromParamId(paramConfigs.paramFields, id),
+                filterType: getPramFilterTypeFromParamId(paramConfigs.paramFields, id),
+                openInDrawer: getPramOpenInDrawerFromParamId(paramConfigs.paramFields, id),
+                addParamText: getAddParamTextFromParamId(paramConfigs.paramFields, id)
             };
             return param;
         });
@@ -354,6 +426,7 @@ export function ParamManager(props: ParamManagerProps) {
             if (editingSegmentId === index) {
                 paramComponents.push(
                     <ParamEditor
+                        openInDrawer={openInDrawer}
                         parameters={param}
                         paramFields={paramConfigs.paramFields}
                         isTypeReadOnly={false}
@@ -364,7 +437,7 @@ export function ParamManager(props: ParamManagerProps) {
                 )
             } else if ((editingSegmentId !== index)) {
                 paramComponents.push(
-                    <DndProvider backend={HTML5Backend}>
+                    <DndProvider backend={HTML5Backend} context={window}>
                         <ParamItem
                             moveItem={moveItem}
                             key={param.id}

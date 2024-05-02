@@ -153,6 +153,19 @@ const AddConnection = (props: AddConnectionProps) => {
     const renderFormElement = (element: Element) => {
         switch (element.inputType) {
             case 'string':
+                return (
+                    <TextField
+                        label={element.displayName}
+                        size={50}
+                        value={formValues[element.name] || ''}
+                        onTextChange={(e: any) => {
+                            setFormValues({ ...formValues, [element.name]: e });
+                            formValidators[element.name](e);
+                        }}
+                        required={element.required === 'true'}
+                        placeholder={element.helpTip}
+                    />
+                );
             case 'stringOrExpression':
                 return (
                     <TextField

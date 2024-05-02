@@ -9,12 +9,13 @@
 
 import Mustache from "mustache";
 import { Log } from "@wso2-enterprise/mi-syntax-tree/lib/src";
-import { ExpressionFieldValue } from "@wso2-enterprise/ui-toolkit";
+import { ExpressionFieldValue } from "../../../../components/Form/ExpressionField/ExpressionInput";
+import { transformNamespaces } from "../../../commons";
 
 export function getLogMustacheTemplate() {
   return `<log {{#category}}category="{{category}}"{{/category}} {{#level}}level="{{level}}"{{/level}} {{#separator}}separator="{{separator}}"{{/separator}} {{#description}}description="{{description}}"{{/description}}>
 {{#properties}}
-    <property name="{{propertyName}}" {{#value}}value="{{value}}"{{/value}} {{#expression}}expression="{{expression}}" {{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}} {{/expression}} />
+    <property name="{{{propertyName}}}" {{#value}}value="{{{value}}}"{{/value}} {{#expression}}expression="{{{expression}}}" {{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}} {{/expression}} />
 {{/properties}}
 </log>`;
 }
@@ -45,7 +46,7 @@ export function getLogFormDataFromSTNode(data: { [key: string]: any }, node: Log
 
   if (node.property) {
     data.properties = node.property.map((property) => {
-      return [property.name, { value: property.value || property.expression, isExpression: !!property.expression }];
+      return [property.name, { value: property.value || property.expression, isExpression: !!property.expression, namespaces: transformNamespaces(property.namespaces) }];
     });
   }
 

@@ -9,7 +9,7 @@
 // AUTO-GENERATED FILE. DO NOT MODIFY.
 
 import React, { useEffect } from 'react';
-import { AutoComplete, Button, ComponentCard, ExpressionField, ExpressionFieldValue, ParamManager, ProgressIndicator, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
+import { AutoComplete, Button, ComponentCard, ProgressIndicator, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
 import { VSCodeCheckbox } from '@vscode/webview-ui-toolkit/react';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
@@ -18,6 +18,8 @@ import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
 import { MEDIATORS } from '../../../../../resources/constants';
 import { Controller, useForm } from 'react-hook-form';
+import { ExpressionField, ExpressionFieldValue } from '../../../../Form/ExpressionField/ExpressionInput';
+import { ParamManager, ParamConfig, ParamValue } from '../../../../Form/ParamManager/ParamManager';
 
 const cardStyle = { 
     display: "block",
@@ -52,11 +54,11 @@ const EJBForm = (props: AddMediatorProps) => {
             target: sidePanelContext?.formValues?.target || "",
             jndiName: sidePanelContext?.formValues?.jndiName || "",
             methodArguments: {
-                paramValues: sidePanelContext?.formValues?.methodArguments && sidePanelContext?.formValues?.methodArguments.map((property: string|ExpressionFieldValue[], index: string) => (
+                paramValues: sidePanelContext?.formValues?.methodArguments && sidePanelContext?.formValues?.methodArguments.map((property: (string | ExpressionFieldValue | ParamConfig)[], index: string) => (
                     {
                         id: index,
-                        key: typeof property[0] === 'object' ? property[0].value : property[0],
-                        value: typeof property[2] === 'object' ? property[2].value : property[2],
+                        key: property[0],
+                        value:  property[2],
                         icon: 'query',
                         paramValues: [
                             { value: property[0] },
@@ -71,17 +73,8 @@ const EJBForm = (props: AddMediatorProps) => {
                         "type": "TextField",
                         "label": "Property Name",
                         "defaultValue": "",
-                        "isRequired": false, 
-                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                            sidePanelContext.setSidePanelState({
-                                ...sidePanelContext,
-                                expressionEditor: {
-                                    isOpen: true,
-                                    value,
-                                    setValue
-                                }
-                            });
-                        }},
+                        "isRequired": false
+                    },
                     {
                         "type": "Dropdown",
                         "label": "Property Value Type",
@@ -90,17 +83,8 @@ const EJBForm = (props: AddMediatorProps) => {
                         "values": [
                             "LITERAL",
                             "EXPRESSION"
-                        ], 
-                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                            sidePanelContext.setSidePanelState({
-                                ...sidePanelContext,
-                                expressionEditor: {
-                                    isOpen: true,
-                                    value,
-                                    setValue
-                                }
-                            });
-                        }},
+                        ]
+                    },
                     {
                         "type": "TextField",
                         "label": "Property Value",
@@ -110,17 +94,8 @@ const EJBForm = (props: AddMediatorProps) => {
                             {
                                 "1": "LITERAL"
                             }
-                        ], 
-                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                            sidePanelContext.setSidePanelState({
-                                ...sidePanelContext,
-                                expressionEditor: {
-                                    isOpen: true,
-                                    value,
-                                    setValue
-                                }
-                            });
-                        }},
+                        ]
+                    },
                     {
                         "type": "TextField",
                         "label": "Property Expression",
@@ -130,17 +105,8 @@ const EJBForm = (props: AddMediatorProps) => {
                             {
                                 "1": "EXPRESSION"
                             }
-                        ], 
-                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                            sidePanelContext.setSidePanelState({
-                                ...sidePanelContext,
-                                expressionEditor: {
-                                    isOpen: true,
-                                    value,
-                                    setValue
-                                }
-                            });
-                        }},
+                        ]
+                    },
                 ]
             },
             sessionIdType: sidePanelContext?.formValues?.sessionIdType || "LITERAL",
@@ -263,12 +229,9 @@ const EJBForm = (props: AddMediatorProps) => {
                                 readonly={false}
                                 onChange= {(values) => {
                                     values.paramValues = values.paramValues.map((param: any, index: number) => {
-                                        const paramValues = param.paramValues;
-                                        param.key = paramValues[0].value;
-                                        param.value = paramValues[2].value;
-                                        if (paramValues[1]?.value?.isExpression) {
-                                            param.namespaces = paramValues[1].value.namespaces;
-                                        }
+                                        const property: ParamValue[] = param.paramValues;
+                                        param.key = property[0].value;
+                                        param.value = property[2].value;
                                         param.icon = 'query';
                                         return param;
                                     });
@@ -278,6 +241,7 @@ const EJBForm = (props: AddMediatorProps) => {
                         )}
                     />
                 </ComponentCard>
+
                 <ComponentCard sx={cardStyle} disbaleHoverEffect>
                     <Typography variant="h3">Session</Typography>
 

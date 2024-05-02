@@ -230,9 +230,9 @@ export function getXML(name: string, data: { [key: string]: any }, dirtyFields?:
         case MEDIATORS.STORE:
             return getStoreXml(data);
         case MEDIATORS.VALIDATE:
-            return getValidateXml(data);
+            return getValidateXml(data, dirtyFields, defaultValues);
         case MEDIATORS.SEND:
-            return getSendXml(data);
+            return getSendXml(data, dirtyFields, defaultValues);
         case MEDIATORS.PAYLOAD:
             return getPayloadXml(data);
         case MEDIATORS.HEADER:
@@ -250,9 +250,9 @@ export function getXML(name: string, data: { [key: string]: any }, dirtyFields?:
         case MEDIATORS.FILTER:
             return getFilterXml(data, dirtyFields, defaultValues);
         case MEDIATORS.SWITCH:
-            return getSwitchXml(data);
+            return getSwitchXml(data, dirtyFields, defaultValues);
         case MEDIATORS.THROTTLE:
-            return getThrottleXml(data);
+            return getThrottleXml(data, dirtyFields, defaultValues);
         //Transformation Mediators
         case MEDIATORS.PAYLOAD:
             return getPayloadXml(data);
@@ -293,7 +293,7 @@ export function getXML(name: string, data: { [key: string]: any }, dirtyFields?:
         case MEDIATORS.PUBLISHEVENT:
             return getPublishEventXml(data);
         case MEDIATORS.ENTITLEMENT:
-            return getEntitlementXml(data);
+            return getEntitlementXml(data, dirtyFields, defaultValues);
         case MEDIATORS.RULE:
             return getRuleXml(data);
         case MEDIATORS.NTLM:

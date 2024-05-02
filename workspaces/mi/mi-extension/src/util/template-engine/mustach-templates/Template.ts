@@ -29,7 +29,8 @@ export function getTemplateMustacheTemplate() {
 <template name="{{templateName}}" xmlns="http://ws.apache.org/ns/synapse">
     {{#sequenceTemplate}}
     {{#params}}<parameter name="{{name}}"/>{{/params}}
-    <sequence {{#stats}}statistics="enable"{{/stats}} {{#trace}}trace="enable"{{/trace}} />{{/sequenceTemplate}}
+    <sequence {{#stats}}statistics="enable"{{/stats}} {{#trace}}trace="enable"{{/trace}}>
+    </sequence>{{/sequenceTemplate}}
     {{^sequenceTemplate}}
     <endpoint name="{{endpointName}}">
         {{#addressTemplate}}<address uri="{{{address}}}">{{/addressTemplate}}

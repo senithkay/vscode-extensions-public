@@ -8,7 +8,7 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { AutoComplete, Button, ComponentCard, ParamConfig, ParamManager, RequiredFormInput, TextField, LinkButton } from '@wso2-enterprise/ui-toolkit';
+import { AutoComplete, Button, ComponentCard, RequiredFormInput, TextField, LinkButton } from '@wso2-enterprise/ui-toolkit';
 import { VSCodeCheckbox, VSCodeDropdown, VSCodeOption } from '@vscode/webview-ui-toolkit/react';
 import styled from '@emotion/styled';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
@@ -16,6 +16,8 @@ import SidePanelContext from '../SidePanelContexProvider';
 import { create } from 'xmlbuilder2';
 import { Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 import AddConnection from './AddConnection';
+import { ParamConfig, ParamManager } from '../../Form/ParamManager/ParamManager';
+import { ExpressionField, ExpressionFieldValue } from '../../Form/ExpressionField/ExpressionInput';
 
 const cardStyle = {
     display: "block",
@@ -45,6 +47,7 @@ interface Element {
     required: string;
     helpTip: any;
     comboValues?: any[];
+    defaultValue?: any;
     allowedConnectionTypes?: string[];
 }
 
@@ -190,12 +193,34 @@ const AddConnector = (props: AddConnectorProps) => {
                 sidePanelContext.formValues.operationName;
 
             const root = template.ele(`${connectorName}${operationName ? `.${operationName}` : ''}`);
-                root.att('configKey', formValues['configKey']);
+            root.att('configKey', formValues['configKey']);
 
             // Fill the values
             Object.keys(formValues).forEach((key) => {
                 if (key !== 'configRef' && key !== 'configKey') {
-                    root.ele(key).txt(formValues[key]);
+                    if (typeof formValues[key] === 'object' && formValues[key] !== null) {
+                        // Handle expression input type
+                        const namespaces = formValues[key].namespaces;
+                        const value = formValues[key].value;
+                        const isExpression = formValues[key].isExpression;
+
+                        if (isExpression) {
+                            if (namespaces && namespaces.length > 0) {
+                                // Generate XML with namespaces
+                                const element = root.ele(key);
+                                namespaces.forEach((namespace: any) => {
+                                    element.att(`xmlns:${namespace.prefix}`, namespace.uri);
+                                });
+                                element.txt(`{${value}}`);
+                            } else{
+                                root.ele(key).txt(`{${value}}`);
+                            }
+                        } else {
+                            root.ele(key).txt(value);
+                        }
+                    } else {
+                        root.ele(key).txt(formValues[key]);
+                    }
                 }
             });
 
@@ -223,6 +248,19 @@ const AddConnector = (props: AddConnectorProps) => {
     const renderFormElement = (element: Element) => {
         switch (element.inputType) {
             case 'string':
+                return (
+                    <TextField
+                        label={element.displayName}
+                        size={50}
+                        value={formValues[element.name] || ''}
+                        onTextChange={(e: any) => {
+                            setFormValues({ ...formValues, [element.name]: e });
+                            formValidators[element.name](e);
+                        }}
+                        required={element.required === 'true'}
+                        placeholder={element.helpTip}
+                    />
+                );
             case 'stringOrExpression':
                 return (
                     <TextField
@@ -240,18 +278,16 @@ const AddConnector = (props: AddConnectorProps) => {
             case 'booleanOrExpression':
                 return (
                     <>
-                        <label>{element.displayName}</label> {element.required && <RequiredFormInput />}
-                        <div style={{ display: "flex", flexDirection: "row", width: '100%', gap: '10px' }}>
-                            <VSCodeCheckbox
-                                label={element.displayName}
-                                checked={formValues[element.name] || false}
-                                onChange={(e: any) => {
-                                    setFormValues({ ...formValues, [element.name]: e.target.checked });
-                                    formValidators[element.name](e.target.checked);
-                                }}
-                                required={element.required === 'true'}
-                            />
-                        </div>
+                        <label>{element.displayName}</label> {element.required === "true" && <RequiredFormInput />}
+                        <AutoComplete
+                            identifier={element.displayName}
+                            items={["true", "false"]}
+                            value={formValues[element.name]}
+                            onValueChange={(e: any) => {
+                                setFormValues({ ...formValues, [element.name]: e });
+                                formValidators[element.name](e);
+                            }}
+                            required={element.required === 'true'} />
                     </>
                 );
             case 'comboOrExpression':
@@ -283,6 +319,32 @@ const AddConnector = (props: AddConnectorProps) => {
                         }}
                         required={element.required === 'true'}
                         placeholder={element.helpTip}
+                    />
+                );
+            case 'integerOrExpression':
+                return (
+                    <ExpressionField
+                        label={element.displayName}
+                        placeholder={element.helpTip}
+                        value={{
+                            "isExpression":true,
+                            "value":formValues[element.name]?.value ?? '',
+                            "namespaces":formValues[element.name]?.namespaces ?? []}}
+                        canChange={true}
+                        onChange={(e: any) => {
+                            setFormValues({ ...formValues, [element.name]: e });
+                            formValidators[element.name](e.value);
+                        }}
+                        openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => {
+                            sidePanelContext.setSidePanelState({
+                                ...sidePanelContext,
+                                expressionEditor: {
+                                    isOpen: true,
+                                    value,
+                                    setValue
+                                }
+                            });
+                        }}
                     />
                 );
             case 'connection':

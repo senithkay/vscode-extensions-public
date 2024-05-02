@@ -10,6 +10,7 @@
  */
 import {
     AIUserInput,
+    AI_EVENT_TYPE,
     ApiDirectoryResponse,
     ApplyEditRequest,
     ApplyEditResponse,
@@ -51,9 +52,9 @@ import {
     CreateTemplateRequest,
     CreateTemplateResponse,
     DataSourceTemplate,
+    DeleteArtifactRequest,
     DownloadConnectorRequest,
     DownloadConnectorResponse,
-    DeleteArtifactRequest,
     ESBConfigsResponse,
     EVENT_TYPE,
     EndpointDirectoryResponse,
@@ -114,6 +115,7 @@ import {
     MigrateProjectRequest,
     MigrateProjectResponse,
     OpenDiagramRequest,
+    POPUP_EVENT_TYPE,
     ProjectDirResponse,
     ProjectRootResponse,
     RangeFormatRequest,
@@ -155,23 +157,26 @@ import {
     WriteContentToFileResponse,
     getSTRequest,
     getSTResponse,
-    AI_EVENT_TYPE,
-    POPUP_EVENT_TYPE,
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
 import { error } from "console";
 import * as fs from "fs";
+import { copy } from 'fs-extra';
+import fetch from 'node-fetch';
 import * as os from 'os';
 import { Transform } from 'stream';
+import * as tmp from 'tmp';
 import { v4 as uuidv4 } from 'uuid';
 import * as vscode from 'vscode';
 import { Position, Range, Selection, TextEdit, Uri, ViewColumn, WorkspaceEdit, commands, window, workspace } from "vscode";
 import { extension } from '../../MIExtensionContext';
+import { StateMachineAI } from '../../ai-panel/aiMachine';
 import { COMMANDS, DEFAULT_PROJECT_VERSION, MI_COPILOT_BACKEND_URL } from "../../constants";
 import { StateMachine, navigate, openView } from "../../stateMachine";
+import { openPopupView } from "../../stateMachinePopup";
 import { UndoRedoManager } from "../../undoRedoManager";
 import { createFolderStructure, getAddressEndpointXmlWrapper, getDefaultEndpointXmlWrapper, getFailoverXmlWrapper, getHttpEndpointXmlWrapper, getInboundEndpointXmlWrapper, getLoadBalanceXmlWrapper, getMessageProcessorXmlWrapper, getMessageStoreXmlWrapper, getProxyServiceXmlWrapper, getRegistryResourceContent, getTaskXmlWrapper, getTemplateEndpointXmlWrapper, getTemplateXmlWrapper, getWsdlEndpointXmlWrapper } from "../../util";
-import { addNewEntryToArtifactXML, changeRootPomPackaging, createMetadataFilesForRegistryCollection, detectMediaType, getAvailableRegistryResources, getMediatypeAndFileExtension, addSynapseDependency } from "../../util/fileOperations";
+import { addNewEntryToArtifactXML, addSynapseDependency, changeRootPomPackaging, createMetadataFilesForRegistryCollection, detectMediaType, getAvailableRegistryResources, getMediatypeAndFileExtension } from "../../util/fileOperations";
 import { importProject } from "../../util/migrationUtils";
 import { getDataserviceXml } from "../../util/template-engine/mustach-templates/Dataservice";
 import { getClassMediatorContent } from "../../util/template-engine/mustach-templates/classMediator";
@@ -180,10 +185,7 @@ import { getRecipientEPXml } from "../../util/template-engine/mustach-templates/
 import { rootPomXmlContent } from "../../util/templates";
 import { replaceFullContentToFile } from "../../util/workspace";
 import { VisualizerWebview } from "../../visualizer/webview";
-import { StateMachineAI } from '../../ai-panel/aiMachine';
-import fetch from 'node-fetch';
 import path = require("path");
-import { openPopupView } from "../../stateMachinePopup";
 import { template } from "lodash";
 
 const { XMLParser, XMLBuilder } = require("fast-xml-parser");
@@ -518,9 +520,9 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
             resolve({
                 name: '',
-                algorithm: 'roundRobin',
-                failover: 'false',
-                buildMessage: 'true',
+                algorithm: 'org.apache.synapse.endpoints.algorithms.RoundRobin',
+                failover: 'true',
+                buildMessage: 'false',
                 sessionManagement: 'none',
                 sessionTimeout: 0,
                 description: '',
@@ -767,22 +769,23 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     sourceURL: ""
                 };
                 if (jsonData && jsonData.localEntry) {
-                    if (jsonData.localEntry["#text"]) {
+                    const firstEntryKey = Object.keys(jsonData.localEntry)[0];
+                    if (jsonData.localEntry["#text"] ) {
                         response.type = "In-Line Text Entry";
                         response.inLineTextValue = jsonData.localEntry["#text"];
-                    } else if (jsonData.localEntry.xml) {
+                    } else if (firstEntryKey) {
                         response.type = "In-Line XML Entry";
-                        if (jsonData.localEntry.xml["@_"]["xmlns"] === '') {
-                            delete jsonData.localEntry.xml["@_"]["xmlns"];
-                        }
-                        const xmlObj = {
-                            xml: {
-                                ...jsonData.localEntry.xml
+                        const firstEntryKey = Object.keys(jsonData.localEntry)[0];
+                        if(firstEntryKey){
+                            const xmlObj = {
+                                [firstEntryKey]: {
+                                    ...jsonData.localEntry[firstEntryKey]
+                                }
                             }
+                            const builder = new XMLBuilder(options);
+                            let xml = builder.build(xmlObj).replace(/&apos;/g, "'");
+                            response.inLineXmlValue = xml;
                         }
-                        const builder = new XMLBuilder(options);
-                        let xml = builder.build(xmlObj);
-                        response.inLineXmlValue = xml;
                     } else if (jsonData.localEntry["@_"]["src"]) {
                         response.type = "Source URL Entry";
                         response.sourceURL = jsonData.localEntry["@_"]["src"];
@@ -790,7 +793,9 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 }
                 resolve(response);
             }
-            return error("File not found");
+            else {
+                return error("File not found");
+            }
         });
     }
 
@@ -2061,8 +2066,8 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 filePath = path.join(directory, `${messageProcessorName}.xml`);
             }
 
-            if (filePath.includes('/messageProcessors')) {
-                filePath = filePath.replace('/messageProcessors', '/message-processors');
+            if (filePath.includes('messageProcessors')) {
+                filePath = filePath.replace('messageProcessors', 'message-processors');
             }
 
             fs.writeFileSync(filePath, sanitizedXmlData);
@@ -2617,7 +2622,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
     }
 
     async downloadConnector(params: DownloadConnectorRequest): Promise<DownloadConnectorResponse> {
-        const { connector, url, version } = params;
+        const { url } = params;
         try {
             const workspaceFolders = workspace.workspaceFolders;
             if (!workspaceFolders) {
@@ -2631,7 +2636,10 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 fs.mkdirSync(connectorDirectory, { recursive: true });
             }
 
-            const connectorPath = path.join(rootPath, 'src', 'main', 'wso2mi', 'resources', 'connectors', `${connector.replace(/\s+/g, '')}-${version}.zip`)
+            // Extract the zip name from the URL
+            const zipName = path.basename(url);
+
+            const connectorPath = path.join(connectorDirectory, zipName);
 
             if (!fs.existsSync(connectorPath)) {
                 const response = await axios.get(url, {
@@ -2640,27 +2648,29 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                         'User-Agent': 'My Client'
                     }
                 });
-
-                const writer = fs.createWriteStream(
-                    path.resolve(rootPath, 'src', 'main', 'wso2mi', 'resources', 'connectors', `${connector.replace(/\s+/g, '')}-${version}.zip`)
-                );
-
+    
+                // Create a temporary file
+                const tmpobj = tmp.fileSync();
+                const writer = fs.createWriteStream(tmpobj.name);
+    
                 response.data.pipe(writer);
-
+    
                 return new Promise((resolve, reject) => {
-                    writer.on('finish', () => {
+                    writer.on('finish', async () => {
                         writer.close();
+                        // Copy the file from the temp location to the connectorPath
+                        await copy(tmpobj.name, connectorPath);
+                        // Remove the temporary file
+                        tmpobj.removeCallback();
                         resolve({ path: connectorPath });
                     });
                     writer.on('error', reject);
-                    resolve({ path: connectorPath });
                 });
             }
 
             return new Promise((resolve, reject) => {
                 resolve({ path: connectorPath });
             });
-
         } catch (error) {
             console.error('Error downloading connector:', error);
             throw new Error('Failed to download connector');

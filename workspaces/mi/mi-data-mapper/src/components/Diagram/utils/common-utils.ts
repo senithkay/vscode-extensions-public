@@ -16,17 +16,18 @@ import {
     ObjectLiteralExpression,
     ParameterDeclaration,
     PropertyAccessExpression,
-    PropertyAssignment
+    PropertyAssignment,
+    Expression
 } from "ts-morph";
 
 import { PropertyAccessNodeFindingVisitor } from "../../Visitors/PropertyAccessNodeFindingVisitor";
 import { NodePosition, getPosition, isPositionsEquals, traversNode } from "./st-utils";
 import { DataMapperNodeModel } from "../Node/commons/DataMapperNode";
-import { InputNode, ObjectOutputNode } from "../Node";
+import { ArrayOutputNode, InputNode, ObjectOutputNode } from "../Node";
 import { InputOutputPortModel } from "../Port";
 import { ArrayElement, DMTypeWithValue } from "../Mappings/DMTypeWithValue";
 import { useDMSearchStore } from "../../../store/store";
-import { OBJECT_OUTPUT_TARGET_PORT_PREFIX, PRIMITIVE_TYPE_TARGET_PORT_PREFIX } from "./constants";
+import { ARRAY_OUTPUT_TARGET_PORT_PREFIX, OBJECT_OUTPUT_TARGET_PORT_PREFIX, PRIMITIVE_TYPE_TARGET_PORT_PREFIX } from "./constants";
 
 export function getPropertyAccessNodes(node: Node): (Identifier | PropertyAccessExpression)[] {
     const propertyAccessNodeVisitor: PropertyAccessNodeFindingVisitor = new PropertyAccessNodeFindingVisitor();
@@ -116,10 +117,11 @@ export function getOutputPort(
     fields: Node[],
     dmTypeWithValue: DMTypeWithValue,
     portPrefix: string,
-    getPort: (portId: string) => InputOutputPortModel
+    getPort: (portId: string) => InputOutputPortModel,
+    arrayOutputRootName?: string
 ): [InputOutputPortModel, InputOutputPortModel] {
 
-    let portIdBuffer = portPrefix;
+    let portIdBuffer = `${portPrefix}${arrayOutputRootName ? `.${arrayOutputRootName}` : ''}`;
     let nextTypeNode = dmTypeWithValue;
 
     for (let i = 0; i < fields.length; i++) {
@@ -162,7 +164,8 @@ export function getOutputPort(
                 const [nextField, fieldIndex] = getNextField(nextTypeNode.elements, nextPosition);
 
                 if (nextField && fieldIndex !== -1) {
-                    portIdBuffer = `${portIdBuffer}.${nextField.originalType?.fieldName || ''}`;
+                    const nextFieldName = nextField.originalType?.fieldName || '';
+                    portIdBuffer = `${portIdBuffer}.${nextFieldName}`;
                 }
             }
         }
@@ -238,6 +241,19 @@ export function getFieldNames(expr: PropertyAccessExpression) {
     return processedFieldNames;
 }
 
+export function getTypeName(field: DMType): string {
+	if (!field) {
+		return '';
+	}
+
+	let typeName = field?.typeName || field.kind;
+
+    if (field.kind === TypeKind.Array && field?.memberType) {
+		typeName = `${getTypeName(field.memberType)}[]`;
+	}
+
+	return typeName;
+}
 
 export const getOptionalField = (field: DMType): DMType | undefined => {
     if (field.typeName === TypeKind.Interface && field.optional) {
@@ -314,7 +330,7 @@ export function getFieldNameFromOutputPort(outputPort: InputOutputPortModel): st
 }
 
 export function getPropertyAssignment(objectLitExpr: ObjectLiteralExpression, targetFieldName: string) {
-	return objectLitExpr.getProperties()?.find((property) =>
+	return objectLitExpr && objectLitExpr.getProperties()?.find((property) =>
 		Node.isPropertyAssignment(property) && property.getName() === targetFieldName
 	) as PropertyAssignment;
 }
@@ -339,6 +355,8 @@ export function getTargetPortPrefix(node: NodeModel): string {
 	switch (true) {
 		case node instanceof ObjectOutputNode:
 			return OBJECT_OUTPUT_TARGET_PORT_PREFIX;
+        case node instanceof ArrayOutputNode:
+            return ARRAY_OUTPUT_TARGET_PORT_PREFIX;
         // TODO: Update cases for other node types
 		default:
 			return PRIMITIVE_TYPE_TARGET_PORT_PREFIX;
@@ -362,6 +380,30 @@ export function getEditorLineAndColumn(node: Node): Range {
             column: endColumn - 1
         }
     };
+}
+
+export function canConnectWithLinkConnector(
+    properyAccessNodes: (Identifier | PropertyAccessExpression)[],
+    expr: Expression
+): boolean {
+    const noOfPropAccessNodes = properyAccessNodes.length;
+    const isCallExpr = noOfPropAccessNodes === 1 && isNodeCallExpression(properyAccessNodes[0]);
+    return noOfPropAccessNodes > 1 || (noOfPropAccessNodes === 1  && (isConditionalExpression(expr) || isCallExpr));
+}
+
+export function hasCallExpressions(node: Node): boolean {
+    return Node.isPropertyAssignment(node) && Node.isCallExpression(node.getInitializer());
+}
+
+export function isNodeCallExpression(node: Node): boolean {
+    if (Node.isCallExpression(node)) {
+        return true
+    }
+    const parentNode = node.getParent();
+    if (parentNode) {
+        return isNodeCallExpression(parentNode);
+    }
+    return false;
 }
 
 function getInnerExpr(node: PropertyAccessExpression): Node {

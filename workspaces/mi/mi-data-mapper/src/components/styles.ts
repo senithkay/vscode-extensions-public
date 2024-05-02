@@ -28,6 +28,18 @@ const addElementButton = {
     lineHeight: "24px",
 };
 
+const treeLabel = {
+    verticalAlign: "middle",
+    padding: "5px",
+    minWidth: "100px",
+    display: "flex",
+    width: "100%",
+    height: `${IO_NODE_FIELD_HEIGHT}px`,
+    '&:hover': {
+        backgroundColor: 'var(--vscode-list-hoverBackground)',
+    },
+};
+
 export const useIONodesStyles = () => ({
     inputTypeLabel: css({
         ...typeLabel
@@ -90,10 +102,6 @@ export const useIONodesStyles = () => ({
         opacity: 0.8
     }),
     treeLabelDisabled: css({
-        backgroundColor: "var(--vscode-editorWidget-background)",
-        '&:hover': {
-            backgroundColor: 'var(--vscode-editorWidget-background)',
-        },
         cursor: 'not-allowed',
         opacity: 0.5
     }),
@@ -108,14 +116,7 @@ export const useIONodesStyles = () => ({
 		fontWeight: 800,
 		fontSize: "14px",
 	}),
-    typeLabelDisabled: css({
-		backgroundColor: "var(--vscode-editorWidget-background)",
-		color: "var(--vscode-icon-foreground)",
-		opacity: 0.5
-	}),
-    valueLabelDisabled: css({
-		backgroundColor: "var(--vscode-editorWidget-background)",
-		color: "var(--vscode-input-foreground)",
+    labelDisabled: css({
 		opacity: 0.5
 	}),
     treeLabelPortSelected: css({
@@ -129,9 +130,6 @@ export const useIONodesStyles = () => ({
     treeLabelParentHovered: css({
         backgroundColor: 'var(--vscode-list-hoverBackground)',
     }),
-    treeLabelArray: css({
-        flexDirection: "column"
-    }),
     ArrayFieldRow: css({
         display: "flex",
         alignItems: 'center',
@@ -140,9 +138,8 @@ export const useIONodesStyles = () => ({
         }
     }),
     ArrayFieldRowDisabled: css({
-        '&:hover': {
-            backgroundColor: 'var(--vscode-editorWidget-background)'
-        }
+        cursor: 'not-allowed',
+        opacity: 0.5
     }),
     innerTreeLabel: css({
         display: "flex",
@@ -202,15 +199,12 @@ export const useIONodesStyles = () => ({
         fontSize: '13px'
     }),
     treeLabel: css({
-        verticalAlign: "middle",
-        padding: "5px",
-        minWidth: "100px",
-        display: "flex",
-        width: "100%",
-        height: `${IO_NODE_FIELD_HEIGHT}px`,
-        '&:hover': {
-            backgroundColor: 'var(--vscode-list-hoverBackground)',
-        },
+        ...treeLabel
+    }),
+    treeLabelArray: css({
+        ...treeLabel,
+        height: 'fit-content',
+        flexDirection: "column"
     }),
     enumHeaderTreeLabel: css({
         verticalAlign: "middle",

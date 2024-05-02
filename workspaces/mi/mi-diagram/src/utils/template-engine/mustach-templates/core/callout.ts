@@ -9,14 +9,15 @@
 
 import Mustache from "mustache";
 import { Callout } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { transformNamespaces } from "../../../commons";
 
 export function getCalloutMustacheTemplate() {
-  return `<callout{{#serviceURL}} serviceURL="{{serviceURL}}"{{/serviceURL}}{{#soapAction}} action="{{soapAction}}"{{/soapAction}}{{#initAxis2ClientOptions}} initAxis2ClientOptions="{{initAxis2ClientOptions}}"{{/initAxis2ClientOptions}}{{#addressEndpoint}} endpointKey="{{addressEndpoint}}"{{/addressEndpoint}}{{#description}} description="{{description}}"{{/description}}>
+  return `<callout{{#serviceURL}} serviceURL="{{{serviceURL}}}"{{/serviceURL}}{{#soapAction}} action="{{soapAction}}"{{/soapAction}}{{#initAxis2ClientOptions}} initAxis2ClientOptions="{{initAxis2ClientOptions}}"{{/initAxis2ClientOptions}}{{#addressEndpoint}} endpointKey="{{addressEndpoint}}"{{/addressEndpoint}}{{#description}} description="{{description}}"{{/description}}>
   {{#configurationEnabled}}
   <configuration axis2xml="{{pathToAxis2xml}}" repository="{{pathToAxis2Repository}}"/>
   {{/configurationEnabled}}
   {{#xpathPayload}}
-  <source xpath="{{payloadMessageXPath}}"/>
+  <source {{#payloadMessageXPath}}xpath="{{{value}}}"{{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}}{{/payloadMessageXPath}}/>
   {{/xpathPayload}}
   {{#propertyPayload}}
   <source key="{{payloadProperty}}"/>
@@ -25,7 +26,7 @@ export function getCalloutMustacheTemplate() {
   <source type="envelope"/>
   {{/envelopePayload}}
   {{#xpathTarget}}
-  <target xpath="{{targetMessageXPath}}"/>
+  <target {{#targetMessageXPath}}xpath="{{{value}}}"{{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}}{{/targetMessageXPath}}/>
   {{/xpathTarget}}
   {{#propertyTarget}}
   <target key="{{targetProperty}}"/>
@@ -47,17 +48,13 @@ export function getCalloutXml(data: { [key: string]: any }) {
   const envelopePayload = data.payloadType === "ENVELOPE";
   const xpathTarget = data.resultType === "XPATH";
   const propertyTarget = data.resultType === "PROPERTY";
-  // const targetMessageXPath = data.resultMessageXPath;
   const targetProperty = data.resultContextProperty;
   const securityEnabled = data.securityType === "TRUE";
   const configurationEnabled = data.pathToAxis2Repository ?? data.pathToAxis2Xml !== null;
   const policies = data.policies === "TRUE";
 
-  if (xpathPayload) {
-    data.payloadMessageXPath = data.payloadMessageXPath?.value;
-  }
   if (xpathTarget) {
-    data.targetMessageXPath = data.resultMessageXPath?.value;
+    data.targetMessageXPath = data.resultMessageXPath;
   }
   const modifiedData = {
     ...data,
@@ -98,7 +95,7 @@ export function getCalloutFormDataFromSTNode(data: { [key: string]: any }, node:
         data.payloadProperty = sourceOrTargetOrConfiguration.source.key;
       } else if (sourceOrTargetOrConfiguration.source.xpath) {
         data.payloadType = "XPATH";
-        data.payloadMessageXPath = { isExpression: true, value: sourceOrTargetOrConfiguration.source.xpath };
+        data.payloadMessageXPath = { isExpression: true, value: sourceOrTargetOrConfiguration.source.xpath, namespaces: transformNamespaces(sourceOrTargetOrConfiguration?.source?.namespaces) };
       } else {
         data.payloadType = "ENVELOPE";
       }
@@ -109,7 +106,7 @@ export function getCalloutFormDataFromSTNode(data: { [key: string]: any }, node:
         data.resultContextProperty = sourceOrTargetOrConfiguration.target.key;
       } else if (sourceOrTargetOrConfiguration.target.xpath) {
         data.resultType = "XPATH";
-        data.resultMessageXPath = { isExpression: true, value: sourceOrTargetOrConfiguration.target.key };
+        data.resultMessageXPath = { isExpression: true, value: sourceOrTargetOrConfiguration.target.xpath, namespaces: transformNamespaces(sourceOrTargetOrConfiguration?.target?.namespaces) };
       }
     }
     data.securityType = "FALSE";

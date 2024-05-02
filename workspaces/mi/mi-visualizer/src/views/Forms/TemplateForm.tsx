@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import React, {useEffect, useState} from "react";
-import {Button, TextField, FormView, FormActions, FormCheckBox, ParamManager, ParamConfig} from "@wso2-enterprise/ui-toolkit";
+import {Button, TextField, FormView, FormActions, FormCheckBox} from "@wso2-enterprise/ui-toolkit";
 import {useVisualizerContext} from "@wso2-enterprise/mi-rpc-client";
 import {EVENT_TYPE, MACHINE_VIEW, CreateTemplateRequest} from "@wso2-enterprise/mi-core";
 import CardWrapper from "./Commons/CardWrapper";
@@ -16,10 +16,12 @@ import {useForm} from "react-hook-form";
 import * as yup from "yup";
 import {yupResolver} from "@hookform/resolvers/yup";
 import AddToRegistry, {getArtifactNamesAndRegistryPaths, formatRegistryPath, saveToRegistry} from "./AddToRegistry";
+import { ParamConfig, ParamManager } from "@wso2-enterprise/mi-diagram";
 
 export interface TemplateWizardProps {
     path: string;
     type: string;
+    onCancel?: () => void;
 }
 
 type InputsFields = {
@@ -256,6 +258,9 @@ export function TemplateWizard(props: TemplateWizardProps) {
     };
 
     const handleCancel = () => {
+        if (props.onCancel) {
+            return props.onCancel();
+        }
         rpcClient.getMiVisualizerRpcClient().openView({
             type: EVENT_TYPE.OPEN_VIEW,
             location: {view: MACHINE_VIEW.Overview}

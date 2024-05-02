@@ -9,7 +9,7 @@
 // AUTO-GENERATED FILE. DO NOT MODIFY.
 
 import React, { useEffect } from 'react';
-import { Button, ComponentCard, ExpressionFieldValue, ParamManager, ProgressIndicator, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
+import { Button, ComponentCard, ProgressIndicator, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
 import { VSCodeCheckbox } from '@vscode/webview-ui-toolkit/react';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
@@ -18,6 +18,8 @@ import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
 import { MEDIATORS } from '../../../../../resources/constants';
 import { Controller, useForm } from 'react-hook-form';
+import { ExpressionFieldValue } from '../../../../Form/ExpressionField/ExpressionInput';
+import { ParamManager, ParamConfig, ParamValue } from '../../../../Form/ParamManager/ParamManager';
 
 const cardStyle = { 
     display: "block",
@@ -51,11 +53,11 @@ const PublishEventForm = (props: AddMediatorProps) => {
             async: sidePanelContext?.formValues?.async || "",
             asyncTimeout: sidePanelContext?.formValues?.asyncTimeout || "",
             metaAttributes: {
-                paramValues: sidePanelContext?.formValues?.metaAttributes && sidePanelContext?.formValues?.metaAttributes.map((property: string|ExpressionFieldValue[], index: string) => (
+                paramValues: sidePanelContext?.formValues?.metaAttributes && sidePanelContext?.formValues?.metaAttributes.map((property: (string | ExpressionFieldValue | ParamConfig)[], index: string) => (
                     {
                         id: index,
-                        key: typeof property[0] === 'object' ? property[0].value : property[0],
-                        value: typeof property[3] === 'object' ? property[3].value : property[3],
+                        key: property[0],
+                        value:  property[3],
                         icon: 'query',
                         paramValues: [
                             { value: property[0] },
@@ -72,17 +74,8 @@ const PublishEventForm = (props: AddMediatorProps) => {
                         "type": "TextField",
                         "label": "Attribute Name",
                         "defaultValue": "",
-                        "isRequired": false, 
-                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                            sidePanelContext.setSidePanelState({
-                                ...sidePanelContext,
-                                expressionEditor: {
-                                    isOpen: true,
-                                    value,
-                                    setValue
-                                }
-                            });
-                        }},
+                        "isRequired": false
+                    },
                     {
                         "type": "Dropdown",
                         "label": "Attribute Value Type",
@@ -91,17 +84,8 @@ const PublishEventForm = (props: AddMediatorProps) => {
                         "values": [
                             "LITERAL",
                             "EXPRESSION"
-                        ], 
-                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                            sidePanelContext.setSidePanelState({
-                                ...sidePanelContext,
-                                expressionEditor: {
-                                    isOpen: true,
-                                    value,
-                                    setValue
-                                }
-                            });
-                        }},
+                        ]
+                    },
                     {
                         "type": "Dropdown",
                         "label": "Attribute Type",
@@ -114,17 +98,8 @@ const PublishEventForm = (props: AddMediatorProps) => {
                             "DOUBLE",
                             "FLOAT",
                             "LONG"
-                        ], 
-                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                            sidePanelContext.setSidePanelState({
-                                ...sidePanelContext,
-                                expressionEditor: {
-                                    isOpen: true,
-                                    value,
-                                    setValue
-                                }
-                            });
-                        }},
+                        ]
+                    },
                     {
                         "type": "TextField",
                         "label": "Attribute Value",
@@ -134,17 +109,8 @@ const PublishEventForm = (props: AddMediatorProps) => {
                             {
                                 "1": "LITERAL"
                             }
-                        ], 
-                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                            sidePanelContext.setSidePanelState({
-                                ...sidePanelContext,
-                                expressionEditor: {
-                                    isOpen: true,
-                                    value,
-                                    setValue
-                                }
-                            });
-                        }},
+                        ]
+                    },
                     {
                         "type": "TextField",
                         "label": "Attribute Expression",
@@ -154,40 +120,22 @@ const PublishEventForm = (props: AddMediatorProps) => {
                             {
                                 "1": "EXPRESSION"
                             }
-                        ], 
-                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                            sidePanelContext.setSidePanelState({
-                                ...sidePanelContext,
-                                expressionEditor: {
-                                    isOpen: true,
-                                    value,
-                                    setValue
-                                }
-                            });
-                        }},
+                        ]
+                    },
                     {
                         "type": "TextField",
                         "label": "Default Value",
                         "defaultValue": "",
-                        "isRequired": false, 
-                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                            sidePanelContext.setSidePanelState({
-                                ...sidePanelContext,
-                                expressionEditor: {
-                                    isOpen: true,
-                                    value,
-                                    setValue
-                                }
-                            });
-                        }},
+                        "isRequired": false
+                    },
                 ]
             },
             correlationAttributes: {
-                paramValues: sidePanelContext?.formValues?.correlationAttributes && sidePanelContext?.formValues?.correlationAttributes.map((property: string|ExpressionFieldValue[], index: string) => (
+                paramValues: sidePanelContext?.formValues?.correlationAttributes && sidePanelContext?.formValues?.correlationAttributes.map((property: (string | ExpressionFieldValue | ParamConfig)[], index: string) => (
                     {
                         id: index,
-                        key: typeof property[0] === 'object' ? property[0].value : property[0],
-                        value: typeof property[3] === 'object' ? property[3].value : property[3],
+                        key: property[0],
+                        value:  property[3],
                         icon: 'query',
                         paramValues: [
                             { value: property[0] },
@@ -204,17 +152,8 @@ const PublishEventForm = (props: AddMediatorProps) => {
                         "type": "TextField",
                         "label": "Attribute Name",
                         "defaultValue": "",
-                        "isRequired": false, 
-                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                            sidePanelContext.setSidePanelState({
-                                ...sidePanelContext,
-                                expressionEditor: {
-                                    isOpen: true,
-                                    value,
-                                    setValue
-                                }
-                            });
-                        }},
+                        "isRequired": false
+                    },
                     {
                         "type": "Dropdown",
                         "label": "Attribute Value Type",
@@ -223,17 +162,8 @@ const PublishEventForm = (props: AddMediatorProps) => {
                         "values": [
                             "LITERAL",
                             "EXPRESSION"
-                        ], 
-                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                            sidePanelContext.setSidePanelState({
-                                ...sidePanelContext,
-                                expressionEditor: {
-                                    isOpen: true,
-                                    value,
-                                    setValue
-                                }
-                            });
-                        }},
+                        ]
+                    },
                     {
                         "type": "Dropdown",
                         "label": "Attribute Type",
@@ -246,17 +176,8 @@ const PublishEventForm = (props: AddMediatorProps) => {
                             "DOUBLE",
                             "FLOAT",
                             "LONG"
-                        ], 
-                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                            sidePanelContext.setSidePanelState({
-                                ...sidePanelContext,
-                                expressionEditor: {
-                                    isOpen: true,
-                                    value,
-                                    setValue
-                                }
-                            });
-                        }},
+                        ]
+                    },
                     {
                         "type": "TextField",
                         "label": "Attribute Value",
@@ -266,17 +187,8 @@ const PublishEventForm = (props: AddMediatorProps) => {
                             {
                                 "1": "LITERAL"
                             }
-                        ], 
-                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                            sidePanelContext.setSidePanelState({
-                                ...sidePanelContext,
-                                expressionEditor: {
-                                    isOpen: true,
-                                    value,
-                                    setValue
-                                }
-                            });
-                        }},
+                        ]
+                    },
                     {
                         "type": "TextField",
                         "label": "Attribute Expression",
@@ -286,40 +198,22 @@ const PublishEventForm = (props: AddMediatorProps) => {
                             {
                                 "1": "EXPRESSION"
                             }
-                        ], 
-                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                            sidePanelContext.setSidePanelState({
-                                ...sidePanelContext,
-                                expressionEditor: {
-                                    isOpen: true,
-                                    value,
-                                    setValue
-                                }
-                            });
-                        }},
+                        ]
+                    },
                     {
                         "type": "TextField",
                         "label": "Default Value",
                         "defaultValue": "",
-                        "isRequired": false, 
-                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                            sidePanelContext.setSidePanelState({
-                                ...sidePanelContext,
-                                expressionEditor: {
-                                    isOpen: true,
-                                    value,
-                                    setValue
-                                }
-                            });
-                        }},
+                        "isRequired": false
+                    },
                 ]
             },
             payloadAttributes: {
-                paramValues: sidePanelContext?.formValues?.payloadAttributes && sidePanelContext?.formValues?.payloadAttributes.map((property: string|ExpressionFieldValue[], index: string) => (
+                paramValues: sidePanelContext?.formValues?.payloadAttributes && sidePanelContext?.formValues?.payloadAttributes.map((property: (string | ExpressionFieldValue | ParamConfig)[], index: string) => (
                     {
                         id: index,
-                        key: typeof property[0] === 'object' ? property[0].value : property[0],
-                        value: typeof property[3] === 'object' ? property[3].value : property[3],
+                        key: property[0],
+                        value:  property[3],
                         icon: 'query',
                         paramValues: [
                             { value: property[0] },
@@ -336,17 +230,8 @@ const PublishEventForm = (props: AddMediatorProps) => {
                         "type": "TextField",
                         "label": "Attribute Name",
                         "defaultValue": "",
-                        "isRequired": false, 
-                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                            sidePanelContext.setSidePanelState({
-                                ...sidePanelContext,
-                                expressionEditor: {
-                                    isOpen: true,
-                                    value,
-                                    setValue
-                                }
-                            });
-                        }},
+                        "isRequired": false
+                    },
                     {
                         "type": "Dropdown",
                         "label": "Attribute Value Type",
@@ -355,17 +240,8 @@ const PublishEventForm = (props: AddMediatorProps) => {
                         "values": [
                             "LITERAL",
                             "EXPRESSION"
-                        ], 
-                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                            sidePanelContext.setSidePanelState({
-                                ...sidePanelContext,
-                                expressionEditor: {
-                                    isOpen: true,
-                                    value,
-                                    setValue
-                                }
-                            });
-                        }},
+                        ]
+                    },
                     {
                         "type": "Dropdown",
                         "label": "Attribute Type",
@@ -378,17 +254,8 @@ const PublishEventForm = (props: AddMediatorProps) => {
                             "DOUBLE",
                             "FLOAT",
                             "LONG"
-                        ], 
-                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                            sidePanelContext.setSidePanelState({
-                                ...sidePanelContext,
-                                expressionEditor: {
-                                    isOpen: true,
-                                    value,
-                                    setValue
-                                }
-                            });
-                        }},
+                        ]
+                    },
                     {
                         "type": "TextField",
                         "label": "Attribute Value",
@@ -398,17 +265,8 @@ const PublishEventForm = (props: AddMediatorProps) => {
                             {
                                 "1": "LITERAL"
                             }
-                        ], 
-                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                            sidePanelContext.setSidePanelState({
-                                ...sidePanelContext,
-                                expressionEditor: {
-                                    isOpen: true,
-                                    value,
-                                    setValue
-                                }
-                            });
-                        }},
+                        ]
+                    },
                     {
                         "type": "TextField",
                         "label": "Attribute Expression",
@@ -418,40 +276,22 @@ const PublishEventForm = (props: AddMediatorProps) => {
                             {
                                 "1": "EXPRESSION"
                             }
-                        ], 
-                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                            sidePanelContext.setSidePanelState({
-                                ...sidePanelContext,
-                                expressionEditor: {
-                                    isOpen: true,
-                                    value,
-                                    setValue
-                                }
-                            });
-                        }},
+                        ]
+                    },
                     {
                         "type": "TextField",
                         "label": "Default Value",
                         "defaultValue": "",
-                        "isRequired": false, 
-                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                            sidePanelContext.setSidePanelState({
-                                ...sidePanelContext,
-                                expressionEditor: {
-                                    isOpen: true,
-                                    value,
-                                    setValue
-                                }
-                            });
-                        }},
+                        "isRequired": false
+                    },
                 ]
             },
             arbitaryAttributes: {
-                paramValues: sidePanelContext?.formValues?.arbitaryAttributes && sidePanelContext?.formValues?.arbitaryAttributes.map((property: string|ExpressionFieldValue[], index: string) => (
+                paramValues: sidePanelContext?.formValues?.arbitaryAttributes && sidePanelContext?.formValues?.arbitaryAttributes.map((property: (string | ExpressionFieldValue | ParamConfig)[], index: string) => (
                     {
                         id: index,
-                        key: typeof property[0] === 'object' ? property[0].value : property[0],
-                        value: typeof property[3] === 'object' ? property[3].value : property[3],
+                        key: property[0],
+                        value:  property[3],
                         icon: 'query',
                         paramValues: [
                             { value: property[0] },
@@ -468,17 +308,8 @@ const PublishEventForm = (props: AddMediatorProps) => {
                         "type": "TextField",
                         "label": "Attribute Name",
                         "defaultValue": "",
-                        "isRequired": false, 
-                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                            sidePanelContext.setSidePanelState({
-                                ...sidePanelContext,
-                                expressionEditor: {
-                                    isOpen: true,
-                                    value,
-                                    setValue
-                                }
-                            });
-                        }},
+                        "isRequired": false
+                    },
                     {
                         "type": "Dropdown",
                         "label": "Attribute Value Type",
@@ -487,17 +318,8 @@ const PublishEventForm = (props: AddMediatorProps) => {
                         "values": [
                             "LITERAL",
                             "EXPRESSION"
-                        ], 
-                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                            sidePanelContext.setSidePanelState({
-                                ...sidePanelContext,
-                                expressionEditor: {
-                                    isOpen: true,
-                                    value,
-                                    setValue
-                                }
-                            });
-                        }},
+                        ]
+                    },
                     {
                         "type": "Dropdown",
                         "label": "Attribute Type",
@@ -510,17 +332,8 @@ const PublishEventForm = (props: AddMediatorProps) => {
                             "DOUBLE",
                             "FLOAT",
                             "LONG"
-                        ], 
-                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                            sidePanelContext.setSidePanelState({
-                                ...sidePanelContext,
-                                expressionEditor: {
-                                    isOpen: true,
-                                    value,
-                                    setValue
-                                }
-                            });
-                        }},
+                        ]
+                    },
                     {
                         "type": "TextField",
                         "label": "Attribute Value",
@@ -530,17 +343,8 @@ const PublishEventForm = (props: AddMediatorProps) => {
                             {
                                 "1": "LITERAL"
                             }
-                        ], 
-                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                            sidePanelContext.setSidePanelState({
-                                ...sidePanelContext,
-                                expressionEditor: {
-                                    isOpen: true,
-                                    value,
-                                    setValue
-                                }
-                            });
-                        }},
+                        ]
+                    },
                     {
                         "type": "TextField",
                         "label": "Attribute Expression",
@@ -550,32 +354,14 @@ const PublishEventForm = (props: AddMediatorProps) => {
                             {
                                 "1": "EXPRESSION"
                             }
-                        ], 
-                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                            sidePanelContext.setSidePanelState({
-                                ...sidePanelContext,
-                                expressionEditor: {
-                                    isOpen: true,
-                                    value,
-                                    setValue
-                                }
-                            });
-                        }},
+                        ]
+                    },
                     {
                         "type": "TextField",
                         "label": "Default Value",
                         "defaultValue": "",
-                        "isRequired": false, 
-                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                            sidePanelContext.setSidePanelState({
-                                ...sidePanelContext,
-                                expressionEditor: {
-                                    isOpen: true,
-                                    value,
-                                    setValue
-                                }
-                            });
-                        }},
+                        "isRequired": false
+                    },
                 ]
             },
             description: sidePanelContext?.formValues?.description || "",
@@ -690,12 +476,9 @@ const PublishEventForm = (props: AddMediatorProps) => {
                                     readonly={false}
                                     onChange= {(values) => {
                                         values.paramValues = values.paramValues.map((param: any, index: number) => {
-                                            const paramValues = param.paramValues;
-                                            param.key = paramValues[0].value;
-                                            param.value = paramValues[3].value;
-                                            if (paramValues[1]?.value?.isExpression) {
-                                                param.namespaces = paramValues[1].value.namespaces;
-                                            }
+                                            const property: ParamValue[] = param.paramValues;
+                                            param.key = property[0].value;
+                                            param.value = property[3].value;
                                             param.icon = 'query';
                                             return param;
                                         });
@@ -705,6 +488,7 @@ const PublishEventForm = (props: AddMediatorProps) => {
                             )}
                         />
                     </ComponentCard>
+
                 </ComponentCard>
 
                 <ComponentCard sx={cardStyle} disbaleHoverEffect>
@@ -723,12 +507,9 @@ const PublishEventForm = (props: AddMediatorProps) => {
                                     readonly={false}
                                     onChange= {(values) => {
                                         values.paramValues = values.paramValues.map((param: any, index: number) => {
-                                            const paramValues = param.paramValues;
-                                            param.key = paramValues[0].value;
-                                            param.value = paramValues[3].value;
-                                            if (paramValues[1]?.value?.isExpression) {
-                                                param.namespaces = paramValues[1].value.namespaces;
-                                            }
+                                            const property: ParamValue[] = param.paramValues;
+                                            param.key = property[0].value;
+                                            param.value = property[3].value;
                                             param.icon = 'query';
                                             return param;
                                         });
@@ -738,6 +519,7 @@ const PublishEventForm = (props: AddMediatorProps) => {
                             )}
                         />
                     </ComponentCard>
+
                 </ComponentCard>
 
                 <ComponentCard sx={cardStyle} disbaleHoverEffect>
@@ -756,12 +538,9 @@ const PublishEventForm = (props: AddMediatorProps) => {
                                     readonly={false}
                                     onChange= {(values) => {
                                         values.paramValues = values.paramValues.map((param: any, index: number) => {
-                                            const paramValues = param.paramValues;
-                                            param.key = paramValues[0].value;
-                                            param.value = paramValues[3].value;
-                                            if (paramValues[1]?.value?.isExpression) {
-                                                param.namespaces = paramValues[1].value.namespaces;
-                                            }
+                                            const property: ParamValue[] = param.paramValues;
+                                            param.key = property[0].value;
+                                            param.value = property[3].value;
                                             param.icon = 'query';
                                             return param;
                                         });
@@ -771,6 +550,7 @@ const PublishEventForm = (props: AddMediatorProps) => {
                             )}
                         />
                     </ComponentCard>
+
                 </ComponentCard>
 
                 <ComponentCard sx={cardStyle} disbaleHoverEffect>
@@ -789,12 +569,9 @@ const PublishEventForm = (props: AddMediatorProps) => {
                                     readonly={false}
                                     onChange= {(values) => {
                                         values.paramValues = values.paramValues.map((param: any, index: number) => {
-                                            const paramValues = param.paramValues;
-                                            param.key = paramValues[0].value;
-                                            param.value = paramValues[3].value;
-                                            if (paramValues[1]?.value?.isExpression) {
-                                                param.namespaces = paramValues[1].value.namespaces;
-                                            }
+                                            const property: ParamValue[] = param.paramValues;
+                                            param.key = property[0].value;
+                                            param.value = property[3].value;
                                             param.icon = 'query';
                                             return param;
                                         });
@@ -804,6 +581,7 @@ const PublishEventForm = (props: AddMediatorProps) => {
                             )}
                         />
                     </ComponentCard>
+
                 </ComponentCard>
 
                 <Field>

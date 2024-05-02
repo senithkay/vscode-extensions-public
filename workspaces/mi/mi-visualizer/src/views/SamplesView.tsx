@@ -58,12 +58,6 @@ const ProgressRing = styled(VSCodeProgressRing)`
     padding: 4px;
 `;
 
-const GridContainer = styled.div`
-    max-height: 70vh;
-    overflow-y: auto;
-    overflow-x: hidden;
-`;
-
 const SampleGrid = styled.div`
 display: flex;
 flex-wrap: wrap;
@@ -152,8 +146,6 @@ export function SamplesView() {
         );
     }
 
-
-
     return (
         <>
             <NavigationContainer id="nav-bar-main">
@@ -193,7 +185,10 @@ export function SamplesView() {
                                         <h2 className="card-title" style={{ margin: '0', fontSize: '16px' }}>{sample.title}</h2>
                                         <img src={images[sample.category]} className="card-image" style={{ width: '50%', height: 'auto' }} />
                                         <p className="card-content" style={{ marginTop: '16px', textAlign: 'justify' }}>{sample.description}</p>
-                                        <Button appearance="secondary" onClick={() => downloadSample(sample.zipFileName)}>Download</Button>
+                                        {sample.isAvailable ?
+                                            <Button appearance="secondary" onClick={() => downloadSample(sample.zipFileName)}>Download</Button>
+                                            : <Button appearance="secondary" disabled={true}>Coming Soon</Button>
+                                        }
                                     </SampleContainer>
                                 </ComponentCard>
                             ))}

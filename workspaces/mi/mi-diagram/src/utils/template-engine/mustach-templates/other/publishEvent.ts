@@ -21,7 +21,7 @@ export function getPublishEventMustacheTemplate() {
             {{#isMetaAttribute}}
             <meta>
                 {{#metaAttributes}}
-                <attribute{{#defaultValue}} defaultValue="{{defaultValue}}"{{/defaultValue}} name="{{attributeName}}" type="{{attributeType}}" {{#attributeValue}}value="{{attributeValue}}"{{/attributeValue}} {{#attributeExpression}}expression="{{attributeExpression}}"{{/attributeExpression}}/>  
+                <attribute{{#defaultValue}} defaultValue="{{defaultValue}}"{{/defaultValue}} name="{{attributeName}}" type="{{attributeType}}" {{#attributeValue}}value="{{{attributeValue}}}"{{/attributeValue}} {{#attributeExpression}}expression="{{{attributeExpression}}}"{{/attributeExpression}}/>  
                 {{/metaAttributes}}
             </meta>
             {{/isMetaAttribute}}
@@ -31,7 +31,7 @@ export function getPublishEventMustacheTemplate() {
             {{#isCorrelationAttribute}}
             <correlation>
                 {{#correlationAttributes}}
-                <attribute {{#defaultValue}}defaultValue="{{defaultValue}}" {{/defaultValue}}name="{{attributeName}}" type="{{attributeType}}" {{#attributeValue}}value="{{attributeValue}}"{{/attributeValue}} {{#attributeExpression}}expression="{{attributeExpression}}"{{/attributeExpression}}/>
+                <attribute {{#defaultValue}}defaultValue="{{{defaultValue}}}" {{/defaultValue}}name="{{{attributeName}}}" type="{{attributeType}}" {{#attributeValue}}value="{{{attributeValue}}}"{{/attributeValue}} {{#attributeExpression}}expression="{{{attributeExpression}}}"{{/attributeExpression}}/>
                 {{/correlationAttributes}}
             </correlation>
             {{/isCorrelationAttribute}}
@@ -41,7 +41,7 @@ export function getPublishEventMustacheTemplate() {
             {{#isPayloadAttribute}}
             <payload>
                 {{#payloadAttributes}}
-                <attribute {{#defaultValue}}defaultValue="{{defaultValue}}" {{/defaultValue}}name="{{attributeName}}" type="{{attributeType}}" {{#attributeValue}}value="{{attributeValue}}"{{/attributeValue}} {{#attributeExpression}}expression="{{attributeExpression}}"{{/attributeExpression}}/>
+                <attribute {{#defaultValue}}defaultValue="{{{defaultValue}}}" {{/defaultValue}}name="{{{attributeName}}}" type="{{attributeType}}" {{#attributeValue}}value="{{{attributeValue}}}"{{/attributeValue}} {{#attributeExpression}}expression="{{{attributeExpression}}}"{{/attributeExpression}}/>
                 {{/payloadAttributes}}    
             </payload>
             {{/isPayloadAttribute}}
@@ -51,7 +51,7 @@ export function getPublishEventMustacheTemplate() {
             {{#isArbitaryAttributes}}
             <arbitrary>
                 {{#arbitaryAttributes}}
-                <attribute {{#defaultValue}}defaultValue="{{defaultValue}}"{{/defaultValue}} name="{{attributeName}}" type="{{attributeType}}" {{#attributeValue}}value="{{attributeValue}}"{{/attributeValue}} {{#attributeExpression}}expression="{{attributeExpression}}"{{/attributeExpression}} />
+                <attribute {{#defaultValue}}defaultValue="{{{defaultValue}}}"{{/defaultValue}} name="{{{attributeName}}}" type="{{attributeType}}" {{#attributeValue}}value="{{{attributeValue}}}"{{/attributeValue}} {{#attributeExpression}}expression="{{{attributeExpression}}}"{{/attributeExpression}} />
                 {{/arbitaryAttributes}}
             </arbitrary>
             {{/isArbitaryAttributes}}

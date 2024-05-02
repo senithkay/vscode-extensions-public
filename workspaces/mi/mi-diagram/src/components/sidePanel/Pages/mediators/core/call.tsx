@@ -9,7 +9,7 @@
 // AUTO-GENERATED FILE. DO NOT MODIFY.
 
 import React, { useEffect } from 'react';
-import { AutoComplete, Button, ComponentCard, ExpressionField, ExpressionFieldValue, ProgressIndicator, TextField, TextArea, Typography } from '@wso2-enterprise/ui-toolkit';
+import { AutoComplete, Button, ComponentCard, ProgressIndicator, TextField, TextArea, Typography } from '@wso2-enterprise/ui-toolkit';
 import { VSCodeCheckbox } from '@vscode/webview-ui-toolkit/react';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
@@ -19,6 +19,7 @@ import { getXML } from '../../../../../utils/template-engine/mustach-templates/t
 import { MEDIATORS } from '../../../../../resources/constants';
 import { Controller, useForm } from 'react-hook-form';
 import { Keylookup } from '../../../../Form';
+import { ExpressionField, ExpressionFieldValue } from '../../../../Form/ExpressionField/ExpressionInput';
 
 const cardStyle = { 
     display: "block",
@@ -57,7 +58,7 @@ const CallForm = (props: AddMediatorProps) => {
             contentType: sidePanelContext?.formValues?.contentType || "",
             sourcePayload: sidePanelContext?.formValues?.sourcePayload || "<inline xmlns=\"\"/>",
             sourceXPath: sidePanelContext?.formValues?.sourceXPath || {"isExpression":true,"value":""},
-            targetType: sidePanelContext?.formValues?.targetType || "body",
+            targetType: sidePanelContext?.formValues?.targetType || "none",
             targetProperty: sidePanelContext?.formValues?.targetProperty || "",
             description: sidePanelContext?.formValues?.description || "",
         });
@@ -278,7 +279,7 @@ const CallForm = (props: AddMediatorProps) => {
                             name="targetType"
                             control={control}
                             render={({ field }) => (
-                                <AutoComplete label="Target Type" name="targetType" items={["body", "property"]} value={field.value} onValueChange={(e: any) => {
+                                <AutoComplete label="Target Type" name="targetType" items={["none", "body", "property"]} value={field.value} onValueChange={(e: any) => {
                                     field.onChange(e);
                                 }} />
                             )}

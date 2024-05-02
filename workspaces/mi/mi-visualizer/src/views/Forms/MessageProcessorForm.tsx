@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import React, { useEffect, useState } from "react";
-import { Button, TextField, RadioButtonGroup, FormView, FormActions, ParamConfig, ParamManager } from "@wso2-enterprise/ui-toolkit";
+import { Button, TextField, RadioButtonGroup, FormView, FormActions } from "@wso2-enterprise/ui-toolkit";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
 import { CreateMessageProcessorRequest } from "@wso2-enterprise/mi-core";
@@ -16,11 +16,7 @@ import { TypeChip } from "./Commons";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { FormKeylookup } from "@wso2-enterprise/mi-diagram";
-
-interface OptionProps {
-    value: string;
-}
+import { FormKeylookup, ParamConfig, ParamManager } from "@wso2-enterprise/mi-diagram";
 
 interface MessageProcessorWizardProps {
     path: string;
@@ -193,8 +189,8 @@ export function MessageProcessorWizard(props: MessageProcessorWizardProps) {
 
             if (props.path.endsWith(".xml")) {
                 setIsNewMessageProcessor(false);
-                if (props.path.includes('/messageProcessors')) {
-                    props.path = props.path.replace('/messageProcessors', '/message-processors');
+                if (props.path.includes('messageProcessors')) {
+                    props.path = props.path.replace('messageProcessors', 'message-processors');
                 }
                 const existingMessageProcessor = await rpcClient.getMiDiagramRpcClient().getMessageProcessor({ path: props.path });
                 paramConfigs.paramValues = [];
@@ -205,18 +201,9 @@ export function MessageProcessorWizard(props: MessageProcessorWizardProps) {
                             ...prev,
                             paramValues: [...prev.paramValues, {
                                 id: prev.paramValues.length,
-                                parameters: [{
-                                    id: 0,
-                                    value: param.key,
-                                    label: "Name",
-                                    type: "TextField",
-                                },
-                                {
-                                    id: 1,
-                                    value: param.value,
-                                    label: "Value",
-                                    type: "TextField",
-                                },
+                                paramValues: [
+                                    { value: param.key },
+                                    { value: param.value }
                                 ],
                                 key: param.key,
                                 value: param.value,
@@ -257,8 +244,8 @@ export function MessageProcessorWizard(props: MessageProcessorWizardProps) {
             ...params, paramValues: params.paramValues.map((param: any) => {
                 return {
                     ...param,
-                    key: param.parameters[0].value,
-                    value: param.parameters[1].value,
+                    key: param.paramValues[0].value,
+                    value: param.paramValues[1].value,
                 }
             })
         };
@@ -269,7 +256,7 @@ export function MessageProcessorWizard(props: MessageProcessorWizardProps) {
 
         let customProperties: any = [];
         params.paramValues.map((param: any) => {
-            customProperties.push({ key: param.parameters[0].value, value: param.parameters[1].value });
+            customProperties.push({ key: param.paramValues[0].value, value: param.paramValues[1].value });
         })
 
         const messageProcessorRequest: CreateMessageProcessorRequest = {

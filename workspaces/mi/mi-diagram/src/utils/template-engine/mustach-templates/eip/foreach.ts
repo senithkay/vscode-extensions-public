@@ -9,30 +9,31 @@
 
 import { Foreach } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import Mustache from "mustache";
+import { transformNamespaces } from "../../../commons";
 
 export function getForeachMustacheTemplate() {
     return `
     {{#isNewMediator}}
     {{#isAnnonymousSequence}}
-    <foreach expression="{{forEachExpression}}" id="{{forEachID}}" {{#description}}description="{{description}}"{{/description}}>
-    <sequence />
+    <foreach expression="{{{forEachExpression}}}" id="{{forEachID}}" {{#description}}description="{{description}}"{{/description}}{{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}}>
+    <sequence></sequence>
     </foreach>
     {{/isAnnonymousSequence}}
     {{^isAnnonymousSequence}}
-    <foreach expression="{{forEachExpression}}" id="{{forEachID}}" {{#sequenceName}}sequence="{{sequenceName}}"{{/sequenceName}} {{#sequenceKey}}sequence="{{sequenceKey}}"{{/sequenceKey}} {{#description}}description="{{description}}"{{/description}} />
+    <foreach expression="{{{forEachExpression}}}" id="{{forEachID}}" {{#sequenceName}}sequence="{{sequenceName}}"{{/sequenceName}} {{#sequenceKey}}sequence="{{sequenceKey}}"{{/sequenceKey}} {{#description}}description="{{description}}"{{/description}}{{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}}/>
     {{/isAnnonymousSequence}}
     {{/isNewMediator}}
     {{^isNewMediator}}
     {{#editForeach}}
     {{#isAnnonymousSequence}}
-    <foreach expression="{{forEachExpression}}" id="{{forEachID}}" {{#description}}description="{{description}}"{{/description}}>
+    <foreach expression="{{{forEachExpression}}}" id="{{forEachID}}" {{#description}}description="{{description}}"{{/description}}{{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}}>
     {{#addSequence}}
-    <sequence />
+    <sequence></sequence>
     </foreach>
     {{/addSequence}}
     {{/isAnnonymousSequence}}
     {{^isAnnonymousSequence}}
-    <foreach expression="{{forEachExpression}}" id="{{forEachID}}" {{#sequenceName}}sequence="{{sequenceName}}"{{/sequenceName}} {{#sequenceKey}}sequence="{{sequenceKey}}"{{/sequenceKey}} {{#description}}description="{{description}}"{{/description}} />
+    <foreach expression="{{{forEachExpression}}}" id="{{forEachID}}" {{#sequenceName}}sequence="{{sequenceName}}"{{/sequenceName}} {{#sequenceKey}}sequence="{{sequenceKey}}"{{/sequenceKey}} {{#description}}description="{{description}}"{{/description}}{{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}}/>
     {{/isAnnonymousSequence}}
     {{/editForeach}}
     {{/isNewMediator}}
@@ -44,6 +45,7 @@ export function getForeachXml(data: { [key: string]: any }, dirtyFields?: any, d
     if (data.sequenceType === "Anonymous") {
         data.isAnnonymousSequence = true;
     }
+    data.namespaces = data?.forEachExpression?.namespaces;
     data.forEachExpression = data?.forEachExpression?.value;
     if (defaultValues == undefined || Object.keys(defaultValues).length == 0) {
         data.isNewMediator = true;
@@ -76,7 +78,7 @@ export function getForeachXml(data: { [key: string]: any }, dirtyFields?: any, d
 
 export function getForEachFormDataFromSTNode(data: { [key: string]: any }, node: Foreach) {
     data.forEachID = node.id;
-    data.forEachExpression = { isExpression: true, value: node.expression };
+    data.forEachExpression = { isExpression: true, value: node.expression, namespaces: transformNamespaces(node.namespaces) };
     if (node.sequenceAttribute) {
         data.sequenceType = "Key";
         data.sequenceKey = node.sequenceAttribute;

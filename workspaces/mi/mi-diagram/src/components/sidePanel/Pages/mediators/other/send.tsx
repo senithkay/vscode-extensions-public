@@ -9,7 +9,7 @@
 // AUTO-GENERATED FILE. DO NOT MODIFY.
 
 import React, { useEffect } from 'react';
-import { AutoComplete, Button, ComponentCard, ExpressionField, ExpressionFieldValue, ProgressIndicator, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
+import { AutoComplete, Button, ComponentCard, ProgressIndicator, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
 import { VSCodeCheckbox } from '@vscode/webview-ui-toolkit/react';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
@@ -18,6 +18,7 @@ import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
 import { MEDIATORS } from '../../../../../resources/constants';
 import { Controller, useForm } from 'react-hook-form';
+import { ExpressionField, ExpressionFieldValue } from '../../../../Form/ExpressionField/ExpressionInput';
 
 const cardStyle = { 
     display: "block",
@@ -131,7 +132,7 @@ const SendForm = (props: AddMediatorProps) => {
                             {errors.receivingSequenceType && <Error>{errors.receivingSequenceType.message.toString()}</Error>}
                         </Field>
 
-                        {watch("receivingSequenceType") == "static" &&
+                        {watch("receivingSequenceType") == "Static" &&
                             <Field>
                                 <Controller
                                     name="staticReceivingSequence"
@@ -158,7 +159,7 @@ const SendForm = (props: AddMediatorProps) => {
                             </Field>
                         }
 
-                        {watch("receivingSequenceType") == "dynamic" &&
+                        {watch("receivingSequenceType") == "Dynamic" &&
                             <Field>
                                 <Controller
                                     name="dynamicReceivingSequence"
@@ -188,7 +189,6 @@ const SendForm = (props: AddMediatorProps) => {
                     </ComponentCard>
                     }
 
-                    {watch("receivingSequenceType") == "default" &&
                     <Field>
                         <Controller
                             name="description"
@@ -199,7 +199,6 @@ const SendForm = (props: AddMediatorProps) => {
                         />
                         {errors.description && <Error>{errors.description.message.toString()}</Error>}
                     </Field>
-                    }
 
                 </ComponentCard>
 

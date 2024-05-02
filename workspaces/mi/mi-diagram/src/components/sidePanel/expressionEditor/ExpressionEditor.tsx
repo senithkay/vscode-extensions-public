@@ -10,18 +10,24 @@
 import React from "react";
 
 import { useForm, Controller } from 'react-hook-form';
-import { ExpressionFieldValue, TextField } from '@wso2-enterprise/ui-toolkit';
-import { ActionButtons, ParamManager } from '@wso2-enterprise/ui-toolkit';
+import { TextField } from '@wso2-enterprise/ui-toolkit';
+import { ActionButtons } from '@wso2-enterprise/ui-toolkit';
 import SidePanelContext from "../SidePanelContexProvider";
+import { ExpressionFieldValue } from "../../Form/ExpressionField/ExpressionInput";
+import { ParamConfig, ParamManager } from "../../Form/ParamManager/ParamManager";
 
 export interface Namespace {
     prefix: string;
     uri: string;
 }
 
-const ExpressionEditor = () => {
-    const sidePanelContext = React.useContext(SidePanelContext);
-    const data: ExpressionFieldValue = sidePanelContext?.expressionEditor?.value;
+export interface ExpressionEditorProps {
+    value: ExpressionFieldValue;
+    handleOnCancel: () => void;
+    handleOnSave: (data: ExpressionFieldValue) => void;
+}
+const ExpressionEditor = (props: ExpressionEditorProps) => {
+    const data: ExpressionFieldValue = props.value;
 
     const { control, handleSubmit } = useForm({
         defaultValues: {
@@ -60,33 +66,10 @@ const ExpressionEditor = () => {
     });
 
     const onSubmit = (data: any) => {
-        data.namespaces = data.namespaces.paramValues.map((param: any) => { return { 'prefix': param.key, 'uri': param.value } });
-
-        sidePanelContext.setSidePanelState({
-            ...sidePanelContext,
-            expressionEditor: {
-                isOpen: false,
-                value: {
-                    expressionValue: data.expressionValue,
-                    namespaces: data.namespaces,
-                }
-            }
-        });
-
-        sidePanelContext.expressionEditor.setValue({
-            isExpression: true,
+        props.handleOnSave({
             value: data.expressionValue,
-            namespaces: data.namespaces,
-        });
-    };
-
-    const handleOnCancel = () => {
-        sidePanelContext.setSidePanelState({
-            ...sidePanelContext,
-            expressionEditor: {
-                ...sidePanelContext.expressionEditor,
-                isOpen: false,
-            }
+            namespaces: data.namespaces.paramValues.map((param: any) => { return { 'prefix': param.key, 'uri': param.value } }),
+            isExpression: true
         });
     }
 
@@ -111,7 +94,7 @@ const ExpressionEditor = () => {
                                 paramConfigs={value}
                                 readonly={false}
                                 addParamText="Add Namespace"
-                                onChange={(values) => {
+                                onChange={(values: ParamConfig) => {
                                     values.paramValues = values.paramValues.map((param: any) => {
                                         const paramValues = param.paramValues;
                                         param.key = paramValues[0].value;
@@ -127,7 +110,7 @@ const ExpressionEditor = () => {
                 </div>
                 <ActionButtons
                     primaryButton={{ text: "Save", onClick: handleSubmit(onSubmit) }}
-                    secondaryButton={{ text: "Cancel", onClick: handleOnCancel }}
+                    secondaryButton={{ text: "Cancel", onClick: props.handleOnCancel }}
                     sx={{ justifyContent: "flex-end" }}
                 />
             </form >

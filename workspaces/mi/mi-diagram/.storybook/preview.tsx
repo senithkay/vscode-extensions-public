@@ -18,7 +18,6 @@ const decorators = [
     } else if (context.globals.theme === "Light_Theme") {
       require("../.storybook/lightTheme.css");
     }
-    require("@vscode/codicons/dist/codicon.css");
     return <Story />;
   },
 ];

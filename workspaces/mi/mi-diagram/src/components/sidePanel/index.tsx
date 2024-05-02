@@ -6,6 +6,7 @@ import SidePanelContext from './SidePanelContexProvider';
 import { MediatorPage } from './mediators';
 import { AIPage } from './ai';
 import ExpressionEditor from './expressionEditor/ExpressionEditor';
+import { ExpressionFieldValue } from '../Form/ExpressionField/ExpressionInput';
 
 const SidePanelContainer = styled.div`
     padding: 15px;
@@ -94,15 +95,34 @@ const SidePanelList = (props: SidePanelListProps) => {
         });
     };
 
-    const handleAddMediatorClick = () => {
-        setAddMediator(true);
-        setGenerate(false);
+    const onSubmitExpressionEdtior = (data: ExpressionFieldValue) => {
+        sidePanelContext.setSidePanelState({
+            ...sidePanelContext,
+            expressionEditor: {
+                isOpen: false,
+                value: {
+                    expressionValue: data.value,
+                    namespaces: data.namespaces,
+                }
+            }
+        });
+
+        sidePanelContext.expressionEditor.setValue({
+            isExpression: true,
+            value: data.value,
+            namespaces: data.namespaces,
+        });
     };
 
-    const handleGenerateClick = () => {
-        setGenerate(!isGenerate);
-        setAddMediator(isGenerate);
-    };
+    const handleOnCancelExpressionEdtior = () => {
+        sidePanelContext.setSidePanelState({
+            ...sidePanelContext,
+            expressionEditor: {
+                ...sidePanelContext.expressionEditor,
+                isOpen: false,
+            }
+        });
+    }
 
     const setContent = async (content: any, title: string, iconPath?: string) => {
         setPageStack([...pageStack, content]);
@@ -161,7 +181,12 @@ const SidePanelList = (props: SidePanelListProps) => {
                                 isSelected={true}
                                 sx={{ width: "100%", top: "60px", border: "none", boxShadow: "none" }}
                             >
-                                {sidePanelContext.expressionEditor?.isOpen && <ExpressionEditor />}
+                                {sidePanelContext.expressionEditor?.isOpen &&
+                                    <ExpressionEditor
+                                        value={sidePanelContext.expressionEditor.value}
+                                        handleOnSave={onSubmitExpressionEdtior}
+                                        handleOnCancel={handleOnCancelExpressionEdtior}
+                                    />}
                             </Drawer>
                         </div>
                     </div>

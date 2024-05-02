@@ -6,9 +6,18 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-body {
+ body {
     background-color: #000;
+    color: #d4d4d4;
+    --foreground: #d4d4d4;
+    --input-background: #3c3c3c;
+    --input-foreground: #cccccc;
+    --dropdown-background: #3c3c3c;
+    --checkbox-background: #3c3c3c;
     --vscode-foreground: #cccccc;
+    --vscode-font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+    --vscode-font-weight: normal;
+    --vscode-font-size: 13px;
     --vscode-disabledForeground: rgba(204, 204, 204, 0.5);
     --vscode-errorForeground: #f48771;
     --vscode-descriptionForeground: rgba(204, 204, 204, 0.7);
@@ -663,4 +672,5 @@ body {
     --vscode-gitlens-graphScrollMarkerStashesColor: #b34db3;
     --vscode-gitlens-graphMinimapMarkerTagsColor: #6b562e;
     --vscode-gitlens-graphScrollMarkerTagsColor: #6b562e;
+    --vscode-debugTokenExpression-string: #ce9178;
 }

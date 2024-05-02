@@ -9,7 +9,7 @@
 // AUTO-GENERATED FILE. DO NOT MODIFY.
 
 import React, { useEffect } from 'react';
-import { Button, ComponentCard, ExpressionFieldValue, ParamManager, ProgressIndicator, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
+import { Button, ComponentCard, ProgressIndicator, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
 import { AddMediatorProps } from '../common';
@@ -17,6 +17,8 @@ import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
 import { MEDIATORS } from '../../../../../resources/constants';
 import { Controller, useForm } from 'react-hook-form';
+import { ExpressionFieldValue } from '../../../../Form/ExpressionField/ExpressionInput';
+import { ParamManager, ParamConfig, ParamValue } from '../../../../Form/ParamManager/ParamManager';
 
 const cardStyle = { 
     display: "block",
@@ -46,11 +48,11 @@ const CommandForm = (props: AddMediatorProps) => {
         reset({
             className: sidePanelContext?.formValues?.className || "",
             properties: {
-                paramValues: sidePanelContext?.formValues?.properties && sidePanelContext?.formValues?.properties.map((property: string|ExpressionFieldValue[], index: string) => (
+                paramValues: sidePanelContext?.formValues?.properties && sidePanelContext?.formValues?.properties.map((property: (string | ExpressionFieldValue | ParamConfig)[], index: string) => (
                     {
                         id: index,
-                        key: typeof property[0] === 'object' ? property[0].value : property[0],
-                        value: typeof property[2] === 'object' ? property[2].value : property[2],
+                        key: property[0],
+                        value:  property[2],
                         icon: 'query',
                         paramValues: [
                             { value: property[0] },
@@ -68,17 +70,8 @@ const CommandForm = (props: AddMediatorProps) => {
                         "type": "TextField",
                         "label": "Property Name",
                         "defaultValue": "",
-                        "isRequired": false, 
-                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                            sidePanelContext.setSidePanelState({
-                                ...sidePanelContext,
-                                expressionEditor: {
-                                    isOpen: true,
-                                    value,
-                                    setValue
-                                }
-                            });
-                        }},
+                        "isRequired": false
+                    },
                     {
                         "type": "Dropdown",
                         "label": "Value Type",
@@ -88,17 +81,8 @@ const CommandForm = (props: AddMediatorProps) => {
                             "LITERAL",
                             "MESSAGE_ELEMENT",
                             "CONTEXT_PROPERTY"
-                        ], 
-                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                            sidePanelContext.setSidePanelState({
-                                ...sidePanelContext,
-                                expressionEditor: {
-                                    isOpen: true,
-                                    value,
-                                    setValue
-                                }
-                            });
-                        }},
+                        ]
+                    },
                     {
                         "type": "TextField",
                         "label": "Value Literal",
@@ -106,19 +90,10 @@ const CommandForm = (props: AddMediatorProps) => {
                         "isRequired": false,
                         "enableCondition": [
                             {
-                                "-1": "LITERAL"
+                                "1": "LITERAL"
                             }
-                        ], 
-                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                            sidePanelContext.setSidePanelState({
-                                ...sidePanelContext,
-                                expressionEditor: {
-                                    isOpen: true,
-                                    value,
-                                    setValue
-                                }
-                            });
-                        }},
+                        ]
+                    },
                     {
                         "type": "Dropdown",
                         "label": "Message Action",
@@ -131,19 +106,10 @@ const CommandForm = (props: AddMediatorProps) => {
                         ],
                         "enableCondition": [
                             {
-                                "-1": "MESSAGE_ELEMENT"
+                                "1": "MESSAGE_ELEMENT"
                             }
-                        ], 
-                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                            sidePanelContext.setSidePanelState({
-                                ...sidePanelContext,
-                                expressionEditor: {
-                                    isOpen: true,
-                                    value,
-                                    setValue
-                                }
-                            });
-                        }},
+                        ]
+                    },
                     {
                         "type": "TextField",
                         "label": "Value Message Element Xpath",
@@ -151,19 +117,10 @@ const CommandForm = (props: AddMediatorProps) => {
                         "isRequired": false,
                         "enableCondition": [
                             {
-                                "-1": "MESSAGE_ELEMENT"
+                                "1": "MESSAGE_ELEMENT"
                             }
-                        ], 
-                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                            sidePanelContext.setSidePanelState({
-                                ...sidePanelContext,
-                                expressionEditor: {
-                                    isOpen: true,
-                                    value,
-                                    setValue
-                                }
-                            });
-                        }},
+                        ]
+                    },
                     {
                         "type": "TextField",
                         "label": "Value Context Property Name",
@@ -171,19 +128,10 @@ const CommandForm = (props: AddMediatorProps) => {
                         "isRequired": false,
                         "enableCondition": [
                             {
-                                "-1": "CONTEXT_PROPERTY"
+                                "1": "CONTEXT_PROPERTY"
                             }
-                        ], 
-                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                            sidePanelContext.setSidePanelState({
-                                ...sidePanelContext,
-                                expressionEditor: {
-                                    isOpen: true,
-                                    value,
-                                    setValue
-                                }
-                            });
-                        }},
+                        ]
+                    },
                     {
                         "type": "Dropdown",
                         "label": "Context Action",
@@ -196,19 +144,10 @@ const CommandForm = (props: AddMediatorProps) => {
                         ],
                         "enableCondition": [
                             {
-                                "-1": "CONTEXT_PROPERTY"
+                                "1": "CONTEXT_PROPERTY"
                             }
-                        ], 
-                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                            sidePanelContext.setSidePanelState({
-                                ...sidePanelContext,
-                                expressionEditor: {
-                                    isOpen: true,
-                                    value,
-                                    setValue
-                                }
-                            });
-                        }},
+                        ]
+                    },
                 ]
             },
             description: sidePanelContext?.formValues?.description || "",
@@ -276,12 +215,9 @@ const CommandForm = (props: AddMediatorProps) => {
                                     readonly={false}
                                     onChange= {(values) => {
                                         values.paramValues = values.paramValues.map((param: any, index: number) => {
-                                            const paramValues = param.paramValues;
-                                            param.key = paramValues[0].value;
-                                            param.value = paramValues[2].value;
-                                            if (paramValues[1]?.value?.isExpression) {
-                                                param.namespaces = paramValues[1].value.namespaces;
-                                            }
+                                            const property: ParamValue[] = param.paramValues;
+                                            param.key = property[0].value;
+                                            param.value = property[2].value;
                                             param.icon = 'query';
                                             return param;
                                         });
@@ -291,6 +227,7 @@ const CommandForm = (props: AddMediatorProps) => {
                             )}
                         />
                     </ComponentCard>
+
                     <Field>
                         <Controller
                             name="description"

@@ -9,7 +9,7 @@
 // AUTO-GENERATED FILE. DO NOT MODIFY.
 
 import React, { useEffect } from 'react';
-import { Button, ComponentCard, ExpressionField, ExpressionFieldValue, FormGroup, ParamManager, ProgressIndicator, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
+import { Button, ComponentCard, FormGroup, ProgressIndicator, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
 import { AddMediatorProps } from '../common';
@@ -18,6 +18,8 @@ import { getXML } from '../../../../../utils/template-engine/mustach-templates/t
 import { MEDIATORS } from '../../../../../resources/constants';
 import { Controller, useForm } from 'react-hook-form';
 import { Keylookup } from '../../../../Form';
+import { ExpressionField, ExpressionFieldValue } from '../../../../Form/ExpressionField/ExpressionInput';
+import { ParamManager, ParamConfig, ParamValue } from '../../../../Form/ParamManager/ParamManager';
 
 const cardStyle = { 
     display: "block",
@@ -48,11 +50,11 @@ const XSLTForm = (props: AddMediatorProps) => {
             sourceXPath: sidePanelContext?.formValues?.sourceXPath || {"isExpression":true,"value":""},
             xsltSchemaKey: sidePanelContext?.formValues?.xsltSchemaKey || "",
             properties: {
-                paramValues: sidePanelContext?.formValues?.properties && sidePanelContext?.formValues?.properties.map((property: string|ExpressionFieldValue[], index: string) => (
+                paramValues: sidePanelContext?.formValues?.properties && sidePanelContext?.formValues?.properties.map((property: (string | ExpressionFieldValue | ParamConfig)[], index: string) => (
                     {
                         id: index,
-                        key: typeof property[0] === 'object' ? property[0].value : property[0],
-                        value: typeof property[1] === 'object' ? property[1].value : property[1],
+                        key: property[0],
+                        value:  (property[1] as ExpressionFieldValue).value,
                         icon: 'query',
                         paramValues: [
                             { value: property[0] },
@@ -65,17 +67,8 @@ const XSLTForm = (props: AddMediatorProps) => {
                         "type": "TextField",
                         "label": "Property Name",
                         "defaultValue": "",
-                        "isRequired": false, 
-                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                            sidePanelContext.setSidePanelState({
-                                ...sidePanelContext,
-                                expressionEditor: {
-                                    isOpen: true,
-                                    value,
-                                    setValue
-                                }
-                            });
-                        }},
+                        "isRequired": false
+                    },
                     {
                         "type": "ExprField",
                         "label": "Property Value",
@@ -98,11 +91,11 @@ const XSLTForm = (props: AddMediatorProps) => {
                 ]
             },
             resources: {
-                paramValues: sidePanelContext?.formValues?.resources && sidePanelContext?.formValues?.resources.map((property: string|ExpressionFieldValue[], index: string) => (
+                paramValues: sidePanelContext?.formValues?.resources && sidePanelContext?.formValues?.resources.map((property: (string | ExpressionFieldValue | ParamConfig)[], index: string) => (
                     {
                         id: index,
-                        key: typeof property[0] === 'object' ? property[0].value : property[0],
-                        value: typeof property[1] === 'object' ? property[1].value : property[1],
+                        key: property[0],
+                        value:  property[1],
                         icon: 'query',
                         paramValues: [
                             { value: property[0] },
@@ -115,39 +108,22 @@ const XSLTForm = (props: AddMediatorProps) => {
                         "type": "TextField",
                         "label": "Location",
                         "defaultValue": "",
-                        "isRequired": false, 
-                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                            sidePanelContext.setSidePanelState({
-                                ...sidePanelContext,
-                                expressionEditor: {
-                                    isOpen: true,
-                                    value,
-                                    setValue
-                                }
-                            });
-                        }},
+                        "isRequired": false
+                    },
                     {
+                        "type": "TextField",
                         "label": "Resource Registry Key",
                         "defaultValue": "",
-                        "isRequired": false, 
-                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                            sidePanelContext.setSidePanelState({
-                                ...sidePanelContext,
-                                expressionEditor: {
-                                    isOpen: true,
-                                    value,
-                                    setValue
-                                }
-                            });
-                        }},
+                        "isRequired": false
+                    },
                 ]
             },
             features: {
-                paramValues: sidePanelContext?.formValues?.features && sidePanelContext?.formValues?.features.map((property: string|ExpressionFieldValue[], index: string) => (
+                paramValues: sidePanelContext?.formValues?.features && sidePanelContext?.formValues?.features.map((property: (string | ExpressionFieldValue | ParamConfig)[], index: string) => (
                     {
                         id: index,
-                        key: typeof property[0] === 'object' ? property[0].value : property[0],
-                        value: typeof property[1] === 'object' ? property[1].value : property[1],
+                        key: property[0],
+                        value:  property[1],
                         icon: 'query',
                         paramValues: [
                             { value: property[0] },
@@ -160,31 +136,14 @@ const XSLTForm = (props: AddMediatorProps) => {
                         "type": "TextField",
                         "label": "Feature Name",
                         "defaultValue": "",
-                        "isRequired": false, 
-                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                            sidePanelContext.setSidePanelState({
-                                ...sidePanelContext,
-                                expressionEditor: {
-                                    isOpen: true,
-                                    value,
-                                    setValue
-                                }
-                            });
-                        }},
+                        "isRequired": false
+                    },
                     {
+                        "type": "Checkbox",
                         "label": "Feature Enabled",
-                        "defaultValue": "",
-                        "isRequired": false, 
-                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                            sidePanelContext.setSidePanelState({
-                                ...sidePanelContext,
-                                expressionEditor: {
-                                    isOpen: true,
-                                    value,
-                                    setValue
-                                }
-                            });
-                        }},
+                        "defaultValue": false,
+                        "isRequired": false
+                    },
                 ]
             },
             description: sidePanelContext?.formValues?.description || "",
@@ -283,12 +242,9 @@ const XSLTForm = (props: AddMediatorProps) => {
                                     readonly={false}
                                     onChange= {(values) => {
                                         values.paramValues = values.paramValues.map((param: any, index: number) => {
-                                            const paramValues = param.paramValues;
-                                            param.key = paramValues[0].value;
-                                            param.value = paramValues[1].value.value;
-                                            if (paramValues[1]?.value?.isExpression) {
-                                                param.namespaces = paramValues[1].value.namespaces;
-                                            }
+                                            const property: ParamValue[] = param.paramValues;
+                                            param.key = property[0].value;
+                                            param.value = (property[1].value as ExpressionFieldValue).value;
                                             param.icon = 'query';
                                             return param;
                                         });
@@ -298,6 +254,7 @@ const XSLTForm = (props: AddMediatorProps) => {
                             )}
                         />
                     </ComponentCard>
+
                     <ComponentCard sx={cardStyle} disbaleHoverEffect>
                         <Typography variant="h3">Resources</Typography>
                         <Typography variant="body3">Editing of the properties of an object XSLT Resource</Typography>
@@ -311,12 +268,9 @@ const XSLTForm = (props: AddMediatorProps) => {
                                     readonly={false}
                                     onChange= {(values) => {
                                         values.paramValues = values.paramValues.map((param: any, index: number) => {
-                                            const paramValues = param.paramValues;
-                                            param.key = paramValues[0].value;
-                                            param.value = paramValues[1].value;
-                                            if (paramValues[1]?.value?.isExpression) {
-                                                param.namespaces = paramValues[1].value.namespaces;
-                                            }
+                                            const property: ParamValue[] = param.paramValues;
+                                            param.key = property[0].value;
+                                            param.value = property[1].value;
                                             param.icon = 'query';
                                             return param;
                                         });
@@ -326,6 +280,7 @@ const XSLTForm = (props: AddMediatorProps) => {
                             )}
                         />
                     </ComponentCard>
+
                     <ComponentCard sx={cardStyle} disbaleHoverEffect>
                         <Typography variant="h3">Features</Typography>
                         <Typography variant="body3">Editing of the properties of an object XSLT Features</Typography>
@@ -339,12 +294,9 @@ const XSLTForm = (props: AddMediatorProps) => {
                                     readonly={false}
                                     onChange= {(values) => {
                                         values.paramValues = values.paramValues.map((param: any, index: number) => {
-                                            const paramValues = param.paramValues;
-                                            param.key = paramValues[0].value;
-                                            param.value = paramValues[1].value;
-                                            if (paramValues[1]?.value?.isExpression) {
-                                                param.namespaces = paramValues[1].value.namespaces;
-                                            }
+                                            const property: ParamValue[] = param.paramValues;
+                                            param.key = property[0].value;
+                                            param.value = property[1].value;
                                             param.icon = 'query';
                                             return param;
                                         });
@@ -354,6 +306,7 @@ const XSLTForm = (props: AddMediatorProps) => {
                             )}
                         />
                     </ComponentCard>
+
                 </FormGroup>
 
                 <Field>

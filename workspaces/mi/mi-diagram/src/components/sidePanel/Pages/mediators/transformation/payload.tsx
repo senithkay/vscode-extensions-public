@@ -9,7 +9,7 @@
 // AUTO-GENERATED FILE. DO NOT MODIFY.
 
 import React, { useEffect } from 'react';
-import { AutoComplete, Button, ComponentCard, ExpressionFieldValue, ParamManager, ProgressIndicator, TextField, TextArea, Typography } from '@wso2-enterprise/ui-toolkit';
+import { AutoComplete, Button, ComponentCard, ProgressIndicator, TextField, TextArea, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
 import { AddMediatorProps } from '../common';
@@ -17,6 +17,8 @@ import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
 import { MEDIATORS } from '../../../../../resources/constants';
 import { Controller, useForm } from 'react-hook-form';
+import { ExpressionFieldValue } from '../../../../Form/ExpressionField/ExpressionInput';
+import { ParamManager, ParamConfig, ParamValue } from '../../../../Form/ParamManager/ParamManager';
 
 const cardStyle = { 
     display: "block",
@@ -50,11 +52,11 @@ const PayloadForm = (props: AddMediatorProps) => {
             payloadKey: sidePanelContext?.formValues?.payloadKey || "",
             payload: sidePanelContext?.formValues?.payload || "{\"Sample\":\"Payload\"}",
             args: {
-                paramValues: sidePanelContext?.formValues?.args && sidePanelContext?.formValues?.args.map((property: string|ExpressionFieldValue[], index: string) => (
+                paramValues: sidePanelContext?.formValues?.args && sidePanelContext?.formValues?.args.map((property: (string | ExpressionFieldValue | ParamConfig)[], index: string) => (
                     {
                         id: index,
                         key: index,
-                        value: typeof property[0] === 'object' ? property[0].value : property[0],
+                        value:  (property[0] as ExpressionFieldValue).value,
                         icon: 'query',
                         paramValues: [
                             { value: property[0] },
@@ -94,34 +96,15 @@ const PayloadForm = (props: AddMediatorProps) => {
                         ],
                         "enableCondition": [
                             "isExpression",
-                            {
-                                "-1": "a"
-                            }
-                        ], 
-                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                            sidePanelContext.setSidePanelState({
-                                ...sidePanelContext,
-                                expressionEditor: {
-                                    isOpen: true,
-                                    value,
-                                    setValue
-                                }
-                            });
-                        }},
+                            "argumentValue"
+                        ]
+                    },
                     {
+                        "type": "Checkbox",
                         "label": "Literal",
-                        "defaultValue": "",
-                        "isRequired": false, 
-                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                            sidePanelContext.setSidePanelState({
-                                ...sidePanelContext,
-                                expressionEditor: {
-                                    isOpen: true,
-                                    value,
-                                    setValue
-                                }
-                            });
-                        }},
+                        "defaultValue": false,
+                        "isRequired": false
+                    },
                 ]
             },
             description: sidePanelContext?.formValues?.description || "",
@@ -243,12 +226,9 @@ const PayloadForm = (props: AddMediatorProps) => {
                                     readonly={false}
                                     onChange= {(values) => {
                                         values.paramValues = values.paramValues.map((param: any, index: number) => {
-                                            const paramValues = param.paramValues;
+                                            const property: ParamValue[] = param.paramValues;
                                             param.key = index;
-                                            param.value = paramValues[0].value.value;
-                                            if (paramValues[1]?.value?.isExpression) {
-                                                param.namespaces = paramValues[1].value.namespaces;
-                                            }
+                                            param.value = (property[0].value as ExpressionFieldValue).value;
                                             param.icon = 'query';
                                             return param;
                                         });
@@ -258,6 +238,7 @@ const PayloadForm = (props: AddMediatorProps) => {
                             )}
                         />
                     </ComponentCard>
+
                 </ComponentCard>
 
                 <Field>

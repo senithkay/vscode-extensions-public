@@ -16,6 +16,7 @@ import { getAuthUrl } from './auth';
 import { extension } from '../MIExtensionContext';
 import fetch from 'node-fetch';
 import { USER_CHECK_BACKEND_URL } from '../constants';
+import { log } from '../util/logger';
 
 interface ChatEntry {
     role: string;
@@ -169,27 +170,22 @@ async function checkToken(context, event): Promise<UserToken> {
                     },
                 });
                 if (response.ok) {
-                    console.log("Valid Path");
                     const responseBody = await response.json();
-                    console.log("User Tokens: ", responseBody);
                     resolve({token, userToken: responseBody});
                 } else {
                     if (response.status === 401 || response.status === 403) {
-                        console.log("Unauthorized Path");
                         resolve({ token: "", userToken: undefined });
                     }else{
                         console.log("Error: " + response.statusText);
                         console.log("Error Code: " + response.status);
-                        console.log("Error Path");
                         throw new Error(`Error while checking token: ${response.statusText}`);
                     }
                 }
             } else {
-                console.log("Not Found Path");
                 resolve({ token: undefined, userToken: undefined });
             }
-        } catch (error) {
-            console.log("Other Error Path");
+        } catch (error: any) {
+            log(error.toString());
             reject(error);
         }
     });

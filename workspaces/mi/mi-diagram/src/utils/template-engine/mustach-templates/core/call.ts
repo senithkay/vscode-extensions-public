@@ -9,7 +9,7 @@
 
 import Mustache from "mustache";
 import { Call } from "@wso2-enterprise/mi-syntax-tree/lib/src";
-import { checkAttributesExist } from "../../../commons";
+import { checkAttributesExist, transformNamespaces } from "../../../commons";
 
 export function getCallMustacheTemplate() {
   return `
@@ -19,18 +19,18 @@ export function getCallMustacheTemplate() {
   {{/sourceOrTargetOrEndpoint}}
   {{#sourceOrTargetOrEndpoint}}
   <call {{#enableBlockingCalls}}blocking="{{enableBlockingCalls}}" {{/enableBlockingCalls}}{{^initAxis2ClientOptions}}initAxis2ClientOptions="false" {{/initAxis2ClientOptions}}{{#description}}description="{{description}}" {{/description}}>
-{{#registryOrXpathEndpoint}}<endpoint {{#endpointXpath}}key-expression="{{endpointXpath}}" {{/endpointXpath}}{{#endpointRegistryKey}}key="{{endpointRegistryKey}}" {{/endpointRegistryKey}}/>{{/registryOrXpathEndpoint}}
+{{#registryOrXpathEndpoint}}<endpoint {{#endpointXpath}}key-expression="{{{value}}}" {{#namespaces}}xmlns:{{prefix}}="{{uri}}" {{/namespaces}}{{/endpointXpath}}{{#endpointRegistryKey}}key="{{endpointRegistryKey}}" {{/endpointRegistryKey}}/>{{/registryOrXpathEndpoint}}
     {{#bodySource}}
     <source type="body"/>
     {{/bodySource}}
     {{#propertySource}}
-    <source contentType="{{contentType}}" type="property">{{sourceProperty}}</source>
+    <source {{#contentType}}contentType="{{contentType}}"{{/contentType}} type="property">{{sourceProperty}}</source>
     {{/propertySource}}
     {{#inlineSource}}
-    <source contentType="{{contentType}}" type="inline">{{{sourcePayload}}}</source>
+    <source {{#contentType}}contentType="{{contentType}}"{{/contentType}} type="inline">{{{sourcePayload}}}</source>
     {{/inlineSource}}
     {{#customSource}}
-    <source contentType="{{contentType}}" type="custom">{{sourceXPath}}</source>
+    <source {{#contentType}}contentType="{{contentType}}"{{/contentType}} type="custom">{{#sourceXPath}}{{{value}}}{{/sourceXPath}}</source>
     {{/customSource}}
     {{#bodyTarget}}
     <target type="{{targetType}}"/>
@@ -47,24 +47,24 @@ export function getCallMustacheTemplate() {
 <call {{#enableBlockingCalls}}blocking="{{enableBlockingCalls}}" {{^initAxis2ClientOptions}}initAxis2ClientOptions="false" {{/initAxis2ClientOptions}}{{/enableBlockingCalls}}{{#description}}description="{{description}}" {{/description}} ></call>
 {{/sourceOrTargetOrEndpoint}}
 {{#sourceOrTargetOrEndpoint}}
-<call {{#enableBlockingCalls}}blocking="{{enableBlockingCalls}}" {{/enableBlockingCalls}}{{^initAxis2ClientOptions}}initAxis2ClientOptions="false" {{/initAxis2ClientOptions}}{{#description}}description="{{description}}" {{/description}}>
+<call {{#enableBlockingCalls}}blocking="{{enableBlockingCalls}}" {{^initAxis2ClientOptions}}initAxis2ClientOptions="false" {{/initAxis2ClientOptions}}{{/enableBlockingCalls}}{{#description}}description="{{description}}" {{/description}}>
 {{/sourceOrTargetOrEndpoint}}
 {{/editCall}}
 {{#editEndpoint}}
-{{#registryOrXpathEndpoint}}  <endpoint {{#endpointXpath}}key-expression="{{endpointXpath}}" {{/endpointXpath}}{{#endpointRegistryKey}}key="{{endpointRegistryKey}}" {{/endpointRegistryKey}}/>{{/registryOrXpathEndpoint}}
+{{#registryOrXpathEndpoint}}  <endpoint {{#endpointXpath}}key-expression="{{{value}}}" {{#namespaces}}xmlns:{{prefix}}="{{uri}}" {{/namespaces}}{{/endpointXpath}}{{#endpointRegistryKey}}key="{{endpointRegistryKey}}" {{/endpointRegistryKey}}/>{{/registryOrXpathEndpoint}}
 {{/editEndpoint}}
 {{#editSource}}
 {{#bodySource}}
   <source type="body"/>
 {{/bodySource}}
 {{#propertySource}}
-  <source contentType="{{contentType}}" type="property">{{sourceProperty}}</source>
+  <source {{#contentType}}contentType="{{contentType}}"{{/contentType}} type="property">{{sourceProperty}}</source>
 {{/propertySource}}
 {{#inlineSource}}
-  <source contentType="{{contentType}}" type="inline">{{{sourcePayload}}}</source>
+  <source {{#contentType}}contentType="{{contentType}}"{{/contentType}} type="inline">{{{sourcePayload}}}</source>
 {{/inlineSource}}
 {{#customSource}}
-  <source contentType="{{contentType}}" type="custom">{{sourceXPath}}</source>
+  <source {{#contentType}}contentType="{{contentType}}"{{/contentType}} type="custom">{{#sourceXPath}}{{{value}}}{{/sourceXPath}}</source>
 {{/customSource}}
 {{/editSource}}
 {{#editTarget}}
@@ -117,6 +117,10 @@ export function getCallXml(data: { [key: string]: any }, dirtyFields?: any, defa
     delete data.endpointRegistryKey;
   } else if (data.endpointType == "REGISTRYKEY") {
     delete data.endpointXpath;
+  }
+
+  if (data.contentType && data.contentType.length == 0) {
+    delete data.contentType;
   }
 
   if (defaultValues == undefined || Object.keys(defaultValues).length == 0) {
@@ -189,11 +193,17 @@ export function getCallFormDataFromSTNode(data: { [key: string]: any }, node: Ca
   data.description = node.description;
   data.contentType = node.source?.contentType;
   data.sourceType = node.source?.type;
-  data.sourceProperty = node.source?.textNode;
+  if (data.sourceType == "custom") {
+    data.sourceXPath = { isExpression: true, value: node.source?.content };
+  } else if (data.sourceType == "property") {
+    data.sourceProperty = node.source?.content;
+  } else if (data.sourceType == "inline") {
+    data.sourcePayload = node.source?.content;
+  }
   data.targetType = node.target?.type;
   data.targetProperty = node.target?.textNode;
   data.initAxis2ClientOptions = node.initAxis2ClientOptions != undefined ? node.initAxis2ClientOptions : true;
-  data.endpointXpath = node.endpoint?.keyExpression;
+  data.endpointXpath = { isExpression: true, value: node.endpoint?.keyExpression, namespaces: transformNamespaces(node.endpoint?.namespaces) };
   data.endpointRegistryKey = node.endpoint?.key;
   data.endopint = node.endpoint?.key;
   if (data.endpointXpath) {

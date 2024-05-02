@@ -94,7 +94,8 @@ function initDiagramEngine() {
 	engine.getLayerFactories().registerFactory(new OverlayLayerFactory());
 
 	engine.getNodeFactories().registerFactory(new Nodes.InputNodeFactory());
-	engine.getNodeFactories().registerFactory(new Nodes.ExpressionFunctionBodyFactory());
+	engine.getNodeFactories().registerFactory(new Nodes.ArrayOutputNodeFactory());
+	engine.getNodeFactories().registerFactory(new Nodes.ObjectOutputNodeFactory());
 	engine.getNodeFactories().registerFactory(new LinkConnectorNodeFactory());
 	engine.getNodeFactories().registerFactory(new DataImportNodeFactory);
 

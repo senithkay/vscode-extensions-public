@@ -118,11 +118,11 @@
       {
         "view": "MI.project-explorer",
         "contents": "This project appears to have been created with Integration Studio. Please note that the VS Code extension offers limited support for these projects. To enhance compatibility, consider migrating your project using the provided migration tool.\n[Migrate Project](command:MI.migrateProject)",
-        "when": "MI.status == 'projectLoaded' && MI.projectType == 'unsupportedProject'"
+        "when": "MI.status == 'projectLoaded' && MI.projectType == 'oldProject'"
       },
       {
         "view": "MI.project-explorer",
-        "contents": "Unknown error occurred. Micro Integrator is disabled.",
+        "contents": "Some errors occured while activating the extension. Please check the output channel for more information.",
         "when": "MI.status == 'disabled'"
       }
     ],
@@ -523,9 +523,20 @@
     "vscode-debugprotocol": "^1.51.0",
     "tree-kill": "^1.2.2",
     "node-loader": "~2.0.0",
-    "json-schema-to-typescript": "13.1.2",
-    "@types/to-json-schema": "0.2.4",
     "to-json-schema": "0.2.4",
-    "xml2js":"0.6.2"
+    "xml2js":"0.6.2",
+    "tmp":"~0.2.3",
+    "fs-extra":"~11.2.0",
+    "@types/tmp":"~0.2.6",
+    "@types/fs-extra":"~11.0.4",
+    "json-schema-to-ts":"3.0.1",
+    "@babel/plugin-transform-typescript": "^7.16.1",
+    "recast": "^0.20.5",
+    "@babel/core": "^7.24.4",
+    "@types/json-schema":"7.0.15",
+    "json-schema":"0.4.0",
+    "prettier":"3.2.5",
+    "@apidevtools/json-schema-ref-parser":"11.6.1",
+    "js-yaml":"4.1.0"
   }
 }

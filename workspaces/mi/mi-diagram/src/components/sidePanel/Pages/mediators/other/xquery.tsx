@@ -9,7 +9,7 @@
 // AUTO-GENERATED FILE. DO NOT MODIFY.
 
 import React, { useEffect } from 'react';
-import { AutoComplete, Button, ComponentCard, ExpressionField, ExpressionFieldValue, ParamManager, ProgressIndicator, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
+import { AutoComplete, Button, ComponentCard, ProgressIndicator, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
 import { AddMediatorProps } from '../common';
@@ -17,6 +17,8 @@ import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
 import { MEDIATORS } from '../../../../../resources/constants';
 import { Controller, useForm } from 'react-hook-form';
+import { ExpressionField, ExpressionFieldValue } from '../../../../Form/ExpressionField/ExpressionInput';
+import { ParamManager, ParamConfig, ParamValue } from '../../../../Form/ParamManager/ParamManager';
 
 const cardStyle = { 
     display: "block",
@@ -49,11 +51,11 @@ const XQueryForm = (props: AddMediatorProps) => {
             dynamicScriptKey: sidePanelContext?.formValues?.dynamicScriptKey || {"isExpression":true,"value":""},
             targetXPath: sidePanelContext?.formValues?.targetXPath || {"isExpression":true,"value":""},
             variables: {
-                paramValues: sidePanelContext?.formValues?.variables && sidePanelContext?.formValues?.variables.map((property: string|ExpressionFieldValue[], index: string) => (
+                paramValues: sidePanelContext?.formValues?.variables && sidePanelContext?.formValues?.variables.map((property: (string | ExpressionFieldValue | ParamConfig)[], index: string) => (
                     {
                         id: index,
-                        key: typeof property[0] === 'object' ? property[0].value : property[0],
-                        value: typeof property[3] === 'object' ? property[3].value : property[3],
+                        key: property[0],
+                        value:  property[3],
                         icon: 'query',
                         paramValues: [
                             { value: property[0] },
@@ -70,17 +72,8 @@ const XQueryForm = (props: AddMediatorProps) => {
                         "type": "TextField",
                         "label": "Variable Name",
                         "defaultValue": "",
-                        "isRequired": false, 
-                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                            sidePanelContext.setSidePanelState({
-                                ...sidePanelContext,
-                                expressionEditor: {
-                                    isOpen: true,
-                                    value,
-                                    setValue
-                                }
-                            });
-                        }},
+                        "isRequired": false
+                    },
                     {
                         "type": "Dropdown",
                         "label": "Variable Type",
@@ -99,17 +92,8 @@ const XQueryForm = (props: AddMediatorProps) => {
                             "LONG",
                             "FLOAT",
                             "STRING"
-                        ], 
-                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                            sidePanelContext.setSidePanelState({
-                                ...sidePanelContext,
-                                expressionEditor: {
-                                    isOpen: true,
-                                    value,
-                                    setValue
-                                }
-                            });
-                        }},
+                        ]
+                    },
                     {
                         "type": "Dropdown",
                         "label": "Variable Option",
@@ -118,17 +102,8 @@ const XQueryForm = (props: AddMediatorProps) => {
                         "values": [
                             "LITERAL",
                             "EXPRESSION"
-                        ], 
-                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                            sidePanelContext.setSidePanelState({
-                                ...sidePanelContext,
-                                expressionEditor: {
-                                    isOpen: true,
-                                    value,
-                                    setValue
-                                }
-                            });
-                        }},
+                        ]
+                    },
                     {
                         "type": "TextField",
                         "label": "Variable Literal",
@@ -136,19 +111,10 @@ const XQueryForm = (props: AddMediatorProps) => {
                         "isRequired": false,
                         "enableCondition": [
                             {
-                                "1": "LITERAL"
+                                "2": "LITERAL"
                             }
-                        ], 
-                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                            sidePanelContext.setSidePanelState({
-                                ...sidePanelContext,
-                                expressionEditor: {
-                                    isOpen: true,
-                                    value,
-                                    setValue
-                                }
-                            });
-                        }},
+                        ]
+                    },
                     {
                         "type": "TextField",
                         "label": "Variable Expression",
@@ -156,34 +122,16 @@ const XQueryForm = (props: AddMediatorProps) => {
                         "isRequired": false,
                         "enableCondition": [
                             {
-                                "1": "EXPRESSION"
+                                "2": "EXPRESSION"
                             }
-                        ], 
-                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                            sidePanelContext.setSidePanelState({
-                                ...sidePanelContext,
-                                expressionEditor: {
-                                    isOpen: true,
-                                    value,
-                                    setValue
-                                }
-                            });
-                        }},
+                        ]
+                    },
                     {
                         "type": "TextField",
                         "label": "Variable Key",
                         "defaultValue": "",
-                        "isRequired": false, 
-                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                            sidePanelContext.setSidePanelState({
-                                ...sidePanelContext,
-                                expressionEditor: {
-                                    isOpen: true,
-                                    value,
-                                    setValue
-                                }
-                            });
-                        }},
+                        "isRequired": false
+                    },
                 ]
             },
             description: sidePanelContext?.formValues?.description || "",
@@ -321,12 +269,9 @@ const XQueryForm = (props: AddMediatorProps) => {
                                         readonly={false}
                                         onChange= {(values) => {
                                             values.paramValues = values.paramValues.map((param: any, index: number) => {
-                                                const paramValues = param.paramValues;
-                                                param.key = paramValues[0].value;
-                                                param.value = paramValues[3].value;
-                                                if (paramValues[1]?.value?.isExpression) {
-                                                    param.namespaces = paramValues[1].value.namespaces;
-                                                }
+                                                const property: ParamValue[] = param.paramValues;
+                                                param.key = property[0].value;
+                                                param.value = property[3].value;
                                                 param.icon = 'query';
                                                 return param;
                                             });
@@ -336,6 +281,7 @@ const XQueryForm = (props: AddMediatorProps) => {
                                 )}
                             />
                         </ComponentCard>
+
                     </ComponentCard>
 
                     <Field>

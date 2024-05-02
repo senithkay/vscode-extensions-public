@@ -18,12 +18,12 @@ export function getCloneMustacheTemplate() {
     <clone {{#continueParent}}continueParent="{{continueParent}}" {{/continueParent}}{{#cloneId}}id="{{cloneId}}" {{/cloneId}}{{#sequentialMediation}}sequential="{{sequentialMediation}}" {{/sequentialMediation}}{{#description}}description="{{description}}" {{/description}}>
     {{#targets}}
     {{#isRegistrySeqAndEndpoint}}
-    <target {{#endpointRegistryKey}}endpoint="{{endpointRegistryKey}}" {{/endpointRegistryKey}}{{#sequenceRegistryKey}}sequence="{{sequenceRegistryKey}}" {{/sequenceRegistryKey}}{{#soapAction}}soapAction="{{soapAction}}" {{/soapAction}}{{#toAddress}}to="{{toAddress}}" {{/toAddress}}/>
+    <target {{#endpointRegistryKey}}endpoint="{{endpointRegistryKey}}" {{/endpointRegistryKey}}{{#sequenceRegistryKey}}sequence="{{sequenceRegistryKey}}" {{/sequenceRegistryKey}}{{#soapAction}}soapAction="{{soapAction}}" {{/soapAction}}{{#toAddress}}to="{{{toAddress}}}" {{/toAddress}}/>
     {{/isRegistrySeqAndEndpoint}}
     {{^isRegistrySeqAndEndpoint}}
-    <target {{#endpointRegistryKey}}endpoint="{{endpointRegistryKey}}" {{/endpointRegistryKey}}{{#sequenceRegistryKey}}sequence="{{sequenceRegistryKey}}" {{/sequenceRegistryKey}}{{#soapAction}}soapAction="{{soapAction}}" {{/soapAction}}{{#toAddress}}to="{{toAddress}}" {{/toAddress}}>      
+    <target {{#endpointRegistryKey}}endpoint="{{endpointRegistryKey}}" {{/endpointRegistryKey}}{{#sequenceRegistryKey}}sequence="{{sequenceRegistryKey}}" {{/sequenceRegistryKey}}{{#soapAction}}soapAction="{{soapAction}}" {{/soapAction}}{{#toAddress}}to="{{{toAddress}}}" {{/toAddress}}>      
         {{^sequenceRegistryKey}}
-        <sequence />
+        <sequence></sequence>
         {{/sequenceRegistryKey}}
     </target>
     {{/isRegistrySeqAndEndpoint}}
@@ -39,11 +39,16 @@ export function getCloneMustacheTemplate() {
 <target {{#endpointRegistryKey}}endpoint="{{endpointRegistryKey}}" {{/endpointRegistryKey}}{{#sequenceRegistryKey}}sequence="{{sequenceRegistryKey}}" {{/sequenceRegistryKey}}{{#soapAction}}soapAction="{{soapAction}}" {{/soapAction}}{{#toAddress}}to="{{toAddress}}" {{/toAddress}}/>
 {{/isRegistrySeqAndEndpoint}}
 {{^isRegistrySeqAndEndpoint}}
+{{#newTarget}}
 <target {{#endpointRegistryKey}}endpoint="{{endpointRegistryKey}}" {{/endpointRegistryKey}}{{#sequenceRegistryKey}}sequence="{{sequenceRegistryKey}}" {{/sequenceRegistryKey}}{{#soapAction}}soapAction="{{soapAction}}" {{/soapAction}}{{#toAddress}}to="{{toAddress}}" {{/toAddress}}>      
     {{^sequenceRegistryKey}}
-    <sequence />
+    <sequence></sequence>
     {{/sequenceRegistryKey}}
 </target>
+{{/newTarget}}
+{{^newTarget}}
+<target {{#endpointRegistryKey}}endpoint="{{endpointRegistryKey}}" {{/endpointRegistryKey}}{{#sequenceRegistryKey}}sequence="{{sequenceRegistryKey}}" {{/sequenceRegistryKey}}{{#soapAction}}soapAction="{{soapAction}}" {{/soapAction}}{{#toAddress}}to="{{toAddress}}" {{/toAddress}}> 
+{{/newTarget}}
 {{/isRegistrySeqAndEndpoint}}
 {{/editClone}}
 {{/newMediator}}`;
@@ -132,11 +137,20 @@ function getEdits(data: { [key: string]: any }, dirtyFields: any, defaultValues:
 
     if (dirtyFields.targets) {
         for (let i = 0; i < data.targets.length; i++) {
-            let targetData = processTargetData(data.targets[i]);
-            let range = defaultValues.ranges.targets[i];
-            let editRange = {
-                start: range.startTagRange.start,
-                end: range.endTagRange.end ? range.endTagRange.end : range.startTagRange.end
+            let targetData: { [key: string]: any } = processTargetData(data.targets[i]);
+            let editRange;
+            if (defaultValues.ranges.targets.length <= i) {
+                editRange = {
+                    start: defaultValues.ranges.clone.endTagRange.start,
+                    end: defaultValues.ranges.clone.endTagRange.start
+                }
+                targetData.newTarget = true;
+            } else {
+                let range = defaultValues.ranges.targets[i];
+                editRange = {
+                    start: range.startTagRange.start,
+                    end: range.startTagRange.end
+                }
             }
             let output = Mustache.render(getCloneMustacheTemplate(), targetData).trim();
             let edit = {
@@ -176,5 +190,6 @@ export function getCloneFormDataFromSTNode(data: { [key: string]: any }, node: C
 
 export function getNewCloneTargetXml() {
     return `<target>
+    <sequence></sequence>
 </target>`
 }

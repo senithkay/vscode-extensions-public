@@ -13,7 +13,7 @@ import { Diagnostic, Identifier, Node, PropertyAccessExpression } from "ts-morph
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { DataMapperLinkModel } from "../../Link";
 import { IntermediatePortModel, InputOutputPortModel } from "../../Port";
-import { OFFSETS } from "../../utils/constants";
+import { ARRAY_OUTPUT_TARGET_PORT_PREFIX, OFFSETS } from "../../utils/constants";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
 import { ObjectOutputNode } from "../ObjectOutput";
 import { getPosition, isPositionsEquals } from "../../utils/st-utils";
@@ -25,6 +25,7 @@ import {
     getTargetPortPrefix
 } from "../../utils/common-utils";
 import { getDiagnostics } from "../../utils/diagnostics-utils";
+import { ArrayOutputNode } from "../ArrayOutput";
 
 export const LINK_CONNECTOR_NODE_TYPE = "link-connector-node";
 const NODE_ID = "link-connector-node";
@@ -89,12 +90,15 @@ export class LinkConnectorNode extends DataMapperNodeModel {
         if (this.outPort) {
             this.getModel().getNodes().map((node) => {
     
-                if (node instanceof ObjectOutputNode) {
+                if (node instanceof ObjectOutputNode || node instanceof ArrayOutputNode) {
                     const targetPortPrefix = getTargetPortPrefix(node);
+
+                    const rootName = targetPortPrefix === ARRAY_OUTPUT_TARGET_PORT_PREFIX
+                        && (node as ArrayOutputNode).rootName;
 
                     [this.targetPort, this.targetMappedPort] = getOutputPort(
                         this.fields, node.dmTypeWithValue, targetPortPrefix,
-                        (portId: string) =>  node.getPort(portId) as InputOutputPortModel
+                        (portId: string) =>  node.getPort(portId) as InputOutputPortModel, rootName
                     );
 
                     if (this.targetMappedPort?.portName !== this.targetPort?.portName) {
