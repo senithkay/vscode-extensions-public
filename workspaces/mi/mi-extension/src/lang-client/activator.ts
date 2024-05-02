@@ -189,13 +189,6 @@ export class MILanguageClient {
                 // Create the language client and start the client.
                 this.languageClient = new ExtendedLanguageClient('synapseXML', 'Synapse Language Server',
                     serverOptions, clientOptions);
-                    
-                this.languageClient.onNotification("synapse/addConnectorStatus", (connectorStatus: any) => {
-                    console.log("Connector status: " + connectorStatus);
-                    // Notify the visualizer
-                    RPCLayer._messenger.sendNotification(onConnectorStatusUpdate, { type: 'webview', webviewType: VisualizerWebview.viewType }, connectorStatus);
-                });
-
                 await this.languageClient.start();
 
                 //Setup autoCloseTags
