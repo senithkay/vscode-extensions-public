@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { GetAvailableResourcesRequest, GetAvailableResourcesResponse, GetBreakpointInfoRequest, GetBreakpointInfoResponse, GetDefinitionRequest, GetDefinitionResponse, GetDiagnosticsReqeust, GetDiagnosticsResponse, ProjectStructureResponse, GetAvailableConnectorRequest, GetAvailableConnectorResponse, UpdateConnectorRequest, GetConnectorConnectionsRequest, GetConnectorConnectionsResponse, ValidateBreakpointsRequest, ValidateBreakpointsResponse, StepOverBreakpointRequest, StepOverBreakpointResponse, onConnectorStatusUpdate } from "@wso2-enterprise/mi-core";
+import { GetAvailableResourcesRequest, GetAvailableResourcesResponse, GetBreakpointInfoRequest, GetBreakpointInfoResponse, GetDefinitionRequest, GetDefinitionResponse, GetDiagnosticsReqeust, GetDiagnosticsResponse, ProjectStructureResponse, GetAvailableConnectorRequest, GetAvailableConnectorResponse, UpdateConnectorRequest, GetConnectorConnectionsRequest, GetConnectorConnectionsResponse, ValidateBreakpointsRequest, ValidateBreakpointsResponse, StepOverBreakpointRequest, StepOverBreakpointResponse, SchemaGenRequest, SchemaGenResponse, onConnectorStatusUpdate } from "@wso2-enterprise/mi-core";
 import { readFileSync } from "fs";
 import { CancellationToken, FormattingOptions, Position, Range, Uri, workspace } from "vscode";
 import { CompletionParams, LanguageClient, LanguageClientOptions, ServerOptions, TextEdit } from "vscode-languageclient/node";
@@ -194,6 +194,10 @@ export class ExtendedLanguageClient extends LanguageClient {
 
     async getStepOverBreakpoint(req: StepOverBreakpointRequest): Promise<StepOverBreakpointResponse> {
         return this.sendRequest("synapse/stepOverBreakpoint", req);
+    }
+
+    async generateSchema(req: SchemaGenRequest): Promise<SchemaGenResponse> {
+        return this.sendRequest("synapse/generateSchema", req);
     }
     
 }

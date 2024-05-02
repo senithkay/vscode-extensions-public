@@ -26,13 +26,9 @@ import {
     ConvertRegPathToAbsPathRequest,
     ConvertRegPathToAbsPathResponse,
     convertRegPathToAbsPath,
-    ImportDMSchemaRequest,
-    ImportDMSchemaResponse,
-    importDMSchema,
+    createDMFiles,
     UpdateDMCRequest,
-    UpdateDMCResponse,
-    updateDMC,
-    createDMFiles
+    updateDMCFileContent,
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -64,15 +60,11 @@ export class MiDataMapperRpcClient implements MIDataMapperAPI {
         return this._messenger.sendRequest(convertRegPathToAbsPath, HOST_EXTENSION, params);
     }
 
-    importDMSchema(params: ImportDMSchemaRequest): Promise<ImportDMSchemaResponse> {
-        return this._messenger.sendRequest(importDMSchema, HOST_EXTENSION, params);
-    }
-
-    updateDMC(params: UpdateDMCRequest): Promise<UpdateDMCResponse> {
-        return this._messenger.sendRequest(updateDMC, HOST_EXTENSION, params);
-    }
-
     createDMFiles(params: GenerateDMInputRequest): Promise<GenerateDMInputResponse> {
         return this._messenger.sendRequest(createDMFiles, HOST_EXTENSION, params);
+    }
+
+    updateDMCFileContent(params: UpdateDMCRequest): void {
+        return this._messenger.sendNotification(updateDMCFileContent, HOST_EXTENSION, params);
     }
 }
