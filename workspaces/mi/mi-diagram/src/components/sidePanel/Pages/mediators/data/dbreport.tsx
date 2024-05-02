@@ -66,7 +66,7 @@ const DBReportForm = (props: AddMediatorProps) => {
             connectionPassword: sidePanelContext?.formValues?.connectionPassword || "",
             registryBasedPassConfigKey: sidePanelContext?.formValues?.registryBasedPassConfigKey || "",
             sqlStatements: {
-                paramValues: sidePanelContext?.formValues?.sqlStatements && sidePanelContext?.formValues?.sqlStatements.map((property: string|ExpressionFieldValue[], index: string) => (
+                paramValues: sidePanelContext?.formValues?.sqlStatements && sidePanelContext?.formValues?.sqlStatements.map((property: (string | ExpressionFieldValue | ParamConfig)[], index: string) => (
                     {
                         id: index,
                         key: index,
@@ -94,7 +94,7 @@ const DBReportForm = (props: AddMediatorProps) => {
                         "isRequired": false, 
                         "paramManager": {
                             paramConfigs: {
-                                paramValues: sidePanelContext?.formValues?.parameters && sidePanelContext?.formValues?.parameters.map((property: string|ExpressionFieldValue[], index: string) => (
+                                paramValues: sidePanelContext?.formValues?.parameters && sidePanelContext?.formValues?.parameters.map((property: (string | ExpressionFieldValue | ParamConfig)[], index: string) => (
                                     {
                                         id: index,
                                         key: index,
@@ -129,7 +129,7 @@ const DBReportForm = (props: AddMediatorProps) => {
                         "isRequired": false, 
                         "paramManager": {
                             paramConfigs: {
-                                paramValues: sidePanelContext?.formValues?.results && sidePanelContext?.formValues?.results.map((property: string|ExpressionFieldValue[], index: string) => (
+                                paramValues: sidePanelContext?.formValues?.results && sidePanelContext?.formValues?.results.map((property: (string | ExpressionFieldValue | ParamConfig)[], index: string) => (
                                     {
                                         id: index,
                                         key: index,

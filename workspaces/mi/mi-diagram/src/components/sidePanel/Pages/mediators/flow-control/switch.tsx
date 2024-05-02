@@ -18,7 +18,7 @@ import { getXML } from '../../../../../utils/template-engine/mustach-templates/t
 import { MEDIATORS } from '../../../../../resources/constants';
 import { Controller, useForm } from 'react-hook-form';
 import { ExpressionField, ExpressionFieldValue } from '../../../../Form/ExpressionField/ExpressionInput';
-import { ParamManager, ParamValue } from '../../../../Form/ParamManager/ParamManager';
+import { ParamManager, ParamConfig, ParamValue } from '../../../../Form/ParamManager/ParamManager';
 
 const cardStyle = { 
     display: "block",
@@ -48,7 +48,7 @@ const SwitchForm = (props: AddMediatorProps) => {
         reset({
             sourceXPath: sidePanelContext?.formValues?.sourceXPath || {"isExpression":true,"value":""},
             caseBranches: {
-                paramValues: sidePanelContext?.formValues?.caseBranches && sidePanelContext?.formValues?.caseBranches.map((property: string|ExpressionFieldValue[], index: string) => (
+                paramValues: sidePanelContext?.formValues?.caseBranches && sidePanelContext?.formValues?.caseBranches.map((property: (string | ExpressionFieldValue | ParamConfig)[], index: string) => (
                     {
                         id: index,
                         key: index,

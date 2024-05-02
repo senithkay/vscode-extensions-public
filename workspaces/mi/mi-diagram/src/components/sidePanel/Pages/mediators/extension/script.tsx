@@ -19,7 +19,7 @@ import { MEDIATORS } from '../../../../../resources/constants';
 import { Controller, useForm } from 'react-hook-form';
 import { Keylookup } from '../../../../Form';
 import { ExpressionFieldValue } from '../../../../Form/ExpressionField/ExpressionInput';
-import { ParamManager, ParamValue } from '../../../../Form/ParamManager/ParamManager';
+import { ParamManager, ParamConfig, ParamValue } from '../../../../Form/ParamManager/ParamManager';
 
 const cardStyle = { 
     display: "block",
@@ -53,7 +53,7 @@ const ScriptForm = (props: AddMediatorProps) => {
             scriptKey: sidePanelContext?.formValues?.scriptKey || "",
             mediateFunction: sidePanelContext?.formValues?.mediateFunction || "",
             scriptKeys: {
-                paramValues: sidePanelContext?.formValues?.scriptKeys && sidePanelContext?.formValues?.scriptKeys.map((property: string|ExpressionFieldValue[], index: string) => (
+                paramValues: sidePanelContext?.formValues?.scriptKeys && sidePanelContext?.formValues?.scriptKeys.map((property: (string | ExpressionFieldValue | ParamConfig)[], index: string) => (
                     {
                         id: index,
                         key: property[0],

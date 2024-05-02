@@ -151,7 +151,7 @@ const getParamManagerKeyOrValue = (elements: any[], tableKey: string, postFix?:s
         return "index";
     }
     if(key !== -1 && elements[key].type === 'table') {
-        return `generateSpaceSeperatedStringFromParamValues(property[${key}].value as ParamConfig)`;
+        return `generateSpaceSeperatedStringFromParamValues(property[${key}]${postFix ?? ''} as ParamConfig)`;
     }
 
     return isExpression(elements, key) ? `(property[${key}]${postFix ?? ''} as ExpressionFieldValue).value` : `property[${key}]${postFix ?? ''}`;
@@ -162,7 +162,7 @@ const getParamManagerConfig = (elements: any[], tableKey: string, tableValue: st
     let paramFields = '';
 
     paramValues +=
-        fixIndentation(`sidePanelContext?.formValues?.${name} && sidePanelContext?.formValues?.${name}.map((property: string|ExpressionFieldValue[], index: string) => (
+        fixIndentation(`sidePanelContext?.formValues?.${name} && sidePanelContext?.formValues?.${name}.map((property: (string | ExpressionFieldValue | ParamConfig)[], index: string) => (
             {
                 id: index,
                 key: ${getParamManagerKeyOrValue(elements, tableKey)},

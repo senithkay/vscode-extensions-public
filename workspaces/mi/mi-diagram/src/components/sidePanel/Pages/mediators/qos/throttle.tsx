@@ -19,7 +19,7 @@ import { MEDIATORS } from '../../../../../resources/constants';
 import { Controller, useForm } from 'react-hook-form';
 import { Keylookup } from '../../../../Form';
 import { ExpressionFieldValue } from '../../../../Form/ExpressionField/ExpressionInput';
-import { ParamManager, ParamValue } from '../../../../Form/ParamManager/ParamManager';
+import { ParamManager, ParamConfig, ParamValue } from '../../../../Form/ParamManager/ParamManager';
 
 const cardStyle = { 
     display: "block",
@@ -55,7 +55,7 @@ const ThrottleForm = (props: AddMediatorProps) => {
             policyType: sidePanelContext?.formValues?.policyType || "INLINE",
             maximumConcurrentAccess: sidePanelContext?.formValues?.maximumConcurrentAccess || "0",
             policyEntries: {
-                paramValues: sidePanelContext?.formValues?.policyEntries && sidePanelContext?.formValues?.policyEntries.map((property: string|ExpressionFieldValue[], index: string) => (
+                paramValues: sidePanelContext?.formValues?.policyEntries && sidePanelContext?.formValues?.policyEntries.map((property: (string | ExpressionFieldValue | ParamConfig)[], index: string) => (
                     {
                         id: index,
                         key: property[0],

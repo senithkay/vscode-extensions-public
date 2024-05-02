@@ -47,7 +47,7 @@ const RewriteForm = (props: AddMediatorProps) => {
     useEffect(() => {
         reset({
             urlRewriteRules: {
-                paramValues: sidePanelContext?.formValues?.urlRewriteRules && sidePanelContext?.formValues?.urlRewriteRules.map((property: string|ExpressionFieldValue[], index: string) => (
+                paramValues: sidePanelContext?.formValues?.urlRewriteRules && sidePanelContext?.formValues?.urlRewriteRules.map((property: (string | ExpressionFieldValue | ParamConfig)[], index: string) => (
                     {
                         id: index,
                         key: index,
@@ -67,7 +67,7 @@ const RewriteForm = (props: AddMediatorProps) => {
                         "isRequired": false, 
                         "paramManager": {
                             paramConfigs: {
-                                paramValues: sidePanelContext?.formValues?.rewriteRuleAction && sidePanelContext?.formValues?.rewriteRuleAction.map((property: string|ExpressionFieldValue[], index: string) => (
+                                paramValues: sidePanelContext?.formValues?.rewriteRuleAction && sidePanelContext?.formValues?.rewriteRuleAction.map((property: (string | ExpressionFieldValue | ParamConfig)[], index: string) => (
                                     {
                                         id: index,
                                         key: property[0],

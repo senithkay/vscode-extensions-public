@@ -19,7 +19,7 @@ import { getXML } from '../../../../../utils/template-engine/mustach-templates/t
 import { MEDIATORS } from '../../../../../resources/constants';
 import { Controller, useForm } from 'react-hook-form';
 import { ExpressionField, ExpressionFieldValue } from '../../../../Form/ExpressionField/ExpressionInput';
-import { ParamManager, ParamValue } from '../../../../Form/ParamManager/ParamManager';
+import { ParamManager, ParamConfig, ParamValue } from '../../../../Form/ParamManager/ParamManager';
 
 const cardStyle = { 
     display: "block",
@@ -50,7 +50,7 @@ const ValidateForm = (props: AddMediatorProps) => {
             source: sidePanelContext?.formValues?.source || {"isExpression":true,"value":""},
             enableSchemaCaching: sidePanelContext?.formValues?.enableSchemaCaching || "",
             schemas: {
-                paramValues: sidePanelContext?.formValues?.schemas && sidePanelContext?.formValues?.schemas.map((property: string|ExpressionFieldValue[], index: string) => (
+                paramValues: sidePanelContext?.formValues?.schemas && sidePanelContext?.formValues?.schemas.map((property: (string | ExpressionFieldValue | ParamConfig)[], index: string) => (
                     {
                         id: index,
                         key: index,
@@ -70,7 +70,7 @@ const ValidateForm = (props: AddMediatorProps) => {
                 ]
             },
             features: {
-                paramValues: sidePanelContext?.formValues?.features && sidePanelContext?.formValues?.features.map((property: string|ExpressionFieldValue[], index: string) => (
+                paramValues: sidePanelContext?.formValues?.features && sidePanelContext?.formValues?.features.map((property: (string | ExpressionFieldValue | ParamConfig)[], index: string) => (
                     {
                         id: index,
                         key: property[0],
@@ -98,7 +98,7 @@ const ValidateForm = (props: AddMediatorProps) => {
                 ]
             },
             resources: {
-                paramValues: sidePanelContext?.formValues?.resources && sidePanelContext?.formValues?.resources.map((property: string|ExpressionFieldValue[], index: string) => (
+                paramValues: sidePanelContext?.formValues?.resources && sidePanelContext?.formValues?.resources.map((property: (string | ExpressionFieldValue | ParamConfig)[], index: string) => (
                     {
                         id: index,
                         key: property[0],
