@@ -19,7 +19,7 @@ export function getAggregateMustacheTemplate() {
         <completeCondition timeout="{{completionTimeout}}">
             <messageCount {{#completionMax}}max="{{completionMax}}" {{/completionMax}}{{#completionMin}}min="{{completionMin}}" {{/completionMin}}{{#messageCountNamespaces}}xmlns:{{prefix}}="{{uri}}" {{/messageCountNamespaces}}/>
         </completeCondition>
-        <onComplete aggregateElementType="{{aggregateElementType}}" enclosingElementProperty="{{enclosingElementProperty}}" {{#aggregationExpression}}expression="{{value}}" {{#namespaces}}xmlns:{{prefix}}="{{uri}}" {{/namespaces}}{{/aggregationExpression}}{{#sequenceKey}}sequence="{{sequenceKey}}"{{/sequenceKey}} ></onComplete>
+        <onComplete aggregateElementType="{{aggregateElementType}}" {{#enclosingElementProperty}}enclosingElementProperty="{{enclosingElementProperty}}"{{/enclosingElementProperty}} {{#aggregationExpression}}expression="{{value}}" {{#namespaces}}xmlns:{{prefix}}="{{uri}}" {{/namespaces}}{{/aggregationExpression}}{{#sequenceKey}}sequence="{{sequenceKey}}"{{/sequenceKey}} ></onComplete>
     </aggregate>
     {{/isNewMediator}}
     {{^isNewMediator}}
@@ -35,7 +35,7 @@ export function getAggregateMustacheTemplate() {
     </completeCondition>
     {{/editCompleteCondition}}
     {{#editOnComplete}}
-    <onComplete aggregateElementType="{{aggregateElementType}}" enclosingElementProperty="{{enclosingElementProperty}}" {{#aggregationExpression}}expression="{{value}}" {{#namespaces}}xmlns:{{prefix}}="{{uri}}" {{/namespaces}}{{/aggregationExpression}} {{#sequenceKey}}sequence="{{sequenceKey}}"{{/sequenceKey}} >
+    <onComplete aggregateElementType="{{aggregateElementType}}" {{#enclosingElementProperty}}enclosingElementProperty="{{enclosingElementProperty}}"{{/enclosingElementProperty}} {{#aggregationExpression}}expression="{{value}}" {{#namespaces}}xmlns:{{prefix}}="{{uri}}" {{/namespaces}}{{/aggregationExpression}} {{#sequenceKey}}sequence="{{sequenceKey}}"{{/sequenceKey}} >
     {{/editOnComplete}}
     {{/isNewMediator}}
     `;
@@ -56,6 +56,9 @@ export function getAggregateXml(data: { [key: string]: any }, dirtyFields?: any,
     data.aggregateElementType = data.aggregateElementType.toLowerCase();
     if (data.sequenceType == "ANONYMOUS") {
         delete data.sequenceKey;
+    }
+    if (data.enclosingElementProperty == "") {
+        delete data.enclosingElementProperty;
     }
     if (defaultValues == undefined || Object.keys(defaultValues).length == 0) {
         data.isNewMediator = true;
