@@ -112,7 +112,7 @@
       },
       {
         "view": "MI.project-explorer",
-        "contents": "Some errors occured while activating the extension. Please check the notifications for more information.",
+        "contents": "Some errors occured while activating the extension. Please check the output channel for more information.",
         "when": "MI.status == 'disabled'"
       }
     ],
