@@ -106,6 +106,11 @@ const aiStateMachine = createMachine<AiMachineContext>({
             invoke: {
                 src: 'disableExtension'
             },
+            on: {
+                RETRY: {
+                    target: "initialize",
+                }
+            }
         },
 
         WaitingForLogin: {
@@ -161,14 +166,24 @@ async function checkToken(context, event) {
                 });
                 console.log("Response: " + JSON.stringify(response));
                 if (response.ok) {
+                    console.log("OK Path");
                     resolve(token);
                 } else {
-                    resolve(undefined);
+                    if (response.status === 401) {
+                        console.log("Unauthorized Path");
+                        resolve(undefined);
+                    }else{
+                        console.log("Error: " + response.statusText);
+                        console.log("Error Path");
+                        throw new Error(`Error while checking token: ${response.statusText}`);
+                    }
                 }
             } else {
+                console.log("Not Found Path");
                 resolve(undefined);
             }
         } catch (error) {
+            console.log("Other Error Path");
             reject(error);
         }
     });

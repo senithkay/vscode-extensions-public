@@ -81,6 +81,7 @@ export enum AI_EVENT_TYPE {
     CLEAR_PROMPT = "CLEAR_PROMPT",
     DISPOSE = "DISPOSE",
     CANCEL = "CANCEL",
+    RETRY = "RETRY",
 }
 
 export enum EVENT_TYPE {
