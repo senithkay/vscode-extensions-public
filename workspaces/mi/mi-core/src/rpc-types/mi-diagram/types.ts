@@ -1238,4 +1238,3 @@ export interface DeleteArtifactRequest {
     path: string;
     enableUndo?: boolean;
 }
-

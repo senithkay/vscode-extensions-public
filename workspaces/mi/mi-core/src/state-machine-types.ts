@@ -151,6 +151,12 @@ export interface ParentPopupData {
     recentIdentifier: string;
 }
 
+export interface ConnectorStatus {
+    connector: string;
+    isSuccess: boolean;
+    message: string;
+}
+
 export const stateChanged: NotificationType<MachineStateValue> = { method: 'stateChanged' };
 export const aiStateChanged: NotificationType<AIMachineStateValue> = { method: 'aiStateChanged' };
 export const popupStateChanged: NotificationType<PopupMachineStateValue> = { method: 'popupStateChanged' };
@@ -162,3 +168,4 @@ export const sendAIStateEvent: RequestType<AI_EVENT_TYPE, void> = { method: 'sen
 export const onFileContentUpdate: NotificationType<void> = { method: `onFileContentUpdate` };
 export const webviewReady: NotificationType<void> = { method: `webviewReady` };
 export const onParentPopupSubmitted: NotificationType<ParentPopupData> = { method: `onParentPopupSubmitted` };
+export const onConnectorStatusUpdate: NotificationType<ConnectorStatus> = { method: `onConnectorStatusUpdate` }; 

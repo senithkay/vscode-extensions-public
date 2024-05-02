@@ -7,13 +7,15 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { GetAvailableResourcesRequest, GetAvailableResourcesResponse, GetBreakpointInfoRequest, GetBreakpointInfoResponse, GetDefinitionRequest, GetDefinitionResponse, GetDiagnosticsReqeust, GetDiagnosticsResponse, ProjectStructureResponse, GetAvailableConnectorRequest, GetAvailableConnectorResponse, UpdateConnectorRequest, GetConnectorConnectionsRequest, GetConnectorConnectionsResponse, ValidateBreakpointsRequest, ValidateBreakpointsResponse, StepOverBreakpointRequest, StepOverBreakpointResponse, SchemaGenRequest, SchemaGenResponse } from "@wso2-enterprise/mi-core";
+import { GetAvailableResourcesRequest, GetAvailableResourcesResponse, GetBreakpointInfoRequest, GetBreakpointInfoResponse, GetDefinitionRequest, GetDefinitionResponse, GetDiagnosticsReqeust, GetDiagnosticsResponse, ProjectStructureResponse, GetAvailableConnectorRequest, GetAvailableConnectorResponse, UpdateConnectorRequest, GetConnectorConnectionsRequest, GetConnectorConnectionsResponse, ValidateBreakpointsRequest, ValidateBreakpointsResponse, StepOverBreakpointRequest, StepOverBreakpointResponse, SchemaGenRequest, SchemaGenResponse, onConnectorStatusUpdate } from "@wso2-enterprise/mi-core";
 import { readFileSync } from "fs";
 import { CancellationToken, FormattingOptions, Position, Range, Uri, workspace } from "vscode";
-import { CompletionParams, LanguageClient, TextEdit } from "vscode-languageclient/node";
+import { CompletionParams, LanguageClient, LanguageClientOptions, ServerOptions, TextEdit } from "vscode-languageclient/node";
 import { TextDocumentIdentifier } from "vscode-languageserver-protocol";
 import * as fs from 'fs';
 import * as vscode from 'vscode';
+import { RPCLayer } from "../RPCLayer";
+import { VisualizerWebview } from "../visualizer/webview";
 
 export interface GetSyntaxTreeParams {
     documentIdentifier: TextDocumentIdentifier;
@@ -77,6 +79,15 @@ export interface RangeFormatParams {
 }
 
 export class ExtendedLanguageClient extends LanguageClient {
+    constructor(id: string, name: string, serverOptions: ServerOptions, clientOptions: LanguageClientOptions) {
+        super(id, name, serverOptions, clientOptions);
+        
+        this.onNotification("synapse/addConnectorStatus", (connectorStatus: any) => {
+            console.log("Connector status: " + connectorStatus);
+            // Notify the visualizer
+            RPCLayer._messenger.sendNotification(onConnectorStatusUpdate, { type: 'webview', webviewType: VisualizerWebview.viewType }, connectorStatus);
+        });
+    }
 
     async getSyntaxTree(req: GetSyntaxTreeParams): Promise<GetSyntaxTreeResponse> {
         this.didOpen(req.documentIdentifier.uri);

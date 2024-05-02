@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { createMachine, assign, interpret } from 'xstate';
 import * as vscode from 'vscode';
-import { Uri, ViewColumn, window } from 'vscode';
+import { Uri, ViewColumn } from 'vscode';
 import { MILanguageClient } from './lang-client/activator';
 import { extension } from './MIExtensionContext';
 import { 
@@ -309,6 +309,7 @@ const stateMachine = createMachine<MachineContext>({
                     // Activate the AI Panel State machine after LS is loaded.
                     StateMachineAI.initialize();
                     StateMachinePopup.initialize();
+
                     resolve(ls);
                 } catch (error) {
                     reject(error);

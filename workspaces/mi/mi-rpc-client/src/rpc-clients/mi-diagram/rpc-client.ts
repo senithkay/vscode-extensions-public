@@ -50,9 +50,9 @@ import {
     CreateTemplateRequest,
     CreateTemplateResponse,
     DataSourceTemplate,
+    DeleteArtifactRequest,
     DownloadConnectorRequest,
     DownloadConnectorResponse,
-    DeleteArtifactRequest,
     ESBConfigsResponse,
     EndpointDirectoryResponse,
     EndpointsAndSequencesResponse,
@@ -171,8 +171,8 @@ import {
     createSequence,
     createTask,
     createTemplate,
-    downloadConnector,
     deleteArtifact,
+    downloadConnector,
     executeCommand,
     getAIResponse,
     getAPIDirectory,
@@ -599,14 +599,13 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
     logoutFromMIAccount(): void {
         return this._messenger.sendNotification(logoutFromMIAccount, HOST_EXTENSION);
     }
-    
+
     getAllRegistryPaths(params: GetAllRegistryPathsRequest): Promise<GetAllRegistryPathsResponse> {
         return this._messenger.sendRequest(getAllRegistryPaths, HOST_EXTENSION, params);
     }
 
     getAllArtifacts(params: GetAllArtifactsRequest): Promise<GetAllArtifactsResponse> {
         return this._messenger.sendRequest(getAllArtifacts, HOST_EXTENSION, params);
-
     }
 
     deleteArtifact(params: DeleteArtifactRequest): Promise<void> {
