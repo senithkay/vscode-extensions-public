@@ -64,15 +64,25 @@
         "type": "object",
         "title": "Integration Studio",
         "properties": {
-          "integrationStudio.apiKey": {
-            "type": "string",
-            "default": "",
-            "description": "OpenAI API Key"
-          },
           "integrationStudio.rootUrl": {
             "type": "string",
-            "default": "https://e95488c8-8511-4882-967f-ec3ae2a0f86f-dev.e1-us-east-azure.choreoapis.dev/miaideployments/micopilot/mi-copilot-backend-be2/v1.0",
-            "description": "Root URL for Backend Services"
+            "default": "https://e95488c8-8511-4882-967f-ec3ae2a0f86f-prod.e1-us-east-azure.choreoapis.dev/miaideployments/micopilot/mi-copilot-backend-be2/v1.0",
+            "description": "Root URL for Backend Services\n Default: https://e95488c8-8511-4882-967f-ec3ae2a0f86f-prod.e1-us-east-azure.choreoapis.dev/miaideployments/micopilot/mi-copilot-backend-be2/v1.0"
+          },
+          "integrationStudio.authOrg": {
+            "type": "string",
+            "default": "wso2mi",
+            "description": "Asgardeo Organization for Auth Services\nDefault: wso2mi"
+          },
+          "integrationStudio.authClientID": {
+            "type": "string",
+            "default": "rTEgoRFEQMc1baXcsO6_AU1ugjAa",
+            "description": "Client ID of the Asgardeo Organization for Auth Services\n Default: rTEgoRFEQMc1baXcsO6_AU1ugjAa"
+          },
+          "integrationStudio.authRedirectURL": {
+            "type": "string",
+            "default": "https://mi-copilot.wso2.com/vscode-auth",
+            "description": "Redirect URL for Auth Service \n Default: https://mi-copilot.wso2.com/vscode-auth"
           }
         }
       }
@@ -494,7 +504,6 @@
     "@wso2-enterprise/playwright-vscode-tester": "workspace:*",
     "vscode-extension-tester": "~5.9.1",
     "vscode-languageclient": "^8.0.2",
-    "xml2js": "~0.6.2",
     "@types/xml2js": "~0.4.12",
     "jsonix": "~3.0.0",
     "lodash": "~4.17.21",
