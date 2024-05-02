@@ -74,6 +74,14 @@ export function Overview(props: OverviewProps) {
                 codicon="project"
             >
                 <Button
+                    appearance="primary"
+                    onClick={handleAddArtifact}
+                    tooltip="Add Artifact"
+                >
+                    <Codicon name="add" sx={{ marginRight: "4px" }} />
+                    Add Artifact
+                </Button>
+                <Button
                     appearance="icon"
                     onClick={handleBuild}
                     tooltip="Build"
@@ -88,14 +96,6 @@ export function Overview(props: OverviewProps) {
                 >
                     <Codicon name="export" sx={{ marginRight: "4px" }} />
                     Export
-                </Button>
-                <Button
-                    appearance="primary"
-                    onClick={handleAddArtifact}
-                    tooltip="Add Artifact"
-                >
-                    <Codicon name="add" sx={{ marginRight: "4px" }} />
-                    Add Artifact
                 </Button>
             </ViewHeader>
             <ViewContent padding>
