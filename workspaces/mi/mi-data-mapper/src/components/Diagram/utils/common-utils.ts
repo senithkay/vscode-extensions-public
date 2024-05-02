@@ -16,7 +16,8 @@ import {
     ParameterDeclaration,
     PropertyAccessExpression,
     PropertyAssignment,
-    Expression
+    Expression,
+    CallExpression
 } from "ts-morph";
 
 import { PropertyAccessNodeFindingVisitor } from "../../Visitors/PropertyAccessNodeFindingVisitor";
@@ -266,8 +267,9 @@ export function isConnectedViaLink(field: Node) {
 	const isObjectLiteralExpr = Node.isObjectLiteralExpression(field);
 	const isArrayLiteralExpr = Node.isArrayLiteralExpression(field);
 	const isIdentifier = Node.isIdentifier(field);
+    const isArrayFunction = Node.isCallExpression(field) && isMapFunction(field);
 
-	return (!!inputNodes.length || isIdentifier) && !isObjectLiteralExpr && !isArrayLiteralExpr;
+	return (!!inputNodes.length || isIdentifier || isArrayFunction) && !isObjectLiteralExpr && !isArrayLiteralExpr;
 }
 
 export function getDefaultValue(typeKind: TypeKind): string {
@@ -395,13 +397,23 @@ export function hasCallExpressions(node: Node): boolean {
 }
 
 export function isNodeCallExpression(node: Node): boolean {
-    if (Node.isCallExpression(node)) {
+    if (Node.isCallExpression(node) && !isMapFunction(node)) {
         return true
     }
     const parentNode = node.getParent();
     if (parentNode) {
         return isNodeCallExpression(parentNode);
     }
+    return false;
+}
+
+export function isMapFunction(callExpr: CallExpression): boolean {
+    const expr = callExpr.getExpression();
+
+    if (Node.isPropertyAccessExpression(expr)) {
+        return expr.getName() === "map";
+    }
+
     return false;
 }
 

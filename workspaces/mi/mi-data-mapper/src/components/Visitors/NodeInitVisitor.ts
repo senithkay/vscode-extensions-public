@@ -6,14 +6,15 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { Node, PropertyAssignment, ObjectLiteralExpression, FunctionDeclaration, ReturnStatement, ArrayLiteralExpression, Identifier, PropertyAccessExpression } from "ts-morph";
+import { Node, PropertyAssignment, ObjectLiteralExpression, FunctionDeclaration, ReturnStatement, ArrayLiteralExpression, Identifier, PropertyAccessExpression, SyntaxKind, CallExpression } from "ts-morph";
 import { Visitor } from "../../ts/base-visitor";
 import { ObjectOutputNode, InputNode, LinkConnectorNode, ArrayOutputNode } from "../Diagram/Node";
 import { DataMapperNodeModel } from "../Diagram/Node/commons/DataMapperNode";
 import { DataMapperContext } from "../../utils/DataMapperContext/DataMapperContext";
 import { InputDataImportNodeModel, OutputDataImportNodeModel } from "../Diagram/Node/DataImport/DataImportNode";
-import { canConnectWithLinkConnector, getPropertyAccessNodes, isConditionalExpression } from "../Diagram/utils/common-utils";
+import { canConnectWithLinkConnector, getPropertyAccessNodes, isConditionalExpression, isMapFunction } from "../Diagram/utils/common-utils";
 import { DMType, TypeKind } from "@wso2-enterprise/mi-core";
+import { ArrayFnConnectorNode } from "../Diagram/Node/ArrayFnConnector";
 
 export class NodeInitVisitor implements Visitor {
     private inputNode: DataMapperNodeModel | InputDataImportNodeModel;
@@ -65,6 +66,13 @@ export class NodeInitVisitor implements Visitor {
                     }
                 }
             })
+        }
+    }
+
+    beginVisitCallExpression(node: CallExpression, parent: Node): void {
+        if (isMapFunction(node)) {
+            const arrayFnConnectorNode = new ArrayFnConnectorNode(this.context, node, parent);
+            this.intermediateNodes.push(arrayFnConnectorNode);
         }
     }
 

@@ -41,6 +41,7 @@ import { DataMapperLinkFactory } from './Link';
 import { RightAngleLinkFactory } from './Link/RightAngleLink/RightAngleLinkFactory';
 import * as Nodes from "./Node";
 import { DataImportNodeFactory } from './Node/DataImport/DataImportNodeFactory';
+import { ArrayFnConnectorNode, ArrayFnConnectorNodeFactory } from './Node/ArrayFnConnector';
 
 interface DataMapperDiagramProps {
 	nodes?: DataMapperNodeModel[];
@@ -73,6 +74,7 @@ function initDiagramEngine() {
 	engine.getNodeFactories().registerFactory(new Nodes.ArrayOutputNodeFactory());
 	engine.getNodeFactories().registerFactory(new Nodes.ObjectOutputNodeFactory());
 	engine.getNodeFactories().registerFactory(new LinkConnectorNodeFactory());
+	engine.getNodeFactories().registerFactory(new ArrayFnConnectorNodeFactory());
 	engine.getNodeFactories().registerFactory(new DataImportNodeFactory);
 
 	engine.getPortFactories().registerFactory(new InputOutputPortFactory());
@@ -125,7 +127,7 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 	useEffect(() => {
 		if (!isFetching && engine.getModel()) {
 			engine.getModel().getNodes().forEach((node) => {
-				if (node instanceof LinkConnectorNode) {
+				if (node instanceof LinkConnectorNode || node instanceof ArrayFnConnectorNode) {
 					node.initLinks();
 					const targetPortPosition = node.targetPort?.getPosition();
 					if (targetPortPosition) {

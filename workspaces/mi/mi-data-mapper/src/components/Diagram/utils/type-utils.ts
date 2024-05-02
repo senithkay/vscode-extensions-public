@@ -17,7 +17,28 @@ export function enrichAndProcessType(typeToBeProcessed: DMType, node: Node): [DM
     return [valueEnrichedType, type];
 }
 
-export function getEnrichedDMType(
+export function getDMType(propertyAccessExpr: string, parentType: DMType): DMType {
+    let properties = propertyAccessExpr.split('.').splice(1);
+    let currentType = parentType;
+
+    for (let property of properties) {
+        if (currentType.kind === TypeKind.Interface && currentType.fields) {
+            let field = currentType.fields.find(field => field.fieldName === property);
+
+            if (field) {
+                currentType = field;
+            } else {
+                return;
+            }
+        } else {
+            return;
+        }
+    }
+
+    return currentType;
+}
+
+function getEnrichedDMType(
     type: DMType,
     node: Node | undefined,
     parentType?: DMTypeWithValue,
@@ -51,7 +72,7 @@ export function getEnrichedDMType(
     return dmTypeWithValue;
 }
 
-export function getEnrichedPrimitiveType(
+function getEnrichedPrimitiveType(
     field: DMType,
     node: Node,
     parentType?: DMTypeWithValue,
@@ -71,7 +92,7 @@ export function getEnrichedPrimitiveType(
     return members;
 }
 
-export function getEnrichedArrayType(
+function getEnrichedArrayType(
     field: DMType,
     node: ArrayLiteralExpression,
     parentType?: DMTypeWithValue,
