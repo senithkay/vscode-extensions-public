@@ -43,14 +43,14 @@ export function activateDebugger(context: vscode.ExtensionContext) {
         });
     });
 
-    vscode.commands.registerCommand(COMMANDS.BUILD_PROJECT, async () => {
+    vscode.commands.registerCommand(COMMANDS.BUILD_PROJECT, async (shouldCopyTarget?: boolean) => {
         getServerPath().then(async (serverPath) => {
             if (!serverPath) {
                 vscode.window.showErrorMessage("Server path not found");
                 return;
             }
             const buildTask = getBuildTask();
-            await executeBuildTask(buildTask, serverPath);
+            await executeBuildTask(buildTask, serverPath, shouldCopyTarget);
         });
 
     });

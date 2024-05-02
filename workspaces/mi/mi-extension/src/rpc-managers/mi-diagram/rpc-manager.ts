@@ -3207,6 +3207,13 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             resolve();
         });
     }
+
+    async buildProject(): Promise<void> {
+        return new Promise(async (resolve) => {
+            await commands.executeCommand(COMMANDS.BUILD_PROJECT, false);
+            resolve();
+        });
+    }
 }
 
 export async function askProjectPath() {

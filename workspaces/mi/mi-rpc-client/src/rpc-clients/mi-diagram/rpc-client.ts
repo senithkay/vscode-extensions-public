@@ -154,6 +154,7 @@ import {
     askProjectDirPath,
     askProjectImportDirPath,
     browseFile,
+    buildProject,
     closeWebView,
     closeWebViewNotification,
     createAPI,
@@ -610,5 +611,9 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     deleteArtifact(params: DeleteArtifactRequest): Promise<void> {
         return this._messenger.sendRequest(deleteArtifact, HOST_EXTENSION, params);
+    }
+
+    async buildProject(): Promise<void> {
+        return this._messenger.sendRequest(buildProject, HOST_EXTENSION);
     }
 }
