@@ -40,7 +40,8 @@ export function HierachicalPath(props: HierachicalPathProps) {
             return;
         }
 
-        const filePath = path.relative(machineView.projectUri, machineView.documentUri).split(path.join("src", "main"))[1];
+        const splitString = navigator.platform.toLowerCase().includes("win") ? path.win32.join("src", "main") : path.join("src", "main");
+        const filePath = path.relative(machineView.projectUri, machineView.documentUri).split(splitString)[1];
         const pathItems = filePath.substring(1).split(path.sep);
 
         const segments: Segment[] = [];
