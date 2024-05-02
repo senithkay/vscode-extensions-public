@@ -18,9 +18,10 @@ import { deleteRegistryResource } from '../util/fileOperations';
 import { RpcClient } from '@wso2-enterprise/mi-rpc-client';
 import { extension } from '../MIExtensionContext';
 
-export function activateProjectExplorer(context: ExtensionContext) {
+export async function activateProjectExplorer(context: ExtensionContext) {
 
 	const projectExplorerDataProvider = new ProjectExplorerEntryProvider(context);
+	await projectExplorerDataProvider.refresh();
 	const projectTree = window.createTreeView('MI.project-explorer', { treeDataProvider: projectExplorerDataProvider });
 	commands.registerCommand(COMMANDS.REFRESH_COMMAND, () => { return projectExplorerDataProvider.refresh(); });
 	commands.registerCommand(COMMANDS.ADD_COMMAND, () => {

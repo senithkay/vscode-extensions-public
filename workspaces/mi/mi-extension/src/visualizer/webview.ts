@@ -35,7 +35,7 @@ export class VisualizerWebview {
         // Handle the text change and diagram update with rpc notification
         const refreshDiagram = debounce(async () => {
             if (this.getWebview()) {
-                if (StateMachine.context().isMiProject) {
+                if (!StateMachine.context().isOldProject) {
                     await vscode.commands.executeCommand(COMMANDS.REFRESH_COMMAND); // Refresh the project explore view
                 }
                 navigate();
@@ -43,6 +43,10 @@ export class VisualizerWebview {
         }, 500);
 
         vscode.workspace.onDidChangeTextDocument(async function (document) {
+            // Trigger refresh only if the document is a SynapseXml
+            if (document.document.languageId !== 'SynapseXml') {
+                return;
+            }
             await document.document.save();
             refreshDiagram();
         }, extension.context);

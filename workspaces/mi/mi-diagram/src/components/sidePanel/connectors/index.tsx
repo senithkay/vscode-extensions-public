@@ -230,11 +230,26 @@ export function ConnectorPage(props: ConnectorPageProps) {
         // Download connector from store
         if (connector.operations) {
             setIsDownloading(true);
-            await rpcClient.getMiDiagramRpcClient().downloadConnector({
-                connector: connector.name,
-                url: connector.download_url,
-                version: connector.version
-            });
+            let downloadSuccess = false;
+            let attempts = 0;
+
+            while (!downloadSuccess && attempts < 3) {
+                try {
+                    await rpcClient.getMiDiagramRpcClient().downloadConnector({
+                        connector: connector.name,
+                        url: connector.download_url,
+                        version: connector.version
+                    });
+                    downloadSuccess = true;
+                } catch (error) {
+                    console.error('Error occurred while downloading connector:', error);
+                    attempts++;
+                }
+            }
+
+            if (!downloadSuccess) {
+                console.error('Failed to download connector after 3 attempts');
+            }
             setIsDownloading(false);
         }
 

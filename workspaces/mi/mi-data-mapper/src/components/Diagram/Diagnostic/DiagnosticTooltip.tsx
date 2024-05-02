@@ -12,6 +12,7 @@ import { Button, Codicon, Divider, Icon, Tooltip } from "@wso2-enterprise/ui-too
 import { Diagnostic } from "ts-morph";
 
 import { useStyles } from "./style";
+import { getDiagnosticMessage } from "../utils/diagnostics-utils";
 
 interface Props {
     placement: "top" | "bottom" | "left" | "right";
@@ -27,6 +28,7 @@ export function DiagnosticTooltip(props: Partial<Props>) {
     const { diagnostic, value, children, onClick } = props;
     const classes = useStyles();
     const source = diagnostic.getSource() || value;
+    const diagnosticMsg = getDiagnosticMessage(diagnostic);
 
     const Code = () => (
         <>
@@ -62,14 +64,14 @@ export function DiagnosticTooltip(props: Partial<Props>) {
             >
                 <Icon name="error-icon" iconSx={{ color: "var(--vscode-errorForeground)" }} />
             </Button>
-            <div className={classes.diagnosticWrapper}>{diagnostic.getMessageText()}</div>
+            <div className={classes.diagnosticWrapper}>{diagnosticMsg}</div>
         </>
 
     );
 
     const tooltipTitleComponent = (
         <pre className={classes.pre}>
-            {diagnostic.getMessageText() && <DiagnosticC />}
+            {diagnosticMsg && <DiagnosticC />}
             {source && <Code />}
         </pre>
     );

@@ -17,8 +17,13 @@ export class PropertyAccessNodeFindingVisitor implements Visitor {
     }
 
     public beginVisitPropertyAccessExpression(node: PropertyAccessExpression, parent?: Node) {
-        if (!parent || !Node.isPropertyAccessExpression(parent)) {
+        if (!parent || (!Node.isPropertyAccessExpression(parent) && !Node.isCallExpression(parent))) {
             this.inputNodes.push(node)
+        } else if (parent && Node.isCallExpression(parent)) {
+            const expr = node.getExpression();
+            if (Node.isPropertyAccessExpression(expr)) {
+                this.inputNodes.push(expr);
+            }
         }
     }
 

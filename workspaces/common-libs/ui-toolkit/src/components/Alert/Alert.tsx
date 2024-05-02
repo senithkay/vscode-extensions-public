@@ -10,24 +10,45 @@
 import styled from "@emotion/styled";
 import React, { PropsWithChildren } from "react";
 
+type Variant = "primary" | "secondary" | "error";
 export interface AlertProps {
     title?: string;
     subTitle?: string;
-    variant?: "primary" | "secondary";
+    variant?: Variant;
     sx?: React.CSSProperties;
 }
 
 interface ContainerProps {
-    variant: "primary" | "secondary";
+    variant: Variant;
     sx?: React.CSSProperties;
 }
 
+// Helper functions
+const getBorderColor = (variant: Variant) => {
+    switch (variant) {
+        case "primary":
+            return "var(--vscode-focusBorder)";
+        case "secondary":
+            return "var(--vscode-editorWidget-border)";
+        case "error":
+            return "var(--vscode-errorForeground)";
+    }
+}
+
+const getBackgroundColor = (variant: Variant) => {
+    switch (variant) {
+        case "primary":
+            return "var(--vscode-inputValidation-infoBackground)";
+        case "secondary":
+            return "transparent";
+        case "error":
+            return "var(--vscode-inputValidation-errorBackground)";
+    }
+}
+
 const Container = styled.div<ContainerProps>`
-    border-left: 0.3rem solid
-        var(${(props: ContainerProps) => (props.variant === "secondary" ? "--vscode-editorWidget-border" : "--vscode-focusBorder")});
-    background: var(
-        ${(props: ContainerProps) => (props.variant === "secondary" ? "transparent" : "--vscode-inputValidation-infoBackground")}
-    );
+    border-left: 0.3rem solid ${(props: ContainerProps) => getBorderColor(props.variant)};
+    background: ${(props: ContainerProps) => getBackgroundColor(props.variant)};
     display: flex;
     flex-direction: column;
     align-items: flex-start;

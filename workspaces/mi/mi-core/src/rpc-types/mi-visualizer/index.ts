@@ -9,13 +9,14 @@
 
 import { HistoryEntry } from "../../history";
 import { ColorThemeKind } from "../../state-machine-types";
-import { ProjectStructureRequest, ProjectStructureResponse, WorkspacesResponse, OpenViewRequest, HistoryEntryResponse, ToggleDisplayOverviewRequest, GoToSourceRequest } from "./types";
+import { ProjectStructureRequest, ProjectStructureResponse, WorkspacesResponse, OpenViewRequest, HistoryEntryResponse, ToggleDisplayOverviewRequest, GoToSourceRequest, LogRequest } from "./types";
 import { GettingStartedData, SampleDownloadRequest } from "./types";
 export interface MIVisualizerAPI {
     getWorkspaces: () => Promise<WorkspacesResponse>;
     getProjectStructure: (params: ProjectStructureRequest) => Promise<ProjectStructureResponse>;
     getCurrentThemeKind: () => Promise<ColorThemeKind>;
     openView: (params: OpenViewRequest) => void;
+    reloadWindow: () => Promise<void>;
     goBack: () => void;
     fetchSamplesFromGithub: () => Promise<GettingStartedData>;
     downloadSelectedSampleFromGithub: (params: SampleDownloadRequest) => void;
@@ -25,4 +26,6 @@ export interface MIVisualizerAPI {
     goSelected: (params: number) => void;
     toggleDisplayOverview: (params: ToggleDisplayOverviewRequest) => void;
     goToSource: (params: GoToSourceRequest) => void;
+    focusOutput: () => void;
+    log: (params: LogRequest) => void;
 }

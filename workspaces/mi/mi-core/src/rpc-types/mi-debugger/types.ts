@@ -22,7 +22,7 @@ export interface BreakpointValidity {
     reason?: string;
 }
 
-export interface ValidateBreakpointsResponse  {
+export interface ValidateBreakpointsResponse {
     breakpointValidity: BreakpointValidity[];
 }
 
@@ -60,8 +60,8 @@ export interface StepOverBreakpointRequest {
 
 export interface StepOverBreakpointResponse {
     nextBreakpointLine: number;
-    nextDebugInfo:BreakpointInfo,
-    noNextBreakpoint:boolean
+    nextDebugInfo: BreakpointInfo,
+    noNextBreakpoint: boolean
 }
 
 export interface RemoveBreakpointFromSourceRequest {
@@ -70,14 +70,14 @@ export interface RemoveBreakpointFromSourceRequest {
 }
 
 export interface BreakpointInfo {
-    sequence?: BreakpointSequence; // TODO: update as SequenceBreakpoint
-    template?: BreakpointTemplate;
+    sequence?: SequenceBreakpoint;
+    template?: TemplateBreakpoint;
     command?: string;
     "command-argument"?: string;
     "mediation-component": string;
 }
 
-export interface BreakpointSequence {
+export interface SequenceBreakpoint {
     api?: ApiBreakpoint;
     proxy?: ProxyBreakpoint;
     inbound?: InboundEndpointBreakpoint;
@@ -109,8 +109,7 @@ export interface InboundEndpointBreakpoint {
     "mediator-position": string;
 }
 
-export interface BreakpointTemplate {
+export interface TemplateBreakpoint {
     "template-key": string;
     "mediator-position": string;
 }
-    
