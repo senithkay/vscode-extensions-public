@@ -27,10 +27,8 @@ export interface DrawerItemProps {
 
 const DrawerContainer = styled.div<DrawerContainerProps>`
     position: absolute;
-    width: 200px;
-    height: 100%;
-    background-color: #fff;
-    border: 1px solid #ddd;
+    width: 450px;
+    height: 100vh;
     top: 0;
     right: 0;
     transform: translateX(${(props: DrawerContainerProps) => (props.isOpen ? '0' : '100%')});
@@ -38,7 +36,7 @@ const DrawerContainer = styled.div<DrawerContainerProps>`
     background-color: var(--vscode-editor-background);
     color: var(--vscode-editor-foreground);
     box-shadow: 0 5px 10px 0 var(--vscode-badge-background);
-    z-index: 201;
+    z-index: 2001;
     transition: transform 0.4s ease;
     width: ${(props: DrawerContainerProps) => `${props.width}px`};
     ${(props: DrawerContainerProps) => props.sx};
