@@ -101,7 +101,7 @@ const PropertyForm = (props: AddMediatorProps) => {
                     {errors.propertyName && <Error>{errors.propertyName.message.toString()}</Error>}
                 </Field>
 
-            {!((watch("propertyAction") == "remove") ) &&
+                {!((watch("propertyAction") == "remove") ) &&
                 <Field>
                     <Controller
                         name="propertyDataType"
@@ -129,7 +129,7 @@ const PropertyForm = (props: AddMediatorProps) => {
                     {errors.propertyAction && <Error>{errors.propertyAction.message.toString()}</Error>}
                 </Field>
 
-            {!(((watch("propertyDataType") == "OM") ||(watch("propertyAction") == "remove") )) &&
+                {!(((watch("propertyDataType") == "OM") ||(watch("propertyAction") == "remove") )) &&
                 <Field>
                     <Controller
                         name="value"
@@ -156,7 +156,7 @@ const PropertyForm = (props: AddMediatorProps) => {
                 </Field>
                 }
 
-            {watch("propertyDataType") == "OM" &&
+                {watch("propertyDataType") == "OM" &&
                 <Field>
                     <Controller
                         name="OMValue"
@@ -183,7 +183,7 @@ const PropertyForm = (props: AddMediatorProps) => {
                 </Field>
 
                 <FormGroup title="Advanced">
-                {((watch("propertyDataType") == "STRING") &&(watch("propertyAction") == "set") ) &&
+                    {((watch("propertyDataType") == "STRING") &&(watch("propertyAction") == "set") ) &&
                     <Field>
                         <Controller
                             name="valueStringPattern"
@@ -196,7 +196,7 @@ const PropertyForm = (props: AddMediatorProps) => {
                     </Field>
                     }
 
-                {((watch("propertyDataType") == "STRING") &&(watch("propertyAction") == "set") ) &&
+                    {((watch("propertyDataType") == "STRING") &&(watch("propertyAction") == "set") ) &&
                     <Field>
                         <Controller
                             name="valueStringCapturingGroup"

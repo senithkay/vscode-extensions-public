@@ -50,8 +50,8 @@ const CacheForm = (props: AddMediatorProps) => {
             id: sidePanelContext?.formValues?.id || "",
             cacheTimeout: sidePanelContext?.formValues?.cacheTimeout || "120",
             maxMessageSize: sidePanelContext?.formValues?.maxMessageSize || "2000",
-            scope: sidePanelContext?.formValues?.scope || "Per_Host",
-            hashGeneratorAttribute: sidePanelContext?.formValues?.hashGeneratorAttribute || "",
+            scope: sidePanelContext?.formValues?.scope || "per-host",
+            hashGeneratorAttribute: sidePanelContext?.formValues?.hashGeneratorAttribute || "org.wso2.carbon.mediator.cache.digest.DOMHASHGenerator",
             maxEntryCount: sidePanelContext?.formValues?.maxEntryCount || "1000",
             implementationType: sidePanelContext?.formValues?.implementationType || "memory",
             sequenceType: sidePanelContext?.formValues?.sequenceType || "ANONYMOUS",
@@ -122,7 +122,6 @@ const CacheForm = (props: AddMediatorProps) => {
                 <ComponentCard sx={cardStyle} disbaleHoverEffect>
                     <Typography variant="h3">Properties</Typography>
 
-                    {watch("cacheMediatorImplementation") == "611 Compatible" &&
                     <Field>
                         <Controller
                             name="cacheType"
@@ -135,7 +134,6 @@ const CacheForm = (props: AddMediatorProps) => {
                         />
                         {errors.cacheType && <Error>{errors.cacheType.message.toString()}</Error>}
                     </Field>
-                    }
 
                     {((watch("cacheMediatorImplementation") == "611 Compatible") &&(watch("cacheType") == "FINDER") ) &&
                     <Field>
@@ -182,7 +180,7 @@ const CacheForm = (props: AddMediatorProps) => {
                             name="scope"
                             control={control}
                             render={({ field }) => (
-                                <AutoComplete label="Scope" name="scope" items={["Per_Host", "Per_Mediator"]} value={field.value} onValueChange={(e: any) => {
+                                <AutoComplete label="Scope" name="scope" items={["per-host", "per-mediator"]} value={field.value} onValueChange={(e: any) => {
                                     field.onChange(e);
                                 }} />
                             )}
@@ -206,10 +204,10 @@ const CacheForm = (props: AddMediatorProps) => {
 
                 </ComponentCard>
 
+                {watch("cacheType") == "FINDER" &&
                 <ComponentCard sx={cardStyle} disbaleHoverEffect>
                     <Typography variant="h3">Implementation</Typography>
 
-                    {watch("cacheType") == "FINDER" &&
                     <Field>
                         <Controller
                             name="maxEntryCount"
@@ -220,29 +218,29 @@ const CacheForm = (props: AddMediatorProps) => {
                         />
                         {errors.maxEntryCount && <Error>{errors.maxEntryCount.message.toString()}</Error>}
                     </Field>
-                    }
 
-                    {((watch("cacheMediatorImplementation") == "611 Compatible") &&(watch("cacheType") == "FINDER") ) &&
-                    <Field>
-                        <Controller
-                            name="implementationType"
-                            control={control}
-                            render={({ field }) => (
-                                <AutoComplete label="Implementation Type" name="implementationType" items={["memory", "disk"]} value={field.value} onValueChange={(e: any) => {
-                                    field.onChange(e);
-                                }} />
-                            )}
-                        />
-                        {errors.implementationType && <Error>{errors.implementationType.message.toString()}</Error>}
-                    </Field>
+                    {((watch("cacheMediatorImplementation") == "611 Compatible") ) &&
+                        <Field>
+                            <Controller
+                                name="implementationType"
+                                control={control}
+                                render={({ field }) => (
+                                    <AutoComplete label="Implementation Type" name="implementationType" items={["memory", "disk"]} value={field.value} onValueChange={(e: any) => {
+                                        field.onChange(e);
+                                    }} />
+                                )}
+                            />
+                            {errors.implementationType && <Error>{errors.implementationType.message.toString()}</Error>}
+                        </Field>
                     }
 
                 </ComponentCard>
+                }
 
+                {watch("cacheType") == "FINDER" &&
                 <ComponentCard sx={cardStyle} disbaleHoverEffect>
                     <Typography variant="h3">On Cache Hit</Typography>
 
-                    {watch("cacheType") == "FINDER" &&
                     <Field>
                         <Controller
                             name="sequenceType"
@@ -255,27 +253,27 @@ const CacheForm = (props: AddMediatorProps) => {
                         />
                         {errors.sequenceType && <Error>{errors.sequenceType.message.toString()}</Error>}
                     </Field>
-                    }
 
-                    {((watch("sequenceType") == "REGISTRY_REFERENCE") &&(watch("cacheType") == "FINDER") ) &&
-                    <Field>
-                        <Controller
-                            name="sequenceKey"
-                            control={control}
-                            render={({ field }) => (
-                                <TextField {...field} label="Sequence Key" size={50} placeholder="" />
-                            )}
-                        />
-                        {errors.sequenceKey && <Error>{errors.sequenceKey.message.toString()}</Error>}
-                    </Field>
+                    {watch("sequenceType") == "REGISTRY_REFERENCE" &&
+                        <Field>
+                            <Controller
+                                name="sequenceKey"
+                                control={control}
+                                render={({ field }) => (
+                                    <TextField {...field} label="Sequence Key" size={50} placeholder="" />
+                                )}
+                            />
+                            {errors.sequenceKey && <Error>{errors.sequenceKey.message.toString()}</Error>}
+                        </Field>
                     }
 
                 </ComponentCard>
+                }
 
+                {((watch("cacheMediatorImplementation") == "Default") &&(watch("cacheType") == "FINDER") ) &&
                 <ComponentCard sx={cardStyle} disbaleHoverEffect>
                     <Typography variant="h3">Protocol</Typography>
 
-                    {((watch("cacheMediatorImplementation") == "Default") &&(watch("cacheType") == "FINDER") ) &&
                     <Field>
                         <Controller
                             name="cacheProtocolType"
@@ -288,9 +286,7 @@ const CacheForm = (props: AddMediatorProps) => {
                         />
                         {errors.cacheProtocolType && <Error>{errors.cacheProtocolType.message.toString()}</Error>}
                     </Field>
-                    }
 
-                    {((watch("cacheMediatorImplementation") == "Default") &&(watch("cacheType") == "FINDER") ) &&
                     <Field>
                         <Controller
                             name="cacheProtocolMethods"
@@ -301,9 +297,7 @@ const CacheForm = (props: AddMediatorProps) => {
                         />
                         {errors.cacheProtocolMethods && <Error>{errors.cacheProtocolMethods.message.toString()}</Error>}
                     </Field>
-                    }
 
-                    {((watch("cacheMediatorImplementation") == "Default") &&(watch("cacheType") == "FINDER") ) &&
                     <Field>
                         <Controller
                             name="headersToExcludeInHash"
@@ -314,9 +308,7 @@ const CacheForm = (props: AddMediatorProps) => {
                         />
                         {errors.headersToExcludeInHash && <Error>{errors.headersToExcludeInHash.message.toString()}</Error>}
                     </Field>
-                    }
 
-                    {((watch("cacheMediatorImplementation") == "Default") &&(watch("cacheType") == "FINDER") ) &&
                     <Field>
                         <Controller
                             name="headersToIncludeInHash"
@@ -327,9 +319,7 @@ const CacheForm = (props: AddMediatorProps) => {
                         />
                         {errors.headersToIncludeInHash && <Error>{errors.headersToIncludeInHash.message.toString()}</Error>}
                     </Field>
-                    }
 
-                    {((watch("cacheMediatorImplementation") == "Default") &&(watch("cacheType") == "FINDER") ) &&
                     <Field>
                         <Controller
                             name="responseCodes"
@@ -340,9 +330,7 @@ const CacheForm = (props: AddMediatorProps) => {
                         />
                         {errors.responseCodes && <Error>{errors.responseCodes.message.toString()}</Error>}
                     </Field>
-                    }
 
-                    {((watch("cacheMediatorImplementation") == "Default") &&(watch("cacheType") == "FINDER") ) &&
                     <Field>
                         <Controller
                             name="enableCacheControl"
@@ -353,9 +341,7 @@ const CacheForm = (props: AddMediatorProps) => {
                         />
                         {errors.enableCacheControl && <Error>{errors.enableCacheControl.message.toString()}</Error>}
                     </Field>
-                    }
 
-                    {((watch("cacheMediatorImplementation") == "Default") &&(watch("cacheType") == "FINDER") ) &&
                     <Field>
                         <Controller
                             name="includeAgeHeader"
@@ -366,9 +352,7 @@ const CacheForm = (props: AddMediatorProps) => {
                         />
                         {errors.includeAgeHeader && <Error>{errors.includeAgeHeader.message.toString()}</Error>}
                     </Field>
-                    }
 
-                    {((watch("cacheMediatorImplementation") == "Default") &&(watch("cacheType") == "FINDER") ) &&
                     <Field>
                         <Controller
                             name="hashGenerator"
@@ -379,9 +363,9 @@ const CacheForm = (props: AddMediatorProps) => {
                         />
                         {errors.hashGenerator && <Error>{errors.hashGenerator.message.toString()}</Error>}
                     </Field>
-                    }
 
                 </ComponentCard>
+                }
 
                 <Field>
                     <Controller

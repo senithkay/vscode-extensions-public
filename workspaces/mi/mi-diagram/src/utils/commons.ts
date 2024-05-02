@@ -7,6 +7,8 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
+import { ParamConfig, ParamValueConfig } from "../components/Form/ParamManager/ParamManager";
+
 export const FirstCharToUpperCase = (str: string) => {
     return str.charAt(0).toUpperCase() + str.slice(1);
 }
@@ -15,3 +17,19 @@ export const FirstCharToUpperCase = (str: string) => {
 export function checkAttributesExist(dirtyKeys: string[], attributes: string[]) {
     return dirtyKeys.some(key => attributes.includes(key));
 }
+
+export function generateSpaceSeperatedStringFromParamValues(paramConfig: ParamConfig) {
+    let result = "";
+    paramConfig.paramValues?.forEach(param => {
+        // if param.value is an object
+        if (typeof param.value === "string") {
+            result += param.value + " ";
+        } else {
+            const pc = param?.value as ParamConfig;
+            pc?.paramValues?.forEach(p => {
+                result += p.key + " ";
+            });
+        }
+    });
+    return result.trim();
+};
