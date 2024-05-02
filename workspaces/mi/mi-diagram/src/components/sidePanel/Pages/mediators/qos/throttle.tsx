@@ -17,9 +17,9 @@ import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
 import { MEDIATORS } from '../../../../../resources/constants';
 import { Controller, useForm } from 'react-hook-form';
-import { ExpressionFieldValue } from '../../../../Form/ExpressionField/ExpressionInput';
-import { ParamManager } from '../../../../Form/ParamManager/ParamManager';
 import { Keylookup } from '../../../../Form';
+import { ExpressionFieldValue } from '../../../../Form/ExpressionField/ExpressionInput';
+import { ParamManager, ParamValue } from '../../../../Form/ParamManager/ParamManager';
 
 const cardStyle = { 
     display: "block",
@@ -59,7 +59,7 @@ const ThrottleForm = (props: AddMediatorProps) => {
                     {
                         id: index,
                         key: typeof property[0] === 'object' ? property[0].value : property[0],
-                        value: typeof property[2] === 'object' ? property[2].value : property[2],
+                        value:  typeof property[2] === 'object' ? property[2].value : property[2],
                         icon: 'query',
                         paramValues: [
                             { value: property[0] },
@@ -253,16 +253,16 @@ const ThrottleForm = (props: AddMediatorProps) => {
                     </Field>
 
                     {watch("policyType") == "INLINE" &&
-                        <Field>
-                            <Controller
-                                name="maximumConcurrentAccess"
-                                control={control}
-                                render={({ field }) => (
-                                    <TextField {...field} label="Maxmium Concurrent Access" size={50} placeholder="" />
-                                )}
-                            />
-                            {errors.maximumConcurrentAccess && <Error>{errors.maximumConcurrentAccess.message.toString()}</Error>}
-                        </Field>
+                    <Field>
+                        <Controller
+                            name="maximumConcurrentAccess"
+                            control={control}
+                            render={({ field }) => (
+                                <TextField {...field} label="Maxmium Concurrent Access" size={50} placeholder="" />
+                            )}
+                        />
+                        {errors.maximumConcurrentAccess && <Error>{errors.maximumConcurrentAccess.message.toString()}</Error>}
+                    </Field>
                     }
 
                     {watch("policyType") == "INLINE" &&
@@ -279,12 +279,9 @@ const ThrottleForm = (props: AddMediatorProps) => {
                                     readonly={false}
                                     onChange= {(values) => {
                                         values.paramValues = values.paramValues.map((param: any, index: number) => {
-                                            const paramValues = param.paramValues;
+                                            const paramValues: ParamValue[] = param.paramValues;
                                             param.key = paramValues[0].value;
                                             param.value = paramValues[2].value;
-                                            if (paramValues[1]?.value?.isExpression) {
-                                                param.namespaces = paramValues[1].value.namespaces;
-                                            }
                                             param.icon = 'query';
                                             return param;
                                         });
@@ -302,14 +299,14 @@ const ThrottleForm = (props: AddMediatorProps) => {
                             name="policyKey"
                             control={control}
                             render={({ field }) => (
-                        <Keylookup
-                            value={field.value}
-                            filterType='ws_policy'
-                            label="Policy Key"
-                            allowItemCreate={false}
-                            onValueChange={field.onChange}
-                        />
-                    )}
+                                <Keylookup
+                                    value={field.value}
+                                    filterType='ws_policy'
+                                    label="Policy Key"
+                                    allowItemCreate={false}
+                                    onValueChange={field.onChange}
+                                />
+                            )}
                         />
                         {errors.policyKey && <Error>{errors.policyKey.message.toString()}</Error>}
                     </Field>

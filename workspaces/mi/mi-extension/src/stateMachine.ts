@@ -4,7 +4,16 @@ import * as vscode from 'vscode';
 import { Uri, ViewColumn, window } from 'vscode';
 import { MILanguageClient } from './lang-client/activator';
 import { extension } from './MIExtensionContext';
-import { EVENT_TYPE, HistoryEntry, MACHINE_VIEW, MachineStateValue, SyntaxTreeMi, VisualizerLocation, onConnectorStatusUpdate, webviewReady } from '@wso2-enterprise/mi-core';
+import { 
+    EVENT_TYPE,
+    HistoryEntry,
+    MACHINE_VIEW,
+    MachineStateValue,
+    SyntaxTreeMi,
+    VisualizerLocation,
+    webviewReady,
+    onConnectorStatusUpdate
+} from '@wso2-enterprise/mi-core';
 import { ExtendedLanguageClient } from './lang-client/ExtendedLanguageClient';
 import { VisualizerWebview } from './visualizer/webview';
 import { RPCLayer } from './RPCLayer';
@@ -16,10 +25,10 @@ import { activateProjectExplorer } from './project-explorer/activate';
 import { StateMachineAI } from './ai-panel/aiMachine';
 import { getSources } from './util/dataMapper';
 import { StateMachinePopup } from './stateMachinePopup';
+import { log } from './util/logger';
 
 interface MachineContext extends VisualizerLocation {
     langClient: ExtendedLanguageClient | null;
-    errorCode: string | null;
 }
 
 const stateMachine = createMachine<MachineContext>({
@@ -29,7 +38,7 @@ const stateMachine = createMachine<MachineContext>({
     predictableActionArguments: true,
     context: {
         langClient: null,
-        errorCode: null,
+        errors: [],
         view: MACHINE_VIEW.Welcome
     },
     states: {
@@ -41,48 +50,53 @@ const stateMachine = createMachine<MachineContext>({
                     {
                         target: 'projectDetected',
                         cond: (context, event) =>
-                            event.data.isProject === true && event.data.emptyProject === true, // Assuming true means project detected
+                            // Assuming true means project detected
+                            event.data.isProject === true && event.data.emptyProject === true,
                         actions: assign({
                             view: (context, event) => MACHINE_VIEW.ADD_ARTIFACT,
                             projectUri: (context, event) => event.data.projectUri,
-                            isMiProject: (context, event) => true,
+                            isOldProject: (context, event) => false,
                             displayOverview: (context, event) => true,
                         })
                     },
                     {
                         target: 'projectDetected',
                         cond: (context, event) =>
-                            event.data.isProject === true && event.data.emptyProject === false, // Assuming true means project detected
+                            // Assuming true means project detected
+                            event.data.isProject === true && event.data.emptyProject === false,
                         actions: assign({
                             view: (context, event) => MACHINE_VIEW.Overview,
                             projectUri: (context, event) => event.data.projectUri,
-                            isMiProject: (context, event) => true,
+                            isOldProject: (context, event) => false,
                             displayOverview: (context, event) => true,
                         })
                     },
                     {
-                        target: 'unsupportedProject',
+                        target: 'oldProjectDetected',
                         cond: (context, event) =>
-                            event.data.isUnsupportedProject === true && event.data.displayOverview === true, // Assuming true means old project detected
+                            // Assuming true means old project detected
+                            event.data.isOldProject === true && event.data.displayOverview === true,
                         actions: assign({
                             view: (context, event) => MACHINE_VIEW.UnsupportedProject,
                             projectUri: (context, event) => event.data.projectUri,
-                            isMiProject: (context, event) => false,
+                            isOldProject: (context, event) => true,
                             displayOverview: (context, event) => true,
                         })
                     },
                     {
                         target: 'lsInit',
                         cond: (context, event) =>
-                            event.data.isUnsupportedProject === true && event.data.displayOverview === false, // Unsupported project with disabled overview
+                            // Integration Studio project with disabled overview
+                            event.data.isOldProject === true && event.data.displayOverview === false,
                         actions: assign({
-                            isMiProject: (context, event) => event.data.isMiProject,
+                            isOldProject: (context, event) => event.data.isOldProject,
                             displayOverview: (context, event) => event.data.displayOverview
                         })
                     },
                     {
                         target: 'newProject',
-                        cond: (context, event) => event.data.isProject === false && event.data.isUnsupportedProject === false, // Assuming false means new project
+                        // Assuming false means new project
+                        cond: (context, event) => event.data.isProject === false && event.data.isOldProject === false,
                         actions: assign({
                             view: (context, event) => MACHINE_VIEW.Welcome
                         })
@@ -92,13 +106,21 @@ const stateMachine = createMachine<MachineContext>({
                 onError: {
                     target: 'disabled',
                     actions: assign({
-                        errorCode: (context, event) => event.data
+                        view: (context, event) => MACHINE_VIEW.Disabled,
+                        errors: (context, event) => event.data
                     })
                 }
             }
         },
         projectDetected: {
-            entry: 'activateProjectExplorer',
+            invoke: {
+                src: 'activateProjectExplorer',
+                onDone: {
+                    target: 'projectExplorerActivated'
+                }
+            }
+        },
+        oldProjectDetected: {
             invoke: {
                 src: 'openWebPanel',
                 onDone: {
@@ -106,7 +128,7 @@ const stateMachine = createMachine<MachineContext>({
                 }
             }
         },
-        unsupportedProject: {
+        projectExplorerActivated: {
             invoke: {
                 src: 'openWebPanel',
                 onDone: {
@@ -136,7 +158,8 @@ const stateMachine = createMachine<MachineContext>({
                 onError: {
                     target: 'disabled',
                     actions: assign({
-                        errorCode: (context, event) => event.data
+                        view: (context, event) => MACHINE_VIEW.Disabled,
+                        errors: (context, event) => event.data
                     })
                 }
             }
@@ -240,7 +263,7 @@ const stateMachine = createMachine<MachineContext>({
         },
         disabled: {
             invoke: {
-                src: 'disableExtension'
+                src: 'disableExtension',
             },
         },
         newProject: {
@@ -271,31 +294,41 @@ const stateMachine = createMachine<MachineContext>({
     guards: {
 
     },
-    actions: {
-        activateProjectExplorer: (context, event) => {
-            activateProjectExplorer(extension.context);
-        }
-    },
     services: {
         waitForLS: (context, event) => {
             // replace this with actual promise that waits for LS to be ready
             return new Promise(async (resolve, reject) => {
-                const ls = (await MILanguageClient.getInstance(extension.context)).languageClient;
-                vscode.commands.executeCommand('setContext', 'MI.status', 'projectLoaded');
-                vscode.commands.executeCommand(COMMANDS.FOCUS_PROJECT_EXPLORER);
-                // Activate the AI Panel State machine after LS is loaded.
-                StateMachineAI.initialize();
-                StateMachinePopup.initialize();
-
-                // Listen to the LS notification
-                if (ls) {
-                    ls.onNotification("synapse/addConnectorStatus", (connectorStatus: any) => {
-                        console.log("Connector status: " + connectorStatus);
-                        // Notify the visualizer
-                        RPCLayer._messenger.sendNotification(onConnectorStatusUpdate, { type: 'webview', webviewType: VisualizerWebview.viewType }, connectorStatus);
-                    });
+                try {
+                    vscode.commands.executeCommand(COMMANDS.FOCUS_PROJECT_EXPLORER);
+                    const instance = await MILanguageClient.getInstance(extension.context);
+                    const errors = instance.getErrors();
+                    if (errors.length) {
+                        return reject(errors);
+                    }
+                    const ls = instance.languageClient;
+                    vscode.commands.executeCommand('setContext', 'MI.status', 'projectLoaded');
+                    // Activate the AI Panel State machine after LS is loaded.
+                    StateMachineAI.initialize();
+                    StateMachinePopup.initialize();
+                    
+                    // Listen to the LS notification
+                    if (ls) {
+                        ls.onNotification("synapse/addConnectorStatus", (connectorStatus: any) => {
+                            console.log("Connector status: " + connectorStatus);
+                            // Notify the visualizer
+                            RPCLayer._messenger.sendNotification(onConnectorStatusUpdate, { type: 'webview', webviewType: VisualizerWebview.viewType }, connectorStatus);
+                        });
+                    }
+                    resolve(ls);
+                } catch (error) {
+                    reject(error);
                 }
-                resolve(ls);
+            });
+        },
+        activateProjectExplorer: (context, event) => {
+            return new Promise(async (resolve, reject) => {
+                await activateProjectExplorer(extension.context);
+                resolve(true);
             });
         },
         openWebPanel: (context, event) => {
@@ -394,11 +427,11 @@ const stateMachine = createMachine<MachineContext>({
             });
         },
         disableExtension: (context, event) => {
-            return async (resolve, reject) => {
+            return new Promise(async (resolve, reject) => {
                 vscode.commands.executeCommand('setContext', 'MI.status', 'disabled');
-                // TODO: Display the error message to the user
-                // User should be able to see the error message and retry
-            };
+                updateProjectExplorer(context);
+                resolve(true);
+            });
         }
     }
 });
@@ -425,6 +458,7 @@ export function openView(type: EVENT_TYPE, viewLocation?: VisualizerLocation) {
         viewLocation!.projectUri = vscode.workspace.workspaceFolders![0].uri.fsPath;
     }
     updateProjectExplorer(viewLocation);
+    const value = StateMachine.state();
     stateService.send({ type: type, viewLocation: viewLocation });
 }
 
@@ -466,7 +500,7 @@ function updateProjectExplorer(location: VisualizerLocation | undefined) {
         const projectRoot = vscode.workspace.getWorkspaceFolder(vscode.Uri.parse(location.documentUri));
         if (projectRoot && !extension.preserveActivity) {
             location.projectUri = projectRoot.uri.fsPath;
-            if (StateMachine.context().isMiProject) {
+            if (!StateMachine.context().isOldProject) {
                 vscode.commands.executeCommand(COMMANDS.REVEAL_ITEM_COMMAND, location);
             }
         }
@@ -480,7 +514,7 @@ function updateProjectExplorer(location: VisualizerLocation | undefined) {
 }
 
 async function checkIfMiProject() {
-    let isProject = false, isUnsupportedProject = false, displayOverview = true, emptyProject = false;
+    let isProject = false, isOldProject = false, displayOverview = true, emptyProject = false;
     let projectUri = '';
     try {
         // Check for pom.xml files excluding node_modules directory
@@ -489,6 +523,7 @@ async function checkIfMiProject() {
             const pomContent = await vscode.workspace.openTextDocument(pomFiles[0]);
             if (pomContent.getText().includes('<projectType>integration-project</projectType>')) {
                 isProject = true;
+                log("MI project detected");
             }
         }
 
@@ -498,7 +533,8 @@ async function checkIfMiProject() {
             if (projectFiles.length > 0) {
                 const projectContent = await vscode.workspace.openTextDocument(projectFiles[0]);
                 if (projectContent.getText().includes('<nature>org.wso2.developerstudio.eclipse.mavenmultimodule.project.nature</nature>')) {
-                    isUnsupportedProject = true;
+                    isOldProject = true;
+                    log("Integration Studio project detected");
                 }
             }
         }
@@ -518,26 +554,32 @@ async function checkIfMiProject() {
         vscode.commands.executeCommand('setContext', 'MI.status', 'projectDetected');
         vscode.commands.executeCommand('setContext', 'MI.projectType', 'miProject'); // for command enablements
         await extension.context.workspaceState.update('projectType', 'miProject');
-    } else if (isUnsupportedProject) {
+    } else if (isOldProject) {
         projectUri = vscode.workspace.workspaceFolders![0].uri.fsPath;
         const displayState: boolean | undefined = extension.context.workspaceState.get('displayOverview');
         displayOverview = displayState === undefined ? true : displayState;
         vscode.commands.executeCommand('setContext', 'MI.status', 'projectDetected');
-        vscode.commands.executeCommand('setContext', 'MI.projectType', 'unsupportedProject'); // for command enablements
-        await extension.context.workspaceState.update('projectType', 'unsupportedProject');
+        vscode.commands.executeCommand('setContext', 'MI.projectType', 'oldProject'); // for command enablements
+        await extension.context.workspaceState.update('projectType', 'oldProject');
     } else {
         vscode.commands.executeCommand('setContext', 'MI.status', 'unknownProject');
+    }
+
+    if (projectUri) {
+        // Log project path
+        log(`Current workspace path: ${projectUri}`);
     }
 
     // Register Project Creation command in any of the above cases
     vscode.commands.registerCommand(COMMANDS.CREATE_PROJECT_COMMAND, () => {
         openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.ProjectCreationForm });
         console.log('Create New Project');
+        log('Create New Project');
     });
 
     return {
         isProject,
-        isUnsupportedProject,
+        isOldProject,
         displayOverview,
         projectUri, // Return the path of the detected project
         emptyProject

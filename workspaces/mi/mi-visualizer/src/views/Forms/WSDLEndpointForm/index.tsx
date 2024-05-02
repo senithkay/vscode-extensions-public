@@ -45,11 +45,8 @@ export function WsdlEndpointWizard(props: WsdlEndpointWizardProps) {
         statisticsEnabled: yup.string(),
         optimize: yup.string(),
         description: yup.string(),
-        wsdlUri: yup
-            .string()
-            .required("WSDL URI is required")
-            .matches(/^\$.+$|^\{.+\}$|^(https?|ftp):\/\/(([a-z\d]([a-z\d-]*[a-z\d])?\.)+[a-z]{2,}|localhost(:[\d]*)?)(\/[-a-z\d%_.~+{}]*)*(\?[;&a-z\d%_.~+=-{}]*)?(\#[-a-z\d_]*)?([?.]wsdl)$/i,
-                "Invalid WSDL URI format"),
+        wsdlUri: yup.string().required("WSDL URI is required")
+            .matches(/^\$.+$|^\{.+\}$|^\w\w+:\/.*|file:.*|mailto:.*|vfs:.*|jdbc:.*/, "Invalid URI format"),
         wsdlService: yup.string().required("WSDL Service is required"),
         wsdlPort: yup.string().required("WSDL Port is required"),
         requireProperties: yup.boolean(),

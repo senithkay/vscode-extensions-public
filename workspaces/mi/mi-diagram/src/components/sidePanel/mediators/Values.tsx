@@ -64,10 +64,12 @@ import PayloadForm from "../Pages/mediators/transformation/payload";
 import XSLTForm from "../Pages/mediators/transformation/xslt";
 import ForEachMediatorForm from "../Pages/mediators/flow-control/foreach";
 import PublishEventForm from "../Pages/mediators/other/publishEvent";
-import RewriteForm from "../Pages/mediators/oldForms/rewrite";
-import DataServiceForm from "../Pages/mediators/oldForms/dataServiceCall";
 import BuilderForm from "../Pages/mediators/other/builder";
 import SequenceForm from "../Pages/mediators/core/sequence";
+import RewriteForm from "../Pages/mediators/other/rewrite";
+import DBLookupForm from "../Pages/mediators/data/dblookup";
+import DBReportForm from "../Pages/mediators/data/dbreport";
+import DataServiceCallForm from "../Pages/mediators/data/dataServiceCall";
 
 export interface GetMediatorsProps {
     nodePosition: any;
@@ -242,7 +244,17 @@ export function getAllMediators(props: GetMediatorsProps) {
             {
                 title: "Dataservice Call",
                 operationName: MEDIATORS.DATASERVICECALL,
-                form: <DataServiceForm nodePosition={props.nodePosition} documentUri={props.documentUri}></DataServiceForm>,
+                form: <DataServiceCallForm nodePosition={props.nodePosition} documentUri={props.documentUri}></DataServiceCallForm>,
+            },
+            {
+                title: "DB Lookup",
+                operationName: MEDIATORS.DBLOOKUP,
+                form: <DBLookupForm nodePosition={props.nodePosition} documentUri={props.documentUri}></DBLookupForm>,
+            },
+            {
+                title: "DB Report",
+                operationName: MEDIATORS.DBREPORT,
+                form: <DBReportForm nodePosition={props.nodePosition} documentUri={props.documentUri}></DBReportForm>,
             }
         ],
         "other": [
