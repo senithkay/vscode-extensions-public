@@ -34,11 +34,17 @@ export interface GenerateDMInputResponse {
 }
 
 export interface BrowseSchemaRequest {
-    defaultUri: string;
+    documentUri: string;
+    overwriteSchema?: boolean;
+    sourcePath: string;
+    resourceName: string;
+    ioType: string;
+    schemaType: string;
+    configName: string;
 }
 
 export interface BrowseSchemaResponse {
-    filePath: string;
+    success: boolean;
 }
 
 export interface LoadDMConfigsRequest {
@@ -59,18 +65,6 @@ export interface ConvertRegPathToAbsPathResponse {
     configName: string;
 }
 
-export interface ImportDMSchemaRequest {
-    importPath: string;
-    sourcePath: string;
-    resourceName: string;
-    ioType: string;
-    schemaType: string;
-}
-
-export interface ImportDMSchemaResponse {
-    success: boolean;
-}
-
 export interface UpdateDMCRequest {
     dmName: string;
     sourcePath: string;
@@ -78,4 +72,15 @@ export interface UpdateDMCRequest {
 
 export interface UpdateDMCResponse {
     success: boolean;
+}
+
+export interface SchemaGenRequest {
+    filePath: string;
+    delimiter: string;
+    type: string;
+    title: string;
+}
+
+export interface SchemaGenResponse {
+    schema: string;
 }
