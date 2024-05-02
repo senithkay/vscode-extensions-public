@@ -101,14 +101,14 @@ export class VisualizerWebview {
         }
     }
 
-    public notify(connectionStatus: any) {
+    public notify(connectorStatus: any) {
         const panel = this.getWebview();
 
         if (panel) {
             // Send a command from the extension to the webview
             panel.webview.postMessage({
                 command: 'notify',
-                text: connectionStatus
+                text: connectorStatus
             });
         }
     }
