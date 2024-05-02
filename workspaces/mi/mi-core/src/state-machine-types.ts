@@ -83,6 +83,7 @@ export enum AI_EVENT_TYPE {
     CLEAR_PROMPT = "CLEAR_PROMPT",
     DISPOSE = "DISPOSE",
     CANCEL = "CANCEL",
+    RETRY = "RETRY",
 }
 
 export enum EVENT_TYPE {
@@ -146,6 +147,13 @@ export interface AIVisualizerLocation {
     view?: AI_MACHINE_VIEW | null;
     initialPrompt?: string;
     state?: AIMachineStateValue;
+    userTokens?: AIUserTokens;
+}
+
+export interface AIUserTokens {
+    max_usage: number;
+    remaining_tokens: number;
+    time_to_reset: number;
 }
 
 export interface ParentPopupData {

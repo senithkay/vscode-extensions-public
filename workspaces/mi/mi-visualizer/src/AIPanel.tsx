@@ -15,6 +15,7 @@ import styled from '@emotion/styled';
 import { AIProjectGenerationChat } from './views/AIProjectGenerationChat';
 import { SignInToCopilotMessage } from './views/LoggedOutWindow';
 import { WaitingForLoginMessage } from './views/WaitingForLoginWindow';
+import { DisabledMessage } from './views/DisabledWindow';
 
 const LoaderWrapper = styled.div`
     display: flex;
@@ -60,6 +61,9 @@ const AIPanel = () => {
                     break;
                 case "WaitingForLogin":
                     setViewComponent(<WaitingForLoginMessage />);
+                    break;
+                case "disabled":
+                    setViewComponent(<DisabledMessage />);
                     break;
                 default:
                     setViewComponent(null);
