@@ -1,21 +1,26 @@
 import { Ejb } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import Mustache from "mustache";
+import { transformNamespaces } from "../../../commons";
 
 export function getEjbMustacheTemplate() {
-    return `<ejb {{#beanstalk}}beanstalk="{{beanstalk}}" {{/beanstalk}}{{#class}}class="{{class}}" {{/class}}{{#description}}description="{{description}}" {{/description}}{{#sessionIdExpression}}id="{{sessionIdExpression}}" {{/sessionIdExpression}}{{#sessionIdLiteral}}id="{{sessionIdLiteral}}" {{/sessionIdLiteral}}{{#jndiName}}jndiName="{{jndiName}}" {{/jndiName}}{{#method}}method="{{method}}" {{/method}}{{#remove}}remove="{{remove}}" {{/remove}}stateful="true" {{#target}}target="{{target}}"{{/target}} >
-        {{#argsAvailable}}
+    return `{{#argsAvailable}}
+    <ejb {{#beanstalk}}beanstalk="{{beanstalk}}" {{/beanstalk}}{{#class}}class="{{class}}" {{/class}}{{#description}}description="{{description}}" {{/description}}{{#sessionIdExpression}}id="{{sessionIdExpression}}" {{/sessionIdExpression}}{{#sessionIdLiteral}}id="{{{sessionIdLiteral}}}" {{/sessionIdLiteral}}{{#jndiName}}jndiName="{{jndiName}}" {{/jndiName}}{{#method}}method="{{method}}" {{/method}}{{#remove}}remove="{{remove}}" {{/remove}}stateful="true" {{#target}}target="{{{target}}}"{{/target}}{{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}}>
         <args>
             {{#methodArguments}}
-            <arg {{#value}}value="{{value}}" {{/value}}/>
+            <arg {{#value}}value="{{{value}}}"{{/value}}/>
             {{/methodArguments}}
         </args>
-        {{/argsAvailable}}
-</ejb>`;
+    </ejb>
+    {{/argsAvailable}}
+    {{^argsAvailable}}
+    <ejb {{#beanstalk}}beanstalk="{{beanstalk}}" {{/beanstalk}}{{#class}}class="{{class}}" {{/class}}{{#description}}description="{{description}}" {{/description}}{{#sessionIdExpression}}id="{{sessionIdExpression}}" {{/sessionIdExpression}}{{#sessionIdLiteral}}id="{{{sessionIdLiteral}}}" {{/sessionIdLiteral}}{{#jndiName}}jndiName="{{jndiName}}" {{/jndiName}}{{#method}}method="{{method}}" {{/method}}{{#remove}}remove="{{remove}}" {{/remove}}stateful="true" {{#target}}target="{{{target}}}"{{/target}}{{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}}/>
+    {{/argsAvailable}}`;
 }
 
 export function getEjbXml(data: { [key: string]: any }) {
 
     if (data.sessionIdType == "EXPRESSION") {
+        data.namespaces = data.sessionIdExpression?.namespaces;
         data.sessionIdExpression = "{" + data.sessionIdExpression?.value + "}";
         delete data.sessionIdLiteral;
     } else {
@@ -62,7 +67,7 @@ export function getEjbFormDataFromSTNode(data: { [key: string]: any }, node: Ejb
     let sessionIdMatch = node.id?.match(regex);
     if (sessionIdMatch && sessionIdMatch.length > 1) {
         data.sessionIdType = "EXPRESSION";
-        data.sessionIdExpression = { isExpression: true, value: sessionIdMatch[1] }
+        data.sessionIdExpression = { isExpression: true, value: sessionIdMatch[1], namespaces: transformNamespaces(node.namespaces) }
     } else {
         data.sessionIdType = "LITERAL";
         delete data.sessionIdExpression;
