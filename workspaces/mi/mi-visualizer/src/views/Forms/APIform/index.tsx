@@ -209,6 +209,7 @@ export function APIWizard({ apiData, path }: APIWizardProps) {
             }
             const file = await rpcClient.getMiDiagramRpcClient().createAPI(createAPIParams);
             console.log("API created");
+            rpcClient.getMiVisualizerRpcClient().log({ message: "API created successfully." });
             rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.ServiceDesigner, documentUri: file.path } });
         } else {
             // Update API
