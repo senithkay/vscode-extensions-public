@@ -132,9 +132,8 @@ export class DagreEngine {
 
         g.nodes().forEach((v) => {
             const node = g.node(v);
-            const space = (node.width || minWidth) + spacing;
-            const nodeWidth = node.width || minWidth;
-            node.x = (x * space) + (space - nodeWidth) / 2;
+            const space = minWidth + spacing;
+            node.x = x * space + (space - minWidth) / 2;
             node.y = y * ((node.height || minWidth) + spacing);
             x++;
             if (x >= gridSize) {
@@ -148,7 +147,6 @@ export class DagreEngine {
     angleLayout(g, spacing: number) {
         const nodes = g.nodes();
         let lastX = 0;
-        let angleNodeCount = 0;
 
         nodes.forEach((v) => {
             const node = g.node(v);
@@ -166,7 +164,6 @@ export class DagreEngine {
                     lastX += node.width + spacing;
                     node.x = lastX;
                 }
-                angleNodeCount++;
             }
         });
     }
