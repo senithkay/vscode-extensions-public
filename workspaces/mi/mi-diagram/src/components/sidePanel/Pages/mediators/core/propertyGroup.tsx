@@ -50,8 +50,8 @@ const PropertyGroupForm = (props: AddMediatorProps) => {
                 paramValues: sidePanelContext?.formValues?.properties && sidePanelContext?.formValues?.properties.map((property: string|ExpressionFieldValue[], index: string) => (
                     {
                         id: index,
-                        key: typeof property[0] === 'object' ? property[0].value : property[0],
-                        value:  typeof property[3] === 'object' ? property[3].value : property[3],
+                        key: property[0],
+                        value:  (property[3] as ExpressionFieldValue).value,
                         icon: 'query',
                         paramValues: [
                             { value: property[0] },
@@ -253,9 +253,9 @@ const PropertyGroupForm = (props: AddMediatorProps) => {
                                 readonly={false}
                                 onChange= {(values) => {
                                     values.paramValues = values.paramValues.map((param: any, index: number) => {
-                                        const paramValues: ParamValue[] = param.paramValues;
-                                        param.key = paramValues[0].value;
-                                        param.value = paramValues[3].value;
+                                        const property: ParamValue[] = param.paramValues;
+                                        param.key = property[0].value;
+                                        param.value = (property[3].value as ExpressionFieldValue).value;
                                         param.icon = 'query';
                                         return param;
                                     });

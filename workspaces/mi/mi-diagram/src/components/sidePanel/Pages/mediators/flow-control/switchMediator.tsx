@@ -52,7 +52,7 @@ const SwitchForm = (props: AddMediatorProps) => {
                     {
                         id: index,
                         key: index,
-                        value:  typeof property[0] === 'object' ? property[0].value : property[0],
+                        value:  property[0],
                         icon: 'query',
                         paramValues: [
                             { value: property[0] },
@@ -144,9 +144,9 @@ const SwitchForm = (props: AddMediatorProps) => {
                                 readonly={false}
                                 onChange= {(values) => {
                                     values.paramValues = values.paramValues.map((param: any, index: number) => {
-                                        const paramValues: ParamValue[] = param.paramValues;
+                                        const property: ParamValue[] = param.paramValues;
                                         param.key = index;
-                                        param.value = paramValues[0].value;
+                                        param.value = property[0].value;
                                         param.icon = 'query';
                                         return param;
                                     });

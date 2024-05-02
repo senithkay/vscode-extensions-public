@@ -53,8 +53,8 @@ const XSLTForm = (props: AddMediatorProps) => {
                 paramValues: sidePanelContext?.formValues?.properties && sidePanelContext?.formValues?.properties.map((property: string|ExpressionFieldValue[], index: string) => (
                     {
                         id: index,
-                        key: typeof property[0] === 'object' ? property[0].value : property[0],
-                        value:  typeof property[1] === 'object' ? property[1].value : property[1],
+                        key: property[0],
+                        value:  (property[1] as ExpressionFieldValue).value,
                         icon: 'query',
                         paramValues: [
                             { value: property[0] },
@@ -94,8 +94,8 @@ const XSLTForm = (props: AddMediatorProps) => {
                 paramValues: sidePanelContext?.formValues?.resources && sidePanelContext?.formValues?.resources.map((property: string|ExpressionFieldValue[], index: string) => (
                     {
                         id: index,
-                        key: typeof property[0] === 'object' ? property[0].value : property[0],
-                        value:  typeof property[1] === 'object' ? property[1].value : property[1],
+                        key: property[0],
+                        value:  property[1],
                         icon: 'query',
                         paramValues: [
                             { value: property[0] },
@@ -122,8 +122,8 @@ const XSLTForm = (props: AddMediatorProps) => {
                 paramValues: sidePanelContext?.formValues?.features && sidePanelContext?.formValues?.features.map((property: string|ExpressionFieldValue[], index: string) => (
                     {
                         id: index,
-                        key: typeof property[0] === 'object' ? property[0].value : property[0],
-                        value:  typeof property[1] === 'object' ? property[1].value : property[1],
+                        key: property[0],
+                        value:  property[1],
                         icon: 'query',
                         paramValues: [
                             { value: property[0] },
@@ -242,9 +242,9 @@ const XSLTForm = (props: AddMediatorProps) => {
                                     readonly={false}
                                     onChange= {(values) => {
                                         values.paramValues = values.paramValues.map((param: any, index: number) => {
-                                            const paramValues: ParamValue[] = param.paramValues;
-                                            param.key = paramValues[0].value;
-                                            param.value = paramValues[1].value;
+                                            const property: ParamValue[] = param.paramValues;
+                                            param.key = property[0].value;
+                                            param.value = (property[1].value as ExpressionFieldValue).value;
                                             param.icon = 'query';
                                             return param;
                                         });
@@ -268,9 +268,9 @@ const XSLTForm = (props: AddMediatorProps) => {
                                     readonly={false}
                                     onChange= {(values) => {
                                         values.paramValues = values.paramValues.map((param: any, index: number) => {
-                                            const paramValues: ParamValue[] = param.paramValues;
-                                            param.key = paramValues[0].value;
-                                            param.value = paramValues[1].value;
+                                            const property: ParamValue[] = param.paramValues;
+                                            param.key = property[0].value;
+                                            param.value = property[1].value;
                                             param.icon = 'query';
                                             return param;
                                         });
@@ -294,9 +294,9 @@ const XSLTForm = (props: AddMediatorProps) => {
                                     readonly={false}
                                     onChange= {(values) => {
                                         values.paramValues = values.paramValues.map((param: any, index: number) => {
-                                            const paramValues: ParamValue[] = param.paramValues;
-                                            param.key = paramValues[0].value;
-                                            param.value = paramValues[1].value;
+                                            const property: ParamValue[] = param.paramValues;
+                                            param.key = property[0].value;
+                                            param.value = property[1].value;
                                             param.icon = 'query';
                                             return param;
                                         });

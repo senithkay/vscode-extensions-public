@@ -56,7 +56,7 @@ const PayloadForm = (props: AddMediatorProps) => {
                     {
                         id: index,
                         key: index,
-                        value:  typeof property[0] === 'object' ? property[0].value : property[0],
+                        value:  (property[0] as ExpressionFieldValue).value,
                         icon: 'query',
                         paramValues: [
                             { value: property[0] },
@@ -226,9 +226,9 @@ const PayloadForm = (props: AddMediatorProps) => {
                                     readonly={false}
                                     onChange= {(values) => {
                                         values.paramValues = values.paramValues.map((param: any, index: number) => {
-                                            const paramValues: ParamValue[] = param.paramValues;
+                                            const property: ParamValue[] = param.paramValues;
                                             param.key = index;
-                                            param.value = paramValues[0].value;
+                                            param.value = (property[0].value as ExpressionFieldValue).value;
                                             param.icon = 'query';
                                             return param;
                                         });
