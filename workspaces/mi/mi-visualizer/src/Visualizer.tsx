@@ -36,7 +36,7 @@ export function Visualizer({ mode }: { mode: string }) {
     const { rpcClient } = useVisualizerContext();
     const [state, setState] = React.useState<MachineStateValue | AIMachineStateValue>('initialize');
 
-    rpcClient?.onStateChanged((newState: MachineStateValue | AIMachineStateValue) => {
+rpcClient?.onStateChanged((newState: MachineStateValue | AIMachineStateValue) => {
         setState(newState);
     });
 

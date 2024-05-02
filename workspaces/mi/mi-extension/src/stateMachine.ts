@@ -4,7 +4,7 @@ import * as vscode from 'vscode';
 import { Uri, ViewColumn, window } from 'vscode';
 import { MILanguageClient } from './lang-client/activator';
 import { extension } from './MIExtensionContext';
-import { EVENT_TYPE, HistoryEntry, MACHINE_VIEW, MachineStateValue, SyntaxTreeMi, VisualizerLocation, webviewReady } from '@wso2-enterprise/mi-core';
+import { EVENT_TYPE, HistoryEntry, MACHINE_VIEW, MachineStateValue, SyntaxTreeMi, VisualizerLocation, onConnectorStatusUpdate, webviewReady } from '@wso2-enterprise/mi-core';
 import { ExtendedLanguageClient } from './lang-client/ExtendedLanguageClient';
 import { VisualizerWebview } from './visualizer/webview';
 import { RPCLayer } from './RPCLayer';
@@ -289,10 +289,10 @@ const stateMachine = createMachine<MachineContext>({
 
                 // Listen to the LS notification
                 if (ls) {
-                    ls.onNotification("synapse/addConnectorStatus", (connectionStatus: any) => {
-                        console.log("Connector status: " + connectionStatus);
+                    ls.onNotification("synapse/addConnectorStatus", (connectorStatus: any) => {
+                        console.log("Connector status: " + connectorStatus);
                         // Notify the visualizer
-                        VisualizerWebview.currentPanel?.notify(connectionStatus);
+                        RPCLayer._messenger.sendNotification(onConnectorStatusUpdate, { type: 'webview', webviewType: VisualizerWebview.viewType }, connectorStatus);
                     });
                 }
                 resolve(ls);

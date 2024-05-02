@@ -14,6 +14,7 @@ import SidePanelContext from "../SidePanelContexProvider";
 import { VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import AddConnector from "../Pages/AddConnector";
+import { ConnectorStatus } from "@wso2-enterprise/mi-core";
 
 const LoaderWrapper = styled.div`
     display: flex;
@@ -121,12 +122,8 @@ export function ConnectorPage(props: ConnectorPageProps) {
     };
 
     useEffect(() => {
-        window.addEventListener('message', event => {
-            const message = event.data;
-
-            if (message.command === 'notify') {
-                connectionStatus.current = message.text;
-            }
+        rpcClient?.onConnectorStatusUpdate((connectorStatus: ConnectorStatus) => {
+            connectionStatus.current = connectorStatus;
         });
 
         fetchLocalConnectorData();
