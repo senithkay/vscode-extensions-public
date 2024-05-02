@@ -364,10 +364,9 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 			explorerEntry.contextValue = 'endpoint';
 			explorerEntry.command = {
 				"title": "Show Endpoint",
-				"command": COMMANDS.SHOW_ENDPOINT,
+				"command": getViewCommand(entry.subType),
 				"arguments": [vscode.Uri.parse(entry.path), 'endpoint', undefined, false]
 			};
-			explorerEntry.command.command = getViewCommand(entry.subType);
 
 		} else if (entry.type === "SEQUENCE") {
 			let icon = 'code';
@@ -582,7 +581,7 @@ function getViewCommand(endpointType?: string) {
 	} else if (endpointType === 'RECIPIENT_LIST_ENDPOINT') {
 		viewCommand = COMMANDS.SHOW_RECIPIENT_ENDPOINT;
 	} else if (endpointType === 'TEMPLATE_ENDPOINT') {
-		viewCommand = COMMANDS.SHOW_TEMPLATE_ENDPOINT;
+		viewCommand = COMMANDS.SHOW_SEQUENCE_TEMPLATE_VIEW;
 	}
 	return viewCommand;
 }

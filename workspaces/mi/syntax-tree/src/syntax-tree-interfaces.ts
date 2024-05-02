@@ -1762,7 +1762,7 @@ export interface Ntlm extends STNode {
     description: string;
 }
 
-export type DiagramService = APIResource | NamedSequence | Proxy;
+export type DiagramService = APIResource | NamedSequence | Proxy | Template;
 
 export interface Connector extends STNode {
     connectorName: string;
