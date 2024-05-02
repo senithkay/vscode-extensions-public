@@ -26,7 +26,7 @@ import {
 } from 'vscode-languageclient';
 import { ServerOptions } from "vscode-languageclient/node";
 import { DidChangeConfigurationNotification, RequestType, TextDocumentPositionParams } from 'vscode-languageserver-protocol';
-import { ErrorType } from '@wso2-enterprise/mi-core';
+import { ErrorType, onConnectorStatusUpdate } from '@wso2-enterprise/mi-core';
 import { activateTagClosing, AutoCloseResult } from './tagClosing';
 import { ExtendedLanguageClient } from './ExtendedLanguageClient';
 import { GoToDefinitionProvider } from './DefinitionProvider';
@@ -34,6 +34,8 @@ import { FormattingProvider } from './FormattingProvider';
 
 import util = require('util');
 import { log } from '../util/logger';
+import { RPCLayer } from '../RPCLayer';
+import { VisualizerWebview } from '../visualizer/webview';
 const exec = util.promisify(require('child_process').exec);
 
 export interface ScopeInfo {
@@ -187,6 +189,13 @@ export class MILanguageClient {
                 // Create the language client and start the client.
                 this.languageClient = new ExtendedLanguageClient('synapseXML', 'Synapse Language Server',
                     serverOptions, clientOptions);
+                    
+                this.languageClient.onNotification("synapse/addConnectorStatus", (connectorStatus: any) => {
+                    console.log("Connector status: " + connectorStatus);
+                    // Notify the visualizer
+                    RPCLayer._messenger.sendNotification(onConnectorStatusUpdate, { type: 'webview', webviewType: VisualizerWebview.viewType }, connectorStatus);
+                });
+
                 await this.languageClient.start();
 
                 //Setup autoCloseTags

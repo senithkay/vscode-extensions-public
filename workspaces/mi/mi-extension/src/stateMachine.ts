@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { createMachine, assign, interpret } from 'xstate';
 import * as vscode from 'vscode';
-import { Uri, ViewColumn, window } from 'vscode';
+import { Uri, ViewColumn } from 'vscode';
 import { MILanguageClient } from './lang-client/activator';
 import { extension } from './MIExtensionContext';
 import { 
@@ -11,8 +11,7 @@ import {
     MachineStateValue,
     SyntaxTreeMi,
     VisualizerLocation,
-    webviewReady,
-    onConnectorStatusUpdate
+    webviewReady
 } from '@wso2-enterprise/mi-core';
 import { ExtendedLanguageClient } from './lang-client/ExtendedLanguageClient';
 import { VisualizerWebview } from './visualizer/webview';
@@ -310,15 +309,7 @@ const stateMachine = createMachine<MachineContext>({
                     // Activate the AI Panel State machine after LS is loaded.
                     StateMachineAI.initialize();
                     StateMachinePopup.initialize();
-                    
-                    // Listen to the LS notification
-                    if (ls) {
-                        ls.onNotification("synapse/addConnectorStatus", (connectorStatus: any) => {
-                            console.log("Connector status: " + connectorStatus);
-                            // Notify the visualizer
-                            RPCLayer._messenger.sendNotification(onConnectorStatusUpdate, { type: 'webview', webviewType: VisualizerWebview.viewType }, connectorStatus);
-                        });
-                    }
+
                     resolve(ls);
                 } catch (error) {
                     reject(error);
