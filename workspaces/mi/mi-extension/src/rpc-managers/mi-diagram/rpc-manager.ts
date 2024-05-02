@@ -188,6 +188,7 @@ import { replaceFullContentToFile } from "../../util/workspace";
 import { VisualizerWebview } from "../../visualizer/webview";
 import path = require("path");
 import { template } from "lodash";
+import { log } from "../../util/logger";
 
 const { XMLParser, XMLBuilder } = require("fast-xml-parser");
 
@@ -3225,8 +3226,11 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 1
             );
             if (carFile.length === 0) {
-                window.showErrorMessage('No .car file found in the target directory');
-                return reject('No .car file found in the target directory');
+                const errorMessage = 
+                    'Error: No .car file found in the target directory. Please build the project before exporting.';
+                window.showErrorMessage(errorMessage);
+                log(errorMessage);
+                return reject(errorMessage);
             }
 
             const selection = await vscode.window.showQuickPick(
@@ -3254,6 +3258,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 if (destination) {
                     const destinationPath = path.join(destination, path.basename(carFile[0].fsPath));
                     fs.copyFileSync(carFile[0].fsPath, destinationPath);
+                    log(`Project exported to: ${destination}`);
                     resolve();
                 }
             }
