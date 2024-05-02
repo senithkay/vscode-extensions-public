@@ -15,7 +15,8 @@ import { ComponentHeadWidget } from "./ComponentHead/ComponentHead";
 import { ComponentName, ComponentNode, PortsContainer } from "./styles";
 import { DiagramContext } from "../../DiagramContext/DiagramContext";
 import { ComponentPortWidget } from "../ComponentPort/ComponentPortWidget";
-import TooltipWrapper from "../../TooltipWrapper/TooltipWrapper";
+import { Tooltip } from "@mui/material";
+
 
 interface ComponentWidgetProps {
     node: ComponentModel;
@@ -31,7 +32,6 @@ export function ComponentWidget(props: ComponentWidgetProps) {
 
     const displayName: string = node.component.label || node.component.id;
     const isDisabled = node.component.disabled?.status;
-    const tooltip = node.component.disabled?.reason;
 
     useEffect(() => {
         const listener = node.registerListener({
@@ -78,26 +78,26 @@ export function ComponentWidget(props: ComponentWidgetProps) {
     };
 
     return (
-        <TooltipWrapper visible={isDisabled} content={tooltip}>
-            <ComponentNode
-                onMouseOver={handleMouseEnter}
-                onMouseLeave={handleMouseLeave}
-                onDoubleClick={handleOnWidgetDoubleClick}
-                onContextMenu={handleOnContextMenu}
-            >
-                <ComponentHeadWidget
-                    engine={engine}
-                    node={node}
-                    isSelected={node.getID() === selectedNodeId || node.isNodeSelected(selectedLink, node.getID())}
-                    isFocused={node.getID() === focusedNodeId || isHovered}
-                    menuItems={componentMenu}
-                />
+        <ComponentNode
+            onMouseOver={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+            onDoubleClick={handleOnWidgetDoubleClick}
+            onContextMenu={handleOnContextMenu}
+        >
+            <ComponentHeadWidget
+                engine={engine}
+                node={node}
+                isSelected={node.getID() === selectedNodeId || node.isNodeSelected(selectedLink, node.getID())}
+                isFocused={node.getID() === focusedNodeId || isHovered}
+                menuItems={componentMenu}
+            />
+            <Tooltip title={displayName} placement="bottom" enterNextDelay={500} arrow>
                 <ComponentName disabled={isDisabled}>{displayName}</ComponentName>
-                <PortsContainer>
-                    <ComponentPortWidget port={node.getPort(`top-${node.getID()}`)} engine={engine} />
-                    <ComponentPortWidget port={node.getPort(`bottom-${node.getID()}`)} engine={engine} />
-                </PortsContainer>
-            </ComponentNode>
-        </TooltipWrapper>
+            </Tooltip>
+            <PortsContainer>
+                <ComponentPortWidget port={node.getPort(`top-${node.getID()}`)} engine={engine} />
+                <ComponentPortWidget port={node.getPort(`bottom-${node.getID()}`)} engine={engine} />
+            </PortsContainer>
+        </ComponentNode>
     );
 }

@@ -3,7 +3,7 @@ import * as dagre from "dagre";
 import * as _ from "lodash";
 import { GraphLabel } from "dagre";
 import { Point } from "@projectstorm/geometry";
-import { COMPONENT_NODE, EMPTY_NODE, MAIN_CELL } from "../constants";
+import { BORDER_GAP, COMPONENT_CIRCLE_WIDTH, COMPONENT_NODE, EMPTY_NODE, MAIN_CELL } from "../constants";
 
 export interface DagreEngineOptions {
     graph?: GraphLabel;
@@ -65,7 +65,7 @@ export class DagreEngine {
                 });
             } else {
                 // For other nodes, set the default position
-                g.setNode(node.getID(), { label: node.getID(), width: node.width, height: node.height, ports });
+                g.setNode(node.getID(), { label: node.getID(), width: node.width, height: node.height, ports, node });
             }
         });
 
@@ -92,7 +92,7 @@ export class DagreEngine {
 
         // layout the graph
         if (model.getLinks().length === 0) {
-            this.gridLayout(g, 40);
+            this.gridLayout(g, BORDER_GAP * 2);
         } else {
             dagre.layout(g);
             this.angleLayout(g, 100);
@@ -126,13 +126,15 @@ export class DagreEngine {
     gridLayout(g, spacing: number) {
         const nodes = g.nodes();
         const gridSize = Math.ceil(Math.sqrt(nodes.length));
-        const minWidth = 120;
+        const minWidth = COMPONENT_CIRCLE_WIDTH + BORDER_GAP;
         let x = 0;
         let y = 0;
 
         g.nodes().forEach((v) => {
             const node = g.node(v);
-            node.x = x * ((node.width || minWidth) + spacing);
+            const space = (node.width || minWidth) + spacing;
+            const nodeWidth = node.width || minWidth;
+            node.x = (x * space) + (space - nodeWidth) / 2;
             node.y = y * ((node.height || minWidth) + spacing);
             x++;
             if (x >= gridSize) {

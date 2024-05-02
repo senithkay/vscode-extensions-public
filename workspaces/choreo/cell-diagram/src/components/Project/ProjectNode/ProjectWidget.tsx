@@ -13,6 +13,7 @@ import { ProjectModel } from "./ProjectModel";
 import { ProjectHeadWidget } from "./ProjectHeadWidget/ProjectHeadWidget";
 import { ProjectName, ProjectNode } from "./styles";
 import { DiagramContext } from "../../DiagramContext/DiagramContext";
+import { Tooltip } from "@mui/material";
 
 interface ProjectWidgetProps {
     node: ProjectModel;
@@ -74,7 +75,9 @@ export function ProjectWidget(props: ProjectWidgetProps) {
                     isFocused={node.getID() === focusedNodeId || isHovered}
                     menuItems={componentMenu}
                 />
-                <ProjectName>{displayName}</ProjectName>
+                <Tooltip title={displayName} placement="bottom" enterNextDelay={500} arrow>
+                    <ProjectName>{displayName}</ProjectName>
+                </Tooltip>
             </ProjectNode>
         </>
     );
