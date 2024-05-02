@@ -9,13 +9,13 @@
 
 import { Filter } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import Mustache from "mustache";
-import { checkAttributesExist } from "../../../commons";
+import { checkAttributesExist, transformNamespaces } from "../../../commons";
 
 export function getFilterMustacheTemplate() {
 
     return `
     {{#isNewMediator}}
-    <filter {{#description}}description="{{description}}" {{/description}}{{#regularExpression}}regex="{{regularExpression}}" {{/regularExpression}}{{#source}}source="{{{source}}}" {{/source}}{{#xPath}}xpath="{{{xPath}}}" {{/xPath}}>
+    <filter {{#description}}description="{{description}}" {{/description}}{{#regularExpression}}regex="{{regularExpression}}" {{/regularExpression}}{{#source}}source="{{{source}}}" {{/source}}{{#xPath}}xpath="{{{xPath}}}"{{/xPath}}{{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}}>
         <then>
         </then>
         <else>
@@ -24,24 +24,28 @@ export function getFilterMustacheTemplate() {
     {{/isNewMediator}}
     {{^isNewMediator}}
     {{#selfClosed}}
-    <filter {{#description}}description="{{description}}" {{/description}}{{#regularExpression}}regex="{{regularExpression}}" {{/regularExpression}}{{#source}}source="{{{source}}}" {{/source}}{{#xPath}}xpath="{{{xPath}}}" {{/xPath}}/>
+    <filter {{#description}}description="{{description}}" {{/description}}{{#regularExpression}}regex="{{regularExpression}}" {{/regularExpression}}{{#source}}source="{{{source}}}" {{/source}}{{#xPath}}xpath="{{{xPath}}}"{{/xPath}}{{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}}/>
     {{/selfClosed}}
     {{^selfClosed}}
-    <filter {{#description}}description="{{description}}" {{/description}}{{#regularExpression}}regex="{{regularExpression}}" {{/regularExpression}}{{#source}}source="{{{source}}}" {{/source}}{{#xPath}}xpath="{{{xPath}}}" {{/xPath}}>
+    <filter {{#description}}description="{{description}}" {{/description}}{{#regularExpression}}regex="{{regularExpression}}" {{/regularExpression}}{{#source}}source="{{{source}}}" {{/source}}{{#xPath}}xpath="{{{xPath}}}"{{/xPath}}{{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}}>
     {{/selfClosed}}
     {{/isNewMediator}}         
     `;
 }
 
 export function getFilterXml(data: { [key: string]: any }, dirtyFields?: any, defaultValues?: any) {
+    let namespaces;
     if (data.conditionType == "Source and Regular Expression") {
+        namespaces = data.source?.namespaces;
         data.source = data.source?.value;
         delete data.xPath;
     } else if (data.conditionType == "XPath") {
+        namespaces = data.xPath?.namespaces;
         data.xPath = data.xPath?.value;
         delete data.regularExpression;
         delete data.source;
     }
+    data.namespaces = namespaces;
 
     if (defaultValues == undefined || Object.keys(defaultValues).length == 0) {
         data.isNewMediator = true;
@@ -57,8 +61,9 @@ export function getFilterXml(data: { [key: string]: any }, dirtyFields?: any, de
 export function getFilterFormDataFromSTNode(data: { [key: string]: any }, node: Filter) {
     data.description = node.description;
     data.regularExpression = node.regex;
-    data.source = { isExpression: true, value: node.source };
-    data.xPath = { isExpression: true, value: node.xpath };
+    let namespaces = transformNamespaces(node.namespaces);
+    data.source = { isExpression: true, value: node.source, namespaces: namespaces };
+    data.xPath = { isExpression: true, value: node.xpath, namespaces: namespaces };
     if (data.xPath?.value) {
         data.conditionType = "XPath";
     } else if (data.source?.value || data.regex) {

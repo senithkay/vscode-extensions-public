@@ -9,17 +9,17 @@
 
 import { Aggregate } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import Mustache from "mustache";
-import { checkAttributesExist } from "../../../commons";
+import { checkAttributesExist, transformNamespaces } from "../../../commons";
 
 export function getAggregateMustacheTemplate() {
     return `
     {{#isNewMediator}}
     <aggregate id="{{aggregateID}}" >
-{{#correlationExpression}}<correlateOn expression="{{correlationExpression}}" />{{/correlationExpression}}
+{{#correlationExpression}}<correlateOn expression="{{value}}" {{#namespaces}}xmlns:{{prefix}}="{{uri}}" {{/namespaces}}/>{{/correlationExpression}}
         <completeCondition timeout="{{completionTimeout}}">
-            <messageCount {{#completionMax}}max="{{completionMax}}" {{/completionMax}}{{#completionMin}}min="{{completionMin}}" {{/completionMin}}/>
+            <messageCount {{#completionMax}}max="{{completionMax}}" {{/completionMax}}{{#completionMin}}min="{{completionMin}}" {{/completionMin}}{{#messageCountNamespaces}}xmlns:{{prefix}}="{{uri}}" {{/messageCountNamespaces}}/>
         </completeCondition>
-        <onComplete aggregateElementType="{{aggregateElementType}}" enclosingElementProperty="{{enclosingElementProperty}}" expression="{{aggregationExpression}}" {{#sequenceKey}}sequence="{{sequenceKey}}"{{/sequenceKey}} ></onComplete>
+        <onComplete aggregateElementType="{{aggregateElementType}}" enclosingElementProperty="{{enclosingElementProperty}}" {{#aggregationExpression}}expression="{{value}}" {{#namespaces}}xmlns:{{prefix}}="{{uri}}" {{/namespaces}}{{/aggregationExpression}}{{#sequenceKey}}sequence="{{sequenceKey}}"{{/sequenceKey}} ></onComplete>
     </aggregate>
     {{/isNewMediator}}
     {{^isNewMediator}}
@@ -27,15 +27,15 @@ export function getAggregateMustacheTemplate() {
     <aggregate id="{{aggregateID}}" >
     {{/editAggregate}}
     {{#editCorrelateOn}}
-    {{#correlationExpression}}<correlateOn expression="{{correlationExpression}}" />{{/correlationExpression}}
+    {{#correlationExpression}}<correlateOn expression="{{value}}" {{#namespaces}}xmlns:{{prefix}}="{{uri}}" {{/namespaces}}/>{{/correlationExpression}}
     {{/editCorrelateOn}}
     {{#editCompleteCondition}}
     <completeCondition timeout="{{completionTimeout}}">
-        <messageCount {{#completionMax}}max="{{completionMax}}" {{/completionMax}}{{#completionMin}}min="{{completionMin}}" {{/completionMin}}/>
+        <messageCount {{#completionMax}}max="{{completionMax}}" {{/completionMax}}{{#completionMin}}min="{{completionMin}}" {{/completionMin}}{{#messageCountNamespaces}}xmlns:{{prefix}}="{{uri}}" {{/messageCountNamespaces}}/>
     </completeCondition>
     {{/editCompleteCondition}}
     {{#editOnComplete}}
-    <onComplete aggregateElementType="{{aggregateElementType}}" enclosingElementProperty="{{enclosingElementProperty}}" expression="{{aggregationExpression}}" {{#sequenceKey}}sequence="{{sequenceKey}}"{{/sequenceKey}} >
+    <onComplete aggregateElementType="{{aggregateElementType}}" enclosingElementProperty="{{enclosingElementProperty}}" {{#aggregationExpression}}expression="{{value}}" {{#namespaces}}xmlns:{{prefix}}="{{uri}}" {{/namespaces}}{{/aggregationExpression}} {{#sequenceKey}}sequence="{{sequenceKey}}"{{/sequenceKey}} >
     {{/editOnComplete}}
     {{/isNewMediator}}
     `;
@@ -45,8 +45,14 @@ export function getAggregateXml(data: { [key: string]: any }, dirtyFields?: any,
 
     data.completionMax = data.completionMaxMessages?.isExpression ? "{" + data.completionMaxMessages.value + "}" : data.completionMaxMessages.value;
     data.completionMin = data.completionMinMessages?.isExpression ? "{" + data.completionMinMessages.value + "}" : data.completionMinMessages.value;
-    data.correlationExpression = data.correlationExpression?.value;
-    data.aggregationExpression = data.aggregationExpression?.value;
+    let messageCountNamespaces = [];
+    if (data.completionMaxMessages?.namespaces) {
+        messageCountNamespaces.push(...data.completionMaxMessages?.namespaces);
+    }
+    if (data.completionMinMessages?.namespaces) {
+        messageCountNamespaces.push(...data.completionMinMessages?.namespaces);
+    }
+    data.messageCountNamespaces = messageCountNamespaces;
     data.aggregateElementType = data.aggregateElementType.toLowerCase();
     if (data.sequenceType == "ANONYMOUS") {
         delete data.sequenceKey;
@@ -119,13 +125,14 @@ export function getAggregateFormDataFromSTNode(data: { [key: string]: any }, nod
 
     data.description = node.description;
     data.aggregateID = node.id;
-    data.correlationExpression = { isExpression: true, value: node.correlateOnOrCompleteConditionOrOnComplete?.correlateOn?.expression };
+    data.correlationExpression = { isExpression: true, value: node.correlateOnOrCompleteConditionOrOnComplete?.correlateOn?.expression, namespaces: transformNamespaces(node.correlateOnOrCompleteConditionOrOnComplete?.correlateOn?.namespaces) };
     data.completionTimeout = node.correlateOnOrCompleteConditionOrOnComplete?.completeCondition?.timeout;
     const max = node.correlateOnOrCompleteConditionOrOnComplete?.completeCondition?.messageCount?.max;
+    let messageCountNamespaces = transformNamespaces(node.correlateOnOrCompleteConditionOrOnComplete?.completeCondition?.messageCount?.namespaces);
     if (max && max.startsWith("{")) {
         const regex = /{([^}]*)}/;
         const match = max.match(regex);
-        data.completionMaxMessages = { isExpression: true, value: match.length > 1 ? match[1] : max };
+        data.completionMaxMessages = { isExpression: true, value: match.length > 1 ? match[1] : max, namespaces: messageCountNamespaces };
     } else if (max) {
         data.completionMaxMessages = { isExpression: false, value: max };
     }
@@ -133,13 +140,13 @@ export function getAggregateFormDataFromSTNode(data: { [key: string]: any }, nod
     if (min && min.startsWith("{")) {
         const regex = /{([^}]*)}/;
         const match = min.match(regex);
-        data.completionMinMessages = { isExpression: true, value: match.length > 1 ? match[1] : min };
+        data.completionMinMessages = { isExpression: true, value: match.length > 1 ? match[1] : min, namespaces: messageCountNamespaces };
     } else if (min) {
         data.completionMinMessagesValue = { isExpression: false, value: min };
     }
     data.aggregateElementType = node.correlateOnOrCompleteConditionOrOnComplete?.onComplete?.aggregateElementType?.toUpperCase();
     data.enclosingElementProperty = node.correlateOnOrCompleteConditionOrOnComplete?.onComplete?.enclosingElementProperty;
-    data.aggregationExpression = { isExpression: true, value: node.correlateOnOrCompleteConditionOrOnComplete?.onComplete?.expression };
+    data.aggregationExpression = { isExpression: true, value: node.correlateOnOrCompleteConditionOrOnComplete?.onComplete?.expression, namespaces: transformNamespaces(node.correlateOnOrCompleteConditionOrOnComplete?.onComplete?.namespaces) };
     data.sequenceKey = node.correlateOnOrCompleteConditionOrOnComplete?.onComplete?.sequenceAttribute;
     data.sequenceType = data.sequenceKey ? "REGISTRY_REFERENCE" : "ANONYMOUS";
     data.ranges = {

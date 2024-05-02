@@ -9,11 +9,12 @@
 
 import { Xquery } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import Mustache from "mustache";
+import { transformNamespaces } from "../../../commons";
 
 export function getXqueryMustacheTemplate() {
 
   return `
-    <xquery {{#staticScriptKey}}key="{{staticScriptKey}}"{{/staticScriptKey}} {{#dynamicScriptKey}}key="{{dynamicScriptKey}}"{{/dynamicScriptKey}} {{#targetXPath}}target="{{targetXPath}}"{{/targetXPath}} {{#description}}description="{{description}}"{{/description}} >
+    <xquery {{#staticScriptKey}}key="{{staticScriptKey}}"{{/staticScriptKey}} {{#dynamicScriptKey}}key="{{dynamicScriptKey}}"{{/dynamicScriptKey}} {{#targetXPath}}target="{{value}}"{{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}}{{/targetXPath}} {{#description}}description="{{description}}"{{/description}} >
         {{#variables}}        
             <variable name="{{variableName}}" type="{{variableType}}" {{#variableKey}}key="{{variableKey}}"{{/variableKey}} {{#variableLiteral}}value="{{variableLiteral}}"{{/variableLiteral}} {{#variableExpression}}expression="{{{variableExpression}}}"{{/variableExpression}} />
         {{/variables}}
@@ -23,7 +24,6 @@ export function getXqueryMustacheTemplate() {
 
 export function getXqueryXml(data: { [key: string]: any }) {
 
-  data.targetXPath = data.targetXPath?.value;
   if (data.scriptKeyType == "Static") delete data.dynamicScriptKey;
   else {
     data.dynamicScriptKey = "{" + data.dynamicScriptKey?.value + "}";
@@ -58,7 +58,7 @@ export function getXqueryFormDataFromSTNode(data: { [key: string]: any }, node: 
     }
   }
 
-  data.targetXPath = { isExpression: true, value: node.target };
+  data.targetXPath = { isExpression: true, value: node.target, namespaces: transformNamespaces(node.namespaces) };
   data.description = node.description;
   if (node.variable) {
     data.variables = node.variable.map((var1) => {

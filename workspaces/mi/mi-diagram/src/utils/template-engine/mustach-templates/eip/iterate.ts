@@ -9,12 +9,12 @@
 
 import { Iterate } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import Mustache from "mustache";
-import { checkAttributesExist } from "../../../commons";
+import { checkAttributesExist, transformNamespaces } from "../../../commons";
 
 export function getIterateMustacheTemplate() {
     return `
     {{#isNewMediator}}
-    <iterate {{#preservePayload}}attachPath="{{attachPath}}"{{/preservePayload}} {{#continueParent}}continueParent="{{continueParent}}"{{/continueParent}} expression="{{iterateExpression}}" id="{{iterateID}}" {{#preservePayload}}preservePayload="{{preservePayload}}"{{/preservePayload}} {{#sequentialMediation}}sequential="{{sequentialMediation}}"{{/sequentialMediation}} {{#description}}description="{{description}}"{{/description}} >
+    <iterate {{#preservePayload}}attachPath="{{attachPath}}"{{/preservePayload}} {{#continueParent}}continueParent="{{continueParent}}"{{/continueParent}} expression="{{iterateExpression}}" id="{{iterateID}}" {{#preservePayload}}preservePayload="{{preservePayload}}"{{/preservePayload}} {{#sequentialMediation}}sequential="{{sequentialMediation}}"{{/sequentialMediation}} {{#description}}description="{{description}}"{{/description}}{{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}}>
         {{#isAnnonymousSequence}}
         <target>
             <sequence></sequence>
@@ -28,10 +28,10 @@ export function getIterateMustacheTemplate() {
     {{^isNewMediator}}
     {{#editIterate}}
     {{#isSelfClosed}}
-    <iterate {{#preservePayload}}attachPath="{{attachPath}}"{{/preservePayload}} {{#continueParent}}continueParent="{{continueParent}}"{{/continueParent}} expression="{{iterateExpression}}" id="{{iterateID}}" {{#preservePayload}}preservePayload="{{preservePayload}}"{{/preservePayload}} {{#sequentialMediation}}sequential="{{sequentialMediation}}" {{/sequentialMediation}}{{#description}}description="{{description}}"{{/description}} />
+    <iterate {{#preservePayload}}attachPath="{{attachPath}}"{{/preservePayload}} {{#continueParent}}continueParent="{{continueParent}}"{{/continueParent}} expression="{{iterateExpression}}" id="{{iterateID}}" {{#preservePayload}}preservePayload="{{preservePayload}}"{{/preservePayload}} {{#sequentialMediation}}sequential="{{sequentialMediation}}" {{/sequentialMediation}}{{#description}}description="{{description}}"{{/description}}{{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}}/>
     {{/isSelfClosed}}
     {{^isSelfClosed}}
-    <iterate {{#preservePayload}}attachPath="{{attachPath}}"{{/preservePayload}} {{#continueParent}}continueParent="{{continueParent}}"{{/continueParent}} expression="{{iterateExpression}}" id="{{iterateID}}" {{#preservePayload}}preservePayload="{{preservePayload}}"{{/preservePayload}} {{#sequentialMediation}}sequential="{{sequentialMediation}}" {{/sequentialMediation}}{{#description}}description="{{description}}"{{/description}} >
+    <iterate {{#preservePayload}}attachPath="{{attachPath}}"{{/preservePayload}} {{#continueParent}}continueParent="{{continueParent}}"{{/continueParent}} expression="{{iterateExpression}}" id="{{iterateID}}" {{#preservePayload}}preservePayload="{{preservePayload}}"{{/preservePayload}} {{#sequentialMediation}}sequential="{{sequentialMediation}}" {{/sequentialMediation}}{{#description}}description="{{description}}"{{/description}}{{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}}>
     {{/isSelfClosed}}
     {{/editIterate}}
     {{#editTarget}}
@@ -54,6 +54,7 @@ export function getIterateXml(data: { [key: string]: any }, dirtyFields?: any, d
         delete data.sequenceKey;
         data.isAnnonymousSequence = true;
     }
+    data.namespaces = data?.iterateExpression?.namespaces;
     data.iterateExpression = data?.iterateExpression?.value;
     data.attachPath = data?.attachPath?.value;
 
@@ -110,7 +111,7 @@ function getEdits(data: { [key: string]: any }, dirtyFields: any, defaultValues:
 export function getIterateFormDataFromSTNode(data: { [key: string]: any }, node: Iterate) {
     data.attachPath = { isExpression: true, value: node.attachPath };
     data.continueParent = node.continueParent;
-    data.iterateExpression = { isExpression: true, value: node.expression };
+    data.iterateExpression = { isExpression: true, value: node.expression, namespaces: transformNamespaces(node.namespaces) };
     data.iterateID = node.id;
     data.preservePayload = node.preservePayload;
     data.sequentialMediation = node.sequential;

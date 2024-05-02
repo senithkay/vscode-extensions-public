@@ -8,15 +8,16 @@
  */
 
 import { Xslt } from "@wso2-enterprise/mi-syntax-tree/lib/src";
-import Mustache from "mustache";
+import Mustache, { name } from "mustache";
 import { features } from "process";
+import { transformNamespaces } from "../../../commons";
 
 export function getXsltMustacheTemplate() {
 
   return `
-    <xslt {{#description}}description="{{description}}"{{/description}} {{#xsltSchemaKey}}key="{{xsltSchemaKey}}"{{/xsltSchemaKey}} {{#sourceXPath}}source="{{sourceXPath}}"{{/sourceXPath}} >
+    <xslt {{#description}}description="{{description}}"{{/description}} {{#xsltSchemaKey}}key="{{xsltSchemaKey}}"{{/xsltSchemaKey}} {{#sourceXPath}}source="{{value}}"{{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}}{{/sourceXPath}} >
         {{#properties}}
-        <property name="{{propertyName}}" {{#propertyValue}}value="{{propertyValue}}"{{/propertyValue}} {{#propertyExpression}}expression="{{propertyExpression}}"{{/propertyExpression}} />
+        <property name="{{propertyName}}" {{#propertyValue}}value="{{propertyValue}}"{{/propertyValue}} {{#propertyExpression}}expression="{{value}}"{{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}}{{/propertyExpression}} />
         {{/properties}}
         {{#features}}
         <feature name="{{featureName}}" value="{{featureEnabled}}"/>
@@ -30,12 +31,11 @@ export function getXsltMustacheTemplate() {
 
 export function getXsltXml(data: { [key: string]: any }) {
 
-  data.sourceXPath = data?.sourceXPath?.value;
   data.properties = data.properties?.map((property: any[]) => {
     return {
       propertyName: property[0],
       propertyValue: property[1]?.isExpression ? undefined : property[1]?.value,
-      propertyExpression: property[1]?.isExpression ? property[1]?.value : undefined,
+      propertyExpression: property[1]?.isExpression ? property[1] : undefined,
     }
   });
   data.features = data.features?.map((feature: string[]) => {
@@ -56,7 +56,7 @@ export function getXsltXml(data: { [key: string]: any }) {
 
 export function getXsltFormDataFromSTNode(data: { [key: string]: any }, node: Xslt) {
 
-  data.sourceXPath = { isExpression: true, value: node.source };
+  data.sourceXPath = { isExpression: true, value: node.source, namespaces: transformNamespaces(node.namespaces) };
   data.description = node.description;
   if (node.key) {
     const regex = /{([^}]*)}/;
@@ -72,7 +72,8 @@ export function getXsltFormDataFromSTNode(data: { [key: string]: any }, node: Xs
   if (node.property) {
     data.properties = node.property.map((property) => {
       let isExpression = property.value ? false : true;
-      return [property.name, { isExpression: isExpression, value: property.value ?? property.expression }];
+      let namespaces = transformNamespaces(property.namespaces);
+      return [property.name, { isExpression: isExpression, value: property.value ?? property.expression, namespaces: namespaces }];
     });
   } else {
     data.properties = [];

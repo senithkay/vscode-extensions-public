@@ -14,6 +14,7 @@ export interface STNode {
     textNode: string;
     range: TagRange;
     tag: string;
+    namespaces?: { [key: string]: string };
     viewState?: ViewState;
     diagnostics?: Diagnostic[];
     hasBreakpoint?: boolean;

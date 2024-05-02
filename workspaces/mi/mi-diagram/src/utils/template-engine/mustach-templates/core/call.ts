@@ -9,7 +9,7 @@
 
 import Mustache from "mustache";
 import { Call } from "@wso2-enterprise/mi-syntax-tree/lib/src";
-import { checkAttributesExist } from "../../../commons";
+import { checkAttributesExist, transformNamespaces } from "../../../commons";
 
 export function getCallMustacheTemplate() {
   return `
@@ -51,7 +51,7 @@ export function getCallMustacheTemplate() {
 {{/sourceOrTargetOrEndpoint}}
 {{/editCall}}
 {{#editEndpoint}}
-{{#registryOrXpathEndpoint}}  <endpoint {{#endpointXpath}}key-expression="{{endpointXpath}}" {{/endpointXpath}}{{#endpointRegistryKey}}key="{{endpointRegistryKey}}" {{/endpointRegistryKey}}/>{{/registryOrXpathEndpoint}}
+{{#registryOrXpathEndpoint}}  <endpoint {{#endpointXpath}}key-expression="{{value}}" {{#namespaces}}xmlns:{{prefix}}="{{uri}}" {{/namespaces}}{{/endpointXpath}}{{#endpointRegistryKey}}key="{{endpointRegistryKey}}" {{/endpointRegistryKey}}/>{{/registryOrXpathEndpoint}}
 {{/editEndpoint}}
 {{#editSource}}
 {{#bodySource}}
@@ -203,7 +203,7 @@ export function getCallFormDataFromSTNode(data: { [key: string]: any }, node: Ca
   data.targetType = node.target?.type;
   data.targetProperty = node.target?.textNode;
   data.initAxis2ClientOptions = node.initAxis2ClientOptions != undefined ? node.initAxis2ClientOptions : true;
-  data.endpointXpath = node.endpoint?.keyExpression;
+  data.endpointXpath = { isExpression: true, value: node.endpoint?.keyExpression, namespaces: transformNamespaces(node.endpoint?.namespaces) };
   data.endpointRegistryKey = node.endpoint?.key;
   data.endopint = node.endpoint?.key;
   if (data.endpointXpath) {
