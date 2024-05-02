@@ -9,17 +9,18 @@
 
 import { Makefault } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import Mustache from "mustache";
+import { transformNamespaces } from "../../../commons";
 
 export function getFaultMustacheTemplate() {
     return `
     <makefault {{#serializeResponse}}response="{{markAsResponse}}"{{/serializeResponse}} description="{{description}}" version="{{soapVersion}}" >
         <code value="{{soapVersion}}Env:{{code}}" xmlns:{{soapVersion}}Env="http://schemas.xmlsoap.org/soap/envelope/" />
-        <reason {{#reasonValue}}value="{{reasonValue}}"{{/reasonValue}} {{#reasonExpression}}expression="{{reasonExpression}}"{{/reasonExpression}} />
-        {{#actor}}<role>{{actor}}</role>{{/actor}}
-        {{#node}}<node>{{node}}</node>{{/node}}
-        {{#role}}<role>{{role}}</role>{{/role}}
-        {{#detailValue}}<detail>{{detailValue}}</detail>{{/detailValue}}
-        {{#detailExpression}}<detail expression="{{detailExpression}}" />{{/detailExpression}}
+        <reason {{#reasonValue}}value="{{reasonValue}}"{{/reasonValue}} {{#reasonExpression}}expression="{{{value}}}"{{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}}{{/reasonExpression}} />
+        {{#actor}}<role>{{{actor}}}</role>{{/actor}}
+        {{#node}}<node>{{{node}}}</node>{{/node}}
+        {{#role}}<role>{{{role}}}</role>{{/role}}
+        {{#detailValue}}<detail>{{{detailValue}}}</detail>{{/detailValue}}
+        {{#detailExpression}}<detail expression="{{{value}}}" {{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}} />{{/detailExpression}}
     </makefault>
     `;
 }
@@ -27,14 +28,14 @@ export function getFaultMustacheTemplate() {
 export function getFaultXml(data: { [key: string]: any }) {
 
     if (data.detail?.isExpression) {
-        data.detailExpression = data.detail.value;
+        data.detailExpression = data.detail;
     }
     else {
         data.detailValue = data.detail.value;
     }
 
     if (data.reason?.isExpression) {
-        data.reasonExpression = data.reason.value;
+        data.reasonExpression = data.reason;
     } else {
         data.reasonValue = data.reason.value;
     }
@@ -56,13 +57,13 @@ export function getFaultXml(data: { [key: string]: any }) {
 export function getFaultFormDataFromSTNode(data: { [key: string]: any }, node: Makefault) {
 
     if (node.detail?.expression) {
-        data.detail = { isExpression: true, value: node.detail?.expression };
+        data.detail = { isExpression: true, value: node.detail?.expression, namespaces: transformNamespaces(node.detail?.namespaces) };
     } else {
         data.detail = { isExpression: false, value: node.detail?.textNode };
     }
 
     if (node.reason?.expression) {
-        data.reason = { isExpression: true, value: node.reason?.expression };
+        data.reason = { isExpression: true, value: node.reason?.expression, namespaces: transformNamespaces(node.reason?.namespaces) };
     } else {
         data.reason = { isExpression: false, value: node.reason?.value };
     }

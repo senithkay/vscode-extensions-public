@@ -26,6 +26,8 @@ export interface DataMapperSidePanelState {
     setSidePanelOpen: (sidePanelOpen: boolean) => void;
     sidePanelIOType: string;
     setSidePanelIOType: (sidePanelIOType: string) => void;
+    isSchemaOverridden: boolean;
+    setIsSchemaOverridden: (isSchemaOverridden: boolean) => void;
 }
 
 export const useDMSearchStore = create<DataMapperSearchState>((set) => ({
@@ -46,4 +48,6 @@ export const useDMSidePanelStore = create<DataMapperSidePanelState>((set) => ({
     setSidePanelOpen: (sidePanelOpen: boolean) => set({ sidePanelOpen }),
     sidePanelIOType: 'input',
     setSidePanelIOType: (sidePanelIOType: string) => set({ sidePanelIOType }),
+    isSchemaOverridden: false,
+    setIsSchemaOverridden: (isSchemaOverridden: boolean) => set({ isSchemaOverridden }),
 }));

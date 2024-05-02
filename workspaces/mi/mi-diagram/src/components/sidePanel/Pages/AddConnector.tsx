@@ -47,6 +47,7 @@ interface Element {
     required: string;
     helpTip: any;
     comboValues?: any[];
+    defaultValue?: any;
     allowedConnectionTypes?: string[];
 }
 
@@ -277,18 +278,16 @@ const AddConnector = (props: AddConnectorProps) => {
             case 'booleanOrExpression':
                 return (
                     <>
-                        <label>{element.displayName}</label> {element.required && <RequiredFormInput />}
-                        <div style={{ display: "flex", flexDirection: "row", width: '100%', gap: '10px' }}>
-                            <VSCodeCheckbox
-                                label={element.displayName}
-                                checked={formValues[element.name] || false}
-                                onChange={(e: any) => {
-                                    setFormValues({ ...formValues, [element.name]: e.target.checked });
-                                    formValidators[element.name](e.target.checked);
-                                }}
-                                required={element.required === 'true'}
-                            />
-                        </div>
+                        <label>{element.displayName}</label> {element.required === "true" && <RequiredFormInput />}
+                        <AutoComplete
+                            identifier={element.displayName}
+                            items={["true", "false"]}
+                            value={formValues[element.name]}
+                            onValueChange={(e: any) => {
+                                setFormValues({ ...formValues, [element.name]: e });
+                                formValidators[element.name](e);
+                            }}
+                            required={element.required === 'true'} />
                     </>
                 );
             case 'comboOrExpression':

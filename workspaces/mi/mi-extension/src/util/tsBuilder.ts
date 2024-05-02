@@ -8,11 +8,12 @@
  * 
  */
 
-import { compileFromFile } from 'json-schema-to-typescript'
+import { compileFromFile } from './../datamapper/schema-to-typescript'
 import * as fs from "fs";
-import * as os from 'os';
 import path = require("path");
 import { Uri, workspace } from "vscode";
+import { convertTypeScriptToJavascript, convertToJSONSchema } from './schemaBuilder';
+import { JSONSchema3or4 } from 'to-json-schema';
 
 export function generateTSInterfacesFromSchemaFile(schemaPath: string): Promise<string> {
     const ts = compileFromFile(schemaPath, {bannerComment: ""});
@@ -24,17 +25,20 @@ export async function updateDMC(dmName:string, sourcePath: string): Promise<stri
     if (workspaceFolder) {
         const dataMapperConfigFolder = path.join(
             workspaceFolder.uri.fsPath,  'src', 'main', 'wso2mi', 'resources', 'registry', 'gov', 'datamapper');
-        const tsFilepath = path.join(dataMapperConfigFolder, `${dmName}.ts`);
-        const inputSchemaPath = path.join(dataMapperConfigFolder, `${dmName}_inputSchema.json`);
-        const outputSchemaPath = path.join(dataMapperConfigFolder, `${dmName}_outputSchema.json`);
-        const dmcFilePath = path.join(dataMapperConfigFolder, `${dmName}.dmc`);
+        const tsFilepath = path.join(dataMapperConfigFolder, dmName, `${dmName}.ts`);
+        const inputSchemaPath = path.join(dataMapperConfigFolder, dmName,  `${dmName}_inputSchema.json`);
+        const outputSchemaPath = path.join(dataMapperConfigFolder, dmName, `${dmName}_outputSchema.json`);
+        const dmcFilePath = path.join(dataMapperConfigFolder, dmName, `${dmName}.dmc`);
 
         let tsContent = "";
-
         tsContent += `function mapFunction(input: InputRoot): OutputRoot {\nreturn {}\n};\n\n`;
 
         const inputSchemaContent = fs.readFileSync(inputSchemaPath, 'utf8');
         const outputSchemaContent = fs.readFileSync(outputSchemaPath, 'utf8');
+        const inputSchema:JSONSchema3or4 = convertToJSONSchema(inputSchemaContent);
+        const outputSchema:JSONSchema3or4 = convertToJSONSchema(outputSchemaContent);
+        const inputSchemaTitle = inputSchema.title || "InputRoot";
+        const outputSchemaTitle = outputSchema.title || "OutputRoot";
 
         if (inputSchemaContent.length > 0) {
             let inputTSInterfaces = await generateTSInterfacesFromSchemaFile(inputSchemaPath);
@@ -53,9 +57,26 @@ export async function updateDMC(dmName:string, sourcePath: string): Promise<stri
             }
             tsContent += `${outputTSInterfaces}\n\n`;
         } else {
-            tsContent += "interface OutputRoot {\n}\n";
+            tsContent += "interface OutputRoot {\n}\n\n";
         }
+        tsContent += `function map_S_${inputSchemaTitle}_S_${outputSchemaTitle}() {\n\treturn mapFunction(input${inputSchemaTitle});\n}\n`;
         fs.writeFileSync(tsFilepath, tsContent);
+        const jsContent = convertTypeScriptToJavascript(tsContent);
+        fs.writeFileSync(dmcFilePath, jsContent);
+    }
+    return "";
+}
+
+export async function updateDMCContent(dmName:string, sourcePath: string): Promise<string> {
+    const workspaceFolder = workspace.getWorkspaceFolder(Uri.file(sourcePath));
+    if (workspaceFolder) {
+        const dataMapperConfigFolder = path.join(
+            workspaceFolder.uri.fsPath,  'src', 'main', 'wso2mi', 'resources', 'registry', 'gov', 'datamapper');
+        const tsFilepath = path.join(dataMapperConfigFolder, dmName, `${dmName}.ts`);
+        const dmcFilePath = path.join(dataMapperConfigFolder, dmName, `${dmName}.dmc`);
+        const tsContent = fs.readFileSync(tsFilepath, 'utf8');
+        const jsContent = convertTypeScriptToJavascript(tsContent);
+        fs.writeFileSync(dmcFilePath, jsContent);
     }
     return "";
 }

@@ -8,7 +8,7 @@
 */
 
 import React, { useEffect, useState } from 'react';
-import { AutoComplete, Button, ComponentCard, TextField } from '@wso2-enterprise/ui-toolkit';
+import { AutoComplete, Button, ComponentCard, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
 import { AddMediatorProps } from '../common';
@@ -55,9 +55,9 @@ const DataMapperForm = (props: AddMediatorProps) => {
 
     useEffect(() => {
         deriveConfigName();
-        formValues.configurationLocalPath = 'gov:/datamapper/' + configName + '.dmc';
-        formValues.inputSchemaLocalPath = 'gov:/datamapper/' + configName + '_inputSchema.json';
-        formValues.outputSchemaLocalPath = 'gov:/datamapper/' + configName + '_outputSchema.json';
+        formValues.configurationLocalPath = 'gov:/datamapper/' + configName + '/' + configName + '.dmc';
+        formValues.inputSchemaLocalPath = 'gov:/datamapper/' + configName + '/' + configName + '_inputSchema.json';
+        formValues.outputSchemaLocalPath = 'gov:/datamapper/' + configName + '/' + configName + '_outputSchema.json';
         formValues.inputType = sidePanelContext.formValues.inputType;
         formValues.outputType = sidePanelContext.formValues.outputType;
         setFormValues({ ...formValues });
@@ -143,142 +143,145 @@ const DataMapperForm = (props: AddMediatorProps) => {
     }
 
     return (
-        <div style={{ padding: "10px" }}>
-
-            <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                <h3>Properties</h3>
-
-                <Field>
-                    <TextField
-                        label="Description"
-                        size={50}
-                        placeholder=""
-                        value={formValues["description"]}
-                        onTextChange={(e: any) => {
-                            setFormValues({ ...formValues, "description": e });
-                            formValidators["description"](e);
-                        }}
-                        required={false}
-                    />
-                    {errors["description"] && <Error>{errors["description"]}</Error>}
-                </Field>
+        <>
+            <Typography sx={{ padding: "10px 15px", borderBottom: "1px solid var(--vscode-editorWidget-border)" }} variant="body3">Transforms one data format to another, or changes the data structure in the message.</Typography>
+            <div style={{ padding: "10px" }}>
 
                 <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                    <h3>Configuration</h3>
-
-                    <VSCodeRadioGroup>
-                        <VSCodeRadio value="new" checked={createOption === "new"} onChange={onOptionChange}>Create new config</VSCodeRadio>
-                        <VSCodeRadio value="existing" checked={createOption === "existing"} onChange={onOptionChange}>Use Existing</VSCodeRadio>
-                    </VSCodeRadioGroup>
-
-                    <Field>
-                        {createOption === "new" && <TextField
-                            label="Configuration"
-                            size={50}
-                            placeholder=""
-                            value={configName}
-                            onTextChange={(e: any) => {
-                                setConfigName(e);
-                            }}
-                            required={false}
-                        />}
-                        {createOption === "existing" && <AutoComplete items={dmConfigs}
-                            label="Configuration"
-                            value={configName}
-                            onValueChange={(e: any) => {
-                                setConfigName(e);
-                            }} />
-                        }
-                        {errors["configurationLocalPath"] && <Error>{errors["configurationLocalPath"]}</Error>}
-                    </Field>
+                    <h3>Properties</h3>
 
                     <Field>
                         <TextField
-                            label="Configuration Local Path"
+                            label="Description"
                             size={50}
                             placeholder=""
-                            value={formValues["configurationLocalPath"]}
-                            required={false}
-                            disabled
-                            hidden
-                        />
-                        {errors["configurationLocalPath"] && <Error>{errors["configurationLocalPath"]}</Error>}
-                    </Field>
-
-                    <Field>
-                        <TextField
-                            label="Configuration Local Path"
-                            size={50}
-                            placeholder=""
-                            value={formValues["configurationLocalPath"]}
+                            value={formValues["description"]}
                             onTextChange={(e: any) => {
-                                setFormValues({ ...formValues, "configurationLocalPath": e });
-                                formValidators["configurationLocalPath"](e);
+                                setFormValues({ ...formValues, "description": e });
+                                formValidators["description"](e);
                             }}
-                            hidden
                             required={false}
                         />
-                        {errors["configurationLocalPath"] && <Error>{errors["configurationLocalPath"]}</Error>}
+                        {errors["description"] && <Error>{errors["description"]}</Error>}
                     </Field>
 
-                    <Field>
-                        <label>Input Type</label>
-                        <AutoComplete identifier='input-type' items={["JSON", "XML", "CSV"]} value={formValues['inputType']} onValueChange={(e: any) => {
-                            setFormValues({ ...formValues, "inputType": e });
-                            formValidators["inputType"](e);
-                        }} />
-                        {errors["inputType"] && <Error>{errors["inputType"]}</Error>}
-                    </Field>
+                    <ComponentCard sx={cardStyle} disbaleHoverEffect>
+                        <h3>Configuration</h3>
 
-                    <Field>
-                        <div>
-                            <TextField
-                                label="InputSchema Local Path"
+                        <VSCodeRadioGroup>
+                            <VSCodeRadio value="new" checked={createOption === "new"} onChange={onOptionChange}>Create new config</VSCodeRadio>
+                            <VSCodeRadio value="existing" checked={createOption === "existing"} onChange={onOptionChange}>Use Existing</VSCodeRadio>
+                        </VSCodeRadioGroup>
+
+                        <Field>
+                            {createOption === "new" && <TextField
+                                label="Configuration"
                                 size={50}
                                 placeholder=""
-                                value={formValues["inputSchemaLocalPath"]}
+                                value={configName}
+                                onTextChange={(e: any) => {
+                                    setConfigName(e);
+                                }}
+                                required={false}
+                            />}
+                            {createOption === "existing" && <AutoComplete items={dmConfigs}
+                                label="Configuration"
+                                value={configName}
+                                onValueChange={(e: any) => {
+                                    setConfigName(e);
+                                }} />
+                            }
+                            {errors["configurationLocalPath"] && <Error>{errors["configurationLocalPath"]}</Error>}
+                        </Field>
+
+                        <Field>
+                            <TextField
+                                label="Configuration Local Path"
+                                size={50}
+                                placeholder=""
+                                value={formValues["configurationLocalPath"]}
                                 required={false}
                                 disabled
                                 hidden
                             />
-                        </div>
-                        {errors["inputSchemaLocalPath"] && <Error>{errors["inputSchemaLocalPath"]}</Error>}
-                    </Field>
+                            {errors["configurationLocalPath"] && <Error>{errors["configurationLocalPath"]}</Error>}
+                        </Field>
 
-                    <Field>
-                        <label>Output Type</label>
-                        <AutoComplete identifier='output-type' items={["JSON", "XML", "CSV"]} value={formValues['outputType']} onValueChange={(e: any) => {
-                            setFormValues({ ...formValues, "outputType": e });
-                            formValidators["outputType"](e);
-                        }} />
-                        {errors["outputType"] && <Error>{errors["outputType"]}</Error>}
-                    </Field>
+                        <Field>
+                            <TextField
+                                label="Configuration Local Path"
+                                size={50}
+                                placeholder=""
+                                value={formValues["configurationLocalPath"]}
+                                onTextChange={(e: any) => {
+                                    setFormValues({ ...formValues, "configurationLocalPath": e });
+                                    formValidators["configurationLocalPath"](e);
+                                }}
+                                hidden
+                                required={false}
+                            />
+                            {errors["configurationLocalPath"] && <Error>{errors["configurationLocalPath"]}</Error>}
+                        </Field>
 
-                    <Field>
-                        <TextField
-                            label="OutputSchema Local Path"
-                            size={50}
-                            placeholder=""
-                            value={formValues["outputSchemaLocalPath"]}
-                            required={false}
-                            disabled
-                            hidden
-                        />
-                    </Field>
+                        <Field>
+                            <label>Input Type</label>
+                            <AutoComplete identifier='input-type' items={["JSON", "XML"]} value={formValues['inputType']} onValueChange={(e: any) => {
+                                setFormValues({ ...formValues, "inputType": e });
+                                formValidators["inputType"](e);
+                            }} />
+                            {errors["inputType"] && <Error>{errors["inputType"]}</Error>}
+                        </Field>
+
+                        <Field>
+                            <div>
+                                <TextField
+                                    label="InputSchema Local Path"
+                                    size={50}
+                                    placeholder=""
+                                    value={formValues["inputSchemaLocalPath"]}
+                                    required={false}
+                                    disabled
+                                    hidden
+                                />
+                            </div>
+                            {errors["inputSchemaLocalPath"] && <Error>{errors["inputSchemaLocalPath"]}</Error>}
+                        </Field>
+
+                        <Field>
+                            <label>Output Type</label>
+                            <AutoComplete identifier='output-type' items={["JSON", "XML"]} value={formValues['outputType']} onValueChange={(e: any) => {
+                                setFormValues({ ...formValues, "outputType": e });
+                                formValidators["outputType"](e);
+                            }} />
+                            {errors["outputType"] && <Error>{errors["outputType"]}</Error>}
+                        </Field>
+
+                        <Field>
+                            <TextField
+                                label="OutputSchema Local Path"
+                                size={50}
+                                placeholder=""
+                                value={formValues["outputSchemaLocalPath"]}
+                                required={false}
+                                disabled
+                                hidden
+                            />
+                        </Field>
+                    </ComponentCard>
                 </ComponentCard>
-            </ComponentCard>
 
 
-            <div style={{ display: "flex", textAlign: "right", justifyContent: "flex-end", marginTop: "10px" }}>
-                <Button
-                    appearance="primary"
-                    onClick={onClick}
-                >
-                    Submit
-                </Button>
+                <div style={{ display: "flex", textAlign: "right", justifyContent: "flex-end", marginTop: "10px" }}>
+                    <Button
+                        appearance="primary"
+                        onClick={onClick}
+                    >
+                        Submit
+                    </Button>
+                </div>
+
             </div>
-
-        </div>
+        </>
     );
 };
 

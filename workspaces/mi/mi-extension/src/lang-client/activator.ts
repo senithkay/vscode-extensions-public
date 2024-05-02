@@ -25,7 +25,7 @@ import {
     LanguageClientOptions
 } from 'vscode-languageclient';
 import { ServerOptions } from "vscode-languageclient/node";
-import { DidChangeConfigurationNotification, RequestType, TextDocumentPositionParams } from 'vscode-languageserver-protocol';
+import { DidChangeConfigurationNotification } from 'vscode-languageserver-protocol';
 import { ErrorType } from '@wso2-enterprise/mi-core';
 import { activateTagClosing, AutoCloseResult } from './tagClosing';
 import { ExtendedLanguageClient } from './ExtendedLanguageClient';

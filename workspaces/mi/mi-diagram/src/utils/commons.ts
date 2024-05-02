@@ -33,3 +33,14 @@ export function generateSpaceSeperatedStringFromParamValues(paramConfig: ParamCo
     });
     return result.trim();
 };
+
+// Transofrm the namespace object from syntax tree to the format supported by forms
+export function transformNamespaces(namespaces: { [key: string]: string }) {
+    if (namespaces && Object.keys(namespaces).length > 0) {
+        return Object.keys(namespaces).map((key) => ({
+            prefix: key.split(':')[1],
+            uri: namespaces[key]
+        }));
+    }
+    return [];
+}
