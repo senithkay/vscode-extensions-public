@@ -2066,8 +2066,8 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 filePath = path.join(directory, `${messageProcessorName}.xml`);
             }
 
-            if (filePath.includes('/messageProcessors')) {
-                filePath = filePath.replace('/messageProcessors', '/message-processors');
+            if (filePath.includes('messageProcessors')) {
+                filePath = filePath.replace('messageProcessors', 'message-processors');
             }
 
             fs.writeFileSync(filePath, sanitizedXmlData);
