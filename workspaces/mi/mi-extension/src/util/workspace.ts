@@ -23,12 +23,12 @@ export async function replaceFullContentToFile(documentUri: string, content: str
     const edit = new WorkspaceEdit();
     let document = workspace.textDocuments.find(doc => doc.uri.fsPath === documentUri);
     if (!document) {
-        document = await workspace.openTextDocument(Uri.parse(documentUri));
+        document = await workspace.openTextDocument(Uri.file(documentUri));
     }
     const fullRange = new Range(new Position(0, 0),
         new Position(document.lineCount, 0));
 
-    edit.replace(Uri.parse(documentUri), fullRange, content);
+    edit.replace(Uri.file(documentUri), fullRange, content);
     await workspace.applyEdit(edit);
     if (isNewFile) {
         openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.Overview, documentUri });
