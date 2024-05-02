@@ -406,6 +406,29 @@ export function isNodeCallExpression(node: Node): boolean {
     return false;
 }
 
+export function getTypeOfValue(typeWithValue: DMTypeWithValue, targetPosition: NodePosition): DMType {
+	if (typeWithValue.hasValue()) {
+		if (isPositionsEquals(getPosition(typeWithValue.value), targetPosition)) {
+			return typeWithValue.type;
+		} else if (typeWithValue.elements) {
+			for (const element of typeWithValue.elements) {
+				const type = getTypeOfValue(element.member, targetPosition);
+				if (type) {
+					return type;
+				}
+			}
+		} else if (typeWithValue.childrenTypes) {
+			for (const child of typeWithValue.childrenTypes) {
+				const type = getTypeOfValue(child, targetPosition);
+				if (type) {
+					return type;
+				}
+			}
+		}
+	}
+	return undefined;
+}
+
 function getInnerExpr(node: PropertyAccessExpression): Node {
     let valueExpr = node.getExpression();
     while (valueExpr && Node.isPropertyAccessExpression(valueExpr)) {
