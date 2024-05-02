@@ -40,7 +40,7 @@ export interface Parameters {
 }
 
 export interface ConditionParams {
-    [key: number]: string;
+    [key: number]: string | ConditionParams;
 }
 
 export interface EnableCondition {

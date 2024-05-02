@@ -442,7 +442,11 @@ const nestedEc: ParamField[] = [
         enableCondition: [
             "AND",
             [
-                "NOT",
+                "OR",
+                [
+                    "NOT",
+                    { 3: "Test" }
+                ],
                 { 0: "3" }
             ],
             { 1: "2" }
