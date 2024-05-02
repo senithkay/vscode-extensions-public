@@ -106,3 +106,29 @@ export async function exchangeAuthCode(authCode: string) {
     }
 }
 
+export async function refreshAuthCode(): Promise<string>{
+    const refresh_token = await extension.context.secrets.get('MIAIRefreshToken');
+    if (!refresh_token) {
+        throw new Error("Refresh token is not available.");
+    } else {
+        try {
+            console.log("Refreshing token...");
+            const params = new URLSearchParams({
+                client_id: AUTH_CLIENT_ID,
+                refresh_token: refresh_token,
+                grant_type: 'refresh_token',
+                scope: 'openid email'
+            });
+            const response = await axios.post(`https://api.asgardeo.io/t/${AUTH_ORG}/oauth2/token`, params.toString(), { headers: CommonReqHeaders });
+            const newAccessToken = response.data.access_token;
+            const newRefreshToken = response.data.refresh_token;
+            await extension.context.secrets.store('MIAIUser', newAccessToken);
+            await extension.context.secrets.store('MIAIRefreshToken', newRefreshToken);
+            console.log("Token refreshed successfully!");
+            return newAccessToken;
+        } catch (error: any) {
+            const errMsg = "Error while refreshing token! " + error?.message;
+            throw new Error(errMsg);
+        }
+    }
+}
