@@ -345,7 +345,6 @@ export function AIProjectGenerationChat() {
         var context: GetWorkspaceContextResponse[] = [];
         setMessages(prevMessages => prevMessages.filter((message, index) => message.type !== 'label'));
         setMessages(prevMessages => prevMessages.filter((message, index) => message.type !== 'question'));
-
         setIsLoading(true);
         let assistant_response = "";
         if (!isQuestion && !isInitialPrompt) {
