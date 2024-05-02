@@ -12,6 +12,8 @@ import { StateMachineAI } from './aiMachine';
 import { AI_EVENT_TYPE } from '@wso2-enterprise/mi-core';
 import { extension } from '../MIExtensionContext';
 import * as vscode from 'vscode';
+import fetch from 'node-fetch';
+import { USER_CHECK_BACKEND_URL } from '../constants';
 
 export interface AccessToken {
     accessToken: string;
@@ -75,6 +77,27 @@ export async function exchangeAuthCode(authCode: string) {
             console.log("Expiration time: " + response.expirationTime);
             await extension.context.secrets.store('MIAIUser', response.accessToken);
             await extension.context.secrets.store('MIAIRefreshToken', response.refreshToken ?? '');
+
+            const config = vscode.workspace.getConfiguration('integrationStudio');
+            const ROOT_URL = config.get('rootUrl') as string;
+            const url = ROOT_URL + USER_CHECK_BACKEND_URL;
+            
+            const fetch_response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${response.accessToken}`,
+                },
+            });
+
+            if(fetch_response.ok) {
+                const responseBody = await fetch_response.json();
+                const context = StateMachineAI.context();
+                context.userTokens = responseBody;
+            }else{
+                throw new Error(`Error while checking token usage: ${fetch_response.statusText}`);
+            }
+
             StateMachineAI.sendEvent(AI_EVENT_TYPE.SIGN_IN_SUCCESS);
         } catch (error: any) {
             const errMsg = "Error while signing in to MI AI! " + error?.message;

@@ -118,7 +118,7 @@ var backendRootUri = "";
 let controller = new AbortController();
 let signal = controller.signal;
 
-var tokenUsagePercentage = 0;
+var remainingTokenPercentage: string|number;
 
 export function AIProjectGenerationChat() {
     const { rpcClient } = useVisualizerContext();
@@ -155,12 +155,15 @@ export function AIProjectGenerationChat() {
             const storedQuestion = localStorage.getItem(localStorageQuestionFile);
             const storedCodeBlocks = localStorage.getItem(`codeBlocks-AIGenerationChat-${projectUuid}`);
             rpcClient.getAIVisualizerState().then((machineView:any) => {
-                const maxTokens = machineView.userTokens.initial_tokens;
-                const remainingTokens = machineView.userTokens.remaining_tokens;
-                const usedTokens = maxTokens - remainingTokens;
-                const usedTokenPercentage = (usedTokens / maxTokens) * 100;
-                tokenUsagePercentage = usedTokenPercentage;
-                tokenUsagePercentage = Math.round(tokenUsagePercentage);
+                const maxTokens = machineView.userTokens.max_usage;
+                if(maxTokens == -1){
+                    remainingTokenPercentage = "Unlimited";
+                }else{
+                    const remainingTokens = machineView.userTokens.remaining_tokens;
+                    remainingTokenPercentage = Math.round((remainingTokens / maxTokens) * 100);
+                }
+
+
                 if (machineView.initialPrompt) {
                     setMessages(prevMessages => [
                         ...prevMessages,
@@ -436,13 +439,13 @@ export function AIProjectGenerationChat() {
                 try {
                     const json = JSON.parse(lines[i]);
                     const tokenUsage = json.usage;
-                    const remainingTokens = parseInt(tokenUsage.remaining_tokens, 10);
-                    console.log("Remaining Tokens: " + remainingTokens);
-                    const maxTokens = parseInt(tokenUsage.max_usage, 10);
-                    console.log("Max Tokens: " + maxTokens);
-                    const remainingTokenPercentage = (remainingTokens / maxTokens) * 100;
-                    console.log("Remaining Token Percentage: " + remainingTokenPercentage);
-                    tokenUsagePercentage = 100 - Math.round(remainingTokenPercentage);
+                    const maxTokens = tokenUsage.max_usage;
+                    if (maxTokens == -1) {
+                        remainingTokenPercentage = "Unlimited";
+                    }else{
+                        const remainingTokens = tokenUsage.remaining_tokens;
+                        remainingTokenPercentage = Math.round((remainingTokens / maxTokens) * 100);
+                    }
                     if (json.content == null) {
                         addChatEntry("assistant", assistant_response);
                         const questions = json.questions
@@ -623,7 +626,7 @@ export function AIProjectGenerationChat() {
         <AIChatView>
             <Header>
                  <Badge>
-                       Remaining Free Usage: {100 - tokenUsagePercentage}%
+                       Remaining Free Usage: {remainingTokenPercentage}%
                 </Badge>
                 <Button
                     appearance="icon"

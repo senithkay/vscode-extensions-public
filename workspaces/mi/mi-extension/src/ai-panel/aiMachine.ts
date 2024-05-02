@@ -24,7 +24,7 @@ interface ChatEntry {
 }
 
 interface UserToken {
-    token: string;
+    token?: string;
     userToken?: AIUserTokens;
 }
 
@@ -169,6 +169,7 @@ async function checkToken(context, event): Promise<UserToken> {
                     },
                 });
                 if (response.ok) {
+                    console.log("Valid Path");
                     const responseBody = await response.json();
                     console.log("User Tokens: ", responseBody);
                     resolve({token, userToken: responseBody});
@@ -185,7 +186,7 @@ async function checkToken(context, event): Promise<UserToken> {
                 }
             } else {
                 console.log("Not Found Path");
-                resolve({ token: "", userToken: undefined });
+                resolve({ token: undefined, userToken: undefined });
             }
         } catch (error) {
             console.log("Other Error Path");

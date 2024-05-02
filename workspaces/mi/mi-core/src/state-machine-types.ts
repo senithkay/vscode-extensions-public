@@ -143,7 +143,7 @@ export interface AIVisualizerLocation {
 }
 
 export interface AIUserTokens {
-    initial_tokens: number;
+    max_usage: number;
     remaining_tokens: number;
     time_to_reset: number;
 }
