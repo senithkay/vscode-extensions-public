@@ -343,21 +343,23 @@
         {
           "command": "MI.build-and-run",
           "group": "navigation@1",
+          "when": "MI.status == 'projectLoaded' && (isVisualizerActive || resourceLangId == SynapseXml)",
           "title": "Build and Run Project"
         },
         {
           "command": "MI.openAiPanel",
           "group": "navigation@1",
+          "when": "MI.projectType == 'miProject' && (isVisualizerActive || resourceLangId == SynapseXml)",
           "title": "Open AI Panel"
         },
         {
           "command": "MI.project-explorer.open-service-designer-beside",
-          "when": "editorLangId == SynapseXml",
+          "when": "MI.status == 'projectLoaded' && (isVisualizerActive || resourceLangId == SynapseXml)",
           "group": "navigation@3"
         },
         {
           "command": "MI.show.source",
-          "when": "showGoToSource && editorLangId !== SynapseXml",
+          "when": "isVisualizerActive && showGoToSource",
           "group": "navigation@3"
         }
       ],
