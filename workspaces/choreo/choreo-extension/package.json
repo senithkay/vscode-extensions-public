@@ -274,7 +274,7 @@
     "copyFonts": "copyfiles -f ./node_modules/@wso2-enterprise/font-wso2-vscode/dist/* ./resources/font-wso2-vscode/dist/",
     "copyVSIX": "copyfiles *.vsix ./vsix",
     "copyVSIXToRoot": "copyfiles -f ./vsix/* ../../..",
-    "postbuild": "pnpm -r run postbuild && pnpm run copyFonts && pnpm run package && pnpm run copyVSIX"
+    "postbuild": "pnpm -r --filter '../../choreo/**/**' --filter '../../common-libs/**/**' run postbuild && pnpm run copyFonts && pnpm run package && pnpm run copyVSIX"
   },
   "devDependencies": {
     "@istanbuljs/nyc-config-typescript": "^1.0.2",
