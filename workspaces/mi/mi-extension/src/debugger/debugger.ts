@@ -232,7 +232,6 @@ export class Debugger extends EventEmitter {
         return new Promise(async (resolve, reject) => {
             this.startDebugger().then(() => {
                 extension.preserveActivity = true;
-                //checkServerLiveness().then(() => {
                 checkServerReadiness().then(() => {
                     this.sendResumeCommand().then(async () => {
                         const runtimeBreakpoints = this.getRuntimeBreakpoints(this.getCurrentFilePath());
@@ -249,7 +248,7 @@ export class Debugger extends EventEmitter {
                         resolve();
                     }).catch((error) => {
                         console.error('Error while resuming the debugger:', error);
-                        reject(error);
+                        reject(`Error while resuming the debugger server: ${error}`);
                     });
 
                 }).catch((error) => {
@@ -259,7 +258,7 @@ export class Debugger extends EventEmitter {
 
             }).catch((error) => {
                 console.error('Error while connecting the debugger to the MI server:', error);
-                reject(error);
+                reject(`Error while connecting the debugger to the MI server: ${error}`);
             });
         });
     }
