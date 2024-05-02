@@ -3,7 +3,7 @@ import * as dagre from "dagre";
 import * as _ from "lodash";
 import { GraphLabel } from "dagre";
 import { Point } from "@projectstorm/geometry";
-import { BORDER_GAP, COMPONENT_CIRCLE_WIDTH, COMPONENT_NODE, EMPTY_NODE, MAIN_CELL } from "../constants";
+import { BORDER_GAP, COMPONENT_CIRCLE_WIDTH, COMPONENT_NODE, DIAGRAM_END, EMPTY_NODE, MAIN_CELL } from "../constants";
 
 export interface DagreEngineOptions {
     graph?: GraphLabel;
@@ -30,6 +30,12 @@ export class DagreEngine {
         g.setDefaultEdgeLabel(function () {
             return {};
         });
+        // Create a new unlinked node paths
+        const ug = new dagre.graphlib.Graph({
+            multigraph: true,
+            compound: true,
+        });
+        ug.setGraph(this.options.graph || {});
 
         // set nodes
         _.forEach(model.getNodes(), (node) => {
@@ -63,9 +69,12 @@ export class DagreEngine {
                     y: node.getY(),
                     fixed: true,
                 });
-            } else {
+            } else if (this.isLinkedNode(ports)) {
                 // For other nodes, set the default position
                 g.setNode(node.getID(), { label: node.getID(), width: node.width, height: node.height, ports, node });
+            } else {
+                // For nodes without any links, set their position in the unlinked graph
+                ug.setNode(node.getID(), { label: node.getID(), width: node.width, height: node.height, node });
             }
         });
 
@@ -90,13 +99,16 @@ export class DagreEngine {
             }
         });
 
-        // layout the graph
-        if (model.getLinks().length === 0) {
-            this.gridLayout(g, BORDER_GAP * 2);
-        } else {
-            dagre.layout(g);
-            this.angleLayout(g, 100);
-        }
+        const space = BORDER_GAP * 2;
+        dagre.layout(g);
+        this.angleLayout(g, space);
+        // get layout edge
+        const { x, y } = this.getRightTopConnerOfGraph(g);
+        this.arrangeInGridLayout(ug.nodes(), ug, space, x, y);
+        // merge two graphs
+        ug.nodes().forEach((v) => {
+            g.setNode(v, ug.node(v));
+        });
 
         g.nodes().forEach((v) => {
             const node = g.node(v);
@@ -125,22 +137,7 @@ export class DagreEngine {
 
     gridLayout(g, spacing: number) {
         const nodes = g.nodes();
-        const gridSize = Math.ceil(Math.sqrt(nodes.length));
-        const minWidth = COMPONENT_CIRCLE_WIDTH + BORDER_GAP;
-        let x = 0;
-        let y = 0;
-
-        g.nodes().forEach((v) => {
-            const node = g.node(v);
-            const space = minWidth + spacing;
-            node.x = x * space + (space - minWidth) / 2;
-            node.y = y * ((node.height || minWidth) + spacing);
-            x++;
-            if (x >= gridSize) {
-                x = 0;
-                y++;
-            }
-        });
+        this.arrangeInGridLayout(nodes, g, spacing);
     }
 
     // nodes are all layout in vertical line. this method will add horizontal spacing between nodes to align nodes in angle line
@@ -166,5 +163,46 @@ export class DagreEngine {
                 }
             }
         });
+    }
+
+    isLinkedNode(ports) {
+        return ports.top > 0 || ports.bottom > 0 || ports.left > 0 || ports.right > 0;
+    }
+
+    arrangeInGridLayout(nodes: string[], g, spacing: number, startX = 0, startY = 0) {
+        const gridSize = Math.ceil(Math.sqrt(nodes.length));
+        const minWidth = COMPONENT_CIRCLE_WIDTH + BORDER_GAP;
+        let x = 0;
+        let y = 0;
+
+        nodes.forEach((v) => {
+            const node = g.node(v);
+            const space = minWidth + spacing;
+            node.x = startX + x * space + (space - minWidth) / 2;
+            node.y = startY + y * space;
+            x++;
+            if (x >= gridSize) {
+                x = 0;
+                y++;
+            }
+        });
+    }
+
+    getRightTopConnerOfGraph(g) {
+        let maxX = 0;
+        let minY = DIAGRAM_END;
+        g.nodes().forEach((v) => {
+            const node = g.node(v);
+            if (node.x > maxX) {
+                maxX = node.x;
+            }
+            if (node.y < minY) {
+                minY = node.y;
+            }
+        });
+        if (maxX !== 0) {
+            maxX += COMPONENT_CIRCLE_WIDTH * 2;
+        }
+        return { x: maxX, y: minY };
     }
 }
