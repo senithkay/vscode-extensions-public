@@ -59,7 +59,6 @@ export class RPCClient {
         } catch (e) {
             getLogger().error("failed to initialize rpc client", e);
         }
-        // TODO: handle validations with versions
     }
 
     static async getInstance(): Promise<RPCClient> {

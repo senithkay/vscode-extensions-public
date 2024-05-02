@@ -20,7 +20,6 @@ import { showComponentDetails } from "./view-component-cmd";
 export function linkExistingComponentCommand(context: ExtensionContext) {
     context.subscriptions.push(
         commands.registerCommand(CommandIds.LinkExistingComponent, async () => {
-            // TODO: add try catch for all other command blocks
             try {
                 const userInfo = await getUserInfoForCmd("link a directory with a Choreo component");
                 if (userInfo) {

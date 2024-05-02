@@ -40,7 +40,6 @@ export function openComponentInConsoleCommand(context: ExtensionContext) {
                                 `Select component from '${selectedProject.name}' to open in Console (3/3)`
                             ));
 
-                        // TODO: Replace selectedComponent.metadata.name, if available
                         const url = `${choreoEnvConfig.getConsoleUrl()}/organizations/${selectedOrg?.handle}/projects/${
                             selectedProject.id
                         }/components/${selectedComponent.metadata.handler}`;

@@ -13,6 +13,8 @@ import { ComponentModel } from "@wso2-enterprise/ballerina-languageclient";
 
 export interface IChoreoExtensionAPI {
     /** Deprecated function. Exists purely to support old version of Ballerina extension */
+    waitForLogin(): Promise<boolean>;
+    /** Deprecated function. Exists purely to support old version of Ballerina extension */
     getChoreoProject(): Promise<Project | undefined>;
     /** Deprecated function. Exists purely to support old version of Ballerina extension */
     isChoreoProject(): Promise<boolean>;
@@ -29,6 +31,10 @@ export class ChoreoExtensionApi implements IChoreoExtensionAPI {
 
     private _onRefreshWorkspaceMetadata = new EventEmitter();
     public onRefreshWorkspaceMetadata = this._onRefreshWorkspaceMetadata.event;
+
+    public async waitForLogin() {
+        return false;
+    }
 
     public async getChoreoProject() {
         return undefined;
