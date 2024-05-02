@@ -33,7 +33,7 @@ import {
     dracula,
     materialOceanic,
 } from 'react-syntax-highlighter/dist/cjs/styles/prism'
-import { set } from "lodash";
+import { pad, set } from "lodash";
 
 
 interface MarkdownRendererProps {
@@ -101,6 +101,15 @@ const Welcome = styled.div({
     padding: "0 20px",
 });
 
+const Badge = styled.div`
+    border: 2px solid #fff;
+    border-radius: 10px;
+    padding: 5px;
+    margin-left: 10px;
+    display: inline-block;
+    text-align: left;
+`;
+
 // A string array to store all code blocks
 const codeBlocks: string[] = [];
 var projectUuid = "";
@@ -108,6 +117,8 @@ var backendRootUri = "";
 
 let controller = new AbortController();
 let signal = controller.signal;
+
+var tokenUsagePercentage = 0;
 
 export function AIProjectGenerationChat() {
     const { rpcClient } = useVisualizerContext();
@@ -143,7 +154,13 @@ export function AIProjectGenerationChat() {
             const storedChatArray = localStorage.getItem(localStorageFile);
             const storedQuestion = localStorage.getItem(localStorageQuestionFile);
             const storedCodeBlocks = localStorage.getItem(`codeBlocks-AIGenerationChat-${projectUuid}`);
-            rpcClient.getAIVisualizerState().then((machineView) => {
+            rpcClient.getAIVisualizerState().then((machineView:any) => {
+                const maxTokens = machineView.userTokens.initial_tokens;
+                const remainingTokens = machineView.userTokens.remaining_tokens;
+                const usedTokens = maxTokens - remainingTokens;
+                const usedTokenPercentage = (usedTokens / maxTokens) * 100;
+                tokenUsagePercentage = usedTokenPercentage;
+                tokenUsagePercentage = Math.round(tokenUsagePercentage);
                 if (machineView.initialPrompt) {
                     setMessages(prevMessages => [
                         ...prevMessages,
@@ -318,7 +335,7 @@ export function AIProjectGenerationChat() {
     }
 
     async function handleSend(isQuestion: boolean = false, isInitialPrompt: boolean = false) {
-        if(userInput === "") {
+        if(userInput === "" && !isQuestion) {
             return;
         }
         console.log(chatArray);
@@ -418,6 +435,14 @@ export function AIProjectGenerationChat() {
             for (let i = 0; i < lines.length - 1; i++) {
                 try {
                     const json = JSON.parse(lines[i]);
+                    const tokenUsage = json.usage;
+                    const remainingTokens = parseInt(tokenUsage.remaining_tokens, 10);
+                    console.log("Remaining Tokens: " + remainingTokens);
+                    const maxTokens = parseInt(tokenUsage.max_usage, 10);
+                    console.log("Max Tokens: " + maxTokens);
+                    const remainingTokenPercentage = (remainingTokens / maxTokens) * 100;
+                    console.log("Remaining Token Percentage: " + remainingTokenPercentage);
+                    tokenUsagePercentage = 100 - Math.round(remainingTokenPercentage);
                     if (json.content == null) {
                         addChatEntry("assistant", assistant_response);
                         const questions = json.questions
@@ -597,6 +622,9 @@ export function AIProjectGenerationChat() {
     return (
         <AIChatView>
             <Header>
+                 <Badge>
+                       Remaining Free Usage: {100 - tokenUsagePercentage}%
+                </Badge>
                 <Button
                     appearance="icon"
                     onClick={() => handleClearChat()}

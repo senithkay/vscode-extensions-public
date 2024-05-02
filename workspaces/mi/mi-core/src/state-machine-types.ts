@@ -139,6 +139,13 @@ export interface AIVisualizerLocation {
     view?: AI_MACHINE_VIEW | null;
     initialPrompt?: string;
     state?: AIMachineStateValue;
+    userTokens?: AIUserTokens;
+}
+
+export interface AIUserTokens {
+    initial_tokens: number;
+    remaining_tokens: number;
+    time_to_reset: number;
 }
 
 export interface ParentPopupData {

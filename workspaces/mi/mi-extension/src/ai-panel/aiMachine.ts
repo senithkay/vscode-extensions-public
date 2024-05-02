@@ -10,17 +10,22 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { createMachine, assign, interpret } from 'xstate';
 import * as vscode from 'vscode';
-import { EVENT_TYPE, AIVisualizerLocation, AIMachineStateValue, AI_EVENT_TYPE } from '@wso2-enterprise/mi-core';
+import { EVENT_TYPE, AIVisualizerLocation, AIMachineStateValue, AI_EVENT_TYPE, AIUserTokens } from '@wso2-enterprise/mi-core';
 import { AiPanelWebview } from './webview';
 import { getAuthUrl } from './auth';
 import { extension } from '../MIExtensionContext';
 import fetch from 'node-fetch';
-import { HEALTH_CHECK_BACKEND_URL } from '../constants';
+import { USER_CHECK_BACKEND_URL } from '../constants';
 
 interface ChatEntry {
     role: string;
     content: string;
     errorCode?: string;
+}
+
+interface UserToken {
+    token: string;
+    userToken?: AIUserTokens;
 }
 
 interface AiMachineContext extends AIVisualizerLocation {
@@ -39,7 +44,7 @@ const aiStateMachine = createMachine<AiMachineContext>({
         token: undefined,
         chatLog: [],
         errorCode: undefined,
-        errorMessage: undefined
+        errorMessage: undefined,
     },
     on: {
         DISPOSE: {
@@ -52,14 +57,15 @@ const aiStateMachine = createMachine<AiMachineContext>({
                 src: "checkToken",
                 onDone: [
                     {
-                        cond: (context, event) => event.data !== undefined, // Token is valid
+                        cond: (context, event) => event.data.token !== undefined, // Token is valid
                         target: "Ready",
                         actions: assign({
-                            token: (context, event) => event.data
+                            token: (context, event) => event.data.token,
+                            userTokens: (context, event) => event.data.userToken
                         })
                     },
                     {
-                        cond: (context, event) => event.data === undefined, // No token found
+                        cond: (context, event) => event.data.token === undefined, // No token found
                         target: 'loggedOut'
                     }
                 ],
@@ -147,16 +153,14 @@ const aiStateMachine = createMachine<AiMachineContext>({
 });
 
 
-async function checkToken(context, event) {
+async function checkToken(context, event): Promise<UserToken> {
     return new Promise(async (resolve, reject) => {
         try {
             const token = await extension.context.secrets.get('MIAIUser');
             if (token) {
                 const config = vscode.workspace.getConfiguration('integrationStudio');
                 const ROOT_URL = config.get('rootUrl') as string;
-                const url = ROOT_URL + HEALTH_CHECK_BACKEND_URL;
-                console.log("URL: " + url);
-                console.log("Token found: " + token);
+                const url = ROOT_URL + USER_CHECK_BACKEND_URL;
                 const response = await fetch(url, {
                     method: 'GET',
                     headers: {
@@ -164,23 +168,24 @@ async function checkToken(context, event) {
                         'Authorization': `Bearer ${token}`,
                     },
                 });
-                console.log("Response: " + JSON.stringify(response));
                 if (response.ok) {
-                    console.log("OK Path");
-                    resolve(token);
+                    const responseBody = await response.json();
+                    console.log("User Tokens: ", responseBody);
+                    resolve({token, userToken: responseBody});
                 } else {
-                    if (response.status === 401) {
+                    if (response.status === 401 || response.status === 403) {
                         console.log("Unauthorized Path");
-                        resolve(undefined);
+                        resolve({ token: "", userToken: undefined });
                     }else{
                         console.log("Error: " + response.statusText);
+                        console.log("Error Code: " + response.status);
                         console.log("Error Path");
                         throw new Error(`Error while checking token: ${response.statusText}`);
                     }
                 }
             } else {
                 console.log("Not Found Path");
-                resolve(undefined);
+                resolve({ token: "", userToken: undefined });
             }
         } catch (error) {
             console.log("Other Error Path");
