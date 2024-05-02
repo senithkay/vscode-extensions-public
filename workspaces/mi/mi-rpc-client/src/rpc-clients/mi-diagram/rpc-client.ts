@@ -206,7 +206,6 @@ import {
     getProjectRoot,
     getProjectUuid,
     getRecipientEndpoint,
-    getRemoveConnectorStatus,
     getSTRequest,
     getSTResponse,
     getSelectiveWorkspaceContext,

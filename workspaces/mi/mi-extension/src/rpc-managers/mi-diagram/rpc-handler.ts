@@ -133,7 +133,6 @@ import {
     getProjectRoot,
     getProjectUuid,
     getRecipientEndpoint,
-    getRemoveConnectorStatus,
     getSTRequest,
     getSelectiveWorkspaceContext,
     getSequenceDirectory,
