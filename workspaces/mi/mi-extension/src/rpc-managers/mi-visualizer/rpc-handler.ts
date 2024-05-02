@@ -11,6 +11,7 @@
 import {
     GoToSourceRequest,
     HistoryEntry,
+    LogRequest,
     OpenViewRequest,
     ProjectStructureRequest,
     SampleDownloadRequest,
@@ -27,7 +28,10 @@ import {
     goSelected,
     openView,
     ToggleDisplayOverviewRequest,
-    goToSource
+    goToSource,
+    log,
+    focusOutput,
+    reloadWindow
 } from "@wso2-enterprise/mi-core";
 import { Messenger } from "vscode-messenger";
 import { MiVisualizerRpcManager } from "./rpc-manager";
@@ -38,6 +42,7 @@ export function registerMiVisualizerRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getProjectStructure, (args: ProjectStructureRequest) => rpcManger.getProjectStructure(args));
     messenger.onRequest(getCurrentThemeKind, () => rpcManger.getCurrentThemeKind());
     messenger.onNotification(openView, (args: OpenViewRequest) => rpcManger.openView(args));
+    messenger.onRequest(reloadWindow, () => rpcManger.reloadWindow());
     messenger.onNotification(goBack, () => rpcManger.goBack());
     messenger.onRequest(fetchSamplesFromGithub, () => rpcManger.fetchSamplesFromGithub());
     messenger.onNotification(downloadSelectedSampleFromGithub, (args: SampleDownloadRequest) => rpcManger.downloadSelectedSampleFromGithub(args));
@@ -47,4 +52,6 @@ export function registerMiVisualizerRpcHandlers(messenger: Messenger) {
     messenger.onNotification(goSelected, (args: number) => rpcManger.goSelected(args));
     messenger.onRequest(toggleDisplayOverview, (args: ToggleDisplayOverviewRequest) => rpcManger.toggleDisplayOverview(args));
     messenger.onNotification(goToSource, (args: GoToSourceRequest) => rpcManger.goToSource(args));
+    messenger.onNotification(focusOutput, () => rpcManger.focusOutput());
+    messenger.onNotification(log, (args: LogRequest) => rpcManger.log(args));
 }

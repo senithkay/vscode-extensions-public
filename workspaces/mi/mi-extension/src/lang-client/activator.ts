@@ -26,11 +26,15 @@ import {
 } from 'vscode-languageclient';
 import { ServerOptions } from "vscode-languageclient/node";
 import { DidChangeConfigurationNotification, RequestType, TextDocumentPositionParams } from 'vscode-languageserver-protocol';
-
+import { ErrorType } from '@wso2-enterprise/mi-core';
 import { activateTagClosing, AutoCloseResult } from './tagClosing';
 import { ExtendedLanguageClient } from './ExtendedLanguageClient';
 import { GoToDefinitionProvider } from './DefinitionProvider';
 import { FormattingProvider } from './FormattingProvider';
+
+import util = require('util');
+import { log } from '../util/logger';
+const exec = util.promisify(require('child_process').exec);
 
 export interface ScopeInfo {
     scope: "default" | "global" | "workspace" | "folder";
@@ -41,14 +45,43 @@ namespace TagCloseRequest {
     export const method: string = 'xml/closeTag';
 }
 
+// Error types
+const ERRORS: Record<string, ErrorType> = {
+    INCOMPATIBLE_JDK: {
+        title: "Incompatible JDK Error",
+        message: "Incompatible JDK version detected. Please install JDK 11 or above."
+    },
+    JAVA_HOME: {
+        title: "Java Home Error",
+        message: "JAVA_HOME is not set."
+    },
+    LANG_CLIENT_START: {
+        title: "Lang Client Start Error",
+        message: "Could not start the Synapse Language Server."
+    },
+    // Common error
+    LANG_CLIENT: {
+        title: "Lang Client Error",
+        message: "Failed to launch the language client. Please check the output channel for more details."
+    },
+} as const;
+
+type LangClientErrorType = (typeof ERRORS)[keyof typeof ERRORS];
+
 let ignoreAutoCloseTags = false;
 let vmArgsCache: any;
 let ignoreVMArgs = false;
 const main: string = 'org.eclipse.lemminx.XMLServerLauncher';
 
+const versionRegex = /(\d+\.\d+\.?\d*)/g;
+
 export class MILanguageClient {
     private static _instance: MILanguageClient;
     public languageClient: ExtendedLanguageClient | undefined;
+
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    private COMPATIBLE_JDK_VERSION = "11"; // Minimum JDK version required to run the language server
+    private _errorStack: ErrorType[] = [];
 
     constructor(private context: ExtensionContext) { }
 
@@ -60,9 +93,42 @@ export class MILanguageClient {
         return this._instance;
     }
 
+    public getErrors() {
+        return this._errorStack;
+    }
+
+    private updateErrors(error: LangClientErrorType) {
+        this._errorStack.push(error);
+    }
+
+    private isCompatibleJDKVersion(version: string): boolean {
+        const match = version.match(versionRegex);
+        if (match) {
+            const jdkVersion = match[0].split(".")[0];
+            if (parseInt(jdkVersion) < parseInt(this.COMPATIBLE_JDK_VERSION)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public async checkJDKCompatibility(): Promise<boolean> {
+        const { stderr } = await exec('java -version');
+        const isCompatible = this.isCompatibleJDKVersion(stderr);
+        return isCompatible;
+    }
+
     private async launch() {
         try {
             const { JAVA_HOME } = process.env;
+
+            const isJDKCompatible = await this.checkJDKCompatibility();
+            if (!isJDKCompatible) {
+                const errorMessage = `Incompatible JDK version detected. Please install JDK ${this.COMPATIBLE_JDK_VERSION} or above.`;
+                window.showErrorMessage(errorMessage);
+                this.updateErrors(ERRORS.INCOMPATIBLE_JDK);
+                throw new Error(errorMessage);
+            }
 
             if (JAVA_HOME) {
                 let executable: string = path.join(JAVA_HOME, 'bin', 'java');
@@ -73,7 +139,9 @@ export class MILanguageClient {
                 const args: string[] = [schemaPathArg, '-cp', langServerCP];
 
                 if (process.env.LSDEBUG === "true") {
-                    console.log('LSDEBUG is set to "true". Services will run on debug mode');
+                    const message = 'LSDEBUG is set to "true". Services will run on debug mode';
+                    console.log(message);
+                    log(message);
                     args.push('-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005,quiet=y');
                 }
 
@@ -110,6 +178,8 @@ export class MILanguageClient {
                     initializationFailedHandler: (error) => {
                         console.log(error);
                         window.showErrorMessage("Could not start the Synapse Language Server.");
+                        log(error.toString());
+                        this.updateErrors(ERRORS.LANG_CLIENT_START);
                         return false;
                     }
                 };
@@ -131,11 +201,16 @@ export class MILanguageClient {
                 registerDefinitionProvider(this.context, this.languageClient);
                 registerFormattingProvider(this.context, this.languageClient);
             } else {
+                log("Error: The JAVA_HOME environment variable is not defined. Please make sure to set the JAVA_HOME environment variable to the installation directory of your JDK.");
+                this.updateErrors(ERRORS.JAVA_HOME);
                 throw new Error("JAVA_HOME is not set");
             }
-        } catch (error) {
-            console.error("Failed to launch the language client: ", error);
-            window.showErrorMessage("Failed to launch the language client. Please check the console for more details.");
+        } catch (error: any) {
+            const errorMessage = "Failed to launch the language client. Please check the console for more details.";
+            console.error(errorMessage, error);
+            window.showErrorMessage(errorMessage);
+            log(error.toString());
+            this.updateErrors(ERRORS.LANG_CLIENT);
         }
 
         function getXMLSettings(): JSON {
