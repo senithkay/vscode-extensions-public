@@ -2028,7 +2028,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
     async rangeFormat(req: RangeFormatRequest): Promise<ApplyEditResponse> {
         return new Promise(async (resolve) => {
-            const uri = Uri.parse(req.uri);
+            const uri = Uri.file(req.uri);
             const edits: TextEdit[] = await commands.executeCommand("vscode.executeFormatRangeProvider", uri, req.range,
                 { tabSize: 4, insertSpaces: false, trimTrailingWhitespace: false });
             const workspaceEdit = new WorkspaceEdit();
