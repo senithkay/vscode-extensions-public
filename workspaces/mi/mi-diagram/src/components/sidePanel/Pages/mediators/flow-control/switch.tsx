@@ -18,7 +18,7 @@ import { getXML } from '../../../../../utils/template-engine/mustach-templates/t
 import { MEDIATORS } from '../../../../../resources/constants';
 import { Controller, useForm } from 'react-hook-form';
 import { ExpressionField, ExpressionFieldValue } from '../../../../Form/ExpressionField/ExpressionInput';
-import { ParamManager } from '../../../../Form/ParamManager/ParamManager';
+import { ParamManager, ParamConfig, ParamValue } from '../../../../Form/ParamManager/ParamManager';
 
 const cardStyle = { 
     display: "block",
@@ -48,11 +48,11 @@ const SwitchForm = (props: AddMediatorProps) => {
         reset({
             sourceXPath: sidePanelContext?.formValues?.sourceXPath || {"isExpression":true,"value":""},
             caseBranches: {
-                paramValues: sidePanelContext?.formValues?.caseBranches && sidePanelContext?.formValues?.caseBranches.map((property: string|ExpressionFieldValue[], index: string) => (
+                paramValues: sidePanelContext?.formValues?.caseBranches && sidePanelContext?.formValues?.caseBranches.map((property: (string | ExpressionFieldValue | ParamConfig)[], index: string) => (
                     {
                         id: index,
                         key: index,
-                        value: typeof property[0] === 'object' ? property[0].value : property[0],
+                        value:  property[0],
                         icon: 'query',
                         paramValues: [
                             { value: property[0] },
@@ -144,12 +144,9 @@ const SwitchForm = (props: AddMediatorProps) => {
                                 readonly={false}
                                 onChange= {(values) => {
                                     values.paramValues = values.paramValues.map((param: any, index: number) => {
-                                        const paramValues = param.paramValues;
+                                        const property: ParamValue[] = param.paramValues;
                                         param.key = index;
-                                        param.value = paramValues[0].value;
-                                        if (paramValues[1]?.value?.isExpression) {
-                                            param.namespaces = paramValues[1].value.namespaces;
-                                        }
+                                        param.value = property[0].value;
                                         param.icon = 'query';
                                         return param;
                                     });

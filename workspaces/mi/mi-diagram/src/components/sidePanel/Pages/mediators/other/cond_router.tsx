@@ -19,7 +19,7 @@ import { getXML } from '../../../../../utils/template-engine/mustach-templates/t
 import { MEDIATORS } from '../../../../../resources/constants';
 import { Controller, useForm } from 'react-hook-form';
 import { ExpressionFieldValue } from '../../../../Form/ExpressionField/ExpressionInput';
-import { ParamManager } from '../../../../Form/ParamManager/ParamManager';
+import { ParamManager, ParamConfig, ParamValue } from '../../../../Form/ParamManager/ParamManager';
 
 const cardStyle = { 
     display: "block",
@@ -49,11 +49,11 @@ const ConditionalRouterForm = (props: AddMediatorProps) => {
         reset({
             continueAfterRoute: sidePanelContext?.formValues?.continueAfterRoute || "",
             conditionalRouteBranches: {
-                paramValues: sidePanelContext?.formValues?.conditionalRouteBranches && sidePanelContext?.formValues?.conditionalRouteBranches.map((property: string|ExpressionFieldValue[], index: string) => (
+                paramValues: sidePanelContext?.formValues?.conditionalRouteBranches && sidePanelContext?.formValues?.conditionalRouteBranches.map((property: (string | ExpressionFieldValue | ParamConfig)[], index: string) => (
                     {
                         id: index,
-                        key: typeof property[0] === 'object' ? property[0].value : property[0],
-                        value: typeof property[1] === 'object' ? property[1].value : property[1],
+                        key: property[0],
+                        value:  property[1],
                         icon: 'query',
                         paramValues: [
                             { value: property[0] },
@@ -148,12 +148,9 @@ const ConditionalRouterForm = (props: AddMediatorProps) => {
                                     readonly={false}
                                     onChange= {(values) => {
                                         values.paramValues = values.paramValues.map((param: any, index: number) => {
-                                            const paramValues = param.paramValues;
-                                            param.key = paramValues[0].value;
-                                            param.value = paramValues[1].value;
-                                            if (paramValues[1]?.value?.isExpression) {
-                                                param.namespaces = paramValues[1].value.namespaces;
-                                            }
+                                            const property: ParamValue[] = param.paramValues;
+                                            param.key = property[0].value;
+                                            param.value = property[1].value;
                                             param.icon = 'query';
                                             return param;
                                         });

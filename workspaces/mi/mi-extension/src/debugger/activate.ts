@@ -10,12 +10,12 @@
 import * as vscode from 'vscode';
 import { CancellationToken, DebugConfiguration, ProviderResult, WorkspaceFolder } from 'vscode';
 import { MiDebugAdapter } from './debugAdapter';
-import { COMMANDS, SELECTED_SERVER_PATH } from '../constants';
+import { COMMANDS } from '../constants';
 import { extension } from '../MIExtensionContext';
 import { executeBuildTask, executeTasks, getServerPath } from './debugHelper';
 import { getBuildTask } from './tasks';
-import { StateMachine, navigate, openView } from '../stateMachine';
-import { EVENT_TYPE } from '@wso2-enterprise/mi-core';
+import { navigate } from '../stateMachine';
+import { SELECTED_SERVER_PATH } from './constants';
 
 
 class MiConfigurationProvider implements vscode.DebugConfigurationProvider {
@@ -43,14 +43,14 @@ export function activateDebugger(context: vscode.ExtensionContext) {
         });
     });
 
-    vscode.commands.registerCommand(COMMANDS.BUILD_PROJECT, async () => {
+    vscode.commands.registerCommand(COMMANDS.BUILD_PROJECT, async (shouldCopyTarget?: boolean) => {
         getServerPath().then(async (serverPath) => {
             if (!serverPath) {
                 vscode.window.showErrorMessage("Server path not found");
                 return;
             }
             const buildTask = getBuildTask();
-            await executeBuildTask(buildTask, serverPath);
+            await executeBuildTask(buildTask, serverPath, shouldCopyTarget);
         });
 
     });

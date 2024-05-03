@@ -12,13 +12,14 @@ import React from 'react';
 
 import { Param, TypeResolver } from './TypeResolver';
 import { ParamField, Parameters, isFieldEnabled, getParamFieldLabelFromParamId } from './ParamManager';
-import { ActionButtons } from '@wso2-enterprise/ui-toolkit';
+import { ActionButtons, Drawer } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 
 export interface ParamProps {
     parameters: Parameters;
     paramFields: ParamField[];
     isTypeReadOnly?: boolean;
+    openInDrawer?: boolean;
     onChange: (param: Parameters) => void;
     onSave?: (param: Parameters) => void;
     onCancel?: (param?: Parameters) => void;
@@ -39,8 +40,13 @@ const EditorContent = styled.div`
     padding: 10px 0;
 `;
 
+const DrawerContent = styled.div`
+    overflow-y: auto;
+    padding: 16px;
+`;
+
 export function ParamEditor(props: ParamProps) {
-    const { parameters, paramFields, onChange, onSave, onCancel } = props;
+    const { parameters, paramFields, openInDrawer, onChange, onSave, onCancel } = props;
 
     const getParamComponent = (p: Param) => {
         const handleTypeResolverChange = (newParam: Param) => {
@@ -74,15 +80,37 @@ export function ParamEditor(props: ParamProps) {
     };
 
     return (
-        <EditorContainer>
-            <EditorContent>
-                {parameters?.parameters.map(param => getParamComponent({ ...param, label: getParamFieldLabelFromParamId(paramFields, param.id) }))}
-            </EditorContent>
-            <ActionButtons
-                primaryButton={{ text: "Save", onClick: handleOnSave }}
-                secondaryButton={{ text: "Cancel", onClick: handleOnCancel }}
-                sx={{ justifyContent: "flex-end" }}
-            />
-        </EditorContainer >
+        <>
+            {!openInDrawer && (
+                <EditorContainer>
+                    <EditorContent>
+                        {parameters?.parameters.map(param => getParamComponent({ ...param, label: getParamFieldLabelFromParamId(paramFields, param.id) }))}
+                    </EditorContent>
+                    <ActionButtons
+                        primaryButton={{ text: "Save", onClick: handleOnSave }}
+                        secondaryButton={{ text: "Cancel", onClick: handleOnCancel }}
+                        sx={{ justifyContent: "flex-end" }}
+                    />
+                </EditorContainer>
+            )}
+            <Drawer
+                isOpen={openInDrawer}
+                id="drawer1"
+                isSelected={true}
+            >
+                {openInDrawer && (
+                    <DrawerContent>
+                        <EditorContent>
+                            {parameters?.parameters.map(param => getParamComponent({ ...param, label: getParamFieldLabelFromParamId(paramFields, param.id) }))}
+                        </EditorContent>
+                        <ActionButtons
+                            primaryButton={{ text: "Save", onClick: handleOnSave }}
+                            secondaryButton={{ text: "Cancel", onClick: handleOnCancel }}
+                            sx={{ justifyContent: "flex-end" }}
+                        />
+                    </DrawerContent>
+                )}
+            </Drawer>
+        </>
     );
 }

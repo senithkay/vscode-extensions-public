@@ -18,19 +18,19 @@
   ~  under the License.
   -->
 
-<xs:schema
-    xmlns:xs="http://www.w3.org/2001/XMLSchema"
-    elementFormDefault="qualified"
-    targetNamespace="http://ws.apache.org/ns/synapse"
-    xmlns="http://ws.apache.org/ns/synapse">
+<xs:schema 
+        xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+        elementFormDefault="qualified"
+        targetNamespace="http://ws.apache.org/ns/synapse"
+        xmlns="http://ws.apache.org/ns/synapse">
 
     <xs:group name="connectors">
         <xs:annotation>
-            <xs:documentation source="description"> This group denotes all the connectors elements
-                that are added to the integration studio </xs:documentation>
+            <xs:documentation source="description">
+                This group denotes all the connectors elements that are added to the integration studio
+            </xs:documentation>
         </xs:annotation>
         <xs:choice>
-
         </xs:choice>
     </xs:group>
 </xs:schema>

@@ -9,19 +9,19 @@
 
 import { Smooks } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import Mustache from "mustache";
+import { transformNamespaces } from "../../../commons";
 
 export function getSmooksMustacheTemplate() {
     return `
     <smooks config-key="{{configurationKey}}" description="{{description}}" >
-        <input {{#inputExpression}}expression="{{{inputExpression}}}"{{/inputExpression}} {{#inputType}}type="{{inputType}}"{{/inputType}} />
-        <output {{#outputAction}}action="{{outputAction}}"{{/outputAction}} {{#outputExpression}}expression="{{{outputExpression}}}"{{/outputExpression}} {{#outputProperty}}property="{{outputProperty}}"{{/outputProperty}} type="{{outputType}}" />
+        <input {{#inputExpression}}expression="{{{value}}}"{{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}}{{/inputExpression}} {{#inputType}}type="{{inputType}}"{{/inputType}} />
+        <output {{#outputAction}}action="{{outputAction}}"{{/outputAction}} {{#outputExpression}}expression="{{{outputExpression}}}"{{/outputExpression}} {{#outputProperty}}property="{{{outputProperty}}}"{{/outputProperty}} type="{{outputType}}" />
     </smooks>
     `;
 }
 
 export function getSmooksXml(data: { [key: string]: any }) {
 
-    data.inputExpression = data.inputExpression?.value;
     if (data.outputMethod == "Property") {
         delete data.outputExpression;
     } else if (data.outputMethod == "Expression") {
@@ -38,7 +38,7 @@ export function getSmooksFormDataFromSTNode(data: { [key: string]: any }, node: 
 
     data.description = node.description;
     data.configurationKey = node.configKey;
-    data.inputExpression = { isExpression: true, value: node.input?.expression };
+    data.inputExpression = { isExpression: true, value: node.input?.expression, namespaces: transformNamespaces(node.input?.namespaces) };
     data.inputType = node.input?.type;
     data.outputType = node.output?.type;
     if (node.output?.expression) {

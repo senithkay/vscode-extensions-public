@@ -7,6 +7,8 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
+import { ParamConfig, ParamValueConfig } from "../components/Form/ParamManager/ParamManager";
+
 export const FirstCharToUpperCase = (str: string) => {
     return str.charAt(0).toUpperCase() + str.slice(1);
 }
@@ -14,4 +16,31 @@ export const FirstCharToUpperCase = (str: string) => {
 // Checks if the given dirty keys exist in the attributes
 export function checkAttributesExist(dirtyKeys: string[], attributes: string[]) {
     return dirtyKeys.some(key => attributes.includes(key));
+}
+
+export function generateSpaceSeperatedStringFromParamValues(paramConfig: ParamConfig) {
+    let result = "";
+    paramConfig.paramValues?.forEach(param => {
+        // if param.value is an object
+        if (typeof param.value === "string") {
+            result += param.value + " ";
+        } else {
+            const pc = param?.value as ParamConfig;
+            pc?.paramValues?.forEach(p => {
+                result += p.key + " ";
+            });
+        }
+    });
+    return result.trim();
+};
+
+// Transofrm the namespace object from syntax tree to the format supported by forms
+export function transformNamespaces(namespaces: { [key: string]: string }) {
+    if (namespaces && Object.keys(namespaces).length > 0) {
+        return Object.keys(namespaces).map((key) => ({
+            prefix: key.split(':')[1],
+            uri: namespaces[key]
+        }));
+    }
+    return [];
 }

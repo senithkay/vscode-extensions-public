@@ -50,12 +50,13 @@ import {
     CreateTemplateRequest,
     CreateTemplateResponse,
     DataSourceTemplate,
+    DeleteArtifactRequest,
     DownloadConnectorRequest,
     DownloadConnectorResponse,
-    DeleteArtifactRequest,
     ESBConfigsResponse,
     EndpointDirectoryResponse,
     EndpointsAndSequencesResponse,
+    ExportProjectRequest,
     FileDirResponse,
     GetAllArtifactsRequest,
     GetAllArtifactsResponse,
@@ -154,6 +155,7 @@ import {
     askProjectDirPath,
     askProjectImportDirPath,
     browseFile,
+    buildProject,
     closeWebView,
     closeWebViewNotification,
     createAPI,
@@ -171,9 +173,10 @@ import {
     createSequence,
     createTask,
     createTemplate,
-    downloadConnector,
     deleteArtifact,
+    downloadConnector,
     executeCommand,
+    exportProject,
     getAIResponse,
     getAPIDirectory,
     getAddressEndpoint,
@@ -599,17 +602,24 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
     logoutFromMIAccount(): void {
         return this._messenger.sendNotification(logoutFromMIAccount, HOST_EXTENSION);
     }
-    
+
     getAllRegistryPaths(params: GetAllRegistryPathsRequest): Promise<GetAllRegistryPathsResponse> {
         return this._messenger.sendRequest(getAllRegistryPaths, HOST_EXTENSION, params);
     }
 
     getAllArtifacts(params: GetAllArtifactsRequest): Promise<GetAllArtifactsResponse> {
         return this._messenger.sendRequest(getAllArtifacts, HOST_EXTENSION, params);
-
     }
 
     deleteArtifact(params: DeleteArtifactRequest): Promise<void> {
         return this._messenger.sendRequest(deleteArtifact, HOST_EXTENSION, params);
+    }
+
+    async buildProject(): Promise<void> {
+        return this._messenger.sendRequest(buildProject, HOST_EXTENSION);
+    }
+
+    exportProject(params: ExportProjectRequest): Promise<void> {
+        return this._messenger.sendRequest(exportProject, HOST_EXTENSION, params);
     }
 }

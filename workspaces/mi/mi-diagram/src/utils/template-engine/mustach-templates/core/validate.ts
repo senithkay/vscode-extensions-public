@@ -9,30 +9,31 @@
 
 import { Validate } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 import Mustache from 'mustache';
+import { transformNamespaces } from '../../../commons';
 
 export function getValidateMustacheTemplate() {
     return `
     {{#isNewMediator}}
-    <validate {{#source}}source="{{source}}" {{/source}}{{#enableSchemaCaching}}cache-schema="{{enableSchemaCaching}}" {{/enableSchemaCaching}}{{#description}}description="{{description}}" {{/description}}>
+    <validate {{#source}}source="{{{value}}}"{{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}} {{/source}}{{#enableSchemaCaching}}cache-schema="{{enableSchemaCaching}}" {{/enableSchemaCaching}}{{#description}}description="{{description}}" {{/description}}>
     {{#schemas}}
     <schema key="{{key}}" />
     {{/schemas}}
     {{#features}}
-    <feature name="{{featureName}}" value="{{featureEnabled}}" />
+    <feature name="{{featureName}}" value="{{featureEnable}}" />
     {{/features}}
-    <on-fail />
+    <on-fail></on-fail>
     {{#resources}}
     <resource key="{{locationKey}}" location="{{location}}" />
     {{/resources}}
     </validate>
     {{/isNewMediator}}
     {{^isNewMediator}}
-    <validate {{#source}}source="{{source}}" {{/source}}{{#enableSchemaCaching}}cache-schema="{{enableSchemaCaching}}" {{/enableSchemaCaching}}{{#description}}description="{{description}}" {{/description}}>
+    <validate {{#source}}source="{{{value}}}"{{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}} {{/source}}{{#enableSchemaCaching}}cache-schema="{{enableSchemaCaching}}" {{/enableSchemaCaching}}{{#description}}description="{{description}}" {{/description}}>
     {{#schemas}}
     <schema key="{{key}}" />
     {{/schemas}}
     {{#features}}
-    <feature name="{{featureName}}" value="{{featureEnabled}}" />
+    <feature name="{{featureName}}" value="{{featureEnable}}" />
     {{/features}}
     {{#resources}}
     <resource key="{{locationKey}}" location="{{location}}" />
@@ -43,7 +44,6 @@ export function getValidateMustacheTemplate() {
 
 export function getValidateXml(data: { [key: string]: any }, dirtyFields?: any, defaultValues?: any) {
 
-    data.source = data?.source?.value;
     data.schemas = data.schemas.map((schema: string[]) => {
         return {
             key: schema[0] == "Static" ? schema[1] : "{" + schema[1] + "}"
@@ -76,7 +76,7 @@ function getEdits(data: { [key: string]: any }, dirtyFields: any, defaultValues:
         let dirtyData = { ...data };
         let validateRange = defaultValues.ranges.validate;
         let onFailRange = defaultValues.ranges.onFail;
-        if (onFailRange) {
+        if (onFailRange && onFailRange.endTagRange?.end) {
             let startXml = Mustache.render(getValidateMustacheTemplate(), dirtyData)?.trim();
             let editRange = {
                 start: validateRange.startTagRange.start,
@@ -114,7 +114,7 @@ function getEdits(data: { [key: string]: any }, dirtyFields: any, defaultValues:
 }
 
 export function getValidateFormDataFromSTNode(data: { [key: string]: any }, node: Validate) {
-    data.source = { isExpression: true, value: node.source };
+    data.source = { isExpression: true, value: node.source, namespaces: transformNamespaces(node.namespaces) };
     data.description = node.description;
     data.enableSchemaCaching = node.cacheSchema;
     if (node.feature) {

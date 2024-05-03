@@ -18,9 +18,10 @@ import { deleteRegistryResource } from '../util/fileOperations';
 import { RpcClient } from '@wso2-enterprise/mi-rpc-client';
 import { extension } from '../MIExtensionContext';
 
-export function activateProjectExplorer(context: ExtensionContext) {
+export async function activateProjectExplorer(context: ExtensionContext) {
 
 	const projectExplorerDataProvider = new ProjectExplorerEntryProvider(context);
+	await projectExplorerDataProvider.refresh();
 	const projectTree = window.createTreeView('MI.project-explorer', { treeDataProvider: projectExplorerDataProvider });
 	commands.registerCommand(COMMANDS.REFRESH_COMMAND, () => { return projectExplorerDataProvider.refresh(); });
 	commands.registerCommand(COMMANDS.ADD_COMMAND, () => {
@@ -122,12 +123,16 @@ export function activateProjectExplorer(context: ExtensionContext) {
 		commands.executeCommand('workbench.files.action.focusFilesExplorer');
 	});
 
+	commands.registerCommand(COMMANDS.SHOW_DATA_MAPPER, async (entry: string) => {
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.DataMapperView, documentUri: entry });
+	});
+
 	commands.registerCommand(COMMANDS.DELETE_REGISTERY_RESOURCE_COMMAND, async (entry: ProjectExplorerEntry) => {
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.Overview });
 		if (entry.info && entry.info?.path) {
 			const filePath = entry.info.path;
 			const fileName = path.basename(filePath);
-			window.showInformationMessage("Do you want to do delete : " + fileName, "Yes", "No")
+			window.showInformationMessage("Do you want to delete : " + fileName, { modal: true }, "Yes", "No")
 				.then(async answer => {
 					if (answer === "Yes") {
 						const res = await deleteRegistryResource(filePath);
@@ -206,6 +211,10 @@ export function activateProjectExplorer(context: ExtensionContext) {
 	commands.registerCommand(COMMANDS.SHOW_SEQUENCE_VIEW, (documentUri: Uri, beside: boolean = true) => {
 		revealWebviewPanel(beside);
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.SequenceView, documentUri: documentUri?.fsPath });
+	});
+	commands.registerCommand(COMMANDS.SHOW_SEQUENCE_TEMPLATE_VIEW, (documentUri: Uri, beside: boolean = true) => {
+		revealWebviewPanel(beside);
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.SequenceTemplateView, documentUri: documentUri?.fsPath });
 	});
 	commands.registerCommand(COMMANDS.SHOW_PROXY_VIEW, (documentUri: Uri, beside: boolean = true) => {
 		revealWebviewPanel(beside);

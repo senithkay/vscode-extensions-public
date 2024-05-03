@@ -33,7 +33,7 @@ import {
     dracula,
     materialOceanic,
 } from 'react-syntax-highlighter/dist/cjs/styles/prism'
-import { set } from "lodash";
+import { pad, set } from "lodash";
 
 
 interface MarkdownRendererProps {
@@ -101,6 +101,15 @@ const Welcome = styled.div({
     padding: "0 20px",
 });
 
+const Badge = styled.div`
+    border: 2px solid #fff;
+    border-radius: 10px;
+    padding: 5px;
+    margin-left: 10px;
+    display: inline-block;
+    text-align: left;
+`;
+
 // A string array to store all code blocks
 const codeBlocks: string[] = [];
 var projectUuid = "";
@@ -108,6 +117,8 @@ var backendRootUri = "";
 
 let controller = new AbortController();
 let signal = controller.signal;
+
+var remainingTokenPercentage: string|number;
 
 export function AIProjectGenerationChat() {
     const { rpcClient } = useVisualizerContext();
@@ -143,7 +154,16 @@ export function AIProjectGenerationChat() {
             const storedChatArray = localStorage.getItem(localStorageFile);
             const storedQuestion = localStorage.getItem(localStorageQuestionFile);
             const storedCodeBlocks = localStorage.getItem(`codeBlocks-AIGenerationChat-${projectUuid}`);
-            rpcClient.getAIVisualizerState().then((machineView) => {
+            rpcClient.getAIVisualizerState().then((machineView:any) => {
+                const maxTokens = machineView.userTokens.max_usage;
+                if(maxTokens == -1){
+                    remainingTokenPercentage = "Unlimited";
+                }else{
+                    const remainingTokens = machineView.userTokens.remaining_tokens;
+                    remainingTokenPercentage = Math.round((remainingTokens / maxTokens) * 100);
+                }
+
+
                 if (machineView.initialPrompt) {
                     setMessages(prevMessages => [
                         ...prevMessages,
@@ -318,11 +338,13 @@ export function AIProjectGenerationChat() {
     }
 
     async function handleSend(isQuestion: boolean = false, isInitialPrompt: boolean = false) {
+        if(userInput === "" && !isQuestion) {
+            return;
+        }
         console.log(chatArray);
         var context: GetWorkspaceContextResponse[] = [];
         setMessages(prevMessages => prevMessages.filter((message, index) => message.type !== 'label'));
         setMessages(prevMessages => prevMessages.filter((message, index) => message.type !== 'question'));
-
         setIsLoading(true);
         let assistant_response = "";
         if (!isQuestion && !isInitialPrompt) {
@@ -415,6 +437,14 @@ export function AIProjectGenerationChat() {
             for (let i = 0; i < lines.length - 1; i++) {
                 try {
                     const json = JSON.parse(lines[i]);
+                    const tokenUsage = json.usage;
+                    const maxTokens = tokenUsage.max_usage;
+                    if (maxTokens == -1) {
+                        remainingTokenPercentage = "Unlimited";
+                    }else{
+                        const remainingTokens = tokenUsage.remaining_tokens;
+                        remainingTokenPercentage = Math.round((remainingTokens / maxTokens) * 100);
+                    }
                     if (json.content == null) {
                         addChatEntry("assistant", assistant_response);
                         const questions = json.questions
@@ -594,6 +624,9 @@ export function AIProjectGenerationChat() {
     return (
         <AIChatView>
             <Header>
+                 <Badge>
+                       Remaining Free Usage: {remainingTokenPercentage}%
+                </Badge>
                 <Button
                     appearance="icon"
                     onClick={() => handleClearChat()}
@@ -685,20 +718,19 @@ export function AIProjectGenerationChat() {
                 </>
                 ))}
                 <FlexRow>
-                    <VSCodeTextField
+                <VSCodeTextField
                         value={userInput}
                         onInput={(e: any) => setUserInput(e.target.value)}
                         onKeyDown={(event: any) => handleTextKeydown(event)}
                         placeholder="Type a command to test"
                         innerHTML="true"
                         style={{ width: "calc(100% - 35px)" }}
-                        // disabled = {isLoading}
+                        {...(isLoading ? { disabled: true } : {})}
                     >
                     </VSCodeTextField>
                     <VSCodeButton
                         appearance="secondary"
                         onClick={() => isLoading ? handleStop() : handleSend(false,false)}
-                        // disabled={isLoading}
                         style={{ width: "35px" }}>
                         <span className={`codicon ${isLoading ? 'codicon-debug-stop' : 'codicon-send'}`}></span>
                     </VSCodeButton>

@@ -17,6 +17,7 @@ import {
     GoToSourceRequest,
     HistoryEntry,
     HistoryEntryResponse,
+    LogRequest,
     MIVisualizerAPI,
     OpenViewRequest,
     ProjectStructureRequest,
@@ -31,13 +32,14 @@ import {
     EVENT_TYPE,
 } from "@wso2-enterprise/mi-core";
 import fetch from 'node-fetch';
-import { workspace, window, commands, Uri, ViewColumn } from "vscode";
+import { workspace, window, commands } from "vscode";
 import { history } from "../../history";
 import { StateMachine, navigate, openView } from "../../stateMachine";
 import { goToSource, handleOpenFile } from "../../util/fileOperations";
 import { openAIWebview } from "../../ai-panel/aiMachine";
 import { extension } from "../../MIExtensionContext";
 import { openPopupView } from "../../stateMachinePopup";
+import { log, outputChannel } from "../../util/logger";
 
 export class MiVisualizerRpcManager implements MIVisualizerAPI {
     async getWorkspaces(): Promise<WorkspacesResponse> {
@@ -115,7 +117,8 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
                         priority: samples[i][1],
                         title: samples[i][2],
                         description: samples[i][3],
-                        zipFileName: samples[i][4]
+                        zipFileName: samples[i][4],
+                        isAvailable: samples[i][5]
                     };
                     sampleList.push(sample);
                 }
@@ -174,5 +177,22 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
 
     goToSource(params: GoToSourceRequest): void {
         goToSource(params.filePath, params.position);
+    }
+
+    reloadWindow(): Promise<void> {
+        return new Promise(async (resolve) => {
+            await commands.executeCommand('workbench.action.reloadWindow');
+            resolve();
+        });
+    }
+
+    focusOutput(): void {
+        // Focus on the output channel
+        outputChannel.show();
+    }
+
+    log(params: LogRequest): void {
+        // Logs the message to the output channel
+        log(params.message);
     }
 }

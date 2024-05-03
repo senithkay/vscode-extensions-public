@@ -14,6 +14,7 @@ import {
     GoToSourceRequest,
     HistoryEntry,
     HistoryEntryResponse,
+    LogRequest,
     MIVisualizerAPI,
     OpenViewRequest,
     ProjectStructureRequest,
@@ -32,7 +33,10 @@ import {
     goBack,
     goHome,
     goSelected,
+    log,
     openView,
+    reloadWindow,
+    focusOutput,
     goToSource
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
@@ -59,6 +63,10 @@ export class MiVisualizerRpcClient implements MIVisualizerAPI {
 
     openView(params: OpenViewRequest): void {
         return this._messenger.sendNotification(openView, HOST_EXTENSION, params);
+    }
+
+    reloadWindow(): Promise<void> {
+        return this._messenger.sendRequest(reloadWindow, HOST_EXTENSION);
     }
 
     goBack(): void {
@@ -95,5 +103,13 @@ export class MiVisualizerRpcClient implements MIVisualizerAPI {
 
     goToSource(params: GoToSourceRequest): void {
         return this._messenger.sendNotification(goToSource, HOST_EXTENSION, params);
+    }
+
+    focusOutput(): void {
+        return this._messenger.sendNotification(focusOutput, HOST_EXTENSION);
+    }
+
+    log(params: LogRequest): void {
+        return this._messenger.sendNotification(log, HOST_EXTENSION, params);
     }
 }

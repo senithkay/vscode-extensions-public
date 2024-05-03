@@ -191,8 +191,9 @@
                             "name": "targetType",
                             "displayName": "Target Type",
                             "inputType": "combo",
-                            "defaultValue": "body",
+                            "defaultValue": "none",
                             "comboValues": [
+                                "none",
                                 "body",
                                 "property"
                             ],

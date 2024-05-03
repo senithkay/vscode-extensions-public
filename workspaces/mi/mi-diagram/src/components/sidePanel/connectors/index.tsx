@@ -8,12 +8,13 @@
  */
 
 import { TextField, Button, Codicon, Icon, ComponentCard, IconLabel, AutoComplete } from "@wso2-enterprise/ui-toolkit";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import styled from "@emotion/styled";
 import SidePanelContext from "../SidePanelContexProvider";
 import { VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import AddConnector from "../Pages/AddConnector";
+import { ConnectorStatus } from "@wso2-enterprise/mi-core";
 
 const LoaderWrapper = styled.div`
     display: flex;
@@ -98,6 +99,7 @@ export function ConnectorPage(props: ConnectorPageProps) {
     const [filteredStoreConnectors, setFilteredStoreConnectors] = useState<any[]>([]);
     const [filteredLocalConnectors, setFilteredLocalConnectors] = useState<any[]>([]);
     const [filteredOperations, setFilteredOperations] = useState<any[][]>([]);
+    const connectionStatus = useRef(null);
 
     const fetchConnectors = async () => {
         const response = await fetch('https://raw.githubusercontent.com/rosensilva/connectors/main/connectors_list.json');
@@ -120,6 +122,10 @@ export function ConnectorPage(props: ConnectorPageProps) {
     };
 
     useEffect(() => {
+        rpcClient?.onConnectorStatusUpdate((connectorStatus: ConnectorStatus) => {
+            connectionStatus.current = connectorStatus;
+        });
+
         fetchLocalConnectorData();
 
         if (!sidePanelContext.connectors || sidePanelContext.connectors.length === 0) {
@@ -150,7 +156,24 @@ export function ConnectorPage(props: ConnectorPageProps) {
 
         setFilteredLocalConnectors(localConnectorsFiltered);
         setFilteredStoreConnectors(storeConnectorsFiltered);
-    }, [props.searchValue])
+    }, [props.searchValue]);
+
+    const waitForEvent = () => {
+        return new Promise((resolve, reject) => {
+            const checkInterval = setInterval(() => {
+                if (connectionStatus.current) {
+                    clearInterval(checkInterval);
+                    resolve(connectionStatus.current);
+                }
+            }, 200);
+
+            // Reject the promise after 10 seconds
+            setTimeout(() => {
+                clearInterval(checkInterval);
+                reject(new Error('Event did not occur within 10 seconds'));
+            }, 10000);
+        });
+    };
 
     const searchStoreConnectors = (searchValue: string) => {
         return sidePanelContext.connectors && sidePanelContext.connectors
@@ -230,18 +253,47 @@ export function ConnectorPage(props: ConnectorPageProps) {
         // Download connector from store
         if (connector.operations) {
             setIsDownloading(true);
-            await rpcClient.getMiDiagramRpcClient().downloadConnector({
-                connector: connector.name,
-                url: connector.download_url,
-                version: connector.version
-            });
+            let downloadSuccess = false;
+            let attempts = 0;
+
+            while (!downloadSuccess && attempts < 3) {
+                try {
+                    await rpcClient.getMiDiagramRpcClient().downloadConnector({
+                        connector: connector.name,
+                        url: connector.download_url,
+                        version: connector.version
+                    });
+                    downloadSuccess = true;
+                } catch (error) {
+                    console.error('Error occurred while downloading connector:', error);
+                    attempts++;
+                }
+            }
+
+            if (downloadSuccess) {
+                try {
+                    const status: any = await waitForEvent();
+
+                    if (status.connector === connector.name && status.isSuccess) {
+                        generateForm(connector, operation);
+                    } else {
+                        console.log(status.message);
+                    }
+                } catch (error) {
+                    console.log(error);
+                }
+            } else {
+                console.error('Failed to download connector after 3 attempts');
+            }
             setIsDownloading(false);
+        } else {
+            // Generate form for local connector
+            generateForm(connector, operation);
         }
+    }
 
+    const generateForm = async (connector: any, operation: string) => {
         setIsGeneratingForm(true);
-
-        // Add 1s timeout to unzip the downloaded connected
-        await new Promise(resolve => setTimeout(resolve, 1000));
 
         // Get Connector Data from LS
         const connectorData = await rpcClient.getMiDiagramRpcClient().getAvailableConnectors({

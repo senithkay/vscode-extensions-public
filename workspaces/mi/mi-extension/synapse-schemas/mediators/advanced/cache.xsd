@@ -34,7 +34,7 @@
             </xs:documentation>
         </xs:annotation>
         <xs:complexType>
-            <xs:sequence>
+            <xs:all>
                 <xs:element name="onCacheHit" minOccurs="0" maxOccurs="1">
                     <xs:annotation>
                         <xs:documentation>
@@ -78,7 +78,7 @@
                         </xs:attribute>
                     </xs:complexType>
                 </xs:element>
-            </xs:sequence>
+            </xs:all>
             <xs:attribute name="id" type="xs:string" use="optional" />
             <xs:attribute name="timeout" type="xs:int" use="optional" />
             <xs:attribute name="collector" type="xs:boolean" use="optional" />

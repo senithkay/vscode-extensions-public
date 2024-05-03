@@ -27,25 +27,36 @@ export function Overview(props: OverviewProps) {
 
     useEffect(() => {
         rpcClient.getMiVisualizerRpcClient().getWorkspaces().then((response) => {
-            setWorkspaces(response.workspaces);
-            setActiveWorkspaces(response.workspaces[0]);
-            changeWorkspace(response.workspaces[0].fsPath);
-            console.log(response.workspaces[0]);
-        });
+                setWorkspaces(response.workspaces);
+                setActiveWorkspaces(response.workspaces[0]);
+                changeWorkspace(response.workspaces[0].fsPath);
+                console.log(response.workspaces[0]);
+            });
     }, []);
 
     useEffect(() => {
         if (workspaces && selected) {
             rpcClient.getMiVisualizerRpcClient().getProjectStructure({ documentUri: selected }).then((response) => {
-                console.log(response);
-                setProjectStructure(response);
-            });
+                    console.log(response);
+                    setProjectStructure(response);
+                });
         }
     }, [selected, props]);
 
     const changeWorkspace = (fsPath: string) => {
         setSelected(fsPath);
     }
+
+    const handleBuild = async () => {
+        await rpcClient.getMiDiagramRpcClient().buildProject();
+    }
+
+    const handleExport = async () => {
+        await rpcClient.getMiDiagramRpcClient().exportProject({
+            projectPath: activeWorkspaces.fsPath,
+        });
+    }
+
 
     const handleAddArtifact = () => {
         rpcClient.getMiVisualizerRpcClient().openView({
@@ -58,10 +69,33 @@ export function Overview(props: OverviewProps) {
 
     return (
         <View>
-            <ViewHeader title={"Project: " + activeWorkspaces?.name} codicon="project">
-                <Button appearance="primary" onClick={handleAddArtifact}>
+            <ViewHeader
+                title={"Project: " + activeWorkspaces?.name}
+                codicon="project"
+            >
+                <Button
+                    appearance="primary"
+                    onClick={handleAddArtifact}
+                    tooltip="Add Artifact"
+                >
                     <Codicon name="add" sx={{ marginRight: "4px" }} />
                     Add Artifact
+                </Button>
+                <Button
+                    appearance="icon"
+                    onClick={handleBuild}
+                    tooltip="Build"
+                >
+                    <Codicon name="combine" sx={{ marginRight: "4px" }} />
+                    Build
+                </Button>
+                <Button
+                    appearance="icon"
+                    onClick={handleExport}
+                    tooltip="Export"
+                >
+                    <Codicon name="export" sx={{ marginRight: "4px" }} />
+                    Export
                 </Button>
             </ViewHeader>
             <ViewContent padding>

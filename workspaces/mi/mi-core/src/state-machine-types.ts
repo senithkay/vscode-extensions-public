@@ -24,9 +24,11 @@ export enum MACHINE_VIEW {
     ADD_ARTIFACT = "Add Artifact",
     Overview = "MI Overview",
     UnsupportedProject = "Unsupported Project",
+    Disabled = "MI Extension",
     Diagram = "MI Diagram",
     ResourceView = "Resource View",
     SequenceView = "Sequence View",
+    SequenceTemplateView = "Sequence Template View",
     ProxyView = "Proxy View",
     ServiceDesigner = "Service Designer",
     DataMapperView = "Data Mapper View",
@@ -64,7 +66,7 @@ export enum AI_MACHINE_VIEW {
 }
 
 export type MachineStateValue =
-    | 'initialize' | 'projectDetected' | 'unsupportedProject' | 'LSInit' | 'ready' | 'disabled'
+    | 'initialize' | 'projectDetected' | 'oldProjectDetected' | 'LSInit' | 'ready' | 'disabled'
     | { ready: 'viewReady' } | { ready: 'viewEditing' }
     | { newProject: 'viewReady' };
 
@@ -81,6 +83,7 @@ export enum AI_EVENT_TYPE {
     CLEAR_PROMPT = "CLEAR_PROMPT",
     DISPOSE = "DISPOSE",
     CANCEL = "CANCEL",
+    RETRY = "RETRY",
 }
 
 export enum EVENT_TYPE {
@@ -107,6 +110,11 @@ export interface CommandProps {
     isService?: boolean
 }
 
+export interface ErrorType {
+    title: string;
+    message: string;
+}
+
 interface DataMapperProps {
     filePath: string;
     functionName?: string;
@@ -119,12 +127,13 @@ export interface VisualizerLocation {
     view: MACHINE_VIEW | null;
     stNode?: STNode | DiagramService;
     diagnostics?: Diagnostic[]
+    errors?: ErrorType[];
     documentUri?: string;
     projectUri?: string;
     identifier?: string;
     position?: any;
     projectOpened?: boolean;
-    isMiProject?: boolean;
+    isOldProject?: boolean;
     displayOverview?: boolean;
     customProps?: any;
     dataMapperProps?: DataMapperProps;
@@ -138,10 +147,23 @@ export interface AIVisualizerLocation {
     view?: AI_MACHINE_VIEW | null;
     initialPrompt?: string;
     state?: AIMachineStateValue;
+    userTokens?: AIUserTokens;
+}
+
+export interface AIUserTokens {
+    max_usage: number;
+    remaining_tokens: number;
+    time_to_reset: number;
 }
 
 export interface ParentPopupData {
     recentIdentifier: string;
+}
+
+export interface ConnectorStatus {
+    connector: string;
+    isSuccess: boolean;
+    message: string;
 }
 
 export const stateChanged: NotificationType<MachineStateValue> = { method: 'stateChanged' };
@@ -155,3 +177,4 @@ export const sendAIStateEvent: RequestType<AI_EVENT_TYPE, void> = { method: 'sen
 export const onFileContentUpdate: NotificationType<void> = { method: `onFileContentUpdate` };
 export const webviewReady: NotificationType<void> = { method: `webviewReady` };
 export const onParentPopupSubmitted: NotificationType<ParentPopupData> = { method: `onParentPopupSubmitted` };
+export const onConnectorStatusUpdate: NotificationType<ConnectorStatus> = { method: `onConnectorStatusUpdate` }; 

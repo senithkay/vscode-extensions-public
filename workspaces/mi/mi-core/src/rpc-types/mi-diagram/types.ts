@@ -1057,12 +1057,13 @@ export interface BrowseFileRequest {
     canSelectMany: boolean;
     defaultUri: string;
     title: string;
+    openLabel?: string;
 }
 
 export interface GetAvailableResourcesRequest {
     documentIdentifier: string | undefined;
     resourceType: "sequence" | "endpoint" | "messageStore" | "messageProcessor" | "task" | "sequenceTemplate" | "endpointTemplate" | "proxyService" |
-    "dataService" | "dataSource" | "localEntry" | "dataMapper" | "js" | "json" | "smooksConfig" | "wsdl" | "ws_policy" | "xsd" | "xsl" | "xslt" | "yaml";
+    "dataService" | "dataSource" | "localEntry" | "dataMapper" | "js" | "json" | "smooksConfig" | "wsdl" | "ws_policy" | "xsd" | "xsl" | "xslt" | "yaml" | "registry";
 }
 
 export interface GetAvailableResourcesResponse {
@@ -1239,3 +1240,6 @@ export interface DeleteArtifactRequest {
     enableUndo?: boolean;
 }
 
+export interface ExportProjectRequest {
+    projectPath: string;
+}

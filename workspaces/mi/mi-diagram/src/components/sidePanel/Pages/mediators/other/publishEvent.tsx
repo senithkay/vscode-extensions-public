@@ -19,7 +19,7 @@ import { getXML } from '../../../../../utils/template-engine/mustach-templates/t
 import { MEDIATORS } from '../../../../../resources/constants';
 import { Controller, useForm } from 'react-hook-form';
 import { ExpressionFieldValue } from '../../../../Form/ExpressionField/ExpressionInput';
-import { ParamManager } from '../../../../Form/ParamManager/ParamManager';
+import { ParamManager, ParamConfig, ParamValue } from '../../../../Form/ParamManager/ParamManager';
 
 const cardStyle = { 
     display: "block",
@@ -53,11 +53,11 @@ const PublishEventForm = (props: AddMediatorProps) => {
             async: sidePanelContext?.formValues?.async || "",
             asyncTimeout: sidePanelContext?.formValues?.asyncTimeout || "",
             metaAttributes: {
-                paramValues: sidePanelContext?.formValues?.metaAttributes && sidePanelContext?.formValues?.metaAttributes.map((property: string|ExpressionFieldValue[], index: string) => (
+                paramValues: sidePanelContext?.formValues?.metaAttributes && sidePanelContext?.formValues?.metaAttributes.map((property: (string | ExpressionFieldValue | ParamConfig)[], index: string) => (
                     {
                         id: index,
-                        key: typeof property[0] === 'object' ? property[0].value : property[0],
-                        value: typeof property[3] === 'object' ? property[3].value : property[3],
+                        key: property[0],
+                        value:  property[3],
                         icon: 'query',
                         paramValues: [
                             { value: property[0] },
@@ -131,11 +131,11 @@ const PublishEventForm = (props: AddMediatorProps) => {
                 ]
             },
             correlationAttributes: {
-                paramValues: sidePanelContext?.formValues?.correlationAttributes && sidePanelContext?.formValues?.correlationAttributes.map((property: string|ExpressionFieldValue[], index: string) => (
+                paramValues: sidePanelContext?.formValues?.correlationAttributes && sidePanelContext?.formValues?.correlationAttributes.map((property: (string | ExpressionFieldValue | ParamConfig)[], index: string) => (
                     {
                         id: index,
-                        key: typeof property[0] === 'object' ? property[0].value : property[0],
-                        value: typeof property[3] === 'object' ? property[3].value : property[3],
+                        key: property[0],
+                        value:  property[3],
                         icon: 'query',
                         paramValues: [
                             { value: property[0] },
@@ -209,11 +209,11 @@ const PublishEventForm = (props: AddMediatorProps) => {
                 ]
             },
             payloadAttributes: {
-                paramValues: sidePanelContext?.formValues?.payloadAttributes && sidePanelContext?.formValues?.payloadAttributes.map((property: string|ExpressionFieldValue[], index: string) => (
+                paramValues: sidePanelContext?.formValues?.payloadAttributes && sidePanelContext?.formValues?.payloadAttributes.map((property: (string | ExpressionFieldValue | ParamConfig)[], index: string) => (
                     {
                         id: index,
-                        key: typeof property[0] === 'object' ? property[0].value : property[0],
-                        value: typeof property[3] === 'object' ? property[3].value : property[3],
+                        key: property[0],
+                        value:  property[3],
                         icon: 'query',
                         paramValues: [
                             { value: property[0] },
@@ -287,11 +287,11 @@ const PublishEventForm = (props: AddMediatorProps) => {
                 ]
             },
             arbitaryAttributes: {
-                paramValues: sidePanelContext?.formValues?.arbitaryAttributes && sidePanelContext?.formValues?.arbitaryAttributes.map((property: string|ExpressionFieldValue[], index: string) => (
+                paramValues: sidePanelContext?.formValues?.arbitaryAttributes && sidePanelContext?.formValues?.arbitaryAttributes.map((property: (string | ExpressionFieldValue | ParamConfig)[], index: string) => (
                     {
                         id: index,
-                        key: typeof property[0] === 'object' ? property[0].value : property[0],
-                        value: typeof property[3] === 'object' ? property[3].value : property[3],
+                        key: property[0],
+                        value:  property[3],
                         icon: 'query',
                         paramValues: [
                             { value: property[0] },
@@ -476,12 +476,9 @@ const PublishEventForm = (props: AddMediatorProps) => {
                                     readonly={false}
                                     onChange= {(values) => {
                                         values.paramValues = values.paramValues.map((param: any, index: number) => {
-                                            const paramValues = param.paramValues;
-                                            param.key = paramValues[0].value;
-                                            param.value = paramValues[3].value;
-                                            if (paramValues[1]?.value?.isExpression) {
-                                                param.namespaces = paramValues[1].value.namespaces;
-                                            }
+                                            const property: ParamValue[] = param.paramValues;
+                                            param.key = property[0].value;
+                                            param.value = property[3].value;
                                             param.icon = 'query';
                                             return param;
                                         });
@@ -510,12 +507,9 @@ const PublishEventForm = (props: AddMediatorProps) => {
                                     readonly={false}
                                     onChange= {(values) => {
                                         values.paramValues = values.paramValues.map((param: any, index: number) => {
-                                            const paramValues = param.paramValues;
-                                            param.key = paramValues[0].value;
-                                            param.value = paramValues[3].value;
-                                            if (paramValues[1]?.value?.isExpression) {
-                                                param.namespaces = paramValues[1].value.namespaces;
-                                            }
+                                            const property: ParamValue[] = param.paramValues;
+                                            param.key = property[0].value;
+                                            param.value = property[3].value;
                                             param.icon = 'query';
                                             return param;
                                         });
@@ -544,12 +538,9 @@ const PublishEventForm = (props: AddMediatorProps) => {
                                     readonly={false}
                                     onChange= {(values) => {
                                         values.paramValues = values.paramValues.map((param: any, index: number) => {
-                                            const paramValues = param.paramValues;
-                                            param.key = paramValues[0].value;
-                                            param.value = paramValues[3].value;
-                                            if (paramValues[1]?.value?.isExpression) {
-                                                param.namespaces = paramValues[1].value.namespaces;
-                                            }
+                                            const property: ParamValue[] = param.paramValues;
+                                            param.key = property[0].value;
+                                            param.value = property[3].value;
                                             param.icon = 'query';
                                             return param;
                                         });
@@ -578,12 +569,9 @@ const PublishEventForm = (props: AddMediatorProps) => {
                                     readonly={false}
                                     onChange= {(values) => {
                                         values.paramValues = values.paramValues.map((param: any, index: number) => {
-                                            const paramValues = param.paramValues;
-                                            param.key = paramValues[0].value;
-                                            param.value = paramValues[3].value;
-                                            if (paramValues[1]?.value?.isExpression) {
-                                                param.namespaces = paramValues[1].value.namespaces;
-                                            }
+                                            const property: ParamValue[] = param.paramValues;
+                                            param.key = property[0].value;
+                                            param.value = property[3].value;
                                             param.icon = 'query';
                                             return param;
                                         });

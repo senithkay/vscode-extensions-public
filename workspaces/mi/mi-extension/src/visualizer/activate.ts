@@ -45,7 +45,7 @@ export function activateVisualizer(context: vscode.ExtensionContext) {
                 case 'miProject':
                     openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.Overview });
                     break;
-                case 'unsupportedProject':
+                case 'oldProject':
                     const displayState: boolean | undefined = extension.context.workspaceState.get('displayOverview');
                     const displayOverview = displayState === undefined ? true : displayState;
                     openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.UnsupportedProject, customProps: { displayOverview } });

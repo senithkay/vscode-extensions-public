@@ -15,28 +15,34 @@ export function getCacheMustacheTemplate() {
     return `
     {{#isNewMediator}}
     {{#isCollector}}
-    <cache collector="true" {{#description}}description="{{description}}"{{/description}} {{#is611Compatible}}scope="{{scope}}"{{/is611Compatible}} />
+    <cache collector="true" {{#description}}description="{{{description}}}"{{/description}} {{#is611Compatible}}scope="{{scope}}"{{/is611Compatible}} />
     {{/isCollector}}
     {{^isCollector}}
     {{#is611Compatible}}
-    <cache collector="false" {{#description}}description="{{description}}"{{/description}} hashGenerator="{{hashGeneratorAttribute}}" id="{{id}}" maxMessageSize="{{maxMessageSize}}" scope="{{scope}}" timeout="{{cacheTimeout}}">
+    <cache collector="false" {{#description}}description="{{{description}}}"{{/description}} hashGenerator="{{{hashGeneratorAttribute}}}" id="{{id}}" maxMessageSize="{{maxMessageSize}}" scope="{{scope}}" timeout="{{cacheTimeout}}">
         <onCacheHit {{#sequenceKey}}sequence="{{sequenceKey}}"{{/sequenceKey}} />
         <implementation maxSize="{{maxEntryCount}}" type="{{implementationType}}" />
     </cache>
     {{/is611Compatible}}
     {{^is611Compatible}}
-    <cache collector="false" {{#description}}description="{{description}}"{{/description}} maxMessageSize="{{maxMessageSize}}" timeout="{{cacheTimeout}}">
+    <cache collector="false" {{#description}}description="{{{description}}}"{{/description}} maxMessageSize="{{maxMessageSize}}" timeout="{{cacheTimeout}}">
         {{#isAnonymousSequence}}<onCacheHit></onCacheHit>{{/isAnonymousSequence}} 
         {{^isAnonymousSequence}}<onCacheHit sequence="{{sequenceKey}}" />{{/isAnonymousSequence}}
+        {{^isCollector}}
+        {{^is611Compatible}}
         <protocol type="{{cacheProtocolType}}">
             <methods>{{cacheProtocolMethods}}</methods>
-            <headersToExcludeInHash>{{headersToExcludeInHash}}</headersToExcludeInHash>
-            <headersToIncludeInHash>{{headersToIncludeInHash}}</headersToIncludeInHash>
+            {{#hasHeadersToExcludeInHash}}<headersToExcludeInHash>{{headersToExcludeInHash}}</headersToExcludeInHash>{{/hasHeadersToExcludeInHash}}
+            {{^hasHeadersToExcludeInHash}}<headersToExcludeInHash/>{{/hasHeadersToExcludeInHash}}
+            {{#hasHeadersToIncludeInHash}}<headersToIncludeInHash>{{headersToIncludeInHash}}</headersToIncludeInHash>{{/hasHeadersToIncludeInHash}}
+            {{^hasHeadersToIncludeInHash}}<headersToIncludeInHash/>{{/hasHeadersToIncludeInHash}}
             <responseCodes>{{responseCodes}}</responseCodes>
             <enableCacheControl>{{enableCacheControl}}</enableCacheControl>
             <includeAgeHeader>{{includeAgeHeader}}</includeAgeHeader>
             <hashGenerator>{{hashGenerator}}</hashGenerator>
         </protocol>
+        {{/is611Compatible}}
+        {{/isCollector}}
         <implementation maxSize="{{maxEntryCount}}" />
     </cache>
     {{/is611Compatible}}
@@ -45,7 +51,7 @@ export function getCacheMustacheTemplate() {
     {{^isNewMediator}}
     {{#isEditCache}}
     {{#isCollector}}
-    <cache collector="true" {{#description}}description="{{description}}"{{/description}} {{#is611Compatible}}scope="{{scope}}"{{/is611Compatible}} />
+    <cache collector="true" {{#description}}description="{{{description}}}"{{/description}} {{#is611Compatible}}scope="{{scope}}"{{/is611Compatible}} />
     {{/isCollector}}
     {{^isCollector}}
     {{#is611Compatible}}
@@ -61,9 +67,11 @@ export function getCacheMustacheTemplate() {
     {{^is611Compatible}}
     <protocol type="{{cacheProtocolType}}">
     <methods>{{cacheProtocolMethods}}</methods>
-    <headersToExcludeInHash>{{headersToExcludeInHash}}</headersToExcludeInHash>
-    <headersToIncludeInHash>{{headersToIncludeInHash}}</headersToIncludeInHash>
-    <responseCodes>{{responseCodes}}</responseCodes>
+    {{#hasHeadersToExcludeInHash}}<headersToExcludeInHash>{{headersToExcludeInHash}}</headersToExcludeInHash>{{/hasHeadersToExcludeInHash}}
+    {{^hasHeadersToExcludeInHash}}<headersToExcludeInHash/>{{/hasHeadersToExcludeInHash}}
+    {{#hasHeadersToIncludeInHash}}<headersToIncludeInHash>{{headersToIncludeInHash}}</headersToIncludeInHash>{{/hasHeadersToIncludeInHash}}
+    {{^hasHeadersToIncludeInHash}}<headersToIncludeInHash/>{{/hasHeadersToIncludeInHash}}
+<responseCodes>{{responseCodes}}</responseCodes>
     <enableCacheControl>{{enableCacheControl}}</enableCacheControl>
     <includeAgeHeader>{{includeAgeHeader}}</includeAgeHeader>
     <hashGenerator>{{hashGenerator}}</hashGenerator>
@@ -98,6 +106,15 @@ export function getCacheXml(data: { [key: string]: any }, dirtyFields?: any, def
     if (data.sequenceType === "ANONYMOUS") {
         data.isAnonymousSequence = true;
     }
+
+    if (data.headersToExcludeInHash && data.headersToExcludeInHash.length > 0) {
+        data.hasHeadersToExcludeInHash = true;
+    }
+
+    if (data.headersToIncludeInHash && data.headersToIncludeInHash.length > 0) {
+        data.hasHeadersToIncludeInHash = true;
+    }
+
     if (defaultValues == undefined || Object.keys(defaultValues).length == 0) {
         data.isNewMediator = true;
         const output = getXML(data);
@@ -112,7 +129,7 @@ function getEdits(data: { [key: string]: any }, dirtyFields: any, defaultValues:
 
     let edits: { [key: string]: any }[] = [];
 
-    let cacheTagAttributes = ["id", "collector", "cacheTimeout", "maxMessageSize", "scope", "hashGeneratorAttribute", "description"];
+    let cacheTagAttributes = ["cacheType", "cacheTimeout", "maxMessageSize", "scope", "hashGeneratorAttribute", "description"];
     let protocolTagAttributes = ["cacheMediatorImplementation", "cacheProtocolType", "cacheProtocolMethods", "headersToIncludeInHash", "headersToExcludeInHash", "responseCodes", "enableCacheControl", "includeAgeHeader", "hashGenerator"];
     let onCacheHitTagAttributes = ["sequenceType", "sequenceKey"];
     let implementationTagAttributes = ["maxEntryCount", "implementationType"];
@@ -124,15 +141,27 @@ function getEdits(data: { [key: string]: any }, dirtyFields: any, defaultValues:
         cacheData.isEditCache = true;
         const output = getXML(cacheData);
         let range = defaultValues.ranges.cache;
-        let editRange: Range = {
-            start: range.startTagRange.start,
-            end: range.startTagRange.end
+        let editRange;
+        if (cacheData.isCollector) {
+            editRange = {
+                start: range.startTagRange.start,
+                end: range.endTagRange.end ? range.endTagRange.end : range.startTagRange.end
+            }
+        } else {
+            editRange = {
+                start: range.startTagRange.start,
+                end: range.startTagRange.end
+            }
         }
+
         let edit = {
             text: output,
             range: editRange
         }
         edits.push(edit);
+        if (cacheData.isCollector) {
+            return edits;
+        }
     }
 
     if (checkAttributesExist(dirtyKeys, protocolTagAttributes)) {
@@ -140,9 +169,17 @@ function getEdits(data: { [key: string]: any }, dirtyFields: any, defaultValues:
         protocolData.isEditProtocol = true;
         const output = getXML(protocolData);
         let range = defaultValues.ranges.protocol;
-        let editRange: Range = {
-            start: range.startTagRange.start,
-            end: range.endTagRange.end ? range.endTagRange.end : range.startTagRange.end
+        let editRange;
+        if (range) {
+            editRange = {
+                start: range.startTagRange.start,
+                end: range.endTagRange.end ? range.endTagRange.end : range.startTagRange.end
+            }
+        } else {
+            editRange = {
+                start: defaultValues.ranges.cache.endTagRange.start,
+                end: defaultValues.ranges.cache.endTagRange.start
+            }
         }
         let edit = {
             text: output,

@@ -8,7 +8,8 @@
  */
 
 import { PayloadFactory } from "@wso2-enterprise/mi-syntax-tree/lib/src";
-import Mustache from "mustache";
+import Mustache, { name } from "mustache";
+import { transformNamespaces } from "../../../commons";
 
 export function getPayloadMustacheTemplate() {
     return `<payloadFactory {{#description}}description="{{description}}"{{/description}} media-type="{{mediaType}}" template-type="{{templateType}}">
@@ -20,7 +21,7 @@ export function getPayloadMustacheTemplate() {
     {{/isInlined}}
     <args>
         {{#args}}
-        <arg {{#literal}}literal="{{literal}}"{{/literal}} {{#value}}value="{{value}}"{{/value}} {{#expression}}expression="{{expression}}" evaluator="{{evaluator}}" {{/expression}} />
+        <arg {{#literal}}literal="{{{literal}}}"{{/literal}} {{#value}}value="{{{value}}}"{{/value}} {{#expression}}expression="{{{value}}}" evaluator="{{evaluator}}" {{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}} {{/expression}} />
         {{/args}}
     </args>
 </payloadFactory>`;
@@ -37,7 +38,7 @@ export function getPayloadXml(data: { [key: string]: any }) {
             }
         } else {
             return {
-                expression: property[0]?.value,
+                expression: property[0],
                 evaluator: property[1],
                 literal: property[2]
             }
@@ -48,7 +49,7 @@ export function getPayloadXml(data: { [key: string]: any }) {
         ...data,
         args
     }
-    
+
     return Mustache.render(getPayloadMustacheTemplate(), modifiedData);
 }
 
@@ -75,8 +76,11 @@ export function getPayloadFormDataFromSTNode(data: { [key: string]: any }, node:
     if (node.args && node.args.arg) {
         data.args = node.args.arg.map((arg) => {
             let isExpression = arg.value ? false : true;
-            return [{ isExpression: isExpression, value: arg.value ?? arg.expression }, arg.evaluator, arg.literal];
+            let namespaces = transformNamespaces(arg.namespaces);
+            return [{ isExpression: isExpression, value: arg.value ?? arg.expression, namespaces: namespaces }, arg.evaluator, arg.literal];
         });
+    } else {
+        data.args = [];
     }
 
     return data;
