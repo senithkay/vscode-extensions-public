@@ -118,12 +118,19 @@ const schema = yup.object({
 // Types
 export type ResourceType = yup.InferType<typeof schema>;
 
+export type ResourceFormData = ResourceType & {
+    mode: "create" | "edit";
+    isInSequenceDirty: boolean;
+    isOutSequenceDirty: boolean;
+    isFaultSequenceDirty: boolean;
+};
+
 type ResourceFormProps = {
     formData?: ResourceType;
     isOpen: boolean;
     documentUri: string;
     onCancel: () => void;
-    onSave: (data: ResourceType & { mode: "create" | "edit" }) => void;
+    onSave: (data: ResourceFormData) => void;
 };
 
 export type Protocol = "http" | "https";
@@ -160,7 +167,7 @@ export const ResourceForm = ({ isOpen, documentUri, onCancel, onSave, formData }
     const {
         control,
         handleSubmit,
-        formState: { errors, isValid, isDirty },
+        formState: { errors, isValid, isDirty, dirtyFields },
         register,
         watch,
         reset
@@ -180,6 +187,16 @@ export const ResourceForm = ({ isOpen, documentUri, onCancel, onSave, formData }
     // Functions
     const handleCancel = () => {
         onCancel();
+    };
+
+    const handleResourceSubmit = (data: ResourceType) => {
+        const metaData: ResourceFormData = {
+            mode: formData ? "edit" : "create",
+            isInSequenceDirty: dirtyFields.inSequenceType,
+            isOutSequenceDirty: dirtyFields.outSequenceType,
+            isFaultSequenceDirty: dirtyFields.faultSequenceType,
+        };
+        onSave({ ...data, ...metaData });
     };
 
     // useEffects
@@ -350,7 +367,7 @@ export const ResourceForm = ({ isOpen, documentUri, onCancel, onSave, formData }
                         </Button>
                         <Button
                             appearance="primary"
-                            onClick={handleSubmit((data: ResourceType) => onSave({ ...data, mode: formData ? "edit" : "create" }))}
+                            onClick={handleSubmit(handleResourceSubmit)}
                             disabled={!isValid || !isDirty}
                         >
                             {formData ? "Update" : "Create"}

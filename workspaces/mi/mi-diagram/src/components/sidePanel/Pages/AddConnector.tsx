@@ -134,8 +134,8 @@ const AddConnector = (props: AddConnectorProps) => {
     }, [props.formData]);
 
     useEffect(() => {
-        if (sidePanelContext.formValues && Object.keys(sidePanelContext.formValues).length > 0) {
-            const parametersValues = sidePanelContext.formValues.parameters.map((param: any) => ({
+        if (sidePanelContext.formValues && Object.keys(sidePanelContext.formValues).length > 0 && sidePanelContext.formValues?.parameters) {
+            const parametersValues = sidePanelContext.formValues?.parameters?.map((param: any) => ({
                 [param.name]: param.value
             }));
             const flattenedParameters = Object.assign({}, ...parametersValues);
@@ -287,6 +287,7 @@ const AddConnector = (props: AddConnectorProps) => {
                                 setFormValues({ ...formValues, [element.name]: e });
                                 formValidators[element.name](e);
                             }}
+                            allowItemCreate={true}
                             required={element.required === 'true'} />
                     </>
                 );

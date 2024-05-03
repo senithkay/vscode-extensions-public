@@ -322,8 +322,6 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         <resource methods="GET" uri-template="/resource">
             <inSequence>
             </inSequence>
-            <outSequence>
-            </outSequence>
             <faultSequence>
             </faultSequence>
         </resource>
@@ -2028,7 +2026,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
     async rangeFormat(req: RangeFormatRequest): Promise<ApplyEditResponse> {
         return new Promise(async (resolve) => {
-            const uri = Uri.parse(req.uri);
+            const uri = Uri.file(req.uri);
             const edits: TextEdit[] = await commands.executeCommand("vscode.executeFormatRangeProvider", uri, req.range,
                 { tabSize: 4, insertSpaces: false, trimTrailingWhitespace: false });
             const workspaceEdit = new WorkspaceEdit();
@@ -2535,8 +2533,8 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 console.log('Full path:', fullPath);
                 try {
                     console.log('Writing content to file:', fullPath);
+                    content[i] = content[i].trimStart();
                     console.log('Content:', content[i]);
-
                     await replaceFullContentToFile(fullPath, content[i]);
 
                 } catch (error) {
@@ -3209,6 +3207,39 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
             resolve();
         });
+    }
+
+    async refreshAccessToken(): Promise<void> {
+        const CommonReqHeaders = {
+            'Content-Type': 'application/x-www-form-urlencoded; charset=utf8',
+            'Accept': 'application/json'
+        };
+        const refresh_token = await extension.context.secrets.get('MIAIRefreshToken');
+        const config = vscode.workspace.getConfiguration('integrationStudio');
+        const AUTH_ORG = config.get('authOrg') as string;
+        const AUTH_CLIENT_ID = config.get('authClientID') as string;
+        if (!refresh_token) {
+            throw new Error("Refresh token is not available.");
+        } else {
+            try {
+                console.log("Refreshing token...");
+                const params = new URLSearchParams({
+                    client_id: AUTH_CLIENT_ID,
+                    refresh_token: refresh_token,
+                    grant_type: 'refresh_token',
+                    scope: 'openid email'
+                });
+                const response = await axios.post(`https://api.asgardeo.io/t/${AUTH_ORG}/oauth2/token`, params.toString(), { headers: CommonReqHeaders });
+                const newAccessToken = response.data.access_token;
+                const newRefreshToken = response.data.refresh_token;
+                await extension.context.secrets.store('MIAIUser', newAccessToken);
+                await extension.context.secrets.store('MIAIRefreshToken', newRefreshToken);
+                console.log("Token refreshed successfully!");
+            } catch (error: any) {
+                const errMsg = "Error while refreshing token! " + error?.message;
+                throw new Error(errMsg);
+            }
+        }
     }
 
     async buildProject(): Promise<void> {

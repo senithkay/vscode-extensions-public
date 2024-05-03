@@ -20,7 +20,7 @@ import { DataMapperPortWidget, PortState, InputOutputPortModel } from '../../Por
 import { TreeBody, TreeContainer, TreeHeader } from '../commons/Tree/Tree';
 import { ArrayOutputFieldWidget } from "./ArrayOuptutFieldWidget";
 import { useIONodesStyles } from '../../../styles';
-import { useDMCollapsedFieldsStore } from "../../../../store/store";
+import { useDMCollapsedFieldsStore, useDMSidePanelStore } from "../../../../store/store";
 import { getDiagnostics } from "../../utils/diagnostics-utils";
 import { isConnectedViaLink } from "../../utils/common-utils";
 
@@ -48,6 +48,9 @@ export function ArrayTypeOutputWidget(props: ArrayTypeOutputWidgetProps) {
 
 	const [ portState, setPortState ] = useState<PortState>(PortState.Unselected);
 	const collapsedFieldsStore = useDMCollapsedFieldsStore();
+	const setSidePanelOpen = useDMSidePanelStore(state => state.setSidePanelOpen);
+	const setSidePanelIOType = useDMSidePanelStore(state => state.setSidePanelIOType);
+	const setIsSchemaOverridden = useDMSidePanelStore(state => state.setIsSchemaOverridden);
 
 	const body = dmTypeWithValue && dmTypeWithValue.value;
 	const hasValue = dmTypeWithValue && dmTypeWithValue?.elements && dmTypeWithValue.elements.length > 0;
@@ -92,6 +95,13 @@ export function ArrayTypeOutputWidget(props: ArrayTypeOutputWidgetProps) {
 		setPortState(state)
 	};
 
+	const onRightClick = (event: React.MouseEvent) => {
+        event.preventDefault(); 
+        setSidePanelIOType("Output");
+        setIsSchemaOverridden(true);
+        setSidePanelOpen(true);
+    };
+
 	const label = (
 		<span style={{ marginRight: "auto" }}>
 			<span className={classnames(classes.outputTypeLabel, isDisabled ? classes.labelDisabled : "")}>
@@ -102,7 +112,7 @@ export function ArrayTypeOutputWidget(props: ArrayTypeOutputWidgetProps) {
 
 	return (
 		<>
-			<TreeContainer data-testid={`${id}-node`}>
+			<TreeContainer data-testid={`${id}-node`} onContextMenu={onRightClick}>
 				<TreeHeader
 					isSelected={portState !== PortState.Unselected}
 					isDisabled={isDisabled} id={"recordfield-" + id}

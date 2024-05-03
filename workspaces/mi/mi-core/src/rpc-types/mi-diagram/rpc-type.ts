@@ -244,5 +244,6 @@ export const logoutFromMIAccount: NotificationType<void> = { method: `${_preFix}
 export const getAllRegistryPaths: RequestType<GetAllRegistryPathsRequest, GetAllRegistryPathsResponse> = { method: `${_preFix}/getAllRegistryPaths` };
 export const getAllArtifacts: RequestType<GetAllArtifactsRequest, GetAllArtifactsResponse> = { method: `${_preFix}/getAllArtifacts` };
 export const deleteArtifact: RequestType<DeleteArtifactRequest, void> = { method: `${_preFix}/deleteArtifact` };
+export const refreshAccessToken: NotificationType<void> = { method: `${_preFix}/refreshAccessToken` };
 export const buildProject: RequestType<void, void> = { method: `${_preFix}/buildProject` };
 export const exportProject: RequestType<ExportProjectRequest, void> = { method: `${_preFix}/exportProject` };

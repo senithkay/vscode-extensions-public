@@ -46,12 +46,12 @@ export function HierachicalPath(props: HierachicalPathProps) {
         const pathItems = filePath.substring(1).split(isWindows ? path.win32.sep : path.sep);
 
         const segments: Segment[] = [];
-        const updateSegments = async () => {
-            const syntaxTree = await rpcClient.getMiDiagramRpcClient().getSyntaxTree({ documentUri: machineView.documentUri });
+        const updateSegments = async () => {  
 
             for (const pathItem of pathItems) {
                 if (pathItem.endsWith(".xml")) {
                     try {
+                        const syntaxTree = await rpcClient.getMiDiagramRpcClient().getSyntaxTree({ documentUri: machineView.documentUri });
                         if (!syntaxTree || !syntaxTree?.syntaxTree || !syntaxTree.syntaxTree?.api) {
                             continue;
                         }

@@ -18,7 +18,7 @@ import { View, ViewHeader, ViewContent } from "../../components/View";
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import { Codicon } from "@wso2-enterprise/ui-toolkit";
 import { generateResourceData, getResourceDeleteRanges, onResourceCreate, onResourceEdit } from "../../utils/form";
-import { ResourceForm, ResourceType } from "../Forms/ResourceForm";
+import { ResourceForm, ResourceFormData, ResourceType } from "../Forms/ResourceForm";
 
 interface ServiceDesignerProps {
     syntaxTree: any;
@@ -161,15 +161,14 @@ export function ServiceDesignerView({ syntaxTree, documentUri }: ServiceDesigner
         setResourceFormOpen(false);
     };
 
-    const handleResourceCreate = (formData: ResourceType & { mode: "create" | "edit" }) => {
-        const { mode, ...data } = formData;
-        switch (mode) {
+    const handleResourceCreate = (formData: ResourceFormData) => {
+        switch (formData.mode) {
             case "create":
-                onResourceCreate(data, resourceBodyRange, documentUri, rpcClient);
+                onResourceCreate(formData, resourceBodyRange, documentUri, rpcClient);
                 break;
             case "edit":
-                const ranges: Range[] = getResourceDeleteRanges(selectedResource, data);
-                onResourceEdit(data, selectedResource.range, ranges, documentUri, rpcClient);
+                const ranges: Range[] = getResourceDeleteRanges(selectedResource, formData);
+                onResourceEdit(formData, selectedResource.range, ranges, documentUri, rpcClient);
                 break;
         }
         setResourceFormOpen(false);

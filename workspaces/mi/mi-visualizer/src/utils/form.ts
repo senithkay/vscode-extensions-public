@@ -13,7 +13,7 @@ import { SERVICE } from "../constants";
 import { getXML } from "./template-engine/mustache-templates/templateUtils";
 import { EditProxyForm } from "../views/Forms/EditForms/EditProxyForm";
 import { XMLBuilder, XMLParser } from "fast-xml-parser";
-import { Method, Protocol, ResourceType } from "../views/Forms/ResourceForm";
+import { Method, Protocol, ResourceFormData, ResourceType } from "../views/Forms/ResourceForm";
 
 /**
  * Functions to generate data for forms
@@ -123,7 +123,7 @@ const inlineFormatter = (inlineWsdl: string) => {
  * Function to handle resource create
  */
 
-export const onResourceCreate = (data: ResourceType, range: Range, documentUri: string, rpcClient: RpcClient) => {
+export const onResourceCreate = (data: ResourceFormData, range: Range, documentUri: string, rpcClient: RpcClient) => {
     const { uriTemplate, urlMapping, methods, protocol } = data;
     const formValues = {
         // Extract selected methods and create string containing the methods for the XML
@@ -161,7 +161,7 @@ export const onResourceCreate = (data: ResourceType, range: Range, documentUri: 
  */
 
 export const onResourceEdit = (
-    data: ResourceType,
+    data: ResourceFormData,
     resourceRange: TagRange,
     deleteRanges: Range[],
     documentUri: string,
@@ -169,7 +169,21 @@ export const onResourceEdit = (
 ) => {
     const startTagRange = resourceRange.startTagRange;
     const endTagRange = resourceRange.endTagRange;
-    const { uriTemplate, urlMapping, methods, protocol, inSequence, outSequence, faultSequence } = data;
+    const {
+        uriTemplate,
+        urlMapping,
+        methods,
+        protocol,
+        inSequence,
+        inSequenceType,
+        isInSequenceDirty,
+        outSequence,
+        outSequenceType,
+        isOutSequenceDirty,
+        faultSequence,
+        faultSequenceType,
+        isFaultSequenceDirty,
+    } = data;
     const formValues = {
         methods: Object.keys(methods)
             .filter((method) => methods[method as keyof typeof methods])
@@ -186,6 +200,9 @@ export const onResourceEdit = (
         in_sequence: inSequence,
         out_sequence: outSequence,
         fault_sequence: faultSequence,
+        appened_in_sequence: isInSequenceDirty && inSequenceType === "inline" ? true : false,
+        appened_out_sequence: isOutSequenceDirty && outSequenceType === "inline" ? true : false,
+        appened_fault_sequence: isFaultSequenceDirty && faultSequenceType === "inline" ? true : false
     };
 
     const xml = getXML(SERVICE.EDIT_RESOURCE, formValues);
@@ -337,7 +354,7 @@ const proxyRange = (model:Proxy,tag:string):Range => {
     }
 }
 
-export const getResourceDeleteRanges = (model: APIResource, formData: ResourceType): Range[] => {
+export const getResourceDeleteRanges = (model: APIResource, formData: ResourceFormData): Range[] => {
     const ranges: Range[] = [];
     if (formData.inSequenceType === "named" && model.inSequence) {
         ranges.push({

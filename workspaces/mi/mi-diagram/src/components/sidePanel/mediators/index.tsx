@@ -122,7 +122,7 @@ export function MediatorPage(props: MediatorPageProps) {
             )}
             {isConnectors && (
                 <ComponentList>
-                    <ConnectorPage setContent={props.setContent} documentUri={props.documentUri} searchValue={searchValue} clearSearch={clearSearch} />
+                    <ConnectorPage nodePosition={props.nodePosition} setContent={props.setContent} documentUri={props.documentUri} searchValue={searchValue} clearSearch={clearSearch} />
                 </ComponentList>
             )}
         </Wrapper>

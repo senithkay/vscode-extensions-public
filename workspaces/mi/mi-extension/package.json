@@ -312,7 +312,7 @@
       {
         "command": "MI.build-and-run",
         "title": "Build and Run",
-        "icon": "$(debug-start)",
+        "icon": "$(play)",
         "category": "MI"
       }
     ],
@@ -339,13 +339,15 @@
           "group": "navigation"
         }
       ],
-      "editor/title": [
+      "editor/title/run": [
         {
           "command": "MI.build-and-run",
           "group": "navigation@1",
           "when": "MI.status == 'projectLoaded' && (isVisualizerActive || resourceLangId == SynapseXml)",
           "title": "Build and Run Project"
-        },
+        }
+      ],
+      "editor/title": [
         {
           "command": "MI.openAiPanel",
           "group": "navigation@1",
@@ -538,7 +540,6 @@
     "@types/json-schema":"7.0.15",
     "json-schema":"0.4.0",
     "prettier":"3.2.5",
-    "@apidevtools/json-schema-ref-parser":"11.6.1",
-    "js-yaml":"4.1.0"
+    "@apidevtools/json-schema-ref-parser":"11.6.1"
   }
 }

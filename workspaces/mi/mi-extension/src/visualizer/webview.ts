@@ -18,7 +18,7 @@ import { extension } from '../MIExtensionContext';
 import { debounce } from 'lodash';
 import { navigate, StateMachine } from '../stateMachine';
 import { MACHINE_VIEW } from '@wso2-enterprise/mi-core';
-import { COMMANDS } from '../constants';
+import { COMMANDS, REFRESH_ENABLED_DOCUMENTS } from '../constants';
 
 export class VisualizerWebview {
     public static currentPanel: VisualizerWebview | undefined;
@@ -43,8 +43,7 @@ export class VisualizerWebview {
         }, 500);
 
         vscode.workspace.onDidChangeTextDocument(async function (document) {
-            // Trigger refresh only if the document is a SynapseXml
-            if (document.document.languageId !== 'SynapseXml') {
+            if (!REFRESH_ENABLED_DOCUMENTS.includes(document.document.languageId)) {
                 return;
             }
             await document.document.save();

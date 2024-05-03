@@ -157,7 +157,6 @@ const SidePanelList = (props: SidePanelListProps) => {
                     {/* Content */}
                     <div style={{
                         overflowY: "auto",
-                        height: "calc(100vh - 40px)",
                         scrollbarWidth: "none"
                     }}>
                         {pageStack.length === 0 && <>

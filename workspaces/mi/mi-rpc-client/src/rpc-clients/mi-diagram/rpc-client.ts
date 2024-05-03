@@ -232,6 +232,7 @@ import {
     openFile,
     rangeFormat,
     redo,
+    refreshAccessToken,
     showErrorMessage,
     undo,
     updateAddressEndpoint,
@@ -615,6 +616,10 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
         return this._messenger.sendRequest(deleteArtifact, HOST_EXTENSION, params);
     }
 
+    refreshAccessToken(): Promise<void> {
+        return this._messenger.sendRequest(refreshAccessToken, HOST_EXTENSION);
+    }
+    
     async buildProject(): Promise<void> {
         return this._messenger.sendRequest(buildProject, HOST_EXTENSION);
     }

@@ -94,7 +94,7 @@ export function ImportDataForm(props: ImportDataWizardProps) {
                         <ComponentCard sx={cardStyle} disbaleHoverEffect>
                             <h3>Import {ioType} Schema</h3>
                             <Field>
-                                <AutoComplete label="Resource Type" items={["JSON", "JSONSCHEMA", "XML"]} 
+                                <AutoComplete label="Resource Type" items={["JSON", "JSONSCHEMA", "XML", "CSV"]} 
                                     borderBox onValueChange={(e: any) => setSelectedResourceType(e)}/>
                             </Field>
                             <Button appearance="primary" onClick={loadSchema}>Import</Button>

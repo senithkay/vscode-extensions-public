@@ -74,9 +74,16 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
         : `${parentId}${fieldName && `.${fieldName}`}`;
     const portIn = getPort(fieldId + ".IN");
 
-    const propertyAssignment = field.hasValue() && Node.isPropertyAssignment(field.value) && field.value;
-    const objectLiteralExpr = parentObjectLiteralExpr && Node.isObjectLiteralExpression(parentObjectLiteralExpr) && parentObjectLiteralExpr;
+    const propertyAssignment = field.hasValue()
+        && !field.value.wasForgotten()
+        && Node.isPropertyAssignment(field.value)
+        && field.value;
+    const objectLiteralExpr = parentObjectLiteralExpr
+        && !parentObjectLiteralExpr.wasForgotten()
+        && Node.isObjectLiteralExpression(parentObjectLiteralExpr)
+        && parentObjectLiteralExpr;
     const hasValue = propertyAssignment
+        && !propertyAssignment.wasForgotten()
         && propertyAssignment.getInitializer()
         && !!propertyAssignment.getInitializer().getText();
 
