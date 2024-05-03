@@ -176,7 +176,21 @@ async function checkToken(context, event): Promise<UserToken> {
                     if (response.status === 401 || response.status === 403) {
                         const newToken = await refreshAuthCode();
                         if (newToken){
-                            resolve({token: newToken, userToken: undefined});
+                            const tokenFetchResponse = await fetch(url, {
+                                method: 'GET',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Authorization': `Bearer ${newToken}`,
+                                },
+                            });
+                            if(tokenFetchResponse.ok){
+                                const responseBody = await tokenFetchResponse.json();
+                                resolve({token: newToken, userToken: responseBody});
+                            }else{
+                                console.log("Error: " + tokenFetchResponse.statusText);
+                                console.log("Error Code: " + tokenFetchResponse.status);
+                                throw new Error(`Error while checking token: ${tokenFetchResponse.statusText}`);
+                            }
                         }else{
                             resolve({token: undefined, userToken: undefined});
                         }

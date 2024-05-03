@@ -398,7 +398,7 @@ export function AIProjectGenerationChat() {
         }
         console.log(context[0].context);
         const token = await rpcClient.getMiDiagramRpcClient().getUserAccessToken();
-        const response = await fetch(backendRootUri + backendUrl, {
+        var response = await fetch(backendRootUri + backendUrl, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -407,7 +407,7 @@ export function AIProjectGenerationChat() {
             body: JSON.stringify({ messages: chatArray, context: context[0].context }),
             signal: signal,
         })
-        if (!response.ok) {
+        if (!response.ok && response.status != 401) {
             setIsLoading(false);
             setMessages(prevMessages => {
                 const newMessages = [...prevMessages];
@@ -417,6 +417,30 @@ export function AIProjectGenerationChat() {
                 return newMessages;
             });
             throw new Error('Failed to fetch response');
+        }
+        if(response.status == 401){
+            await rpcClient.getMiDiagramRpcClient().refreshAccessToken();
+            const token = await rpcClient.getMiDiagramRpcClient().getUserAccessToken();
+            response = await fetch(backendRootUri + backendUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token.token}`,
+                },
+                body: JSON.stringify({ messages: chatArray, context: context[0].context }),
+                signal: signal,
+            })
+            if(!response.ok){
+                setIsLoading(false);
+                setMessages(prevMessages => {
+                    const newMessages = [...prevMessages];
+                    const statusText = getStatusText(response.status);
+                    newMessages[newMessages.length - 1].content += `Failed to fetch response. Status: ${response.status} - ${statusText}`;
+                    newMessages[newMessages.length - 1].type = 'Error';
+                    return newMessages;
+                });
+                throw new Error('Failed to fetch response');
+            }
         }
         const reader = response.body?.getReader();
         const decoder = new TextDecoder();
@@ -497,6 +521,8 @@ export function AIProjectGenerationChat() {
         localStorage.setItem(`codeBlocks-AIGenerationChat-${projectUuid}`, JSON.stringify(codeBlocks));
 
     };
+
+    
     async function handleStop() {
         // Abort the fetch
         controller.abort();
