@@ -308,12 +308,12 @@ export function getXML(name: string, data: { [key: string]: any }, dirtyFields?:
     }
 }
 
-export function getNewSubSequenceXml(name: string) {
+export function getNewSubSequenceXml(name: string, st: STNode) {
     switch (name) {
         case MEDIATORS.CLONE:
             return getNewCloneTargetXml();
         case MEDIATORS.SWITCH:
-            return getNewSwitchCaseXml();    
+            return getNewSwitchCaseXml(st as Switch);    
     }
 }
 

@@ -4,7 +4,7 @@ import * as vscode from 'vscode';
 import { Uri, ViewColumn } from 'vscode';
 import { MILanguageClient } from './lang-client/activator';
 import { extension } from './MIExtensionContext';
-import { 
+import {
     EVENT_TYPE,
     HistoryEntry,
     MACHINE_VIEW,
@@ -348,7 +348,7 @@ const stateMachine = createMachine<MachineContext>({
                     if (context.documentUri) {
                         const filePath = context.documentUri;
                         const functionName = "mapFunction";
-                
+
                         const [fnSource, interfacesSource] = getSources(filePath);
                         viewLocation.dataMapperProps = {
                             filePath: filePath,
@@ -390,6 +390,12 @@ const stateMachine = createMachine<MachineContext>({
                                     viewLocation.view = MACHINE_VIEW.DataMapperView;
                                     viewLocation.stNode = node.data_mapper;
                                     break;
+                                case !!node.template:
+                                    if (node.template.sequence) {
+                                        viewLocation.view = MACHINE_VIEW.SequenceTemplateView;
+                                        viewLocation.stNode = node.template;
+                                        break;
+                                    }
                                 default:
                                     // Handle default case
                                     viewLocation.stNode = node as any as STNode;
