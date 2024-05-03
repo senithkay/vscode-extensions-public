@@ -43,18 +43,19 @@ export class MiDebugAdapter extends LoggingDebugSession {
             this.sendEvent(new StoppedEvent('step', MiDebugAdapter.threadID));
         });
         this.debuggerHandler.on('stopOnBreakpoint', () => {
-
+            this.sendEvent(new StoppedEvent('breakpoint', MiDebugAdapter.threadID));
+            
             const stateContext = StateMachine.context();
-
             if (VisualizerWebview.currentPanel?.getWebview()?.visible && stateContext.stNode) {
-                this.sendEvent(new StoppedEvent('breakpoint', MiDebugAdapter.threadID));
-
                 setTimeout(() => {
-                    navigate();
-                    VisualizerWebview.currentPanel!.getWebview()?.reveal(ViewColumn.Beside);
+                    if (vscode.window.visibleTextEditors.length > 1) {
+                        VisualizerWebview.currentPanel!.getWebview()?.reveal(ViewColumn.Beside);
+                        navigate();
+                    } else {
+                        extension.webviewReveal = true;
+                        openView(EVENT_TYPE.OPEN_VIEW, stateContext);
+                    }
                 }, 150);
-            } else {
-                this.sendEvent(new StoppedEvent('breakpoint', MiDebugAdapter.threadID));
             }
         });
 
@@ -77,6 +78,7 @@ export class MiDebugAdapter extends LoggingDebugSession {
         });
 
         this.debuggerHandler.on('end', () => {
+            extension.webviewReveal = false;
             this.sendEvent(new TerminatedEvent());
         });
 
