@@ -175,7 +175,7 @@ async function checkToken(context, event): Promise<UserToken> {
                 } else {
                     if (response.status === 401 || response.status === 403) {
                         const newToken = await refreshAuthCode();
-                        if (newToken){
+                        if (newToken !=""){
                             const tokenFetchResponse = await fetch(url, {
                                 method: 'GET',
                                 headers: {

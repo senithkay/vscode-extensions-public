@@ -128,7 +128,8 @@ export async function refreshAuthCode(): Promise<string>{
             return newAccessToken;
         } catch (error: any) {
             const errMsg = "Error while refreshing token! " + error?.message;
-            throw new Error(errMsg);
+            console.error(errMsg);
+            return "";
         }
     }
 }

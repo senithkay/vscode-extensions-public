@@ -75,9 +75,15 @@ const AIChatView = styled.div({
 const Header = styled.header({
     display: 'flex',
     flexDirection: 'row',
-    justifyContent: 'flex-end',
+    justifyContent: 'space-between',
     padding: '10px',
     gap: '10px',
+});
+
+const HeaderButtons = styled.div({
+    display: 'flex',
+    justifyContent: 'flex-end',
+    marginRight: '10px',
 });
 
 const Main = styled.main({
@@ -102,8 +108,6 @@ const Welcome = styled.div({
 });
 
 const Badge = styled.div`
-    border: 2px solid #fff;
-    border-radius: 10px;
     padding: 5px;
     margin-left: 10px;
     display: inline-block;
@@ -119,6 +123,7 @@ let controller = new AbortController();
 let signal = controller.signal;
 
 var remainingTokenPercentage: string|number;
+var remaingTokenLessThanOne: boolean = false;
 
 export function AIProjectGenerationChat() {
     const { rpcClient } = useVisualizerContext();
@@ -160,7 +165,16 @@ export function AIProjectGenerationChat() {
                     remainingTokenPercentage = "Unlimited";
                 }else{
                     const remainingTokens = machineView.userTokens.remaining_tokens;
-                    remainingTokenPercentage = Math.round((remainingTokens / maxTokens) * 100);
+                    remainingTokenPercentage = (remainingTokens / maxTokens) * 100;
+                    if(remainingTokenPercentage < 1 && remainingTokenPercentage > 0){
+                        remaingTokenLessThanOne = true;
+                    }else{
+                        remaingTokenLessThanOne = false;
+                    }
+                    remainingTokenPercentage = Math.round(remainingTokenPercentage);
+                    if (remainingTokenPercentage<0){
+                        remainingTokenPercentage = 0;
+                    }
                 }
 
 
@@ -412,7 +426,19 @@ export function AIProjectGenerationChat() {
             setMessages(prevMessages => {
                 const newMessages = [...prevMessages];
                 const statusText = getStatusText(response.status);
-                newMessages[newMessages.length - 1].content += `Failed to fetch response. Status: ${response.status} - ${statusText}`;
+                let error = `Failed to fetch response. Status: ${statusText}`;
+                if (response.status == 429) {
+                    let retry_after = response.headers.get('Retry-After');
+                    // Convert to days, hours, minutes
+                    let seconds = parseInt(retry_after);
+                    let days = Math.floor(seconds / (3600 * 24));
+                    seconds -= days * 3600 * 24;
+                    let hours = Math.floor(seconds / 3600);
+                    seconds -= hours * 3600;
+                    let minutes = Math.floor(seconds / 60);
+                    error += ` Free quota resets in ${days} days, ${hours} hours, ${minutes} minutes`;
+                }
+                newMessages[newMessages.length - 1].content += error;
                 newMessages[newMessages.length - 1].type = 'Error';
                 return newMessages;
             });
@@ -467,7 +493,16 @@ export function AIProjectGenerationChat() {
                         remainingTokenPercentage = "Unlimited";
                     }else{
                         const remainingTokens = tokenUsage.remaining_tokens;
-                        remainingTokenPercentage = Math.round((remainingTokens / maxTokens) * 100);
+                        remainingTokenPercentage = (remainingTokens / maxTokens) * 100;
+                        if(remainingTokenPercentage < 1 && remainingTokenPercentage > 0){
+                            remaingTokenLessThanOne = true;
+                        }else{
+                            remaingTokenLessThanOne = false;
+                        }
+                        remainingTokenPercentage = Math.round(remainingTokenPercentage);
+                        if (remainingTokenPercentage<0){
+                            remainingTokenPercentage = 0;
+                        }
                     }
                     if (json.content == null) {
                         addChatEntry("assistant", assistant_response);
@@ -650,24 +685,29 @@ export function AIProjectGenerationChat() {
     return (
         <AIChatView>
             <Header>
-                 <Badge>
-                       Remaining Free Usage: {remainingTokenPercentage}%
-                </Badge>
+            <Badge>
+                    Remaining Free Usage: {
+                        remainingTokenPercentage === 'Unlimited' ? remainingTokenPercentage :
+                        (remaingTokenLessThanOne ? '<1%' : `${remainingTokenPercentage}%`)
+                    }
+            </Badge>
+            <HeaderButtons>
                 <Button
-                    appearance="icon"
-                    onClick={() => handleClearChat()}
-                    tooltip="Clear Chat"
-                >
-                    <Codicon name="clear-all" />&nbsp;&nbsp;Clear
-                </Button>
-                <Button
-                    appearance="icon"
-                    onClick={() => handleLogout()}
-                    tooltip="Logout"
-                    disabled={isLoading}
-                >
-                    <Codicon name="sign-out" />&nbsp;&nbsp;Logout
-                </Button>
+                        appearance="icon"
+                        onClick={() => handleClearChat()}
+                        tooltip="Clear Chat"
+                    >
+                        <Codicon name="clear-all" />&nbsp;&nbsp;Clear
+                    </Button>
+                    <Button
+                        appearance="icon"
+                        onClick={() => handleLogout()}
+                        tooltip="Logout"
+                        disabled={isLoading}
+                    >
+                        <Codicon name="sign-out" />&nbsp;&nbsp;Logout
+                    </Button>
+            </HeaderButtons>
             </Header>
             <main style={{ flex: 1, overflowY: "auto" }}>
                 {Array.isArray(otherMessages) && otherMessages.length === 0 && (<Welcome>
