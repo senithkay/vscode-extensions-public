@@ -18,11 +18,13 @@ import { DataMapperNodeModel } from "../commons/DataMapperNode";
 import { getFilteredMappings, getSearchFilteredOutput, hasNoOutputMatchFound } from "../../utils/search-utils";
 import { enrichAndProcessType } from "../../utils/type-utils";
 import { OBJECT_OUTPUT_TARGET_PORT_PREFIX } from "../../utils/constants";
-import { findInputNode, getInputPort, getOutputPort, getTypeName } from "../../utils/common-utils";
+import { findInputNode, getDefaultValue, getInputPort, getOutputPort, getTypeName, getTypeOfValue } from "../../utils/common-utils";
 import { InputOutputPortModel } from "../../Port";
 import { DataMapperLinkModel } from "../../Link";
 import { ExpressionLabelModel } from "../../Label";
 import { getDiagnostics } from "../../utils/diagnostics-utils";
+import { getPosition, traversNode } from "../../utils/st-utils";
+import { LinkDeletingVisitor } from "../../../../components/Visitors/LinkDeletingVistior";
 
 export const OBJECT_OUTPUT_NODE_TYPE = "data-mapper-node-object-output";
 const NODE_ID = "object-output-node";
@@ -127,19 +129,21 @@ export class ObjectOutputNode extends DataMapperNodeModel {
                 lm.setSourcePort(inPort);
                 inPort.addLinkedPort(mappedOutPort);
 
-                lm.addLabel(new ExpressionLabelModel({
-                    value: otherVal?.getText(),
-                    valueNode: otherVal || value,
-                    context: this.context,
-                    link: lm,
-                    field: Node.isPropertyAssignment(field)
-                        ? field.getInitializer()
-                        : field,
-                    editorLabel: Node.isPropertyAssignment(field)
-                        ? field.getName()
-                        : outPort.fieldFQN && `${outPort.fieldFQN.split('.').pop()}[${outPort.index}]`,
-                    deleteLink: () => this.deleteField(field, keepDefault),
-                }));
+                lm.addLabel(
+                    new ExpressionLabelModel({
+                        value: otherVal?.getText(),
+                        valueNode: otherVal || value,
+                        context: this.context,
+                        link: lm,
+                        field: Node.isPropertyAssignment(field)
+                            ? field.getInitializer()
+                            : field,
+                        editorLabel: Node.isPropertyAssignment(field)
+                            ? field.getName()
+                            : outPort.fieldFQN && `${outPort.fieldFQN.split('.').pop()}[${outPort.index}]`,
+                        deleteLink: () => this.deleteField(field, keepDefault),
+                    }
+                ));
 
                 lm.registerListener({
                     selectionChanged(event) {
@@ -159,7 +163,31 @@ export class ObjectOutputNode extends DataMapperNodeModel {
     }
 
     async deleteField(field: Node, keepDefaultVal?: boolean) {
-        // TODO: Implement delete field logic
+        const typeOfValue = getTypeOfValue(this.dmTypeWithValue, getPosition(field));
+
+        if (keepDefaultVal && !Node.isPropertyAssignment(field)) {
+            const replaceWith = getDefaultValue(typeOfValue.kind);
+            field.replaceWithText(replaceWith);
+        } else {
+            const linkDeleteVisitor = new LinkDeletingVisitor(field, this.value.getExpression());
+            traversNode(this.value.getExpression(), linkDeleteVisitor);
+            const targetNodes = linkDeleteVisitor.getNodesToDelete();
+
+            targetNodes.forEach(node => {
+                const parentNode = node.getParent();
+
+                if (Node.isPropertyAssignment(node)) {
+                    node.remove();
+                } else if (parentNode && Node.isArrayLiteralExpression(parentNode)) {
+                    const elementIndex = parentNode.getElements().find(e => e === node);
+                    parentNode.removeElement(elementIndex);
+                } else {
+                    node.replaceWithText('');
+                }
+            });
+        }
+
+        await this.context.applyModifications();
     }
 
     public updatePosition() {
