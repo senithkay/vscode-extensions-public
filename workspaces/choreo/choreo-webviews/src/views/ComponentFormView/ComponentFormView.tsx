@@ -51,7 +51,7 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({
             type: initialValues?.type ?? "",
             buildPackLang: initialValues?.buildPackLang ?? "",
             langVersion: "",
-            subPath: initialValues?.subPath ?? ".",
+            subPath: initialValues?.subPath ?? "",
             repoUrl: "",
             branch: "",
             dockerFile: "",
@@ -68,7 +68,7 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({
     const subPath = form.watch("subPath");
     const repoUrl = form.watch("repoUrl");
 
-    const { data: hasEndpoints } = useQuery({
+    const { data: hasEndpoints = true } = useQuery({
         queryKey: ["directory-has-endpoints", { directoryPath, subPath, selectedLang }],
         queryFn: async () => {
             const compPath = await ChoreoWebViewAPI.getInstance().joinFilePaths([directoryFsPath, subPath]);
@@ -372,7 +372,8 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({
                                         { label: "Scheduled Task", value: ChoreoComponentType.ScheduledTask },
                                         { label: "Manual Task", value: ChoreoComponentType.ManualTrigger },
                                         { label: "Web Application", value: ChoreoComponentType.WebApplication },
-                                        { label: "Webhook", value: ChoreoComponentType.Webhook },
+                                        // TODO: Re-enable this after testing webhooks
+                                        // { label: "Webhook", value: ChoreoComponentType.Webhook },
                                     ]}
                                     control={form.control}
                                 />

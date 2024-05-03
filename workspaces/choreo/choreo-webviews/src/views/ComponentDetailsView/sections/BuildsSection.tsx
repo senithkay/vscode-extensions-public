@@ -264,6 +264,7 @@ const BuiltItemRow: FC<Props & { item: BuildKind }> = ({
         mutationFn: async (buildId: number) => {
             await ChoreoWebViewAPI.getInstance().viewBuildLogs({
                 componentId: component.metadata.id,
+                displayType: component.spec.type,
                 orgHandler: organization.handle,
                 orgId: organization.id.toString(),
                 projectId: project.id,

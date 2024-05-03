@@ -115,7 +115,7 @@ export function createNewComponentCommand(context: ExtensionContext) {
                         initialValues: {
                             type: params?.initialValues?.type,
                             buildPackLang: params?.initialValues?.buildPackLang,
-                            subPath: subPath || ".",
+                            subPath: subPath || "",
                         },
                     });
                     componentWizard.getWebview()?.reveal();

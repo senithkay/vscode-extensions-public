@@ -19,13 +19,11 @@ const getBuildConfigViewList = (component: ComponentKind): IRightPanelSectionIte
     const componentBuildPack = getBuildpackForComponent(component);
     const buildConfigs: IRightPanelSectionItem[] = [{ label: "Build Pack", value: componentBuildPack }];
 
-    console.log('component', component)
 
-    if (componentBuildPack !== ChoreoBuildPackNames.Docker) {
-        buildConfigs.push({
-            label: "Subdirectory",
-            value: component.spec.source?.github?.path || component.spec.source?.bitbucket?.path,
-        });
+    const dirPath = component.spec.source?.github?.path || component.spec.source?.bitbucket?.path
+
+    if (componentBuildPack !== ChoreoBuildPackNames.Docker && dirPath && dirPath != ".") {
+        buildConfigs.push({ label: "Subdirectory", value: dirPath });
     }
 
     if (

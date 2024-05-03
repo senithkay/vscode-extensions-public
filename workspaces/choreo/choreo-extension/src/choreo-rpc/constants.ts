@@ -18,5 +18,6 @@ export enum ErrorCode {
     EpYamlNotFound = -32009,
     UserNotFound = -32010,
     MaxComponentCountError = -32011,
+    InvalidSubPath = -32012,
 }
 

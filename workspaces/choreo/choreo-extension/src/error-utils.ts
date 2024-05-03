@@ -77,19 +77,22 @@ export function handlerError(err: any) {
                     }
                 });
                 break;
-                case ErrorCode.EpYamlNotFound:
-                    w.showErrorMessage(
-                        ".choreo/endpoints.yaml file not found. Try again after committing your endpoints.yaml to your remote repo",
-                        "View Documentation"
-                    ).then((res) => {
-                        if (res === "View Documentation") {
-                            commands.executeCommand(
-                                "vscode.open",
-                                `https://wso2.com/choreo/docs/develop-components/configure-endpoints-body/`
-                            );
-                        }
-                    });
-                    break;
+            case ErrorCode.EpYamlNotFound:
+                w.showErrorMessage(
+                    ".choreo/endpoints.yaml file not found. Try again after committing your endpoints.yaml to your remote repo",
+                    "View Documentation"
+                ).then((res) => {
+                    if (res === "View Documentation") {
+                        commands.executeCommand(
+                            "vscode.open",
+                            `https://wso2.com/choreo/docs/develop-components/configure-endpoints-body/`
+                        );
+                    }
+                });
+                break;
+            case ErrorCode.InvalidSubPath:
+                w.showErrorMessage("Failed to create component. Please try again after synching your local repo directory changes with your remote directory.");
+                break;
             default:
                 getLogger().error("Unknown error", err);
                 break;

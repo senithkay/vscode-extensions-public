@@ -19,7 +19,7 @@ export const componentFormSchema = z.object({
         .regex(/^[A-Za-z\s\d\-_]+$/, "Cannot have special characters"),
     type: z.string().min(1, "Required"),
     buildPackLang: z.string().min(1, "Required"),
-    subPath: z.string().min(1, "Required"),
+    subPath: z.string(),
     repoUrl: z.string().min(1, "Required"),
     branch: z.string().min(1, "Required"),
     langVersion: z.string(),

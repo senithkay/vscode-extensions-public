@@ -245,7 +245,6 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
         if(!buildLogsOutputChannel){
             buildLogsOutputChannel = window.createOutputChannel(`Choreo: Build Logs`);
         }
-        buildLogsOutputChannel.appendLine(`SHOWING BUILD LOGS FOR BUILD ${params.buildId}`);
         buildLogsOutputChannel.append(logs);
         buildLogsOutputChannel.show();
     });
