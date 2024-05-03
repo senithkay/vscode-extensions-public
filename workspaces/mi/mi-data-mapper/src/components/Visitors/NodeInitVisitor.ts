@@ -6,14 +6,32 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { Node, PropertyAssignment, ObjectLiteralExpression, FunctionDeclaration, ReturnStatement, ArrayLiteralExpression, Identifier, PropertyAccessExpression, SyntaxKind, CallExpression } from "ts-morph";
+import {
+    Node,
+    PropertyAssignment,
+    ObjectLiteralExpression,
+    FunctionDeclaration,
+    ReturnStatement,
+    ArrayLiteralExpression,
+    Identifier,
+    PropertyAccessExpression,
+    SyntaxKind,
+    CallExpression
+} from "ts-morph";
+import { DMType, TypeKind } from "@wso2-enterprise/mi-core";
+
 import { Visitor } from "../../ts/base-visitor";
 import { ObjectOutputNode, InputNode, LinkConnectorNode, ArrayOutputNode } from "../Diagram/Node";
 import { DataMapperNodeModel } from "../Diagram/Node/commons/DataMapperNode";
 import { DataMapperContext } from "../../utils/DataMapperContext/DataMapperContext";
 import { InputDataImportNodeModel, OutputDataImportNodeModel } from "../Diagram/Node/DataImport/DataImportNode";
-import { canConnectWithLinkConnector, getPropertyAccessNodes, isConditionalExpression, isMapFunction } from "../Diagram/utils/common-utils";
-import { DMType, TypeKind } from "@wso2-enterprise/mi-core";
+import {
+    canConnectWithLinkConnector,
+    getPropertyAccessNodes,
+    getTypeName,
+    isConditionalExpression,
+    isMapFunction
+} from "../Diagram/utils/common-utils";
 import { ArrayFnConnectorNode } from "../Diagram/Node/ArrayFnConnector";
 
 export class NodeInitVisitor implements Visitor {
@@ -103,7 +121,7 @@ export class NodeInitVisitor implements Visitor {
     private createInputNode(node: FunctionDeclaration): InputNode | InputDataImportNodeModel {
         const param = node.getParameters()[0];
         const inputType = param && this.context.inputTrees.find(inputTree =>
-            inputTree.typeName === param.getType().getText());
+            getTypeName(inputTree) === param.getType().getText());
     
         if (inputType && this.hasFields(inputType)) {
             // Create input node

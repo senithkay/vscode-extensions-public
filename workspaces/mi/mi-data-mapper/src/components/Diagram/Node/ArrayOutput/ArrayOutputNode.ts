@@ -18,11 +18,20 @@ import { DMTypeWithValue } from "../../Mappings/DMTypeWithValue";
 import { MappingMetadata } from "../../Mappings/FieldAccessToSpecificFied";
 import { InputOutputPortModel } from "../../Port";
 import { ARRAY_OUTPUT_TARGET_PORT_PREFIX } from "../../utils/constants";
-import { findInputNode, getInputPort, getOutputPort, getTypeName } from "../../utils/common-utils";
 import { getDiagnostics } from "../../utils/diagnostics-utils";
 import { enrichAndProcessType } from "../../utils/type-utils";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
 import { getFilteredMappings, getSearchFilteredOutput, hasNoOutputMatchFound } from "../../utils/search-utils";
+import { getPosition, traversNode } from "../../utils/st-utils";
+import { LinkDeletingVisitor } from "../../../../components/Visitors/LinkDeletingVistior";
+import {
+    findInputNode,
+    getDefaultValue,
+    getInputPort,
+    getOutputPort,
+    getTypeName,
+    getTypeOfValue
+} from "../../utils/common-utils";
 
 export const ARRAY_OUTPUT_NODE_TYPE = "data-mapper-node-array-output";
 const NODE_ID = "array-output-node";
@@ -163,7 +172,31 @@ export class ArrayOutputNode extends DataMapperNodeModel {
     }
 
     async deleteField(field: Node, keepDefaultVal?: boolean) {
-        // TODO: Implement delete field logic
+        const typeOfValue = getTypeOfValue(this.dmTypeWithValue, getPosition(field));
+
+        if (keepDefaultVal && !Node.isPropertyAssignment(field)) {
+            const replaceWith = getDefaultValue(typeOfValue.kind);
+            field.replaceWithText(replaceWith);
+        }  else {
+            const linkDeleteVisitor = new LinkDeletingVisitor(field, this.value.getExpression());
+            traversNode(this.value.getExpression(), linkDeleteVisitor);
+            const targetNodes = linkDeleteVisitor.getNodesToDelete();
+
+            targetNodes.forEach(node => {
+                const parentNode = node.getParent();
+
+                if (Node.isPropertyAssignment(node)) {
+                    node.remove();
+                } else if (parentNode && Node.isArrayLiteralExpression(parentNode)) {
+                    const elementIndex = parentNode.getElements().find(e => e === node);
+                    parentNode.removeElement(elementIndex);
+                } else {
+                    node.replaceWithText('');
+                }
+            });
+        }
+
+        await this.context.applyModifications();
     }
 
     public updatePosition() {

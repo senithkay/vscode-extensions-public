@@ -76,11 +76,12 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
     const portIn = getPort(`${fieldId}.IN`);
 
     const body = field.hasValue() && field.value;
-    const valExpr = body && Node.isPropertyAssignment(body) ? body.getInitializer() : body;
+    const bodyNodeForgotten = body && body.wasForgotten();
+    const valExpr = body && !bodyNodeForgotten && Node.isPropertyAssignment(body) ? body.getInitializer() : body;
 
-    const diagnostic = valExpr && getDiagnostics(valExpr)[0];
+    const diagnostic = !bodyNodeForgotten && valExpr && getDiagnostics(valExpr)[0];
 
-    const hasValue = valExpr && !!valExpr.getText();
+    const hasValue = !bodyNodeForgotten && valExpr && !!valExpr.getText();
     const elements = field.elements;
     const searchValue = useDMSearchStore.getState().outputSearch;
     const isReturnStmtMissing = asOutput && !body;
