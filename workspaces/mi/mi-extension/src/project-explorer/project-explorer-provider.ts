@@ -144,7 +144,48 @@ function generateTreeData(project: vscode.WorkspaceFolder, data: ProjectStructur
 		generateTreeDataOfArtifacts(project, data, projectRoot);
 		generateTreeDataOfRegistry(project, data, projectRoot);
 		generateTreeDataOfClassMediator(project, data, projectRoot);
+		generateTreeDataOfDataMappings(project, data, projectRoot);
 		return projectRoot;
+	}
+}
+
+function generateTreeDataOfDataMappings(project: vscode.WorkspaceFolder, data: ProjectStructureResponse, projectRoot: ProjectExplorerEntry) {
+	const directoryMap = data.directoryMap;
+	const resources = (directoryMap as any)?.src?.main?.wso2mi.resources.registry;
+	const govResources = resources['gov'];
+	if (govResources && govResources.folders.length > 0 ) {
+		const dataMapperResources = govResources.folders.find((folder: any) => folder.name === 'datamapper');
+		const parentEntry = new ProjectExplorerEntry(
+			'Data Mappers',
+			isCollapsibleState(dataMapperResources.folders.length > 0),
+			{ name: 'datamapper', path: dataMapperResources.path, type: 'datamapper'},
+			'arrow-both'
+		);
+		parentEntry.contextValue = 'data-mapper';
+		parentEntry.id = 'data-mapper';
+		parentEntry.children = parentEntry.children ?? [];
+		for (const folder of dataMapperResources.folders) {
+			for (const file of folder.files) {
+				if (!file.name.endsWith('.ts')) {
+					continue;
+				}
+				const configName = file.name.replace('.ts', '');
+				const dataMapperEntry = new ProjectExplorerEntry(
+					configName,
+					isCollapsibleState(false),
+					{ name: configName, path: file.path, type: 'dataMapper' },
+					'file-code'
+				);
+				dataMapperEntry.contextValue = 'data-mapper';
+				dataMapperEntry.command = {
+					"title": "Open Data Mapper",
+					"command": COMMANDS.SHOW_DATA_MAPPER,
+					"arguments": [vscode.Uri.parse(file.path)]
+				};
+				parentEntry.children.push(dataMapperEntry);
+			}
+		}
+		projectRoot.children?.push(parentEntry);
 	}
 }
 
@@ -363,10 +404,9 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 			explorerEntry.contextValue = 'endpoint';
 			explorerEntry.command = {
 				"title": "Show Endpoint",
-				"command": COMMANDS.SHOW_ENDPOINT,
+				"command": getViewCommand(entry.subType),
 				"arguments": [vscode.Uri.parse(entry.path), 'endpoint', undefined, false]
 			};
-			explorerEntry.command.command = getViewCommand(entry.subType);
 
 		} else if (entry.type === "SEQUENCE") {
 			let icon = 'code';
@@ -405,10 +445,9 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 			explorerEntry.contextValue = 'template';
 			explorerEntry.command = {
 				"title": "Show Template",
-				"command": COMMANDS.SHOW_TEMPLATE,
+				"command": getViewCommand(entry.subType),
 				"arguments": [vscode.Uri.parse(entry.path), 'template', undefined, false]
 			};
-			explorerEntry.command.command = getViewCommand(entry.subType);
 
 		} else if (entry.type === "TASK") {
 			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, 'code');
@@ -582,6 +621,8 @@ function getViewCommand(endpointType?: string) {
 		viewCommand = COMMANDS.SHOW_RECIPIENT_ENDPOINT;
 	} else if (endpointType === 'TEMPLATE_ENDPOINT') {
 		viewCommand = COMMANDS.SHOW_TEMPLATE_ENDPOINT;
+	} else if (endpointType === 'SEQUENCE') {
+		viewCommand = COMMANDS.SHOW_SEQUENCE_TEMPLATE_VIEW;
 	}
 	return viewCommand;
 }

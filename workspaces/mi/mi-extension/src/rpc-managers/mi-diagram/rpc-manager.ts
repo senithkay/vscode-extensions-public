@@ -10,6 +10,7 @@
  */
 import {
     AIUserInput,
+    AI_EVENT_TYPE,
     ApiDirectoryResponse,
     ApplyEditRequest,
     ApplyEditResponse,
@@ -51,13 +52,14 @@ import {
     CreateTemplateRequest,
     CreateTemplateResponse,
     DataSourceTemplate,
+    DeleteArtifactRequest,
     DownloadConnectorRequest,
     DownloadConnectorResponse,
-    DeleteArtifactRequest,
     ESBConfigsResponse,
     EVENT_TYPE,
     EndpointDirectoryResponse,
     EndpointsAndSequencesResponse,
+    ExportProjectRequest,
     FileDirResponse,
     FileStructure,
     GetAllArtifactsRequest,
@@ -114,6 +116,7 @@ import {
     MigrateProjectRequest,
     MigrateProjectResponse,
     OpenDiagramRequest,
+    POPUP_EVENT_TYPE,
     ProjectDirResponse,
     ProjectRootResponse,
     RangeFormatRequest,
@@ -155,24 +158,26 @@ import {
     WriteContentToFileResponse,
     getSTRequest,
     getSTResponse,
-    AI_EVENT_TYPE,
-    POPUP_EVENT_TYPE,
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
 import { error } from "console";
 import * as fs from "fs";
+import { copy } from 'fs-extra';
+import fetch from 'node-fetch';
 import * as os from 'os';
-import * as tmp from 'tmp';
 import { Transform } from 'stream';
+import * as tmp from 'tmp';
 import { v4 as uuidv4 } from 'uuid';
 import * as vscode from 'vscode';
 import { Position, Range, Selection, TextEdit, Uri, ViewColumn, WorkspaceEdit, commands, window, workspace } from "vscode";
 import { extension } from '../../MIExtensionContext';
+import { StateMachineAI } from '../../ai-panel/aiMachine';
 import { COMMANDS, DEFAULT_PROJECT_VERSION, MI_COPILOT_BACKEND_URL } from "../../constants";
 import { StateMachine, navigate, openView } from "../../stateMachine";
+import { openPopupView } from "../../stateMachinePopup";
 import { UndoRedoManager } from "../../undoRedoManager";
 import { createFolderStructure, getAddressEndpointXmlWrapper, getDefaultEndpointXmlWrapper, getFailoverXmlWrapper, getHttpEndpointXmlWrapper, getInboundEndpointXmlWrapper, getLoadBalanceXmlWrapper, getMessageProcessorXmlWrapper, getMessageStoreXmlWrapper, getProxyServiceXmlWrapper, getRegistryResourceContent, getTaskXmlWrapper, getTemplateEndpointXmlWrapper, getTemplateXmlWrapper, getWsdlEndpointXmlWrapper } from "../../util";
-import { addNewEntryToArtifactXML, changeRootPomPackaging, createMetadataFilesForRegistryCollection, detectMediaType, getAvailableRegistryResources, getMediatypeAndFileExtension, addSynapseDependency } from "../../util/fileOperations";
+import { addNewEntryToArtifactXML, addSynapseDependency, changeRootPomPackaging, createMetadataFilesForRegistryCollection, detectMediaType, getAvailableRegistryResources, getMediatypeAndFileExtension } from "../../util/fileOperations";
 import { importProject } from "../../util/migrationUtils";
 import { getDataserviceXml } from "../../util/template-engine/mustach-templates/Dataservice";
 import { getClassMediatorContent } from "../../util/template-engine/mustach-templates/classMediator";
@@ -181,12 +186,9 @@ import { getRecipientEPXml } from "../../util/template-engine/mustach-templates/
 import { rootPomXmlContent } from "../../util/templates";
 import { replaceFullContentToFile } from "../../util/workspace";
 import { VisualizerWebview } from "../../visualizer/webview";
-import { StateMachineAI } from '../../ai-panel/aiMachine';
-import fetch from 'node-fetch';
 import path = require("path");
-import { openPopupView } from "../../stateMachinePopup";
-import { copy } from 'fs-extra';
 import { template } from "lodash";
+import { log } from "../../util/logger";
 
 const { XMLParser, XMLBuilder } = require("fast-xml-parser");
 
@@ -2066,8 +2068,8 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 filePath = path.join(directory, `${messageProcessorName}.xml`);
             }
 
-            if (filePath.includes('/messageProcessors')) {
-                filePath = filePath.replace('/messageProcessors', '/message-processors');
+            if (filePath.includes('messageProcessors')) {
+                filePath = filePath.replace('messageProcessors', 'message-processors');
             }
 
             fs.writeFileSync(filePath, sanitizedXmlData);
@@ -2779,6 +2781,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 canSelectMany: params.canSelectMany,
                 defaultUri: Uri.file(os.homedir()),
                 title: params.title,
+                ...params.openLabel && { openLabel: params.openLabel },
             });
             if (selectedFile) {
                 resolve({ filePath: selectedFile[0].fsPath });
@@ -3205,6 +3208,60 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             }
 
             resolve();
+        });
+    }
+
+    async buildProject(): Promise<void> {
+        return new Promise(async (resolve) => {
+            await commands.executeCommand(COMMANDS.BUILD_PROJECT, false);
+            resolve();
+        });
+    }
+
+    async exportProject(params: ExportProjectRequest): Promise<void> {
+        return new Promise(async (resolve, reject) => {
+            const carFile = await vscode.workspace.findFiles(
+                new vscode.RelativePattern(params.projectPath, 'target/*.car'),
+                null,
+                1
+            );
+            if (carFile.length === 0) {
+                const errorMessage = 
+                    'Error: No .car file found in the target directory. Please build the project before exporting.';
+                window.showErrorMessage(errorMessage);
+                log(errorMessage);
+                return reject(errorMessage);
+            }
+
+            const selection = await vscode.window.showQuickPick(
+                [
+                    {
+                        label: "Select Destination",
+                        description: "Select a destination folder to export .car file",
+                    },
+                ],
+                {
+                    placeHolder: "Export Options",
+                }
+            );
+
+            if (selection) {
+                // Get the destination folder
+                const { filePath: destination } = await this.browseFile({
+                    canSelectFiles: false,
+                    canSelectFolders: true,
+                    canSelectMany: false,
+                    defaultUri: params.projectPath,
+                    title: "Select a folder to export the project",
+                    openLabel: "Select Folder"
+                });
+                if (destination) {
+                    const destinationPath = path.join(destination, path.basename(carFile[0].fsPath));
+                    fs.copyFileSync(carFile[0].fsPath, destinationPath);
+                    log(`Project exported to: ${destination}`);
+                    resolve();
+                }
+            }
         });
     }
 }

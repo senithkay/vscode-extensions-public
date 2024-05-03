@@ -123,6 +123,10 @@ export async function activateProjectExplorer(context: ExtensionContext) {
 		commands.executeCommand('workbench.files.action.focusFilesExplorer');
 	});
 
+	commands.registerCommand(COMMANDS.SHOW_DATA_MAPPER, async (entry: string) => {
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.DataMapperView, documentUri: entry });
+	});
+
 	commands.registerCommand(COMMANDS.DELETE_REGISTERY_RESOURCE_COMMAND, async (entry: ProjectExplorerEntry) => {
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.Overview });
 		if (entry.info && entry.info?.path) {
@@ -207,6 +211,10 @@ export async function activateProjectExplorer(context: ExtensionContext) {
 	commands.registerCommand(COMMANDS.SHOW_SEQUENCE_VIEW, (documentUri: Uri, beside: boolean = true) => {
 		revealWebviewPanel(beside);
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.SequenceView, documentUri: documentUri?.fsPath });
+	});
+	commands.registerCommand(COMMANDS.SHOW_SEQUENCE_TEMPLATE_VIEW, (documentUri: Uri, beside: boolean = true) => {
+		revealWebviewPanel(beside);
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.SequenceTemplateView, documentUri: documentUri?.fsPath });
 	});
 	commands.registerCommand(COMMANDS.SHOW_PROXY_VIEW, (documentUri: Uri, beside: boolean = true) => {
 		revealWebviewPanel(beside);

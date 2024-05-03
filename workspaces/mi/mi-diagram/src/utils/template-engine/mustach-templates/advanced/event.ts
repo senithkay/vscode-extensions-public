@@ -13,7 +13,7 @@ import Mustache from "mustache";
 export function getEventMustacheTemplate() {
 
     return `
-    <event {{#description}}description="{{description}}" {{/description}}{{#staticTopic}}topic="{{staticTopic}}" {{/staticTopic}}{{#dynamicTopic}}expression="{{dynamicTopic}}" {{/dynamicTopic}} />
+    <event {{#description}}description="{{description}}" {{/description}}{{#staticTopic}}topic="{{staticTopic}}" {{/staticTopic}}{{#dynamicTopic}}expression="{{{dynamicTopic}}}" {{/dynamicTopic}} />
     `;
 }
 

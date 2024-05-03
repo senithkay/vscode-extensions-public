@@ -21,7 +21,7 @@ import { OutputSearchHighlight } from '../commons/Search';
 import { TreeBody, TreeContainer, TreeHeader } from '../commons/Tree/Tree';
 import { ObjectOutputFieldWidget } from "./ObjectOutputFieldWidget";
 import { useIONodesStyles } from '../../../styles';
-import { useDMCollapsedFieldsStore } from '../../../../store/store';
+import { useDMCollapsedFieldsStore, useDMSidePanelStore } from '../../../../store/store';
 import { getPosition } from '../../utils/st-utils';
 import { isEmptyValue } from '../../utils/common-utils';
 import { getDiagnostics } from '../../utils/diagnostics-utils';
@@ -56,6 +56,9 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 	const [portState, setPortState] = useState<PortState>(PortState.Unselected);
 	const [isHovered, setIsHovered] = useState(false);
 	const collapsedFieldsStore = useDMCollapsedFieldsStore();
+	const setSidePanelOpen = useDMSidePanelStore(state => state.setSidePanelOpen);
+    const setSidePanelIOType = useDMSidePanelStore(state => state.setSidePanelIOType);
+	const setIsSchemaOverridden = useDMSidePanelStore(state => state.setIsSchemaOverridden);
 
 	const fields = dmTypeWithValue && dmTypeWithValue.childrenTypes;
 	const hasValue = fields && fields.length > 0;
@@ -107,9 +110,16 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 		</span>
 	);
 
+	const onRightClick = (event: React.MouseEvent) => {
+        event.preventDefault(); 
+        setSidePanelIOType("Output");
+		setIsSchemaOverridden(true);
+        setSidePanelOpen(true);
+    };
+
 	return (
 		<>
-			<TreeContainer data-testid={`${id}-node`}>
+			<TreeContainer data-testid={`${id}-node`} onContextMenu={onRightClick}>
 				<TreeHeader
 					isSelected={portState !== PortState.Unselected}
 					id={"recordfield-" + id}

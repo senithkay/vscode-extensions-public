@@ -343,21 +343,23 @@
         {
           "command": "MI.build-and-run",
           "group": "navigation@1",
+          "when": "MI.status == 'projectLoaded' && (isVisualizerActive || resourceLangId == SynapseXml)",
           "title": "Build and Run Project"
         },
         {
           "command": "MI.openAiPanel",
           "group": "navigation@1",
+          "when": "MI.projectType == 'miProject' && (isVisualizerActive || resourceLangId == SynapseXml)",
           "title": "Open AI Panel"
         },
         {
           "command": "MI.project-explorer.open-service-designer-beside",
-          "when": "editorLangId == SynapseXml",
+          "when": "MI.status == 'projectLoaded' && (isVisualizerActive || resourceLangId == SynapseXml)",
           "group": "navigation@3"
         },
         {
           "command": "MI.show.source",
-          "when": "showGoToSource && editorLangId !== SynapseXml",
+          "when": "isVisualizerActive && showGoToSource",
           "group": "navigation@3"
         }
       ],
@@ -523,13 +525,20 @@
     "vscode-debugprotocol": "^1.51.0",
     "tree-kill": "^1.2.2",
     "node-loader": "~2.0.0",
-    "json-schema-to-typescript": "13.1.2",
-    "@types/to-json-schema": "0.2.4",
     "to-json-schema": "0.2.4",
     "xml2js":"0.6.2",
     "tmp":"~0.2.3",
     "fs-extra":"~11.2.0",
     "@types/tmp":"~0.2.6",
-    "@types/fs-extra":"~11.0.4"
+    "@types/fs-extra":"~11.0.4",
+    "json-schema-to-ts":"3.0.1",
+    "@babel/plugin-transform-typescript": "^7.16.1",
+    "recast": "^0.20.5",
+    "@babel/core": "^7.24.4",
+    "@types/json-schema":"7.0.15",
+    "json-schema":"0.4.0",
+    "prettier":"3.2.5",
+    "@apidevtools/json-schema-ref-parser":"11.6.1",
+    "js-yaml":"4.1.0"
   }
 }

@@ -19,7 +19,7 @@ import { getXML } from '../../../../../utils/template-engine/mustach-templates/t
 import { MEDIATORS } from '../../../../../resources/constants';
 import { Controller, useForm } from 'react-hook-form';
 import { ExpressionFieldValue } from '../../../../Form/ExpressionField/ExpressionInput';
-import { ParamManager, ParamValue } from '../../../../Form/ParamManager/ParamManager';
+import { ParamManager, ParamConfig, ParamValue } from '../../../../Form/ParamManager/ParamManager';
 
 const cardStyle = { 
     display: "block",
@@ -51,11 +51,11 @@ const CloneForm = (props: AddMediatorProps) => {
             sequentialMediation: sidePanelContext?.formValues?.sequentialMediation || false,
             continueParent: sidePanelContext?.formValues?.continueParent || false,
             targets: {
-                paramValues: sidePanelContext?.formValues?.targets && sidePanelContext?.formValues?.targets.map((property: string|ExpressionFieldValue[], index: string) => (
+                paramValues: sidePanelContext?.formValues?.targets && sidePanelContext?.formValues?.targets.map((property: (string | ExpressionFieldValue | ParamConfig)[], index: string) => (
                     {
                         id: index,
-                        key: typeof property[0] === 'object' ? property[0].value : property[0],
-                        value:  typeof property[2] === 'object' ? property[2].value : property[2],
+                        key: property[0],
+                        value:  property[2],
                         icon: 'query',
                         paramValues: [
                             { value: property[0] },
@@ -210,9 +210,9 @@ const CloneForm = (props: AddMediatorProps) => {
                                 readonly={false}
                                 onChange= {(values) => {
                                     values.paramValues = values.paramValues.map((param: any, index: number) => {
-                                        const paramValues: ParamValue[] = param.paramValues;
-                                        param.key = paramValues[0].value;
-                                        param.value = paramValues[2].value;
+                                        const property: ParamValue[] = param.paramValues;
+                                        param.key = property[0].value;
+                                        param.value = property[2].value;
                                         param.icon = 'query';
                                         return param;
                                     });
