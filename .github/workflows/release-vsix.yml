@@ -153,7 +153,7 @@ jobs:
         with:
           repo: wso2/mi-vscode
           token: ${{ secrets.PUBLISH_PAT }}
-          name: mi-vscode
+          name: micro-integrator
 
       - name: Create PR and notify
         uses: ./.github/actions/pr
