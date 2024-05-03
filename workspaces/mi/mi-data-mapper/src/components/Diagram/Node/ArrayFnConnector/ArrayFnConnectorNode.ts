@@ -80,7 +80,7 @@ export class ArrayFnConnectorNode extends DataMapperNodeModel {
             }
         }
 
-        const type = getDMType(sourceExpr.getText(), this.context.inputTrees[0]);
+        const type = getDMType(sourceExpr.getText(), this.context.inputTrees[0], true);
 
         if (type && type?.memberType && type.typeName === TypeKind.Array) {
             this.sourceType = type.memberType;

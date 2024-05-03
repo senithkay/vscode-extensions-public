@@ -17,7 +17,8 @@ import {
     PropertyAccessExpression,
     PropertyAssignment,
     Expression,
-    CallExpression
+    CallExpression,
+    ReturnStatement
 } from "ts-morph";
 
 import { PropertyAccessNodeFindingVisitor } from "../../Visitors/PropertyAccessNodeFindingVisitor";
@@ -438,6 +439,18 @@ export function getTypeOfValue(typeWithValue: DMTypeWithValue, targetPosition: N
 		}
 	}
 	return undefined;
+}
+
+export function getReturnStatement(mapFn: CallExpression): ReturnStatement {
+    const firstArg = mapFn.getArguments()[0];
+    if (Node.isArrowFunction(firstArg)) {
+        const body = firstArg.getBody();
+        if (Node.isBlock(body)) {
+            // Constraint: Only one return statement is allowed in the map function
+            return body.getStatements().find(Node.isReturnStatement);
+        }
+    }
+    return undefined;
 }
 
 function getInnerExpr(node: PropertyAccessExpression): Node {

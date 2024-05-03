@@ -28,11 +28,16 @@ import { InputDataImportNodeModel, OutputDataImportNodeModel } from "../Diagram/
 import {
     canConnectWithLinkConnector,
     getPropertyAccessNodes,
+    getReturnStatement,
     getTypeName,
     isConditionalExpression,
     isMapFunction
 } from "../Diagram/utils/common-utils";
 import { ArrayFnConnectorNode } from "../Diagram/Node/ArrayFnConnector";
+import { getPosition, isPositionsEquals } from "../Diagram/utils/st-utils";
+import { getDMType } from "../Diagram/utils/type-utils";
+import { UnsupportedExprNodeKind, UnsupportedIONode } from "../Diagram/Node/UnsupportedIO";
+import { OFFSETS } from "../Diagram/utils/constants";
 
 export class NodeInitVisitor implements Visitor {
     private inputNode: DataMapperNodeModel | InputDataImportNodeModel;
@@ -50,16 +55,67 @@ export class NodeInitVisitor implements Visitor {
     }
 
     beginVisitPropertyAssignment(node: PropertyAssignment, parent?: Node): void {
-        const initializer = node.getInitializer();
-        this.mapIdentifiers.push(node)
+        this.mapIdentifiers.push(node);
 
-        if (initializer && !this.isObjectOrArrayLiteralExpression(initializer)) {
-            const propAccessNodes = getPropertyAccessNodes(initializer);
-            if (canConnectWithLinkConnector(propAccessNodes, initializer)) {
-                const linkConnectorNode = this.createLinkConnectorNode(
-                    node, node.getName(), parent, propAccessNodes, this.mapIdentifiers.slice(0)
+        const { focusedST, views } = this.context;
+        const fieldFQN = views[views.length - 1].fieldFQN;
+        const isFocusedST = isPositionsEquals(getPosition(node), getPosition(focusedST));
+
+        if (isFocusedST) {
+            const fromClause = node.getInitializer();
+
+            // create output node
+            const exprType = getDMType(fieldFQN, this.context.outputTree);
+            const returnStatement = getReturnStatement(node.getInitializer() as CallExpression);
+
+            const innerExpr = returnStatement.getExpression();
+
+            const hasConditionalOutput = Node.isConditionalExpression(innerExpr);
+            if (hasConditionalOutput) {
+                this.outputNode = new UnsupportedIONode(
+                    this.context,
+                    UnsupportedExprNodeKind.Output,
+                    undefined,
+                    innerExpr,
                 );
-                this.intermediateNodes.push(linkConnectorNode);
+            } else if (exprType?.kind === TypeKind.Array) {
+                const { memberType } = exprType;
+                if (memberType.kind === TypeKind.Interface) {
+                    this.outputNode = new ObjectOutputNode(this.context, returnStatement, memberType);
+                } else if (memberType.kind === TypeKind.Array) {
+                    this.outputNode = new ArrayOutputNode(this.context, returnStatement, memberType);
+                }
+            } else {
+                if (exprType?.kind === TypeKind.Interface) {
+                    this.outputNode = new ObjectOutputNode(this.context, returnStatement, exprType);
+                }
+                if (isConditionalExpression(innerExpr)) {
+                    const inputNodes = getPropertyAccessNodes(returnStatement);
+                    const linkConnectorNode = new LinkConnectorNode(
+                        this.context,
+                        node,
+                        "",
+                        parent,
+                        inputNodes,
+                        this.mapIdentifiers.slice(0)
+                    );
+                    this.intermediateNodes.push(linkConnectorNode);
+                }
+            }
+
+            this.outputNode.setPosition(OFFSETS.TARGET_NODE.X, 0);
+
+            // TODO: Create input node
+        } else {
+            const initializer = node.getInitializer();
+            if (initializer && !this.isObjectOrArrayLiteralExpression(initializer)) {
+                const propAccessNodes = getPropertyAccessNodes(initializer);
+                if (canConnectWithLinkConnector(propAccessNodes, initializer)) {
+                    const linkConnectorNode = this.createLinkConnectorNode(
+                        node, node.getName(), parent, propAccessNodes, this.mapIdentifiers.slice(0)
+                    );
+                    this.intermediateNodes.push(linkConnectorNode);
+                }
             }
         }
     }
@@ -88,7 +144,12 @@ export class NodeInitVisitor implements Visitor {
     }
 
     beginVisitCallExpression(node: CallExpression, parent: Node): void {
-        if (isMapFunction(node)) {
+        const { focusedST } = this.context;
+        const isParentFocusedST = parent
+            && Node.isPropertyAssignment(parent)
+            && isPositionsEquals(getPosition(parent), getPosition(focusedST));
+        
+        if (!isParentFocusedST && isMapFunction(node)) {
             const arrayFnConnectorNode = new ArrayFnConnectorNode(this.context, node, parent);
             this.intermediateNodes.push(arrayFnConnectorNode);
         }
@@ -113,7 +174,7 @@ export class NodeInitVisitor implements Visitor {
     }
 
     getNodes() {
-        const nodes = [this.inputNode, this.outputNode];
+        const nodes = [this.inputNode ? this.inputNode : this.outputNode, this.outputNode];
         nodes.push(...this.intermediateNodes);
         return nodes;
     }
@@ -147,9 +208,9 @@ export class NodeInitVisitor implements Visitor {
         
                 // Create output node based on return type
                 if (returnType.isInterface()) {
-                    return new ObjectOutputNode(this.context, returnStatement);
+                    return new ObjectOutputNode(this.context, returnStatement, outputType);
                 } else if (returnType.isArray()) {
-                    return new ArrayOutputNode(this.context, returnStatement);
+                    return new ArrayOutputNode(this.context, returnStatement, outputType);
                 }
             }
         }

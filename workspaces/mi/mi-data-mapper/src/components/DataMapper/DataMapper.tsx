@@ -18,11 +18,12 @@ import { DataMapperHeader } from "./Header/DataMapperHeader";
 import { DataMapperNodeModel } from "../Diagram/Node/commons/DataMapperNode";
 import { NodeInitVisitor } from "../Visitors/NodeInitVisitor";
 import { traversNode } from "../Diagram/utils/st-utils";
-import { DMType, Range, updateDMCFileContent } from "@wso2-enterprise/mi-core";
-import { FunctionDeclaration } from "ts-morph";
+import { DMType, Range } from "@wso2-enterprise/mi-core";
+import { FunctionDeclaration, PropertyAssignment } from "ts-morph";
 import { ImportDataForm } from "./SidePanel/ImportDataForm";
-import { useDMSidePanelStore } from "../../store/store";
+import { useDMSearchStore, useDMSidePanelStore } from "../../store/store";
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
+import { FocusedSTFindingVisitor } from "../Visitors/FocusedSTFindingVisitor";
 
 const classes = {
     root: css({
@@ -30,6 +31,12 @@ const classes = {
         height: "100vh",
         overflow: "hidden",
     })
+}
+
+export interface View {
+    fieldFQN: string;
+    label: string;
+    index?: number;
 }
 
 export interface MIDataMapperProps {
@@ -54,21 +61,42 @@ export function MIDataMapper(props: MIDataMapperProps) {
         configName,
         filePath
     } = props;
+    const [views, setViews] = useState<View[]>([{
+        fieldFQN: "",
+        label: fnST.getName(),
+    }]);
     const [nodes, setNodes] = useState<DataMapperNodeModel[]>([]);
+
     const isSidePanelOpen = useDMSidePanelStore(state => state.sidePanelOpen);
     const setSidePanelOpen = useDMSidePanelStore(state => state.setSidePanelOpen);
     const sidePanelIOType = useDMSidePanelStore(state => state.sidePanelIOType);
     const isSchemaOverridden = useDMSidePanelStore(state => state.isSchemaOverridden);
+
     const { rpcClient } = useVisualizerContext();
+    const { resetSearchStore } = useDMSearchStore();
+
+    const addView = (view: View) => {
+        setViews(prev => [...prev, view]);
+        resetSearchStore();
+    }
 
     useEffect(() => {
         async function generateNodes() {
+            let focusedST: FunctionDeclaration | PropertyAssignment = fnST;
+    
+            if (views.length > 1) {
+                const focusedView = views[views.length - 1];
+                const focusedSTFindingVisitor = new FocusedSTFindingVisitor(focusedView.fieldFQN);
+                traversNode(fnST, focusedSTFindingVisitor);
+                focusedST = focusedSTFindingVisitor.getResolvedNode();
+            }
+
             const context = new DataMapperContext(
-                fnST, inputTrees, outputTree, goToSource, applyModifications
+                fnST, focusedST, inputTrees, outputTree, views, addView, goToSource, applyModifications
             );
 
             const nodeInitVisitor = new NodeInitVisitor(context);
-            traversNode(fnST, nodeInitVisitor);
+            traversNode(focusedST, nodeInitVisitor);
             setNodes(nodeInitVisitor.getNodes());
         }
         generateNodes();
@@ -76,7 +104,7 @@ export function MIDataMapper(props: MIDataMapperProps) {
             dmName: configName,
             sourcePath: filePath
         });
-    }, [fileContent]);
+    }, [fileContent, views]);
 
     return (
         <div className={classes.root}>

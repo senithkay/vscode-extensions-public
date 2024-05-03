@@ -28,7 +28,8 @@ export function ArrayFnConnectorNodeWidget(props: ArrayFnConnectorNodeWidgetWidg
     const classes = useIntermediateNodeStyles();
 
     const onClickOnExpand = () => {
-        // TODO: Implement this
+        const fieldFQN = node.targetPort.fieldFQN;
+        node.context.addView({ fieldFQN, label: fieldFQN });
     }
 
     const deleteLink = async () => {

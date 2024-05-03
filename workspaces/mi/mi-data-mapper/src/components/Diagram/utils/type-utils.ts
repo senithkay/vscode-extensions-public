@@ -17,8 +17,9 @@ export function enrichAndProcessType(typeToBeProcessed: DMType, node: Node): [DM
     return [valueEnrichedType, type];
 }
 
-export function getDMType(propertyAccessExpr: string, parentType: DMType): DMType {
-    let properties = propertyAccessExpr.split('.').splice(1);
+export function getDMType(propertiesExpr: string, parentType: DMType, isPropeAccessExpr?: boolean): DMType {
+    const propertyList = propertiesExpr.split('.');
+    let properties = isPropeAccessExpr ? propertyList.splice(1) : propertyList;
     let currentType = parentType;
 
     for (let property of properties) {
