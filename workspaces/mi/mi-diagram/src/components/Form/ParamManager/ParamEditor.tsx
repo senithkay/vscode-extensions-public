@@ -43,6 +43,7 @@ const EditorContent = styled.div`
 const DrawerContent = styled.div`
     overflow-y: auto;
     padding: 16px;
+    width: 390px;
 `;
 
 export function ParamEditor(props: ParamProps) {

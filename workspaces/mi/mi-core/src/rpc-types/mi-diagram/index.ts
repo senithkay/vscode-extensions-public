@@ -148,6 +148,7 @@ import {
     GetConnectionFormRequest,
     GetConnectionFormResponse,
     DeleteArtifactRequest,
+    ExportProjectRequest,
 } from "./types";
 
 export interface MiDiagramAPI {
@@ -242,4 +243,6 @@ export interface MiDiagramAPI {
     getAllArtifacts: (params: GetAllArtifactsRequest) => Promise<GetAllArtifactsResponse>;
     deleteArtifact: (params: DeleteArtifactRequest) => Promise<void>;
     refreshAccessToken: () => Promise<void>;
+    buildProject: () => Promise<void>;
+    exportProject: (params: ExportProjectRequest) => Promise<void>;
 }

@@ -180,7 +180,7 @@ function generateTreeDataOfDataMappings(project: vscode.WorkspaceFolder, data: P
 				dataMapperEntry.command = {
 					"title": "Open Data Mapper",
 					"command": COMMANDS.SHOW_DATA_MAPPER,
-					"arguments": [vscode.Uri.parse(file.path)]
+					"arguments": [file.path]
 				};
 				parentEntry.children.push(dataMapperEntry);
 			}

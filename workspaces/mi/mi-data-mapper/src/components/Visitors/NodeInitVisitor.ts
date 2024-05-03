@@ -12,7 +12,7 @@ import { ObjectOutputNode, InputNode, LinkConnectorNode, ArrayOutputNode } from 
 import { DataMapperNodeModel } from "../Diagram/Node/commons/DataMapperNode";
 import { DataMapperContext } from "../../utils/DataMapperContext/DataMapperContext";
 import { InputDataImportNodeModel, OutputDataImportNodeModel } from "../Diagram/Node/DataImport/DataImportNode";
-import { canConnectWithLinkConnector, getPropertyAccessNodes, isConditionalExpression } from "../Diagram/utils/common-utils";
+import { canConnectWithLinkConnector, getPropertyAccessNodes, getTypeName, isConditionalExpression } from "../Diagram/utils/common-utils";
 import { DMType, TypeKind } from "@wso2-enterprise/mi-core";
 
 export class NodeInitVisitor implements Visitor {
@@ -95,7 +95,7 @@ export class NodeInitVisitor implements Visitor {
     private createInputNode(node: FunctionDeclaration): InputNode | InputDataImportNodeModel {
         const param = node.getParameters()[0];
         const inputType = param && this.context.inputTrees.find(inputTree =>
-            inputTree.typeName === param.getType().getText());
+            getTypeName(inputTree) === param.getType().getText());
     
         if (inputType && this.hasFields(inputType)) {
             // Create input node

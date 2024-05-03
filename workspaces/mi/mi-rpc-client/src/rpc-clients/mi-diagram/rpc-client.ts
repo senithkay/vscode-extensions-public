@@ -56,6 +56,7 @@ import {
     ESBConfigsResponse,
     EndpointDirectoryResponse,
     EndpointsAndSequencesResponse,
+    ExportProjectRequest,
     FileDirResponse,
     GetAllArtifactsRequest,
     GetAllArtifactsResponse,
@@ -154,6 +155,7 @@ import {
     askProjectDirPath,
     askProjectImportDirPath,
     browseFile,
+    buildProject,
     closeWebView,
     closeWebViewNotification,
     createAPI,
@@ -174,6 +176,7 @@ import {
     deleteArtifact,
     downloadConnector,
     executeCommand,
+    exportProject,
     getAIResponse,
     getAPIDirectory,
     getAddressEndpoint,
@@ -615,5 +618,13 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     refreshAccessToken(): Promise<void> {
         return this._messenger.sendRequest(refreshAccessToken, HOST_EXTENSION);
+    }
+    
+    async buildProject(): Promise<void> {
+        return this._messenger.sendRequest(buildProject, HOST_EXTENSION);
+    }
+
+    exportProject(params: ExportProjectRequest): Promise<void> {
+        return this._messenger.sendRequest(exportProject, HOST_EXTENSION, params);
     }
 }

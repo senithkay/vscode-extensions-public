@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 // tslint:disable: jsx-no-multiline-js
-import * as React from 'react';
+import React, { useState } from "react";
 
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { ProgressRing } from '@wso2-enterprise/ui-toolkit';
@@ -36,9 +36,11 @@ export function LinkConnectorNodeWidget(props: LinkConnectorNodeWidgetProps) {
     const { goToSource } = node.context;
     const classes = useIntermediateNodeStyles();
     const diagnostic = node.hasError() ? node.diagnostics[0] : null;
-    const hasCallExprs = hasCallExpressions(node.valueNode);
+    const isValueNodeForgotten = node.valueNode.wasForgotten();
+    const hasCallExprs = !isValueNodeForgotten && hasCallExpressions(node.valueNode);
+    const value = !isValueNodeForgotten && node.valueNode.getText();
 
-    const [deleteInProgress, setDeleteInProgress] = React.useState(false);
+    const [deleteInProgress, setDeleteInProgress] = useState(false);
 
     const onClickEdit = () => {
         let nodeToBeEdited = node.valueNode;
@@ -51,11 +53,12 @@ export function LinkConnectorNodeWidget(props: LinkConnectorNodeWidgetProps) {
         goToSource(range);
     };
 
-    const onClickDelete = () => {
+    const onClickDelete = async () => {
         setDeleteInProgress(true);
         if (node.deleteLink) {
-            node.deleteLink();
+            await node.deleteLink();
         }
+        setDeleteInProgress(false);
     };
 
     const loadingScreen = (
@@ -71,14 +74,14 @@ export function LinkConnectorNodeWidget(props: LinkConnectorNodeWidgetProps) {
                     {hasCallExprs ? renderFunctionCallTooltip() :  renderMultiInputExprTooltip()}
                     {renderEditButton(onClickEdit, node?.value)}
                     {deleteInProgress ? (
-                        {loadingScreen}
+                        loadingScreen
                     ) : (
                         <>{renderDeleteButton(onClickDelete, node?.value)}</>
                     )}
                     {diagnostic && (
                         <DiagnosticWidget
                             diagnostic={diagnostic}
-                            value={node.valueNode.getText()}
+                            value={value}
                             onClick={onClickEdit}
                             btnSx={{ margin: "0 2px" }}
                         />
