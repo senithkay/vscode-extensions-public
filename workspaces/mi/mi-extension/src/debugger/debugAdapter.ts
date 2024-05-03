@@ -52,7 +52,7 @@ export class MiDebugAdapter extends LoggingDebugSession {
             this.sendEvent(new StoppedEvent('breakpoint', MiDebugAdapter.threadID));
 
             // Check the diagram visibility
-            if (wasDiagramOpen && diagramViews.indexOf(stateContext.view!) !== -1 ) {
+            if (wasDiagramOpen && diagramViews.indexOf(stateContext.view!) !== -1) {
                 setTimeout(() => {
                     const webviewPresent = VisualizerWebview.currentPanel !== undefined; // Check if the webview panel is not disposed.
                     if (wasOnlyTheDiagram && !webviewPresent) {
