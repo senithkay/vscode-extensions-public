@@ -14,11 +14,16 @@ import { SidePanel } from "../SidePanel/SidePanel";
 import { SidePanelTitleContainer } from "../../styles";
 import { Codicon } from "../Codicon/Codicon";
 import { Breadcrumbs } from "../Breadcrumb/Breadcrumb";
+import styled from "@emotion/styled";
 
 export default {
     title: 'Components/Drawer',
     component: Drawer
 } as Meta;
+
+const DrawerContainer = styled.div`
+    width: 300px;
+`;
 
 const drawersTitles = ["Drawer1", "Drawer2", "Drawer3"];
 
@@ -72,30 +77,32 @@ const DrawerDefault = () => {
                     isSelected={true}
                     sx={{ width: 300 }}
                 >
-                    Drawer1 Content
-                    <Button onClick={() => openDrawer(1)}>Add</Button>
-                    <Button onClick={() => closeDrawer(0)}>Close</Button>
+                    <DrawerContainer>
+                        Drawer1 Content
+                        <Button onClick={() => openDrawer(1)}>Add</Button>
+                        <Button onClick={() => closeDrawer(0)}>Close</Button>
+                    </DrawerContainer>
                 </Drawer>
                 <Drawer
                     isOpen={openedIndex === 1}
                     id="drawer2"
-                    width={300}
                     isSelected={true}
-                    sx={{ width: 300 }}
                 >
-                    Drawer2 Content
-                    <Button onClick={() => openDrawer(2)}>Add</Button>
-                    <Button onClick={() => closeDrawer(1)}>Close</Button>
+                    <DrawerContainer>
+                        Drawer2 Content
+                        <Button onClick={() => openDrawer(2)}>Add</Button>
+                        <Button onClick={() => closeDrawer(1)}>Close</Button>
+                    </DrawerContainer>
                 </Drawer>
                 <Drawer
                     isOpen={openedIndex === 2}
                     id="drawer3"
-                    width={300}
                     isSelected={true}
-                    sx={{ width: 300 }}
                 >
-                    Drawer3 Content
-                    <Button onClick={() => closeDrawer(2)}>Close</Button>
+                    <DrawerContainer>
+                        Drawer3 Content
+                        <Button onClick={() => closeDrawer(2)}>Close</Button>
+                    </DrawerContainer>
                 </Drawer>
                 <Button onClick={() => openDrawer(0)}>Add</Button>
             </SidePanel>
