@@ -195,7 +195,7 @@
       },
       {
         "command": "MI.project-explorer.open-service-designer-beside",
-        "title": "Open Service Designer",
+        "title": "Open Graphical View",
         "icon": "$(distro-design-view)"
       },
       {
@@ -356,7 +356,7 @@
         },
         {
           "command": "MI.project-explorer.open-service-designer-beside",
-          "when": "MI.status == 'projectLoaded' && (isVisualizerActive || resourceLangId == SynapseXml)",
+          "when": "MI.status == 'projectLoaded' && resourceLangId == SynapseXml",
           "group": "navigation@3"
         },
         {
