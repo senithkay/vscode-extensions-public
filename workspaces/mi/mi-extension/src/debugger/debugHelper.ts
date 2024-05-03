@@ -129,30 +129,32 @@ export async function executeCopyTask(task: vscode.Task) {
     });
 }
 
-export async function executeBuildTask(task: vscode.Task, serverPath: string) {
+export async function executeBuildTask(task: vscode.Task, serverPath: string, shouldCopyTarget: boolean = true) {
     return new Promise<void>(async (resolve, reject) => {
         deleteCapp(serverPath).then(async () => {
             await vscode.tasks.executeTask(task);
-            let disposable = vscode.tasks.onDidEndTaskProcess(async e => {
-                if (e.exitCode === 0) {
-                    disposable.dispose();
-                    // Check if the target directory exists in the workspace
-                    const workspaceFolders = vscode.workspace.workspaceFolders;
-                    if (workspaceFolders && workspaceFolders.length > 0) {
-                        const targetDirectory = vscode.Uri.joinPath(workspaceFolders[0].uri, "target");
-                        if (fs.existsSync(targetDirectory.fsPath)) {
-                            const copyTask = getCopyTask(serverPath, targetDirectory);
-                            executeCopyTask(copyTask).then(() => {
-                                resolve();
-                            }).catch((error) => {
-                                reject(error);
-                            });
+            if (shouldCopyTarget) {
+                let disposable = vscode.tasks.onDidEndTaskProcess(async e => {
+                    if (e.exitCode === 0) {
+                        disposable.dispose();
+                        // Check if the target directory exists in the workspace
+                        const workspaceFolders = vscode.workspace.workspaceFolders;
+                        if (workspaceFolders && workspaceFolders.length > 0) {
+                            const targetDirectory = vscode.Uri.joinPath(workspaceFolders[0].uri, "target");
+                            if (fs.existsSync(targetDirectory.fsPath)) {
+                                const copyTask = getCopyTask(serverPath, targetDirectory);
+                                executeCopyTask(copyTask).then(() => {
+                                    resolve();
+                                }).catch((error) => {
+                                    reject(error);
+                                });
+                            }
                         }
+                    } else {
+                        reject(`Task '${task.name}' failed.`);
                     }
-                } else {
-                    reject(`Task '${task.name}' failed.`);
-                }
-            });
+                });
+            }
         }).catch((error) => {
             console.error(`Error deleting capp files: ${error}`);
             reject(error);

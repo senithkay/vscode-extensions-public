@@ -9,14 +9,15 @@
 
 import { Switch } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import Mustache from "mustache";
+import { transformNamespaces } from "../../../commons";
 
 export function getSwitchMustacheTemplate() {
 
   return `
     {{#isNewMediator}}
-    <switch {{#description}}description="{{description}}"{{/description}} {{#sourceXPath}}source="{{{sourceXPath}}}"{{/sourceXPath}} >
+    <switch {{#description}}description="{{description}}"{{/description}} {{#sourceXPath}}source="{{{value}}}"{{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}}{{/sourceXPath}} >
         {{#caseBranches}}
-        <case regex="{{caseRegex}}"></case>
+        <case regex="{{{caseRegex}}}"></case>
         {{/caseBranches}}
         <default></default>
     </switch>
@@ -24,10 +25,10 @@ export function getSwitchMustacheTemplate() {
     {{^isNewMediator}}
     {{#editSwitch}}
     {{#switchSelfClosed}}
-    <switch {{#description}}description="{{description}}"{{/description}} {{#sourceXPath}}source="{{{sourceXPath}}}"{{/sourceXPath}} />
+    <switch {{#description}}description="{{description}}"{{/description}} {{#sourceXPath}}source="{{{value}}}"{{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}}{{/sourceXPath}} />
     {{/switchSelfClosed}}
     {{^switchSelfClosed}}
-    <switch {{#description}}description="{{description}}"{{/description}} {{#sourceXPath}}source="{{{sourceXPath}}}"{{/sourceXPath}}>
+    <switch {{#description}}description="{{description}}"{{/description}} {{#sourceXPath}}source="{{{value}}}"{{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}}{{/sourceXPath}}>
     {{/switchSelfClosed}}
     {{/editSwitch}}
     {{#newCase}}
@@ -47,7 +48,6 @@ export function getSwitchMustacheTemplate() {
 
 export function getSwitchXml(data: { [key: string]: any }, dirtyFields?: any, defaultValues?: any) {
 
-  data.sourceXPath = data?.sourceXPath?.value;
   if (defaultValues === undefined || Object.keys(defaultValues).length == 0) {
     data.isNewMediator = true;
     if (data.caseBranches) {
@@ -104,7 +104,7 @@ function getEdits(data: { [key: string]: any }, dirtyFields: any, defaultValues:
 
 export function getSwitchFormDataFromSTNode(data: { [key: string]: any }, node: Switch) {
 
-  data.sourceXPath = { isExpression: true, value: node.source };
+  data.sourceXPath = { isExpression: true, value: node.source, namespaces: transformNamespaces(node.namespaces) };
   data.description = node.description;
   if (node._case) {
     data.caseBranches = node._case.map((_case) => {

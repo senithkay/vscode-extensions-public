@@ -50,6 +50,11 @@ export class VisualizerWebview {
             await document.document.save();
             refreshDiagram();
         }, extension.context);
+
+        this._panel.onDidChangeViewState(() => {
+            // Enable the Run and Build Project, Open AI Panel commands when the webview is active
+            vscode.commands.executeCommand('setContext', 'isVisualizerActive', this._panel?.active);
+        });
     }
 
     private static createWebview(view: MACHINE_VIEW, beside: boolean): vscode.WebviewPanel {

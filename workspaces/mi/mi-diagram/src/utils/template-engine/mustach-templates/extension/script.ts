@@ -3,7 +3,7 @@ import Mustache from "mustache";
 
 export function getScriptMustacheTemplate() {
     return `{{#hasScriptKey}}
-    <script {{#description}}description="{{description}}" {{/description}}{{#mediateFunction}}function="{{mediateFunction}}" {{/mediateFunction}}{{#scriptStaticKey}}key="{{scriptStaticKey}}" {{/scriptStaticKey}}{{#scriptDynamicKey}}key="{{scriptDynamicKey}}" {{/scriptDynamicKey}}{{#scriptLanguage}}language="{{scriptLanguage}}"{{/scriptLanguage}} >
+    <script {{#description}}description="{{description}}" {{/description}}{{#mediateFunction}}function="{{mediateFunction}}" {{/mediateFunction}}{{#scriptStaticKey}}key="{{scriptStaticKey}}" {{/scriptStaticKey}}{{#scriptDynamicKey}}key="{{{scriptDynamicKey}}}" {{/scriptDynamicKey}}{{#scriptLanguage}}language="{{scriptLanguage}}"{{/scriptLanguage}} >
         {{#scriptKeys}}
         <include {{#keyName}}key="{{keyName}}"{{/keyName}} />
         {{/scriptKeys}}

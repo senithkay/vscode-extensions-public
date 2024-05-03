@@ -86,6 +86,7 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
                     "No"
                 );
                 if (!response || response === "No") {
+                    resolve({success: false});
                     return;
                 }
             }
@@ -104,8 +105,7 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
                 } catch (error: any) {
                     console.error(error);
                     window.showErrorMessage("Error while generating schema. Please check the input file and Resource Type and try again.");
-                    resolve({success: false});
-                    return;
+                    return resolve({success: false});
                 }
                 
                 if (workspaceFolder) {
@@ -117,11 +117,11 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
                 try {
                     await updateDMC(configName, sourcePath);
                     navigate();
-                    resolve({success: true});
+                    return resolve({success: true});
                 } catch (error: any) {
                     console.error(error);
                     window.showErrorMessage("Error while updating DMC file.");
-                    resolve({success: false});
+                    return resolve({success: false});
                 }
             };
             resolve({success: false});
@@ -147,6 +147,7 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
                     }
                 }
                 resolve({dmConfigs});
+                return;
             }
             reject({dmConfigs: []});
         });

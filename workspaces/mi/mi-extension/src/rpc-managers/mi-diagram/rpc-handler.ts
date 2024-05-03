@@ -31,6 +31,7 @@ import {
     DataSourceTemplate,
     DeleteArtifactRequest,
     DownloadConnectorRequest,
+    ExportProjectRequest,
     GetAllArtifactsRequest,
     GetAllRegistryPathsRequest,
     GetAvailableConnectorRequest,
@@ -81,6 +82,7 @@ import {
     askProjectDirPath,
     askProjectImportDirPath,
     browseFile,
+    buildProject,
     closeWebView,
     closeWebViewNotification,
     createAPI,
@@ -101,6 +103,7 @@ import {
     deleteArtifact,
     downloadConnector,
     executeCommand,
+    exportProject,
     getAIResponse,
     getAPIDirectory,
     getAddressEndpoint,
@@ -263,4 +266,6 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getAllRegistryPaths, (args: GetAllRegistryPathsRequest) => rpcManger.getAllRegistryPaths(args));
     messenger.onRequest(getAllArtifacts, (args: GetAllArtifactsRequest) => rpcManger.getAllArtifacts(args));
     messenger.onRequest(deleteArtifact, (args: DeleteArtifactRequest) => rpcManger.deleteArtifact(args));
+    messenger.onRequest(buildProject, () => rpcManger.buildProject());
+    messenger.onRequest(exportProject, (args: ExportProjectRequest) => rpcManger.exportProject(args));
 }

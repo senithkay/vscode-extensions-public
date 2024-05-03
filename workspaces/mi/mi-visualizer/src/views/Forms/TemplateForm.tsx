@@ -21,6 +21,7 @@ import { ParamConfig, ParamManager } from "@wso2-enterprise/mi-diagram";
 export interface TemplateWizardProps {
     path: string;
     type: string;
+    onCancel?: () => void;
 }
 
 type InputsFields = {
@@ -257,6 +258,9 @@ export function TemplateWizard(props: TemplateWizardProps) {
     };
 
     const handleCancel = () => {
+        if (props.onCancel) {
+            return props.onCancel();
+        }
         rpcClient.getMiVisualizerRpcClient().openView({
             type: EVENT_TYPE.OPEN_VIEW,
             location: {view: MACHINE_VIEW.Overview}
