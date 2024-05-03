@@ -312,7 +312,7 @@
       {
         "command": "MI.build-and-run",
         "title": "Build and Run",
-        "icon": "$(debug-start)",
+        "icon": "$(play)",
         "category": "MI"
       }
     ],
@@ -339,12 +339,14 @@
           "group": "navigation"
         }
       ],
-      "editor/title": [
+      "editor/title/run": [
         {
           "command": "MI.build-and-run",
           "group": "navigation@1",
           "title": "Build and Run Project"
-        },
+        }
+      ],
+      "editor/title": [
         {
           "command": "MI.openAiPanel",
           "group": "navigation@1",

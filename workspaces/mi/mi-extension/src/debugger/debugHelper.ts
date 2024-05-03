@@ -185,6 +185,8 @@ export async function executeTasks(serverPath: string, isDebug: boolean): Promis
                             reject(`Server command port isn't actively listening. Stop any running MI servers and restart the debugger.`);
                         }
                     });
+                } else {
+                    resolve();
                 }
             } else {
                 // Server could be running in the background without debug mode, but we need to rerun to support this mode

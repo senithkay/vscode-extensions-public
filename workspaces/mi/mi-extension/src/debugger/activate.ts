@@ -33,15 +33,6 @@ class MiConfigurationProvider implements vscode.DebugConfigurationProvider {
 }
 
 export function activateDebugger(context: vscode.ExtensionContext) {
-    vscode.commands.registerCommand(COMMANDS.BUILD_AND_RUN_PROJECT, async () => {
-        getServerPath().then(async (serverPath) => {
-            if (!serverPath) {
-                vscode.window.showErrorMessage("Server path not found");
-                return;
-            }
-            await executeTasks(serverPath, false);
-        });
-    });
 
     vscode.commands.registerCommand(COMMANDS.BUILD_PROJECT, async () => {
         getServerPath().then(async (serverPath) => {
@@ -93,6 +84,17 @@ export function activateDebugger(context: vscode.ExtensionContext) {
             }
         }
     });
+
+    context.subscriptions.push(vscode.commands.registerCommand(COMMANDS.BUILD_AND_RUN_PROJECT, async () => {
+        vscode.debug.startDebugging(undefined, {
+            type: 'mi',
+            name: 'MI: Run',
+            request: 'launch',
+        },
+            { noDebug: true }
+        );
+    }));
+
 
     // register a configuration provider for 'mi' debug type
     const provider = new MiConfigurationProvider();
