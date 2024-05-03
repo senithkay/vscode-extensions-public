@@ -352,7 +352,7 @@ export function AIProjectGenerationChat() {
     }
 
     async function handleSend(isQuestion: boolean = false, isInitialPrompt: boolean = false) {
-        if(userInput === "" && !isQuestion) {
+        if(userInput === "" && !isQuestion && !isInitialPrompt) {
             return;
         }
         console.log(chatArray);
@@ -427,16 +427,13 @@ export function AIProjectGenerationChat() {
                 const newMessages = [...prevMessages];
                 const statusText = getStatusText(response.status);
                 let error = `Failed to fetch response. Status: ${statusText}`;
+                console.log("Response status: ", response.status);
                 if (response.status == 429) {
-                    let retry_after = response.headers.get('Retry-After');
-                    // Convert to days, hours, minutes
-                    let seconds = parseInt(retry_after);
-                    let days = Math.floor(seconds / (3600 * 24));
-                    seconds -= days * 3600 * 24;
-                    let hours = Math.floor(seconds / 3600);
-                    seconds -= hours * 3600;
-                    let minutes = Math.floor(seconds / 60);
-                    error += ` Free quota resets in ${days} days, ${hours} hours, ${minutes} minutes`;
+                    response.json().then(body => {
+                        console.log(body.detail);
+                        error += body.detail;
+                        console.log("Error: ", error);
+                    });
                 }
                 newMessages[newMessages.length - 1].content += error;
                 newMessages[newMessages.length - 1].type = 'Error';
