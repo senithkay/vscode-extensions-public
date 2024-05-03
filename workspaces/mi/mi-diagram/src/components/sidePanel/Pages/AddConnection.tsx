@@ -83,7 +83,7 @@ const AddConnection = (props: AddConnectionProps) => {
     }, [connectionType]);
 
     useEffect(() => {
-        if (sidePanelContext.formValues && Object.keys(sidePanelContext.formValues).length > 0) {
+        if (sidePanelContext.formValues && Object.keys(sidePanelContext.formValues).length > 0 && sidePanelContext.formValues?.parameters) {
             const parametersValues = sidePanelContext.formValues.parameters.map((param: any) => ({
                 [param.name]: param.value
             }));

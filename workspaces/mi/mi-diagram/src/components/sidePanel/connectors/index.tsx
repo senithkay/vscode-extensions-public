@@ -15,6 +15,7 @@ import { VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import AddConnector from "../Pages/AddConnector";
 import { ConnectorStatus } from "@wso2-enterprise/mi-core";
+import { Mediators } from "../mediators/List";
 
 const LoaderWrapper = styled.div`
     display: flex;
@@ -86,6 +87,7 @@ export interface ConnectorPageProps {
     setContent: any;
     searchValue?: string;
     clearSearch?: () => void;
+    nodePosition: any;
 }
 
 export function ConnectorPage(props: ConnectorPageProps) {
@@ -326,10 +328,14 @@ export function ConnectorPage(props: ConnectorPageProps) {
             localConnector.name.toLowerCase() === connector.name.toLowerCase().replace(/\s/g, '') && localConnector.version === connector.version);
     }
 
-
     const ConnectorList = () => {
         let displayedStoreConnectors = sidePanelContext.connectors;
         let displayeLocalConnectors = localConnectors;
+
+        if (sidePanelContext.isEditing) {
+            const mediatorForm = <Mediators nodePosition={props.nodePosition} documentUri={props.documentUri} setContent={props.setContent} searchValue={props.searchValue} />
+            return mediatorForm;
+        }
 
         if (displayedStoreConnectors) {
             displayedStoreConnectors = displayedStoreConnectors.filter(connector => !existsInLocalConnectors(connector));
