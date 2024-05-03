@@ -38,6 +38,7 @@ import { getPosition, isPositionsEquals } from "../Diagram/utils/st-utils";
 import { getDMType } from "../Diagram/utils/type-utils";
 import { UnsupportedExprNodeKind, UnsupportedIONode } from "../Diagram/Node/UnsupportedIO";
 import { OFFSETS } from "../Diagram/utils/constants";
+import { FocusedInputNode } from "../Diagram/Node/FocusedInput";
 
 export class NodeInitVisitor implements Visitor {
     private inputNode: DataMapperNodeModel | InputDataImportNodeModel;
@@ -62,11 +63,11 @@ export class NodeInitVisitor implements Visitor {
         const isFocusedST = isPositionsEquals(getPosition(node), getPosition(focusedST));
 
         if (isFocusedST) {
-            const fromClause = node.getInitializer();
+            const callExpr = node.getInitializer() as CallExpression;
 
             // create output node
             const exprType = getDMType(fieldFQN, this.context.outputTree);
-            const returnStatement = getReturnStatement(node.getInitializer() as CallExpression);
+            const returnStatement = getReturnStatement(callExpr);
 
             const innerExpr = returnStatement.getExpression();
 
@@ -105,7 +106,14 @@ export class NodeInitVisitor implements Visitor {
 
             this.outputNode.setPosition(OFFSETS.TARGET_NODE.X, 0);
 
-            // TODO: Create input node
+           // Create input node
+           const propAccessExpr = (callExpr.getExpression() as PropertyAccessExpression).getExpression();
+           const inputType = getDMType(propAccessExpr.getText(), this.context.inputTrees[0], true);
+
+           const focusedInputNode = new FocusedInputNode(this.context, callExpr, inputType);
+
+           focusedInputNode.setPosition(OFFSETS.SOURCE_NODE.X, 0);
+           this.inputNode = focusedInputNode;
         } else {
             const initializer = node.getInitializer();
             if (initializer && !this.isObjectOrArrayLiteralExpression(initializer)) {

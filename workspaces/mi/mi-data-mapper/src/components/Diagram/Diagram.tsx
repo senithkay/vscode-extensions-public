@@ -42,6 +42,8 @@ import { RightAngleLinkFactory } from './Link/RightAngleLink/RightAngleLinkFacto
 import * as Nodes from "./Node";
 import { DataImportNodeFactory } from './Node/DataImport/DataImportNodeFactory';
 import { ArrayFnConnectorNode, ArrayFnConnectorNodeFactory } from './Node/ArrayFnConnector';
+import { FocusedInputNodeFactory } from './Node/FocusedInput';
+import { UnsupportedIONodeFactory } from './Node/UnsupportedIO';
 
 interface DataMapperDiagramProps {
 	nodes?: DataMapperNodeModel[];
@@ -71,11 +73,13 @@ function initDiagramEngine() {
 	engine.getLayerFactories().registerFactory(new OverlayLayerFactory());
 
 	engine.getNodeFactories().registerFactory(new Nodes.InputNodeFactory());
+	engine.getNodeFactories().registerFactory(new FocusedInputNodeFactory());
 	engine.getNodeFactories().registerFactory(new Nodes.ArrayOutputNodeFactory());
 	engine.getNodeFactories().registerFactory(new Nodes.ObjectOutputNodeFactory());
 	engine.getNodeFactories().registerFactory(new LinkConnectorNodeFactory());
 	engine.getNodeFactories().registerFactory(new ArrayFnConnectorNodeFactory());
-	engine.getNodeFactories().registerFactory(new DataImportNodeFactory);
+	engine.getNodeFactories().registerFactory(new DataImportNodeFactory());
+	engine.getNodeFactories().registerFactory(new UnsupportedIONodeFactory());
 
 	engine.getPortFactories().registerFactory(new InputOutputPortFactory());
 	engine.getPortFactories().registerFactory(new IntermediatePortFactory());

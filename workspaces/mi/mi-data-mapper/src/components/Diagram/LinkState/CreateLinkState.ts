@@ -15,6 +15,7 @@ import { ExpressionLabelModel } from "../Label";
 import { ObjectOutputNode, InputNode, LinkConnectorNode, ArrayOutputNode } from '../Node';
 import { InputOutputPortModel } from '../Port/model/InputOutputPortModel';
 import { IntermediatePortModel } from '../Port/IntermediatePort';
+import { FocusedInputNode } from '../Node/FocusedInput';
 
 /**
  * This state is controlling the creation of a link.
@@ -44,7 +45,7 @@ export class CreateLinkState extends State<DiagramEngine> {
 							}
 						}
 
-						if (element instanceof InputNode) {
+						if (element instanceof InputNode || element instanceof FocusedInputNode) {
 							const recordFieldElement = (event.target as Element).closest('div[id^="recordfield"]')
 							if (recordFieldElement) {
 								const fieldId = (recordFieldElement.id.split("-"))[1] + ".OUT";
