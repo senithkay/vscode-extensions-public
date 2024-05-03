@@ -322,8 +322,6 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         <resource methods="GET" uri-template="/resource">
             <inSequence>
             </inSequence>
-            <outSequence>
-            </outSequence>
             <faultSequence>
             </faultSequence>
         </resource>
