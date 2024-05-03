@@ -17,7 +17,8 @@ import {
     ParameterDeclaration,
     PropertyAccessExpression,
     PropertyAssignment,
-    Expression
+    Expression,
+    CallExpression
 } from "ts-morph";
 
 import { PropertyAccessNodeFindingVisitor } from "../../Visitors/PropertyAccessNodeFindingVisitor";
@@ -403,6 +404,16 @@ export function isNodeCallExpression(node: Node): boolean {
     if (parentNode) {
         return isNodeCallExpression(parentNode);
     }
+    return false;
+}
+
+export function isMapFunction(callExpr: CallExpression): boolean {
+    const expr = callExpr.getExpression();
+
+    if (Node.isPropertyAccessExpression(expr)) {
+        return expr.getName() === "map";
+    }
+
     return false;
 }
 
