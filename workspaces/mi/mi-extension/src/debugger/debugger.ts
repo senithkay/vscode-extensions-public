@@ -228,6 +228,36 @@ export class Debugger extends EventEmitter {
         return this.currentDebugpoint;
     }
 
+    public async setBreakpointsInServer(): Promise<void> {
+        return new Promise(async (resolve, reject) => {
+            // TODO: 1. check the delay of CApp undeployed 2. Why the server doesnt update the breakpoints even after successful breakpoint requests
+            checkServerReadiness().then(() => {
+                this.sendResumeCommand().then(async () => {
+                    setTimeout(async () => {
+                        const runtimeBreakpoints = this.getRuntimeBreakpoints(this.getCurrentFilePath());
+                        if (runtimeBreakpoints.length > 0) {
+                            const runtimeBreakpointInfo = await this.getBreakpointInformation(runtimeBreakpoints);
+
+                            for (const info of runtimeBreakpointInfo) {
+                                await this.sendClearBreakpointCommand(info);
+                                await this.sendSetBreakpointCommand(info);
+                            }
+                        }
+                    }, 3000);
+                    resolve();
+                }).catch((error) => {
+                    console.error('Error while resuming the debugger:', error);
+                    reject(`Error while resuming the debugger server: ${error}`);
+                });
+
+            }).catch((error) => {
+                console.error('Error while checking server readiness:', error);
+                reject(error);
+            });
+        });
+
+    }
+
     public async initializeDebugger(): Promise<void> {
         return new Promise(async (resolve, reject) => {
             this.startDebugger().then(() => {
