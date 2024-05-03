@@ -287,6 +287,7 @@ const AddConnector = (props: AddConnectorProps) => {
                                 setFormValues({ ...formValues, [element.name]: e });
                                 formValidators[element.name](e);
                             }}
+                            allowItemCreate={true}
                             required={element.required === 'true'} />
                     </>
                 );
