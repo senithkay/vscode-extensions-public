@@ -175,7 +175,7 @@ const MainPanel = () => {
                     setViewComponent(
                         <SequenceTemplateView
                             key={getUniqueKey(machineView.stNode, machineView.documentUri)}
-                            model={(machineView.stNode as any).template as Template}
+                            model={machineView.stNode as Template}
                             documentUri={machineView.documentUri}
                             diagnostics={machineView.diagnostics}
                         />

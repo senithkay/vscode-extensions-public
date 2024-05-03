@@ -157,31 +157,40 @@ export function ConnectorNodeWidget(props: ConnectorNodeWidgetProps) {
         setIsPopoverOpen(false);
     }
 
-    const handleOnClick = async () => {
+    const handleOnClick = async (e: any) => {
+        e.stopPropagation();
         const nodeRange = { start: node.stNode.range.startTagRange.start, end: node.stNode.range.endTagRange.end || node.stNode.range.startTagRange.end };
-        const connectorData = await rpcClient.getMiDiagramRpcClient().getAvailableConnectors({
-            documentUri: node.documentUri,
-            connectorName: node.stNode.tag.split(".")[0]
-        });
+        if (e.ctrlKey || e.metaKey) {
+            // open code and highlight the selected node
+            rpcClient.getMiDiagramRpcClient().highlightCode({
+                range: nodeRange,
+                force: true,
+            });
+        } else if (node.isSelected()) {
+            const connectorData = await rpcClient.getMiDiagramRpcClient().getAvailableConnectors({
+                documentUri: node.documentUri,
+                connectorName: node.stNode.tag.split(".")[0]
+            });
 
-        const formJSON = await rpcClient.getMiDiagramRpcClient().getConnectorForm({ uiSchemaPath: connectorData.uiSchemaPath, operation: node.stNode.tag.split(".")[1] });
- 
-        sidePanelContext.setSidePanelState({
-            isOpen: true,
-            operationName: "connector",
-            nodeRange: nodeRange,
-            isEditing: true,
-            formValues: {
-                form: formJSON.formJSON,
-                title: `${connectorData.name} - ${node.stNode.tag.split(".")[1]}`,
-                uiSchemaPath: connectorData.uiSchemaPath,
-                parameters: (node.stNode as Connector).parameters ?? [],
-                connectorName: connectorData.name,
-                operationName: node.stNode.tag.split(".")[1]
-            },
-            iconPath: iconPath,
-            parentNode: node.mediatorName
-        });
+            const formJSON = await rpcClient.getMiDiagramRpcClient().getConnectorForm({ uiSchemaPath: connectorData.uiSchemaPath, operation: node.stNode.tag.split(".")[1] });
+    
+            sidePanelContext.setSidePanelState({
+                isOpen: true,
+                operationName: "connector",
+                nodeRange: nodeRange,
+                isEditing: true,
+                formValues: {
+                    form: formJSON.formJSON,
+                    title: `${connectorData.name} - ${node.stNode.tag.split(".")[1]}`,
+                    uiSchemaPath: connectorData.uiSchemaPath,
+                    parameters: (node.stNode as Connector).parameters ?? [],
+                    connectorName: connectorData.name,
+                    operationName: node.stNode.tag.split(".")[1]
+                },
+                iconPath: iconPath,
+                parentNode: node.mediatorName
+            });
+        }
     }
 
     return (
@@ -194,7 +203,7 @@ export function ConnectorNodeWidget(props: ConnectorNodeWidgetProps) {
                     isActiveBreakpoint={isActiveBreakpoint}
                     onMouseEnter={() => setIsHovered(true)}
                     onMouseLeave={() => setIsHovered(false)}
-                    onClick={(e) => handleOnClick()}
+                    onClick={(e) => handleOnClick(e)}
                 >
                     {hasBreakpoint && (
                         <div style={{ position: "absolute", left: -5, width: 15, height: 15, borderRadius: "50%", backgroundColor: "red" }}></div>

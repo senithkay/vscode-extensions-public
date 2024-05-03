@@ -290,15 +290,13 @@ export class NodeFactoryVisitor implements Visitor {
         if (canAddSubSequences && node.viewState?.subPositions?.[ADD_NEW_SEQUENCE_TAG]) {
             const plusNodeViewState = node.viewState.subPositions[ADD_NEW_SEQUENCE_TAG];
             const plusNode: STNode = {
+                ...node,
                 tag: ADD_NEW_SEQUENCE_TAG,
                 viewState: plusNodeViewState,
                 range: {
                     startTagRange: addNewSequenceRange,
                     endTagRange: addNewSequenceRange,
                 },
-                hasTextNode: false,
-                selfClosed: true,
-                textNode: ""
             };
 
             this.currentBranchData = { name: "", diagnostics: [] };

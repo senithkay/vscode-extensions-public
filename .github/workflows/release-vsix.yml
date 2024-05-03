@@ -104,6 +104,11 @@ jobs:
             file=$(ls api-chat*.vsix)
             fileName=${file#*-}
             version=$version+api-chat-${fileName%.*}  
+          fi  
+          if [[ "${{ github.event.inputs.mi }}" == "true" ]]; then
+            file=$(ls micro-integrator*.vsix)
+            fileName=${file#*-}
+            version=$version+micro-integrator-${fileName%.*}  
           fi
           echo $version
           echo "version=$version" >> $GITHUB_OUTPUT
@@ -141,7 +146,15 @@ jobs:
         with:
           repo: wso2/apk
           name: apk
-          
+ 
+      - name: Create a release in wso2/mi-vscode repo
+        if: ${{ github.event.inputs.mi == 'true' }}
+        uses: ./.github/actions/release
+        with:
+          repo: wso2/mi-vscode
+          token: ${{ secrets.PUBLISH_PAT }}
+          name: micro-integrator
+
       - name: Create PR and notify
         uses: ./.github/actions/pr
         with:

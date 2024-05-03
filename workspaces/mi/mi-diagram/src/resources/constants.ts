@@ -184,7 +184,7 @@ export const MEDIATORS = {
     JSONTRANSFORM: "JSONTransform",
     LOG: "Log",
     LOOPBACK: "Loopback",
-    PAYLOAD: "Payload",
+    PAYLOAD: "PayloadFactory",
     PROPERTY: "Property",
     PROPERTYGROUP: "PropertyGroup",
     RESPOND: "Respond",

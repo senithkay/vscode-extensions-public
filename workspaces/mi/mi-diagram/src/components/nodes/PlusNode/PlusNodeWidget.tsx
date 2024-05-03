@@ -74,7 +74,7 @@ export function PlusNodeWidget(props: CallNodeWidgetProps) {
     const handleOnClick = (e: React.MouseEvent) => {
         e.stopPropagation();
         visualizerContext.rpcClient.getMiDiagramRpcClient().applyEdit({
-            text: getNewSubSequenceXml(node.mediatorName),
+            text: getNewSubSequenceXml(node.mediatorName, stNode),
             documentUri: node.documentUri,
             range: { start: stNode.range.endTagRange.start, end: stNode.range.endTagRange.start }
         });

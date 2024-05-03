@@ -68,3 +68,5 @@ export const COMMANDS = {
 };
 
 export const DEFAULT_PROJECT_VERSION = "1.0.0";
+
+export const REFRESH_ENABLED_DOCUMENTS = ["SynapseXml", "typescript"];

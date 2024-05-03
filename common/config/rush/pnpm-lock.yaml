@@ -3253,7 +3253,6 @@ importers:
       fast-xml-parser: ~4.3.2
       fs-extra: ~11.2.0
       glob: ^10.3.3
-      js-yaml: 4.1.0
       json-schema: 0.4.0
       json-schema-to-ts: 3.0.1
       jsonix: ~3.0.0
@@ -3305,7 +3304,6 @@ importers:
       copyfiles: 2.4.1
       fast-xml-parser: 4.3.5
       fs-extra: 11.2.0
-      js-yaml: 4.1.0
       json-schema: 0.4.0
       json-schema-to-ts: 3.0.1
       jsonix: 3.0.0
