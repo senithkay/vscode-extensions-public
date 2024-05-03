@@ -9,12 +9,12 @@
 
 import React, { useEffect, useState } from "react";
 import { DiagramEngine, DiagramModel } from "@projectstorm/react-diagrams";
+import { CanvasWidget } from "@projectstorm/react-canvas-core";
 import CircularProgress from "@mui/material/CircularProgress";
 import { generateEngine, getDiagramDataFromOrg, animateOrgDiagram } from "../utils";
 import { DiagramControls, OverlayLayerModel, CellDiagramContext, ConnectionModel } from "../components";
 import { CONNECTION_NODE, Colors, PROJECT_NODE } from "../resources";
 import { Container, DiagramContainer, useStyles } from "../utils/CanvasStyles";
-import { NavigationWrapperCanvasWidget } from "@wso2-enterprise/ui-toolkit";
 import { CustomTooltips, DiagramLayer, MoreVertMenuItem, Organization } from "../types";
 import { DagreEngine } from "../resources/Dagre/DagreEngine";
 
@@ -202,10 +202,9 @@ export function OrgDiagram(props: OrgDiagramProps) {
                 <DiagramContainer onClick={handleCanvasClick}>
                     {diagramEngine?.getModel() && diagramModel ? (
                         <>
-                            <NavigationWrapperCanvasWidget
-                                diagramEngine={diagramEngine}
+                            <CanvasWidget
+                                engine={diagramEngine}
                                 className={styles.canvas}
-                                focusedNode={diagramEngine?.getModel()?.getNode(focusedNodeId)}
                             />
                             {showControls && <DiagramControls engine={diagramEngine} animation={animation} />}
                         </>

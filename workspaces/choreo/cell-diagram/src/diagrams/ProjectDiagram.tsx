@@ -9,6 +9,7 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { DiagramEngine, DiagramModel } from "@projectstorm/react-diagrams";
+import { CanvasWidget } from "@projectstorm/react-canvas-core";
 import CircularProgress from "@mui/material/CircularProgress";
 import {
     generateEngine,
@@ -22,7 +23,6 @@ import {
 import { DiagramControls, OverlayLayerModel, CellDiagramContext, PromptScreen, ConnectionModel } from "../components";
 import { Colors, DIAGRAM_END, MAIN_CELL, NO_CELL_NODE } from "../resources";
 import { Container, DiagramContainer, useStyles } from "../utils/CanvasStyles";
-import { NavigationWrapperCanvasWidget } from "@wso2-enterprise/ui-toolkit";
 import { CustomTooltips, DiagramLayer, MoreVertMenuItem, ObservationSummary, Project } from "../types";
 import { CellModel } from "../components/Cell/CellNode/CellModel";
 import { DiagramLayers } from "../components/Controls/DiagramLayers";
@@ -245,10 +245,9 @@ export function ProjectDiagram(props: ProjectDiagramProps) {
                 <DiagramContainer onClick={handleCanvasClick}>
                     {diagramEngine?.getModel() && diagramModel ? (
                         <>
-                            <NavigationWrapperCanvasWidget
-                                diagramEngine={diagramEngine}
+                            <CanvasWidget
+                                engine={diagramEngine}
                                 className={styles.canvas}
-                                focusedNode={diagramEngine?.getModel()?.getNode(focusedNodeId)}
                             />
                             {showControls && <DiagramControls engine={diagramEngine} animation={animation} />}
                             {showDiagramLayers && (
