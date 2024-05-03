@@ -17,7 +17,7 @@ import { getColorByMethod } from "@wso2-enterprise/service-designer";
 import { View, ViewContent, ViewHeader } from "../../components/View";
 import { generateResourceData, getResourceDeleteRanges, onResourceEdit } from "../../utils/form";
 import styled from "@emotion/styled";
-import { ResourceForm, ResourceType } from "../Forms/ResourceForm";
+import { ResourceForm, ResourceFormData, ResourceType } from "../Forms/ResourceForm";
 
 interface ColoredTagProps {
     color: string;
@@ -52,7 +52,7 @@ export const ResourceView = ({ model: resourceModel, documentUri, diagnostics }:
         setFormOpen(true);
     }
 
-    const onSave = (data: ResourceType) => {
+    const onSave = (data: ResourceFormData) => {
         const ranges: Range[] = getResourceDeleteRanges(model, data);
         onResourceEdit(data, model.range, ranges, documentUri, rpcClient);
         setFormOpen(false);
