@@ -141,7 +141,15 @@ jobs:
         with:
           repo: wso2/apk
           name: apk
-          
+ 
+      - name: Create a release in wso2/mi-vscode repo
+        if: ${{ github.event.inputs.mi == 'true' }}
+        uses: ./.github/actions/release
+        with:
+          repo: wso2/mi-vscode
+          token: ${{ secrets.PUBLISH_PAT }}
+          name: mi-vscode
+
       - name: Create PR and notify
         uses: ./.github/actions/pr
         with:
