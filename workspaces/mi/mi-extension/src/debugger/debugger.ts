@@ -8,14 +8,16 @@
  */
 
 import * as net from 'net';
+import * as vscode from 'vscode';
 import { EventEmitter } from 'events';
 import { DebugProtocol } from 'vscode-debugprotocol';
 import { StateMachine, navigate } from '../stateMachine';
-import { BreakpointInfo, SequenceBreakpoint, GetBreakpointInfoRequest, GetBreakpointInfoResponse, ValidateBreakpointsRequest, ValidateBreakpointsResponse, TemplateBreakpoint } from '@wso2-enterprise/mi-core';
+import { BreakpointInfo, SequenceBreakpoint, GetBreakpointInfoRequest, GetBreakpointInfoResponse, ValidateBreakpointsRequest, ValidateBreakpointsResponse, TemplateBreakpoint, StepOverBreakpointResponse } from '@wso2-enterprise/mi-core';
 import { checkServerReadiness } from './debugHelper';
 import { VisualizerWebview } from '../visualizer/webview';
 import { extension } from '../MIExtensionContext';
 import { ViewColumn } from 'vscode';
+import { reject } from 'lodash';
 
 export interface RuntimeBreakpoint {
     id: number;
@@ -49,6 +51,7 @@ export class Debugger extends EventEmitter {
     // Mapping between debugger runtime and RuntimeBreakpoint
     private debuggingRuntimeBreakpointMap = new Map<BreakpointInfo, RuntimeBreakpoint>();
     private runtimeVscodeBreakpointMap = new Map<RuntimeBreakpointInfo, RuntimeBreakpoint>();
+    private stepOverBreakpointMap = new Map<RuntimeBreakpointInfo, RuntimeBreakpoint>();
 
     // since we want to send breakpoint events, we will assign an id to every event
     // so that the frontend can match events with breakpoints.
@@ -160,6 +163,81 @@ export class Debugger extends EventEmitter {
         }
     }
 
+    public async createStepOverBreakpoint(path: string, breakpoints: DebugProtocol.SourceBreakpoint[]): Promise<void> {
+        try {
+            const langClient = StateMachine.context().langClient!;
+            const stepOverBreakpoints: RuntimeBreakpoint[] = [];
+            if (path) {
+                // create BreakpointPosition array
+                const breakpointPositions = breakpoints.map((breakpoint) => {
+                    return { line: breakpoint.line };
+                });
+                const normalizedPath = this.normalizePathAndCasing(path);
+
+                const validateBreakpointsRequest: ValidateBreakpointsRequest = {
+                    filePath: path,
+                    breakpoints: [...breakpointPositions]
+                };
+                const response: ValidateBreakpointsResponse = await langClient.validateBreakpoints(validateBreakpointsRequest);
+                if (response?.breakpointValidity) {
+                    for (const breakpoint of response.breakpointValidity) {
+                        const runtimeBreakpoint: RuntimeBreakpoint = {
+                            id: this.breakpointId++,
+                            line: breakpoint.line,
+                            verified: breakpoint.valid,
+                            filePath: normalizedPath
+                        };
+
+                        if (breakpoint.valid) {
+                            stepOverBreakpoints.push(runtimeBreakpoint);
+                        }
+                    }
+
+                }
+
+                // LS call for breakpoint info
+                const breakpointInfo = await this.getBreakpointInformation(stepOverBreakpoints);
+                // map the runtime breakpoint to the breakpoint info
+                for (let i = 0; i < stepOverBreakpoints.length; i++) {
+
+                    // check if breakpointInfo has sequence
+                    const currentInfo = breakpointInfo[i];
+                    // Information for the SequenceBreakpoint type
+                    if (currentInfo && currentInfo.sequence !== undefined) {
+                        const sequence: SequenceBreakpoint = currentInfo.sequence;
+                        const sequenceData = this.mapSequenceInfo(sequence);
+                        // create runtime breakpoint info
+                        const runtimeBreakpointInfo: RuntimeBreakpointInfo = {
+                            key: sequenceData.key,
+                            mediatorPosition: sequenceData.mediatorPosition,
+                            sequenceType: sequenceData.sequenceType,
+                            completeInfo: breakpointInfo[i]
+                        };
+                        this.stepOverBreakpointMap.set(runtimeBreakpointInfo, stepOverBreakpoints[i]);
+
+                    } else if (currentInfo && currentInfo.template) {
+                        const templateBreakpoint: TemplateBreakpoint = currentInfo.template;
+                        const templateData = this.mapTemplateInfo(templateBreakpoint);
+
+                        const runtimeBreakpointInfo: RuntimeBreakpointInfo = {
+                            key: templateData.key,
+                            mediatorPosition: templateData.mediatorPosition,
+                            completeInfo: breakpointInfo[i]
+                        };
+                        this.stepOverBreakpointMap.set(runtimeBreakpointInfo, stepOverBreakpoints[i]);
+                    }
+                }
+                if (this.isDebuggerActive) {
+                    for (const info of breakpointInfo) {
+                        await this.sendSetBreakpointCommand(info);
+                    }
+                }
+            }
+        } catch (error) {
+            reject(`${error}`);
+        }
+    }
+
     public async getBreakpointInformation(breakpoints: RuntimeBreakpoint[]): Promise<BreakpointInfo[]> {
         const langClient = StateMachine.context().langClient!;
         // create BreakpointPosition[] array
@@ -178,22 +256,32 @@ export class Debugger extends EventEmitter {
     }
 
 
-    // TODO: Update the implementation after the LS call is implemented
-    public async stepBreakpoint(): Promise<void> {
-        // get the currentbreakpoint
-        const currentBreakpoint = this.getCurrentBreakpoint();
-        this.sendEvent('stopOnStep');
-        // send LS call to get the next breakpoint and info
-        // const langClient = StateMachine.context().langClient!;
-        // const stepOverBreakpoint: StepOverBreakpointResponse = await langClient.getStepOverBreakpoint({ filePath: this.getCurrentFilePath(), breakpoint: { line: currentBreakpoint?.line || 0 } });
-        //console.log('Step Over Breakpoint:', stepOverBreakpoint);
-        // if(!stepOverBreakpoint.noNextBreakpoint) {
-        // const stepOverBpLine = stepOverBreakpoint.nextBreakpointLine;
-        // const stepOverBpInfo = stepOverBreakpoint.nextDebugInfo;
-        // // first check if its stepOverBreakpooints, then scope should call the getVariables of the obtained info
-        // // we will need to update the current breakpoint as well
-        // }
+    public async getNextMediatorBreakpoint(): Promise<StepOverBreakpointResponse> {
+        try {
+            const currentBreakpoint = this.getCurrentBreakpoint();
+            const langClient = StateMachine.context().langClient!;
+            const stepOverBreakpoint: StepOverBreakpointResponse = await langClient.getStepOverBreakpoint({ filePath: this.getCurrentFilePath(), breakpoint: { line: currentBreakpoint?.line || 0 } });
+            return stepOverBreakpoint;
+        } catch (error) {
+            vscode.window.showErrorMessage(`Error while getting the next mediator breakpoint: ${error}`);
+            return { stepOverBreakpoints: [] };
+        }
+    }
 
+    public async stepOverBreakpoint(stepOverBreakpoint: StepOverBreakpointResponse): Promise<void> {
+        return new Promise(async (resolve, reject) => {
+            this.createStepOverBreakpoint(this.getCurrentFilePath(), stepOverBreakpoint.stepOverBreakpoints).then(async () => {
+                this.sendResumeCommand().then(() => {
+                    this.sendEvent('stopOnStep');
+                    resolve();
+                }).catch((error) => {
+                    reject(`Error while resuming the debugger server: ${error}`);
+                });
+
+            }).catch((error) => {
+                reject(`Error while setting step over breakpoint: ${error}`);
+            });
+        });
     }
 
     public clearBreakpoints(path: string): void {
@@ -345,6 +433,12 @@ export class Debugger extends EventEmitter {
 
                     if (eventDataJson.event === 'terminated') {
                         this.currentDebugpoint = undefined;
+                        // clear any stepOverBreakpoints using sendClearBreakpointCommand
+                        for (const [key, value] of this.stepOverBreakpointMap) {
+                            this.sendClearBreakpointCommand(key.completeInfo);
+                        }
+                        // clear the stepOverBreakpointMap
+                        this.stepOverBreakpointMap.clear();
 
                         const stateContext = StateMachine.context();
                         if (VisualizerWebview.currentPanel?.getWebview()?.visible && stateContext.stNode) {
@@ -378,6 +472,18 @@ export class Debugger extends EventEmitter {
                                 const breakpoint = this.runtimeVscodeBreakpointMap.get(breakpointKey);
                                 this.currentDebugpoint = breakpoint;
                                 this.sendEvent('breakpointValidated', breakpoint);
+                            } else {
+                                // if breakpoint not found in runtimeVscodeBreakpointMap, we need to check in stepOverBreakpointMap
+                                const stepOverBreakpointKey = Array.from(this.stepOverBreakpointMap.keys()).find(
+                                    (runtimeBreakpointInfo) => runtimeBreakpointInfo.key === sequenceData.key &&
+                                        runtimeBreakpointInfo.mediatorPosition === sequenceData.mediatorPosition &&
+                                        runtimeBreakpointInfo.sequenceType === sequenceData.sequenceType);
+
+                                if (stepOverBreakpointKey) {
+                                    const breakpoint = this.stepOverBreakpointMap.get(stepOverBreakpointKey);
+                                    this.currentDebugpoint = breakpoint;
+                                    this.sendEvent('breakpointValidated', breakpoint);
+                                }
                             }
                         } else if (event.template) {
                             const template: TemplateBreakpoint = event.template;
@@ -391,6 +497,17 @@ export class Debugger extends EventEmitter {
                                 const breakpoint = this.runtimeVscodeBreakpointMap.get(breakpointKey);
                                 this.currentDebugpoint = breakpoint;
                                 this.sendEvent('breakpointValidated', breakpoint);
+                            } else {
+                                // if breakpoint not found in runtimeVscodeBreakpointMap, we need to check in stepOverBreakpointMap
+                                const stepOverBreakpointKey = Array.from(this.stepOverBreakpointMap.keys()).find(
+                                    (runtimeBreakpointInfo) => runtimeBreakpointInfo.key === templateData.key &&
+                                        runtimeBreakpointInfo.mediatorPosition === templateData.mediatorPosition);
+
+                                if (stepOverBreakpointKey) {
+                                    const breakpoint = this.stepOverBreakpointMap.get(stepOverBreakpointKey);
+                                    this.currentDebugpoint = breakpoint;
+                                    this.sendEvent('breakpointValidated', breakpoint);
+                                }
                             }
                         }
                     }
