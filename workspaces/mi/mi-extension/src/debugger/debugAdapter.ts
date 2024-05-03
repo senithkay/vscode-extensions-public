@@ -14,7 +14,7 @@ import { executeBuildTask, executeTasks, getServerPath } from './debugHelper';
 import { Subject } from 'await-notify';
 import { Debugger } from './debugger';
 import { StateMachine, navigate, openView } from '../stateMachine';
-import { EVENT_TYPE } from '@wso2-enterprise/mi-core';
+import { EVENT_TYPE, MACHINE_VIEW } from '@wso2-enterprise/mi-core';
 import { VisualizerWebview } from '../visualizer/webview';
 import { extension } from '../MIExtensionContext';
 import { getBuildTask, getStopTask } from './tasks';
@@ -43,19 +43,27 @@ export class MiDebugAdapter extends LoggingDebugSession {
             this.sendEvent(new StoppedEvent('step', MiDebugAdapter.threadID));
         });
         this.debuggerHandler.on('stopOnBreakpoint', () => {
-            this.sendEvent(new StoppedEvent('breakpoint', MiDebugAdapter.threadID));
-            
+            const wasDiagramOpen = VisualizerWebview.currentPanel?.getWebview()?.visible;
+            const wasOnlyTheDiagram = vscode.window.visibleTextEditors.length === 0;
+            const diagramViews = [MACHINE_VIEW.ResourceView, MACHINE_VIEW.ProxyView, MACHINE_VIEW.SequenceView, MACHINE_VIEW.SequenceTemplateView];
             const stateContext = StateMachine.context();
-            if (VisualizerWebview.currentPanel?.getWebview()?.visible && stateContext.stNode) {
+
+            // Send the native breakpoint event which opens the editor.
+            this.sendEvent(new StoppedEvent('breakpoint', MiDebugAdapter.threadID));
+
+            // Check the diagram visibility
+            if (wasDiagramOpen && diagramViews.indexOf(stateContext.view!) !== -1 ) {
                 setTimeout(() => {
-                    if (vscode.window.visibleTextEditors.length > 1) {
-                        VisualizerWebview.currentPanel!.getWebview()?.reveal(ViewColumn.Beside);
-                        navigate();
-                    } else {
+                    const webviewPresent = VisualizerWebview.currentPanel !== undefined; // Check if the webview panel is not disposed.
+                    if (wasOnlyTheDiagram && !webviewPresent) {
+                        // It's possible that the diagram view gets replaced by the breakpoint editor. So we are opening the diagram again.
                         extension.webviewReveal = true;
                         openView(EVENT_TYPE.OPEN_VIEW, stateContext);
+                    } else {
+                        VisualizerWebview.currentPanel!.getWebview()?.reveal(ViewColumn.Beside);
+                        navigate();
                     }
-                }, 150);
+                }, 400);
             }
         });
 
