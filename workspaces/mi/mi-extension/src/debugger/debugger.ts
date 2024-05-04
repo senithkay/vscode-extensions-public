@@ -261,6 +261,18 @@ export class Debugger extends EventEmitter {
             const currentBreakpoint = this.getCurrentBreakpoint();
             const langClient = StateMachine.context().langClient!;
             const stepOverBreakpoint: StepOverBreakpointResponse = await langClient.getStepOverBreakpoint({ filePath: this.getCurrentFilePath(), breakpoint: { line: currentBreakpoint?.line || 0 } });
+            // check if the stepOverBreakpoint is present in the runtimeVscodeBreakpointMap's value
+            for (const breakpoint of stepOverBreakpoint?.stepOverBreakpoints) {
+                const breakpointKey = Array.from(this.runtimeVscodeBreakpointMap.values()).find(
+                    (runtimeBreakpointInfo) => runtimeBreakpointInfo?.line === breakpoint?.line && runtimeBreakpointInfo?.filePath === this.getCurrentFilePath());
+                if (breakpointKey) {
+                    // we need to remove that breakpoint from the stepOverBreakpoint.stepOverBreakpoints
+                    const index = stepOverBreakpoint.stepOverBreakpoints.indexOf(breakpoint);
+                    if (index > -1) {
+                        stepOverBreakpoint.stepOverBreakpoints.splice(index, 1);
+                    }
+                }   
+            }
             return stepOverBreakpoint;
         } catch (error) {
             vscode.window.showErrorMessage(`Error while getting the next mediator breakpoint: ${error}`);
