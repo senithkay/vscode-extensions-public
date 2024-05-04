@@ -350,9 +350,13 @@ export function getMediatypeAndFileExtension(templateType: string): { mediaType:
             fileExtension = 'wsdl';
             break;
         case "Data Mapper":
-            mediaType = 'application/datamapper';
+            mediaType = 'text/plain';
             fileExtension = 'dmc';
             break;
+        case "Data Mapper Schema":
+                mediaType = 'text/plain';
+                fileExtension = 'json';
+                break;
         case "Javascript File":
             mediaType = 'application/javascript';
             fileExtension = 'js';

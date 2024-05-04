@@ -115,7 +115,7 @@ const ProjectStructureView = (props: { projectStructure: any, workspaceDir: stri
         if (view === MACHINE_VIEW.EndPointForm || view === MACHINE_VIEW.TemplateForm) {
             view = await getView(documentUri);
         }
-        rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view, documentUri, customProps: {type: type} }});
+        rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view, documentUri, customProps: { type: type } } });
     };
 
     const goToSource = (filePath: string) => {
@@ -137,26 +137,30 @@ const ProjectStructureView = (props: { projectStructure: any, workspaceDir: stri
     }
 
     const getView = async (documentUri: string) => {
-        const syntaxTree = await rpcClient.getMiDiagramRpcClient().getSyntaxTree({ documentUri: documentUri});
+        const syntaxTree = await rpcClient.getMiDiagramRpcClient().getSyntaxTree({ documentUri: documentUri });
         let view = MACHINE_VIEW.TemplateForm;
-        if (!(syntaxTree.syntaxTree.template != undefined && syntaxTree.syntaxTree.template.sequence != undefined)) {
-            const endpointType = syntaxTree.syntaxTree.template?.endpoint.type ?? syntaxTree.syntaxTree.endpoint.type;
-            if (endpointType === 'HTTP_ENDPOINT') {
-                view = MACHINE_VIEW.HttpEndpointForm;
-            } else if (endpointType === 'ADDRESS_ENDPOINT') {
-                view = MACHINE_VIEW.AddressEndpointForm;
-            } else if (endpointType === 'WSDL_ENDPOINT') {
-                view = MACHINE_VIEW.WsdlEndpointForm;
-            } else if (endpointType === 'DEFAULT_ENDPOINT') {
-                view = MACHINE_VIEW.DefaultEndpointForm;
-            } else if (endpointType === 'LOAD_BALANCE_ENDPOINT') {
-                view = MACHINE_VIEW.LoadBalanceEndPointForm;
-            } else if (endpointType === 'FAIL_OVER_ENDPOINT') {
-                view = MACHINE_VIEW.FailoverEndPointForm;
-            } else if (endpointType === 'RECIPIENT_LIST_ENDPOINT') {
-                view = MACHINE_VIEW.RecipientEndPointForm;
-            } else if (endpointType === 'TEMPLATE_ENDPOINT') {
-                view = MACHINE_VIEW.TemplateEndPointForm;
+        if (syntaxTree.syntaxTree.template != undefined && syntaxTree.syntaxTree.template.sequence != undefined) {
+            if (syntaxTree.syntaxTree.template?.endpoint) {
+                const endpointType = syntaxTree.syntaxTree.template?.endpoint.type ?? syntaxTree.syntaxTree.endpoint.type;
+                if (endpointType === 'HTTP_ENDPOINT') {
+                    view = MACHINE_VIEW.HttpEndpointForm;
+                } else if (endpointType === 'ADDRESS_ENDPOINT') {
+                    view = MACHINE_VIEW.AddressEndpointForm;
+                } else if (endpointType === 'WSDL_ENDPOINT') {
+                    view = MACHINE_VIEW.WsdlEndpointForm;
+                } else if (endpointType === 'DEFAULT_ENDPOINT') {
+                    view = MACHINE_VIEW.DefaultEndpointForm;
+                } else if (endpointType === 'LOAD_BALANCE_ENDPOINT') {
+                    view = MACHINE_VIEW.LoadBalanceEndPointForm;
+                } else if (endpointType === 'FAIL_OVER_ENDPOINT') {
+                    view = MACHINE_VIEW.FailoverEndPointForm;
+                } else if (endpointType === 'RECIPIENT_LIST_ENDPOINT') {
+                    view = MACHINE_VIEW.RecipientEndPointForm;
+                } else if (endpointType === 'TEMPLATE_ENDPOINT') {
+                    view = MACHINE_VIEW.TemplateEndPointForm;
+                }
+            } else {
+                view = MACHINE_VIEW.SequenceTemplateView;
             }
         }
         return view;
@@ -169,23 +173,28 @@ const ProjectStructureView = (props: { projectStructure: any, workspaceDir: stri
                 <>
                     {Object.entries(projectStructure.directoryMap.src.main.wso2mi.artifacts)
                         .filter(([key, value]) => artifactTypeMap.hasOwnProperty(key) && Array.isArray(value) && value.length > 0)
-                        .map(([key, value]) => (
-                            <div>
-                                <h3>{artifactTypeMap[key].title}</h3>
-                                {Object.entries(value).map(([_, entry]) => (
-                                    <Entry
-                                        key={entry.name}
-                                        icon={artifactTypeMap[key].icon}
-                                        name={entry.name}
-                                        description={artifactTypeMap[key].description(entry)}
-                                        onClick={() => goToView(artifactTypeMap[key].path(entry), artifactTypeMap[key].view)}
-                                        goToView={() => goToView(artifactTypeMap[key].path(entry), artifactTypeMap[key].view)}
-                                        goToSource={() => goToSource(artifactTypeMap[key].path(entry))}
-                                        deleteArtifact={() => deleteArtifact(artifactTypeMap[key].path(entry))}
-                                    />
-                                ))}
-                            </div>
-                        ))
+                        .map(([key, value]) => {
+                            const hasOnlyUndefinedItems = Object.values(value).every(entry => entry.path === undefined);
+                            return !hasOnlyUndefinedItems && (
+                                <div>
+                                    <h3>{artifactTypeMap[key].title}</h3>
+                                    {Object.entries(value).map(([_, entry]) => (
+                                        entry.path && (
+                                            <Entry
+                                                key={entry.name}
+                                                icon={artifactTypeMap[key].icon}
+                                                name={entry.name}
+                                                description={artifactTypeMap[key].description(entry)}
+                                                onClick={() => goToView(artifactTypeMap[key].path(entry), artifactTypeMap[key].view)}
+                                                goToView={() => goToView(artifactTypeMap[key].path(entry), artifactTypeMap[key].view)}
+                                                goToSource={() => goToSource(artifactTypeMap[key].path(entry))}
+                                                deleteArtifact={() => deleteArtifact(artifactTypeMap[key].path(entry))}
+                                            />
+                                        )
+                                    ))}
+                                </div>
+                            );
+                        })
                     }
                 </>
             }

@@ -139,7 +139,7 @@ const SidePanelList = (props: SidePanelListProps) => {
                 <>
                     {/* Header */}
                     <ButtonContainer>
-                        {(pageStack.length === 0 || sidePanelContext.isEditing) ? <div></div> :
+                        {(pageStack.length === 0 || sidePanelContext.isEditing || sidePanelContext.expressionEditor?.isOpen) ? <div></div> :
                             <Codicon name="arrow-left" sx={{ width: "20px", position: "absolute", left: "0px", paddingLeft: "25px" }} onClick={handleGoBack} />}
 
                         {(pageStack.length > 0) && iconpath !== undefined && (
@@ -157,7 +157,6 @@ const SidePanelList = (props: SidePanelListProps) => {
                     {/* Content */}
                     <div style={{
                         overflowY: "auto",
-                        height: "calc(100vh - 40px)",
                         scrollbarWidth: "none"
                     }}>
                         {pageStack.length === 0 && <>

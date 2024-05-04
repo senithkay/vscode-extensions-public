@@ -9,6 +9,7 @@
 
 import { Enrich } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import Mustache from "mustache";
+import { transformNamespaces } from "../../../commons";
 
 export function getEnrichMustacheTemplate() {
     return `
@@ -22,8 +23,8 @@ export function getEnrichMustacheTemplate() {
         </source>
         {{/inlineRegistryKey}}
         {{/isSourceInlined}}
-        {{^isSourceInlined}}<source clone="{{cloneSource}}" {{#sourceProperty}}property="{{sourceProperty}}"{{/sourceProperty}} type="{{sourceType}}" {{#sourceXPath}}xpath="{{{sourceXPath}}}"{{/sourceXPath}} />{{/isSourceInlined}}
-        <target {{#targetAction}}action="{{targetAction}}"{{/targetAction}}  {{#targetType}}type="{{targetType}}"{{/targetType}} {{#targetProperty}}property="{{targetProperty}}"{{/targetProperty}} {{#targetXPathJsonPath}}xpath="{{{targetXPathJsonPath}}}"{{/targetXPathJsonPath}}/>
+        {{^isSourceInlined}}<source clone="{{cloneSource}}" {{#sourceProperty}}property="{{sourceProperty}}"{{/sourceProperty}} type="{{sourceType}}" {{#sourceXPath}}xpath="{{{value}}}"{{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}}{{/sourceXPath}} />{{/isSourceInlined}}
+        <target {{#targetAction}}action="{{targetAction}}"{{/targetAction}}  {{#targetType}}type="{{targetType}}"{{/targetType}} {{#targetProperty}}property="{{targetProperty}}"{{/targetProperty}} {{#targetXPathJsonPath}}xpath="{{{value}}}"{{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}}{{/targetXPathJsonPath}}/>
     </enrich>
     `;
 }
@@ -35,7 +36,7 @@ export function getEnrichXml(data: { [key: string]: any }) {
     if (data.sourceType == "property") {
         delete data.sourceXPath;
     } else if (data.sourceType == "custom") {
-        data.sourceXPath = data.sourceXPath?.value;
+        // data.sourceXPath = data.sourceXPath?.value;
         delete data.sourceProperty;
     } else {
         delete data.sourceProperty;
@@ -52,11 +53,9 @@ export function getEnrichXml(data: { [key: string]: any }) {
     if (data.targetType == "property") {
         delete data.targetXPathJsonPath;
     } else if (data.targetType == "custom") {
-        data.targetXPathJsonPath = data.targetXPathJsonPath?.value;
         delete data.targetProperty;
         delete data.targetType;
     } else if (data.targetType == "key") {
-        data.targetXPathJsonPath = data.targetXPathJsonPath?.value;
         delete data.targetProperty;
     } else {
         delete data.targetXPathJsonPath;
@@ -87,7 +86,7 @@ export function getEnrichFormDataFromSTNode(data: { [key: string]: any }, node: 
     } else if (data.sourceType == "property") {
         data.sourceProperty = node.source?.property;
     } else if (data.sourceType == "custom") {
-        data.sourceXPath = { isExpression: true, value: node.source?.xpath };
+        data.sourceXPath = { isExpression: true, value: node.source?.xpath, namespaces: transformNamespaces(node.source?.namespaces) };
     }
 
     data.targetAction = node.target?.action;
@@ -95,10 +94,10 @@ export function getEnrichFormDataFromSTNode(data: { [key: string]: any }, node: 
     if (data.targetType == "property") {
         data.targetProperty = node.target?.property;
     } else if (data.targetType == "key") {
-        data.targetXPathJsonPath = { isExpression: true, value: node.target?.xpath };
+        data.targetXPathJsonPath = { isExpression: true, value: node.target?.xpath, namespaces: transformNamespaces(node.target?.namespaces) };
     } else if (node.target?.xpath) {
         data.targetType = "custom";
-        data.targetXPathJsonPath = { isExpression: true, value: node.target?.xpath };
+        data.targetXPathJsonPath = { isExpression: true, value: node.target?.xpath, namespaces: transformNamespaces(node.target?.namespaces) };
     }
     return data;
 }

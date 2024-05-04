@@ -9,11 +9,12 @@
 
 import { PropertyGroup } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import Mustache from "mustache";
+import { transformNamespaces } from "../../../commons";
 
 export function getPropertyGroupMustacheTemplate() {
     return `<propertyGroup {{#description}}description="{{description}}"{{/description}}>
     {{#properties}}
-    <property {{#newPropertyName}}name="{{newPropertyName}}" {{/newPropertyName}}{{#propertyScope}}scope="{{propertyScope}}" {{/propertyScope}}{{#propertyDataType}}type="{{propertyDataType}}" {{/propertyDataType}}{{#expression}}expression="{{expression}}" {{/expression}}{{#propertyAction}}action="{{propertyAction}}" {{/propertyAction}}{{#description}}description="{{description}}" {{/description}}{{#value}}value="{{value}}" {{/value}}{{#valueStringPattern}}pattern="{{valueStringPattern}}" {{/valueStringPattern}}{{#valueStringCapturingGroup}}group="{{valueStringCapturingGroup}}" {{/valueStringCapturingGroup}}/>
+    <property {{#newPropertyName}}name="{{{newPropertyName}}}" {{/newPropertyName}}{{#propertyScope}}scope="{{propertyScope}}" {{/propertyScope}}{{#propertyDataType}}type="{{propertyDataType}}" {{/propertyDataType}}{{#expression}}expression="{{{expression}}}" {{#namespaces}}xmlns:{{prefix}}="{{uri}}" {{/namespaces}}{{/expression}}{{#propertyAction}}action="{{propertyAction}}" {{/propertyAction}}{{#description}}description="{{description}}" {{/description}}{{#value}}value="{{{value}}}" {{/value}}{{#valueStringPattern}}pattern="{{{valueStringPattern}}}" {{/valueStringPattern}}{{#valueStringCapturingGroup}}group="{{valueStringCapturingGroup}}" {{/valueStringCapturingGroup}}/>
     {{/properties}}
 </propertyGroup>`;
 }
@@ -26,6 +27,7 @@ export function getPropertyGroupXml(data: { [key: string]: any }) {
             propertyAction: property[2],
             value: property[3]?.isExpression ? undefined : property[3]?.value,
             expression: property[3]?.isExpression ? property[3]?.value : undefined,
+            namespaces: property[3]?.isExpression ? property[3]?.namespaces : undefined,
             propertyScope: property[5]?.toLowerCase(),
             valueStringPattern: property[4],
             valueStringCapturingGroup: property[6],
@@ -43,7 +45,11 @@ export function getPropertyGroupFormDataFromSTNode(data: { [key: string]: any },
 
     data.properties = node.property.map(property => {
         let isExpression = property.value ? "LITERAL" : "EXPRESSION";
-        return [property.name, property.type, property.action, { isExpression: isExpression, value: property.value ?? property.expression }, property.pattern, property.scope, property.group, property.description];
+        let namespaces;
+        if (isExpression === "EXPRESSION") {
+            namespaces = transformNamespaces(property?.namespaces);
+        }
+        return [property.name, property.type, property.action, { isExpression: isExpression, value: property.value ?? property.expression, namespaces: namespaces }, property.pattern, property.scope, property.group, property.description];
     })
     return data;
 }

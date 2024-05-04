@@ -66,11 +66,11 @@ const DBLookupForm = (props: AddMediatorProps) => {
             connectionPassword: sidePanelContext?.formValues?.connectionPassword || "",
             registryBasedPassConfigKey: sidePanelContext?.formValues?.registryBasedPassConfigKey || "",
             sqlStatements: {
-                paramValues: sidePanelContext?.formValues?.sqlStatements && sidePanelContext?.formValues?.sqlStatements.map((property: string|ExpressionFieldValue[], index: string) => (
+                paramValues: sidePanelContext?.formValues?.sqlStatements && sidePanelContext?.formValues?.sqlStatements.map((property: (string | ExpressionFieldValue | ParamConfig)[], index: string) => (
                     {
                         id: index,
                         key: index,
-                        value:  typeof property[0] === 'object' ? property[0].value : property[0],
+                        value:  property[0],
                         icon: 'query',
                         paramValues: [
                             { value: property[0] },
@@ -94,11 +94,11 @@ const DBLookupForm = (props: AddMediatorProps) => {
                         "isRequired": false, 
                         "paramManager": {
                             paramConfigs: {
-                                paramValues: sidePanelContext?.formValues?.parameters && sidePanelContext?.formValues?.parameters.map((property: string|ExpressionFieldValue[], index: string) => (
+                                paramValues: sidePanelContext?.formValues?.parameters && sidePanelContext?.formValues?.parameters.map((property: (string | ExpressionFieldValue | ParamConfig)[], index: string) => (
                                     {
                                         id: index,
                                         key: index,
-                                        value:  typeof property[0] === 'object' ? property[0].value : property[0],
+                                        value:  index,
                                         icon: 'query',
                                         paramValues: [
                                             { value: property[0] },
@@ -129,11 +129,11 @@ const DBLookupForm = (props: AddMediatorProps) => {
                         "isRequired": false, 
                         "paramManager": {
                             paramConfigs: {
-                                paramValues: sidePanelContext?.formValues?.results && sidePanelContext?.formValues?.results.map((property: string|ExpressionFieldValue[], index: string) => (
+                                paramValues: sidePanelContext?.formValues?.results && sidePanelContext?.formValues?.results.map((property: (string | ExpressionFieldValue | ParamConfig)[], index: string) => (
                                     {
                                         id: index,
                                         key: index,
-                                        value:  typeof property[0] === 'object' ? property[0].value : property[0],
+                                        value:  index,
                                         icon: 'query',
                                         paramValues: [
                                             { value: property[0] },
@@ -471,24 +471,24 @@ const DBLookupForm = (props: AddMediatorProps) => {
                                     readonly={false}
                                     onChange= {(values) => {
                                         values.paramValues = values.paramValues.map((param: any, index: number) => {
-                                            const paramValues: ParamValue[] = param.paramValues;
+                                            const property: ParamValue[] = param.paramValues;
                                             param.key = index;
-                                            param.value = paramValues[0].value;
+                                            param.value = property[0].value;
                                             param.icon = 'query';
 
-                                            (paramValues[1].value as ParamConfig).paramValues = (paramValues[1].value as ParamConfig).paramValues.map((param: any, index: number) => {
-                                                const paramValues: ParamValue[] = param.paramValues;
+                                            (property[1].value as ParamConfig).paramValues = (property[1].value as ParamConfig).paramValues.map((param: any, index: number) => {
+                                                const property: ParamValue[] = param.paramValues;
                                                 param.key = index;
-                                                param.value = '';
+                                                param.value = index;
                                                 param.icon = 'query';
                                                 return param;
                                             });
             
 
-                                            (paramValues[3].value as ParamConfig).paramValues = (paramValues[3].value as ParamConfig).paramValues.map((param: any, index: number) => {
-                                                const paramValues: ParamValue[] = param.paramValues;
-                                                param.key = paramValues[0].value;
-                                                param.value = paramValues[1].value;
+                                            (property[3].value as ParamConfig).paramValues = (property[3].value as ParamConfig).paramValues.map((param: any, index: number) => {
+                                                const property: ParamValue[] = param.paramValues;
+                                                param.key = property[0].value;
+                                                param.value = property[1].value;
                                                 param.icon = 'query';
                                                 return param;
                                             });

@@ -52,11 +52,11 @@ const DataServiceCallForm = (props: AddMediatorProps) => {
             sourceType: sidePanelContext?.formValues?.sourceType || "INLINE",
             operationType: sidePanelContext?.formValues?.operationType || "SINGLE",
             operations: {
-                paramValues: sidePanelContext?.formValues?.operations && sidePanelContext?.formValues?.operations.map((property: string|ExpressionFieldValue[], index: string) => (
+                paramValues: sidePanelContext?.formValues?.operations && sidePanelContext?.formValues?.operations.map((property: (string | ExpressionFieldValue | ParamConfig)[], index: string) => (
                     {
                         id: index,
-                        key: typeof property[0] === 'object' ? property[0].value : property[0],
-                        value:  typeof property[1] === 'object' ? property[1].value : property[1],
+                        key: property[0],
+                        value:  generateSpaceSeperatedStringFromParamValues(property[1] as ParamConfig),
                         icon: 'query',
                         paramValues: [
                             { value: property[0] },
@@ -78,11 +78,11 @@ const DataServiceCallForm = (props: AddMediatorProps) => {
                         "isRequired": false, 
                         "paramManager": {
                             paramConfigs: {
-                                paramValues: sidePanelContext?.formValues?.DSSProperties && sidePanelContext?.formValues?.DSSProperties.map((property: string|ExpressionFieldValue[], index: string) => (
+                                paramValues: sidePanelContext?.formValues?.DSSProperties && sidePanelContext?.formValues?.DSSProperties.map((property: (string | ExpressionFieldValue | ParamConfig)[], index: string) => (
                                     {
                                         id: index,
-                                        key: typeof property[0] === 'object' ? property[0].value : property[0],
-                                        value:  typeof property[1] === 'object' ? property[1].value : property[1],
+                                        key: index,
+                                        value:  index,
                                         icon: 'query',
                                         paramValues: [
                                             { value: property[0] },
@@ -246,15 +246,15 @@ const DataServiceCallForm = (props: AddMediatorProps) => {
                                     readonly={false}
                                     onChange= {(values) => {
                                         values.paramValues = values.paramValues.map((param: any, index: number) => {
-                                            const paramValues: ParamValue[] = param.paramValues;
-                                            param.key = paramValues[0].value;
-                                            param.value = generateSpaceSeperatedStringFromParamValues(paramValues[1].value as ParamConfig);
+                                            const property: ParamValue[] = param.paramValues;
+                                            param.key = property[0].value;
+                                            param.value = generateSpaceSeperatedStringFromParamValues(property[1].value as ParamConfig);
                                             param.icon = 'query';
 
-                                            (paramValues[1].value as ParamConfig).paramValues = (paramValues[1].value as ParamConfig).paramValues.map((param: any, index: number) => {
-                                                const paramValues: ParamValue[] = param.paramValues;
-                                                param.key = paramValues[0].value;
-                                                param.value = paramValues[2].value;
+                                            (property[1].value as ParamConfig).paramValues = (property[1].value as ParamConfig).paramValues.map((param: any, index: number) => {
+                                                const property: ParamValue[] = param.paramValues;
+                                                param.key = property[0].value;
+                                                param.value = property[2].value;
                                                 param.icon = 'query';
                                                 return param;
                                             });

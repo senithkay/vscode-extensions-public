@@ -1057,6 +1057,7 @@ export interface BrowseFileRequest {
     canSelectMany: boolean;
     defaultUri: string;
     title: string;
+    openLabel?: string;
 }
 
 export interface GetAvailableResourcesRequest {
@@ -1239,3 +1240,6 @@ export interface DeleteArtifactRequest {
     enableUndo?: boolean;
 }
 
+export interface ExportProjectRequest {
+    projectPath: string;
+}

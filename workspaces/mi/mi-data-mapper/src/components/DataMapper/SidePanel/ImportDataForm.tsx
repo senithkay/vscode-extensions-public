@@ -45,43 +45,33 @@ export type ImportDataWizardProps = {
     configName: string;
     documentUri: string;
     ioType: string;
+    overwriteSchema: boolean;
 };
 
 
 export function ImportDataForm(props: ImportDataWizardProps) {
-    const { configName, documentUri, ioType } = props;
+    const { configName, documentUri, ioType, overwriteSchema } = props;
     const { rpcClient } = useVisualizerContext();
     const setSidePanelOpen = useDMSidePanelStore(state => state.setSidePanelOpen);
     const [selectedResourceType, setSelectedResourceType] = React.useState<string>("JSON");
 
     const loadSchema = async () => {
         const request = {
-            canSelectFiles: true,
-            canSelectFolders: false,
-            canSelectMany: false,
-            defaultUri: "",
-            title: "Select a file to be imported as registry resource"
+            documentUri: documentUri,
+            overwriteSchema: overwriteSchema,
+            resourceName: configName + '_' + ioType.toLowerCase() + 'Schema',
+            sourcePath: documentUri,
+            ioType: ioType.toUpperCase(),
+            schemaType: selectedResourceType.toLowerCase(),
+            configName: configName,
         }
         await rpcClient.getMiDataMapperRpcClient().browseSchema(request).then(response => {
-            const filePathStr = response.filePath;
             setSidePanelOpen(false);
-            rpcClient.getMiDiagramRpcClient().getProjectRoot({ path: documentUri })
-                .then(response => {
-                    const request = {
-                        importPath: filePathStr,
-                        resourceName: configName + '_' + ioType.toLowerCase() + 'Schema',
-                        sourcePath: documentUri,
-                        ioType: ioType.toUpperCase(),
-                        schemaType: selectedResourceType.toLowerCase(),
-                    }
-                    rpcClient.getMiDataMapperRpcClient().importDMSchema(request).then(response => {
-                        rpcClient.getMiDataMapperRpcClient().updateDMC({
-                            sourcePath: documentUri,
-                            dmName: configName,
-                        });
-                    });
-                })
-            
+            if (response.success) {
+                console.log("Schema imported successfully");
+            } else {
+                console.error("Error while importing schema");
+            }
         }).catch(e => {
             console.error("Error while importing schema", e);
         });
@@ -104,7 +94,7 @@ export function ImportDataForm(props: ImportDataWizardProps) {
                         <ComponentCard sx={cardStyle} disbaleHoverEffect>
                             <h3>Import {ioType} Schema</h3>
                             <Field>
-                                <AutoComplete label="Resource Type" items={["JSON", "JSONSCHEMA", "XML"]} 
+                                <AutoComplete label="Resource Type" items={["JSON", "JSONSCHEMA", "XML", "CSV"]} 
                                     borderBox onValueChange={(e: any) => setSelectedResourceType(e)}/>
                             </Field>
                             <Button appearance="primary" onClick={loadSchema}>Import</Button>

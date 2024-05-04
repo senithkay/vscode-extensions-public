@@ -40,16 +40,18 @@ export function HierachicalPath(props: HierachicalPathProps) {
             return;
         }
 
-        const filePath = path.relative(machineView.projectUri, machineView.documentUri).split(path.join("src", "main"))[1];
-        const pathItems = filePath.substring(1).split(path.sep);
+        const isWindows = navigator.platform.toLowerCase().includes("win");
+        const splitString = isWindows ? path.win32.join("src", "main") : path.join("src", "main");
+        const filePath = path.relative(path.normalize(machineView.projectUri), path.normalize(machineView.documentUri)).split(splitString)[1];
+        const pathItems = filePath.substring(1).split(isWindows ? path.win32.sep : path.sep);
 
         const segments: Segment[] = [];
-        const updateSegments = async () => {
-            const syntaxTree = await rpcClient.getMiDiagramRpcClient().getSyntaxTree({ documentUri: machineView.documentUri });
+        const updateSegments = async () => {  
 
             for (const pathItem of pathItems) {
                 if (pathItem.endsWith(".xml")) {
                     try {
+                        const syntaxTree = await rpcClient.getMiDiagramRpcClient().getSyntaxTree({ documentUri: machineView.documentUri });
                         if (!syntaxTree || !syntaxTree?.syntaxTree || !syntaxTree.syntaxTree?.api) {
                             continue;
                         }

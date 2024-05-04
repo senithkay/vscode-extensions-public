@@ -5,7 +5,7 @@ export function getCommandMustacheTemplate() {
 
   return `<pojoCommand {{#description}}description="{{description}}" {{/description}}{{#className}}name="{{className}}"{{/className}} >
         {{#properties}}
-        <property {{#messageAction}}action="{{messageAction}}" {{/messageAction}}{{#contextAction}}action="{{contextAction}}" {{/contextAction}}{{#valueContextPropertyName}}context-name="{{valueContextPropertyName}}" {{/valueContextPropertyName}}{{#propertyName}}name="{{propertyName}}" {{/propertyName}}{{#valueLiteral}}value="{{valueLiteral}}" {{/valueLiteral}}{{#valueMessageElementXpath}}expression="{{{valueMessageElementXpath}}}"{{/valueMessageElementXpath}} />
+        <property {{#messageAction}}action="{{messageAction}}" {{/messageAction}}{{#contextAction}}action="{{contextAction}}" {{/contextAction}}{{#valueContextPropertyName}}context-name="{{{valueContextPropertyName}}}" {{/valueContextPropertyName}}{{#propertyName}}name="{{{propertyName}}}" {{/propertyName}}{{#valueLiteral}}value="{{{valueLiteral}}}" {{/valueLiteral}}{{#valueMessageElementXpath}}expression="{{{valueMessageElementXpath}}}"{{/valueMessageElementXpath}} />
         {{/properties}}
 </pojoCommand>`;
 }

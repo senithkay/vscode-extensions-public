@@ -33,7 +33,7 @@ import {
     dracula,
     materialOceanic,
 } from 'react-syntax-highlighter/dist/cjs/styles/prism'
-import { set } from "lodash";
+import { pad, set } from "lodash";
 
 
 interface MarkdownRendererProps {
@@ -75,9 +75,15 @@ const AIChatView = styled.div({
 const Header = styled.header({
     display: 'flex',
     flexDirection: 'row',
-    justifyContent: 'flex-end',
+    justifyContent: 'space-between',
     padding: '10px',
     gap: '10px',
+});
+
+const HeaderButtons = styled.div({
+    display: 'flex',
+    justifyContent: 'flex-end',
+    marginRight: '10px',
 });
 
 const Main = styled.main({
@@ -101,6 +107,13 @@ const Welcome = styled.div({
     padding: "0 20px",
 });
 
+const Badge = styled.div`
+    padding: 5px;
+    margin-left: 10px;
+    display: inline-block;
+    text-align: left;
+`;
+
 // A string array to store all code blocks
 const codeBlocks: string[] = [];
 var projectUuid = "";
@@ -108,6 +121,9 @@ var backendRootUri = "";
 
 let controller = new AbortController();
 let signal = controller.signal;
+
+var remainingTokenPercentage: string|number;
+var remaingTokenLessThanOne: boolean = false;
 
 export function AIProjectGenerationChat() {
     const { rpcClient } = useVisualizerContext();
@@ -143,7 +159,25 @@ export function AIProjectGenerationChat() {
             const storedChatArray = localStorage.getItem(localStorageFile);
             const storedQuestion = localStorage.getItem(localStorageQuestionFile);
             const storedCodeBlocks = localStorage.getItem(`codeBlocks-AIGenerationChat-${projectUuid}`);
-            rpcClient.getAIVisualizerState().then((machineView) => {
+            rpcClient.getAIVisualizerState().then((machineView:any) => {
+                const maxTokens = machineView.userTokens.max_usage;
+                if(maxTokens == -1){
+                    remainingTokenPercentage = "Unlimited";
+                }else{
+                    const remainingTokens = machineView.userTokens.remaining_tokens;
+                    remainingTokenPercentage = (remainingTokens / maxTokens) * 100;
+                    if(remainingTokenPercentage < 1 && remainingTokenPercentage > 0){
+                        remaingTokenLessThanOne = true;
+                    }else{
+                        remaingTokenLessThanOne = false;
+                    }
+                    remainingTokenPercentage = Math.round(remainingTokenPercentage);
+                    if (remainingTokenPercentage<0){
+                        remainingTokenPercentage = 0;
+                    }
+                }
+
+
                 if (machineView.initialPrompt) {
                     setMessages(prevMessages => [
                         ...prevMessages,
@@ -318,14 +352,13 @@ export function AIProjectGenerationChat() {
     }
 
     async function handleSend(isQuestion: boolean = false, isInitialPrompt: boolean = false) {
-        if(userInput === "") {
+        if(userInput === "" && !isQuestion && !isInitialPrompt) {
             return;
         }
         console.log(chatArray);
         var context: GetWorkspaceContextResponse[] = [];
         setMessages(prevMessages => prevMessages.filter((message, index) => message.type !== 'label'));
         setMessages(prevMessages => prevMessages.filter((message, index) => message.type !== 'question'));
-
         setIsLoading(true);
         let assistant_response = "";
         if (!isQuestion && !isInitialPrompt) {
@@ -379,7 +412,7 @@ export function AIProjectGenerationChat() {
         }
         console.log(context[0].context);
         const token = await rpcClient.getMiDiagramRpcClient().getUserAccessToken();
-        const response = await fetch(backendRootUri + backendUrl, {
+        var response = await fetch(backendRootUri + backendUrl, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -388,16 +421,49 @@ export function AIProjectGenerationChat() {
             body: JSON.stringify({ messages: chatArray, context: context[0].context }),
             signal: signal,
         })
-        if (!response.ok) {
+        if (!response.ok && response.status != 401) {
             setIsLoading(false);
             setMessages(prevMessages => {
                 const newMessages = [...prevMessages];
                 const statusText = getStatusText(response.status);
-                newMessages[newMessages.length - 1].content += `Failed to fetch response. Status: ${response.status} - ${statusText}`;
+                let error = `Failed to fetch response. Status: ${statusText}`;
+                console.log("Response status: ", response.status);
+                if (response.status == 429) {
+                    response.json().then(body => {
+                        console.log(body.detail);
+                        error += body.detail;
+                        console.log("Error: ", error);
+                    });
+                }
+                newMessages[newMessages.length - 1].content += error;
                 newMessages[newMessages.length - 1].type = 'Error';
                 return newMessages;
             });
             throw new Error('Failed to fetch response');
+        }
+        if(response.status == 401){
+            await rpcClient.getMiDiagramRpcClient().refreshAccessToken();
+            const token = await rpcClient.getMiDiagramRpcClient().getUserAccessToken();
+            response = await fetch(backendRootUri + backendUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token.token}`,
+                },
+                body: JSON.stringify({ messages: chatArray, context: context[0].context }),
+                signal: signal,
+            })
+            if(!response.ok){
+                setIsLoading(false);
+                setMessages(prevMessages => {
+                    const newMessages = [...prevMessages];
+                    const statusText = getStatusText(response.status);
+                    newMessages[newMessages.length - 1].content += `Failed to fetch response. Status: ${response.status} - ${statusText}`;
+                    newMessages[newMessages.length - 1].type = 'Error';
+                    return newMessages;
+                });
+                throw new Error('Failed to fetch response');
+            }
         }
         const reader = response.body?.getReader();
         const decoder = new TextDecoder();
@@ -418,6 +484,23 @@ export function AIProjectGenerationChat() {
             for (let i = 0; i < lines.length - 1; i++) {
                 try {
                     const json = JSON.parse(lines[i]);
+                    const tokenUsage = json.usage;
+                    const maxTokens = tokenUsage.max_usage;
+                    if (maxTokens == -1) {
+                        remainingTokenPercentage = "Unlimited";
+                    }else{
+                        const remainingTokens = tokenUsage.remaining_tokens;
+                        remainingTokenPercentage = (remainingTokens / maxTokens) * 100;
+                        if(remainingTokenPercentage < 1 && remainingTokenPercentage > 0){
+                            remaingTokenLessThanOne = true;
+                        }else{
+                            remaingTokenLessThanOne = false;
+                        }
+                        remainingTokenPercentage = Math.round(remainingTokenPercentage);
+                        if (remainingTokenPercentage<0){
+                            remainingTokenPercentage = 0;
+                        }
+                    }
                     if (json.content == null) {
                         addChatEntry("assistant", assistant_response);
                         const questions = json.questions
@@ -470,6 +553,8 @@ export function AIProjectGenerationChat() {
         localStorage.setItem(`codeBlocks-AIGenerationChat-${projectUuid}`, JSON.stringify(codeBlocks));
 
     };
+
+    
     async function handleStop() {
         // Abort the fetch
         controller.abort();
@@ -597,21 +682,29 @@ export function AIProjectGenerationChat() {
     return (
         <AIChatView>
             <Header>
+            <Badge>
+                    Remaining Free Usage: {
+                        remainingTokenPercentage === 'Unlimited' ? remainingTokenPercentage :
+                        (remaingTokenLessThanOne ? '<1%' : `${remainingTokenPercentage}%`)
+                    }
+            </Badge>
+            <HeaderButtons>
                 <Button
-                    appearance="icon"
-                    onClick={() => handleClearChat()}
-                    tooltip="Clear Chat"
-                >
-                    <Codicon name="clear-all" />&nbsp;&nbsp;Clear
-                </Button>
-                <Button
-                    appearance="icon"
-                    onClick={() => handleLogout()}
-                    tooltip="Logout"
-                    disabled={isLoading}
-                >
-                    <Codicon name="sign-out" />&nbsp;&nbsp;Logout
-                </Button>
+                        appearance="icon"
+                        onClick={() => handleClearChat()}
+                        tooltip="Clear Chat"
+                    >
+                        <Codicon name="clear-all" />&nbsp;&nbsp;Clear
+                    </Button>
+                    <Button
+                        appearance="icon"
+                        onClick={() => handleLogout()}
+                        tooltip="Logout"
+                        disabled={isLoading}
+                    >
+                        <Codicon name="sign-out" />&nbsp;&nbsp;Logout
+                    </Button>
+            </HeaderButtons>
             </Header>
             <main style={{ flex: 1, overflowY: "auto" }}>
                 {Array.isArray(otherMessages) && otherMessages.length === 0 && (<Welcome>

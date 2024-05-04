@@ -47,6 +47,7 @@ interface Element {
     required: string;
     helpTip: any;
     comboValues?: any[];
+    defaultValue?: any;
     allowedConnectionTypes?: string[];
 }
 
@@ -133,8 +134,8 @@ const AddConnector = (props: AddConnectorProps) => {
     }, [props.formData]);
 
     useEffect(() => {
-        if (sidePanelContext.formValues && Object.keys(sidePanelContext.formValues).length > 0) {
-            const parametersValues = sidePanelContext.formValues.parameters.map((param: any) => ({
+        if (sidePanelContext.formValues && Object.keys(sidePanelContext.formValues).length > 0 && sidePanelContext.formValues?.parameters) {
+            const parametersValues = sidePanelContext.formValues?.parameters?.map((param: any) => ({
                 [param.name]: param.value
             }));
             const flattenedParameters = Object.assign({}, ...parametersValues);
@@ -277,18 +278,17 @@ const AddConnector = (props: AddConnectorProps) => {
             case 'booleanOrExpression':
                 return (
                     <>
-                        <label>{element.displayName}</label> {element.required && <RequiredFormInput />}
-                        <div style={{ display: "flex", flexDirection: "row", width: '100%', gap: '10px' }}>
-                            <VSCodeCheckbox
-                                label={element.displayName}
-                                checked={formValues[element.name] || false}
-                                onChange={(e: any) => {
-                                    setFormValues({ ...formValues, [element.name]: e.target.checked });
-                                    formValidators[element.name](e.target.checked);
-                                }}
-                                required={element.required === 'true'}
-                            />
-                        </div>
+                        <label>{element.displayName}</label> {element.required === "true" && <RequiredFormInput />}
+                        <AutoComplete
+                            identifier={element.displayName}
+                            items={["true", "false"]}
+                            value={formValues[element.name]}
+                            onValueChange={(e: any) => {
+                                setFormValues({ ...formValues, [element.name]: e });
+                                formValidators[element.name](e);
+                            }}
+                            allowItemCreate={true}
+                            required={element.required === 'true'} />
                     </>
                 );
             case 'comboOrExpression':

@@ -141,16 +141,32 @@ const getDefaultValue = (defaultValue: string) => {
     }
 }
 
-const getParamManagerConfig = (elements: any[], tableKey: number, tableValue: number, name: string) => {
+const isExpression = (elements: any[], index: number) => {
+    return elements[index].value.inputType.includes('Expression');
+}
+
+const getParamManagerKeyOrValue = (elements: any[], tableKey: string, postFix?:string) => {
+    const key = getIndexByKeyName(tableKey, elements);
+    if (key === -1) {
+        return "index";
+    }
+    if(key !== -1 && elements[key].type === 'table') {
+        return `generateSpaceSeperatedStringFromParamValues(property[${key}]${postFix ?? ''} as ParamConfig)`;
+    }
+
+    return isExpression(elements, key) ? `(property[${key}]${postFix ?? ''} as ExpressionFieldValue).value` : `property[${key}]${postFix ?? ''}`;
+}
+
+const getParamManagerConfig = (elements: any[], tableKey: string, tableValue: string, name: string) => {
     let paramValues = '';
     let paramFields = '';
 
     paramValues +=
-        fixIndentation(`sidePanelContext?.formValues?.${name} && sidePanelContext?.formValues?.${name}.map((property: string|ExpressionFieldValue[], index: string) => (
+        fixIndentation(`sidePanelContext?.formValues?.${name} && sidePanelContext?.formValues?.${name}.map((property: (string | ExpressionFieldValue | ParamConfig)[], index: string) => (
             {
                 id: index,
-                key: ${tableKey === -1 ? "index" : `typeof property[${tableKey}] === 'object' ? property[${tableKey}].value : property[${tableKey}]`},
-                value:  ${tableValue === -1 ? "index" : `typeof property[${tableValue}] === 'object' ? property[${tableValue}].value : property[${tableValue}]`},
+                key: ${getParamManagerKeyOrValue(elements, tableKey)},
+                value:  ${getParamManagerKeyOrValue(elements, tableValue)},
                 icon: 'query',
                 paramValues: [`, 12);
 
@@ -236,13 +252,10 @@ const getParamManagerConfig = (elements: any[], tableKey: number, tableValue: nu
 }
 
 const getParamManagerOnChange = (varName: string, elements: any[], tableKey: string, tableValue: string) => {
-    const tableKeyIndex = getIndexByKeyName(tableKey, elements);
-    const tableValueIndex = getIndexByKeyName(tableValue, elements);
-    const isValueTypeTable = tableValueIndex !== -1 && elements[tableValueIndex].type === 'table';
     let onChange = `${varName}.paramValues = ${varName}.paramValues.map((param: any, index: number) => {
-        const paramValues: ParamValue[] = param.paramValues;
-        param.key = ${tableKeyIndex !== -1 ? `paramValues[${tableKeyIndex}].value` : "index"};
-        param.value = ${tableValueIndex !== -1 ? isValueTypeTable ? `generateSpaceSeperatedStringFromParamValues(paramValues[${tableValueIndex}].value as ParamConfig)` : `paramValues[${tableValueIndex}].value` : "''"};
+        const property: ParamValue[] = param.paramValues;
+        param.key = ${getParamManagerKeyOrValue(elements, tableKey, '.value')};
+        param.value = ${getParamManagerKeyOrValue(elements, tableValue, '.value')};
         param.icon = 'query';` ;
 
     elements.forEach((attribute: any, index: number) => {
@@ -250,7 +263,7 @@ const getParamManagerOnChange = (varName: string, elements: any[], tableKey: str
             const { elements, tableKey, tableValue } = attribute.value;
             onChange += `
 
-            ${getParamManagerOnChange(`(paramValues[${index}].value as ParamConfig)`, elements, tableKey, tableValue)}
+            ${getParamManagerOnChange(`(property[${index}].value as ParamConfig)`, elements, tableKey, tableValue)}
             `;
         }
     });
@@ -444,10 +457,8 @@ const generateForm = (jsonData: any): string => {
                 ${description ? `<Typography variant="body3">${description}</Typography>` : ""}\n`, indentation);
 
                 const elements = value.elements;
-                const tableKey = getIndexByKeyName(value.tableKey, elements);
-                const tableValue = getIndexByKeyName(value.tableValue, elements);
 
-                const { paramValues, paramFields } = getParamManagerConfig(elements, tableKey, tableValue, inputName);
+                const { paramValues, paramFields } = getParamManagerConfig(elements, value.tableKey, value.tableValue, inputName);
 
                 defaultValues += fixIndentation(`
                     ${inputName}: {

@@ -48,10 +48,8 @@ export class DataMapperNodeModel extends MediatorNodeModel {
                     type: EVENT_TYPE.OPEN_VIEW,
                     location: {
                         ...state,
-                        view: MACHINE_VIEW.DataMapperView,
-                        dataMapperProps: {
-                            filePath: response.absPath
-                        }
+                        documentUri: response.absPath,
+                        view: MACHINE_VIEW.DataMapperView
                     }
                 });
                 });

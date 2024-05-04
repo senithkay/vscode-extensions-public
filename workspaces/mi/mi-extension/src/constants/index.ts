@@ -1,6 +1,6 @@
 export const SAMPLE_ICONS_GITHUB_URL = "https://raw.githubusercontent.com/wso2/integration-studio/main/SamplesForVSCode/icons/";
 export const MI_COPILOT_BACKEND_URL = "https://e95488c8-8511-4882-967f-ec3ae2a0f86f-dev.e1-us-east-azure.choreoapis.dev/miaideployments/micopilot/mi-copilot-backend-be2/v1.0";
-export const HEALTH_CHECK_BACKEND_URL = '/health';
+export const USER_CHECK_BACKEND_URL = '/user/usage';
 
 export const COMMANDS = {
     OPEN_PROJECT: "MI.openProject",
@@ -14,6 +14,7 @@ export const COMMANDS = {
     SHOW_DIAGRAM: "MI.show.diagram",
     SHOW_RESOURCE_VIEW: "MI.show.resource-view",
     SHOW_SEQUENCE_VIEW: "MI.show.sequence-view",
+    SHOW_SEQUENCE_TEMPLATE_VIEW: "MI.show.sequence_template-view",
     SHOW_PROXY_VIEW: "MI.show.proxy-view",
     SHOW_TASK: "MI.show.task",
     SHOW_INBOUND_ENDPOINT: "MI.show.inbound-endpoint",
@@ -63,6 +64,9 @@ export const COMMANDS = {
     BUILD_AND_RUN_PROJECT: 'MI.build-and-run',
     ADD_DATA_SOURCE_COMMAND: 'MI.project-explorer.add-data-source',
     SHOW_DATA_SOURCE: 'MI.show.data-source',
+    SHOW_DATA_MAPPER: 'MI.show.data-mapper',
 };
 
 export const DEFAULT_PROJECT_VERSION = "1.0.0";
+
+export const REFRESH_ENABLED_DOCUMENTS = ["SynapseXml", "typescript"];

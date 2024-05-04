@@ -9,25 +9,26 @@
 
 import { Rule } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import Mustache from 'mustache';
+import { transformNamespaces } from "../../../commons";
 
 export function getRuleMustacheTemplate() {
 
     return `
     <brs:rule description="{{description}}" xmlns:brs="http://wso2.org/carbon/rules">
-        <brs:source xpath="{{{sourceXPath}}}">{{sourceValue}}</brs:source>
-        <brs:target action="{{targetAction}}" resultXpath="{{{targetResultXPath}}}" xpath="{{{targetXPath}}}">{{targetValue}}</brs:target>
+        <brs:source {{#sourceXPath}}xpath="{{{value}}}"{{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}}{{/sourceXPath}}>{{{sourceValue}}}</brs:source>
+        <brs:target action="{{targetAction}}" resultXpath="{{{targetResultXPath}}}" xpath="{{{targetXPath}}}"{{#targetNamespaces}} xmlns:{{prefix}}="{{uri}}"{{/targetNamespaces}}>{{targetValue}}</brs:target>
         <brs:ruleSet>
             <brs:properties />
             <brs:rule resourceType="{{ruleSetType}}"  sourceType="{{ruleSetSourceType}}">{{#ruleSetSourceCode}}<![CDATA[{{{ruleSetSourceCode}}}]]>{{/ruleSetSourceCode}}{{#inlineRegistryKey}}{{inlineRegistryKey}}{{/inlineRegistryKey}}{{#ruleSetURL}}{{{ruleSetURL}}}{{/ruleSetURL}}</brs:rule>
         </brs:ruleSet>
         <brs:input namespace="{{inputNamespace}}" wrapperElementName="{{inputWrapperName}}" >
             {{#facts}}
-            <brs:fact elementName="{{elementName}}" namespace="{{inputNamespace}}" type="{{factType}}" xpath="{{{propertyExpression}}}" />
+            <brs:fact elementName="{{{elementName}}}" namespace="{{inputNamespace}}" type="{{factType}}" xpath="{{{propertyExpression}}}" />
             {{/facts}}
         </brs:input>
         <brs:output namespace="{{outputNamespace}}" wrapperElementName="{{outputWrapperName}}" >
             {{#results}}
-            <brs:fact elementName="{{resultName}}" namespace="{{outputNamespace}}" type="{{resultType}}" />
+            <brs:fact elementName="{{{resultName}}}" namespace="{{outputNamespace}}" type="{{resultType}}" />
             {{/results}}
         </brs:output>
     </brs:rule>
@@ -36,7 +37,14 @@ export function getRuleMustacheTemplate() {
 
 export function getRuleXml(data: { [key: string]: any }) {
 
-    data.sourceXPath = data.sourceXPath?.value;
+    let targetNamespaces = [];
+    if (data.targetXPath?.namespaces) {
+        targetNamespaces.push(...data.targetXPath.namespaces);
+    }
+    if (data.targetResultXPath?.namespaces) {
+        targetNamespaces.push(...data.targetResultXPath.namespaces);
+    }
+    data.targetNamespaces = targetNamespaces;
     data.targetResultXPath = data.targetResultXPath?.value;
     data.targetXPath = data.targetXPath?.value;
     data.facts = data.factsConfiguration?.map((fact: string[]) => {
@@ -88,11 +96,12 @@ function getTypeAndValue(fact: string[]) {
 export function getRuleFormDataFromSTNode(data: { [key: string]: any }, node: Rule) {
 
     data.description = node.description;
-    data.sourceXPath = { isExpression: true, value: node.source?.xpath };
+    data.sourceXPath = { isExpression: true, value: node.source?.xpath, namespaces: transformNamespaces(node.source?.namespaces) };
     data.sourceValue = node.source?.value;
     data.targetAction = node.target?.action;
-    data.targetResultXPath = { isExpression: true, value: node.target?.resultXpath };
-    data.targetXPath = { isExpression: true, value: node.target?.xpath };
+    let namespaces = transformNamespaces(node.target?.namespaces);
+    data.targetResultXPath = { isExpression: true, value: node.target?.resultXpath, namespaces: namespaces };
+    data.targetXPath = { isExpression: true, value: node.target?.xpath, namespaces: namespaces };
     data.targetValue = node.target?.value;
     data.ruleSetType = node.ruleSet?.rule?.resourceType;
     data.ruleSetSourceType = node.ruleSet?.rule?.sourceType;

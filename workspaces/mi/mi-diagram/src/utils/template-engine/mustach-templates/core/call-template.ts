@@ -10,11 +10,12 @@
 import Mustache from "mustache";
 import { CallTemplate } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { ExpressionFieldValue } from "../../../../components/Form/ExpressionField/ExpressionInput";
+import { transformNamespaces } from "../../../commons";
 
 export function getCallTemplateMustacheTemplate() {
   return `<call-template {{#targetTemplate}}target="{{targetTemplate}}" {{/targetTemplate}}{{#onError}}onError="{{onError}}" {{/onError}}{{#description}}description="{{description}}" {{/description}}>
 {{#parameterName}}
-  <with-param {{#parameterName}}name="{{parameterName}}" {{/parameterName}}{{#parameterValue}}value="{{parameterValue}}" {{/parameterValue}}/>
+  <with-param {{#parameterName}}name="{{parameterName}}" {{/parameterName}}{{#parameterValue}}value="{{parameterValue}}" {{/parameterValue}}{{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}} />
 {{/parameterName}}
 </call-template>`;
 }
@@ -23,9 +24,14 @@ export function getCallTemplateXml(data: { [key: string]: any }) {
   const parameterName = data.parameterNameTable.map((property: any[]) => {
     const value = property[1] as ExpressionFieldValue;
     const isExpressionValue = value.isExpression;
+    let namespaces;
+    if (isExpressionValue) {
+      namespaces = value.namespaces;
+    }
     return {
       parameterName: property[0],
       parameterValue: isExpressionValue ? `{${value.value}}` : value.value,
+      namespaces: namespaces
     }
   });
   const modifiedData = {
@@ -43,7 +49,7 @@ export function getCallTemplateFormDataFromSTNode(data: { [key: string]: any }, 
       const regex = /{([^}]*)}/;
       const match = property.value.match(regex);
       const value = match?.length > 1 ? match[1] : property.value;
-      return [property.name, { value: value, isExpression }];
+      return [property.name, { value: value, isExpression, namespaces: transformNamespaces(property.namespaces) }];
     });
   }
 

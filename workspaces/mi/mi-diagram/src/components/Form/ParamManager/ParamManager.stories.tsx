@@ -418,6 +418,70 @@ export const WithEnableCondition = () => {
     return <ParamManager paramConfigs={params} readonly={false} onChange={handleOnChange} />;
 };
 
+// Add a sample enableCondition with nested enableCondition
+const nestedEc: ParamField[] = [
+    {
+        id: 0,
+        type: "TextField",
+        label: "Text Field",
+        defaultValue: "default value",
+        isRequired: true
+    },
+    {
+        id: 1,
+        type: "Dropdown",
+        label: "Drop Down",
+        defaultValue: "1",
+        values: ["1", "2", "3"],
+    },
+    {
+        id: 2,
+        type: "Checkbox",
+        label: "Checkbox",
+        defaultValue: false,
+        enableCondition: [
+            "AND",
+            [
+                "OR",
+                [
+                    "NOT",
+                    { 3: "Test" }
+                ],
+                { 0: "3" }
+            ],
+            { 1: "2" }
+        ]
+    },
+    {
+        id: 3,
+        type: "TextArea",
+        label: "Text Area",
+        defaultValue: "Test"
+    }
+];
+
+const nestedEcConfig: ParamConfig = {
+    paramValues: [],
+    paramFields: nestedEc
+};
+
+// Story for Nested EnableCondition
+export const WithNestedEnableCondition = () => {
+    const [params, setParams] = useState(nestedEcConfig);
+    const handleOnChange = (params: ParamConfig) => {
+        const modifiedParams = {
+            ...params, paramValues: params.paramValues.map(param => ({
+                ...param,
+                icon: "query",
+                key: `Key`,
+                value: generateSpaceSeperatedStringFromParamValues(param)
+            }))
+        };
+        setParams(modifiedParams);
+    };
+    return <ParamManager paramConfigs={params} readonly={false} onChange={handleOnChange} />;
+};
+
 // Add a sample enableCondition (ConditionParams | string)[] object
 const paramFieldsWithEmptyLogicalExpr: ParamField[] = [
     {

@@ -26,18 +26,17 @@ import { AddressEndpointWizard } from "./views/Forms/AddressEndpointForm";
 import { WsdlEndpointWizard } from "./views/Forms/WSDLEndpointForm/index";
 import { DefaultEndpointWizard } from "./views/Forms/DefaultEndpointForm";
 import { LoadBalanceWizard } from './views/Forms/LoadBalanceEPform';
-import { getSyntaxTreeType } from './utils/syntax-tree';
 import { FailoverWizard } from './views/Forms/FailoverEndpointForm';
-import { APIResource, NamedSequence, Proxy } from '@wso2-enterprise/mi-syntax-tree/lib/src';
+import { APIResource, NamedSequence, Proxy, Template } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 import { ProxyView, ResourceView, SequenceView } from './views/Diagram';
 import { RecipientWizard } from './views/Forms/RecipientEndpointForm';
-import { Diagram } from '@wso2-enterprise/mi-diagram';
 import { TemplateEndpointWizard } from './views/Forms/TemplateEndpointForm';
 import { UnsupportedProject, UnsupportedProjectProps } from './views/UnsupportedProject';
 import { DataMapper } from './views/DataMapper';
 import { ErrorBoundary, FormView } from '@wso2-enterprise/ui-toolkit';
 import PopupPanel from './PopupPanel';
 import { AddArtifactView } from './views/AddArtifact';
+import { SequenceTemplateView } from './views/Diagram/SequenceTemplate';
 
 const MainContainer = styled.div`
     display: flex;
@@ -166,6 +165,17 @@ const MainPanel = () => {
                         <SequenceView
                             key={getUniqueKey(machineView.stNode, machineView.documentUri)}
                             model={machineView.stNode as NamedSequence}
+                            documentUri={machineView.documentUri}
+                            diagnostics={machineView.diagnostics}
+                        />
+                    );
+                    await rpcClient.getMiDiagramRpcClient().initUndoRedoManager({ path: machineView.documentUri });
+                    break;
+                case MACHINE_VIEW.SequenceTemplateView:
+                    setViewComponent(
+                        <SequenceTemplateView
+                            key={getUniqueKey(machineView.stNode, machineView.documentUri)}
+                            model={machineView.stNode as Template}
                             documentUri={machineView.documentUri}
                             diagnostics={machineView.diagnostics}
                         />

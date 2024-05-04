@@ -28,6 +28,7 @@ export enum MACHINE_VIEW {
     Diagram = "MI Diagram",
     ResourceView = "Resource View",
     SequenceView = "Sequence View",
+    SequenceTemplateView = "Sequence Template View",
     ProxyView = "Proxy View",
     ServiceDesigner = "Service Designer",
     DataMapperView = "Data Mapper View",
@@ -82,6 +83,7 @@ export enum AI_EVENT_TYPE {
     CLEAR_PROMPT = "CLEAR_PROMPT",
     DISPOSE = "DISPOSE",
     CANCEL = "CANCEL",
+    RETRY = "RETRY",
 }
 
 export enum EVENT_TYPE {
@@ -145,10 +147,23 @@ export interface AIVisualizerLocation {
     view?: AI_MACHINE_VIEW | null;
     initialPrompt?: string;
     state?: AIMachineStateValue;
+    userTokens?: AIUserTokens;
+}
+
+export interface AIUserTokens {
+    max_usage: number;
+    remaining_tokens: number;
+    time_to_reset: number;
 }
 
 export interface ParentPopupData {
     recentIdentifier: string;
+}
+
+export interface ConnectorStatus {
+    connector: string;
+    isSuccess: boolean;
+    message: string;
 }
 
 export const stateChanged: NotificationType<MachineStateValue> = { method: 'stateChanged' };
@@ -162,3 +177,4 @@ export const sendAIStateEvent: RequestType<AI_EVENT_TYPE, void> = { method: 'sen
 export const onFileContentUpdate: NotificationType<void> = { method: `onFileContentUpdate` };
 export const webviewReady: NotificationType<void> = { method: `webviewReady` };
 export const onParentPopupSubmitted: NotificationType<ParentPopupData> = { method: `onParentPopupSubmitted` };
+export const onConnectorStatusUpdate: NotificationType<ConnectorStatus> = { method: `onConnectorStatusUpdate` }; 

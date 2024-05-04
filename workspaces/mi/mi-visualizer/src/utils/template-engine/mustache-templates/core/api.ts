@@ -30,7 +30,11 @@ export function getAddApiResourceTemplate() {
 }
 
 export const getEditApiResourceTemplate = () => {
-    return `<resource methods="{{methods}}"{{#protocol}} protocol="{{{protocol}}}"{{/protocol}}{{#uri_template}} uri-template="{{{uri_template}}}"{{/uri_template}}{{#url_mapping}} url-mapping="{{{url_mapping}}}"{{/url_mapping}}{{#in_sequence}} inSequence="{{{in_sequence}}}"{{/in_sequence}}{{#out_sequence}} outSequence="{{{out_sequence}}}"{{/out_sequence}}{{#fault_sequence}} faultSequence="{{{fault_sequence}}}"{{/fault_sequence}}>`
+    return `<resource methods="{{methods}}"{{#protocol}} protocol="{{{protocol}}}"{{/protocol}}{{#uri_template}} uri-template="{{{uri_template}}}"{{/uri_template}}{{#url_mapping}} url-mapping="{{{url_mapping}}}"{{/url_mapping}}{{#in_sequence}} inSequence="{{{in_sequence}}}"{{/in_sequence}}{{#out_sequence}} outSequence="{{{out_sequence}}}"{{/out_sequence}}{{#fault_sequence}} faultSequence="{{{fault_sequence}}}"{{/fault_sequence}}>{{#appened_in_sequence}}
+    <inSequence>
+    </inSequence>{{/appened_in_sequence}}{{#appened_fault_sequence}}
+    <faultSequence>
+    </faultSequence>{{/appened_fault_sequence}}`;
 }
 
 export const getEditSequenceTemplate = () => {
