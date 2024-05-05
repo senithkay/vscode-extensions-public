@@ -2481,9 +2481,9 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             content[i] = content[i].replace(/```xml/g, '');
             content[i] = content[i].replace(/```/g, '');
             //name of file is in the code somewhere in the format name="example", extract the name
-            const match = content[i].match(/name="([^"]+)"/);
+            const match = content[i].match(/(name|key)="([^"]+)"/);
             if (match) {
-                const name = match[1]; // get the name
+                const name = match[2]; // get the name
                 //identify type of the file from the first tag of the content
                 const tagMatch = content[i].match(/<(\w+)/);
                 let fileType = '';
