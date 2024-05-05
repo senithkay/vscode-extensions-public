@@ -153,39 +153,41 @@ function generateTreeDataOfDataMappings(project: vscode.WorkspaceFolder, data: P
 	const directoryMap = data.directoryMap;
 	const resources = (directoryMap as any)?.src?.main?.wso2mi.resources.registry;
 	const govResources = resources['gov'];
-	if (govResources && govResources.folders.length > 0 ) {
+	if (govResources && govResources.folders.length > 0) {
 		const dataMapperResources = govResources.folders.find((folder: any) => folder.name === 'datamapper');
-		const parentEntry = new ProjectExplorerEntry(
-			'Data Mappers',
-			isCollapsibleState(dataMapperResources.folders.length > 0),
-			{ name: 'datamapper', path: dataMapperResources.path, type: 'datamapper'},
-			'arrow-both'
-		);
-		parentEntry.contextValue = 'data-mapper';
-		parentEntry.id = 'data-mapper';
-		parentEntry.children = parentEntry.children ?? [];
-		for (const folder of dataMapperResources.folders) {
-			for (const file of folder.files) {
-				if (!file.name.endsWith('.ts')) {
-					continue;
+		if (dataMapperResources) {
+			const parentEntry = new ProjectExplorerEntry(
+				'Data Mappers',
+				isCollapsibleState(dataMapperResources.folders.length > 0),
+				{ name: 'datamapper', path: dataMapperResources.path, type: 'datamapper' },
+				'arrow-both'
+			);
+			parentEntry.contextValue = 'data-mapper';
+			parentEntry.id = 'data-mapper';
+			parentEntry.children = parentEntry.children ?? [];
+			for (const folder of dataMapperResources.folders) {
+				for (const file of folder.files) {
+					if (!file.name.endsWith('.ts')) {
+						continue;
+					}
+					const configName = file.name.replace('.ts', '');
+					const dataMapperEntry = new ProjectExplorerEntry(
+						configName,
+						isCollapsibleState(false),
+						{ name: configName, path: file.path, type: 'dataMapper' },
+						'file-code'
+					);
+					dataMapperEntry.contextValue = 'data-mapper';
+					dataMapperEntry.command = {
+						"title": "Open Data Mapper",
+						"command": COMMANDS.SHOW_DATA_MAPPER,
+						"arguments": [file.path]
+					};
+					parentEntry.children.push(dataMapperEntry);
 				}
-				const configName = file.name.replace('.ts', '');
-				const dataMapperEntry = new ProjectExplorerEntry(
-					configName,
-					isCollapsibleState(false),
-					{ name: configName, path: file.path, type: 'dataMapper' },
-					'file-code'
-				);
-				dataMapperEntry.contextValue = 'data-mapper';
-				dataMapperEntry.command = {
-					"title": "Open Data Mapper",
-					"command": COMMANDS.SHOW_DATA_MAPPER,
-					"arguments": [file.path]
-				};
-				parentEntry.children.push(dataMapperEntry);
 			}
+			projectRoot.children?.push(parentEntry);
 		}
-		projectRoot.children?.push(parentEntry);
 	}
 }
 
@@ -523,44 +525,44 @@ function generateConnectionEntry(connectionsData: any): ProjectExplorerEntry {
 	for (const entry of connectionsData) {
 		if (!entry.type) {
 			for (const [key, connectionsArray] of Object.entries(entry)) {
-					const connectionTypeEntry = new ProjectExplorerEntry(
-						key,
-						isCollapsibleState((connectionsArray as any[]).length > 0),
-						{
-							name: key,
-							type: 'connections',
-							path: (connectionsArray as any)[0].path
-						},
-						'link-external'
+				const connectionTypeEntry = new ProjectExplorerEntry(
+					key,
+					isCollapsibleState((connectionsArray as any[]).length > 0),
+					{
+						name: key,
+						type: 'connections',
+						path: (connectionsArray as any)[0].path
+					},
+					'link-external'
+				);
+				connectionTypeEntry.contextValue = key;
+				connectionTypeEntry.id = key;
+
+				for (const connection of (connectionsArray as any)) {
+					const connectionEntry = new ProjectExplorerEntry(
+						connection.name,
+						isCollapsibleState(false),
+						connection,
+						'code'
 					);
-					connectionTypeEntry.contextValue = key;
-					connectionTypeEntry.id = key;
+					connectionEntry.contextValue = 'connection';
+					connectionEntry.id = connection.name;
 
-					for (const connection of (connectionsArray as any)) {
-						const connectionEntry = new ProjectExplorerEntry(
-							connection.name,
-							isCollapsibleState(false),
-							connection,
-							'code'
-						);
-						connectionEntry.contextValue = 'connection';
-						connectionEntry.id = connection.name;
+					connectionEntry.command = {
+						"title": "Show Connection",
+						"command": COMMANDS.SHOW_CONNECTION,
+						"arguments": [vscode.Uri.parse(connection.path), undefined, false]
+					};
 
-						connectionEntry.command = {
-							"title": "Show Connection",
-							"command": COMMANDS.SHOW_CONNECTION,
-							"arguments": [vscode.Uri.parse(connection.path), undefined, false]
-						};
+					connectionTypeEntry.children = connectionTypeEntry.children ?? [];
+					connectionTypeEntry.children.push(connectionEntry);
 
-						connectionTypeEntry.children = connectionTypeEntry.children ?? [];
-						connectionTypeEntry.children.push(connectionEntry);
-
-					}
-					connectionsEntry.children = connectionsEntry.children ?? [];
-					connectionsEntry.children.push(connectionTypeEntry);
 				}
+				connectionsEntry.children = connectionsEntry.children ?? [];
+				connectionsEntry.children.push(connectionTypeEntry);
 			}
 		}
+	}
 
 	return connectionsEntry;
 }
@@ -587,16 +589,18 @@ function genRegistryProjectStructureEntry(data: RegistryResourcesFolder): Projec
 		}
 		if (data.folders) {
 			for (const entry of data.folders) {
-				const explorerEntry = new ProjectExplorerEntry(entry.name,
-					isCollapsibleState(entry.files.length > 0 || entry.folders.length > 0),
-					{
-						name: entry.name,
-						type: 'resource',
-						path: `${entry.path}`
-					}, 'folder');
-				explorerEntry.children = genRegistryProjectStructureEntry(entry);
-				explorerEntry.contextValue = "registry-folder";
-				result.push(explorerEntry);
+				if (entry.name !== ".meta") {
+					const explorerEntry = new ProjectExplorerEntry(entry.name,
+						isCollapsibleState(entry.files.length > 0 || entry.folders.length > 0),
+						{
+							name: entry.name,
+							type: 'resource',
+							path: `${entry.path}`
+						}, 'folder');
+					explorerEntry.children = genRegistryProjectStructureEntry(entry);
+					explorerEntry.contextValue = "registry-folder";
+					result.push(explorerEntry);
+				}
 			}
 		}
 	}
