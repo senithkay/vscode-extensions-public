@@ -67,7 +67,7 @@ export function findInputNode(expr: Node, dmNode: DataMapperNodeModel) {
             if (!paramNode) {
                 if (isWithinFocusedView) {
                     const focusedInputNode = dmNodes.find(node => node instanceof FocusedInputNode) as FocusedInputNode;
-                    paramNode = focusedInputNode.innerParam;
+                    paramNode = focusedInputNode && focusedInputNode.innerParam;
                 }
             }
         }

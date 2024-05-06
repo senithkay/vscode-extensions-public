@@ -63,7 +63,7 @@ export function MIDataMapper(props: MIDataMapperProps) {
     } = props;
     const [views, setViews] = useState<View[]>([{
         fieldFQN: "",
-        label: fnST.getName(),
+        label: `${inputTrees[0].typeName} -> ${outputTree.typeName}`
     }]);
     const [nodes, setNodes] = useState<DataMapperNodeModel[]>([]);
 
@@ -77,6 +77,14 @@ export function MIDataMapper(props: MIDataMapperProps) {
 
     const addView = (view: View) => {
         setViews(prev => [...prev, view]);
+        resetSearchStore();
+    }
+
+    const switchView = (navigateIndex: number) => {
+        setViews(prev => {
+            const newViews = prev.slice(0, navigateIndex + 1);
+            return newViews;
+        });
         resetSearchStore();
     }
 
@@ -110,6 +118,8 @@ export function MIDataMapper(props: MIDataMapperProps) {
         <div className={classes.root}>
             {fnST && (
                 <DataMapperHeader
+                    views={views}
+                    switchView={switchView}
                     hasEditDisabled={false}
                     onConfigOpen={undefined}
                     onClose={undefined}

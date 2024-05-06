@@ -28,6 +28,7 @@ const NODE_ID = "array-function-connector-node";
 export class ArrayFnConnectorNode extends DataMapperNodeModel {
 
     public sourceType: DMType;
+    public targetType: DMType;
     public sourcePort: InputOutputPortModel;
     public targetPort: InputOutputPortModel;
 
@@ -82,7 +83,7 @@ export class ArrayFnConnectorNode extends DataMapperNodeModel {
 
         const type = getDMType(sourceExpr.getText(), this.context.inputTrees[0], true);
 
-        if (type && type?.memberType && type.typeName === TypeKind.Array) {
+        if (type && type?.memberType && type.kind === TypeKind.Array) {
             this.sourceType = type.memberType;
         }
 
@@ -140,6 +141,10 @@ export class ArrayFnConnectorNode extends DataMapperNodeModel {
         }
         while (this.targetPort && this.targetPort.hidden){
             this.targetPort = this.targetPort.parentModel;
+        }
+
+        if (this.targetPort) {
+            this.targetType = getDMType(this.targetPort.fieldFQN, this.context.outputTree);
         }
     }
 
