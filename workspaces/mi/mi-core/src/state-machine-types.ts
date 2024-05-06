@@ -131,6 +131,7 @@ export interface VisualizerLocation {
     errors?: ErrorType[];
     documentUri?: string;
     projectUri?: string;
+    pathSeparator?: string;
     identifier?: string;
     position?: any;
     projectOpened?: boolean;

@@ -9,7 +9,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { AutoComplete, Button, ComponentCard, RequiredFormInput, TextField } from '@wso2-enterprise/ui-toolkit';
-import { VSCodeCheckbox, VSCodeDropdown, VSCodeOption } from '@vscode/webview-ui-toolkit/react';
+import { VSCodeDropdown, VSCodeOption } from '@vscode/webview-ui-toolkit/react';
 import styled from '@emotion/styled';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import SidePanelContext from '../SidePanelContexProvider';
@@ -138,12 +138,15 @@ const AddConnection = (props: AddConnectionProps) => {
             });
             const modifiedXml = template.end({ prettyPrint: true, headless: true });
 
-            const LocalEntryPath = documentUri.replace(/\/apis\/.*$/, `/local-entries`);
+            const visualizerState = await rpcClient.getVisualizerState();
+            const projectUri = visualizerState.projectUri;
+            const sep = visualizerState.pathSeparator;
+            const localEntryPath = [projectUri, 'src', 'main', 'wso2mi', 'artifacts', 'local-entries'].join(sep);
 
             const connectionName = await rpcClient.getMiDiagramRpcClient().createConnection({
                 connectionName: formValues['connectionName'],
                 keyValuesXML: modifiedXml,
-                directory: LocalEntryPath
+                directory: localEntryPath
             });
 
             onNewConnection(connectionName.name);
