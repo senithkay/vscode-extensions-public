@@ -91,7 +91,7 @@ export class ExtendedLanguageClient extends LanguageClient {
 
     async getSyntaxTree(req: GetSyntaxTreeParams): Promise<GetSyntaxTreeResponse> {
         this.didOpen(req.documentIdentifier.uri);
-        return this.sendRequest('synapse/syntaxTree', { uri: Uri.parse(req.documentIdentifier.uri).toString() });
+        return this.sendRequest('synapse/syntaxTree', { uri: Uri.file(req.documentIdentifier.uri).toString() });
     }
 
     private async didOpen(fileUri: string): Promise<void> {
@@ -99,7 +99,7 @@ export class ExtendedLanguageClient extends LanguageClient {
             const content: string = readFileSync(fileUri, { encoding: 'utf-8' });
             const didOpenParams = {
                 textDocument: {
-                    uri: Uri.parse(fileUri).toString(),
+                    uri: Uri.file(fileUri).toString(),
                     languageId: 'xml',
                     version: 1,
                     text: content
@@ -110,20 +110,20 @@ export class ExtendedLanguageClient extends LanguageClient {
     }
 
     async getProjectStructure(path: string): Promise<ProjectStructureResponse> {
-        return this.sendRequest('synapse/directoryTree', { uri: Uri.parse(path).toString() });
+        return this.sendRequest('synapse/directoryTree', { uri: Uri.file(path).toString() });
     }
 
     async getRegistryFiles(req: string): Promise<string[]> {
-        return this.sendRequest("synapse/getRegistryFiles", { uri: Uri.parse(req).toString() });
+        return this.sendRequest("synapse/getRegistryFiles", { uri: Uri.file(req).toString() });
     }
 
     async getArifactFiles(req: string): Promise<string[]> {
-        return this.sendRequest("synapse/getArtifactFiles", { uri: Uri.parse(req).toString() });
+        return this.sendRequest("synapse/getArtifactFiles", { uri: Uri.file(req).toString() });
     }
 
     async getDefinition(params: GetDefinitionRequest): Promise<GetDefinitionResponse> {
         const doc = params.document;
-        doc.uri = Uri.parse(doc.uri).toString();
+        doc.uri = Uri.file(doc.uri).toString();
 
         return this.sendRequest('synapse/definition', {
             textDocument: doc,
@@ -159,13 +159,13 @@ export class ExtendedLanguageClient extends LanguageClient {
     async getAvailableResources(req: GetAvailableResourcesRequest): Promise<GetAvailableResourcesResponse> {
         let uri: string | undefined;
         if(req.documentIdentifier){
-            uri = Uri.parse(req.documentIdentifier).toString();
+            uri = Uri.file(req.documentIdentifier).toString();
         }
         return this.sendRequest("synapse/availableResources", { documentIdentifier: { uri: uri }, "resourceType": req.resourceType });
     }
 
     async getDiagnostics(req: GetDiagnosticsReqeust): Promise<GetDiagnosticsResponse> {
-        return this.sendRequest("synapse/diagnostic", { uri: Uri.parse(req.documentUri).toString() });
+        return this.sendRequest("synapse/diagnostic", { uri: Uri.file(req.documentUri).toString() });
     }
 
     async rangeFormat(req: RangeFormatParams): Promise<vscode.TextEdit[]> {
@@ -173,15 +173,15 @@ export class ExtendedLanguageClient extends LanguageClient {
     }
 
     async getAvailableConnectors(req: GetAvailableConnectorRequest): Promise<GetAvailableConnectorResponse> {
-        return this.sendRequest("synapse/availableConnectors", { documentIdentifier: { uri: Uri.parse(req.documentUri).toString() }, "connectorName": req.connectorName });
+        return this.sendRequest("synapse/availableConnectors", { documentIdentifier: { uri: Uri.file(req.documentUri).toString() }, "connectorName": req.connectorName });
     }
 
     async updateConnectors(req: UpdateConnectorRequest): Promise<void> {
-        return this.sendNotification("synapse/updateConnectors", { uri: Uri.parse(req.documentUri).toString() });
+        return this.sendNotification("synapse/updateConnectors", { uri: Uri.file(req.documentUri).toString() });
     }
 
     async getConnectorConnections(req: GetConnectorConnectionsRequest): Promise<GetConnectorConnectionsResponse> {
-        return this.sendRequest("synapse/connectorConnections", { documentIdentifier: { uri: Uri.parse(req.documentUri).toString() }, "connectorName": req.connectorName });
+        return this.sendRequest("synapse/connectorConnections", { documentIdentifier: { uri: Uri.file(req.documentUri).toString() }, "connectorName": req.connectorName });
     }
 
     async validateBreakpoints(req: ValidateBreakpointsRequest): Promise<ValidateBreakpointsResponse> {
