@@ -261,9 +261,7 @@ export function ConnectorPage(props: ConnectorPageProps) {
             while (!downloadSuccess && attempts < 3) {
                 try {
                     await rpcClient.getMiDiagramRpcClient().downloadConnector({
-                        connector: connector.name,
-                        url: connector.download_url,
-                        version: connector.version
+                        url: connector.download_url
                     });
                     downloadSuccess = true;
                 } catch (error) {
