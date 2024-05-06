@@ -5,7 +5,6 @@ export const USER_CHECK_BACKEND_URL = '/user/usage';
 export const COMMANDS = {
     OPEN_PROJECT: "MI.openProject",
     MIGRATE_PROJECT: "MI.migrateProject",
-    SELECT_DESTINATION: "MI.selectDestination",
     SHOW_OVERVIEW: "MI.showOverview",
     DISABLE_OVERVIEW: "MI.disableOverview",
     OPEN_AI_PANEL: "MI.openAiPanel",
@@ -68,3 +67,5 @@ export const COMMANDS = {
 };
 
 export const DEFAULT_PROJECT_VERSION = "1.0.0";
+
+export const REFRESH_ENABLED_DOCUMENTS = ["SynapseXml", "typescript"];

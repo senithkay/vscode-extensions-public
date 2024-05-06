@@ -159,6 +159,7 @@ import {
     openFile,
     rangeFormat,
     redo,
+    refreshAccessToken,
     showErrorMessage,
     undo,
     updateAddressEndpoint,
@@ -270,4 +271,5 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onNotification(buildProject, () => rpcManger.buildProject());
     messenger.onNotification(exportProject, (args: ExportProjectRequest) => rpcManger.exportProject(args));
     messenger.onRequest(checkOldProject, () => rpcManger.checkOldProject());
+    messenger.onNotification(refreshAccessToken, () => rpcManger.refreshAccessToken());
 }

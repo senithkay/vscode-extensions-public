@@ -52,6 +52,12 @@ export function getSources(filePath: string) {
     return [fileContent, interfaceSource];
 }
 
+export function deriveConfigName(filePath: string) {
+    const parts = filePath.split(path.sep);
+    const fileName = parts[parts.length - 1];
+    return fileName.split(".")[0];
+}
+
 // Find inputs and output types
 function findInputsAndOutput(functionName: string, sourceFile: SourceFile) {
     const fn = sourceFile.getFunctionOrThrow(functionName);

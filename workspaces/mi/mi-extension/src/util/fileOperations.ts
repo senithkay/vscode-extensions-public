@@ -703,7 +703,7 @@ export function goToSource(filePath: string, position?: Range) {
         if (editor) {
             window.showTextDocument(editor.document, { viewColumn: editor.viewColumn });
         } else {
-            commands.executeCommand('vscode.open', Uri.parse(filePath), { viewColumn: ViewColumn.Beside });
+            commands.executeCommand('vscode.open', Uri.file(filePath), { viewColumn: ViewColumn.Beside });
         }
     }
 

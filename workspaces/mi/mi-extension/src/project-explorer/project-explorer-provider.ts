@@ -153,39 +153,41 @@ function generateTreeDataOfDataMappings(project: vscode.WorkspaceFolder, data: P
 	const directoryMap = data.directoryMap;
 	const resources = (directoryMap as any)?.src?.main?.wso2mi.resources.registry;
 	const govResources = resources['gov'];
-	if (govResources && govResources.folders.length > 0 ) {
+	if (govResources && govResources.folders.length > 0) {
 		const dataMapperResources = govResources.folders.find((folder: any) => folder.name === 'datamapper');
-		const parentEntry = new ProjectExplorerEntry(
-			'Data Mappers',
-			isCollapsibleState(dataMapperResources.folders.length > 0),
-			{ name: 'datamapper', path: dataMapperResources.path, type: 'datamapper'},
-			'arrow-both'
-		);
-		parentEntry.contextValue = 'data-mapper';
-		parentEntry.id = 'data-mapper';
-		parentEntry.children = parentEntry.children ?? [];
-		for (const folder of dataMapperResources.folders) {
-			for (const file of folder.files) {
-				if (!file.name.endsWith('.ts')) {
-					continue;
+		if (dataMapperResources) {
+			const parentEntry = new ProjectExplorerEntry(
+				'Data Mappers',
+				isCollapsibleState(dataMapperResources.folders.length > 0),
+				{ name: 'datamapper', path: dataMapperResources.path, type: 'datamapper' },
+				'arrow-both'
+			);
+			parentEntry.contextValue = 'data-mapper';
+			parentEntry.id = 'data-mapper';
+			parentEntry.children = parentEntry.children ?? [];
+			for (const folder of dataMapperResources.folders) {
+				for (const file of folder.files) {
+					if (!file.name.endsWith('.ts')) {
+						continue;
+					}
+					const configName = file.name.replace('.ts', '');
+					const dataMapperEntry = new ProjectExplorerEntry(
+						configName,
+						isCollapsibleState(false),
+						{ name: configName, path: file.path, type: 'dataMapper' },
+						'file-code'
+					);
+					dataMapperEntry.contextValue = 'data-mapper';
+					dataMapperEntry.command = {
+						"title": "Open Data Mapper",
+						"command": COMMANDS.SHOW_DATA_MAPPER,
+						"arguments": [file.path]
+					};
+					parentEntry.children.push(dataMapperEntry);
 				}
-				const configName = file.name.replace('.ts', '');
-				const dataMapperEntry = new ProjectExplorerEntry(
-					configName,
-					isCollapsibleState(false),
-					{ name: configName, path: file.path, type: 'dataMapper' },
-					'file-code'
-				);
-				dataMapperEntry.contextValue = 'data-mapper';
-				dataMapperEntry.command = {
-					"title": "Open Data Mapper",
-					"command": COMMANDS.SHOW_DATA_MAPPER,
-					"arguments": [vscode.Uri.parse(file.path)]
-				};
-				parentEntry.children.push(dataMapperEntry);
 			}
+			projectRoot.children?.push(parentEntry);
 		}
-		projectRoot.children?.push(parentEntry);
 	}
 }
 
@@ -357,7 +359,7 @@ function generateTreeDataOfClassMediator(project: vscode.WorkspaceFolder, data: 
 			resourceEntry.command = {
 				"title": "Edit Class Mediator",
 				"command": COMMANDS.EDIT_CLASS_MEDIATOR_COMMAND,
-				"arguments": [vscode.Uri.parse(filePath)]
+				"arguments": [vscode.Uri.file(filePath)]
 			};
 			parentEntry.children.push(resourceEntry);
 		}
@@ -392,7 +394,7 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 				resourceEntry.command = {
 					"title": "Show Diagram",
 					"command": COMMANDS.SHOW_RESOURCE_VIEW,
-					"arguments": [vscode.Uri.parse(entry.path), i, false]
+					"arguments": [vscode.Uri.file(entry.path), i, false]
 				};
 				apiEntry.children.push(resourceEntry);
 			}
@@ -405,7 +407,7 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 			explorerEntry.command = {
 				"title": "Show Endpoint",
 				"command": getViewCommand(entry.subType),
-				"arguments": [vscode.Uri.parse(entry.path), 'endpoint', undefined, false]
+				"arguments": [vscode.Uri.file(entry.path), 'endpoint', undefined, false]
 			};
 
 		} else if (entry.type === "SEQUENCE") {
@@ -418,7 +420,7 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 			explorerEntry.command = {
 				"title": "Show Diagram",
 				"command": COMMANDS.SHOW_SEQUENCE_VIEW,
-				"arguments": [vscode.Uri.parse(entry.path), undefined, false]
+				"arguments": [vscode.Uri.file(entry.path), undefined, false]
 			};
 
 		} else if (entry.type === "MESSAGE_PROCESSOR") {
@@ -427,7 +429,7 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 			explorerEntry.command = {
 				"title": "Show Message Processor",
 				"command": COMMANDS.SHOW_MESSAGE_PROCESSOR,
-				"arguments": [vscode.Uri.parse(entry.path), undefined, false]
+				"arguments": [vscode.Uri.file(entry.path), undefined, false]
 			};
 
 		} else if (entry.type === "PROXY_SERVICE") {
@@ -436,7 +438,7 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 			explorerEntry.command = {
 				"title": "Show Diagram",
 				"command": COMMANDS.SHOW_PROXY_VIEW,
-				"arguments": [vscode.Uri.parse(entry.path), undefined, false]
+				"arguments": [vscode.Uri.file(entry.path), undefined, false]
 			};
 
 		} else if (entry.type === "TEMPLATE") {
@@ -446,7 +448,7 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 			explorerEntry.command = {
 				"title": "Show Template",
 				"command": getViewCommand(entry.subType),
-				"arguments": [vscode.Uri.parse(entry.path), 'template', undefined, false]
+				"arguments": [vscode.Uri.file(entry.path), 'template', undefined, false]
 			};
 
 		} else if (entry.type === "TASK") {
@@ -455,7 +457,7 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 			explorerEntry.command = {
 				"title": "Show Task",
 				"command": COMMANDS.SHOW_TASK,
-				"arguments": [vscode.Uri.parse(entry.path), undefined, false]
+				"arguments": [vscode.Uri.file(entry.path), undefined, false]
 			};
 		} else if (entry.type === "INBOUND_ENDPOINT") {
 			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, 'code');
@@ -463,7 +465,7 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 			explorerEntry.command = {
 				"title": "Show Inbound Endpoint",
 				"command": COMMANDS.SHOW_INBOUND_ENDPOINT,
-				"arguments": [vscode.Uri.parse(entry.path), undefined, false]
+				"arguments": [vscode.Uri.file(entry.path), undefined, false]
 			};
 		}
 		else if (entry.type === "MESSAGE_STORE") {
@@ -472,7 +474,7 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 			explorerEntry.command = {
 				"title": "Show Message Store",
 				"command": COMMANDS.SHOW_MESSAGE_STORE,
-				"arguments": [vscode.Uri.parse(entry.path), undefined, false]
+				"arguments": [vscode.Uri.file(entry.path), undefined, false]
 			};
 
 		} else if (entry.type === "LOCAL_ENTRY") {
@@ -485,7 +487,7 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 			explorerEntry.command = {
 				"title": "Show Local Entry",
 				"command": COMMANDS.SHOW_LOCAL_ENTRY,
-				"arguments": [vscode.Uri.parse(entry.path), undefined, false]
+				"arguments": [vscode.Uri.file(entry.path), undefined, false]
 			};
 		}
 		// TODO: Will introduce back when both data services and data sources are supported
@@ -495,7 +497,7 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 		// 	explorerEntry.command = {
 		// 		"title": "Show Data Source",
 		// 		"command": COMMANDS.SHOW_DATA_SOURCE,
-		// 		"arguments": [vscode.Uri.parse(entry.path), undefined, false]
+		// 		"arguments": [vscode.Uri.file(entry.path), undefined, false]
 		// 	};
 		// } 
 		else {
@@ -523,44 +525,44 @@ function generateConnectionEntry(connectionsData: any): ProjectExplorerEntry {
 	for (const entry of connectionsData) {
 		if (!entry.type) {
 			for (const [key, connectionsArray] of Object.entries(entry)) {
-					const connectionTypeEntry = new ProjectExplorerEntry(
-						key,
-						isCollapsibleState((connectionsArray as any[]).length > 0),
-						{
-							name: key,
-							type: 'connections',
-							path: (connectionsArray as any)[0].path
-						},
-						'link-external'
+				const connectionTypeEntry = new ProjectExplorerEntry(
+					key,
+					isCollapsibleState((connectionsArray as any[]).length > 0),
+					{
+						name: key,
+						type: 'connections',
+						path: (connectionsArray as any)[0].path
+					},
+					'link-external'
+				);
+				connectionTypeEntry.contextValue = key;
+				connectionTypeEntry.id = key;
+
+				for (const connection of (connectionsArray as any)) {
+					const connectionEntry = new ProjectExplorerEntry(
+						connection.name,
+						isCollapsibleState(false),
+						connection,
+						'code'
 					);
-					connectionTypeEntry.contextValue = key;
-					connectionTypeEntry.id = key;
+					connectionEntry.contextValue = 'connection';
+					connectionEntry.id = connection.name;
 
-					for (const connection of (connectionsArray as any)) {
-						const connectionEntry = new ProjectExplorerEntry(
-							connection.name,
-							isCollapsibleState(false),
-							connection,
-							'code'
-						);
-						connectionEntry.contextValue = 'connection';
-						connectionEntry.id = connection.name;
+					connectionEntry.command = {
+						"title": "Show Connection",
+						"command": COMMANDS.SHOW_CONNECTION,
+						"arguments": [vscode.Uri.file(connection.path), undefined, false]
+					};
 
-						connectionEntry.command = {
-							"title": "Show Connection",
-							"command": COMMANDS.SHOW_CONNECTION,
-							"arguments": [vscode.Uri.parse(connection.path), undefined, false]
-						};
+					connectionTypeEntry.children = connectionTypeEntry.children ?? [];
+					connectionTypeEntry.children.push(connectionEntry);
 
-						connectionTypeEntry.children = connectionTypeEntry.children ?? [];
-						connectionTypeEntry.children.push(connectionEntry);
-
-					}
-					connectionsEntry.children = connectionsEntry.children ?? [];
-					connectionsEntry.children.push(connectionTypeEntry);
 				}
+				connectionsEntry.children = connectionsEntry.children ?? [];
+				connectionsEntry.children.push(connectionTypeEntry);
 			}
 		}
+	}
 
 	return connectionsEntry;
 }
@@ -580,23 +582,25 @@ function genRegistryProjectStructureEntry(data: RegistryResourcesFolder): Projec
 				explorerEntry.command = {
 					"title": "Edit Registry Resource",
 					"command": COMMANDS.EDIT_REGISTERY_RESOURCE_COMMAND,
-					"arguments": [vscode.Uri.parse(entry.path)]
+					"arguments": [vscode.Uri.file(entry.path)]
 				};
 				result.push(explorerEntry);
 			}
 		}
 		if (data.folders) {
 			for (const entry of data.folders) {
-				const explorerEntry = new ProjectExplorerEntry(entry.name,
-					isCollapsibleState(entry.files.length > 0 || entry.folders.length > 0),
-					{
-						name: entry.name,
-						type: 'resource',
-						path: `${entry.path}`
-					}, 'folder');
-				explorerEntry.children = genRegistryProjectStructureEntry(entry);
-				explorerEntry.contextValue = "registry-folder";
-				result.push(explorerEntry);
+				if (entry.name !== ".meta") {
+					const explorerEntry = new ProjectExplorerEntry(entry.name,
+						isCollapsibleState(entry.files.length > 0 || entry.folders.length > 0),
+						{
+							name: entry.name,
+							type: 'resource',
+							path: `${entry.path}`
+						}, 'folder');
+					explorerEntry.children = genRegistryProjectStructureEntry(entry);
+					explorerEntry.contextValue = "registry-folder";
+					result.push(explorerEntry);
+				}
 			}
 		}
 	}

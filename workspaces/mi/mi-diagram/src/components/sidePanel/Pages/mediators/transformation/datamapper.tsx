@@ -225,7 +225,7 @@ const DataMapperForm = (props: AddMediatorProps) => {
 
                         <Field>
                             <label>Input Type</label>
-                            <AutoComplete identifier='input-type' items={["JSON", "XML"]} value={formValues['inputType']} onValueChange={(e: any) => {
+                            <AutoComplete identifier='input-type' items={["JSON", "XML", "CSV"]} value={formValues['inputType']} onValueChange={(e: any) => {
                                 setFormValues({ ...formValues, "inputType": e });
                                 formValidators["inputType"](e);
                             }} />
@@ -249,7 +249,7 @@ const DataMapperForm = (props: AddMediatorProps) => {
 
                         <Field>
                             <label>Output Type</label>
-                            <AutoComplete identifier='output-type' items={["JSON", "XML"]} value={formValues['outputType']} onValueChange={(e: any) => {
+                            <AutoComplete identifier='output-type' items={["JSON", "XML", "CSV"]} value={formValues['outputType']} onValueChange={(e: any) => {
                                 setFormValues({ ...formValues, "outputType": e });
                                 formValidators["outputType"](e);
                             }} />

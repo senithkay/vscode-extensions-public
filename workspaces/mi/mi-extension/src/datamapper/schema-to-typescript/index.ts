@@ -7,11 +7,9 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import {readFileSync} from 'fs';
 import {JSONSchema4} from 'json-schema';
 import {ParserOptions as $RefOptions} from '@apidevtools/json-schema-ref-parser';
 import {cloneDeep, endsWith, merge} from 'lodash';
-import {dirname} from 'path';
 import {Options as PrettierOptions} from 'prettier';
 import {format} from './formatter';
 import {generate} from './generator';
@@ -19,12 +17,11 @@ import {normalize} from './normalizer';
 import {optimize} from './optimizer';
 import {parse} from './parser';
 import {dereference} from './resolver';
-import {error, stripExtension, Try } from './utils';
+import {error} from './utils';
 import {validate} from './validator';
 import {link} from './linker';
 import {validateOptions} from './optionValidator';
 import {JSONSchema as LinkedJSONSchema} from './types/JSONSchema';
-import yaml from 'js-yaml';
 
 export {EnumJSONSchema, JSONSchema, NamedEnumJSONSchema, CustomTypeJSONSchema} from './types/JSONSchema'
 
@@ -119,39 +116,6 @@ export const DEFAULT_OPTIONS: Options = {
   },
   unreachableDefinitions: false,
   unknownAny: true,
-}
-
-function isYml(filename: string) {
-  return filename.endsWith('.yaml') || filename.endsWith('.yml')
-}
-
-export function compileFromFile(filename: string, options: Partial<Options> = DEFAULT_OPTIONS): Promise<string> {
-  const contents = Try(
-    () => readFileSync(filename),
-    () => {
-      throw new ReferenceError(`Unable to read file "${filename}"`)
-    },
-  )
-
-  let schema: JSONSchema4
-
-  if (isYml(filename)) {
-    schema = Try<JSONSchema4>(
-      () => yaml.load(contents.toString()) as JSONSchema4,
-      () => {
-        throw new TypeError(`Error parsing YML in file "${filename}"`)
-      },
-    )
-  } else {
-    schema = Try<JSONSchema4>(
-      () => JSON.parse(contents.toString()),
-      () => {
-        throw new TypeError(`Error parsing JSON in file "${filename}"`)
-      },
-    )
-  }
-
-  return compile(schema, stripExtension(filename), {cwd: dirname(filename), ...options})
 }
 
 export async function compile(schema: JSONSchema4, name: string, options: Partial<Options> = {}): Promise<string> {

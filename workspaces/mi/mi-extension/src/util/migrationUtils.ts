@@ -34,54 +34,55 @@ export function importProject(params: ImportProjectRequest): ImportProjectRespon
 
     if (projectName && groupId && artifactId && version) {
         const folderStructure: FileStructure = {
-            [projectName]: {
-                'pom.xml': rootPomXmlContent(projectName, groupId, artifactId, projectUuid, version),
-                'src': {
-                    'main': {
-                        'wso2mi': {
-                            'artifacts': {
-                                'apis': '',
-                                'endpoints': '',
-                                'inbound-endpoints': '',
-                                'local-entries': '',
-                                'message-processors': '',
-                                'message-stores': '',
-                                'proxy-services': '',
-                                'sequences': '',
-                                'tasks': '',
-                                'templates': '',
-                                'data-services': '',
-                                'data-sources': '',
-                            },
-                            'resources': {
-                                'registry': {
-                                    'gov': '',
-                                    'conf': '',
-                                },
-                                'metadata': '',
-                                'connectors': '',
-                            },
+            'pom.xml': rootPomXmlContent(projectName, groupId, artifactId, projectUuid, version),
+            'src': {
+                'main': {
+                    'wso2mi': {
+                        'artifacts': {
+                            'apis': '',
+                            'endpoints': '',
+                            'inbound-endpoints': '',
+                            'local-entries': '',
+                            'message-processors': '',
+                            'message-stores': '',
+                            'proxy-services': '',
+                            'sequences': '',
+                            'tasks': '',
+                            'templates': '',
+                            'data-services': '',
+                            'data-sources': '',
                         },
-                        'test': {
-                            'wso2mi': '',
-                        }
+                        'resources': {
+                            'registry': {
+                                'gov': '',
+                                'conf': '',
+                            },
+                            'metadata': '',
+                            'connectors': '',
+                        },
                     },
+                    'test': {
+                        'wso2mi': '',
+                    }
                 },
             },
         };
 
+        const destinationFolderPath = path.join(source,".backup");
+        moveFiles(source, destinationFolderPath);
+
         createFolderStructure(directory, folderStructure);
         console.log("Created project structure for project: " + projectName)
-        migrateConfigs(source, path.join(directory, projectName));
+        migrateConfigs(path.join(source, ".backup"), directory);
 
         window.showInformationMessage(`Successfully imported ${projectName} project`);
 
         if (open) {
-            commands.executeCommand('vscode.openFolder', Uri.file(path.join(directory, projectName)));
-            return { filePath: path.join(directory, projectName) };
+            commands.executeCommand("workbench.action.reloadWindow");
+            return { filePath: directory };
         }
 
-        return { filePath: path.join(directory, projectName) };
+        return { filePath: directory };
     } else {
         window.showErrorMessage('Could not find the project details from the provided project: ', source);
         return { filePath: "" };
@@ -334,6 +335,30 @@ function copyFile(sourcePath: string, targetPath: string) {
     fs.copyFile(sourcePath, targetPath, err => {
         if (err) {
             console.error(`Failed to copy file from ${sourcePath} to ${targetPath}`, err);
+        }
+    });
+}
+
+function moveFiles(sourcePath: string, destinationPath: string) {
+
+    if (!fs.existsSync(destinationPath)) {
+        fs.mkdirSync(destinationPath);
+    }
+    const items = fs.readdirSync(sourcePath);
+
+    items.forEach(item => {
+        if (item === '.backup') {
+            return;
+        }
+        const sourceItemPath = path.join(sourcePath, item);
+        const destinationItemPath = path.join(destinationPath, item);
+        const isDirectory = fs.statSync(sourceItemPath).isDirectory();
+
+        if (isDirectory) {
+            moveFiles(sourceItemPath, destinationItemPath);
+            fs.rmSync(sourceItemPath, { recursive: true });
+        } else {
+            fs.renameSync(sourceItemPath, destinationItemPath);
         }
     });
 }

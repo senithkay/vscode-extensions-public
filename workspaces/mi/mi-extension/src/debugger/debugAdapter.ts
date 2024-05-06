@@ -10,14 +10,14 @@
 import { Breakpoint, BreakpointEvent, Handles, InitializedEvent, LoggingDebugSession, Scope, StoppedEvent, TerminatedEvent, Thread } from 'vscode-debugadapter';
 import { DebugProtocol } from 'vscode-debugprotocol';
 import * as vscode from 'vscode';
-import { executeTasks, getServerPath } from './debugHelper';
+import { executeBuildTask, executeTasks, getServerPath, isADiagramView } from './debugHelper';
 import { Subject } from 'await-notify';
 import { Debugger } from './debugger';
 import { StateMachine, navigate, openView } from '../stateMachine';
-import { EVENT_TYPE } from '@wso2-enterprise/mi-core';
+import { EVENT_TYPE, MACHINE_VIEW } from '@wso2-enterprise/mi-core';
 import { VisualizerWebview } from '../visualizer/webview';
 import { extension } from '../MIExtensionContext';
-import { getStopTask } from './tasks';
+import { getBuildTask, getStopTask } from './tasks';
 import { ViewColumn } from 'vscode';
 
 export class MiDebugAdapter extends LoggingDebugSession {
@@ -43,18 +43,18 @@ export class MiDebugAdapter extends LoggingDebugSession {
             this.sendEvent(new StoppedEvent('step', MiDebugAdapter.threadID));
         });
         this.debuggerHandler.on('stopOnBreakpoint', () => {
+            const isWebviewPresent = VisualizerWebview.currentPanel !== undefined;
+            // Send the native breakpoint event which opens the editor.
+            this.sendEvent(new StoppedEvent('breakpoint', MiDebugAdapter.threadID));
 
-            const stateContext = StateMachine.context();
-
-            if (VisualizerWebview.currentPanel?.getWebview()?.visible && stateContext.stNode) {
-                this.sendEvent(new StoppedEvent('breakpoint', MiDebugAdapter.threadID));
-
+            // Check the diagram visibility
+            if (isWebviewPresent && isADiagramView()) {
                 setTimeout(() => {
-                    navigate();
                     VisualizerWebview.currentPanel!.getWebview()?.reveal(ViewColumn.Beside);
-                }, 150);
-            } else {
-                this.sendEvent(new StoppedEvent('breakpoint', MiDebugAdapter.threadID));
+                    setTimeout(() => {
+                        navigate();
+                    }, 200);
+                }, 200);
             }
         });
 
@@ -119,6 +119,8 @@ export class MiDebugAdapter extends LoggingDebugSession {
 
         // make VS Code use 'evaluate' when hovering over source
         response.body.supportsEvaluateForHovers = true;
+
+        response.body.supportsRestartRequest = true;
 
         // make VS Code support data breakpoints
         response.body.supportsDataBreakpoints = true;
@@ -230,16 +232,22 @@ export class MiDebugAdapter extends LoggingDebugSession {
                     this.sendResponse(response);
                 } else {
                     this.currentServerPath = serverPath;
-                    executeTasks(serverPath, true)
+                    const isDebugAllowed = !args?.noDebug ?? true;
+                    executeTasks(serverPath, isDebugAllowed)
                         .then(async () => {
-                            this.debuggerHandler?.initializeDebugger().then(() => {
+                            if (args?.noDebug) {
                                 response.success = true;
                                 this.sendResponse(response);
-                            }).catch(error => {
-                                vscode.window.showErrorMessage(`Error while initializing the Debugger: ${error}`);
-                                response.success = false;
-                                this.sendResponse(response);
-                            });
+                            } else {
+                                this.debuggerHandler?.initializeDebugger().then(() => {
+                                    response.success = true;
+                                    this.sendResponse(response);
+                                }).catch(error => {
+                                    vscode.window.showErrorMessage(`Error while initializing the Debugger: ${error}`);
+                                    response.success = false;
+                                    this.sendResponse(response);
+                                });
+                            }
                         })
                         .catch(error => {
                             response.success = false;
@@ -251,7 +259,36 @@ export class MiDebugAdapter extends LoggingDebugSession {
         });
     }
 
-    protected async disconnectRequest(response: DebugProtocol.DisconnectResponse, args: DebugProtocol.DisconnectArguments, request?: DebugProtocol.Request): Promise<void> {
+
+    protected async restartRequest(response: DebugProtocol.RestartResponse, args: DebugProtocol.RestartArguments, request?: DebugProtocol.Request | undefined): Promise<void> {
+        const lauchArgs: DebugProtocol.LaunchRequestArguments = args.arguments as DebugProtocol.LaunchRequestArguments;
+        const buildTask = getBuildTask();
+        const isDebugAllowed = !lauchArgs?.noDebug ?? true;
+
+        executeBuildTask(buildTask, this.currentServerPath).then(async () => {
+            if (isDebugAllowed) {
+                this?.debuggerHandler?.setBreakpointsInServer().then(async () => {
+                    vscode.debug.addBreakpoints(vscode.debug.breakpoints);
+                    response.success = true;
+                    this.sendResponse(response);
+                }).catch(error => {
+                    vscode.window.showErrorMessage(`Error while setting breakpoints on restart: ${error}`);
+                    response.success = false;
+                    this.sendResponse(response);
+                });
+            } else {
+                response.success = true;
+                this.sendResponse(response);
+            }
+        }).catch(error => {
+            vscode.window.showErrorMessage(`Error while executing build task: ${error}`);
+            response.success = false;
+            this.sendResponse(response);
+        });
+
+    }
+
+    protected async disconnectRequest(response: DebugProtocol.DisconnectResponse, args?: DebugProtocol.DisconnectArguments, request?: DebugProtocol.Request): Promise<void> {
         const taskExecution = vscode.tasks.taskExecutions.find(execution => execution.task.name === 'run');
         if (taskExecution) {
             this.debuggerHandler?.closeDebugger();
@@ -303,12 +340,20 @@ export class MiDebugAdapter extends LoggingDebugSession {
         this.sendResponse(response);
     }
 
-    // TODO: Implement stepInRequest after LS changes
     protected async nextRequest(response: DebugProtocol.NextResponse, args: DebugProtocol.NextArguments, request?: DebugProtocol.Request | undefined): Promise<void> {
-        // await this.debuggerHandler?.stepBreakpoint();
-        await this.debuggerHandler?.sendResumeCommand();
-
-        this.sendResponse(response);
+        this.debuggerHandler?.getNextMediatorBreakpoint().then(async (breakpointResponse) => {
+            if (breakpointResponse.stepOverBreakpoints.length > 0) {
+                this.debuggerHandler?.stepOverBreakpoint(breakpointResponse).then(() => {
+                    this.sendResponse(response);
+                }).catch(error => {
+                    vscode.window.showErrorMessage(`Error while stepping over: ${error}`);
+                    this.sendResponse(response);
+                });
+            } else {
+                await this.debuggerHandler?.sendResumeCommand();
+                this.sendResponse(response);
+            }
+        });
     }
 
     protected async stackTraceRequest(response: DebugProtocol.StackTraceResponse, args: DebugProtocol.StackTraceArguments, request?: DebugProtocol.Request | undefined): Promise<void> {

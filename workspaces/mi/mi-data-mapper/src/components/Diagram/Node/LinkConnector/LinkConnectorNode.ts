@@ -16,7 +16,7 @@ import { IntermediatePortModel, InputOutputPortModel } from "../../Port";
 import { ARRAY_OUTPUT_TARGET_PORT_PREFIX, OFFSETS } from "../../utils/constants";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
 import { ObjectOutputNode } from "../ObjectOutput";
-import { getPosition, isPositionsEquals } from "../../utils/st-utils";
+import { getPosition, isPositionsEquals, traversNode } from "../../utils/st-utils";
 import {
     findInputNode,
     getDefaultValue,
@@ -26,6 +26,7 @@ import {
 } from "../../utils/common-utils";
 import { getDiagnostics } from "../../utils/diagnostics-utils";
 import { ArrayOutputNode } from "../ArrayOutput";
+import { LinkDeletingVisitor } from "../../../../components/Visitors/LinkDeletingVistior";
 
 export const LINK_CONNECTOR_NODE_TYPE = "link-connector-node";
 const NODE_ID = "link-connector-node";
@@ -213,8 +214,9 @@ export class LinkConnectorNode extends DataMapperNodeModel {
         return this.diagnostics.length > 0;
     }
 
-    public deleteLink(): void {
+    public async deleteLink(): Promise<void> {
         const targetField = this.targetPort.field;
+        const targetNode = this.targetPort.getNode();
         const { functionST, applyModifications } = this.context;
         const exprFuncBodyPosition = getPosition(functionST.getBody());
 
@@ -224,9 +226,29 @@ export class LinkConnectorNode extends DataMapperNodeModel {
                 || isPositionsEquals(exprFuncBodyPosition, getPosition(this.valueNode)))
         {
             this.valueNode.replaceWithText(getDefaultValue(targetField?.kind));
-            applyModifications();
         } else {
-            // TODO: Handle the case where the target field is an array or an interface
+            let rootExpr = this.parentNode;
+            if (targetNode instanceof ObjectOutputNode || targetNode instanceof ArrayOutputNode) {
+                rootExpr = targetNode.value.getExpression();
+            }
+            const linkDeleteVisitor = new LinkDeletingVisitor(this.valueNode, rootExpr);
+            traversNode(functionST, linkDeleteVisitor);
+            const targetNodes = linkDeleteVisitor.getNodesToDelete();
+
+            targetNodes.forEach(node => {
+                const parentNode = node.getParent();
+
+                if (Node.isPropertyAssignment(node)) {
+                    node.remove();
+                } else if (parentNode && Node.isArrayLiteralExpression(parentNode)) {
+                    const elementIndex = parentNode.getElements().find(e => e === node);
+                    parentNode.removeElement(elementIndex);
+                } else {
+                    node.replaceWithText('');
+                }
+            });
         }
+
+        await applyModifications();
     }
 }

@@ -10,7 +10,6 @@ import React from "react";
 import { Diagnostic } from "vscode-languageserver-types";
 import { Template } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { Diagram } from "@wso2-enterprise/mi-diagram";
-import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { View, ViewContent, ViewHeader } from "../../components/View";
 import { TemplateWizard } from "../Forms/TemplateForm";
 
@@ -21,7 +20,6 @@ export interface SequenceViewProps {
 }
 
 export const SequenceTemplateView = ({ model: SequenceModel, documentUri, diagnostics }: SequenceViewProps) => {
-    const { rpcClient } = useVisualizerContext();
     const model = SequenceModel as Template;
     // const data = generateSequenceData(model) as EditSequenceFields
     const [isFormOpen, setFormOpen] = React.useState(false);

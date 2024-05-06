@@ -19,6 +19,7 @@ import { TypeChip } from "../Commons";
 import CardWrapper from "../Commons/CardWrapper";
 import ParamForm from "./ParamForm";
 import { Paramater, defaultParameters, inboundEndpointParams } from "./ParamTemplate";
+import { ParamConfig, ParamManager } from "@wso2-enterprise/mi-diagram";
 
 const CheckboxGroup = styled.div({
     display: "flex",
@@ -63,6 +64,26 @@ const customSequenceType = {
     value: "custom",
 };
 
+const paramConfigs: ParamConfig = {
+    paramValues: [],
+    paramFields: [
+        {
+            id: 0,
+            type: "TextField",
+            label: "Key",
+            defaultValue: "parameter.key",
+            isRequired: true
+        },
+        {
+            id: 1,
+            type: "TextField",
+            label: "Value",
+            defaultValue: "Sample Value",
+            isRequired: true
+        }
+    ]
+}
+
 export function InboundEPWizard(props: InboundEPWizardProps) {
 
     const { rpcClient } = useVisualizerContext();
@@ -71,6 +92,7 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
     const [selectedParams, setSelectedParams] = useState<{ [key: string]: { [key: string]: Paramater; } }>({});
     const [sequences, setSequences] = useState([]);
     const [schemaParams, setSchemaParams] = useState({});
+    const [customParams, setCustomParams] = useState(paramConfigs);
 
     const [selected, setSelected] = useState({
         sequence: customSequenceType.value,
@@ -128,10 +150,43 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
                 }
 
                 readyForm(data.type);
-                reset({
-                    ...data,
-                    parameters: transformParams(parameters)
-                });
+
+                if (data.type.toLowerCase() === 'custom') {
+                    const { coordination, sequential, interval, ...rest } = parameters;
+
+                    setCustomParams((prev: any) => ({
+                        paramFields: prev.paramFields,
+                        paramValues: Object.keys(rest).filter((key: string) => (
+                            key !== 'class' && key !== 'inbound.behavior'
+                        )).map((key: string, index: number) => {
+                            return {
+                                id: prev.paramValues.length + index,
+                                paramValues: [
+                                    { value: key },
+                                    { value: rest[key] as string },
+                                ],
+                                key,
+                                value: rest[key] as string,
+                            }
+                        })
+                    }));
+
+                    reset({
+                        ...data,
+                        parameters: transformParams({
+                            coordination,
+                            sequential,
+                            interval,
+                            'class': parameters['class'],
+                            'inbound.behavior': parameters['inbound.behavior'],
+                        })
+                    });
+                } else {
+                    reset({
+                        ...data,
+                        parameters: transformParams(parameters)
+                    });
+                }
             }
             else {
                 setSelected({
@@ -146,6 +201,31 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
     const formTitle = isNewInboundEndpoint
         ? "Create new Inbound Endpoint"
         : "Edit Inbound Endpoint : " + props.path.replace(/^.*[\\/]/, '').split(".")[0];
+
+    const handleCustomParams = (params: any) => {
+        const modifiedParams = {
+            ...params,
+            paramValues: params.paramValues.map((param: any) => {
+                return {
+                    ...param,
+                    key: param.paramValues[0].value,
+                    value: param.paramValues[1].value,
+                }
+            })
+        };
+        setCustomParams(modifiedParams);
+        if (!isDirty) {
+            setValue("type", watch('type').toLowerCase(), { shouldDirty: true });
+        }
+    };
+
+    const getCustomParams = () => {
+        const params: { [key: string]: any } = {};
+        customParams.paramValues.map((param: any) => {
+            params[param.paramValues[0].value] = param.paramValues[1].value;
+        });
+        return params;
+    }
 
     const renderProps = (fieldName: keyof InboundEndpoint) => {
         return {
@@ -261,7 +341,10 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
             directory: props.path,
             ...values,
             type: values.type.toLowerCase(),
-            parameters: transformParams(values.parameters, true)
+            parameters: {
+                ...transformParams(values.parameters, true),
+                ...((values.type.toLowerCase() === 'custom') ? getCustomParams() : {})
+            }
         }
         await rpcClient.getMiDiagramRpcClient().createInboundEndpoint(createInboundEPParams);
         openOverview();
@@ -339,6 +422,13 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
                         />
                     </CheckboxGroup>
                     {watch('type') && <ParamForm params={selectedParams} />}
+                    {watch('type').toLowerCase() === 'custom' && (
+                        <ParamManager
+                            paramConfigs={customParams}
+                            readonly={false}
+                            onChange={handleCustomParams}
+                        />
+                    )}
                     <FormActions>
                         <Button
                             appearance="primary"

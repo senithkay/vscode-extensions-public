@@ -247,3 +247,4 @@ export const deleteArtifact: NotificationType<DeleteArtifactRequest> = { method:
 export const buildProject: NotificationType<void> = { method: `${_preFix}/buildProject` };
 export const exportProject: NotificationType<ExportProjectRequest> = { method: `${_preFix}/exportProject` };
 export const checkOldProject: RequestType<void, boolean> = { method: `${_preFix}/checkOldProject` };
+export const refreshAccessToken: NotificationType<void> = { method: `${_preFix}/refreshAccessToken` };

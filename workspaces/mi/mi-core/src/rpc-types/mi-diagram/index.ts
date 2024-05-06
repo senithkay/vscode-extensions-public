@@ -245,4 +245,5 @@ export interface MiDiagramAPI {
     buildProject: () => void;
     exportProject: (params: ExportProjectRequest) => void;
     checkOldProject: () => Promise<boolean>;
+    refreshAccessToken: () => Promise<void>;
 }

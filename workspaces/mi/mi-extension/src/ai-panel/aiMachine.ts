@@ -12,7 +12,7 @@ import { createMachine, assign, interpret } from 'xstate';
 import * as vscode from 'vscode';
 import { EVENT_TYPE, AIVisualizerLocation, AIMachineStateValue, AI_EVENT_TYPE, AIUserTokens } from '@wso2-enterprise/mi-core';
 import { AiPanelWebview } from './webview';
-import { getAuthUrl } from './auth';
+import { getAuthUrl, refreshAuthCode } from './auth';
 import { extension } from '../MIExtensionContext';
 import fetch from 'node-fetch';
 import { USER_CHECK_BACKEND_URL } from '../constants';
@@ -174,7 +174,26 @@ async function checkToken(context, event): Promise<UserToken> {
                     resolve({token, userToken: responseBody});
                 } else {
                     if (response.status === 401 || response.status === 403) {
-                        resolve({ token: "", userToken: undefined });
+                        const newToken = await refreshAuthCode();
+                        if (newToken !=""){
+                            const tokenFetchResponse = await fetch(url, {
+                                method: 'GET',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Authorization': `Bearer ${newToken}`,
+                                },
+                            });
+                            if(tokenFetchResponse.ok){
+                                const responseBody = await tokenFetchResponse.json();
+                                resolve({token: newToken, userToken: responseBody});
+                            }else{
+                                console.log("Error: " + tokenFetchResponse.statusText);
+                                console.log("Error Code: " + tokenFetchResponse.status);
+                                throw new Error(`Error while checking token: ${tokenFetchResponse.statusText}`);
+                            }
+                        }else{
+                            resolve({token: undefined, userToken: undefined});
+                        }
                     }else{
                         console.log("Error: " + response.statusText);
                         console.log("Error Code: " + response.status);
