@@ -2466,6 +2466,24 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
     }
 
     async writeContentToFile(params: WriteContentToFileRequest): Promise<WriteContentToFileResponse> {
+        const fetchConnectors = async (name) => {
+            const response = await fetch('https://raw.githubusercontent.com/rosensilva/connectors/main/connectors_list.json');
+            if(!response.ok) {
+                console.error('Failed to fetch connectors');
+            } else {
+                console.log('Connectors fetched successfully');
+            }
+            const data = await response.json();
+            const connector = data.data.find(connector => connector.name === name);
+            if (connector) {
+                console.log("Download URL: ", connector.download_url);
+                return connector.download_url;
+            } else {
+                console.log("Connector not found");
+                return null;
+            }
+        };
+
         let status = true;
         //if file exists, overwrite if not, create new file and write content.  if successful, return true, else false
         const { content } = params;
@@ -2532,12 +2550,12 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 const connectorMatch = content[i].match(/<(\w+\.\w+)>/);
                 if (connectorMatch) {
                     const tagParts = connectorMatch[1].split('.');
-                    console.log('Connector match:', tagParts[0]);
-                    const fetchConnectors = async () => {
-                        const response = await fetch('https://raw.githubusercontent.com/rosensilva/connectors/main/connectors_list.json');
-                        const data = await response.json();
-                        console.log(data);
-                    };
+                    const connectorName = tagParts[0];
+                    
+                    const download_url = await fetchConnectors(connectorName);
+
+                    this.downloadConnector({ url: download_url });
+
                     
                 }
                 //write the content to a file, if file exists, overwrite else create new file
