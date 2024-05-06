@@ -1105,8 +1105,6 @@ export interface RangeFormatRequest {
 
 export interface DownloadConnectorRequest {
     url: string;
-    connector: string;
-    version: string;
 }
 
 export interface DownloadConnectorResponse {
