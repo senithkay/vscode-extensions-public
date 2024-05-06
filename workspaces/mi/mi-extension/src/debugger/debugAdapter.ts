@@ -10,7 +10,7 @@
 import { Breakpoint, BreakpointEvent, Handles, InitializedEvent, LoggingDebugSession, Scope, StoppedEvent, TerminatedEvent, Thread } from 'vscode-debugadapter';
 import { DebugProtocol } from 'vscode-debugprotocol';
 import * as vscode from 'vscode';
-import { executeBuildTask, executeTasks, getServerPath } from './debugHelper';
+import { executeBuildTask, executeTasks, getServerPath, isADiagramView } from './debugHelper';
 import { Subject } from 'await-notify';
 import { Debugger } from './debugger';
 import { StateMachine, navigate, openView } from '../stateMachine';
@@ -43,27 +43,16 @@ export class MiDebugAdapter extends LoggingDebugSession {
             this.sendEvent(new StoppedEvent('step', MiDebugAdapter.threadID));
         });
         this.debuggerHandler.on('stopOnBreakpoint', () => {
-            const wasDiagramOpen = VisualizerWebview.currentPanel?.getWebview()?.visible;
-            const wasOnlyTheDiagram = vscode.window.visibleTextEditors.length === 0;
-            const diagramViews = [MACHINE_VIEW.ResourceView, MACHINE_VIEW.ProxyView, MACHINE_VIEW.SequenceView, MACHINE_VIEW.SequenceTemplateView];
-            const stateContext = StateMachine.context();
-
+            const isWebviewPresent = VisualizerWebview.currentPanel !== undefined;
             // Send the native breakpoint event which opens the editor.
             this.sendEvent(new StoppedEvent('breakpoint', MiDebugAdapter.threadID));
 
             // Check the diagram visibility
-            if (wasDiagramOpen && diagramViews.indexOf(stateContext.view!) !== -1) {
+            if (isWebviewPresent && isADiagramView()) {
                 setTimeout(() => {
-                    const webviewPresent = VisualizerWebview.currentPanel !== undefined; // Check if the webview panel is not disposed.
-                    if (wasOnlyTheDiagram && !webviewPresent) {
-                        // It's possible that the diagram view gets replaced by the breakpoint editor. So we are opening the diagram again.
-                        extension.webviewReveal = true;
-                        openView(EVENT_TYPE.OPEN_VIEW, stateContext);
-                    } else {
-                        VisualizerWebview.currentPanel!.getWebview()?.reveal(ViewColumn.Beside);
-                        navigate();
-                    }
-                }, 400);
+                    VisualizerWebview.currentPanel!.getWebview()?.reveal(ViewColumn.Beside);
+                    navigate();
+                }, 200);
             }
         });
 
@@ -86,7 +75,6 @@ export class MiDebugAdapter extends LoggingDebugSession {
         });
 
         this.debuggerHandler.on('end', () => {
-            extension.webviewReveal = false;
             this.sendEvent(new TerminatedEvent());
         });
 
