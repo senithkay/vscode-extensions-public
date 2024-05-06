@@ -52,7 +52,7 @@ const ScriptForm = (props: AddMediatorProps) => {
             scriptKey: sidePanelContext?.formValues?.scriptKey || "",
             mediateFunction: sidePanelContext?.formValues?.mediateFunction || "",
             scriptKeys: {
-                paramValues: getParamManagerFromValues(sidePanelContext?.formValues?.scriptKeys),
+                paramValues: sidePanelContext?.formValues?.scriptKeys ? getParamManagerFromValues(sidePanelContext?.formValues?.scriptKeys) : [],
                 paramFields: [
                     {
                         "type": "TextField",

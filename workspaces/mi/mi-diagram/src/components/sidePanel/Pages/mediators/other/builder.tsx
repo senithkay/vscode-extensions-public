@@ -46,7 +46,7 @@ const BuilderForm = (props: AddMediatorProps) => {
     useEffect(() => {
         reset({
             messageBuilders: {
-                paramValues: getParamManagerFromValues(sidePanelContext?.formValues?.messageBuilders),
+                paramValues: sidePanelContext?.formValues?.messageBuilders ? getParamManagerFromValues(sidePanelContext?.formValues?.messageBuilders) : [],
                 paramFields: [
                     {
                         "type": "TextField",

@@ -47,7 +47,7 @@ const PropertyGroupForm = (props: AddMediatorProps) => {
     useEffect(() => {
         reset({
             properties: {
-                paramValues: getParamManagerFromValues(sidePanelContext?.formValues?.properties),
+                paramValues: sidePanelContext?.formValues?.properties ? getParamManagerFromValues(sidePanelContext?.formValues?.properties) : [],
                 paramFields: [
                     {
                         "type": "TextField",

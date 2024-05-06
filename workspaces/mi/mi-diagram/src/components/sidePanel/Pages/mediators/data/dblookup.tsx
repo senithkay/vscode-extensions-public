@@ -65,7 +65,7 @@ const DBLookupForm = (props: AddMediatorProps) => {
             connectionPassword: sidePanelContext?.formValues?.connectionPassword || "",
             registryBasedPassConfigKey: sidePanelContext?.formValues?.registryBasedPassConfigKey || "",
             sqlStatements: {
-                paramValues: getParamManagerFromValues(sidePanelContext?.formValues?.sqlStatements),
+                paramValues: sidePanelContext?.formValues?.sqlStatements ? getParamManagerFromValues(sidePanelContext?.formValues?.sqlStatements) : [],
                 paramFields: [
                     {
                         "type": "TextField",
@@ -80,7 +80,7 @@ const DBLookupForm = (props: AddMediatorProps) => {
                         "isRequired": false, 
                         "paramManager": {
                             paramConfigs: {
-                                paramValues: getParamManagerFromValues(sidePanelContext?.formValues?.parameters),
+                                paramValues: sidePanelContext?.formValues?.parameters ? getParamManagerFromValues(sidePanelContext?.formValues?.parameters) : [],
                                 paramFields: [
                                     {
                                         "defaultValue": "",
@@ -105,7 +105,7 @@ const DBLookupForm = (props: AddMediatorProps) => {
                         "isRequired": false, 
                         "paramManager": {
                             paramConfigs: {
-                                paramValues: getParamManagerFromValues(sidePanelContext?.formValues?.results),
+                                paramValues: sidePanelContext?.formValues?.results ? getParamManagerFromValues(sidePanelContext?.formValues?.results) : [],
                                 paramFields: [
                                     {
                                         "type": "TextField",

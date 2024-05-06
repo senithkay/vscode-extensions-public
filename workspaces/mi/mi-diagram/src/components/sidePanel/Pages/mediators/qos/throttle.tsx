@@ -54,7 +54,7 @@ const ThrottleForm = (props: AddMediatorProps) => {
             policyType: sidePanelContext?.formValues?.policyType || "INLINE",
             maximumConcurrentAccess: sidePanelContext?.formValues?.maximumConcurrentAccess || "0",
             policyEntries: {
-                paramValues: getParamManagerFromValues(sidePanelContext?.formValues?.policyEntries),
+                paramValues: sidePanelContext?.formValues?.policyEntries ? getParamManagerFromValues(sidePanelContext?.formValues?.policyEntries) : [],
                 paramFields: [
                     {
                         "type": "Dropdown",
