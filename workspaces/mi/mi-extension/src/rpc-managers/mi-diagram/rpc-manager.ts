@@ -187,7 +187,7 @@ import { rootPomXmlContent } from "../../util/templates";
 import { replaceFullContentToFile } from "../../util/workspace";
 import { VisualizerWebview } from "../../visualizer/webview";
 import path = require("path");
-import { template } from "lodash";
+import { deleteRegistryResource } from "../../util/fileOperations"
 import { log } from "../../util/logger";
 
 const { XMLParser, XMLBuilder } = require("fast-xml-parser");
@@ -3193,12 +3193,16 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             if (params.enableUndo) {
                 await this.initUndoRedoManager({ path: params.path });
             }
-
-            await workspace.fs.delete(Uri.file(params.path));
+            const registryIdentifier = "wso2mi/resources/registry";
+            const isRegistry = path.normalize(params.path).includes(path.normalize(registryIdentifier));
+            if (isRegistry) {
+                deleteRegistryResource(params.path);
+            } else {
+                await workspace.fs.delete(Uri.file(params.path));
+            }
             await vscode.commands.executeCommand(COMMANDS.REFRESH_COMMAND); // Refresh the project explore view
             navigate();
-
-            if (params.enableUndo) {
+            if (params.enableUndo && !isRegistry) {
                 undoRedo.addModification('');
                 const selection = await vscode.window.showInformationMessage('Do you want to undo the deletion?', 'Undo');
                 if (selection === 'Undo') {
