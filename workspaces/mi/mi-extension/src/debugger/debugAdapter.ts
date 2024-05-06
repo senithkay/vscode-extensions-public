@@ -10,11 +10,11 @@
 import { Breakpoint, BreakpointEvent, Handles, InitializedEvent, LoggingDebugSession, Scope, StoppedEvent, TerminatedEvent, Thread } from 'vscode-debugadapter';
 import { DebugProtocol } from 'vscode-debugprotocol';
 import * as vscode from 'vscode';
-import { executeBuildTask, executeTasks, getServerPath } from './debugHelper';
+import { executeBuildTask, executeTasks, getServerPath, isADiagramView } from './debugHelper';
 import { Subject } from 'await-notify';
 import { Debugger } from './debugger';
 import { StateMachine, navigate, openView } from '../stateMachine';
-import { EVENT_TYPE } from '@wso2-enterprise/mi-core';
+import { EVENT_TYPE, MACHINE_VIEW } from '@wso2-enterprise/mi-core';
 import { VisualizerWebview } from '../visualizer/webview';
 import { extension } from '../MIExtensionContext';
 import { getBuildTask, getStopTask } from './tasks';
@@ -43,18 +43,18 @@ export class MiDebugAdapter extends LoggingDebugSession {
             this.sendEvent(new StoppedEvent('step', MiDebugAdapter.threadID));
         });
         this.debuggerHandler.on('stopOnBreakpoint', () => {
+            const isWebviewPresent = VisualizerWebview.currentPanel !== undefined;
+            // Send the native breakpoint event which opens the editor.
+            this.sendEvent(new StoppedEvent('breakpoint', MiDebugAdapter.threadID));
 
-            const stateContext = StateMachine.context();
-
-            if (VisualizerWebview.currentPanel?.getWebview()?.visible && stateContext.stNode) {
-                this.sendEvent(new StoppedEvent('breakpoint', MiDebugAdapter.threadID));
-
+            // Check the diagram visibility
+            if (isWebviewPresent && isADiagramView()) {
                 setTimeout(() => {
-                    navigate();
                     VisualizerWebview.currentPanel!.getWebview()?.reveal(ViewColumn.Beside);
-                }, 150);
-            } else {
-                this.sendEvent(new StoppedEvent('breakpoint', MiDebugAdapter.threadID));
+                    setTimeout(() => {
+                        navigate();
+                    }, 200);
+                }, 200);
             }
         });
 
