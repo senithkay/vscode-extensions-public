@@ -330,7 +330,14 @@ export class PositionVisitor implements Visitor {
     }
     endVisitThrottle = (node: Throttle): void => this.setSkipChildrenVisit(false);
     //Extension Mediators
-    beginVisitClass = (node: Class): void => this.setBasicMediatorPosition(node);
+    beginVisitClass = (node: Class): void => {
+        this.skipChildrenVisit = true;
+        this.setBasicMediatorPosition(node);
+    }
+    endVisitClass = (node: Class): void => {
+        this.skipChildrenVisit = false;
+    }
+
     beginVisitBean = (node: Bean): void => this.setBasicMediatorPosition(node);
     beginVisitPojoCommand = (node: PojoCommand): void => this.setBasicMediatorPosition(node);
     beginVisitEjb = (node: Ejb): void => this.setBasicMediatorPosition(node);

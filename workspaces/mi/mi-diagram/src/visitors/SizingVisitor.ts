@@ -416,7 +416,15 @@ export class SizingVisitor implements Visitor {
     }
     //Extesnion Mediators
     endVisitBean = (node: Bean): void => this.calculateBasicMediator(node);
-    endVisitClass = (node: Class): void => this.calculateBasicMediator(node);
+
+    beginVisitClass = (node: Class): void => {
+        this.skipChildrenVisit = true;
+    }
+    endVisitClass = (node: Class): void => {
+        this.calculateBasicMediator(node);
+        this.skipChildrenVisit = false;
+    }
+
     endVisitPojoCommand = (node: PojoCommand): void => this.calculateBasicMediator(node);
     endVisitEjb = (node: Ejb): void => this.calculateBasicMediator(node);
     endVisitScript = (node: Script): void => this.calculateBasicMediator(node);
