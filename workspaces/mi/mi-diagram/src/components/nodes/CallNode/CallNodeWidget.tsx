@@ -162,8 +162,10 @@ export function CallNodeWidget(props: CallNodeWidgetProps) {
     };
 
     const handleOnClickEndpoint = (e: any) => {
-        setIsEndpointSelected(true);
-        node.onClicked(e, node, rpcClient, sidePanelContext, node.endpoint.type, node.endpoint);
+        if (node.endpoint) {
+            setIsEndpointSelected(true);
+            node.onClicked(e, node, rpcClient, sidePanelContext, node.endpoint.type, node.endpoint);
+        }
     }
 
     const handleOnDeleteEndpoint = () => {
@@ -300,9 +302,9 @@ export function CallNodeWidget(props: CallNodeWidgetProps) {
                 <S.EndpointTextWrapper>{getNodeDescription(node.endpoint)}</S.EndpointTextWrapper>
             ) : (
                 <S.EndpointContainer>
-                    <S.StyledButton appearance="icon" onClick={handlePlusNode}>
+                    {/* <S.StyledButton appearance="icon" onClick={handlePlusNode}>
                         <PlusIcon />
-                    </S.StyledButton>
+                    </S.StyledButton> */}
                 </S.EndpointContainer>
             )}
             <Popover

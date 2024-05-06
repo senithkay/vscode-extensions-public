@@ -18,9 +18,9 @@ export function getCallMustacheTemplate() {
   <call {{#enableBlockingCalls}}blocking="{{enableBlockingCalls}}" {{^initAxis2ClientOptions}}initAxis2ClientOptions="false" {{/initAxis2ClientOptions}}{{/enableBlockingCalls}}{{#description}}description="{{description}}" {{/description}} ></call>
   {{/sourceOrTargetOrEndpoint}}
   {{#sourceOrTargetOrEndpoint}}
-  <call {{#enableBlockingCalls}}blocking="{{enableBlockingCalls}}" {{/enableBlockingCalls}}{{^initAxis2ClientOptions}}initAxis2ClientOptions="false" {{/initAxis2ClientOptions}}{{#description}}description="{{description}}" {{/description}}>
-{{#registryOrXpathEndpoint}}<endpoint {{#endpointXpath}}key-expression="{{{value}}}" {{#namespaces}}xmlns:{{prefix}}="{{uri}}" {{/namespaces}}{{/endpointXpath}}{{#endpointRegistryKey}}key="{{endpointRegistryKey}}" {{/endpointRegistryKey}}/>{{/registryOrXpathEndpoint}}
-    {{#bodySource}}
+  <call {{#enableBlockingCalls}}blocking="{{enableBlockingCalls}}" {{^initAxis2ClientOptions}}initAxis2ClientOptions="false" {{/initAxis2ClientOptions}} {{/enableBlockingCalls}}{{#description}}description="{{description}}" {{/description}}>
+  {{#registryOrXpathEndpoint}}  <endpoint {{#endpointXpath}}key-expression="{{{value}}}" {{#namespaces}}xmlns:{{prefix}}="{{uri}}" {{/namespaces}}{{/endpointXpath}}{{#endpointRegistryKey}}key="{{{endpointRegistryKey}}}" {{/endpointRegistryKey}}/>{{/registryOrXpathEndpoint}}
+  {{#bodySource}}
     <source type="body"/>
     {{/bodySource}}
     {{#propertySource}}
@@ -51,7 +51,7 @@ export function getCallMustacheTemplate() {
 {{/sourceOrTargetOrEndpoint}}
 {{/editCall}}
 {{#editEndpoint}}
-{{#registryOrXpathEndpoint}}  <endpoint {{#endpointXpath}}key-expression="{{{value}}}" {{#namespaces}}xmlns:{{prefix}}="{{uri}}" {{/namespaces}}{{/endpointXpath}}{{#endpointRegistryKey}}key="{{endpointRegistryKey}}" {{/endpointRegistryKey}}/>{{/registryOrXpathEndpoint}}
+{{#registryOrXpathEndpoint}}  <endpoint {{#endpointXpath}}key-expression="{{{value}}}" {{#namespaces}}xmlns:{{prefix}}="{{uri}}" {{/namespaces}}{{/endpointXpath}}{{#endpointRegistryKey}}key="{{{endpointRegistryKey}}}" {{/endpointRegistryKey}}/>{{/registryOrXpathEndpoint}}
 {{/editEndpoint}}
 {{#editSource}}
 {{#bodySource}}
@@ -85,7 +85,7 @@ export function getCallXml(data: { [key: string]: any }, dirtyFields?: any, defa
 
   if ((data.sourceType == undefined || data.sourceType == "none")
     && (data.targetType == undefined || data.targetType == "none")
-    && (data.endpointType == undefined || data.endpointType == "NONE" || data.endpointType == "INLINE")) {
+    && (data.endpoint && data.endopint.length == 0)) {
     data.sourceOrTargetOrEndpoint = false;
   }
 
