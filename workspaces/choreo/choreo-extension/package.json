@@ -8,6 +8,7 @@
   "bugs": {
     "url": "https://github.com/wso2/choreo-vscode/issues"
   },
+  "repository": "https://github.com/wso2/choreo-vscode",
   "icon": "resources/icons/choreo.png",
   "engines": {
     "vscode": "^1.83.1"
@@ -350,9 +351,5 @@
     "vscode-languageserver-protocol": "^3.16.0",
     "@wso2-enterprise/cell-diagram": "workspace:*",
     "zustand": "^4.5.2"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/wso2-enterprise/ballerina-plugin-vscode.git"
   }
 }
