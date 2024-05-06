@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import React, { ReactNode, useEffect, useState } from "react";
+import React, { ReactNode, useCallback, useEffect, useState } from "react";
 import {
     VSCodeButton,
     VSCodeDataGrid,
@@ -18,6 +18,7 @@ import styled from "@emotion/styled";
 import { Codicon } from "../Codicon/Codicon";
 import { createPortal } from "react-dom";
 import { Overlay } from "../Commons/Overlay";
+import { debounce } from "lodash";
 
 interface Item {
     id: number | string;
@@ -101,8 +102,9 @@ const Container = styled.div`
 export const ContextMenu: React.FC<ContextMenuProps> = (props: ContextMenuProps) => {
     const { id, className, isLoading, isOpen, menuId, sx, iconSx, menuSx, menuItems, icon, position = "bottom" } = props;
     const [isMenuOpen, setIsMenuOpen] = useState(isOpen);
-    const [expandMenuWidth, setExpandMenuWidth] = useState(0);
-    const [expandMenuHeight, setExpandMenuHeight] = useState(0);
+
+    const [topPosition, setTopPosition] = useState(0);
+    const [leftPosition, setLeftPosition] = useState(0);
 
     const iconRef = React.useRef<HTMLDivElement>(null);
     // X and Y coordinates of the icon middle point
@@ -110,43 +112,6 @@ export const ContextMenu: React.FC<ContextMenuProps> = (props: ContextMenuProps)
     const iconMiddlePointY = iconRef.current?.getBoundingClientRect().top + iconRef.current?.getBoundingClientRect().height / 2;
 
     const expandMenuRef = React.useRef<HTMLDivElement>(null);
-    // Top and Left coordinates of the expanded menu
-    let top = 0;
-    let left = 0;
-    switch (position) {
-        case "top-left":
-            top = iconMiddlePointY - expandMenuHeight;
-            left = iconMiddlePointX - expandMenuWidth;
-            break;
-        case "top-right":
-            top = iconMiddlePointY - expandMenuHeight;
-            left = iconMiddlePointX;
-            break;
-        case "bottom-left":
-            top = iconMiddlePointY;
-            left = iconMiddlePointX - expandMenuWidth;
-            break;
-        case "bottom-right":
-            top = iconMiddlePointY;
-            left = iconMiddlePointX;
-            break;
-        case "top":
-            top = iconMiddlePointY - expandMenuHeight;
-            left = iconMiddlePointX - expandMenuWidth / 2;
-            break;
-        case "bottom":
-            top = iconMiddlePointY;
-            left = iconMiddlePointX - expandMenuWidth / 2;
-            break;
-        case "left":
-            top = iconMiddlePointY - expandMenuHeight / 2;
-            left = iconMiddlePointX - expandMenuWidth;
-            break;
-        case "right":
-            top = iconMiddlePointY - expandMenuHeight / 2;
-            left = iconMiddlePointX;
-            break;
-    }
 
     const handleClick = (event: React.MouseEvent<HTMLElement, MouseEvent>) => {
         event.stopPropagation();
@@ -158,12 +123,83 @@ export const ContextMenu: React.FC<ContextMenuProps> = (props: ContextMenuProps)
         setIsMenuOpen(false);
     };
 
+    // Function to calculate the left and top coordinates of the expanded menu based on the position of the icon
+    const calculatePosition = useCallback((position: Position, iconMiddlePointX: number,
+        iconMiddlePointY: number, expandMenuWidth: number, expandMenuHeight: number,
+        viewportWidth: number, viewportHeight: number) => {
+        let top = 0;
+        let left = 0;
+        switch (position) {
+            case "top-left":
+                top = iconMiddlePointY - expandMenuHeight;
+                left = iconMiddlePointX - expandMenuWidth;
+                break;
+            case "top-right":
+                top = iconMiddlePointY - expandMenuHeight;
+                left = iconMiddlePointX;
+                break;
+            case "bottom-left":
+                top = iconMiddlePointY;
+                left = iconMiddlePointX - expandMenuWidth;
+                break;
+            case "bottom-right":
+                top = iconMiddlePointY;
+                left = iconMiddlePointX;
+                break;
+            case "top":
+                top = iconMiddlePointY - expandMenuHeight;
+                left = iconMiddlePointX - expandMenuWidth / 2;
+                break;
+            case "bottom":
+                top = iconMiddlePointY;
+                left = iconMiddlePointX - expandMenuWidth / 2;
+                break;
+            case "left":
+                top = iconMiddlePointY - expandMenuHeight / 2;
+                left = iconMiddlePointX - expandMenuWidth;
+                break;
+            case "right":
+                top = iconMiddlePointY - expandMenuHeight / 2;
+                left = iconMiddlePointX;
+                break;
+        }
+        if (left + expandMenuWidth > viewportWidth) {
+            left = viewportWidth - expandMenuWidth;
+        }
+        if (top + expandMenuHeight > viewportHeight) {
+            top = viewportHeight - expandMenuHeight;
+        }
+        return { top, left };
+    }, []);
+
+    const onWindowResize = useCallback(() => {
+        const debouncedResize = debounce(() => {
+            const expandMenuWidth = expandMenuRef.current?.getBoundingClientRect().width || 0;
+            const expandMenuHeight = expandMenuRef.current?.getBoundingClientRect().height || 0;
+            const { top, left } = calculatePosition(position, iconMiddlePointX, iconMiddlePointY, expandMenuWidth, expandMenuHeight, window.innerWidth, window.innerHeight);
+            setTopPosition(top);
+            setLeftPosition(left);
+        }, 200);
+        debouncedResize();
+    }, [calculatePosition, position, iconMiddlePointX, iconMiddlePointY]);
+
     useEffect(() => {
         if (isMenuOpen) {
-            setExpandMenuWidth(expandMenuRef.current?.clientWidth || 0);
-            setExpandMenuHeight(expandMenuRef.current?.clientHeight || 0);
+            const expandMenuWidth = expandMenuRef.current?.getBoundingClientRect().width || 0;
+            const expandMenuHeight = expandMenuRef.current?.getBoundingClientRect().height || 0;
+            const { top, left } = calculatePosition(position, iconMiddlePointX, iconMiddlePointY, expandMenuWidth, expandMenuHeight, window.innerWidth, window.innerHeight);
+            setTopPosition(top);
+            setLeftPosition(left);
         }
-    }, [isMenuOpen]);
+    }, [calculatePosition, iconMiddlePointX, iconMiddlePointY, isMenuOpen, position]);
+
+    useEffect(() => {
+        const resizeListener = () => onWindowResize();
+        window.addEventListener('resize', resizeListener);
+        return () => {
+            window.removeEventListener('resize', resizeListener);
+        };
+    }, [onWindowResize, position, iconMiddlePointX, iconMiddlePointY]);
 
     return (
         <>
@@ -184,7 +220,7 @@ export const ContextMenu: React.FC<ContextMenuProps> = (props: ContextMenuProps)
                 {isMenuOpen &&
                 createPortal(
                     <>
-                        <ExpandedMenu ref={expandMenuRef} sx={menuSx} top={top} left={left}>
+                        <ExpandedMenu ref={expandMenuRef} sx={menuSx} top={topPosition} left={leftPosition}>
                             <VSCodeDataGrid aria-label="Context Menu">
                                 {menuItems?.map(item => (
                                     <VSCodeDataGridFlexRow
