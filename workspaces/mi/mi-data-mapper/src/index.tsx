@@ -45,12 +45,7 @@ export interface DataMapperViewProps {
     outputTree: DMType;
     goToSource: (range: Range) => void;
     updateFileContent: (fileContent: string) => void;
-}
-
-function deriveConfigName(filePath: string) {
-    const parts = filePath.split("/");
-    const fileName = parts[parts.length - 1];
-    return fileName.split(".")[0];
+    configName: string;
 }
 
 export function DataMapperView(props: DataMapperViewProps) {
@@ -61,7 +56,8 @@ export function DataMapperView(props: DataMapperViewProps) {
         inputTrees,
         outputTree,
         goToSource,
-        updateFileContent
+        updateFileContent,
+        configName
     } = props;
 
     const { functionST, sourceFile } = useMemo(() => {
@@ -93,7 +89,7 @@ export function DataMapperView(props: DataMapperViewProps) {
                     goToSource={goToSource}
                     applyModifications={applyModifications}
                     filePath={filePath}
-                    configName={deriveConfigName(filePath)}
+                    configName={configName}
                 />
             </QueryClientProvider>
         </ErrorBoundary>
