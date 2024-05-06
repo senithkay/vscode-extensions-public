@@ -6,8 +6,11 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { ts, Node } from 'ts-morph';
+import { ts, Node, PropertyAssignment, FunctionDeclaration } from 'ts-morph';
+
 import { Visitor } from '../../../ts/base-visitor';
+import { View } from '../../../components/DataMapper/DataMapper';
+import { FocusedSTFindingVisitor } from '../../../components/Visitors/FocusedSTFindingVisitor';
 
 enum SyntaxKindWithRepeatedValue {
     NumericLiteral = 9,
@@ -64,4 +67,10 @@ export function getPosition(node: Node): NodePosition {
 export function isPositionsEquals(node1: NodePosition, node2: NodePosition): boolean {
     return node1.start === node2.start
         && node1.end === node2.end;
+}
+
+export function getFocusedST(focusedView: View, fnST: FunctionDeclaration): PropertyAssignment {
+    const focusedSTFindingVisitor = new FocusedSTFindingVisitor(focusedView.targetFieldFQN);
+    traversNode(fnST, focusedSTFindingVisitor);
+    return focusedSTFindingVisitor.getResolvedNode();
 }

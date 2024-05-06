@@ -14,14 +14,15 @@ import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapp
 import { DataMapperLinkModel } from "../../Link";
 import { InputOutputPortModel, IntermediatePortModel } from "../../Port";
 import { FOCUSED_INPUT_SOURCE_PORT_PREFIX, OFFSETS } from "../../utils/constants";
-import { getFieldNames } from "../../utils/common-utils";
+import { getDefaultValue, getFieldNames } from "../../utils/common-utils";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
 import { ArrayOutputNode } from "../ArrayOutput";
 import { ObjectOutputNode } from "../ObjectOutput";
 import { InputNode } from "../Input";
 import { getDMType } from "../../utils/type-utils";
-import { getPosition, isPositionsEquals } from "../../utils/st-utils";
+import { getPosition, isPositionsEquals, traversNode } from "../../utils/st-utils";
 import { FocusedInputNode } from "../FocusedInput";
+import { LinkDeletingVisitor } from "../../../../components/Visitors/LinkDeletingVistior";
 
 export const ARRAY_FUNCTION_CONNECTOR_NODE_TYPE = "array-function-connector-node";
 const NODE_ID = "array-function-connector-node";
@@ -225,7 +226,35 @@ export class ArrayFnConnectorNode extends DataMapperNodeModel {
         }
     }
 
-    public deleteLink(): void {
-        // TODO: Implement delete link
+    public async deleteLink(): Promise<void> {
+        const dmNode = this.getModel().getNodes().find(node =>
+            node instanceof ObjectOutputNode || node instanceof ArrayOutputNode
+        ) as ObjectOutputNode | ArrayOutputNode;
+
+        if (dmNode) {
+            if (Node.isPropertyAssignment(this.parentNode)) {
+                const rootConstruct = dmNode.value.getExpression();
+                const linkDeleteVisitor = new LinkDeletingVisitor(this.parentNode, rootConstruct);
+                traversNode(this.context.focusedST, linkDeleteVisitor);
+                const targetNodes = linkDeleteVisitor.getNodesToDelete();
+
+                targetNodes.forEach(node => {
+                    const parentNode = node.getParent();
+    
+                    if (Node.isPropertyAssignment(node)) {
+                        node.remove();
+                    } else if (parentNode && Node.isArrayLiteralExpression(parentNode)) {
+                        const elementIndex = parentNode.getElements().find(e => e === node);
+                        parentNode.removeElement(elementIndex);
+                    } else {
+                        node.replaceWithText('');
+                    }
+                });
+            } else {
+                this.value.replaceWithText(getDefaultValue(dmNode.dmType.kind));
+            }
+        }
+
+        await this.context.applyModifications();
     }
 }

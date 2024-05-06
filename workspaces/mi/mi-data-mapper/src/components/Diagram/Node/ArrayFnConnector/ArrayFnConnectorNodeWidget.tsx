@@ -49,6 +49,7 @@ export function ArrayFnConnectorNodeWidget(props: ArrayFnConnectorNodeWidgetWidg
     const deleteLink = async () => {
         setDeleteInProgress(true);
         await node.deleteLink();
+        setDeleteInProgress(false);
     }
 
     const loadingScreen = (

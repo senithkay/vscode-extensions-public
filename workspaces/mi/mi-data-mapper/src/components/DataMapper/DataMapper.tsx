@@ -17,13 +17,12 @@ import DataMapperDiagram from "../Diagram/Diagram";
 import { DataMapperHeader } from "./Header/DataMapperHeader";
 import { DataMapperNodeModel } from "../Diagram/Node/commons/DataMapperNode";
 import { NodeInitVisitor } from "../Visitors/NodeInitVisitor";
-import { traversNode } from "../Diagram/utils/st-utils";
+import { getFocusedST, traversNode } from "../Diagram/utils/st-utils";
 import { DMType, Range } from "@wso2-enterprise/mi-core";
 import { FunctionDeclaration, PropertyAssignment } from "ts-morph";
 import { ImportDataForm } from "./SidePanel/ImportDataForm";
 import { useDMSearchStore, useDMSidePanelStore } from "../../store/store";
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
-import { FocusedSTFindingVisitor } from "../Visitors/FocusedSTFindingVisitor";
 
 const classes = {
     root: css({
@@ -95,10 +94,7 @@ export function MIDataMapper(props: MIDataMapperProps) {
             let focusedST: FunctionDeclaration | PropertyAssignment = fnST;
     
             if (views.length > 1) {
-                const focusedView = views[views.length - 1];
-                const focusedSTFindingVisitor = new FocusedSTFindingVisitor(focusedView.targetFieldFQN);
-                traversNode(fnST, focusedSTFindingVisitor);
-                focusedST = focusedSTFindingVisitor.getResolvedNode();
+                focusedST = getFocusedST(views[views.length - 1], fnST);
             }
 
             const context = new DataMapperContext(
