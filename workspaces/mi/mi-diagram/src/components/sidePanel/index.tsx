@@ -157,6 +157,7 @@ const SidePanelList = (props: SidePanelListProps) => {
                     {/* Content */}
                     <div style={{
                         overflowY: "auto",
+                        overflowX: "hidden",
                         scrollbarWidth: "none"
                     }}>
                         {pageStack.length === 0 && <>
@@ -169,7 +170,7 @@ const SidePanelList = (props: SidePanelListProps) => {
                                 id="drawer1"
                                 width={300}
                                 isSelected={true}
-                                sx={{ width: "100%", top: "0", position: "relative", border: "none", boxShadow: "none", transition: "none" }}
+                                sx={{ width: "100%", top: "0", position: "relative", border: "none", boxShadow: "none", transition: "none", height: "calc(100vh - 100px)", overflowY: "auto" }}
                             >
                                 {pageStack.length > 0 && pageStack[pageStack.length - 1]}
                             </Drawer>
