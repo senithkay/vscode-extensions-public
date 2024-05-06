@@ -213,7 +213,7 @@ export interface MiDiagramAPI {
     highlightCode: (params: HighlightCodeRequest) => void;
     getWorkspaceContext: () => Promise<GetWorkspaceContextResponse>;
     getProjectUuid: () => Promise<GetProjectUuidResponse>;
-    initUndoRedoManager: (params: UndoRedoParams) => Promise<void>;
+    initUndoRedoManager: (params: UndoRedoParams) => void;
     undo: (params: UndoRedoParams) => void;
     redo: (params: UndoRedoParams) => void;
     getDefinition: (params: GetDefinitionRequest) => Promise<GetDefinitionResponse>;
@@ -241,7 +241,8 @@ export interface MiDiagramAPI {
     logoutFromMIAccount: () => void;
     getAllRegistryPaths: (params: GetAllRegistryPathsRequest) => Promise<GetAllRegistryPathsResponse>;
     getAllArtifacts: (params: GetAllArtifactsRequest) => Promise<GetAllArtifactsResponse>;
-    deleteArtifact: (params: DeleteArtifactRequest) => Promise<void>;
-    buildProject: () => Promise<void>;
-    exportProject: (params: ExportProjectRequest) => Promise<void>;
+    deleteArtifact: (params: DeleteArtifactRequest) => void;
+    buildProject: () => void;
+    exportProject: (params: ExportProjectRequest) => void;
+    checkOldProject: () => Promise<boolean>;
 }

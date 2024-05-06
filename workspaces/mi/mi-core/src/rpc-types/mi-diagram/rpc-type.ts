@@ -215,7 +215,7 @@ export const writeContentToFile: RequestType<WriteContentToFileRequest, WriteCon
 export const highlightCode: NotificationType<HighlightCodeRequest> = { method: `${_preFix}/highlightCode` };
 export const getWorkspaceContext: RequestType<void, GetWorkspaceContextResponse> = { method: `${_preFix}/getWorkspaceContext` };
 export const getProjectUuid: RequestType<void, GetProjectUuidResponse> = { method: `${_preFix}/getProjectUuid` };
-export const initUndoRedoManager: RequestType<UndoRedoParams, void> = { method: `${_preFix}/initUndoRedoManager` };
+export const initUndoRedoManager: NotificationType<UndoRedoParams> = { method: `${_preFix}/initUndoRedoManager` };
 export const undo: NotificationType<UndoRedoParams> = { method: `${_preFix}/undo` };
 export const redo: NotificationType<UndoRedoParams> = { method: `${_preFix}/redo` };
 export const getDefinition: RequestType<GetDefinitionRequest, GetDefinitionResponse> = { method: `${_preFix}/getDefinition` };
@@ -243,6 +243,7 @@ export const getConnectorConnections: RequestType<GetConnectorConnectionsRequest
 export const logoutFromMIAccount: NotificationType<void> = { method: `${_preFix}/logoutFromMIAccount` };
 export const getAllRegistryPaths: RequestType<GetAllRegistryPathsRequest, GetAllRegistryPathsResponse> = { method: `${_preFix}/getAllRegistryPaths` };
 export const getAllArtifacts: RequestType<GetAllArtifactsRequest, GetAllArtifactsResponse> = { method: `${_preFix}/getAllArtifacts` };
-export const deleteArtifact: RequestType<DeleteArtifactRequest, void> = { method: `${_preFix}/deleteArtifact` };
-export const buildProject: RequestType<void, void> = { method: `${_preFix}/buildProject` };
-export const exportProject: RequestType<ExportProjectRequest, void> = { method: `${_preFix}/exportProject` };
+export const deleteArtifact: NotificationType<DeleteArtifactRequest> = { method: `${_preFix}/deleteArtifact` };
+export const buildProject: NotificationType<void> = { method: `${_preFix}/buildProject` };
+export const exportProject: NotificationType<ExportProjectRequest> = { method: `${_preFix}/exportProject` };
+export const checkOldProject: RequestType<void, boolean> = { method: `${_preFix}/checkOldProject` };
