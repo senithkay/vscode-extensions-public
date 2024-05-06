@@ -2530,6 +2530,13 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     }
                     console.log("File type - ", fileType)
                 }
+
+                const connectorMatch = content[i].match(/<(\w+\.\w+)>/);
+                if (connectorMatch) {
+                    const tagParts = connectorMatch[1].split('.');
+                    console.log('Connector match:', tagParts[0]);
+                    
+                }
                 //write the content to a file, if file exists, overwrite else create new file
                 const fullPath = path.join(directoryPath ?? '', '/src/main/wso2mi/artifacts/', fileType, '/', `${name}.xml`);
                 console.log('Full path:', fullPath);
