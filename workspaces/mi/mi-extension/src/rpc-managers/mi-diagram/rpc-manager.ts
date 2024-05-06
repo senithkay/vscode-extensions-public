@@ -2533,6 +2533,11 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 if (connectorMatch) {
                     const tagParts = connectorMatch[1].split('.');
                     console.log('Connector match:', tagParts[0]);
+                    const fetchConnectors = async () => {
+                        const response = await fetch('https://raw.githubusercontent.com/rosensilva/connectors/main/connectors_list.json');
+                        const data = await response.json();
+                        console.log(data);
+                    };
                     
                 }
                 //write the content to a file, if file exists, overwrite else create new file
