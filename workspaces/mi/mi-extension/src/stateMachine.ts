@@ -26,6 +26,7 @@ import { getSources } from './util/dataMapper';
 import { StateMachinePopup } from './stateMachinePopup';
 import { STNode } from '../../syntax-tree/lib/src';
 import { log } from './util/logger';
+import { deriveConfigName } from './util/dataMapper';
 
 interface MachineContext extends VisualizerLocation {
     langClient: ExtendedLanguageClient | null;
@@ -354,7 +355,8 @@ const stateMachine = createMachine<MachineContext>({
                             filePath: filePath,
                             functionName: functionName,
                             fileContent: fnSource,
-                            interfacesSource: interfacesSource
+                            interfacesSource: interfacesSource,
+                            configName: deriveConfigName(filePath)
                         };
                         viewLocation.view = MACHINE_VIEW.DataMapperView;
                     }
@@ -496,7 +498,7 @@ export function navigate(entry?: HistoryEntry) {
 
 function updateProjectExplorer(location: VisualizerLocation | undefined) {
     if (location && location.documentUri) {
-        const projectRoot = vscode.workspace.getWorkspaceFolder(vscode.Uri.parse(location.documentUri));
+        const projectRoot = vscode.workspace.getWorkspaceFolder(vscode.Uri.file(location.documentUri));
         if (projectRoot && !extension.preserveActivity) {
             location.projectUri = projectRoot.uri.fsPath;
             if (!StateMachine.context().isOldProject) {

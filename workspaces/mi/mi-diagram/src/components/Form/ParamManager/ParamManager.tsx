@@ -67,7 +67,7 @@ export interface ParamField {
 
 export interface ParamConfig {
     paramValues: ParamValueConfig[];
-    paramFields: ParamField[];
+    paramFields?: ParamField[];
 }
 
 export interface ParamManagerProps {
@@ -88,7 +88,7 @@ export function convertToObject(input: (ConditionParams | string | ConditionPara
     }
     const result: EnableCondition = {};
     let currentKey: string | null = null;
-    let currentValues: (ConditionParams | EnableCondition) [] = [];
+    let currentValues: (ConditionParams | EnableCondition)[] = [];
 
     for (const item of input) {
         if (typeof item === 'string') {
@@ -128,11 +128,11 @@ function isConditionParamsArray(obj: any): obj is ConditionParams[] {
 // Type guard to check if an object is an EnableCondition
 function isEnableCondition(obj: any): obj is EnableCondition {
     return obj && typeof obj === 'object' && !Array.isArray(obj) &&
-           Object.keys(obj).every(key =>
-               Array.isArray(obj[key]) && obj[key].every((item: any) =>
-                   isConditionParams(item) || isEnableCondition(item)
-               )
-    );
+        Object.keys(obj).every(key =>
+            Array.isArray(obj[key]) && obj[key].every((item: any) =>
+                isConditionParams(item) || isEnableCondition(item)
+            )
+        );
 }
 
 // This function is used to check the field is enabled or not on the enable condition
@@ -214,7 +214,8 @@ const getNewParam = (fields: ParamField[], index: number): Parameters => {
             values: field.values,
             isRequired: field.isRequired,
             enableCondition: field.enableCondition ? convertToObject(field.enableCondition) : undefined,
-            openInDrawer: field?.paramManager?.openInDrawer
+            openInDrawer: field?.paramManager?.openInDrawer,
+            ...(field.type === 'ParamManager') && { paramFields: field.paramManager.paramConfigs.paramFields }
         });
     });
     // Modify the fields to set field is enabled or not
@@ -318,12 +319,13 @@ export function ParamManager(props: ParamManagerProps) {
         setEditingSegmentId(param.id);
     };
 
-    const paramValues: Parameters[] = paramConfigs.paramValues.map(paramValue => {
+    const paramValues: Parameters[] = paramConfigs.paramValues.map((paramValue) => {
         const params: Param[] = paramValue.paramValues.map((paramVal, id) => {
+            const type = getParamFieldTypeFromParamId(paramConfigs.paramFields, id);
             const param: Param = {
                 id: id,
                 label: getParamFieldLabelFromParamId(paramConfigs.paramFields, id),
-                type: getParamFieldTypeFromParamId(paramConfigs.paramFields, id),
+                type,
                 value: paramVal.value,
                 isEnabled: paramVal.isEnabled,
                 isRequired: getParamFieldIsRequiredFromParamId(paramConfigs.paramFields, id),
@@ -337,7 +339,8 @@ export function ParamManager(props: ParamManagerProps) {
                 filter: getPramFilterFromParamId(paramConfigs.paramFields, id),
                 filterType: getPramFilterTypeFromParamId(paramConfigs.paramFields, id),
                 openInDrawer: getPramOpenInDrawerFromParamId(paramConfigs.paramFields, id),
-                addParamText: getAddParamTextFromParamId(paramConfigs.paramFields, id)
+                addParamText: getAddParamTextFromParamId(paramConfigs.paramFields, id),
+                ...(type === 'ParamManager') && { paramFields: paramConfigs.paramFields[id].paramManager.paramConfigs.paramFields }
             };
             return param;
         });

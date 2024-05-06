@@ -12,13 +12,13 @@ import React, { useEffect } from 'react';
 import { AutoComplete, Button, ComponentCard, ProgressIndicator, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
-import { AddMediatorProps } from '../common';
+import { AddMediatorProps, getParamManagerValues, getParamManagerFromValues } from '../common';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
 import { MEDIATORS } from '../../../../../resources/constants';
 import { Controller, useForm } from 'react-hook-form';
 import { ExpressionField, ExpressionFieldValue } from '../../../../Form/ExpressionField/ExpressionInput';
-import { ParamManager, ParamConfig, ParamValue } from '../../../../Form/ParamManager/ParamManager';
+import { ParamManager, ParamValue } from '../../../../Form/ParamManager/ParamManager';
 
 const cardStyle = { 
     display: "block",
@@ -60,23 +60,7 @@ const RuleForm = (props: AddMediatorProps) => {
             inputWrapperName: sidePanelContext?.formValues?.inputWrapperName || "",
             inputNamespace: sidePanelContext?.formValues?.inputNamespace || "",
             factsConfiguration: {
-                paramValues: sidePanelContext?.formValues?.factsConfiguration && sidePanelContext?.formValues?.factsConfiguration.map((property: (string | ExpressionFieldValue | ParamConfig)[], index: string) => (
-                    {
-                        id: index,
-                        key: property[0],
-                        value:  property[2],
-                        icon: 'query',
-                        paramValues: [
-                            { value: property[0] },
-                            { value: property[1] },
-                            { value: property[2] },
-                            { value: property[3] },
-                            { value: property[4] },
-                            { value: property[5] },
-                            { value: property[6] },
-                        ]
-                    }
-                )) || [] as string[][],
+                paramValues: sidePanelContext?.formValues?.factsConfiguration ? getParamManagerFromValues(sidePanelContext?.formValues?.factsConfiguration) : [],
                 paramFields: [
                     {
                         "type": "Dropdown",
@@ -154,23 +138,7 @@ const RuleForm = (props: AddMediatorProps) => {
             outputWrapperName: sidePanelContext?.formValues?.outputWrapperName || "",
             outputNamespace: sidePanelContext?.formValues?.outputNamespace || "",
             resultsConfiguration: {
-                paramValues: sidePanelContext?.formValues?.resultsConfiguration && sidePanelContext?.formValues?.resultsConfiguration.map((property: (string | ExpressionFieldValue | ParamConfig)[], index: string) => (
-                    {
-                        id: index,
-                        key: property[0],
-                        value:  property[2],
-                        icon: 'query',
-                        paramValues: [
-                            { value: property[0] },
-                            { value: property[1] },
-                            { value: property[2] },
-                            { value: property[3] },
-                            { value: property[4] },
-                            { value: property[5] },
-                            { value: property[6] },
-                        ]
-                    }
-                )) || [] as string[][],
+                paramValues: sidePanelContext?.formValues?.resultsConfiguration ? getParamManagerFromValues(sidePanelContext?.formValues?.resultsConfiguration) : [],
                 paramFields: [
                     {
                         "type": "Dropdown",
@@ -252,8 +220,8 @@ const RuleForm = (props: AddMediatorProps) => {
 
     const onClick = async (values: any) => {
         
-        values["factsConfiguration"] = values.factsConfiguration.paramValues.map((param: any) => param.paramValues.map((p: any) => p.value));
-        values["resultsConfiguration"] = values.resultsConfiguration.paramValues.map((param: any) => param.paramValues.map((p: any) => p.value));
+        values["factsConfiguration"] = getParamManagerValues(values.factsConfiguration);
+        values["resultsConfiguration"] = getParamManagerValues(values.resultsConfiguration);
         const xml = getXML(MEDIATORS.RULE, values, dirtyFields, sidePanelContext.formValues);
         if (Array.isArray(xml)) {
             for (let i = 0; i < xml.length; i++) {

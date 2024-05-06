@@ -264,25 +264,6 @@ const nestedParamManagerWithValues: ParamConfig = {
                                 ],
                                 icon: "query"
                             }
-                        ],
-                        paramFields: [
-                            {
-                                type: "TextField",
-                                label: "Name",
-                                defaultValue: "var",
-                                isRequired: true
-                            },
-                            {
-                                type: "Dropdown",
-                                label: "Dropdown Sample",
-                                defaultValue: "0",
-                                isRequired: false,
-                                values: [
-                                    "0",
-                                    "1",
-                                    "2"
-                                ]
-                            }
                         ]
                     }
                 }

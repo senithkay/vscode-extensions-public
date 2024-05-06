@@ -51,7 +51,7 @@ export function Visualizer({ mode }: { mode: string }) {
     }, []);
 
     return (
-        <ErrorBoundary errorMsg="An error occurred in the MI Diagram">
+        <ErrorBoundary errorMsg="An error occurred in the MI Diagram" issueUrl="https://github.com/wso2/mi-vscode/issues">
             {(() => {
                 switch (mode) {
                     case "visualizer":
