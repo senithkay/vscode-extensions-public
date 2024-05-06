@@ -34,7 +34,8 @@ const classes = {
 }
 
 export interface View {
-    fieldFQN: string;
+    targetFieldFQN: string;
+    sourceFieldFQN: string;
     label: string;
     index?: number;
 }
@@ -62,7 +63,8 @@ export function MIDataMapper(props: MIDataMapperProps) {
         filePath
     } = props;
     const [views, setViews] = useState<View[]>([{
-        fieldFQN: "",
+        targetFieldFQN: "",
+        sourceFieldFQN: "",
         label: `${inputTrees[0].typeName} -> ${outputTree.typeName}`
     }]);
     const [nodes, setNodes] = useState<DataMapperNodeModel[]>([]);
@@ -94,7 +96,7 @@ export function MIDataMapper(props: MIDataMapperProps) {
     
             if (views.length > 1) {
                 const focusedView = views[views.length - 1];
-                const focusedSTFindingVisitor = new FocusedSTFindingVisitor(focusedView.fieldFQN);
+                const focusedSTFindingVisitor = new FocusedSTFindingVisitor(focusedView.targetFieldFQN);
                 traversNode(fnST, focusedSTFindingVisitor);
                 focusedST = focusedSTFindingVisitor.getResolvedNode();
             }

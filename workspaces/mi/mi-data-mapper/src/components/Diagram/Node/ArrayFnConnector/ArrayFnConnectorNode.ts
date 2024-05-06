@@ -13,7 +13,7 @@ import { CallExpression, Identifier, Node, PropertyAccessExpression } from "ts-m
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { DataMapperLinkModel } from "../../Link";
 import { InputOutputPortModel, IntermediatePortModel } from "../../Port";
-import { OFFSETS } from "../../utils/constants";
+import { FOCUSED_INPUT_SOURCE_PORT_PREFIX, OFFSETS } from "../../utils/constants";
 import { getFieldNames } from "../../utils/common-utils";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
 import { ArrayOutputNode } from "../ArrayOutput";
@@ -21,6 +21,7 @@ import { ObjectOutputNode } from "../ObjectOutput";
 import { InputNode } from "../Input";
 import { getDMType } from "../../utils/type-utils";
 import { getPosition, isPositionsEquals } from "../../utils/st-utils";
+import { FocusedInputNode } from "../FocusedInput";
 
 export const ARRAY_FUNCTION_CONNECTOR_NODE_TYPE = "array-function-connector-node";
 const NODE_ID = "array-function-connector-node";
@@ -102,6 +103,9 @@ export class ArrayFnConnectorNode extends DataMapperNodeModel {
         this.getModel().getNodes().map(node => {
             if (node instanceof InputNode && node?.value && node.value.getName() === paramName) {
                 this.sourcePort = node.getPort(fieldId + ".OUT") as InputOutputPortModel;
+            } else if (node instanceof FocusedInputNode && node?.value && node.innerParam.getName() === paramName) {
+                const portName = FOCUSED_INPUT_SOURCE_PORT_PREFIX + "." + fieldId + ".OUT";
+                this.sourcePort = node.getPort(portName) as InputOutputPortModel;
             }
 
             while (this.sourcePort && this.sourcePort.hidden){

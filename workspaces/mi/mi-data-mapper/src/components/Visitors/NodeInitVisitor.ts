@@ -59,14 +59,14 @@ export class NodeInitVisitor implements Visitor {
         this.mapIdentifiers.push(node);
 
         const { focusedST, views } = this.context;
-        const fieldFQN = views[views.length - 1].fieldFQN;
+        const { sourceFieldFQN, targetFieldFQN } = views[views.length - 1];
         const isFocusedST = isPositionsEquals(getPosition(node), getPosition(focusedST));
 
         if (isFocusedST) {
             const callExpr = node.getInitializer() as CallExpression;
 
             // create output node
-            const exprType = getDMType(fieldFQN, this.context.outputTree);
+            const exprType = getDMType(targetFieldFQN, this.context.outputTree);
             const returnStatement = getReturnStatement(callExpr);
 
             const innerExpr = returnStatement.getExpression();
@@ -107,8 +107,7 @@ export class NodeInitVisitor implements Visitor {
             this.outputNode.setPosition(OFFSETS.TARGET_NODE.X, 0);
 
            // Create input node
-           const propAccessExpr = (callExpr.getExpression() as PropertyAccessExpression).getExpression();
-           const inputType = getDMType(propAccessExpr.getText(), this.context.inputTrees[0], true);
+           const inputType = getDMType(sourceFieldFQN, this.context.inputTrees[0]);
 
            const focusedInputNode = new FocusedInputNode(this.context, callExpr, inputType);
 

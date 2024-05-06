@@ -22,14 +22,28 @@ export interface ArrayFnConnectorNodeWidgetWidgetProps {
 
 export function ArrayFnConnectorNodeWidget(props: ArrayFnConnectorNodeWidgetWidgetProps) {
     const { node, engine } = props;
+    const { context, sourcePort, targetPort, inPort, outPort, hidden } = node;
+    const { addView, views } = context;
 
     const [deleteInProgress, setDeleteInProgress] = React.useState(false);
 
     const classes = useIntermediateNodeStyles();
 
     const onClickOnExpand = () => {
-        const fieldFQN = node.targetPort.fieldFQN;
-        node.context.addView({ fieldFQN, label: fieldFQN });
+        const label = targetPort.fieldFQN;
+        let targetFieldFQN = targetPort.fieldFQN;
+        let sourceFieldFQN = sourcePort.fieldFQN.split('.').slice(1).join('.');
+
+        if (views.length > 1) {
+            const prevView = views[views.length - 1];
+            if (prevView.targetFieldFQN !== '') {
+                targetFieldFQN = `${prevView.targetFieldFQN}.${targetFieldFQN}`;
+            }
+            if (prevView.sourceFieldFQN !== '') {
+                sourceFieldFQN = `${prevView.sourceFieldFQN}.${sourceFieldFQN}`;
+            }
+        }
+        addView({ targetFieldFQN, sourceFieldFQN, label });
     }
 
     const deleteLink = async () => {
@@ -41,12 +55,12 @@ export function ArrayFnConnectorNodeWidget(props: ArrayFnConnectorNodeWidgetWidg
         <ProgressRing sx={{ height: '16px', width: '16px' }} />
     );
 
-    return (!node.hidden && (
+    return (!hidden && (
         <>
-            {(!!node.sourcePort && !!node.inPort && !!node.outPort) && (
+            {(!!sourcePort && !!inPort && !!outPort) && (
                 <div className={classes.root} >
                     <div className={classes.header}>
-                        <DataMapperPortWidget engine={engine} port={node.inPort} />
+                        <DataMapperPortWidget engine={engine} port={inPort} />
                         <Tooltip content={"Array Function"} position="bottom">
                             <Codicon name="list-unordered" iconSx={{ color: "var(--vscode-input-placeholderForeground)" }} />
                         </Tooltip>
@@ -71,7 +85,7 @@ export function ArrayFnConnectorNodeWidget(props: ArrayFnConnectorNodeWidgetWidg
                                 <Codicon name="trash" iconSx={{ color: "var(--vscode-errorForeground)" }} />
                             </Button>
                         )}
-                        <DataMapperPortWidget engine={engine} port={node.outPort} />
+                        <DataMapperPortWidget engine={engine} port={outPort} />
                     </div>
                 </div>
             )}

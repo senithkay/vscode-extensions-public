@@ -18,25 +18,35 @@ export function enrichAndProcessType(typeToBeProcessed: DMType, node: Node): [DM
 }
 
 export function getDMType(propertiesExpr: string, parentType: DMType, isPropeAccessExpr?: boolean): DMType {
-    const propertyList = propertiesExpr.split('.');
-    let properties = isPropeAccessExpr ? propertyList.splice(1) : propertyList;
+    const properties = getProperties(propertiesExpr, isPropeAccessExpr);
+
+    if (!properties) return;
+
     let currentType = parentType;
 
     for (let property of properties) {
-        if (currentType.kind === TypeKind.Interface && currentType.fields) {
-            let field = currentType.fields.find(field => field.fieldName === property);
+        const field = findField(currentType, property);
 
-            if (field) {
-                currentType = field;
-            } else {
-                return;
-            }
-        } else {
-            return;
-        }
+        if (!field) return;
+
+        currentType = field;
     }
 
     return currentType;
+
+    function getProperties(propertiesExpr: string, isPropeAccessExpr?: boolean): string[] | undefined {
+        const propertyList = propertiesExpr.split('.');
+        return isPropeAccessExpr ? propertyList.slice(1) : propertyList;
+    }
+    
+    function findField(currentType: DMType, property: string): DMType | undefined {
+        if (currentType.kind === TypeKind.Interface && currentType.fields) {
+            return currentType.fields.find(field => field.fieldName === property);
+        } else if (currentType.kind === TypeKind.Array && currentType.memberType
+            && currentType.memberType.kind === TypeKind.Interface && currentType.memberType.fields) {
+            return currentType.memberType.fields.find(field => field.fieldName === property);
+        }
+    }
 }
 
 function getEnrichedDMType(

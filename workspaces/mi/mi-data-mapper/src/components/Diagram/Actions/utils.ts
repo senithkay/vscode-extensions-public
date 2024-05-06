@@ -15,9 +15,11 @@ import {
 } from "../Node";
 import { IO_NODE_DEFAULT_WIDTH } from "../utils/constants";
 import { DataMapperNodeModel } from "../Node/commons/DataMapperNode";
+import { FocusedInputNode } from "../Node/FocusedInput";
 
 export const INPUT_NODES = [
-    InputNode
+    InputNode,
+    FocusedInputNode
 ];
 
 export const OUTPUT_NODES = [

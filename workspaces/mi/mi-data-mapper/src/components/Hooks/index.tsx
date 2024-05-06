@@ -21,6 +21,7 @@ import { ArrayOutputNode, InputNode, ObjectOutputNode } from '../Diagram/Node';
 import { GAP_BETWEEN_INPUT_NODES, IO_NODE_DEFAULT_WIDTH, OFFSETS, VISUALIZER_PADDING } from '../Diagram/utils/constants';
 import { LinkConnectorNode } from '../Diagram/Node/LinkConnector';
 import { InputDataImportNodeModel, OutputDataImportNodeModel } from '../Diagram/Node/DataImport/DataImportNode';
+import { ArrayFnConnectorNode } from '../Diagram/Node/ArrayFnConnector';
 
 export const useRepositionedNodes = (nodes: DataMapperNodeModel[], zoomLevel: number, diagramModel: DiagramModel) => {
     const nodesClone = [...nodes];
@@ -95,7 +96,7 @@ export const useDiagramModel = (
                 }
                 node.setModel(newModel);
                 await node.initPorts();
-                if (node instanceof LinkConnectorNode) {
+                if (node instanceof LinkConnectorNode || node instanceof ArrayFnConnectorNode) {
                     continue;
                 }
                 node.initLinks();
