@@ -48,7 +48,7 @@ const SwitchForm = (props: AddMediatorProps) => {
         reset({
             sourceXPath: sidePanelContext?.formValues?.sourceXPath || {"isExpression":true,"value":""},
             caseBranches: {
-                paramValues: getParamManagerFromValues(sidePanelContext?.formValues?.caseBranches),
+                paramValues: sidePanelContext?.formValues?.caseBranches ? getParamManagerFromValues(sidePanelContext?.formValues?.caseBranches) : [],
                 paramFields: [
                     {
                         "type": "TextField",

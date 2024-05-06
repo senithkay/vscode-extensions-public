@@ -51,7 +51,7 @@ const XQueryForm = (props: AddMediatorProps) => {
             dynamicScriptKey: sidePanelContext?.formValues?.dynamicScriptKey || {"isExpression":true,"value":""},
             targetXPath: sidePanelContext?.formValues?.targetXPath || {"isExpression":true,"value":""},
             variables: {
-                paramValues: getParamManagerFromValues(sidePanelContext?.formValues?.variables),
+                paramValues: sidePanelContext?.formValues?.variables ? getParamManagerFromValues(sidePanelContext?.formValues?.variables) : [],
                 paramFields: [
                     {
                         "type": "TextField",

@@ -52,7 +52,7 @@ const PublishEventForm = (props: AddMediatorProps) => {
             async: sidePanelContext?.formValues?.async || "",
             asyncTimeout: sidePanelContext?.formValues?.asyncTimeout || "",
             metaAttributes: {
-                paramValues: getParamManagerFromValues(sidePanelContext?.formValues?.metaAttributes),
+                paramValues: sidePanelContext?.formValues?.metaAttributes ? getParamManagerFromValues(sidePanelContext?.formValues?.metaAttributes) : [],
                 paramFields: [
                     {
                         "type": "TextField",
@@ -115,7 +115,7 @@ const PublishEventForm = (props: AddMediatorProps) => {
                 ]
             },
             correlationAttributes: {
-                paramValues: getParamManagerFromValues(sidePanelContext?.formValues?.correlationAttributes),
+                paramValues: sidePanelContext?.formValues?.correlationAttributes ? getParamManagerFromValues(sidePanelContext?.formValues?.correlationAttributes) : [],
                 paramFields: [
                     {
                         "type": "TextField",
@@ -178,7 +178,7 @@ const PublishEventForm = (props: AddMediatorProps) => {
                 ]
             },
             payloadAttributes: {
-                paramValues: getParamManagerFromValues(sidePanelContext?.formValues?.payloadAttributes),
+                paramValues: sidePanelContext?.formValues?.payloadAttributes ? getParamManagerFromValues(sidePanelContext?.formValues?.payloadAttributes) : [],
                 paramFields: [
                     {
                         "type": "TextField",
@@ -241,7 +241,7 @@ const PublishEventForm = (props: AddMediatorProps) => {
                 ]
             },
             arbitaryAttributes: {
-                paramValues: getParamManagerFromValues(sidePanelContext?.formValues?.arbitaryAttributes),
+                paramValues: sidePanelContext?.formValues?.arbitaryAttributes ? getParamManagerFromValues(sidePanelContext?.formValues?.arbitaryAttributes) : [],
                 paramFields: [
                     {
                         "type": "TextField",

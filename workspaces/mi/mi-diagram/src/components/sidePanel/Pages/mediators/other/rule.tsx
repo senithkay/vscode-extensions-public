@@ -60,7 +60,7 @@ const RuleForm = (props: AddMediatorProps) => {
             inputWrapperName: sidePanelContext?.formValues?.inputWrapperName || "",
             inputNamespace: sidePanelContext?.formValues?.inputNamespace || "",
             factsConfiguration: {
-                paramValues: getParamManagerFromValues(sidePanelContext?.formValues?.factsConfiguration),
+                paramValues: sidePanelContext?.formValues?.factsConfiguration ? getParamManagerFromValues(sidePanelContext?.formValues?.factsConfiguration) : [],
                 paramFields: [
                     {
                         "type": "Dropdown",
@@ -138,7 +138,7 @@ const RuleForm = (props: AddMediatorProps) => {
             outputWrapperName: sidePanelContext?.formValues?.outputWrapperName || "",
             outputNamespace: sidePanelContext?.formValues?.outputNamespace || "",
             resultsConfiguration: {
-                paramValues: getParamManagerFromValues(sidePanelContext?.formValues?.resultsConfiguration),
+                paramValues: sidePanelContext?.formValues?.resultsConfiguration ? getParamManagerFromValues(sidePanelContext?.formValues?.resultsConfiguration) : [],
                 paramFields: [
                     {
                         "type": "Dropdown",
