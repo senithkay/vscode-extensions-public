@@ -285,7 +285,8 @@ function processRegistryResources(source: string, target: string) {
             return;
         }
 
-        const artifacts = result.artifacts.artifact;
+        const artifactsData = result.artifacts.artifact;
+        const artifacts = Array.isArray(artifactsData) ? artifactsData : [artifactsData];
 
         artifacts.forEach(artifact => {
             const fileName = artifact.item.file;
