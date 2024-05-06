@@ -24,7 +24,7 @@ runs:
       id: vsix
       run: |
         file=$(ls ${{ inputs.name }}*.vsix)
-        fileName=${file#*-}
+        fileName=${file##*-}
         version=${fileName%.*}
         echo "vsixName=$file" >> $GITHUB_OUTPUT
         echo "version=$version" >> $GITHUB_OUTPUT
