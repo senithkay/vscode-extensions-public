@@ -13,12 +13,11 @@ import { AutoComplete, Button, ComponentCard, ProgressIndicator, TextField, Typo
 import { VSCodeCheckbox } from '@vscode/webview-ui-toolkit/react';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
-import { AddMediatorProps } from '../common';
+import { AddMediatorProps, getParamManagerValues, getParamManagerFromValues } from '../common';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
 import { MEDIATORS } from '../../../../../resources/constants';
 import { Controller, useForm } from 'react-hook-form';
-import { ExpressionFieldValue } from '../../../../Form/ExpressionField/ExpressionInput';
 import { ParamManager, ParamConfig, ParamValue } from '../../../../Form/ParamManager/ParamManager';
 
 const cardStyle = { 
@@ -66,20 +65,7 @@ const DBLookupForm = (props: AddMediatorProps) => {
             connectionPassword: sidePanelContext?.formValues?.connectionPassword || "",
             registryBasedPassConfigKey: sidePanelContext?.formValues?.registryBasedPassConfigKey || "",
             sqlStatements: {
-                paramValues: sidePanelContext?.formValues?.sqlStatements && sidePanelContext?.formValues?.sqlStatements.map((property: (string | ExpressionFieldValue | ParamConfig)[], index: string) => (
-                    {
-                        id: index,
-                        key: index,
-                        value:  property[0],
-                        icon: 'query',
-                        paramValues: [
-                            { value: property[0] },
-                            { value: property[1] },
-                            { value: property[2] },
-                            { value: property[3] },
-                        ]
-                    }
-                )) || [] as string[][],
+                paramValues: getParamManagerFromValues(sidePanelContext?.formValues?.sqlStatements),
                 paramFields: [
                     {
                         "type": "TextField",
@@ -94,17 +80,7 @@ const DBLookupForm = (props: AddMediatorProps) => {
                         "isRequired": false, 
                         "paramManager": {
                             paramConfigs: {
-                                paramValues: sidePanelContext?.formValues?.parameters && sidePanelContext?.formValues?.parameters.map((property: (string | ExpressionFieldValue | ParamConfig)[], index: string) => (
-                                    {
-                                        id: index,
-                                        key: index,
-                                        value:  index,
-                                        icon: 'query',
-                                        paramValues: [
-                                            { value: property[0] },
-                                        ]
-                                    }
-                                )) || [] as string[][],
+                                paramValues: getParamManagerFromValues(sidePanelContext?.formValues?.parameters),
                                 paramFields: [
                                     {
                                         "defaultValue": "",
@@ -129,18 +105,7 @@ const DBLookupForm = (props: AddMediatorProps) => {
                         "isRequired": false, 
                         "paramManager": {
                             paramConfigs: {
-                                paramValues: sidePanelContext?.formValues?.results && sidePanelContext?.formValues?.results.map((property: (string | ExpressionFieldValue | ParamConfig)[], index: string) => (
-                                    {
-                                        id: index,
-                                        key: index,
-                                        value:  index,
-                                        icon: 'query',
-                                        paramValues: [
-                                            { value: property[0] },
-                                            { value: property[1] },
-                                        ]
-                                    }
-                                )) || [] as string[][],
+                                paramValues: getParamManagerFromValues(sidePanelContext?.formValues?.results),
                                 paramFields: [
                                     {
                                         "type": "TextField",
@@ -181,7 +146,7 @@ const DBLookupForm = (props: AddMediatorProps) => {
 
     const onClick = async (values: any) => {
         
-        values["sqlStatements"] = values.sqlStatements.paramValues.map((param: any) => param.paramValues.map((p: any) => p.value));
+        values["sqlStatements"] = getParamManagerValues(values.sqlStatements);
         const xml = getXML(MEDIATORS.DBLOOKUP, values, dirtyFields, sidePanelContext.formValues);
         if (Array.isArray(xml)) {
             for (let i = 0; i < xml.length; i++) {

@@ -158,17 +158,8 @@ const getParamManagerKeyOrValue = (elements: any[], tableKey: string, postFix?:s
 }
 
 const getParamManagerConfig = (elements: any[], tableKey: string, tableValue: string, name: string) => {
-    let paramValues = '';
+    let paramValues = `getParamManagerFromValues(sidePanelContext?.formValues?.${name}),`;
     let paramFields = '';
-
-    paramValues +=
-        fixIndentation(`sidePanelContext?.formValues?.${name} && sidePanelContext?.formValues?.${name}.map((property: (string | ExpressionFieldValue | ParamConfig)[], index: string) => (
-            {
-                id: index,
-                key: ${getParamManagerKeyOrValue(elements, tableKey)},
-                value:  ${getParamManagerKeyOrValue(elements, tableValue)},
-                icon: 'query',
-                paramValues: [`, 12);
 
     const tableKeys: string[] = [];
     elements.forEach((attribute: any, index: number) => {
@@ -237,16 +228,7 @@ const getParamManagerConfig = (elements: any[], tableKey: string, tableValue: st
         } else {
             paramFields += paramField;
         }
-
-        paramValues +=
-            fixIndentation(`
-                { value: property[${index}] },`, 8);
     })
-    paramValues +=
-        fixIndentation(`
-                    ]
-                }
-            )) || [] as string[][],`, 8);
 
     return { paramValues, paramFields };
 }
@@ -468,7 +450,7 @@ const generateForm = (jsonData: any): string => {
                     },`, 8);
 
                 valueChanges += fixIndentation(`
-                    values["${inputName}"] = values.${inputName}.paramValues.map((param: any) => param.paramValues.map((p: any) => p.value));`, 8);
+                    values["${inputName}"] = getParamManagerValues(values.${inputName});`, 8);
 
                 fields += fixIndentation(`
                     <Controller
@@ -510,7 +492,7 @@ import { AutoComplete, Button, Codicon, ComponentCard, FormGroup, FlexLabelConta
 import { VSCodeCheckbox, VSCodeDropdown, VSCodeOption, VSCodeDataGrid, VSCodeDataGridRow, VSCodeDataGridCell } from '@vscode/webview-ui-toolkit/react';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
-import { AddMediatorProps, openPopup } from '../common';
+import { AddMediatorProps, openPopup, getParamManagerValues, getParamManagerFromValues } from '../common';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
 import { MEDIATORS } from '../../../../../resources/constants';

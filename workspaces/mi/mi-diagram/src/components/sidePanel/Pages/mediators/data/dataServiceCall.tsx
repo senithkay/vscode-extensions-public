@@ -12,12 +12,11 @@ import React, { useEffect } from 'react';
 import { AutoComplete, Button, ComponentCard, ProgressIndicator, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
-import { AddMediatorProps } from '../common';
+import { AddMediatorProps, getParamManagerValues, getParamManagerFromValues } from '../common';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
 import { MEDIATORS } from '../../../../../resources/constants';
 import { Controller, useForm } from 'react-hook-form';
-import { ExpressionFieldValue } from '../../../../Form/ExpressionField/ExpressionInput';
 import { ParamManager, ParamConfig, ParamValue } from '../../../../Form/ParamManager/ParamManager';
 import { generateSpaceSeperatedStringFromParamValues } from '../../../../../utils/commons';
 
@@ -52,18 +51,7 @@ const DataServiceCallForm = (props: AddMediatorProps) => {
             sourceType: sidePanelContext?.formValues?.sourceType || "INLINE",
             operationType: sidePanelContext?.formValues?.operationType || "SINGLE",
             operations: {
-                paramValues: sidePanelContext?.formValues?.operations && sidePanelContext?.formValues?.operations.map((property: (string | ExpressionFieldValue | ParamConfig)[], index: string) => (
-                    {
-                        id: index,
-                        key: property[0],
-                        value:  generateSpaceSeperatedStringFromParamValues(property[1] as ParamConfig),
-                        icon: 'query',
-                        paramValues: [
-                            { value: property[0] },
-                            { value: property[1] },
-                        ]
-                    }
-                )) || [] as string[][],
+                paramValues: getParamManagerFromValues(sidePanelContext?.formValues?.operations),
                 paramFields: [
                     {
                         "type": "TextField",
@@ -78,20 +66,7 @@ const DataServiceCallForm = (props: AddMediatorProps) => {
                         "isRequired": false, 
                         "paramManager": {
                             paramConfigs: {
-                                paramValues: sidePanelContext?.formValues?.DSSProperties && sidePanelContext?.formValues?.DSSProperties.map((property: (string | ExpressionFieldValue | ParamConfig)[], index: string) => (
-                                    {
-                                        id: index,
-                                        key: index,
-                                        value:  index,
-                                        icon: 'query',
-                                        paramValues: [
-                                            { value: property[0] },
-                                            { value: property[1] },
-                                            { value: property[2] },
-                                            { value: property[3] },
-                                        ]
-                                    }
-                                )) || [] as string[][],
+                                paramValues: getParamManagerFromValues(sidePanelContext?.formValues?.DSSProperties),
                                 paramFields: [
                                     {
                                         "type": "TextField",
@@ -148,7 +123,7 @@ const DataServiceCallForm = (props: AddMediatorProps) => {
 
     const onClick = async (values: any) => {
         
-        values["operations"] = values.operations.paramValues.map((param: any) => param.paramValues.map((p: any) => p.value));
+        values["operations"] = getParamManagerValues(values.operations);
         const xml = getXML(MEDIATORS.DATASERVICECALL, values, dirtyFields, sidePanelContext.formValues);
         if (Array.isArray(xml)) {
             for (let i = 0; i < xml.length; i++) {
