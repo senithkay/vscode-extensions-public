@@ -107,9 +107,6 @@ export const ContextMenu: React.FC<ContextMenuProps> = (props: ContextMenuProps)
     const [leftPosition, setLeftPosition] = useState(0);
 
     const iconRef = React.useRef<HTMLDivElement>(null);
-    // X and Y coordinates of the icon middle point
-    const iconMiddlePointX = iconRef.current?.getBoundingClientRect().left + iconRef.current?.getBoundingClientRect().width / 2;
-    const iconMiddlePointY = iconRef.current?.getBoundingClientRect().top + iconRef.current?.getBoundingClientRect().height / 2;
 
     const expandMenuRef = React.useRef<HTMLDivElement>(null);
 
@@ -176,22 +173,26 @@ export const ContextMenu: React.FC<ContextMenuProps> = (props: ContextMenuProps)
         const debouncedResize = debounce(() => {
             const expandMenuWidth = expandMenuRef.current?.getBoundingClientRect().width || 0;
             const expandMenuHeight = expandMenuRef.current?.getBoundingClientRect().height || 0;
+            const iconMiddlePointX = iconRef.current?.getBoundingClientRect().left + iconRef.current?.getBoundingClientRect().width / 2;
+            const iconMiddlePointY = iconRef.current?.getBoundingClientRect().top + iconRef.current?.getBoundingClientRect().height / 2;
             const { top, left } = calculatePosition(position, iconMiddlePointX, iconMiddlePointY, expandMenuWidth, expandMenuHeight, window.innerWidth, window.innerHeight);
             setTopPosition(top);
             setLeftPosition(left);
         }, 200);
         debouncedResize();
-    }, [calculatePosition, position, iconMiddlePointX, iconMiddlePointY]);
+    }, [calculatePosition, position]);
 
     useEffect(() => {
         if (isMenuOpen) {
             const expandMenuWidth = expandMenuRef.current?.getBoundingClientRect().width || 0;
             const expandMenuHeight = expandMenuRef.current?.getBoundingClientRect().height || 0;
+            const iconMiddlePointX = iconRef.current?.getBoundingClientRect().left + iconRef.current?.getBoundingClientRect().width / 2;
+            const iconMiddlePointY = iconRef.current?.getBoundingClientRect().top + iconRef.current?.getBoundingClientRect().height / 2;
             const { top, left } = calculatePosition(position, iconMiddlePointX, iconMiddlePointY, expandMenuWidth, expandMenuHeight, window.innerWidth, window.innerHeight);
             setTopPosition(top);
             setLeftPosition(left);
         }
-    }, [calculatePosition, iconMiddlePointX, iconMiddlePointY, isMenuOpen, position]);
+    }, [calculatePosition, isMenuOpen, position]);
 
     useEffect(() => {
         const resizeListener = () => onWindowResize();
@@ -199,7 +200,7 @@ export const ContextMenu: React.FC<ContextMenuProps> = (props: ContextMenuProps)
         return () => {
             window.removeEventListener('resize', resizeListener);
         };
-    }, [onWindowResize, position, iconMiddlePointX, iconMiddlePointY]);
+    }, [onWindowResize, position]);
 
     return (
         <>
