@@ -96,6 +96,9 @@ function registerPreInitHandlers(): any {
                 "Restart Now"
             );
             if (selection === "Restart Now") {
+                if(affectsConfiguration("Advanced.ChoreoEnvironment")){
+                    authStore.getState().logout();
+                }
                 commands.executeCommand("workbench.action.reloadWindow");
             }
         }
