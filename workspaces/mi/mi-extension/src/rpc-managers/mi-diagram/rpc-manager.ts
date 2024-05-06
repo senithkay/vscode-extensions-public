@@ -1980,7 +1980,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             let document = workspace.textDocuments.find(doc => doc.uri.fsPath === params.documentUri);
 
             if (!document) {
-                document = await workspace.openTextDocument(Uri.parse(params.documentUri));
+                document = await workspace.openTextDocument(Uri.file(params.documentUri));
             }
 
             const range = new Range(new Position(params.range.start.line, params.range.start.character),
@@ -2000,7 +2000,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 text = `${textBefore.length > 0 ? "\n" + sIndentation : ""}${params.text.replace(/\n/g, "\n" + sIndentation)}${textAfter.length > 0 ? "\n" + eIndentation : ""}`;
             }
 
-            edit.replace(Uri.parse(params.documentUri), range, text);
+            edit.replace(Uri.file(params.documentUri), range, text);
             await workspace.applyEdit(edit);
 
             if (!params.disableFormatting) {
@@ -2557,7 +2557,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         const documentUri = StateMachine.context().documentUri;
         let editor = window.visibleTextEditors.find(editor => editor.document.uri.fsPath === documentUri);
         if (!editor && params.force && documentUri) {
-            const document = await workspace.openTextDocument(Uri.parse(documentUri));
+            const document = await workspace.openTextDocument(Uri.file(documentUri));
             editor = await window.showTextDocument(document, ViewColumn.Beside);
         }
 
@@ -2722,7 +2722,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         let document = workspace.textDocuments.find(doc => doc.uri.fsPath === params.path);
 
         if (!document) {
-            document = await workspace.openTextDocument(Uri.parse(params.path));
+            document = await workspace.openTextDocument(Uri.file(params.path));
         }
 
         if (document) {

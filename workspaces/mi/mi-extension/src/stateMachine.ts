@@ -496,7 +496,7 @@ export function navigate(entry?: HistoryEntry) {
 
 function updateProjectExplorer(location: VisualizerLocation | undefined) {
     if (location && location.documentUri) {
-        const projectRoot = vscode.workspace.getWorkspaceFolder(vscode.Uri.parse(location.documentUri));
+        const projectRoot = vscode.workspace.getWorkspaceFolder(vscode.Uri.file(location.documentUri));
         if (projectRoot && !extension.preserveActivity) {
             location.projectUri = projectRoot.uri.fsPath;
             if (!StateMachine.context().isOldProject) {
