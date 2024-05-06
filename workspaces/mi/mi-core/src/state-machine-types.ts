@@ -120,6 +120,7 @@ interface DataMapperProps {
     functionName?: string;
     fileContent?: string;
     interfacesSource?: string;
+    configName: string;
 }
 
 // State Machine context values

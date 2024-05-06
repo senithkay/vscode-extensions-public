@@ -13,7 +13,7 @@ import { EventEmitter } from 'events';
 import { DebugProtocol } from 'vscode-debugprotocol';
 import { StateMachine, navigate } from '../stateMachine';
 import { BreakpointInfo, SequenceBreakpoint, GetBreakpointInfoRequest, GetBreakpointInfoResponse, ValidateBreakpointsRequest, ValidateBreakpointsResponse, TemplateBreakpoint, StepOverBreakpointResponse } from '@wso2-enterprise/mi-core';
-import { checkServerReadiness } from './debugHelper';
+import { checkServerReadiness, isADiagramView } from './debugHelper';
 import { VisualizerWebview } from '../visualizer/webview';
 import { extension } from '../MIExtensionContext';
 import { ViewColumn } from 'vscode';
@@ -452,10 +452,8 @@ export class Debugger extends EventEmitter {
                         // clear the stepOverBreakpointMap
                         this.stepOverBreakpointMap.clear();
 
-                        const stateContext = StateMachine.context();
-                        if (VisualizerWebview.currentPanel?.getWebview()?.visible && stateContext.stNode) {
+                        if (VisualizerWebview.currentPanel?.getWebview()?.visible && isADiagramView()) {
                             navigate();
-                            VisualizerWebview.currentPanel!.getWebview()?.reveal(ViewColumn.Beside);
                         }
                     }
 
@@ -523,11 +521,10 @@ export class Debugger extends EventEmitter {
                             }
                         }
                     }
-                    resolve();
-
                     // Remove the processed message from incompleteMessage
                     incompleteMessage = incompleteMessage.slice(newlineIndex + 1);
                 }
+                resolve();
             });
         });
     }

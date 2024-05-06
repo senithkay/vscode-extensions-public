@@ -359,7 +359,7 @@ function generateTreeDataOfClassMediator(project: vscode.WorkspaceFolder, data: 
 			resourceEntry.command = {
 				"title": "Edit Class Mediator",
 				"command": COMMANDS.EDIT_CLASS_MEDIATOR_COMMAND,
-				"arguments": [vscode.Uri.parse(filePath)]
+				"arguments": [vscode.Uri.file(filePath)]
 			};
 			parentEntry.children.push(resourceEntry);
 		}
@@ -394,7 +394,7 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 				resourceEntry.command = {
 					"title": "Show Diagram",
 					"command": COMMANDS.SHOW_RESOURCE_VIEW,
-					"arguments": [vscode.Uri.parse(entry.path), i, false]
+					"arguments": [vscode.Uri.file(entry.path), i, false]
 				};
 				apiEntry.children.push(resourceEntry);
 			}
@@ -407,7 +407,7 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 			explorerEntry.command = {
 				"title": "Show Endpoint",
 				"command": getViewCommand(entry.subType),
-				"arguments": [vscode.Uri.parse(entry.path), 'endpoint', undefined, false]
+				"arguments": [vscode.Uri.file(entry.path), 'endpoint', undefined, false]
 			};
 
 		} else if (entry.type === "SEQUENCE") {
@@ -420,7 +420,7 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 			explorerEntry.command = {
 				"title": "Show Diagram",
 				"command": COMMANDS.SHOW_SEQUENCE_VIEW,
-				"arguments": [vscode.Uri.parse(entry.path), undefined, false]
+				"arguments": [vscode.Uri.file(entry.path), undefined, false]
 			};
 
 		} else if (entry.type === "MESSAGE_PROCESSOR") {
@@ -429,7 +429,7 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 			explorerEntry.command = {
 				"title": "Show Message Processor",
 				"command": COMMANDS.SHOW_MESSAGE_PROCESSOR,
-				"arguments": [vscode.Uri.parse(entry.path), undefined, false]
+				"arguments": [vscode.Uri.file(entry.path), undefined, false]
 			};
 
 		} else if (entry.type === "PROXY_SERVICE") {
@@ -438,7 +438,7 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 			explorerEntry.command = {
 				"title": "Show Diagram",
 				"command": COMMANDS.SHOW_PROXY_VIEW,
-				"arguments": [vscode.Uri.parse(entry.path), undefined, false]
+				"arguments": [vscode.Uri.file(entry.path), undefined, false]
 			};
 
 		} else if (entry.type === "TEMPLATE") {
@@ -448,7 +448,7 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 			explorerEntry.command = {
 				"title": "Show Template",
 				"command": getViewCommand(entry.subType),
-				"arguments": [vscode.Uri.parse(entry.path), 'template', undefined, false]
+				"arguments": [vscode.Uri.file(entry.path), 'template', undefined, false]
 			};
 
 		} else if (entry.type === "TASK") {
@@ -457,7 +457,7 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 			explorerEntry.command = {
 				"title": "Show Task",
 				"command": COMMANDS.SHOW_TASK,
-				"arguments": [vscode.Uri.parse(entry.path), undefined, false]
+				"arguments": [vscode.Uri.file(entry.path), undefined, false]
 			};
 		} else if (entry.type === "INBOUND_ENDPOINT") {
 			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, 'code');
@@ -465,7 +465,7 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 			explorerEntry.command = {
 				"title": "Show Inbound Endpoint",
 				"command": COMMANDS.SHOW_INBOUND_ENDPOINT,
-				"arguments": [vscode.Uri.parse(entry.path), undefined, false]
+				"arguments": [vscode.Uri.file(entry.path), undefined, false]
 			};
 		}
 		else if (entry.type === "MESSAGE_STORE") {
@@ -474,7 +474,7 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 			explorerEntry.command = {
 				"title": "Show Message Store",
 				"command": COMMANDS.SHOW_MESSAGE_STORE,
-				"arguments": [vscode.Uri.parse(entry.path), undefined, false]
+				"arguments": [vscode.Uri.file(entry.path), undefined, false]
 			};
 
 		} else if (entry.type === "LOCAL_ENTRY") {
@@ -487,7 +487,7 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 			explorerEntry.command = {
 				"title": "Show Local Entry",
 				"command": COMMANDS.SHOW_LOCAL_ENTRY,
-				"arguments": [vscode.Uri.parse(entry.path), undefined, false]
+				"arguments": [vscode.Uri.file(entry.path), undefined, false]
 			};
 		}
 		// TODO: Will introduce back when both data services and data sources are supported
@@ -497,7 +497,7 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 		// 	explorerEntry.command = {
 		// 		"title": "Show Data Source",
 		// 		"command": COMMANDS.SHOW_DATA_SOURCE,
-		// 		"arguments": [vscode.Uri.parse(entry.path), undefined, false]
+		// 		"arguments": [vscode.Uri.file(entry.path), undefined, false]
 		// 	};
 		// } 
 		else {
@@ -551,7 +551,7 @@ function generateConnectionEntry(connectionsData: any): ProjectExplorerEntry {
 					connectionEntry.command = {
 						"title": "Show Connection",
 						"command": COMMANDS.SHOW_CONNECTION,
-						"arguments": [vscode.Uri.parse(connection.path), undefined, false]
+						"arguments": [vscode.Uri.file(connection.path), undefined, false]
 					};
 
 					connectionTypeEntry.children = connectionTypeEntry.children ?? [];
@@ -582,7 +582,7 @@ function genRegistryProjectStructureEntry(data: RegistryResourcesFolder): Projec
 				explorerEntry.command = {
 					"title": "Edit Registry Resource",
 					"command": COMMANDS.EDIT_REGISTERY_RESOURCE_COMMAND,
-					"arguments": [vscode.Uri.parse(entry.path)]
+					"arguments": [vscode.Uri.file(entry.path)]
 				};
 				result.push(explorerEntry);
 			}
