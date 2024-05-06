@@ -59,9 +59,7 @@ export interface StepOverBreakpointRequest {
 }
 
 export interface StepOverBreakpointResponse {
-    nextBreakpointLine: number;
-    nextDebugInfo: BreakpointInfo,
-    noNextBreakpoint: boolean
+    stepOverBreakpoints: BreakpointPosition[];
 }
 
 export interface RemoveBreakpointFromSourceRequest {

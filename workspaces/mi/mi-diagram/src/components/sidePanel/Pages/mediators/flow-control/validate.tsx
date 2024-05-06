@@ -48,7 +48,7 @@ const ValidateForm = (props: AddMediatorProps) => {
     useEffect(() => {
         reset({
             source: sidePanelContext?.formValues?.source || {"isExpression":true,"value":""},
-            enableSchemaCaching: sidePanelContext?.formValues?.enableSchemaCaching || "",
+            enableSchemaCaching: sidePanelContext?.formValues?.enableSchemaCaching || "true",
             schemas: {
                 paramValues: sidePanelContext?.formValues?.schemas && sidePanelContext?.formValues?.schemas.map((property: (string | ExpressionFieldValue | ParamConfig)[], index: string) => (
                     {

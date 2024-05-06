@@ -38,17 +38,15 @@ export const defaultParameters: { [key: string]: { [key: string]: string | numbe
         'inbound.behavior': 'polling',
     },
     wss: {
-        'ws.client.side.broadcast.level': 0,
+        'ws.client.side.broadcast.level': "0",
         'ws.use.port.offset': false,
     },
     cxf_ws_rm: {
         enableSSL: false,
-        'inbound.behavior': 'polling',
     },
     feed: {
         interval: 1000,
         'feed.type': 'Atom',
-        'inbound.behavior': 'polling',
     },
     file: {
         interval: 1000,
@@ -104,7 +102,7 @@ export const defaultParameters: { [key: string]: { [key: string]: string | numbe
         interval: 1000,
         sequential: true,
         coordination: true,
-        'transport.jms.CacheLevel': 3,
+        'transport.jms.CacheLevel': "3",
         'transport.jms.SessionAcknowledgement': 'AUTO_ACKNOWLEDGE',
         'transport.jms.SessionTransacted': false,
         'transport.jms.ConnectionFactoryType': 'queue',
@@ -154,7 +152,7 @@ export const defaultParameters: { [key: string]: { [key: string]: string | numbe
     mqtt: {
         sequential: true,
         'mqtt.connection.factory': 'AMQPConnectionFactory',
-        'mqtt.subscription.qos': 0,
+        'mqtt.subscription.qos': "0",
         'mqtt.session.clean': false,
         'mqtt.reconnection.interval': 1000,
     },
@@ -168,18 +166,20 @@ export const defaultParameters: { [key: string]: { [key: string]: string | numbe
         'rabbitmq.server.password': 'guest',
         'rabbitmq.queue.name': 'queue_name',
         'rabbitmq.exchange.name': 'excahnge_name',
+        'transport.jms.CacheLevel': "3",
     },
     ws: {
-        'ws.client.side.broadcast.level': 0,
+        'ws.client.side.broadcast.level': "0",
         'ws.use.port.offset': false,
     },
     wso2_mb: {
         interval: 1000,
         sequential: true,
         coordination: true,
-        'transport.jms.CacheLevel': 3,
+        'transport.jms.CacheLevel': "3",
         'java.naming.factory.initial':
             'org.wso2.andes.jndi.PropertiesFileInitialContextFactory',
+        'mb.connection.url': `amqp://admin:admin@clientID/carbon?brokerlist='tcp://localhost:5673'`,
         'transport.jms.SessionAcknowledgement': 'AUTO_ACKNOWLEDGE',
         'transport.jms.SessionTransacted': false,
         'transport.jms.ConnectionFactoryType': 'topic',
@@ -318,28 +318,6 @@ export const inboundEndpointParams: ParamPool = {
                 name: 'Port',
                 type: 'text',
             },
-            'class': {
-                type: 'text',
-            },
-            'inbound.behavior': {
-                name: 'Behavior',
-                type: 'dropdown',
-                items: [
-                    {
-                        content: "Polling Inbound Endpoint",
-                        value: "polling",
-                    },
-                    {
-                        content: "Listening Inbound Endpoint",
-                        value: "listening",
-                    },
-                    {
-                        content: "Event Based Inbound Endpoint",
-                        value: "eventBased",
-                    },
-                ],
-                description: 'Select the behavior of the inbound endpoint',
-            },
         },
         advanced: {
             'inbound.cxf.rm.config-file': {
@@ -377,28 +355,6 @@ export const inboundEndpointParams: ParamPool = {
                     { content: 'RSS', value: "RSS" },
                     { content: 'Atom', value: "Atom" },
                 ],
-            },
-            'class': {
-                type: 'text',
-            },
-            'inbound.behavior': {
-                name: 'Behavior',
-                type: 'dropdown',
-                items: [
-                    {
-                        content: "Polling Inbound Endpoint",
-                        value: "polling",
-                    },
-                    {
-                        content: "Listening Inbound Endpoint",
-                        value: "listening",
-                    },
-                    {
-                        content: "Event Based Inbound Endpoint",
-                        value: "eventBased",
-                    },
-                ],
-                description: 'Select the behavior of the inbound endpoint',
             },
         }
     },
@@ -611,6 +567,10 @@ export const inboundEndpointParams: ParamPool = {
                 name: 'Retry Duration',
                 type: 'text',
                 value: '',
+                validate: {
+                    type: 'number',
+                    min: 0,
+                }
             },
             'transport.jms.ResetConnectionOnPollingSuspension': {
                 name: 'Reset Connection On Polling Suspension',
@@ -705,6 +665,10 @@ export const inboundEndpointParams: ParamPool = {
                 name: 'Processing Interval',
                 type: 'text',
                 value: '',
+                validate: {
+                    type: 'number',
+                    min: 0,
+                }
             },
             'transport.vfs.ReplyFileURI': {
                 name: 'Reply File URI',
@@ -767,6 +731,10 @@ export const inboundEndpointParams: ParamPool = {
                 name: 'Max Retry Count',
                 type: 'text',
                 value: '',
+                validate: {
+                    type: 'number',
+                    min: 0,
+                }
             },
             'transport.vfs.ReconnectTimeout': {
                 name: 'Reconnect Timeout',
@@ -865,6 +833,9 @@ export const inboundEndpointParams: ParamPool = {
                 name: 'File Process Count',
                 type: 'text',
                 value: '',
+                validate: {
+                    type: 'number',
+                }
             },
             'transport.vfs.Streaming': {
                 name: 'Streaming',
@@ -1220,23 +1191,12 @@ export const inboundEndpointParams: ParamPool = {
             },
             coordination: {
                 type: 'checkbox',
+                value: true,
             },
-            'bootstrap.servers': {
+            'zookeeper.connect': {
+                name: 'Zookeeper Host:Port',
                 type: 'text',
-                validate: {
-                    type: 'string',
-                    required: true,
-                }
-            },
-            'key.deserializer': {
-                type: 'text',
-                validate: {
-                    type: 'string',
-                    required: true,
-                }
-            },
-            'value.deserializer': {
-                type: 'text',
+                value: 'localhost:2181',
                 validate: {
                     type: 'string',
                     required: true,
@@ -1250,12 +1210,26 @@ export const inboundEndpointParams: ParamPool = {
                     required: true,
                 }
             },
-            'poll.timeout': {
+            'content.type': {
                 type: 'text',
                 validate: {
-                    type: 'number',
+                    type: 'string',
                     required: true,
                 }
+            },
+            'consumer.type': {
+                type: 'dropdown',
+                value: 'highlevel',
+                items: [
+                    {
+                        content: "high level",
+                        value: "highlevel",
+                    },
+                    {
+                        content: "simple",
+                        value: "simple",
+                    },
+                ],
             },
             'topics': {
                 name: 'Topics or Topic Filter',
@@ -1274,24 +1248,8 @@ export const inboundEndpointParams: ParamPool = {
                     required: true,
                 }
             },
-            'content.type': {
-                type: 'text',
-                validate: {
-                    type: 'string',
-                    required: true,
-                }
-            },
         },
         connection: {
-            'zookeeper.connect': {
-                name: 'Zookeeper Host:Port',
-                type: 'text',
-                value: 'localhost:2181',
-                validate: {
-                    type: 'string',
-                    required: true,
-                }
-            },
             'client.id': {
                 type: 'text',
                 value: '',
@@ -1302,7 +1260,6 @@ export const inboundEndpointParams: ParamPool = {
                 value: 30000,
                 validate: {
                     type: 'number',
-                    required: true,
                 }
             },
         },
@@ -1313,7 +1270,6 @@ export const inboundEndpointParams: ParamPool = {
                 value: 6000,
                 validate: {
                     type: 'number',
-                    required: true,
                 }
             },
             'zookeeper.connection.timeout.ms': {
@@ -1322,7 +1278,6 @@ export const inboundEndpointParams: ParamPool = {
                 value: 6000,
                 validate: {
                     type: 'number',
-                    required: true,
                 }
             },
             'zookeeper.sync.time.ms': {
@@ -1331,7 +1286,6 @@ export const inboundEndpointParams: ParamPool = {
                 value: 2000,
                 validate: {
                     type: 'number',
-                    required: true,
                 }
             },
             'socket.receive.buffer.bytes': {
@@ -1339,7 +1293,6 @@ export const inboundEndpointParams: ParamPool = {
                 value: 65536,
                 validate: {
                     type: 'number',
-                    required: true,
                 }
             },
             'fetch.message.max.bytes': {
@@ -1348,15 +1301,10 @@ export const inboundEndpointParams: ParamPool = {
                 value: 1048576,
                 validate: {
                     type: 'number',
-                    required: true,
                 }
             },
         },
         message: {
-            'content.type': {
-                type: 'text',
-                value: '',
-            },
             'auto.commit.enable': {
                 name: 'Auto Commit Enabled',
                 type: 'checkbox',
@@ -1368,25 +1316,10 @@ export const inboundEndpointParams: ParamPool = {
                 value: 60000,
                 validate: {
                     type: 'number',
-                    required: true,
                 }
             },
         },
         consumer: {
-            'consumer.type': {
-                type: 'dropdown',
-                value: 'highlevel',
-                items: [
-                    {
-                        content: "high level",
-                        value: "highlevel",
-                    },
-                    {
-                        content: "simple",
-                        value: "simple",
-                    },
-                ],
-            },
             'consumer.id': {
                 name: 'Consumer ID',
                 type: 'text',
@@ -1398,7 +1331,6 @@ export const inboundEndpointParams: ParamPool = {
                 value: 1,
                 validate: {
                     type: 'number',
-                    required: true,
                 }
             },
             'consumer.timeout.ms': {
@@ -1407,20 +1339,30 @@ export const inboundEndpointParams: ParamPool = {
                 value: 3000,
                 validate: {
                     type: 'number',
-                    required: true,
                 }
             },
         },
         advanced: {
-            'class': {
+            'bootstrap.servers': {
                 type: 'text',
+            },
+            'key.deserializer': {
+                type: 'text',
+            },
+            'value.deserializer': {
+                type: 'text',
+            },
+            'poll.timeout': {
+                type: 'text',
+                validate: {
+                    type: 'number',
+                }
             },
             'thread.count': {
                 type: 'text',
                 value: 1,
                 validate: {
                     type: 'number',
-                    required: true,
                 }
             },
             'offsets.storage': {
@@ -1437,7 +1379,6 @@ export const inboundEndpointParams: ParamPool = {
                 value: 1000,
                 validate: {
                     type: 'number',
-                    required: true,
                 }
             },
             'offsets.channel.socket.timeout.ms': {
@@ -1446,7 +1387,6 @@ export const inboundEndpointParams: ParamPool = {
                 value: 10000,
                 validate: {
                     type: 'number',
-                    required: true,
                 }
             },
             'offsets.commit.max.retries': {
@@ -1454,7 +1394,6 @@ export const inboundEndpointParams: ParamPool = {
                 value: 5,
                 validate: {
                     type: 'number',
-                    required: true,
                 }
             },
             'dual.commit.enabled': {
@@ -1484,7 +1423,6 @@ export const inboundEndpointParams: ParamPool = {
                 value: 2,
                 validate: {
                     type: 'number',
-                    required: true,
                 }
             },
             'rebalance.max.retries': {
@@ -1492,7 +1430,6 @@ export const inboundEndpointParams: ParamPool = {
                 value: 4,
                 validate: {
                     type: 'number',
-                    required: true,
                 }
             },
             'fetch.min.bytes': {
@@ -1500,7 +1437,6 @@ export const inboundEndpointParams: ParamPool = {
                 value: 1,
                 validate: {
                     type: 'number',
-                    required: true,
                 }
             },
             'fetch.wait.max.ms': {
@@ -1509,7 +1445,6 @@ export const inboundEndpointParams: ParamPool = {
                 value: 100,
                 validate: {
                     type: 'number',
-                    required: true,
                 }
             },
             'rebalance.backoff.ms': {
@@ -1518,7 +1453,6 @@ export const inboundEndpointParams: ParamPool = {
                 value: 2000,
                 validate: {
                     type: 'number',
-                    required: true,
                 }
             },
             'refresh.leader.backoff.ms': {
@@ -1527,7 +1461,6 @@ export const inboundEndpointParams: ParamPool = {
                 value: 200,
                 validate: {
                     type: 'number',
-                    required: true,
                 }
             },
             'auto.offset.reset': {
@@ -1550,8 +1483,6 @@ export const inboundEndpointParams: ParamPool = {
                 type: 'checkbox',
                 value: true,
             },
-        },
-        connection: {
             'mqtt.connection.factory': {
                 name: 'Connection Factory',
                 type: 'text',
@@ -1565,24 +1496,44 @@ export const inboundEndpointParams: ParamPool = {
                 name: 'Server Host',
                 type: 'text',
                 value: '',
+                validate: {
+                    type: 'string',
+                    required: true,
+                }
             },
             'mqtt.server.port': {
                 name: 'Server Port',
                 type: 'text',
                 value: '',
+                validate: {
+                    type: 'number',
+                    required: true,
+                }
             },
             'mqtt.topic.name': {
                 name: 'Topic',
                 type: 'text',
                 value: '',
+                validate: {
+                    type: 'string',
+                    required: true,
+                }
             },
+            'content.type': {
+                type: 'text',
+                validate: {
+                    type: 'string',
+                    required: true,
+                }
+            },
+        },
+        connection: {
             'mqtt.reconnection.interval': {
                 name: 'Reconnection Interval',
                 type: 'text',
                 value: 1000,
                 validate: {
                     type: 'number',
-                    required: true,
                 }
             },
         },
@@ -1680,8 +1631,6 @@ export const inboundEndpointParams: ParamPool = {
                 type: 'checkbox',
                 value: true,
             },
-        },
-        connection: {
             'rabbitmq.connection.factory': {
                 name: 'Connection Factory',
                 type: 'text',
@@ -1736,37 +1685,41 @@ export const inboundEndpointParams: ParamPool = {
                     required: true,
                 }
             },
+        },
+        connection: {
             'rabbitmq.exchange.name': {
                 name: 'Exchange Name',
                 type: 'text',
                 value: 'excahnge_name',
                 validate: {
                     type: 'string',
-                    required: true,
                 }
             },
             'rabbitmq.server.virtual.host': {
                 name: 'Virtual Host',
                 type: 'text',
-                value: 'inuin',
+                value: '',
                 validate: {
                     type: 'string',
-                    required: true,
                 }
             },
             'rabbitmq.factory.heartbeat': {
                 name: 'Factory Heartbeat',
                 type: 'text',
-                value: 'iunin',
+                value: '',
                 validate: {
-                    type: 'string',
-                    required: true,
+                    type: 'number',
+                    min: 0,
                 }
             },
             'rabbitmq.factory.connection.timeout': {
                 name: 'Connection Timeout',
                 type: 'text',
                 value: '',
+                validate: {
+                    type: 'number',
+                    min: 0,
+                }
             },
         },
         resilience: {
@@ -1774,21 +1727,37 @@ export const inboundEndpointParams: ParamPool = {
                 name: 'Retry Count',
                 type: 'text',
                 value: '',
+                validate: {
+                    type: 'number',
+                    min: 0,
+                }
             },
             'rabbitmq.connection.retry.interval': {
                 name: 'Connection Retry Interval',
                 type: 'text',
                 value: '',
+                validate: {
+                    type: 'number',
+                    min: 0,
+                }
             },
             'rabbitmq.server.retry.interval': {
                 name: 'Server Retry Interval',
                 type: 'text',
                 value: '',
+                validate: {
+                    type: 'number',
+                    min: 0,
+                }
             },
             'rabbitmq.connection.factory.network.recovery.interval': {
                 name: 'Connection Factory Network Recovery Interval',
                 type: 'text',
                 value: '',
+                validate: {
+                    type: 'number',
+                    min: 0,
+                }
             },
         },
         queue: {
@@ -1902,11 +1871,19 @@ export const inboundEndpointParams: ParamPool = {
                 name: 'Dead Lettered Count',
                 type: 'text',
                 value: '',
+                validate: {
+                    type: 'number',
+                    min: 0,
+                }
             },
             'rabbitmq.message.requeue.delay': {
                 name: 'Requeue Delay',
                 type: 'text',
                 value: '',
+                validate: {
+                    type: 'number',
+                    min: 0,
+                }
             },
             'rabbitmq.consumer.tag': {
                 name: 'Consumer Tag',
@@ -1964,10 +1941,6 @@ export const inboundEndpointParams: ParamPool = {
                     required: true,
                 }
             },
-        },
-        // credentials ???
-        // principal ???
-        connection: {
             'java.naming.factory.initial': {
                 type: 'text',
                 value: 'org.wso2.andes.jndi.PropertiesFileInitialContextFactory',
@@ -1975,11 +1948,6 @@ export const inboundEndpointParams: ParamPool = {
                     type: 'string',
                     required: true,
                 }
-            },
-            'transport.jms.ConnectionFactoryJNDIName': {
-                name: 'Connection Factory JNDI Name',
-                type: 'text',
-                value: '',
             },
             'mb.connection.url': {
                 name: 'Connection URL',
@@ -1989,6 +1957,15 @@ export const inboundEndpointParams: ParamPool = {
                     type: 'string',
                     required: true,
                 }
+            },
+        },
+        // credentials ???
+        // principal ???
+        connection: {
+            'transport.jms.ConnectionFactoryJNDIName': {
+                name: 'Connection Factory JNDI Name',
+                type: 'text',
+                value: '',
             },
             'transport.jms.ConnectionFactoryType': {
                 name: 'Connection Factory Type',
@@ -2037,6 +2014,9 @@ export const inboundEndpointParams: ParamPool = {
                 name: 'Retry Duration',
                 type: 'text',
                 value: '',
+                validate: {
+                    type: 'number',
+                }
             },
             'transport.jms.ReceiveTimeout': {
                 name: 'Receive Timeout',
@@ -2047,12 +2027,13 @@ export const inboundEndpointParams: ParamPool = {
         message: {
             'transport.jms.CacheLevel': {
                 name: 'Cache Level',
-                type: 'text',
-                value: 3,
-                validate: {
-                    type: 'number',
-                    required: true,
-                }
+                type: 'radio',
+                value: "3",
+                items: [
+                    { content: "1", value: '1', },
+                    { content: "2", value: '2', },
+                    { content: "3", value: '3', },
+                ],
             },
             'transport.jms.JMSSpecVersion': {
                 name: 'JMS Spec Version',

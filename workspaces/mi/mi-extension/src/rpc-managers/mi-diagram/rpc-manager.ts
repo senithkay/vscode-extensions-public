@@ -322,8 +322,6 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         <resource methods="GET" uri-template="/resource">
             <inSequence>
             </inSequence>
-            <outSequence>
-            </outSequence>
             <faultSequence>
             </faultSequence>
         </resource>
@@ -772,13 +770,13 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 };
                 if (jsonData && jsonData.localEntry) {
                     const firstEntryKey = Object.keys(jsonData.localEntry)[0];
-                    if (jsonData.localEntry["#text"] ) {
+                    if (jsonData.localEntry["#text"]) {
                         response.type = "In-Line Text Entry";
                         response.inLineTextValue = jsonData.localEntry["#text"];
                     } else if (firstEntryKey) {
                         response.type = "In-Line XML Entry";
                         const firstEntryKey = Object.keys(jsonData.localEntry)[0];
-                        if(firstEntryKey){
+                        if (firstEntryKey) {
                             const xmlObj = {
                                 [firstEntryKey]: {
                                     ...jsonData.localEntry[firstEntryKey]
@@ -2028,7 +2026,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
     async rangeFormat(req: RangeFormatRequest): Promise<ApplyEditResponse> {
         return new Promise(async (resolve) => {
-            const uri = Uri.parse(req.uri);
+            const uri = Uri.file(req.uri);
             const edits: TextEdit[] = await commands.executeCommand("vscode.executeFormatRangeProvider", uri, req.range,
                 { tabSize: 4, insertSpaces: false, trimTrailingWhitespace: false });
             const workspaceEdit = new WorkspaceEdit();
@@ -2657,13 +2655,13 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                         'User-Agent': 'My Client'
                     }
                 });
-    
+
                 // Create a temporary file
                 const tmpobj = tmp.fileSync();
                 const writer = fs.createWriteStream(tmpobj.name);
-    
+
                 response.data.pipe(writer);
-    
+
                 return new Promise((resolve, reject) => {
                     writer.on('finish', async () => {
                         writer.close();
@@ -2818,11 +2816,13 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     if (fs.statSync(params.filePath).isDirectory()) {
                         fs.cpSync(params.filePath, destPath, { recursive: true });
                         transformedPath = path.join(transformedPath, params.registryPath, fileName);
+                        transformedPath = transformedPath.split(path.sep).join("/");
                         createMetadataFilesForRegistryCollection(destPath, transformedPath);
                         addNewEntryToArtifactXML(params.projectDirectory, params.artifactName, fileName, transformedPath, "", true);
                     } else {
                         fs.copyFileSync(params.filePath, destPath);
                         transformedPath = path.join(transformedPath, params.registryPath);
+                        transformedPath = transformedPath.split(path.sep).join("/");
                         const mediaType = await detectMediaType(params.filePath);
                         addNewEntryToArtifactXML(params.projectDirectory, params.artifactName, fileName, transformedPath, mediaType, false);
                     }
@@ -2842,6 +2842,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 fs.writeFileSync(destPath, fileContent ? fileContent : "");
                 //add the new entry to artifact.xml
                 transformedPath = path.join(transformedPath, params.registryPath);
+                transformedPath = transformedPath.split(path.sep).join("/");
                 addNewEntryToArtifactXML(params.projectDirectory, params.artifactName, fileName, transformedPath, fileData.mediaType, false);
                 commands.executeCommand(COMMANDS.REFRESH_COMMAND);
                 resolve({ path: destPath });
@@ -3141,7 +3142,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         return new Promise(async (resolve) => {
             const langClient = StateMachine.context().langClient!;
             const res = await langClient.getRegistryFiles(params.path);
-            resolve({ registryPaths: res });
+            resolve({ registryPaths: res.map(element => element.split(path.sep).join("/")) });
         });
     }
 
@@ -3266,7 +3267,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 1
             );
             if (carFile.length === 0) {
-                const errorMessage = 
+                const errorMessage =
                     'Error: No .car file found in the target directory. Please build the project before exporting.';
                 window.showErrorMessage(errorMessage);
                 log(errorMessage);

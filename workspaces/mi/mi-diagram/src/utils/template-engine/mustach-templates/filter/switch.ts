@@ -119,8 +119,16 @@ export function getSwitchFormDataFromSTNode(data: { [key: string]: any }, node: 
   return data;
 }
 
-export function getNewSwitchCaseXml() {
-  return `<case regex="case">
+export function getNewSwitchCaseXml(st: Switch) {
+  let caseName = "case";
+  let caseCount = 1;
+  if (st._case) {
+    caseCount = st._case.length;
+  }
+  if (caseCount > 0)
+    caseName += caseCount;
+
+  return `<case regex="${caseName}">
   </case>`;
 }
 
