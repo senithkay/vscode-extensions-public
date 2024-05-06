@@ -2470,16 +2470,13 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             const response = await fetch('https://raw.githubusercontent.com/rosensilva/connectors/main/connectors_list.json');
             if(!response.ok) {
                 console.error('Failed to fetch connectors');
-            } else {
-                console.log('Connectors fetched successfully');
             }
             const data = await response.json();
             const connector = data.data.find(connector => connector.name === name);
             if (connector) {
-                console.log("Download URL: ", connector.download_url);
                 return connector.download_url;
             } else {
-                console.log("Connector not found");
+                console.error("Connector not found");
                 return null;
             }
         };
@@ -2551,13 +2548,10 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 if (connectorMatch) {
                     const tagParts = connectorMatch[1].split('.');
                     const connectorName = tagParts[0];
-                    
                     const download_url = await fetchConnectors(connectorName);
-
                     this.downloadConnector({ url: download_url });
-
-                    
                 }
+
                 //write the content to a file, if file exists, overwrite else create new file
                 const fullPath = path.join(directoryPath ?? '', '/src/main/wso2mi/artifacts/', fileType, '/', `${name}.xml`);
                 console.log('Full path:', fullPath);
