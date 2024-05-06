@@ -10,6 +10,7 @@
 import { MACHINE_VIEW, POPUP_EVENT_TYPE, ParentPopupData } from '@wso2-enterprise/mi-core';
 import { RpcClient } from '@wso2-enterprise/mi-rpc-client';
 import { Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
+import { ParamConfig } from '../../../Form';
 
 export interface AddMediatorProps {
     nodePosition: Range;
@@ -49,4 +50,40 @@ export const openPopup = (rpcClient: RpcClient, view: string, fetchItems: any, s
             setValue(data.recentIdentifier);
         }
     });
+}
+
+export const getParamManagerValues = (paramManager: ParamConfig): any[] => {
+    return paramManager.paramValues.map((param: any) => param.paramValues.map((p: any) => {
+        if (p?.value?.paramValues) {
+            return getParamManagerValues(p.value);
+        }
+        return p.value;
+    }));
+}
+
+export const getParamManagerFromValues = (values: any[]): any => {
+
+    const getParamValues = (value: any): any => {
+        return value.map((v: any) => {
+            if (v instanceof Array) {
+                return {
+                    value: {
+                        paramValues: getParamManagerFromValues(v)
+                    }
+                }
+            }
+            return { value: v };
+        });
+    }
+
+    const paramValues = values.map((value: any, index: number) => {
+
+        if (typeof value === 'object' && value !== null) {
+            const paramValues = getParamValues(value);
+            return { id: index, key: index, value: value instanceof Array ? value.join(" ") : value, icon: 'query', paramValues };
+        } else {
+            return { value };
+        }
+    });
+    return paramValues;
 }

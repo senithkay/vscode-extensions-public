@@ -173,23 +173,28 @@ const ProjectStructureView = (props: { projectStructure: any, workspaceDir: stri
                 <>
                     {Object.entries(projectStructure.directoryMap.src.main.wso2mi.artifacts)
                         .filter(([key, value]) => artifactTypeMap.hasOwnProperty(key) && Array.isArray(value) && value.length > 0)
-                        .map(([key, value]) => (
-                            <div>
-                                <h3>{artifactTypeMap[key].title}</h3>
-                                {Object.entries(value).map(([_, entry]) => (
-                                    <Entry
-                                        key={entry.name}
-                                        icon={artifactTypeMap[key].icon}
-                                        name={entry.name}
-                                        description={artifactTypeMap[key].description(entry)}
-                                        onClick={() => goToView(artifactTypeMap[key].path(entry), artifactTypeMap[key].view)}
-                                        goToView={() => goToView(artifactTypeMap[key].path(entry), artifactTypeMap[key].view)}
-                                        goToSource={() => goToSource(artifactTypeMap[key].path(entry))}
-                                        deleteArtifact={() => deleteArtifact(artifactTypeMap[key].path(entry))}
-                                    />
-                                ))}
-                            </div>
-                        ))
+                        .map(([key, value]) => {
+                            const hasOnlyUndefinedItems = Object.values(value).every(entry => entry.path === undefined);
+                            return !hasOnlyUndefinedItems && (
+                                <div>
+                                    <h3>{artifactTypeMap[key].title}</h3>
+                                    {Object.entries(value).map(([_, entry]) => (
+                                        entry.path && (
+                                            <Entry
+                                                key={entry.name}
+                                                icon={artifactTypeMap[key].icon}
+                                                name={entry.name}
+                                                description={artifactTypeMap[key].description(entry)}
+                                                onClick={() => goToView(artifactTypeMap[key].path(entry), artifactTypeMap[key].view)}
+                                                goToView={() => goToView(artifactTypeMap[key].path(entry), artifactTypeMap[key].view)}
+                                                goToSource={() => goToSource(artifactTypeMap[key].path(entry))}
+                                                deleteArtifact={() => deleteArtifact(artifactTypeMap[key].path(entry))}
+                                            />
+                                        )
+                                    ))}
+                                </div>
+                            );
+                        })
                     }
                 </>
             }

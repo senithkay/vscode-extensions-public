@@ -17,6 +17,9 @@ export function getSVGIcon(mediator: string, returnPath: boolean = false) {
         case MEDIATORS.AGGREGATE.toLowerCase():
             icon = require("./AggregateMediator.svg");
             break;
+        case MEDIATORS.BUILDER.toLowerCase():
+            icon = require("./BuilderMediator.png");
+            break;
         case MEDIATORS.CACHE.toLowerCase():
             icon = require("./CacheMediator.svg");
             break;
@@ -34,6 +37,15 @@ export function getSVGIcon(mediator: string, returnPath: boolean = false) {
             break;
         case MEDIATORS.DATAMAPPER.toLowerCase():
             icon = require("./DataMapperMediator.svg");
+            break;
+        case MEDIATORS.DATASERVICECALL.toLowerCase():
+            icon = require("./DataServiceCallMediator.png");
+            break;
+        case MEDIATORS.DBLOOKUP.toLowerCase():
+            icon = require("./DBLookupMediator.png");
+            break;
+        case MEDIATORS.DBREPORT.toLowerCase():
+            icon = require("./DBReportMediator.png");
             break;
         // case MEDIATORS.DATASERVICE.toLowerCase():
         //     icon = require("./DataServiceMediator.svg");
@@ -65,14 +77,20 @@ export function getSVGIcon(mediator: string, returnPath: boolean = false) {
         case MEDIATORS.ITERATE.toLowerCase():
             icon = require("./IterateMediator.svg");
             break;
-        // case MEDIATORS.JSONTRANSFORM.toLowerCase():
-        //     icon = require("./JSONTransformMediator.svg");
-        //     break;
+        case MEDIATORS.JSONTRANSFORM.toLowerCase():
+            icon = require("./JSONTransformMediator.png");
+            break;
         case MEDIATORS.LOG.toLowerCase():
             icon = require("./LogMediator.svg");
             break;
         case MEDIATORS.LOOPBACK.toLowerCase():
             icon = require("./LoopBackMediator.svg");
+            break;
+        case MEDIATORS.NTLM.toLowerCase():
+            icon = require("./NTLMMediator.png");
+            break;
+        case MEDIATORS.OAUTH.toLowerCase():
+            icon = require("./OAuthMediator.png");
             break;
         case MEDIATORS.PAYLOAD.toLowerCase():
             icon = require("./PayloadFactoryMediator.svg");
@@ -82,6 +100,9 @@ export function getSVGIcon(mediator: string, returnPath: boolean = false) {
             break;
         case MEDIATORS.PROPERTYGROUP.toLowerCase():
             icon = require("./PropertyGroupMediator.svg");
+            break;
+        case MEDIATORS.PUBLISHEVENT.toLowerCase():
+            icon = require("./PublishEventMediator.png");
             break;
         case MEDIATORS.RESPOND.toLowerCase():
             icon = require("./RespondMediator.svg");

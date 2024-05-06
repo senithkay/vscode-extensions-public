@@ -151,9 +151,9 @@ export function APIWizard({ apiData, path }: APIWizardProps) {
             reset(apiData);
             setValue("versionType", versionType);
             setValue("handlers", apiData.handlers ?? []);
+        } else {
+            reset(initialAPI);
         }
-
-        return () => reset(initialAPI);
     }, [apiData]);
 
     useEffect(() => {

@@ -83,6 +83,7 @@ import {
     askProjectImportDirPath,
     browseFile,
     buildProject,
+    checkOldProject,
     closeWebView,
     closeWebViewNotification,
     createAPI,
@@ -158,6 +159,7 @@ import {
     openFile,
     rangeFormat,
     redo,
+    refreshAccessToken,
     showErrorMessage,
     undo,
     updateAddressEndpoint,
@@ -237,7 +239,7 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onNotification(highlightCode, (args: HighlightCodeRequest) => rpcManger.highlightCode(args));
     messenger.onRequest(getWorkspaceContext, () => rpcManger.getWorkspaceContext());
     messenger.onRequest(getProjectUuid, () => rpcManger.getProjectUuid());
-    messenger.onRequest(initUndoRedoManager, (args: UndoRedoParams) => rpcManger.initUndoRedoManager(args));
+    messenger.onNotification(initUndoRedoManager, (args: UndoRedoParams) => rpcManger.initUndoRedoManager(args));
     messenger.onNotification(undo, (args: UndoRedoParams) => rpcManger.undo(args));
     messenger.onNotification(redo, (args: UndoRedoParams) => rpcManger.redo(args));
     messenger.onRequest(getDefinition, (args: GetDefinitionRequest) => rpcManger.getDefinition(args));
@@ -265,7 +267,9 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onNotification(logoutFromMIAccount, () => rpcManger.logoutFromMIAccount());
     messenger.onRequest(getAllRegistryPaths, (args: GetAllRegistryPathsRequest) => rpcManger.getAllRegistryPaths(args));
     messenger.onRequest(getAllArtifacts, (args: GetAllArtifactsRequest) => rpcManger.getAllArtifacts(args));
-    messenger.onRequest(deleteArtifact, (args: DeleteArtifactRequest) => rpcManger.deleteArtifact(args));
-    messenger.onRequest(buildProject, () => rpcManger.buildProject());
-    messenger.onRequest(exportProject, (args: ExportProjectRequest) => rpcManger.exportProject(args));
+    messenger.onNotification(deleteArtifact, (args: DeleteArtifactRequest) => rpcManger.deleteArtifact(args));
+    messenger.onNotification(buildProject, () => rpcManger.buildProject());
+    messenger.onNotification(exportProject, (args: ExportProjectRequest) => rpcManger.exportProject(args));
+    messenger.onRequest(checkOldProject, () => rpcManger.checkOldProject());
+    messenger.onNotification(refreshAccessToken, () => rpcManger.refreshAccessToken());
 }

@@ -75,9 +75,15 @@ const AIChatView = styled.div({
 const Header = styled.header({
     display: 'flex',
     flexDirection: 'row',
-    justifyContent: 'flex-end',
+    justifyContent: 'space-between',
     padding: '10px',
     gap: '10px',
+});
+
+const HeaderButtons = styled.div({
+    display: 'flex',
+    justifyContent: 'flex-end',
+    marginRight: '10px',
 });
 
 const Main = styled.main({
@@ -102,8 +108,6 @@ const Welcome = styled.div({
 });
 
 const Badge = styled.div`
-    border: 2px solid #fff;
-    border-radius: 10px;
     padding: 5px;
     margin-left: 10px;
     display: inline-block;
@@ -119,6 +123,7 @@ let controller = new AbortController();
 let signal = controller.signal;
 
 var remainingTokenPercentage: string|number;
+var remaingTokenLessThanOne: boolean = false;
 
 export function AIProjectGenerationChat() {
     const { rpcClient } = useVisualizerContext();
@@ -160,7 +165,16 @@ export function AIProjectGenerationChat() {
                     remainingTokenPercentage = "Unlimited";
                 }else{
                     const remainingTokens = machineView.userTokens.remaining_tokens;
-                    remainingTokenPercentage = Math.round((remainingTokens / maxTokens) * 100);
+                    remainingTokenPercentage = (remainingTokens / maxTokens) * 100;
+                    if(remainingTokenPercentage < 1 && remainingTokenPercentage > 0){
+                        remaingTokenLessThanOne = true;
+                    }else{
+                        remaingTokenLessThanOne = false;
+                    }
+                    remainingTokenPercentage = Math.round(remainingTokenPercentage);
+                    if (remainingTokenPercentage<0){
+                        remainingTokenPercentage = 0;
+                    }
                 }
 
 
@@ -338,7 +352,7 @@ export function AIProjectGenerationChat() {
     }
 
     async function handleSend(isQuestion: boolean = false, isInitialPrompt: boolean = false) {
-        if(userInput === "" && !isQuestion) {
+        if(userInput === "" && !isQuestion && !isInitialPrompt) {
             return;
         }
         console.log(chatArray);
@@ -398,7 +412,7 @@ export function AIProjectGenerationChat() {
         }
         console.log(context[0].context);
         const token = await rpcClient.getMiDiagramRpcClient().getUserAccessToken();
-        const response = await fetch(backendRootUri + backendUrl, {
+        var response = await fetch(backendRootUri + backendUrl, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -407,16 +421,49 @@ export function AIProjectGenerationChat() {
             body: JSON.stringify({ messages: chatArray, context: context[0].context }),
             signal: signal,
         })
-        if (!response.ok) {
+        if (!response.ok && response.status != 401) {
             setIsLoading(false);
             setMessages(prevMessages => {
                 const newMessages = [...prevMessages];
                 const statusText = getStatusText(response.status);
-                newMessages[newMessages.length - 1].content += `Failed to fetch response. Status: ${response.status} - ${statusText}`;
+                let error = `Failed to fetch response. Status: ${statusText}`;
+                console.log("Response status: ", response.status);
+                if (response.status == 429) {
+                    response.json().then(body => {
+                        console.log(body.detail);
+                        error += body.detail;
+                        console.log("Error: ", error);
+                    });
+                }
+                newMessages[newMessages.length - 1].content += error;
                 newMessages[newMessages.length - 1].type = 'Error';
                 return newMessages;
             });
             throw new Error('Failed to fetch response');
+        }
+        if(response.status == 401){
+            await rpcClient.getMiDiagramRpcClient().refreshAccessToken();
+            const token = await rpcClient.getMiDiagramRpcClient().getUserAccessToken();
+            response = await fetch(backendRootUri + backendUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token.token}`,
+                },
+                body: JSON.stringify({ messages: chatArray, context: context[0].context }),
+                signal: signal,
+            })
+            if(!response.ok){
+                setIsLoading(false);
+                setMessages(prevMessages => {
+                    const newMessages = [...prevMessages];
+                    const statusText = getStatusText(response.status);
+                    newMessages[newMessages.length - 1].content += `Failed to fetch response. Status: ${response.status} - ${statusText}`;
+                    newMessages[newMessages.length - 1].type = 'Error';
+                    return newMessages;
+                });
+                throw new Error('Failed to fetch response');
+            }
         }
         const reader = response.body?.getReader();
         const decoder = new TextDecoder();
@@ -443,7 +490,16 @@ export function AIProjectGenerationChat() {
                         remainingTokenPercentage = "Unlimited";
                     }else{
                         const remainingTokens = tokenUsage.remaining_tokens;
-                        remainingTokenPercentage = Math.round((remainingTokens / maxTokens) * 100);
+                        remainingTokenPercentage = (remainingTokens / maxTokens) * 100;
+                        if(remainingTokenPercentage < 1 && remainingTokenPercentage > 0){
+                            remaingTokenLessThanOne = true;
+                        }else{
+                            remaingTokenLessThanOne = false;
+                        }
+                        remainingTokenPercentage = Math.round(remainingTokenPercentage);
+                        if (remainingTokenPercentage<0){
+                            remainingTokenPercentage = 0;
+                        }
                     }
                     if (json.content == null) {
                         addChatEntry("assistant", assistant_response);
@@ -497,6 +553,8 @@ export function AIProjectGenerationChat() {
         localStorage.setItem(`codeBlocks-AIGenerationChat-${projectUuid}`, JSON.stringify(codeBlocks));
 
     };
+
+    
     async function handleStop() {
         // Abort the fetch
         controller.abort();
@@ -624,24 +682,29 @@ export function AIProjectGenerationChat() {
     return (
         <AIChatView>
             <Header>
-                 <Badge>
-                       Remaining Free Usage: {remainingTokenPercentage}%
-                </Badge>
+            <Badge>
+                    Remaining Free Usage: {
+                        remainingTokenPercentage === 'Unlimited' ? remainingTokenPercentage :
+                        (remaingTokenLessThanOne ? '<1%' : `${remainingTokenPercentage}%`)
+                    }
+            </Badge>
+            <HeaderButtons>
                 <Button
-                    appearance="icon"
-                    onClick={() => handleClearChat()}
-                    tooltip="Clear Chat"
-                >
-                    <Codicon name="clear-all" />&nbsp;&nbsp;Clear
-                </Button>
-                <Button
-                    appearance="icon"
-                    onClick={() => handleLogout()}
-                    tooltip="Logout"
-                    disabled={isLoading}
-                >
-                    <Codicon name="sign-out" />&nbsp;&nbsp;Logout
-                </Button>
+                        appearance="icon"
+                        onClick={() => handleClearChat()}
+                        tooltip="Clear Chat"
+                    >
+                        <Codicon name="clear-all" />&nbsp;&nbsp;Clear
+                    </Button>
+                    <Button
+                        appearance="icon"
+                        onClick={() => handleLogout()}
+                        tooltip="Logout"
+                        disabled={isLoading}
+                    >
+                        <Codicon name="sign-out" />&nbsp;&nbsp;Logout
+                    </Button>
+            </HeaderButtons>
             </Header>
             <main style={{ flex: 1, overflowY: "auto" }}>
                 {Array.isArray(otherMessages) && otherMessages.length === 0 && (<Welcome>
@@ -765,8 +828,8 @@ const EntryContainer = styled.div<EntryContainerProps>(({ isOpen }) => ({
 const CodeSegment: React.FC<CodeSegmentProps> = ({ segmentText, handleAddSelectiveCodetoWorkspace }) => {
     const [isOpen, setIsOpen] = useState(false);
 
-    const match = segmentText.match(/name="([^"]+)"/);
-    const name = match ? match[1] + ".xml" : "Unknown File";
+    const match = segmentText.match(/(name|key)="([^"]+)"/);
+    const name = match ? match[2] + ".xml" : "Unknown File";
 
     return (
         <div>

@@ -156,6 +156,7 @@ import {
     askProjectImportDirPath,
     browseFile,
     buildProject,
+    checkOldProject,
     closeWebView,
     closeWebViewNotification,
     createAPI,
@@ -232,6 +233,7 @@ import {
     openFile,
     rangeFormat,
     redo,
+    refreshAccessToken,
     showErrorMessage,
     undo,
     updateAddressEndpoint,
@@ -499,8 +501,8 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
         return this._messenger.sendRequest(getProjectUuid, HOST_EXTENSION);
     }
 
-    initUndoRedoManager(params: UndoRedoParams): Promise<void> {
-        return this._messenger.sendRequest(initUndoRedoManager, HOST_EXTENSION, params);
+    initUndoRedoManager(params: UndoRedoParams): void {
+        return this._messenger.sendNotification(initUndoRedoManager, HOST_EXTENSION, params);
     }
 
     undo(params: UndoRedoParams): void {
@@ -611,15 +613,23 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
         return this._messenger.sendRequest(getAllArtifacts, HOST_EXTENSION, params);
     }
 
-    deleteArtifact(params: DeleteArtifactRequest): Promise<void> {
-        return this._messenger.sendRequest(deleteArtifact, HOST_EXTENSION, params);
+    deleteArtifact(params: DeleteArtifactRequest): void {
+        return this._messenger.sendNotification(deleteArtifact, HOST_EXTENSION, params);
     }
 
-    async buildProject(): Promise<void> {
-        return this._messenger.sendRequest(buildProject, HOST_EXTENSION);
+    buildProject(): void {
+        return this._messenger.sendNotification(buildProject, HOST_EXTENSION);
     }
 
-    exportProject(params: ExportProjectRequest): Promise<void> {
-        return this._messenger.sendRequest(exportProject, HOST_EXTENSION, params);
+    refreshAccessToken(): Promise<void> {
+        return this._messenger.sendRequest(refreshAccessToken, HOST_EXTENSION);
+    }
+
+    exportProject(params: ExportProjectRequest): void {
+        return this._messenger.sendNotification(exportProject, HOST_EXTENSION, params);
+    }
+
+    checkOldProject(): Promise<boolean> {
+        return this._messenger.sendRequest(checkOldProject, HOST_EXTENSION);
     }
 }

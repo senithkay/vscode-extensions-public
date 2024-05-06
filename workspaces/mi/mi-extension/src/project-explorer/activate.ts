@@ -256,7 +256,7 @@ export async function activateProjectExplorer(context: ExtensionContext) {
 			if (openedEditor) {
 				window.showTextDocument(openedEditor.document, { viewColumn: openedEditor.viewColumn });
 			} else {
-				commands.executeCommand('vscode.open', Uri.parse(documentUri), { viewColumn: ViewColumn.Beside });
+				commands.executeCommand('vscode.open', Uri.file(documentUri), { viewColumn: ViewColumn.Beside });
 			}
 		}
 	});

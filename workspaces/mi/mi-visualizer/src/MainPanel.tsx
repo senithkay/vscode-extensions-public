@@ -68,7 +68,7 @@ const PopUpContainer = styled.div`
     left: 0;
     right: 0;
     bottom: 0;
-    z-index: 999;
+    z-index: 2100;
     background: var(--background);
 `;
 
@@ -175,7 +175,7 @@ const MainPanel = () => {
                     setViewComponent(
                         <SequenceTemplateView
                             key={getUniqueKey(machineView.stNode, machineView.documentUri)}
-                            model={(machineView.stNode as any).template as Template}
+                            model={machineView.stNode as Template}
                             documentUri={machineView.documentUri}
                             diagnostics={machineView.diagnostics}
                         />

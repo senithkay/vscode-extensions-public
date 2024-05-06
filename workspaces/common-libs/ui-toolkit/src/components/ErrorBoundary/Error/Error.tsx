@@ -17,11 +17,13 @@ import { Icon } from "../../Icon/Icon";
 
 export interface ErrorProps {
     errorMsg?: string;
+    issueUrl?: string;
 }
 
 export function ErrorScreen(props: ErrorProps) {
     const classes = useStyles();
     const { resetBoundary } = useErrorBoundary();
+    const issueUrl = props.issueUrl || "https://github.com/wso2/ballerina-plugin-vscode/issues";
 
     return (
         <div className={classes.root}>
@@ -30,10 +32,10 @@ export function ErrorScreen(props: ErrorProps) {
                 {props.errorMsg ? props.errorMsg : "A problem occurred."}
             </Typography>
             <Button appearance="icon" onClick={resetBoundary}>
-                <Icon name="refresh" isCodicon sx={{ width: 24, height: 24 }} iconSx={{ fontSize: 24 }}/>
+                <Icon name="refresh" isCodicon sx={{ width: 24, height: 24 }} iconSx={{ fontSize: 24 }} />
             </Button>
             <Typography variant="body2" className={classes.errorMsg}>
-                Please raise an issue in our <a href="https://github.com/wso2/ballerina-plugin-vscode/issues">issue tracker</a>
+                Please raise an issue in our <a href={issueUrl}>issue tracker</a>
             </Typography>
         </div>
     );

@@ -106,7 +106,7 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
         && !field.value.wasForgotten()
         && Node.isPropertyAssignment(field.value)
         && field.value;
-    const value: string = hasValue && propertyAssignment.getInitializer().getText();
+    const value: string = hasValue && propertyAssignment && propertyAssignment.getInitializer().getText();
     const hasDefaultValue = value && getDefaultValue(field.type.kind) === value.trim();
     let isDisabled = portIn.descendantHasValue;
 

@@ -70,7 +70,7 @@ export class FocusedInputNode extends DataMapperNodeModel {
     }
 
     async initLinks() {
-        // Currently, we create links from "IN" ports and back tracing the inputs.
+        // Links are always created from "IN" ports by backtracing the inputs.
     }
 
     public getSearchFilteredType() {

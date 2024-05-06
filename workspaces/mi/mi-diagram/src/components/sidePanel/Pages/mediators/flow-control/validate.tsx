@@ -13,13 +13,13 @@ import { Button, ComponentCard, ProgressIndicator, TextField, Typography } from 
 import { VSCodeCheckbox } from '@vscode/webview-ui-toolkit/react';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
-import { AddMediatorProps } from '../common';
+import { AddMediatorProps, getParamManagerValues, getParamManagerFromValues } from '../common';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
 import { MEDIATORS } from '../../../../../resources/constants';
 import { Controller, useForm } from 'react-hook-form';
 import { ExpressionField, ExpressionFieldValue } from '../../../../Form/ExpressionField/ExpressionInput';
-import { ParamManager, ParamConfig, ParamValue } from '../../../../Form/ParamManager/ParamManager';
+import { ParamManager, ParamValue } from '../../../../Form/ParamManager/ParamManager';
 
 const cardStyle = { 
     display: "block",
@@ -48,19 +48,9 @@ const ValidateForm = (props: AddMediatorProps) => {
     useEffect(() => {
         reset({
             source: sidePanelContext?.formValues?.source || {"isExpression":true,"value":""},
-            enableSchemaCaching: sidePanelContext?.formValues?.enableSchemaCaching || "",
+            enableSchemaCaching: sidePanelContext?.formValues?.enableSchemaCaching || "true",
             schemas: {
-                paramValues: sidePanelContext?.formValues?.schemas && sidePanelContext?.formValues?.schemas.map((property: (string | ExpressionFieldValue | ParamConfig)[], index: string) => (
-                    {
-                        id: index,
-                        key: index,
-                        value:  (property[0] as ExpressionFieldValue).value,
-                        icon: 'query',
-                        paramValues: [
-                            { value: property[0] },
-                        ]
-                    }
-                )) || [] as string[][],
+                paramValues: sidePanelContext?.formValues?.schemas ? getParamManagerFromValues(sidePanelContext?.formValues?.schemas) : [],
                 paramFields: [
                     {
                         "label": "Validate Schema Key",
@@ -70,18 +60,7 @@ const ValidateForm = (props: AddMediatorProps) => {
                 ]
             },
             features: {
-                paramValues: sidePanelContext?.formValues?.features && sidePanelContext?.formValues?.features.map((property: (string | ExpressionFieldValue | ParamConfig)[], index: string) => (
-                    {
-                        id: index,
-                        key: property[0],
-                        value:  property[1],
-                        icon: 'query',
-                        paramValues: [
-                            { value: property[0] },
-                            { value: property[1] },
-                        ]
-                    }
-                )) || [] as string[][],
+                paramValues: sidePanelContext?.formValues?.features ? getParamManagerFromValues(sidePanelContext?.formValues?.features) : [],
                 paramFields: [
                     {
                         "type": "TextField",
@@ -98,18 +77,7 @@ const ValidateForm = (props: AddMediatorProps) => {
                 ]
             },
             resources: {
-                paramValues: sidePanelContext?.formValues?.resources && sidePanelContext?.formValues?.resources.map((property: (string | ExpressionFieldValue | ParamConfig)[], index: string) => (
-                    {
-                        id: index,
-                        key: property[0],
-                        value:  property[1],
-                        icon: 'query',
-                        paramValues: [
-                            { value: property[0] },
-                            { value: property[1] },
-                        ]
-                    }
-                )) || [] as string[][],
+                paramValues: sidePanelContext?.formValues?.resources ? getParamManagerFromValues(sidePanelContext?.formValues?.resources) : [],
                 paramFields: [
                     {
                         "type": "TextField",
@@ -131,9 +99,9 @@ const ValidateForm = (props: AddMediatorProps) => {
 
     const onClick = async (values: any) => {
         
-        values["schemas"] = values.schemas.paramValues.map((param: any) => param.paramValues.map((p: any) => p.value));
-        values["features"] = values.features.paramValues.map((param: any) => param.paramValues.map((p: any) => p.value));
-        values["resources"] = values.resources.paramValues.map((param: any) => param.paramValues.map((p: any) => p.value));
+        values["schemas"] = getParamManagerValues(values.schemas);
+        values["features"] = getParamManagerValues(values.features);
+        values["resources"] = getParamManagerValues(values.resources);
         const xml = getXML(MEDIATORS.VALIDATE, values, dirtyFields, sidePanelContext.formValues);
         if (Array.isArray(xml)) {
             for (let i = 0; i < xml.length; i++) {

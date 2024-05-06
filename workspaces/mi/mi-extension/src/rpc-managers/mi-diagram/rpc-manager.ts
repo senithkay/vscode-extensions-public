@@ -157,7 +157,7 @@ import {
     WriteContentToFileRequest,
     WriteContentToFileResponse,
     getSTRequest,
-    getSTResponse,
+    getSTResponse
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
 import { error } from "console";
@@ -187,7 +187,7 @@ import { rootPomXmlContent } from "../../util/templates";
 import { replaceFullContentToFile } from "../../util/workspace";
 import { VisualizerWebview } from "../../visualizer/webview";
 import path = require("path");
-import { template } from "lodash";
+import { deleteRegistryResource } from "../../util/fileOperations"
 import { log } from "../../util/logger";
 
 const { XMLParser, XMLBuilder } = require("fast-xml-parser");
@@ -322,8 +322,6 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         <resource methods="GET" uri-template="/resource">
             <inSequence>
             </inSequence>
-            <outSequence>
-            </outSequence>
             <faultSequence>
             </faultSequence>
         </resource>
@@ -772,13 +770,13 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 };
                 if (jsonData && jsonData.localEntry) {
                     const firstEntryKey = Object.keys(jsonData.localEntry)[0];
-                    if (jsonData.localEntry["#text"] ) {
+                    if (jsonData.localEntry["#text"]) {
                         response.type = "In-Line Text Entry";
                         response.inLineTextValue = jsonData.localEntry["#text"];
                     } else if (firstEntryKey) {
                         response.type = "In-Line XML Entry";
                         const firstEntryKey = Object.keys(jsonData.localEntry)[0];
-                        if(firstEntryKey){
+                        if (firstEntryKey) {
                             const xmlObj = {
                                 [firstEntryKey]: {
                                     ...jsonData.localEntry[firstEntryKey]
@@ -1982,7 +1980,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             let document = workspace.textDocuments.find(doc => doc.uri.fsPath === params.documentUri);
 
             if (!document) {
-                document = await workspace.openTextDocument(Uri.parse(params.documentUri));
+                document = await workspace.openTextDocument(Uri.file(params.documentUri));
             }
 
             const range = new Range(new Position(params.range.start.line, params.range.start.character),
@@ -2002,7 +2000,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 text = `${textBefore.length > 0 ? "\n" + sIndentation : ""}${params.text.replace(/\n/g, "\n" + sIndentation)}${textAfter.length > 0 ? "\n" + eIndentation : ""}`;
             }
 
-            edit.replace(Uri.parse(params.documentUri), range, text);
+            edit.replace(Uri.file(params.documentUri), range, text);
             await workspace.applyEdit(edit);
 
             if (!params.disableFormatting) {
@@ -2028,7 +2026,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
     async rangeFormat(req: RangeFormatRequest): Promise<ApplyEditResponse> {
         return new Promise(async (resolve) => {
-            const uri = Uri.parse(req.uri);
+            const uri = Uri.file(req.uri);
             const edits: TextEdit[] = await commands.executeCommand("vscode.executeFormatRangeProvider", uri, req.range,
                 { tabSize: 4, insertSpaces: false, trimTrailingWhitespace: false });
             const workspaceEdit = new WorkspaceEdit();
@@ -2483,9 +2481,9 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             content[i] = content[i].replace(/```xml/g, '');
             content[i] = content[i].replace(/```/g, '');
             //name of file is in the code somewhere in the format name="example", extract the name
-            const match = content[i].match(/name="([^"]+)"/);
+            const match = content[i].match(/(name|key)="([^"]+)"/);
             if (match) {
-                const name = match[1]; // get the name
+                const name = match[2]; // get the name
                 //identify type of the file from the first tag of the content
                 const tagMatch = content[i].match(/<(\w+)/);
                 let fileType = '';
@@ -2535,8 +2533,8 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 console.log('Full path:', fullPath);
                 try {
                     console.log('Writing content to file:', fullPath);
+                    content[i] = content[i].trimStart();
                     console.log('Content:', content[i]);
-
                     await replaceFullContentToFile(fullPath, content[i]);
 
                 } catch (error) {
@@ -2559,7 +2557,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         const documentUri = StateMachine.context().documentUri;
         let editor = window.visibleTextEditors.find(editor => editor.document.uri.fsPath === documentUri);
         if (!editor && params.force && documentUri) {
-            const document = await workspace.openTextDocument(Uri.parse(documentUri));
+            const document = await workspace.openTextDocument(Uri.file(documentUri));
             editor = await window.showTextDocument(document, ViewColumn.Beside);
         }
 
@@ -2650,13 +2648,13 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                         'User-Agent': 'My Client'
                     }
                 });
-    
+
                 // Create a temporary file
                 const tmpobj = tmp.fileSync();
                 const writer = fs.createWriteStream(tmpobj.name);
-    
+
                 response.data.pipe(writer);
-    
+
                 return new Promise((resolve, reject) => {
                     writer.on('finish', async () => {
                         writer.close();
@@ -2724,7 +2722,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         let document = workspace.textDocuments.find(doc => doc.uri.fsPath === params.path);
 
         if (!document) {
-            document = await workspace.openTextDocument(Uri.parse(params.path));
+            document = await workspace.openTextDocument(Uri.file(params.path));
         }
 
         if (document) {
@@ -2811,11 +2809,13 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     if (fs.statSync(params.filePath).isDirectory()) {
                         fs.cpSync(params.filePath, destPath, { recursive: true });
                         transformedPath = path.join(transformedPath, params.registryPath, fileName);
+                        transformedPath = transformedPath.split(path.sep).join("/");
                         createMetadataFilesForRegistryCollection(destPath, transformedPath);
                         addNewEntryToArtifactXML(params.projectDirectory, params.artifactName, fileName, transformedPath, "", true);
                     } else {
                         fs.copyFileSync(params.filePath, destPath);
                         transformedPath = path.join(transformedPath, params.registryPath);
+                        transformedPath = transformedPath.split(path.sep).join("/");
                         const mediaType = await detectMediaType(params.filePath);
                         addNewEntryToArtifactXML(params.projectDirectory, params.artifactName, fileName, transformedPath, mediaType, false);
                     }
@@ -2835,6 +2835,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 fs.writeFileSync(destPath, fileContent ? fileContent : "");
                 //add the new entry to artifact.xml
                 transformedPath = path.join(transformedPath, params.registryPath);
+                transformedPath = transformedPath.split(path.sep).join("/");
                 addNewEntryToArtifactXML(params.projectDirectory, params.artifactName, fileName, transformedPath, fileData.mediaType, false);
                 commands.executeCommand(COMMANDS.REFRESH_COMMAND);
                 resolve({ path: destPath });
@@ -2919,28 +2920,9 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
     async migrateProject({ source }: MigrateProjectRequest): Promise<MigrateProjectResponse> {
         return new Promise(async (resolve) => {
-            const selection = await vscode.window.showQuickPick(
-                [
-                    {
-                        label: "Select Destination",
-                        description: "Select a destination folder to migrate the project",
-                    },
-                ],
-                {
-                    placeHolder: "Migration Options",
-                }
-            );
-
-            let target;
-            switch (selection?.label) {
-                case "Select Destination":
-                    target = await vscode.commands.executeCommand(COMMANDS.SELECT_DESTINATION, { sourceDir: source });
-                    break;
-            }
-
-            if (source && target) {
-                importProject({ source, directory: target, open: true });
-                resolve({ filePath: target });
+            if (source) {
+                importProject({ source, directory: source, open: true });
+                resolve({ filePath: source });
             }
         });
     }
@@ -3134,7 +3116,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         return new Promise(async (resolve) => {
             const langClient = StateMachine.context().langClient!;
             const res = await langClient.getRegistryFiles(params.path);
-            resolve({ registryPaths: res });
+            resolve({ registryPaths: res.map(element => element.split(path.sep).join("/")) });
         });
     }
 
@@ -3192,12 +3174,16 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             if (params.enableUndo) {
                 await this.initUndoRedoManager({ path: params.path });
             }
-
-            await workspace.fs.delete(Uri.file(params.path));
+            const registryIdentifier = "wso2mi/resources/registry";
+            const isRegistry = path.normalize(params.path).includes(path.normalize(registryIdentifier));
+            if (isRegistry) {
+                deleteRegistryResource(params.path);
+            } else {
+                await workspace.fs.delete(Uri.file(params.path));
+            }
             await vscode.commands.executeCommand(COMMANDS.REFRESH_COMMAND); // Refresh the project explore view
             navigate();
-
-            if (params.enableUndo) {
+            if (params.enableUndo && !isRegistry) {
                 undoRedo.addModification('');
                 const selection = await vscode.window.showInformationMessage('Do you want to undo the deletion?', 'Undo');
                 if (selection === 'Undo') {
@@ -3209,6 +3195,39 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
             resolve();
         });
+    }
+
+    async refreshAccessToken(): Promise<void> {
+        const CommonReqHeaders = {
+            'Content-Type': 'application/x-www-form-urlencoded; charset=utf8',
+            'Accept': 'application/json'
+        };
+        const refresh_token = await extension.context.secrets.get('MIAIRefreshToken');
+        const config = vscode.workspace.getConfiguration('integrationStudio');
+        const AUTH_ORG = config.get('authOrg') as string;
+        const AUTH_CLIENT_ID = config.get('authClientID') as string;
+        if (!refresh_token) {
+            throw new Error("Refresh token is not available.");
+        } else {
+            try {
+                console.log("Refreshing token...");
+                const params = new URLSearchParams({
+                    client_id: AUTH_CLIENT_ID,
+                    refresh_token: refresh_token,
+                    grant_type: 'refresh_token',
+                    scope: 'openid email'
+                });
+                const response = await axios.post(`https://api.asgardeo.io/t/${AUTH_ORG}/oauth2/token`, params.toString(), { headers: CommonReqHeaders });
+                const newAccessToken = response.data.access_token;
+                const newRefreshToken = response.data.refresh_token;
+                await extension.context.secrets.store('MIAIUser', newAccessToken);
+                await extension.context.secrets.store('MIAIRefreshToken', newRefreshToken);
+                console.log("Token refreshed successfully!");
+            } catch (error: any) {
+                const errMsg = "Error while refreshing token! " + error?.message;
+                throw new Error(errMsg);
+            }
+        }
     }
 
     async buildProject(): Promise<void> {
@@ -3226,7 +3245,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 1
             );
             if (carFile.length === 0) {
-                const errorMessage = 
+                const errorMessage =
                     'Error: No .car file found in the target directory. Please build the project before exporting.';
                 window.showErrorMessage(errorMessage);
                 log(errorMessage);
@@ -3261,6 +3280,15 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     log(`Project exported to: ${destination}`);
                     resolve();
                 }
+            }
+        });
+    }
+
+    async checkOldProject(): Promise<boolean> {
+        return new Promise(async (resolve) => {
+            const oldProjectState = StateMachine.context().isOldProject;
+            if (oldProjectState !== undefined) {
+                resolve(oldProjectState);
             }
         });
     }

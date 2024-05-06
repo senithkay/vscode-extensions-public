@@ -19,6 +19,8 @@ import { COMMAND_PORT, READINESS_ENDPOINT, SELECTED_SERVER_PATH } from './consta
 import { reject } from 'lodash';
 import axios from 'axios';
 import * as net from 'net';
+import { MACHINE_VIEW } from '@wso2-enterprise/mi-core';
+import { StateMachine } from '../stateMachine';
 
 export async function isPortActivelyListening(port: number, timeout: number): Promise<boolean> {
     return new Promise<boolean>((resolve) => {
@@ -187,6 +189,8 @@ export async function executeTasks(serverPath: string, isDebug: boolean): Promis
                             reject(`Server command port isn't actively listening. Stop any running MI servers and restart the debugger.`);
                         }
                     });
+                } else {
+                    resolve();
                 }
             } else {
                 // Server could be running in the background without debug mode, but we need to rerun to support this mode
@@ -245,4 +249,11 @@ export async function deleteCapp(serverPath: string): Promise<void> {
             reject(err);
         }
     });
+}
+
+// Check and return if the current visible view is one of the diagram view which can hit a breakpoint event
+export function isADiagramView() {
+    const stateContext = StateMachine.context();
+    const diagramViews = [MACHINE_VIEW.ResourceView, MACHINE_VIEW.ProxyView, MACHINE_VIEW.SequenceView, MACHINE_VIEW.SequenceTemplateView];
+    return diagramViews.indexOf(stateContext.view!) !== -1;
 }

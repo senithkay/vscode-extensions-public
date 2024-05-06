@@ -13,13 +13,13 @@ import { AutoComplete, Button, ComponentCard, ProgressIndicator, TextField, Typo
 import { VSCodeCheckbox } from '@vscode/webview-ui-toolkit/react';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
-import { AddMediatorProps } from '../common';
+import { AddMediatorProps, getParamManagerValues, getParamManagerFromValues } from '../common';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
 import { MEDIATORS } from '../../../../../resources/constants';
 import { Controller, useForm } from 'react-hook-form';
 import { ExpressionField, ExpressionFieldValue } from '../../../../Form/ExpressionField/ExpressionInput';
-import { ParamManager, ParamConfig, ParamValue } from '../../../../Form/ParamManager/ParamManager';
+import { ParamManager, ParamValue } from '../../../../Form/ParamManager/ParamManager';
 
 const cardStyle = { 
     display: "block",
@@ -54,20 +54,7 @@ const EJBForm = (props: AddMediatorProps) => {
             target: sidePanelContext?.formValues?.target || "",
             jndiName: sidePanelContext?.formValues?.jndiName || "",
             methodArguments: {
-                paramValues: sidePanelContext?.formValues?.methodArguments && sidePanelContext?.formValues?.methodArguments.map((property: (string | ExpressionFieldValue | ParamConfig)[], index: string) => (
-                    {
-                        id: index,
-                        key: property[0],
-                        value:  property[2],
-                        icon: 'query',
-                        paramValues: [
-                            { value: property[0] },
-                            { value: property[1] },
-                            { value: property[2] },
-                            { value: property[3] },
-                        ]
-                    }
-                )) || [] as string[][],
+                paramValues: sidePanelContext?.formValues?.methodArguments ? getParamManagerFromValues(sidePanelContext?.formValues?.methodArguments) : [],
                 paramFields: [
                     {
                         "type": "TextField",
@@ -119,7 +106,7 @@ const EJBForm = (props: AddMediatorProps) => {
 
     const onClick = async (values: any) => {
         
-        values["methodArguments"] = values.methodArguments.paramValues.map((param: any) => param.paramValues.map((p: any) => p.value));
+        values["methodArguments"] = getParamManagerValues(values.methodArguments);
         const xml = getXML(MEDIATORS.EJB, values, dirtyFields, sidePanelContext.formValues);
         if (Array.isArray(xml)) {
             for (let i = 0; i < xml.length; i++) {

@@ -12,14 +12,13 @@ import React, { useEffect } from 'react';
 import { Button, ComponentCard, ProgressIndicator, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
-import { AddMediatorProps } from '../common';
+import { AddMediatorProps, getParamManagerValues, getParamManagerFromValues } from '../common';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
 import { MEDIATORS } from '../../../../../resources/constants';
 import { Controller, useForm } from 'react-hook-form';
 import { Keylookup } from '../../../../Form';
-import { ExpressionFieldValue } from '../../../../Form/ExpressionField/ExpressionInput';
-import { ParamManager, ParamConfig, ParamValue } from '../../../../Form/ParamManager/ParamManager';
+import { ParamManager, ParamValue } from '../../../../Form/ParamManager/ParamManager';
 
 const cardStyle = { 
     display: "block",
@@ -49,18 +48,7 @@ const JSONTransformForm = (props: AddMediatorProps) => {
         reset({
             schema: sidePanelContext?.formValues?.schema || "",
             jsonTransformProperties: {
-                paramValues: sidePanelContext?.formValues?.jsonTransformProperties && sidePanelContext?.formValues?.jsonTransformProperties.map((property: (string | ExpressionFieldValue | ParamConfig)[], index: string) => (
-                    {
-                        id: index,
-                        key: property[0],
-                        value:  property[1],
-                        icon: 'query',
-                        paramValues: [
-                            { value: property[0] },
-                            { value: property[1] },
-                        ]
-                    }
-                )) || [] as string[][],
+                paramValues: sidePanelContext?.formValues?.jsonTransformProperties ? getParamManagerFromValues(sidePanelContext?.formValues?.jsonTransformProperties) : [],
                 paramFields: [
                     {
                         "type": "TextField",
@@ -83,7 +71,7 @@ const JSONTransformForm = (props: AddMediatorProps) => {
 
     const onClick = async (values: any) => {
         
-        values["jsonTransformProperties"] = values.jsonTransformProperties.paramValues.map((param: any) => param.paramValues.map((p: any) => p.value));
+        values["jsonTransformProperties"] = getParamManagerValues(values.jsonTransformProperties);
         const xml = getXML(MEDIATORS.JSONTRANSFORM, values, dirtyFields, sidePanelContext.formValues);
         if (Array.isArray(xml)) {
             for (let i = 0; i < xml.length; i++) {

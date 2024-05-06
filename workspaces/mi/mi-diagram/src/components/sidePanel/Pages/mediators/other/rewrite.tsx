@@ -12,12 +12,11 @@ import React, { useEffect } from 'react';
 import { Button, ComponentCard, ProgressIndicator, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
-import { AddMediatorProps } from '../common';
+import { AddMediatorProps, getParamManagerValues, getParamManagerFromValues } from '../common';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
 import { MEDIATORS } from '../../../../../resources/constants';
 import { Controller, useForm } from 'react-hook-form';
-import { ExpressionFieldValue } from '../../../../Form/ExpressionField/ExpressionInput';
 import { ParamManager, ParamConfig, ParamValue } from '../../../../Form/ParamManager/ParamManager';
 
 const cardStyle = { 
@@ -47,18 +46,7 @@ const RewriteForm = (props: AddMediatorProps) => {
     useEffect(() => {
         reset({
             urlRewriteRules: {
-                paramValues: sidePanelContext?.formValues?.urlRewriteRules && sidePanelContext?.formValues?.urlRewriteRules.map((property: (string | ExpressionFieldValue | ParamConfig)[], index: string) => (
-                    {
-                        id: index,
-                        key: index,
-                        value:  index,
-                        icon: 'query',
-                        paramValues: [
-                            { value: property[0] },
-                            { value: property[1] },
-                        ]
-                    }
-                )) || [] as string[][],
+                paramValues: sidePanelContext?.formValues?.urlRewriteRules ? getParamManagerFromValues(sidePanelContext?.formValues?.urlRewriteRules) : [],
                 paramFields: [
                     {
                         "type": "ParamManager",
@@ -67,22 +55,7 @@ const RewriteForm = (props: AddMediatorProps) => {
                         "isRequired": false, 
                         "paramManager": {
                             paramConfigs: {
-                                paramValues: sidePanelContext?.formValues?.rewriteRuleAction && sidePanelContext?.formValues?.rewriteRuleAction.map((property: (string | ExpressionFieldValue | ParamConfig)[], index: string) => (
-                                    {
-                                        id: index,
-                                        key: property[0],
-                                        value:  property[1],
-                                        icon: 'query',
-                                        paramValues: [
-                                            { value: property[0] },
-                                            { value: property[1] },
-                                            { value: property[2] },
-                                            { value: property[3] },
-                                            { value: property[4] },
-                                            { value: property[5] },
-                                        ]
-                                    }
-                                )) || [] as string[][],
+                                paramValues: sidePanelContext?.formValues?.rewriteRuleAction ? getParamManagerFromValues(sidePanelContext?.formValues?.rewriteRuleAction) : [],
                                 paramFields: [
                                     {
                                         "type": "Dropdown",
@@ -174,7 +147,7 @@ const RewriteForm = (props: AddMediatorProps) => {
 
     const onClick = async (values: any) => {
         
-        values["urlRewriteRules"] = values.urlRewriteRules.paramValues.map((param: any) => param.paramValues.map((p: any) => p.value));
+        values["urlRewriteRules"] = getParamManagerValues(values.urlRewriteRules);
         const xml = getXML(MEDIATORS.REWRITE, values, dirtyFields, sidePanelContext.formValues);
         if (Array.isArray(xml)) {
             for (let i = 0; i < xml.length; i++) {

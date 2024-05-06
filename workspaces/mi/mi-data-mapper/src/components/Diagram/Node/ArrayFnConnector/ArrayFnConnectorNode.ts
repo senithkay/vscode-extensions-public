@@ -155,7 +155,7 @@ export class ArrayFnConnectorNode extends DataMapperNodeModel {
 
     initLinks(): void {
         if (!this.hidden) {
-            // Currently, we create links from "IN" ports and back tracing the inputs.
+            // Create links from "IN" ports and back tracing the inputs
             if (this.sourcePort && this.inPort) {
                 const link = new DataMapperLinkModel(undefined, undefined, true);
                 link.setSourcePort(this.sourcePort);
@@ -177,7 +177,6 @@ export class ArrayFnConnectorNode extends DataMapperNodeModel {
                 this.getModel().addAll(link);
             }
 
-            // TODO - temp hack to render link
             if (this.outPort && this.targetPort) {
                 const link = new DataMapperLinkModel(undefined, undefined, true);
                 link.setSourcePort(this.outPort);
