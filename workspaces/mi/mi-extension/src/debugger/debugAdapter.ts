@@ -340,12 +340,20 @@ export class MiDebugAdapter extends LoggingDebugSession {
         this.sendResponse(response);
     }
 
-    // TODO: Implement stepInRequest after LS changes
     protected async nextRequest(response: DebugProtocol.NextResponse, args: DebugProtocol.NextArguments, request?: DebugProtocol.Request | undefined): Promise<void> {
-        // await this.debuggerHandler?.stepBreakpoint();
-        await this.debuggerHandler?.sendResumeCommand();
-
-        this.sendResponse(response);
+        this.debuggerHandler?.getNextMediatorBreakpoint().then(async (breakpointResponse) => {
+            if (breakpointResponse.stepOverBreakpoints.length > 0) {
+                this.debuggerHandler?.stepOverBreakpoint(breakpointResponse).then(() => {
+                    this.sendResponse(response);
+                }).catch(error => {
+                    vscode.window.showErrorMessage(`Error while stepping over: ${error}`);
+                    this.sendResponse(response);
+                });
+            } else {
+                await this.debuggerHandler?.sendResumeCommand();
+                this.sendResponse(response);
+            }
+        });
     }
 
     protected async stackTraceRequest(response: DebugProtocol.StackTraceResponse, args: DebugProtocol.StackTraceArguments, request?: DebugProtocol.Request | undefined): Promise<void> {

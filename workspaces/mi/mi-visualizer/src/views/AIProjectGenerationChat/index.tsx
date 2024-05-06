@@ -828,8 +828,8 @@ const EntryContainer = styled.div<EntryContainerProps>(({ isOpen }) => ({
 const CodeSegment: React.FC<CodeSegmentProps> = ({ segmentText, handleAddSelectiveCodetoWorkspace }) => {
     const [isOpen, setIsOpen] = useState(false);
 
-    const match = segmentText.match(/name="([^"]+)"/);
-    const name = match ? match[1] + ".xml" : "Unknown File";
+    const match = segmentText.match(/(name|key)="([^"]+)"/);
+    const name = match ? match[2] + ".xml" : "Unknown File";
 
     return (
         <div>
