@@ -9,7 +9,7 @@
         "storybook": "storybook dev -p 6006",
         "watch": "tsc --pretty --watch",
         "build-storybook": "storybook build",
-        "copy-files": "copyfiles -u 1 src/**/*.svg lib"
+        "copy-files": "copyfiles -u 1 src/**/*.{svg,png} lib"
     },
     "keywords": [],
     "author": "",

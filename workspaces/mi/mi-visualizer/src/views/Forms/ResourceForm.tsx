@@ -201,12 +201,12 @@ export const ResourceForm = ({ isOpen, documentUri, onCancel, onSave, formData }
 
     // useEffects
     useEffect(() => {
-        if (formData) {
+        if (isOpen && formData) {
             reset(formData);
-        } else {
+        } else if (isOpen && !formData) {
             reset(initialValues);
         }
-    }, [formData])
+    }, [formData, isOpen])
 
     return (
         <SidePanel

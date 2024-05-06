@@ -89,6 +89,16 @@ const MessageWrapper = styled.div`
     padding-top: 10px;
 `;
 
+const OldProjectMessage = styled.div`
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    padding-top: 20px;
+    gap: 10px;
+`;
+
+
 export interface ConnectorPageProps {
     documentUri: string;
     setContent: any;
@@ -108,6 +118,7 @@ export function ConnectorPage(props: ConnectorPageProps) {
     const [filteredStoreConnectors, setFilteredStoreConnectors] = useState<any[]>([]);
     const [filteredLocalConnectors, setFilteredLocalConnectors] = useState<any[]>([]);
     const [filteredOperations, setFilteredOperations] = useState<any[][]>([]);
+    const [isOldProject, setIsOldProject] = useState(false);
     const connectionStatus = useRef(null);
 
     const fetchConnectors = async () => {
@@ -132,7 +143,14 @@ export function ConnectorPage(props: ConnectorPageProps) {
         }
     };
 
+    const checkOldProject = async () => {
+        const oldProjectResponse = await rpcClient.getMiDiagramRpcClient().checkOldProject();
+        setIsOldProject(oldProjectResponse);
+    };
+
     useEffect(() => {
+        checkOldProject();
+
         rpcClient?.onConnectorStatusUpdate((connectorStatus: ConnectorStatus) => {
             connectionStatus.current = connectorStatus;
         });
@@ -359,7 +377,13 @@ export function ConnectorPage(props: ConnectorPageProps) {
 
         return (
             <>
-                {isDownloading ? (
+                {isOldProject ? (
+                    <OldProjectMessage>
+                        <Codicon name="warning" /> 
+                        Connector store is not supported with the old project structure.
+                        Please migrate to use the connector store and other features.
+                    </OldProjectMessage>
+                ) : isDownloading ? (
                     <LoaderWrapper>
                         <ProgressRing />
                         Downloading connector...

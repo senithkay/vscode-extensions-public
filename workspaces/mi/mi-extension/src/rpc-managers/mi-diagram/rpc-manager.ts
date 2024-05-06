@@ -157,7 +157,7 @@ import {
     WriteContentToFileRequest,
     WriteContentToFileResponse,
     getSTRequest,
-    getSTResponse,
+    getSTResponse
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
 import { error } from "console";
@@ -3280,6 +3280,15 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     log(`Project exported to: ${destination}`);
                     resolve();
                 }
+            }
+        });
+    }
+
+    async checkOldProject(): Promise<boolean> {
+        return new Promise(async (resolve) => {
+            const oldProjectState = StateMachine.context().isOldProject;
+            if (oldProjectState !== undefined) {
+                resolve(oldProjectState);
             }
         });
     }
