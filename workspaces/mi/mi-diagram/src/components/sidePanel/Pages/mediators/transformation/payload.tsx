@@ -12,13 +12,13 @@ import React, { useEffect } from 'react';
 import { AutoComplete, Button, ComponentCard, ProgressIndicator, TextField, TextArea, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
-import { AddMediatorProps } from '../common';
+import { AddMediatorProps, getParamManagerValues, getParamManagerFromValues } from '../common';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
 import { MEDIATORS } from '../../../../../resources/constants';
 import { Controller, useForm } from 'react-hook-form';
 import { ExpressionFieldValue } from '../../../../Form/ExpressionField/ExpressionInput';
-import { ParamManager, ParamConfig, ParamValue } from '../../../../Form/ParamManager/ParamManager';
+import { ParamManager, ParamValue } from '../../../../Form/ParamManager/ParamManager';
 
 const cardStyle = { 
     display: "block",
@@ -52,19 +52,7 @@ const PayloadForm = (props: AddMediatorProps) => {
             payloadKey: sidePanelContext?.formValues?.payloadKey || "",
             payload: sidePanelContext?.formValues?.payload || "{\"Sample\":\"Payload\"}",
             args: {
-                paramValues: sidePanelContext?.formValues?.args && sidePanelContext?.formValues?.args.map((property: (string | ExpressionFieldValue | ParamConfig)[], index: string) => (
-                    {
-                        id: index,
-                        key: index,
-                        value:  (property[0] as ExpressionFieldValue).value,
-                        icon: 'query',
-                        paramValues: [
-                            { value: property[0] },
-                            { value: property[1] },
-                            { value: property[2] },
-                        ]
-                    }
-                )) || [] as string[][],
+                paramValues: getParamManagerFromValues(sidePanelContext?.formValues?.args),
                 paramFields: [
                     {
                         "type": "ExprField",
@@ -114,7 +102,7 @@ const PayloadForm = (props: AddMediatorProps) => {
 
     const onClick = async (values: any) => {
         
-        values["args"] = values.args.paramValues.map((param: any) => param.paramValues.map((p: any) => p.value));
+        values["args"] = getParamManagerValues(values.args);
         const xml = getXML(MEDIATORS.PAYLOAD, values, dirtyFields, sidePanelContext.formValues);
         if (Array.isArray(xml)) {
             for (let i = 0; i < xml.length; i++) {

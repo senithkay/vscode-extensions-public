@@ -12,14 +12,13 @@ import React, { useEffect } from 'react';
 import { AutoComplete, Button, ComponentCard, ProgressIndicator, TextField, TextArea, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
-import { AddMediatorProps } from '../common';
+import { AddMediatorProps, getParamManagerValues, getParamManagerFromValues } from '../common';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
 import { MEDIATORS } from '../../../../../resources/constants';
 import { Controller, useForm } from 'react-hook-form';
 import { Keylookup } from '../../../../Form';
-import { ExpressionFieldValue } from '../../../../Form/ExpressionField/ExpressionInput';
-import { ParamManager, ParamConfig, ParamValue } from '../../../../Form/ParamManager/ParamManager';
+import { ParamManager, ParamValue } from '../../../../Form/ParamManager/ParamManager';
 
 const cardStyle = { 
     display: "block",
@@ -53,18 +52,7 @@ const ScriptForm = (props: AddMediatorProps) => {
             scriptKey: sidePanelContext?.formValues?.scriptKey || "",
             mediateFunction: sidePanelContext?.formValues?.mediateFunction || "",
             scriptKeys: {
-                paramValues: sidePanelContext?.formValues?.scriptKeys && sidePanelContext?.formValues?.scriptKeys.map((property: (string | ExpressionFieldValue | ParamConfig)[], index: string) => (
-                    {
-                        id: index,
-                        key: property[0],
-                        value:  property[1],
-                        icon: 'query',
-                        paramValues: [
-                            { value: property[0] },
-                            { value: property[1] },
-                        ]
-                    }
-                )) || [] as string[][],
+                paramValues: getParamManagerFromValues(sidePanelContext?.formValues?.scriptKeys),
                 paramFields: [
                     {
                         "type": "TextField",
@@ -87,7 +75,7 @@ const ScriptForm = (props: AddMediatorProps) => {
 
     const onClick = async (values: any) => {
         
-        values["scriptKeys"] = values.scriptKeys.paramValues.map((param: any) => param.paramValues.map((p: any) => p.value));
+        values["scriptKeys"] = getParamManagerValues(values.scriptKeys);
         const xml = getXML(MEDIATORS.SCRIPT, values, dirtyFields, sidePanelContext.formValues);
         if (Array.isArray(xml)) {
             for (let i = 0; i < xml.length; i++) {

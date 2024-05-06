@@ -12,14 +12,14 @@ import React, { useEffect } from 'react';
 import { Button, ComponentCard, FormGroup, ProgressIndicator, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
-import { AddMediatorProps } from '../common';
+import { AddMediatorProps, getParamManagerValues, getParamManagerFromValues } from '../common';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
 import { MEDIATORS } from '../../../../../resources/constants';
 import { Controller, useForm } from 'react-hook-form';
 import { Keylookup } from '../../../../Form';
 import { ExpressionField, ExpressionFieldValue } from '../../../../Form/ExpressionField/ExpressionInput';
-import { ParamManager, ParamConfig, ParamValue } from '../../../../Form/ParamManager/ParamManager';
+import { ParamManager, ParamValue } from '../../../../Form/ParamManager/ParamManager';
 
 const cardStyle = { 
     display: "block",
@@ -50,18 +50,7 @@ const XSLTForm = (props: AddMediatorProps) => {
             sourceXPath: sidePanelContext?.formValues?.sourceXPath || {"isExpression":true,"value":""},
             xsltSchemaKey: sidePanelContext?.formValues?.xsltSchemaKey || "",
             properties: {
-                paramValues: sidePanelContext?.formValues?.properties && sidePanelContext?.formValues?.properties.map((property: (string | ExpressionFieldValue | ParamConfig)[], index: string) => (
-                    {
-                        id: index,
-                        key: property[0],
-                        value:  (property[1] as ExpressionFieldValue).value,
-                        icon: 'query',
-                        paramValues: [
-                            { value: property[0] },
-                            { value: property[1] },
-                        ]
-                    }
-                )) || [] as string[][],
+                paramValues: getParamManagerFromValues(sidePanelContext?.formValues?.properties),
                 paramFields: [
                     {
                         "type": "TextField",
@@ -91,18 +80,7 @@ const XSLTForm = (props: AddMediatorProps) => {
                 ]
             },
             resources: {
-                paramValues: sidePanelContext?.formValues?.resources && sidePanelContext?.formValues?.resources.map((property: (string | ExpressionFieldValue | ParamConfig)[], index: string) => (
-                    {
-                        id: index,
-                        key: property[0],
-                        value:  property[1],
-                        icon: 'query',
-                        paramValues: [
-                            { value: property[0] },
-                            { value: property[1] },
-                        ]
-                    }
-                )) || [] as string[][],
+                paramValues: getParamManagerFromValues(sidePanelContext?.formValues?.resources),
                 paramFields: [
                     {
                         "type": "TextField",
@@ -119,18 +97,7 @@ const XSLTForm = (props: AddMediatorProps) => {
                 ]
             },
             features: {
-                paramValues: sidePanelContext?.formValues?.features && sidePanelContext?.formValues?.features.map((property: (string | ExpressionFieldValue | ParamConfig)[], index: string) => (
-                    {
-                        id: index,
-                        key: property[0],
-                        value:  property[1],
-                        icon: 'query',
-                        paramValues: [
-                            { value: property[0] },
-                            { value: property[1] },
-                        ]
-                    }
-                )) || [] as string[][],
+                paramValues: getParamManagerFromValues(sidePanelContext?.formValues?.features),
                 paramFields: [
                     {
                         "type": "TextField",
@@ -153,9 +120,9 @@ const XSLTForm = (props: AddMediatorProps) => {
 
     const onClick = async (values: any) => {
         
-        values["properties"] = values.properties.paramValues.map((param: any) => param.paramValues.map((p: any) => p.value));
-        values["resources"] = values.resources.paramValues.map((param: any) => param.paramValues.map((p: any) => p.value));
-        values["features"] = values.features.paramValues.map((param: any) => param.paramValues.map((p: any) => p.value));
+        values["properties"] = getParamManagerValues(values.properties);
+        values["resources"] = getParamManagerValues(values.resources);
+        values["features"] = getParamManagerValues(values.features);
         const xml = getXML(MEDIATORS.XSLT, values, dirtyFields, sidePanelContext.formValues);
         if (Array.isArray(xml)) {
             for (let i = 0; i < xml.length; i++) {

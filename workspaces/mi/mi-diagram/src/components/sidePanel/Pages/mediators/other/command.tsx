@@ -12,13 +12,12 @@ import React, { useEffect } from 'react';
 import { Button, ComponentCard, ProgressIndicator, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
-import { AddMediatorProps } from '../common';
+import { AddMediatorProps, getParamManagerValues, getParamManagerFromValues } from '../common';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
 import { MEDIATORS } from '../../../../../resources/constants';
 import { Controller, useForm } from 'react-hook-form';
-import { ExpressionFieldValue } from '../../../../Form/ExpressionField/ExpressionInput';
-import { ParamManager, ParamConfig, ParamValue } from '../../../../Form/ParamManager/ParamManager';
+import { ParamManager, ParamValue } from '../../../../Form/ParamManager/ParamManager';
 
 const cardStyle = { 
     display: "block",
@@ -48,23 +47,7 @@ const CommandForm = (props: AddMediatorProps) => {
         reset({
             className: sidePanelContext?.formValues?.className || "",
             properties: {
-                paramValues: sidePanelContext?.formValues?.properties && sidePanelContext?.formValues?.properties.map((property: (string | ExpressionFieldValue | ParamConfig)[], index: string) => (
-                    {
-                        id: index,
-                        key: property[0],
-                        value:  property[2],
-                        icon: 'query',
-                        paramValues: [
-                            { value: property[0] },
-                            { value: property[1] },
-                            { value: property[2] },
-                            { value: property[3] },
-                            { value: property[4] },
-                            { value: property[5] },
-                            { value: property[6] },
-                        ]
-                    }
-                )) || [] as string[][],
+                paramValues: getParamManagerFromValues(sidePanelContext?.formValues?.properties),
                 paramFields: [
                     {
                         "type": "TextField",
@@ -157,7 +140,7 @@ const CommandForm = (props: AddMediatorProps) => {
 
     const onClick = async (values: any) => {
         
-        values["properties"] = values.properties.paramValues.map((param: any) => param.paramValues.map((p: any) => p.value));
+        values["properties"] = getParamManagerValues(values.properties);
         const xml = getXML(MEDIATORS.COMMAND, values, dirtyFields, sidePanelContext.formValues);
         if (Array.isArray(xml)) {
             for (let i = 0; i < xml.length; i++) {

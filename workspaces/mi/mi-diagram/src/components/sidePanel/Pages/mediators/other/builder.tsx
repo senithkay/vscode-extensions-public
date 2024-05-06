@@ -12,13 +12,12 @@ import React, { useEffect } from 'react';
 import { Button, ComponentCard, ProgressIndicator, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
-import { AddMediatorProps } from '../common';
+import { AddMediatorProps, getParamManagerValues, getParamManagerFromValues } from '../common';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
 import { MEDIATORS } from '../../../../../resources/constants';
 import { Controller, useForm } from 'react-hook-form';
-import { ExpressionFieldValue } from '../../../../Form/ExpressionField/ExpressionInput';
-import { ParamManager, ParamConfig, ParamValue } from '../../../../Form/ParamManager/ParamManager';
+import { ParamManager, ParamValue } from '../../../../Form/ParamManager/ParamManager';
 
 const cardStyle = { 
     display: "block",
@@ -47,19 +46,7 @@ const BuilderForm = (props: AddMediatorProps) => {
     useEffect(() => {
         reset({
             messageBuilders: {
-                paramValues: sidePanelContext?.formValues?.messageBuilders && sidePanelContext?.formValues?.messageBuilders.map((property: (string | ExpressionFieldValue | ParamConfig)[], index: string) => (
-                    {
-                        id: index,
-                        key: property[0],
-                        value:  property[1],
-                        icon: 'query',
-                        paramValues: [
-                            { value: property[0] },
-                            { value: property[1] },
-                            { value: property[2] },
-                        ]
-                    }
-                )) || [] as string[][],
+                paramValues: getParamManagerFromValues(sidePanelContext?.formValues?.messageBuilders),
                 paramFields: [
                     {
                         "type": "TextField",
@@ -88,7 +75,7 @@ const BuilderForm = (props: AddMediatorProps) => {
 
     const onClick = async (values: any) => {
         
-        values["messageBuilders"] = values.messageBuilders.paramValues.map((param: any) => param.paramValues.map((p: any) => p.value));
+        values["messageBuilders"] = getParamManagerValues(values.messageBuilders);
         const xml = getXML(MEDIATORS.BUILDER, values, dirtyFields, sidePanelContext.formValues);
         if (Array.isArray(xml)) {
             for (let i = 0; i < xml.length; i++) {

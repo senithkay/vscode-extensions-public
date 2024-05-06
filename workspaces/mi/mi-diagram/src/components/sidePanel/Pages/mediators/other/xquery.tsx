@@ -12,13 +12,13 @@ import React, { useEffect } from 'react';
 import { AutoComplete, Button, ComponentCard, ProgressIndicator, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
-import { AddMediatorProps } from '../common';
+import { AddMediatorProps, getParamManagerValues, getParamManagerFromValues } from '../common';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
 import { MEDIATORS } from '../../../../../resources/constants';
 import { Controller, useForm } from 'react-hook-form';
 import { ExpressionField, ExpressionFieldValue } from '../../../../Form/ExpressionField/ExpressionInput';
-import { ParamManager, ParamConfig, ParamValue } from '../../../../Form/ParamManager/ParamManager';
+import { ParamManager, ParamValue } from '../../../../Form/ParamManager/ParamManager';
 
 const cardStyle = { 
     display: "block",
@@ -51,22 +51,7 @@ const XQueryForm = (props: AddMediatorProps) => {
             dynamicScriptKey: sidePanelContext?.formValues?.dynamicScriptKey || {"isExpression":true,"value":""},
             targetXPath: sidePanelContext?.formValues?.targetXPath || {"isExpression":true,"value":""},
             variables: {
-                paramValues: sidePanelContext?.formValues?.variables && sidePanelContext?.formValues?.variables.map((property: (string | ExpressionFieldValue | ParamConfig)[], index: string) => (
-                    {
-                        id: index,
-                        key: property[0],
-                        value:  property[3],
-                        icon: 'query',
-                        paramValues: [
-                            { value: property[0] },
-                            { value: property[1] },
-                            { value: property[2] },
-                            { value: property[3] },
-                            { value: property[4] },
-                            { value: property[5] },
-                        ]
-                    }
-                )) || [] as string[][],
+                paramValues: getParamManagerFromValues(sidePanelContext?.formValues?.variables),
                 paramFields: [
                     {
                         "type": "TextField",
@@ -141,7 +126,7 @@ const XQueryForm = (props: AddMediatorProps) => {
 
     const onClick = async (values: any) => {
         
-        values["variables"] = values.variables.paramValues.map((param: any) => param.paramValues.map((p: any) => p.value));
+        values["variables"] = getParamManagerValues(values.variables);
         const xml = getXML(MEDIATORS.XQUERY, values, dirtyFields, sidePanelContext.formValues);
         if (Array.isArray(xml)) {
             for (let i = 0; i < xml.length; i++) {
