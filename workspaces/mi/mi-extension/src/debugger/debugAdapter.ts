@@ -51,7 +51,9 @@ export class MiDebugAdapter extends LoggingDebugSession {
             if (isWebviewPresent && isADiagramView()) {
                 setTimeout(() => {
                     VisualizerWebview.currentPanel!.getWebview()?.reveal(ViewColumn.Beside);
-                    navigate();
+                    setTimeout(() => {
+                        navigate();
+                    }, 200);
                 }, 200);
             }
         });
