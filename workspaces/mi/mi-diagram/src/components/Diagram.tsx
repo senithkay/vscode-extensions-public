@@ -32,7 +32,7 @@ import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { KeyboardNavigationManager } from "../utils/keyboard-navigation-manager";
 import { Diagnostic } from "vscode-languageserver-types";
 import { APIResource } from "@wso2-enterprise/mi-syntax-tree/src";
-import {  GetBreakpointsResponse } from "@wso2-enterprise/mi-core";
+import { GetBreakpointsResponse } from "@wso2-enterprise/mi-core";
 
 export interface DiagramProps {
     model: DiagramService;
@@ -72,7 +72,7 @@ export const SIDE_PANEL_WIDTH = 450;
 export function Diagram(props: DiagramProps) {
     const { model, diagnostics, isFaultFlow, isFormOpen } = props;
     const { rpcClient } = useVisualizerContext();
-    const [canvasDimensions, setCanvasDimensions] = useState({ width: 0, height: 0 }); 
+    const [canvasDimensions, setCanvasDimensions] = useState({ width: 0, height: 0 });
 
     const [diagramData, setDiagramData] = useState({
         flow: {
@@ -116,7 +116,7 @@ export function Diagram(props: DiagramProps) {
                 faultSequence = (model as APIResource).faultSequence;
                 delete (modelCopy as APIResource).faultSequence;
             }
-            
+
             if (faultSequence) {
                 flows.push({
                     engine: faultEngine,
@@ -159,7 +159,7 @@ export function Diagram(props: DiagramProps) {
         } else {
             centerDiagram(true, faultModel, faultEngine, faultWidth);
         }
-        
+
     }, [sidePanelState.isOpen, isFormOpen]);
 
     useEffect(() => {
@@ -173,7 +173,7 @@ export function Diagram(props: DiagramProps) {
         let canvasWidth = 0;
         let canvasHeight = 0;
         const currentBreakpoints: GetBreakpointsResponse = await rpcClient.getMiDebuggerRpcClient().getBreakpoints({ filePath: props.documentUri });
-        
+
         data.forEach((dataItem) => {
             const { nodes, links, width, height } = getDiagramData(dataItem.model, currentBreakpoints);
             drawDiagram(nodes as any, links, dataItem.engine, (newModel: DiagramModel) => {
@@ -240,26 +240,23 @@ export function Diagram(props: DiagramProps) {
 
     const centerDiagram = async (animate = false, diagramModel: DiagramModel, diagramEngine: DiagramEngine, diagramWidth: number) => {
         if (diagramEngine?.getCanvas()?.getBoundingClientRect()) {
-            const canvasBounds = diagramEngine.getCanvas().getBoundingClientRect();
+            const canvas = diagramEngine.getCanvas();
+            const canvasBounds = canvas.getBoundingClientRect();
 
             const currentOffsetX = diagramEngine.getModel().getOffsetX();
             const offsetAdj = sidePanelState.isOpen || isFormOpen ? (SIDE_PANEL_WIDTH - 25) : 0;
             const offsetX = + ((canvasBounds.width - diagramWidth - offsetAdj) / 2);
 
-            const step = (offsetX - currentOffsetX) / 10;
-            let i = animate ? currentOffsetX : offsetX;
-            do {
-                i += animate ? step : 0;
+            if (animate) {
+                canvas.style.transition = "transform 0.5s";
+                canvas.style.transform = `translateX(${offsetX - currentOffsetX}px)`;
 
-                diagramEngine.getModel().setOffsetX(+ i);
+            } else {
+                diagramEngine.getModel().setOffsetX(offsetX);
                 diagramEngine.getModel().setGridSize(50);
-
-                // update diagram
                 diagramEngine.setModel(diagramModel);
                 diagramEngine.repaintCanvas();
-                // Sleep for 500 milliseconds
-                await new Promise(resolve => setTimeout(resolve, 10));
-            } while (!(i > offsetX - 1 && i < offsetX + 1));
+            }
         }
     };
 
