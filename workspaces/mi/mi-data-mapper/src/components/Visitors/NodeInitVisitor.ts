@@ -15,7 +15,6 @@ import {
     ArrayLiteralExpression,
     Identifier,
     PropertyAccessExpression,
-    SyntaxKind,
     CallExpression
 } from "ts-morph";
 import { DMType, TypeKind } from "@wso2-enterprise/mi-core";
@@ -45,10 +44,9 @@ export class NodeInitVisitor implements Visitor {
     private outputNode: DataMapperNodeModel | OutputDataImportNodeModel;
     private intermediateNodes: DataMapperNodeModel[] = [];
     private mapIdentifiers: Node[] = [];
+    private isWithinMapFn = 0;
 
-    constructor(
-        private context: DataMapperContext,
-    ) {}
+    constructor(private context: DataMapperContext) {}
 
     beginVisitFunctionDeclaration(node: FunctionDeclaration): void {
         this.inputNode = this.createInputNode(node);
@@ -92,13 +90,8 @@ export class NodeInitVisitor implements Visitor {
                 }
                 if (isConditionalExpression(innerExpr)) {
                     const inputNodes = getPropertyAccessNodes(returnStatement);
-                    const linkConnectorNode = new LinkConnectorNode(
-                        this.context,
-                        node,
-                        "",
-                        parent,
-                        inputNodes,
-                        this.mapIdentifiers.slice(0)
+                    const linkConnectorNode = this.createLinkConnectorNode(
+                        node, "", parent, inputNodes, this.mapIdentifiers.slice(0)
                     );
                     this.intermediateNodes.push(linkConnectorNode);
                 }
@@ -115,7 +108,7 @@ export class NodeInitVisitor implements Visitor {
            this.inputNode = focusedInputNode;
         } else {
             const initializer = node.getInitializer();
-            if (initializer && !this.isObjectOrArrayLiteralExpression(initializer)) {
+            if (initializer && !this.isObjectOrArrayLiteralExpression(initializer) && this.isWithinMapFn === 0) {
                 const propAccessNodes = getPropertyAccessNodes(initializer);
                 if (canConnectWithLinkConnector(propAccessNodes, initializer)) {
                     const linkConnectorNode = this.createLinkConnectorNode(
@@ -152,11 +145,13 @@ export class NodeInitVisitor implements Visitor {
 
     beginVisitCallExpression(node: CallExpression, parent: Node): void {
         const { focusedST } = this.context;
+        const isMapFn = isMapFunction(node);
         const isParentFocusedST = parent
             && Node.isPropertyAssignment(parent)
             && isPositionsEquals(getPosition(parent), getPosition(focusedST));
         
-        if (!isParentFocusedST && isMapFunction(node)) {
+        if (!isParentFocusedST && isMapFn) {
+            this.isWithinMapFn += 1;
             const arrayFnConnectorNode = new ArrayFnConnectorNode(this.context, node, parent);
             this.intermediateNodes.push(arrayFnConnectorNode);
         }
@@ -177,6 +172,18 @@ export class NodeInitVisitor implements Visitor {
     endVisitArrayLiteralExpression(node: ArrayLiteralExpression): void {
         if (this.mapIdentifiers.length > 0) {
             this.mapIdentifiers.pop()
+        }
+    }
+
+    endVisitCallExpression(node: CallExpression, parent: Node): void {
+        const { focusedST } = this.context;
+        const isMapFn = isMapFunction(node);
+        const isParentFocusedST = parent
+            && Node.isPropertyAssignment(parent)
+            && isPositionsEquals(getPosition(parent), getPosition(focusedST));
+        
+        if (!isParentFocusedST && isMapFn) {
+            this.isWithinMapFn -= 1;
         }
     }
 

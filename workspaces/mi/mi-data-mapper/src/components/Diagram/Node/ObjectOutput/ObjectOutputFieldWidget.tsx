@@ -153,7 +153,9 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
     let isDisabled = portIn?.descendantHasValue;
 
     if (!isDisabled) {
-        if (portIn?.parentModel && (Object.entries(portIn?.parentModel.links).length > 0 || portIn?.parentModel.ancestorHasValue)) {
+        if (portIn?.parentModel
+            && (Object.entries(portIn?.parentModel.links).length > 0 || portIn?.parentModel.ancestorHasValue)
+        ) {
             portIn.ancestorHasValue = true;
             isDisabled = true;
         }
