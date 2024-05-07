@@ -47,7 +47,7 @@ export function getRewriteFormDataFromSTNode(data: { [key: string]: any }, node:
         return [rewriteRule.action.map((action) => {
             let ruleAction = [action.type, action.fragment, action.value ? "Literal" : "Expression", action.value, action.xpath, action.regex];
             return ruleAction;
-        }), rewriteRule.condition?.textNode];
+        }), rewriteRule.condition?.condition];
     });
     return data;
 }
