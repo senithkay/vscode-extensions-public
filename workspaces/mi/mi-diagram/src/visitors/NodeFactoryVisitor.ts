@@ -70,6 +70,7 @@ import {
     ProxyTarget,
     Target,
     DbMediator,
+    Rewrite
 } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { NodeLinkModel } from "../components/NodeLink/NodeLinkModel";
 import { MediatorNodeModel } from "../components/nodes/MediatorNode/MediatorNodeModel";
@@ -927,6 +928,15 @@ export class NodeFactoryVisitor implements Visitor {
     }
 
     endVisitDbreport(node: DbMediator): void {
+        this.skipChildrenVisit = false;
+    }
+
+    beginVisitRewrite(node: Rewrite): void {
+        this.createNodeAndLinks({ node, name: MEDIATORS.REWRITE });
+        this.skipChildrenVisit = true;
+    }
+
+    endVisitRewrite(node: Rewrite): void {
         this.skipChildrenVisit = false;
     }
 

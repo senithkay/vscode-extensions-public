@@ -70,6 +70,7 @@ import {
     Target,
     ProxyTarget,
     DbMediator,
+    Rewrite,
 } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { ADD_NEW_SEQUENCE_TAG, NODE_DIMENSIONS, NODE_GAP, NodeTypes } from "../resources/constants";
 import { Diagnostic } from "vscode-languageserver-types";
@@ -471,6 +472,8 @@ export class SizingVisitor implements Visitor {
     endVisitDbreport = (node: DbMediator): void => {
         this.calculateBasicMediator(node);
     }
+
+    endVisitRewrite = (node: Rewrite): void => this.calculateBasicMediator(node);
 
     // Connectors
     beginVisitConnector = (node: any): void => { this.skipChildrenVisit = true; }

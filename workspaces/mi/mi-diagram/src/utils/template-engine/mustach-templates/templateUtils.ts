@@ -9,7 +9,7 @@
 
 import Mustache from "mustache";
 import { getCallFormDataFromSTNode, getCallMustacheTemplate, getCallXml } from "./core/call";
-import { Call, Callout, Header, Log, STNode, CallTemplate, PayloadFactory, Property, Jsontransform, Xquery, Xslt, DataServiceCall, DbMediator, Class, PojoCommand, Ejb, ConditionalRouter, Switch, Bean, Script, Store, Validate, PropertyGroup, Transaction, Event, Clone, Cache, Send, Aggregate, Iterate, Filter, NamedEndpoint, Foreach, Bam, OauthService, Builder, PublishEvent, EntitlementService, Rule, Ntlm, Enrich, FastXSLT, Makefault, Smooks, Throttle } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { Call, Callout, Header, Log, STNode, CallTemplate, PayloadFactory, Property, Jsontransform, Xquery, Xslt, DataServiceCall, DbMediator, Class, PojoCommand, Ejb, ConditionalRouter, Switch, Bean, Script, Store, Validate, PropertyGroup, Transaction, Event, Clone, Cache, Send, Aggregate, Iterate, Filter, NamedEndpoint, Foreach, Bam, OauthService, Builder, PublishEvent, EntitlementService, Rule, Ntlm, Enrich, FastXSLT, Makefault, Smooks, Throttle, Rewrite } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { getLogFormDataFromSTNode, getLogMustacheTemplate, getLogXml } from "./core/log";
 import { getCalloutFormDataFromSTNode, getCalloutMustacheTemplate, getCalloutXml } from "./core/callout";
 import { getHeaderFormDataFromSTNode, getHeaderMustacheTemplate, getHeaderXml } from "./core/header";
@@ -68,6 +68,7 @@ import { getSmooksFormDataFromSTNode, getSmooksMustacheTemplate, getSmooksXml } 
 import { getXqueryFormDataFromSTNode, getXqueryMustacheTemplate, getXqueryXml } from "./transformation/xquery";
 import { getXsltFormDataFromSTNode, getXsltMustacheTemplate, getXsltXml } from "./transformation/xslt";
 import { getThrottleFormDataFromSTNode, getThrottleXml } from "./filter/throttle";
+import { getRewriteFormDataFromSTNode, getRewriteMustacheTemplate, getRewriteXml } from "./other/rewrite";
 import { getDBLookupFormDataFromSTNode, getDBLookupMustacheTemplate, getDblookupXml } from "./data/dblookup";
 import { getDBReportFormDataFromSTNode, getDBReportMustacheTemplate, getDbReportXml } from "./data/dbreport";
 
@@ -184,6 +185,8 @@ export function getMustacheTemplate(name: string) {
             return getRuleMustacheTemplate();
         case MEDIATORS.NTLM:
             return getNtlmMustacheTemplate();
+        case MEDIATORS.REWRITE:
+            return getRewriteMustacheTemplate();
 
         // Endpoints
         case ENDPOINTS.ADDRESS:
@@ -308,6 +311,8 @@ export function getXML(name: string, data: { [key: string]: any }, dirtyFields?:
             return getRuleXml(data);
         case MEDIATORS.NTLM:
             return getNtlmXml(data);
+        case MEDIATORS.REWRITE:
+            return getRewriteXml(data);
 
         // Endpoint Forms
         case ENDPOINTS.HTTP:
@@ -427,6 +432,8 @@ export function getDataFromXML(name: string, node: STNode) {
             return getRuleFormDataFromSTNode(formData, node as Rule);
         case MEDIATORS.NTLM:
             return getNtlmFormDataFromSTNode(formData, node as Ntlm);
+        case MEDIATORS.REWRITE:
+            return getRewriteFormDataFromSTNode(formData, node as Rewrite);
         case MEDIATORS.DBLOOKUP:
             return getDBLookupFormDataFromSTNode(formData, node as DbMediator);
         case MEDIATORS.DBREPORT:

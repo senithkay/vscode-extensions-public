@@ -68,6 +68,7 @@ import {
     Target,
     ProxyTarget,
     DbMediator,
+    Rewrite,
 } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { ADD_NEW_SEQUENCE_TAG, NODE_DIMENSIONS, NODE_GAP, NodeTypes } from "../resources/constants";
 
@@ -382,6 +383,14 @@ export class PositionVisitor implements Visitor {
         this.setBasicMediatorPosition(node);
     }
     endVisitDbreport = (node: DbMediator): void => this.setSkipChildrenVisit(false);
+
+    beginVisitRewrite(node: Rewrite): void {
+        this.setSkipChildrenVisit(true);
+        this.setBasicMediatorPosition(node);
+    }
+    endVisitRewrite(node: Rewrite): void {
+        this.setSkipChildrenVisit(false);
+    }
 
     // Connectors
     beginVisitConnector = (node: Connector): void => {
