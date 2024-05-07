@@ -470,7 +470,7 @@ export class SizingVisitor implements Visitor {
         this.calculateBasicMediator(node);
     }
     endVisitDbreport = (node: DbMediator): void => {
-        this.calculateBasicMediator(node);
+        this.skipChildrenVisit = false;
     }
 
     endVisitRewrite = (node: Rewrite): void => this.calculateBasicMediator(node);
