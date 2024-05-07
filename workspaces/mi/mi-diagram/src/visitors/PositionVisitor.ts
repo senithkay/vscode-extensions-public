@@ -372,6 +372,10 @@ export class PositionVisitor implements Visitor {
 
     // Connectors
     beginVisitConnector = (node: Connector): void => {
+        this.skipChildrenVisit = true;
         this.setBasicMediatorPosition(node);
+    }
+    endVisitConnector(node: Connector): void {
+        this.skipChildrenVisit = false;
     }
 }
