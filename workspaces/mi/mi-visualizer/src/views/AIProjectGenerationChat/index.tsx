@@ -115,13 +115,13 @@ const Badge = styled.div`
 `;
 
 const PreviewContainer = styled.div`
-  background-color: #007acc;
-  color: white;
-  font-size: 0.8em; 
-  padding: 2px 5px; 
-  border-radius: 3px; 
-  display: inline-block; 
-  margin-left: 2px; 
+    background-color: var(--vscode-button-background);
+    color: white;
+    font-size: 0.8em; 
+    padding: 2px 5px; 
+    border-radius: 3px; 
+    display: inline-block; 
+    margin-left: 2px; 
 `;
 
 // A string array to store all code blocks
