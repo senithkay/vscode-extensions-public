@@ -19,7 +19,15 @@ import {
 import { DataMapperLinkModel } from "../Link";
 import { InputOutputPortModel, IntermediatePortModel } from "../Port";
 import { DataMapperNodeModel } from "../Node/commons/DataMapperNode";
-import { getFieldIndexes, getFieldNameFromOutputPort, getLinebreak, getPropertyAssignment } from "./common-utils";
+import {
+	getFieldIndexes,
+	getFieldNameFromOutputPort,
+	getLinebreak,
+	getPropertyAssignment,
+	getReturnStatement,
+	isEmptyValue,
+	isMapFunction
+} from "./common-utils";
 import { ArrayOutputNode, LinkConnectorNode, ObjectOutputNode } from "../Node";
 import { ExpressionLabelModel } from "../Label";
 import { DMTypeWithValue } from "../Mappings/DMTypeWithValue";
@@ -43,6 +51,34 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 
 	rhs = sourcePort.fieldFQN;
 	lhs = getFieldNameFromOutputPort(targetPort);
+
+	if (isMappedToRootArrayLiteralExpr(targetPort)
+		|| isMappedToRootObjectLiteralExpr(targetPort)
+		|| isMappedToObjectLitExprWithinArray(targetPort)
+	) {
+		let targetExpr: Node = targetPort?.typeWithValue.value;
+		
+		if (!targetExpr) {
+			// When the return statement is not available in the function body
+			const fnBody = targetNode.context.functionST.getBody() as Block;
+			fnBody.addStatements([`return {};`]);
+			const returnStatement = fnBody.getStatements()
+				.find(statement => Node.isReturnStatement(statement)) as ReturnStatement;
+			targetExpr = returnStatement.getExpression();
+		} else if (Node.isCallExpression(targetExpr) && isMapFunction(targetExpr)) {
+			const returnStmt = getReturnStatement(targetExpr);
+			targetExpr = returnStmt.getExpression();
+		}
+
+		const valuePosition = getPosition(targetExpr);
+		const isValueEmpty = isEmptyValue(valuePosition);
+
+		if (!isValueEmpty) {
+			targetExpr.replaceWithText(rhs);
+			await applyModifications();
+			return rhs;
+		}
+	}
 
 	let objectLitExpr;
 	let parent = targetPort.parentModel;
@@ -72,7 +108,7 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 				.find(statement => Node.isReturnStatement(statement)) as ReturnStatement;
 			objectLitExpr = returnStatement.getExpression() as ObjectLiteralExpression;
 		}
-	} else if (targetNode instanceof ArrayOutputNode) {
+	} else if (targetNode instanceof ArrayOutputNode && targetNode.value) {
 		const targetExpr = targetNode.value.getExpression();
 		if (Node.isArrayLiteralExpression(targetExpr)
 			&& fieldIndexes !== undefined
@@ -343,4 +379,29 @@ export function modifySourceForMultipleMappings(link: DataMapperLinkModel) {
 			}
 		});
 	}
+}
+
+function isMappedToRootArrayLiteralExpr(targetPort: InputOutputPortModel): boolean {
+	const targetExpr = targetPort?.typeWithValue?.value; // targetExpr is undefined when the body is missing the return statement
+	return !targetPort.parentModel
+		&& targetPort.field.kind === TypeKind.Array
+		&& (
+			!targetExpr || (targetExpr && Node.isArrayLiteralExpression(targetExpr)
+		));
+}
+
+function isMappedToRootObjectLiteralExpr(targetPort: InputOutputPortModel): boolean {
+	const targetExpr = targetPort?.typeWithValue?.value; // targetExpr is undefined when the body is missing the return statement
+	return !targetPort.parentModel
+		&& targetPort.field.kind === TypeKind.Interface
+		&& (
+			!targetExpr || (targetExpr && Node.isObjectLiteralExpression(targetExpr)
+		));
+}
+
+function isMappedToObjectLitExprWithinArray(targetPort: InputOutputPortModel): boolean {
+	return targetPort.index !== undefined
+		&& targetPort.field.kind === TypeKind.Interface
+		&& targetPort.typeWithValue?.value
+		&& Node.isObjectLiteralExpression(targetPort.typeWithValue.value);
 }

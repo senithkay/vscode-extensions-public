@@ -23,6 +23,7 @@ import { FunctionDeclaration, PropertyAssignment } from "ts-morph";
 import { ImportDataForm } from "./SidePanel/ImportDataForm";
 import { useDMSearchStore, useDMSidePanelStore } from "../../store/store";
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
+import { getTypeName } from "../Diagram/utils/common-utils";
 
 const classes = {
     root: css({
@@ -64,7 +65,7 @@ export function MIDataMapper(props: MIDataMapperProps) {
     const [views, setViews] = useState<View[]>([{
         targetFieldFQN: "",
         sourceFieldFQN: "",
-        label: `${inputTrees[0].typeName} -> ${outputTree.typeName}`
+        label: `${getTypeName(inputTrees[0])} -> ${getTypeName(outputTree)}`
     }]);
     const [nodes, setNodes] = useState<DataMapperNodeModel[]>([]);
 
