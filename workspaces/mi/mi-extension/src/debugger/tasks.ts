@@ -74,15 +74,9 @@ export function getRunTask(serverPath: string, isDebug: boolean): vscode.Task {
 }
 
 export function getStopTask(serverPath: string): vscode.Task {
-    let command;
-    const binFile = process.platform === 'win32' ? 'micro-integrator.bat' : 'micro-integrator.sh';
-    const binPath = path.join(serverPath, 'bin', binFile);
+    const binPath = path.join(serverPath, 'bin', 'micro-integrator.sh');
+    const command = `${binPath} stop`;
 
-    if (process.platform === 'win32') {
-        command = `taskkill /f /im ${binFile}`;
-    } else {
-        command = `${binPath} stop`;
-    }
     const stopTask = new vscode.Task(
         { type: 'mi-stop' },
         vscode.TaskScope.Workspace,
