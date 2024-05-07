@@ -34,6 +34,7 @@ import {
     materialOceanic,
 } from 'react-syntax-highlighter/dist/cjs/styles/prism'
 import { pad, set } from "lodash";
+import { time } from "console";
 
 
 interface MarkdownRendererProps {
@@ -135,6 +136,8 @@ let signal = controller.signal;
 var remainingTokenPercentage: string|number;
 var remaingTokenLessThanOne: boolean = false;
 
+var timeToReset: number;
+
 export function AIProjectGenerationChat() {
     const { rpcClient } = useVisualizerContext();
     const [state, setState] = useState<VisualizerLocation | null>(null);
@@ -170,6 +173,8 @@ export function AIProjectGenerationChat() {
             const storedQuestion = localStorage.getItem(localStorageQuestionFile);
             const storedCodeBlocks = localStorage.getItem(`codeBlocks-AIGenerationChat-${projectUuid}`);
             rpcClient.getAIVisualizerState().then((machineView:any) => {
+                timeToReset = machineView.userTokens.time_to_reset;
+                timeToReset = timeToReset / (60 * 60 * 24);
                 const maxTokens = machineView.userTokens.max_usage;
                 if(maxTokens == -1){
                     remainingTokenPercentage = "Unlimited";
@@ -708,6 +713,8 @@ export function AIProjectGenerationChat() {
                         remainingTokenPercentage === 'Unlimited' ? remainingTokenPercentage :
                         (remaingTokenLessThanOne ? '<1%' : `${remainingTokenPercentage}%`)
                     }
+                    <br/>    
+                    Time to Reset: {timeToReset < 1 ? "< 1 day" : Math.round(timeToReset)} days
             </Badge>
             <HeaderButtons>
                     <Button
