@@ -714,7 +714,8 @@ export function AIProjectGenerationChat() {
                         (remaingTokenLessThanOne ? '<1%' : `${remainingTokenPercentage}%`)
                     }
                     <br/>    
-                    Time to Reset: {timeToReset < 1 ? "< 1 day" : Math.round(timeToReset)} days
+                    {remainingTokenPercentage !== "Unlimited" && 
+                    `Time to Reset: ${timeToReset < 1 ? "< 1 day" : Math.round(timeToReset)} days`}
             </Badge>
             <HeaderButtons>
                     <Button
