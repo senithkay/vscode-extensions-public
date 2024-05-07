@@ -435,7 +435,7 @@ export class SizingVisitor implements Visitor {
     //Other Mediators
     endVisitBam = (node: Bam): void => this.calculateBasicMediator(node);
     endVisitOauthService = (node: OauthService): void => this.calculateBasicMediator(node);
-    endVisitBuild = (node: Builder): void => this.calculateBasicMediator(node);
+    endVisitBuilder = (node: Builder): void => this.calculateBasicMediator(node);
     endVisitPublishEvent = (node: PublishEvent): void => this.calculateBasicMediator(node);
     endVisitEntitlementService = (node: EntitlementService): void => {
         this.calculateBasicMediator(node, NODE_DIMENSIONS.GROUP.WIDTH, NODE_DIMENSIONS.GROUP.HEIGHT);
