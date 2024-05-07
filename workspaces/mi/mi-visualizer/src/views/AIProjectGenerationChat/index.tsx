@@ -422,58 +422,69 @@ export function AIProjectGenerationChat() {
         }
         console.log(context[0].context);
         const token = await rpcClient.getMiDiagramRpcClient().getUserAccessToken();
-        var response = await fetch(backendRootUri + backendUrl, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token.token}`,
-            },
-            body: JSON.stringify({ messages: chatArray, context: context[0].context }),
-            signal: signal,
-        })
-        if (!response.ok && response.status != 401) {
+        try{
+                var response = await fetch(backendRootUri + backendUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token.token}`,
+                    },
+                    body: JSON.stringify({ messages: chatArray, context: context[0].context }),
+                    signal: signal,
+                })
+                if (!response.ok && response.status != 401) {
+                    setIsLoading(false);
+                    setMessages(prevMessages => {
+                        const newMessages = [...prevMessages];
+                        const statusText = getStatusText(response.status);
+                        let error = `Failed to fetch response. Status: ${statusText}`;
+                        console.log("Response status: ", response.status);
+                        if (response.status == 429) {
+                            response.json().then(body => {
+                                console.log(body.detail);
+                                error += body.detail;
+                                console.log("Error: ", error);
+                            });
+                        }
+                        newMessages[newMessages.length - 1].content += error;
+                        newMessages[newMessages.length - 1].type = 'Error';
+                        return newMessages;
+                    });
+                    throw new Error('Failed to fetch response');
+                }
+                if(response.status == 401){
+                    await rpcClient.getMiDiagramRpcClient().refreshAccessToken();
+                    const token = await rpcClient.getMiDiagramRpcClient().getUserAccessToken();
+                    response = await fetch(backendRootUri + backendUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token.token}`,
+                        },
+                        body: JSON.stringify({ messages: chatArray, context: context[0].context }),
+                        signal: signal,
+                    })
+                    if(!response.ok){
+                        setIsLoading(false);
+                        setMessages(prevMessages => {
+                            const newMessages = [...prevMessages];
+                            const statusText = getStatusText(response.status);
+                            newMessages[newMessages.length - 1].content += `Failed to fetch response. Status: ${response.status} - ${statusText}`;
+                            newMessages[newMessages.length - 1].type = 'Error';
+                            return newMessages;
+                        });
+                        throw new Error('Failed to fetch response');
+                    }
+                }
+        }catch (error) {
             setIsLoading(false);
             setMessages(prevMessages => {
                 const newMessages = [...prevMessages];
-                const statusText = getStatusText(response.status);
-                let error = `Failed to fetch response. Status: ${statusText}`;
-                console.log("Response status: ", response.status);
-                if (response.status == 429) {
-                    response.json().then(body => {
-                        console.log(body.detail);
-                        error += body.detail;
-                        console.log("Error: ", error);
-                    });
-                }
-                newMessages[newMessages.length - 1].content += error;
+                newMessages[newMessages.length - 1].content += 'Network error. Please check your connectivity.';
                 newMessages[newMessages.length - 1].type = 'Error';
                 return newMessages;
             });
-            throw new Error('Failed to fetch response');
-        }
-        if(response.status == 401){
-            await rpcClient.getMiDiagramRpcClient().refreshAccessToken();
-            const token = await rpcClient.getMiDiagramRpcClient().getUserAccessToken();
-            response = await fetch(backendRootUri + backendUrl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token.token}`,
-                },
-                body: JSON.stringify({ messages: chatArray, context: context[0].context }),
-                signal: signal,
-            })
-            if(!response.ok){
-                setIsLoading(false);
-                setMessages(prevMessages => {
-                    const newMessages = [...prevMessages];
-                    const statusText = getStatusText(response.status);
-                    newMessages[newMessages.length - 1].content += `Failed to fetch response. Status: ${response.status} - ${statusText}`;
-                    newMessages[newMessages.length - 1].type = 'Error';
-                    return newMessages;
-                });
-                throw new Error('Failed to fetch response');
-            }
+            console.error('Network error:', error);
         }
         const reader = response.body?.getReader();
         const decoder = new TextDecoder();
