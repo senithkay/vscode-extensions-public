@@ -17,6 +17,7 @@ import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
 import { MEDIATORS } from '../../../../../resources/constants';
 import { Controller, useForm } from 'react-hook-form';
+import { Keylookup } from '../../../../Form';
 import { ParamManager, ParamConfig, ParamValue } from '../../../../Form/ParamManager/ParamManager';
 import { generateSpaceSeperatedStringFromParamValues } from '../../../../../utils/commons';
 
@@ -46,7 +47,6 @@ const DataServiceCallForm = (props: AddMediatorProps) => {
 
     useEffect(() => {
         reset({
-            availableDataServices: sidePanelContext?.formValues?.availableDataServices || "Select from available Data Services",
             serviceName: sidePanelContext?.formValues?.serviceName || "",
             sourceType: sidePanelContext?.formValues?.sourceType || "INLINE",
             operationType: sidePanelContext?.formValues?.operationType || "SINGLE",
@@ -114,7 +114,7 @@ const DataServiceCallForm = (props: AddMediatorProps) => {
                     },
                 ]
             },
-            targetType: sidePanelContext?.formValues?.targetType || "Default",
+            targetType: sidePanelContext?.formValues?.targetType || "BODY",
             targetProperty: sidePanelContext?.formValues?.targetProperty || "",
             description: sidePanelContext?.formValues?.description || "",
         });
@@ -159,23 +159,16 @@ const DataServiceCallForm = (props: AddMediatorProps) => {
 
                     <Field>
                         <Controller
-                            name="availableDataServices"
-                            control={control}
-                            render={({ field }) => (
-                                <AutoComplete label="Available Data Services" name="availableDataServices" items={["Select from available Data Services"]} value={field.value} onValueChange={(e: any) => {
-                                    field.onChange(e);
-                                }} />
-                            )}
-                        />
-                        {errors.availableDataServices && <Error>{errors.availableDataServices.message.toString()}</Error>}
-                    </Field>
-
-                    <Field>
-                        <Controller
                             name="serviceName"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Service Name" size={50} placeholder="" />
+                                <Keylookup
+                                    value={field.value}
+                                    filterType='dataService'
+                                    label="Data Service Name"
+                                    allowItemCreate={false}
+                                    onValueChange={field.onChange}
+                                />
                             )}
                         />
                         {errors.serviceName && <Error>{errors.serviceName.message.toString()}</Error>}
