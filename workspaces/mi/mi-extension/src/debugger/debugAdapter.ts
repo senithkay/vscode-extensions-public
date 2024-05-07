@@ -10,7 +10,7 @@
 import { Breakpoint, BreakpointEvent, Handles, InitializedEvent, LoggingDebugSession, Scope, StoppedEvent, TerminatedEvent, Thread } from 'vscode-debugadapter';
 import { DebugProtocol } from 'vscode-debugprotocol';
 import * as vscode from 'vscode';
-import { executeBuildTask, executeTasks, getServerPath, isADiagramView } from './debugHelper';
+import { executeBuildTask, executeTasks, getServerPath, isADiagramView, removeTempDebugBatchFile } from './debugHelper';
 import { Subject } from 'await-notify';
 import { Debugger } from './debugger';
 import { StateMachine, navigate, openView } from '../stateMachine';
@@ -294,6 +294,7 @@ export class MiDebugAdapter extends LoggingDebugSession {
             this.debuggerHandler?.closeDebugger();
             if (process.platform === 'win32') {
                 taskExecution.terminate();
+                removeTempDebugBatchFile();
             } else {
                 const stopTask = getStopTask(this.currentServerPath);
                 stopTask.presentationOptions.close = true;
