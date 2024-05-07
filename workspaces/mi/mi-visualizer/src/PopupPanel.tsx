@@ -20,6 +20,7 @@ import { LoadBalanceWizard } from './views/Forms/LoadBalanceEPform';
 import { FailoverWizard } from './views/Forms/FailoverEndpointForm';
 import { RecipientWizard } from './views/Forms/RecipientEndpointForm';
 import { TemplateEndpointWizard } from './views/Forms/TemplateEndpointForm';
+import path from 'path';
 
 const ViewContainer = styled.div`
     
@@ -35,7 +36,7 @@ const PopupPanel = () => {
     }, []);
 
     const fetchContext = () => {
-        const endpointPath = new URL("/src/main/wso2mi/artifacts/endpoints", window.location.origin).pathname;
+        const endpointPath = new URL(path.join('src','main','wso2mi','artifacts', 'endpoints').toString(), window.location.origin).pathname;
         rpcClient.getPopupVisualizerState().then((machineSate: PopupVisualizerLocation) => {
             switch (machineSate?.view) {
                 case MACHINE_VIEW.EndPointForm:

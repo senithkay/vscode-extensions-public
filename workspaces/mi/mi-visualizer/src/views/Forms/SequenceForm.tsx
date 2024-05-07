@@ -15,6 +15,7 @@ import * as yup from "yup";
 import { useForm } from "react-hook-form";
 import AddToRegistry, { getArtifactNamesAndRegistryPaths, formatRegistryPath, saveToRegistry } from "./AddToRegistry";
 import { FormKeylookup } from "@wso2-enterprise/mi-diagram";
+import path from "path";
 
 export interface SequenceWizardProps {
     path: string;
@@ -120,7 +121,7 @@ export function SequenceWizard(props: SequenceWizardProps) {
 
     const handleCreateSequence = async (values: any) => {
         const projectDir = (await rpcClient.getMiDiagramRpcClient().getProjectRoot({ path: props.path })).path;
-        const sequenceDir = `${projectDir}/src/main/wso2mi/artifacts/sequences`;
+        const sequenceDir = path.join(projectDir, 'src','main','wso2mi','artifacts', 'sequences').toString();
         const createSequenceParams = {
             ...values,
             getContentOnly: watch("saveInReg"),
