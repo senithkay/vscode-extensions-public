@@ -176,7 +176,7 @@ export class NodeFactoryVisitor implements Visitor {
                 diagramNode = new PlusNodeModel(node, name, this.documentUri);
                 break;
             case NodeTypes.CONNECTOR_NODE:
-                diagramNode = new ConnectorNodeModel(node, name, this.documentUri);
+                diagramNode = new ConnectorNodeModel(node, name, this.documentUri, this.parents[this.parents.length - 1], this.previousSTNodes);
                 break;
             case NodeTypes.DATAMAPPER_NODE:
                 diagramNode = new DataMapperNodeModel(node, name, this.documentUri, this.parents[this.parents.length - 1], this.previousSTNodes);
