@@ -20,6 +20,7 @@ export interface SidePanelProps {
     alignmanet?: "left" | "right";
     width?: number;
     sx?: any;
+    onClose?: (event?: React.MouseEvent<HTMLElement, MouseEvent>) => void;
 }
 
 const SidePanelContainer = styled.div<SidePanelProps>`
@@ -50,6 +51,11 @@ export const SidePanel: React.FC<SidePanelProps> = (props: SidePanelProps) => {
         }
     };
 
+    const handleOverlayClose = (event: React.MouseEvent<HTMLElement, MouseEvent>) => {
+        setOpen(false);
+        props.onClose && props.onClose(event);
+    };
+
     useEffect(() => {
         if (isOpen) {
             setVisible(true);
@@ -73,7 +79,7 @@ export const SidePanel: React.FC<SidePanelProps> = (props: SidePanelProps) => {
         <div id={id} className={className}>
             {visible && (
                 <>
-                    { overlay && <Overlay sx={{background: colors.vscodeInputBackground, opacity: 0.4, cursor: 'not-allowed'}}/>}
+                    { overlay && isOpen && <Overlay sx={{background: colors.vscodeInputBackground, opacity: 0.4}} onClose={handleOverlayClose}/> }
                     <SidePanelContainer isOpen={open} alignmanet={alignmanet} width={width} sx={sx} onTransitionEnd={handleTransitionEnd}>
                         {children}
                     </SidePanelContainer>
