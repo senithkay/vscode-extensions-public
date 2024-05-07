@@ -20,6 +20,7 @@ import { registerMiDataMapperRpcHandlers } from './rpc-managers/mi-data-mapper/r
 import { extension } from './MIExtensionContext';
 import { registerMiDebuggerRpcHandlers } from './rpc-managers/mi-debugger/rpc-handler';
 import { StateMachinePopup } from './stateMachinePopup';
+import path = require('path');
 
 export class RPCLayer {
     static _messenger: Messenger = new Messenger();
@@ -73,6 +74,7 @@ async function getContext(): Promise<VisualizerLocation> {
             view: context.view,
             identifier: context.identifier,
             projectUri: context.projectUri,
+            pathSeparator: path.sep,
             projectOpened: context.projectOpened,
             customProps: context.customProps,
             stNode: context.stNode,

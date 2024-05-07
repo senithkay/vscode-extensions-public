@@ -24,6 +24,7 @@ import { DataMapperNodeModel } from "../Node/commons/DataMapperNode";
 import { LinkOverayContainerID } from '../OverriddenLinkLayer/LinkOverlayPortal';
 
 import { CreateLinkState } from './CreateLinkState';
+import { FocusedInputNode } from '../Node/FocusedInput';
 
 export class DefaultState extends State<DiagramEngine> {
 	dragCanvas: DragCanvasState;
@@ -87,6 +88,7 @@ export class DefaultState extends State<DiagramEngine> {
 							|| element instanceof ArrayOutputNode
 							|| element instanceof ObjectOutputNode
 							|| element instanceof InputNode
+							|| element instanceof FocusedInputNode
 						)
 					) {
 						this.transitionWithEvent(this.createLink, actionEvent);

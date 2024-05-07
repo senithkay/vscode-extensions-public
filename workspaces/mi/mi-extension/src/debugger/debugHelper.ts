@@ -31,7 +31,7 @@ export async function isPortActivelyListening(port: number, timeout: number): Pr
                 resolve(false); // Timeout reached
             } else {
                 if (process.platform === 'win32') {
-                    const command = `netstat -an | find "LISTENING" | find ":${port}"`;
+                    const command = `netstat -an | findstr "LISTENING" | findstr ":${port}"`;
                     childprocess.exec(command, (error, stdout, stderr) => {
                         if (!error && stdout.trim() !== '') {
                             resolve(true);

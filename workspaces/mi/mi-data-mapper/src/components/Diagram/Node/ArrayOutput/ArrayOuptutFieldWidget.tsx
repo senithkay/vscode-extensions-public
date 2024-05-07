@@ -102,13 +102,22 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
         indentation += 24;
     }
 
+    const propertyAssignment = field.hasValue()
+        && !field.value.wasForgotten()
+        && Node.isPropertyAssignment(field.value)
+        && field.value;
+    const value: string = hasValue && propertyAssignment && propertyAssignment.getInitializer().getText();
+    const hasDefaultValue = value && getDefaultValue(field.type.kind) === value.trim();
     let isDisabled = portIn.descendantHasValue;
-    if (!isDisabled) {
+
+    if (!isDisabled && !hasDefaultValue) {
         if (arrayLitExpr && expanded && portIn.parentModel) {
             portIn.setDescendantHasValue();
             isDisabled = true;
         }
-        if (portIn.parentModel && (Object.entries(portIn.parentModel.links).length > 0 || portIn.parentModel.ancestorHasValue)) {
+        if (portIn.parentModel
+            && (Object.entries(portIn.parentModel.links).length > 0 || portIn.parentModel.ancestorHasValue)
+        ) {
             portIn.ancestorHasValue = true;
             isDisabled = true;
         }

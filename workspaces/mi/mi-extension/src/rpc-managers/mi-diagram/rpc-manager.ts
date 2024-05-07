@@ -2466,6 +2466,21 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
     }
 
     async writeContentToFile(params: WriteContentToFileRequest): Promise<WriteContentToFileResponse> {
+        const fetchConnectors = async (name) => {
+            const response = await fetch('https://raw.githubusercontent.com/rosensilva/connectors/main/connectors_list.json');
+            if(!response.ok) {
+                console.error('Failed to fetch connectors');
+            }
+            const data = await response.json();
+            const connector = data.data.find(connector => connector.name === name);
+            if (connector) {
+                return connector.download_url;
+            } else {
+                console.error("Connector not found");
+                return null;
+            }
+        };
+
         let status = true;
         //if file exists, overwrite if not, create new file and write content.  if successful, return true, else false
         const { content } = params;
@@ -2528,8 +2543,18 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     }
                     console.log("File type - ", fileType)
                 }
+
+                const connectorMatch = content[i].match(/<(\w+\.\w+)\b/);
+                if (connectorMatch) {
+                    const tagParts = connectorMatch[1].split('.');
+                    const connectorName = tagParts[0];
+                    console.log('Connector name:', connectorName);
+                    const download_url = await fetchConnectors(connectorName);
+                    this.downloadConnector({ url: download_url });
+                }
+
                 //write the content to a file, if file exists, overwrite else create new file
-                const fullPath = path.join(directoryPath ?? '', '/src/main/wso2mi/artifacts/', fileType, '/', `${name}.xml`);
+                const fullPath = path.join(directoryPath ?? '', 'src','main','wso2mi','artifacts', fileType, path.sep, `${name}.xml`);
                 console.log('Full path:', fullPath);
                 try {
                     console.log('Writing content to file:', fullPath);

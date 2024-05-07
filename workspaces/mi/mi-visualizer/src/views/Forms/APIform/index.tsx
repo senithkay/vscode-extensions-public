@@ -20,6 +20,8 @@ import { FormHandler } from "./Handler";
 import { yupResolver } from "@hookform/resolvers/yup"
 import * as yup from "yup";
 import { useForm } from "react-hook-form";
+import * as pathLib from "path";
+
 
 const TitleBar = styled.div({
     display: 'flex',
@@ -198,7 +200,7 @@ export function APIWizard({ apiData, path }: APIWizardProps) {
         if (!apiData) {
             // Create API
             const projectDir = (await rpcClient.getMiDiagramRpcClient().getProjectRoot({ path: path })).path;
-            const APIDir = `${projectDir}/src/main/wso2mi/artifacts/apis`;
+            const APIDir =  pathLib.join(projectDir,'src','main','wso2mi','artifacts', 'apis');
             const createAPIParams = {
                 directory: APIDir,
                 name: values.apiName,

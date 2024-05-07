@@ -17,7 +17,39 @@ export function enrichAndProcessType(typeToBeProcessed: DMType, node: Node): [DM
     return [valueEnrichedType, type];
 }
 
-export function getEnrichedDMType(
+export function getDMType(propertiesExpr: string, parentType: DMType, isPropeAccessExpr?: boolean): DMType {
+    const properties = getProperties(propertiesExpr, isPropeAccessExpr);
+
+    if (!properties) return;
+
+    let currentType = parentType;
+
+    for (let property of properties) {
+        const field = findField(currentType, property);
+
+        if (!field) return;
+
+        currentType = field;
+    }
+
+    return currentType;
+
+    function getProperties(propertiesExpr: string, isPropeAccessExpr?: boolean): string[] | undefined {
+        const propertyList = propertiesExpr.split('.');
+        return isPropeAccessExpr ? propertyList.slice(1) : propertyList;
+    }
+    
+    function findField(currentType: DMType, property: string): DMType | undefined {
+        if (currentType.kind === TypeKind.Interface && currentType.fields) {
+            return currentType.fields.find(field => field.fieldName === property);
+        } else if (currentType.kind === TypeKind.Array && currentType.memberType
+            && currentType.memberType.kind === TypeKind.Interface && currentType.memberType.fields) {
+            return currentType.memberType.fields.find(field => field.fieldName === property);
+        }
+    }
+}
+
+function getEnrichedDMType(
     type: DMType,
     node: Node | undefined,
     parentType?: DMTypeWithValue,
@@ -51,7 +83,7 @@ export function getEnrichedDMType(
     return dmTypeWithValue;
 }
 
-export function getEnrichedPrimitiveType(
+function getEnrichedPrimitiveType(
     field: DMType,
     node: Node,
     parentType?: DMTypeWithValue,
@@ -71,7 +103,7 @@ export function getEnrichedPrimitiveType(
     return members;
 }
 
-export function getEnrichedArrayType(
+function getEnrichedArrayType(
     field: DMType,
     node: ArrayLiteralExpression,
     parentType?: DMTypeWithValue,
