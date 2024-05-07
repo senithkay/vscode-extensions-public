@@ -119,6 +119,7 @@ export const NothingFound = styled.div`
 
 const DropdownContainer: React.FC<DropdownContainerProps> = styled.div`
     position: absolute;
+    top: 100%;
     max-height: 100px;
     overflow: auto;
     background-color: var(--vscode-editor-background);
@@ -127,7 +128,7 @@ const DropdownContainer: React.FC<DropdownContainerProps> = styled.div`
     border: 1px solid var(--vscode-list-dropBackground);
     padding-top: 5px;
     padding-bottom: 5px;
-    z-index: 1;
+    z-index: 1000;
     display: ${(props: DropdownContainerProps) => (props.display ? 'block' : 'none')};
     width: ${(props: DropdownContainerProps) => (props.dropdownWidth ? `${props.dropdownWidth - 2}px` : 'auto')};
     ul {
@@ -175,6 +176,10 @@ type ConditionalProps =
 
 // Combine the base properties with conditional properties
 export type AutoCompleteProps = BaseProps & ConditionalProps;
+
+const ComboboxContent: React.FC = styled.div`
+    position: relative;
+`;
 
 const ComboboxOption: React.FC<ComboboxOptionProps> = styled.div`
     position: relative;
@@ -302,7 +307,7 @@ export const AutoComplete = React.forwardRef<HTMLInputElement, AutoCompleteProps
                     <label htmlFor={id}>{label}</label>
                     {(required && label) && (<RequiredFormInput />)}
                 </LabelContainer>
-                <div>
+                <ComboboxContent>
                     <ComboboxInputWrapper ref={inputWrapperRef}>
                         <Combobox.Input
                             id={id}
@@ -408,7 +413,7 @@ export const AutoComplete = React.forwardRef<HTMLInputElement, AutoCompleteProps
                             </Combobox.Options>
                         </DropdownContainer>
                     </Transition>
-                </div>
+                </ComboboxContent>
             </Combobox>
         </Container>
     )
