@@ -31,6 +31,253 @@
             </xs:documentation>
         </xs:annotation>
         <xs:choice>
+            <xs:element name="file.createDirectory">
+                <xs:complexType>
+                    <xs:all>
+                        <xs:element name="directoryPath" type="xs:string" minOccurs="0" maxOccurs="1" />
+                    </xs:all>
+                    <xs:attribute name="configKey" type="xs:string"/>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="file.listFiles">
+                <xs:complexType>
+                    <xs:all>
+                        <xs:element name="directoryPath" type="xs:string" minOccurs="0" maxOccurs="1" />
+                        <xs:element name="matchingPattern" type="xs:string" minOccurs="0" maxOccurs="1" />
+                        <xs:element name="recursive" type="xs:string" minOccurs="0" maxOccurs="1" />
+                        <xs:element name="responseFormat" type="xs:string" minOccurs="0" maxOccurs="1" />
+                        <xs:element name="sortingAttribute" type="xs:string" minOccurs="0" maxOccurs="1" />
+                        <xs:element name="sortingOrder" type="xs:string" minOccurs="0" maxOccurs="1" />
+                    </xs:all>
+                    <xs:attribute name="configKey" type="xs:string"/>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="file.delete">
+                <xs:complexType>
+                    <xs:all>
+                        <xs:element name="path" type="xs:string" minOccurs="0" maxOccurs="1" />
+                        <xs:element name="matchingPattern" type="xs:string" minOccurs="0" maxOccurs="1" />
+                    </xs:all>
+                    <xs:attribute name="configKey" type="xs:string"/>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="file.copy">
+                <xs:complexType>
+                    <xs:all>
+                        <xs:element name="sourcePath" type="xs:string" minOccurs="0" maxOccurs="1" />
+                        <xs:element name="targetPath" type="xs:string" minOccurs="0" maxOccurs="1" />
+                        <xs:element name="sourceFilePattern" type="xs:string" minOccurs="0" maxOccurs="1" />
+                        <xs:element name="includeParent" type="xs:string" minOccurs="0" maxOccurs="1" />
+                        <xs:element name="overwrite" type="xs:string" minOccurs="0" maxOccurs="1" />
+                        <xs:element name="renameTo" type="xs:string" minOccurs="0" maxOccurs="1" />
+                    </xs:all>
+                    <xs:attribute name="configKey" type="xs:string"/>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="file.move">
+                <xs:complexType>
+                    <xs:all>
+                        <xs:element name="sourcePath" type="xs:string" minOccurs="0" maxOccurs="1" />
+                        <xs:element name="targetPath" type="xs:string" minOccurs="0" maxOccurs="1" />
+                        <xs:element name="createParentDirectories" type="xs:string" minOccurs="0" maxOccurs="1" />
+                        <xs:element name="includeParent" type="xs:string" minOccurs="0" maxOccurs="1" />
+                        <xs:element name="overwrite" type="xs:string" minOccurs="0" maxOccurs="1" />
+                        <xs:element name="renameTo" type="xs:string" minOccurs="0" maxOccurs="1" />
+                        <xs:element name="filePattern" type="xs:string" minOccurs="0" maxOccurs="1" />
+                    </xs:all>
+                    <xs:attribute name="configKey" type="xs:string"/>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="file.rename">
+                <xs:complexType>
+                    <xs:all>
+                        <xs:element name="path" type="xs:string" minOccurs="0" maxOccurs="1" />
+                        <xs:element name="renameTo" type="xs:string" minOccurs="0" maxOccurs="1" />
+                        <xs:element name="overwrite" type="xs:string" minOccurs="0" maxOccurs="1" />
+                    </xs:all>
+                    <xs:attribute name="configKey" type="xs:string"/>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="file.unzip">
+                <xs:complexType>
+                    <xs:all>
+                        <xs:element name="sourceFilePath" type="xs:string" minOccurs="0" maxOccurs="1" />
+                        <xs:element name="targetDirectory" type="xs:string" minOccurs="0" maxOccurs="1" />
+                    </xs:all>
+                    <xs:attribute name="configKey" type="xs:string"/>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="file.splitFile">
+                <xs:complexType>
+                    <xs:all>
+                        <xs:element name="sourceFilePath" type="xs:string" minOccurs="0" maxOccurs="1" />
+                        <xs:element name="targetDirectory" type="xs:string" minOccurs="0" maxOccurs="1" />
+                        <xs:element name="splitMode" type="xs:string" minOccurs="0" maxOccurs="1" />
+                        <xs:element name="chunkSize" type="xs:string" minOccurs="0" maxOccurs="1" />
+                        <xs:element name="lineCount" type="xs:string" minOccurs="0" maxOccurs="1" />
+                        <xs:element name="xpathExpression" type="xs:string" minOccurs="0" maxOccurs="1" />
+                    </xs:all>
+                    <xs:attribute name="configKey" type="xs:string"/>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="file.mergeFiles">
+                <xs:complexType>
+                    <xs:all>
+                        <xs:element name="sourceDirectoryPath" type="xs:string" minOccurs="0" maxOccurs="1" />
+                        <xs:element name="targetFilePath" type="xs:string" minOccurs="0" maxOccurs="1" />
+                        <xs:element name="filePattern" type="xs:string" minOccurs="0" maxOccurs="1" />
+                        <xs:element name="writeMode" type="xs:string" minOccurs="0" maxOccurs="1" />
+                    </xs:all>
+                    <xs:attribute name="configKey" type="xs:string"/>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="file.checkExist">
+                <xs:complexType>
+                    <xs:all>
+                        <xs:element name="path" type="xs:string" minOccurs="0" maxOccurs="1" />
+                        <xs:element name="includeResultTo" type="xs:string" minOccurs="0" maxOccurs="1" />
+                        <xs:element name="resultPropertyName" type="xs:string" minOccurs="0" maxOccurs="1" />
+                    </xs:all>
+                    <xs:attribute name="configKey" type="xs:string"/>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="file.exploreZipFile">
+                <xs:complexType>
+                    <xs:all>
+                        <xs:element name="zipFilePath" type="xs:string" minOccurs="0" maxOccurs="1" />
+                    </xs:all>
+                    <xs:attribute name="configKey" type="xs:string"/>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="file.compress">
+                <xs:complexType>
+                    <xs:all>
+                        <xs:element name="sourceDirectoryPath" type="xs:string" minOccurs="0" maxOccurs="1" />
+                        <xs:element name="targetFilePath" type="xs:string" minOccurs="0" maxOccurs="1" />
+                        <xs:element name="includeSubDirectories" type="xs:string" minOccurs="0" maxOccurs="1" />
+                    </xs:all>
+                    <xs:attribute name="configKey" type="xs:string"/>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="file.read">
+                <xs:complexType>
+                    <xs:all>
+                        <xs:element name="path" type="xs:string" minOccurs="0" maxOccurs="1" />
+                        <xs:element name="filePattern" type="xs:string" minOccurs="0" maxOccurs="1" />
+                        <xs:element name="readMode" type="xs:string" minOccurs="0" maxOccurs="1" />
+                        <xs:element name="startLineNum" type="xs:string" minOccurs="0" maxOccurs="1" />
+                        <xs:element name="endLineNum" type="xs:string" minOccurs="0" maxOccurs="1" />
+                        <xs:element name="lineNum" type="xs:string" minOccurs="0" maxOccurs="1" />
+                        <xs:element name="contentType" type="xs:string" minOccurs="0" maxOccurs="1" />
+                        <xs:element name="encoding" type="xs:string" minOccurs="0" maxOccurs="1" />
+                        <xs:element name="includeResultTo" type="xs:string" minOccurs="0" maxOccurs="1" />
+                        <xs:element name="resultPropertyName" type="xs:string" minOccurs="0" maxOccurs="1" />
+                        <xs:element name="enableStreaming" type="xs:string" minOccurs="0" maxOccurs="1" />
+                        <xs:element name="enableLock" type="xs:string" minOccurs="0" maxOccurs="1" />
+                    </xs:all>
+                    <xs:attribute name="configKey" type="xs:string"/>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="file.write">
+                <xs:complexType>
+                    <xs:all>
+                        <xs:element name="filePath" type="xs:string" minOccurs="0" maxOccurs="1" />
+                        <xs:element name="contentOrExpression" type="xs:string" minOccurs="0" maxOccurs="1" />
+                        <xs:element name="encoding" type="xs:string" minOccurs="0" maxOccurs="1" />
+                        <xs:element name="mimeType" type="xs:string" minOccurs="0" maxOccurs="1" />
+                        <xs:element name="compress" type="xs:string" minOccurs="0" maxOccurs="1" />
+                        <xs:element name="writeMode" type="xs:string" minOccurs="0" maxOccurs="1" />
+                        <xs:element name="appendPosition" type="xs:string" minOccurs="0" maxOccurs="1" />
+                        <xs:element name="enableStreaming" type="xs:string" minOccurs="0" maxOccurs="1" />
+                        <xs:element name="appendNewLine" type="xs:string" minOccurs="0" maxOccurs="1" />
+                        <xs:element name="enableLock" type="xs:string" minOccurs="0" maxOccurs="1" />
+                        <xs:element name="includeResultTo" type="xs:string" minOccurs="0" maxOccurs="1" />
+                        <xs:element name="resultPropertyName" type="xs:string" minOccurs="0" maxOccurs="1" />
+                        <xs:element name="updateLastModified" type="xs:string" minOccurs="0" maxOccurs="1" />
+                    </xs:all>
+                    <xs:attribute name="configKey" type="xs:string"/>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="utility.date.GetDate">
+                <xs:complexType>
+                    <xs:all>
+                        <xs:element name="format" type="xs:string" minOccurs="0" maxOccurs="1" />
+                        <xs:element name="target" type="xs:string" minOccurs="0" maxOccurs="1" />
+                    </xs:all>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="utility.math.GetRandomInt">
+                <xs:complexType>
+                    <xs:all>
+                        <xs:element name="lowerBound" type="xs:string" minOccurs="0" maxOccurs="1" />
+                        <xs:element name="upperBound" type="xs:string" minOccurs="0" maxOccurs="1" />
+                        <xs:element name="target" type="xs:string" minOccurs="0" maxOccurs="1" />
+                    </xs:all>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="utility.string.LowerCase">
+                <xs:complexType>
+                    <xs:all>
+                        <xs:element name="inputString" type="xs:string" minOccurs="0" maxOccurs="1" />
+                        <xs:element name="target" type="xs:string" minOccurs="0" maxOccurs="1" />
+                    </xs:all>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="utility.string.UpperCase">
+                <xs:complexType>
+                    <xs:all>
+                        <xs:element name="inputString" type="xs:string" minOccurs="0" maxOccurs="1" />
+                        <xs:element name="target" type="xs:string" minOccurs="0" maxOccurs="1" />
+                    </xs:all>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="utility.string.Length">
+                <xs:complexType>
+                    <xs:all>
+                        <xs:element name="inputString" type="xs:string" minOccurs="0" maxOccurs="1" />
+                        <xs:element name="target" type="xs:string" minOccurs="0" maxOccurs="1" />
+                    </xs:all>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="utility.string.UUID">
+                <xs:complexType>
+                    <xs:all>
+                        <xs:element name="target" type="xs:string" minOccurs="0" maxOccurs="1" />
+                    </xs:all>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="utility.string.RegexMatcher">
+                <xs:complexType>
+                    <xs:all>
+                        <xs:element name="regex" type="xs:string" minOccurs="0" maxOccurs="1" />
+                        <xs:element name="inputString" type="xs:string" minOccurs="0" maxOccurs="1" />
+                        <xs:element name="target" type="xs:string" minOccurs="0" maxOccurs="1" />
+                    </xs:all>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="utility.signature.Generate">
+                <xs:complexType>
+                    <xs:all>
+                        <xs:element name="payload" type="xs:string" minOccurs="0" maxOccurs="1" />
+                        <xs:element name="customPayload" type="xs:string" minOccurs="0" maxOccurs="1" />
+                        <xs:element name="secret" type="xs:string" minOccurs="0" maxOccurs="1" />
+                        <xs:element name="algorithm" type="xs:string" minOccurs="0" maxOccurs="1" />
+                        <xs:element name="target" type="xs:string" minOccurs="0" maxOccurs="1" />
+                    </xs:all>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="utility.signature.Verify">
+                <xs:complexType>
+                    <xs:all>
+                        <xs:element name="payload" type="xs:string" minOccurs="0" maxOccurs="1" />
+                        <xs:element name="customPayload" type="xs:string" minOccurs="0" maxOccurs="1" />
+                        <xs:element name="signature" type="xs:string" minOccurs="0" maxOccurs="1" />
+                        <xs:element name="secret" type="xs:string" minOccurs="0" maxOccurs="1" />
+                        <xs:element name="algorithm" type="xs:string" minOccurs="0" maxOccurs="1" />
+                        <xs:element name="target" type="xs:string" minOccurs="0" maxOccurs="1" />
+                    </xs:all>
+                </xs:complexType>
+            </xs:element>
         </xs:choice>
     </xs:group>
 </xs:schema>
