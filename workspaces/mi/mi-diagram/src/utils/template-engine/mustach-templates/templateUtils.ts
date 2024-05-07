@@ -42,7 +42,7 @@ import { getEjbFormDataFromSTNode, getEjbMustacheTemplate, getEjbXml } from "./e
 import { getScriptFormDataFromSTNode, getScriptMustacheTemplate, getScriptXml } from "./extension/script";
 import { getSpringMustacheTemplate } from "./extension/spring";
 import { getCloneFormDataFromSTNode, getCloneMustacheTemplate, getCloneXml, getNewCloneTargetXml } from "./advanced/clone";
-import { getDataSerivceCallXml, getDataServiceCallFormDataFromSTNode, getDataServiceCallMustacheTemplate } from "./advanced/dataServiceCall";
+import { getDataSerivceCallXml, getDataServiceCallFormDataFromSTNode, getDataServiceCallMustacheTemplate } from "./data/dataServiceCall";
 import { getEnqueueMustacheTemplate } from "./advanced/enqueue";
 import { getEventFormDataFromSTNode, getEventMustacheTemplate, getEventXml } from "./advanced/event";
 import { getTransactionFormDataFromSTNode, getTransactionMustacheTemplate, getTransactionXml } from "./advanced/transaction";
