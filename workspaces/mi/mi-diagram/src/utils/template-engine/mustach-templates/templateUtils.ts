@@ -68,6 +68,8 @@ import { getSmooksFormDataFromSTNode, getSmooksMustacheTemplate, getSmooksXml } 
 import { getXqueryFormDataFromSTNode, getXqueryMustacheTemplate, getXqueryXml } from "./transformation/xquery";
 import { getXsltFormDataFromSTNode, getXsltMustacheTemplate, getXsltXml } from "./transformation/xslt";
 import { getThrottleFormDataFromSTNode, getThrottleXml } from "./filter/throttle";
+import { getDBLookupFormDataFromSTNode, getDBLookupMustacheTemplate, getDblookupXml } from "./data/dblookup";
+import { getDBReportFormDataFromSTNode, getDBReportMustacheTemplate, getDbReportXml } from "./data/dbreport";
 
 export function getMustacheTemplate(name: string) {
     switch (name) {
@@ -78,6 +80,10 @@ export function getMustacheTemplate(name: string) {
             return getCloneMustacheTemplate();
         case MEDIATORS.DATASERVICECALL:
             return getDataServiceCallMustacheTemplate();
+        case MEDIATORS.DBLOOKUP:
+            return getDBLookupMustacheTemplate();
+        case MEDIATORS.DBREPORT:
+            return getDBReportMustacheTemplate();
         case MEDIATORS.ENQUEUE:
             return getEnqueueMustacheTemplate();
         case MEDIATORS.EVENT:
@@ -210,6 +216,10 @@ export function getXML(name: string, data: { [key: string]: any }, dirtyFields?:
             return getCloneXml(data, dirtyFields, defaultValues);
         case MEDIATORS.DATASERVICECALL:
             return getDataSerivceCallXml(data);
+        case MEDIATORS.DBLOOKUP:
+            return getDblookupXml(data);
+        case MEDIATORS.DBREPORT:
+            return getDbReportXml(data);
         case MEDIATORS.TRANSACTION:
             return getTransactionXml(data);
         case MEDIATORS.EVENT:
@@ -417,6 +427,10 @@ export function getDataFromXML(name: string, node: STNode) {
             return getRuleFormDataFromSTNode(formData, node as Rule);
         case MEDIATORS.NTLM:
             return getNtlmFormDataFromSTNode(formData, node as Ntlm);
+        case MEDIATORS.DBLOOKUP:
+            return getDBLookupFormDataFromSTNode(formData, node as DbMediator);
+        case MEDIATORS.DBREPORT:
+            return getDBReportFormDataFromSTNode(formData, node as DbMediator);
 
         // Endpoint Forms
         case ENDPOINTS.HTTP:

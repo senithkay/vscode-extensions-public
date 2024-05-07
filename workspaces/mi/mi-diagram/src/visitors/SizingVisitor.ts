@@ -69,6 +69,7 @@ import {
     ViewState,
     Target,
     ProxyTarget,
+    DbMediator,
 } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { ADD_NEW_SEQUENCE_TAG, NODE_DIMENSIONS, NODE_GAP, NodeTypes } from "../resources/constants";
 import { Diagnostic } from "vscode-languageserver-types";
@@ -456,6 +457,20 @@ export class SizingVisitor implements Visitor {
     endVisitSmooks = (node: Smooks): void => this.calculateBasicMediator(node);
     endVisitXquery = (node: Xquery): void => this.calculateBasicMediator(node);
     endVisitXslt = (node: Xslt): void => this.calculateBasicMediator(node);
+    beginVisitDblookup(node: DbMediator): void {
+        this.skipChildrenVisit = true;
+        this.calculateBasicMediator(node);
+    }
+    endVisitDblookup = (node: DbMediator): void => {
+        this.skipChildrenVisit = false;
+    }
+    beginVisitDbreport(node: DbMediator): void {
+        this.skipChildrenVisit = true;
+        this.calculateBasicMediator(node);
+    }
+    endVisitDbreport = (node: DbMediator): void => {
+        this.calculateBasicMediator(node);
+    }
 
     // Connectors
     beginVisitConnector = (node: any): void => { this.skipChildrenVisit = true; }

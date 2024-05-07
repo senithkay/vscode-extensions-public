@@ -67,6 +67,7 @@ import {
     Connector,
     Target,
     ProxyTarget,
+    DbMediator,
 } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { ADD_NEW_SEQUENCE_TAG, NODE_DIMENSIONS, NODE_GAP, NodeTypes } from "../resources/constants";
 
@@ -369,6 +370,18 @@ export class PositionVisitor implements Visitor {
     beginVisitSmooks = (node: Smooks): void => this.setBasicMediatorPosition(node);
     beginVisitXquery = (node: Xquery): void => this.setBasicMediatorPosition(node);
     beginVisitXslt = (node: Xslt): void => this.setBasicMediatorPosition(node);
+
+    beginVisitDblookup = (node: DbMediator): void => {
+        this.setSkipChildrenVisit(true);
+        this.setBasicMediatorPosition(node);
+    }
+    endVisitDblookup = (node: DbMediator): void => this.setSkipChildrenVisit(false);
+
+    beginVisitDbreport = (node: DbMediator): void => {
+        this.setSkipChildrenVisit(true);
+        this.setBasicMediatorPosition(node);
+    }
+    endVisitDbreport = (node: DbMediator): void => this.setSkipChildrenVisit(false);
 
     // Connectors
     beginVisitConnector = (node: Connector): void => {
