@@ -114,6 +114,16 @@ const Badge = styled.div`
     text-align: left;
 `;
 
+const PreviewContainer = styled.div`
+  background-color: #007acc;
+  color: white;
+  font-size: 0.8em; 
+  padding: 2px 5px; 
+  border-radius: 3px; 
+  display: inline-block; 
+  margin-left: 2px; 
+`;
+
 // A string array to store all code blocks
 const codeBlocks: string[] = [];
 var projectUuid = "";
@@ -722,9 +732,15 @@ export function AIProjectGenerationChat() {
                 {otherMessages.map((message, index) => (
                     <ChatMessage>
                         {message.type !== "question" && message.type !== "label" && <RoleContainer>
-
-                            {message.role === "User" ? <Codicon name="account" /> : <Codicon name="hubot" />}
-                            <h3 style={{ margin: 0 }}>{message.role}</h3>
+                            {message.role === "User" ? <Codicon name="account" /> : <><Codicon name="hubot" /></>}
+                            {message.role === "User" ? 
+                                <h3 style={{ margin: 0 }}>{message.role}</h3> 
+                                : 
+                                <>
+                                    <h3 style={{ margin: 0 }}>{message.role}</h3>
+                                    <PreviewContainer>Preview</PreviewContainer>
+                                </>
+                            }
                         </RoleContainer>
                         }
                         {splitContent(message.content).map((segment, i) =>
