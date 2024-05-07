@@ -2544,10 +2544,11 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     console.log("File type - ", fileType)
                 }
 
-                const connectorMatch = content[i].match(/<(\w+\.\w+)>/);
+                const connectorMatch = content[i].match(/<(\w+\.\w+)\b/);
                 if (connectorMatch) {
                     const tagParts = connectorMatch[1].split('.');
                     const connectorName = tagParts[0];
+                    console.log('Connector name:', connectorName);
                     const download_url = await fetchConnectors(connectorName);
                     this.downloadConnector({ url: download_url });
                 }
