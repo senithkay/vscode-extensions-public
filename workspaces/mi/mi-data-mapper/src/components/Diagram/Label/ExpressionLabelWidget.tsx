@@ -9,15 +9,20 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { MouseEvent, ReactNode, useEffect, useState } from 'react';
 
-import { css } from '@emotion/css';
+import { DMType, TypeKind } from '@wso2-enterprise/mi-core';
 import { Button, Codicon, ProgressRing } from '@wso2-enterprise/ui-toolkit';
+import { css } from '@emotion/css';
 import classNames from "classnames";
+import { Node } from "ts-morph";
 
 import { DiagnosticWidget } from '../Diagnostic/DiagnosticWidget';
 import { InputOutputPortModel } from '../Port';
 import { getEditorLineAndColumn } from '../utils/common-utils';
-
 import { ExpressionLabelModel } from './ExpressionLabelModel';
+import { generateArrayToArrayMappingWithFn, isSourcePortArray, isTargetPortArray } from '../utils/link-utils';
+import { DataMapperLinkModel } from '../Link';
+import { useDMCollapsedFieldsStore } from '../../../store/store';
+import { CodeActionWidget } from '../CodeAction/CodeAction';
 
 export interface EditableLabelWidgetProps {
     model: ExpressionLabelModel;
@@ -95,10 +100,18 @@ export enum LinkState {
     LinkNotSelected
 }
 
+export enum ArrayMappingType {
+    ArrayToArray,
+    ArrayToSingleton
+}
+
 // now we can render all what we want in the label
 export function EditableLabelWidget(props: EditableLabelWidgetProps) {
     const [linkStatus, setLinkStatus] = useState<LinkState>(LinkState.LinkNotSelected);
+    const [arrayMappingType, setArrayMappingType] = React.useState<ArrayMappingType>(undefined);
     const [deleteInProgress, setDeleteInProgress] = useState(false);
+
+    const collapsedFieldsStore = useDMCollapsedFieldsStore();
 
     const classes = useStyles();
     const { field, link, value, valueNode, context, deleteLink } = props.model;
@@ -111,6 +124,10 @@ export function EditableLabelWidget(props: EditableLabelWidgetProps) {
                     setLinkStatus(event.isSelected ? LinkState.LinkSelected : LinkState.LinkNotSelected);
                 },
             });
+            const isSourceArray = isSourcePortArray(source);
+            const isTargetArray = isTargetPortArray(target);
+            const mappingType = getArrayMappingType(isSourceArray, isTargetArray);
+            setArrayMappingType(mappingType);
         } else {
             setLinkStatus(LinkState.TemporaryLink);
         }
@@ -164,6 +181,64 @@ export function EditableLabelWidget(props: EditableLabelWidgetProps) {
         ),
     ];
 
+    const onClickMapViaArrayFn = () => {
+        if (target instanceof InputOutputPortModel) {
+            const targetPortField = target.field;
+
+            if (targetPortField.kind === TypeKind.Array && targetPortField?.memberType) {
+                applyArrayFunction(link, targetPortField.memberType);
+            }
+        }
+    };
+
+    const applyArrayFunction = (linkModel: DataMapperLinkModel, targetType: DMType) => {
+        if (linkModel.value
+            && (Node.isPropertyAccessExpression(linkModel.value) || Node.isIdentifier(linkModel.value))) {
+
+                let isOptionalSource = false;
+                const sourcePort = linkModel.getSourcePort();
+                const targetPort = linkModel.getTargetPort();
+
+                let targetExpr: Node = linkModel.value;
+                if (sourcePort instanceof InputOutputPortModel && sourcePort.field.optional) {
+                    isOptionalSource = true;
+                }
+                if (targetPort instanceof InputOutputPortModel) {
+                    const expr = targetPort.typeWithValue?.value;
+                    if (Node.isPropertyAssignment(expr)) {
+                        targetExpr = expr.getInitializer();
+                    } else {
+                        targetExpr = expr;
+                    }
+                }
+
+                const mapFnSrc = generateArrayToArrayMappingWithFn(linkModel.value.getText(), targetType);
+
+                targetExpr.replaceWithText(mapFnSrc);
+                void context.applyModifications();
+        }
+    };
+
+    const codeActions = [];
+    if (arrayMappingType === ArrayMappingType.ArrayToArray) {
+        codeActions.push({
+            title: "Map with array function",
+            onClick: onClickMapViaArrayFn
+        });
+    } else if (arrayMappingType === ArrayMappingType.ArrayToSingleton) {
+        // TODO: Add impl
+    }
+
+    if (codeActions.length > 0) {
+        elements.push(<div className={classes.separator}/>);
+        elements.push(
+            <CodeActionWidget
+                codeActions={codeActions}
+                btnSx={{ margin: "0 2px" }}
+            />
+        );
+    }
+
     if (diagnostic) {
         elements.push(<div className={classes.separator}/>);
         elements.push(
@@ -179,11 +254,10 @@ export function EditableLabelWidget(props: EditableLabelWidgetProps) {
 
     let isSourceCollapsed = false;
     let isTargetCollapsed = false;
-    const collapsedFields = [""];
-    // const collapsedFields = props.model?.context?.collapsedFields;
+    const collapsedFields = collapsedFieldsStore.collapsedFields;
 
-    const source = link?.getSourcePort()
-    const target = link?.getTargetPort()
+    const source = link?.getSourcePort();
+    const target = link?.getTargetPort();
 
     if (source instanceof InputOutputPortModel) {
         if (source?.parentId) {
@@ -234,4 +308,15 @@ export function EditableLabelWidget(props: EditableLabelWidgetProps) {
                 {elements}
             </div>
         );
+}
+
+export function getArrayMappingType(isSourceArray: boolean, isTargetArray: boolean): ArrayMappingType {
+	let mappingType: ArrayMappingType;
+	if (isSourceArray && isTargetArray) {
+		mappingType = ArrayMappingType.ArrayToArray;
+	} else if (isSourceArray && !isTargetArray) {
+		mappingType = ArrayMappingType.ArrayToSingleton;
+	}
+
+	return mappingType;
 }

@@ -9,25 +9,35 @@
 // tslint:disable: jsx-no-multiline-js
 import React from "react";
 
-import styled from "@emotion/styled";
-import ConfigureButton from "./ConfigureButton";
-import HeaderSearchBox from "./HeaderSearchBox";
-import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import { Codicon } from "@wso2-enterprise/ui-toolkit";
+import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
+import styled from "@emotion/styled";
+
+import HeaderSearchBox from "./HeaderSearchBox";
+import HeaderBreadcrumb from "./HeaderBreadcrumb";
+import { View } from "../DataMapper";
 
 export interface DataMapperHeaderProps {
+    views: View[];
+    switchView: (index: number) => void;
     hasEditDisabled: boolean;
     onConfigOpen: () => void;
     onClose?: () => void;
 }
 
 export function DataMapperHeader(props: DataMapperHeaderProps) {
-    const { hasEditDisabled, onConfigOpen, onClose } = props;
+    const { views, switchView, hasEditDisabled, onClose } = props;
 
     return (
         <HeaderContainer>
             <BreadCrumb>
                 <Title> DATA MAPPER </Title>
+                {!hasEditDisabled && (
+                    <HeaderBreadcrumb
+                        views={views}
+                        switchView={switchView}
+                    />
+                )}
             </BreadCrumb>
             {!hasEditDisabled && !onClose && (
                 <>

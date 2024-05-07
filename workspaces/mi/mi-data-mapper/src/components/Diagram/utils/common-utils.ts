@@ -10,7 +10,6 @@ import { NodeModel } from "@projectstorm/react-diagrams";
 import { DMType, TypeKind, Range } from "@wso2-enterprise/mi-core";
 import {
     ts,
-    ArrowFunction,
     Identifier,
     Node,
     ObjectLiteralExpression,
@@ -18,7 +17,8 @@ import {
     PropertyAccessExpression,
     PropertyAssignment,
     Expression,
-    CallExpression
+    CallExpression,
+    ReturnStatement
 } from "ts-morph";
 
 import { PropertyAccessNodeFindingVisitor } from "../../Visitors/PropertyAccessNodeFindingVisitor";
@@ -28,7 +28,13 @@ import { ArrayOutputNode, InputNode, ObjectOutputNode } from "../Node";
 import { InputOutputPortModel } from "../Port";
 import { ArrayElement, DMTypeWithValue } from "../Mappings/DMTypeWithValue";
 import { useDMSearchStore } from "../../../store/store";
-import { ARRAY_OUTPUT_TARGET_PORT_PREFIX, OBJECT_OUTPUT_TARGET_PORT_PREFIX, PRIMITIVE_TYPE_TARGET_PORT_PREFIX } from "./constants";
+import {
+    ARRAY_OUTPUT_TARGET_PORT_PREFIX,
+    FOCUSED_INPUT_SOURCE_PORT_PREFIX,
+    OBJECT_OUTPUT_TARGET_PORT_PREFIX,
+    PRIMITIVE_TYPE_TARGET_PORT_PREFIX
+} from "./constants";
+import { FocusedInputNode } from "../Node/FocusedInput";
 
 export function getPropertyAccessNodes(node: Node): (Identifier | PropertyAccessExpression)[] {
     const propertyAccessNodeVisitor: PropertyAccessNodeFindingVisitor = new PropertyAccessNodeFindingVisitor();
@@ -38,23 +44,32 @@ export function getPropertyAccessNodes(node: Node): (Identifier | PropertyAccess
 
 export function findInputNode(expr: Node, dmNode: DataMapperNodeModel) {
     const dmNodes = dmNode.getModel().getNodes();
-    let paramType: InputNode;
     let paramNode: ParameterDeclaration;
 
     if (Node.isIdentifier(expr)) {
-        paramType = (dmNodes.find((node) => {
+        const paramType = dmNodes.find(node => {
             if (node instanceof InputNode) {
                 return node?.value && expr.getText() === node.value.getName();
-            }
-        }) as InputNode);
-        paramNode = paramType?.value;
+            } else if (node instanceof FocusedInputNode) {
+                const innerParam = node.innerParam;
+                return expr.getText() === innerParam.getText();
+			}
+        });
+        paramNode = paramType instanceof InputNode ? paramType?.value : (paramType as FocusedInputNode)?.innerParam;
     } else if (Node.isPropertyAccessExpression(expr)) {
+        const { functionST, views } = dmNode.context;
         const valueExpr = getInnerExpr(expr);
 
         if (valueExpr && Node.isIdentifier(valueExpr)) {
-            paramNode = dmNode.context.functionST.getParameters().find((param) =>
-                param.getName() === valueExpr.getText()
-            );
+            const isWithinFocusedView = views.length > 0;        
+            paramNode = functionST.getParameters().find(param => param.getName() === valueExpr.getText());
+
+            if (!paramNode) {
+                if (isWithinFocusedView) {
+                    const focusedInputNode = dmNodes.find(node => node instanceof FocusedInputNode) as FocusedInputNode;
+                    paramNode = focusedInputNode && focusedInputNode.innerParam;
+                }
+            }
         }
     }
     if (paramNode) {
@@ -62,9 +77,15 @@ export function findInputNode(expr: Node, dmNode: DataMapperNodeModel) {
     }
 }
 
-export function getInputPort(node: InputNode, expr: Node): InputOutputPortModel {
+export function getInputPort(node: InputNode | FocusedInputNode, expr: Node): InputOutputPortModel {
     let typeDesc = node.dmType;
-    let portIdBuffer = node?.value && node.value.getName();
+    let portIdBuffer;
+    
+    if (node instanceof InputNode) {
+        portIdBuffer = node.value.getName();
+    } else if (node instanceof FocusedInputNode) {
+        portIdBuffer = FOCUSED_INPUT_SOURCE_PORT_PREFIX + "." + node.innerParam.getName();    
+    }
 
     if (typeDesc && typeDesc.kind === TypeKind.Interface) {
 
@@ -194,15 +215,22 @@ export function getOutputPort(
     return [port, mappedPort];
 }
 
-export function findNodeByValueNode(value: Node, dmNode: DataMapperNodeModel): InputNode {
-    let foundNode: InputNode;
+export function findNodeByValueNode(
+    value: ParameterDeclaration,
+    dmNode: DataMapperNodeModel
+): InputNode | FocusedInputNode {
+    let foundNode: InputNode | FocusedInputNode;
+
     if (value) {
         dmNode.getModel().getNodes().find((node) => {
-            if (value.getKind() === ts.SyntaxKind.Parameter
-                && node instanceof InputNode
+            if (node instanceof InputNode
                 && node?.value
-                && node.value.getKind() ===  ts.SyntaxKind.Parameter
+                && Node.isParameterDeclaration(node.value)
                 && isPositionsEquals(getPosition(value), getPosition(node.value))
+            ) {
+                foundNode = node;
+            } else if (node instanceof FocusedInputNode
+                && isPositionsEquals(getPosition(value), getPosition(node.innerParam))
             ) {
                 foundNode = node;
             }
@@ -268,8 +296,9 @@ export function isConnectedViaLink(field: Node) {
 	const isObjectLiteralExpr = Node.isObjectLiteralExpression(field);
 	const isArrayLiteralExpr = Node.isArrayLiteralExpression(field);
 	const isIdentifier = Node.isIdentifier(field);
+    const isArrayFunction = Node.isCallExpression(field) && isMapFunction(field);
 
-	return (!!inputNodes.length || isIdentifier) && !isObjectLiteralExpr && !isArrayLiteralExpr;
+	return (!!inputNodes.length || isIdentifier || isArrayFunction) && !isObjectLiteralExpr && !isArrayLiteralExpr;
 }
 
 export function getDefaultValue(typeKind: TypeKind): string {
@@ -397,7 +426,7 @@ export function hasCallExpressions(node: Node): boolean {
 }
 
 export function isNodeCallExpression(node: Node): boolean {
-    if (Node.isCallExpression(node)) {
+    if (Node.isCallExpression(node) && !isMapFunction(node)) {
         return true
     }
     const parentNode = node.getParent();
@@ -438,6 +467,18 @@ export function getTypeOfValue(typeWithValue: DMTypeWithValue, targetPosition: N
 		}
 	}
 	return undefined;
+}
+
+export function getReturnStatement(mapFn: CallExpression): ReturnStatement {
+    const firstArg = mapFn.getArguments()[0];
+    if (Node.isArrowFunction(firstArg)) {
+        const body = firstArg.getBody();
+        if (Node.isBlock(body)) {
+            // Constraint: Only one return statement is allowed in the map function
+            return body.getStatements().find(Node.isReturnStatement);
+        }
+    }
+    return undefined;
 }
 
 function getInnerExpr(node: PropertyAccessExpression): Node {

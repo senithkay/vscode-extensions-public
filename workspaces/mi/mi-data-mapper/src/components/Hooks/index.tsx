@@ -21,6 +21,7 @@ import { ArrayOutputNode, InputNode, ObjectOutputNode } from '../Diagram/Node';
 import { GAP_BETWEEN_INPUT_NODES, IO_NODE_DEFAULT_WIDTH, OFFSETS, VISUALIZER_PADDING } from '../Diagram/utils/constants';
 import { LinkConnectorNode } from '../Diagram/Node/LinkConnector';
 import { InputDataImportNodeModel, OutputDataImportNodeModel } from '../Diagram/Node/DataImport/DataImportNode';
+import { ArrayFnConnectorNode } from '../Diagram/Node/ArrayFnConnector';
 
 export const useRepositionedNodes = (nodes: DataMapperNodeModel[], zoomLevel: number, diagramModel: DiagramModel) => {
     const nodesClone = [...nodes];
@@ -70,7 +71,7 @@ export const useDiagramModel = (
     const offSetY = diagramModel.getOffsetY();
     const noOfNodes = nodes.length;
     const context = nodes.find(node => node.context)?.context;
-	const fnSource = context ? context.functionST.getText() : undefined;
+	const focusedSrc = context ? context.focusedST.getText() : undefined;
     const collapsedFields = useDMCollapsedFieldsStore(state => state.collapsedFields); // Subscribe to collapsedFields
     const { inputSearch, outputSearch } = useDMSearchStore();
 
@@ -95,7 +96,7 @@ export const useDiagramModel = (
                 }
                 node.setModel(newModel);
                 await node.initPorts();
-                if (node instanceof LinkConnectorNode) {
+                if (node instanceof LinkConnectorNode || node instanceof ArrayFnConnectorNode) {
                     continue;
                 }
                 node.initLinks();
@@ -114,7 +115,7 @@ export const useDiagramModel = (
         isFetching,
         isError,
         refetch,
-    } = useQuery(['genModel', {noOfNodes, fnSource, inputSearch, outputSearch, collapsedFields, newZoomLevel: zoomLevel}], () => genModel(), {});
+    } = useQuery(['genModel', {noOfNodes, focusedSrc, inputSearch, outputSearch, collapsedFields, newZoomLevel: zoomLevel}], () => genModel(), {});
 
     return { updatedModel, isFetching, isError, refetch };
 };

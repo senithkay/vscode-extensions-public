@@ -17,11 +17,11 @@ import DataMapperDiagram from "../Diagram/Diagram";
 import { DataMapperHeader } from "./Header/DataMapperHeader";
 import { DataMapperNodeModel } from "../Diagram/Node/commons/DataMapperNode";
 import { NodeInitVisitor } from "../Visitors/NodeInitVisitor";
-import { traversNode } from "../Diagram/utils/st-utils";
-import { DMType, Range, updateDMCFileContent } from "@wso2-enterprise/mi-core";
-import { FunctionDeclaration } from "ts-morph";
+import { getFocusedST, traversNode } from "../Diagram/utils/st-utils";
+import { DMType, Range } from "@wso2-enterprise/mi-core";
+import { FunctionDeclaration, PropertyAssignment } from "ts-morph";
 import { ImportDataForm } from "./SidePanel/ImportDataForm";
-import { useDMSidePanelStore } from "../../store/store";
+import { useDMSearchStore, useDMSidePanelStore } from "../../store/store";
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 
 const classes = {
@@ -30,6 +30,13 @@ const classes = {
         height: "100vh",
         overflow: "hidden",
     })
+}
+
+export interface View {
+    targetFieldFQN: string;
+    sourceFieldFQN: string;
+    label: string;
+    index?: number;
 }
 
 export interface MIDataMapperProps {
@@ -54,21 +61,48 @@ export function MIDataMapper(props: MIDataMapperProps) {
         configName,
         filePath
     } = props;
+    const [views, setViews] = useState<View[]>([{
+        targetFieldFQN: "",
+        sourceFieldFQN: "",
+        label: `${inputTrees[0].typeName} -> ${outputTree.typeName}`
+    }]);
     const [nodes, setNodes] = useState<DataMapperNodeModel[]>([]);
+
     const isSidePanelOpen = useDMSidePanelStore(state => state.sidePanelOpen);
     const setSidePanelOpen = useDMSidePanelStore(state => state.setSidePanelOpen);
     const sidePanelIOType = useDMSidePanelStore(state => state.sidePanelIOType);
     const isSchemaOverridden = useDMSidePanelStore(state => state.isSchemaOverridden);
+
     const { rpcClient } = useVisualizerContext();
+    const { resetSearchStore } = useDMSearchStore();
+
+    const addView = (view: View) => {
+        setViews(prev => [...prev, view]);
+        resetSearchStore();
+    }
+
+    const switchView = (navigateIndex: number) => {
+        setViews(prev => {
+            const newViews = prev.slice(0, navigateIndex + 1);
+            return newViews;
+        });
+        resetSearchStore();
+    }
 
     useEffect(() => {
         async function generateNodes() {
+            let focusedST: FunctionDeclaration | PropertyAssignment = fnST;
+    
+            if (views.length > 1) {
+                focusedST = getFocusedST(views[views.length - 1], fnST);
+            }
+
             const context = new DataMapperContext(
-                fnST, inputTrees, outputTree, goToSource, applyModifications
+                fnST, focusedST, inputTrees, outputTree, views, addView, goToSource, applyModifications
             );
 
             const nodeInitVisitor = new NodeInitVisitor(context);
-            traversNode(fnST, nodeInitVisitor);
+            traversNode(focusedST, nodeInitVisitor);
             setNodes(nodeInitVisitor.getNodes());
         }
         generateNodes();
@@ -76,12 +110,14 @@ export function MIDataMapper(props: MIDataMapperProps) {
             dmName: configName,
             sourcePath: filePath
         });
-    }, [fileContent]);
+    }, [fileContent, views]);
 
     return (
         <div className={classes.root}>
             {fnST && (
                 <DataMapperHeader
+                    views={views}
+                    switchView={switchView}
                     hasEditDisabled={false}
                     onConfigOpen={undefined}
                     onClose={undefined}

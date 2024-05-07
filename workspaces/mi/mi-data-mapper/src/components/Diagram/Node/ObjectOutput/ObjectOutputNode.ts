@@ -38,23 +38,22 @@ export class ObjectOutputNode extends DataMapperNodeModel {
     public hasNoMatchingFields: boolean;
     public x: number;
     public y: number;
-    private _originalType: DMType;
 
     constructor(
         public context: IDataMapperContext,
-        public value: ReturnStatement | undefined
+        public value: ReturnStatement | undefined,
+        public originalType: DMType
     ) {
         super(
             NODE_ID,
             context,
             OBJECT_OUTPUT_NODE_TYPE
         ); 
-        this._originalType = this.context.outputTree;
-        this.dmType = this._originalType;
+        this.dmType = this.originalType;
     }
 
     async initPorts() {
-        this.dmType = getSearchFilteredOutput(this._originalType);
+        this.dmType = getSearchFilteredOutput(this.originalType);
 
         if (this.dmType) {
             this.rootName = this.dmType?.fieldName;
@@ -64,7 +63,7 @@ export class ObjectOutputNode extends DataMapperNodeModel {
             this.dmType = type;
             this.typeName = getTypeName(valueEnrichedType.type);
 
-            this.hasNoMatchingFields = hasNoOutputMatchFound(this._originalType, valueEnrichedType);
+            this.hasNoMatchingFields = hasNoOutputMatchFound(this.originalType, valueEnrichedType);
     
             const parentPort = this.addPortsForHeader(
                 this.dmType, this.rootName, "IN", OBJECT_OUTPUT_TARGET_PORT_PREFIX, collapsedFields, valueEnrichedType
