@@ -292,10 +292,14 @@ export class MiDebugAdapter extends LoggingDebugSession {
         const taskExecution = vscode.tasks.taskExecutions.find(execution => execution.task.name === 'run');
         if (taskExecution) {
             this.debuggerHandler?.closeDebugger();
-            const stopTask = getStopTask(this.currentServerPath);
-            stopTask.presentationOptions.close = true;
-            stopTask.presentationOptions.showReuseMessage = false;
-            vscode.tasks.executeTask(stopTask);
+            if (process.platform === 'win32') {
+                taskExecution.terminate();
+            } else {
+                const stopTask = getStopTask(this.currentServerPath);
+                stopTask.presentationOptions.close = true;
+                stopTask.presentationOptions.showReuseMessage = false;
+                vscode.tasks.executeTask(stopTask);
+            }
             response.success = true;
             this.sendResponse(response);
         } else {
