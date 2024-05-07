@@ -24,7 +24,7 @@ import {
 	getFieldNameFromOutputPort,
 	getLinebreak,
 	getPropertyAssignment,
-	getReturnStatement,
+	getCallExprReturnStmt,
 	isEmptyValue,
 	isMapFunction
 } from "./common-utils";
@@ -66,7 +66,7 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 				.find(statement => Node.isReturnStatement(statement)) as ReturnStatement;
 			targetExpr = returnStatement.getExpression();
 		} else if (Node.isCallExpression(targetExpr) && isMapFunction(targetExpr)) {
-			const returnStmt = getReturnStatement(targetExpr);
+			const returnStmt = getCallExprReturnStmt(targetExpr);
 			targetExpr = returnStmt.getExpression();
 		}
 

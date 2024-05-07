@@ -18,7 +18,9 @@ import {
     PropertyAssignment,
     Expression,
     CallExpression,
-    ReturnStatement
+    ReturnStatement,
+    FunctionDeclaration,
+    SyntaxKind
 } from "ts-morph";
 
 import { PropertyAccessNodeFindingVisitor } from "../../Visitors/PropertyAccessNodeFindingVisitor";
@@ -469,7 +471,7 @@ export function getTypeOfValue(typeWithValue: DMTypeWithValue, targetPosition: N
 	return undefined;
 }
 
-export function getReturnStatement(mapFn: CallExpression): ReturnStatement {
+export function getCallExprReturnStmt(mapFn: CallExpression): ReturnStatement {
     const firstArg = mapFn.getArguments()[0];
     if (Node.isArrowFunction(firstArg)) {
         const body = firstArg.getBody();
@@ -479,6 +481,16 @@ export function getReturnStatement(mapFn: CallExpression): ReturnStatement {
         }
     }
     return undefined;
+}
+
+export function getTnfFnReturnStatement(tnfFn: FunctionDeclaration): ReturnStatement {
+    return tnfFn.getStatementByKind(SyntaxKind.ReturnStatement)
+}
+
+export function representsTnfFnReturnStmt(mapFnParentNode: Node, returnStmt: ReturnStatement): boolean {
+    return mapFnParentNode
+        && returnStmt
+        && isPositionsEquals(getPosition(mapFnParentNode), getPosition(returnStmt));
 }
 
 function getInnerExpr(node: PropertyAccessExpression): Node {

@@ -27,7 +27,7 @@ import { InputDataImportNodeModel, OutputDataImportNodeModel } from "../Diagram/
 import {
     canConnectWithLinkConnector,
     getPropertyAccessNodes,
-    getReturnStatement,
+    getCallExprReturnStmt,
     getTypeName,
     isConditionalExpression,
     isMapFunction
@@ -65,7 +65,7 @@ export class NodeInitVisitor implements Visitor {
 
             // create output node
             const exprType = getDMType(targetFieldFQN, this.context.outputTree);
-            const returnStatement = getReturnStatement(callExpr);
+            const returnStatement = getCallExprReturnStmt(callExpr);
 
             const innerExpr = returnStatement.getExpression();
 

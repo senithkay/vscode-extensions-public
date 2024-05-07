@@ -14,6 +14,7 @@ import { useIntermediateNodeStyles } from '../../../../components/styles';
 import { Button, Codicon, ProgressRing, Tooltip } from '@wso2-enterprise/ui-toolkit';
 import { DataMapperPortWidget } from '../../Port';
 import classnames from 'classnames';
+import { getTypeName } from '../../utils/common-utils';
 
 export interface ArrayFnConnectorNodeWidgetWidgetProps {
     node: ArrayFnConnectorNode;
@@ -30,7 +31,7 @@ export function ArrayFnConnectorNodeWidget(props: ArrayFnConnectorNodeWidgetWidg
     const classes = useIntermediateNodeStyles();
 
     const onClickOnExpand = () => {
-        const label = targetPort.fieldFQN;
+        let label = targetPort.fieldFQN;
         let targetFieldFQN = targetPort.fieldFQN;
         let sourceFieldFQN = sourcePort.fieldFQN.split('.').slice(1).join('.');
 
@@ -42,6 +43,9 @@ export function ArrayFnConnectorNodeWidget(props: ArrayFnConnectorNodeWidgetWidg
             if (prevView.sourceFieldFQN !== '') {
                 sourceFieldFQN = `${prevView.sourceFieldFQN}.${sourceFieldFQN}`;
             }
+        } else if (views.length === 1 && !targetFieldFQN) {
+            // Map function at the root level return statement
+            label = getTypeName(targetPort.field?.memberType);
         }
         addView({ targetFieldFQN, sourceFieldFQN, label });
     }
