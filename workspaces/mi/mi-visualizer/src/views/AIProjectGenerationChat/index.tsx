@@ -125,6 +125,10 @@ const PreviewContainer = styled.div`
     margin-left: 2px; 
 `;
 
+const ResetsInBadge = styled.div`
+    font-size: 10px; 
+`;
+
 // A string array to store all code blocks
 const codeBlocks: string[] = [];
 var projectUuid = "";
@@ -713,9 +717,11 @@ export function AIProjectGenerationChat() {
                         remainingTokenPercentage === 'Unlimited' ? remainingTokenPercentage :
                         (remaingTokenLessThanOne ? '<1%' : `${remainingTokenPercentage}%`)
                     }
-                    <br/>    
-                    {remainingTokenPercentage !== "Unlimited" && 
-                    `Time to Reset: ${timeToReset < 1 ? "< 1 day" : Math.round(timeToReset)} days`}
+                    <br/>  
+                    <ResetsInBadge>
+                        {remainingTokenPercentage !== "Unlimited" && 
+                        `Resets in: ${timeToReset < 1 ? "< 1 day" : `${Math.round(timeToReset)} days`}`}
+                    </ResetsInBadge>
             </Badge>
             <HeaderButtons>
                     <Button
