@@ -116,7 +116,7 @@ const Badge = styled.div`
 
 const PreviewContainer = styled.div`
     background-color: var(--vscode-button-background);
-    color: white;
+    color: var(--vscode-button-foreground);
     font-size: 0.8em; 
     padding: 2px 5px; 
     border-radius: 3px; 
