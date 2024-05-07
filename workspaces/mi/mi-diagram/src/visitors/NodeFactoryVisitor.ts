@@ -605,7 +605,11 @@ export class NodeFactoryVisitor implements Visitor {
 
     // Connectors
     beginVisitConnector(node: Connector): void {
+        this.skipChildrenVisit = true;
         this.createNodeAndLinks({ node, name: node.connectorName, type: NodeTypes.CONNECTOR_NODE });
+    }
+    endVisitConnector(node: Connector): void {
+        this.skipChildrenVisit = false;
     }
 
     beginVisitDataServiceCall = (node: DataServiceCall): void => this.createNodeAndLinks({ node, name: MEDIATORS.DATASERVICECALL });
