@@ -699,10 +699,11 @@ export function AIProjectGenerationChat() {
                     }
             </Badge>
             <HeaderButtons>
-                <Button
+                    <Button
                         appearance="icon"
                         onClick={() => handleClearChat()}
                         tooltip="Clear Chat"
+                        disabled={isLoading}
                     >
                         <Codicon name="clear-all" />&nbsp;&nbsp;Clear
                     </Button>
