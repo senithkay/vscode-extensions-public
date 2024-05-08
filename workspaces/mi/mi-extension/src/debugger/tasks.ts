@@ -9,6 +9,7 @@
 
 import * as path from 'path';
 import * as vscode from 'vscode';
+import { createTempDebugBatchFile } from './debugHelper';
 
 export function getBuildTask(): vscode.Task {
     const commandToExecute = "mvn clean install";
@@ -46,7 +47,7 @@ export function getCopyTask(serverPath: string, targetDirectory: vscode.Uri): vs
     return copyTask;
 }
 
-export function getRunTask(serverPath: string, isDebug: boolean): vscode.Task {
+export async function getRunTask(serverPath: string, isDebug: boolean): Promise<vscode.Task | undefined> {
     let command;
     let binFile;
 
@@ -59,7 +60,19 @@ export function getRunTask(serverPath: string, isDebug: boolean): vscode.Task {
     const binPath = path.join(serverPath, 'bin', binFile);
 
     if (isDebug) {
-        command = `${binPath} -Desb.debug=true`;
+        // HACK to get the server to run as the debugger since MI 4.2.0 version's .bat file is not supported to run java variables
+        if(process.platform === 'win32'){
+                const binDirectoryPath = path.join(serverPath, 'bin');
+                try {
+                    const copiedBatchFile = await createTempDebugBatchFile(binPath, binDirectoryPath);
+                    command = copiedBatchFile;
+                } catch (error) {
+                    vscode.window.showErrorMessage(`Error while creating temporary debug batch file: ${error}`);
+                    return undefined;
+                }
+        } else {
+            command = `${binPath} -Desb.debug=true`;
+        }
     } else {
         command = binPath;
     }
