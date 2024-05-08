@@ -336,7 +336,7 @@ const Form = ({
                             control={control}
                             label="Inbound Policy Key"
                             name="inboundPolicyKey"
-                            filterType="xslt"
+                            filterType="ws_policy"
                             path={path}
                             errorMsg={errors.inboundPolicyKey?.message.toString()}
                             {...register("inboundPolicyKey")}
@@ -345,7 +345,7 @@ const Form = ({
                             control={control}
                             label="Outbound Policy Key"
                             name="outboundPolicyKey"
-                            filterType="xslt"
+                            filterType="ws_policy"
                             path={path}
                             errorMsg={errors.outboundPolicyKey?.message.toString()}
                             {...register("outboundPolicyKey")}
@@ -355,7 +355,7 @@ const Form = ({
                             control={control}
                             label="Policy Key"
                             name="policyKey"
-                            filterType="xslt"
+                            filterType="ws_policy"
                             path={path}
                             errorMsg={errors.policyKey?.message.toString()}
                             {...register("policyKey")}
