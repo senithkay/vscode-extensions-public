@@ -35,7 +35,7 @@ const SidePanelContainer = styled.div<SidePanelProps>`
     box-shadow: 0 5px 10px 0 var(--vscode-badge-background);
     z-index: 2000;
     opacity: ${(props: SidePanelProps) => props.isOpen ? 1 : 0};
-    transform: translateX(${(props: SidePanelProps) => (props.isOpen ? '0' : '100%')});
+    transform: translateX(${(props: SidePanelProps) => props.alignmanet === 'left' ? (props.isOpen ? '0%' : '-100%') : (props.isOpen ? '0%' : '100%')});
     transition: transform 0.4s ease, opacity 0.4s ease;
     ${(props: SidePanelProps) => props.sx};
 `;
@@ -52,8 +52,10 @@ export const SidePanel: React.FC<SidePanelProps> = (props: SidePanelProps) => {
     };
 
     const handleOverlayClose = (event: React.MouseEvent<HTMLElement, MouseEvent>) => {
-        setOpen(false);
-        props.onClose && props.onClose(event);
+        if (props.onClose) {
+            setOpen(false);
+            props.onClose(event);
+        }
     };
 
     useEffect(() => {

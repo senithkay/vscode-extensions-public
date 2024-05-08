@@ -307,7 +307,7 @@ export function Diagram(props: DiagramProps) {
                         alignmanet="right"
                         width={SIDE_PANEL_WIDTH}
                         overlay
-                        onClose={() => setSidePanelState({ ...sidePanelState, isOpen: false })}
+                        onClose={() => setSidePanelState({ ...sidePanelState, isOpen: false, isEditing: false, formValues: {} })}
                     >
                         <SidePanelList nodePosition={sidePanelState.nodeRange} documentUri={props.documentUri} />
                     </SidePanel>}
