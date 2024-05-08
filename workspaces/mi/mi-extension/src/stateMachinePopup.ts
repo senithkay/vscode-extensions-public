@@ -20,7 +20,7 @@ interface PopupMachineContext extends PopupVisualizerLocation {
 }
 
 const stateMachinePopup = createMachine<PopupMachineContext>({
-    /** @xstate-layout N4IgpgJg5mDOIC5QFsCWA6VA7VAXVAhgDaoBeYAxBAPZZiZYBu1A1vQMYAWY7LACgCdqAKx64A2gAYAuolAAHarDypackAA9EAJgCMANnSSA7AA5dAZgCsuyZIAspyVasAaEAE9E9+7vTHtfQDtK3tJSysATnsAXxj3NAYVYjJKGjoGZjZ0Lh5+IVF2CV1ZJBBFZXw1Mq0EbUlDE3NrWwcnF3cvBFMLdG1jC3sLfVNRyKt9PTiEjGxkknIqWnpsLI5uXkERMXFtUoUlFWrQWr1GswjWx2c3Tx1J9Cs7E0jjXXtQ-WmQRLn8FMWYAEQgE6HkRAIuAAZtQBMgcht8tsilJ9uVDlUsOpalZtJ1EO8rL1IqYSZEgqZAhYLJFvok6AB3LaFXAAETAuDEkCWGVWrHo9LATIKYnZnKKkAQfPYkNUWFRqPUFSOWJqiDe9keuisA2MDX0Nm1+IQ9n0mo+1IGuj0DUi0TpGGoRAgzNFHK5EB5KyY-PQiSdLpFRTFHqlPplmIVMiVGLl2PVw3QQV0kX6NNxI2Ntkaz1MxlNZMk1Id6CIsAAkjhcF7Mr7EmXK3gw8wI3Ko2jlZj43V9JF0JTzDYeu1Ig0s7Y-PZtHbtBZnNpfLT4j8MA2qxQgSCwRDobD4fWK1Xm9RW7R2zHKnG1T2+wPtbph85R-osxZrUZLG-6iY9dYSwIwAICAPHQRhUCFAAZaggOwKAaz5bJEgAoCQLAyDoIgWDj1PeUZEVMpOyvE4CXCPxU2-PVwl7M0s20Bd0DCM1wgsUxTX0P9lyQwDgNA8CGQAZVwAheFg+CfUQjBkJ4tCBKEkSsCgbDZTPPDowI2Njk0Akp20dBBhY4x9AMAJ7BJWj6MYsJLFY-R2Ksf9uNQviADkCDAqBIW5dJvTWP1JMc3ihVc9zPIgJTI1UjsNNVYiEHeOi9KGPMjKCBczLuBBIgsYx0F0Yw7QCB9TEmCYHJQwKGQAJUcigAHk+AAUWcgB9AA1csGoAdXwg5L002p2NMfshhnIs3iyyJaLsXL8tTRxjACEYvk4-zypk6qUIoZyAEF2oAcW2gAVBqevRPqYq0hBBuGmlUzGlMaSzZxDCnO0GhYwI6LK6S+I24CKAAMXLCCGuahrWXLQ7TsI-rEGu1jbvqbKHsmjLLFNJNqXqOjKWiXRvqcoUGsw-AFIocHIea1lauck61N6lVuzNXpnmyrLgmy+xaPJXLqWYpijNCEtGVdIoKqgmCye82sJPQEWg1wcWMKw6VlNw6Roei7sLiTN5SRpYwbFeW4umsXSLW1Oc9cmU1haFUXFfWmr6qatqOu6+mzsZ68el0qJstGa0F0mCxjRCQwnjsZnJFMGxSu+LBqAgOB1DQC9vdigBaF8Mszqx0DtQui6LnUSz+QgFjAdOu2vKdjSGSci20WPrXeUdYhWuX7YVkMJQgauiMu0y-EjkxJDtfQ7Dok3vBpAuiWb0Z6kXfMSwDB3e85fv1PO7sbF6A1JiMiwF0NvNjXMR5niLAw5qnks1zwAfYYQBbufzsk8z0WdbHszupK6AzGusUdJJhCDHXQxlpw3AvqZXWZJ6ikgnqYAmStJZQGfhdWoZghrPh8JAyIlgyTjjtAXBoVhWI+A+AtYwqCZKCWEiwWCmDuyt10s+awRYb62Rzl0AhfY8FPEMq9IW-8AoyWCqgDyW8WHXgMHlPS1p7ADBjuYEqT0KFJgmEMOi1FHAoLEWtX6jlZEgL1GAp45goGjg6GjLGmMT7N1xLOIkS4ZjoAARVYmKgFKmMujgshZpfApiIaSV8vhHimSXraN8U4SyYVgAQAARkQSAfjagjT6M0QIrwixvlDmjIYOVPzWmsGaPUUxO7y2RLgdJiAnj50PoESwp8KHGCzL2IwzwrIUKJCfDu7jqksjQZhXxO8M6XRcAfCYzT+ln3aRlHJSYdHsUkP0celg7bChqRVP6gCvbAMuiSXSh85zBJGDHBZXRm45ScMgz6WUiQdziEAA */
+    /** @xstate-layout N4IgpgJg5mDOIC5QFsCWBaADge0wV0wGIAlAUQGVSAVAfXKoEErSBtABgF1FQdZUAXVNgB23EAA9EAFgBMAGhABPRADYAzCoB0ARgCcugBzaA7GpkqpxgL5WFaLLgKbUwgagCGAG1QAvMIQgRMGdhADdsAGtg+xx8TBC3L18wBBdwgGN3QRF2DlyxXjcRMUkEXW0ZTTUDGuMpKTZtNgBWNgMFZQQ6yt0VY10ZbWbe7QqpGzsMWKcXRO8-QjAAJyXsJc1MTyyAMzXkTRjHeNnBJL9UsOxM7OFc-KQQQpuSxGHK5uNzDRkatkspDqqCqaYzaBpsT4yKRqXRqNQTECHOKaJZgdwQRSEADyAAVSAA5GgANQAkqQAOr3HjYPjPB6lGqVEzaAy6Op9QYwwEIMwGTQqFTNKQqNpsvRDBFIpy4MDCTTudKCUL+XEE4lkymcAo0oqienSZqVWSwhoC4x9YzGbk-LSg5raMy8gxqD6SqZHTQyuUKpX+ADCABksZR1RSqY8dXTQKV6nzmgZmvG7cY2GYVNypM0tAYLGw2oM-np4bZEe7kV6UWAvQEgiFwlEDmXpZhZZWvRcMlkhLdOOGnt2XghhdpNLo2q1LY1LcLuQ7dJoZHC4bpM-aZIni5MHOWW3LhNhBNtMYFhME0pFok34hX94fFB2rl2cr2tQ9+8V9QgDND+SzBuuZEMDR0yUVRhhBdRWRkNhzEGS0bBLfcIDgMQpUwbVaQHT90BAzp0A0HRtAFYZJz0b9rBLNCElOeYwAw3VBx+NRND+c0ZFBMxp25Oo+UzXQsykB0pH4nM3W3JxUXRTpqUwj9o0QJp7X5FQDGMAw-kE8V2lAhBWkqOoXRXFdoJdFQxOma9d3oqMJEQH5jE0TNoTUOoU2FWRuSUxNnWqWQHUtFQZHMj0Kx9VBlWsrD5J5F1HKFOFXL+Cx5B0tQ81HQCUzUCoYNMddgp3VtUS9SK5NshBBS0H56lhQVUykHNrQFTR7VGBNDX6FQHWaArm1bW9UCPUq9WiwUpBYwL1EXLMjBSzpVwm8Ei1U1Txkoq9NAgVBYHcAAjTxIGGwcPJ05o0pa4T1KGVTWlUhCrCAA */
     id: 'mi-popup',
     initial: 'initialize',
     predictableActionArguments: true,
@@ -36,6 +36,12 @@ const stateMachinePopup = createMachine<PopupMachineContext>({
                     target: 'ready',
                     actions: assign({
                         documentUri: (context, event) => event.data.documentUri,
+                    })
+                },
+                onError: {
+                    target: 'disabled',
+                    actions: assign({
+                        errorCode: (context, event) => event.data,
                     })
                 }
             }
@@ -53,44 +59,49 @@ const stateMachinePopup = createMachine<PopupMachineContext>({
                 },
             }
         },
-        reopen: {
-            invoke: {
-                src: 'initializeData',
-                onDone: {
-                    target: 'open',
-                    actions: assign({
-                        documentUri: (context, event) => event.data.documentUri,
-                    })
-                }
-            }
-        },
         open: {
-            on: {
-                OPEN_VIEW: {
-                    target: "reopen",
-                    actions: assign({
-                        view: (context, event) => event.viewLocation.view,
-                        recentIdentifier: (context, event) => "",
-                        documentUri: (context, event) => event.viewLocation.documentUri,
-                        customProps: (context, event) => event.viewLocation.customProps,
-                    })
+            initial: "active",
+            states: {
+                active: {
+                    on: {
+                        OPEN_VIEW: {
+                            target: "reopen",
+                            actions: assign({
+                                view: (context, event) => event.viewLocation.view,
+                                recentIdentifier: (context, event) => "",
+                                documentUri: (context, event) => event.viewLocation.documentUri,
+                                customProps: (context, event) => event.viewLocation.customProps,
+                            })
+                        },
+                        CLOSE_VIEW: {
+                            target: "notify",
+                            actions: assign({
+                                view: (context, event) => null,
+                                recentIdentifier: (context, event) => event.viewLocation.recentIdentifier
+                            })
+                        },
+                    }
                 },
-                CLOSE_VIEW: {
-                    target: "notify",
-                    actions: assign({
-                        view: (context, event) => null,
-                        recentIdentifier: (context, event) => event.viewLocation.recentIdentifier
-                    })
+                reopen: {
+                    invoke: {
+                        src: 'initializeData',
+                        onDone: {
+                            target: 'active',
+                            actions: assign({
+                                documentUri: (context, event) => event.data.documentUri,
+                            })
+                        }
+                    }
                 },
-            }
-        },
-        notify: {
-            invoke: {
-                src: 'notifyChange',
-                onDone: {
-                    target: 'initialize'
-                }
-            }
+                notify: {
+                    invoke: {
+                        src: 'notifyChange',
+                        onDone: {
+                            target: '#mi-popup.ready'
+                        }
+                    }
+                },
+            },
         },
         disabled: {
             invoke: {

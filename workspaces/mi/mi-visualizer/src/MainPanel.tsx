@@ -296,10 +296,10 @@ const MainPanel = () => {
                 {showNavigator && <NavigationBar />}
                 {viewComponent}
             </>}
-            {formState === "open" && (
+            {typeof formState === 'object' && 'open' in formState && (
                 <PopUpContainer>
                     <FormView title='' onClose={handleOnClose}>
-                        <PopupPanel />
+                        <PopupPanel formState={formState} />
                     </FormView>
                 </PopUpContainer>
             )}

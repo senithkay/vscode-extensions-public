@@ -8,7 +8,7 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { MACHINE_VIEW, PopupVisualizerLocation } from '@wso2-enterprise/mi-core';
+import { MACHINE_VIEW, PopupMachineStateValue, PopupVisualizerLocation } from '@wso2-enterprise/mi-core';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { EndpointWizard } from './views/Forms/EndpointForm';
 import styled from '@emotion/styled';
@@ -27,16 +27,22 @@ const ViewContainer = styled.div`
     height: 100vh;
 `;
 
-const PopupPanel = () => {
+const PopupPanel = (props: { formState: PopupMachineStateValue }) => {
     const { rpcClient } = useVisualizerContext();
     const [viewComponent, setViewComponent] = useState<React.ReactNode>();
+
+    useEffect(() => {
+        if (typeof props.formState === 'object' && 'open' in props.formState) {
+            fetchContext();
+        }
+    }, [props.formState]);
 
     useEffect(() => {
         fetchContext();
     }, []);
 
     const fetchContext = () => {
-        const endpointPath = new URL(path.join('src','main','wso2mi','artifacts', 'endpoints').toString(), window.location.origin).pathname;
+        const endpointPath = new URL(path.join('src', 'main', 'wso2mi', 'artifacts', 'endpoints').toString(), window.location.origin).pathname;
         rpcClient.getPopupVisualizerState().then((machineSate: PopupVisualizerLocation) => {
             switch (machineSate?.view) {
                 case MACHINE_VIEW.EndPointForm:
