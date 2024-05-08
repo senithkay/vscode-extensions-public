@@ -27,6 +27,7 @@ import { StateMachinePopup } from './stateMachinePopup';
 import { STNode } from '../../syntax-tree/lib/src';
 import { log } from './util/logger';
 import { deriveConfigName } from './util/dataMapper';
+import { fileURLToPath } from 'url';
 
 interface MachineContext extends VisualizerLocation {
     langClient: ExtendedLanguageClient | null;
@@ -469,7 +470,7 @@ export const StateMachine = {
 
 export function openView(type: EVENT_TYPE, viewLocation?: VisualizerLocation) {
     if (viewLocation?.documentUri) {
-        viewLocation.documentUri = Uri.file(viewLocation.documentUri).fsPath;
+        viewLocation.documentUri = viewLocation.documentUri.startsWith("file") ? fileURLToPath(viewLocation.documentUri) : Uri.file(viewLocation.documentUri).fsPath;
     }
     // Set the projectUri If undefined.
     if (!viewLocation?.projectUri && vscode.workspace.workspaceFolders) {
