@@ -265,27 +265,26 @@ export class MiDebugAdapter extends LoggingDebugSession {
         const buildTask = getBuildTask();
         const isDebugAllowed = !lauchArgs?.noDebug ?? true;
 
-        executeBuildTask(buildTask, this.currentServerPath).then(async () => {
-            if (isDebugAllowed) {
-                this?.debuggerHandler?.setBreakpointsInServer().then(async () => {
-                    vscode.debug.addBreakpoints(vscode.debug.breakpoints);
-                    response.success = true;
-                    this.sendResponse(response);
-                }).catch(error => {
-                    vscode.window.showErrorMessage(`Error while setting breakpoints on restart: ${error}`);
-                    response.success = false;
-                    this.sendResponse(response);
+        if (isDebugAllowed) {
+            vscode.debug.stopDebugging().then(() => {
+                vscode.debug.startDebugging(undefined, {
+                    name: "MI: Run and Debug",
+                    request: "launch",
+                    type: "mi"
                 });
-            } else {
+
+                this.sendResponse(response);
+            });
+        } else {
+            executeBuildTask(buildTask, this.currentServerPath).then(async () => {
                 response.success = true;
                 this.sendResponse(response);
-            }
-        }).catch(error => {
-            vscode.window.showErrorMessage(`Error while executing build task: ${error}`);
-            response.success = false;
-            this.sendResponse(response);
-        });
-
+            }).catch(error => {
+                vscode.window.showErrorMessage(`Error while executing build task: ${error}`);
+                response.success = false;
+                this.sendResponse(response);
+            });
+        }
     }
 
     protected async disconnectRequest(response: DebugProtocol.DisconnectResponse, args?: DebugProtocol.DisconnectArguments, request?: DebugProtocol.Request): Promise<void> {
