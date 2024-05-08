@@ -183,11 +183,16 @@ export class NodeInitVisitor implements Visitor {
     }
 
     beginVisitCallExpression(node: CallExpression, parent: Node): void {
-        const { focusedST } = this.context;
+        const { functionST, focusedST, views } = this.context;
         const isMapFn = isMapFunction(node);
-        const isParentFocusedST = parent
+        const isFocusedSTWithinPropAssignment = parent
             && Node.isPropertyAssignment(parent)
             && isPositionsEquals(getPosition(parent), getPosition(focusedST));
+        const isFocusedSTWithinRootReturnStmt = parent
+            && Node.isReturnStatement(parent)
+            && isPositionsEquals(getPosition(parent), getPosition(getTnfFnReturnStatement(functionST)))
+            && views.length === 2;
+        const isParentFocusedST = isFocusedSTWithinPropAssignment || isFocusedSTWithinRootReturnStmt;
         
         if (!isParentFocusedST && isMapFn) {
             this.isWithinMapFn += 1;
