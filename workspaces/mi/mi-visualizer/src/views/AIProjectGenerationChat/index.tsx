@@ -34,6 +34,7 @@ import {
     materialOceanic,
 } from 'react-syntax-highlighter/dist/cjs/styles/prism'
 import { pad, set } from "lodash";
+import { time } from "console";
 
 
 interface MarkdownRendererProps {
@@ -114,6 +115,20 @@ const Badge = styled.div`
     text-align: left;
 `;
 
+const PreviewContainer = styled.div`
+    background-color: var(--vscode-button-background);
+    color: var(--vscode-button-foreground);
+    font-size: 0.8em; 
+    padding: 2px 5px; 
+    border-radius: 3px; 
+    display: inline-block; 
+    margin-left: 2px; 
+`;
+
+const ResetsInBadge = styled.div`
+    font-size: 10px; 
+`;
+
 // A string array to store all code blocks
 const codeBlocks: string[] = [];
 var projectUuid = "";
@@ -124,6 +139,8 @@ let signal = controller.signal;
 
 var remainingTokenPercentage: string|number;
 var remaingTokenLessThanOne: boolean = false;
+
+var timeToReset: number;
 
 export function AIProjectGenerationChat() {
     const { rpcClient } = useVisualizerContext();
@@ -160,6 +177,8 @@ export function AIProjectGenerationChat() {
             const storedQuestion = localStorage.getItem(localStorageQuestionFile);
             const storedCodeBlocks = localStorage.getItem(`codeBlocks-AIGenerationChat-${projectUuid}`);
             rpcClient.getAIVisualizerState().then((machineView:any) => {
+                timeToReset = machineView.userTokens.time_to_reset;
+                timeToReset = timeToReset / (60 * 60 * 24);
                 const maxTokens = machineView.userTokens.max_usage;
                 if(maxTokens == -1){
                     remainingTokenPercentage = "Unlimited";
@@ -412,58 +431,69 @@ export function AIProjectGenerationChat() {
         }
         console.log(context[0].context);
         const token = await rpcClient.getMiDiagramRpcClient().getUserAccessToken();
-        var response = await fetch(backendRootUri + backendUrl, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token.token}`,
-            },
-            body: JSON.stringify({ messages: chatArray, context: context[0].context }),
-            signal: signal,
-        })
-        if (!response.ok && response.status != 401) {
+        try{
+                var response = await fetch(backendRootUri + backendUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token.token}`,
+                    },
+                    body: JSON.stringify({ messages: chatArray, context: context[0].context }),
+                    signal: signal,
+                })
+                if (!response.ok && response.status != 401) {
+                    setIsLoading(false);
+                    setMessages(prevMessages => {
+                        const newMessages = [...prevMessages];
+                        const statusText = getStatusText(response.status);
+                        let error = `Failed to fetch response. Status: ${statusText}`;
+                        console.log("Response status: ", response.status);
+                        if (response.status == 429) {
+                            response.json().then(body => {
+                                console.log(body.detail);
+                                error += body.detail;
+                                console.log("Error: ", error);
+                            });
+                        }
+                        newMessages[newMessages.length - 1].content += error;
+                        newMessages[newMessages.length - 1].type = 'Error';
+                        return newMessages;
+                    });
+                    throw new Error('Failed to fetch response');
+                }
+                if(response.status == 401){
+                    await rpcClient.getMiDiagramRpcClient().refreshAccessToken();
+                    const token = await rpcClient.getMiDiagramRpcClient().getUserAccessToken();
+                    response = await fetch(backendRootUri + backendUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token.token}`,
+                        },
+                        body: JSON.stringify({ messages: chatArray, context: context[0].context }),
+                        signal: signal,
+                    })
+                    if(!response.ok){
+                        setIsLoading(false);
+                        setMessages(prevMessages => {
+                            const newMessages = [...prevMessages];
+                            const statusText = getStatusText(response.status);
+                            newMessages[newMessages.length - 1].content += `Failed to fetch response. Status: ${response.status} - ${statusText}`;
+                            newMessages[newMessages.length - 1].type = 'Error';
+                            return newMessages;
+                        });
+                        throw new Error('Failed to fetch response');
+                    }
+                }
+        }catch (error) {
             setIsLoading(false);
             setMessages(prevMessages => {
                 const newMessages = [...prevMessages];
-                const statusText = getStatusText(response.status);
-                let error = `Failed to fetch response. Status: ${statusText}`;
-                console.log("Response status: ", response.status);
-                if (response.status == 429) {
-                    response.json().then(body => {
-                        console.log(body.detail);
-                        error += body.detail;
-                        console.log("Error: ", error);
-                    });
-                }
-                newMessages[newMessages.length - 1].content += error;
+                newMessages[newMessages.length - 1].content += 'Network error. Please check your connectivity.';
                 newMessages[newMessages.length - 1].type = 'Error';
                 return newMessages;
             });
-            throw new Error('Failed to fetch response');
-        }
-        if(response.status == 401){
-            await rpcClient.getMiDiagramRpcClient().refreshAccessToken();
-            const token = await rpcClient.getMiDiagramRpcClient().getUserAccessToken();
-            response = await fetch(backendRootUri + backendUrl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token.token}`,
-                },
-                body: JSON.stringify({ messages: chatArray, context: context[0].context }),
-                signal: signal,
-            })
-            if(!response.ok){
-                setIsLoading(false);
-                setMessages(prevMessages => {
-                    const newMessages = [...prevMessages];
-                    const statusText = getStatusText(response.status);
-                    newMessages[newMessages.length - 1].content += `Failed to fetch response. Status: ${response.status} - ${statusText}`;
-                    newMessages[newMessages.length - 1].type = 'Error';
-                    return newMessages;
-                });
-                throw new Error('Failed to fetch response');
-            }
+            console.error('Network error:', error);
         }
         const reader = response.body?.getReader();
         const decoder = new TextDecoder();
@@ -687,12 +717,18 @@ export function AIProjectGenerationChat() {
                         remainingTokenPercentage === 'Unlimited' ? remainingTokenPercentage :
                         (remaingTokenLessThanOne ? '<1%' : `${remainingTokenPercentage}%`)
                     }
+                    <br/>  
+                    <ResetsInBadge>
+                        {remainingTokenPercentage !== "Unlimited" && 
+                        `Resets in: ${timeToReset < 1 ? "< 1 day" : `${Math.round(timeToReset)} days`}`}
+                    </ResetsInBadge>
             </Badge>
             <HeaderButtons>
-                <Button
+                    <Button
                         appearance="icon"
                         onClick={() => handleClearChat()}
                         tooltip="Clear Chat"
+                        disabled={isLoading}
                     >
                         <Codicon name="clear-all" />&nbsp;&nbsp;Clear
                     </Button>
@@ -708,7 +744,7 @@ export function AIProjectGenerationChat() {
             </Header>
             <main style={{ flex: 1, overflowY: "auto" }}>
                 {Array.isArray(otherMessages) && otherMessages.length === 0 && (<Welcome>
-                    <h3>Welcome to MI Copilot</h3>
+                    <h3>Welcome to MI Copilot <PreviewContainer>Preview</PreviewContainer></h3>
                     <p>
                         You may use this chat to generate new artifacts
                         or to make changes to existing artifacts simply using text-based prompts.
@@ -722,9 +758,15 @@ export function AIProjectGenerationChat() {
                 {otherMessages.map((message, index) => (
                     <ChatMessage>
                         {message.type !== "question" && message.type !== "label" && <RoleContainer>
-
-                            {message.role === "User" ? <Codicon name="account" /> : <Codicon name="hubot" />}
-                            <h3 style={{ margin: 0 }}>{message.role}</h3>
+                            {message.role === "User" ? <Codicon name="account" /> : <><Codicon name="hubot" /></>}
+                            {message.role === "User" ? 
+                                <h3 style={{ margin: 0 }}>{message.role}</h3> 
+                                : 
+                                <>
+                                    <h3 style={{ margin: 0 }}>{message.role}</h3>
+                                    <PreviewContainer>Preview</PreviewContainer>
+                                </>
+                            }
                         </RoleContainer>
                         }
                         {splitContent(message.content).map((segment, i) =>
