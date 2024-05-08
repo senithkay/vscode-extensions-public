@@ -11,33 +11,56 @@ import { ComponentStory } from "@storybook/react";
 import { Tooltip, TooltipProps } from "./Tooltip";
 import styled from "@emotion/styled";
 
-const Text = styled.div`
+const Container = styled.div`
+    height: 100vh;
+    width: 100vw;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+`;
+
+const TextContainer = styled.div`
+    border: 1px solid black;
+    padding: 10px;
+`;
+
+const LargeTextContainer = styled.div`
     display: flex;
     justify-content: center;
     align-items: center;
     width: 90vw;
     height: 90vh;
-    padding: 10px;
     border: 1px solid black;
 `;
 
-const TooltipContent = styled.div`
-    width: 200px;
-    height: 100px;
+const LargeTooltipContent = styled.div`
     display: flex;
     justify-content: center;
     align-items: center;
+    width: 200px;
+    height: 100px;
 `;
 
-const Content = () => <TooltipContent>Tooltip Content</TooltipContent>;
+const DefaultTemplate: ComponentStory<typeof Tooltip> = (args: TooltipProps) =>
+    <Container>
+        <Tooltip {...args}>
+            <TextContainer>Hover Over Me</TextContainer>
+        </Tooltip>
+    </Container>
+;
 
-const Template: ComponentStory<typeof Tooltip> = (args: TooltipProps) =>
+export const Default = DefaultTemplate.bind();
+Default.args = { content: "Tooltip Content", position: "bottom" };
+
+const OverflowTemplate: ComponentStory<typeof Tooltip> = (args: TooltipProps) =>
     <Tooltip {...args}>
-        <Text>Hover Over Me</Text>
+        <LargeTextContainer>Hover Over Me</LargeTextContainer>
     </Tooltip>
 ;
 
-export const TooltipText = Template.bind();
-TooltipText.args = { content: <Content />, position: "bottom" };
+const TooltipContent = () => <LargeTooltipContent>Tooltip Content</LargeTooltipContent>
+
+export const Overflow = OverflowTemplate.bind();
+Overflow.args = { content: <TooltipContent />, position: "bottom" };
 
 export default { component: Tooltip, title: "Tooltip" };
