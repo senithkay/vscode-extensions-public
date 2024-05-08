@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { ReferenceNodeModel } from "./ReferenceNodeModel";
@@ -85,7 +85,7 @@ namespace S {
         selectable: boolean;
     };
 
-    export const NodeText = styled(Name)<TagProps>`        
+    export const NodeText = styled(Name) <TagProps>`        
         &:hover {
             text-decoration: ${(props: TagProps) => props.selectable ? "underline" : "none"};
             color: ${(props: TagProps) => props.selectable ? Colors.SECONDARY : Colors.ON_SURFACE};
@@ -109,6 +109,10 @@ export function ReferenceNodeWidget(props: ReferenceNodeWidgetProps) {
     const tooltip = hasDiagnotics ? node.getDiagnostics().map(diagnostic => diagnostic.message).join("\n") : undefined;
     const [definition, setDefinition] = useState<GetDefinitionResponse>(undefined);
     const description = getNodeDescription(node.stNode);
+
+    useEffect(() => {
+        getDefinition();
+    }, []);
 
     const getDefinition = async () => {
         const text = await rpcClient.getMiDiagramRpcClient().getTextAtRange({
@@ -149,7 +153,6 @@ export function ReferenceNodeWidget(props: ReferenceNodeWidgetProps) {
             if (definition) setDefinition(definition);
         }
     }
-    getDefinition();
 
     const handleOnClickMenu = (event: any) => {
         setIsPopoverOpen(!isPopoverOpen);
