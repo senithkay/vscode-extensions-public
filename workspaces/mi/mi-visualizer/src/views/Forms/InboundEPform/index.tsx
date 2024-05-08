@@ -9,7 +9,7 @@
 
 import { useEffect, useState } from "react";
 import styled from "@emotion/styled";
-import { Button, TextField, Dropdown, FormCheckBox, FormView, FormActions } from "@wso2-enterprise/ui-toolkit";
+import { Button, TextField, FormCheckBox, FormView, FormActions } from "@wso2-enterprise/ui-toolkit";
 import { EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { yupResolver } from "@hookform/resolvers/yup"
