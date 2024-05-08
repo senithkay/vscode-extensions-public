@@ -33,6 +33,7 @@ const SidePanelDefault = () => {
             <SidePanel
                 isOpen={isOpen}
                 alignmanet="right"
+                onClose={closePanel}
             >
                 <SidePanelTitleContainer>
                     <div>Side Panel Title</div>
@@ -60,6 +61,7 @@ const LeftSidePanel = () => {
             <SidePanel
                 isOpen={isOpen}
                 alignmanet="left"
+                onClose={closePanel}
             >
                 <SidePanelTitleContainer>
                     <div>Side Panel Title</div>
@@ -88,6 +90,7 @@ const SidePanelWithAnimation = () => {
                 isOpen={isOpen}
                 alignmanet="right"
                 sx={{ transition: "all 0.3s ease-in-out" }}
+                onClose={closePanel}
             >
                 <SidePanelTitleContainer>
                     <div>Side Panel Title</div>
@@ -116,6 +119,7 @@ const SidePanelWithContent = () => {
                 isOpen={isOpen}
                 alignmanet="right"
                 sx={{transition: "all 0.3s ease-in-out"}}
+                onClose={closePanel}
             >
                 <SidePanelTitleContainer>
                     <div>Side Panel Title</div>
