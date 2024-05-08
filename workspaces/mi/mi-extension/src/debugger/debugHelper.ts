@@ -173,7 +173,7 @@ export async function executeTasks(serverPath: string, isDebug: boolean): Promis
             console.log('Build task executed successfully');
             const isServerRunning = await checkServerLiveness();
             if (!isServerRunning) {
-                const runTask = getRunTask(serverPath, isDebug);
+                const runTask = await getRunTask(serverPath, isDebug);
                 if (runTask) {
                     runTask.presentationOptions = {
                         panel: vscode.TaskPanelKind.Shared

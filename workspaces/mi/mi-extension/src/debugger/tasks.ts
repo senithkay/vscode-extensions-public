@@ -47,7 +47,7 @@ export function getCopyTask(serverPath: string, targetDirectory: vscode.Uri): vs
     return copyTask;
 }
 
-export function getRunTask(serverPath: string, isDebug: boolean): vscode.Task {
+export async function getRunTask(serverPath: string, isDebug: boolean): Promise<vscode.Task | undefined> {
     let command;
     let binFile;
 
@@ -63,12 +63,13 @@ export function getRunTask(serverPath: string, isDebug: boolean): vscode.Task {
         // HACK to get the server to run as the debugger since MI 4.2.0 version's .bat file is not supported to run java variables
         if(process.platform === 'win32'){
                 const binDirectoryPath = path.join(serverPath, 'bin');
-                createTempDebugBatchFile(binPath, binDirectoryPath).then((copiedBatchFile) => {
+                try {
+                    const copiedBatchFile = await createTempDebugBatchFile(binPath, binDirectoryPath);
                     command = copiedBatchFile;
-                }).catch((error) => {
-                    vscode.window.showErrorMessage(`Error while executing debug server, ${error}`);
+                } catch (error) {
+                    vscode.window.showErrorMessage(`Error while creating temporary debug batch file: ${error}`);
                     return undefined;
-                });
+                }
         } else {
             command = `${binPath} -Desb.debug=true`;
         }
