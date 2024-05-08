@@ -15,7 +15,7 @@ import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapp
 import { ExpressionLabelModel } from "../../Label";
 import { DataMapperLinkModel } from "../../Link";
 import { DMTypeWithValue } from "../../Mappings/DMTypeWithValue";
-import { MappingMetadata } from "../../Mappings/FieldAccessToSpecificFied";
+import { MappingMetadata } from "../../Mappings/MappingMetadata";
 import { InputOutputPortModel } from "../../Port";
 import { ARRAY_OUTPUT_TARGET_PORT_PREFIX } from "../../utils/constants";
 import { getDiagnostics } from "../../utils/diagnostics-utils";

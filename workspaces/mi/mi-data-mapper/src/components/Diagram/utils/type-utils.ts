@@ -49,7 +49,7 @@ export function getDMType(propertiesExpr: string, parentType: DMType, isPropeAcc
     }
 }
 
-function getEnrichedDMType(
+export function getEnrichedDMType(
     type: DMType,
     node: Node | undefined,
     parentType?: DMTypeWithValue,

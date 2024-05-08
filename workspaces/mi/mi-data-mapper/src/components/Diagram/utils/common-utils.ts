@@ -34,7 +34,7 @@ import {
     ARRAY_OUTPUT_TARGET_PORT_PREFIX,
     FOCUSED_INPUT_SOURCE_PORT_PREFIX,
     OBJECT_OUTPUT_TARGET_PORT_PREFIX,
-    PRIMITIVE_TYPE_TARGET_PORT_PREFIX
+    PRIMITIVE_OUTPUT_TARGET_PORT_PREFIX
 } from "./constants";
 import { FocusedInputNode } from "../Node/FocusedInput";
 
@@ -391,7 +391,7 @@ export function getTargetPortPrefix(node: NodeModel): string {
             return ARRAY_OUTPUT_TARGET_PORT_PREFIX;
         // TODO: Update cases for other node types
 		default:
-			return PRIMITIVE_TYPE_TARGET_PORT_PREFIX;
+			return PRIMITIVE_OUTPUT_TARGET_PORT_PREFIX;
 	}
 }
 
@@ -491,6 +491,10 @@ export function representsTnfFnReturnStmt(mapFnParentNode: Node, returnStmt: Ret
     return mapFnParentNode
         && returnStmt
         && isPositionsEquals(getPosition(mapFnParentNode), getPosition(returnStmt));
+}
+
+export function isArrayOrInterface(dmType: DMType) {
+	return dmType.kind === TypeKind.Array || dmType.kind === TypeKind.Interface;
 }
 
 function getInnerExpr(node: PropertyAccessExpression): Node {

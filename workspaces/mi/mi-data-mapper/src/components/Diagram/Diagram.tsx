@@ -44,6 +44,7 @@ import { DataImportNodeFactory } from './Node/DataImport/DataImportNodeFactory';
 import { ArrayFnConnectorNode, ArrayFnConnectorNodeFactory } from './Node/ArrayFnConnector';
 import { FocusedInputNodeFactory } from './Node/FocusedInput';
 import { UnsupportedIONodeFactory } from './Node/UnsupportedIO';
+import { PrimitiveOutputNodeFactory } from './Node/PrimitiveOutput';
 
 interface DataMapperDiagramProps {
 	nodes?: DataMapperNodeModel[];
@@ -76,6 +77,7 @@ function initDiagramEngine() {
 	engine.getNodeFactories().registerFactory(new FocusedInputNodeFactory());
 	engine.getNodeFactories().registerFactory(new Nodes.ArrayOutputNodeFactory());
 	engine.getNodeFactories().registerFactory(new Nodes.ObjectOutputNodeFactory());
+	engine.getNodeFactories().registerFactory(new PrimitiveOutputNodeFactory());
 	engine.getNodeFactories().registerFactory(new LinkConnectorNodeFactory());
 	engine.getNodeFactories().registerFactory(new ArrayFnConnectorNodeFactory());
 	engine.getNodeFactories().registerFactory(new DataImportNodeFactory());

@@ -9,7 +9,7 @@
 import { DMType, TypeKind } from "@wso2-enterprise/mi-core";
 import { useDMSearchStore } from "../../../store/store";
 import { ArrayElement, DMTypeWithValue } from "../Mappings/DMTypeWithValue";
-import { MappingMetadata } from "../Mappings/FieldAccessToSpecificFied";
+import { MappingMetadata } from "../Mappings/MappingMetadata";
 import { Node } from "ts-morph";
 
 export const getSearchFilteredInput = (dmType: DMType, varName?: string) => {

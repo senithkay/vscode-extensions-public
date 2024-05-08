@@ -39,6 +39,7 @@ import { getDMType } from "../Diagram/utils/type-utils";
 import { UnsupportedExprNodeKind, UnsupportedIONode } from "../Diagram/Node/UnsupportedIO";
 import { OFFSETS } from "../Diagram/utils/constants";
 import { FocusedInputNode } from "../Diagram/Node/FocusedInput";
+import { PrimitiveOutputNode } from "../Diagram/Node/PrimitiveOutput";
 
 export class NodeInitVisitor implements Visitor {
     private inputNode: DataMapperNodeModel | InputDataImportNodeModel;
@@ -71,7 +72,7 @@ export class NodeInitVisitor implements Visitor {
                 } else if (memberType.kind === TypeKind.Array) {
                     this.outputNode = new ArrayOutputNode(this.context, mapFnReturnStmt, memberType);
                 } else {
-                    // TODO: Add a node for primitive types
+                    this.outputNode = new PrimitiveOutputNode(this.context, mapFnReturnStmt, memberType);
                 }
             } else if (outputTree?.kind === TypeKind.Interface) {
                 this.outputNode = new ObjectOutputNode(this.context, mapFnReturnStmt, outputTree);
@@ -122,10 +123,14 @@ export class NodeInitVisitor implements Visitor {
                     this.outputNode = new ObjectOutputNode(this.context, returnStatement, memberType);
                 } else if (memberType.kind === TypeKind.Array) {
                     this.outputNode = new ArrayOutputNode(this.context, returnStatement, memberType);
+                } else {
+                    this.outputNode = new PrimitiveOutputNode(this.context, returnStatement, memberType);
                 }
             } else {
                 if (exprType?.kind === TypeKind.Interface) {
                     this.outputNode = new ObjectOutputNode(this.context, returnStatement, exprType);
+                } else {
+                    // TODO: Add a node for primitive types
                 }
                 if (isConditionalExpression(innerExpr)) {
                     const inputNodes = getPropertyAccessNodes(returnStatement);
@@ -138,13 +143,13 @@ export class NodeInitVisitor implements Visitor {
 
             this.outputNode.setPosition(OFFSETS.TARGET_NODE.X, 0);
 
-           // Create input node
-           const inputType = getDMType(sourceFieldFQN, this.context.inputTrees[0]);
+            // Create input node
+            const inputType = getDMType(sourceFieldFQN, this.context.inputTrees[0]);
 
-           const focusedInputNode = new FocusedInputNode(this.context, callExpr, inputType);
+            const focusedInputNode = new FocusedInputNode(this.context, callExpr, inputType);
 
-           focusedInputNode.setPosition(OFFSETS.SOURCE_NODE.X, 0);
-           this.inputNode = focusedInputNode;
+            focusedInputNode.setPosition(OFFSETS.SOURCE_NODE.X, 0);
+            this.inputNode = focusedInputNode;
         } else {
             const initializer = node.getInitializer();
             if (initializer && !this.isObjectOrArrayLiteralExpression(initializer) && this.isWithinMapFn === 0) {
