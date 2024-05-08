@@ -72,6 +72,7 @@ export const useDiagramModel = (
     const noOfNodes = nodes.length;
     const context = nodes.find(node => node.context)?.context;
 	const focusedSrc = context ? context.focusedST.getText() : undefined;
+    const noOfViews = context ? context.views.length : 0;
     const collapsedFields = useDMCollapsedFieldsStore(state => state.collapsedFields); // Subscribe to collapsedFields
     const { inputSearch, outputSearch } = useDMSearchStore();
 
@@ -115,7 +116,7 @@ export const useDiagramModel = (
         isFetching,
         isError,
         refetch,
-    } = useQuery(['genModel', {noOfNodes, focusedSrc, inputSearch, outputSearch, collapsedFields, newZoomLevel: zoomLevel}], () => genModel(), {});
+    } = useQuery(['genModel', {noOfNodes, focusedSrc, noOfViews, inputSearch, outputSearch, collapsedFields, newZoomLevel: zoomLevel}], () => genModel(), {});
 
     return { updatedModel, isFetching, isError, refetch };
 };

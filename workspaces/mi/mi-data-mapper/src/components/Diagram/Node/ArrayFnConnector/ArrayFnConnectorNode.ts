@@ -103,7 +103,7 @@ export class ArrayFnConnectorNode extends DataMapperNodeModel {
         this.getModel().getNodes().map(node => {
             if (node instanceof InputNode && node?.value && node.value.getName() === paramName) {
                 this.sourcePort = node.getPort(fieldId + ".OUT") as InputOutputPortModel;
-            } else if (node instanceof FocusedInputNode && node?.value && node.innerParam.getName() === paramName) {
+            } else if (node instanceof FocusedInputNode && node.innerParam.getName() === paramName) {
                 const portName = FOCUSED_INPUT_SOURCE_PORT_PREFIX + "." + fieldId + ".OUT";
                 this.sourcePort = node.getPort(portName) as InputOutputPortModel;
             }

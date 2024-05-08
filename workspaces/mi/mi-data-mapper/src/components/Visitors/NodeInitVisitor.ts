@@ -30,7 +30,8 @@ import {
     getCallExprReturnStmt,
     getTypeName,
     isConditionalExpression,
-    isMapFunction
+    isMapFunction,
+    getTnfFnReturnStatement
 } from "../Diagram/utils/common-utils";
 import { ArrayFnConnectorNode } from "../Diagram/Node/ArrayFnConnector";
 import { getPosition, isPositionsEquals } from "../Diagram/utils/st-utils";
@@ -49,8 +50,46 @@ export class NodeInitVisitor implements Visitor {
     constructor(private context: DataMapperContext) {}
 
     beginVisitFunctionDeclaration(node: FunctionDeclaration): void {
-        this.inputNode = this.createInputNode(node);
-        this.outputNode = this.createOutputNode(node);
+        const { views, focusedST, outputTree } = this.context;
+        const isTopLevelView = views.length === 1;
+        const isFocusedView = views.length === 2 && isPositionsEquals(getPosition(node), getPosition(focusedST));
+
+        if (isTopLevelView) {
+            this.inputNode = this.createInputNode(node);
+            this.outputNode = this.createOutputNode(node);
+        } else if (isFocusedView) {
+            // When the return statement is a map function
+            const rootReturnStmt = getTnfFnReturnStatement(node);
+            const callExpr = rootReturnStmt.getExpression() as CallExpression;
+            const mapFnReturnStmt = getCallExprReturnStmt(callExpr);
+            const outputType = outputTree;
+
+            if (outputType.kind === TypeKind.Array) {
+                const { memberType } = outputType;
+                if (memberType.kind === TypeKind.Interface) {
+                    this.outputNode = new ObjectOutputNode(this.context, mapFnReturnStmt, memberType);
+                } else if (memberType.kind === TypeKind.Array) {
+                    this.outputNode = new ArrayOutputNode(this.context, mapFnReturnStmt, memberType);
+                } else {
+                    // TODO: Add a node for primitive types
+                }
+            } else if (outputTree?.kind === TypeKind.Interface) {
+                this.outputNode = new ObjectOutputNode(this.context, mapFnReturnStmt, outputTree);
+            } else {
+                // TODO: Add a node for primitive types
+            }
+            this.outputNode.setPosition(OFFSETS.TARGET_NODE.X, 0);
+
+            // Create input node
+            const { sourceFieldFQN } = views[views.length - 1];
+            const inputRoot = this.context.inputTrees[0];
+            const inputType = sourceFieldFQN ? getDMType(sourceFieldFQN, inputRoot) : inputRoot;
+
+            const focusedInputNode = new FocusedInputNode(this.context, callExpr, inputType);
+
+            focusedInputNode.setPosition(OFFSETS.SOURCE_NODE.X, 0);
+            this.inputNode = focusedInputNode;
+        }
     }
 
     beginVisitPropertyAssignment(node: PropertyAssignment, parent?: Node): void {
@@ -63,7 +102,7 @@ export class NodeInitVisitor implements Visitor {
         if (isFocusedST) {
             const callExpr = node.getInitializer() as CallExpression;
 
-            // create output node
+            // Create output node
             const exprType = getDMType(targetFieldFQN, this.context.outputTree);
             const returnStatement = getCallExprReturnStmt(callExpr);
 
@@ -194,6 +233,11 @@ export class NodeInitVisitor implements Visitor {
     }
 
     private createInputNode(node: FunctionDeclaration): InputNode | InputDataImportNodeModel {
+        /* Constraints:
+            1. The function should and must have a single parameter
+            2. The parameter type should be an interface or an array
+            3. Tuple and union parameter types are not supported
+        */
         const param = node.getParameters()[0];
         const inputType = param && this.context.inputTrees.find(inputTree =>
             getTypeName(inputTree) === param.getType().getText());
@@ -210,6 +254,11 @@ export class NodeInitVisitor implements Visitor {
     }
     
     private createOutputNode(node: FunctionDeclaration): ArrayOutputNode | ObjectOutputNode | OutputDataImportNodeModel {
+        /* Constraints:
+            1. The function should have a return type and it should not be void
+            2. The return type should be an interface or an array
+            3. Tuple and union return types are not supported
+        */
         const returnType = node.getReturnType();
         const outputType = returnType && !returnType.isVoid() && this.context.outputTree;
     

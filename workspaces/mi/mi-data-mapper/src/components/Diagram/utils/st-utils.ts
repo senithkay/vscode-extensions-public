@@ -69,8 +69,16 @@ export function isPositionsEquals(node1: NodePosition, node2: NodePosition): boo
         && node1.end === node2.end;
 }
 
-export function getFocusedST(focusedView: View, fnST: FunctionDeclaration): PropertyAssignment {
-    const focusedSTFindingVisitor = new FocusedSTFindingVisitor(focusedView.targetFieldFQN);
+export function getFocusedST(focusedView: View, fnST: FunctionDeclaration): FunctionDeclaration | PropertyAssignment {
+    const targetFieldFQN = focusedView.targetFieldFQN;
+
+    if (!targetFieldFQN) {
+        // When focused into map function located in the root level return statement
+        return fnST;
+    }
+
+    const focusedSTFindingVisitor = new FocusedSTFindingVisitor(targetFieldFQN);
     traversNode(fnST, focusedSTFindingVisitor);
+
     return focusedSTFindingVisitor.getResolvedNode();
 }
