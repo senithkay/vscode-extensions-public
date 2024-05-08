@@ -10,6 +10,7 @@ import { promises as fs, createReadStream } from 'fs';
 import * as byline from 'byline';
 import { Remote } from './api/git';
 import { initGit } from './main';
+import { getLogger } from '../logger/logger';
 
 export const isMacintosh = process.platform === 'darwin';
 export const isWindows = process.platform === 'win32';
@@ -541,7 +542,12 @@ export const getGitRemotes = async (context: ExtensionContext, directoryPath: st
 };
 
 export const getGitRoot = async (context: ExtensionContext, directoryPath: string): Promise<string | void> => {
-    const newGit = await initGit(context);
-    const repoRootPath = await newGit?.getRepositoryRoot(directoryPath);
-    return repoRootPath;
+    try{
+		const newGit = await initGit(context);
+		const repoRootPath = await newGit?.getRepositoryRoot(directoryPath);
+		return repoRootPath;
+	}catch(err){
+		getLogger().error("Invalid Git Directory", err);
+		throw new Error("Not a Git directory");
+	};
 };

@@ -68,17 +68,17 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({
     const subPath = form.watch("subPath");
     const repoUrl = form.watch("repoUrl");
 
-    const { data: hasEndpoints = true } = useQuery({
-        queryKey: ["directory-has-endpoints", { directoryPath, subPath, selectedLang }],
+    const isEndpointsRequired = ![ChoreoBuildPackNames.Ballerina, ChoreoBuildPackNames.MicroIntegrator].includes(
+        selectedLang as ChoreoBuildPackNames
+    );
+
+    const { data: hasEndpoints } = useQuery({
+        queryKey: ["directory-has-endpoints", { directoryPath, subPath, selectedLang, isEndpointsRequired }],
         queryFn: async () => {
             const compPath = await ChoreoWebViewAPI.getInstance().joinFilePaths([directoryFsPath, subPath]);
             return ChoreoWebViewAPI.getInstance().readServiceEndpoints(compPath);
         },
-        select: (resp) =>
-            resp?.endpoints?.length > 0 ||
-            [ChoreoBuildPackNames.Ballerina, ChoreoBuildPackNames.MicroIntegrator].includes(
-                selectedLang as ChoreoBuildPackNames
-            ),
+        select: (resp) => resp?.endpoints?.length > 0 || !isEndpointsRequired,
         enabled: selectedType === ChoreoComponentType.Service && !!selectedLang,
     });
 
@@ -95,10 +95,12 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({
     });
 
     useEffect(() => {
-        if (selectedLang && buildpacks.length > 0 && !buildpacks.find((item) => item.language === selectedLang)) {
+        if (!buildpacks.find((item) => item.language === selectedLang)) {
             // Reset build pack selection if its invalid
-            form.setValue("buildPackLang", "");
-            form.setValue("langVersion", "");
+            setTimeout(()=>{
+                form.setValue("buildPackLang", "");
+                form.setValue("langVersion", "");
+            }, 100)
         }
     }, [form, selectedLang, buildpacks]);
 
@@ -281,7 +283,7 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({
     }
 
     const endpointConfigs: ReactNode[] = [];
-    if (selectedType === ChoreoComponentType.Service && !!selectedLang && !hasEndpoints) {
+    if (selectedType === ChoreoComponentType.Service && !!selectedLang && isEndpointsRequired && !hasEndpoints) {
         endpointConfigs.push(<TextField label="Port" required name="port" control={form.control} placeholder="8080" />);
         endpointConfigs.push(
             <Dropdown
@@ -297,7 +299,7 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({
 
     let invalidRepoMsg: ReactNode = "";
     if (!isLoadingRemotes && gitRemotes?.length === 0) {
-        invalidRepoMsg = "The selected repository does not contain any Git remotes";
+        invalidRepoMsg = "The directory does not contain any Git remotes.";
     } else if (repoUrl && !isCheckingRepoAccess && !isRepoAuthorizedResp?.isAccessible) {
         invalidRepoMsg = (
             <div className="flex items-center">
@@ -387,7 +389,7 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({
                                             label: item.displayName,
                                             value: item.language,
                                         }))}
-                                        loading={isLoadingBuildPacks && !!selectedType}
+                                        loading={isLoadingBuildPacks}
                                         disabled={buildpacks.length === 0}
                                     />
                                 )}
@@ -410,21 +412,22 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({
                                     wrapClassName="col-span-full"
                                 />
                                 <div className="grid md:grid-cols-2 gap-4 col-span-full" ref={sourceDetailsSections}>
-                                    <Dropdown
-                                        label="Repository"
-                                        required
-                                        name="repoUrl"
-                                        control={form.control}
-                                        items={gitRemotes}
-                                        disabled={gitRemotes?.length === 0}
-                                        loading={isLoadingRemotes}
-                                    />
+                                    {gitRemotes?.length > 0 && (
+                                        <Dropdown
+                                            label="Repository"
+                                            required
+                                            name="repoUrl"
+                                            control={form.control}
+                                            items={gitRemotes}
+                                            loading={isLoadingRemotes}
+                                        />
+                                    )}
                                     {invalidRepoMsg && (
                                         <Banner type="warning" className="col-span-full md:order-last">
                                             {invalidRepoMsg}
                                         </Banner>
                                     )}
-                                    {repoUrl && (
+                                    {!invalidRepoMsg && repoUrl && (
                                         <Dropdown
                                             label="Branch"
                                             required

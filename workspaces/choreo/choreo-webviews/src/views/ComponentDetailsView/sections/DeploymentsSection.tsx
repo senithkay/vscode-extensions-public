@@ -363,16 +363,18 @@ const EndpointItem: FC<{
                     <VSCodeLink
                         title="Copy URL"
                         className={classNames({
-                            "flex-1 line-clamp-1 text-vsc-foreground": true,
+                            "flex-1  text-vsc-foreground": true,
                             "animate-pulse": ["Pending", "Progressing"].includes(state),
                             "text-vsc-errorForeground": state === "Error",
                         })}
                         onClick={() => copyUrl(url)}
                     >
-                        {url ||
-                            (["Pending", "Progressing"].includes(state) && <SkeletonText className="max-w-44" />) ||
-                            (state === "Error" && "Error") ||
-                            "-"}
+                        <p className="line-clamp-1 break-all">
+                            {url ||
+                                (["Pending", "Progressing"].includes(state) && <SkeletonText className="max-w-44" />) ||
+                                (state === "Error" && "Error") ||
+                                "-"}
+                        </p>
                     </VSCodeLink>
                     {showOpen && state === "Active" && (
                         <Button appearance="icon" title="Open URL" onClick={() => openExternal(url)} disabled={!url}>

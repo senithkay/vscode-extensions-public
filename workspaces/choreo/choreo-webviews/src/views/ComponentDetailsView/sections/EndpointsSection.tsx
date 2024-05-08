@@ -28,7 +28,7 @@ export const EndpointsSection: FC<Props> = ({ directoryPath, component }) => {
                     key={item.name}
                     title={
                         <div className="flex items-center justify-between gap-2">
-                            <span className="line-clamp-1">{`Endpoint: ${item.name}`}</span>
+                            <span className="line-clamp-1 break-all">{`Endpoint: ${item.name}`}</span>
                             <Button
                                 appearance="icon"
                                 title="Edit endpoint"

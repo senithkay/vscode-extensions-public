@@ -18,22 +18,22 @@ interface AuthStore {
 export const authStore = createStore(
     persist<AuthStore>(
         (set, get) => ({
-            state: { userInfo: null, loading: false },
-            loginStart: () => set(({ state }) => ({ state: { ...state, loading: true } })),
+            state: { userInfo: null },
+            loginStart: () => set(({ state }) => ({ state: { ...state } })),
             loginSuccess: (userInfo) => {
                 dataCacheStore.getState().setOrgs(userInfo.organizations);
-                set(({ state }) => ({ state: { ...state, userInfo, loading: false } }));
+                set(({ state }) => ({ state: { ...state, userInfo } }));
             },
             logout: () => {
                 ext.clients.rpcClient.signOut();
-                set(({ state }) => ({ state: { ...state, userInfo: null, loading: false } }));
+                set(({ state }) => ({ state: { ...state, userInfo: null } }));
             },
             getOrgById: (orgId) =>
                 get().state.userInfo?.organizations.find((org) => org.id.toString() === orgId.toString()),
             getOrgByHandle: (orgHandle) => get().state.userInfo?.organizations.find((org) => org.handle === orgHandle),
             initAuth: async () => {
                 try {
-                    set(({ state }) => ({ state: { ...state, loading: true } }));
+                    set(({ state }) => ({ state: { ...state } }));
                     const userInfo = await ext.clients.rpcClient.getUserInfo();
                     userInfo ? get().loginSuccess(userInfo) : get().logout();
                 } catch (err) {

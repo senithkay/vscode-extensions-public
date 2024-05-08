@@ -85,7 +85,6 @@ export interface UserInfo {
 
 export interface AuthState {
     userInfo: UserInfo | null;
-    loading: boolean;
 }
 
 export interface WebviewState {

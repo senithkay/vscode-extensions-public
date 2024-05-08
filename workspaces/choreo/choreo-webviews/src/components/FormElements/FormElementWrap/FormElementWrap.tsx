@@ -14,7 +14,8 @@ interface Props extends PropsWithChildren {
 }
 
 export const FormElementWrap: FC<Props> = (props) => {
-    const [labelWrapRef] = useAutoAnimate({ duration: 200 });
+    const [labelWrapRef] = useAutoAnimate({ duration: 150 });
+    
     const { label, required, errorMsg, loading, wrapClassName, labelWrapClassName, children } = props;
     return (
         <div className={classNames("w-full flex flex-col", wrapClassName)}>

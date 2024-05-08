@@ -13,18 +13,28 @@ interface Props {
     basePath: string;
     directoryName?: string;
     wrapClassName?: HTMLProps<HTMLElement>["className"];
-    type?: 'file' | 'directory';
+    type?: "file" | "directory";
     promptTitle?: string;
 }
 
 export const PathSelect: FC<Props> = (props) => {
-    const { label, required, control, name, basePath, directoryName = "", wrapClassName, type = 'directory', promptTitle = 'Select Directory' } = props;
+    const {
+        label,
+        required,
+        control,
+        name,
+        basePath,
+        directoryName = "",
+        wrapClassName,
+        type = "directory",
+        promptTitle = "Select Directory",
+    } = props;
 
     const { mutate: handleClick, isLoading } = useMutation({
         mutationFn: async (onSelect: (path: string) => void) => {
             const paths = await ChoreoWebViewAPI.getInstance().showOpenSubDialog({
-                canSelectFiles: type === 'file',
-                canSelectFolders: type === 'directory',
+                canSelectFiles: type === "file",
+                canSelectFolders: type === "directory",
                 canSelectMany: false,
                 title: promptTitle,
                 defaultUri: basePath,
@@ -51,8 +61,7 @@ export const PathSelect: FC<Props> = (props) => {
             render={({ field, fieldState }) => {
                 const { data: joinedPath } = useQuery({
                     queryKey: ["joined-file-path", { directoryName, value: field.value }],
-                    queryFn: () =>
-                        ChoreoWebViewAPI.getInstance().joinFilePaths([directoryName, field.value]),
+                    queryFn: () => ChoreoWebViewAPI.getInstance().joinFilePaths([directoryName, field.value]),
                 });
 
                 return (
@@ -70,15 +79,15 @@ export const PathSelect: FC<Props> = (props) => {
                                     : () => handleClick((selectedPath) => field.onChange(selectedPath))
                             }
                             className={classnames(
-                                "bg-vsc-input-background w-full h-[26px] rounded cursor-pointer overflow-hidden flex items-stretch border-1 border-vsc-menu-border",
+                                "bg-vsc-input-background w-full min-h-[26px] rounded cursor-pointer overflow-hidden flex items-stretch border-1 border-vsc-menu-border",
                                 isLoading ? "opacity-60 cursor-not-allowed" : "cursor-pointer opacity-100"
                             )}
                             ref={field.ref}
                         >
-                            <div className="hidden sm:block line-clamp-1 bg-vsc-button-secondaryBackground text-vsc-button-secondaryForeground border-r-2 border-vsc-menu-border">
-                                <div className="h-full px-3 flex items-center justify-center">Choose {type}</div>
+                            <div className="hidden sm:block bg-vsc-button-secondaryBackground text-vsc-button-secondaryForeground border-r-2 border-vsc-menu-border">
+                                <p className="h-full px-3 flex items-center justify-center">Choose {type}</p>
                             </div>
-                            <div className="flex-1 flex items-center px-2 line-clamp-1">{joinedPath}</div>
+                            <div className="flex-1 flex items-center px-2 break-all">{joinedPath}</div>
                         </div>
                     </FormElementWrap>
                 );

@@ -12,17 +12,17 @@ import { Project } from "@wso2-enterprise/choreo-core";
 import { ComponentModel } from "@wso2-enterprise/ballerina-languageclient";
 
 export interface IChoreoExtensionAPI {
-    /** Deprecated function. Exists purely to support old version of Ballerina extension */
+    /** Deprecated function. Exists due to backward compatibility with Ballerina extension */
     waitForLogin(): Promise<boolean>;
-    /** Deprecated function. Exists purely to support old version of Ballerina extension */
+    /** Deprecated function. Exists due to backward compatibility with Ballerina extension */
     getChoreoProject(): Promise<Project | undefined>;
-    /** Deprecated function. Exists purely to support old version of Ballerina extension */
+    /** Deprecated function. Exists due to backward compatibility with Ballerina extension */
     isChoreoProject(): Promise<boolean>;
-    /** Deprecated function. Exists purely to support old version of Ballerina extension */
+    /** Deprecated function. Exists due to backward compatibility with Ballerina extension */
     enrichChoreoMetadata(model: Map<string, ComponentModel>): Promise<Map<string, ComponentModel> | undefined>;
-    /** Deprecated function. Exists purely to support old version of Ballerina extension */
+    /** Deprecated function. Exists due to backward compatibility with Ballerina extension */
     getNonBalComponentModels(): Promise<{ [key: string]: ComponentModel }>;
-    /** Deprecated function. Exists purely to support old version of Ballerina extension */
+    /** Deprecated function. Exists due to backward compatibility with Ballerina extension */
     deleteComponent(projectId: string, path: string): Promise<void>;
 }
 

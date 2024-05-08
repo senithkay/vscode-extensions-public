@@ -25,9 +25,9 @@ export interface IRightPanelSectionItem {
 
 export const RightPanelSectionItem: FC<IRightPanelSectionItem> = ({ label, value }) => {
     return (
-        <div className="flex justify-between items-center hover:bg-vsc-editorHoverWidget-background duration-200">
-            <div className="font-light line-clamp-1">{label}</div>
-            <div className="text-right line-clamp-1">{value}</div>
+        <div className="flex flex-wrap items-center hover:bg-vsc-editorHoverWidget-background duration-200 gap-0.5">
+            <p className="font-light flex-1">{label}</p>
+            <p>{value}</p>
         </div>
     );
 };

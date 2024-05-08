@@ -13,7 +13,6 @@ import { getLogger } from "../logger/logger";
 import { sendTelemetryEvent } from "../telemetry/utils";
 import {
     CommandIds,
-    SIGN_IN_CANCEL_EVENT,
     SIGN_IN_FAILURE_EVENT,
     SIGN_IN_START_EVENT,
 } from "@wso2-enterprise/choreo-core";
@@ -35,27 +34,9 @@ export function signInCommand(context: ExtensionContext) {
                 );
 
                 if (loginUrl) {
-                    const opened = await vscode.env.openExternal(vscode.Uri.parse(loginUrl));
-                    if (opened) {
-                        await window.withProgress(
-                            {
-                                title: "Signing in to Choreo",
-                                location: ProgressLocation.Notification,
-                                cancellable: true,
-                            },
-                            async (_progress, cancellationToken) => {
-                                cancellationToken.onCancellationRequested(async () => {
-                                    getLogger().warn("Signing in to Choreo cancelled");
-                                    sendTelemetryEvent(SIGN_IN_CANCEL_EVENT);
-                                    authStore.getState().logout();
-                                });
-                                authStore.getState().loginStart();
-                            }
-                        );
-                    }
+                    await vscode.env.openExternal(vscode.Uri.parse(loginUrl));
                 } else {
                     getLogger().error("Unable to open external link for authentication.");
-                    authStore.getState().logout();
                     window.showErrorMessage("Unable to open external link for authentication.");
                 }
             } catch (error: any) {

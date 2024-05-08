@@ -32,8 +32,8 @@ export const ComponentListItem: FC<Props> = ({ item, isListLoading, opened }) =>
             })}
             onClick={isItemEnriched ? viewComponentDetails : undefined}
         >
-            <div className="flex-1 flex flex-col gap-0.5 pl-5 py-3 ">
-                <h3 className="text-sm font-bold">
+            <div className="flex-1 flex flex-col gap-0.5 pl-5 py-3 break-all">
+                <h3 className="text-sm font-bold line-clamp-1">
                     {item?.component?.metadata?.displayName || item.linkContent.componentHandle}
                 </h3>
                 <p className="text-xs">
