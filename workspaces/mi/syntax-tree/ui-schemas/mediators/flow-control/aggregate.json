@@ -125,7 +125,8 @@
             "value": {
               "name": "sequenceKey",
               "displayName": "Sequence Key",
-              "inputType": "registry",
+              "inputType": "key",
+              "keyType": "sequence",
               "enableCondition": [
                 {
                   "sequenceType": "REGISTRY_REFERENCE"

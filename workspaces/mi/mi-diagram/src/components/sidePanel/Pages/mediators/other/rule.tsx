@@ -50,6 +50,23 @@ const RuleForm = (props: AddMediatorProps) => {
             sourceXPath: sidePanelContext?.formValues?.sourceXPath || {"isExpression":true,"value":""},
             targetValue: sidePanelContext?.formValues?.targetValue || "",
             targetAction: sidePanelContext?.formValues?.targetAction || "Replace",
+            targetNamespaces: {
+                paramValues: sidePanelContext?.formValues?.targetNamespaces ? getParamManagerFromValues(sidePanelContext?.formValues?.targetNamespaces) : [],
+                paramFields: [
+                    {
+                        "type": "TextField",
+                        "label": "Prefix",
+                        "defaultValue": "",
+                        "isRequired": false
+                    },
+                    {
+                        "type": "TextField",
+                        "label": "Namespace URI",
+                        "defaultValue": "",
+                        "isRequired": false
+                    },
+                ]
+            },
             targetXPath: sidePanelContext?.formValues?.targetXPath || {"isExpression":true,"value":""},
             targetResultXPath: sidePanelContext?.formValues?.targetResultXPath || {"isExpression":true,"value":""},
             ruleSetType: sidePanelContext?.formValues?.ruleSetType || "Regular",
@@ -80,7 +97,12 @@ const RuleForm = (props: AddMediatorProps) => {
                         "type": "TextField",
                         "label": "Fact Custom Type",
                         "defaultValue": "",
-                        "isRequired": false
+                        "isRequired": false,
+                        "enableCondition": [
+                            {
+                                "0": "CUSTOM"
+                            }
+                        ]
                     },
                     {
                         "type": "TextField",
@@ -89,49 +111,10 @@ const RuleForm = (props: AddMediatorProps) => {
                         "isRequired": false
                     },
                     {
-                        "type": "Dropdown",
-                        "label": "Value Type",
-                        "defaultValue": "NONE",
-                        "isRequired": false,
-                        "values": [
-                            "NONE",
-                            "LITERAL",
-                            "EXPRESSION",
-                            "REGISTRY_REFERENCE"
-                        ]
-                    },
-                    {
-                        "type": "TextField",
-                        "label": "Value Literal",
-                        "defaultValue": "",
-                        "isRequired": false,
-                        "enableCondition": [
-                            {
-                                "3": "LITERAL"
-                            }
-                        ]
-                    },
-                    {
                         "type": "TextField",
                         "label": "Property Expression",
                         "defaultValue": "",
-                        "isRequired": false,
-                        "enableCondition": [
-                            {
-                                "3": "EXPRESSION"
-                            }
-                        ]
-                    },
-                    {
-                        "type": "TextField",
-                        "label": "Value Reference Key",
-                        "defaultValue": "",
-                        "isRequired": false,
-                        "enableCondition": [
-                            {
-                                "3": "REGISTRY_REFERENCE"
-                            }
-                        ]
+                        "isRequired": false
                     },
                 ]
             },
@@ -158,58 +141,18 @@ const RuleForm = (props: AddMediatorProps) => {
                         "type": "TextField",
                         "label": "Result Custom Type",
                         "defaultValue": "",
-                        "isRequired": false
+                        "isRequired": false,
+                        "enableCondition": [
+                            {
+                                "0": "CUSTOM"
+                            }
+                        ]
                     },
                     {
                         "type": "TextField",
                         "label": "Result Name",
                         "defaultValue": "",
                         "isRequired": false
-                    },
-                    {
-                        "type": "Dropdown",
-                        "label": "Value Type",
-                        "defaultValue": "NONE",
-                        "isRequired": false,
-                        "values": [
-                            "NONE",
-                            "LITERAL",
-                            "EXPRESSION",
-                            "REGISTRY_REFERENCE"
-                        ]
-                    },
-                    {
-                        "type": "TextField",
-                        "label": "Value Literal",
-                        "defaultValue": "",
-                        "isRequired": false,
-                        "enableCondition": [
-                            {
-                                "3": "LITERAL"
-                            }
-                        ]
-                    },
-                    {
-                        "type": "TextField",
-                        "label": "Property Expression",
-                        "defaultValue": "",
-                        "isRequired": false,
-                        "enableCondition": [
-                            {
-                                "3": "EXPRESSION"
-                            }
-                        ]
-                    },
-                    {
-                        "type": "TextField",
-                        "label": "Value Reference Key",
-                        "defaultValue": "",
-                        "isRequired": false,
-                        "enableCondition": [
-                            {
-                                "3": "REGISTRY_REFERENCE"
-                            }
-                        ]
                     },
                 ]
             },
@@ -220,6 +163,7 @@ const RuleForm = (props: AddMediatorProps) => {
 
     const onClick = async (values: any) => {
         
+        values["targetNamespaces"] = getParamManagerValues(values.targetNamespaces);
         values["factsConfiguration"] = getParamManagerValues(values.factsConfiguration);
         values["resultsConfiguration"] = getParamManagerValues(values.resultsConfiguration);
         const xml = getXML(MEDIATORS.RULE, values, dirtyFields, sidePanelContext.formValues);
@@ -319,6 +263,32 @@ const RuleForm = (props: AddMediatorProps) => {
                         />
                         {errors.targetAction && <Error>{errors.targetAction.message.toString()}</Error>}
                     </Field>
+
+                    <ComponentCard sx={cardStyle} disbaleHoverEffect>
+                        <Typography variant="h3">Target Namespaces</Typography>
+                        <Typography variant="body3">Editing of the namespaces of target element</Typography>
+
+                        <Controller
+                            name="targetNamespaces"
+                            control={control}
+                            render={({ field: { onChange, value } }) => (
+                                <ParamManager
+                                    paramConfigs={value}
+                                    readonly={false}
+                                    onChange={(values) => {
+                                        values.paramValues = values.paramValues.map((param: any, index: number) => {
+                                            const property: ParamValue[] = param.paramValues;
+                                            param.key = property[0].value;
+                                            param.value = property[1].value;
+                                            param.icon = 'query';
+                                            return param;
+                                        });
+                                        onChange(values);
+                                    }}
+                                />
+                            )}
+                        />
+                    </ComponentCard>
 
                     <Field>
                         <Controller

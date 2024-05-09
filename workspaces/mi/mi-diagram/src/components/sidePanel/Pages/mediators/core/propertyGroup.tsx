@@ -57,6 +57,16 @@ const PropertyGroupForm = (props: AddMediatorProps) => {
                     },
                     {
                         "type": "Dropdown",
+                        "label": "Property Action",
+                        "defaultValue": "set",
+                        "isRequired": false,
+                        "values": [
+                            "set",
+                            "remove"
+                        ]
+                    },
+                    {
+                        "type": "Dropdown",
                         "label": "Property Data Type",
                         "defaultValue": "STRING",
                         "isRequired": false,
@@ -74,18 +84,8 @@ const PropertyGroupForm = (props: AddMediatorProps) => {
                         "enableCondition": [
                             "NOT",
                             {
-                                "-1": "remove"
+                                "1": "remove"
                             }
-                        ]
-                    },
-                    {
-                        "type": "Dropdown",
-                        "label": "Property Action",
-                        "defaultValue": "set",
-                        "isRequired": false,
-                        "values": [
-                            "set",
-                            "remove"
                         ]
                     },
                     {
@@ -102,11 +102,11 @@ const PropertyGroupForm = (props: AddMediatorProps) => {
                             [
                                 "NOT",
                                 {
-                                    "1": "OM"
+                                    "2": "OM"
                                 }
                             ],
                             {
-                                "2": "set"
+                                "1": "set"
                             }
                         ], 
                         openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
@@ -126,7 +126,7 @@ const PropertyGroupForm = (props: AddMediatorProps) => {
                         "isRequired": false,
                         "enableCondition": [
                             {
-                                "1": "OM"
+                                "2": "OM"
                             }
                         ]
                     },
@@ -154,10 +154,10 @@ const PropertyGroupForm = (props: AddMediatorProps) => {
                         "enableCondition": [
                             "AND",
                             {
-                                "1": "STRING"
+                                "2": "STRING"
                             },
                             {
-                                "2": "set"
+                                "1": "set"
                             }
                         ]
                     },
@@ -169,10 +169,10 @@ const PropertyGroupForm = (props: AddMediatorProps) => {
                         "enableCondition": [
                             "AND",
                             {
-                                "1": "STRING"
+                                "2": "STRING"
                             },
                             {
-                                "2": "set"
+                                "1": "set"
                             }
                         ]
                     },

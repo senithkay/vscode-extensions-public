@@ -40,7 +40,8 @@
             "value": {
               "name": "validateSchemaKey",
               "displayName": "Validate Schema Key",
-              "inputType": "keyOrExpression",
+              "inputType": "string",
+              "keyType": "schema",
               "required": false,
               "helpTip": ""
             }
@@ -106,7 +107,7 @@
             "value": {
               "name": "locationKey",
               "displayName": "Location Key",
-              "inputType": "key",
+              "inputType": "string",
               "required": false,
               "helpTip": ""
             }

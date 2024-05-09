@@ -17,6 +17,7 @@ import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
 import { MEDIATORS } from '../../../../../resources/constants';
 import { Controller, useForm } from 'react-hook-form';
+import { Keylookup } from '../../../../Form';
 import { ExpressionField, ExpressionFieldValue } from '../../../../Form/ExpressionField/ExpressionInput';
 
 const cardStyle = { 
@@ -259,16 +260,22 @@ const AggregateForm = (props: AddMediatorProps) => {
                     </Field>
 
                     {watch("sequenceType") == "REGISTRY_REFERENCE" &&
-                    <Field>
-                        <Controller
-                            name="sequenceKey"
-                            control={control}
-                            render={({ field }) => (
-                                <TextField {...field} label="Sequence Key" size={50} placeholder="" />
-                            )}
-                        />
-                        {errors.sequenceKey && <Error>{errors.sequenceKey.message.toString()}</Error>}
-                    </Field>
+                        <Field>
+                            <Controller
+                                name="sequenceKey"
+                                control={control}
+                                render={({ field }) => (
+                                    <Keylookup
+                                        value={field.value}
+                                        filterType='sequence'
+                                        label="Sequence Key"
+                                        allowItemCreate={false}
+                                        onValueChange={field.onChange}
+                                    />
+                                )}
+                            />
+                            {errors.sequenceKey && <Error>{errors.sequenceKey.message.toString()}</Error>}
+                        </Field>
                     }
 
                 </ComponentCard>

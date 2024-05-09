@@ -38,7 +38,7 @@ export function getJsonTransformFormDataFromSTNode(data: { [key: string]: any },
   data.description = node.description;
   if (node.property) {
     data.jsonTransformProperties = node.property.map((property) => {
-      return [property.name, property.value ? "LITERAL" : "EXPRESSION", property.value, property.expression];
+      return [property.name, property.value];
     });
   } else {
     data.jsonTransformProperties = [];

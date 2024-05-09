@@ -1,0 +1,331 @@
+/**
+ * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
+
+import { DbMediator } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import Mustache from "mustache";
+
+export function getDBLookupMustacheTemplate() {
+    return `
+    <dblookup {{#description}}description="{{description}}"{{/description}} >
+        <connection>
+            <pool>
+                {{#isDbConnection}}
+                {{#isRegistryBasedDriverConfig}}<driver key="{{registryBasedConnectionDBDriver}}" />{{/isRegistryBasedDriverConfig}}
+                {{^isRegistryBasedDriverConfig}}
+                <driver>{{connectionDBDriver}}</driver>
+                {{/isRegistryBasedDriverConfig}}
+                {{#isRegistryBasedURLConfig}}<url key="{{registryBasedURLConfigKey}}" />{{/isRegistryBasedURLConfig}}
+                {{^isRegistryBasedURLConfig}}
+                <url>{{connectionURL}}</url>
+                {{/isRegistryBasedURLConfig}}
+                {{#isRegistryBasedUserConfig}}<user key="{{registryBasedUserConfigKey}}" />{{/isRegistryBasedUserConfig}}
+                {{^isRegistryBasedUserConfig}}
+                <user>{{connectionUsername}}</user>
+                {{/isRegistryBasedUserConfig}}
+                {{#isRegistryBasedPassConfig}}<password key="{{registryBasedPassConfigKey}}" />{{/isRegistryBasedPassConfig}}
+                {{^isRegistryBasedPassConfig}}
+                <password>{{connectionPassword}}</password>
+                {{/isRegistryBasedPassConfig}}
+                {{/isDbConnection}}
+                {{^isDbConnection}}
+                <dsName>{{connectionDSName}}</dsName>
+                <icClass>{{connectionDSInitialContext}}</icClass>
+                {{^isCarbonDs}}
+                {{#isRegistryBasedURLConfig}}<url key="{{registryBasedURLConfigKey}}" />{{/isRegistryBasedURLConfig}}
+                {{^isRegistryBasedURLConfig}}
+                <url>{{connectionURL}}</url>
+                {{/isRegistryBasedURLConfig}}
+                {{#isRegistryBasedUserConfig}}<user key="{{registryBasedUserConfigKey}}" />{{/isRegistryBasedUserConfig}}
+                {{^isRegistryBasedUserConfig}}
+                <user>{{connectionUsername}}</user>
+                {{/isRegistryBasedUserConfig}}
+                {{#isRegistryBasedPassConfig}}<password key="{{registryBasedPassConfigKey}}" />{{/isRegistryBasedPassConfig}}
+                {{^isRegistryBasedPassConfig}}
+                <password>{{connectionPassword}}</password>
+                {{/isRegistryBasedPassConfig}}
+                {{/isCarbonDs}}
+                {{/isDbConnection}}
+                {{#properties}}
+                <property name="{{propertyName}}" value="{{propertyValue}}" />
+                {{/properties}}
+            </pool>
+        </connection>
+        {{#sqlStatements}}
+        <statement>
+            <sql><![CDATA[{{queryString}}]]></sql>
+            {{#parameters}}
+            <parameter {{#valueExpression}}expression="{{valueExpression}}"{{/valueExpression}} {{#valueLiteral}}value="{{valueLiteral}}"{{/valueLiteral}} type="{{dataType}}"/>
+            {{/parameters}}
+            {{#results}}
+            <result column="{{columnId}}" name="{{propertyName}}"/>
+            {{/results}}
+        </statement>
+        {{/sqlStatements}}
+    </dblookup>
+    `;
+
+}
+
+export function getDblookupXml(data: { [key: string]: any }) {
+
+    let isDbConnection = false;
+    if (data.connectionType === 'DB_CONNECTION') {
+        isDbConnection = true;
+    }
+
+    let isCarbonDs = false;
+    if (data.connectionType === 'CARBON') {
+        isCarbonDs = true;
+    }
+
+    const properties = getProperties(data);
+
+    data.sqlStatements = data.sqlStatements.map((statement: any[]) => {
+        return {
+            queryString: statement[0],
+            parameters: statement[1].map((parameter: any) => {
+                return {
+                    dataType: parameter[0],
+                    valueLiteral: parameter[1] == "LITERAL" ? parameter[2] : undefined,
+                    valueExpression: parameter[1] == "EXPRESSION" ? parameter[3] : undefined
+                }
+            }),
+            results: statement[2].map((result: any) => {
+                return {
+                    propertyName: result[0],
+                    columnId: result[1]
+                }
+            })
+        }
+    });
+
+    const modifiedData = {
+        ...data,
+        isDbConnection: isDbConnection,
+        isCarbonDs: isCarbonDs,
+        properties: properties
+    }
+
+    const output = Mustache.render(getDBLookupMustacheTemplate(), modifiedData);
+    return output;
+}
+
+function getProperties(data: { [key: string]: any }) {
+    let properties = [];
+    if (data.propertyAutocommit !== "DEFAULT") {
+        properties.push({
+            propertyName: "autocommit",
+            propertyValue: data.propertyAutocommit
+        })
+    }
+    if (data.propertyIsolation !== "DEFAULT") {
+        properties.push({
+            propertyName: "isolation",
+            propertyValue: data.propertyIsolation
+        })
+    }
+    if (data.propertyMaxActive !== "-1") {
+        properties.push({
+            propertyName: "maxactive",
+            propertyValue: data.propertyMaxActive
+        })
+    }
+    if (data.propertyMaxIdle !== "-1") {
+        properties.push({
+            propertyName: "maxidle",
+            propertyValue: data.propertyMaxIdle
+        })
+    }
+    if (data.propertyMaxOpenStatements !== "-1") {
+        properties.push({
+            propertyName: "maxopenstatements",
+            propertyValue: data.propertyMaxOpenStatements
+        })
+    }
+    if (data.propertyMaxWait !== "-1") {
+        properties.push({
+            propertyName: "maxwait",
+            propertyValue: data.propertyMaxWait
+        })
+    }
+    if (data.propertyMinIdle !== "-1") {
+        properties.push({
+            propertyName: "minidle",
+            propertyValue: data.propertyMinIdle
+        })
+    }
+    if (data.propertyPoolStatements !== "DEFAULT") {
+        properties.push({
+            propertyName: "poolstatements",
+            propertyValue: data.propertyPoolStatements
+        })
+    }
+    if (data.propertyTestOnBorrow !== "DEFAULT") {
+        properties.push({
+            propertyName: "testonborrow",
+            propertyValue: data.propertyTestOnBorrow
+        })
+    }
+    if (data.propertyTestWhileIdle !== "DEFAULT") {
+        properties.push({
+            propertyName: "testwhileidle",
+            propertyValue: data.propertyTestWhileIdle
+        })
+    }
+    if (data.propertyValidationQuery) {
+        properties.push({
+            propertyName: "validationquery",
+            propertyValue: data.propertyValidationQuery
+        })
+    }
+    if (data.propertyInitialSize !== "-1") {
+        properties.push({
+            propertyName: "initialsize",
+            propertyValue: data.propertyInitialSize
+        })
+    }
+    return properties;
+}
+
+export function getDBLookupFormDataFromSTNode(data: { [key: string]: any }, node: DbMediator) {
+
+    data.description = node.description;
+    const pool = node.connection?.pool;
+    if (pool) {
+        const driver = pool.driver;
+        if (driver?.key) {
+            data.isRegistryBasedDriverConfig = true;
+            data.registryBasedConnectionDBDriver = driver.key;
+        } else {
+            data.isRegistryBasedDriverConfig = false;
+            data.connectionDBDriver = driver?.textNode;
+        }
+        const url = pool.url;
+        if (url?.key) {
+            data.isRegistryBasedURLConfig = true;
+            data.registryBasedURLConfigKey = url.key;
+        } else {
+            data.isRegistryBasedURLConfig = false;
+            data.connectionURL = url?.textNode;
+        }
+        const user = pool.user;
+        if (user?.key) {
+            data.isRegistryBasedUserConfig = true;
+            data.registryBasedUserConfigKey = user.key;
+        } else {
+            data.isRegistryBasedUserConfig = false;
+            data.connectionUsername = user?.textNode;
+        }
+        const password = pool.password;
+        if (password?.key) {
+            data.isRegistryBasedPassConfig = true;
+            data.registryBasedPassConfigKey = password.key;
+        } else {
+            data.isRegistryBasedPassConfig = false;
+            data.connectionPassword = password?.textNode;
+        }
+        data.connectionDSName = pool.dsName;
+        data.connectionDSInitialContext = pool.icClass;
+        if (data.connectionDBDriver) {
+            data.isDbConnection = true;
+        } else {
+            data.isDbConnection = false;
+        }
+        getPropertiesFromPool(pool.property, data);
+    }
+
+    data.sqlStatements = node.statement.map((statement: any) => {
+        const match = statement?.sql?.match(/<!\[CDATA\[(.*?)]]>/);
+        let sql = match ? match[1] : null;
+        return [
+            sql,
+            statement?.parameter?.map((parameter: any) => {
+                let param = [
+                    parameter.type,
+                    parameter.value ? "LITERAL" : "EXPRESSION",
+                    parameter.value,
+                    parameter.expression
+                ];
+                return param;
+            }) ?? [],
+            statement?.result?.map((result: any) => {
+                let res = [
+                    result.name,
+                    result.column
+                ];
+                return res;
+            }) ?? []
+        ]
+    });
+    return data;
+}
+
+function getPropertiesFromPool(properties: any[], data: { [key: string]: any }) {
+    const defaults = {
+        propertyAutocommit: "DEFAULT",
+        propertyIsolation: "DEFAULT",
+        propertyMaxActive: "-1",
+        propertyMaxIdle: "-1",
+        propertyMaxOpenStatements: "-1",
+        propertyMaxWait: "-1",
+        propertyMinIdle: "-1",
+        propertyPoolStatements: "DEFAULT",
+        propertyTestOnBorrow: "DEFAULT",
+        propertyTestWhileIdle: "DEFAULT",
+    };
+
+    properties.forEach(property => {
+        switch (property.name) {
+            case "autocommit":
+                data.propertyAutocommit = property.value;
+                break;
+            case "isolation":
+                data.propertyIsolation = property.value;
+                break;
+            case "maxactive":
+                data.propertyMaxActive = property.value;
+                break;
+            case "maxidle":
+                data.propertyMaxIdle = property.value;
+                break;
+            case "maxopenstatements":
+                data.propertyMaxOpenStatements = property.value;
+                break;
+            case "maxwait":
+                data.propertyMaxWait = property.value;
+                break;
+            case "minidle":
+                data.propertyMinIdle = property.value;
+                break;
+            case "poolstatements":
+                data.propertyPoolStatements = property.value;
+                break;
+            case "testonborrow":
+                data.propertyTestOnBorrow = property.value;
+                break;
+            case "testwhileidle":
+                data.propertyTestWhileIdle = property.value;
+                break;
+            case "validationquery":
+                data.propertyValidationQuery = property.value;
+                break;
+            case "initialsize":
+                data.propertyInitialSize = property.value;
+                break;
+            default:
+                break;
+        }
+    });
+
+    Object.entries(defaults).forEach(([key, value]) => {
+        if (!(key in data)) {
+            data[key] = value;
+        }
+    });
+}
