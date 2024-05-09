@@ -46,13 +46,13 @@ export function getValidateXml(data: { [key: string]: any }, dirtyFields?: any, 
 
     data.schemas = data.schemas.map((schema: string[]) => {
         return {
-            key: schema[0] == "Static" ? schema[1] : "{" + schema[1] + "}"
+            key: schema[0]
         }
     });
     data.features = data.features.map((feature: string[]) => {
         return {
             featureName: feature[0],
-            featureEnable: feature[1]
+            featureEnable: feature[1] ? "true" : "false"
         }
     });
     data.resources = data.resources.map((resource: string[]) => {
@@ -125,16 +125,7 @@ export function getValidateFormDataFromSTNode(data: { [key: string]: any }, node
     if (node.schema) {
         data.schemas = node.schema.map(schema => {
             let key = schema.key;
-            let type;
-            if (key?.startsWith("{")) {
-                const regex = /{([^}]*)}/;
-                const match = schema.key.match(regex);
-                key = match.length > 1 ? match[1] : schema.key;
-                type = "Dynamic";
-            } else {
-                type = "Static";
-            }
-            return [type, key];
+            return [key];
         });
     }
     if (node.resource) {

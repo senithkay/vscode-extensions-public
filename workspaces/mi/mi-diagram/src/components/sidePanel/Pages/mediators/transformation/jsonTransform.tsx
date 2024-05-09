@@ -109,6 +109,7 @@ const JSONTransformForm = (props: AddMediatorProps) => {
                         render={({ field }) => (
                             <Keylookup
                                 value={field.value}
+                                filterType='registry'
                                 label="Schema"
                                 allowItemCreate={false}
                                 onValueChange={field.onChange}

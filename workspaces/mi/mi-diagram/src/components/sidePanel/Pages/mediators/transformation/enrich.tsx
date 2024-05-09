@@ -47,7 +47,7 @@ const EnrichForm = (props: AddMediatorProps) => {
 
     useEffect(() => {
         reset({
-            cloneSource: sidePanelContext?.formValues?.cloneSource || "",
+            cloneSource: sidePanelContext?.formValues?.cloneSource || true,
             sourceType: sidePanelContext?.formValues?.sourceType || "envelope",
             sourceXPath: sidePanelContext?.formValues?.sourceXPath || {"isExpression":true,"value":""},
             sourceProperty: sidePanelContext?.formValues?.sourceProperty || "",

@@ -14,7 +14,12 @@ import { transformNamespaces } from "../../../commons";
 export function getPropertyGroupMustacheTemplate() {
     return `<propertyGroup {{#description}}description="{{description}}"{{/description}}>
     {{#properties}}
+    {{#OMValue}}
+    <property {{#newPropertyName}}name="{{{newPropertyName}}}" {{/newPropertyName}}{{#propertyScope}}scope="{{propertyScope}}" {{/propertyScope}}{{#propertyDataType}}type="{{propertyDataType}}" {{/propertyDataType}}{{#expression}}expression="{{{expression}}}" {{#namespaces}}xmlns:{{prefix}}="{{uri}}" {{/namespaces}}{{/expression}}{{#propertyAction}}action="{{propertyAction}}" {{/propertyAction}}{{#description}}description="{{description}}" {{/description}}>{{{OMValue}}}</property>
+    {{/OMValue}}
+    {{^OMValue}}
     <property {{#newPropertyName}}name="{{{newPropertyName}}}" {{/newPropertyName}}{{#propertyScope}}scope="{{propertyScope}}" {{/propertyScope}}{{#propertyDataType}}type="{{propertyDataType}}" {{/propertyDataType}}{{#expression}}expression="{{{expression}}}" {{#namespaces}}xmlns:{{prefix}}="{{uri}}" {{/namespaces}}{{/expression}}{{#propertyAction}}action="{{propertyAction}}" {{/propertyAction}}{{#description}}description="{{description}}" {{/description}}{{#value}}value="{{{value}}}" {{/value}}{{#valueStringPattern}}pattern="{{{valueStringPattern}}}" {{/valueStringPattern}}{{#valueStringCapturingGroup}}group="{{valueStringCapturingGroup}}" {{/valueStringCapturingGroup}}/>
+    {{/OMValue}}
     {{/properties}}
 </propertyGroup>`;
 }
@@ -23,15 +28,16 @@ export function getPropertyGroupXml(data: { [key: string]: any }) {
     const properties = data.properties.map((property: any[]) => {
         return {
             newPropertyName: property[0],
-            propertyDataType: property[1],
-            propertyAction: property[2],
+            propertyAction: property[1],
+            propertyDataType: property[2],
             value: property[3]?.isExpression ? undefined : property[3]?.value,
             expression: property[3]?.isExpression ? property[3]?.value : undefined,
             namespaces: property[3]?.isExpression ? property[3]?.namespaces : undefined,
+            OMValue: property[1] == "OM" ? property[4] : undefined,
             propertyScope: property[5]?.toLowerCase(),
-            valueStringPattern: property[4],
-            valueStringCapturingGroup: property[6],
-            description: property[7]
+            valueStringPattern: property[6],
+            valueStringCapturingGroup: property[7],
+            description: property[8]
         }
     });
     const modifiedData = {
@@ -49,7 +55,7 @@ export function getPropertyGroupFormDataFromSTNode(data: { [key: string]: any },
         if (isExpression === "EXPRESSION") {
             namespaces = transformNamespaces(property?.namespaces);
         }
-        return [property.name, property.type, property.action, { isExpression: isExpression, value: property.value ?? property.expression, namespaces: namespaces }, property.pattern, property.scope, property.group, property.description];
+        return [property.name, property.action, property.type, { isExpression: isExpression, value: property.value ?? property.expression, namespaces: namespaces }, "", property.scope?.toUpperCase(), property.pattern, property.group, property.description];
     })
     return data;
 }
