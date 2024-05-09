@@ -33,6 +33,9 @@ export class DataMapperNodeModel extends MediatorNodeModel {
         }
 
         const dmName = formData.configurationLocalPath.split("/")[formData.configurationLocalPath.split("/").length - 1].split(".")[0];
+        if (dmName === "") {
+            return;
+        }
 
         const dmCreateRequest = {
             dmLocation: "",
