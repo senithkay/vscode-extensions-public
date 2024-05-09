@@ -25,6 +25,7 @@ import { LinkOverayContainerID } from '../OverriddenLinkLayer/LinkOverlayPortal'
 
 import { CreateLinkState } from './CreateLinkState';
 import { FocusedInputNode } from '../Node/FocusedInput';
+import { PrimitiveOutputNode } from '../Node/PrimitiveOutput';
 
 export class DefaultState extends State<DiagramEngine> {
 	dragCanvas: DragCanvasState;
@@ -87,6 +88,7 @@ export class DefaultState extends State<DiagramEngine> {
 						&& (element instanceof PortModel
 							|| element instanceof ArrayOutputNode
 							|| element instanceof ObjectOutputNode
+							|| element instanceof PrimitiveOutputNode
 							|| element instanceof InputNode
 							|| element instanceof FocusedInputNode
 						)

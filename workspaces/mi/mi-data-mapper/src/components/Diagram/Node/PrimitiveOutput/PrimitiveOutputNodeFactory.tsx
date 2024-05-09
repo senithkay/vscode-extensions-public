@@ -32,7 +32,7 @@ export class PrimitiveOutputNodeFactory extends AbstractReactFactory<PrimitiveOu
 		const isMapFnAtFnReturn = views.length === 1 && Node.isFunctionDeclaration(focusedST);
 		if (isMapFn && !isMapFnAtFnReturn)
 		{
-			valueLabel = event.model.dmTypeWithValue.value.getText();
+			valueLabel = views[views.length - 1].targetFieldFQN.split('.').pop();
 		}
 		return (
 			<>

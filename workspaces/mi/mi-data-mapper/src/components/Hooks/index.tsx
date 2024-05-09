@@ -22,6 +22,7 @@ import { GAP_BETWEEN_INPUT_NODES, IO_NODE_DEFAULT_WIDTH, OFFSETS, VISUALIZER_PAD
 import { LinkConnectorNode } from '../Diagram/Node/LinkConnector';
 import { InputDataImportNodeModel, OutputDataImportNodeModel } from '../Diagram/Node/DataImport/DataImportNode';
 import { ArrayFnConnectorNode } from '../Diagram/Node/ArrayFnConnector';
+import { FocusedInputNode } from '../Diagram/Node/FocusedInput';
 
 export const useRepositionedNodes = (nodes: DataMapperNodeModel[], zoomLevel: number, diagramModel: DiagramModel) => {
     const nodesClone = [...nodes];
@@ -81,7 +82,7 @@ export const useDiagramModel = (
         newModel.setZoomLevel(zoomLevel);
         newModel.setOffset(offSetX, offSetY);
         const showInputFilterEmpty = !nodes.some(
-            node => node instanceof InputNode && node.getSearchFilteredType()
+            node => (node instanceof InputNode && node.getSearchFilteredType()) || node instanceof FocusedInputNode
         );
         if (showInputFilterEmpty) {
             const inputSearchNotFoundNode = new InputNode(undefined, undefined, true);

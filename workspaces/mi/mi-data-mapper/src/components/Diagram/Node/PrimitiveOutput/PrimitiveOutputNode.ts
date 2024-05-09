@@ -8,7 +8,7 @@
  */
 import { Point } from "@projectstorm/geometry";
 import { DMType, TypeKind } from "@wso2-enterprise/mi-core";
-import { Node, ReturnStatement } from "ts-morph";
+import { CallExpression, Node, ReturnStatement } from "ts-morph";
 
 import { useDMCollapsedFieldsStore, useDMSearchStore } from "../../../../store/store";
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
@@ -18,7 +18,7 @@ import { DMTypeWithValue } from "../../Mappings/DMTypeWithValue";
 import { MappingMetadata } from "../../Mappings/MappingMetadata";
 import { InputOutputPortModel } from "../../Port";
 import { PRIMITIVE_OUTPUT_TARGET_PORT_PREFIX } from "../../utils/constants";
-import { findInputNode, getDefaultValue, getInputPort, getOutputPort, getTypeName, isArrayOrInterface, isMapFunction } from "../../utils/common-utils";
+import { findInputNode, getDefaultValue, getInputPort, getOutputPort, getTnfFnReturnStatement, getTypeName, isArrayOrInterface, isMapFunction } from "../../utils/common-utils";
 import { getEnrichedDMType } from "../../utils/type-utils";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
 import { getFilteredMappings } from "../../utils/search-utils";
@@ -52,10 +52,19 @@ export class PrimitiveOutputNode extends DataMapperNodeModel {
 
     async initPorts() {
         if (this.dmType) {
+            const { focusedST, functionST, views } = this.context;
             const collapsedFields = useDMCollapsedFieldsStore.getState().collapsedFields;
             const valueEnrichedType = getEnrichedDMType(this.dmType, this.value && this.value.getExpression());
             const searchValue = useDMSearchStore.getState().outputSearch;
-            this.isMapFn = Node.isCallExpression(this.value) && isMapFunction(this.value);
+            const tnfFnRootReturn = getTnfFnReturnStatement(functionST);
+            const isMapFnAtPropAssignment = Node.isPropertyAssignment(focusedST)
+                && Node.isCallExpression(focusedST.getInitializer())
+                && isMapFunction(focusedST.getInitializer() as CallExpression);
+            const isMapFnAtRootReturn = views.length > 1
+            && Node.isFunctionDeclaration(focusedST)
+                && Node.isCallExpression(tnfFnRootReturn)
+                && isMapFunction(tnfFnRootReturn);
+            this.isMapFn = isMapFnAtPropAssignment || isMapFnAtRootReturn;
 
             this.typeName = getTypeName(valueEnrichedType.type);
             this.dmTypeWithValue = valueEnrichedType;
@@ -69,7 +78,7 @@ export class PrimitiveOutputNode extends DataMapperNodeModel {
                 collapsedFields, this.dmTypeWithValue, this.isMapFn
             );
             this.addPortsForOutputField(
-                this.dmTypeWithValue, "IN", this.dmTypeWithValue.type.typeName, undefined,
+                this.dmTypeWithValue, "IN", this.dmTypeWithValue.type.kind, undefined,
                 PRIMITIVE_OUTPUT_TARGET_PORT_PREFIX, parentPort, collapsedFields, parentPort.collapsed, this.isMapFn
             );
         }
@@ -107,7 +116,7 @@ export class PrimitiveOutputNode extends DataMapperNodeModel {
 
             if (!isArrayOrInterface(this.dmTypeWithValue.type)) {
                 outPort = this.getPort(`${PRIMITIVE_OUTPUT_TARGET_PORT_PREFIX}.${
-                    this.dmTypeWithValue.type.typeName}.IN`) as InputOutputPortModel;
+                    this.dmTypeWithValue.type.kind}.IN`) as InputOutputPortModel;
                 mappedOutPort = outPort;
             } else {
                 [outPort, mappedOutPort] = getOutputPort(

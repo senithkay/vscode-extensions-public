@@ -16,6 +16,7 @@ import {
 import { IO_NODE_DEFAULT_WIDTH } from "../utils/constants";
 import { DataMapperNodeModel } from "../Node/commons/DataMapperNode";
 import { FocusedInputNode } from "../Node/FocusedInput";
+import { PrimitiveOutputNode } from "../Node/PrimitiveOutput";
 
 export const INPUT_NODES = [
     InputNode,
@@ -24,7 +25,8 @@ export const INPUT_NODES = [
 
 export const OUTPUT_NODES = [
     ArrayOutputNode,
-    ObjectOutputNode
+    ObjectOutputNode,
+    PrimitiveOutputNode
 ];
 
 export const INTERMEDIATE_NODES: typeof DataMapperNodeModel[] = [];
