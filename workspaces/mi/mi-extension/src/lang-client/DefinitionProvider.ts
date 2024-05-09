@@ -19,8 +19,10 @@ export class GoToDefinitionProvider implements vscode.DefinitionProvider {
         token: vscode.CancellationToken
     ): Thenable<vscode.Definition> {
         return this.langClient.getDefinition({
-            document: this.langClient.code2ProtocolConverter
-                .asTextDocumentIdentifier(document), position
+            document: {
+                uri: document.uri.path,
+            },
+            position
         }).then(definition => {
             const uri = vscode.Uri.file(definition.uri);
             const start = new vscode.Position(definition.range.start.line, definition.range.start.character);

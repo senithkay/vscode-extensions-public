@@ -227,7 +227,7 @@ export class MILanguageClient {
                             client: true
                         },
                         format: {
-                            enabled: true,
+                            enabled: false,
                             splitAttributes: false
                         },
                         completion: {
