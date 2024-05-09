@@ -23,6 +23,7 @@ import { LinkConnectorNode } from '../Diagram/Node/LinkConnector';
 import { InputDataImportNodeModel, OutputDataImportNodeModel } from '../Diagram/Node/DataImport/DataImportNode';
 import { ArrayFnConnectorNode } from '../Diagram/Node/ArrayFnConnector';
 import { FocusedInputNode } from '../Diagram/Node/FocusedInput';
+import { PrimitiveOutputNode } from '../Diagram/Node/PrimitiveOutput';
 
 export const useRepositionedNodes = (nodes: DataMapperNodeModel[], zoomLevel: number, diagramModel: DiagramModel) => {
     const nodesClone = [...nodes];
@@ -34,13 +35,17 @@ export const useRepositionedNodes = (nodes: DataMapperNodeModel[], zoomLevel: nu
         const exisitingNode = diagramModel.getNodes().find(n => (n as DataMapperNodeModel).id === node.id);
         if (node instanceof ObjectOutputNode
             || node instanceof ArrayOutputNode
+            || node instanceof PrimitiveOutputNode
             || node instanceof OutputDataImportNodeModel
         ) {
             const x = (window.innerWidth - VISUALIZER_PADDING) * (100 / zoomLevel) - IO_NODE_DEFAULT_WIDTH;
             const y = exisitingNode && exisitingNode.getY() !== 0 ? exisitingNode.getY() : 0;
             node.setPosition(x, y);
         }
-        if (node instanceof InputNode || node instanceof InputDataImportNodeModel) {
+        if (node instanceof InputNode
+            || node instanceof FocusedInputNode
+            || node instanceof InputDataImportNodeModel
+        ) {
             const x = OFFSETS.SOURCE_NODE.X;
             const computedY = prevBottomY + (prevBottomY ? GAP_BETWEEN_INPUT_NODES : 0);
             let y = exisitingNode && exisitingNode.getY() !== 0 ? exisitingNode.getY() : computedY;

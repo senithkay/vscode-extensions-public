@@ -19,8 +19,8 @@ import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapp
 import { DMTypeWithValue } from "../../Mappings/DMTypeWithValue";
 import { DataMapperPortWidget, PortState, InputOutputPortModel } from "../../Port";
 import { OutputSearchHighlight } from "../commons/Search";
-import { ValueConfigMenu, ValueConfigOption } from "../commons/DataManipulationWidget/ValueConfigButton";
-import { ValueConfigMenuItem } from "../commons/DataManipulationWidget/ValueConfigButton/ValueConfigMenuItem";
+import { ValueConfigMenu, ValueConfigOption } from "../commons/ValueConfigButton";
+import { ValueConfigMenuItem } from "../commons/ValueConfigButton/ValueConfigMenuItem";
 import { useIONodesStyles } from "../../../styles";
 import { useDMCollapsedFieldsStore } from '../../../../store/store';
 import { getDefaultValue, getEditorLineAndColumn, getTypeName, isConnectedViaLink } from "../../utils/common-utils";

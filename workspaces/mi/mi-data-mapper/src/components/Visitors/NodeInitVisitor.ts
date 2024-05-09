@@ -72,12 +72,13 @@ export class NodeInitVisitor implements Visitor {
                 } else if (memberType.kind === TypeKind.Array) {
                     this.outputNode = new ArrayOutputNode(this.context, mapFnReturnStmt, memberType);
                 } else {
-                    this.outputNode = new PrimitiveOutputNode(this.context, mapFnReturnStmt, memberType);
+                    // Constraint: Since the return type of the transformation function is an array,
+                    // the member type can only be either an interface or an array
                 }
             } else if (outputTree?.kind === TypeKind.Interface) {
                 this.outputNode = new ObjectOutputNode(this.context, mapFnReturnStmt, outputTree);
             } else {
-                // TODO: Add a node for primitive types
+                // Constraint: The return type of the transformation function should be an interface or an array
             }
             this.outputNode.setPosition(OFFSETS.TARGET_NODE.X, 0);
 
@@ -130,7 +131,7 @@ export class NodeInitVisitor implements Visitor {
                 if (exprType?.kind === TypeKind.Interface) {
                     this.outputNode = new ObjectOutputNode(this.context, returnStatement, exprType);
                 } else {
-                    // TODO: Add a node for primitive types
+                    // Constraint: The return type of the transformation function should be an interface or an array
                 }
                 if (isConditionalExpression(innerExpr)) {
                     const inputNodes = getPropertyAccessNodes(returnStatement);
@@ -203,6 +204,22 @@ export class NodeInitVisitor implements Visitor {
             this.isWithinMapFn += 1;
             const arrayFnConnectorNode = new ArrayFnConnectorNode(this.context, node, parent);
             this.intermediateNodes.push(arrayFnConnectorNode);
+        }
+    }
+
+    beginVisitReturnStatement(node: ReturnStatement, parent: Node): void {
+        const expr = node.getExpression();
+        if (this.isWithinMapFn === 0
+            && !Node.isObjectLiteralExpression(expr)
+            && !Node.isArrayLiteralExpression(expr)
+        ) {
+            const propAccessNodes = getPropertyAccessNodes(expr);
+            if (propAccessNodes.length > 1) {
+                const linkConnectorNode = this.createLinkConnectorNode(
+                    expr, "", parent, propAccessNodes, [...this.mapIdentifiers, expr]
+                );
+                this.intermediateNodes.push(linkConnectorNode);
+            }
         }
     }
 

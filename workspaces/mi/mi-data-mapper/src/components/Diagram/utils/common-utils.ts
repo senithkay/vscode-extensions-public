@@ -37,6 +37,7 @@ import {
     PRIMITIVE_OUTPUT_TARGET_PORT_PREFIX
 } from "./constants";
 import { FocusedInputNode } from "../Node/FocusedInput";
+import { PrimitiveOutputNode } from "../Node/PrimitiveOutput";
 
 export function getPropertyAccessNodes(node: Node): (Identifier | PropertyAccessExpression)[] {
     const propertyAccessNodeVisitor: PropertyAccessNodeFindingVisitor = new PropertyAccessNodeFindingVisitor();
@@ -389,6 +390,8 @@ export function getTargetPortPrefix(node: NodeModel): string {
 			return OBJECT_OUTPUT_TARGET_PORT_PREFIX;
         case node instanceof ArrayOutputNode:
             return ARRAY_OUTPUT_TARGET_PORT_PREFIX;
+        case node instanceof PrimitiveOutputNode:
+            return PRIMITIVE_OUTPUT_TARGET_PORT_PREFIX;
         // TODO: Update cases for other node types
 		default:
 			return PRIMITIVE_OUTPUT_TARGET_PORT_PREFIX;

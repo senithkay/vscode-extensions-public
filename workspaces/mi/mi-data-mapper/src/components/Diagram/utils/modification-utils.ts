@@ -32,6 +32,7 @@ import { ArrayOutputNode, LinkConnectorNode, ObjectOutputNode } from "../Node";
 import { ExpressionLabelModel } from "../Label";
 import { DMTypeWithValue } from "../Mappings/DMTypeWithValue";
 import { getPosition, isPositionsEquals } from "./st-utils";
+import { PrimitiveOutputNode } from "../Node/PrimitiveOutput";
 
 export async function createSourceForMapping(link: DataMapperLinkModel) {
     if (!link.getSourcePort() || !link.getTargetPort()) {
@@ -365,7 +366,11 @@ export function modifySourceForMultipleMappings(link: DataMapperLinkModel) {
 					}
 				} else if (targerPortLink.getLabels().length > 0) {
 					valueNode = (targerPortLink.getLabels()[0] as ExpressionLabelModel).valueNode;
-				} else if (targetNode instanceof ObjectOutputNode || targetNode instanceof ArrayOutputNode) {
+				} else if (
+					targetNode instanceof ObjectOutputNode
+					|| targetNode instanceof ArrayOutputNode
+					|| targetNode instanceof PrimitiveOutputNode
+				) {
 					const linkConnector = targetNode.getModel().getNodes().find(node =>
 						node instanceof LinkConnectorNode
 						&& node.targetPort.portName === (targerPortLink.getTargetPort() as InputOutputPortModel).portName

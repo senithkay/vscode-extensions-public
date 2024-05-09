@@ -17,7 +17,7 @@ import { DMTypeWithValue } from "../../Mappings/DMTypeWithValue";
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { DataMapperPortWidget, InputOutputPortModel } from "../../Port";
 
-import { PrimitiveTypeOutputElementWidget } from "../commons/DataManipulationWidget/PrimitiveTypeOutputElementWidget";
+import { PrimitiveOutputElementWidget } from "./PrimitiveOutputElementWidget";
 import { TreeBody, TreeHeader, TreeContainer } from "../commons/Tree/Tree";
 import { useIONodesStyles } from "../../../../components/styles";
 import { OutputSearchHighlight } from "../commons/Search";
@@ -94,7 +94,7 @@ export function PrimitiveOutputWidget(props: PrimitiveOutputWidgetProps) {
 			</TreeHeader>
 			{expanded && field && (
 				<TreeBody>
-					<PrimitiveTypeOutputElementWidget
+					<PrimitiveOutputElementWidget
 						key={id}
 						parentId={id}
 						engine={engine}
