@@ -79,10 +79,10 @@ function getEdits(data: { [key: string]: any }, dirtyFields: any, defaultValues:
       dataCopy = { ...data };
       dataCopy.caseRegex = data.caseBranches[i][0];
       let editRange;
-      if (defaultValues.caseBranches[i]) {
+      if (defaultValues.caseBranchesData[i]) {
         dataCopy.editCase = true;
-        dataCopy.caseSelfClosed = defaultValues.caseBranches[i][2];
-        editRange = defaultValues.caseBranches[i][1].startTagRange
+        dataCopy.caseSelfClosed = defaultValues.caseBranchesData[i][2];
+        editRange = defaultValues.caseBranchesData[i][1].startTagRange
       } else {
         dataCopy.newCase = true;
         editRange = {
@@ -108,6 +108,9 @@ export function getSwitchFormDataFromSTNode(data: { [key: string]: any }, node: 
   data.description = node.description;
   if (node._case) {
     data.caseBranches = node._case.map((_case) => {
+      return [_case.regex];
+    });
+    data.caseBranchesData = node._case.map((_case) => {
       return [_case.regex, _case.range, _case.selfClosed];
     });
   }

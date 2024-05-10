@@ -13,11 +13,16 @@ import { ExpressionFieldValue } from "../../../../components/Form/ExpressionFiel
 import { transformNamespaces } from "../../../commons";
 
 export function getLogMustacheTemplate() {
-  return `<log {{#category}}category="{{category}}"{{/category}} {{#level}}level="{{level}}"{{/level}} {{#separator}}separator="{{separator}}"{{/separator}} {{#description}}description="{{description}}"{{/description}}>
+  return `{{#selfClosed}}
+  <log {{#category}}category="{{category}}"{{/category}} {{#level}}level="{{level}}"{{/level}} {{#separator}}separator="{{separator}}"{{/separator}} {{#description}}description="{{description}}"{{/description}}/>
+  {{/selfClosed}}
+  {{^selfClosed}}
+  <log {{#category}}category="{{category}}"{{/category}} {{#level}}level="{{level}}"{{/level}} {{#separator}}separator="{{separator}}"{{/separator}} {{#description}}description="{{description}}"{{/description}}>
 {{#properties}}
     <property name="{{{propertyName}}}" {{#value}}value="{{{value}}}"{{/value}} {{#expression}}expression="{{{expression}}}" {{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}} {{/expression}} />
 {{/properties}}
-</log>`;
+</log>
+{{/selfClosed}}`;
 }
 
 export function getLogXml(data: { [key: string]: any }) {
@@ -33,17 +38,19 @@ export function getLogXml(data: { [key: string]: any }) {
       namespaces
     }
   });
+  if (!properties || data.properties.length == 0) data.selfClosed = true;
   const modifiedData = {
     ...data,
     properties
   }
 
-  return Mustache.render(getLogMustacheTemplate(), modifiedData);
+  return Mustache.render(getLogMustacheTemplate(), modifiedData)?.trim();
 }
 
 export function getLogFormDataFromSTNode(data: { [key: string]: any }, node: Log) {
   if (data.level) data.level = data.level.toString().toUpperCase();
-
+  data.description = node.description;
+  data.separator = node.separator;
   if (node.property) {
     data.properties = node.property.map((property) => {
       return [property.name, { value: property.value || property.expression, isExpression: !!property.expression, namespaces: transformNamespaces(property.namespaces) }];

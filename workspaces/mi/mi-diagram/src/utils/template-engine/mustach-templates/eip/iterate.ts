@@ -21,7 +21,7 @@ export function getIterateMustacheTemplate() {
         </target>
         {{/isAnnonymousSequence}}
         {{^isAnnonymousSequence}}
-        <target sequence="{{sequenceKey}}" />
+        <target sequence="{{{sequenceKey}}}" />
         {{/isAnnonymousSequence}}
     </iterate>
     {{/isNewMediator}}
@@ -41,7 +41,7 @@ export function getIterateMustacheTemplate() {
     </target>
     {{/isAnnonymousSequence}}
     {{^isAnnonymousSequence}}
-    <target sequence="{{sequenceKey}}" />
+    <target sequence="{{{sequenceKey}}}" />
     {{/isAnnonymousSequence}}
     {{/editTarget}}
     {{/isNewMediator}}

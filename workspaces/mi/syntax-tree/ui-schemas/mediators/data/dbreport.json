@@ -99,7 +99,7 @@
           {
             "type": "attribute",
             "value": {
-              "name": "registryBasedonnectionDBDriver",
+              "name": "registryBasedConnectionDBDriver",
               "displayName": "Registry Based Connection DB Driver",
               "inputType": "registry",
               "enableCondition": [
@@ -182,7 +182,7 @@
                     "connectionType": "DATA_SOURCE"
                   },
                   {
-                    "connectionDsType": "EXTERNAL"
+                    "connectionDSType": "EXTERNAL"
                   }
                 ]
               ],
@@ -199,7 +199,7 @@
               "enableCondition": [
                 "AND",
                 {
-                  "isRegistryBasedUrlConfig": "false"
+                  "isRegistryBasedURLConfig": "false"
                 },
                 [
                   "OR",
@@ -212,7 +212,7 @@
                       "connectionType": "DATA_SOURCE"
                     },
                     {
-                      "connectionDsType": "EXTERNAL"
+                      "connectionDSType": "EXTERNAL"
                     }
                   ]
                 ]
@@ -230,7 +230,7 @@
               "enableCondition": [
                 "AND",
                 {
-                  "isRegistryBasedUrlConfig": "true"
+                  "isRegistryBasedURLConfig": "true"
                 },
                 [
                   "OR",
@@ -243,7 +243,7 @@
                       "connectionType": "DATA_SOURCE"
                     },
                     {
-                      "connectionDsType": "EXTERNAL"
+                      "connectionDSType": "EXTERNAL"
                     }
                   ]
                 ]
@@ -269,7 +269,7 @@
                     "connectionType": "DATA_SOURCE"
                   },
                   {
-                    "connectionDsType": "EXTERNAL"
+                    "connectionDSType": "EXTERNAL"
                   }
                 ]
               ],
@@ -299,7 +299,7 @@
                       "connectionType": "DATA_SOURCE"
                     },
                     {
-                      "connectionDsType": "EXTERNAL"
+                      "connectionDSType": "EXTERNAL"
                     }
                   ]
                 ]
@@ -330,7 +330,7 @@
                       "connectionType": "DATA_SOURCE"
                     },
                     {
-                      "connectionDsType": "EXTERNAL"
+                      "connectionDSType": "EXTERNAL"
                     }
                   ]
                 ]
@@ -356,7 +356,7 @@
                     "connectionType": "DATA_SOURCE"
                   },
                   {
-                    "connectionDsType": "EXTERNAL"
+                    "connectionDSType": "EXTERNAL"
                   }
                 ]
               ],
@@ -386,7 +386,7 @@
                       "connectionType": "DATA_SOURCE"
                     },
                     {
-                      "connectionDsType": "EXTERNAL"
+                      "connectionDSType": "EXTERNAL"
                     }
                   ]
                 ]
@@ -417,7 +417,7 @@
                       "connectionType": "DATA_SOURCE"
                     },
                     {
-                      "connectionDsType": "EXTERNAL"
+                      "connectionDSType": "EXTERNAL"
                     }
                   ]
                 ]
@@ -441,7 +441,7 @@
               "displayName": "SQL Statements",
               "title": "SQL Statement",
               "description": "Editing of the properties of an object SQL Statement",
-              "tableKey": "Query",
+              "tableKey": "Query Template",
               "tableValue": "queryString",
               "elements": [
                 {
@@ -465,98 +465,80 @@
                     "tableValue": "valueLiteral",
                     "elements": [
                       {
-                        "type": "attributeGroup",
+                        "type": "attribute",
                         "value": {
-                          "groupName": "Properties",
-                          "elements": [
+                          "name": "dataType",
+                          "displayName": "Data Type",
+                          "inputType": "combo",
+                          "defaultValue": "CHAR",
+                          "comboValues": [
+                            "CHAR",
+                            "VARCHAR",
+                            "LONGVARCHAR",
+                            "NUMERIC",
+                            "DECIMAL",
+                            "BIT",
+                            "TINYINT",
+                            "SMALLINT",
+                            "INTEGER",
+                            "BIGINT",
+                            "REAL",
+                            "FLOAT",
+                            "DOUBLE",
+                            "DATE",
+                            "TIME",
+                            "TIMESTAMP"
+                          ],
+                          "required": true,
+                          "helpTip": "Select the data type"
+                        }
+                      },
+                      {
+                        "type": "attribute",
+                        "value": {
+                          "name": "valueType",
+                          "displayName": "Value Type",
+                          "inputType": "combo",
+                          "defaultValue": "LITERAL",
+                          "comboValues": [
+                            "LITERAL",
+                            "EXPRESSION"
+                          ],
+                          "required": true,
+                          "helpTip": "Select the value type"
+                        }
+                      },
+                      {
+                        "type": "attribute",
+                        "value": {
+                          "name": "valueLiteral",
+                          "displayName": "Value Literal",
+                          "inputType": "string",
+                          "required": true,
+                          "enableCondition": [
                             {
-                              "type": "attribute",
-                              "value": {
-                                "name": "dataType",
-                                "displayName": "Data Type",
-                                "inputType": "combo",
-                                "defaultValue": "CHAR",
-                                "comboValues": [
-                                  "CHAR",
-                                  "VARCHAR",
-                                  "LONGVARCHAR",
-                                  "NUMERIC",
-                                  "DECIMAL",
-                                  "BIT",
-                                  "TINYINT",
-                                  "SMALLINT",
-                                  "INTEGER",
-                                  "BIGINT",
-                                  "REAL",
-                                  "FLOAT",
-                                  "DOUBLE",
-                                  "DATE",
-                                  "TIME",
-                                  "TIMESTAMP"
-                                ],
-                                "required": true,
-                                "helpTip": "Select the data type"
-                              }
-                            },
-                            {
-                              "type": "attribute",
-                              "value": {
-                                "name": "valueType",
-                                "displayName": "Value Type",
-                                "inputType": "combo",
-                                "defaultValue": "LITERAL",
-                                "comboValues": [
-                                  "LITERAL",
-                                  "EXPRESSION"
-                                ],
-                                "required": true,
-                                "helpTip": "Select the value type"
-                              }
-                            },
-                            {
-                              "type": "attribute",
-                              "value": {
-                                "name": "valueLiteral",
-                                "displayName": "Value Literal",
-                                "inputType": "string",
-                                "required": true,
-                                "enableCondition": [
-                                  {
-                                    "valueType": "LITERAL"
-                                  }
-                                ],
-                                "helpTip": "Enter the value literal"
-                              }
-                            },
-                            {
-                              "type": "attribute",
-                              "value": {
-                                "name": "valueExpression",
-                                "displayName": "Value Expression",
-                                "inputType": "expression",
-                                "required": true,
-                                "enableCondition": [
-                                  {
-                                    "valueType": "EXPRESSION"
-                                  }
-                                ],
-                                "helpTip": "Enter the value expression"
-                              }
+                              "valueType": "LITERAL"
                             }
-                          ]
+                          ],
+                          "helpTip": "Enter the value literal"
+                        }
+                      },
+                      {
+                        "type": "attribute",
+                        "value": {
+                          "name": "valueExpression",
+                          "displayName": "Value Expression",
+                          "inputType": "expression",
+                          "required": true,
+                          "enableCondition": [
+                            {
+                              "valueType": "EXPRESSION"
+                            }
+                          ],
+                          "helpTip": "Enter the value expression"
                         }
                       }
                     ]
-                  }
-                },
-                {
-                  "type": "attribute",
-                  "value": {
-                    "name": "resultsEnabled",
-                    "displayName": "Results Enabled",
-                    "inputType": "checkbox",
-                    "required": false,
-                    "helpTip": ""
                   }
                 },
                 {

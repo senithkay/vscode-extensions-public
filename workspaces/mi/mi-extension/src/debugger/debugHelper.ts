@@ -122,11 +122,13 @@ export async function executeCopyTask(task: vscode.Task) {
     return new Promise<void>(async resolve => {
         await vscode.tasks.executeTask(task);
         let disposable = vscode.tasks.onDidEndTaskProcess(async e => {
-            if (e.exitCode === 0) {
+            if(e.execution.task.name === 'copy'){
                 disposable.dispose();
-                resolve();
-            } else {
-                reject(`Task '${task.name}' failed.`);
+                if (e.exitCode === 0) {
+                    resolve();
+                } else {
+                    reject(`Task '${task.name}' failed.`);
+                }
             }
         });
     });
@@ -138,23 +140,25 @@ export async function executeBuildTask(task: vscode.Task, serverPath: string, sh
             await vscode.tasks.executeTask(task);
             if (shouldCopyTarget) {
                 let disposable = vscode.tasks.onDidEndTaskProcess(async e => {
-                    if (e.exitCode === 0) {
+                    if (e.execution.task.name === 'build') {
                         disposable.dispose();
-                        // Check if the target directory exists in the workspace
-                        const workspaceFolders = vscode.workspace.workspaceFolders;
-                        if (workspaceFolders && workspaceFolders.length > 0) {
-                            const targetDirectory = vscode.Uri.joinPath(workspaceFolders[0].uri, "target");
-                            if (fs.existsSync(targetDirectory.fsPath)) {
-                                const copyTask = getCopyTask(serverPath, targetDirectory);
-                                executeCopyTask(copyTask).then(() => {
-                                    resolve();
-                                }).catch((error) => {
-                                    reject(error);
-                                });
+                        if (e.exitCode === 0) {
+                            // Check if the target directory exists in the workspace
+                            const workspaceFolders = vscode.workspace.workspaceFolders;
+                            if (workspaceFolders && workspaceFolders.length > 0) {
+                                const targetDirectory = vscode.Uri.joinPath(workspaceFolders[0].uri, "target");
+                                if (fs.existsSync(targetDirectory.fsPath)) {
+                                    const copyTask = getCopyTask(serverPath, targetDirectory);
+                                    executeCopyTask(copyTask).then(() => {
+                                        resolve();
+                                    }).catch((error) => {
+                                        reject(error);
+                                    });
+                                }
                             }
+                        } else {
+                            reject(`Task '${task.name}' failed.`);
                         }
-                    } else {
-                        reject(`Task '${task.name}' failed.`);
                     }
                 });
             }

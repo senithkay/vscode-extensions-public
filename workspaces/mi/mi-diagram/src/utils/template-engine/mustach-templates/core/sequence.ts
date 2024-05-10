@@ -10,7 +10,7 @@
 import Mustache from "mustache";
 
 export function getSequenceMustacheTemplate() {
-    return `<sequence {{#referingSequence}}key="{{referingSequence}}"{{/referingSequence}} {{#description}}description="{{description}}"{{/description}}/>`;
+    return `<sequence {{#referingSequence}}key="{{{referingSequence}}}"{{/referingSequence}} {{#description}}description="{{description}}"{{/description}}/>`;
 }
 
 export function getSequenceXml(data: { [key: string]: any }) {

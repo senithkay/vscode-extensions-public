@@ -51,7 +51,7 @@ const DBReportForm = (props: AddMediatorProps) => {
             connectionDBType: sidePanelContext?.formValues?.connectionDBType || "OTHER",
             isRegistryBasedDriverConfig: sidePanelContext?.formValues?.isRegistryBasedDriverConfig || "",
             connectionDBDriver: sidePanelContext?.formValues?.connectionDBDriver || "",
-            registryBasedonnectionDBDriver: sidePanelContext?.formValues?.registryBasedonnectionDBDriver || "",
+            registryBasedConnectionDBDriver: sidePanelContext?.formValues?.registryBasedConnectionDBDriver || "",
             connectionDSType: sidePanelContext?.formValues?.connectionDSType || "EXTERNAL",
             connectionDSInitialContext: sidePanelContext?.formValues?.connectionDSInitialContext || "",
             connectionDSName: sidePanelContext?.formValues?.connectionDSName || "",
@@ -83,20 +83,66 @@ const DBReportForm = (props: AddMediatorProps) => {
                                 paramValues: sidePanelContext?.formValues?.parameters ? getParamManagerFromValues(sidePanelContext?.formValues?.parameters) : [],
                                 paramFields: [
                                     {
+                                        "type": "Dropdown",
+                                        "label": "Data Type",
+                                        "defaultValue": "CHAR",
+                                        "isRequired": false,
+                                        "values": [
+                                            "CHAR",
+                                            "VARCHAR",
+                                            "LONGVARCHAR",
+                                            "NUMERIC",
+                                            "DECIMAL",
+                                            "BIT",
+                                            "TINYINT",
+                                            "SMALLINT",
+                                            "INTEGER",
+                                            "BIGINT",
+                                            "REAL",
+                                            "FLOAT",
+                                            "DOUBLE",
+                                            "DATE",
+                                            "TIME",
+                                            "TIMESTAMP"
+                                        ]
+                                    },
+                                    {
+                                        "type": "Dropdown",
+                                        "label": "Value Type",
+                                        "defaultValue": "LITERAL",
+                                        "isRequired": false,
+                                        "values": [
+                                            "LITERAL",
+                                            "EXPRESSION"
+                                        ]
+                                    },
+                                    {
+                                        "type": "TextField",
+                                        "label": "Value Literal",
                                         "defaultValue": "",
-                                        "isRequired": false
+                                        "isRequired": false,
+                                        "enableCondition": [
+                                            {
+                                                "1": "LITERAL"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "type": "TextField",
+                                        "label": "Value Expression",
+                                        "defaultValue": "",
+                                        "isRequired": false,
+                                        "enableCondition": [
+                                            {
+                                                "1": "EXPRESSION"
+                                            }
+                                        ]
                                     },
                                 ]
                             },
                             openInDrawer: true,
                             addParamText: "New Parameters"
                         },
-                    },
-                    {
-                        "type": "Checkbox",
-                        "label": "Results Enabled",
-                        "defaultValue": false,
-                        "isRequired": false
                     },
                     {
                         "type": "ParamManager",
@@ -250,7 +296,7 @@ const DBReportForm = (props: AddMediatorProps) => {
                     {((watch("connectionType") == "DB_CONNECTION") &&(watch("isRegistryBasedDriverConfig") == true) ) &&
                     <Field>
                         <Controller
-                            name="registryBasedonnectionDBDriver"
+                            name="registryBasedConnectionDBDriver"
                             control={control}
                             render={({ field }) => (
                                 <TextField {...field} label="Registry Based Connection DB Driver" size={50} placeholder="Enter the database driver" />
@@ -301,7 +347,7 @@ const DBReportForm = (props: AddMediatorProps) => {
                     </Field>
                     }
 
-                    {((watch("connectionType") == "DB_CONNECTION") ||((watch("connectionType") == "DATA_SOURCE") &&(watch("connectionDsType") == "EXTERNAL") )) &&
+                    {((watch("connectionType") == "DB_CONNECTION") || ((watch("connectionType") == "DATA_SOURCE") && (watch("connectionDSType") == "EXTERNAL"))) &&
                     <Field>
                         <Controller
                             name="isRegistryBasedURLConfig"
@@ -314,7 +360,7 @@ const DBReportForm = (props: AddMediatorProps) => {
                     </Field>
                     }
 
-                    {((watch("isRegistryBasedUrlConfig") == false) &&((watch("connectionType") == "DB_CONNECTION") ||((watch("connectionType") == "DATA_SOURCE") &&(watch("connectionDsType") == "EXTERNAL") ))) &&
+                    {((watch("isRegistryBasedURLConfig") == false) && ((watch("connectionType") == "DB_CONNECTION") || ((watch("connectionType") == "DATA_SOURCE") && (watch("connectionDSType") == "EXTERNAL")))) &&
                     <Field>
                         <Controller
                             name="connectionURL"
@@ -327,7 +373,7 @@ const DBReportForm = (props: AddMediatorProps) => {
                     </Field>
                     }
 
-                    {((watch("isRegistryBasedUrlConfig") == true) &&((watch("connectionType") == "DB_CONNECTION") ||((watch("connectionType") == "DATA_SOURCE") &&(watch("connectionDsType") == "EXTERNAL") ))) &&
+                    {((watch("isRegistryBasedURLConfig") == true) && ((watch("connectionType") == "DB_CONNECTION") || ((watch("connectionType") == "DATA_SOURCE") && (watch("connectionDSType") == "EXTERNAL")))) &&
                     <Field>
                         <Controller
                             name="registryBasedURLConfigKey"
@@ -340,7 +386,7 @@ const DBReportForm = (props: AddMediatorProps) => {
                     </Field>
                     }
 
-                    {((watch("connectionType") == "DB_CONNECTION") ||((watch("connectionType") == "DATA_SOURCE") &&(watch("connectionDsType") == "EXTERNAL") )) &&
+                    {((watch("connectionType") == "DB_CONNECTION") || ((watch("connectionType") == "DATA_SOURCE") && (watch("connectionDSType") == "EXTERNAL"))) &&
                     <Field>
                         <Controller
                             name="isRegistryBasedUserConfig"
@@ -353,7 +399,7 @@ const DBReportForm = (props: AddMediatorProps) => {
                     </Field>
                     }
 
-                    {((watch("isRegistryBasedUserConfig") == false) &&((watch("connectionType") == "DB_CONNECTION") ||((watch("connectionType") == "DATA_SOURCE") &&(watch("connectionDsType") == "EXTERNAL") ))) &&
+                    {((watch("isRegistryBasedUserConfig") == false) && ((watch("connectionType") == "DB_CONNECTION") || ((watch("connectionType") == "DATA_SOURCE") && (watch("connectionDSType") == "EXTERNAL")))) &&
                     <Field>
                         <Controller
                             name="connectionUsername"
@@ -366,7 +412,7 @@ const DBReportForm = (props: AddMediatorProps) => {
                     </Field>
                     }
 
-                    {((watch("isRegistryBasedUserConfig") == true) &&((watch("connectionType") == "DB_CONNECTION") ||((watch("connectionType") == "DATA_SOURCE") &&(watch("connectionDsType") == "EXTERNAL") ))) &&
+                    {((watch("isRegistryBasedUserConfig") == true) && ((watch("connectionType") == "DB_CONNECTION") || ((watch("connectionType") == "DATA_SOURCE") && (watch("connectionDSType") == "EXTERNAL")))) &&
                     <Field>
                         <Controller
                             name="registryBasedUserConfigKey"
@@ -379,7 +425,7 @@ const DBReportForm = (props: AddMediatorProps) => {
                     </Field>
                     }
 
-                    {((watch("connectionType") == "DB_CONNECTION") ||((watch("connectionType") == "DATA_SOURCE") &&(watch("connectionDsType") == "EXTERNAL") )) &&
+                    {((watch("connectionType") == "DB_CONNECTION") || ((watch("connectionType") == "DATA_SOURCE") && (watch("connectionDSType") == "EXTERNAL"))) &&
                     <Field>
                         <Controller
                             name="isRegistryBasedPassConfig"
@@ -392,7 +438,7 @@ const DBReportForm = (props: AddMediatorProps) => {
                     </Field>
                     }
 
-                    {((watch("isRegistryBasedPassConfig") == false) &&((watch("connectionType") == "DB_CONNECTION") ||((watch("connectionType") == "DATA_SOURCE") &&(watch("connectionDsType") == "EXTERNAL") ))) &&
+                    {((watch("isRegistryBasedPassConfig") == false) && ((watch("connectionType") == "DB_CONNECTION") || ((watch("connectionType") == "DATA_SOURCE") && (watch("connectionDSType") == "EXTERNAL")))) &&
                     <Field>
                         <Controller
                             name="connectionPassword"
@@ -405,7 +451,7 @@ const DBReportForm = (props: AddMediatorProps) => {
                     </Field>
                     }
 
-                    {((watch("isRegistryBasedPassConfig") == true) &&((watch("connectionType") == "DB_CONNECTION") ||((watch("connectionType") == "DATA_SOURCE") &&(watch("connectionDsType") == "EXTERNAL") ))) &&
+                    {((watch("isRegistryBasedPassConfig") == true) && ((watch("connectionType") == "DB_CONNECTION") || ((watch("connectionType") == "DATA_SOURCE") && (watch("connectionDSType") == "EXTERNAL")))) &&
                     <Field>
                         <Controller
                             name="registryBasedPassConfigKey"
@@ -443,14 +489,14 @@ const DBReportForm = (props: AddMediatorProps) => {
 
                                             (property[1].value as ParamConfig).paramValues = (property[1].value as ParamConfig).paramValues.map((param: any, index: number) => {
                                                 const property: ParamValue[] = param.paramValues;
-                                                param.key = index;
-                                                param.value = index;
+                                                param.key = property[0].value;
+                                                param.value = property[2].value;
                                                 param.icon = 'query';
                                                 return param;
                                             });
             
 
-                                            (property[3].value as ParamConfig).paramValues = (property[3].value as ParamConfig).paramValues.map((param: any, index: number) => {
+                                            (property[2].value as ParamConfig).paramValues = (property[2].value as ParamConfig).paramValues.map((param: any, index: number) => {
                                                 const property: ParamValue[] = param.paramValues;
                                                 param.key = property[0].value;
                                                 param.value = property[1].value;

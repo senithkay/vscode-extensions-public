@@ -9,13 +9,14 @@
 
 import { GetAvailableResourcesRequest, GetAvailableResourcesResponse, GetBreakpointInfoRequest, GetBreakpointInfoResponse, GetDefinitionRequest, GetDefinitionResponse, GetDiagnosticsReqeust, GetDiagnosticsResponse, ProjectStructureResponse, GetAvailableConnectorRequest, GetAvailableConnectorResponse, UpdateConnectorRequest, GetConnectorConnectionsRequest, GetConnectorConnectionsResponse, ValidateBreakpointsRequest, ValidateBreakpointsResponse, StepOverBreakpointRequest, StepOverBreakpointResponse, SchemaGenRequest, SchemaGenResponse, onConnectorStatusUpdate } from "@wso2-enterprise/mi-core";
 import { readFileSync } from "fs";
-import { CancellationToken, FormattingOptions, Position, Range, Uri, workspace } from "vscode";
+import { CancellationToken, FormattingOptions, Position, Uri, workspace } from "vscode";
 import { CompletionParams, LanguageClient, LanguageClientOptions, ServerOptions, TextEdit } from "vscode-languageclient/node";
 import { TextDocumentIdentifier } from "vscode-languageserver-protocol";
 import * as fs from 'fs';
 import * as vscode from 'vscode';
 import { RPCLayer } from "../RPCLayer";
 import { VisualizerWebview } from "../visualizer/webview";
+import { Range } from "../../../syntax-tree/lib/src";
 
 export interface GetSyntaxTreeParams {
     documentIdentifier: TextDocumentIdentifier;
@@ -73,9 +74,9 @@ export interface DidOpenParams {
 
 export interface RangeFormatParams {
     textDocument: TextDocumentIdentifier;
-    range: vscode.Range;
+    range: Range;
     options: FormattingOptions;
-    workDoneToken: CancellationToken;
+    workDoneToken?: CancellationToken;
 }
 
 export class ExtendedLanguageClient extends LanguageClient {

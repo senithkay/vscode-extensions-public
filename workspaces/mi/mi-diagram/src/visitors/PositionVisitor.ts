@@ -67,6 +67,8 @@ import {
     Connector,
     Target,
     ProxyTarget,
+    DbMediator,
+    Rewrite,
 } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { ADD_NEW_SEQUENCE_TAG, NODE_DIMENSIONS, NODE_GAP, NodeTypes } from "../resources/constants";
 
@@ -339,7 +341,11 @@ export class PositionVisitor implements Visitor {
     }
 
     beginVisitBean = (node: Bean): void => this.setBasicMediatorPosition(node);
-    beginVisitPojoCommand = (node: PojoCommand): void => this.setBasicMediatorPosition(node);
+    beginVisitPojoCommand = (node: PojoCommand): void => {
+        this.setSkipChildrenVisit(true);
+        this.setBasicMediatorPosition(node);
+    }
+    endVisitPojoCommand = (node: PojoCommand): void => this.setSkipChildrenVisit(false);
     beginVisitEjb = (node: Ejb): void => this.setBasicMediatorPosition(node);
     beginVisitScript = (node: Script): void => this.setBasicMediatorPosition(node);
     beginVisitSpring = (node: Spring): void => this.setBasicMediatorPosition(node);
@@ -358,17 +364,49 @@ export class PositionVisitor implements Visitor {
         }, NodeTypes.GROUP_NODE);
     }
     endVisitEntitlementService = (node: EntitlementService): void => this.setSkipChildrenVisit(false);
-    beginVisitRule = (node: Rule): void => this.setBasicMediatorPosition(node);
+    beginVisitRule = (node: Rule): void => {
+        this.setSkipChildrenVisit(true);
+        this.setBasicMediatorPosition(node);
+    }
+    endVisitRule = (node: Rule): void => this.setSkipChildrenVisit(false);
     beginVisitNTLM = (node: Ntlm): void => this.setBasicMediatorPosition(node);
     //Transformation Mediators
     beginVisitDatamapper = (node: Datamapper): void => this.setBasicMediatorPosition(node);
     beginVisitEnrich = (node: Enrich): void => this.setBasicMediatorPosition(node);
     beginVisitFastXSLT = (node: FastXSLT): void => this.setBasicMediatorPosition(node);
     beginVisitMakefault = (node: Makefault): void => this.setBasicMediatorPosition(node);
-    beginVisitJsontransform = (node: Jsontransform): void => this.setBasicMediatorPosition(node);
+    beginVisitJsontransform = (node: Jsontransform): void => {
+        this.setSkipChildrenVisit(true);
+        this.setBasicMediatorPosition(node);
+    }
+    endVisitJsontransform = (node: Jsontransform): void => this.setSkipChildrenVisit(false);
     beginVisitSmooks = (node: Smooks): void => this.setBasicMediatorPosition(node);
     beginVisitXquery = (node: Xquery): void => this.setBasicMediatorPosition(node);
-    beginVisitXslt = (node: Xslt): void => this.setBasicMediatorPosition(node);
+    beginVisitXslt = (node: Xslt): void => {
+        this.setSkipChildrenVisit(true);
+        this.setBasicMediatorPosition(node);
+    }
+    endVisitXslt = (node: Xslt): void => this.setSkipChildrenVisit(false);
+   
+    beginVisitDblookup = (node: DbMediator): void => {
+        this.setSkipChildrenVisit(true);
+        this.setBasicMediatorPosition(node);
+    }
+    endVisitDblookup = (node: DbMediator): void => this.setSkipChildrenVisit(false);
+
+    beginVisitDbreport = (node: DbMediator): void => {
+        this.setSkipChildrenVisit(true);
+        this.setBasicMediatorPosition(node);
+    }
+    endVisitDbreport = (node: DbMediator): void => this.setSkipChildrenVisit(false);
+
+    beginVisitRewrite(node: Rewrite): void {
+        this.setSkipChildrenVisit(true);
+        this.setBasicMediatorPosition(node);
+    }
+    endVisitRewrite(node: Rewrite): void {
+        this.setSkipChildrenVisit(false);
+    }
 
     // Connectors
     beginVisitConnector = (node: Connector): void => {
