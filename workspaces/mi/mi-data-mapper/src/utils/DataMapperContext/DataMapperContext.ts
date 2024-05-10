@@ -7,13 +7,13 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { DMType, Range } from "@wso2-enterprise/mi-core";
-import { FunctionDeclaration, PropertyAssignment } from "ts-morph";
+import { FunctionDeclaration, PropertyAssignment, ReturnStatement } from "ts-morph";
 
 import { View } from "../../components/DataMapper/DataMapper";
 
 export interface IDataMapperContext {
     functionST: FunctionDeclaration;
-    focusedST: FunctionDeclaration | PropertyAssignment;
+    focusedST: FunctionDeclaration | PropertyAssignment | ReturnStatement;
     inputTrees: DMType[];
     outputTree: DMType;
     views: View[];
@@ -26,7 +26,7 @@ export class DataMapperContext implements IDataMapperContext {
 
     constructor(
         public functionST: FunctionDeclaration,
-        public focusedST: FunctionDeclaration | PropertyAssignment,
+        public focusedST: FunctionDeclaration | PropertyAssignment | ReturnStatement,
         public inputTrees: DMType[],
         public outputTree: DMType,
         public views: View[] = [],

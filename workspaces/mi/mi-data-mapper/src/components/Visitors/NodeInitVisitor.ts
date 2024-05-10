@@ -51,47 +51,8 @@ export class NodeInitVisitor implements Visitor {
     constructor(private context: DataMapperContext) {}
 
     beginVisitFunctionDeclaration(node: FunctionDeclaration): void {
-        const { views, focusedST, outputTree } = this.context;
-        const isTopLevelView = views.length === 1;
-        const isFocusedView = views.length === 2 && isPositionsEquals(getPosition(node), getPosition(focusedST));
-
-        if (isTopLevelView) {
-            this.inputNode = this.createInputNode(node);
-            this.outputNode = this.createOutputNode(node);
-        } else if (isFocusedView) {
-            // When the return statement is a map function
-            const rootReturnStmt = getTnfFnReturnStatement(node);
-            const callExpr = rootReturnStmt.getExpression() as CallExpression;
-            const mapFnReturnStmt = getCallExprReturnStmt(callExpr);
-            const outputType = outputTree;
-
-            if (outputType.kind === TypeKind.Array) {
-                const { memberType } = outputType;
-                if (memberType.kind === TypeKind.Interface) {
-                    this.outputNode = new ObjectOutputNode(this.context, mapFnReturnStmt, memberType);
-                } else if (memberType.kind === TypeKind.Array) {
-                    this.outputNode = new ArrayOutputNode(this.context, mapFnReturnStmt, memberType);
-                } else {
-                    // Constraint: Since the return type of the transformation function is an array,
-                    // the member type can only be either an interface or an array
-                }
-            } else if (outputTree?.kind === TypeKind.Interface) {
-                this.outputNode = new ObjectOutputNode(this.context, mapFnReturnStmt, outputTree);
-            } else {
-                // Constraint: The return type of the transformation function should be an interface or an array
-            }
-            this.outputNode.setPosition(OFFSETS.TARGET_NODE.X, 0);
-
-            // Create input node
-            const { sourceFieldFQN } = views[views.length - 1];
-            const inputRoot = this.context.inputTrees[0];
-            const inputType = sourceFieldFQN ? getDMType(sourceFieldFQN, inputRoot) : inputRoot;
-
-            const focusedInputNode = new FocusedInputNode(this.context, callExpr, inputType);
-
-            focusedInputNode.setPosition(OFFSETS.SOURCE_NODE.X, 0);
-            this.inputNode = focusedInputNode;
-        }
+        this.inputNode = this.createInputNodeForDmFunction(node);
+        this.outputNode = this.createOutputNodeForDmFunction(node);
     }
 
     beginVisitPropertyAssignment(node: PropertyAssignment, parent?: Node): void {
@@ -165,6 +126,60 @@ export class NodeInitVisitor implements Visitor {
         }
     }
 
+    beginVisitReturnStatement(node: ReturnStatement, parent: Node): void {
+        const returnExpr = node.getExpression();
+        const { views, focusedST, outputTree } = this.context;
+        const isFocusedView = views.length > 1 && isPositionsEquals(getPosition(node), getPosition(focusedST));
+
+        // Create IO nodes whan the return statement contains the focused map function
+        if (isFocusedView) {
+            const callExpr = node.getExpression() as CallExpression;
+            const mapFnReturnStmt = getCallExprReturnStmt(callExpr);
+            const outputType = outputTree;
+
+            if (outputType.kind === TypeKind.Array) {
+                const { memberType } = outputType;
+                if (memberType.kind === TypeKind.Interface) {
+                    this.outputNode = new ObjectOutputNode(this.context, mapFnReturnStmt, memberType);
+                } else if (memberType.kind === TypeKind.Array) {
+                    this.outputNode = new ArrayOutputNode(this.context, mapFnReturnStmt, memberType);
+                } else {
+                    // Constraint: Since the return type of the transformation function is an array,
+                    // the member type can only be either an interface or an array
+                }
+            } else if (outputTree?.kind === TypeKind.Interface) {
+                this.outputNode = new ObjectOutputNode(this.context, mapFnReturnStmt, outputTree);
+            } else {
+                // Constraint: The return type of the transformation function should be an interface or an array
+            }
+            this.outputNode.setPosition(OFFSETS.TARGET_NODE.X, 0);
+
+            // Create input node
+            const { sourceFieldFQN } = views[views.length - 1];
+            const inputRoot = this.context.inputTrees[0];
+            const inputType = sourceFieldFQN ? getDMType(sourceFieldFQN, inputRoot) : inputRoot;
+
+            const focusedInputNode = new FocusedInputNode(this.context, callExpr, inputType);
+
+            focusedInputNode.setPosition(OFFSETS.SOURCE_NODE.X, 0);
+            this.inputNode = focusedInputNode;
+        }
+
+        // Create link connector node for expressions within return statements
+        if (this.isWithinMapFn === 0
+            && !Node.isObjectLiteralExpression(returnExpr)
+            && !Node.isArrayLiteralExpression(returnExpr)
+        ) {
+            const propAccessNodes = getPropertyAccessNodes(returnExpr);
+            if (propAccessNodes.length > 1) {
+                const linkConnectorNode = this.createLinkConnectorNode(
+                    returnExpr, "", parent, propAccessNodes, [...this.mapIdentifiers, returnExpr]
+                );
+                this.intermediateNodes.push(linkConnectorNode);
+            }
+        }
+    }
+
     beginVisitObjectLiteralExpression(node: ObjectLiteralExpression): void {
         this.mapIdentifiers.push(node);
     }
@@ -207,22 +222,6 @@ export class NodeInitVisitor implements Visitor {
         }
     }
 
-    beginVisitReturnStatement(node: ReturnStatement, parent: Node): void {
-        const expr = node.getExpression();
-        if (this.isWithinMapFn === 0
-            && !Node.isObjectLiteralExpression(expr)
-            && !Node.isArrayLiteralExpression(expr)
-        ) {
-            const propAccessNodes = getPropertyAccessNodes(expr);
-            if (propAccessNodes.length > 1) {
-                const linkConnectorNode = this.createLinkConnectorNode(
-                    expr, "", parent, propAccessNodes, [...this.mapIdentifiers, expr]
-                );
-                this.intermediateNodes.push(linkConnectorNode);
-            }
-        }
-    }
-
     endVisitPropertyAssignment(node: PropertyAssignment): void {
         if (this.mapIdentifiers.length > 0) {
             this.mapIdentifiers.pop()
@@ -259,7 +258,9 @@ export class NodeInitVisitor implements Visitor {
         return nodes;
     }
 
-    private createInputNode(node: FunctionDeclaration): InputNode | InputDataImportNodeModel {
+    private createInputNodeForDmFunction(
+        node: FunctionDeclaration
+    ): InputNode | InputDataImportNodeModel {
         /* Constraints:
             1. The function should and must have a single parameter
             2. The parameter type should be an interface or an array
@@ -280,7 +281,9 @@ export class NodeInitVisitor implements Visitor {
         }
     }
     
-    private createOutputNode(node: FunctionDeclaration): ArrayOutputNode | ObjectOutputNode | OutputDataImportNodeModel {
+    private createOutputNodeForDmFunction(
+        node: FunctionDeclaration
+    ): ArrayOutputNode | ObjectOutputNode | OutputDataImportNodeModel {
         /* Constraints:
             1. The function should have a return type and it should not be void
             2. The return type should be an interface or an array

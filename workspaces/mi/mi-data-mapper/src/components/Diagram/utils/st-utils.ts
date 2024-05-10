@@ -6,11 +6,12 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { ts, Node, PropertyAssignment, FunctionDeclaration } from 'ts-morph';
+import { ts, Node, PropertyAssignment, FunctionDeclaration, ReturnStatement } from 'ts-morph';
 
 import { Visitor } from '../../../ts/base-visitor';
 import { View } from '../../../components/DataMapper/DataMapper';
 import { FocusedSTFindingVisitor } from '../../../components/Visitors/FocusedSTFindingVisitor';
+import { getTnfFnReturnStatement } from './common-utils';
 
 enum SyntaxKindWithRepeatedValue {
     NumericLiteral = 9,
@@ -69,12 +70,12 @@ export function isPositionsEquals(node1: NodePosition, node2: NodePosition): boo
         && node1.end === node2.end;
 }
 
-export function getFocusedST(focusedView: View, fnST: FunctionDeclaration): FunctionDeclaration | PropertyAssignment {
+export function getFocusedST(focusedView: View, fnST: FunctionDeclaration): PropertyAssignment | ReturnStatement {
     const { targetFieldFQN } = focusedView;
 
     if (!targetFieldFQN) {
         // When focused into map function located in the root level return statement
-        return fnST;
+        return getTnfFnReturnStatement(fnST);
     }
 
     const focusedSTFindingVisitor = new FocusedSTFindingVisitor(targetFieldFQN);
