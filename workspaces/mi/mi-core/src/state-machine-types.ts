@@ -72,7 +72,7 @@ export type MachineStateValue =
 
 export type AIMachineStateValue = 'Initialize' | 'loggedOut' | 'Ready' | 'WaitingForLogin' | 'Executing' | 'disabled';
 
-export type PopupMachineStateValue = 'initialize' | 'ready' | 'reopen' | 'open' | 'disabled';
+export type PopupMachineStateValue = 'initialize' | 'ready' | { open: 'active' } | { ready: 'reopen' } | { ready: 'notify' } | 'disabled';
 
 export enum AI_EVENT_TYPE {
     LOGIN = "LOGIN",
