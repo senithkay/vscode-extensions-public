@@ -19,6 +19,7 @@ import { COMMAND_PORT, READINESS_ENDPOINT, SELECTED_SERVER_PATH } from './consta
 import { reject } from 'lodash';
 import axios from 'axios';
 import * as net from 'net';
+import * as os from 'os';
 import { MACHINE_VIEW } from '@wso2-enterprise/mi-core';
 import { StateMachine } from '../stateMachine';
 
@@ -121,11 +122,13 @@ export async function executeCopyTask(task: vscode.Task) {
     return new Promise<void>(async resolve => {
         await vscode.tasks.executeTask(task);
         let disposable = vscode.tasks.onDidEndTaskProcess(async e => {
-            if (e.exitCode === 0) {
+            if(e.execution.task.name === 'copy'){
                 disposable.dispose();
-                resolve();
-            } else {
-                reject(`Task '${task.name}' failed.`);
+                if (e.exitCode === 0) {
+                    resolve();
+                } else {
+                    reject(`Task '${task.name}' failed.`);
+                }
             }
         });
     });
@@ -137,23 +140,25 @@ export async function executeBuildTask(task: vscode.Task, serverPath: string, sh
             await vscode.tasks.executeTask(task);
             if (shouldCopyTarget) {
                 let disposable = vscode.tasks.onDidEndTaskProcess(async e => {
-                    if (e.exitCode === 0) {
+                    if (e.execution.task.name === 'build') {
                         disposable.dispose();
-                        // Check if the target directory exists in the workspace
-                        const workspaceFolders = vscode.workspace.workspaceFolders;
-                        if (workspaceFolders && workspaceFolders.length > 0) {
-                            const targetDirectory = vscode.Uri.joinPath(workspaceFolders[0].uri, "target");
-                            if (fs.existsSync(targetDirectory.fsPath)) {
-                                const copyTask = getCopyTask(serverPath, targetDirectory);
-                                executeCopyTask(copyTask).then(() => {
-                                    resolve();
-                                }).catch((error) => {
-                                    reject(error);
-                                });
+                        if (e.exitCode === 0) {
+                            // Check if the target directory exists in the workspace
+                            const workspaceFolders = vscode.workspace.workspaceFolders;
+                            if (workspaceFolders && workspaceFolders.length > 0) {
+                                const targetDirectory = vscode.Uri.joinPath(workspaceFolders[0].uri, "target");
+                                if (fs.existsSync(targetDirectory.fsPath)) {
+                                    const copyTask = getCopyTask(serverPath, targetDirectory);
+                                    executeCopyTask(copyTask).then(() => {
+                                        resolve();
+                                    }).catch((error) => {
+                                        reject(error);
+                                    });
+                                }
                             }
+                        } else {
+                            reject(`Task '${task.name}' failed.`);
                         }
-                    } else {
-                        reject(`Task '${task.name}' failed.`);
                     }
                 });
             }
@@ -172,25 +177,29 @@ export async function executeTasks(serverPath: string, isDebug: boolean): Promis
             console.log('Build task executed successfully');
             const isServerRunning = await checkServerLiveness();
             if (!isServerRunning) {
-                const runTask = getRunTask(serverPath, isDebug);
-                runTask.presentationOptions = {
-                    panel: vscode.TaskPanelKind.Shared
-                };
-                await vscode.tasks.executeTask(runTask);
-                if (isDebug) {
-                    // check if server command port is active
-                    isPortActivelyListening(COMMAND_PORT, maxTimeout).then((isListening) => {
-                        if (isListening) {
-                            console.log('Server command port is actively listening');
-                            resolve();
-                            // Proceed with connecting to the port
-                        } else {
-                            console.log('Port is not actively listening or timeout reached');
-                            reject(`Server command port isn't actively listening. Stop any running MI servers and restart the debugger.`);
-                        }
-                    });
+                const runTask = await getRunTask(serverPath, isDebug);
+                if (runTask) {
+                    runTask.presentationOptions = {
+                        panel: vscode.TaskPanelKind.Shared
+                    };
+                    await vscode.tasks.executeTask(runTask);
+                    if (isDebug) {
+                        // check if server command port is active
+                        isPortActivelyListening(COMMAND_PORT, maxTimeout).then((isListening) => {
+                            if (isListening) {
+                                console.log('Server command port is actively listening');
+                                resolve();
+                                // Proceed with connecting to the port
+                            } else {
+                                console.log('Port is not actively listening or timeout reached');
+                                reject(`Server command port isn't actively listening. Stop any running MI servers and restart the debugger.`);
+                            }
+                        });
+                    } else {
+                        resolve();
+                    }
                 } else {
-                    resolve();
+                    reject('Error creating run task');
                 }
             } else {
                 // Server could be running in the background without debug mode, but we need to rerun to support this mode
@@ -256,4 +265,40 @@ export function isADiagramView() {
     const stateContext = StateMachine.context();
     const diagramViews = [MACHINE_VIEW.ResourceView, MACHINE_VIEW.ProxyView, MACHINE_VIEW.SequenceView, MACHINE_VIEW.SequenceTemplateView];
     return diagramViews.indexOf(stateContext.view!) !== -1;
+}
+
+// This functionality is a workaround to enable debugging in Windows platform.
+// The micro-integrator.bat is not supported to read java variables appended by the user in the MI 4.2.0 version.
+// As a workaround, MI team requested that we create a temporary batch file with the required java variables and run the server.
+let tempWindowsDebug;
+export function createTempDebugBatchFile(batchFilePath: string, binPath: string): Promise<string> {
+    return new Promise((resolve, reject) => {
+        const destFilePath = path.join(binPath, 'micro-intergator-debug.bat');
+        fs.copyFileSync(batchFilePath, destFilePath);
+        tempWindowsDebug = destFilePath;
+
+        fs.readFile(destFilePath, 'utf8', (err, data) => {
+            if (err) {
+                console.error('Error reading file:', err);
+                reject(`Error while reading the micro-integrator-debug.bat file: ${err}`);
+            }
+
+            const updatedContent = data.replace('CMD_LINE_ARGS=', 'CMD_LINE_ARGS=-Desb.debug=true ');
+
+            fs.writeFile(destFilePath, updatedContent, 'utf8', (err) => {
+                if (err) {
+                    console.error('Error writing file:', err);
+                    reject(`Error while updating the micro-integrator-debug.bat file: ${err}`);
+                }
+                resolve(destFilePath);
+            });
+        });
+    });
+}
+
+export function removeTempDebugBatchFile() {
+    if (tempWindowsDebug) {
+        fs.unlinkSync(tempWindowsDebug);
+        tempWindowsDebug = undefined;
+    }
 }

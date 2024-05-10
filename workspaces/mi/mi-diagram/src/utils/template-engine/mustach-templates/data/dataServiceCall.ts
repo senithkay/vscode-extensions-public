@@ -68,12 +68,10 @@ export function getDataServiceCallFormDataFromSTNode(data: { [key: string]: any 
     data.targetType = node.target?.type?.toUpperCase();
     data.targetProperty = node.target?.name;
     data.operationType = node.operations?.type?.toUpperCase();
-    data.DSSProperties = [];
     if (node.operations?.operation) {
         data.operations = node.operations.operation.map((operation) => {
             return [operation.name, operation.param.map((param) => {
                 let values = [param.name, param.value ? "LITERAL" : "EXPRESSION", param.value, param.expression];
-                data.DSSProperties.push(values);
                 return values;
             })];
         });

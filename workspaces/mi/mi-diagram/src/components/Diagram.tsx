@@ -302,14 +302,15 @@ export function Diagram(props: DiagramProps) {
                     }
 
                     {/* side panel */}
-                    {sidePanelState.isOpen && <SidePanel
+                    <SidePanel
                         isOpen={sidePanelState.isOpen}
                         alignmanet="right"
                         width={SIDE_PANEL_WIDTH}
-                        overlay={false}
+                        overlay
+                        onClose={() => setSidePanelState({ ...sidePanelState, isOpen: false, isEditing: false, formValues: {} })}
                     >
                         <SidePanelList nodePosition={sidePanelState.nodeRange} documentUri={props.documentUri} />
-                    </SidePanel>}
+                    </SidePanel>
                 </SidePanelProvider>
             </S.Container >
         </>

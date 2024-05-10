@@ -69,6 +69,8 @@ import {
     ViewState,
     Target,
     ProxyTarget,
+    DbMediator,
+    Rewrite,
 } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { ADD_NEW_SEQUENCE_TAG, NODE_DIMENSIONS, NODE_GAP, NodeTypes } from "../resources/constants";
 import { Diagnostic } from "vscode-languageserver-types";
@@ -433,7 +435,7 @@ export class SizingVisitor implements Visitor {
     //Other Mediators
     endVisitBam = (node: Bam): void => this.calculateBasicMediator(node);
     endVisitOauthService = (node: OauthService): void => this.calculateBasicMediator(node);
-    endVisitBuild = (node: Builder): void => this.calculateBasicMediator(node);
+    endVisitBuilder = (node: Builder): void => this.calculateBasicMediator(node);
     endVisitPublishEvent = (node: PublishEvent): void => this.calculateBasicMediator(node);
     endVisitEntitlementService = (node: EntitlementService): void => {
         this.calculateBasicMediator(node, NODE_DIMENSIONS.GROUP.WIDTH, NODE_DIMENSIONS.GROUP.HEIGHT);
@@ -456,6 +458,22 @@ export class SizingVisitor implements Visitor {
     endVisitSmooks = (node: Smooks): void => this.calculateBasicMediator(node);
     endVisitXquery = (node: Xquery): void => this.calculateBasicMediator(node);
     endVisitXslt = (node: Xslt): void => this.calculateBasicMediator(node);
+    beginVisitDblookup(node: DbMediator): void {
+        this.skipChildrenVisit = true;
+        this.calculateBasicMediator(node);
+    }
+    endVisitDblookup = (node: DbMediator): void => {
+        this.skipChildrenVisit = false;
+    }
+    beginVisitDbreport(node: DbMediator): void {
+        this.skipChildrenVisit = true;
+        this.calculateBasicMediator(node);
+    }
+    endVisitDbreport = (node: DbMediator): void => {
+        this.skipChildrenVisit = false;
+    }
+
+    endVisitRewrite = (node: Rewrite): void => this.calculateBasicMediator(node);
 
     // Connectors
     beginVisitConnector = (node: any): void => { this.skipChildrenVisit = true; }

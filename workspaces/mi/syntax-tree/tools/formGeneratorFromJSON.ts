@@ -173,11 +173,12 @@ const getParamManagerConfig = (elements: any[], tableKey: string, tableValue: st
         let type;
         if (attribute.type === 'table') {
             type = 'ParamManager';
-        } else if (inputType === 'string' || inputType === 'registry' || inputType === 'expression') {
+        } else if (inputType === 'string' || inputType === 'registry') {
             type = 'TextField';
-        } else if (inputType === 'stringOrExpression') {
+        } else if (inputType === 'stringOrExpression' || inputType === 'expression') {
             type = 'ExprField';
-            defaultValue = { isExpression: false, value: defaultValue };
+            let isExpression = inputType === 'expression';
+            defaultValue = { isExpression: isExpression, value: defaultValue };
         } else if (inputType === 'connection' || inputType === 'comboOrExpression' || inputType === 'combo') {
             type = 'Dropdown';
         } else if (inputType === 'checkbox') {
@@ -185,6 +186,8 @@ const getParamManagerConfig = (elements: any[], tableKey: string, tableValue: st
             if (!defaultValue) {
                 defaultValue = false;
             }
+        } else if (inputType == "key" || inputType == "keyOrExpression") {
+            type = "KeyLookup";
         }
 
         const paramField =
@@ -196,6 +199,7 @@ const getParamManagerConfig = (elements: any[], tableKey: string, tableValue: st
                 isRequired: isRequired,
                 ...(type === 'ExprField') && { canChange: inputType === 'stringOrExpression' },
                 ...(type === 'Dropdown') && { values: comboValues.map((value: string) => `${value}`), },
+                ...(type === 'KeyLookup') && { filterType: attribute.value.keyType },
                 ...(enableCondition) && { enableCondition: generateParammanagerCondition(enableCondition, tableKeys) },
             }, null, "\t")},`, 8);
 

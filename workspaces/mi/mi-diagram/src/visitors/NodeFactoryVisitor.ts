@@ -68,7 +68,9 @@ import {
     Connector,
     DiagramService,
     ProxyTarget,
-    Target
+    Target,
+    DbMediator,
+    Rewrite
 } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { NodeLinkModel } from "../components/NodeLink/NodeLinkModel";
 import { MediatorNodeModel } from "../components/nodes/MediatorNode/MediatorNodeModel";
@@ -908,6 +910,33 @@ export class NodeFactoryVisitor implements Visitor {
     }
 
     endVisitXslt(node: Xslt): void {
+        this.skipChildrenVisit = false;
+    }
+
+    beginVisitDblookup(node: DbMediator): void {
+        this.createNodeAndLinks({ node, name: MEDIATORS.DBLOOKUP });
+        this.skipChildrenVisit = true;
+    }
+
+    endVisitDblookup(node: DbMediator): void {
+        this.skipChildrenVisit = false;
+    }
+
+    beginVisitDbreport(node: DbMediator): void {
+        this.createNodeAndLinks({ node, name: MEDIATORS.DBREPORT });
+        this.skipChildrenVisit = true;
+    }
+
+    endVisitDbreport(node: DbMediator): void {
+        this.skipChildrenVisit = false;
+    }
+
+    beginVisitRewrite(node: Rewrite): void {
+        this.createNodeAndLinks({ node, name: MEDIATORS.REWRITE });
+        this.skipChildrenVisit = true;
+    }
+
+    endVisitRewrite(node: Rewrite): void {
         this.skipChildrenVisit = false;
     }
 

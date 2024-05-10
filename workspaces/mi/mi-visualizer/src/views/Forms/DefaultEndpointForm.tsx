@@ -520,7 +520,7 @@ export function DefaultEndpointWizard(props: DefaultEndpointWizardProps) {
                             control={control}
                             label="Inbound Policy Key"
                             name="inboundPolicyKey"
-                            filterType="xslt"
+                            filterType="ws_policy"
                             path={props.path}
                             errorMsg={errors.inboundPolicyKey?.message.toString()}
                             {...register("inboundPolicyKey")}
@@ -529,7 +529,7 @@ export function DefaultEndpointWizard(props: DefaultEndpointWizardProps) {
                             control={control}
                             label="Outbound Policy Key"
                             name="outboundPolicyKey"
-                            filterType="xslt"
+                            filterType="ws_policy"
                             path={props.path}
                             errorMsg={errors.outboundPolicyKey?.message.toString()}
                             {...register("outboundPolicyKey")}
@@ -539,7 +539,7 @@ export function DefaultEndpointWizard(props: DefaultEndpointWizardProps) {
                             control={control}
                             label="Policy Key"
                             name="policyKey"
-                            filterType="xslt"
+                            filterType="ws_policy"
                             path={props.path}
                             errorMsg={errors.policyKey?.message.toString()}
                             {...register("policyKey")}

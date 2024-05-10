@@ -61,6 +61,7 @@ interface IKeylookupBase {
     // Callback to filter the fetched artifacts
     filter?: (value: string) => boolean;
     onCreateButtonClick?: (fetchItems: any, handleValueChange: any) => void;
+    additionalItems?: string[];
 }
 
 // Define the conditional properties
@@ -157,7 +158,9 @@ export const Keylookup = (props: IKeylookup) => {
             });
         }
 
-        let items: (string | ItemComponent)[] = [...workspaceItems, ...registryItems];
+        let items: (string | ItemComponent)[] = [
+            ...(props.additionalItems ? props.additionalItems : []),
+            ...workspaceItems, ...registryItems];
 
         // Add the initial value to the start of the list if provided
         if (!!initialValue && initialValue.length > 0) {

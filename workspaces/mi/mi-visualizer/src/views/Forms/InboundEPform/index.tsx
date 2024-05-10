@@ -9,7 +9,7 @@
 
 import { useEffect, useState } from "react";
 import styled from "@emotion/styled";
-import { Button, TextField, Dropdown, FormCheckBox, FormView, FormActions } from "@wso2-enterprise/ui-toolkit";
+import { Button, TextField, FormCheckBox, FormView, FormActions } from "@wso2-enterprise/ui-toolkit";
 import { EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { yupResolver } from "@hookform/resolvers/yup"
@@ -19,7 +19,7 @@ import { TypeChip } from "../Commons";
 import CardWrapper from "../Commons/CardWrapper";
 import ParamForm from "./ParamForm";
 import { Paramater, defaultParameters, inboundEndpointParams } from "./ParamTemplate";
-import { ParamConfig, ParamManager } from "@wso2-enterprise/mi-diagram";
+import {FormKeylookup, ParamConfig, ParamManager} from "@wso2-enterprise/mi-diagram";
 
 const CheckboxGroup = styled.div({
     display: "flex",
@@ -371,38 +371,29 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
                         {...renderProps("name")}
                     />
                     <div>
-                        <Dropdown
+                        <FormKeylookup
                             required
-                            id="sequence"
+                            control={control}
                             label="Sequence"
-                            value={selected.sequence}
-                            items={sequences}
-                            onValueChange={(value: string) => handleSequenceChange("sequence", value)}
+                            name="sequence"
+                            filterType="sequence"
+                            path={props.path}
+                            errorMsg={errors.sequence?.message.toString()}
+                            {...register("sequence")}
                         />
-                        {selected.sequence === customSequenceType.value && <>
-                            <TextField
-                                required
-                                placeholder="Custom Sequence Name"
-                                {...renderProps("sequence")}
-                            />
-                        </>}
                     </div>
                     <div>
-                        <Dropdown
+                        <FormKeylookup
                             required
-                            id="errorSequence"
+                            control={control}
                             label="Error Sequence"
-                            value={selected.errorSequence}
-                            items={[...sequences, { content: 'fault', value: 'fault' }]}
-                            onValueChange={(value: string) => handleSequenceChange("errorSequence", value)}
+                            name="errorSequence"
+                            filterType="sequence"
+                            path={props.path}
+                            errorMsg={errors.errorSequence?.message.toString()}
+                            additionalItems={["fault"]}
+                            {...register("errorSequence")}
                         />
-                        {selected.errorSequence === customSequenceType.value && <>
-                            <TextField
-                                required
-                                placeholder="Custom on-error Sequence Name"
-                                {...renderProps("errorSequence")}
-                            />
-                        </>}
                     </div>
                     <CheckboxGroup>
                         <FormCheckBox
