@@ -134,3 +134,20 @@ export interface LogRequest {
     message: string;
 }
 
+type ContextType = "workspace" | "global";
+
+export interface UpdateContextRequest {
+    key: string;
+    value: unknown;
+    contextType?: ContextType;
+}
+
+export interface RetrieveContextRequest {
+    key: string;
+    contextType?: ContextType;
+}
+
+export interface RetrieveContextResponse {
+    value: unknown;
+}
+

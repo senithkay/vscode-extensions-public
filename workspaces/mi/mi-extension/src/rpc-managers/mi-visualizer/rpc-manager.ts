@@ -22,7 +22,10 @@ import {
     OpenViewRequest,
     ProjectStructureRequest,
     ProjectStructureResponse,
+    RetrieveContextRequest,
+    RetrieveContextResponse,
     SampleDownloadRequest,
+    UpdateContextRequest,
     VisualizerLocation,
     WorkspaceFolder,
     WorkspacesResponse,
@@ -199,5 +202,27 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
     log(params: LogRequest): void {
         // Logs the message to the output channel
         log(params.message);
+    }
+
+    async updateContext(params: UpdateContextRequest): Promise<void> {
+        return new Promise(async (resolve) => {
+            const { key, value, contextType = "global" } = params;
+            if (contextType === "workspace") {
+                await extension.context.workspaceState.update(key, value);
+            } else {
+                await extension.context.globalState.update(key, value);
+            }
+            resolve();
+        });
+    }
+
+    async retrieveContext(params: RetrieveContextRequest): Promise<RetrieveContextResponse> {
+        return new Promise((resolve) => {
+            const { key, contextType = "global" } = params;
+            const value = contextType === "workspace" ?
+                extension.context.workspaceState.get(key) :
+                extension.context.globalState.get(key);
+            resolve({ value });
+        });
     }
 }

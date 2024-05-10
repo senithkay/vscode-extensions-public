@@ -10,7 +10,7 @@
  */
 import { HistoryEntry } from "../../history";
 import { ColorThemeKind } from "../../state-machine-types";
-import { ProjectStructureRequest, ProjectStructureResponse, WorkspacesResponse, OpenViewRequest, HistoryEntryResponse, ToggleDisplayOverviewRequest, GoToSourceRequest, LogRequest } from "./types";
+import { ProjectStructureRequest, ProjectStructureResponse, WorkspacesResponse, OpenViewRequest, HistoryEntryResponse, ToggleDisplayOverviewRequest, GoToSourceRequest, LogRequest, UpdateContextRequest, RetrieveContextRequest, RetrieveContextResponse } from "./types";
 import { GettingStartedData, SampleDownloadRequest } from "./types";
 import { RequestType, NotificationType } from "vscode-messenger-common";
 
@@ -31,3 +31,5 @@ export const toggleDisplayOverview: RequestType<ToggleDisplayOverviewRequest, vo
 export const goToSource: NotificationType<GoToSourceRequest> = { method: `${_preFix}/goToSource` };
 export const focusOutput: NotificationType<void> = { method: `${_preFix}/focusOutput` };
 export const log: NotificationType<LogRequest> = { method: `${_preFix}/log` };
+export const updateContext: RequestType<UpdateContextRequest, void> = { method: `${_preFix}/updateContext` };
+export const retrieveContext: RequestType<RetrieveContextRequest, RetrieveContextResponse> = { method: `${_preFix}/retrieveContext` };
