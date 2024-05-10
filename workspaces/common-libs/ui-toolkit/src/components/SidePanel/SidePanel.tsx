@@ -17,7 +17,7 @@ export interface SidePanelProps {
 	isOpen?: boolean;
 	overlay?: boolean;
 	children?: React.ReactNode;
-    alignmanet?: "left" | "right";
+    alignment?: "left" | "right";
     width?: number;
     sx?: any;
     onClose?: (event?: React.MouseEvent<HTMLElement, MouseEvent>) => void;
@@ -26,8 +26,8 @@ export interface SidePanelProps {
 const SidePanelContainer = styled.div<SidePanelProps>`
     position: fixed;
     top: 0;
-    left: ${(props: SidePanelProps) => props.alignmanet === "left" ? 0 : "auto"};
-    right: ${(props: SidePanelProps) => props.alignmanet === "right" ? 0 : "auto"};
+    left: ${(props: SidePanelProps) => props.alignment === "left" ? 0 : "auto"};
+    right: ${(props: SidePanelProps) => props.alignment === "right" ? 0 : "auto"};
     width: ${(props: SidePanelProps) => `${props.width}px`};
     height: 100%;
     background-color: var(--vscode-editor-background);
@@ -35,13 +35,13 @@ const SidePanelContainer = styled.div<SidePanelProps>`
     box-shadow: 0 5px 10px 0 var(--vscode-badge-background);
     z-index: 2000;
     opacity: ${(props: SidePanelProps) => props.isOpen ? 1 : 0};
-    transform: translateX(${(props: SidePanelProps) => props.alignmanet === 'left' ? (props.isOpen ? '0%' : '-100%') : (props.isOpen ? '0%' : '100%')});
+    transform: translateX(${(props: SidePanelProps) => props.alignment === 'left' ? (props.isOpen ? '0%' : '-100%') : (props.isOpen ? '0%' : '100%')});
     transition: transform 0.4s ease, opacity 0.4s ease;
     ${(props: SidePanelProps) => props.sx};
 `;
     
 export const SidePanel: React.FC<SidePanelProps> = (props: SidePanelProps) => {
-    const { id, className, isOpen = false, alignmanet = "right", width = 312, children, sx, overlay = true } = props;
+    const { id, className, isOpen = false, alignment = "right", width = 312, children, sx, overlay = true } = props;
     const [open, setOpen] = useState(false);
     const [visible, setVisible] = useState(isOpen);
 
@@ -82,7 +82,7 @@ export const SidePanel: React.FC<SidePanelProps> = (props: SidePanelProps) => {
             {visible && (
                 <>
                     { overlay && isOpen && <Overlay sx={{background: colors.vscodeInputBackground, opacity: 0.4}} onClose={handleOverlayClose}/> }
-                    <SidePanelContainer isOpen={open} alignmanet={alignmanet} width={width} sx={sx} onTransitionEnd={handleTransitionEnd}>
+                    <SidePanelContainer isOpen={open} alignment={alignment} width={width} sx={sx} onTransitionEnd={handleTransitionEnd}>
                         {children}
                     </SidePanelContainer>
                 </>

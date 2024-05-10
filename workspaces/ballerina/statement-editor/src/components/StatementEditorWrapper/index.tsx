@@ -226,7 +226,7 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
         <QueryClientProvider client={queryClient}>
             <SidePanel
                 isOpen={true}
-                alignmanet="right"
+                alignment="right"
                 sx={{transition: "all 0.3s ease-in-out", width: 600}}
                 data-testid="property-form"
             >

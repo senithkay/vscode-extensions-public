@@ -31,7 +31,7 @@ export function ComponentPanel(props: ComponentPanelProps) {
     return (
         <SidePanel
             isOpen={show}
-            alignmanet="right"
+            alignment="right"
             sx={{
                 // top: "calc(50% - 300px)",
                 // left: "calc(50% - 250px)",
