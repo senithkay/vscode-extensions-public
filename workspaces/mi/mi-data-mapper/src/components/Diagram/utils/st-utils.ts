@@ -70,7 +70,7 @@ export function isPositionsEquals(node1: NodePosition, node2: NodePosition): boo
 }
 
 export function getFocusedST(focusedView: View, fnST: FunctionDeclaration): FunctionDeclaration | PropertyAssignment {
-    const targetFieldFQN = focusedView.targetFieldFQN;
+    const { targetFieldFQN } = focusedView;
 
     if (!targetFieldFQN) {
         // When focused into map function located in the root level return statement

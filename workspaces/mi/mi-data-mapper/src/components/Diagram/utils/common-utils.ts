@@ -534,6 +534,23 @@ export function isArrayOrInterface(dmType: DMType) {
 	return dmType.kind === TypeKind.Array || dmType.kind === TypeKind.Interface;
 }
 
+export function getMapFnIndex(views: View[], prevFieldFQN: string): number {
+    // Find the relative index of the map function comes under the return statements of another map functions
+    // The index is relative to the map function which is declared within a property assignment
+    let mapFnWithFieldIndex: number;
+
+    const _ = views.find((view, index) => {
+        if (view.targetFieldFQN === prevFieldFQN) {
+            mapFnWithFieldIndex = index;
+            return true;
+        }
+    });
+
+    if (mapFnWithFieldIndex) {
+        return views.length - mapFnWithFieldIndex;
+    }
+}
+
 function getInnerExpr(node: PropertyAccessExpression): Node {
     let valueExpr = node.getExpression();
     while (valueExpr && Node.isPropertyAccessExpression(valueExpr)) {

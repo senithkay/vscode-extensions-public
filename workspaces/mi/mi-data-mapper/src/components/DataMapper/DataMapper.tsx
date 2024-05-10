@@ -37,7 +37,7 @@ export interface View {
     targetFieldFQN: string;
     sourceFieldFQN: string;
     label: string;
-    index?: number;
+    mapFnIndex?: number;
 }
 
 export interface MIDataMapperProps {

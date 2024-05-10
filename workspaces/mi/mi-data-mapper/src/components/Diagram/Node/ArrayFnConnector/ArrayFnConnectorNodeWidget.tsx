@@ -8,13 +8,15 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import * as React from 'react';
-import { ArrayFnConnectorNode } from './ArrayFnConnectorNode';
 import { DiagramEngine } from '@projectstorm/react-diagrams-core';
-import { useIntermediateNodeStyles } from '../../../../components/styles';
 import { Button, Codicon, ProgressRing, Tooltip } from '@wso2-enterprise/ui-toolkit';
-import { DataMapperPortWidget } from '../../Port';
+import { TypeKind } from '@wso2-enterprise/mi-core';
 import classnames from 'classnames';
-import { getViewLabel } from '../../utils/common-utils';
+
+import { useIntermediateNodeStyles } from '../../../../components/styles';
+import { ArrayFnConnectorNode } from './ArrayFnConnectorNode';
+import { DataMapperPortWidget } from '../../Port';
+import { getMapFnIndex, getViewLabel } from '../../utils/common-utils';
 
 export interface ArrayFnConnectorNodeWidgetWidgetProps {
     node: ArrayFnConnectorNode;
@@ -34,20 +36,26 @@ export function ArrayFnConnectorNodeWidget(props: ArrayFnConnectorNodeWidgetWidg
         let label = getViewLabel(targetPort, views);
         let targetFieldFQN = targetPort.fieldFQN;
         let sourceFieldFQN = sourcePort.fieldFQN.split('.').slice(1).join('.');
+        let mapFnIndex: number | undefined = undefined;
 
         if (views.length > 1) {
             // Navigating into another map function within the current map function
             const prevView = views[views.length - 1];
 
-            if (prevView.targetFieldFQN !== '') {
-                targetFieldFQN = `${prevView.targetFieldFQN}.${targetFieldFQN}`;
+            if (!!prevView.targetFieldFQN) {
+                if (!targetFieldFQN && targetPort.field.kind === TypeKind.Array) {
+                    targetFieldFQN = prevView.targetFieldFQN;
+                    mapFnIndex = getMapFnIndex(views, prevView.targetFieldFQN);
+                } else {
+                    targetFieldFQN = `${prevView.targetFieldFQN}.${targetFieldFQN}`;
+                }
             }
-            if (prevView.sourceFieldFQN !== '') {
+            if (!!prevView.sourceFieldFQN) {
                 sourceFieldFQN = `${prevView.sourceFieldFQN}.${sourceFieldFQN}`;
             }
         }
 
-        addView({ targetFieldFQN, sourceFieldFQN, label });
+        addView({ targetFieldFQN, sourceFieldFQN, label, mapFnIndex });
     }
 
     const deleteLink = async () => {
