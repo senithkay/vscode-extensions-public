@@ -114,7 +114,6 @@ export interface SampleDownloadRequest {
 export interface OpenViewRequest {
     type: EVENT_TYPE | POPUP_EVENT_TYPE;
     location: VisualizerLocation | AIVisualizerLocation | PopupVisualizerLocation;
-    isAiWebview?: boolean;
     isPopup?: boolean;
 }
 

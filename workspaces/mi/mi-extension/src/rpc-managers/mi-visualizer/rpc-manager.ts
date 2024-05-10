@@ -30,6 +30,7 @@ import {
     POPUP_EVENT_TYPE,
     PopupVisualizerLocation,
     EVENT_TYPE,
+    MACHINE_VIEW,
 } from "@wso2-enterprise/mi-core";
 import fetch from 'node-fetch';
 import { workspace, window, commands } from "vscode";
@@ -71,11 +72,15 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
     }
 
     openView(params: OpenViewRequest): void {
-        if (params.isAiWebview) {
-            openAIWebview();
-        } if (params.isPopup) {
-            if (params.location.view?.includes("Form") || params.type === POPUP_EVENT_TYPE.CLOSE_VIEW) {
+        if (params.isPopup) {
+            const view = params.location.view;
+            const isFormView = view && view.includes("Form");
+            const isCloseEvent = params.type === POPUP_EVENT_TYPE.CLOSE_VIEW;
+            if (isFormView || isCloseEvent) {
                 openPopupView(params.type as POPUP_EVENT_TYPE, params.location as PopupVisualizerLocation);
+            }
+            if (view && view === MACHINE_VIEW.Overview) {
+                openPopupView(POPUP_EVENT_TYPE.CLOSE_VIEW, params.location as PopupVisualizerLocation);
             }
         } else {
             openView(params.type as EVENT_TYPE, params.location as VisualizerLocation);
