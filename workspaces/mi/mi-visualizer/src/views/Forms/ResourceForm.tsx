@@ -211,7 +211,7 @@ export const ResourceForm = ({ isOpen, documentUri, onCancel, onSave, formData }
     return (
         <SidePanel
             isOpen={isOpen}
-            alignmanet="right"
+            alignment="right"
             width={SIDE_PANEL_WIDTH}
             overlay={false}
             sx={{ transition: "all 0.3s ease-in-out" }}

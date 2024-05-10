@@ -176,7 +176,7 @@ export function LocalVarConfigPanel(props: LocalVarConfigPanelProps) {
     return (
         <SidePanel
             isOpen={true}
-            alignmanet="right"
+            alignment="right"
             sx={{transition: "all 0.3s ease-in-out", width: 600}}
         >
             <SidePanelTitleContainer>
