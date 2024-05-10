@@ -59,14 +59,14 @@ export class NodeInitVisitor implements Visitor {
         this.mapIdentifiers.push(node);
 
         const { focusedST, views } = this.context;
-        const { sourceFieldFQN, targetFieldFQN } = views[views.length - 1];
+        const { sourceFieldFQN, targetFieldFQN, mapFnIndex } = views[views.length - 1];
         const isFocusedST = isPositionsEquals(getPosition(node), getPosition(focusedST));
 
         if (isFocusedST) {
             const callExpr = node.getInitializer() as CallExpression;
 
             // Create output node
-            const exprType = getDMType(targetFieldFQN, this.context.outputTree);
+            const exprType = getDMType(targetFieldFQN, this.context.outputTree, mapFnIndex);
             const returnStatement = getCallExprReturnStmt(callExpr);
 
             const innerExpr = returnStatement.getExpression();
@@ -106,7 +106,7 @@ export class NodeInitVisitor implements Visitor {
             this.outputNode.setPosition(OFFSETS.TARGET_NODE.X, 0);
 
             // Create input node
-            const inputType = getDMType(sourceFieldFQN, this.context.inputTrees[0]);
+            const inputType = getDMType(sourceFieldFQN, this.context.inputTrees[0], mapFnIndex);
 
             const focusedInputNode = new FocusedInputNode(this.context, callExpr, inputType);
 
@@ -129,13 +129,16 @@ export class NodeInitVisitor implements Visitor {
     beginVisitReturnStatement(node: ReturnStatement, parent: Node): void {
         const returnExpr = node.getExpression();
         const { views, focusedST, outputTree } = this.context;
-        const isFocusedView = views.length > 1 && isPositionsEquals(getPosition(node), getPosition(focusedST));
+        const focusedView = views[views.length - 1];
+        const { targetFieldFQN, mapFnIndex } = focusedView;
+        const isRootReturn = views.length === 2;
+        const isFocusedST = views.length > 1 && isPositionsEquals(getPosition(node), getPosition(focusedST));
 
         // Create IO nodes whan the return statement contains the focused map function
-        if (isFocusedView) {
+        if (isFocusedST) {
             const callExpr = node.getExpression() as CallExpression;
             const mapFnReturnStmt = getCallExprReturnStmt(callExpr);
-            const outputType = outputTree;
+            const outputType = isRootReturn ? outputTree : getDMType(targetFieldFQN, this.context.outputTree, mapFnIndex);
 
             if (outputType.kind === TypeKind.Array) {
                 const { memberType } = outputType;
@@ -144,8 +147,7 @@ export class NodeInitVisitor implements Visitor {
                 } else if (memberType.kind === TypeKind.Array) {
                     this.outputNode = new ArrayOutputNode(this.context, mapFnReturnStmt, memberType);
                 } else {
-                    // Constraint: Since the return type of the transformation function is an array,
-                    // the member type can only be either an interface or an array
+                    this.outputNode = new PrimitiveOutputNode(this.context, mapFnReturnStmt, outputTree);
                 }
             } else if (outputTree?.kind === TypeKind.Interface) {
                 this.outputNode = new ObjectOutputNode(this.context, mapFnReturnStmt, outputTree);
@@ -157,7 +159,7 @@ export class NodeInitVisitor implements Visitor {
             // Create input node
             const { sourceFieldFQN } = views[views.length - 1];
             const inputRoot = this.context.inputTrees[0];
-            const inputType = sourceFieldFQN ? getDMType(sourceFieldFQN, inputRoot) : inputRoot;
+            const inputType = sourceFieldFQN !== '' ? getDMType(sourceFieldFQN, inputRoot, mapFnIndex) : inputRoot;
 
             const focusedInputNode = new FocusedInputNode(this.context, callExpr, inputType);
 

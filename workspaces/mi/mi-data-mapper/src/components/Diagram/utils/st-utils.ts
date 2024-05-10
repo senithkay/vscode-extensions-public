@@ -11,7 +11,7 @@ import { ts, Node, PropertyAssignment, FunctionDeclaration, ReturnStatement } fr
 import { Visitor } from '../../../ts/base-visitor';
 import { View } from '../../../components/DataMapper/DataMapper';
 import { FocusedSTFindingVisitor } from '../../../components/Visitors/FocusedSTFindingVisitor';
-import { getTnfFnReturnStatement } from './common-utils';
+import { getTnfFnReturnStatement, isMapFunction } from './common-utils';
 
 enum SyntaxKindWithRepeatedValue {
     NumericLiteral = 9,
@@ -71,7 +71,7 @@ export function isPositionsEquals(node1: NodePosition, node2: NodePosition): boo
 }
 
 export function getFocusedST(focusedView: View, fnST: FunctionDeclaration): PropertyAssignment | ReturnStatement {
-    const { targetFieldFQN } = focusedView;
+    const { targetFieldFQN, mapFnIndex } = focusedView;
 
     if (!targetFieldFQN) {
         // When focused into map function located in the root level return statement
@@ -80,6 +80,16 @@ export function getFocusedST(focusedView: View, fnST: FunctionDeclaration): Prop
 
     const focusedSTFindingVisitor = new FocusedSTFindingVisitor(targetFieldFQN);
     traversNode(fnST, focusedSTFindingVisitor);
+    let resolvedNode: PropertyAssignment | ReturnStatement = focusedSTFindingVisitor.getResolvedNode();
 
-    return focusedSTFindingVisitor.getResolvedNode();
+    const returnStmts = resolvedNode.getDescendantsOfKind(ts.SyntaxKind.ReturnStatement);
+
+    if (mapFnIndex !== undefined && returnStmts.length >= mapFnIndex) {
+        resolvedNode = returnStmts.filter(stmt => {
+            const returnExpr = stmt.getExpression();
+            return Node.isCallExpression(returnExpr) && isMapFunction(returnExpr);
+        })[mapFnIndex - 1];
+    }
+
+    return resolvedNode;
 }

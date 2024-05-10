@@ -25,7 +25,6 @@ import { DataMapperNodeModel } from "../commons/DataMapperNode";
 import { ArrayOutputNode } from "../ArrayOutput";
 import { ObjectOutputNode } from "../ObjectOutput";
 import { InputNode } from "../Input";
-import { getDMType } from "../../utils/type-utils";
 import { getPosition, isPositionsEquals, traversNode } from "../../utils/st-utils";
 import { FocusedInputNode } from "../FocusedInput";
 import { LinkDeletingVisitor } from "../../../../components/Visitors/LinkDeletingVistior";

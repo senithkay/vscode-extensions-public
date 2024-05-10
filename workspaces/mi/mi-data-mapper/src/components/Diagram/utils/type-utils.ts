@@ -11,13 +11,21 @@ import { DMType, TypeKind } from "@wso2-enterprise/mi-core";
 
 import { ArrayElement, DMTypeWithValue } from "../Mappings/DMTypeWithValue";
 
-export function enrichAndProcessType(typeToBeProcessed: DMType, node: Node): [DMTypeWithValue, DMType] {
+export function enrichAndProcessType(
+    typeToBeProcessed: DMType,
+    node: Node
+): [DMTypeWithValue, DMType] {
     let type = { ...typeToBeProcessed };
     let valueEnrichedType = getEnrichedDMType(type, node);
     return [valueEnrichedType, type];
 }
 
-export function getDMType(propertiesExpr: string, parentType: DMType, isPropeAccessExpr?: boolean): DMType {
+export function getDMType(
+    propertiesExpr: string,
+    parentType: DMType,
+    mapFnIndex: number,
+    isPropeAccessExpr?: boolean
+): DMType {
     const properties = getProperties(propertiesExpr, isPropeAccessExpr);
 
     if (!properties) return;
@@ -32,6 +40,11 @@ export function getDMType(propertiesExpr: string, parentType: DMType, isPropeAcc
         currentType = field;
     }
 
+    if (mapFnIndex !== undefined && currentType.kind === TypeKind.Array) {
+        for (let i = 0; i < mapFnIndex; i++) {
+            currentType = currentType.memberType;
+        }
+    }
     return currentType;
 
     function getProperties(propertiesExpr: string, isPropeAccessExpr?: boolean): string[] | undefined {

@@ -44,6 +44,7 @@ export function ArrayFnConnectorNodeWidget(props: ArrayFnConnectorNodeWidgetWidg
 
             if (!!prevView.targetFieldFQN) {
                 if (!targetFieldFQN && targetPort.field.kind === TypeKind.Array) {
+                    // The visiting map function is declaired at the return statement of the current map function
                     targetFieldFQN = prevView.targetFieldFQN;
                     mapFnIndex = getMapFnIndex(views, prevView.targetFieldFQN);
                 } else {
@@ -51,7 +52,7 @@ export function ArrayFnConnectorNodeWidget(props: ArrayFnConnectorNodeWidgetWidg
                 }
             }
             if (!!prevView.sourceFieldFQN) {
-                sourceFieldFQN = `${prevView.sourceFieldFQN}.${sourceFieldFQN}`;
+                sourceFieldFQN = `${prevView.sourceFieldFQN}${sourceFieldFQN ? `.${sourceFieldFQN}` : ''}`;
             }
         }
 
