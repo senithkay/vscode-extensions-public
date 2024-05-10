@@ -38,6 +38,7 @@ import {
 } from "./constants";
 import { FocusedInputNode } from "../Node/FocusedInput";
 import { PrimitiveOutputNode } from "../Node/PrimitiveOutput";
+import { View } from "../../../components/DataMapper/DataMapper";
 
 export function getPropertyAccessNodes(node: Node): (Identifier | PropertyAccessExpression)[] {
     const propertyAccessNodeVisitor: PropertyAccessNodeFindingVisitor = new PropertyAccessNodeFindingVisitor();
@@ -285,6 +286,39 @@ export function getTypeName(field: DMType): string {
 	}
 
 	return typeName;
+}
+
+export function getViewLabel(targetPort: InputOutputPortModel, views: View[]): string {
+    const { field, fieldFQN } = targetPort;
+    let label = fieldFQN;
+
+    if (field.kind === TypeKind.Array) {
+        const typeName = getTypeName(field.memberType);
+        if (!fieldFQN) {
+            if (views.length === 1) {
+                // Navigating into a map function at the root level return statement
+                label = typeName;
+            } else {
+                // Navigating into another map function within the focused map function, declared at the return statement
+                const { label: prevLabel } = views[views.length - 1];
+                label = dropLastBracketIfAvailable(prevLabel);
+            }
+        } else if (views.length === 1) {
+            // Navigating into another map function within the focused map function, declared at a property assignment
+            const bracketsCount = (typeName.match(/\[\]/g) || []).length; // Count the number of pairs of brackets
+            label = label + `${"[]".repeat(bracketsCount)}`;
+        }
+    }
+
+    function dropLastBracketIfAvailable(str: string): string {
+        const lastIndex = str.lastIndexOf("[]");
+        if (lastIndex !== -1 && lastIndex === str.length - 2) {
+            return str.slice(0, lastIndex);
+        }
+        return str;
+    }
+
+    return label;
 }
 
 export const getOptionalField = (field: DMType): DMType | undefined => {

@@ -119,6 +119,7 @@ export class ArrayFnConnectorNode extends DataMapperNodeModel {
         const fieldName = Node.isPropertyAssignment(innerMostExpr) && innerMostExpr.getNameNode();
         const fieldNamePosition = fieldName && getPosition(fieldName);
         const returnStmt = getTnfFnReturnStatement(this.context.functionST);
+        const isRerurnStmtMapFn = Node.isReturnStatement(this.parentNode);
 
         if (fieldNamePosition) {
             this.getModel().getNodes().map((node) => {
@@ -139,7 +140,7 @@ export class ArrayFnConnectorNode extends DataMapperNodeModel {
                     });
                 }
             });
-        } else if (representsTnfFnReturnStmt(this.parentNode, returnStmt)) {
+        } else if (representsTnfFnReturnStmt(this.parentNode, returnStmt) || isRerurnStmtMapFn) {
             this.getModel().getNodes().forEach((node) => {
                 if (node instanceof ArrayOutputNode) {
                     console.log(node.getPorts());

@@ -61,7 +61,7 @@ export class PrimitiveOutputNode extends DataMapperNodeModel {
                 && Node.isCallExpression(focusedST.getInitializer())
                 && isMapFunction(focusedST.getInitializer() as CallExpression);
             const isMapFnAtRootReturn = views.length > 1
-            && Node.isFunctionDeclaration(focusedST)
+                && Node.isFunctionDeclaration(focusedST)
                 && Node.isCallExpression(tnfFnRootReturn)
                 && isMapFunction(tnfFnRootReturn);
             this.isMapFn = isMapFnAtPropAssignment || isMapFnAtRootReturn;
