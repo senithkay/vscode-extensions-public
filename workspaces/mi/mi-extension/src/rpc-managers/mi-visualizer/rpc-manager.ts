@@ -19,6 +19,8 @@ import {
     HistoryEntryResponse,
     LogRequest,
     MIVisualizerAPI,
+    NotificationRequest,
+    NotificationResponse,
     OpenViewRequest,
     ProjectStructureRequest,
     ProjectStructureResponse,
@@ -223,6 +225,22 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
                 extension.context.workspaceState.get(key) :
                 extension.context.globalState.get(key);
             resolve({ value });
+        });
+    }
+
+    async showNotification(params: NotificationRequest): Promise<NotificationResponse> {
+        return new Promise(async (resolve) => {
+            const { message, options, type = "info" } = params;
+            let selection: string | undefined;
+            if (type === "info") {
+                selection = await window.showInformationMessage(message, ...options ?? []);
+            } else if (type === "warning") {
+                selection = await window.showWarningMessage(message, ...options ?? []);
+            } else {
+                selection = await window.showErrorMessage(message, ...options ?? []);
+            }
+
+            resolve({ selection });
         });
     }
 }

@@ -9,7 +9,21 @@
 
 import { HistoryEntry } from "../../history";
 import { ColorThemeKind } from "../../state-machine-types";
-import { ProjectStructureRequest, ProjectStructureResponse, WorkspacesResponse, OpenViewRequest, HistoryEntryResponse, ToggleDisplayOverviewRequest, GoToSourceRequest, LogRequest, UpdateContextRequest, RetrieveContextRequest, RetrieveContextResponse } from "./types";
+import {
+    ProjectStructureRequest,
+    ProjectStructureResponse,
+    WorkspacesResponse,
+    OpenViewRequest,
+    HistoryEntryResponse,
+    ToggleDisplayOverviewRequest,
+    GoToSourceRequest,
+    LogRequest,
+    UpdateContextRequest,
+    RetrieveContextRequest,
+    RetrieveContextResponse,
+    NotificationRequest,
+    NotificationResponse,
+} from "./types";
 import { GettingStartedData, SampleDownloadRequest } from "./types";
 export interface MIVisualizerAPI {
     getWorkspaces: () => Promise<WorkspacesResponse>;
@@ -30,4 +44,5 @@ export interface MIVisualizerAPI {
     log: (params: LogRequest) => void;
     updateContext: (params: UpdateContextRequest) => Promise<void>;
     retrieveContext: (params: RetrieveContextRequest) => Promise<RetrieveContextResponse>;
+    showNotification: (params: NotificationRequest) => Promise<NotificationResponse>;
 }

@@ -151,3 +151,14 @@ export interface RetrieveContextResponse {
     value: unknown;
 }
 
+type NotificationType = "info" | "warning" | "error";
+
+export interface NotificationRequest {
+    message: string;
+    options?: string[];
+    type?: NotificationType;
+}
+
+export interface NotificationResponse {
+    selection: string | undefined;
+}

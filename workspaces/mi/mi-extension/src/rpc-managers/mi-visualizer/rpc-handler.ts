@@ -12,6 +12,7 @@ import {
     GoToSourceRequest,
     HistoryEntry,
     LogRequest,
+    NotificationRequest,
     OpenViewRequest,
     ProjectStructureRequest,
     RetrieveContextRequest,
@@ -35,6 +36,7 @@ import {
     focusOutput,
     updateContext,
     retrieveContext,
+    showNotification,
     reloadWindow
 } from "@wso2-enterprise/mi-core";
 import { Messenger } from "vscode-messenger";
@@ -60,4 +62,5 @@ export function registerMiVisualizerRpcHandlers(messenger: Messenger) {
     messenger.onNotification(log, (args: LogRequest) => rpcManger.log(args));
     messenger.onRequest(updateContext, (args: UpdateContextRequest) => rpcManger.updateContext(args));
     messenger.onRequest(retrieveContext, (args: RetrieveContextRequest) => rpcManger.retrieveContext(args));
+    messenger.onRequest(showNotification, (args: NotificationRequest) => rpcManger.showNotification(args));
 }

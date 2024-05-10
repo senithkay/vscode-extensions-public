@@ -16,6 +16,8 @@ import {
     HistoryEntryResponse,
     LogRequest,
     MIVisualizerAPI,
+    NotificationRequest,
+    NotificationResponse,
     OpenViewRequest,
     ProjectStructureRequest,
     ProjectStructureResponse,
@@ -42,6 +44,7 @@ import {
     focusOutput,
     goToSource,
     retrieveContext,
+    showNotification,
     updateContext
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
@@ -124,5 +127,9 @@ export class MiVisualizerRpcClient implements MIVisualizerAPI {
 
     retrieveContext(params: RetrieveContextRequest): Promise<RetrieveContextResponse> {
         return this._messenger.sendRequest(retrieveContext, HOST_EXTENSION, params);
+    }
+
+    showNotification(params: NotificationRequest): Promise<NotificationResponse> {
+        return this._messenger.sendRequest(showNotification, HOST_EXTENSION, params);
     }
 }
