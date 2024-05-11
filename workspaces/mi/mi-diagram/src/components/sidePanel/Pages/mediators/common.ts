@@ -80,7 +80,7 @@ export const getParamManagerFromValues = (values: any[]): any => {
 
         if (typeof value === 'object' && value !== null) {
             const paramValues = getParamValues(value);
-            return { id: index, key: index, value: value instanceof Array ? value.join(" ") : value, icon: 'query', paramValues };
+            return { id: index, key: index, value: typeof value[1] === 'object' ? value[1].value : value[1], icon: 'query', paramValues };
         } else {
             return { value };
         }
