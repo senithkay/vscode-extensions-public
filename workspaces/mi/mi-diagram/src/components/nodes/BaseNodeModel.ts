@@ -102,6 +102,8 @@ export class BaseNodeModel extends NodeModel {
                 stNode
             );
 
+            await new Promise(resolve => setTimeout(resolve, 1));
+
             sidePanelContext.setSidePanelState({
                 isOpen: true,
                 operationName: operationName.toLowerCase(),

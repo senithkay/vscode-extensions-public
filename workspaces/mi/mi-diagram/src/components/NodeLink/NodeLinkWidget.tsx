@@ -74,7 +74,7 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
         };
     }, []);
 
-    const handleAddNode = () => {
+    const handleAddNode = async () => {
         if (link.onAddClick) {
             link.onAddClick();
         } else {
@@ -88,6 +88,7 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
                     end: rangeOrPosition,
                 };
             }
+            await new Promise(resolve => setTimeout(resolve, 1));
             sidePanelContext.setSidePanelState({
                 ...sidePanelContext,
                 isOpen: true,

@@ -93,11 +93,11 @@ export function Diagram(props: DiagramProps) {
         // Mediator related
         isOpen: false,
         isEditing: false,
-        nodeRange: undefined,
-        mediator: "",
         formValues: {},
-        title: "",
+        nodeRange: undefined,
         isFormOpen: false,
+        pageStack: [],
+        currentPageIndex: 0
     });
 
     useEffect(() => {
