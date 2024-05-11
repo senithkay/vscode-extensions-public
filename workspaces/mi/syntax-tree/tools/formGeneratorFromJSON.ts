@@ -206,17 +206,20 @@ const getParamManagerConfig = (elements: any[], tableKey: string, tableValue: st
         if (type === 'ExprField') {
             paramFields += paramField.slice(0, -3) + `, 
                 openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                    sidePanelContext.setSidePanelState({
-                        ...sidePanelContext,
-                        expressionEditor: {
-                            isOpen: true,
-                            value,
-                            setValue
-                        }
-                    });
+                    const content = <ExpressionEditor
+                        value={value}
+                        handleOnSave={(value) => {
+                            setValue(value);
+                            handleOnCancelExprEditorRef.current();
+                        }}
+                        handleOnCancel={() => {
+                            handleOnCancelExprEditorRef.current();
+                        }}
+                    />;
+                    sidepanelAddPage(sidePanelContext, content, "Expression Editor");
                 }` + paramField.slice(-2);
 
-        } else if (attribute.type === 'table') {
+        } else if (type === 'ParamManager') {
             const { paramValues: paramValues2, paramFields: paramFields2 } = getParamManagerConfig(attribute.value.elements, tableKey, tableValue, name);
             paramFields += paramField.slice(0, -3) + `, 
                 "paramManager": {
@@ -319,14 +322,17 @@ const generateForm = (jsonData: any): string => {
                             placeholder="${helpTip}" 
                             canChange={${inputType === 'stringOrExpression'}}
                             openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => {
-                                sidePanelContext.setSidePanelState({
-                                    ...sidePanelContext,
-                                    expressionEditor: {
-                                        isOpen: true,
-                                        value,
-                                        setValue
-                                    }
-                                });
+                                const content = <ExpressionEditor
+                                    value={value}
+                                    handleOnSave={(value) => {
+                                        setValue(value);
+                                        handleOnCancelExprEditorRef.current();
+                                    }}
+                                    handleOnCancel={() => {
+                                        handleOnCancelExprEditorRef.current();
+                                    }}
+                                />;
+                                sidepanelAddPage(sidePanelContext, content, "Expression Editor");
                             }}
                          />`, indentation);
                 } else if (inputType === 'connection') {
@@ -491,7 +497,7 @@ const generateForm = (jsonData: any): string => {
     componentContent +=
         fixIndentation(
             `${LICENSE_HEADER}
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { AutoComplete, Button, Codicon, ComponentCard, FormGroup, FlexLabelContainer, Label, Link, ProgressIndicator, colors, RequiredFormInput, TextField, TextArea, Tooltip, Typography } from '@wso2-enterprise/ui-toolkit';
 import { VSCodeCheckbox, VSCodeDropdown, VSCodeOption, VSCodeDataGrid, VSCodeDataGridRow, VSCodeDataGridCell } from '@vscode/webview-ui-toolkit/react';
 import styled from '@emotion/styled';
@@ -505,6 +511,8 @@ import { Keylookup } from '../../../../Form';
 import { ExpressionField, ExpressionFieldValue } from '../../../../Form/ExpressionField/ExpressionInput';
 import { ParamManager, ParamConfig, ParamValue } from '../../../../Form/ParamManager/ParamManager';
 import { generateSpaceSeperatedStringFromParamValues } from '../../../../../utils/commons';
+import { sidepanelAddPage, sidepanelGoBack } from '../../..';
+import ExpressionEditor from '../../../expressionEditor/ExpressionEditor';
 
 const cardStyle = { 
     display: "block", 
@@ -527,6 +535,7 @@ const ${operationNameCapitalized} = (props: AddMediatorProps) => {
     const { rpcClient } = useVisualizerContext();
     const sidePanelContext = React.useContext(SidePanelContext);
     const [ isLoading, setIsLoading ] = React.useState(true);
+    const handleOnCancelExprEditorRef = useRef(() => { });
 
     const { control, formState: { errors, dirtyFields }, handleSubmit, watch, reset } = useForm();
 
@@ -535,6 +544,12 @@ const ${operationNameCapitalized} = (props: AddMediatorProps) => {
         });
         setIsLoading(false);
     }, [sidePanelContext.formValues]);
+
+    useEffect(() => {
+        handleOnCancelExprEditorRef.current = () => {
+            sidepanelGoBack(sidePanelContext);
+        };
+    }, [sidePanelContext.pageStack]);
 
     const onClick = async (values: any) => {
         ${valueChanges}

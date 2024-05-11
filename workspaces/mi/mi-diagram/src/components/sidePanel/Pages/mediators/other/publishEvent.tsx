@@ -8,7 +8,7 @@
 */
 // AUTO-GENERATED FILE. DO NOT MODIFY.
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Button, ComponentCard, ProgressIndicator, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
 import { VSCodeCheckbox } from '@vscode/webview-ui-toolkit/react';
 import styled from '@emotion/styled';
@@ -18,7 +18,10 @@ import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
 import { MEDIATORS } from '../../../../../resources/constants';
 import { Controller, useForm } from 'react-hook-form';
+import { ExpressionFieldValue } from '../../../../Form/ExpressionField/ExpressionInput';
 import { ParamManager, ParamValue } from '../../../../Form/ParamManager/ParamManager';
+import { sidepanelAddPage, sidepanelGoBack } from '../../..';
+import ExpressionEditor from '../../../expressionEditor/ExpressionEditor';
 
 const cardStyle = { 
     display: "block",
@@ -41,6 +44,7 @@ const PublishEventForm = (props: AddMediatorProps) => {
     const { rpcClient } = useVisualizerContext();
     const sidePanelContext = React.useContext(SidePanelContext);
     const [ isLoading, setIsLoading ] = React.useState(true);
+    const handleOnCancelExprEditorRef = useRef(() => { });
 
     const { control, formState: { errors, dirtyFields }, handleSubmit, watch, reset } = useForm();
 
@@ -96,16 +100,32 @@ const PublishEventForm = (props: AddMediatorProps) => {
                         ]
                     },
                     {
-                        "type": "TextField",
+                        "type": "ExprField",
                         "label": "Attribute Expression",
-                        "defaultValue": "",
+                        "defaultValue": {
+                            "isExpression": true,
+                            "value": ""
+                        },
                         "isRequired": false,
+                        "canChange": false,
                         "enableCondition": [
                             {
                                 "1": "EXPRESSION"
                             }
-                        ]
-                    },
+                        ], 
+                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
+                            const content = <ExpressionEditor
+                                value={value}
+                                handleOnSave={(value) => {
+                                    setValue(value);
+                                    handleOnCancelExprEditorRef.current();
+                                }}
+                                handleOnCancel={() => {
+                                    handleOnCancelExprEditorRef.current();
+                                }}
+                            />;
+                            sidepanelAddPage(sidePanelContext, content, "Expression Editor");
+                        }},
                     {
                         "type": "TextField",
                         "label": "Default Value",
@@ -159,16 +179,32 @@ const PublishEventForm = (props: AddMediatorProps) => {
                         ]
                     },
                     {
-                        "type": "TextField",
+                        "type": "ExprField",
                         "label": "Attribute Expression",
-                        "defaultValue": "",
+                        "defaultValue": {
+                            "isExpression": true,
+                            "value": ""
+                        },
                         "isRequired": false,
+                        "canChange": false,
                         "enableCondition": [
                             {
                                 "1": "EXPRESSION"
                             }
-                        ]
-                    },
+                        ], 
+                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
+                            const content = <ExpressionEditor
+                                value={value}
+                                handleOnSave={(value) => {
+                                    setValue(value);
+                                    handleOnCancelExprEditorRef.current();
+                                }}
+                                handleOnCancel={() => {
+                                    handleOnCancelExprEditorRef.current();
+                                }}
+                            />;
+                            sidepanelAddPage(sidePanelContext, content, "Expression Editor");
+                        }},
                     {
                         "type": "TextField",
                         "label": "Default Value",
@@ -222,16 +258,32 @@ const PublishEventForm = (props: AddMediatorProps) => {
                         ]
                     },
                     {
-                        "type": "TextField",
+                        "type": "ExprField",
                         "label": "Attribute Expression",
-                        "defaultValue": "",
+                        "defaultValue": {
+                            "isExpression": true,
+                            "value": ""
+                        },
                         "isRequired": false,
+                        "canChange": false,
                         "enableCondition": [
                             {
                                 "1": "EXPRESSION"
                             }
-                        ]
-                    },
+                        ], 
+                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
+                            const content = <ExpressionEditor
+                                value={value}
+                                handleOnSave={(value) => {
+                                    setValue(value);
+                                    handleOnCancelExprEditorRef.current();
+                                }}
+                                handleOnCancel={() => {
+                                    handleOnCancelExprEditorRef.current();
+                                }}
+                            />;
+                            sidepanelAddPage(sidePanelContext, content, "Expression Editor");
+                        }},
                     {
                         "type": "TextField",
                         "label": "Default Value",
@@ -285,16 +337,32 @@ const PublishEventForm = (props: AddMediatorProps) => {
                         ]
                     },
                     {
-                        "type": "TextField",
+                        "type": "ExprField",
                         "label": "Attribute Expression",
-                        "defaultValue": "",
+                        "defaultValue": {
+                            "isExpression": true,
+                            "value": ""
+                        },
                         "isRequired": false,
+                        "canChange": false,
                         "enableCondition": [
                             {
                                 "1": "EXPRESSION"
                             }
-                        ]
-                    },
+                        ], 
+                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
+                            const content = <ExpressionEditor
+                                value={value}
+                                handleOnSave={(value) => {
+                                    setValue(value);
+                                    handleOnCancelExprEditorRef.current();
+                                }}
+                                handleOnCancel={() => {
+                                    handleOnCancelExprEditorRef.current();
+                                }}
+                            />;
+                            sidepanelAddPage(sidePanelContext, content, "Expression Editor");
+                        }},
                     {
                         "type": "TextField",
                         "label": "Default Value",
@@ -307,6 +375,12 @@ const PublishEventForm = (props: AddMediatorProps) => {
         });
         setIsLoading(false);
     }, [sidePanelContext.formValues]);
+
+    useEffect(() => {
+        handleOnCancelExprEditorRef.current = () => {
+            sidepanelGoBack(sidePanelContext);
+        };
+    }, [sidePanelContext.pageStack]);
 
     const onClick = async (values: any) => {
         

@@ -8,7 +8,7 @@
 */
 // AUTO-GENERATED FILE. DO NOT MODIFY.
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Button, ComponentCard, ProgressIndicator, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
@@ -18,6 +18,8 @@ import { getXML } from '../../../../../utils/template-engine/mustach-templates/t
 import { MEDIATORS } from '../../../../../resources/constants';
 import { Controller, useForm } from 'react-hook-form';
 import { ExpressionField, ExpressionFieldValue } from '../../../../Form/ExpressionField/ExpressionInput';
+import { sidepanelAddPage, sidepanelGoBack } from '../../..';
+import ExpressionEditor from '../../../expressionEditor/ExpressionEditor';
 
 const cardStyle = { 
     display: "block",
@@ -40,6 +42,7 @@ const NTLMForm = (props: AddMediatorProps) => {
     const { rpcClient } = useVisualizerContext();
     const sidePanelContext = React.useContext(SidePanelContext);
     const [ isLoading, setIsLoading ] = React.useState(true);
+    const handleOnCancelExprEditorRef = useRef(() => { });
 
     const { control, formState: { errors, dirtyFields }, handleSubmit, watch, reset } = useForm();
 
@@ -54,6 +57,12 @@ const NTLMForm = (props: AddMediatorProps) => {
         });
         setIsLoading(false);
     }, [sidePanelContext.formValues]);
+
+    useEffect(() => {
+        handleOnCancelExprEditorRef.current = () => {
+            sidepanelGoBack(sidePanelContext);
+        };
+    }, [sidePanelContext.pageStack]);
 
     const onClick = async (values: any) => {
         
@@ -100,14 +109,17 @@ const NTLMForm = (props: AddMediatorProps) => {
                                     placeholder=""
                                     canChange={true}
                                     openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => {
-                                        sidePanelContext.setSidePanelState({
-                                            ...sidePanelContext,
-                                            expressionEditor: {
-                                                isOpen: true,
-                                                value,
-                                                setValue
-                                            }
-                                        });
+                                        const content = <ExpressionEditor
+                                            value={value}
+                                            handleOnSave={(value) => {
+                                                setValue(value);
+                                                handleOnCancelExprEditorRef.current();
+                                            }}
+                                            handleOnCancel={() => {
+                                                handleOnCancelExprEditorRef.current();
+                                            }}
+                                        />;
+                                        sidepanelAddPage(sidePanelContext, content, "Expression Editor");
                                     }}
                                 />
                             )}
@@ -125,14 +137,17 @@ const NTLMForm = (props: AddMediatorProps) => {
                                     placeholder=""
                                     canChange={true}
                                     openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => {
-                                        sidePanelContext.setSidePanelState({
-                                            ...sidePanelContext,
-                                            expressionEditor: {
-                                                isOpen: true,
-                                                value,
-                                                setValue
-                                            }
-                                        });
+                                        const content = <ExpressionEditor
+                                            value={value}
+                                            handleOnSave={(value) => {
+                                                setValue(value);
+                                                handleOnCancelExprEditorRef.current();
+                                            }}
+                                            handleOnCancel={() => {
+                                                handleOnCancelExprEditorRef.current();
+                                            }}
+                                        />;
+                                        sidepanelAddPage(sidePanelContext, content, "Expression Editor");
                                     }}
                                 />
                             )}
@@ -150,14 +165,17 @@ const NTLMForm = (props: AddMediatorProps) => {
                                     placeholder=""
                                     canChange={true}
                                     openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => {
-                                        sidePanelContext.setSidePanelState({
-                                            ...sidePanelContext,
-                                            expressionEditor: {
-                                                isOpen: true,
-                                                value,
-                                                setValue
-                                            }
-                                        });
+                                        const content = <ExpressionEditor
+                                            value={value}
+                                            handleOnSave={(value) => {
+                                                setValue(value);
+                                                handleOnCancelExprEditorRef.current();
+                                            }}
+                                            handleOnCancel={() => {
+                                                handleOnCancelExprEditorRef.current();
+                                            }}
+                                        />;
+                                        sidepanelAddPage(sidePanelContext, content, "Expression Editor");
                                     }}
                                 />
                             )}
@@ -175,14 +193,17 @@ const NTLMForm = (props: AddMediatorProps) => {
                                     placeholder=""
                                     canChange={true}
                                     openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => {
-                                        sidePanelContext.setSidePanelState({
-                                            ...sidePanelContext,
-                                            expressionEditor: {
-                                                isOpen: true,
-                                                value,
-                                                setValue
-                                            }
-                                        });
+                                        const content = <ExpressionEditor
+                                            value={value}
+                                            handleOnSave={(value) => {
+                                                setValue(value);
+                                                handleOnCancelExprEditorRef.current();
+                                            }}
+                                            handleOnCancel={() => {
+                                                handleOnCancelExprEditorRef.current();
+                                            }}
+                                        />;
+                                        sidepanelAddPage(sidePanelContext, content, "Expression Editor");
                                     }}
                                 />
                             )}
@@ -200,14 +221,17 @@ const NTLMForm = (props: AddMediatorProps) => {
                                     placeholder=""
                                     canChange={true}
                                     openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => {
-                                        sidePanelContext.setSidePanelState({
-                                            ...sidePanelContext,
-                                            expressionEditor: {
-                                                isOpen: true,
-                                                value,
-                                                setValue
-                                            }
-                                        });
+                                        const content = <ExpressionEditor
+                                            value={value}
+                                            handleOnSave={(value) => {
+                                                setValue(value);
+                                                handleOnCancelExprEditorRef.current();
+                                            }}
+                                            handleOnCancel={() => {
+                                                handleOnCancelExprEditorRef.current();
+                                            }}
+                                        />;
+                                        sidepanelAddPage(sidePanelContext, content, "Expression Editor");
                                     }}
                                 />
                             )}
