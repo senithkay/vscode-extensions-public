@@ -22,7 +22,6 @@ import { DMCanvasContainerID } from "../Canvas/DataMapperCanvasWidget";
 import { ArrayOutputNode, InputNode, ObjectOutputNode } from '../Node';
 import { DataMapperNodeModel } from "../Node/commons/DataMapperNode";
 import { LinkOverayContainerID } from '../OverriddenLinkLayer/LinkOverlayPortal';
-
 import { CreateLinkState } from './CreateLinkState';
 import { FocusedInputNode } from '../Node/FocusedInput';
 import { PrimitiveOutputNode } from '../Node/PrimitiveOutput';

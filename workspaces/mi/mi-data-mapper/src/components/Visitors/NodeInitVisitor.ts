@@ -136,7 +136,7 @@ export class NodeInitVisitor implements Visitor {
 
         // Create IO nodes whan the return statement contains the focused map function
         if (isFocusedST) {
-            const callExpr = node.getExpression() as CallExpression;
+            const callExpr = returnExpr as CallExpression;
             const mapFnReturnStmt = getCallExprReturnStmt(callExpr);
             const outputType = isRootReturn ? outputTree : getDMType(targetFieldFQN, this.context.outputTree, mapFnIndex);
 
@@ -147,7 +147,7 @@ export class NodeInitVisitor implements Visitor {
                 } else if (memberType.kind === TypeKind.Array) {
                     this.outputNode = new ArrayOutputNode(this.context, mapFnReturnStmt, memberType);
                 } else {
-                    this.outputNode = new PrimitiveOutputNode(this.context, mapFnReturnStmt, outputTree);
+                    this.outputNode = new PrimitiveOutputNode(this.context, mapFnReturnStmt, memberType);
                 }
             } else if (outputTree?.kind === TypeKind.Interface) {
                 this.outputNode = new ObjectOutputNode(this.context, mapFnReturnStmt, outputTree);
@@ -206,16 +206,16 @@ export class NodeInitVisitor implements Visitor {
     }
 
     beginVisitCallExpression(node: CallExpression, parent: Node): void {
-        const { functionST, focusedST, views } = this.context;
+        const { focusedST, views } = this.context;
         const isMapFn = isMapFunction(node);
         const isFocusedSTWithinPropAssignment = parent
             && Node.isPropertyAssignment(parent)
             && isPositionsEquals(getPosition(parent), getPosition(focusedST));
-        const isFocusedSTWithinRootReturnStmt = parent
+        const isFocusedSTWithinReturnStmt = parent
             && Node.isReturnStatement(parent)
-            && isPositionsEquals(getPosition(parent), getPosition(getTnfFnReturnStatement(functionST)))
-            && views.length === 2;
-        const isParentFocusedST = isFocusedSTWithinPropAssignment || isFocusedSTWithinRootReturnStmt;
+            && isPositionsEquals(getPosition(parent), getPosition(focusedST))
+            && views.length > 1;
+        const isParentFocusedST = isFocusedSTWithinPropAssignment || isFocusedSTWithinReturnStmt;
         
         if (!isParentFocusedST && isMapFn) {
             this.isWithinMapFn += 1;
