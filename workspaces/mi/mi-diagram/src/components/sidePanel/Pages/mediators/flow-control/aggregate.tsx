@@ -8,7 +8,7 @@
 */
 // AUTO-GENERATED FILE. DO NOT MODIFY.
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { AutoComplete, Button, ComponentCard, ProgressIndicator, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
@@ -19,6 +19,8 @@ import { MEDIATORS } from '../../../../../resources/constants';
 import { Controller, useForm } from 'react-hook-form';
 import { Keylookup } from '../../../../Form';
 import { ExpressionField, ExpressionFieldValue } from '../../../../Form/ExpressionField/ExpressionInput';
+import { sidepanelAddPage, sidepanelGoBack } from '../../..';
+import ExpressionEditor from '../../../expressionEditor/ExpressionEditor';
 
 const cardStyle = { 
     display: "block",
@@ -41,6 +43,7 @@ const AggregateForm = (props: AddMediatorProps) => {
     const { rpcClient } = useVisualizerContext();
     const sidePanelContext = React.useContext(SidePanelContext);
     const [ isLoading, setIsLoading ] = React.useState(true);
+    const handleOnCancelExprEditorRef = useRef(() => { });
 
     const { control, formState: { errors, dirtyFields }, handleSubmit, watch, reset } = useForm();
 
@@ -59,6 +62,12 @@ const AggregateForm = (props: AddMediatorProps) => {
         });
         setIsLoading(false);
     }, [sidePanelContext.formValues]);
+
+    useEffect(() => {
+        handleOnCancelExprEditorRef.current = () => {
+            sidepanelGoBack(sidePanelContext);
+        };
+    }, [sidePanelContext.pageStack]);
 
     const onClick = async (values: any) => {
         
@@ -116,14 +125,17 @@ const AggregateForm = (props: AddMediatorProps) => {
                                     placeholder=""
                                     canChange={true}
                                     openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => {
-                                        sidePanelContext.setSidePanelState({
-                                            ...sidePanelContext,
-                                            expressionEditor: {
-                                                isOpen: true,
-                                                value,
-                                                setValue
-                                            }
-                                        });
+                                        const content = <ExpressionEditor
+                                            value={value}
+                                            handleOnSave={(value) => {
+                                                setValue(value);
+                                                handleOnCancelExprEditorRef.current();
+                                            }}
+                                            handleOnCancel={() => {
+                                                handleOnCancelExprEditorRef.current();
+                                            }}
+                                        />;
+                                        sidepanelAddPage(sidePanelContext, content, "Expression Editor");
                                     }}
                                 />
                             )}
@@ -141,14 +153,17 @@ const AggregateForm = (props: AddMediatorProps) => {
                                     placeholder=""
                                     canChange={true}
                                     openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => {
-                                        sidePanelContext.setSidePanelState({
-                                            ...sidePanelContext,
-                                            expressionEditor: {
-                                                isOpen: true,
-                                                value,
-                                                setValue
-                                            }
-                                        });
+                                        const content = <ExpressionEditor
+                                            value={value}
+                                            handleOnSave={(value) => {
+                                                setValue(value);
+                                                handleOnCancelExprEditorRef.current();
+                                            }}
+                                            handleOnCancel={() => {
+                                                handleOnCancelExprEditorRef.current();
+                                            }}
+                                        />;
+                                        sidepanelAddPage(sidePanelContext, content, "Expression Editor");
                                     }}
                                 />
                             )}
@@ -188,14 +203,17 @@ const AggregateForm = (props: AddMediatorProps) => {
                                     placeholder=""
                                     canChange={false}
                                     openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => {
-                                        sidePanelContext.setSidePanelState({
-                                            ...sidePanelContext,
-                                            expressionEditor: {
-                                                isOpen: true,
-                                                value,
-                                                setValue
-                                            }
-                                        });
+                                        const content = <ExpressionEditor
+                                            value={value}
+                                            handleOnSave={(value) => {
+                                                setValue(value);
+                                                handleOnCancelExprEditorRef.current();
+                                            }}
+                                            handleOnCancel={() => {
+                                                handleOnCancelExprEditorRef.current();
+                                            }}
+                                        />;
+                                        sidepanelAddPage(sidePanelContext, content, "Expression Editor");
                                     }}
                                 />
                             )}
@@ -231,14 +249,17 @@ const AggregateForm = (props: AddMediatorProps) => {
                                     placeholder=""
                                     canChange={false}
                                     openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => {
-                                        sidePanelContext.setSidePanelState({
-                                            ...sidePanelContext,
-                                            expressionEditor: {
-                                                isOpen: true,
-                                                value,
-                                                setValue
-                                            }
-                                        });
+                                        const content = <ExpressionEditor
+                                            value={value}
+                                            handleOnSave={(value) => {
+                                                setValue(value);
+                                                handleOnCancelExprEditorRef.current();
+                                            }}
+                                            handleOnCancel={() => {
+                                                handleOnCancelExprEditorRef.current();
+                                            }}
+                                        />;
+                                        sidepanelAddPage(sidePanelContext, content, "Expression Editor");
                                     }}
                                 />
                             )}
@@ -260,22 +281,22 @@ const AggregateForm = (props: AddMediatorProps) => {
                     </Field>
 
                     {watch("sequenceType") == "REGISTRY_REFERENCE" &&
-                        <Field>
-                            <Controller
-                                name="sequenceKey"
-                                control={control}
-                                render={({ field }) => (
-                                    <Keylookup
-                                        value={field.value}
-                                        filterType='sequence'
-                                        label="Sequence Key"
-                                        allowItemCreate={false}
-                                        onValueChange={field.onChange}
-                                    />
-                                )}
-                            />
-                            {errors.sequenceKey && <Error>{errors.sequenceKey.message.toString()}</Error>}
-                        </Field>
+                    <Field>
+                        <Controller
+                            name="sequenceKey"
+                            control={control}
+                            render={({ field }) => (
+                                <Keylookup
+                                    value={field.value}
+                                    filterType='sequence'
+                                    label="Sequence Key"
+                                    allowItemCreate={false}
+                                    onValueChange={field.onChange}
+                                />
+                            )}
+                        />
+                        {errors.sequenceKey && <Error>{errors.sequenceKey.message.toString()}</Error>}
+                    </Field>
                     }
 
                 </ComponentCard>

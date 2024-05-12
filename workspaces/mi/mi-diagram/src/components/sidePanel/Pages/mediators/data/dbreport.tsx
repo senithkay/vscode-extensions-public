@@ -8,7 +8,7 @@
 */
 // AUTO-GENERATED FILE. DO NOT MODIFY.
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { AutoComplete, Button, ComponentCard, ProgressIndicator, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
 import { VSCodeCheckbox } from '@vscode/webview-ui-toolkit/react';
 import styled from '@emotion/styled';
@@ -18,7 +18,10 @@ import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
 import { MEDIATORS } from '../../../../../resources/constants';
 import { Controller, useForm } from 'react-hook-form';
+import { ExpressionFieldValue } from '../../../../Form/ExpressionField/ExpressionInput';
 import { ParamManager, ParamConfig, ParamValue } from '../../../../Form/ParamManager/ParamManager';
+import { sidepanelAddPage, sidepanelGoBack } from '../../..';
+import ExpressionEditor from '../../../expressionEditor/ExpressionEditor';
 
 const cardStyle = { 
     display: "block",
@@ -41,6 +44,7 @@ const DBReportForm = (props: AddMediatorProps) => {
     const { rpcClient } = useVisualizerContext();
     const sidePanelContext = React.useContext(SidePanelContext);
     const [ isLoading, setIsLoading ] = React.useState(true);
+    const handleOnCancelExprEditorRef = useRef(() => { });
 
     const { control, formState: { errors, dirtyFields }, handleSubmit, watch, reset } = useForm();
 
@@ -128,16 +132,32 @@ const DBReportForm = (props: AddMediatorProps) => {
                                         ]
                                     },
                                     {
-                                        "type": "TextField",
+                                        "type": "ExprField",
                                         "label": "Value Expression",
-                                        "defaultValue": "",
+                                        "defaultValue": {
+                                            "isExpression": true,
+                                            "value": ""
+                                        },
                                         "isRequired": false,
+                                        "canChange": false,
                                         "enableCondition": [
                                             {
                                                 "1": "EXPRESSION"
                                             }
-                                        ]
-                                    },
+                                        ], 
+                                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
+                                            const content = <ExpressionEditor
+                                                value={value}
+                                                handleOnSave={(value) => {
+                                                    setValue(value);
+                                                    handleOnCancelExprEditorRef.current();
+                                                }}
+                                                handleOnCancel={() => {
+                                                    handleOnCancelExprEditorRef.current();
+                                                }}
+                                            />;
+                                            sidepanelAddPage(sidePanelContext, content, "Expression Editor");
+                                        }},
                                 ]
                             },
                             openInDrawer: true,
@@ -189,6 +209,12 @@ const DBReportForm = (props: AddMediatorProps) => {
         });
         setIsLoading(false);
     }, [sidePanelContext.formValues]);
+
+    useEffect(() => {
+        handleOnCancelExprEditorRef.current = () => {
+            sidepanelGoBack(sidePanelContext);
+        };
+    }, [sidePanelContext.pageStack]);
 
     const onClick = async (values: any) => {
         
@@ -302,7 +328,7 @@ const DBReportForm = (props: AddMediatorProps) => {
                                 <TextField {...field} label="Registry Based Connection DB Driver" size={50} placeholder="Enter the database driver" />
                             )}
                         />
-                        {errors.registryBasedonnectionDBDriver && <Error>{errors.registryBasedonnectionDBDriver.message.toString()}</Error>}
+                        {errors.registryBasedConnectionDBDriver && <Error>{errors.registryBasedConnectionDBDriver.message.toString()}</Error>}
                     </Field>
                     }
 
@@ -347,7 +373,7 @@ const DBReportForm = (props: AddMediatorProps) => {
                     </Field>
                     }
 
-                    {((watch("connectionType") == "DB_CONNECTION") || ((watch("connectionType") == "DATA_SOURCE") && (watch("connectionDSType") == "EXTERNAL"))) &&
+                    {((watch("connectionType") == "DB_CONNECTION") ||((watch("connectionType") == "DATA_SOURCE") &&(watch("connectionDSType") == "EXTERNAL") )) &&
                     <Field>
                         <Controller
                             name="isRegistryBasedURLConfig"
@@ -360,7 +386,7 @@ const DBReportForm = (props: AddMediatorProps) => {
                     </Field>
                     }
 
-                    {((watch("isRegistryBasedURLConfig") == false) && ((watch("connectionType") == "DB_CONNECTION") || ((watch("connectionType") == "DATA_SOURCE") && (watch("connectionDSType") == "EXTERNAL")))) &&
+                    {((watch("isRegistryBasedURLConfig") == false) &&((watch("connectionType") == "DB_CONNECTION") ||((watch("connectionType") == "DATA_SOURCE") &&(watch("connectionDSType") == "EXTERNAL") ))) &&
                     <Field>
                         <Controller
                             name="connectionURL"
@@ -373,7 +399,7 @@ const DBReportForm = (props: AddMediatorProps) => {
                     </Field>
                     }
 
-                    {((watch("isRegistryBasedURLConfig") == true) && ((watch("connectionType") == "DB_CONNECTION") || ((watch("connectionType") == "DATA_SOURCE") && (watch("connectionDSType") == "EXTERNAL")))) &&
+                    {((watch("isRegistryBasedURLConfig") == true) &&((watch("connectionType") == "DB_CONNECTION") ||((watch("connectionType") == "DATA_SOURCE") &&(watch("connectionDSType") == "EXTERNAL") ))) &&
                     <Field>
                         <Controller
                             name="registryBasedURLConfigKey"
@@ -386,7 +412,7 @@ const DBReportForm = (props: AddMediatorProps) => {
                     </Field>
                     }
 
-                    {((watch("connectionType") == "DB_CONNECTION") || ((watch("connectionType") == "DATA_SOURCE") && (watch("connectionDSType") == "EXTERNAL"))) &&
+                    {((watch("connectionType") == "DB_CONNECTION") ||((watch("connectionType") == "DATA_SOURCE") &&(watch("connectionDSType") == "EXTERNAL") )) &&
                     <Field>
                         <Controller
                             name="isRegistryBasedUserConfig"
@@ -399,7 +425,7 @@ const DBReportForm = (props: AddMediatorProps) => {
                     </Field>
                     }
 
-                    {((watch("isRegistryBasedUserConfig") == false) && ((watch("connectionType") == "DB_CONNECTION") || ((watch("connectionType") == "DATA_SOURCE") && (watch("connectionDSType") == "EXTERNAL")))) &&
+                    {((watch("isRegistryBasedUserConfig") == false) &&((watch("connectionType") == "DB_CONNECTION") ||((watch("connectionType") == "DATA_SOURCE") &&(watch("connectionDSType") == "EXTERNAL") ))) &&
                     <Field>
                         <Controller
                             name="connectionUsername"
@@ -412,7 +438,7 @@ const DBReportForm = (props: AddMediatorProps) => {
                     </Field>
                     }
 
-                    {((watch("isRegistryBasedUserConfig") == true) && ((watch("connectionType") == "DB_CONNECTION") || ((watch("connectionType") == "DATA_SOURCE") && (watch("connectionDSType") == "EXTERNAL")))) &&
+                    {((watch("isRegistryBasedUserConfig") == true) &&((watch("connectionType") == "DB_CONNECTION") ||((watch("connectionType") == "DATA_SOURCE") &&(watch("connectionDSType") == "EXTERNAL") ))) &&
                     <Field>
                         <Controller
                             name="registryBasedUserConfigKey"
@@ -425,7 +451,7 @@ const DBReportForm = (props: AddMediatorProps) => {
                     </Field>
                     }
 
-                    {((watch("connectionType") == "DB_CONNECTION") || ((watch("connectionType") == "DATA_SOURCE") && (watch("connectionDSType") == "EXTERNAL"))) &&
+                    {((watch("connectionType") == "DB_CONNECTION") ||((watch("connectionType") == "DATA_SOURCE") &&(watch("connectionDSType") == "EXTERNAL") )) &&
                     <Field>
                         <Controller
                             name="isRegistryBasedPassConfig"
@@ -438,7 +464,7 @@ const DBReportForm = (props: AddMediatorProps) => {
                     </Field>
                     }
 
-                    {((watch("isRegistryBasedPassConfig") == false) && ((watch("connectionType") == "DB_CONNECTION") || ((watch("connectionType") == "DATA_SOURCE") && (watch("connectionDSType") == "EXTERNAL")))) &&
+                    {((watch("isRegistryBasedPassConfig") == false) &&((watch("connectionType") == "DB_CONNECTION") ||((watch("connectionType") == "DATA_SOURCE") &&(watch("connectionDSType") == "EXTERNAL") ))) &&
                     <Field>
                         <Controller
                             name="connectionPassword"
@@ -451,7 +477,7 @@ const DBReportForm = (props: AddMediatorProps) => {
                     </Field>
                     }
 
-                    {((watch("isRegistryBasedPassConfig") == true) && ((watch("connectionType") == "DB_CONNECTION") || ((watch("connectionType") == "DATA_SOURCE") && (watch("connectionDSType") == "EXTERNAL")))) &&
+                    {((watch("isRegistryBasedPassConfig") == true) &&((watch("connectionType") == "DB_CONNECTION") ||((watch("connectionType") == "DATA_SOURCE") &&(watch("connectionDSType") == "EXTERNAL") ))) &&
                     <Field>
                         <Controller
                             name="registryBasedPassConfigKey"

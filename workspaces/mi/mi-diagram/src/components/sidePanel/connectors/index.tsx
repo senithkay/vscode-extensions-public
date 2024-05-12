@@ -101,7 +101,6 @@ const OldProjectMessage = styled.div`
 
 export interface ConnectorPageProps {
     documentUri: string;
-    setContent: any;
     searchValue?: string;
     clearSearch?: () => void;
     nodePosition: any;
@@ -340,12 +339,21 @@ export function ConnectorPage(props: ConnectorPageProps) {
                 connectorName={connector.name}
                 operationName={operation} />;
 
-            props.setContent(connecterForm, `${sidePanelContext.isEditing ? "Edit" : "Add"} ${operation}`, iconPathUri.uri);
+            addToPageStack(connecterForm, `${sidePanelContext.isEditing ? "Edit" : "Add"} ${operation}`, iconPathUri.uri);
         } else {
             fetchLocalConnectorData();
         }
 
         setIsGeneratingForm(false);
+    }
+
+    const addToPageStack = (content: any, title: string, icon: string) => {
+        title = `${sidePanelContext.isEditing ? "Edit" : "Add"} ${title}`
+        sidePanelContext.setSidePanelState({
+            ...sidePanelContext,
+            icon: icon,
+            pageStack: [...sidePanelContext.pageStack, { content, title, icon }],
+        });
     }
 
     function existsInLocalConnectors(connector: any) {
@@ -354,17 +362,13 @@ export function ConnectorPage(props: ConnectorPageProps) {
     }
 
     const ConnectorList = () => {
-        if (sidePanelContext.isEditing) {
-            const mediatorForm = <Mediators nodePosition={props.nodePosition} documentUri={props.documentUri} setContent={props.setContent} searchValue={props.searchValue} />
-            return mediatorForm;
-        }
 
         let displayedStoreConnectors: any[] = undefined;
         let displayeLocalConnectors = localConnectors;
 
         if (displayeLocalConnectors) {
             displayedStoreConnectors = sidePanelContext.connectors;
-            if (displayedStoreConnectors)  {
+            if (displayedStoreConnectors) {
                 displayedStoreConnectors = displayedStoreConnectors.filter(connector => !existsInLocalConnectors(connector));
             }
         }
@@ -379,7 +383,7 @@ export function ConnectorPage(props: ConnectorPageProps) {
             <>
                 {isOldProject ? (
                     <OldProjectMessage>
-                        <Codicon name="warning" /> 
+                        <Codicon name="warning" />
                         Connector store is not supported with the old project structure.
                         Please migrate to use the connector store and other features.
                     </OldProjectMessage>
@@ -407,117 +411,117 @@ export function ConnectorPage(props: ConnectorPageProps) {
                                     No local connectors found
                                 </MessageWrapper>
                             ) : (
-                            <ButtonGrid>
-                                {displayeLocalConnectors.map((connector: any) => (
-                                    <ComponentCard
-                                        key={connector.name}
-                                        onClick={() => selectConnector(connector)}
-                                        sx={{
-                                            '&:hover, &.active': {
-                                                ...(expandedConnectors.includes(connector) && {
-                                                    '.icon svg g': {
-                                                        fill: 'var(--vscode-editor-foreground)'
-                                                    },
-                                                    backgroundColor: 'var(--vscode-pickerGroup-border)',
-                                                    border: '0.5px solid var(--vscode-focusBorder)'
-                                                })
-                                            },
-                                            alignItems: 'center',
-                                            border: '0.5px solid var(--vscode-editor-foreground)',
-                                            borderRadius: 2,
-                                            cursor: 'pointer',
-                                            display: 'flex',
-                                            justifyContent: 'left',
-                                            marginBottom: 10,
-                                            padding: 10,
-                                            transition: '0.3s',
-                                            width: 'calc(100% - 25px)'
-                                        }}
-                                    >
-                                        <CardContent>
-                                            <CardLabel>
-                                                <IconContainer>
-                                                    <img
-                                                        src={connector.iconPathUri.uri}
-                                                        alt="Icon"
-                                                    />
-                                                </IconContainer>
-                                                <div style={{
-                                                    width: '100%',
-                                                    overflow: 'hidden',
-                                                    textOverflow: 'ellipsis',
-                                                    whiteSpace: 'nowrap',
-                                                    textAlign: 'left'
-                                                }}>
-                                                    <IconLabel>
-                                                        {connector.name}
-                                                    </IconLabel>
-                                                    <VersionTag>
-                                                        {connector.version}
-                                                    </VersionTag>
-                                                </div>
-                                                <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                                                    {expandedConnectors.includes(connector) ?
-                                                        <Codicon name={"chevron-up"} /> : <Codicon name={"chevron-down"} />
-                                                    }
-                                                </div>
-                                            </CardLabel>
-                                            {(filteredOperations.some(
-                                                ([filteredConnector]) =>
-                                                    filteredConnector.name === connector.name
-                                            )
-                                                || (expandedConnectors && expandedConnectors.includes(connector))) && (
-                                                    <OperationGrid>
-                                                        {((filteredOperations.find(([filteredConnector]) => filteredConnector === connector)?.slice(1))
-                                                            || (connector.actions)).map((operation: any) => {
-                                                                // If operation is hidden, do not render the ComponentCard
-                                                                if (operation.isHidden) {
-                                                                    return null;
-                                                                }
-
-                                                                return (
-                                                                    <ComponentCard
-                                                                        key={operation}
-                                                                        onClick={() => selectOperation(connector, operation.name)}
-                                                                        sx={{
-                                                                            '&:hover, &.active': {
-                                                                                '.icon svg g': {
-                                                                                    fill: 'var(--vscode-editor-foreground)'
-                                                                                },
-                                                                                backgroundColor: 'var(--vscode-pickerGroup-border)',
-                                                                                border: '0.5px solid var(--vscode-focusBorder)'
-                                                                            },
-                                                                            alignItems: 'center',
-                                                                            border: '0.5px solid var(--vscode-editor-foreground)',
-                                                                            borderRadius: 2,
-                                                                            cursor: 'pointer',
-                                                                            display: 'flex',
-                                                                            height: 20,
-                                                                            justifyContent: 'left',
-                                                                            padding: 10,
-                                                                            transition: '0.3s',
-                                                                            width: 170
-                                                                        }}
-                                                                    >
-                                                                        <div style={{
-                                                                            width: '100%',
-                                                                            overflow: 'hidden',
-                                                                            textOverflow: 'ellipsis',
-                                                                            whiteSpace: 'nowrap',
-                                                                            textAlign: 'left'
-                                                                        }}>
-                                                                            <IconLabel>{operation.name}</IconLabel>
-                                                                        </div>
-                                                                    </ComponentCard>
-                                                                );
-                                                            })}
-                                                    </OperationGrid>
+                                <ButtonGrid>
+                                    {displayeLocalConnectors.map((connector: any) => (
+                                        <ComponentCard
+                                            key={connector.name}
+                                            onClick={() => selectConnector(connector)}
+                                            sx={{
+                                                '&:hover, &.active': {
+                                                    ...(expandedConnectors.includes(connector) && {
+                                                        '.icon svg g': {
+                                                            fill: 'var(--vscode-editor-foreground)'
+                                                        },
+                                                        backgroundColor: 'var(--vscode-pickerGroup-border)',
+                                                        border: '0.5px solid var(--vscode-focusBorder)'
+                                                    })
+                                                },
+                                                alignItems: 'center',
+                                                border: '0.5px solid var(--vscode-editor-foreground)',
+                                                borderRadius: 2,
+                                                cursor: 'pointer',
+                                                display: 'flex',
+                                                justifyContent: 'left',
+                                                marginBottom: 10,
+                                                padding: 10,
+                                                transition: '0.3s',
+                                                width: 'calc(100% - 25px)'
+                                            }}
+                                        >
+                                            <CardContent>
+                                                <CardLabel>
+                                                    <IconContainer>
+                                                        <img
+                                                            src={connector.iconPathUri.uri}
+                                                            alt="Icon"
+                                                        />
+                                                    </IconContainer>
+                                                    <div style={{
+                                                        width: '100%',
+                                                        overflow: 'hidden',
+                                                        textOverflow: 'ellipsis',
+                                                        whiteSpace: 'nowrap',
+                                                        textAlign: 'left'
+                                                    }}>
+                                                        <IconLabel>
+                                                            {connector.name}
+                                                        </IconLabel>
+                                                        <VersionTag>
+                                                            {connector.version}
+                                                        </VersionTag>
+                                                    </div>
+                                                    <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                                                        {expandedConnectors.includes(connector) ?
+                                                            <Codicon name={"chevron-up"} /> : <Codicon name={"chevron-down"} />
+                                                        }
+                                                    </div>
+                                                </CardLabel>
+                                                {(filteredOperations.some(
+                                                    ([filteredConnector]) =>
+                                                        filteredConnector.name === connector.name
                                                 )
-                                            }
-                                        </CardContent>
-                                    </ComponentCard>
-                                ))}
-                            </ButtonGrid>
+                                                    || (expandedConnectors && expandedConnectors.includes(connector))) && (
+                                                        <OperationGrid>
+                                                            {((filteredOperations.find(([filteredConnector]) => filteredConnector === connector)?.slice(1))
+                                                                || (connector.actions)).map((operation: any) => {
+                                                                    // If operation is hidden, do not render the ComponentCard
+                                                                    if (operation.isHidden) {
+                                                                        return null;
+                                                                    }
+
+                                                                    return (
+                                                                        <ComponentCard
+                                                                            key={operation}
+                                                                            onClick={() => selectOperation(connector, operation.name)}
+                                                                            sx={{
+                                                                                '&:hover, &.active': {
+                                                                                    '.icon svg g': {
+                                                                                        fill: 'var(--vscode-editor-foreground)'
+                                                                                    },
+                                                                                    backgroundColor: 'var(--vscode-pickerGroup-border)',
+                                                                                    border: '0.5px solid var(--vscode-focusBorder)'
+                                                                                },
+                                                                                alignItems: 'center',
+                                                                                border: '0.5px solid var(--vscode-editor-foreground)',
+                                                                                borderRadius: 2,
+                                                                                cursor: 'pointer',
+                                                                                display: 'flex',
+                                                                                height: 20,
+                                                                                justifyContent: 'left',
+                                                                                padding: 10,
+                                                                                transition: '0.3s',
+                                                                                width: 170
+                                                                            }}
+                                                                        >
+                                                                            <div style={{
+                                                                                width: '100%',
+                                                                                overflow: 'hidden',
+                                                                                textOverflow: 'ellipsis',
+                                                                                whiteSpace: 'nowrap',
+                                                                                textAlign: 'left'
+                                                                            }}>
+                                                                                <IconLabel>{operation.name}</IconLabel>
+                                                                            </div>
+                                                                        </ComponentCard>
+                                                                    );
+                                                                })}
+                                                        </OperationGrid>
+                                                    )
+                                                }
+                                            </CardContent>
+                                        </ComponentCard>
+                                    ))}
+                                </ButtonGrid>
                             )}
                         </div>
                         <div>
