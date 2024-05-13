@@ -110,6 +110,7 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({
             const joinedPath = await ChoreoWebViewAPI.getInstance().joinFilePaths([directoryFsPath, subPath])
             return ChoreoWebViewAPI.getInstance().getGitRemotes(joinedPath)
         },
+        keepPreviousData: true,
     });
 
     useEffect(() => {
@@ -153,6 +154,7 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({
                 orgId: organization.id.toString(),
             }),
         enabled: !!repoUrl,
+        keepPreviousData: true
     });
 
     const selectedBuildPack = buildpacks?.find((item) => item.language === selectedLang);
