@@ -144,11 +144,13 @@ export class SizingVisitor implements Visitor {
 
         let totalWidth = 0;
         // make widths and heights equal
-        for (let i = 0; i < Object.keys(subSequences).length; i++) {
-            const subSequence = subSequences[Object.keys(subSequences)[i]];
-            const nodeGap = i === Object.keys(subSequences).length - 1 ? 0 : NODE_GAP.BRANCH_X;
-            subSequence.viewState = { ...subSequence.viewState, w: subSequencesWidth, h: subSequencesHeight, l: subSequencesWidth / 2, r: subSequencesWidth / 2 };
-            totalWidth += subSequencesWidth + nodeGap;
+        for (let i = 0; i < subSequenceKeys.length; i++) {
+            const subSequence = subSequences[subSequenceKeys[i]];
+            if (subSequence) {
+                const nodeGap = i === subSequenceKeys.length - 1 ? 0 : NODE_GAP.BRANCH_X;
+                subSequence.viewState = { ...subSequence.viewState, w: subSequencesWidth, h: subSequencesHeight, l: subSequencesWidth / 2, r: subSequencesWidth / 2 };
+                totalWidth += subSequencesWidth + nodeGap;
+            }
         }
 
         node.viewState.fw = Math.max(totalWidth, type === NodeTypes.CONDITION_NODE ? NODE_DIMENSIONS.CONDITION.WIDTH : NODE_DIMENSIONS.GROUP.WIDTH);
