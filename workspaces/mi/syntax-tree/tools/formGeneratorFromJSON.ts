@@ -338,7 +338,7 @@ const generateForm = (jsonData: any): string => {
                 } else if (inputType === 'connection') {
 
                     let dropdownStr = '';
-                    dropdownStr += `Z
+                    dropdownStr += `
                             <VSCodeDropdown
                                 label="${displayName}"
                                 autoWidth={true}
