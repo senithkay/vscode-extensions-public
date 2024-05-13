@@ -13,10 +13,11 @@ import React, { useMemo } from "react";
 import { Global, css } from '@emotion/react';
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { DMType, Range } from "@wso2-enterprise/mi-core";
-import { Project } from "ts-morph";
+import { Project, SyntaxKind } from "ts-morph";
 
 import { MIDataMapper } from "./components/DataMapper/DataMapper";
 import { ErrorBoundary } from "@wso2-enterprise/ui-toolkit";
+import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 
 const queryClient = new QueryClient({
     defaultOptions: {
@@ -59,6 +60,7 @@ export function DataMapperView(props: DataMapperViewProps) {
         updateFileContent,
         configName
     } = props;
+    const { rpcClient } = useVisualizerContext();
 
     const { functionST, sourceFile } = useMemo(() => {
 
@@ -66,12 +68,42 @@ export function DataMapperView(props: DataMapperViewProps) {
         const sourceFile = project.createSourceFile(filePath, fileContent);
         const fnST = sourceFile.getFunction(functionName);
 
+        // Check if the return statement is empty
+        const returnStatement = fnST?.getDescendantsOfKind(SyntaxKind.ReturnStatement)[0];
+        const isEmptyReturnStatement = 
+            // If return type is an object
+            returnStatement?.getExpressionIfKind(SyntaxKind.ObjectLiteralExpression)?.getProperties().length === 0
+            // If return type is an array
+            || returnStatement?.getExpressionIfKind(SyntaxKind.ArrayLiteralExpression)?.getElements().length === 0;
+        if (isEmptyReturnStatement) {
+            rpcClient.getMiVisualizerRpcClient().retrieveContext({
+                key: "hideDmLandingMessage",
+                contextType: "workspace"
+            }).then((response) => {
+                if (response.value ?? true) {
+                    rpcClient.getMiVisualizerRpcClient().showNotification({
+                        message: "Begin mapping by selecting a field from the Input section and then selecting a corresponding field in the Output section.",
+                        options: ["Don't show this again"],
+                        type: "info",
+                    }).then((response) => {
+                        if (response.selection) {
+                            rpcClient.getMiVisualizerRpcClient().updateContext({
+                                key: "hideDmLandingMessage",
+                                value: false,
+                                contextType: "workspace"
+                            });
+                        }
+                    });
+                }
+            });
+        }
+
         return {
             functionST: fnST,
             sourceFile: sourceFile,
         };
 
-    }, [filePath, fileContent, functionName]);
+    }, [rpcClient, filePath, fileContent, functionName]);
 
     const applyModifications = () => {
         updateFileContent(sourceFile.getText());
