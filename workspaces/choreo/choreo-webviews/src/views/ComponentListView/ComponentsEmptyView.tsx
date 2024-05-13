@@ -15,11 +15,11 @@ export const ComponentsEmptyView = () => {
             >
                 Create Component
             </Button>
-            <p>Link a directory with an existing component.</p>
+            <p>Link a directory with an existing component or components</p>
             <Button
                 className="w-full max-w-80 self-center sm:self-start"
                 onClick={() => ChoreoWebViewAPI.getInstance().triggerCmd(CommandIds.LinkExistingComponent)}
-                title="Create a link.yaml file in any directory within your workspace to link it to an existing Choreo component."
+                title="Create a link.yaml file in any directory within your workspace to an existing Choreo component or multiple components."
             >
                 Link Directory
             </Button>

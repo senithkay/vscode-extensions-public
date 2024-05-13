@@ -78,7 +78,7 @@ import {
     GetLinkedDirState,
     LinkedDirStoreChangedNotification,
     OpenSubDialogRequest,
-    GetGetRemotes,
+    GetGitRemotes,
     ShowInfoMessage,
     JoinFilePaths,
     RefreshLinkedDirState,
@@ -122,7 +122,7 @@ import { authStore } from "../../../stores/auth-store";
 import { linkedDirectoryStore } from "../../../stores/linked-dir-store";
 import { webviewStateStore } from "../../../stores/webview-state-store";
 import { registerChoreoRpcResolver } from "../../../choreo-rpc";
-import { removeCredentialsFromGitURL } from "../../../git/util";
+import { getGitRemotes, removeCredentialsFromGitURL } from "../../../git/util";
 import { choreoEnvConfig } from "../../../auth/auth";
 import { showComponentDetails } from "../../../cmds/view-component-cmd";
 import { getChoreoExecPath } from "../../../choreo-rpc/cli-install";
@@ -154,20 +154,10 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
             return [];
         }
     });
-    messenger.onRequest(GetGetRemotes, async (paths: string[]) => {
+    messenger.onRequest(GetGitRemotes, async (dirPath: string) => {
         try {
-            const dirPath = join(...paths);
-            const git = await initGit(ext.context);
-
-            const repoRootPath = await git?.getRepositoryRoot(dirPath);
-            const dotGit = await git?.getRepositoryDotGit(dirPath);
-        
-            if (!repoRootPath || !dotGit) {
-                return [];
-            }
-            const repo = git?.open(repoRootPath!, dotGit);
-            const remotes = await repo?.getRemotes();
-            return remotes?.filter(item=>item.fetchUrl)?.map(item => removeCredentialsFromGitURL(item.fetchUrl!)) ?? [];
+            const remotes = await getGitRemotes(ext.context, dirPath);
+            return remotes?.map(item => removeCredentialsFromGitURL(item.fetchUrl!));
         } catch (error: any) {
             getLogger().error(error.message);
             return [];

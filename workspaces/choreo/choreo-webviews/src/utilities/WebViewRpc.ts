@@ -104,7 +104,7 @@ import {
     IChoreoRPCClient,
     ChoreoRpcWebview,
     OpenSubDialogRequest,
-    GetGetRemotes,
+    GetGitRemotes,
     JoinFilePaths,
     RefreshLinkedDirState,
     DeleteFile,
@@ -219,8 +219,8 @@ export class ChoreoWebViewAPI {
         return this._messenger.sendRequest(OpenSubDialogRequest, HOST_EXTENSION, options);
     }
 
-    public async getGitRemotes(paths: string[]): Promise<string[]> {
-        return this._messenger.sendRequest(GetGetRemotes, HOST_EXTENSION, paths);
+    public async getGitRemotes(dirPath: string): Promise<string[]> {
+        return this._messenger.sendRequest(GetGitRemotes, HOST_EXTENSION, dirPath);
     }
 
     public async joinFilePaths(paths: string[]): Promise<string> {

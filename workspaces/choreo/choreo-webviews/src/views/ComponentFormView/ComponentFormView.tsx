@@ -106,7 +106,10 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({
 
     const { isLoading: isLoadingRemotes, data: gitRemotes = [] } = useQuery({
         queryKey: ["get-git-remotes", { directoryFsPath, subPath }],
-        queryFn: () => ChoreoWebViewAPI.getInstance().getGitRemotes([directoryFsPath, subPath]),
+        queryFn: async () => {
+            const joinedPath = await ChoreoWebViewAPI.getInstance().joinFilePaths([directoryFsPath, subPath])
+            return ChoreoWebViewAPI.getInstance().getGitRemotes(joinedPath)
+        },
     });
 
     useEffect(() => {
@@ -427,7 +430,7 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({
                                             {invalidRepoMsg}
                                         </Banner>
                                     )}
-                                    {!invalidRepoMsg && repoUrl && (
+                                    {!invalidRepoMsg && gitRemotes?.length > 0 && (
                                         <Dropdown
                                             label="Branch"
                                             required

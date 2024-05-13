@@ -32,7 +32,7 @@ export function unlinkComponentCommand(context: ExtensionContext) {
                             canSelectFolders: true,
                             canSelectFiles: false,
                             canSelectMany: false,
-                            title: "Select directory that needs to be linked with a component (1/3)",
+                            title: "Select directory that needs to be linked with a component",
                             defaultUri: directory.uri,
                         });
 
@@ -48,10 +48,10 @@ export function unlinkComponentCommand(context: ExtensionContext) {
                     }
 
                     const linkFilePath = path.join(componentPath, ".choreo", "link.yaml");
-                    const parsedData: LinkFileContent = yaml.load(fs.readFileSync(linkFilePath, "utf8")) as any;
                     if (!fs.existsSync(linkFilePath)) {
                         throw new Error("Selected component directory does not contain any link files");
                     }
+                    const parsedData: LinkFileContent = yaml.load(fs.readFileSync(linkFilePath, "utf8")) as any;
 
                     const response = await window.showInformationMessage(
                         `Are you sure you want to unlink this component directory. This action will delete the file ${linkFilePath}, from the directory`,
@@ -67,6 +67,10 @@ export function unlinkComponentCommand(context: ExtensionContext) {
                             async () => {
                                 closeWebviewPanel(parsedData.org, parsedData.project, parsedData.component);
                                 unlinkSync(linkFilePath);
+                                const choreoDirFiles = fs.readdirSync(path.join(componentPath, ".choreo"));
+                                if (choreoDirFiles.length === 0) {
+                                    fs.rmdirSync(path.join(componentPath, ".choreo"));
+                                }
                                 linkedDirectoryStore.getState().refreshState();
                                 window.showInformationMessage(
                                     `Directory ${componentPath} has been successfully unlinked`

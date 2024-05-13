@@ -527,13 +527,13 @@ export const removeCredentialsFromGitURL = (gitURL: string): string => {
     throw new Error(`failed to parse git repository url:${gitURL}`);
 };
 
-export const getGitRemotes = async (context: ExtensionContext, directoryPath: string): Promise<Remote[] | void> => {
+export const getGitRemotes = async (context: ExtensionContext, directoryPath: string): Promise<Remote[]> => {
     const newGit = await initGit(context);
     const repoRootPath = await newGit?.getRepositoryRoot(directoryPath);
     const dotGit = await newGit?.getRepositoryDotGit(directoryPath);
 
     if (!repoRootPath || !dotGit) {
-        return;
+        return [];
     }
 
     const repo = newGit?.open(repoRootPath!, dotGit);
@@ -550,4 +550,50 @@ export const getGitRoot = async (context: ExtensionContext, directoryPath: strin
 		getLogger().error("Invalid Git Directory", err);
 		throw new Error("Not a Git directory");
 	};
+};
+
+export const parseGitURL = (url?: string): null | [string, string] => {
+    let org: string, repoName: string;
+	if(!url){
+		return null;
+	}
+
+    if (url.startsWith("https://") || url.startsWith("http://")) {
+        const parts = url.split("/");
+        if (parts.length < 2) {
+			return null;
+        }
+        org = parts[parts.length - 2];
+        repoName = parts[parts.length - 1].replace(".git", "");
+    } else if (url.startsWith("git@")) {
+        const parts = url.split(":");
+        if (parts.length < 2) {
+			return null;
+        }
+        const orgRepo = parts[1].split("/");
+        if (orgRepo.length < 2) {
+			return null;
+        }
+        org = orgRepo[0];
+        repoName = orgRepo[1].replace(".git", "");
+    } else {
+		return null;
+    }
+    return [org, repoName];
+};
+
+export const isSameRepo = (gitUrl1?: string, gitUrl2?: string): boolean => {
+	const parsedUrl1 = parseGitURL(gitUrl1);
+	if(parsedUrl1 === null){
+		return false;
+	}
+	const [gitOrg1, gitRepo1] = parsedUrl1;
+
+	const parsedUrl12 = parseGitURL(gitUrl2);
+	if(parsedUrl12 === null){
+		return false;
+	}
+	const [gitOrg2, gitRepo2] = parsedUrl12;
+
+	return gitOrg1 === gitOrg2 && gitRepo1 === gitRepo2;
 };

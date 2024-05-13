@@ -21,14 +21,14 @@ export function openComponentInConsoleCommand(context: ExtensionContext) {
                     const userInfo = await getUserInfoForCmd("open a component in Choreo console");
                     if (userInfo) {
                         const selectedOrg =
-                            params?.organization ?? (await selectOrg(userInfo, "Select organization (1/3)"));
+                            params?.organization ?? (await selectOrg(userInfo, "Select organization"));
 
                         const selectedProject =
                             params?.project ??
                             (await selectProject(
                                 selectedOrg,
-                                `Loading projects from '${selectedOrg.name}' (2/3)`,
-                                `Select project from '${selectedOrg.name}' (2/3)`
+                                `Loading projects from '${selectedOrg.name}'`,
+                                `Select project from '${selectedOrg.name}'`
                             ));
 
                         const selectedComponent =
@@ -36,8 +36,8 @@ export function openComponentInConsoleCommand(context: ExtensionContext) {
                             (await selectComponent(
                                 selectedOrg,
                                 selectedProject,
-                                `Loading components from '${selectedProject.name}' (3/3)`,
-                                `Select component from '${selectedProject.name}' to open in Console (3/3)`
+                                `Loading components from '${selectedProject.name}'`,
+                                `Select component from '${selectedProject.name}' to open in Console`
                             ));
 
                         const url = `${choreoEnvConfig.getConsoleUrl()}/organizations/${selectedOrg?.handle}/projects/${

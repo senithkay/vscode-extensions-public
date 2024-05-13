@@ -12,11 +12,11 @@
  */
 
 import { LinkFileContent, EndpointYamlContent, ReadEndpointsResp } from "@wso2-enterprise/choreo-core";
-import { existsSync, mkdirSync, readFileSync, unlinkSync, writeFileSync } from "fs";
+import { existsSync, mkdirSync, readFileSync, unlinkSync, readdirSync, rmdirSync } from "fs";
 import * as yaml from "js-yaml";
 import { commands, window, workspace } from "vscode";
 import { linkedDirectoryStore } from "./stores/linked-dir-store";
-import { join } from "path";
+import { join, dirname } from "path";
 import * as path from "path";
 
 // TODO: move into ChoreoExtensionApi()
@@ -30,6 +30,11 @@ export const deleteLinkFile = async (orgHandle: string, projectHandle: string, c
             parsedData.org === orgHandle
         ) {
             unlinkSync(linkFile.fsPath);
+            const choreoDirPath = dirname(linkFile.fsPath);
+            const choreoDirFiles = readdirSync(choreoDirPath);
+            if (choreoDirFiles.length === 0) {
+                rmdirSync(choreoDirPath);
+            }
             await linkedDirectoryStore.getState().refreshState();
             break;
         }
@@ -50,12 +55,11 @@ export const goTosource = async (filePath: string, focusFileExplorer?: boolean) 
     if (existsSync(filePath)) {
         const sourceFile = await workspace.openTextDocument(filePath);
         await window.showTextDocument(sourceFile);
-        if(focusFileExplorer){
+        if (focusFileExplorer) {
             await commands.executeCommand("workbench.explorer.fileView.focus");
         }
     }
 };
-
 
 // sanitize the component display name to make it url friendly
 export function makeURLSafe(input: string): string {
@@ -73,4 +77,4 @@ export const getSubPath = (subPath: string, parentPath: string): string | null =
         return relative;
     }
     return null;
-}
+};

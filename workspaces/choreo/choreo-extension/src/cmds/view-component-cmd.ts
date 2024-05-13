@@ -23,19 +23,19 @@ export function viewComponentCommand(context: ExtensionContext) {
             try {
                 const userInfo = await getUserInfoForCmd("view component details");
                 if (userInfo) {
-                    const selectedOrg = await selectOrg(userInfo, "Select organization (1/3)");
+                    const selectedOrg = await selectOrg(userInfo, "Select organization");
 
                     const selectedProject = await selectProject(
                         selectedOrg,
-                        `Loading projects from '${selectedOrg.name}' (2/3)`,
-                        `Select project from '${selectedOrg.name}' (2/3)`
+                        `Loading projects from '${selectedOrg.name}'`,
+                        `Select project from '${selectedOrg.name}'`
                     );
 
                     const selectedComponent = await selectComponent(
                         selectedOrg,
                         selectedProject,
-                        `Loading components from '${selectedProject.name}' (3/3)`,
-                        `Select component from '${selectedProject.name}' to view (3/3)`
+                        `Loading components from '${selectedProject.name}'`,
+                        `Select component from '${selectedProject.name}' to view`
                     );
 
                     const linkFiles = await workspace.findFiles("**/.choreo/link.yaml");
