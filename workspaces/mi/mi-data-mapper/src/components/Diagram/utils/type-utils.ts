@@ -33,6 +33,7 @@ export function getDMType(
     let currentType = parentType;
 
     for (let property of properties) {
+        if (!isNaN(Number(property))) continue;
         const field = findField(currentType, property);
 
         if (!field) return;
