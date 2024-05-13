@@ -50,10 +50,15 @@ export class MiDebugAdapter extends LoggingDebugSession {
             // Check the diagram visibility
             if (isWebviewPresent && isADiagramView()) {
                 setTimeout(() => {
-                    VisualizerWebview.currentPanel!.getWebview()?.reveal(ViewColumn.Beside);
-                    setTimeout(() => {
-                        navigate();
-                    }, 200);
+                    if (VisualizerWebview.currentPanel) {
+                        VisualizerWebview.currentPanel!.getWebview()?.reveal(ViewColumn.Beside);
+                        setTimeout(() => {
+                            navigate();
+                        }, 200);
+                    } else {
+                        extension.webviewReveal = true;
+                        openView(EVENT_TYPE.OPEN_VIEW, StateMachine.context());
+                    }
                 }, 200);
             }
         });
