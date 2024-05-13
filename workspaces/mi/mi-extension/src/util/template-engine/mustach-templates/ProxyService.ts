@@ -87,10 +87,10 @@ export function getProxyServiceMustacheTemplate() {
         {{/secureProxy}}
         {{#transformerProxy}}
         <inSequence>
-            <xslt key="{{requestXslt}}"/>
+            <xslt key="{{{requestXslt}}}"/>
         </inSequence>
         <outSequence>
-            {{#transformResponse}}<xslt key="{{responseXslt}}"/>{{/transformResponse}}
+            {{#transformResponse}}<xslt key="{{{responseXslt}}}"/>{{/transformResponse}}
             <send/>
         </outSequence>
         <faultSequence/>

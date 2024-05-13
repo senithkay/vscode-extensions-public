@@ -22,9 +22,9 @@ export interface GetTemplateEPTemplatesArgs {
 
 export function getTemplateEPMustacheTemplate() {
     return `<?xml version="1.0" encoding="UTF-8"?>
-<endpoint name="{{name}}" template="{{template}}" {{#uri}}uri="{{{uri}}}" {{/uri}}xmlns="http://ws.apache.org/ns/synapse">
+<endpoint name="{{name}}" template="{{{template}}}" {{#uri}}uri="{{{uri}}}" {{/uri}}xmlns="http://ws.apache.org/ns/synapse">
     {{#parameters}}
-    <axis2ns{{id}}:parameter name="{{name}}" value="{{value}}" xmlns:axis2ns{{id}}="http://ws.apache.org/ns/synapse"/>
+    <axis2ns{{id}}:parameter name="{{{name}}}" value="{{{value}}}" xmlns:axis2ns{{id}}="http://ws.apache.org/ns/synapse"/>
     {{/parameters}}
     <description>{{description}}</description>
 </endpoint>`;

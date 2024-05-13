@@ -30,7 +30,7 @@ export function getInboundEndpointMustacheTemplate() {
 <inboundEndpoint name="{{name}}" {{#classAttr}}class="{{classAttr}}" {{/classAttr}}onError="{{{errorSequence}}}" sequence="{{{sequence}}}" {{#protocol}}protocol="{{protocol}}" {{/protocol}}{{#statistics}}statistics="enable" {{/statistics}}{{#suspend}}suspend="{{suspend}}" {{/suspend}}{{#trace}}trace="enable" {{/trace}}xmlns="http://ws.apache.org/ns/synapse">
     <parameters>
     {{#params}}
-        {{^custom}}<parameter name="{{key}}">{{{value}}}</parameter>{{/custom}}{{#custom}}{{{custom}}}{{/custom}}
+        {{^custom}}<parameter name="{{{key}}}">{{{value}}}</parameter>{{/custom}}{{#custom}}{{{custom}}}{{/custom}}
     {{/params}}
     </parameters>
 </inboundEndpoint>`;

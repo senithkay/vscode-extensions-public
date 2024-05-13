@@ -1452,10 +1452,20 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                         const params = jsonData.template.parameter;
                         if (Array.isArray(params)) {
                             params.forEach((param: any) => {
-                                response.parameters.push(param["@_"]["@_name"]);
+                                const templateProperty = {
+                                    name: param["@_"]["@_name"],
+                                    isMandatory: param["@_"]["@_isMandatory"],
+                                    default: param["@_"]["@_defaultValue"] ?? ""
+                                };
+                                response.parameters.push(templateProperty);
                             });
                         } else {
-                            response.parameters.push(params["@_"]["@_name"]);
+                            const templateProperty = {
+                                name: params["@_"]["@_name"],
+                                isMandatory: params["@_"]["@_isMandatory"],
+                                default: params["@_"]["@_defaultValue"] ?? ""
+                            };
+                            response.parameters.push(templateProperty);
                         }
                     }
                 }

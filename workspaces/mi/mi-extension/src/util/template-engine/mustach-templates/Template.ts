@@ -28,7 +28,7 @@ export function getTemplateMustacheTemplate() {
     return `<?xml version="1.0" encoding="UTF-8"?>
 <template name="{{templateName}}" xmlns="http://ws.apache.org/ns/synapse">
     {{#sequenceTemplate}}
-    {{#params}}<parameter name="{{name}}"/>{{/params}}
+    {{#params}}<parameter {{#default}}defaultValue="{{{default}}}"{{/default}} isMandatory="{{isMandatory}}" name="{{{name}}}"/>{{/params}}
     <sequence {{#stats}}statistics="enable"{{/stats}} {{#trace}}trace="enable"{{/trace}}>
     </sequence>{{/sequenceTemplate}}
     {{^sequenceTemplate}}
@@ -71,7 +71,7 @@ export function getTemplateXml(data: TemplateArgs) {
     }
 
     let params: any = [];
-    data.parameters.length > 0 ? data.parameters.forEach(element => { params.push({ name: element }); }) : params = null;
+    data.parameters.length > 0 ? data.parameters.forEach(element => { params.push(element); }) : params = null;
 
     const endpointName = data.templateType != 'Sequence Template' ? "endpoint_urn_uuid_".concat(generateUUID()) : null;
     const trace = data.traceEnabled ? "enabled" : null;
