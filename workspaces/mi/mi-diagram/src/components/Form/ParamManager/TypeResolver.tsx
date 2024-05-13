@@ -109,7 +109,7 @@ export function TypeResolver(props: TypeResolverProps) {
                         onChange={handleCheckboxChange}
                         disabled={disabled}
                     >
-                        Is Required?
+                        {label || "Is Required?"}
                     </VSCodeCheckbox>
                 </div>
             );
