@@ -105,21 +105,21 @@ export function ParamEditor(props: ParamProps) {
                 </EditorContainer>
             )}
             <Drawer isOpen={isDrawerCancelInProgress ? false : openInDrawer} id="drawer1" isSelected={true}>
-                <DrawerContent>
-                    <EditorContent>
+                {openInDrawer && (
+                    <DrawerContent>
                         {parameters?.parameters.map(param => getParamComponent({
-                            ...param,
-                            label: getParamFieldLabelFromParamId(paramFields, param.id)
-                        }))}
-                    </EditorContent>
-                    <ActionButtons
-                        primaryButton={{ text: "Save", onClick: handleOnSave }}
-                        secondaryButton={{ text: "Cancel", onClick: handleOnCancel }}
-                        sx={{ justifyContent: "flex-end" }}
-                    />
-                </DrawerContent>
+                                ...param,
+                                label: getParamFieldLabelFromParamId(paramFields, param.id)
+                            })
+                        )}
+                        <ActionButtons
+                            primaryButton={{ text: "Save", onClick: handleOnSave }}
+                            secondaryButton={{ text: "Cancel", onClick: handleOnCancel }}
+                            sx={{ justifyContent: "flex-end" }}
+                        />
+                    </DrawerContent>
+                )}
             </Drawer>
-
         </>
     );
 }
