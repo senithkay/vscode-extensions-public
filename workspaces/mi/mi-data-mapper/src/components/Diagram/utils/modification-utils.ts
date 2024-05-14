@@ -386,7 +386,7 @@ export function modifySourceForMultipleMappings(link: DataMapperLinkModel) {
 	}
 }
 
-function buildInputAccessExpr(fieldFqn: string): string {
+export function buildInputAccessExpr(fieldFqn: string): string {
     const parts = fieldFqn.split('.');
 
     const result = parts.map(part => {
