@@ -13,12 +13,12 @@ import * as vscode from 'vscode';
 import { executeBuildTask, executeTasks, getServerPath, isADiagramView, removeTempDebugBatchFile } from './debugHelper';
 import { Subject } from 'await-notify';
 import { Debugger } from './debugger';
-import { StateMachine, navigate, openView } from '../stateMachine';
-import { EVENT_TYPE, MACHINE_VIEW } from '@wso2-enterprise/mi-core';
+import { navigate } from '../stateMachine';
 import { VisualizerWebview } from '../visualizer/webview';
-import { extension } from '../MIExtensionContext';
 import { getBuildTask, getStopTask } from './tasks';
 import { ViewColumn } from 'vscode';
+import { COMMANDS } from '../constants';
+import { INCORRECT_SERVER_PATH_MSG } from './constants';
 
 export class MiDebugAdapter extends LoggingDebugSession {
     private _configurationDone = new Subject();
@@ -228,8 +228,9 @@ export class MiDebugAdapter extends LoggingDebugSession {
         this._configurationDone.wait().then(() => {
             getServerPath().then((serverPath) => {
                 if (!serverPath) {
-                    response.success = false;
-                    this.sendResponse(response);
+                    const message = `Unable to locate the server path`;
+                    this.showErrorAndExecuteChangeServerPath(message);
+                    this.sendError(response, 1, message);
                 } else {
                     this.currentServerPath = serverPath;
                     const isDebugAllowed = !args?.noDebug ?? true;
@@ -243,16 +244,20 @@ export class MiDebugAdapter extends LoggingDebugSession {
                                     response.success = true;
                                     this.sendResponse(response);
                                 }).catch(error => {
-                                    vscode.window.showErrorMessage(`Error while initializing the Debugger: ${error}`);
-                                    response.success = false;
-                                    this.sendResponse(response);
+                                    const completeError = `Error while initializing the Debugger: ${error}`;
+                                    vscode.window.showErrorMessage(completeError);
+                                    this.sendError(response, 1, completeError);
                                 });
                             }
                         })
                         .catch(error => {
-                            response.success = false;
-                            this.sendResponse(response);
-                            vscode.window.showErrorMessage(`Error while launching run and debug: ${error}`);
+                            const completeError = `Error while launching run and debug: ${error}`;
+                            if (error === INCORRECT_SERVER_PATH_MSG) {
+                                this.showErrorAndExecuteChangeServerPath(completeError);
+                            } else {
+                                vscode.window.showErrorMessage(completeError);
+                            }
+                            this.sendError(response, 1, completeError);
                         });
                 }
             });
@@ -280,9 +285,13 @@ export class MiDebugAdapter extends LoggingDebugSession {
                 response.success = true;
                 this.sendResponse(response);
             }).catch(error => {
-                vscode.window.showErrorMessage(`Error while executing build task: ${error}`);
-                response.success = false;
-                this.sendResponse(response);
+                const completeError = `Error while executing build task: ${error}`;
+                if (error === INCORRECT_SERVER_PATH_MSG) {
+                    this.showErrorAndExecuteChangeServerPath(completeError);
+                } else {
+                    vscode.window.showErrorMessage(completeError);
+                }
+                this.sendError(response, 2, completeError);
             });
         }
     }
@@ -296,15 +305,20 @@ export class MiDebugAdapter extends LoggingDebugSession {
                 removeTempDebugBatchFile();
             } else {
                 const stopTask = getStopTask(this.currentServerPath);
-                stopTask.presentationOptions.close = true;
-                stopTask.presentationOptions.showReuseMessage = false;
-                vscode.tasks.executeTask(stopTask);
+                if (stopTask) {
+                    stopTask.presentationOptions.close = true;
+                    stopTask.presentationOptions.showReuseMessage = false;
+                    vscode.tasks.executeTask(stopTask);
+                    response.success = true;
+                    this.sendResponse(response);
+                } else {
+                    const completeError = `Error while stopping the server: ${INCORRECT_SERVER_PATH_MSG}`;
+                    this.showErrorAndExecuteChangeServerPath(completeError);
+                    this.sendError(response, 3, completeError);
+                }
             }
-            response.success = true;
-            this.sendResponse(response);
         } else {
-            response.success = false;
-            this.sendResponse(response);
+            this.sendError(response, 3, `Error while disconnecting: Task Run was not found`);
         }
     }
 
@@ -350,8 +364,9 @@ export class MiDebugAdapter extends LoggingDebugSession {
                 this.debuggerHandler?.stepOverBreakpoint(breakpointResponse).then(() => {
                     this.sendResponse(response);
                 }).catch(error => {
-                    vscode.window.showErrorMessage(`Error while stepping over: ${error}`);
-                    this.sendResponse(response);
+                    const completeError = `Error while stepping over: ${error}`;
+                    vscode.window.showErrorMessage(completeError);
+                    this.sendError(response, 1, completeError);
                 });
             } else {
                 await this.debuggerHandler?.sendResumeCommand();
@@ -439,5 +454,22 @@ export class MiDebugAdapter extends LoggingDebugSession {
         };
 
         this.sendResponse(response);
+    }
+
+    private sendError(response: DebugProtocol.Response, errorCode: number, errorMessage: string) {
+        response.success = false;
+        this.sendErrorResponse(response, {
+            id: errorCode,
+            format: errorMessage,
+            showUser: false,
+        });
+    }
+
+    private showErrorAndExecuteChangeServerPath(completeError: string) {
+        vscode.window.showErrorMessage(completeError, 'Change Server Path').then((selection) => {
+            if (selection) {
+                vscode.commands.executeCommand(COMMANDS.CHANGE_SERVER_PATH);
+            }
+        });
     }
 }

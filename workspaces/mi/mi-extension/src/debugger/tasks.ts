@@ -9,6 +9,7 @@
 
 import * as path from 'path';
 import * as vscode from 'vscode';
+import * as fs from 'fs';
 import { createTempDebugBatchFile } from './debugHelper';
 
 export function getBuildTask(): vscode.Task {
@@ -25,10 +26,14 @@ export function getBuildTask(): vscode.Task {
     return buildTask;
 }
 
-export function getCopyTask(serverPath: string, targetDirectory: vscode.Uri): vscode.Task {
+export function getCopyTask(serverPath: string, targetDirectory: vscode.Uri): vscode.Task | undefined {
     const targetPath = path.join(serverPath, 'repository', 'deployment', 'server', 'carbonapps');
     const currentPath = path.join(targetDirectory.fsPath, '*.car');
     let commandToExecute: string;
+
+    if (!fs.existsSync(targetPath)) {
+        return undefined;
+    }
 
     if (process.platform === 'win32') {
         commandToExecute = `copy ${currentPath} ${targetPath}`;
@@ -86,9 +91,13 @@ export async function getRunTask(serverPath: string, isDebug: boolean): Promise<
     return runTask;
 }
 
-export function getStopTask(serverPath: string): vscode.Task {
+export function getStopTask(serverPath: string): vscode.Task | undefined {
     const binPath = path.join(serverPath, 'bin', 'micro-integrator.sh');
     const command = `${binPath} stop`;
+
+    if (!fs.existsSync(binPath)) {
+        return undefined;
+    }
 
     const stopTask = new vscode.Task(
         { type: 'mi-stop' },

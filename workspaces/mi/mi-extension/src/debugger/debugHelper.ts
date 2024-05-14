@@ -15,7 +15,7 @@ import { extension } from '../MIExtensionContext';
 import { getCopyTask, getBuildTask, getRunTask } from './tasks';
 import * as fs from 'fs';
 import * as path from 'path';
-import { COMMAND_PORT, READINESS_ENDPOINT, SELECTED_SERVER_PATH } from './constants';
+import { COMMAND_PORT, INCORRECT_SERVER_PATH_MSG, READINESS_ENDPOINT, SELECTED_SERVER_PATH } from './constants';
 import { reject } from 'lodash';
 import axios from 'axios';
 import * as net from 'net';
@@ -122,7 +122,7 @@ export async function executeCopyTask(task: vscode.Task) {
     return new Promise<void>(async resolve => {
         await vscode.tasks.executeTask(task);
         let disposable = vscode.tasks.onDidEndTaskProcess(async e => {
-            if(e.execution.task.name === 'copy'){
+            if (e.execution.task.name === 'copy') {
                 disposable.dispose();
                 if (e.exitCode === 0) {
                     resolve();
@@ -149,11 +149,15 @@ export async function executeBuildTask(task: vscode.Task, serverPath: string, sh
                                 const targetDirectory = vscode.Uri.joinPath(workspaceFolders[0].uri, "target");
                                 if (fs.existsSync(targetDirectory.fsPath)) {
                                     const copyTask = getCopyTask(serverPath, targetDirectory);
-                                    executeCopyTask(copyTask).then(() => {
-                                        resolve();
-                                    }).catch((error) => {
-                                        reject(error);
-                                    });
+                                    if (copyTask) {
+                                        executeCopyTask(copyTask).then(() => {
+                                            resolve();
+                                        }).catch((error) => {
+                                            reject(error);
+                                        });
+                                    } else {
+                                        reject(INCORRECT_SERVER_PATH_MSG);
+                                    }
                                 }
                             }
                         } else {
@@ -244,15 +248,19 @@ export async function deleteCapp(serverPath: string): Promise<void> {
         const targetPath = path.join(serverPath, 'repository', 'deployment', 'server', 'carbonapps');
 
         try {
-            const files = await fs.promises.readdir(targetPath);
+            if (!fs.existsSync(targetPath)) {
+                reject(INCORRECT_SERVER_PATH_MSG);
+            } else {
+                const files = await fs.promises.readdir(targetPath);
 
-            for (const file of files) {
-                if (file.endsWith('.car')) {
-                    const filePath = path.join(targetPath, file);
-                    await fs.promises.unlink(filePath);
+                for (const file of files) {
+                    if (file.endsWith('.car')) {
+                        const filePath = path.join(targetPath, file);
+                        await fs.promises.unlink(filePath);
+                    }
                 }
+                resolve();
             }
-            resolve();
         } catch (err) {
             console.error(`Error deleting files: ${err}`);
             reject(err);
