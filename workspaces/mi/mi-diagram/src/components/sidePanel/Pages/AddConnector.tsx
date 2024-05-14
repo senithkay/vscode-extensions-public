@@ -135,9 +135,17 @@ const AddConnector = (props: AddConnectorProps) => {
 
     useEffect(() => {
         if (sidePanelContext.formValues && Object.keys(sidePanelContext.formValues).length > 0 && sidePanelContext.formValues?.parameters) {
-            const parametersValues = sidePanelContext.formValues?.parameters?.map((param: any) => ({
-                [param.name]: param.value
-            }));
+            const parametersValues = sidePanelContext.formValues?.parameters?.map((param: any) => {
+                const validationError = formValidators[param.name]?.(param.value);
+                return {
+                    [param.name]: {
+                        "isExpression": param.isExpression ?? false,
+                        "value": param.isExpression ? param.value.replace(/[{}]/g, '') : param.value ?? '',
+                        "namespaces": param.namespaces ?? [],
+                        "error": validationError
+                    }
+                };
+            });
             const flattenedParameters = Object.assign({}, ...parametersValues);
             setFormValues({ ...formValues, ...flattenedParameters });
         }
@@ -177,7 +185,7 @@ const AddConnector = (props: AddConnectorProps) => {
         });
 
         params.paramValues.forEach(param => {
-            formValues[param.key] = param.value;
+            formValues[param.key] = { value: param.value };
         });
 
         if (Object.keys(newErrors).length > 0) {
@@ -197,7 +205,7 @@ const AddConnector = (props: AddConnectorProps) => {
 
             // Fill the values
             Object.keys(formValues).forEach((key) => {
-                if (key !== 'configRef' && key !== 'configKey') {
+                if (key !== 'configRef' && key !== 'configKey' && formValues[key].value) {
                     if (typeof formValues[key] === 'object' && formValues[key] !== null) {
                         // Handle expression input type
                         const namespaces = formValues[key].namespaces;
@@ -252,9 +260,9 @@ const AddConnector = (props: AddConnectorProps) => {
                     <TextField
                         label={element.displayName}
                         size={50}
-                        value={formValues[element.name] || ''}
+                        value={formValues[element.name]?.value || ''}
                         onTextChange={(e: any) => {
-                            setFormValues({ ...formValues, [element.name]: e });
+                            setFormValues({ ...formValues, [element.name]: { value: e } });
                             formValidators[element.name](e);
                         }}
                         required={element.required === 'true'}
@@ -263,16 +271,29 @@ const AddConnector = (props: AddConnectorProps) => {
                 );
             case 'stringOrExpression':
                 return (
-                    <TextField
+                    <ExpressionField
                         label={element.displayName}
-                        size={50}
-                        value={formValues[element.name] || ''}
-                        onTextChange={(e: any) => {
-                            setFormValues({ ...formValues, [element.name]: e });
-                            formValidators[element.name](e);
-                        }}
-                        required={element.required === 'true'}
                         placeholder={element.helpTip}
+                        required={element.required === 'true'}
+                        value={{
+                            "isExpression":formValues[element.name]?.isExpression ?? false,
+                            "value":formValues[element.name]?.value ?? '',
+                            "namespaces":formValues[element.name]?.namespaces ?? []}}
+                        canChange={true}
+                        onChange={(e: any) => {
+                            setFormValues({ ...formValues, [element.name]: e });
+                            formValidators[element.name](e.value);
+                        }}
+                        openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => {
+                            sidePanelContext.setSidePanelState({
+                                ...sidePanelContext,
+                                expressionEditor: {
+                                    isOpen: true,
+                                    value,
+                                    setValue
+                                }
+                            });
+                        }}
                     />
                 );
             case 'booleanOrExpression':
@@ -282,9 +303,9 @@ const AddConnector = (props: AddConnectorProps) => {
                         <AutoComplete
                             identifier={element.displayName}
                             items={["true", "false"]}
-                            value={formValues[element.name]}
+                            value={formValues[element.name]?.value}
                             onValueChange={(e: any) => {
-                                setFormValues({ ...formValues, [element.name]: e });
+                                setFormValues({ ...formValues, [element.name]: { value: e } });
                                 formValidators[element.name](e);
                             }}
                             allowItemCreate={true}
@@ -298,9 +319,9 @@ const AddConnector = (props: AddConnectorProps) => {
                         <AutoComplete
                             identifier={element.displayName}
                             items={element.comboValues}
-                            value={formValues[element.name]}
+                            value={formValues[element.name]?.value}
                             onValueChange={(e: any) => {
-                                setFormValues({ ...formValues, [element.name]: e });
+                                setFormValues({ ...formValues, [element.name]: { value: e } });
                                 formValidators[element.name](e);
                             }}
                             allowItemCreate={true}
@@ -313,9 +334,9 @@ const AddConnector = (props: AddConnectorProps) => {
                     <TextField
                         label={element.displayName}
                         size={50}
-                        value={formValues[element.name] || ''}
+                        value={formValues[element.name]?.value || ''}
                         onTextChange={(e: any) => {
-                            setFormValues({ ...formValues, [element.name]: e });
+                            setFormValues({ ...formValues, [element.name]: { value: e } });
                             formValidators[element.name](e);
                         }}
                         required={element.required === 'true'}
@@ -328,7 +349,7 @@ const AddConnector = (props: AddConnectorProps) => {
                         label={element.displayName}
                         placeholder={element.helpTip}
                         value={{
-                            "isExpression":true,
+                            "isExpression":formValues[element.name]?.isExpression ?? false,
                             "value":formValues[element.name]?.value ?? '',
                             "namespaces":formValues[element.name]?.namespaces ?? []}}
                         canChange={true}
