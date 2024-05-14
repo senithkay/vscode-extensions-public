@@ -20,7 +20,7 @@ const generateSpaceSeperatedStringFromParamValues = (paramValues: ParamValueConf
     let result = "";
     paramValues?.paramValues?.forEach(param => {
         // if param.value is an object
-        if (typeof param.value === "string") {
+        if (typeof param.value === "string" || typeof param.value === "boolean") {
             result += param.value + " ";
         } else {
             const pc = param?.value as ParamConfig;
@@ -64,7 +64,7 @@ const paramConfigs: ParamConfig = {
                 }, {
                     value: true,
                 }, {
-                    value: "This is a description",
+                    value: "",
                 },
                 {
                     value: "Test2",
@@ -101,13 +101,13 @@ const paramConfigs: ParamConfig = {
         {
             type: "Checkbox",
             label: "Is Required",
-            defaultValue: true,
+            defaultValue: false,
             isRequired: false
         },
         {
             type: "TextArea",
             label: "Description",
-            defaultValue: "This is a description",
+            defaultValue: "",
             isRequired: false
         },
         {
@@ -385,6 +385,49 @@ const config: ParamConfig = {
 // Story for EnableCondition
 export const WithEnableCondition = () => {
     const [params, setParams] = useState(config);
+    const handleOnChange = (params: ParamConfig) => {
+        const modifiedParams = {
+            ...params, paramValues: params.paramValues.map(param => ({
+                ...param,
+                icon: "query",
+                key: `Key`,
+                value: generateSpaceSeperatedStringFromParamValues(param)
+            }))
+        };
+        setParams(modifiedParams);
+    };
+    return <ParamManager paramConfigs={params} readonly={false} onChange={handleOnChange} />;
+};
+
+const enableCoditionWithValue: ParamConfig = {
+    paramValues: [
+        {
+            id: 0,
+            key: "Key",
+            value: "default value 2 false Test query",
+            paramValues: [
+                {
+                    value: "default value"
+                },
+                {
+                    value: "2"
+                },
+                {
+                    value: false
+                },
+                {
+                    value: "Test"
+                }
+            ],
+            icon: "query"
+        }
+    ],
+    paramFields: paramFields
+};
+
+// Story for EnableCondition
+export const EnableConditionWithValue = () => {
+    const [params, setParams] = useState(enableCoditionWithValue);
     const handleOnChange = (params: ParamConfig) => {
         const modifiedParams = {
             ...params, paramValues: params.paramValues.map(param => ({
