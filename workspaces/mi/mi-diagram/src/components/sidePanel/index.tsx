@@ -3,7 +3,7 @@ import React, { useEffect, useState, useContext } from 'react';
 import styled from '@emotion/styled';
 import { Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 import SidePanelContext, { SidePanelPage } from './SidePanelContexProvider';
-import { MediatorPage } from './mediators';
+import { HomePage } from './mediators';
 import { getAllMediators } from './mediators/Values';
 import AddConnector from './Pages/AddConnector';
 import { FirstCharToUpperCase } from '../../utils/commons';
@@ -44,10 +44,10 @@ export interface SidePanelListProps {
     documentUri: string;
 }
 
-export const sidepanelAddPage = (sidePanelContext: SidePanelContext, content: any, title?: string) => {
+export const sidepanelAddPage = (sidePanelContext: SidePanelContext, content: any, title?: string, icon?: string) => {
     sidePanelContext.setSidePanelState({
         ...sidePanelContext,
-        pageStack: [...sidePanelContext.pageStack, { content, title, isOpen: true }],
+        pageStack: [...sidePanelContext.pageStack, { content, title, isOpen: true, icon }],
     });
 }
 
@@ -120,7 +120,7 @@ const SidePanelList = (props: SidePanelListProps) => {
                 }
             }
         } else {
-            mediatorsPage = { content: <MediatorPage nodePosition={props.nodePosition} documentUri={props.documentUri} /> };
+            mediatorsPage = { content: <HomePage nodePosition={props.nodePosition} documentUri={props.documentUri} /> };
         }
 
         sidePanelContext.setSidePanelState({

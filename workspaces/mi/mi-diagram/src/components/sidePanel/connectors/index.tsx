@@ -16,6 +16,7 @@ import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import AddConnector from "../Pages/AddConnector";
 import { ConnectorStatus } from "@wso2-enterprise/mi-core";
 import { Mediators } from "../mediators/List";
+import { sidepanelAddPage } from "..";
 
 const LoaderWrapper = styled.div`
     display: flex;
@@ -339,21 +340,12 @@ export function ConnectorPage(props: ConnectorPageProps) {
                 connectorName={connector.name}
                 operationName={operation} />;
 
-            addToPageStack(connecterForm, `${sidePanelContext.isEditing ? "Edit" : "Add"} ${operation}`, iconPathUri.uri);
+                sidepanelAddPage(sidePanelContext, connecterForm, `${sidePanelContext.isEditing ? "Edit" : "Add"} ${operation}`, iconPathUri.uri);
         } else {
             fetchLocalConnectorData();
         }
 
         setIsGeneratingForm(false);
-    }
-
-    const addToPageStack = (content: any, title: string, icon: string) => {
-        title = `${sidePanelContext.isEditing ? "Edit" : "Add"} ${title}`
-        sidePanelContext.setSidePanelState({
-            ...sidePanelContext,
-            icon: icon,
-            pageStack: [...sidePanelContext.pageStack, { content, title, icon }],
-        });
     }
 
     function existsInLocalConnectors(connector: any) {
