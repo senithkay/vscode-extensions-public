@@ -29,11 +29,11 @@ export function getFailoverEPMustacheTemplate() {
 <endpoint name="{{name}}" xmlns="http://ws.apache.org/ns/synapse">
     <failover {{#buildMessage}}buildMessage="true"{{/buildMessage}}>
         {{#endpoints}}
-        {{#inline}}{{{value}}}{{/inline}}{{#static}}<endpoint key="{{value}}"/>{{/static}}
+        {{#inline}}{{{value}}}{{/inline}}{{#static}}<endpoint key="{{{value}}}"/>{{/static}}
         {{/endpoints}}
     </failover>
     {{#properties}}
-    <property name="{{name}}" {{#scope}}scope="{{scope}}" {{/scope}}value="{{value}}"/>
+    <property name="{{{name}}}" {{#scope}}scope="{{scope}}" {{/scope}}value="{{{value}}}"/>
     {{/properties}}
     <description>{{description}}</description>
 </endpoint>`;

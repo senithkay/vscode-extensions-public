@@ -50,7 +50,7 @@ export interface MediatorPageProps {
     nodePosition: any;
     documentUri: string;
 }
-export function MediatorPage(props: MediatorPageProps) {
+export function HomePage(props: MediatorPageProps) {
     const [searchValue, setSearchValue] = useState<string>('');
     const [isAllMediators, setAllMediators] = useState<boolean>(true);
     const [isConnectors, setConnectors] = useState<boolean>(false);

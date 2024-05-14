@@ -144,7 +144,7 @@ const paramPool: { [key: string]: Parameter } = {
 
 export function getMessageStoreMustacheTemplate() {
     return `<?xml version="1.0" encoding="UTF-8"?>
-    <messageStore name="{{name}}" class="{{className}}"  xmlns="http://ws.apache.org/ns/synapse">  
+    <messageStore name="{{name}}" class="{{className}}" xmlns="http://ws.apache.org/ns/synapse">  
     {{#params}}
         {{#value}}
         <parameter name="{{{key}}}">{{{value}}}</parameter>
