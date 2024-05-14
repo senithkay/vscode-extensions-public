@@ -50,7 +50,7 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 	const parentFieldNames: string[] = [];
 	const { applyModifications } = targetNode.context;
 
-	rhs = sourcePort.fieldFQN;
+	rhs = buildInputAccessExpr(sourcePort.fieldFQN);
 	lhs = getFieldNameFromOutputPort(targetPort);
 
 	if (isMappedToRootArrayLiteralExpr(targetPort)
@@ -348,7 +348,7 @@ export function modifySourceForMultipleMappings(link: DataMapperLinkModel) {
 	const targetNode = targetPort.getNode();
 
 	if (sourcePort && sourcePort instanceof InputOutputPortModel) {
-		rhs = sourcePort.fieldFQN;
+		rhs = buildInputAccessExpr(sourcePort.fieldFQN);
 	}
 
 	if (targetNode instanceof LinkConnectorNode) {
@@ -384,6 +384,20 @@ export function modifySourceForMultipleMappings(link: DataMapperLinkModel) {
 			}
 		});
 	}
+}
+
+function buildInputAccessExpr(fieldFqn: string): string {
+    const parts = fieldFqn.split('.');
+
+    const result = parts.map(part => {
+        if (part.startsWith('"') && part.endsWith('"')) {
+            return `["${part.slice(1, -1)}"]`; // If the part is enclosed in double quotes, wrap it in square brackets
+        } else {
+            return part; // Otherwise, leave the part unchanged
+        }
+    }).join('.'); // Join the processed parts back together with '.' delimiter
+
+    return result.replace(/\.\[/g, '['); // Replace occurrences of '.[' with '[' to handle consecutive bracketing
 }
 
 function isMappedToRootArrayLiteralExpr(targetPort: InputOutputPortModel): boolean {

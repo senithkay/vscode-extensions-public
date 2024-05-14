@@ -6,12 +6,12 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { CallExpression, Identifier, Node, PropertyAccessExpression } from "ts-morph";
+import { CallExpression, ElementAccessExpression, Identifier, Node, PropertyAccessExpression } from "ts-morph";
 import { Visitor } from "../../ts/base-visitor";
-import { isMapFunction } from "../Diagram/utils/common-utils";
+import { isInputAccessExpr, isMapFunction } from "../Diagram/utils/common-utils";
 
-export class PropertyAccessNodeFindingVisitor implements Visitor {
-    private inputNodes: (PropertyAccessExpression | Identifier)[];
+export class InputAccessNodeFindingVisitor implements Visitor {
+    private inputNodes: (PropertyAccessExpression | ElementAccessExpression | Identifier)[];
     private mapFnDepth: number;
 
     constructor() {
@@ -23,18 +23,33 @@ export class PropertyAccessNodeFindingVisitor implements Visitor {
         if (this.mapFnDepth > 0) {
             return;
         }
-        if (!parent || (!Node.isPropertyAccessExpression(parent) && !Node.isCallExpression(parent))) {
+        if (!parent || (!isInputAccessExpr(parent) && !Node.isCallExpression(parent))) {
             this.inputNodes.push(node)
         } else if (parent && Node.isCallExpression(parent)) {
             const expr = node.getExpression();
-            if (Node.isPropertyAccessExpression(expr)) {
-                this.inputNodes.push(expr);
+            if (isInputAccessExpr(expr)) {
+                this.inputNodes.push(expr as ElementAccessExpression | PropertyAccessExpression);
+            }
+        }
+    }
+
+
+    public beginVisitElementAccessExpression(node: ElementAccessExpression, parent?: Node) {
+        if (this.mapFnDepth > 0) {
+            return;
+        }
+        if (!parent || (!isInputAccessExpr(parent) && !Node.isCallExpression(parent))) {
+            this.inputNodes.push(node)
+        } else if (parent && Node.isCallExpression(parent)) {
+            const expr = node.getExpression();
+            if (isInputAccessExpr(expr)) {
+                this.inputNodes.push(expr as ElementAccessExpression | PropertyAccessExpression);
             }
         }
     }
 
     public beginVisitIdentifier(node: Identifier, parent?: Node) {
-        if (!parent || !Node.isPropertyAccessExpression(parent) && this.mapFnDepth === 0) {
+        if ((!parent || !isInputAccessExpr(parent)) && this.mapFnDepth === 0) {
             this.inputNodes.push(node);
         }
     }
@@ -51,7 +66,7 @@ export class PropertyAccessNodeFindingVisitor implements Visitor {
         }
     }
 
-    public getPropertyAccessNodes(): (PropertyAccessExpression | Identifier)[] {
+    public getInputAccessNodes(): (PropertyAccessExpression | ElementAccessExpression | Identifier)[] {
         return this.inputNodes
     }
 }
