@@ -47,7 +47,8 @@
                         "value": {
                             "name": "onAcceptBranchsequenceKey",
                             "displayName": "On Accept Branch Sequence Key",
-                            "inputType": "registry",
+                            "inputType": "key",
+                            "keyType": "sequence",
                             "required": false,
                             "helpTip": "",
                             "enableCondition": [
@@ -85,7 +86,8 @@
                         "value": {
                             "name": "onRejectBranchsequenceKey",
                             "displayName": "On Reject Branch Sequence Key",
-                            "inputType": "registry",
+                            "inputType": "key",
+                            "keyType": "sequence",
                             "required": false,
                             "helpTip": "",
                             "enableCondition": [

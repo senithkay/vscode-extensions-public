@@ -202,7 +202,7 @@ const EnrichForm = (props: AddMediatorProps) => {
                     </Field>
                     }
 
-                    {watch("inlineType") == "RegistryKey" &&
+                    {((watch("sourceType") == "inline") &&(watch("inlineType") == "RegistryKey") ) &&
                     <Field>
                         <Controller
                             name="inlineRegistryKey"

@@ -42,7 +42,7 @@ export function getScriptFormDataFromSTNode(data: { [key: string]: any }, node: 
 
     if (node.include) {
         data.scriptKeys = node.include.map((key) => {
-            return [key];
+            return ["", key];
         });
     }
     data.scriptType = "REGISTRY_REFERENCE";

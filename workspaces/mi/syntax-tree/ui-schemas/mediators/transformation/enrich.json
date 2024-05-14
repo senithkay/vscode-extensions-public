@@ -121,6 +121,10 @@
               "required": false,
               "helpTip": "",
               "enableCondition": [
+                "AND",
+                {
+                  "sourceType": "inline"
+                },
                 {
                   "inlineType": "RegistryKey"
                 }

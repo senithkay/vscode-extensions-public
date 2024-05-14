@@ -50,9 +50,9 @@ export function getPropertyGroupXml(data: { [key: string]: any }) {
 export function getPropertyGroupFormDataFromSTNode(data: { [key: string]: any }, node: PropertyGroup) {
 
     data.properties = node.property.map(property => {
-        let isExpression = property.value ? "LITERAL" : "EXPRESSION";
+        let isExpression = property.value ? false : true;
         let namespaces;
-        if (isExpression === "EXPRESSION") {
+        if (isExpression) {
             namespaces = transformNamespaces(property?.namespaces);
         }
         return [property.name, property.action, property.type, { isExpression: isExpression, value: property.value ?? property.expression, namespaces: namespaces }, "", property.scope?.toUpperCase(), property.pattern, property.group, property.description];

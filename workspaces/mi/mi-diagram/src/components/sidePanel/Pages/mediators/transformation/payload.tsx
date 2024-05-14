@@ -87,10 +87,6 @@ const PayloadForm = (props: AddMediatorProps) => {
                         "values": [
                             "xml",
                             "json"
-                        ],
-                        "enableCondition": [
-                            "isExpression",
-                            "argumentValue"
                         ]
                     },
                     {

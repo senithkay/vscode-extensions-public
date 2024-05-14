@@ -28,10 +28,10 @@ export function getEjbXml(data: { [key: string]: any }) {
     }
 
     let argsAvailable = false
-    const methodArguments = data.methodArguments.map((property: string[]) => {
+    const methodArguments = data.methodArguments.map((property: any[]) => {
         argsAvailable = true;
         return {
-            value: property[1] == "EXPRESSION" ? "{" + property[3] + "}" : property[2]
+            value: property[1] == "EXPRESSION" ? "{" + property[3]?.value + "}" : property[2]
         }
     });
 
@@ -56,7 +56,7 @@ export function getEjbFormDataFromSTNode(data: { [key: string]: any }, node: Ejb
                 let value;
                 let expression;
                 if (valueMatch && valueMatch.length > 1) {
-                    expression = valueMatch[1];
+                    expression = { isExpression: true, value: valueMatch[1] };
                 } else {
                     value = arg.value;
                 }

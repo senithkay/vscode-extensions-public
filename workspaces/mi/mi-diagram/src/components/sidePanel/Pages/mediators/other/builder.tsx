@@ -17,10 +17,8 @@ import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
 import { MEDIATORS } from '../../../../../resources/constants';
 import { Controller, useForm } from 'react-hook-form';
-import { ExpressionFieldValue } from '../../../../Form/ExpressionField/ExpressionInput';
 import { ParamManager, ParamValue } from '../../../../Form/ParamManager/ParamManager';
-import { sidepanelAddPage, sidepanelGoBack } from '../../..';
-import ExpressionEditor from '../../../expressionEditor/ExpressionEditor';
+import { sidepanelGoBack } from '../../..';
 
 const cardStyle = { 
     display: "block",
@@ -65,27 +63,11 @@ const BuilderForm = (props: AddMediatorProps) => {
                         "isRequired": false
                     },
                     {
-                        "type": "ExprField",
+                        "type": "TextField",
                         "label": "Formatter Class",
-                        "defaultValue": {
-                            "isExpression": true,
-                            "value": ""
-                        },
-                        "isRequired": false,
-                        "canChange": false, 
-                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                            const content = <ExpressionEditor
-                                value={value}
-                                handleOnSave={(value) => {
-                                    setValue(value);
-                                    handleOnCancelExprEditorRef.current();
-                                }}
-                                handleOnCancel={() => {
-                                    handleOnCancelExprEditorRef.current();
-                                }}
-                            />;
-                            sidepanelAddPage(sidePanelContext, content, "Expression Editor");
-                        }},
+                        "defaultValue": "",
+                        "isRequired": false
+                    },
                 ]
             },
             description: sidePanelContext?.formValues?.description || "",

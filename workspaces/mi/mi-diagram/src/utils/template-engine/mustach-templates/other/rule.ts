@@ -23,12 +23,12 @@ export function getRuleMustacheTemplate() {
         </brs:ruleSet>
         <brs:input {{#inputNamespace}}namespace="{{inputNamespace}}"{{/inputNamespace}} {{#inputWrapperName}}wrapperElementName="{{inputWrapperName}}"{{/inputWrapperName}} >
             {{#facts}}
-            <brs:fact elementName="{{{elementName}}}" namespace="{{inputNamespace}}" type="{{factType}}" xpath="{{{propertyExpression}}}" />
+            <brs:fact elementName="{{{elementName}}}" {{#inputNamespace}}namespace="{{{inputNamespace}}}"{{/inputNamespace}} type="{{factType}}" xpath="{{{propertyExpression}}}" />
             {{/facts}}
         </brs:input>
-        <brs:output {{#outputNamespace}}namespace="{{outputNamespace}}"{{/outputNamespace}} {{#outputWrapperName}}wrapperElementName="{{outputWrapperName}}"{{/outputWrapperName}} >
+        <brs:output {{#outputNamespace}}namespace="{{{outputNamespace}}}"{{/outputNamespace}} {{#outputWrapperName}}wrapperElementName="{{outputWrapperName}}"{{/outputWrapperName}} >
             {{#results}}
-            <brs:fact elementName="{{{resultName}}}" namespace="{{outputNamespace}}" type="{{resultType}}" />
+            <brs:fact elementName="{{{resultName}}}" {{#outputNamespace}}namespace="{{{outputNamespace}}}"{{/outputNamespace}} type="{{resultType}}" />
             {{/results}}
         </brs:output>
     </brs:rule>
@@ -45,12 +45,12 @@ export function getRuleXml(data: { [key: string]: any }) {
     });
     data.targetResultXPath = data.targetResultXPath?.value;
     data.targetXPath = data.targetXPath?.value;
-    data.facts = data.factsConfiguration?.map((fact: string[]) => {
+    data.facts = data.factsConfiguration?.map((fact: any[]) => {
         let factType = getFactType(fact);
         return {
             elementName: fact[2],
             factType: factType,
-            propertyExpression: fact[3]
+            propertyExpression: fact[3]?.value
         }
     });
     data.results = data.resultsConfiguration?.map((result: string[]) => {
@@ -120,7 +120,7 @@ export function getRuleFormDataFromSTNode(data: { [key: string]: any }, node: Ru
             customType = type;
             type = "CUSTOM";
         }
-        return [type, customType, fact.elementName, fact.xpath]
+        return [type, customType, fact.elementName, { isExpression: true, value: fact.xpath }]
     });
     data.resultsConfiguration = node.output?.fact?.map((result) => {
         let type = result.type;

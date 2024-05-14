@@ -45,7 +45,8 @@
             "value": {
               "name": "fastXsltStaticSchemaKey",
               "displayName": "Fast Xslt Static SchemaKey",
-              "inputType": "expression",
+              "inputType": "key",
+              "keyType": "sequence",
               "defaultValue": "",
               "required": false,
               "helpTip": "",

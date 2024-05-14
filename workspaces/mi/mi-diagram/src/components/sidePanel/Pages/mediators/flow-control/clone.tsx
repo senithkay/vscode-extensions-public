@@ -66,10 +66,11 @@ const CloneForm = (props: AddMediatorProps) => {
                         ]
                     },
                     {
-                        "type": "TextField",
+                        "type": "KeyLookup",
                         "label": "Sequence Registry Key",
                         "defaultValue": "",
                         "isRequired": false,
+                        "filterType": "sequence",
                         "enableCondition": [
                             {
                                 "0": "REGISTRY_REFERENCE"
@@ -88,10 +89,11 @@ const CloneForm = (props: AddMediatorProps) => {
                         ]
                     },
                     {
-                        "type": "TextField",
+                        "type": "KeyLookup",
                         "label": "Endpoint Registry Key",
                         "defaultValue": "",
                         "isRequired": false,
+                        "filterType": "endpoint",
                         "enableCondition": [
                             {
                                 "2": "REGISTRY_REFERENCE"

@@ -188,7 +188,13 @@ const ThrottleForm = (props: AddMediatorProps) => {
                             name="onAcceptBranchsequenceKey"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="On Accept Branch Sequence Key" size={50} placeholder="" />
+                                <Keylookup
+                                    value={field.value}
+                                    filterType='sequence'
+                                    label="On Accept Branch Sequence Key"
+                                    allowItemCreate={false}
+                                    onValueChange={field.onChange}
+                                />
                             )}
                         />
                         {errors.onAcceptBranchsequenceKey && <Error>{errors.onAcceptBranchsequenceKey.message.toString()}</Error>}
@@ -219,7 +225,13 @@ const ThrottleForm = (props: AddMediatorProps) => {
                             name="onRejectBranchsequenceKey"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="On Reject Branch Sequence Key" size={50} placeholder="" />
+                                <Keylookup
+                                    value={field.value}
+                                    filterType='sequence'
+                                    label="On Reject Branch Sequence Key"
+                                    allowItemCreate={false}
+                                    onValueChange={field.onChange}
+                                />
                             )}
                         />
                         {errors.onRejectBranchsequenceKey && <Error>{errors.onRejectBranchsequenceKey.message.toString()}</Error>}

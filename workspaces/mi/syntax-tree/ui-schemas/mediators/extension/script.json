@@ -57,6 +57,7 @@
         "name": "scriptKey",
         "displayName": "Script Key",
         "inputType": "keyOrExpression",
+        "keyType": "registry",
         "required": false,
         "helpTip": "",
         "enableCondition": [

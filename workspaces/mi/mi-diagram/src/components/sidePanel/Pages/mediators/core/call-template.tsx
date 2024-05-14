@@ -12,7 +12,7 @@ import React, { useEffect, useRef } from 'react';
 import { Button, ComponentCard, ProgressIndicator, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
-import { AddMediatorProps, getParamManagerValues, getParamManagerFromValues } from '../common';
+import { AddMediatorProps, openPopup, getParamManagerValues, getParamManagerFromValues } from '../common';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
 import { MEDIATORS } from '../../../../../resources/constants';
@@ -134,7 +134,16 @@ const CallTemplateForm = (props: AddMediatorProps) => {
                         name="targetTemplate"
                         control={control}
                         render={({ field }) => (
-                            <TextField {...field} label="Target Template" size={50} placeholder="" />
+                            <Keylookup
+                                value={field.value}
+                                filterType='sequenceTemplate'
+                                label="Target Template"
+                                allowItemCreate={false}
+                                onCreateButtonClick={(fetchItems: any, handleValueChange: any) => {
+                                    openPopup(rpcClient, "sequenceTemplate", fetchItems, handleValueChange);
+                                }}
+                                onValueChange={field.onChange}
+                            />
                         )}
                     />
                     {errors.targetTemplate && <Error>{errors.targetTemplate.message.toString()}</Error>}

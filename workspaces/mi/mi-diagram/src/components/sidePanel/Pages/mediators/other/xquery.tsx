@@ -17,6 +17,7 @@ import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
 import { MEDIATORS } from '../../../../../resources/constants';
 import { Controller, useForm } from 'react-hook-form';
+import { Keylookup } from '../../../../Form';
 import { ExpressionField, ExpressionFieldValue } from '../../../../Form/ExpressionField/ExpressionInput';
 import { ParamManager, ParamValue } from '../../../../Form/ParamManager/ParamManager';
 import { sidepanelAddPage, sidepanelGoBack } from '../../..';
@@ -204,7 +205,13 @@ const XQueryForm = (props: AddMediatorProps) => {
                             name="staticScriptKey"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Static Script Key" size={50} placeholder="" />
+                                <Keylookup
+                                    value={field.value}
+                                    filterType='registry'
+                                    label="Static Script Key"
+                                    allowItemCreate={false}
+                                    onValueChange={field.onChange}
+                                />
                             )}
                         />
                         {errors.staticScriptKey && <Error>{errors.staticScriptKey.message.toString()}</Error>}

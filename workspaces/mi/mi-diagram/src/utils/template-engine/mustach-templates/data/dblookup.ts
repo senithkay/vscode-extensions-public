@@ -93,7 +93,7 @@ export function getDblookupXml(data: { [key: string]: any }) {
                 return {
                     dataType: parameter[0],
                     valueLiteral: parameter[1] == "LITERAL" ? parameter[2] : undefined,
-                    valueExpression: parameter[1] == "EXPRESSION" ? parameter[3] : undefined
+                    valueExpression: parameter[1] == "EXPRESSION" ? parameter[3]?.value : undefined
                 }
             }),
             results: statement[2].map((result: any) => {
@@ -250,7 +250,7 @@ export function getDBLookupFormDataFromSTNode(data: { [key: string]: any }, node
                     parameter.type,
                     parameter.value ? "LITERAL" : "EXPRESSION",
                     parameter.value,
-                    parameter.expression
+                    { isExpression: true, value: parameter?.expression }
                 ];
                 return param;
             }) ?? [],

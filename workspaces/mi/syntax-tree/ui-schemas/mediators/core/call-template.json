@@ -9,7 +9,8 @@
       "value": {
         "name": "targetTemplate",
         "displayName": "Target Template",
-        "inputType": "editableCombo",
+        "inputType": "comboOrKey",
+        "keyType": "sequenceTemplate",
         "comboValues": [
           "{workspace.templates}"
         ],
