@@ -134,3 +134,31 @@ export interface LogRequest {
     message: string;
 }
 
+type ContextType = "workspace" | "global";
+
+export interface UpdateContextRequest {
+    key: string;
+    value: unknown;
+    contextType?: ContextType;
+}
+
+export interface RetrieveContextRequest {
+    key: string;
+    contextType?: ContextType;
+}
+
+export interface RetrieveContextResponse {
+    value: unknown;
+}
+
+type NotificationType = "info" | "warning" | "error";
+
+export interface NotificationRequest {
+    message: string;
+    options?: string[];
+    type?: NotificationType;
+}
+
+export interface NotificationResponse {
+    selection: string | undefined;
+}
