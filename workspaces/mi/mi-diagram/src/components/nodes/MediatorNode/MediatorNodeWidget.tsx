@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { MediatorNodeModel } from "./MediatorNodeModel";
@@ -78,6 +78,11 @@ namespace S {
     export const BottomPortWidget = styled(PortWidget)`
         margin-bottom: -3px;
     `;
+
+    export const TooltipContent = styled.div`
+        max-width: 80vw;
+        white-space: pre-wrap;
+    `;
 }
 interface CallNodeWidgetProps {
     node: MediatorNodeModel;
@@ -134,9 +139,17 @@ export function MediatorNodeWidget(props: CallNodeWidgetProps) {
         setIsPopoverOpen(false);
     }
 
+    const TooltipEl = useMemo(() => {
+        return () => (
+            <S.TooltipContent style={{ textWrap: "wrap" }}>
+                {tooltip}
+            </S.TooltipContent>
+        );
+    }, [tooltip])
+
     return (
         <div >
-            <Tooltip content={!isPopoverOpen ? tooltip : ""} position={'bottom'} containerPosition={'absolute'}>
+            <Tooltip content={!isPopoverOpen ? <TooltipEl /> : ""} position={'bottom'} containerPosition={'absolute'}>
                 <S.Node
                     selected={node.isSelected()}
                     hasError={hasDiagnotics}

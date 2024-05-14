@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React from "react";
+import React, { useMemo } from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { ConditionNodeModel } from "./ConditionNodeModel";
@@ -58,6 +58,11 @@ namespace S {
         top: 28px;
         left: ${NODE_DIMENSIONS.CONDITION.WIDTH + 10}px;
        
+    `;
+
+    export const TooltipContent = styled.div`
+        max-width: 80vw;
+        white-space: pre-wrap;
     `;
 }
 
@@ -116,9 +121,17 @@ export function ConditionNodeWidget(props: CallNodeWidgetProps) {
         await rpcClient.getMiDebuggerRpcClient().removeBreakpointFromSource(request);
     };
 
+    const TooltipEl = useMemo(() => {
+        return () => (
+            <S.TooltipContent style={{ textWrap: "wrap" }}>
+                {tooltip}
+            </S.TooltipContent>
+        );
+    }, [tooltip]);
+
     return (
         <div >
-            <Tooltip content={tooltip} position={'bottom'} containerPosition={'absolute'}>
+            <Tooltip content={!isPopoverOpen ? <TooltipEl /> : ""} position={'bottom'} containerPosition={'absolute'}>
                 <S.Node
                     onMouseEnter={() => setIsHovered(true)}
                     onMouseLeave={() => setIsHovered(false)}
