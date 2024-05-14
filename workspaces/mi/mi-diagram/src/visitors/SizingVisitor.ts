@@ -69,6 +69,8 @@ import {
     ViewState,
     Target,
     ProxyTarget,
+    DbMediator,
+    Rewrite,
 } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { ADD_NEW_SEQUENCE_TAG, NODE_DIMENSIONS, NODE_GAP, NodeTypes } from "../resources/constants";
 import { Diagnostic } from "vscode-languageserver-types";
@@ -142,11 +144,13 @@ export class SizingVisitor implements Visitor {
 
         let totalWidth = 0;
         // make widths and heights equal
-        for (let i = 0; i < Object.keys(subSequences).length; i++) {
-            const subSequence = subSequences[Object.keys(subSequences)[i]];
-            const nodeGap = i === Object.keys(subSequences).length - 1 ? 0 : NODE_GAP.BRANCH_X;
-            subSequence.viewState = { ...subSequence.viewState, w: subSequencesWidth, h: subSequencesHeight, l: subSequencesWidth / 2, r: subSequencesWidth / 2 };
-            totalWidth += subSequencesWidth + nodeGap;
+        for (let i = 0; i < subSequenceKeys.length; i++) {
+            const subSequence = subSequences[subSequenceKeys[i]];
+            if (subSequence) {
+                const nodeGap = i === subSequenceKeys.length - 1 ? 0 : NODE_GAP.BRANCH_X;
+                subSequence.viewState = { ...subSequence.viewState, w: subSequencesWidth, h: subSequencesHeight, l: subSequencesWidth / 2, r: subSequencesWidth / 2 };
+                totalWidth += subSequencesWidth + nodeGap;
+            }
         }
 
         node.viewState.fw = Math.max(totalWidth, type === NodeTypes.CONDITION_NODE ? NODE_DIMENSIONS.CONDITION.WIDTH : NODE_DIMENSIONS.GROUP.WIDTH);
@@ -416,7 +420,15 @@ export class SizingVisitor implements Visitor {
     }
     //Extesnion Mediators
     endVisitBean = (node: Bean): void => this.calculateBasicMediator(node);
-    endVisitClass = (node: Class): void => this.calculateBasicMediator(node);
+
+    beginVisitClass = (node: Class): void => {
+        this.skipChildrenVisit = true;
+    }
+    endVisitClass = (node: Class): void => {
+        this.calculateBasicMediator(node);
+        this.skipChildrenVisit = false;
+    }
+
     endVisitPojoCommand = (node: PojoCommand): void => this.calculateBasicMediator(node);
     endVisitEjb = (node: Ejb): void => this.calculateBasicMediator(node);
     endVisitScript = (node: Script): void => this.calculateBasicMediator(node);
@@ -425,7 +437,7 @@ export class SizingVisitor implements Visitor {
     //Other Mediators
     endVisitBam = (node: Bam): void => this.calculateBasicMediator(node);
     endVisitOauthService = (node: OauthService): void => this.calculateBasicMediator(node);
-    endVisitBuild = (node: Builder): void => this.calculateBasicMediator(node);
+    endVisitBuilder = (node: Builder): void => this.calculateBasicMediator(node);
     endVisitPublishEvent = (node: PublishEvent): void => this.calculateBasicMediator(node);
     endVisitEntitlementService = (node: EntitlementService): void => {
         this.calculateBasicMediator(node, NODE_DIMENSIONS.GROUP.WIDTH, NODE_DIMENSIONS.GROUP.HEIGHT);
@@ -448,9 +460,29 @@ export class SizingVisitor implements Visitor {
     endVisitSmooks = (node: Smooks): void => this.calculateBasicMediator(node);
     endVisitXquery = (node: Xquery): void => this.calculateBasicMediator(node);
     endVisitXslt = (node: Xslt): void => this.calculateBasicMediator(node);
+    beginVisitDblookup(node: DbMediator): void {
+        this.skipChildrenVisit = true;
+        this.calculateBasicMediator(node);
+    }
+    endVisitDblookup = (node: DbMediator): void => {
+        this.skipChildrenVisit = false;
+    }
+    beginVisitDbreport(node: DbMediator): void {
+        this.skipChildrenVisit = true;
+        this.calculateBasicMediator(node);
+    }
+    endVisitDbreport = (node: DbMediator): void => {
+        this.skipChildrenVisit = false;
+    }
+
+    endVisitRewrite = (node: Rewrite): void => this.calculateBasicMediator(node);
 
     // Connectors
-    endVisitConnector = (node: any): void => this.calculateBasicMediator(node, NODE_DIMENSIONS.CONNECTOR.WIDTH, NODE_DIMENSIONS.CONNECTOR.HEIGHT);
+    beginVisitConnector = (node: any): void => { this.skipChildrenVisit = true; }
+    endVisitConnector = (node: any): void => {
+        this.calculateBasicMediator(node, NODE_DIMENSIONS.CONNECTOR.WIDTH, NODE_DIMENSIONS.CONNECTOR.HEIGHT);
+        this.skipChildrenVisit = false;
+    }
 
     skipChildren(): boolean {
         return this.skipChildrenVisit;

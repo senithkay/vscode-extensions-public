@@ -157,7 +157,7 @@ import {
     WriteContentToFileRequest,
     WriteContentToFileResponse,
     getSTRequest,
-    getSTResponse,
+    getSTResponse
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
 import { error } from "console";
@@ -187,7 +187,7 @@ import { rootPomXmlContent } from "../../util/templates";
 import { replaceFullContentToFile } from "../../util/workspace";
 import { VisualizerWebview } from "../../visualizer/webview";
 import path = require("path");
-import { template } from "lodash";
+import { deleteRegistryResource } from "../../util/fileOperations"
 import { log } from "../../util/logger";
 
 const { XMLParser, XMLBuilder } = require("fast-xml-parser");
@@ -1452,10 +1452,20 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                         const params = jsonData.template.parameter;
                         if (Array.isArray(params)) {
                             params.forEach((param: any) => {
-                                response.parameters.push(param["@_"]["@_name"]);
+                                const templateProperty = {
+                                    name: param["@_"]["@_name"],
+                                    isMandatory: param["@_"]["@_isMandatory"],
+                                    default: param["@_"]["@_defaultValue"] ?? ""
+                                };
+                                response.parameters.push(templateProperty);
                             });
                         } else {
-                            response.parameters.push(params["@_"]["@_name"]);
+                            const templateProperty = {
+                                name: params["@_"]["@_name"],
+                                isMandatory: params["@_"]["@_isMandatory"],
+                                default: params["@_"]["@_defaultValue"] ?? ""
+                            };
+                            response.parameters.push(templateProperty);
                         }
                     }
                 }
@@ -1980,7 +1990,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             let document = workspace.textDocuments.find(doc => doc.uri.fsPath === params.documentUri);
 
             if (!document) {
-                document = await workspace.openTextDocument(Uri.parse(params.documentUri));
+                document = await workspace.openTextDocument(Uri.file(params.documentUri));
             }
 
             const range = new Range(new Position(params.range.start.line, params.range.start.character),
@@ -2000,7 +2010,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 text = `${textBefore.length > 0 ? "\n" + sIndentation : ""}${params.text.replace(/\n/g, "\n" + sIndentation)}${textAfter.length > 0 ? "\n" + eIndentation : ""}`;
             }
 
-            edit.replace(Uri.parse(params.documentUri), range, text);
+            edit.replace(Uri.file(params.documentUri), range, text);
             await workspace.applyEdit(edit);
 
             if (!params.disableFormatting) {
@@ -2466,6 +2476,21 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
     }
 
     async writeContentToFile(params: WriteContentToFileRequest): Promise<WriteContentToFileResponse> {
+        const fetchConnectors = async (name) => {
+            const response = await fetch('https://raw.githubusercontent.com/rosensilva/connectors/main/connectors_list.json');
+            if(!response.ok) {
+                console.error('Failed to fetch connectors');
+            }
+            const data = await response.json();
+            const connector = data.data.find(connector => connector.name === name);
+            if (connector) {
+                return connector.download_url;
+            } else {
+                console.error("Connector not found");
+                return null;
+            }
+        };
+
         let status = true;
         //if file exists, overwrite if not, create new file and write content.  if successful, return true, else false
         const { content } = params;
@@ -2528,8 +2553,18 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     }
                     console.log("File type - ", fileType)
                 }
+
+                const connectorMatch = content[i].match(/<(\w+\.\w+)\b/);
+                if (connectorMatch) {
+                    const tagParts = connectorMatch[1].split('.');
+                    const connectorName = tagParts[0];
+                    console.log('Connector name:', connectorName);
+                    const download_url = await fetchConnectors(connectorName);
+                    this.downloadConnector({ url: download_url });
+                }
+
                 //write the content to a file, if file exists, overwrite else create new file
-                const fullPath = path.join(directoryPath ?? '', '/src/main/wso2mi/artifacts/', fileType, '/', `${name}.xml`);
+                const fullPath = path.join(directoryPath ?? '', 'src','main','wso2mi','artifacts', fileType, path.sep, `${name}.xml`);
                 console.log('Full path:', fullPath);
                 try {
                     console.log('Writing content to file:', fullPath);
@@ -2557,7 +2592,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         const documentUri = StateMachine.context().documentUri;
         let editor = window.visibleTextEditors.find(editor => editor.document.uri.fsPath === documentUri);
         if (!editor && params.force && documentUri) {
-            const document = await workspace.openTextDocument(Uri.parse(documentUri));
+            const document = await workspace.openTextDocument(Uri.file(documentUri));
             editor = await window.showTextDocument(document, ViewColumn.Beside);
         }
 
@@ -2722,7 +2757,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         let document = workspace.textDocuments.find(doc => doc.uri.fsPath === params.path);
 
         if (!document) {
-            document = await workspace.openTextDocument(Uri.parse(params.path));
+            document = await workspace.openTextDocument(Uri.file(params.path));
         }
 
         if (document) {
@@ -2920,28 +2955,9 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
     async migrateProject({ source }: MigrateProjectRequest): Promise<MigrateProjectResponse> {
         return new Promise(async (resolve) => {
-            const selection = await vscode.window.showQuickPick(
-                [
-                    {
-                        label: "Select Destination",
-                        description: "Select a destination folder to migrate the project",
-                    },
-                ],
-                {
-                    placeHolder: "Migration Options",
-                }
-            );
-
-            let target;
-            switch (selection?.label) {
-                case "Select Destination":
-                    target = await vscode.commands.executeCommand(COMMANDS.SELECT_DESTINATION, { sourceDir: source });
-                    break;
-            }
-
-            if (source && target) {
-                importProject({ source, directory: target, open: true });
-                resolve({ filePath: target });
+            if (source) {
+                importProject({ source, directory: source, open: true });
+                resolve({ filePath: source });
             }
         });
     }
@@ -3193,12 +3209,16 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             if (params.enableUndo) {
                 await this.initUndoRedoManager({ path: params.path });
             }
-
-            await workspace.fs.delete(Uri.file(params.path));
+            const registryIdentifier = "wso2mi/resources/registry";
+            const isRegistry = path.normalize(params.path).includes(path.normalize(registryIdentifier));
+            if (isRegistry) {
+                deleteRegistryResource(params.path);
+            } else {
+                await workspace.fs.delete(Uri.file(params.path));
+            }
             await vscode.commands.executeCommand(COMMANDS.REFRESH_COMMAND); // Refresh the project explore view
             navigate();
-
-            if (params.enableUndo) {
+            if (params.enableUndo && !isRegistry) {
                 undoRedo.addModification('');
                 const selection = await vscode.window.showInformationMessage('Do you want to undo the deletion?', 'Undo');
                 if (selection === 'Undo') {
@@ -3295,6 +3315,15 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     log(`Project exported to: ${destination}`);
                     resolve();
                 }
+            }
+        });
+    }
+
+    async checkOldProject(): Promise<boolean> {
+        return new Promise(async (resolve) => {
+            const oldProjectState = StateMachine.context().isOldProject;
+            if (oldProjectState !== undefined) {
+                resolve(oldProjectState);
             }
         });
     }

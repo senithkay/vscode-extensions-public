@@ -7,9 +7,16 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { Dispatch, SetStateAction } from "react";
+import React, { Dispatch, ReactNode, SetStateAction } from "react";
 import { Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 import { ExpressionFieldValue } from "../Form/ExpressionField/ExpressionInput";
+
+export interface SidePanelPage {
+    content: ReactNode;
+    isOpen: boolean;
+    title?: string;
+    icon?: string;
+}
 
 interface SidePanelContext {
     // Mediator related
@@ -20,35 +27,26 @@ interface SidePanelContext {
     parentNode?: string;
     previousNode?: string;
     formValues?: { [key: string]: any };
-    title?: string;
     isFormOpen?: boolean;
     connectors?: any[];
-    iconPath?: string;
     expressionEditor?: {
         isOpen: boolean;
         value: ExpressionFieldValue;
         setValue: (value: ExpressionFieldValue) => void;
-    }
+    };
+    pageStack: SidePanelPage[];
     setSidePanelState?: Dispatch<SetStateAction<any>>;
 }
 
 const SidePanelContext = React.createContext<SidePanelContext>({
     isOpen: false,
     isEditing: false,
-    nodeRange: undefined,
-    operationName: undefined,
-    parentNode: undefined,
-    previousNode: undefined,
-    formValues: {},
-    title: undefined,
-    isFormOpen: false,
-    connectors: [],
     expressionEditor: {
         isOpen: false,
         value: undefined,
         setValue: () => {},
     },
-    setSidePanelState: () => {},
+    pageStack: [],
 })
 
 export const SidePanelProvider = SidePanelContext.Provider

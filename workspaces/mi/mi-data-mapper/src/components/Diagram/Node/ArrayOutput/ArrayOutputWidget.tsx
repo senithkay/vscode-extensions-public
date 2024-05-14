@@ -24,7 +24,7 @@ import { useDMCollapsedFieldsStore, useDMSidePanelStore } from "../../../../stor
 import { getDiagnostics } from "../../utils/diagnostics-utils";
 import { isConnectedViaLink } from "../../utils/common-utils";
 
-export interface ArrayTypeOutputWidgetProps {
+export interface ArrayOutputWidgetProps {
 	id: string;
 	dmTypeWithValue: DMTypeWithValue;
 	typeName: string;
@@ -34,7 +34,7 @@ export interface ArrayTypeOutputWidgetProps {
 	deleteField?: (node: Node) => Promise<void>;
 }
 
-export function ArrayTypeOutputWidget(props: ArrayTypeOutputWidgetProps) {
+export function ArrayOutputWidget(props: ArrayOutputWidgetProps) {
 	const {
 		id,
 		dmTypeWithValue,
@@ -53,10 +53,11 @@ export function ArrayTypeOutputWidget(props: ArrayTypeOutputWidgetProps) {
 	const setIsSchemaOverridden = useDMSidePanelStore(state => state.setIsSchemaOverridden);
 
 	const body = dmTypeWithValue && dmTypeWithValue.value;
+	const wasBodyForgotten = body && body.wasForgotten();
 	const hasValue = dmTypeWithValue && dmTypeWithValue?.elements && dmTypeWithValue.elements.length > 0;
-	const isBodyArrayLitExpr = body && Node.isArrayLiteralExpression(body);
-	const elements = isBodyArrayLitExpr ? body.getElements() : [];
-	const hasDiagnostics = getDiagnostics(dmTypeWithValue?.value).length > 0;
+	const isBodyArrayLitExpr = !wasBodyForgotten && Node.isArrayLiteralExpression(body);
+	const elements = !wasBodyForgotten && isBodyArrayLitExpr ? body.getElements() : [];
+	const hasDiagnostics = !wasBodyForgotten && getDiagnostics(dmTypeWithValue?.value).length > 0;
 
 	const portIn = getPort(`${id}.IN`);
 
@@ -67,8 +68,7 @@ export function ArrayTypeOutputWidget(props: ArrayTypeOutputWidgetProps) {
 
 	const indentation = (portIn && (!hasValue || !expanded)) ? 0 : 24;
 
-	const shouldPortVisible = !hasDiagnostics
-		&& (!hasValue || !expanded || !isBodyArrayLitExpr || elements.length === 0);
+	const shouldPortVisible = !hasValue || !expanded || !isBodyArrayLitExpr || elements.length === 0;
 
 	const hasElementConnectedViaLink = useMemo(() => {
 		return elements.some(expr => isConnectedViaLink(expr));
@@ -140,7 +140,7 @@ export function ArrayTypeOutputWidget(props: ArrayTypeOutputWidgetProps) {
 						{label}
 					</span>
 				</TreeHeader>
-				{expanded && dmTypeWithValue && (
+				{expanded && dmTypeWithValue && isBodyArrayLitExpr && (
 					<TreeBody>
 						<ArrayOutputFieldWidget
 							key={id}

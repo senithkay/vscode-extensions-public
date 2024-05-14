@@ -8,15 +8,8 @@
  */
 export const OBJECT_OUTPUT_TARGET_PORT_PREFIX = "objectOutput";
 export const ARRAY_OUTPUT_TARGET_PORT_PREFIX = "arrayOutput";
-export const PRIMITIVE_TYPE_TARGET_PORT_PREFIX = "primitiveType";
-export const UNION_TYPE_TARGET_PORT_PREFIX = "unionType";
-export const LET_EXPRESSION_SOURCE_PORT_PREFIX = "letExpression";
-export const ENUM_TYPE_SOURCE_PORT_PREFIX = "enumType";
-export const MODULE_VARIABLE_SOURCE_PORT_PREFIX = "moduleVariable";
-export const EXPANDED_QUERY_SOURCE_PORT_PREFIX = "expandedQueryExpr.source";
-export const EXPANDED_QUERY_INPUT_NODE_PREFIX = "expandedQueryExpr.input";
-export const SELECT_CALUSE_QUERY = "SelectClause.query";
-export const SYMBOL_KIND_CONSTANT = "CONSTANT";
+export const PRIMITIVE_OUTPUT_TARGET_PORT_PREFIX = "primitiveOutput";
+export const FOCUSED_INPUT_SOURCE_PORT_PREFIX = "focusedInput";
 
 export const defaultModelOptions = { zoom: 90 };
 export const VISUALIZER_PADDING = 0;
@@ -36,17 +29,8 @@ export const OFFSETS = {
         X: (window.innerWidth -VISUALIZER_PADDING)*(100/defaultModelOptions.zoom)-IO_NODE_DEFAULT_WIDTH,
         Y: 0
     },
-    LET_EXPRESSION_NODE: {
-        X: 50,
-        Y: 100,
-    },
     TARGET_NODE_WITHOUT_MAPPING: {
         X: 650,
-    },
-    QUERY_MAPPING_HEADER_NODE: {
-        X: 25,
-        Y: 25,
-        MARGIN_BOTTOM: 65
     },
     LINK_CONNECTOR_NODE: {
         X: 750
@@ -54,10 +38,8 @@ export const OFFSETS = {
     LINK_CONNECTOR_NODE_WITH_ERROR: {
         X: 718
     },
-    QUERY_EXPRESSION_NODE: {
+    ARRAY_FN_CONNECTOR_NODE: {
         X: 750
     },
-    INTERMEDIATE_CLAUSE_HEIGHT: 80,
-    QUERY_VIEW_LEFT_MARGIN: 55,
-    QUERY_VIEW_TOP_MARGIN: 50,
+    INTERMEDIATE_CLAUSE_HEIGHT: 80
 }

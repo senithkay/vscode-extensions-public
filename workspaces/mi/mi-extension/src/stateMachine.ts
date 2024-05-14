@@ -26,6 +26,8 @@ import { getSources } from './util/dataMapper';
 import { StateMachinePopup } from './stateMachinePopup';
 import { STNode } from '../../syntax-tree/lib/src';
 import { log } from './util/logger';
+import { deriveConfigName } from './util/dataMapper';
+import { fileURLToPath } from 'url';
 
 interface MachineContext extends VisualizerLocation {
     langClient: ExtendedLanguageClient | null;
@@ -354,7 +356,8 @@ const stateMachine = createMachine<MachineContext>({
                             filePath: filePath,
                             functionName: functionName,
                             fileContent: fnSource,
-                            interfacesSource: interfacesSource
+                            interfacesSource: interfacesSource,
+                            configName: deriveConfigName(filePath)
                         };
                         viewLocation.view = MACHINE_VIEW.DataMapperView;
                     }
@@ -467,7 +470,7 @@ export const StateMachine = {
 
 export function openView(type: EVENT_TYPE, viewLocation?: VisualizerLocation) {
     if (viewLocation?.documentUri) {
-        viewLocation.documentUri = Uri.file(viewLocation.documentUri).fsPath;
+        viewLocation.documentUri = viewLocation.documentUri.startsWith("file") ? fileURLToPath(viewLocation.documentUri) : Uri.file(viewLocation.documentUri).fsPath;
     }
     // Set the projectUri If undefined.
     if (!viewLocation?.projectUri && vscode.workspace.workspaceFolders) {
@@ -496,7 +499,7 @@ export function navigate(entry?: HistoryEntry) {
 
 function updateProjectExplorer(location: VisualizerLocation | undefined) {
     if (location && location.documentUri) {
-        const projectRoot = vscode.workspace.getWorkspaceFolder(vscode.Uri.parse(location.documentUri));
+        const projectRoot = vscode.workspace.getWorkspaceFolder(vscode.Uri.file(location.documentUri));
         if (projectRoot && !extension.preserveActivity) {
             location.projectUri = projectRoot.uri.fsPath;
             if (!StateMachine.context().isOldProject) {

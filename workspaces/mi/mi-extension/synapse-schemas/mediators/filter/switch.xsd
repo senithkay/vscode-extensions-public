@@ -44,7 +44,7 @@
                         </xs:documentation>
                     </xs:annotation>
                     <xs:complexType>
-                        <xs:group ref="mediatorList" minOccurs="1" maxOccurs="unbounded" />
+                        <xs:group ref="mediatorList" minOccurs="0" maxOccurs="unbounded" />
                         <xs:attribute name="regex" type="xs:string" use="required" />
                     </xs:complexType>
                 </xs:element>
@@ -56,7 +56,7 @@
                         </xs:documentation>
                     </xs:annotation>
                     <xs:complexType>
-                        <xs:group ref="mediatorList" minOccurs="1" maxOccurs="unbounded" />
+                        <xs:group ref="mediatorList" minOccurs="0" maxOccurs="unbounded" />
                     </xs:complexType>
                 </xs:element>
             </xs:sequence>

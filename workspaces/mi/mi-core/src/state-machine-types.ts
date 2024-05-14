@@ -72,7 +72,7 @@ export type MachineStateValue =
 
 export type AIMachineStateValue = 'Initialize' | 'loggedOut' | 'Ready' | 'WaitingForLogin' | 'Executing' | 'disabled';
 
-export type PopupMachineStateValue = 'initialize' | 'ready' | 'reopen' | 'open' | 'disabled';
+export type PopupMachineStateValue = 'initialize' | 'ready' | { open: 'active' } | { ready: 'reopen' } | { ready: 'notify' } | 'disabled';
 
 export enum AI_EVENT_TYPE {
     LOGIN = "LOGIN",
@@ -120,6 +120,7 @@ interface DataMapperProps {
     functionName?: string;
     fileContent?: string;
     interfacesSource?: string;
+    configName: string;
 }
 
 // State Machine context values
@@ -130,6 +131,7 @@ export interface VisualizerLocation {
     errors?: ErrorType[];
     documentUri?: string;
     projectUri?: string;
+    pathSeparator?: string;
     identifier?: string;
     position?: any;
     projectOpened?: boolean;

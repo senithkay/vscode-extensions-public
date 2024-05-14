@@ -75,9 +75,9 @@
                             <xs:element name="fact" maxOccurs="unbounded">
                                 <xs:complexType>
                                     <xs:attribute name="elementName" type="xs:string" use="required" />
-                                    <xs:attribute name="namespace" type="xs:string" use="required" />
-                                    <xs:attribute name="type" type="xs:string" use="required" />
-                                    <xs:attribute name="xpath" type="xs:string" use="required" />
+                                    <xs:attribute name="namespace" type="xs:string" use="optional" />
+                                    <xs:attribute name="type" type="xs:string" use="optional" />
+                                    <xs:attribute name="xpath" type="xs:string" use="optional" />
                                 </xs:complexType>
                             </xs:element>
                         </xs:sequence>
@@ -96,8 +96,8 @@
                                 </xs:complexType>
                             </xs:element>
                         </xs:sequence>
-                        <xs:attribute name="namespace" type="xs:string" use="required" />
-                        <xs:attribute name="wrapperElementName" type="xs:string" use="required" />
+                        <xs:attribute name="namespace" type="xs:string" use="optional" />
+                        <xs:attribute name="wrapperElementName" type="xs:string" use="optional" />
                     </xs:complexType>
                 </xs:element>
                 <xs:element name="childMediators" minOccurs="0" maxOccurs="1">

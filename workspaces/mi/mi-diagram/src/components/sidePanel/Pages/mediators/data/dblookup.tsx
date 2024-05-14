@@ -8,18 +8,20 @@
 */
 // AUTO-GENERATED FILE. DO NOT MODIFY.
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { AutoComplete, Button, ComponentCard, ProgressIndicator, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
 import { VSCodeCheckbox } from '@vscode/webview-ui-toolkit/react';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
-import { AddMediatorProps } from '../common';
+import { AddMediatorProps, getParamManagerValues, getParamManagerFromValues } from '../common';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
 import { MEDIATORS } from '../../../../../resources/constants';
 import { Controller, useForm } from 'react-hook-form';
 import { ExpressionFieldValue } from '../../../../Form/ExpressionField/ExpressionInput';
 import { ParamManager, ParamConfig, ParamValue } from '../../../../Form/ParamManager/ParamManager';
+import { sidepanelAddPage, sidepanelGoBack } from '../../..';
+import ExpressionEditor from '../../../expressionEditor/ExpressionEditor';
 
 const cardStyle = { 
     display: "block",
@@ -42,6 +44,7 @@ const DBLookupForm = (props: AddMediatorProps) => {
     const { rpcClient } = useVisualizerContext();
     const sidePanelContext = React.useContext(SidePanelContext);
     const [ isLoading, setIsLoading ] = React.useState(true);
+    const handleOnCancelExprEditorRef = useRef(() => { });
 
     const { control, formState: { errors, dirtyFields }, handleSubmit, watch, reset } = useForm();
 
@@ -52,7 +55,7 @@ const DBLookupForm = (props: AddMediatorProps) => {
             connectionDBType: sidePanelContext?.formValues?.connectionDBType || "OTHER",
             isRegistryBasedDriverConfig: sidePanelContext?.formValues?.isRegistryBasedDriverConfig || "",
             connectionDBDriver: sidePanelContext?.formValues?.connectionDBDriver || "",
-            registryBasedonnectionDBDriver: sidePanelContext?.formValues?.registryBasedonnectionDBDriver || "",
+            registryBasedConnectionDBDriver: sidePanelContext?.formValues?.registryBasedConnectionDBDriver || "",
             connectionDSType: sidePanelContext?.formValues?.connectionDSType || "EXTERNAL",
             connectionDSInitialContext: sidePanelContext?.formValues?.connectionDSInitialContext || "",
             connectionDSName: sidePanelContext?.formValues?.connectionDSName || "",
@@ -66,20 +69,7 @@ const DBLookupForm = (props: AddMediatorProps) => {
             connectionPassword: sidePanelContext?.formValues?.connectionPassword || "",
             registryBasedPassConfigKey: sidePanelContext?.formValues?.registryBasedPassConfigKey || "",
             sqlStatements: {
-                paramValues: sidePanelContext?.formValues?.sqlStatements && sidePanelContext?.formValues?.sqlStatements.map((property: (string | ExpressionFieldValue | ParamConfig)[], index: string) => (
-                    {
-                        id: index,
-                        key: index,
-                        value:  property[0],
-                        icon: 'query',
-                        paramValues: [
-                            { value: property[0] },
-                            { value: property[1] },
-                            { value: property[2] },
-                            { value: property[3] },
-                        ]
-                    }
-                )) || [] as string[][],
+                paramValues: sidePanelContext?.formValues?.sqlStatements ? getParamManagerFromValues(sidePanelContext?.formValues?.sqlStatements) : [],
                 paramFields: [
                     {
                         "type": "TextField",
@@ -94,33 +84,85 @@ const DBLookupForm = (props: AddMediatorProps) => {
                         "isRequired": false, 
                         "paramManager": {
                             paramConfigs: {
-                                paramValues: sidePanelContext?.formValues?.parameters && sidePanelContext?.formValues?.parameters.map((property: (string | ExpressionFieldValue | ParamConfig)[], index: string) => (
-                                    {
-                                        id: index,
-                                        key: index,
-                                        value:  index,
-                                        icon: 'query',
-                                        paramValues: [
-                                            { value: property[0] },
-                                        ]
-                                    }
-                                )) || [] as string[][],
+                                paramValues: sidePanelContext?.formValues?.parameters ? getParamManagerFromValues(sidePanelContext?.formValues?.parameters) : [],
                                 paramFields: [
                                     {
-                                        "defaultValue": "",
-                                        "isRequired": false
+                                        "type": "Dropdown",
+                                        "label": "Data Type",
+                                        "defaultValue": "CHAR",
+                                        "isRequired": false,
+                                        "values": [
+                                            "CHAR",
+                                            "VARCHAR",
+                                            "LONGVARCHAR",
+                                            "NUMERIC",
+                                            "DECIMAL",
+                                            "BIT",
+                                            "TINYINT",
+                                            "SMALLINT",
+                                            "INTEGER",
+                                            "BIGINT",
+                                            "REAL",
+                                            "FLOAT",
+                                            "DOUBLE",
+                                            "DATE",
+                                            "TIME",
+                                            "TIMESTAMP"
+                                        ]
                                     },
+                                    {
+                                        "type": "Dropdown",
+                                        "label": "Value Type",
+                                        "defaultValue": "LITERAL",
+                                        "isRequired": false,
+                                        "values": [
+                                            "LITERAL",
+                                            "EXPRESSION"
+                                        ]
+                                    },
+                                    {
+                                        "type": "TextField",
+                                        "label": "Value Literal",
+                                        "defaultValue": "",
+                                        "isRequired": false,
+                                        "enableCondition": [
+                                            {
+                                                "1": "LITERAL"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "type": "ExprField",
+                                        "label": "Value Expression",
+                                        "defaultValue": {
+                                            "isExpression": true,
+                                            "value": ""
+                                        },
+                                        "isRequired": false,
+                                        "canChange": false,
+                                        "enableCondition": [
+                                            {
+                                                "1": "EXPRESSION"
+                                            }
+                                        ], 
+                                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
+                                            const content = <ExpressionEditor
+                                                value={value}
+                                                handleOnSave={(value) => {
+                                                    setValue(value);
+                                                    handleOnCancelExprEditorRef.current();
+                                                }}
+                                                handleOnCancel={() => {
+                                                    handleOnCancelExprEditorRef.current();
+                                                }}
+                                            />;
+                                            sidepanelAddPage(sidePanelContext, content, "Expression Editor");
+                                        }},
                                 ]
                             },
                             openInDrawer: true,
                             addParamText: "New Parameters"
                         },
-                    },
-                    {
-                        "type": "Checkbox",
-                        "label": "Results Enabled",
-                        "defaultValue": false,
-                        "isRequired": false
                     },
                     {
                         "type": "ParamManager",
@@ -129,18 +171,7 @@ const DBLookupForm = (props: AddMediatorProps) => {
                         "isRequired": false, 
                         "paramManager": {
                             paramConfigs: {
-                                paramValues: sidePanelContext?.formValues?.results && sidePanelContext?.formValues?.results.map((property: (string | ExpressionFieldValue | ParamConfig)[], index: string) => (
-                                    {
-                                        id: index,
-                                        key: index,
-                                        value:  index,
-                                        icon: 'query',
-                                        paramValues: [
-                                            { value: property[0] },
-                                            { value: property[1] },
-                                        ]
-                                    }
-                                )) || [] as string[][],
+                                paramValues: sidePanelContext?.formValues?.results ? getParamManagerFromValues(sidePanelContext?.formValues?.results) : [],
                                 paramFields: [
                                     {
                                         "type": "TextField",
@@ -179,9 +210,15 @@ const DBLookupForm = (props: AddMediatorProps) => {
         setIsLoading(false);
     }, [sidePanelContext.formValues]);
 
+    useEffect(() => {
+        handleOnCancelExprEditorRef.current = () => {
+            sidepanelGoBack(sidePanelContext);
+        };
+    }, [sidePanelContext.pageStack]);
+
     const onClick = async (values: any) => {
         
-        values["sqlStatements"] = values.sqlStatements.paramValues.map((param: any) => param.paramValues.map((p: any) => p.value));
+        values["sqlStatements"] = getParamManagerValues(values.sqlStatements);
         const xml = getXML(MEDIATORS.DBLOOKUP, values, dirtyFields, sidePanelContext.formValues);
         if (Array.isArray(xml)) {
             for (let i = 0; i < xml.length; i++) {
@@ -285,13 +322,13 @@ const DBLookupForm = (props: AddMediatorProps) => {
                     {((watch("connectionType") == "DB_CONNECTION") &&(watch("isRegistryBasedDriverConfig") == true) ) &&
                     <Field>
                         <Controller
-                            name="registryBasedonnectionDBDriver"
+                            name="registryBasedConnectionDBDriver"
                             control={control}
                             render={({ field }) => (
                                 <TextField {...field} label="Registry Based Connection DB Driver" size={50} placeholder="Enter the database driver" />
                             )}
                         />
-                        {errors.registryBasedonnectionDBDriver && <Error>{errors.registryBasedonnectionDBDriver.message.toString()}</Error>}
+                        {errors.registryBasedConnectionDBDriver && <Error>{errors.registryBasedConnectionDBDriver.message.toString()}</Error>}
                     </Field>
                     }
 
@@ -336,7 +373,7 @@ const DBLookupForm = (props: AddMediatorProps) => {
                     </Field>
                     }
 
-                    {((watch("connectionType") == "DB_CONNECTION") ||((watch("connectionType") == "DATA_SOURCE") &&(watch("connectionDsType") == "EXTERNAL") )) &&
+                    {((watch("connectionType") == "DB_CONNECTION") ||((watch("connectionType") == "DATA_SOURCE") &&(watch("connectionDSType") == "EXTERNAL") )) &&
                     <Field>
                         <Controller
                             name="isRegistryBasedURLConfig"
@@ -349,7 +386,7 @@ const DBLookupForm = (props: AddMediatorProps) => {
                     </Field>
                     }
 
-                    {((watch("isRegistryBasedUrlConfig") == false) &&((watch("connectionType") == "DB_CONNECTION") ||((watch("connectionType") == "DATA_SOURCE") &&(watch("connectionDsType") == "EXTERNAL") ))) &&
+                    {((watch("isRegistryBasedURLConfig") == false) &&((watch("connectionType") == "DB_CONNECTION") ||((watch("connectionType") == "DATA_SOURCE") &&(watch("connectionDSType") == "EXTERNAL") ))) &&
                     <Field>
                         <Controller
                             name="connectionURL"
@@ -362,7 +399,7 @@ const DBLookupForm = (props: AddMediatorProps) => {
                     </Field>
                     }
 
-                    {((watch("isRegistryBasedUrlConfig") == true) &&((watch("connectionType") == "DB_CONNECTION") ||((watch("connectionType") == "DATA_SOURCE") &&(watch("connectionDsType") == "EXTERNAL") ))) &&
+                    {((watch("isRegistryBasedURLConfig") == true) &&((watch("connectionType") == "DB_CONNECTION") ||((watch("connectionType") == "DATA_SOURCE") &&(watch("connectionDSType") == "EXTERNAL") ))) &&
                     <Field>
                         <Controller
                             name="registryBasedURLConfigKey"
@@ -375,7 +412,7 @@ const DBLookupForm = (props: AddMediatorProps) => {
                     </Field>
                     }
 
-                    {((watch("connectionType") == "DB_CONNECTION") ||((watch("connectionType") == "DATA_SOURCE") &&(watch("connectionDsType") == "EXTERNAL") )) &&
+                    {((watch("connectionType") == "DB_CONNECTION") ||((watch("connectionType") == "DATA_SOURCE") &&(watch("connectionDSType") == "EXTERNAL") )) &&
                     <Field>
                         <Controller
                             name="isRegistryBasedUserConfig"
@@ -388,7 +425,7 @@ const DBLookupForm = (props: AddMediatorProps) => {
                     </Field>
                     }
 
-                    {((watch("isRegistryBasedUserConfig") == false) &&((watch("connectionType") == "DB_CONNECTION") ||((watch("connectionType") == "DATA_SOURCE") &&(watch("connectionDsType") == "EXTERNAL") ))) &&
+                    {((watch("isRegistryBasedUserConfig") == false) &&((watch("connectionType") == "DB_CONNECTION") ||((watch("connectionType") == "DATA_SOURCE") &&(watch("connectionDSType") == "EXTERNAL") ))) &&
                     <Field>
                         <Controller
                             name="connectionUsername"
@@ -401,7 +438,7 @@ const DBLookupForm = (props: AddMediatorProps) => {
                     </Field>
                     }
 
-                    {((watch("isRegistryBasedUserConfig") == true) &&((watch("connectionType") == "DB_CONNECTION") ||((watch("connectionType") == "DATA_SOURCE") &&(watch("connectionDsType") == "EXTERNAL") ))) &&
+                    {((watch("isRegistryBasedUserConfig") == true) &&((watch("connectionType") == "DB_CONNECTION") ||((watch("connectionType") == "DATA_SOURCE") &&(watch("connectionDSType") == "EXTERNAL") ))) &&
                     <Field>
                         <Controller
                             name="registryBasedUserConfigKey"
@@ -414,7 +451,7 @@ const DBLookupForm = (props: AddMediatorProps) => {
                     </Field>
                     }
 
-                    {((watch("connectionType") == "DB_CONNECTION") ||((watch("connectionType") == "DATA_SOURCE") &&(watch("connectionDsType") == "EXTERNAL") )) &&
+                    {((watch("connectionType") == "DB_CONNECTION") ||((watch("connectionType") == "DATA_SOURCE") &&(watch("connectionDSType") == "EXTERNAL") )) &&
                     <Field>
                         <Controller
                             name="isRegistryBasedPassConfig"
@@ -427,7 +464,7 @@ const DBLookupForm = (props: AddMediatorProps) => {
                     </Field>
                     }
 
-                    {((watch("isRegistryBasedPassConfig") == false) &&((watch("connectionType") == "DB_CONNECTION") ||((watch("connectionType") == "DATA_SOURCE") &&(watch("connectionDsType") == "EXTERNAL") ))) &&
+                    {((watch("isRegistryBasedPassConfig") == false) &&((watch("connectionType") == "DB_CONNECTION") ||((watch("connectionType") == "DATA_SOURCE") &&(watch("connectionDSType") == "EXTERNAL") ))) &&
                     <Field>
                         <Controller
                             name="connectionPassword"
@@ -440,7 +477,7 @@ const DBLookupForm = (props: AddMediatorProps) => {
                     </Field>
                     }
 
-                    {((watch("isRegistryBasedPassConfig") == true) &&((watch("connectionType") == "DB_CONNECTION") ||((watch("connectionType") == "DATA_SOURCE") &&(watch("connectionDsType") == "EXTERNAL") ))) &&
+                    {((watch("isRegistryBasedPassConfig") == true) &&((watch("connectionType") == "DB_CONNECTION") ||((watch("connectionType") == "DATA_SOURCE") &&(watch("connectionDSType") == "EXTERNAL") ))) &&
                     <Field>
                         <Controller
                             name="registryBasedPassConfigKey"
@@ -478,14 +515,14 @@ const DBLookupForm = (props: AddMediatorProps) => {
 
                                             (property[1].value as ParamConfig).paramValues = (property[1].value as ParamConfig).paramValues.map((param: any, index: number) => {
                                                 const property: ParamValue[] = param.paramValues;
-                                                param.key = index;
-                                                param.value = index;
+                                                param.key = property[0].value;
+                                                param.value = property[2].value;
                                                 param.icon = 'query';
                                                 return param;
                                             });
             
 
-                                            (property[3].value as ParamConfig).paramValues = (property[3].value as ParamConfig).paramValues.map((param: any, index: number) => {
+                                            (property[2].value as ParamConfig).paramValues = (property[2].value as ParamConfig).paramValues.map((param: any, index: number) => {
                                                 const property: ParamValue[] = param.paramValues;
                                                 param.key = property[0].value;
                                                 param.value = property[1].value;

@@ -29,7 +29,8 @@
             "value": {
               "name": "staticScriptKey",
               "displayName": "Static Script Key",
-              "inputType": "registry",
+              "inputType": "key",
+              "keyType": "registry",
               "defaultValue": "",
               "required": false,
               "helpTip": "",

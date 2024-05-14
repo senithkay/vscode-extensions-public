@@ -8,7 +8,7 @@
 */
 // AUTO-GENERATED FILE. DO NOT MODIFY.
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { AutoComplete, Button, ComponentCard, ProgressIndicator, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
@@ -17,7 +17,10 @@ import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
 import { MEDIATORS } from '../../../../../resources/constants';
 import { Controller, useForm } from 'react-hook-form';
+import { Keylookup } from '../../../../Form';
 import { ExpressionField, ExpressionFieldValue } from '../../../../Form/ExpressionField/ExpressionInput';
+import { sidepanelAddPage, sidepanelGoBack } from '../../..';
+import ExpressionEditor from '../../../expressionEditor/ExpressionEditor';
 
 const cardStyle = { 
     display: "block",
@@ -40,6 +43,7 @@ const FastXSLTForm = (props: AddMediatorProps) => {
     const { rpcClient } = useVisualizerContext();
     const sidePanelContext = React.useContext(SidePanelContext);
     const [ isLoading, setIsLoading ] = React.useState(true);
+    const handleOnCancelExprEditorRef = useRef(() => { });
 
     const { control, formState: { errors, dirtyFields }, handleSubmit, watch, reset } = useForm();
 
@@ -47,11 +51,17 @@ const FastXSLTForm = (props: AddMediatorProps) => {
         reset({
             fastXsltSchemaType: sidePanelContext?.formValues?.fastXsltSchemaType || "Static",
             fastXsltDynamicSchemaKey: sidePanelContext?.formValues?.fastXsltDynamicSchemaKey || {"isExpression":true,"value":""},
-            fastXsltStaticSchemaKey: sidePanelContext?.formValues?.fastXsltStaticSchemaKey || {"isExpression":true,"value":""},
+            fastXsltStaticSchemaKey: sidePanelContext?.formValues?.fastXsltStaticSchemaKey || "",
             description: sidePanelContext?.formValues?.description || "",
         });
         setIsLoading(false);
     }, [sidePanelContext.formValues]);
+
+    useEffect(() => {
+        handleOnCancelExprEditorRef.current = () => {
+            sidepanelGoBack(sidePanelContext);
+        };
+    }, [sidePanelContext.pageStack]);
 
     const onClick = async (values: any) => {
         
@@ -112,14 +122,17 @@ const FastXSLTForm = (props: AddMediatorProps) => {
                                     placeholder=""
                                     canChange={false}
                                     openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => {
-                                        sidePanelContext.setSidePanelState({
-                                            ...sidePanelContext,
-                                            expressionEditor: {
-                                                isOpen: true,
-                                                value,
-                                                setValue
-                                            }
-                                        });
+                                        const content = <ExpressionEditor
+                                            value={value}
+                                            handleOnSave={(value) => {
+                                                setValue(value);
+                                                handleOnCancelExprEditorRef.current();
+                                            }}
+                                            handleOnCancel={() => {
+                                                handleOnCancelExprEditorRef.current();
+                                            }}
+                                        />;
+                                        sidepanelAddPage(sidePanelContext, content, "Expression Editor");
                                     }}
                                 />
                             )}
@@ -134,20 +147,12 @@ const FastXSLTForm = (props: AddMediatorProps) => {
                             name="fastXsltStaticSchemaKey"
                             control={control}
                             render={({ field }) => (
-                                <ExpressionField
-                                    {...field} label="Fast Xslt Static SchemaKey"
-                                    placeholder=""
-                                    canChange={false}
-                                    openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => {
-                                        sidePanelContext.setSidePanelState({
-                                            ...sidePanelContext,
-                                            expressionEditor: {
-                                                isOpen: true,
-                                                value,
-                                                setValue
-                                            }
-                                        });
-                                    }}
+                                <Keylookup
+                                    value={field.value}
+                                    filterType='sequence'
+                                    label="Fast Xslt Static SchemaKey"
+                                    allowItemCreate={false}
+                                    onValueChange={field.onChange}
                                 />
                             )}
                         />

@@ -158,17 +158,8 @@ const getParamManagerKeyOrValue = (elements: any[], tableKey: string, postFix?:s
 }
 
 const getParamManagerConfig = (elements: any[], tableKey: string, tableValue: string, name: string) => {
-    let paramValues = '';
+    let paramValues = `sidePanelContext?.formValues?.${name} ? getParamManagerFromValues(sidePanelContext?.formValues?.${name}) : [],`;
     let paramFields = '';
-
-    paramValues +=
-        fixIndentation(`sidePanelContext?.formValues?.${name} && sidePanelContext?.formValues?.${name}.map((property: (string | ExpressionFieldValue | ParamConfig)[], index: string) => (
-            {
-                id: index,
-                key: ${getParamManagerKeyOrValue(elements, tableKey)},
-                value:  ${getParamManagerKeyOrValue(elements, tableValue)},
-                icon: 'query',
-                paramValues: [`, 12);
 
     const tableKeys: string[] = [];
     elements.forEach((attribute: any, index: number) => {
@@ -182,11 +173,12 @@ const getParamManagerConfig = (elements: any[], tableKey: string, tableValue: st
         let type;
         if (attribute.type === 'table') {
             type = 'ParamManager';
-        } else if (inputType === 'string' || inputType === 'registry' || inputType === 'expression') {
+        } else if (inputType === 'string' || inputType === 'registry') {
             type = 'TextField';
-        } else if (inputType === 'stringOrExpression') {
+        } else if (inputType === 'stringOrExpression' || inputType === 'expression') {
             type = 'ExprField';
-            defaultValue = { isExpression: false, value: defaultValue };
+            let isExpression = inputType === 'expression';
+            defaultValue = { isExpression: isExpression, value: defaultValue };
         } else if (inputType === 'connection' || inputType === 'comboOrExpression' || inputType === 'combo') {
             type = 'Dropdown';
         } else if (inputType === 'checkbox') {
@@ -194,6 +186,8 @@ const getParamManagerConfig = (elements: any[], tableKey: string, tableValue: st
             if (!defaultValue) {
                 defaultValue = false;
             }
+        } else if (inputType == "key" || inputType == "keyOrExpression") {
+            type = "KeyLookup";
         }
 
         const paramField =
@@ -205,23 +199,27 @@ const getParamManagerConfig = (elements: any[], tableKey: string, tableValue: st
                 isRequired: isRequired,
                 ...(type === 'ExprField') && { canChange: inputType === 'stringOrExpression' },
                 ...(type === 'Dropdown') && { values: comboValues.map((value: string) => `${value}`), },
+                ...(type === 'KeyLookup') && { filterType: attribute.value.keyType },
                 ...(enableCondition) && { enableCondition: generateParammanagerCondition(enableCondition, tableKeys) },
             }, null, "\t")},`, 8);
 
         if (type === 'ExprField') {
             paramFields += paramField.slice(0, -3) + `, 
                 openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                    sidePanelContext.setSidePanelState({
-                        ...sidePanelContext,
-                        expressionEditor: {
-                            isOpen: true,
-                            value,
-                            setValue
-                        }
-                    });
+                    const content = <ExpressionEditor
+                        value={value}
+                        handleOnSave={(value) => {
+                            setValue(value);
+                            handleOnCancelExprEditorRef.current();
+                        }}
+                        handleOnCancel={() => {
+                            handleOnCancelExprEditorRef.current();
+                        }}
+                    />;
+                    sidepanelAddPage(sidePanelContext, content, "Expression Editor");
                 }` + paramField.slice(-2);
 
-        } else if (attribute.type === 'table') {
+        } else if (type === 'ParamManager') {
             const { paramValues: paramValues2, paramFields: paramFields2 } = getParamManagerConfig(attribute.value.elements, tableKey, tableValue, name);
             paramFields += paramField.slice(0, -3) + `, 
                 "paramManager": {
@@ -237,16 +235,7 @@ const getParamManagerConfig = (elements: any[], tableKey: string, tableValue: st
         } else {
             paramFields += paramField;
         }
-
-        paramValues +=
-            fixIndentation(`
-                { value: property[${index}] },`, 8);
     })
-    paramValues +=
-        fixIndentation(`
-                    ]
-                }
-            )) || [] as string[][],`, 8);
 
     return { paramValues, paramFields };
 }
@@ -333,20 +322,23 @@ const generateForm = (jsonData: any): string => {
                             placeholder="${helpTip}" 
                             canChange={${inputType === 'stringOrExpression'}}
                             openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => {
-                                sidePanelContext.setSidePanelState({
-                                    ...sidePanelContext,
-                                    expressionEditor: {
-                                        isOpen: true,
-                                        value,
-                                        setValue
-                                    }
-                                });
+                                const content = <ExpressionEditor
+                                    value={value}
+                                    handleOnSave={(value) => {
+                                        setValue(value);
+                                        handleOnCancelExprEditorRef.current();
+                                    }}
+                                    handleOnCancel={() => {
+                                        handleOnCancelExprEditorRef.current();
+                                    }}
+                                />;
+                                sidepanelAddPage(sidePanelContext, content, "Expression Editor");
                             }}
                          />`, indentation);
                 } else if (inputType === 'connection') {
 
                     let dropdownStr = '';
-                    dropdownStr += `Z
+                    dropdownStr += `
                             <VSCodeDropdown
                                 label="${displayName}"
                                 autoWidth={true}
@@ -468,7 +460,7 @@ const generateForm = (jsonData: any): string => {
                     },`, 8);
 
                 valueChanges += fixIndentation(`
-                    values["${inputName}"] = values.${inputName}.paramValues.map((param: any) => param.paramValues.map((p: any) => p.value));`, 8);
+                    values["${inputName}"] = getParamManagerValues(values.${inputName});`, 8);
 
                 fields += fixIndentation(`
                     <Controller
@@ -505,12 +497,12 @@ const generateForm = (jsonData: any): string => {
     componentContent +=
         fixIndentation(
             `${LICENSE_HEADER}
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { AutoComplete, Button, Codicon, ComponentCard, FormGroup, FlexLabelContainer, Label, Link, ProgressIndicator, colors, RequiredFormInput, TextField, TextArea, Tooltip, Typography } from '@wso2-enterprise/ui-toolkit';
 import { VSCodeCheckbox, VSCodeDropdown, VSCodeOption, VSCodeDataGrid, VSCodeDataGridRow, VSCodeDataGridCell } from '@vscode/webview-ui-toolkit/react';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
-import { AddMediatorProps, openPopup } from '../common';
+import { AddMediatorProps, openPopup, getParamManagerValues, getParamManagerFromValues } from '../common';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
 import { MEDIATORS } from '../../../../../resources/constants';
@@ -519,6 +511,8 @@ import { Keylookup } from '../../../../Form';
 import { ExpressionField, ExpressionFieldValue } from '../../../../Form/ExpressionField/ExpressionInput';
 import { ParamManager, ParamConfig, ParamValue } from '../../../../Form/ParamManager/ParamManager';
 import { generateSpaceSeperatedStringFromParamValues } from '../../../../../utils/commons';
+import { sidepanelAddPage, sidepanelGoBack } from '../../..';
+import ExpressionEditor from '../../../expressionEditor/ExpressionEditor';
 
 const cardStyle = { 
     display: "block", 
@@ -541,6 +535,7 @@ const ${operationNameCapitalized} = (props: AddMediatorProps) => {
     const { rpcClient } = useVisualizerContext();
     const sidePanelContext = React.useContext(SidePanelContext);
     const [ isLoading, setIsLoading ] = React.useState(true);
+    const handleOnCancelExprEditorRef = useRef(() => { });
 
     const { control, formState: { errors, dirtyFields }, handleSubmit, watch, reset } = useForm();
 
@@ -549,6 +544,12 @@ const ${operationNameCapitalized} = (props: AddMediatorProps) => {
         });
         setIsLoading(false);
     }, [sidePanelContext.formValues]);
+
+    useEffect(() => {
+        handleOnCancelExprEditorRef.current = () => {
+            sidepanelGoBack(sidePanelContext);
+        };
+    }, [sidePanelContext.pageStack]);
 
     const onClick = async (values: any) => {
         ${valueChanges}

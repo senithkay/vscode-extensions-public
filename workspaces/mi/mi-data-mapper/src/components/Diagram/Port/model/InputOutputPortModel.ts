@@ -45,7 +45,8 @@ export class InputOutputPortModel extends PortModel<PortModelGenerics & InputOut
 		public collapsed?: boolean,
 		public hidden?: boolean,
 		public descendantHasValue?: boolean,
-		public ancestorHasValue?: boolean
+		public ancestorHasValue?: boolean,
+		public isWithinMapFunction?: boolean,
 	) {
 		super({
 			type: INPUT_OUTPUT_PORT,

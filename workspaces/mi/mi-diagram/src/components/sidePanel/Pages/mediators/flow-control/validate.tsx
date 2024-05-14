@@ -8,18 +8,20 @@
 */
 // AUTO-GENERATED FILE. DO NOT MODIFY.
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Button, ComponentCard, ProgressIndicator, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
 import { VSCodeCheckbox } from '@vscode/webview-ui-toolkit/react';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
-import { AddMediatorProps } from '../common';
+import { AddMediatorProps, getParamManagerValues, getParamManagerFromValues } from '../common';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
 import { MEDIATORS } from '../../../../../resources/constants';
 import { Controller, useForm } from 'react-hook-form';
 import { ExpressionField, ExpressionFieldValue } from '../../../../Form/ExpressionField/ExpressionInput';
-import { ParamManager, ParamConfig, ParamValue } from '../../../../Form/ParamManager/ParamManager';
+import { ParamManager, ParamValue } from '../../../../Form/ParamManager/ParamManager';
+import { sidepanelAddPage, sidepanelGoBack } from '../../..';
+import ExpressionEditor from '../../../expressionEditor/ExpressionEditor';
 
 const cardStyle = { 
     display: "block",
@@ -42,6 +44,7 @@ const ValidateForm = (props: AddMediatorProps) => {
     const { rpcClient } = useVisualizerContext();
     const sidePanelContext = React.useContext(SidePanelContext);
     const [ isLoading, setIsLoading ] = React.useState(true);
+    const handleOnCancelExprEditorRef = useRef(() => { });
 
     const { control, formState: { errors, dirtyFields }, handleSubmit, watch, reset } = useForm();
 
@@ -50,38 +53,19 @@ const ValidateForm = (props: AddMediatorProps) => {
             source: sidePanelContext?.formValues?.source || {"isExpression":true,"value":""},
             enableSchemaCaching: sidePanelContext?.formValues?.enableSchemaCaching || "true",
             schemas: {
-                paramValues: sidePanelContext?.formValues?.schemas && sidePanelContext?.formValues?.schemas.map((property: (string | ExpressionFieldValue | ParamConfig)[], index: string) => (
-                    {
-                        id: index,
-                        key: index,
-                        value:  (property[0] as ExpressionFieldValue).value,
-                        icon: 'query',
-                        paramValues: [
-                            { value: property[0] },
-                        ]
-                    }
-                )) || [] as string[][],
+                paramValues: sidePanelContext?.formValues?.schemas ? getParamManagerFromValues(sidePanelContext?.formValues?.schemas) : [],
                 paramFields: [
                     {
+                        "type": "KeyLookup",
                         "label": "Validate Schema Key",
                         "defaultValue": "",
-                        "isRequired": false
+                        "isRequired": false,
+                        "filterType": "schema"
                     },
                 ]
             },
             features: {
-                paramValues: sidePanelContext?.formValues?.features && sidePanelContext?.formValues?.features.map((property: (string | ExpressionFieldValue | ParamConfig)[], index: string) => (
-                    {
-                        id: index,
-                        key: property[0],
-                        value:  property[1],
-                        icon: 'query',
-                        paramValues: [
-                            { value: property[0] },
-                            { value: property[1] },
-                        ]
-                    }
-                )) || [] as string[][],
+                paramValues: sidePanelContext?.formValues?.features ? getParamManagerFromValues(sidePanelContext?.formValues?.features) : [],
                 paramFields: [
                     {
                         "type": "TextField",
@@ -98,18 +82,7 @@ const ValidateForm = (props: AddMediatorProps) => {
                 ]
             },
             resources: {
-                paramValues: sidePanelContext?.formValues?.resources && sidePanelContext?.formValues?.resources.map((property: (string | ExpressionFieldValue | ParamConfig)[], index: string) => (
-                    {
-                        id: index,
-                        key: property[0],
-                        value:  property[1],
-                        icon: 'query',
-                        paramValues: [
-                            { value: property[0] },
-                            { value: property[1] },
-                        ]
-                    }
-                )) || [] as string[][],
+                paramValues: sidePanelContext?.formValues?.resources ? getParamManagerFromValues(sidePanelContext?.formValues?.resources) : [],
                 paramFields: [
                     {
                         "type": "TextField",
@@ -118,9 +91,11 @@ const ValidateForm = (props: AddMediatorProps) => {
                         "isRequired": false
                     },
                     {
+                        "type": "KeyLookup",
                         "label": "Location Key",
                         "defaultValue": "",
-                        "isRequired": false
+                        "isRequired": false,
+                        "filterType": "registry"
                     },
                 ]
             },
@@ -129,11 +104,17 @@ const ValidateForm = (props: AddMediatorProps) => {
         setIsLoading(false);
     }, [sidePanelContext.formValues]);
 
+    useEffect(() => {
+        handleOnCancelExprEditorRef.current = () => {
+            sidepanelGoBack(sidePanelContext);
+        };
+    }, [sidePanelContext.pageStack]);
+
     const onClick = async (values: any) => {
         
-        values["schemas"] = values.schemas.paramValues.map((param: any) => param.paramValues.map((p: any) => p.value));
-        values["features"] = values.features.paramValues.map((param: any) => param.paramValues.map((p: any) => p.value));
-        values["resources"] = values.resources.paramValues.map((param: any) => param.paramValues.map((p: any) => p.value));
+        values["schemas"] = getParamManagerValues(values.schemas);
+        values["features"] = getParamManagerValues(values.features);
+        values["resources"] = getParamManagerValues(values.resources);
         const xml = getXML(MEDIATORS.VALIDATE, values, dirtyFields, sidePanelContext.formValues);
         if (Array.isArray(xml)) {
             for (let i = 0; i < xml.length; i++) {
@@ -174,14 +155,17 @@ const ValidateForm = (props: AddMediatorProps) => {
                                 placeholder=""
                                 canChange={false}
                                 openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => {
-                                    sidePanelContext.setSidePanelState({
-                                        ...sidePanelContext,
-                                        expressionEditor: {
-                                            isOpen: true,
-                                            value,
-                                            setValue
-                                        }
-                                    });
+                                    const content = <ExpressionEditor
+                                        value={value}
+                                        handleOnSave={(value) => {
+                                            setValue(value);
+                                            handleOnCancelExprEditorRef.current();
+                                        }}
+                                        handleOnCancel={() => {
+                                            handleOnCancelExprEditorRef.current();
+                                        }}
+                                    />;
+                                    sidepanelAddPage(sidePanelContext, content, "Expression Editor");
                                 }}
                             />
                         )}
@@ -215,7 +199,7 @@ const ValidateForm = (props: AddMediatorProps) => {
                                     values.paramValues = values.paramValues.map((param: any, index: number) => {
                                         const property: ParamValue[] = param.paramValues;
                                         param.key = index;
-                                        param.value = (property[0].value as ExpressionFieldValue).value;
+                                        param.value = property[0].value;
                                         param.icon = 'query';
                                         return param;
                                     });

@@ -10,6 +10,6 @@
 export function getEnqueueMustacheTemplate() {
 
     return `
-    <enqueue {{#description}}description="{{description}}"{{/description}} {{#executor}}executor="{{executor}}"{{/executor}} {{#priority}}priority="{{priority}}"{{/priority}} {{#sequenceKey}}sequence="{{sequenceKey}}"{{/sequenceKey}} />
+    <enqueue {{#description}}description="{{description}}"{{/description}} {{#executor}}executor="{{executor}}"{{/executor}} {{#priority}}priority="{{priority}}"{{/priority}} {{#sequenceKey}}sequence="{{{sequenceKey}}}"{{/sequenceKey}} />
     `;
 }

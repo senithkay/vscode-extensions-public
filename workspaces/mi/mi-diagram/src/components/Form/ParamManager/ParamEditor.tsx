@@ -8,7 +8,7 @@
  */
 // tslint:disable: jsx-no-multiline-js
 
-import React from 'react';
+import React, { useState } from 'react';
 
 import { Param, TypeResolver } from './TypeResolver';
 import { ParamField, Parameters, isFieldEnabled, getParamFieldLabelFromParamId } from './ParamManager';
@@ -48,6 +48,7 @@ const DrawerContent = styled.div`
 
 export function ParamEditor(props: ParamProps) {
     const { parameters, paramFields, openInDrawer, onChange, onSave, onCancel } = props;
+    const [isDrawerCancelInProgress, setIsDrawerCancelInProgress] = useState(false);
 
     const getParamComponent = (p: Param) => {
         const handleTypeResolverChange = (newParam: Param) => {
@@ -73,7 +74,16 @@ export function ParamEditor(props: ParamProps) {
     }
 
     const handleOnCancel = () => {
-        onCancel(parameters);
+        if (openInDrawer) {
+            setIsDrawerCancelInProgress(true);
+            // 500ms delay to allow the drawer to close before calling the onCancel callback
+            setTimeout(() => {
+                onCancel(parameters);
+                setIsDrawerCancelInProgress(false);
+            }, 500);
+        } else {
+            onCancel(parameters);
+        }
     };
 
     const handleOnSave = () => {
@@ -94,16 +104,14 @@ export function ParamEditor(props: ParamProps) {
                     />
                 </EditorContainer>
             )}
-            <Drawer
-                isOpen={openInDrawer}
-                id="drawer1"
-                isSelected={true}
-            >
+            <Drawer isOpen={isDrawerCancelInProgress ? false : openInDrawer} id="drawer1" isSelected={true}>
                 {openInDrawer && (
                     <DrawerContent>
-                        <EditorContent>
-                            {parameters?.parameters.map(param => getParamComponent({ ...param, label: getParamFieldLabelFromParamId(paramFields, param.id) }))}
-                        </EditorContent>
+                        {parameters?.parameters.map(param => getParamComponent({
+                                ...param,
+                                label: getParamFieldLabelFromParamId(paramFields, param.id)
+                            })
+                        )}
                         <ActionButtons
                             primaryButton={{ text: "Save", onClick: handleOnSave }}
                             secondaryButton={{ text: "Cancel", onClick: handleOnCancel }}

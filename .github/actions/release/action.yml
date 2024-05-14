@@ -9,6 +9,9 @@ inputs:
   token:
     description: 'Publish token'
     required: true 
+  chatAPI:
+    description: 'Google chat API'
+    default: 'https://chat.googleapis.com/v1/spaces/AAAAtkMpL8k/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=GmcsSshpc6BD68bOPu4wadJ0WjQLbDQBag3zwYPBoZ0%3D'
   threadId:
     description: 'Google chat thread ID'
     required: true   
@@ -21,7 +24,7 @@ runs:
       id: vsix
       run: |
         file=$(ls ${{ inputs.name }}*.vsix)
-        fileName=${file#*-}
+        fileName=${file##*-}
         version=${fileName%.*}
         echo "vsixName=$file" >> $GITHUB_OUTPUT
         echo "version=$version" >> $GITHUB_OUTPUT
@@ -46,7 +49,7 @@ runs:
           "cards": [
             { 
               "header": {
-                  "title": "New Release"
+                  "title": "New Release - ${{ inputs.name }}"
               },
               "sections": [
                 {
@@ -84,5 +87,5 @@ runs:
         curl \
           -X POST \
           -H 'Content-Type: application/json' \
-          "https://chat.googleapis.com/v1/spaces/AAAAtkMpL8k/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=GmcsSshpc6BD68bOPu4wadJ0WjQLbDQBag3zwYPBoZ0%3D&threadKey=${{ inputs.threadId }}" \
+          "${{ inputs.chatAPI }}&threadKey=${{ inputs.threadId }}" \
           -d "$body"

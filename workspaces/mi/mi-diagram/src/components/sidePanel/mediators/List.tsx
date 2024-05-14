@@ -8,13 +8,13 @@
  */
 
 import { ComponentCard, IconLabel } from '@wso2-enterprise/ui-toolkit';
-import React from 'react';
+import React, { ReactNode } from 'react';
 import styled from '@emotion/styled';
 import SidePanelContext from '../SidePanelContexProvider';
 import { getAllMediators } from './Values';
 import { getSVGIcon } from '../../../resources/icons/mediatorIcons/icons';
-import AddConnector from '../Pages/AddConnector';
 import { FirstCharToUpperCase } from '../../../utils/commons';
+import { sidepanelAddPage } from '..';
 
 const ButtonGrid = styled.div`
     display: grid;
@@ -33,7 +33,6 @@ const IconContainer = styled.div`
 interface MediatorProps {
     nodePosition: any;
     documentUri: string;
-    setContent: any;
     searchValue?: string;
 }
 export function Mediators(props: MediatorProps) {
@@ -44,10 +43,6 @@ export function Mediators(props: MediatorProps) {
         previousNode: sidePanelContext.previousNode,
         parentNode: sidePanelContext.operationName?.toLowerCase() != sidePanelContext.parentNode?.toLowerCase() ? sidePanelContext.parentNode : undefined,
     });
-
-    const setContent = (content: any, title?: string) => {
-        props.setContent(content.form || content, `${sidePanelContext.isEditing ? "Edit" : "Add"} ${content.title || title}`);
-    }
 
     const searchForm = (value: string, search?: boolean) => {
         return Object.keys(allMediators).reduce((acc: any, key: string) => {
@@ -63,23 +58,6 @@ export function Mediators(props: MediatorProps) {
 
     const MediatorList = () => {
         let mediators;
-        if (sidePanelContext.isEditing && sidePanelContext.operationName) {
-            if (sidePanelContext.operationName === "connector") {
-                const connecterForm = <AddConnector
-                    formData={sidePanelContext.formValues.form}
-                    nodePosition={sidePanelContext.nodeRange}
-                    documentUri={props.documentUri} />;
-                setContent(connecterForm, FirstCharToUpperCase(sidePanelContext.formValues.title));
-                return <></>;
-            }
-
-            const form = searchForm(sidePanelContext.operationName, false);
-
-            if (form) {
-                setContent(Object.keys(form).length > 0 ? form[Object.keys(form)[0]][0] : {});
-                return <></>;
-            }
-        }
         if (props.searchValue) {
             mediators = searchForm(props.searchValue, true);
         } else {
@@ -92,10 +70,10 @@ export function Mediators(props: MediatorProps) {
                     <div key={key}>
                         <h4>{FirstCharToUpperCase(key)}</h4>
                         <ButtonGrid>
-                            {(values as any[]).map((action: { operationName: React.Key; title: string; }) => (
+                            {(values as any[]).map((action: { form: ReactNode, operationName: React.Key; title: string; }) => (
                                 <ComponentCard
                                     key={action.operationName}
-                                    onClick={() => setContent(action)}
+                                    onClick={() => sidepanelAddPage(sidePanelContext, action.form, action.title)}
                                     sx={{
                                         '&:hover, &.active': {
                                             '.icon svg g': {

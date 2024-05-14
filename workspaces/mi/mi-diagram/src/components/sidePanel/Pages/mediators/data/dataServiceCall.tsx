@@ -8,18 +8,21 @@
 */
 // AUTO-GENERATED FILE. DO NOT MODIFY.
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { AutoComplete, Button, ComponentCard, ProgressIndicator, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
-import { AddMediatorProps } from '../common';
+import { AddMediatorProps, getParamManagerValues, getParamManagerFromValues } from '../common';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
 import { MEDIATORS } from '../../../../../resources/constants';
 import { Controller, useForm } from 'react-hook-form';
+import { Keylookup } from '../../../../Form';
 import { ExpressionFieldValue } from '../../../../Form/ExpressionField/ExpressionInput';
 import { ParamManager, ParamConfig, ParamValue } from '../../../../Form/ParamManager/ParamManager';
 import { generateSpaceSeperatedStringFromParamValues } from '../../../../../utils/commons';
+import { sidepanelAddPage, sidepanelGoBack } from '../../..';
+import ExpressionEditor from '../../../expressionEditor/ExpressionEditor';
 
 const cardStyle = { 
     display: "block",
@@ -42,28 +45,17 @@ const DataServiceCallForm = (props: AddMediatorProps) => {
     const { rpcClient } = useVisualizerContext();
     const sidePanelContext = React.useContext(SidePanelContext);
     const [ isLoading, setIsLoading ] = React.useState(true);
+    const handleOnCancelExprEditorRef = useRef(() => { });
 
     const { control, formState: { errors, dirtyFields }, handleSubmit, watch, reset } = useForm();
 
     useEffect(() => {
         reset({
-            availableDataServices: sidePanelContext?.formValues?.availableDataServices || "Select from available Data Services",
             serviceName: sidePanelContext?.formValues?.serviceName || "",
             sourceType: sidePanelContext?.formValues?.sourceType || "INLINE",
             operationType: sidePanelContext?.formValues?.operationType || "SINGLE",
             operations: {
-                paramValues: sidePanelContext?.formValues?.operations && sidePanelContext?.formValues?.operations.map((property: (string | ExpressionFieldValue | ParamConfig)[], index: string) => (
-                    {
-                        id: index,
-                        key: property[0],
-                        value:  generateSpaceSeperatedStringFromParamValues(property[1] as ParamConfig),
-                        icon: 'query',
-                        paramValues: [
-                            { value: property[0] },
-                            { value: property[1] },
-                        ]
-                    }
-                )) || [] as string[][],
+                paramValues: sidePanelContext?.formValues?.operations ? getParamManagerFromValues(sidePanelContext?.formValues?.operations) : [],
                 paramFields: [
                     {
                         "type": "TextField",
@@ -78,20 +70,7 @@ const DataServiceCallForm = (props: AddMediatorProps) => {
                         "isRequired": false, 
                         "paramManager": {
                             paramConfigs: {
-                                paramValues: sidePanelContext?.formValues?.DSSProperties && sidePanelContext?.formValues?.DSSProperties.map((property: (string | ExpressionFieldValue | ParamConfig)[], index: string) => (
-                                    {
-                                        id: index,
-                                        key: index,
-                                        value:  index,
-                                        icon: 'query',
-                                        paramValues: [
-                                            { value: property[0] },
-                                            { value: property[1] },
-                                            { value: property[2] },
-                                            { value: property[3] },
-                                        ]
-                                    }
-                                )) || [] as string[][],
+                                paramValues: sidePanelContext?.formValues?.DSSProperties ? getParamManagerFromValues(sidePanelContext?.formValues?.DSSProperties) : [],
                                 paramFields: [
                                     {
                                         "type": "TextField",
@@ -121,16 +100,32 @@ const DataServiceCallForm = (props: AddMediatorProps) => {
                                         ]
                                     },
                                     {
-                                        "type": "TextField",
+                                        "type": "ExprField",
                                         "label": "Property Expression",
-                                        "defaultValue": "",
+                                        "defaultValue": {
+                                            "isExpression": true,
+                                            "value": ""
+                                        },
                                         "isRequired": false,
+                                        "canChange": false,
                                         "enableCondition": [
                                             {
                                                 "1": "EXPRESSION"
                                             }
-                                        ]
-                                    },
+                                        ], 
+                                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
+                                            const content = <ExpressionEditor
+                                                value={value}
+                                                handleOnSave={(value) => {
+                                                    setValue(value);
+                                                    handleOnCancelExprEditorRef.current();
+                                                }}
+                                                handleOnCancel={() => {
+                                                    handleOnCancelExprEditorRef.current();
+                                                }}
+                                            />;
+                                            sidepanelAddPage(sidePanelContext, content, "Expression Editor");
+                                        }},
                                 ]
                             },
                             openInDrawer: true,
@@ -139,16 +134,22 @@ const DataServiceCallForm = (props: AddMediatorProps) => {
                     },
                 ]
             },
-            targetType: sidePanelContext?.formValues?.targetType || "Default",
+            targetType: sidePanelContext?.formValues?.targetType || "BODY",
             targetProperty: sidePanelContext?.formValues?.targetProperty || "",
             description: sidePanelContext?.formValues?.description || "",
         });
         setIsLoading(false);
     }, [sidePanelContext.formValues]);
 
+    useEffect(() => {
+        handleOnCancelExprEditorRef.current = () => {
+            sidepanelGoBack(sidePanelContext);
+        };
+    }, [sidePanelContext.pageStack]);
+
     const onClick = async (values: any) => {
         
-        values["operations"] = values.operations.paramValues.map((param: any) => param.paramValues.map((p: any) => p.value));
+        values["operations"] = getParamManagerValues(values.operations);
         const xml = getXML(MEDIATORS.DATASERVICECALL, values, dirtyFields, sidePanelContext.formValues);
         if (Array.isArray(xml)) {
             for (let i = 0; i < xml.length; i++) {
@@ -184,23 +185,16 @@ const DataServiceCallForm = (props: AddMediatorProps) => {
 
                     <Field>
                         <Controller
-                            name="availableDataServices"
-                            control={control}
-                            render={({ field }) => (
-                                <AutoComplete label="Available Data Services" name="availableDataServices" items={["Select from available Data Services"]} value={field.value} onValueChange={(e: any) => {
-                                    field.onChange(e);
-                                }} />
-                            )}
-                        />
-                        {errors.availableDataServices && <Error>{errors.availableDataServices.message.toString()}</Error>}
-                    </Field>
-
-                    <Field>
-                        <Controller
                             name="serviceName"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Service Name" size={50} placeholder="" />
+                                <Keylookup
+                                    value={field.value}
+                                    filterType='dataService'
+                                    label="Data Service Name"
+                                    allowItemCreate={false}
+                                    onValueChange={field.onChange}
+                                />
                             )}
                         />
                         {errors.serviceName && <Error>{errors.serviceName.message.toString()}</Error>}

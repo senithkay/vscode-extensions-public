@@ -21,6 +21,9 @@ import { ArrayOutputNode, InputNode, ObjectOutputNode } from '../Diagram/Node';
 import { GAP_BETWEEN_INPUT_NODES, IO_NODE_DEFAULT_WIDTH, OFFSETS, VISUALIZER_PADDING } from '../Diagram/utils/constants';
 import { LinkConnectorNode } from '../Diagram/Node/LinkConnector';
 import { InputDataImportNodeModel, OutputDataImportNodeModel } from '../Diagram/Node/DataImport/DataImportNode';
+import { ArrayFnConnectorNode } from '../Diagram/Node/ArrayFnConnector';
+import { FocusedInputNode } from '../Diagram/Node/FocusedInput';
+import { PrimitiveOutputNode } from '../Diagram/Node/PrimitiveOutput';
 
 export const useRepositionedNodes = (nodes: DataMapperNodeModel[], zoomLevel: number, diagramModel: DiagramModel) => {
     const nodesClone = [...nodes];
@@ -32,13 +35,17 @@ export const useRepositionedNodes = (nodes: DataMapperNodeModel[], zoomLevel: nu
         const exisitingNode = diagramModel.getNodes().find(n => (n as DataMapperNodeModel).id === node.id);
         if (node instanceof ObjectOutputNode
             || node instanceof ArrayOutputNode
+            || node instanceof PrimitiveOutputNode
             || node instanceof OutputDataImportNodeModel
         ) {
             const x = (window.innerWidth - VISUALIZER_PADDING) * (100 / zoomLevel) - IO_NODE_DEFAULT_WIDTH;
             const y = exisitingNode && exisitingNode.getY() !== 0 ? exisitingNode.getY() : 0;
             node.setPosition(x, y);
         }
-        if (node instanceof InputNode || node instanceof InputDataImportNodeModel) {
+        if (node instanceof InputNode
+            || node instanceof FocusedInputNode
+            || node instanceof InputDataImportNodeModel
+        ) {
             const x = OFFSETS.SOURCE_NODE.X;
             const computedY = prevBottomY + (prevBottomY ? GAP_BETWEEN_INPUT_NODES : 0);
             let y = exisitingNode && exisitingNode.getY() !== 0 ? exisitingNode.getY() : computedY;
@@ -70,7 +77,8 @@ export const useDiagramModel = (
     const offSetY = diagramModel.getOffsetY();
     const noOfNodes = nodes.length;
     const context = nodes.find(node => node.context)?.context;
-	const fnSource = context ? context.functionST.getText() : undefined;
+	const focusedSrc = context ? context.focusedST.getText() : undefined;
+    const noOfViews = context ? context.views.length : 0;
     const collapsedFields = useDMCollapsedFieldsStore(state => state.collapsedFields); // Subscribe to collapsedFields
     const { inputSearch, outputSearch } = useDMSearchStore();
 
@@ -79,7 +87,7 @@ export const useDiagramModel = (
         newModel.setZoomLevel(zoomLevel);
         newModel.setOffset(offSetX, offSetY);
         const showInputFilterEmpty = !nodes.some(
-            node => node instanceof InputNode && node.getSearchFilteredType()
+            node => (node instanceof InputNode && node.getSearchFilteredType()) || node instanceof FocusedInputNode
         );
         if (showInputFilterEmpty) {
             const inputSearchNotFoundNode = new InputNode(undefined, undefined, true);
@@ -95,7 +103,7 @@ export const useDiagramModel = (
                 }
                 node.setModel(newModel);
                 await node.initPorts();
-                if (node instanceof LinkConnectorNode) {
+                if (node instanceof LinkConnectorNode || node instanceof ArrayFnConnectorNode) {
                     continue;
                 }
                 node.initLinks();
@@ -114,7 +122,7 @@ export const useDiagramModel = (
         isFetching,
         isError,
         refetch,
-    } = useQuery(['genModel', {noOfNodes, fnSource, inputSearch, outputSearch, collapsedFields, newZoomLevel: zoomLevel}], () => genModel(), {});
+    } = useQuery(['genModel', {noOfNodes, focusedSrc, noOfViews, inputSearch, outputSearch, collapsedFields, newZoomLevel: zoomLevel}], () => genModel(), {});
 
     return { updatedModel, isFetching, isError, refetch };
 };

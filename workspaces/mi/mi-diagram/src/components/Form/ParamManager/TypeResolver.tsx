@@ -9,7 +9,7 @@
 
 import React from "react";
 import { VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
-import { EnableCondition, ParamConfig, ParamManager } from "./ParamManager";
+import { EnableCondition, ParamConfig, ParamField, ParamManager } from "./ParamManager";
 import { ExpressionField, ExpressionFieldValue } from "../ExpressionField/ExpressionInput";
 import { AutoComplete, Dropdown, TextArea, TextField } from "@wso2-enterprise/ui-toolkit";
 import { FilterType, Keylookup } from "../Keylookup/Keylookup";
@@ -27,7 +27,7 @@ const ParamManagerContainer = styled.div`
 export interface Param {
     id: number;
     label: string;
-    type: "TextField" | "Dropdown" | "Checkbox" | "TextArea" | "ExprField" | "AutoComplete" | "KeyLookup"| "ParamManager";
+    type: "TextField" | "Dropdown" | "Checkbox" | "TextArea" | "ExprField" | "AutoComplete" | "KeyLookup" | "ParamManager";
     value: string | boolean | ExpressionFieldValue | ParamConfig; // Boolean is for Checkbox
     isRequired?: boolean;
     errorMessage?: string;
@@ -44,6 +44,7 @@ export interface Param {
     canChange?: boolean; // For ExpressionField
     openInDrawer?: boolean; // For ParamManager
     addParamText?: string; // For ParamManager
+    paramFields?: ParamField[]; // For ParamManager
 }
 
 interface TypeResolverProps {
@@ -53,7 +54,7 @@ interface TypeResolverProps {
 
 export function TypeResolver(props: TypeResolverProps) {
     const { param, onChange } = props;
-    const { id, label, type, value, isRequired, values, disabled, errorMessage, openExpressionEditor,
+    const { id, label, type, value, isRequired, values, disabled, errorMessage, openExpressionEditor, paramFields,
         canChange, allowItemCreate, noItemsFoundMessage, nullable, filter, filterType } = param;
 
     const handleOnChange = (newValue: string | boolean) => {
@@ -88,7 +89,7 @@ export function TypeResolver(props: TypeResolverProps) {
         case "Dropdown":
             return (
                 <Dropdown
-                    containerSx={{fontFamily: "var(--vscode-font-family)", fontSize: "var(--vscode-font-size)", marginBottom: 5}}
+                    containerSx={{ fontFamily: "var(--vscode-font-family)", fontSize: "var(--vscode-font-size)", marginBottom: 5 }}
                     id={`dropdown-${id}`}
                     label={label}
                     value={value as string}
@@ -108,14 +109,14 @@ export function TypeResolver(props: TypeResolverProps) {
                         onChange={handleCheckboxChange}
                         disabled={disabled}
                     >
-                        Is Required?
+                        {label || "Is Required?"}
                     </VSCodeCheckbox>
                 </div>
             );
         case "TextArea":
             return (
                 <TextArea
-                    sx={{marginBottom: 5}}
+                    sx={{ marginBottom: 5 }}
                     id={`txt-area-${id}`}
                     value={value as string}
                     disabled={disabled}
@@ -141,7 +142,7 @@ export function TypeResolver(props: TypeResolverProps) {
         case "AutoComplete":
             return (
                 <AutoComplete
-                    sx={{marginBottom: 5}}
+                    sx={{ marginBottom: 5 }}
                     id={`auto-complete-${id}`}
                     label={label}
                     value={value as string}
@@ -156,7 +157,7 @@ export function TypeResolver(props: TypeResolverProps) {
         case "KeyLookup":
             return (
                 <Keylookup
-                    sx={{marginBottom: 5}}
+                    sx={{ marginBottom: 5 }}
                     id={`key-lookup-${id}`}
                     label={label}
                     value={value as string}
@@ -172,27 +173,32 @@ export function TypeResolver(props: TypeResolverProps) {
         case "ParamManager":
             return (
                 param.openInDrawer ?
-                (
-                    <ParamManager
-                        paramConfigs={value as ParamConfig}
-                        onChange={(newParams: ParamConfig) => {
-                            onChange({ ...param, value: newParams });
-                        }}
-                        openInDrawer={param.openInDrawer}
-                        addParamText={param.addParamText}
-                    />
-                ) : (
-                    <ParamManagerContainer>
+                    (
                         <ParamManager
-                            paramConfigs={value as ParamConfig}
+                            paramConfigs={
+                                {
+                                    ...value as ParamConfig,
+                                    paramFields: paramFields
+                                }
+                            }
                             onChange={(newParams: ParamConfig) => {
                                 onChange({ ...param, value: newParams });
                             }}
                             openInDrawer={param.openInDrawer}
                             addParamText={param.addParamText}
                         />
-                    </ParamManagerContainer>
-                )
+                    ) : (
+                        <ParamManagerContainer>
+                            <ParamManager
+                                paramConfigs={value as ParamConfig}
+                                onChange={(newParams: ParamConfig) => {
+                                    onChange({ ...param, value: newParams });
+                                }}
+                                openInDrawer={param.openInDrawer}
+                                addParamText={param.addParamText}
+                            />
+                        </ParamManagerContainer>
+                    )
             );
         default:
             return null;

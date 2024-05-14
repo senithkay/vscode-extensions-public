@@ -212,8 +212,9 @@
             "value": {
               "name": "sequenceKey",
               "displayName": "Sequence Key",
-              "inputType": "registry",
-              "defaultValue": "registry",
+              "inputType": "key",
+              "keyType": "sequence",
+              "defaultValue": "",
               "required": false,
               "helpTip": "",
               "enableCondition": [

@@ -23,14 +23,14 @@ import { DMTypeWithValue } from "../../Mappings/DMTypeWithValue";
 import { DataMapperPortWidget, PortState, InputOutputPortModel } from "../../Port";
 import { OutputSearchHighlight } from "../commons/Search";
 import { ObjectOutputFieldWidget } from "../ObjectOutput/ObjectOutputFieldWidget";
-import { ValueConfigMenu, ValueConfigOption } from "../commons/DataManipulationWidget/ValueConfigButton";
-import { ValueConfigMenuItem } from "../commons/DataManipulationWidget/ValueConfigButton/ValueConfigMenuItem";
+import { ValueConfigMenu, ValueConfigOption } from "../commons/ValueConfigButton";
+import { ValueConfigMenuItem } from "../commons/ValueConfigButton/ValueConfigMenuItem";
 import { getDiagnostics } from "../../utils/diagnostics-utils";
 import { getDefaultValue, getEditorLineAndColumn, getTypeName, isConnectedViaLink } from "../../utils/common-utils";
 import { DiagnosticTooltip } from "../../Diagnostic/DiagnosticTooltip";
 import { TreeBody } from "../commons/Tree/Tree";
 import { createSourceForUserInput } from "../../utils/modification-utils";
-import { PrimitiveTypeOutputElementWidget } from "../commons/DataManipulationWidget/PrimitiveTypeOutputElementWidget";
+import { PrimitiveOutputElementWidget } from "../PrimitiveOutput/PrimitiveOutputElementWidget";
 
 export interface ArrayOutputFieldWidgetProps {
     parentId: string;
@@ -102,13 +102,22 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
         indentation += 24;
     }
 
+    const propertyAssignment = field.hasValue()
+        && !field.value.wasForgotten()
+        && Node.isPropertyAssignment(field.value)
+        && field.value;
+    const value: string = hasValue && propertyAssignment && propertyAssignment.getInitializer().getText();
+    const hasDefaultValue = value && getDefaultValue(field.type.kind) === value.trim();
     let isDisabled = portIn.descendantHasValue;
-    if (!isDisabled) {
+
+    if (!isDisabled && !hasDefaultValue) {
         if (arrayLitExpr && expanded && portIn.parentModel) {
             portIn.setDescendantHasValue();
             isDisabled = true;
         }
-        if (portIn.parentModel && (Object.entries(portIn.parentModel.links).length > 0 || portIn.parentModel.ancestorHasValue)) {
+        if (portIn.parentModel
+            && (Object.entries(portIn.parentModel.links).length > 0 || portIn.parentModel.ancestorHasValue)
+        ) {
             portIn.ancestorHasValue = true;
             isDisabled = true;
         }
@@ -235,7 +244,7 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
                     }
                 }
                 return (
-                    <PrimitiveTypeOutputElementWidget
+                    <PrimitiveOutputElementWidget
                         parentId={fieldId}
                         field={element.member}
                         engine={engine}

@@ -68,7 +68,9 @@ import {
     Connector,
     DiagramService,
     ProxyTarget,
-    Target
+    Target,
+    DbMediator,
+    Rewrite
 } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { NodeLinkModel } from "../components/NodeLink/NodeLinkModel";
 import { MediatorNodeModel } from "../components/nodes/MediatorNode/MediatorNodeModel";
@@ -176,7 +178,7 @@ export class NodeFactoryVisitor implements Visitor {
                 diagramNode = new PlusNodeModel(node, name, this.documentUri);
                 break;
             case NodeTypes.CONNECTOR_NODE:
-                diagramNode = new ConnectorNodeModel(node, name, this.documentUri);
+                diagramNode = new ConnectorNodeModel(node, name, this.documentUri, this.parents[this.parents.length - 1], this.previousSTNodes);
                 break;
             case NodeTypes.DATAMAPPER_NODE:
                 diagramNode = new DataMapperNodeModel(node, name, this.documentUri, this.parents[this.parents.length - 1], this.previousSTNodes);
@@ -605,7 +607,11 @@ export class NodeFactoryVisitor implements Visitor {
 
     // Connectors
     beginVisitConnector(node: Connector): void {
+        this.skipChildrenVisit = true;
         this.createNodeAndLinks({ node, name: node.connectorName, type: NodeTypes.CONNECTOR_NODE });
+    }
+    endVisitConnector(node: Connector): void {
+        this.skipChildrenVisit = false;
     }
 
     beginVisitDataServiceCall = (node: DataServiceCall): void => this.createNodeAndLinks({ node, name: MEDIATORS.DATASERVICECALL });
@@ -904,6 +910,33 @@ export class NodeFactoryVisitor implements Visitor {
     }
 
     endVisitXslt(node: Xslt): void {
+        this.skipChildrenVisit = false;
+    }
+
+    beginVisitDblookup(node: DbMediator): void {
+        this.createNodeAndLinks({ node, name: MEDIATORS.DBLOOKUP });
+        this.skipChildrenVisit = true;
+    }
+
+    endVisitDblookup(node: DbMediator): void {
+        this.skipChildrenVisit = false;
+    }
+
+    beginVisitDbreport(node: DbMediator): void {
+        this.createNodeAndLinks({ node, name: MEDIATORS.DBREPORT });
+        this.skipChildrenVisit = true;
+    }
+
+    endVisitDbreport(node: DbMediator): void {
+        this.skipChildrenVisit = false;
+    }
+
+    beginVisitRewrite(node: Rewrite): void {
+        this.createNodeAndLinks({ node, name: MEDIATORS.REWRITE });
+        this.skipChildrenVisit = true;
+    }
+
+    endVisitRewrite(node: Rewrite): void {
         this.skipChildrenVisit = false;
     }
 

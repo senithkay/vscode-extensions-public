@@ -8,18 +8,20 @@
 */
 // AUTO-GENERATED FILE. DO NOT MODIFY.
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Button, ComponentCard, ProgressIndicator, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
 import { VSCodeCheckbox } from '@vscode/webview-ui-toolkit/react';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
-import { AddMediatorProps } from '../common';
+import { AddMediatorProps, getParamManagerValues, getParamManagerFromValues } from '../common';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
 import { MEDIATORS } from '../../../../../resources/constants';
 import { Controller, useForm } from 'react-hook-form';
 import { ExpressionFieldValue } from '../../../../Form/ExpressionField/ExpressionInput';
-import { ParamManager, ParamConfig, ParamValue } from '../../../../Form/ParamManager/ParamManager';
+import { ParamManager, ParamValue } from '../../../../Form/ParamManager/ParamManager';
+import { sidepanelAddPage, sidepanelGoBack } from '../../..';
+import ExpressionEditor from '../../../expressionEditor/ExpressionEditor';
 
 const cardStyle = { 
     display: "block",
@@ -42,6 +44,7 @@ const PublishEventForm = (props: AddMediatorProps) => {
     const { rpcClient } = useVisualizerContext();
     const sidePanelContext = React.useContext(SidePanelContext);
     const [ isLoading, setIsLoading ] = React.useState(true);
+    const handleOnCancelExprEditorRef = useRef(() => { });
 
     const { control, formState: { errors, dirtyFields }, handleSubmit, watch, reset } = useForm();
 
@@ -53,22 +56,7 @@ const PublishEventForm = (props: AddMediatorProps) => {
             async: sidePanelContext?.formValues?.async || "",
             asyncTimeout: sidePanelContext?.formValues?.asyncTimeout || "",
             metaAttributes: {
-                paramValues: sidePanelContext?.formValues?.metaAttributes && sidePanelContext?.formValues?.metaAttributes.map((property: (string | ExpressionFieldValue | ParamConfig)[], index: string) => (
-                    {
-                        id: index,
-                        key: property[0],
-                        value:  property[3],
-                        icon: 'query',
-                        paramValues: [
-                            { value: property[0] },
-                            { value: property[1] },
-                            { value: property[2] },
-                            { value: property[3] },
-                            { value: property[4] },
-                            { value: property[5] },
-                        ]
-                    }
-                )) || [] as string[][],
+                paramValues: sidePanelContext?.formValues?.metaAttributes ? getParamManagerFromValues(sidePanelContext?.formValues?.metaAttributes) : [],
                 paramFields: [
                     {
                         "type": "TextField",
@@ -112,16 +100,32 @@ const PublishEventForm = (props: AddMediatorProps) => {
                         ]
                     },
                     {
-                        "type": "TextField",
+                        "type": "ExprField",
                         "label": "Attribute Expression",
-                        "defaultValue": "",
+                        "defaultValue": {
+                            "isExpression": true,
+                            "value": ""
+                        },
                         "isRequired": false,
+                        "canChange": false,
                         "enableCondition": [
                             {
                                 "1": "EXPRESSION"
                             }
-                        ]
-                    },
+                        ], 
+                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
+                            const content = <ExpressionEditor
+                                value={value}
+                                handleOnSave={(value) => {
+                                    setValue(value);
+                                    handleOnCancelExprEditorRef.current();
+                                }}
+                                handleOnCancel={() => {
+                                    handleOnCancelExprEditorRef.current();
+                                }}
+                            />;
+                            sidepanelAddPage(sidePanelContext, content, "Expression Editor");
+                        }},
                     {
                         "type": "TextField",
                         "label": "Default Value",
@@ -131,22 +135,7 @@ const PublishEventForm = (props: AddMediatorProps) => {
                 ]
             },
             correlationAttributes: {
-                paramValues: sidePanelContext?.formValues?.correlationAttributes && sidePanelContext?.formValues?.correlationAttributes.map((property: (string | ExpressionFieldValue | ParamConfig)[], index: string) => (
-                    {
-                        id: index,
-                        key: property[0],
-                        value:  property[3],
-                        icon: 'query',
-                        paramValues: [
-                            { value: property[0] },
-                            { value: property[1] },
-                            { value: property[2] },
-                            { value: property[3] },
-                            { value: property[4] },
-                            { value: property[5] },
-                        ]
-                    }
-                )) || [] as string[][],
+                paramValues: sidePanelContext?.formValues?.correlationAttributes ? getParamManagerFromValues(sidePanelContext?.formValues?.correlationAttributes) : [],
                 paramFields: [
                     {
                         "type": "TextField",
@@ -190,16 +179,32 @@ const PublishEventForm = (props: AddMediatorProps) => {
                         ]
                     },
                     {
-                        "type": "TextField",
+                        "type": "ExprField",
                         "label": "Attribute Expression",
-                        "defaultValue": "",
+                        "defaultValue": {
+                            "isExpression": true,
+                            "value": ""
+                        },
                         "isRequired": false,
+                        "canChange": false,
                         "enableCondition": [
                             {
                                 "1": "EXPRESSION"
                             }
-                        ]
-                    },
+                        ], 
+                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
+                            const content = <ExpressionEditor
+                                value={value}
+                                handleOnSave={(value) => {
+                                    setValue(value);
+                                    handleOnCancelExprEditorRef.current();
+                                }}
+                                handleOnCancel={() => {
+                                    handleOnCancelExprEditorRef.current();
+                                }}
+                            />;
+                            sidepanelAddPage(sidePanelContext, content, "Expression Editor");
+                        }},
                     {
                         "type": "TextField",
                         "label": "Default Value",
@@ -209,22 +214,7 @@ const PublishEventForm = (props: AddMediatorProps) => {
                 ]
             },
             payloadAttributes: {
-                paramValues: sidePanelContext?.formValues?.payloadAttributes && sidePanelContext?.formValues?.payloadAttributes.map((property: (string | ExpressionFieldValue | ParamConfig)[], index: string) => (
-                    {
-                        id: index,
-                        key: property[0],
-                        value:  property[3],
-                        icon: 'query',
-                        paramValues: [
-                            { value: property[0] },
-                            { value: property[1] },
-                            { value: property[2] },
-                            { value: property[3] },
-                            { value: property[4] },
-                            { value: property[5] },
-                        ]
-                    }
-                )) || [] as string[][],
+                paramValues: sidePanelContext?.formValues?.payloadAttributes ? getParamManagerFromValues(sidePanelContext?.formValues?.payloadAttributes) : [],
                 paramFields: [
                     {
                         "type": "TextField",
@@ -268,16 +258,32 @@ const PublishEventForm = (props: AddMediatorProps) => {
                         ]
                     },
                     {
-                        "type": "TextField",
+                        "type": "ExprField",
                         "label": "Attribute Expression",
-                        "defaultValue": "",
+                        "defaultValue": {
+                            "isExpression": true,
+                            "value": ""
+                        },
                         "isRequired": false,
+                        "canChange": false,
                         "enableCondition": [
                             {
                                 "1": "EXPRESSION"
                             }
-                        ]
-                    },
+                        ], 
+                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
+                            const content = <ExpressionEditor
+                                value={value}
+                                handleOnSave={(value) => {
+                                    setValue(value);
+                                    handleOnCancelExprEditorRef.current();
+                                }}
+                                handleOnCancel={() => {
+                                    handleOnCancelExprEditorRef.current();
+                                }}
+                            />;
+                            sidepanelAddPage(sidePanelContext, content, "Expression Editor");
+                        }},
                     {
                         "type": "TextField",
                         "label": "Default Value",
@@ -287,22 +293,7 @@ const PublishEventForm = (props: AddMediatorProps) => {
                 ]
             },
             arbitaryAttributes: {
-                paramValues: sidePanelContext?.formValues?.arbitaryAttributes && sidePanelContext?.formValues?.arbitaryAttributes.map((property: (string | ExpressionFieldValue | ParamConfig)[], index: string) => (
-                    {
-                        id: index,
-                        key: property[0],
-                        value:  property[3],
-                        icon: 'query',
-                        paramValues: [
-                            { value: property[0] },
-                            { value: property[1] },
-                            { value: property[2] },
-                            { value: property[3] },
-                            { value: property[4] },
-                            { value: property[5] },
-                        ]
-                    }
-                )) || [] as string[][],
+                paramValues: sidePanelContext?.formValues?.arbitaryAttributes ? getParamManagerFromValues(sidePanelContext?.formValues?.arbitaryAttributes) : [],
                 paramFields: [
                     {
                         "type": "TextField",
@@ -346,16 +337,32 @@ const PublishEventForm = (props: AddMediatorProps) => {
                         ]
                     },
                     {
-                        "type": "TextField",
+                        "type": "ExprField",
                         "label": "Attribute Expression",
-                        "defaultValue": "",
+                        "defaultValue": {
+                            "isExpression": true,
+                            "value": ""
+                        },
                         "isRequired": false,
+                        "canChange": false,
                         "enableCondition": [
                             {
                                 "1": "EXPRESSION"
                             }
-                        ]
-                    },
+                        ], 
+                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
+                            const content = <ExpressionEditor
+                                value={value}
+                                handleOnSave={(value) => {
+                                    setValue(value);
+                                    handleOnCancelExprEditorRef.current();
+                                }}
+                                handleOnCancel={() => {
+                                    handleOnCancelExprEditorRef.current();
+                                }}
+                            />;
+                            sidepanelAddPage(sidePanelContext, content, "Expression Editor");
+                        }},
                     {
                         "type": "TextField",
                         "label": "Default Value",
@@ -369,12 +376,18 @@ const PublishEventForm = (props: AddMediatorProps) => {
         setIsLoading(false);
     }, [sidePanelContext.formValues]);
 
+    useEffect(() => {
+        handleOnCancelExprEditorRef.current = () => {
+            sidepanelGoBack(sidePanelContext);
+        };
+    }, [sidePanelContext.pageStack]);
+
     const onClick = async (values: any) => {
         
-        values["metaAttributes"] = values.metaAttributes.paramValues.map((param: any) => param.paramValues.map((p: any) => p.value));
-        values["correlationAttributes"] = values.correlationAttributes.paramValues.map((param: any) => param.paramValues.map((p: any) => p.value));
-        values["payloadAttributes"] = values.payloadAttributes.paramValues.map((param: any) => param.paramValues.map((p: any) => p.value));
-        values["arbitaryAttributes"] = values.arbitaryAttributes.paramValues.map((param: any) => param.paramValues.map((p: any) => p.value));
+        values["metaAttributes"] = getParamManagerValues(values.metaAttributes);
+        values["correlationAttributes"] = getParamManagerValues(values.correlationAttributes);
+        values["payloadAttributes"] = getParamManagerValues(values.payloadAttributes);
+        values["arbitaryAttributes"] = getParamManagerValues(values.arbitaryAttributes);
         const xml = getXML(MEDIATORS.PUBLISHEVENT, values, dirtyFields, sidePanelContext.formValues);
         if (Array.isArray(xml)) {
             for (let i = 0; i < xml.length; i++) {

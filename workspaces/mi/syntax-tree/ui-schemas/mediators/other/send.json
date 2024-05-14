@@ -1,6 +1,6 @@
 {
     "name": "send",
-    "type":"mediator",
+    "type": "mediator",
     "title": "Send Mediator",
     "help": "Invokes external service in non-blocking mode.",
     "elements": [
@@ -18,6 +18,22 @@
                             "defaultValue": false,
                             "required": false,
                             "helpTip": ""
+                        }
+                    },
+                    {
+                        "type": "attribute",
+                        "value": {
+                            "name": "endpoint",
+                            "displayName": "Select Endpoint",
+                            "inputType": "comboOrKey",
+                            "required": true,
+                            "keyType": "endpoint",
+                            "helpTip": "Choose an existing endpoint, or specify a new one",
+                            "enableCondition": [
+                                {
+                                    "skipSerialization": false
+                                }
+                            ]
                         }
                     },
                     {
@@ -62,7 +78,8 @@
                                     "value": {
                                         "name": "staticReceivingSequence",
                                         "displayName": "Static Receiving Sequence",
-                                        "inputType": "stringOrExpression",
+                                        "inputType": "key",
+                                        "keyType": "sequence",
                                         "defaultValue": "",
                                         "required": false,
                                         "helpTip": "",
@@ -78,7 +95,7 @@
                                     "value": {
                                         "name": "dynamicReceivingSequence",
                                         "displayName": "Dynamic Receiving Sequence",
-                                        "inputType": "stringOrExpression",
+                                        "inputType": "expression",
                                         "defaultValue": "",
                                         "required": false,
                                         "helpTip": "",

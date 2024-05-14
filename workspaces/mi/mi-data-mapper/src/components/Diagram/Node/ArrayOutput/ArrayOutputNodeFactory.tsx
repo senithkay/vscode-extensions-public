@@ -14,7 +14,7 @@ import { Node } from 'ts-morph';
 
 import { InputOutputPortModel } from '../../Port';
 import { ARRAY_OUTPUT_TARGET_PORT_PREFIX } from '../../utils/constants';
-import { ArrayTypeOutputWidget } from "./ArrayOutputWidget";
+import { ArrayOutputWidget } from "./ArrayOutputWidget";
 import { OutputSearchNoResultFound, SearchNoResultFoundKind } from "../commons/Search";
 
 import { ArrayOutputNode, ARRAY_OUTPUT_NODE_TYPE } from './ArrayOutputNode';
@@ -30,7 +30,7 @@ export class ArrayOutputNodeFactory extends AbstractReactFactory<ArrayOutputNode
 				{event.model.hasNoMatchingFields ? (
 					<OutputSearchNoResultFound kind={SearchNoResultFoundKind.OutputField} />
 				) : (
-					<ArrayTypeOutputWidget
+					<ArrayOutputWidget
 						engine={this.engine}
 						id={`${ARRAY_OUTPUT_TARGET_PORT_PREFIX}${event.model.rootName ? `.${event.model.rootName}` : ''}`}
 						dmTypeWithValue={event.model.dmTypeWithValue}

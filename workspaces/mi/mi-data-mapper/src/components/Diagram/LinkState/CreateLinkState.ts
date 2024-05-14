@@ -12,10 +12,10 @@ import { Action, ActionEvent, InputType, State } from '@projectstorm/react-canva
 import { DiagramEngine, LinkModel, PortModel } from '@projectstorm/react-diagrams-core';
 
 import { ExpressionLabelModel } from "../Label";
-import { ObjectOutputNode, InputNode, LinkConnectorNode, ArrayOutputNode } from '../Node';
+import { LinkConnectorNode } from '../Node';
 import { InputOutputPortModel } from '../Port/model/InputOutputPortModel';
 import { IntermediatePortModel } from '../Port/IntermediatePort';
-
+import { isInputNode, isOutputNode } from '../Actions/utils';
 /**
  * This state is controlling the creation of a link.
  */
@@ -33,22 +33,22 @@ export class CreateLinkState extends State<DiagramEngine> {
 					let element = this.engine.getActionEventBus().getModelForEvent(actionEvent);
 
 					if (!(element instanceof PortModel)) {
-						if (element instanceof ArrayOutputNode || element instanceof ObjectOutputNode) {
-							const recordFieldElement = (event.target as Element).closest('div[id^="recordfield"]')
+						if (isOutputNode(element)) {
+							const recordFieldElement = (event.target as Element).closest('div[id^="recordfield"]');
 							if (recordFieldElement) {
 								const fieldId = (recordFieldElement.id.split("-"))[1] + ".IN";
-								const portModel = element.getPort(fieldId) as InputOutputPortModel
+								const portModel = (element as any).getPort(fieldId) as InputOutputPortModel;
 								if (portModel) {
 									element = portModel;
 								}
 							}
 						}
 
-						if (element instanceof InputNode) {
-							const recordFieldElement = (event.target as Element).closest('div[id^="recordfield"]')
+						if (isInputNode(element)) {
+							const recordFieldElement = (event.target as Element).closest('div[id^="recordfield"]');
 							if (recordFieldElement) {
 								const fieldId = (recordFieldElement.id.split("-"))[1] + ".OUT";
-								const portModel = element.getPort(fieldId) as InputOutputPortModel
+								const portModel = (element as any).getPort(fieldId) as InputOutputPortModel;
 								if (portModel) {
 									element = portModel;
 								}

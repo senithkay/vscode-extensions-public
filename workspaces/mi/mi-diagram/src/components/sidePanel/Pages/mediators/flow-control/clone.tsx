@@ -8,18 +8,18 @@
 */
 // AUTO-GENERATED FILE. DO NOT MODIFY.
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Button, ComponentCard, ProgressIndicator, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
 import { VSCodeCheckbox } from '@vscode/webview-ui-toolkit/react';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
-import { AddMediatorProps } from '../common';
+import { AddMediatorProps, getParamManagerValues, getParamManagerFromValues } from '../common';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
 import { MEDIATORS } from '../../../../../resources/constants';
 import { Controller, useForm } from 'react-hook-form';
-import { ExpressionFieldValue } from '../../../../Form/ExpressionField/ExpressionInput';
-import { ParamManager, ParamConfig, ParamValue } from '../../../../Form/ParamManager/ParamManager';
+import { ParamManager, ParamValue } from '../../../../Form/ParamManager/ParamManager';
+import { sidepanelGoBack } from '../../..';
 
 const cardStyle = { 
     display: "block",
@@ -42,6 +42,7 @@ const CloneForm = (props: AddMediatorProps) => {
     const { rpcClient } = useVisualizerContext();
     const sidePanelContext = React.useContext(SidePanelContext);
     const [ isLoading, setIsLoading ] = React.useState(true);
+    const handleOnCancelExprEditorRef = useRef(() => { });
 
     const { control, formState: { errors, dirtyFields }, handleSubmit, watch, reset } = useForm();
 
@@ -51,22 +52,7 @@ const CloneForm = (props: AddMediatorProps) => {
             sequentialMediation: sidePanelContext?.formValues?.sequentialMediation || false,
             continueParent: sidePanelContext?.formValues?.continueParent || false,
             targets: {
-                paramValues: sidePanelContext?.formValues?.targets && sidePanelContext?.formValues?.targets.map((property: (string | ExpressionFieldValue | ParamConfig)[], index: string) => (
-                    {
-                        id: index,
-                        key: property[0],
-                        value:  property[2],
-                        icon: 'query',
-                        paramValues: [
-                            { value: property[0] },
-                            { value: property[1] },
-                            { value: property[2] },
-                            { value: property[3] },
-                            { value: property[4] },
-                            { value: property[5] },
-                        ]
-                    }
-                )) || [] as string[][],
+                paramValues: sidePanelContext?.formValues?.targets ? getParamManagerFromValues(sidePanelContext?.formValues?.targets) : [],
                 paramFields: [
                     {
                         "type": "Dropdown",
@@ -80,10 +66,11 @@ const CloneForm = (props: AddMediatorProps) => {
                         ]
                     },
                     {
-                        "type": "TextField",
+                        "type": "KeyLookup",
                         "label": "Sequence Registry Key",
                         "defaultValue": "",
                         "isRequired": false,
+                        "filterType": "sequence",
                         "enableCondition": [
                             {
                                 "0": "REGISTRY_REFERENCE"
@@ -102,10 +89,11 @@ const CloneForm = (props: AddMediatorProps) => {
                         ]
                     },
                     {
-                        "type": "TextField",
+                        "type": "KeyLookup",
                         "label": "Endpoint Registry Key",
                         "defaultValue": "",
                         "isRequired": false,
+                        "filterType": "endpoint",
                         "enableCondition": [
                             {
                                 "2": "REGISTRY_REFERENCE"
@@ -131,9 +119,15 @@ const CloneForm = (props: AddMediatorProps) => {
         setIsLoading(false);
     }, [sidePanelContext.formValues]);
 
+    useEffect(() => {
+        handleOnCancelExprEditorRef.current = () => {
+            sidepanelGoBack(sidePanelContext);
+        };
+    }, [sidePanelContext.pageStack]);
+
     const onClick = async (values: any) => {
         
-        values["targets"] = values.targets.paramValues.map((param: any) => param.paramValues.map((p: any) => p.value));
+        values["targets"] = getParamManagerValues(values.targets);
         const xml = getXML(MEDIATORS.CLONE, values, dirtyFields, sidePanelContext.formValues);
         if (Array.isArray(xml)) {
             for (let i = 0; i < xml.length; i++) {

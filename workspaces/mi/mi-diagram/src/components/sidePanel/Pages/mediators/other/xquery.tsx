@@ -8,17 +8,20 @@
 */
 // AUTO-GENERATED FILE. DO NOT MODIFY.
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { AutoComplete, Button, ComponentCard, ProgressIndicator, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
-import { AddMediatorProps } from '../common';
+import { AddMediatorProps, getParamManagerValues, getParamManagerFromValues } from '../common';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
 import { MEDIATORS } from '../../../../../resources/constants';
 import { Controller, useForm } from 'react-hook-form';
+import { Keylookup } from '../../../../Form';
 import { ExpressionField, ExpressionFieldValue } from '../../../../Form/ExpressionField/ExpressionInput';
-import { ParamManager, ParamConfig, ParamValue } from '../../../../Form/ParamManager/ParamManager';
+import { ParamManager, ParamValue } from '../../../../Form/ParamManager/ParamManager';
+import { sidepanelAddPage, sidepanelGoBack } from '../../..';
+import ExpressionEditor from '../../../expressionEditor/ExpressionEditor';
 
 const cardStyle = { 
     display: "block",
@@ -41,6 +44,7 @@ const XQueryForm = (props: AddMediatorProps) => {
     const { rpcClient } = useVisualizerContext();
     const sidePanelContext = React.useContext(SidePanelContext);
     const [ isLoading, setIsLoading ] = React.useState(true);
+    const handleOnCancelExprEditorRef = useRef(() => { });
 
     const { control, formState: { errors, dirtyFields }, handleSubmit, watch, reset } = useForm();
 
@@ -51,22 +55,7 @@ const XQueryForm = (props: AddMediatorProps) => {
             dynamicScriptKey: sidePanelContext?.formValues?.dynamicScriptKey || {"isExpression":true,"value":""},
             targetXPath: sidePanelContext?.formValues?.targetXPath || {"isExpression":true,"value":""},
             variables: {
-                paramValues: sidePanelContext?.formValues?.variables && sidePanelContext?.formValues?.variables.map((property: (string | ExpressionFieldValue | ParamConfig)[], index: string) => (
-                    {
-                        id: index,
-                        key: property[0],
-                        value:  property[3],
-                        icon: 'query',
-                        paramValues: [
-                            { value: property[0] },
-                            { value: property[1] },
-                            { value: property[2] },
-                            { value: property[3] },
-                            { value: property[4] },
-                            { value: property[5] },
-                        ]
-                    }
-                )) || [] as string[][],
+                paramValues: sidePanelContext?.formValues?.variables ? getParamManagerFromValues(sidePanelContext?.formValues?.variables) : [],
                 paramFields: [
                     {
                         "type": "TextField",
@@ -116,16 +105,32 @@ const XQueryForm = (props: AddMediatorProps) => {
                         ]
                     },
                     {
-                        "type": "TextField",
+                        "type": "ExprField",
                         "label": "Variable Expression",
-                        "defaultValue": "",
+                        "defaultValue": {
+                            "isExpression": true,
+                            "value": ""
+                        },
                         "isRequired": false,
+                        "canChange": false,
                         "enableCondition": [
                             {
                                 "2": "EXPRESSION"
                             }
-                        ]
-                    },
+                        ], 
+                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
+                            const content = <ExpressionEditor
+                                value={value}
+                                handleOnSave={(value) => {
+                                    setValue(value);
+                                    handleOnCancelExprEditorRef.current();
+                                }}
+                                handleOnCancel={() => {
+                                    handleOnCancelExprEditorRef.current();
+                                }}
+                            />;
+                            sidepanelAddPage(sidePanelContext, content, "Expression Editor");
+                        }},
                     {
                         "type": "TextField",
                         "label": "Variable Key",
@@ -139,9 +144,15 @@ const XQueryForm = (props: AddMediatorProps) => {
         setIsLoading(false);
     }, [sidePanelContext.formValues]);
 
+    useEffect(() => {
+        handleOnCancelExprEditorRef.current = () => {
+            sidepanelGoBack(sidePanelContext);
+        };
+    }, [sidePanelContext.pageStack]);
+
     const onClick = async (values: any) => {
         
-        values["variables"] = values.variables.paramValues.map((param: any) => param.paramValues.map((p: any) => p.value));
+        values["variables"] = getParamManagerValues(values.variables);
         const xml = getXML(MEDIATORS.XQUERY, values, dirtyFields, sidePanelContext.formValues);
         if (Array.isArray(xml)) {
             for (let i = 0; i < xml.length; i++) {
@@ -194,7 +205,13 @@ const XQueryForm = (props: AddMediatorProps) => {
                             name="staticScriptKey"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Static Script Key" size={50} placeholder="" />
+                                <Keylookup
+                                    value={field.value}
+                                    filterType='registry'
+                                    label="Static Script Key"
+                                    allowItemCreate={false}
+                                    onValueChange={field.onChange}
+                                />
                             )}
                         />
                         {errors.staticScriptKey && <Error>{errors.staticScriptKey.message.toString()}</Error>}
@@ -212,14 +229,17 @@ const XQueryForm = (props: AddMediatorProps) => {
                                     placeholder=""
                                     canChange={false}
                                     openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => {
-                                        sidePanelContext.setSidePanelState({
-                                            ...sidePanelContext,
-                                            expressionEditor: {
-                                                isOpen: true,
-                                                value,
-                                                setValue
-                                            }
-                                        });
+                                        const content = <ExpressionEditor
+                                            value={value}
+                                            handleOnSave={(value) => {
+                                                setValue(value);
+                                                handleOnCancelExprEditorRef.current();
+                                            }}
+                                            handleOnCancel={() => {
+                                                handleOnCancelExprEditorRef.current();
+                                            }}
+                                        />;
+                                        sidepanelAddPage(sidePanelContext, content, "Expression Editor");
                                     }}
                                 />
                             )}
@@ -238,14 +258,17 @@ const XQueryForm = (props: AddMediatorProps) => {
                                     placeholder=""
                                     canChange={false}
                                     openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => {
-                                        sidePanelContext.setSidePanelState({
-                                            ...sidePanelContext,
-                                            expressionEditor: {
-                                                isOpen: true,
-                                                value,
-                                                setValue
-                                            }
-                                        });
+                                        const content = <ExpressionEditor
+                                            value={value}
+                                            handleOnSave={(value) => {
+                                                setValue(value);
+                                                handleOnCancelExprEditorRef.current();
+                                            }}
+                                            handleOnCancel={() => {
+                                                handleOnCancelExprEditorRef.current();
+                                            }}
+                                        />;
+                                        sidepanelAddPage(sidePanelContext, content, "Expression Editor");
                                     }}
                                 />
                             )}

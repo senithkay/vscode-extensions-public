@@ -8,17 +8,19 @@
 */
 // AUTO-GENERATED FILE. DO NOT MODIFY.
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { AutoComplete, Button, ComponentCard, ProgressIndicator, TextField, TextArea, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
-import { AddMediatorProps } from '../common';
+import { AddMediatorProps, getParamManagerValues, getParamManagerFromValues } from '../common';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
 import { MEDIATORS } from '../../../../../resources/constants';
 import { Controller, useForm } from 'react-hook-form';
 import { ExpressionFieldValue } from '../../../../Form/ExpressionField/ExpressionInput';
-import { ParamManager, ParamConfig, ParamValue } from '../../../../Form/ParamManager/ParamManager';
+import { ParamManager, ParamValue } from '../../../../Form/ParamManager/ParamManager';
+import { sidepanelAddPage, sidepanelGoBack } from '../../..';
+import ExpressionEditor from '../../../expressionEditor/ExpressionEditor';
 
 const cardStyle = { 
     display: "block",
@@ -41,6 +43,7 @@ const PayloadForm = (props: AddMediatorProps) => {
     const { rpcClient } = useVisualizerContext();
     const sidePanelContext = React.useContext(SidePanelContext);
     const [ isLoading, setIsLoading ] = React.useState(true);
+    const handleOnCancelExprEditorRef = useRef(() => { });
 
     const { control, formState: { errors, dirtyFields }, handleSubmit, watch, reset } = useForm();
 
@@ -52,19 +55,7 @@ const PayloadForm = (props: AddMediatorProps) => {
             payloadKey: sidePanelContext?.formValues?.payloadKey || "",
             payload: sidePanelContext?.formValues?.payload || "{\"Sample\":\"Payload\"}",
             args: {
-                paramValues: sidePanelContext?.formValues?.args && sidePanelContext?.formValues?.args.map((property: (string | ExpressionFieldValue | ParamConfig)[], index: string) => (
-                    {
-                        id: index,
-                        key: index,
-                        value:  (property[0] as ExpressionFieldValue).value,
-                        icon: 'query',
-                        paramValues: [
-                            { value: property[0] },
-                            { value: property[1] },
-                            { value: property[2] },
-                        ]
-                    }
-                )) || [] as string[][],
+                paramValues: sidePanelContext?.formValues?.args ? getParamManagerFromValues(sidePanelContext?.formValues?.args) : [],
                 paramFields: [
                     {
                         "type": "ExprField",
@@ -76,14 +67,17 @@ const PayloadForm = (props: AddMediatorProps) => {
                         "isRequired": false,
                         "canChange": true, 
                         openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                            sidePanelContext.setSidePanelState({
-                                ...sidePanelContext,
-                                expressionEditor: {
-                                    isOpen: true,
-                                    value,
-                                    setValue
-                                }
-                            });
+                            const content = <ExpressionEditor
+                                value={value}
+                                handleOnSave={(value) => {
+                                    setValue(value);
+                                    handleOnCancelExprEditorRef.current();
+                                }}
+                                handleOnCancel={() => {
+                                    handleOnCancelExprEditorRef.current();
+                                }}
+                            />;
+                            sidepanelAddPage(sidePanelContext, content, "Expression Editor");
                         }},
                     {
                         "type": "Dropdown",
@@ -93,10 +87,6 @@ const PayloadForm = (props: AddMediatorProps) => {
                         "values": [
                             "xml",
                             "json"
-                        ],
-                        "enableCondition": [
-                            "isExpression",
-                            "argumentValue"
                         ]
                     },
                     {
@@ -112,9 +102,15 @@ const PayloadForm = (props: AddMediatorProps) => {
         setIsLoading(false);
     }, [sidePanelContext.formValues]);
 
+    useEffect(() => {
+        handleOnCancelExprEditorRef.current = () => {
+            sidepanelGoBack(sidePanelContext);
+        };
+    }, [sidePanelContext.pageStack]);
+
     const onClick = async (values: any) => {
         
-        values["args"] = values.args.paramValues.map((param: any) => param.paramValues.map((p: any) => p.value));
+        values["args"] = getParamManagerValues(values.args);
         const xml = getXML(MEDIATORS.PAYLOAD, values, dirtyFields, sidePanelContext.formValues);
         if (Array.isArray(xml)) {
             for (let i = 0; i < xml.length; i++) {

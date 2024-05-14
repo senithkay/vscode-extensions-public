@@ -19,7 +19,7 @@ export function getFastXSLTMustacheTemplate() {
 export function getFastXSLTXml(data: { [key: string]: any }) {
 
     if (data.fastXsltSchemaType == "Static") {
-        data.key = data.fastXsltStaticSchemaKey?.value;
+        data.key = data.fastXsltStaticSchemaKey;
     } else if (data.fastXsltSchemaType == "Dynamic") {
         data.key = "{" + data.fastXsltDynamicSchemaKey?.value + "}";
     }

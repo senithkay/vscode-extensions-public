@@ -271,7 +271,7 @@ export class Debugger extends EventEmitter {
                     if (index > -1) {
                         stepOverBreakpoint.stepOverBreakpoints.splice(index, 1);
                     }
-                }   
+                }
             }
             return stepOverBreakpoint;
         } catch (error) {
@@ -455,6 +455,7 @@ export class Debugger extends EventEmitter {
                         if (VisualizerWebview.currentPanel?.getWebview()?.visible && isADiagramView()) {
                             navigate();
                         }
+                        extension.webviewReveal = false;
                     }
 
                     // check if the event is a breakpoint event

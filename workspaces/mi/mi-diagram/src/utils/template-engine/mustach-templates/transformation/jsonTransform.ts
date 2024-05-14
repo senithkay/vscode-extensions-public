@@ -12,11 +12,16 @@ import Mustache from "mustache";
 
 export function getJsonTransformMustacheTemplate() {
   return `
+  {{#hasProperties}}
     <jsontransform description="{{description}}" schema="{{{schema}}}" >
         {{#jsonTransformProperties}}
         <property name="{{propertyName}}" value="{{{propertyValue}}}" />
         {{/jsonTransformProperties}}
     </jsontransform>
+  {{/hasProperties}}
+  {{^hasProperties}}
+    <jsontransform description="{{description}}" schema="{{{schema}}}" />
+  {{/hasProperties}}
     `;
 }
 
@@ -28,6 +33,9 @@ export function getJsonTransformXml(data: { [key: string]: any }) {
       propertyValue: property[1]
     }
   });
+  if (data.jsonTransformProperties && data.jsonTransformProperties?.length > 0) {
+    data.hasProperties = true;
+  }
   const output = Mustache.render(getJsonTransformMustacheTemplate(), data)?.trim();
   return output;
 }
@@ -38,7 +46,7 @@ export function getJsonTransformFormDataFromSTNode(data: { [key: string]: any },
   data.description = node.description;
   if (node.property) {
     data.jsonTransformProperties = node.property.map((property) => {
-      return [property.name, property.value ? "LITERAL" : "EXPRESSION", property.value, property.expression];
+      return [property.name, property.value];
     });
   } else {
     data.jsonTransformProperties = [];

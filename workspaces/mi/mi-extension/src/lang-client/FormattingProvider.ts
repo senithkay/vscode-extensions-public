@@ -19,9 +19,21 @@ export class FormattingProvider implements vscode.DocumentRangeFormattingEditPro
         options: vscode.FormattingOptions,
         token: vscode.CancellationToken
     ): Thenable<vscode.TextEdit[]> {
+        let formatRange = {
+            start: {
+                line: range.start.line,
+                character: range.start.character
+            },
+            end: {
+                line: range.end.line,
+                character: range.end.character
+            }
+        };
         return this.langClient.rangeFormat({
-            textDocument: this.langClient.code2ProtocolConverter
-                .asTextDocumentIdentifier(document), range: range, options: options, workDoneToken: token
+            textDocument: {
+                uri: document.uri.toString()
+            },
+            range: formatRange, options: options
         }).then(textEdits => { return textEdits });
     }
 }

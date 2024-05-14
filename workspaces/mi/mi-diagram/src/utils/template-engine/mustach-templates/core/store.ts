@@ -11,7 +11,7 @@ import { Store } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import Mustache from "mustache";
 
 export function getStoreMustacheTemplate() {
-    return `<store {{#messageStore}}messageStore="{{messageStore}}" {{/messageStore}}{{#onStoreSequence}}sequence="{{onStoreSequence}}" {{/onStoreSequence}}{{#description}}description="{{description}}" {{/description}} />`;
+    return `<store {{#messageStore}}messageStore="{{messageStore}}" {{/messageStore}}{{#onStoreSequence}}sequence="{{{onStoreSequence}}}" {{/onStoreSequence}}{{#description}}description="{{description}}" {{/description}} />`;
 }
 
 export function getStoreXml(data: { [key: string]: any }) {

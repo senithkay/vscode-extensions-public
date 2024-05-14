@@ -8,17 +8,19 @@
 */
 // AUTO-GENERATED FILE. DO NOT MODIFY.
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Button, ComponentCard, ProgressIndicator, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
-import { AddMediatorProps } from '../common';
+import { AddMediatorProps, getParamManagerValues, getParamManagerFromValues } from '../common';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
 import { MEDIATORS } from '../../../../../resources/constants';
 import { Controller, useForm } from 'react-hook-form';
 import { ExpressionField, ExpressionFieldValue } from '../../../../Form/ExpressionField/ExpressionInput';
-import { ParamManager, ParamConfig, ParamValue } from '../../../../Form/ParamManager/ParamManager';
+import { ParamManager, ParamValue } from '../../../../Form/ParamManager/ParamManager';
+import { sidepanelAddPage, sidepanelGoBack } from '../../..';
+import ExpressionEditor from '../../../expressionEditor/ExpressionEditor';
 
 const cardStyle = { 
     display: "block",
@@ -41,6 +43,7 @@ const SwitchForm = (props: AddMediatorProps) => {
     const { rpcClient } = useVisualizerContext();
     const sidePanelContext = React.useContext(SidePanelContext);
     const [ isLoading, setIsLoading ] = React.useState(true);
+    const handleOnCancelExprEditorRef = useRef(() => { });
 
     const { control, formState: { errors, dirtyFields }, handleSubmit, watch, reset } = useForm();
 
@@ -48,17 +51,7 @@ const SwitchForm = (props: AddMediatorProps) => {
         reset({
             sourceXPath: sidePanelContext?.formValues?.sourceXPath || {"isExpression":true,"value":""},
             caseBranches: {
-                paramValues: sidePanelContext?.formValues?.caseBranches && sidePanelContext?.formValues?.caseBranches.map((property: (string | ExpressionFieldValue | ParamConfig)[], index: string) => (
-                    {
-                        id: index,
-                        key: index,
-                        value:  property[0],
-                        icon: 'query',
-                        paramValues: [
-                            { value: property[0] },
-                        ]
-                    }
-                )) || [] as string[][],
+                paramValues: sidePanelContext?.formValues?.caseBranches ? getParamManagerFromValues(sidePanelContext?.formValues?.caseBranches) : [],
                 paramFields: [
                     {
                         "type": "TextField",
@@ -73,9 +66,15 @@ const SwitchForm = (props: AddMediatorProps) => {
         setIsLoading(false);
     }, [sidePanelContext.formValues]);
 
+    useEffect(() => {
+        handleOnCancelExprEditorRef.current = () => {
+            sidepanelGoBack(sidePanelContext);
+        };
+    }, [sidePanelContext.pageStack]);
+
     const onClick = async (values: any) => {
         
-        values["caseBranches"] = values.caseBranches.paramValues.map((param: any) => param.paramValues.map((p: any) => p.value));
+        values["caseBranches"] = getParamManagerValues(values.caseBranches);
         const xml = getXML(MEDIATORS.SWITCH, values, dirtyFields, sidePanelContext.formValues);
         if (Array.isArray(xml)) {
             for (let i = 0; i < xml.length; i++) {
@@ -116,14 +115,17 @@ const SwitchForm = (props: AddMediatorProps) => {
                                 placeholder=""
                                 canChange={false}
                                 openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => {
-                                    sidePanelContext.setSidePanelState({
-                                        ...sidePanelContext,
-                                        expressionEditor: {
-                                            isOpen: true,
-                                            value,
-                                            setValue
-                                        }
-                                    });
+                                    const content = <ExpressionEditor
+                                        value={value}
+                                        handleOnSave={(value) => {
+                                            setValue(value);
+                                            handleOnCancelExprEditorRef.current();
+                                        }}
+                                        handleOnCancel={() => {
+                                            handleOnCancelExprEditorRef.current();
+                                        }}
+                                    />;
+                                    sidepanelAddPage(sidePanelContext, content, "Expression Editor");
                                 }}
                             />
                         )}

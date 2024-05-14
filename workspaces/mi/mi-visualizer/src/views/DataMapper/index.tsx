@@ -21,6 +21,7 @@ interface DataMapperProps {
     functionName?: string;
     fileContent?: string;
     interfacesSource?: string;
+    configName: string;
 }
 
 export function DataMapper(props: DataMapperProps) {
@@ -67,6 +68,7 @@ export function DataMapper(props: DataMapperProps) {
                         outputTree={dmIOTypes.outputTree}
                         goToSource={goToSource}
                         updateFileContent={updateFileContent}
+                        configName= {props.configName}
                     />
                 )
             }

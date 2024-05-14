@@ -1519,6 +1519,7 @@ export interface RewriteRewriteruleCondition extends STNode {
     or: Or;
     equal: Equal;
     not: Not;
+    condition: string
 }
 
 export interface BindingFaultType extends ExtensibleDocumentedType, STNode {

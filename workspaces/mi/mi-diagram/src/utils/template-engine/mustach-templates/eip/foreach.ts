@@ -20,7 +20,7 @@ export function getForeachMustacheTemplate() {
     </foreach>
     {{/isAnnonymousSequence}}
     {{^isAnnonymousSequence}}
-    <foreach expression="{{{forEachExpression}}}" id="{{forEachID}}" {{#sequenceName}}sequence="{{sequenceName}}"{{/sequenceName}} {{#sequenceKey}}sequence="{{sequenceKey}}"{{/sequenceKey}} {{#description}}description="{{description}}"{{/description}}{{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}}/>
+    <foreach expression="{{{forEachExpression}}}" id="{{forEachID}}" {{#sequenceName}}sequence="{{{sequenceName}}}"{{/sequenceName}} {{#sequenceKey}}sequence="{{{sequenceKey}}}"{{/sequenceKey}} {{#description}}description="{{description}}"{{/description}}{{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}}/>
     {{/isAnnonymousSequence}}
     {{/isNewMediator}}
     {{^isNewMediator}}
@@ -33,7 +33,7 @@ export function getForeachMustacheTemplate() {
     {{/addSequence}}
     {{/isAnnonymousSequence}}
     {{^isAnnonymousSequence}}
-    <foreach expression="{{{forEachExpression}}}" id="{{forEachID}}" {{#sequenceName}}sequence="{{sequenceName}}"{{/sequenceName}} {{#sequenceKey}}sequence="{{sequenceKey}}"{{/sequenceKey}} {{#description}}description="{{description}}"{{/description}}{{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}}/>
+    <foreach expression="{{{forEachExpression}}}" id="{{forEachID}}" {{#sequenceName}}sequence="{{{sequenceName}}}"{{/sequenceName}} {{#sequenceKey}}sequence="{{{sequenceKey}}}"{{/sequenceKey}} {{#description}}description="{{description}}"{{/description}}{{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}}/>
     {{/isAnnonymousSequence}}
     {{/editForeach}}
     {{/isNewMediator}}

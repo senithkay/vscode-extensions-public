@@ -201,17 +201,17 @@ export const ResourceForm = ({ isOpen, documentUri, onCancel, onSave, formData }
 
     // useEffects
     useEffect(() => {
-        if (formData) {
+        if (isOpen && formData) {
             reset(formData);
-        } else {
+        } else if (isOpen && !formData) {
             reset(initialValues);
         }
-    }, [formData])
+    }, [formData, isOpen])
 
     return (
         <SidePanel
             isOpen={isOpen}
-            alignmanet="right"
+            alignment="right"
             width={SIDE_PANEL_WIDTH}
             overlay={false}
             sx={{ transition: "all 0.3s ease-in-out" }}

@@ -11,10 +11,56 @@ import { DMType, TypeKind } from "@wso2-enterprise/mi-core";
 
 import { ArrayElement, DMTypeWithValue } from "../Mappings/DMTypeWithValue";
 
-export function enrichAndProcessType(typeToBeProcessed: DMType, node: Node): [DMTypeWithValue, DMType] {
+export function enrichAndProcessType(
+    typeToBeProcessed: DMType,
+    node: Node
+): [DMTypeWithValue, DMType] {
     let type = { ...typeToBeProcessed };
     let valueEnrichedType = getEnrichedDMType(type, node);
     return [valueEnrichedType, type];
+}
+
+export function getDMType(
+    propertiesExpr: string,
+    parentType: DMType,
+    mapFnIndex: number,
+    isPropeAccessExpr?: boolean
+): DMType {
+    const properties = getProperties(propertiesExpr, isPropeAccessExpr);
+
+    if (!properties) return;
+
+    let currentType = parentType;
+
+    for (let property of properties) {
+        if (!isNaN(Number(property))) continue;
+        const field = findField(currentType, property);
+
+        if (!field) return;
+
+        currentType = field;
+    }
+
+    if (mapFnIndex !== undefined && currentType.kind === TypeKind.Array) {
+        for (let i = 0; i < mapFnIndex; i++) {
+            currentType = currentType.memberType;
+        }
+    }
+    return currentType;
+
+    function getProperties(propertiesExpr: string, isPropeAccessExpr?: boolean): string[] | undefined {
+        const propertyList = propertiesExpr.split('.');
+        return isPropeAccessExpr ? propertyList.slice(1) : propertyList;
+    }
+    
+    function findField(currentType: DMType, property: string): DMType | undefined {
+        if (currentType.kind === TypeKind.Interface && currentType.fields) {
+            return currentType.fields.find(field => field.fieldName === property);
+        } else if (currentType.kind === TypeKind.Array && currentType.memberType
+            && currentType.memberType.kind === TypeKind.Interface && currentType.memberType.fields) {
+            return currentType.memberType.fields.find(field => field.fieldName === property);
+        }
+    }
 }
 
 export function getEnrichedDMType(
@@ -51,7 +97,7 @@ export function getEnrichedDMType(
     return dmTypeWithValue;
 }
 
-export function getEnrichedPrimitiveType(
+function getEnrichedPrimitiveType(
     field: DMType,
     node: Node,
     parentType?: DMTypeWithValue,
@@ -71,7 +117,7 @@ export function getEnrichedPrimitiveType(
     return members;
 }
 
-export function getEnrichedArrayType(
+function getEnrichedArrayType(
     field: DMType,
     node: ArrayLiteralExpression,
     parentType?: DMTypeWithValue,

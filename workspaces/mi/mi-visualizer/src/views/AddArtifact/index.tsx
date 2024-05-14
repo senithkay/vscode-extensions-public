@@ -230,7 +230,7 @@ export function AddArtifactView() {
                                 </Typography>
                                 <HorizontalCardContainer>
                                     <Card
-                                        icon="source-control"
+                                        icon="plug"
                                         title="Endpoint"
                                         description="Define communication endpoint configurations."
                                         onClick={() => handleClick("endpoints")}
@@ -242,13 +242,13 @@ export function AddArtifactView() {
                                         onClick={() => handleClick("sequences")}
                                     />
                                     <Card
-                                        icon="output"
+                                        icon="type-hierarchy"
                                         title="Registry"
                                         description="Manage shared resources and configurations."
                                         onClick={() => handleClick("registry")}
                                     />
                                     <Card
-                                        icon="mail"
+                                        icon="gear"
                                         title="Message Processor"
                                         description="Define processing logic for messages."
                                         onClick={() => handleClick("messageProcessors")}
@@ -266,7 +266,7 @@ export function AddArtifactView() {
                                         onClick={() => handleClick("messageStores")}
                                     />
                                     <Card
-                                        icon="output"
+                                        icon="settings"
                                         title="Local Entry"
                                         description="Define local resource entries for reuse."
                                         onClick={() => handleClick("localEntries")}

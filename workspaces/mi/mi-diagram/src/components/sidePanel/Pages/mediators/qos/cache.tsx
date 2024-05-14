@@ -8,7 +8,7 @@
 */
 // AUTO-GENERATED FILE. DO NOT MODIFY.
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { AutoComplete, Button, ComponentCard, ProgressIndicator, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
 import { VSCodeCheckbox } from '@vscode/webview-ui-toolkit/react';
 import styled from '@emotion/styled';
@@ -18,6 +18,8 @@ import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
 import { MEDIATORS } from '../../../../../resources/constants';
 import { Controller, useForm } from 'react-hook-form';
+import { Keylookup } from '../../../../Form';
+import { sidepanelGoBack } from '../../..';
 
 const cardStyle = { 
     display: "block",
@@ -40,6 +42,7 @@ const CacheForm = (props: AddMediatorProps) => {
     const { rpcClient } = useVisualizerContext();
     const sidePanelContext = React.useContext(SidePanelContext);
     const [ isLoading, setIsLoading ] = React.useState(true);
+    const handleOnCancelExprEditorRef = useRef(() => { });
 
     const { control, formState: { errors, dirtyFields }, handleSubmit, watch, reset } = useForm();
 
@@ -55,7 +58,7 @@ const CacheForm = (props: AddMediatorProps) => {
             maxEntryCount: sidePanelContext?.formValues?.maxEntryCount || "1000",
             implementationType: sidePanelContext?.formValues?.implementationType || "memory",
             sequenceType: sidePanelContext?.formValues?.sequenceType || "ANONYMOUS",
-            sequenceKey: sidePanelContext?.formValues?.sequenceKey || "registry",
+            sequenceKey: sidePanelContext?.formValues?.sequenceKey || "",
             cacheProtocolType: sidePanelContext?.formValues?.cacheProtocolType || "HTTP",
             cacheProtocolMethods: sidePanelContext?.formValues?.cacheProtocolMethods || "*",
             headersToExcludeInHash: sidePanelContext?.formValues?.headersToExcludeInHash || "",
@@ -68,6 +71,12 @@ const CacheForm = (props: AddMediatorProps) => {
         });
         setIsLoading(false);
     }, [sidePanelContext.formValues]);
+
+    useEffect(() => {
+        handleOnCancelExprEditorRef.current = () => {
+            sidepanelGoBack(sidePanelContext);
+        };
+    }, [sidePanelContext.pageStack]);
 
     const onClick = async (values: any) => {
         
@@ -260,7 +269,13 @@ const CacheForm = (props: AddMediatorProps) => {
                                 name="sequenceKey"
                                 control={control}
                                 render={({ field }) => (
-                                    <TextField {...field} label="Sequence Key" size={50} placeholder="" />
+                                    <Keylookup
+                                        value={field.value}
+                                        filterType='sequence'
+                                        label="Sequence Key"
+                                        allowItemCreate={false}
+                                        onValueChange={field.onChange}
+                                    />
                                 )}
                             />
                             {errors.sequenceKey && <Error>{errors.sequenceKey.message.toString()}</Error>}

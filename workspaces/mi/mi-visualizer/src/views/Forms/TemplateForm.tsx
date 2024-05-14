@@ -144,6 +144,18 @@ export function TemplateWizard(props: TemplateWizardProps) {
                 label: "Parameter",
                 defaultValue: "parameter_value",
                 isRequired: true
+            },
+            {
+                id: 1,
+                type: "Checkbox",
+                label: "Is Mandatory",
+                isRequired: false
+            },
+            {
+                id: 2,
+                type: "TextField",
+                label: "Default Value",
+                isRequired: false
             }]
     }
     const [sequenceParams, setSequenceParams] = useState(params);
@@ -162,14 +174,13 @@ export function TemplateWizard(props: TemplateWizardProps) {
                             ...prev,
                             paramValues: [...prev.paramValues, {
                                 id: prev.paramValues.length,
-                                parameters: [{
-                                    id: 0,
-                                    value: param,
-                                    label: "Parameter",
-                                    type: "TextField",
-                                }],
+                                paramValues: [
+                                    { value: param.name },
+                                    { value: param.isMandatory === "true" ?? undefined },
+                                    { value: param.default }
+                                ],
                                 key: i++,
-                                value: param,
+                                value: param.name,
                             }
                             ]
                         }
@@ -227,7 +238,7 @@ export function TemplateWizard(props: TemplateWizardProps) {
                 return {
                     ...param,
                     key: i++,
-                    value: param.parameters[0].value
+                    value: param.paramValues[0].value
                 }
             })
         };
@@ -239,7 +250,11 @@ export function TemplateWizard(props: TemplateWizardProps) {
 
         let parameters: any = [];
         sequenceParams.paramValues.map((param: any) => {
-            parameters.push(param.parameters[0].value);
+            parameters.push({
+                name: param.paramValues[0].value,
+                isMandatory: param.paramValues[1].value ?? "false",
+                default: param.paramValues[2].value
+            });
         })
 
         setValue('templateType', 'Sequence Template');

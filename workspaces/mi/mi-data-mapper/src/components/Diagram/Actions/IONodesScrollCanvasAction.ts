@@ -19,6 +19,7 @@ import {
     isOutputNode
 } from "./utils";
 import { IO_NODE_DEFAULT_WIDTH, VISUALIZER_PADDING, defaultModelOptions } from "../utils/constants";
+import { ArrayFnConnectorNode } from "../Node/ArrayFnConnector";
 
 export interface PanAndZoomCanvasActionOptions {
     inverseZoom?: boolean;
@@ -141,7 +142,7 @@ function repositionIntermediateNodes(outputNode: NodeModel) {
             if (link instanceof DataMapperLinkModel) {
                 const sourceNode = link.getSourcePort().getNode();
                 const targetPortPosition = link.getTargetPort().getPosition();
-                if (sourceNode instanceof LinkConnectorNode) {
+                if (sourceNode instanceof LinkConnectorNode || sourceNode instanceof ArrayFnConnectorNode) {
                     sourceNode.setPosition(sourceNode.getX(), targetPortPosition.y - 4.5);
                 }
             }

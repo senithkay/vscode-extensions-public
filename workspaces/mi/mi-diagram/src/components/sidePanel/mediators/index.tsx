@@ -25,7 +25,6 @@ const ButtonContainer = styled.div`
 
 const SearchStyle = {
     width: 'auto',
-    marginTop: '20px',
     paddingRight: '15px',
 
     '& > vscode-text-field': {
@@ -50,12 +49,10 @@ const searchIcon = (<Codicon name="search" sx={{ cursor: "auto" }} />);
 export interface MediatorPageProps {
     nodePosition: any;
     documentUri: string;
-    setContent: any;
 }
-export function MediatorPage(props: MediatorPageProps) {
+export function HomePage(props: MediatorPageProps) {
     const [searchValue, setSearchValue] = useState<string>('');
     const [isAllMediators, setAllMediators] = useState<boolean>(true);
-    const [isLibrary, setLibrary] = useState<boolean>(false);
     const [isConnectors, setConnectors] = useState<boolean>(false);
 
     const handleSearch = (e: string) => {
@@ -69,17 +66,11 @@ export function MediatorPage(props: MediatorPageProps) {
     const handleAllMediatorsClicked = () => {
         setConnectors(false);
         setAllMediators(true);
-        console.log('All Mediators clicked');
     }
-
-    const handleLibraryClicked = () => {
-        console.log('Library clicked');
-    };
 
     const handleConnectorsClicked = () => {
         setAllMediators(false);
         setConnectors(true);
-        console.log('Connectors clicked');
     }
 
     return (
@@ -103,11 +94,7 @@ export function MediatorPage(props: MediatorPageProps) {
                         <Icon sx={{marginTop: 2, marginRight: 5}} name="module-icon"/>
                         All Mediators
                     </Button>
-                    {/*Enable later on library addition */}
-                    {/* <Button onClick={handleLibraryClicked} appearance={isLibrary ? 'primary' : 'secondary'}>
-                        <Icon sx={{marginTop: 2, marginRight: 5}} name="doc"/>
-                        Library
-                    </Button> */}
+
                     <Button onClick={handleConnectorsClicked} appearance={isConnectors ? 'primary' : 'secondary'}>
                         <Icon sx={{marginTop: 2, marginRight: 5}} name="caller"/>
                         Connectors
@@ -117,12 +104,12 @@ export function MediatorPage(props: MediatorPageProps) {
             {isAllMediators && (
                 <ComponentList>
                     {/* Mediator List */}
-                    <Mediators nodePosition={props.nodePosition} documentUri={props.documentUri} setContent={props.setContent} searchValue={searchValue} />
+                    <Mediators nodePosition={props.nodePosition} documentUri={props.documentUri} searchValue={searchValue} />
                 </ComponentList>
             )}
             {isConnectors && (
                 <ComponentList>
-                    <ConnectorPage nodePosition={props.nodePosition} setContent={props.setContent} documentUri={props.documentUri} searchValue={searchValue} clearSearch={clearSearch} />
+                    <ConnectorPage nodePosition={props.nodePosition} documentUri={props.documentUri} searchValue={searchValue} clearSearch={clearSearch} />
                 </ComponentList>
             )}
         </Wrapper>

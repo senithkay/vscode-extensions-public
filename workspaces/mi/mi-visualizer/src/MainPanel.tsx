@@ -68,7 +68,7 @@ const PopUpContainer = styled.div`
     left: 0;
     right: 0;
     bottom: 0;
-    z-index: 999;
+    z-index: 2100;
     background: var(--background);
 `;
 
@@ -296,10 +296,10 @@ const MainPanel = () => {
                 {showNavigator && <NavigationBar />}
                 {viewComponent}
             </>}
-            {formState === "open" && (
+            {typeof formState === 'object' && 'open' in formState && (
                 <PopUpContainer>
                     <FormView title='' onClose={handleOnClose}>
-                        <PopupPanel />
+                        <PopupPanel formState={formState} />
                     </FormView>
                 </PopUpContainer>
             )}

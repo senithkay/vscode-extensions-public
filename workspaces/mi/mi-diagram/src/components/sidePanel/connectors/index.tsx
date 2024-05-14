@@ -16,6 +16,7 @@ import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import AddConnector from "../Pages/AddConnector";
 import { ConnectorStatus } from "@wso2-enterprise/mi-core";
 import { Mediators } from "../mediators/List";
+import { sidepanelAddPage } from "..";
 
 const LoaderWrapper = styled.div`
     display: flex;
@@ -82,9 +83,25 @@ const CardLabel = styled.div`
     width: 100%;
 `;
 
+const MessageWrapper = styled.div`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-top: 10px;
+`;
+
+const OldProjectMessage = styled.div`
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    padding-top: 20px;
+    gap: 10px;
+`;
+
+
 export interface ConnectorPageProps {
     documentUri: string;
-    setContent: any;
     searchValue?: string;
     clearSearch?: () => void;
     nodePosition: any;
@@ -95,12 +112,13 @@ export function ConnectorPage(props: ConnectorPageProps) {
     const { rpcClient } = useVisualizerContext();
     // const [selectedConnector, setSelectedConnector] = useState(undefined);
     const [expandedConnectors, setExpandedConnectors] = useState<any[]>([]);
-    const [localConnectors, setLocalConnectors] = useState<any[]>([]);
+    const [localConnectors, setLocalConnectors] = useState<any[]>(undefined);
     const [isDownloading, setIsDownloading] = useState(false);
     const [isGeneratingForm, setIsGeneratingForm] = useState(false);
     const [filteredStoreConnectors, setFilteredStoreConnectors] = useState<any[]>([]);
     const [filteredLocalConnectors, setFilteredLocalConnectors] = useState<any[]>([]);
     const [filteredOperations, setFilteredOperations] = useState<any[][]>([]);
+    const [isOldProject, setIsOldProject] = useState(false);
     const connectionStatus = useRef(null);
 
     const fetchConnectors = async () => {
@@ -120,10 +138,19 @@ export function ConnectorPage(props: ConnectorPageProps) {
                 return { ...connector, iconPathUri };
             }));
             setLocalConnectors(connectorsWithIcons);
+        } else {
+            setLocalConnectors([]);
         }
     };
 
+    const checkOldProject = async () => {
+        const oldProjectResponse = await rpcClient.getMiDiagramRpcClient().checkOldProject();
+        setIsOldProject(oldProjectResponse);
+    };
+
     useEffect(() => {
+        checkOldProject();
+
         rpcClient?.onConnectorStatusUpdate((connectorStatus: ConnectorStatus) => {
             connectionStatus.current = connectorStatus;
         });
@@ -261,9 +288,7 @@ export function ConnectorPage(props: ConnectorPageProps) {
             while (!downloadSuccess && attempts < 3) {
                 try {
                     await rpcClient.getMiDiagramRpcClient().downloadConnector({
-                        connector: connector.name,
-                        url: connector.download_url,
-                        version: connector.version
+                        url: connector.download_url
                     });
                     downloadSuccess = true;
                 } catch (error) {
@@ -315,7 +340,7 @@ export function ConnectorPage(props: ConnectorPageProps) {
                 connectorName={connector.name}
                 operationName={operation} />;
 
-            props.setContent(connecterForm, `${sidePanelContext.isEditing ? "Edit" : "Add"} ${operation}`, iconPathUri.uri);
+                sidepanelAddPage(sidePanelContext, connecterForm, `${sidePanelContext.isEditing ? "Edit" : "Add"} ${operation}`, iconPathUri.uri);
         } else {
             fetchLocalConnectorData();
         }
@@ -324,21 +349,20 @@ export function ConnectorPage(props: ConnectorPageProps) {
     }
 
     function existsInLocalConnectors(connector: any) {
-        return localConnectors.some(localConnector =>
+        return localConnectors?.some(localConnector =>
             localConnector.name.toLowerCase() === connector.name.toLowerCase().replace(/\s/g, '') && localConnector.version === connector.version);
     }
 
     const ConnectorList = () => {
-        let displayedStoreConnectors = sidePanelContext.connectors;
+
+        let displayedStoreConnectors: any[] = undefined;
         let displayeLocalConnectors = localConnectors;
 
-        if (sidePanelContext.isEditing) {
-            const mediatorForm = <Mediators nodePosition={props.nodePosition} documentUri={props.documentUri} setContent={props.setContent} searchValue={props.searchValue} />
-            return mediatorForm;
-        }
-
-        if (displayedStoreConnectors) {
-            displayedStoreConnectors = displayedStoreConnectors.filter(connector => !existsInLocalConnectors(connector));
+        if (displayeLocalConnectors) {
+            displayedStoreConnectors = sidePanelContext.connectors;
+            if (displayedStoreConnectors) {
+                displayedStoreConnectors = displayedStoreConnectors.filter(connector => !existsInLocalConnectors(connector));
+            }
         }
 
         if (props.searchValue) {
@@ -349,7 +373,13 @@ export function ConnectorPage(props: ConnectorPageProps) {
 
         return (
             <>
-                {isDownloading ? (
+                {isOldProject ? (
+                    <OldProjectMessage>
+                        <Codicon name="warning" />
+                        Connector store is not supported with the old project structure.
+                        Please migrate to use the connector store and other features.
+                    </OldProjectMessage>
+                ) : isDownloading ? (
                     <LoaderWrapper>
                         <ProgressRing />
                         Downloading connector...
@@ -363,11 +393,15 @@ export function ConnectorPage(props: ConnectorPageProps) {
                     <>
                         <div>
                             <h4>Local Connectors</h4>
-                            {!displayeLocalConnectors ? (
+                            {(!displayeLocalConnectors) ? (
                                 <LoaderWrapper>
                                     <ProgressRing />
-                                    Loading connectors...
+                                    Fetching connectors...
                                 </LoaderWrapper>
+                            ) : (displayeLocalConnectors.length === 0) ? (
+                                <MessageWrapper>
+                                    No local connectors found
+                                </MessageWrapper>
                             ) : (
                                 <ButtonGrid>
                                     {displayeLocalConnectors.map((connector: any) => (

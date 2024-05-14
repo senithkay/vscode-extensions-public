@@ -14,6 +14,7 @@
             "value": {
               "name": "cloneSource",
               "displayName": "Clone Source",
+              "defaultValue": true,
               "inputType": "checkbox",
               "required": false,
               "helpTip": ""
@@ -120,6 +121,10 @@
               "required": false,
               "helpTip": "",
               "enableCondition": [
+                "AND",
+                {
+                  "sourceType": "inline"
+                },
                 {
                   "inlineType": "RegistryKey"
                 }

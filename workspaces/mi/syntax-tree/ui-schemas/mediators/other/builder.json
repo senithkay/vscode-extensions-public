@@ -44,7 +44,7 @@
                   "value": {
                     "name": "formatterClass",
                     "displayName": "Formatter Class",
-                    "inputType": "expression",
+                    "inputType": "string",
                     "required": false,
                     "helpTip": ""
                   }

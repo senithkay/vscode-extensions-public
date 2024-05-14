@@ -252,8 +252,11 @@ export interface Visitor {
     beginVisitEndpointProperty?(node: Synapse.EndpointProperty): void;
     endVisitEndpointProperty?(node: Synapse.EndpointProperty): void;
 
-    beginVisitDbMediator?(node: Synapse.DbMediator): void;
-    endVisitDbMediator?(node: Synapse.DbMediator): void;
+    beginVisitDblookup?(node: Synapse.DbMediator): void;
+    endVisitDblookup?(node: Synapse.DbMediator): void;
+
+    beginVisitDbreport?(node: Synapse.DbMediator): void;
+    endVisitDbreport?(node: Synapse.DbMediator): void;
 
     beginVisitEntitlementServiceAdvice?(node: Synapse.EntitlementServiceAdvice): void;
     endVisitEntitlementServiceAdvice?(node: Synapse.EntitlementServiceAdvice): void;

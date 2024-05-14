@@ -45,12 +45,12 @@ export function getDefaultEndpointMustacheTemplate() {
     return `<?xml version="1.0" encoding="UTF-8"?>
 {{#template}}<template name="{{templateName}}" xmlns="http://ws.apache.org/ns/synapse">{{/template}}
 {{#parameters}}
-<{{key}}:parameter name="{{value}}" xmlns:{{key}}="http://ws.apache.org/ns/synapse"/>
+<{{{key}}}:parameter name="{{{value}}}" xmlns:{{{key}}}="http://ws.apache.org/ns/synapse"/>
 {{/parameters}}
 <endpoint name="{{endpointName}}" {{^template}}xmlns="http://ws.apache.org/ns/synapse"{{/template}}>
     <default {{#format}}format="{{format}}"{{/format}} {{#optimize}}optimize="{{optimize}}"{{/optimize}} {{#statisticsEnabled}}statistics="{{statisticsEnabled}}"{{/statisticsEnabled}} {{#traceEnabled}}trace="{{traceEnabled}}"{{/traceEnabled}}>
         {{#addressingEnabled}}<enableAddressing {{#addressListener}}separateListener="{{addressListener}}"{{/addressListener}} {{#addressingVersion}}version="{{addressingVersion}}{{/addressingVersion}}"/>{{/addressingEnabled}}
-        {{#securityEnabled}}<enableSec{{#policyKey}} policy="{{policyKey}}"{{/policyKey}}{{#inboundPolicyKey}} inboundPolicy="{{inboundPolicyKey}}"{{/inboundPolicyKey}}{{#outboundPolicyKey}} outboundPolicy="{{outboundPolicyKey}}"{{/outboundPolicyKey}}/>{{/securityEnabled}}
+        {{#securityEnabled}}<enableSec{{#policyKey}} policy="{{{policyKey}}}"{{/policyKey}}{{#inboundPolicyKey}} inboundPolicy="{{{inboundPolicyKey}}}"{{/inboundPolicyKey}}{{#outboundPolicyKey}} outboundPolicy="{{{outboundPolicyKey}}}"{{/outboundPolicyKey}}/>{{/securityEnabled}}
         {{#timeout}}<timeout>
             {{#timeoutDuration}}<duration>{{timeoutDuration}}</duration>{{/timeoutDuration}}
             {{#timeoutAction}}<responseAction>{{timeoutAction}}</responseAction>{{/timeoutAction}}
@@ -68,7 +68,7 @@ export function getDefaultEndpointMustacheTemplate() {
         </markForSuspension>
     </default>
     {{#properties}}
-    <property name="{{name}}" {{#scope}}scope="{{scope}}"{{/scope}} value="{{value}}"/>
+    <property name="{{{name}}}" {{#scope}}scope="{{scope}}"{{/scope}} value="{{{value}}}"/>
     {{/properties}}  
     {{#description}}<description>{{description}}</description>{{/description}}
 </endpoint>

@@ -69,7 +69,7 @@ const TooltipContent = styled.div<TooltipProps>`
     ${(props: TooltipProps) => props.sx}
 `;
 
-const OffsetCalculator = (position: PositionType, height: number, width: number): Position => {
+const getOffsetByPosition = (position: PositionType, height: number, width: number): Position => {
     const offset: Position = { top: 0, left: 0 };
     switch (position) {
         case 'bottom-end':
@@ -103,6 +103,32 @@ const OffsetCalculator = (position: PositionType, height: number, width: number)
     return offset;
 }
 
+const getPositionOnOverflow = (
+    windowWidth: number,
+    windowHeight: number,
+    top: number,
+    left: number,
+    height: number,
+    width: number
+): Position => {
+    const position: Position = { top, left };
+    // Position on x axis
+    if (left < 0) {
+        position.left = 0;
+    } else if (left + width > windowWidth) {
+        position.left = windowWidth - width;
+    }
+
+    // Position on y axis
+    if (top < 0) {
+        position.top = 0;
+    } else if (top + height > windowHeight) {
+        position.top = windowHeight - height;
+    }
+
+    return position;
+}
+
 export const Tooltip: React.FC<PropsWithChildren<TooltipProps>> = (props: PropsWithChildren<TooltipProps>) => {
     const { id, className, content, position, children, sx, containerPosition } = props;
 
@@ -118,12 +144,19 @@ export const Tooltip: React.FC<PropsWithChildren<TooltipProps>> = (props: PropsW
         setTimer(setTimeout(() => {
             if (!isHovering && tooltipEl.current) {
                 const { height, width } = tooltipEl.current.getBoundingClientRect() as ElementProperties;
-                const { top: offsetTop, left: offsetLeft } = OffsetCalculator(position || 'bottom-end', height, width);
+                const { top: offsetTop, left: offsetLeft } = getOffsetByPosition(position || 'bottom-end', height, width);
 
-                setTooltipElPosition({
-                    top: e.clientY + offsetTop,
-                    left: e.clientX + offsetLeft
-                });
+                // Reset the position if it overflows the window
+                const { top, left } = getPositionOnOverflow(
+                    window.innerWidth,
+                    window.innerHeight,
+                    e.clientY + offsetTop,
+                    e.clientX + offsetLeft,
+                    height,
+                    width
+                );
+
+                setTooltipElPosition({ top, left });
                 if (!isVisible) setIsVisible(true);
             }
         }, 500))

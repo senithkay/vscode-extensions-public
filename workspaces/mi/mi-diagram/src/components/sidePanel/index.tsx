@@ -1,12 +1,12 @@
-import { Codicon, Drawer, ProgressRing, Switch } from '@wso2-enterprise/ui-toolkit';
+import { Codicon, Drawer, ProgressRing, Typography } from '@wso2-enterprise/ui-toolkit';
 import React, { useEffect, useState, useContext } from 'react';
 import styled from '@emotion/styled';
 import { Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
-import SidePanelContext from './SidePanelContexProvider';
-import { MediatorPage } from './mediators';
-import { AIPage } from './ai';
-import ExpressionEditor from './expressionEditor/ExpressionEditor';
-import { ExpressionFieldValue } from '../Form/ExpressionField/ExpressionInput';
+import SidePanelContext, { SidePanelPage } from './SidePanelContexProvider';
+import { HomePage } from './mediators';
+import { getAllMediators } from './mediators/Values';
+import AddConnector from './Pages/AddConnector';
+import { FirstCharToUpperCase } from '../../utils/commons';
 
 const SidePanelContainer = styled.div`
     padding: 15px;
@@ -28,15 +28,8 @@ const ButtonContainer = styled.div`
     justify-content: center;
     gap: 10px;
     align-items: center;
+    height: 30px;
 `;
-
-const BtnStyle = {
-    '& > vscode-button': {
-        width: '130px',
-        height: '40px',
-        borderRadius: '5px',
-    },
-};
 
 const IconContainer = styled.div`
     width: 40px;
@@ -51,40 +44,90 @@ export interface SidePanelListProps {
     documentUri: string;
 }
 
+export const sidepanelAddPage = (sidePanelContext: SidePanelContext, content: any, title?: string, icon?: string) => {
+    sidePanelContext.setSidePanelState({
+        ...sidePanelContext,
+        pageStack: [...sidePanelContext.pageStack, { content, title, isOpen: true, icon }],
+    });
+}
+
+export const sidepanelGoBack = (sidePanelContext: SidePanelContext) => {
+    if (sidePanelContext.pageStack.length > 0) {
+        const pageStack = sidePanelContext.pageStack;
+        pageStack[pageStack.length - 1] = {
+            ...pageStack[pageStack.length - 1],
+            isOpen: false,
+            title: undefined,
+            icon: undefined,
+        };
+
+        sidePanelContext.setSidePanelState({
+            ...sidePanelContext,
+            pageStack,
+        });
+
+        // remove the last page from the stack after it is closed
+        setTimeout(() => {
+            const pageStack = sidePanelContext.pageStack;
+            pageStack.pop();
+            sidePanelContext.setSidePanelState({
+                ...sidePanelContext,
+                pageStack,
+            });
+        }, 200);
+    }
+};
+
 const SidePanelList = (props: SidePanelListProps) => {
-    const [isLoading, setLoading] = useState<boolean>(false);
-    const [isAddMediator, setAddMediator] = useState<boolean>(true);
-    const [isGenerate, setGenerate] = useState<boolean>(false);
+    const [isLoading, setLoading] = useState<boolean>(true);
     const sidePanelContext = useContext(SidePanelContext);
-    const [pageStack, setPageStack] = useState<any[]>([]);
-    const [title, setTitle] = useState<string>("");
-    const [iconpath, setIconPath] = useState<string>(undefined);
 
     useEffect(() => {
-        setPageStack([]);
-        setIconPath(sidePanelContext.iconPath);
-    }, [sidePanelContext.operationName]);
+        setLoading(sidePanelContext.pageStack == undefined);
+    }, [sidePanelContext.pageStack]);
 
-    // show/hide back button based on pageStack length
     useEffect(() => {
-        if (pageStack.length === 0) {
-            sidePanelContext.setSidePanelState({
-                ...sidePanelContext,
-                showBackBtn: false,
-            })
+        let mediatorsPage;
+
+        if (sidePanelContext.isEditing && sidePanelContext.operationName) {
+            if (sidePanelContext.operationName === "connector") {
+                const form = <AddConnector
+                    formData={sidePanelContext.formValues.form}
+                    nodePosition={sidePanelContext.nodeRange}
+                    documentUri={props.documentUri} />;
+                mediatorsPage = { content: form, title: `Edit ${FirstCharToUpperCase(sidePanelContext.formValues.title)}` };
+            } else {
+
+                const allMediators = getAllMediators({
+                    nodePosition: props.nodePosition,
+                    documentUri: props.documentUri,
+                    previousNode: sidePanelContext.previousNode,
+                    parentNode: sidePanelContext.operationName?.toLowerCase() != sidePanelContext.parentNode?.toLowerCase() ? sidePanelContext.parentNode : undefined,
+                });
+
+                const form = Object.keys(allMediators).reduce((acc: any, key: string) => {
+                    const filtered = (allMediators as any)[key].filter((mediator: { title: string; operationName: string }) =>
+                        mediator.operationName.toLowerCase() === sidePanelContext.operationName?.toLowerCase());
+                    if (filtered.length > 0) {
+                        acc[key] = filtered;
+                    }
+                    return acc;
+                }, {});
+
+                if (form && Object.keys(form).length > 0) {
+                    const val = form[Object.keys(form)[0]][0];
+                    mediatorsPage = { content: val.form, title: `Edit ${FirstCharToUpperCase(sidePanelContext.operationName)}` };
+                }
+            }
         } else {
-            sidePanelContext.setSidePanelState({
-                ...sidePanelContext,
-                showBackBtn: true,
-            })
+            mediatorsPage = { content: <HomePage nodePosition={props.nodePosition} documentUri={props.documentUri} /> };
         }
-    }, [pageStack]);
 
-    const handleGoBack = () => {
-        if (pageStack.length > 0) {
-            setPageStack(pageStack.slice(0, -1));
-        }
-    };
+        sidePanelContext.setSidePanelState({
+            ...sidePanelContext,
+            pageStack: [mediatorsPage]
+        });
+    }, []);
 
     const handleClose = () => {
         sidePanelContext.setSidePanelState({
@@ -92,43 +135,30 @@ const SidePanelList = (props: SidePanelListProps) => {
             isEditing: false,
             formValues: {},
             connectors: sidePanelContext.connectors,
+            pageStack: [],
         });
     };
 
-    const onSubmitExpressionEdtior = (data: ExpressionFieldValue) => {
-        sidePanelContext.setSidePanelState({
-            ...sidePanelContext,
-            expressionEditor: {
-                isOpen: false,
-                value: {
-                    expressionValue: data.value,
-                    namespaces: data.namespaces,
-                }
-            }
-        });
-
-        sidePanelContext.expressionEditor.setValue({
-            isExpression: true,
-            value: data.value,
-            namespaces: data.namespaces,
-        });
-    };
-
-    const handleOnCancelExpressionEdtior = () => {
-        sidePanelContext.setSidePanelState({
-            ...sidePanelContext,
-            expressionEditor: {
-                ...sidePanelContext.expressionEditor,
-                isOpen: false,
-            }
-        });
+    const Icon = () => {
+        if (sidePanelContext.pageStack.length > 0) {
+            const lastPage = sidePanelContext.pageStack[sidePanelContext.pageStack.length - 1];
+            return lastPage.icon !== undefined && (
+                <IconContainer>
+                    <img
+                        src={lastPage.icon}
+                        alt="Icon"
+                    />
+                </IconContainer>
+            );
+        }
     }
 
-    const setContent = async (content: any, title: string, iconPath?: string) => {
-        setPageStack([...pageStack, content]);
-        setTitle(title);
-        setIconPath(iconPath);
-    };
+    const Title = () => {
+        if (sidePanelContext.pageStack.length > 0) {
+            const lastPage = sidePanelContext.pageStack[sidePanelContext.pageStack.length - 1];
+            return lastPage.title !== undefined && <Typography variant='h3' sx={{ textAlign: "center", width: "fit-content" }}>{lastPage.title}</Typography>;
+        }
+    }
 
     return (
         <SidePanelContainer>
@@ -139,55 +169,32 @@ const SidePanelList = (props: SidePanelListProps) => {
                 <>
                     {/* Header */}
                     <ButtonContainer>
-                        {(pageStack.length === 0 || sidePanelContext.isEditing || sidePanelContext.expressionEditor?.isOpen) ? <div></div> :
-                            <Codicon name="arrow-left" sx={{ width: "20px", position: "absolute", left: "0px", paddingLeft: "25px" }} onClick={handleGoBack} />}
+                        {sidePanelContext.pageStack.length > 1 && sidePanelContext.pageStack[sidePanelContext.pageStack.length - 1].isOpen &&
+                            <Codicon name="arrow-left" sx={{ width: "20px", position: "absolute", left: "0px", paddingLeft: "25px" }} onClick={() => sidepanelGoBack(sidePanelContext)} />}
 
-                        {(pageStack.length > 0) && iconpath !== undefined && (
-                            <IconContainer>
-                                <img
-                                    src={iconpath}
-                                    alt="Icon"
-                                />
-                            </IconContainer>
-                        )}
-                        {pageStack.length > 0 && title !== undefined && <h3 style={{ textAlign: "center", width: "fit-content" }}>{title}</h3>}
+                        <Icon />
+                        <Title />
                         <Codicon name="close" sx={{ textAlign: "right", width: "20px", position: "absolute", right: "0px", paddingRight: "16px" }} onClick={handleClose} />
                     </ButtonContainer>
 
                     {/* Content */}
-                    <div style={{
-                        overflowY: "auto",
-                        scrollbarWidth: "none"
-                    }}>
-                        {pageStack.length === 0 && <>
-                            {isAddMediator && <MediatorPage nodePosition={props.nodePosition} documentUri={props.documentUri} setContent={setContent} />}
-                            {isGenerate && <AIPage />}
-                        </>}
-                        <div style={{ marginBottom: "30px" }}>
-                            <Drawer
-                                isOpen={pageStack.length > 0}
-                                id="drawer1"
-                                width={300}
-                                isSelected={true}
-                                sx={{ width: "100%", top: "0", position: "relative", border: "none", boxShadow: "none", transition: "none" }}
-                            >
-                                {pageStack.length > 0 && pageStack[pageStack.length - 1]}
-                            </Drawer>
-                            <Drawer
-                                isOpen={sidePanelContext.expressionEditor?.isOpen}
-                                id="drawer2"
-                                width={300}
-                                isSelected={true}
-                                sx={{ width: "100%", top: "60px", border: "none", boxShadow: "none" }}
-                            >
-                                {sidePanelContext.expressionEditor?.isOpen &&
-                                    <ExpressionEditor
-                                        value={sidePanelContext.expressionEditor.value}
-                                        handleOnSave={onSubmitExpressionEdtior}
-                                        handleOnCancel={handleOnCancelExpressionEdtior}
-                                    />}
-                            </Drawer>
-                        </div>
+                    <div style={{ marginBottom: "30px" }}>
+                        {
+                            sidePanelContext.pageStack.map((page: SidePanelPage, index) => {
+                                if (index === 0) {
+                                    return page.content;
+                                }
+                                return <Drawer
+                                    isOpen={page.isOpen}
+                                    id={`drawer${index}`}
+                                    width={300}
+                                    isSelected={page.isOpen}
+                                    sx={{ width: "100%", top: "40px", border: "none", boxShadow: "none", height: "calc(100vh - 50px)", overflowY: "auto" }}
+                                >
+                                    {page.content}
+                                </Drawer>
+                            })
+                        }
                     </div>
                 </>}
         </SidePanelContainer>

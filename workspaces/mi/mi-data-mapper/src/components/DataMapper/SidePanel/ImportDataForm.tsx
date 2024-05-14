@@ -80,7 +80,7 @@ export function ImportDataForm(props: ImportDataWizardProps) {
     return (
         <SidePanel
                 isOpen={props.isOpen}
-                alignmanet="right"
+                alignment="right"
                 width={312}
                 overlay={false}
             >

@@ -9,6 +9,7 @@
 
 import { Attribute, PublishEvent } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 import Mustache from 'mustache';
+import { transformNamespaces } from '../../../commons';
 
 export function getPublishEventMustacheTemplate() {
 
@@ -21,7 +22,7 @@ export function getPublishEventMustacheTemplate() {
             {{#isMetaAttribute}}
             <meta>
                 {{#metaAttributes}}
-                <attribute{{#defaultValue}} defaultValue="{{defaultValue}}"{{/defaultValue}} name="{{attributeName}}" type="{{attributeType}}" {{#attributeValue}}value="{{{attributeValue}}}"{{/attributeValue}} {{#attributeExpression}}expression="{{{attributeExpression}}}"{{/attributeExpression}}/>  
+                <attribute{{#defaultValue}} defaultValue="{{defaultValue}}"{{/defaultValue}} name="{{attributeName}}" type="{{attributeType}}" {{#attributeValue}}value="{{{attributeValue}}}"{{/attributeValue}} {{#attributeExpression}}expression="{{{attributeExpression}}}" {{#namespaces}}xmlns:{{prefix}}="{{uri}}" {{/namespaces}}{{/attributeExpression}}/>  
                 {{/metaAttributes}}
             </meta>
             {{/isMetaAttribute}}
@@ -31,7 +32,7 @@ export function getPublishEventMustacheTemplate() {
             {{#isCorrelationAttribute}}
             <correlation>
                 {{#correlationAttributes}}
-                <attribute {{#defaultValue}}defaultValue="{{{defaultValue}}}" {{/defaultValue}}name="{{{attributeName}}}" type="{{attributeType}}" {{#attributeValue}}value="{{{attributeValue}}}"{{/attributeValue}} {{#attributeExpression}}expression="{{{attributeExpression}}}"{{/attributeExpression}}/>
+                <attribute {{#defaultValue}}defaultValue="{{{defaultValue}}}" {{/defaultValue}}name="{{{attributeName}}}" type="{{attributeType}}" {{#attributeValue}}value="{{{attributeValue}}}"{{/attributeValue}} {{#attributeExpression}}expression="{{{attributeExpression}}}" {{#namespaces}}xmlns:{{prefix}}="{{uri}}" {{/namespaces}}{{/attributeExpression}}/>
                 {{/correlationAttributes}}
             </correlation>
             {{/isCorrelationAttribute}}
@@ -41,7 +42,7 @@ export function getPublishEventMustacheTemplate() {
             {{#isPayloadAttribute}}
             <payload>
                 {{#payloadAttributes}}
-                <attribute {{#defaultValue}}defaultValue="{{{defaultValue}}}" {{/defaultValue}}name="{{{attributeName}}}" type="{{attributeType}}" {{#attributeValue}}value="{{{attributeValue}}}"{{/attributeValue}} {{#attributeExpression}}expression="{{{attributeExpression}}}"{{/attributeExpression}}/>
+                <attribute {{#defaultValue}}defaultValue="{{{defaultValue}}}" {{/defaultValue}}name="{{{attributeName}}}" type="{{attributeType}}" {{#attributeValue}}value="{{{attributeValue}}}"{{/attributeValue}} {{#attributeExpression}}expression="{{{attributeExpression}}}" {{#namespaces}}xmlns:{{prefix}}="{{uri}}" {{/namespaces}}{{/attributeExpression}}/>
                 {{/payloadAttributes}}    
             </payload>
             {{/isPayloadAttribute}}
@@ -51,7 +52,7 @@ export function getPublishEventMustacheTemplate() {
             {{#isArbitaryAttributes}}
             <arbitrary>
                 {{#arbitaryAttributes}}
-                <attribute {{#defaultValue}}defaultValue="{{{defaultValue}}}"{{/defaultValue}} name="{{{attributeName}}}" type="{{attributeType}}" {{#attributeValue}}value="{{{attributeValue}}}"{{/attributeValue}} {{#attributeExpression}}expression="{{{attributeExpression}}}"{{/attributeExpression}} />
+                <attribute {{#defaultValue}}defaultValue="{{{defaultValue}}}"{{/defaultValue}} name="{{{attributeName}}}" type="{{attributeType}}" {{#attributeValue}}value="{{{attributeValue}}}"{{/attributeValue}} {{#attributeExpression}}expression="{{{attributeExpression}}}" {{#namespaces}}xmlns:{{prefix}}="{{uri}}" {{/namespaces}}{{/attributeExpression}} />
                 {{/arbitaryAttributes}}
             </arbitrary>
             {{/isArbitaryAttributes}}
@@ -69,10 +70,10 @@ export function getPublishEventXml(data: { [key: string]: any }) {
     data.correlationAttributes = convertTableArrayToJson(data.correlationAttributes);
     data.payloadAttributes = convertTableArrayToJson(data.payloadAttributes);
     data.arbitaryAttributes = convertTableArrayToJson(data.arbitaryAttributes);
-    data.isMetaAttribute = data?.metaAttributes?.length>0 ? true : false;
-    data.isCorrelationAttribute = data?.correlationAttributes?.length>0 ? true : false;
-    data.isPayloadAttribute = data?.payloadAttributes?.length>0 ? true : false;
-    data.isArbitaryAttributes = data?.arbitaryAttributes?.length>0 ? true : false;
+    data.isMetaAttribute = data?.metaAttributes?.length > 0 ? true : false;
+    data.isCorrelationAttribute = data?.correlationAttributes?.length > 0 ? true : false;
+    data.isPayloadAttribute = data?.payloadAttributes?.length > 0 ? true : false;
+    data.isArbitaryAttributes = data?.arbitaryAttributes?.length > 0 ? true : false;
     const output = Mustache.render(getPublishEventMustacheTemplate(), data)?.trim();
     return output;
 }
@@ -94,13 +95,14 @@ export function getPublishEventFormDataFromSTNode(data: { [key: string]: any }, 
 
 function convertTableArrayToJson(attributes: string[][]): any {
     if (attributes) {
-        return attributes.map((attribute: string[]) => {
+        return attributes.map((attribute: any[]) => {
             return {
                 attributeName: attribute[0],
                 attributeType: attribute[2],
                 attributeValue: attribute[1] == "LITERAL" ? attribute[3] : undefined,
-                attributeExpression: attribute[1] == "EXPRESSION" ? attribute[4] : undefined,
-                defaultValue: attribute[5]
+                attributeExpression: attribute[1] == "EXPRESSION" ? attribute[4]?.value : undefined,
+                defaultValue: attribute[5],
+                namespaces: attribute[4]?.namespaces
             }
         })
     }
@@ -109,7 +111,8 @@ function convertTableArrayToJson(attributes: string[][]): any {
 function convertTableJsonToArray(attributes: Attribute[]) {
     if (attributes) {
         return attributes.map((attribute) => {
-            return [attribute.name, attribute.expression ? "EXPRESSION" : "LITERAL", attribute.dataType, attribute.value, attribute.expression, attribute._default]
+            let namespaces = transformNamespaces(attribute?.namespaces);
+            return [attribute.name, attribute.expression ? "EXPRESSION" : "LITERAL", attribute.dataType, attribute.value, { isExpression: true, value: attribute.expression, namespaces: namespaces }, attribute._default]
         });
     }
 }

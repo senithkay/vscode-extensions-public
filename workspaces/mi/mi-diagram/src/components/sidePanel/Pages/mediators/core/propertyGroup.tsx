@@ -8,17 +8,19 @@
 */
 // AUTO-GENERATED FILE. DO NOT MODIFY.
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Button, ComponentCard, ProgressIndicator, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
-import { AddMediatorProps } from '../common';
+import { AddMediatorProps, getParamManagerValues, getParamManagerFromValues } from '../common';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
 import { MEDIATORS } from '../../../../../resources/constants';
 import { Controller, useForm } from 'react-hook-form';
 import { ExpressionFieldValue } from '../../../../Form/ExpressionField/ExpressionInput';
-import { ParamManager, ParamConfig, ParamValue } from '../../../../Form/ParamManager/ParamManager';
+import { ParamManager, ParamValue } from '../../../../Form/ParamManager/ParamManager';
+import { sidepanelAddPage, sidepanelGoBack } from '../../..';
+import ExpressionEditor from '../../../expressionEditor/ExpressionEditor';
 
 const cardStyle = { 
     display: "block",
@@ -41,37 +43,30 @@ const PropertyGroupForm = (props: AddMediatorProps) => {
     const { rpcClient } = useVisualizerContext();
     const sidePanelContext = React.useContext(SidePanelContext);
     const [ isLoading, setIsLoading ] = React.useState(true);
+    const handleOnCancelExprEditorRef = useRef(() => { });
 
     const { control, formState: { errors, dirtyFields }, handleSubmit, watch, reset } = useForm();
 
     useEffect(() => {
         reset({
             properties: {
-                paramValues: sidePanelContext?.formValues?.properties && sidePanelContext?.formValues?.properties.map((property: (string | ExpressionFieldValue | ParamConfig)[], index: string) => (
-                    {
-                        id: index,
-                        key: property[0],
-                        value:  (property[3] as ExpressionFieldValue).value,
-                        icon: 'query',
-                        paramValues: [
-                            { value: property[0] },
-                            { value: property[1] },
-                            { value: property[2] },
-                            { value: property[3] },
-                            { value: property[4] },
-                            { value: property[5] },
-                            { value: property[6] },
-                            { value: property[7] },
-                            { value: property[8] },
-                        ]
-                    }
-                )) || [] as string[][],
+                paramValues: sidePanelContext?.formValues?.properties ? getParamManagerFromValues(sidePanelContext?.formValues?.properties) : [],
                 paramFields: [
                     {
                         "type": "TextField",
                         "label": "Property Name",
                         "defaultValue": "",
                         "isRequired": false
+                    },
+                    {
+                        "type": "Dropdown",
+                        "label": "Property Action",
+                        "defaultValue": "set",
+                        "isRequired": false,
+                        "values": [
+                            "set",
+                            "remove"
+                        ]
                     },
                     {
                         "type": "Dropdown",
@@ -92,18 +87,8 @@ const PropertyGroupForm = (props: AddMediatorProps) => {
                         "enableCondition": [
                             "NOT",
                             {
-                                "-1": "remove"
+                                "1": "remove"
                             }
-                        ]
-                    },
-                    {
-                        "type": "Dropdown",
-                        "label": "Property Action",
-                        "defaultValue": "set",
-                        "isRequired": false,
-                        "values": [
-                            "set",
-                            "remove"
                         ]
                     },
                     {
@@ -120,22 +105,25 @@ const PropertyGroupForm = (props: AddMediatorProps) => {
                             [
                                 "NOT",
                                 {
-                                    "1": "OM"
+                                    "2": "OM"
                                 }
                             ],
                             {
-                                "2": "set"
+                                "1": "set"
                             }
                         ], 
                         openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                            sidePanelContext.setSidePanelState({
-                                ...sidePanelContext,
-                                expressionEditor: {
-                                    isOpen: true,
-                                    value,
-                                    setValue
-                                }
-                            });
+                            const content = <ExpressionEditor
+                                value={value}
+                                handleOnSave={(value) => {
+                                    setValue(value);
+                                    handleOnCancelExprEditorRef.current();
+                                }}
+                                handleOnCancel={() => {
+                                    handleOnCancelExprEditorRef.current();
+                                }}
+                            />;
+                            sidepanelAddPage(sidePanelContext, content, "Expression Editor");
                         }},
                     {
                         "type": "TextField",
@@ -144,7 +132,7 @@ const PropertyGroupForm = (props: AddMediatorProps) => {
                         "isRequired": false,
                         "enableCondition": [
                             {
-                                "1": "OM"
+                                "2": "OM"
                             }
                         ]
                     },
@@ -172,10 +160,10 @@ const PropertyGroupForm = (props: AddMediatorProps) => {
                         "enableCondition": [
                             "AND",
                             {
-                                "1": "STRING"
+                                "2": "STRING"
                             },
                             {
-                                "2": "set"
+                                "1": "set"
                             }
                         ]
                     },
@@ -187,10 +175,10 @@ const PropertyGroupForm = (props: AddMediatorProps) => {
                         "enableCondition": [
                             "AND",
                             {
-                                "1": "STRING"
+                                "2": "STRING"
                             },
                             {
-                                "2": "set"
+                                "1": "set"
                             }
                         ]
                     },
@@ -207,9 +195,15 @@ const PropertyGroupForm = (props: AddMediatorProps) => {
         setIsLoading(false);
     }, [sidePanelContext.formValues]);
 
+    useEffect(() => {
+        handleOnCancelExprEditorRef.current = () => {
+            sidepanelGoBack(sidePanelContext);
+        };
+    }, [sidePanelContext.pageStack]);
+
     const onClick = async (values: any) => {
         
-        values["properties"] = values.properties.paramValues.map((param: any) => param.paramValues.map((p: any) => p.value));
+        values["properties"] = getParamManagerValues(values.properties);
         const xml = getXML(MEDIATORS.PROPERTYGROUP, values, dirtyFields, sidePanelContext.formValues);
         if (Array.isArray(xml)) {
             for (let i = 0; i < xml.length; i++) {
