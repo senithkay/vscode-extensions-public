@@ -351,10 +351,12 @@ export class SizingVisitor implements Visitor {
 
     //Advanced Mediators
     endVisitCache = (node: Cache): void => {
-        this.calculateBasicMediator(node, NODE_DIMENSIONS.GROUP.WIDTH, NODE_DIMENSIONS.GROUP.HEIGHT)
-        this.calculateAdvancedMediator(node, {
-            OnCacheHit: node.onCacheHit
-        }, NodeTypes.GROUP_NODE);
+        this.calculateBasicMediator(node, NODE_DIMENSIONS.GROUP.WIDTH, NODE_DIMENSIONS.GROUP.HEIGHT);
+        if (!node.collector) {
+            this.calculateAdvancedMediator(node, {
+                OnCacheHit: node.onCacheHit
+            }, NodeTypes.GROUP_NODE);
+        }
     }
     endVisitClone = (node: Clone): void => {
         let targets: { [key: string]: any } = {}
