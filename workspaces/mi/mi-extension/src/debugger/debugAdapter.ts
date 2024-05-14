@@ -13,12 +13,14 @@ import * as vscode from 'vscode';
 import { executeBuildTask, executeTasks, getServerPath, isADiagramView, removeTempDebugBatchFile } from './debugHelper';
 import { Subject } from 'await-notify';
 import { Debugger } from './debugger';
-import { navigate } from '../stateMachine';
+import { StateMachine, navigate, openView } from '../stateMachine';
 import { VisualizerWebview } from '../visualizer/webview';
 import { getBuildTask, getStopTask } from './tasks';
 import { ViewColumn } from 'vscode';
 import { COMMANDS } from '../constants';
 import { INCORRECT_SERVER_PATH_MSG } from './constants';
+import { extension } from '../MIExtensionContext';
+import { EVENT_TYPE } from '@wso2-enterprise/mi-core';
 
 export class MiDebugAdapter extends LoggingDebugSession {
     private _configurationDone = new Subject();
