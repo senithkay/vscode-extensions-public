@@ -10,7 +10,7 @@ import { PortModel } from "@projectstorm/react-diagrams-core";
 import { DMType, TypeKind } from "@wso2-enterprise/mi-core";
 
 import { InputOutputPortModel } from "../Port";
-import { getDefaultValue, getLinebreak } from "./common-utils";
+import { getDefaultValue, getLinebreak, isQuotedString } from "./common-utils";
 
 export function isSourcePortArray(port: PortModel): boolean {
     if (port instanceof InputOutputPortModel) {
@@ -28,7 +28,9 @@ export function isTargetPortArray(port: PortModel): boolean {
 
 export function generateArrayToArrayMappingWithFn(srcExpr: string, targetType: DMType) {
 
-    let itemName = `${srcExpr.split('.').pop().trim()}Item`;
+    const parts = srcExpr.split(/[\.\[\]]/).filter(Boolean); // Split by dot or square brackets and remove empty strings
+    let item = parts[parts.length - 1];
+    let varName = isQuotedString(item) ? `${item.substring(1, item.length - 1)}Item` : `${item}Item`;
     let returnExpr = '';
 
     if (targetType.kind === TypeKind.Interface) {
@@ -43,7 +45,7 @@ export function generateArrayToArrayMappingWithFn(srcExpr: string, targetType: D
         returnExpr = `return ${getDefaultValue(targetType.kind)}`;
     }
 
-    return `${srcExpr.trim()}.map((${itemName}) => {${returnExpr}})`;
+    return `${srcExpr.trim()}.map((${varName}) => {${returnExpr}})`;
 }
 
 function fillWithDefaults(type: DMType): string {

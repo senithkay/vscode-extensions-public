@@ -26,7 +26,8 @@ import {
 	getPropertyAssignment,
 	getCallExprReturnStmt,
 	isEmptyValue,
-	isMapFunction
+	isMapFunction,
+	isQuotedString
 } from "./common-utils";
 import { ArrayOutputNode, LinkConnectorNode, ObjectOutputNode } from "../Node";
 import { ExpressionLabelModel } from "../Label";
@@ -390,7 +391,7 @@ export function buildInputAccessExpr(fieldFqn: string): string {
     const parts = fieldFqn.split('.');
 
     const result = parts.map(part => {
-        if (part.startsWith('"') && part.endsWith('"')) {
+        if (isQuotedString(part)) {
             return `["${part.slice(1, -1)}"]`; // If the part is enclosed in double quotes, wrap it in square brackets
         } else {
             return part; // Otherwise, leave the part unchanged

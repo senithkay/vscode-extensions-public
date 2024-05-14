@@ -563,6 +563,11 @@ export function isInputAccessExpr(node: Node): boolean {
     return Node.isElementAccessExpression(node) || Node.isPropertyAccessExpression(node);
 }
 
+export function isQuotedString(str: string): boolean {
+    return str.startsWith('"') && str.endsWith('"')
+        || str.startsWith("'") && str.endsWith("'");
+}
+
 function getRootInputAccessExpr(node: ElementAccessExpression | PropertyAccessExpression): Node {
     let expr = node.getExpression();
     while (expr && isInputAccessExpr(expr)) {
