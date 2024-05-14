@@ -15,7 +15,7 @@ import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapp
 import { ExpressionLabelModel } from "../../Label";
 import { DataMapperLinkModel } from "../../Link";
 import { DMTypeWithValue } from "../../Mappings/DMTypeWithValue";
-import { MappingMetadata } from "../../Mappings/FieldAccessToSpecificFied";
+import { MappingMetadata } from "../../Mappings/MappingMetadata";
 import { InputOutputPortModel } from "../../Port";
 import { ARRAY_OUTPUT_TARGET_PORT_PREFIX } from "../../utils/constants";
 import { getDiagnostics } from "../../utils/diagnostics-utils";
@@ -119,16 +119,17 @@ export class ArrayOutputNode extends DataMapperNodeModel {
             let mappedOutPort: InputOutputPortModel;
             const body = this.dmTypeWithValue.value;
 
-            if (this.dmTypeWithValue.type.typeName === TypeKind.Array
+            if (this.dmTypeWithValue.type.kind === TypeKind.Array
                 && this.dmTypeWithValue?.value
                 && !Node.isArrayLiteralExpression(body)
             ) {
-                outPort = this.getPort(`${ARRAY_OUTPUT_TARGET_PORT_PREFIX}.${this.rootName}.IN`) as InputOutputPortModel;
+                const portId = `${ARRAY_OUTPUT_TARGET_PORT_PREFIX}${this.rootName ? `.${this.rootName}` : ''}.IN`;
+                outPort = this.getPort(portId) as InputOutputPortModel;
                 mappedOutPort = outPort;
             } else {
                 [outPort, mappedOutPort] = getOutputPort(
                     fields, this.dmTypeWithValue, ARRAY_OUTPUT_TARGET_PORT_PREFIX,
-                    (portId: string) =>  this.getPort(portId) as InputOutputPortModel
+                    (portId: string) =>  this.getPort(portId) as InputOutputPortModel, this.rootName
                 );
             }
 

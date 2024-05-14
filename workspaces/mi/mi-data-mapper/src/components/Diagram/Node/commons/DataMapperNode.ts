@@ -13,7 +13,7 @@ import { Node } from 'ts-morph';
 
 import { IDataMapperContext } from '../../../../utils/DataMapperContext/DataMapperContext';
 import { ArrayElement, DMTypeWithValue } from "../../Mappings/DMTypeWithValue";
-import { MappingMetadata } from '../../Mappings/FieldAccessToSpecificFied';
+import { MappingMetadata } from '../../Mappings/MappingMetadata';
 import { InputOutputPortModel } from "../../Port";
 import { getPropertyAccessNodes } from '../../utils/common-utils';
 
@@ -97,7 +97,8 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 		portPrefix?: string,
 		parent?: InputOutputPortModel,
 		collapsedFields?: string[],
-		hidden?: boolean
+		hidden?: boolean,
+		isWithinMapFunction?: boolean
 	) {
 
 		const fieldName = field.type?.fieldName || '';
@@ -109,7 +110,8 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 		const isCollapsed = !hidden && collapsedFields && collapsedFields.includes(portName);
 		const fieldPort = new InputOutputPortModel(
 			field.type, portName, type, parentId, elementIndex, field,
-			fieldFQN, parent, isCollapsed, hidden);
+			fieldFQN, parent, isCollapsed, hidden, false, false, isWithinMapFunction
+		);
 		this.addPort(fieldPort);
 
 		if (field.type.kind === TypeKind.Interface) {
@@ -137,7 +139,8 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 		portType: "IN" | "OUT",
 		portPrefix: string,
 		collapsedFields?: string[],
-		field?: DMTypeWithValue
+		field?: DMTypeWithValue,
+		isWithinMapFunction?: boolean,
 	): InputOutputPortModel {
 
 		let portName = name;
@@ -147,7 +150,7 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 		const isCollapsed = collapsedFields && collapsedFields.includes(portName);
 		const headerPort = new InputOutputPortModel(
 			dmType, portName, portType, undefined, undefined,
-			field, name, undefined, isCollapsed, false,
+			field, name, undefined, isCollapsed, false, false, false, isWithinMapFunction
 		);
 
 		this.addPort(headerPort)

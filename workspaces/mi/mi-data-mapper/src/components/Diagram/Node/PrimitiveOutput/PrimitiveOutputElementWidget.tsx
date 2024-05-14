@@ -13,16 +13,16 @@ import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import { Node } from "ts-morph";
 import classnames from "classnames";
 
-import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
-import { DMTypeWithValue } from "../../../Mappings/DMTypeWithValue";
-import { DataMapperPortWidget, PortState, InputOutputPortModel } from "../../../Port";
-import { getDefaultValue, getEditorLineAndColumn } from "../../../utils/common-utils";
-import { OutputSearchHighlight } from "../Search";
+import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
+import { DMTypeWithValue } from "../../Mappings/DMTypeWithValue";
+import { DataMapperPortWidget, PortState, InputOutputPortModel } from "../../Port";
+import { getDefaultValue, getEditorLineAndColumn } from "../../utils/common-utils";
+import { OutputSearchHighlight } from "../commons/Search";
 
-import { ValueConfigMenu, ValueConfigOption } from "./ValueConfigButton";
-import { useIONodesStyles } from "../../../../styles";
+import { ValueConfigMenu, ValueConfigOption } from "../commons/ValueConfigButton";
+import { useIONodesStyles } from "../../../styles";
 
-export interface PrimitiveTypeOutputElementWidgetProps {
+export interface PrimitiveOutputElementWidgetWidgetProps {
     parentId: string;
     field: DMTypeWithValue;
     engine: DiagramEngine;
@@ -34,7 +34,7 @@ export interface PrimitiveTypeOutputElementWidgetProps {
     hasHoveredParent?: boolean;
 }
 
-export function PrimitiveTypeOutputElementWidget(props: PrimitiveTypeOutputElementWidgetProps) {
+export function PrimitiveOutputElementWidget(props: PrimitiveOutputElementWidgetWidgetProps) {
     const {
         parentId,
         field,

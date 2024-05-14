@@ -6,11 +6,12 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { ts, Node, PropertyAssignment, FunctionDeclaration } from 'ts-morph';
+import { ts, Node, PropertyAssignment, FunctionDeclaration, ReturnStatement } from 'ts-morph';
 
 import { Visitor } from '../../../ts/base-visitor';
 import { View } from '../../../components/DataMapper/DataMapper';
 import { FocusedSTFindingVisitor } from '../../../components/Visitors/FocusedSTFindingVisitor';
+import { getTnfFnReturnStatement, isMapFunction } from './common-utils';
 
 enum SyntaxKindWithRepeatedValue {
     NumericLiteral = 9,
@@ -69,8 +70,26 @@ export function isPositionsEquals(node1: NodePosition, node2: NodePosition): boo
         && node1.end === node2.end;
 }
 
-export function getFocusedST(focusedView: View, fnST: FunctionDeclaration): PropertyAssignment {
-    const focusedSTFindingVisitor = new FocusedSTFindingVisitor(focusedView.targetFieldFQN);
+export function getFocusedST(focusedView: View, fnST: FunctionDeclaration): PropertyAssignment | ReturnStatement {
+    const { targetFieldFQN, mapFnIndex } = focusedView;
+
+    if (!targetFieldFQN) {
+        // When focused into map function located in the root level return statement
+        return getTnfFnReturnStatement(fnST);
+    }
+
+    const focusedSTFindingVisitor = new FocusedSTFindingVisitor(targetFieldFQN);
     traversNode(fnST, focusedSTFindingVisitor);
-    return focusedSTFindingVisitor.getResolvedNode();
+    let resolvedNode: PropertyAssignment | ReturnStatement = focusedSTFindingVisitor.getResolvedNode();
+
+    const returnStmts = resolvedNode.getDescendantsOfKind(ts.SyntaxKind.ReturnStatement);
+
+    if (mapFnIndex !== undefined && returnStmts.length >= mapFnIndex) {
+        resolvedNode = returnStmts.filter(stmt => {
+            const returnExpr = stmt.getExpression();
+            return Node.isCallExpression(returnExpr) && isMapFunction(returnExpr);
+        })[mapFnIndex - 1];
+    }
+
+    return resolvedNode;
 }

@@ -8,7 +8,7 @@
  */
 export const OBJECT_OUTPUT_TARGET_PORT_PREFIX = "objectOutput";
 export const ARRAY_OUTPUT_TARGET_PORT_PREFIX = "arrayOutput";
-export const PRIMITIVE_TYPE_TARGET_PORT_PREFIX = "primitiveType";
+export const PRIMITIVE_OUTPUT_TARGET_PORT_PREFIX = "primitiveOutput";
 export const FOCUSED_INPUT_SOURCE_PORT_PREFIX = "focusedInput";
 
 export const defaultModelOptions = { zoom: 90 };

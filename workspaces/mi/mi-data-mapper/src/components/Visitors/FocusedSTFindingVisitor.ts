@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { PropertyAssignment } from "ts-morph";
+import { Node, ObjectLiteralExpression, PropertyAssignment } from "ts-morph";
 import { Visitor } from "../../ts/base-visitor";
 
 export class FocusedSTFindingVisitor implements Visitor {
@@ -25,15 +25,28 @@ export class FocusedSTFindingVisitor implements Visitor {
     public beginVisitPropertyAssignment(node: PropertyAssignment) {
         const propertyName = node.getName();
         this.stack.push(propertyName);
-        const filedFqn = this.getFieldFqn();
+        const fieldFqn = this.getFieldFqn();
 
-        if (filedFqn === this.targetFieldFqn) {
+        if (fieldFqn === this.targetFieldFqn) {
             this.resolvedNode = node;
+        }
+    }
+
+    public beginVisitObjectLiteralExpression(node: ObjectLiteralExpression, parent: Node) {
+        if (Node.isArrayLiteralExpression(parent)) {
+            const elementIndex = parent.getElements().indexOf(node);
+            this.stack.push(elementIndex.toString());
         }
     }
 
     public endVisitPropertyAssignment(_node: PropertyAssignment): void {
         this.stack.pop();
+    }
+
+    public endVisitObjectLiteralExpression(_node: ObjectLiteralExpression, parent: Node) {
+        if (Node.isArrayLiteralExpression(parent)) {
+            this.stack.pop();
+        }
     }
 
     private getFieldFqn(): string {

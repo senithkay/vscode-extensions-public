@@ -18,7 +18,7 @@ export function getDiagnostics(node: Node): Diagnostic[] {
     let targetNode = node;
 
     const parent = node.getParent();
-    if (parent && Node.isPropertyAssignment(parent)) {
+    if (parent && (Node.isPropertyAssignment(parent) || Node.isReturnStatement(parent))) {
         targetNode = parent;
     }
 

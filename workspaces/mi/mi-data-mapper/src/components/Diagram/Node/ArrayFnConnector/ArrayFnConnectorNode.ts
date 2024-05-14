@@ -6,20 +6,25 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { DMType, TypeKind } from "@wso2-enterprise/mi-core";
+import { DMType } from "@wso2-enterprise/mi-core";
 import md5 from "blueimp-md5";
 import { CallExpression, Identifier, Node, PropertyAccessExpression } from "ts-morph";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { DataMapperLinkModel } from "../../Link";
 import { InputOutputPortModel, IntermediatePortModel } from "../../Port";
-import { FOCUSED_INPUT_SOURCE_PORT_PREFIX, OFFSETS } from "../../utils/constants";
-import { getDefaultValue, getFieldNames } from "../../utils/common-utils";
+import { ARRAY_OUTPUT_TARGET_PORT_PREFIX, FOCUSED_INPUT_SOURCE_PORT_PREFIX, OFFSETS } from "../../utils/constants";
+import {
+    getDefaultValue,
+    getFieldNames,
+    isMapFunction,
+    getTnfFnReturnStatement,
+    representsTnfFnReturnStmt
+} from "../../utils/common-utils";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
 import { ArrayOutputNode } from "../ArrayOutput";
 import { ObjectOutputNode } from "../ObjectOutput";
 import { InputNode } from "../Input";
-import { getDMType } from "../../utils/type-utils";
 import { getPosition, isPositionsEquals, traversNode } from "../../utils/st-utils";
 import { FocusedInputNode } from "../FocusedInput";
 import { LinkDeletingVisitor } from "../../../../components/Visitors/LinkDeletingVistior";
@@ -56,8 +61,8 @@ export class ArrayFnConnectorNode extends DataMapperNodeModel {
         this.targetPort = undefined;
         this.sourceType = undefined;
 
-        this.getSourceType();
-        this.getTargetType();
+        this.findSourcePort();
+        this.findTargetPort();
 
         this.inPort = new IntermediatePortModel(
             md5(JSON.stringify(this.value.getPos()) + "IN")
@@ -72,25 +77,18 @@ export class ArrayFnConnectorNode extends DataMapperNodeModel {
         this.addPort(this.outPort);
     }
 
-    private getSourceType(): void {
+    private findSourcePort(): void {
+        let fieldId: string;
+        let paramName: string;
         let sourceExpr: PropertyAccessExpression | Identifier;
         const exprWithMethod = this.value.getExpression();
 
         if (Node.isPropertyAccessExpression(exprWithMethod)) {
             const innerExpr = exprWithMethod.getExpression();
-            if (Node.isPropertyAccessExpression(innerExpr)) {
+            if (Node.isPropertyAccessExpression(innerExpr) || Node.isIdentifier(innerExpr)) {
                 sourceExpr = innerExpr;
             }
         }
-
-        const type = getDMType(sourceExpr.getText(), this.context.inputTrees[0], true);
-
-        if (type && type?.memberType && type.kind === TypeKind.Array) {
-            this.sourceType = type.memberType;
-        }
-
-        let fieldId: string;
-        let paramName: string;
 
         if (Node.isPropertyAccessExpression(sourceExpr)) {
             const fieldNames = getFieldNames(sourceExpr);
@@ -104,7 +102,7 @@ export class ArrayFnConnectorNode extends DataMapperNodeModel {
         this.getModel().getNodes().map(node => {
             if (node instanceof InputNode && node?.value && node.value.getName() === paramName) {
                 this.sourcePort = node.getPort(fieldId + ".OUT") as InputOutputPortModel;
-            } else if (node instanceof FocusedInputNode && node?.value && node.innerParam.getName() === paramName) {
+            } else if (node instanceof FocusedInputNode && node.innerParam.getName() === paramName) {
                 const portName = FOCUSED_INPUT_SOURCE_PORT_PREFIX + "." + fieldId + ".OUT";
                 this.sourcePort = node.getPort(portName) as InputOutputPortModel;
             }
@@ -115,10 +113,12 @@ export class ArrayFnConnectorNode extends DataMapperNodeModel {
         });
     }
 
-    private getTargetType(): void {
+    private findTargetPort(): void {
         const innerMostExpr = this.parentNode;
         const fieldName = Node.isPropertyAssignment(innerMostExpr) && innerMostExpr.getNameNode();
-        const fieldNamePosition = getPosition(fieldName);
+        const fieldNamePosition = fieldName && getPosition(fieldName);
+        const returnStmt = getTnfFnReturnStatement(this.context.functionST);
+        const isRerurnStmtMapFn = Node.isReturnStatement(this.parentNode);
 
         if (fieldNamePosition) {
             this.getModel().getNodes().map((node) => {
@@ -139,6 +139,26 @@ export class ArrayFnConnectorNode extends DataMapperNodeModel {
                     });
                 }
             });
+        } else if (representsTnfFnReturnStmt(this.parentNode, returnStmt) || isRerurnStmtMapFn) {
+            this.getModel().getNodes().forEach((node) => {
+                if (node instanceof ArrayOutputNode) {
+                    console.log(node.getPorts());
+                    const ports = Object.entries(node.getPorts());
+                    ports.map((entry) => {
+                        const port = entry[1];
+                        if (port instanceof InputOutputPortModel
+                            && port?.typeWithValue && port.typeWithValue?.value
+                            && Node.isCallExpression(port.typeWithValue.value)
+                            && isMapFunction(port.typeWithValue.value)
+                            && isPositionsEquals(getPosition(port.typeWithValue.value), getPosition(this.value))
+                            && port.portName === `${ARRAY_OUTPUT_TARGET_PORT_PREFIX}${node.rootName ? `.${node.rootName}` : ''}`
+                            && port.portType === 'IN'
+                        ) {
+                            this.targetPort = port;
+                        }
+                    });
+                }
+            });
         }
 
         if (this.targetPort?.hidden){
@@ -146,10 +166,6 @@ export class ArrayFnConnectorNode extends DataMapperNodeModel {
         }
         while (this.targetPort && this.targetPort.hidden){
             this.targetPort = this.targetPort.parentModel;
-        }
-
-        if (this.targetPort) {
-            this.targetType = getDMType(this.targetPort.fieldFQN, this.context.outputTree);
         }
     }
 
