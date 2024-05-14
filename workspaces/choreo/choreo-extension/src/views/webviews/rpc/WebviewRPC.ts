@@ -235,12 +235,12 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
         if(!buildLogsOutputChannel){
             buildLogsOutputChannel = window.createOutputChannel(`Choreo: Build Logs`);
         }
-        buildLogsOutputChannel.append(logs);
+        buildLogsOutputChannel.replace(logs);
         buildLogsOutputChannel.show();
     });
     messenger.onRequest(ViewRuntimeLogs, async ({orgName, projectName, componentName, deploymentTrackName, envName, type}) => {
-        const args = ["logs", "-t", type.flag, "-o", orgName, "-p", projectName, "-c", componentName, "-d", deploymentTrackName, "-e", envName, "-f"];
-        window.createTerminal(`${componentName}:${type.label}`, getChoreoExecPath(), args).show();
+        const args = ["logs", "-t", type, "-o", orgName, "-p", projectName, "-c", componentName, "-d", deploymentTrackName, "-e", envName, "-f"];
+        window.createTerminal(`${componentName}:${type.replace("component-","")}-logs`, getChoreoExecPath(), args).show();
     });
     const _getGithubUrlState = async (orgId: string):Promise<string> => {
         const callbackUrl = await env.asExternalUri(Uri.parse(`${env.uriScheme}://wso2.choreo/ghapp`));

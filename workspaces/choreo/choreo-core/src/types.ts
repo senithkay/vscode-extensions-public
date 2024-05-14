@@ -195,7 +195,10 @@ export enum ChoreoComponentType {
     ScheduledTask = 'scheduleTask',
     ManualTrigger = 'manualTask',
     Webhook = 'webhook',
-    WebApplication = 'webApp'
+    WebApplication = 'webApp',
+    EventHandler = 'eventHandler',
+    TestRunner = 'testRunner',
+    ApiProxy = 'proxy'
 }
 
 export interface Project {

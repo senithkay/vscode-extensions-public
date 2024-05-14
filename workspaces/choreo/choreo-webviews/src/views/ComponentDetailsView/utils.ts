@@ -16,16 +16,19 @@ export const getTypeForDisplayType = (displayType: string): string => {
         case ComponentDisplayType.BuildpackService:
         case ComponentDisplayType.BuildRestApi:
         case ComponentDisplayType.Websocket:
+        case ComponentDisplayType.ByoiService:
             return ChoreoComponentType.Service;
         case ComponentDisplayType.ManualTrigger:
         case ComponentDisplayType.ByocJob:
+        case ComponentDisplayType.ByoiJob:
         case ComponentDisplayType.BuildpackJob:
         case ComponentDisplayType.MiJob:
             return ChoreoComponentType.ManualTrigger;
         case ComponentDisplayType.ScheduledTask:
         case ComponentDisplayType.ByocCronjob:
-        case ComponentDisplayType.BuildpackCronJob:
+        case ComponentDisplayType.ByoiCronjob:
         case ComponentDisplayType.MiCronjob:
+        case ComponentDisplayType.BuildpackCronJob:
             return ChoreoComponentType.ScheduledTask;
         case ComponentDisplayType.Webhook:
         case ComponentDisplayType.MiWebhook:
@@ -34,35 +37,44 @@ export const getTypeForDisplayType = (displayType: string): string => {
         case ComponentDisplayType.BallerinaWebhook:
             return ChoreoComponentType.Webhook;
         case ComponentDisplayType.Proxy:
-            return "api-proxy";
+            return ChoreoComponentType.ApiProxy;
         case ComponentDisplayType.ByocWebApp:
         case ComponentDisplayType.ByocWebAppDockerLess:
+        case ComponentDisplayType.ByoiWebApp:
         case ComponentDisplayType.BuildpackWebApp:
             return ChoreoComponentType.WebApplication;
         case ComponentDisplayType.MiEventHandler:
         case ComponentDisplayType.BallerinaEventHandler:
         case ComponentDisplayType.BuildpackEventHandler:
         case ComponentDisplayType.ByocEventHandler:
-            return "event-handler";
+            return ChoreoComponentType.EventHandler;
+        case ComponentDisplayType.ByocTestRunner:
         case ComponentDisplayType.BuildpackTestRunner:
-            return "test";
+        case ComponentDisplayType.PostmanTestRunner:
+            return ChoreoComponentType.TestRunner;
         default:
             return displayType;
     }
 };
 
-export const getFriendlyComponentType = (componentType: string): string => {
+export const getComponentTypeText = (componentType: string): string => {
     switch (componentType) {
         case ChoreoComponentType.Service:
             return "Service";
         case ChoreoComponentType.ManualTrigger:
-            return "Manual Task"
+            return "Manual Task";
         case ChoreoComponentType.ScheduledTask:
-            return "Scheduled Task"
+            return "Scheduled Task";
         case ChoreoComponentType.WebApplication:
-            return "Web Application"
-            case ChoreoComponentType.Webhook:
-                return "Webhook"
+            return "Web Application";
+        case ChoreoComponentType.Webhook:
+            return "Webhook";
+        case ChoreoComponentType.EventHandler:
+            return "Event Handler";
+        case ChoreoComponentType.TestRunner:
+            return "Test Runner";
+        case ChoreoComponentType.ApiProxy:
+            return "API Proxy";
         default:
             return componentType;
     }

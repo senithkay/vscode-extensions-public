@@ -6,7 +6,7 @@ import {
     Organization,
     Project,
 } from "@wso2-enterprise/choreo-core";
-import { getFriendlyComponentType, getTypeForDisplayType } from "../utils";
+import { getComponentTypeText, getTypeForDisplayType } from "../utils";
 import { Button } from "../../../components/Button";
 import { ChoreoWebViewAPI } from "../../../utilities/WebViewRpc";
 import { useMutation } from "@tanstack/react-query";
@@ -33,7 +33,7 @@ export const HeaderSection: FC<ComponentsDetailsWebviewProps> = ({
                 <div className="flex items-center flex-wrap gap-3 md:mb-1 flex-1">
                     <h1 className="text-2xl md:text-3xl font-bold">{component.metadata.displayName}</h1>
                     <h2 className="text-2xl md:text-3xl font-thin opacity-30 hidden sm:block">
-                        {getFriendlyComponentType(getTypeForDisplayType(component?.spec?.type))}
+                        {getComponentTypeText(getTypeForDisplayType(component?.spec?.type))}
                     </h2>
                 </div>
                 <span className="mt-1">

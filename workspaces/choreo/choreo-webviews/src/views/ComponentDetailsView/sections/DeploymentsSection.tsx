@@ -96,7 +96,7 @@ const EnvItem: FC<{
     endpoints: ComponentEP[];
     refetchEndpoint: () => void;
 }> = ({ organization, project, deploymentTrack, component, env, endpoints, refetchEndpoint }) => {
-    const isServiceType = getTypeForDisplayType(component.spec.type) === ChoreoComponentType.Service;
+    const componentType = getTypeForDisplayType(component.spec.type);
     const [envDetailsRef] = useAutoAnimate();
 
     const {
@@ -139,7 +139,7 @@ const EnvItem: FC<{
     }
 
     const { mutate: viewRuntimeLogs } = useMutation({
-        mutationFn: (logType: { label: string; flag: "component-application" | "component-gateway" }) =>
+        mutationFn: (logType: "component-application" | "component-gateway") =>
             ChoreoWebViewAPI.getInstance().viewRuntimeLogs({
                 componentName: component.metadata.name,
                 projectName: project.name,
@@ -152,23 +152,26 @@ const EnvItem: FC<{
 
     const { mutate: selectLogType } = useMutation({
         mutationFn: async () => {
-            if (isServiceType) {
+            if (
+                [ChoreoComponentType.Service, ChoreoComponentType.Webhook].includes(
+                    componentType as ChoreoComponentType
+                )
+            ) {
                 const pickedItem = await ChoreoWebViewAPI.getInstance().showQuickPicks({
                     title: "Select Log Type",
                     items: [
-                        {
-                            label: "Application Logs",
-                            item: { flag: "component-application", label: "Application Logs" },
-                        },
-                        { label: "Gateway Logs", item: { flag: "component-gateway", label: "Gateway Logs" } },
+                        { label: "Application Logs", item: "component-application" },
+                        { label: "Gateway Logs", item: "component-gateway" },
                     ],
                 });
 
                 if (pickedItem) {
                     viewRuntimeLogs(pickedItem.item);
                 }
+            } else if (componentType === ChoreoComponentType.ApiProxy) {
+                viewRuntimeLogs("component-gateway");
             } else {
-                viewRuntimeLogs({ flag: "component-application", label: "Application Logs" });
+                viewRuntimeLogs("component-application");
             }
         },
     });
@@ -249,7 +252,7 @@ const EnvItem: FC<{
                                         showOpen={true}
                                     />
                                 )}
-                                {isServiceType && (
+                                {componentType === ChoreoComponentType.Service && (
                                     <>
                                         {endpoints
                                             .filter((item) => item.environmentId === env.id)

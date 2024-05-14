@@ -71,7 +71,7 @@ export interface SubmitComponentCreateReq  {
 
 export interface ViewBuildLogsReq { orgId: string; orgHandler: string; componentId: string; displayType: string; projectId: string; buildId: number;}
 export interface ViewRuntimeLogsReq {
-   type: {label: string, flag: "component-application" | "component-gateway"};
+   type: "component-application" | "component-gateway";
    orgName: string;
    projectName: string;
    componentName: string;
