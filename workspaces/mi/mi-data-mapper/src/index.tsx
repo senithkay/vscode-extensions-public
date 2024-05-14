@@ -77,7 +77,7 @@ export function DataMapperView(props: DataMapperViewProps) {
             || returnStatement?.getExpressionIfKind(SyntaxKind.ArrayLiteralExpression)?.getElements().length === 0;
         if (isEmptyReturnStatement) {
             rpcClient.getMiVisualizerRpcClient().retrieveContext({
-                key: "hideDmLandingMessage",
+                key: "showDmLandingMessage",
                 contextType: "workspace"
             }).then((response) => {
                 if (response.value ?? true) {
@@ -88,7 +88,7 @@ export function DataMapperView(props: DataMapperViewProps) {
                     }).then((response) => {
                         if (response.selection) {
                             rpcClient.getMiVisualizerRpcClient().updateContext({
-                                key: "hideDmLandingMessage",
+                                key: "showDmLandingMessage",
                                 value: false,
                                 contextType: "workspace"
                             });
