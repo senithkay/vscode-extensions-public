@@ -20,32 +20,12 @@ export class InputAccessNodeFindingVisitor implements Visitor {
     }
 
     public beginVisitPropertyAccessExpression(node: PropertyAccessExpression, parent?: Node) {
-        if (this.mapFnDepth > 0) {
-            return;
-        }
-        if (!parent || (!isInputAccessExpr(parent) && !Node.isCallExpression(parent))) {
-            this.inputNodes.push(node)
-        } else if (parent && Node.isCallExpression(parent)) {
-            const expr = node.getExpression();
-            if (isInputAccessExpr(expr)) {
-                this.inputNodes.push(expr as ElementAccessExpression | PropertyAccessExpression);
-            }
-        }
+        this.addToInputNodesIfEligible(node, parent);
     }
 
 
     public beginVisitElementAccessExpression(node: ElementAccessExpression, parent?: Node) {
-        if (this.mapFnDepth > 0) {
-            return;
-        }
-        if (!parent || (!isInputAccessExpr(parent) && !Node.isCallExpression(parent))) {
-            this.inputNodes.push(node)
-        } else if (parent && Node.isCallExpression(parent)) {
-            const expr = node.getExpression();
-            if (isInputAccessExpr(expr)) {
-                this.inputNodes.push(expr as ElementAccessExpression | PropertyAccessExpression);
-            }
-        }
+        this.addToInputNodesIfEligible(node, parent);
     }
 
     public beginVisitIdentifier(node: Identifier, parent?: Node) {
@@ -63,6 +43,20 @@ export class InputAccessNodeFindingVisitor implements Visitor {
     public endVisitCallExpression(node: CallExpression){
         if (isMapFunction(node)) {
             this.mapFnDepth -= 1;
+        }
+    }
+
+    private addToInputNodesIfEligible(node: ElementAccessExpression | PropertyAccessExpression, parent?: Node) {
+        if (this.mapFnDepth > 0) return;
+    
+        if (!parent || (!isInputAccessExpr(parent) && !Node.isCallExpression(parent))) {
+            this.inputNodes.push(node);
+        } else if (parent && Node.isCallExpression(parent)) {
+            const expr = node.getExpression();
+
+            if (isInputAccessExpr(expr)) {
+                this.inputNodes.push(expr as ElementAccessExpression | PropertyAccessExpression);
+            }
         }
     }
 

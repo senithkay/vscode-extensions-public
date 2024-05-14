@@ -24,7 +24,7 @@ import {
     ElementAccessExpression
 } from "ts-morph";
 
-import { InputAccessNodeFindingVisitor } from "../../Visitors/PropertyAccessNodeFindingVisitor";
+import { InputAccessNodeFindingVisitor } from "../../Visitors/InputAccessNodeFindingVisitor";
 import { NodePosition, getPosition, isPositionsEquals, traversNode } from "./st-utils";
 import { DataMapperNodeModel } from "../Node/commons/DataMapperNode";
 import { ArrayOutputNode, InputNode, ObjectOutputNode } from "../Node";
