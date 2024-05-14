@@ -15,7 +15,7 @@ import { IDataMapperContext } from '../../../../utils/DataMapperContext/DataMapp
 import { ArrayElement, DMTypeWithValue } from "../../Mappings/DMTypeWithValue";
 import { MappingMetadata } from '../../Mappings/MappingMetadata';
 import { InputOutputPortModel } from "../../Port";
-import { getPropertyAccessNodes } from '../../utils/common-utils';
+import { getInputAccessNodes } from '../../utils/common-utils';
 
 export interface DataMapperNodeModelGenerics {
 	PORT: InputOutputPortModel;
@@ -189,7 +189,7 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 	protected getOtherMappings(node: Node, currentFields: Node[]) {
 		const valNode = Node.isPropertyAssignment(node) ? node.getInitializer() : node;
 		if (valNode) {
-			const inputNodes = getPropertyAccessNodes(valNode);
+			const inputNodes = getInputAccessNodes(valNode);
 			if (inputNodes.length === 1) {
 				return new MappingMetadata([...currentFields, node], inputNodes[0], valNode);
 			}

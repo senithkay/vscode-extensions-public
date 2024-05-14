@@ -9,6 +9,7 @@
 import { ArrayLiteralExpression, BinaryExpression, Node, ObjectLiteralExpression } from "ts-morph";
 import { Visitor } from "../../ts/base-visitor";
 import { getPosition, isPositionsEquals, NodePosition, traversNode } from "../Diagram/utils/st-utils";
+import { isInputAccessExpr } from "../Diagram/utils/common-utils";
 
 export class LinkDeletingVisitor implements Visitor {
     /** The property assignment or object literal expression that needs to be removed  */
@@ -48,14 +49,16 @@ export class LinkDeletingVisitor implements Visitor {
             const lhsExpr = node.getLeft();
             const rhsExpr = node.getRight();
     
-            if (lhsExpr && Node.isPropertyAccessExpression(lhsExpr)
-                    && isPositionsEquals(this.fieldPosition, getPosition(lhsExpr))
+            if (lhsExpr
+                && isInputAccessExpr(lhsExpr)
+                && isPositionsEquals(this.fieldPosition, getPosition(lhsExpr))
             ) {
                 // If LHS is a property access expression to be deleted
                 // Then also delete the operator right to it
                 this.targetedDeleteNodes.push(lhsExpr, node.getOperatorToken());
-            } else if (rhsExpr && Node.isPropertyAccessExpression(rhsExpr)
-                    && isPositionsEquals(this.fieldPosition, getPosition(rhsExpr))
+            } else if (rhsExpr
+                && isInputAccessExpr(rhsExpr)
+                && isPositionsEquals(this.fieldPosition, getPosition(rhsExpr))
             ) {
                 // If RHS is a property access expressionto be deleted
                 // Then also delete the operator left to it
