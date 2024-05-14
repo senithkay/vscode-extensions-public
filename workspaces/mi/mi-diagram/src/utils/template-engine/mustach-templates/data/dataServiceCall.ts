@@ -49,11 +49,11 @@ export function getDataSerivceCallXml(data: { [key: string]: any }) {
         data.operations = data.operations.map((operation: any[]) => {
             return {
                 operationName: operation[0],
-                DSSProperties: operation[1].map((property: string[]) => {
+                DSSProperties: operation[1].map((property: any[]) => {
                     return {
                         propertyName: property[0],
                         propertyValue: property[2],
-                        propertyExpression: property[3]
+                        propertyExpression: property[3]?.value
                     }
                 })
             }
@@ -71,7 +71,7 @@ export function getDataServiceCallFormDataFromSTNode(data: { [key: string]: any 
     if (node.operations?.operation) {
         data.operations = node.operations.operation.map((operation) => {
             return [operation.name, operation.param.map((param) => {
-                let values = [param.name, param.value ? "LITERAL" : "EXPRESSION", param.value, param.expression];
+                let values = [param.name, param.value ? "LITERAL" : "EXPRESSION", param.value, { isExpression: true, value: param.expression }];
                 return values;
             })];
         });

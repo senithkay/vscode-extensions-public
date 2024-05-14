@@ -16,27 +16,27 @@ export function getValidateMustacheTemplate() {
     {{#isNewMediator}}
     <validate {{#source}}source="{{{value}}}"{{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}} {{/source}}{{#enableSchemaCaching}}cache-schema="{{enableSchemaCaching}}" {{/enableSchemaCaching}}{{#description}}description="{{description}}" {{/description}}>
     {{#schemas}}
-    <schema key="{{key}}" />
+    <schema key="{{{key}}}" />
     {{/schemas}}
     {{#features}}
     <feature name="{{featureName}}" value="{{featureEnable}}" />
     {{/features}}
-    <on-fail></on-fail>
     {{#resources}}
-    <resource key="{{locationKey}}" location="{{location}}" />
+    <resource key="{{{locationKey}}}" location="{{location}}" />
     {{/resources}}
+    <on-fail></on-fail>
     </validate>
     {{/isNewMediator}}
     {{^isNewMediator}}
     <validate {{#source}}source="{{{value}}}"{{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}} {{/source}}{{#enableSchemaCaching}}cache-schema="{{enableSchemaCaching}}" {{/enableSchemaCaching}}{{#description}}description="{{description}}" {{/description}}>
     {{#schemas}}
-    <schema key="{{key}}" />
+    <schema key="{{{key}}}" />
     {{/schemas}}
     {{#features}}
     <feature name="{{featureName}}" value="{{featureEnable}}" />
     {{/features}}
     {{#resources}}
-    <resource key="{{locationKey}}" location="{{location}}" />
+    <resource key="{{{locationKey}}}" location="{{location}}" />
     {{/resources}}
     {{/isNewMediator}}
 `;

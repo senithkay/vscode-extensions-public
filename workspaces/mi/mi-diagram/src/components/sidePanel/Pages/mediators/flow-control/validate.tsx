@@ -56,10 +56,11 @@ const ValidateForm = (props: AddMediatorProps) => {
                 paramValues: sidePanelContext?.formValues?.schemas ? getParamManagerFromValues(sidePanelContext?.formValues?.schemas) : [],
                 paramFields: [
                     {
-                        "type": "TextField",
+                        "type": "KeyLookup",
                         "label": "Validate Schema Key",
                         "defaultValue": "",
-                        "isRequired": false
+                        "isRequired": false,
+                        "filterType": "schema"
                     },
                 ]
             },
@@ -90,10 +91,11 @@ const ValidateForm = (props: AddMediatorProps) => {
                         "isRequired": false
                     },
                     {
-                        "type": "TextField",
+                        "type": "KeyLookup",
                         "label": "Location Key",
                         "defaultValue": "",
-                        "isRequired": false
+                        "isRequired": false,
+                        "filterType": "registry"
                     },
                 ]
             },

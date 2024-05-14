@@ -6,10 +6,5 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-
-export function getEnqueueMustacheTemplate() {
-
-    return `
-    <enqueue {{#description}}description="{{description}}"{{/description}} {{#executor}}executor="{{executor}}"{{/executor}} {{#priority}}priority="{{priority}}"{{/priority}} {{#sequenceKey}}sequence="{{{sequenceKey}}}"{{/sequenceKey}} />
-    `;
-}
+export * from "./PrimitiveOutputNodeFactory";
+export * from "./PrimitiveOutputNode";

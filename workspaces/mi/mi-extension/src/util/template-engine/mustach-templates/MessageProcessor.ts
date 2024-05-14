@@ -96,9 +96,9 @@ const paramPool: { [key: string]: Parameter } = {
 
 export function getMessageProcessorMustacheTemplate() {
     return `<?xml version="1.0" encoding="UTF-8"?>
-<messageProcessor class="{{messageProcessorClass}}" name="{{messageProcessorName}}" messageStore="{{messageStoreType}}" {{#endpoint}}targetEndpoint="{{{endpoint}}}"{{/endpoint}} xmlns="http://ws.apache.org/ns/synapse">
+<messageProcessor class="{{messageProcessorClass}}" name="{{messageProcessorName}}" messageStore="{{{messageStoreType}}}" {{#endpoint}}targetEndpoint="{{{endpoint}}}"{{/endpoint}} xmlns="http://ws.apache.org/ns/synapse">
     {{#params}}
-        <parameter name="{{key}}">{{{value}}}</parameter>
+        <parameter name="{{{key}}}">{{{value}}}</parameter>
     {{/params}}
 </messageProcessor>`;
 }

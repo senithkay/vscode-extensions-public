@@ -18,7 +18,9 @@ import {
     PropertyAssignment,
     Expression,
     CallExpression,
-    ReturnStatement
+    ReturnStatement,
+    FunctionDeclaration,
+    SyntaxKind
 } from "ts-morph";
 
 import { PropertyAccessNodeFindingVisitor } from "../../Visitors/PropertyAccessNodeFindingVisitor";
@@ -32,9 +34,11 @@ import {
     ARRAY_OUTPUT_TARGET_PORT_PREFIX,
     FOCUSED_INPUT_SOURCE_PORT_PREFIX,
     OBJECT_OUTPUT_TARGET_PORT_PREFIX,
-    PRIMITIVE_TYPE_TARGET_PORT_PREFIX
+    PRIMITIVE_OUTPUT_TARGET_PORT_PREFIX
 } from "./constants";
 import { FocusedInputNode } from "../Node/FocusedInput";
+import { PrimitiveOutputNode } from "../Node/PrimitiveOutput";
+import { View } from "../../../components/DataMapper/DataMapper";
 
 export function getPropertyAccessNodes(node: Node): (Identifier | PropertyAccessExpression)[] {
     const propertyAccessNodeVisitor: PropertyAccessNodeFindingVisitor = new PropertyAccessNodeFindingVisitor();
@@ -284,6 +288,39 @@ export function getTypeName(field: DMType): string {
 	return typeName;
 }
 
+export function getViewLabel(targetPort: InputOutputPortModel, views: View[]): string {
+    const { field, fieldFQN } = targetPort;
+    let label = fieldFQN;
+
+    if (field.kind === TypeKind.Array) {
+        const typeName = getTypeName(field.memberType);
+        if (!fieldFQN) {
+            if (views.length === 1) {
+                // Navigating into a map function at the root level return statement
+                label = typeName;
+            } else {
+                // Navigating into another map function within the focused map function, declared at the return statement
+                const { label: prevLabel } = views[views.length - 1];
+                label = dropLastBracketIfAvailable(prevLabel);
+            }
+        } else if (views.length === 1) {
+            // Navigating into another map function within the focused map function, declared at a property assignment
+            const bracketsCount = (typeName.match(/\[\]/g) || []).length; // Count the number of pairs of brackets
+            label = label + `${"[]".repeat(bracketsCount)}`;
+        }
+    }
+
+    function dropLastBracketIfAvailable(str: string): string {
+        const lastIndex = str.lastIndexOf("[]");
+        if (lastIndex !== -1 && lastIndex === str.length - 2) {
+            return str.slice(0, lastIndex);
+        }
+        return str;
+    }
+
+    return label;
+}
+
 export const getOptionalField = (field: DMType): DMType | undefined => {
     if (field.typeName === TypeKind.Interface && field.optional) {
         return field;
@@ -387,9 +424,11 @@ export function getTargetPortPrefix(node: NodeModel): string {
 			return OBJECT_OUTPUT_TARGET_PORT_PREFIX;
         case node instanceof ArrayOutputNode:
             return ARRAY_OUTPUT_TARGET_PORT_PREFIX;
+        case node instanceof PrimitiveOutputNode:
+            return PRIMITIVE_OUTPUT_TARGET_PORT_PREFIX;
         // TODO: Update cases for other node types
 		default:
-			return PRIMITIVE_TYPE_TARGET_PORT_PREFIX;
+			return PRIMITIVE_OUTPUT_TARGET_PORT_PREFIX;
 	}
 }
 
@@ -469,7 +508,7 @@ export function getTypeOfValue(typeWithValue: DMTypeWithValue, targetPosition: N
 	return undefined;
 }
 
-export function getReturnStatement(mapFn: CallExpression): ReturnStatement {
+export function getCallExprReturnStmt(mapFn: CallExpression): ReturnStatement {
     const firstArg = mapFn.getArguments()[0];
     if (Node.isArrowFunction(firstArg)) {
         const body = firstArg.getBody();
@@ -479,6 +518,37 @@ export function getReturnStatement(mapFn: CallExpression): ReturnStatement {
         }
     }
     return undefined;
+}
+
+export function getTnfFnReturnStatement(tnfFn: FunctionDeclaration): ReturnStatement {
+    return tnfFn.getStatementByKind(SyntaxKind.ReturnStatement)
+}
+
+export function representsTnfFnReturnStmt(mapFnParentNode: Node, returnStmt: ReturnStatement): boolean {
+    return mapFnParentNode
+        && returnStmt
+        && isPositionsEquals(getPosition(mapFnParentNode), getPosition(returnStmt));
+}
+
+export function isArrayOrInterface(dmType: DMType) {
+	return dmType.kind === TypeKind.Array || dmType.kind === TypeKind.Interface;
+}
+
+export function getMapFnIndex(views: View[], prevFieldFQN: string): number {
+    // Find the relative index of the map function comes under the return statements of another map functions
+    // The index is relative to the map function which is declared within a property assignment
+    let mapFnWithFieldIndex: number;
+
+    const _ = views.find((view, index) => {
+        if (view.targetFieldFQN === prevFieldFQN) {
+            mapFnWithFieldIndex = index;
+            return true;
+        }
+    });
+
+    if (mapFnWithFieldIndex) {
+        return views.length - mapFnWithFieldIndex;
+    }
 }
 
 function getInnerExpr(node: PropertyAccessExpression): Node {

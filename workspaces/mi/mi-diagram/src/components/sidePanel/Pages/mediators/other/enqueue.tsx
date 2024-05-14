@@ -17,6 +17,7 @@ import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
 import { MEDIATORS } from '../../../../../resources/constants';
 import { Controller, useForm } from 'react-hook-form';
+import { Keylookup } from '../../../../Form';
 import { sidepanelGoBack } from '../../..';
 
 const cardStyle = { 
@@ -122,7 +123,13 @@ const EnqueueForm = (props: AddMediatorProps) => {
                             name="sequenceKey"
                             control={control}
                             render={({ field }) => (
-                                <TextField {...field} label="Sequence Key" size={50} placeholder="" />
+                                <Keylookup
+                                    value={field.value}
+                                    filterType='sequence'
+                                    label="Sequence Key"
+                                    allowItemCreate={false}
+                                    onValueChange={field.onChange}
+                                />
                             )}
                         />
                         {errors.sequenceKey && <Error>{errors.sequenceKey.message.toString()}</Error>}

@@ -17,7 +17,7 @@ export function getConditionalRouterMustacheTemplate() {
         {{#conditionalRouteBranches}}
         <conditionalRoute asynchronous="true" breakRoute="{{breakAfterRoute}}" >
             <condition>{{{evaluatorExpression}}}</condition>
-            <target sequence="{{targetSequence}}" />
+            <target sequence="{{{targetSequence}}}" />
         </conditionalRoute>
         {{/conditionalRouteBranches}}
     </conditionalRouter>

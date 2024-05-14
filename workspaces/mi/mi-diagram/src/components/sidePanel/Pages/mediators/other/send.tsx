@@ -13,11 +13,12 @@ import { AutoComplete, Button, ComponentCard, ProgressIndicator, TextField, Typo
 import { VSCodeCheckbox } from '@vscode/webview-ui-toolkit/react';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
-import { AddMediatorProps } from '../common';
+import { AddMediatorProps, openPopup } from '../common';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
 import { MEDIATORS } from '../../../../../resources/constants';
 import { Controller, useForm } from 'react-hook-form';
+import { Keylookup } from '../../../../Form';
 import { ExpressionField, ExpressionFieldValue } from '../../../../Form/ExpressionField/ExpressionInput';
 import { sidepanelAddPage, sidepanelGoBack } from '../../..';
 import ExpressionEditor from '../../../expressionEditor/ExpressionEditor';
@@ -50,9 +51,10 @@ const SendForm = (props: AddMediatorProps) => {
     useEffect(() => {
         reset({
             skipSerialization: sidePanelContext?.formValues?.skipSerialization || false,
+            endpoint: sidePanelContext?.formValues?.endpoint || "",
             buildMessageBeforeSending: sidePanelContext?.formValues?.buildMessageBeforeSending || false,
             receivingSequenceType: sidePanelContext?.formValues?.receivingSequenceType || "Default",
-            staticReceivingSequence: sidePanelContext?.formValues?.staticReceivingSequence || {"isExpression":true,"value":""},
+            staticReceivingSequence: sidePanelContext?.formValues?.staticReceivingSequence || "",
             dynamicReceivingSequence: sidePanelContext?.formValues?.dynamicReceivingSequence || {"isExpression":true,"value":""},
             description: sidePanelContext?.formValues?.description || "",
         });
@@ -114,6 +116,28 @@ const SendForm = (props: AddMediatorProps) => {
                     {watch("skipSerialization") == false &&
                     <Field>
                         <Controller
+                            name="endpoint"
+                            control={control}
+                            render={({ field }) => (
+                                <Keylookup
+                                    value={field.value}
+                                    filterType='endpoint'
+                                    label="Select Endpoint"
+                                    allowItemCreate={false}
+                                    onCreateButtonClick={(fetchItems: any, handleValueChange: any) => {
+                                        openPopup(rpcClient, "endpoint", fetchItems, handleValueChange);
+                                    }}
+                                    onValueChange={field.onChange}
+                                />
+                            )}
+                        />
+                        {errors.endpoint && <Error>{errors.endpoint.message.toString()}</Error>}
+                    </Field>
+                    }
+
+                    {watch("skipSerialization") == false &&
+                    <Field>
+                        <Controller
                             name="buildMessageBeforeSending"
                             control={control}
                             render={({ field }) => (
@@ -147,23 +171,12 @@ const SendForm = (props: AddMediatorProps) => {
                                     name="staticReceivingSequence"
                                     control={control}
                                     render={({ field }) => (
-                                        <ExpressionField
-                                            {...field} label="Static Receiving Sequence"
-                                            placeholder=""
-                                            canChange={true}
-                                            openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => {
-                                                const content = <ExpressionEditor
-                                                    value={value}
-                                                    handleOnSave={(value) => {
-                                                        setValue(value);
-                                                        handleOnCancelExprEditorRef.current();
-                                                    }}
-                                                    handleOnCancel={() => {
-                                                        handleOnCancelExprEditorRef.current();
-                                                    }}
-                                                />;
-                                                sidepanelAddPage(sidePanelContext, content, "Expression Editor");
-                                            }}
+                                        <Keylookup
+                                            value={field.value}
+                                            filterType='sequence'
+                                            label="Static Receiving Sequence"
+                                            allowItemCreate={false}
+                                            onValueChange={field.onChange}
                                         />
                                     )}
                                 />
@@ -180,7 +193,7 @@ const SendForm = (props: AddMediatorProps) => {
                                         <ExpressionField
                                             {...field} label="Dynamic Receiving Sequence"
                                             placeholder=""
-                                            canChange={true}
+                                            canChange={false}
                                             openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => {
                                                 const content = <ExpressionEditor
                                                     value={value}

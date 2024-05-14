@@ -68,7 +68,8 @@
                         "value": {
                             "name": "sequenceRegistryKey",
                             "displayName": "Sequence Registry Key",
-                            "inputType": "registry",
+                            "inputType": "key",
+                            "keyType": "sequence",
                             "required": false,
                             "helpTip": "",
                             "enableCondition": [
@@ -99,7 +100,8 @@
                         "value": {
                             "name": "endpointRegistryKey",
                             "displayName": "Endpoint Registry Key",
-                            "inputType": "registry",
+                            "inputType": "key",
+                            "keyType" : "endpoint",
                             "required": false,
                             "helpTip": "",
                             "enableCondition": [

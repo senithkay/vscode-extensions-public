@@ -6,6 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
+// tslint:disable: jsx-no-multiline-js
 import * as React from 'react';
 
 import { AbstractReactFactory } from '@projectstorm/react-canvas-core';
@@ -13,30 +14,39 @@ import { DiagramEngine } from '@projectstorm/react-diagrams-core';
 import { Node } from 'ts-morph';
 
 import { InputOutputPortModel } from '../../Port';
-import { ARRAY_OUTPUT_TARGET_PORT_PREFIX } from '../../utils/constants';
-import { ArrayOutputWidget } from "./ArrayOutputWidget";
+import { PRIMITIVE_OUTPUT_TARGET_PORT_PREFIX } from "../../utils/constants";
 import { OutputSearchNoResultFound, SearchNoResultFoundKind } from "../commons/Search";
 
-import { ArrayOutputNode, ARRAY_OUTPUT_NODE_TYPE } from './ArrayOutputNode';
+import { PrimitiveOutputNode, PRIMITIVE_OUTPUT_NODE_TYPE } from './PrimitiveOutputNode';
+import { PrimitiveOutputWidget } from './PrimitiveOutputWidget';
 
-export class ArrayOutputNodeFactory extends AbstractReactFactory<ArrayOutputNode, DiagramEngine> {
+export class PrimitiveOutputNodeFactory extends AbstractReactFactory<PrimitiveOutputNode, DiagramEngine> {
 	constructor() {
-		super(ARRAY_OUTPUT_NODE_TYPE);
+		super(PRIMITIVE_OUTPUT_NODE_TYPE);
 	}
 
-	generateReactWidget(event: { model: ArrayOutputNode; }): JSX.Element {
+	generateReactWidget(event: { model: PrimitiveOutputNode; }): JSX.Element {
+		let valueLabel: string;
+		const { isMapFn, context } = event.model;
+		const { views, focusedST } = context;
+		const isMapFnAtFnReturn = views.length === 1 && Node.isFunctionDeclaration(focusedST);
+		if (isMapFn && !isMapFnAtFnReturn)
+		{
+			valueLabel = views[views.length - 1].targetFieldFQN.split('.').pop();
+		}
 		return (
 			<>
 				{event.model.hasNoMatchingFields ? (
-					<OutputSearchNoResultFound kind={SearchNoResultFoundKind.OutputField} />
+					<OutputSearchNoResultFound kind={SearchNoResultFoundKind.OutputValue} />
 				) : (
-					<ArrayOutputWidget
+					<PrimitiveOutputWidget
+						id={PRIMITIVE_OUTPUT_TARGET_PORT_PREFIX}
 						engine={this.engine}
-						id={`${ARRAY_OUTPUT_TARGET_PORT_PREFIX}${event.model.rootName ? `.${event.model.rootName}` : ''}`}
-						dmTypeWithValue={event.model.dmTypeWithValue}
-						typeName={event.model.typeName}
+						field={event.model.dmTypeWithValue}
 						getPort={(portId: string) => event.model.getPort(portId) as InputOutputPortModel}
 						context={event.model.context}
+						typeName={event.model.typeName}
+						valueLabel={valueLabel}
 						deleteField={(node: Node) => event.model.deleteField(node)}
 					/>
 				)}
@@ -44,7 +54,7 @@ export class ArrayOutputNodeFactory extends AbstractReactFactory<ArrayOutputNode
 		);
 	}
 
-	generateModel(event: { initialConfig: any }): any {
+	generateModel(): PrimitiveOutputNode {
 		return undefined;
 	}
 }

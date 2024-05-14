@@ -40,7 +40,7 @@ export function generateArrayToArrayMappingWithFn(srcExpr: string, targetType: D
             ).join("")}
         }`;
     } else {
-        returnExpr = getDefaultValue(targetType.kind);
+        returnExpr = `return ${getDefaultValue(targetType.kind)}`;
     }
 
     return `${srcExpr.trim()}.map((${itemName}) => {${returnExpr}})`;

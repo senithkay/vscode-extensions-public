@@ -18,6 +18,7 @@ import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
 import { MEDIATORS } from '../../../../../resources/constants';
 import { Controller, useForm } from 'react-hook-form';
+import { Keylookup } from '../../../../Form';
 import { sidepanelGoBack } from '../../..';
 
 const cardStyle = { 
@@ -57,7 +58,7 @@ const CacheForm = (props: AddMediatorProps) => {
             maxEntryCount: sidePanelContext?.formValues?.maxEntryCount || "1000",
             implementationType: sidePanelContext?.formValues?.implementationType || "memory",
             sequenceType: sidePanelContext?.formValues?.sequenceType || "ANONYMOUS",
-            sequenceKey: sidePanelContext?.formValues?.sequenceKey || "registry",
+            sequenceKey: sidePanelContext?.formValues?.sequenceKey || "",
             cacheProtocolType: sidePanelContext?.formValues?.cacheProtocolType || "HTTP",
             cacheProtocolMethods: sidePanelContext?.formValues?.cacheProtocolMethods || "*",
             headersToExcludeInHash: sidePanelContext?.formValues?.headersToExcludeInHash || "",
@@ -268,7 +269,13 @@ const CacheForm = (props: AddMediatorProps) => {
                                 name="sequenceKey"
                                 control={control}
                                 render={({ field }) => (
-                                    <TextField {...field} label="Sequence Key" size={50} placeholder="" />
+                                    <Keylookup
+                                        value={field.value}
+                                        filterType='sequence'
+                                        label="Sequence Key"
+                                        allowItemCreate={false}
+                                        onValueChange={field.onChange}
+                                    />
                                 )}
                             />
                             {errors.sequenceKey && <Error>{errors.sequenceKey.message.toString()}</Error>}

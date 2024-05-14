@@ -58,12 +58,12 @@ export function getHttpEndpointMustacheTemplate() {
     return `<?xml version="1.0" encoding="UTF-8"?>
 {{#template}}<template name="{{templateName}}" xmlns="http://ws.apache.org/ns/synapse">{{/template}}
 {{#parameters}}
-<{{key}}:parameter name="{{value}}" xmlns:{{key}}="http://ws.apache.org/ns/synapse"/>
+<{{{key}}}:parameter name="{{{value}}}" xmlns:{{{key}}}="http://ws.apache.org/ns/synapse"/>
 {{/parameters}}
 <endpoint name="{{endpointName}}" {{^template}}xmlns="http://ws.apache.org/ns/synapse"{{/template}}>
     <http {{#httpMethod}}method="{{httpMethod}}"{{/httpMethod}} {{#statisticsEnabled}}statistics="{{statisticsEnabled}}"{{/statisticsEnabled}} {{#traceEnabled}}trace="{{traceEnabled}}"{{/traceEnabled}} uri-template="{{{uriTemplate}}}">
         {{#addressingEnabled}}<enableAddressing {{#addressListener}}separateListener="{{addressListener}}"{{/addressListener}} {{#addressingVersion}}version="{{addressingVersion}}{{/addressingVersion}}"/>{{/addressingEnabled}}
-        {{#securityEnabled}}<enableSec{{#policyKey}} policy="{{policyKey}}"{{/policyKey}}{{#inboundPolicyKey}} inboundPolicy="{{inboundPolicyKey}}"{{/inboundPolicyKey}}{{#outboundPolicyKey}} outboundPolicy="{{outboundPolicyKey}}"{{/outboundPolicyKey}}/>{{/securityEnabled}}
+        {{#securityEnabled}}<enableSec{{#policyKey}} policy="{{{policyKey}}}"{{/policyKey}}{{#inboundPolicyKey}} inboundPolicy="{{{inboundPolicyKey}}}"{{/inboundPolicyKey}}{{#outboundPolicyKey}} outboundPolicy="{{{outboundPolicyKey}}}"{{/outboundPolicyKey}}/>{{/securityEnabled}}
         {{#timeout}}<timeout>
             {{#timeoutDuration}}<duration>{{timeoutDuration}}</duration>{{/timeoutDuration}}
             {{#timeoutAction}}<responseAction>{{timeoutAction}}</responseAction>{{/timeoutAction}}
@@ -81,42 +81,42 @@ export function getHttpEndpointMustacheTemplate() {
         </markForSuspension>
         {{#authentication}}<authentication>
             {{#basicAuth}}<basicAuth>
-                {{#basicAuthUsername}}<username>{{basicAuthUsername}}</username>{{/basicAuthUsername}}{{^basicAuthUsername}}<username/>{{/basicAuthUsername}}
-                {{#basicAuthPassword}}<password>{{basicAuthPassword}}</password>{{/basicAuthPassword}}{{^basicAuthPassword}}<password/>{{/basicAuthPassword}}
+                {{#basicAuthUsername}}<username>{{{basicAuthUsername}}}</username>{{/basicAuthUsername}}{{^basicAuthUsername}}<username/>{{/basicAuthUsername}}
+                {{#basicAuthPassword}}<password>{{{basicAuthPassword}}}</password>{{/basicAuthPassword}}{{^basicAuthPassword}}<password/>{{/basicAuthPassword}}
             </basicAuth>{{/basicAuth}}
             {{#oauth}}<oauth>
                 {{#authorizationCode}}<authorizationCode>
-                    {{#refreshToken}}<refreshToken>{{refreshToken}}</refreshToken>{{/refreshToken}}{{^refreshToken}}{{/refreshToken}}
-                    {{#clientId}}<clientId>{{clientId}}</clientId>{{/clientId}}{{^clientId}}<clientId/>{{/clientId}}
-                    {{#clientSecret}}<clientSecret>{{clientSecret}}</clientSecret>{{/clientSecret}}{{^clientSecret}}<clientSecret/>{{/clientSecret}}
+                    {{#refreshToken}}<refreshToken>{{{refreshToken}}}</refreshToken>{{/refreshToken}}{{^refreshToken}}{{/refreshToken}}
+                    {{#clientId}}<clientId>{{{clientId}}}</clientId>{{/clientId}}{{^clientId}}<clientId/>{{/clientId}}
+                    {{#clientSecret}}<clientSecret>{{{clientSecret}}}</clientSecret>{{/clientSecret}}{{^clientSecret}}<clientSecret/>{{/clientSecret}}
                     {{#tokenUrl}}<tokenUrl>{{{tokenUrl}}}</tokenUrl>{{/tokenUrl}}{{^tokenUrl}}<tokenUrl/>{{/tokenUrl}}
                     {{#requireOauthParameters}}<requestParameters>{{/requireOauthParameters}}
                     {{#oauthProperties}}
-                        <parameter name="{{key}}">{{{value}}}</parameter>
+                        <parameter name="{{{key}}}">{{{value}}}</parameter>
                     {{/oauthProperties}} 
                     {{#requireOauthParameters}}</requestParameters>{{/requireOauthParameters}}
                     <authMode>{{authMode}}</authMode>
                 </authorizationCode>{{/authorizationCode}}
                 {{#clientCredentials}}<clientCredentials>
-                    {{#clientId}}<clientId>{{clientId}}</clientId>{{/clientId}}{{^clientId}}<clientId/>{{/clientId}}
-                    {{#clientSecret}}<clientSecret>{{clientSecret}}</clientSecret>{{/clientSecret}}{{^clientSecret}}<clientSecret/>{{/clientSecret}}
-                    {{#tokenUrl}}<tokenUrl>{{tokenUrl}}</tokenUrl>{{/tokenUrl}}{{^tokenUrl}}<tokenUrl/>{{/tokenUrl}}
+                    {{#clientId}}<clientId>{{{clientId}}}</clientId>{{/clientId}}{{^clientId}}<clientId/>{{/clientId}}
+                    {{#clientSecret}}<clientSecret>{{{clientSecret}}}</clientSecret>{{/clientSecret}}{{^clientSecret}}<clientSecret/>{{/clientSecret}}
+                    {{#tokenUrl}}<tokenUrl>{{{tokenUrl}}}</tokenUrl>{{/tokenUrl}}{{^tokenUrl}}<tokenUrl/>{{/tokenUrl}}
                     {{#requireOauthParameters}}<requestParameters>{{/requireOauthParameters}}
                     {{#oauthProperties}}
-                        <parameter name="{{key}}">{{{value}}}</parameter>
+                        <parameter name="{{{key}}}">{{{value}}}</parameter>
                     {{/oauthProperties}}    
                     {{#requireOauthParameters}}</requestParameters>{{/requireOauthParameters}}                
                     <authMode>{{authMode}}</authMode>
                 </clientCredentials>{{/clientCredentials}}
                 {{#passwordCredentials}}<passwordCredentials>
-                    {{#username}}<username>{{username}}</username>{{/username}}{{^username}}<username/>{{/username}}
-                    {{#password}}<password>{{password}}</password>{{/password}}{{^password}}<password/>{{/password}}
-                    {{#clientId}}<clientId>{{clientId}}</clientId>{{/clientId}}{{^clientId}}<clientId/>{{/clientId}}
-                    {{#clientSecret}}<clientSecret>{{clientSecret}}</clientSecret>{{/clientSecret}}{{^clientSecret}}<clientSecret/>{{/clientSecret}}
-                    {{#tokenUrl}}<tokenUrl>{{tokenUrl}}</tokenUrl>{{/tokenUrl}}{{^tokenUrl}}<tokenUrl/>{{/tokenUrl}}
+                    {{#username}}<username>{{{username}}}</username>{{/username}}{{^username}}<username/>{{/username}}
+                    {{#password}}<password>{{{password}}}</password>{{/password}}{{^password}}<password/>{{/password}}
+                    {{#clientId}}<clientId>{{{clientId}}}</clientId>{{/clientId}}{{^clientId}}<clientId/>{{/clientId}}
+                    {{#clientSecret}}<clientSecret>{{{clientSecret}}}</clientSecret>{{/clientSecret}}{{^clientSecret}}<clientSecret/>{{/clientSecret}}
+                    {{#tokenUrl}}<tokenUrl>{{{tokenUrl}}}</tokenUrl>{{/tokenUrl}}{{^tokenUrl}}<tokenUrl/>{{/tokenUrl}}
                     {{#requireOauthParameters}}<requestParameters>{{/requireOauthParameters}}
                     {{#oauthProperties}}
-                        <parameter name="{{key}}">{{{value}}}</parameter>
+                        <parameter name="{{{key}}}">{{{value}}}</parameter>
                     {{/oauthProperties}}  
                     {{#requireOauthParameters}}</requestParameters>{{/requireOauthParameters}}
                     <authMode>{{authMode}}</authMode>
@@ -125,7 +125,7 @@ export function getHttpEndpointMustacheTemplate() {
         </authentication>{{/authentication}}
     </http>
     {{#properties}}
-    <property name="{{name}}" {{#scope}}scope="{{scope}}"{{/scope}} value="{{value}}"/>
+    <property name="{{{name}}}" {{#scope}}scope="{{scope}}"{{/scope}} value="{{{value}}}"/>
     {{/properties}}  
     {{#description}}<description>{{description}}</description>{{/description}}
 </endpoint>

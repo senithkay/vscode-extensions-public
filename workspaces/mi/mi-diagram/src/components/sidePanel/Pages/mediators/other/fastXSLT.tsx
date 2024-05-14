@@ -17,6 +17,7 @@ import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
 import { MEDIATORS } from '../../../../../resources/constants';
 import { Controller, useForm } from 'react-hook-form';
+import { Keylookup } from '../../../../Form';
 import { ExpressionField, ExpressionFieldValue } from '../../../../Form/ExpressionField/ExpressionInput';
 import { sidepanelAddPage, sidepanelGoBack } from '../../..';
 import ExpressionEditor from '../../../expressionEditor/ExpressionEditor';
@@ -50,7 +51,7 @@ const FastXSLTForm = (props: AddMediatorProps) => {
         reset({
             fastXsltSchemaType: sidePanelContext?.formValues?.fastXsltSchemaType || "Static",
             fastXsltDynamicSchemaKey: sidePanelContext?.formValues?.fastXsltDynamicSchemaKey || {"isExpression":true,"value":""},
-            fastXsltStaticSchemaKey: sidePanelContext?.formValues?.fastXsltStaticSchemaKey || {"isExpression":true,"value":""},
+            fastXsltStaticSchemaKey: sidePanelContext?.formValues?.fastXsltStaticSchemaKey || "",
             description: sidePanelContext?.formValues?.description || "",
         });
         setIsLoading(false);
@@ -146,23 +147,12 @@ const FastXSLTForm = (props: AddMediatorProps) => {
                             name="fastXsltStaticSchemaKey"
                             control={control}
                             render={({ field }) => (
-                                <ExpressionField
-                                    {...field} label="Fast Xslt Static SchemaKey"
-                                    placeholder=""
-                                    canChange={false}
-                                    openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => {
-                                        const content = <ExpressionEditor
-                                            value={value}
-                                            handleOnSave={(value) => {
-                                                setValue(value);
-                                                handleOnCancelExprEditorRef.current();
-                                            }}
-                                            handleOnCancel={() => {
-                                                handleOnCancelExprEditorRef.current();
-                                            }}
-                                        />;
-                                        sidepanelAddPage(sidePanelContext, content, "Expression Editor");
-                                    }}
+                                <Keylookup
+                                    value={field.value}
+                                    filterType='sequence'
+                                    label="Fast Xslt Static SchemaKey"
+                                    allowItemCreate={false}
+                                    onValueChange={field.onChange}
                                 />
                             )}
                         />

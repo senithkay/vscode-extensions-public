@@ -13,7 +13,7 @@ import { Node, ReturnStatement } from "ts-morph";
 import { useDMCollapsedFieldsStore, useDMSearchStore } from "../../../../store/store";
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { DMTypeWithValue } from "../../Mappings/DMTypeWithValue";
-import { MappingMetadata } from "../../Mappings/FieldAccessToSpecificFied";
+import { MappingMetadata } from "../../Mappings/MappingMetadata";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
 import { getFilteredMappings, getSearchFilteredOutput, hasNoOutputMatchFound } from "../../utils/search-utils";
 import { enrichAndProcessType } from "../../utils/type-utils";
@@ -49,7 +49,6 @@ export class ObjectOutputNode extends DataMapperNodeModel {
             context,
             OBJECT_OUTPUT_NODE_TYPE
         ); 
-        this.dmType = this.originalType;
     }
 
     async initPorts() {
