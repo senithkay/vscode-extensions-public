@@ -344,7 +344,14 @@ export function ParamManager(props: ParamManagerProps) {
             };
             return param;
         });
-        return { ...paramValue, parameters: params };
+        const enableConditionEnrichedParams = params.map(param => {
+            if (param.enableCondition) {
+                const paramEnabled = isFieldEnabled(params, param.enableCondition);
+                param.isEnabled = paramEnabled;
+            }
+            return param;
+        });
+        return { ...paramValue, parameters: enableConditionEnrichedParams };
     });
 
     const onAddClick = () => {
