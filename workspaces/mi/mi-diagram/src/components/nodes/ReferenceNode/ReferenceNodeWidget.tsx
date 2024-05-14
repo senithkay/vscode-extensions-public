@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { ReferenceNodeModel } from "./ReferenceNodeModel";
@@ -90,6 +90,11 @@ namespace S {
             text-decoration: ${(props: TagProps) => props.selectable ? "underline" : "none"};
             color: ${(props: TagProps) => props.selectable ? Colors.SECONDARY : Colors.ON_SURFACE};
         }
+    `;
+
+    export const TooltipContent = styled.div`
+        max-width: 80vw;
+        white-space: pre-wrap;
     `;
 }
 interface ReferenceNodeWidgetProps {
@@ -178,9 +183,17 @@ export function ReferenceNodeWidget(props: ReferenceNodeWidgetProps) {
         }
     }
 
+    const TooltipEl = useMemo(() => {
+        return () => (
+            <S.TooltipContent style={{ textWrap: "wrap" }}>
+                {tooltip}
+            </S.TooltipContent>
+        );
+    }, [tooltip])
+
     return (
         <div >
-            <Tooltip content={!isPopoverOpen ? tooltip : ""} position={'bottom'} containerPosition={'absolute'}>
+            <Tooltip content={!isPopoverOpen ? <TooltipEl /> : ""} position={'bottom'} containerPosition={'absolute'}>
                 <S.Node
                     selected={node.isSelected()}
                     hasError={hasDiagnotics}
