@@ -19,7 +19,12 @@ export function getAggregateMustacheTemplate() {
         <completeCondition timeout="{{completionTimeout}}">
             <messageCount {{#completionMax}}max="{{{completionMax}}}" {{/completionMax}}{{#completionMin}}min="{{{completionMin}}}" {{/completionMin}}{{#messageCountNamespaces}}xmlns:{{prefix}}="{{uri}}" {{/messageCountNamespaces}}/>
         </completeCondition>
-        <onComplete aggregateElementType="{{aggregateElementType}}" {{#enclosingElementProperty}}enclosingElementProperty="{{enclosingElementProperty}}"{{/enclosingElementProperty}} {{#aggregationExpression}}expression="{{value}}" {{#namespaces}}xmlns:{{prefix}}="{{uri}}" {{/namespaces}}{{/aggregationExpression}}{{#sequenceKey}}sequence="{{sequenceKey}}"{{/sequenceKey}} ></onComplete>
+        {{#sequenceKey}}
+        <onComplete aggregateElementType="{{aggregateElementType}}" {{#enclosingElementProperty}}enclosingElementProperty="{{enclosingElementProperty}}"{{/enclosingElementProperty}} {{#aggregationExpression}}expression="{{value}}" {{#namespaces}}xmlns:{{prefix}}="{{uri}}" {{/namespaces}}{{/aggregationExpression}}{{#sequenceKey}}sequence="{{sequenceKey}}"{{/sequenceKey}}/>
+        {{/sequenceKey}}
+        {{^sequenceKey}}
+        <onComplete aggregateElementType="{{aggregateElementType}}" {{#enclosingElementProperty}}enclosingElementProperty="{{enclosingElementProperty}}"{{/enclosingElementProperty}} {{#aggregationExpression}}expression="{{value}}" {{#namespaces}}xmlns:{{prefix}}="{{uri}}" {{/namespaces}}{{/aggregationExpression}}></onComplete>
+        {{/sequenceKey}}
     </aggregate>
     {{/isNewMediator}}
     {{^isNewMediator}}
@@ -35,7 +40,15 @@ export function getAggregateMustacheTemplate() {
     </completeCondition>
     {{/editCompleteCondition}}
     {{#editOnComplete}}
-    <onComplete aggregateElementType="{{aggregateElementType}}" {{#enclosingElementProperty}}enclosingElementProperty="{{{enclosingElementProperty}}}"{{/enclosingElementProperty}} {{#aggregationExpression}}expression="{{{value}}}" {{#namespaces}}xmlns:{{prefix}}="{{uri}}" {{/namespaces}}{{/aggregationExpression}} {{#sequenceKey}}sequence="{{sequenceKey}}"{{/sequenceKey}} >
+    {{#sequenceKey}}
+    <onComplete aggregateElementType="{{aggregateElementType}}" {{#enclosingElementProperty}}enclosingElementProperty="{{enclosingElementProperty}}"{{/enclosingElementProperty}} {{#aggregationExpression}}expression="{{value}}" {{#namespaces}}xmlns:{{prefix}}="{{uri}}" {{/namespaces}}{{/aggregationExpression}}{{#sequenceKey}}sequence="{{{sequenceKey}}}"{{/sequenceKey}}/>
+    {{/sequenceKey}}
+    {{^sequenceKey}}
+    <onComplete aggregateElementType="{{aggregateElementType}}" {{#enclosingElementProperty}}enclosingElementProperty="{{enclosingElementProperty}}"{{/enclosingElementProperty}} {{#aggregationExpression}}expression="{{value}}" {{#namespaces}}xmlns:{{prefix}}="{{uri}}" {{/namespaces}}{{/aggregationExpression}}>
+    {{#endOnComplete}}
+    </onComplete>
+    {{/endOnComplete}}
+    {{/sequenceKey}}
     {{/editOnComplete}}
     {{/isNewMediator}}
     `;
@@ -91,7 +104,15 @@ function getEdits(data: { [key: string]: any }, dirtyFields?: any, defaultValues
     }
 
     if (checkAttributesExist(dirtyFieldsKeys, onCompleteAttributes)) {
-        edits.push(getEdit("onComplete", data, defaultValues, true));
+        let editStartTagOnly = true;
+        if (data.sequenceKey) {
+            editStartTagOnly = false;
+        } else {
+            if (defaultValues.onCompleteSelfClosed) {
+                data.endOnComplete = true;
+            }
+        }
+        edits.push(getEdit("onComplete", data, defaultValues, editStartTagOnly));
     }
 
     edits.sort((a, b) => b.range.start.line - a.range.start.line);
@@ -158,6 +179,6 @@ export function getAggregateFormDataFromSTNode(data: { [key: string]: any }, nod
         completeCondition: node.correlateOnOrCompleteConditionOrOnComplete?.completeCondition?.range,
         onComplete: node.correlateOnOrCompleteConditionOrOnComplete?.onComplete?.range
     }
-
+    data.onCompleteSelfClosed = node.correlateOnOrCompleteConditionOrOnComplete?.onComplete?.selfClosed;
     return data;
 }

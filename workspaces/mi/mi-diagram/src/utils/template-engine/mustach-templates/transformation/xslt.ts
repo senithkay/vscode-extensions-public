@@ -41,7 +41,7 @@ export function getXsltXml(data: { [key: string]: any }) {
   data.features = data.features?.map((feature: string[]) => {
     return {
       featureName: feature[0],
-      featureEnabled: feature[1]
+      featureEnabled: feature[1] ? true : false
     }
   });
   data.resources = data.resources?.map((resource: string[]) => {

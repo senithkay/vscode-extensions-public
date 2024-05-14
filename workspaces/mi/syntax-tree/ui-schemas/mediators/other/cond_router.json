@@ -44,7 +44,8 @@
                   "value": {
                     "name": "targetSequence",
                     "displayName": "Target Sequence",
-                    "inputType": "registry",
+                    "inputType": "key",
+                    "keyType": "sequence",
                     "required": false,
                     "helpTip": ""
                   }

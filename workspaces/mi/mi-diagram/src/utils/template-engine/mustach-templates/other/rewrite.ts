@@ -9,6 +9,7 @@
 
 import { Rewrite } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import Mustache from "mustache";
+import { transformNamespaces } from "../../../commons";
 
 export function getRewriteMustacheTemplate() {
     return `
@@ -17,7 +18,7 @@ export function getRewriteMustacheTemplate() {
         <rewriterule>
             <condition>{{{condition}}}</condition>
             {{#rewriteRuleAction}}
-                <action fragment="{{ruleFragment}}" {{#actionRegex}}regex="{{actionRegex}}"{{/actionRegex}} type="{{ruleAction}}" {{#actionValue}}value="{{actionValue}}"{{/actionValue}} {{#actionExpression}}xpath="{{actionExpression}}"{{/actionExpression}} />   
+                <action fragment="{{ruleFragment}}" {{#actionRegex}}regex="{{actionRegex}}"{{/actionRegex}} type="{{ruleAction}}" {{#actionValue}}value="{{actionValue}}"{{/actionValue}} {{#actionExpression}}xpath="{{actionExpression}}" {{#namespaces}}xmlns:{{prefix}}="{{uri}}" {{/namespaces}}{{/actionExpression}} />   
             {{/rewriteRuleAction}}
         </rewriterule>
     {{/urlRewriteRules}}
@@ -31,12 +32,13 @@ export function getRewriteXml(data: { [key: string]: any }) {
         data.urlRewriteRules = data.urlRewriteRules.map((rewriteRule: any[]) => {
             return {
                 condition: rewriteRule[1],
-                rewriteRuleAction: rewriteRule[0].map((action: string[]) => {
+                rewriteRuleAction: rewriteRule[0].map((action: any[]) => {
                     return {
                         ruleAction: action[0]?.toLowerCase(),
                         ruleFragment: action[1],
                         actionValue: action[2] == "Literal" ? action[3] : undefined,
-                        actionExpression: action[2] == "Expression" ? action[4] : undefined,
+                        actionExpression: action[2] == "Expression" ? action[4]?.value : undefined,
+                        namespaces: action[2] == "Expression" ? action[4]?.namespaces : undefined,
                         actionRegex: action[5]
                     }
                 })
@@ -54,7 +56,8 @@ export function getRewriteFormDataFromSTNode(data: { [key: string]: any }, node:
     data.description = node.description;
     data.urlRewriteRules = node.rewriterule.map((rewriteRule) => {
         return [rewriteRule.action.map((action) => {
-            let ruleAction = [action.type, action.fragment, action.value ? "Literal" : "Expression", action.value, action.xpath, action.regex];
+            let namespaces = transformNamespaces(action.namespaces);
+            let ruleAction = [action.type, action.fragment, action.value ? "Literal" : "Expression", action.value, { isExpression: true, value: action.xpath, namespaces: namespaces }, action.regex];
             return ruleAction;
         }), rewriteRule.condition?.condition];
     });

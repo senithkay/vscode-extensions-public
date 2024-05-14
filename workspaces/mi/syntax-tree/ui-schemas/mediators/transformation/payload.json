@@ -120,10 +120,7 @@
                       "json"
                     ],
                     "required": false,
-                    "helpTip": "",
-                    "enableCondition": [
-                      "isExpression", "argumentValue"
-                    ]
+                    "helpTip": ""
                   }
                 },
                 {

@@ -14,9 +14,9 @@ import { transformNamespaces } from "../../../commons";
 export function getXqueryMustacheTemplate() {
 
   return `
-    <xquery {{#staticScriptKey}}key="{{staticScriptKey}}"{{/staticScriptKey}} {{#dynamicScriptKey}}key="{{dynamicScriptKey}}"{{/dynamicScriptKey}} {{#targetXPath}}target="{{{value}}}"{{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}}{{/targetXPath}} {{#description}}description="{{description}}"{{/description}} >
+    <xquery {{#staticScriptKey}}key="{{{staticScriptKey}}}"{{/staticScriptKey}} {{#dynamicScriptKey}}key="{{{dynamicScriptKey}}}"{{/dynamicScriptKey}} {{#targetXPath}}target="{{{value}}}"{{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}}{{/targetXPath}} {{#description}}description="{{description}}"{{/description}} >
         {{#variables}}        
-            <variable name="{{{variableName}}}" type="{{variableType}}" {{#variableKey}}key="{{variableKey}}"{{/variableKey}} {{#variableLiteral}}value="{{{variableLiteral}}}"{{/variableLiteral}} {{#variableExpression}}expression="{{{variableExpression}}}"{{/variableExpression}} />
+            <variable name="{{{variableName}}}" type="{{variableType}}" {{#variableKey}}key="{{variableKey}}"{{/variableKey}} {{#variableLiteral}}value="{{{variableLiteral}}}"{{/variableLiteral}} {{#variableExpression}}expression="{{{variableExpression}}}" {{#namespaces}}xmlns:{{prefix}}="{{uri}}" {{/namespaces}}{{/variableExpression}} />
         {{/variables}}
     </xquery>
     `;
@@ -29,12 +29,13 @@ export function getXqueryXml(data: { [key: string]: any }) {
     data.dynamicScriptKey = "{" + data.dynamicScriptKey?.value + "}";
     delete data.staticScriptKey;
   }
-  data.variables = data.variables?.map((variable: string[]) => {
+  data.variables = data.variables?.map((variable: any[]) => {
     return {
       variableName: variable[0],
       variableType: variable[1],
       variableLiteral: variable[2] == "LITERAL" ? variable[3] : undefined,
-      variableExpression: variable[2] == "EXPRESSION" ? variable[4] : undefined,
+      variableExpression: variable[2] == "EXPRESSION" ? variable[4]?.value : undefined,
+      namespaces: variable[2] == "EXPRESSION" ? variable[4]?.namespaces : undefined,
       variableKey: variable[5]
     }
   });
@@ -62,7 +63,8 @@ export function getXqueryFormDataFromSTNode(data: { [key: string]: any }, node: 
   data.description = node.description;
   if (node.variable) {
     data.variables = node.variable.map((var1) => {
-      return [var1.name, var1.type, var1.value ? "LITERAL" : "EXPRESSION", var1.value, var1.expression, var1.key];
+      let namespaces = transformNamespaces(var1.namespaces);
+      return [var1.name, var1.type, var1.value ? "LITERAL" : "EXPRESSION", var1.value, { isExpression: true, value: var1.expression, namespaces: namespaces }, var1.key];
     });
   }
 

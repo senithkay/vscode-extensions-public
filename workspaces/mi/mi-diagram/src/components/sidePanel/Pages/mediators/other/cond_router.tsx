@@ -59,10 +59,11 @@ const ConditionalRouterForm = (props: AddMediatorProps) => {
                         "isRequired": false
                     },
                     {
-                        "type": "TextField",
+                        "type": "KeyLookup",
                         "label": "Target Sequence",
                         "defaultValue": "",
-                        "isRequired": false
+                        "isRequired": false,
+                        "filterType": "sequence"
                     },
                     {
                         "type": "TextField",

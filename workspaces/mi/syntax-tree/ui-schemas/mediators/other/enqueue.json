@@ -1,6 +1,6 @@
 {
   "name": "Enqueue",
-  "type":"mediator",
+  "type": "mediator",
   "title": "Enqueue Mediator",
   "help": "Executes different sequences for messages with different properties in high-load scenarios.",
   "elements": [
@@ -35,7 +35,8 @@
             "value": {
               "name": "sequenceKey",
               "displayName": "Sequence Key",
-              "inputType": "registry",
+              "inputType": "key",
+              "keyType": "sequence",
               "required": false,
               "helpTip": ""
             }

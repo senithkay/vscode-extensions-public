@@ -161,6 +161,7 @@ const ScriptForm = (props: AddMediatorProps) => {
                         render={({ field }) => (
                             <Keylookup
                                 value={field.value}
+                                filterType='registry'
                                 label="Script Key"
                                 allowItemCreate={true}
                                 onValueChange={field.onChange}
