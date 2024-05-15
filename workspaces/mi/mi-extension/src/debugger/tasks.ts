@@ -11,6 +11,7 @@ import * as path from 'path';
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 import { createTempDebugBatchFile } from './debugHelper';
+import { ERROR_LOG, logDebug } from '../util/logger';
 
 export function getBuildTask(): vscode.Task {
     const commandToExecute = "mvn clean install";
@@ -32,7 +33,8 @@ export function getCopyTask(serverPath: string, targetDirectory: vscode.Uri): vs
     let commandToExecute: string;
 
     if (!fs.existsSync(targetPath)) {
-        return undefined;
+        logDebug(`${targetPath} does not exist`, ERROR_LOG);
+        return;
     }
 
     if (process.platform === 'win32') {
@@ -96,7 +98,8 @@ export function getStopTask(serverPath: string): vscode.Task | undefined {
     const command = `${binPath} stop`;
 
     if (!fs.existsSync(binPath)) {
-        return undefined;
+        logDebug(`${binPath} does not exist`, ERROR_LOG);
+        return;
     }
 
     const stopTask = new vscode.Task(

@@ -10,6 +10,8 @@
 import * as vscode from 'vscode';
 
 export const outputChannel = vscode.window.createOutputChannel("Micro Integrator");
+export const ERROR_LOG = 'ERROR';
+export const INFO_LOG = 'INFO';
 
 function withNewLine(value: string) {
     if (typeof value === 'string' && !value.endsWith('\n')) {
@@ -23,6 +25,17 @@ export function log(value: string): void {
     const output = withNewLine(value);
     console.log(output);
     outputChannel.append(output);
+}
+
+export function logWithDebugLevel(message: string, debugLabel: string, logLevel: string): void {
+    const formattedMessage = `[${new Date().toLocaleString()}] [${debugLabel}] [${logLevel}] ${message}`;
+    const output = withNewLine(formattedMessage);
+    console.log(output);
+    outputChannel.append(output);
+}
+
+export function logDebug(message: string, logLevel: string): void {
+    logWithDebugLevel(message, 'MI Debug', logLevel);
 }
 
 export function getOutputChannel() {
