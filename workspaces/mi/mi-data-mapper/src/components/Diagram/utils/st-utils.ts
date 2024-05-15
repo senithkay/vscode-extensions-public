@@ -12,6 +12,7 @@ import { Visitor } from '../../../ts/base-visitor';
 import { View } from '../../../components/DataMapper/DataMapper';
 import { FocusedSTFindingVisitor } from '../../../components/Visitors/FocusedSTFindingVisitor';
 import { getTnfFnReturnStatement, isMapFunction } from './common-utils';
+import { get } from 'lodash';
 
 enum SyntaxKindWithRepeatedValue {
     NumericLiteral = 9,
@@ -74,22 +75,41 @@ export function getFocusedST(focusedView: View, fnST: FunctionDeclaration): Prop
     const { targetFieldFQN, mapFnIndex } = focusedView;
 
     if (!targetFieldFQN) {
-        // When focused into map function located in the root level return statement
-        return getTnfFnReturnStatement(fnST);
+        const tnfFnReturnStmt = getTnfFnReturnStatement(fnST);
+        if (mapFnIndex === 0) {
+            // When focused into map function located in the root level return statement
+            return tnfFnReturnStmt;
+        } else if (mapFnIndex > 0) {
+            // When focused into map function which is a descendant of the map function located in the root level return statement
+            return getMapFunctionReturnStatement(tnfFnReturnStmt, mapFnIndex);
+        }
     }
 
     const focusedSTFindingVisitor = new FocusedSTFindingVisitor(targetFieldFQN);
     traversNode(fnST, focusedSTFindingVisitor);
     let resolvedNode: PropertyAssignment | ReturnStatement = focusedSTFindingVisitor.getResolvedNode();
 
-    const returnStmts = resolvedNode.getDescendantsOfKind(ts.SyntaxKind.ReturnStatement);
-
-    if (mapFnIndex !== undefined && returnStmts.length >= mapFnIndex) {
-        resolvedNode = returnStmts.filter(stmt => {
-            const returnExpr = stmt.getExpression();
-            return Node.isCallExpression(returnExpr) && isMapFunction(returnExpr);
-        })[mapFnIndex - 1];
+    if (mapFnIndex !== undefined) {
+        // When focused into chained map function located in a property assignment
+        resolvedNode = getMapFunctionReturnStatement(resolvedNode, mapFnIndex);
     }
 
     return resolvedNode;
+
+    function getMapFunctionReturnStatement(
+        resolvedNode: PropertyAssignment | ReturnStatement,
+        index: number
+    ): PropertyAssignment | ReturnStatement {
+
+        // Constraint: In focused views, return statements are only allowed at map functions
+        const returnStmts = resolvedNode.getDescendantsOfKind(ts.SyntaxKind.ReturnStatement);
+
+        if (returnStmts.length >= index) {
+            return returnStmts.filter(stmt => {
+                const returnExpr = stmt.getExpression();
+                return Node.isCallExpression(returnExpr) && isMapFunction(returnExpr);
+            })[index - 1];
+        }
+        return resolvedNode;
+    }
 }

@@ -26,6 +26,11 @@ export function getDMType(
     mapFnIndex: number,
     isPropeAccessExpr?: boolean
 ): DMType {
+    /*
+        Extract the DMType from the parent type, corresponding to the given properties expression.
+        If the mapFnIndex is undefined, the DMType of the last property in the properties expression is returned.
+        Otherwise, from the already found DMType, the DMType of the map function at the given index is returned.
+    */
     const properties = getProperties(propertiesExpr, isPropeAccessExpr);
 
     if (!properties) return;
@@ -61,6 +66,24 @@ export function getDMType(
             return currentType.memberType.fields.find(field => field.fieldName === property);
         }
     }
+}
+
+export function getDMTypeForRootChaninedMapFunction(
+    outputType: DMType,
+    mapFnIndex: number
+): DMType {
+    /*
+        Find the DMType corresponding to the the given index.
+        The focused map function is a decsendant of the map function defined at the
+        return statement of the transformation function
+    */
+    let currentType = outputType;
+    if (currentType.kind === TypeKind.Array) {
+        for (let i = 0; i < mapFnIndex; i++) {
+            currentType = currentType.memberType;
+        }
+    }
+    return currentType;
 }
 
 export function getEnrichedDMType(

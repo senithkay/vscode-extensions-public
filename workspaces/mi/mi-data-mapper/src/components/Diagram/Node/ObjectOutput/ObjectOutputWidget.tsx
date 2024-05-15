@@ -63,7 +63,7 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 	const hasValue = fields && fields.length > 0;
 	const isBodyObjectLiteralExpr = value && Node.isObjectLiteralExpression(value);
 
-	const hasDiagnostics = getDiagnostics(dmTypeWithValue?.value).length > 0;
+	const hasDiagnostics = !dmTypeWithValue?.value.wasForgotten && getDiagnostics(dmTypeWithValue.value).length > 0;
 	const hasEmptyFields = mappings && (mappings.length === 0 || !mappings.some(mapping => {
 		if (mapping.value && !mapping.value.wasForgotten()) {
 			return !isEmptyValue(getPosition(mapping.value));
