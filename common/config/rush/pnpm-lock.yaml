@@ -3261,7 +3261,6 @@ importers:
       mustache: ~4.2.0
       node-fetch: ~2.6.2
       node-loader: ~2.0.0
-      prettier: 3.2.5
       recast: ^0.20.5
       rimraf: ~5.0.5
       tmp: ~0.2.3
@@ -3311,7 +3310,6 @@ importers:
       mustache: 4.2.0
       node-fetch: 2.6.13
       node-loader: 2.0.0_webpack@5.90.1
-      prettier: 3.2.5
       recast: 0.20.5
       tmp: 0.2.3
       to-json-schema: 0.2.4
@@ -7249,6 +7247,17 @@ packages:
 
   /@codemirror/autocomplete/6.15.0:
     resolution: {integrity: sha512-G2Zm0mXznxz97JhaaOdoEG2cVupn4JjPaS4AcNvZzhOsnnG9YVN68VzfoUw6dYTsIxT6a/cmoFEN47KAWhXaOg==}
+    dependencies:
+      '@codemirror/language': 6.10.1
+      '@codemirror/state': 6.4.1
+      '@codemirror/view': 6.26.0
+      '@lezer/common': 1.2.1
+    dev: false
+
+  /@codemirror/autocomplete/6.15.0_@codemirror+state@6.4.1:
+    resolution: {integrity: sha512-G2Zm0mXznxz97JhaaOdoEG2cVupn4JjPaS4AcNvZzhOsnnG9YVN68VzfoUw6dYTsIxT6a/cmoFEN47KAWhXaOg==}
+    peerDependencies:
+      '@codemirror/state': ^6.0.0
     dependencies:
       '@codemirror/language': 6.10.1
       '@codemirror/state': 6.4.1
@@ -22668,7 +22677,7 @@ packages:
     peerDependencies:
       '@codemirror/lint': '>=6.0.0'
     dependencies:
-      '@codemirror/autocomplete': 6.15.0
+      '@codemirror/autocomplete': 6.15.0_@codemirror+state@6.4.1
       '@codemirror/commands': 6.3.3
       '@codemirror/language': 6.10.1
       '@codemirror/lint': 6.5.0
@@ -41189,12 +41198,6 @@ packages:
     resolution: {integrity: sha512-tdN8qQGvNjw4CHbY+XXk0JgCXn9QiF21a55rBe5LJAU+kDyC4WQn4+awm2Xfk2lQMk5fKup9XgzTZtGkjBdP9Q==}
     engines: {node: '>=10.13.0'}
     hasBin: true
-
-  /prettier/3.2.5:
-    resolution: {integrity: sha512-3/GWa9aOC0YeD7LUfvOG2NiDyhOWRvt1k+rcKhOuYnMY24iiCphgneUfJDyFXd6rZCAnuLBv6UeAULtrhT/F4A==}
-    engines: {node: '>=14'}
-    hasBin: true
-    dev: false
 
   /pretty-bytes/4.0.2:
     resolution: {integrity: sha512-yJAF+AjbHKlxQ8eezMd/34Mnj/YTQ3i6kLzvVsH4l/BfIFtp444n0wVbnsn66JimZ9uBofv815aRp1zCppxlWw==}
