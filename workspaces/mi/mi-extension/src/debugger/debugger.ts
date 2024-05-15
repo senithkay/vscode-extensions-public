@@ -18,6 +18,7 @@ import { VisualizerWebview } from '../visualizer/webview';
 import { extension } from '../MIExtensionContext';
 import { ViewColumn } from 'vscode';
 import { reject } from 'lodash';
+import { ERROR_LOG, INFO_LOG, logDebug } from '../util/logger';
 
 export interface RuntimeBreakpoint {
     id: number;
@@ -158,7 +159,7 @@ export class Debugger extends EventEmitter {
                 return vscodeBreakpointsPerFile;
             }
         } catch (error) {
-            console.error('Error setting breakpoint:', error);
+            logDebug(`Error updating breakpoints: ${error}`, ERROR_LOG);
             return Promise.reject(error);
         }
     }
@@ -251,7 +252,6 @@ export class Debugger extends EventEmitter {
         };
 
         const breakpointInfo: GetBreakpointInfoResponse = await langClient.getBreakpointInfo(getBreakpointInfoRequest);
-        console.log('Breakpoint Info:', breakpointInfo);
         return breakpointInfo?.breakpointInfo;
     }
 
@@ -328,36 +328,6 @@ export class Debugger extends EventEmitter {
         return this.currentDebugpoint;
     }
 
-    public async setBreakpointsInServer(): Promise<void> {
-        return new Promise(async (resolve, reject) => {
-            // TODO: 1. check the delay of CApp undeployed 2. Why the server doesnt update the breakpoints even after successful breakpoint requests
-            checkServerReadiness().then(() => {
-                this.sendResumeCommand().then(async () => {
-                    setTimeout(async () => {
-                        const runtimeBreakpoints = this.getRuntimeBreakpoints(this.getCurrentFilePath());
-                        if (runtimeBreakpoints.length > 0) {
-                            const runtimeBreakpointInfo = await this.getBreakpointInformation(runtimeBreakpoints);
-
-                            for (const info of runtimeBreakpointInfo) {
-                                await this.sendClearBreakpointCommand(info);
-                                await this.sendSetBreakpointCommand(info);
-                            }
-                        }
-                    }, 3000);
-                    resolve();
-                }).catch((error) => {
-                    console.error('Error while resuming the debugger:', error);
-                    reject(`Error while resuming the debugger server: ${error}`);
-                });
-
-            }).catch((error) => {
-                console.error('Error while checking server readiness:', error);
-                reject(error);
-            });
-        });
-
-    }
-
     public async initializeDebugger(): Promise<void> {
         return new Promise(async (resolve, reject) => {
             this.startDebugger().then(() => {
@@ -377,17 +347,17 @@ export class Debugger extends EventEmitter {
                         }
                         resolve();
                     }).catch((error) => {
-                        console.error('Error while resuming the debugger:', error);
+                        logDebug(`Error while sending the resume command: ${error}`, ERROR_LOG);
                         reject(`Error while resuming the debugger server: ${error}`);
                     });
 
                 }).catch((error) => {
-                    console.error('Error while checking server readiness:', error);
+                    logDebug(`Error while checking server readiness: ${error}`, ERROR_LOG);
                     reject(error);
                 });
 
             }).catch((error) => {
-                console.error('Error while connecting the debugger to the MI server:', error);
+                logDebug(`Error while connecting the debugger to the MI server: ${error}`, ERROR_LOG);
                 reject(`Error while connecting the debugger to the MI server: ${error}`);
             });
         });
@@ -399,26 +369,24 @@ export class Debugger extends EventEmitter {
             this.eventClient = new net.Socket();
             // Connect to the command port
             this.commandClient?.connect(this.commandPort, this.host, () => {
-                console.log('Connected to command port');
                 this.isDebuggerActive = true;
                 resolve();
             });
 
             // Error handling for the command client
             this.commandClient?.on('error', (error) => {
-                console.error('Command client error:', error);
+                logDebug(`Command client error: ${error}`, ERROR_LOG);
                 reject(error); // Reject the promise if there's an error
             });
 
             // Connect to the event port
             this.eventClient?.connect(this.eventPort, this.host, () => {
-                console.log('Connected to event port');
                 resolve();
             });
 
             // Error handling for the event client
             this.eventClient?.on('error', (error) => {
-                console.error('Event client error:', error);
+                logDebug(`Event client error: ${error}`, ERROR_LOG);
                 reject(error);
             });
 
@@ -438,7 +406,7 @@ export class Debugger extends EventEmitter {
                     const message = incompleteMessage.slice(0, newlineIndex);
 
                     // Call a function with the received message
-                    console.log('Received event:', message);
+                    logDebug(`Event received: ${message}`, INFO_LOG);
 
                     // convert to eventData to json
                     const eventDataJson = JSON.parse(message);
@@ -571,14 +539,13 @@ export class Debugger extends EventEmitter {
             let incompleteMessage = '';
 
             // Send request on the command port
-            console.log('\nSending request:', request);
+            logDebug(`Command: ${request}`, INFO_LOG);
             this.commandClient?.write(request);
 
             // Listen for response from the command port
             this.commandClient?.once('data', (data) => {
                 // Convert buffer to string
                 const receivedData = data.toString();
-                console.log('Received data from commandClient, waiting for complete data:', receivedData);
 
                 // Append the received data to incompleteMessage
                 incompleteMessage += receivedData;
@@ -590,7 +557,7 @@ export class Debugger extends EventEmitter {
                     const message = incompleteMessage.slice(0, newlineIndex);
 
                     // Call a function with the received message
-                    console.log('Received response:', message);
+                    logDebug(`Command response: ${message}`, INFO_LOG);
                     resolve(message); // Resolve the promise with the message
 
                     // Remove the processed message from incompleteMessage
@@ -625,7 +592,7 @@ export class Debugger extends EventEmitter {
 
                 variables.push(jsonResponse);
             } catch (error) {
-                console.error(`Error sending request for ${context}:`, error);
+                logDebug(`Error sending properties-command for ${context}: ${error}`, ERROR_LOG);
             }
         }
         return variables;
