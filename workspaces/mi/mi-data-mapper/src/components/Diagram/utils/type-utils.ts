@@ -54,7 +54,7 @@ export function getDMType(
     return currentType;
 
     function getProperties(propertiesExpr: string, isPropeAccessExpr?: boolean): string[] | undefined {
-        const propertyList = propertiesExpr.split('.');
+        const propertyList = propertiesExpr.match(/(?:[^\s".']|"(?:\\"|[^"])*"|'(?:\\'|[^'])*')+/g) || [];
         return isPropeAccessExpr ? propertyList.slice(1) : propertyList;
     }
     
