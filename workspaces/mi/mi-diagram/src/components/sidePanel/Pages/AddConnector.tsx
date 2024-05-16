@@ -7,9 +7,8 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { AutoComplete, Button, ComponentCard, RequiredFormInput, TextField, LinkButton } from '@wso2-enterprise/ui-toolkit';
-import { VSCodeCheckbox, VSCodeDropdown, VSCodeOption } from '@vscode/webview-ui-toolkit/react';
 import styled from '@emotion/styled';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import SidePanelContext from '../SidePanelContexProvider';
@@ -18,6 +17,8 @@ import { Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 import AddConnection from './AddConnection';
 import { ParamConfig, ParamManager } from '../../Form/ParamManager/ParamManager';
 import { ExpressionField, ExpressionFieldValue } from '../../Form/ExpressionField/ExpressionInput';
+import ExpressionEditor from '../expressionEditor/ExpressionEditor';
+import { sidepanelAddPage, sidepanelGoBack } from '..';
 
 const cardStyle = {
     display: "block",
@@ -64,6 +65,7 @@ const AddConnector = (props: AddConnectorProps) => {
     const [isAddingConnection, setIsAddingConnection] = useState(false);
     const [connections, setConnections] = useState([] as any);
     const [allowedConnectionTypes, setAllowedConnectionTypes] = useState([]);
+    const handleOnCancelExprEditorRef = useRef(() => { });
 
     const formValidators: { [key: string]: (e?: any) => string | undefined } = {};
 
@@ -101,6 +103,12 @@ const AddConnector = (props: AddConnectorProps) => {
         };
         setParams(modifiedParams);
     };
+
+    useEffect(() => {
+        handleOnCancelExprEditorRef.current = () => {
+            sidepanelGoBack(sidePanelContext);
+        };
+    }, [sidePanelContext.pageStack]);
 
     useEffect(() => {
         if (props.formData && props.formData !== "") {
@@ -220,7 +228,7 @@ const AddConnector = (props: AddConnectorProps) => {
                                     element.att(`xmlns:${namespace.prefix}`, namespace.uri);
                                 });
                                 element.txt(`{${value}}`);
-                            } else{
+                            } else {
                                 root.ele(key).txt(`{${value}}`);
                             }
                         } else {
@@ -366,6 +374,18 @@ const AddConnector = (props: AddConnectorProps) => {
                                     setValue
                                 }
                             });
+
+                            const content = <ExpressionEditor
+                                value={value}
+                                handleOnSave={(value) => {
+                                    setValue(value);
+                                    handleOnCancelExprEditorRef.current();
+                                }}
+                                handleOnCancel={() => {
+                                    handleOnCancelExprEditorRef.current();
+                                }}
+                            />;
+                            sidepanelAddPage(sidePanelContext, content, "Expression Editor");
                         }}
                     />
                 );

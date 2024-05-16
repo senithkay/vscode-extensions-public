@@ -8,7 +8,7 @@
  */
 import { TypeKind } from "@wso2-enterprise/mi-core";
 import md5 from "blueimp-md5";
-import { Diagnostic, Identifier, Node, PropertyAccessExpression } from "ts-morph";
+import { Diagnostic, ElementAccessExpression, Identifier, Node, PropertyAccessExpression } from "ts-morph";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { DataMapperLinkModel } from "../../Link";
@@ -50,7 +50,7 @@ export class LinkConnectorNode extends DataMapperNodeModel {
         public valueNode: Node,
         public editorLabel: string,
         public parentNode: Node,
-        public fieldAccessNodes: (PropertyAccessExpression | Identifier)[],
+        public inputAccessNodes: (PropertyAccessExpression | ElementAccessExpression | Identifier)[],
         public fields: Node[],
         public isPrimitiveTypeArrayElement?: boolean
     ) {
@@ -82,7 +82,7 @@ export class LinkConnectorNode extends DataMapperNodeModel {
         );
         this.addPort(this.outPort);
 
-        this.fieldAccessNodes.forEach((field) => {
+        this.inputAccessNodes.forEach((field) => {
             const inputNode = findInputNode(field, this);
             if (inputNode) {
                 this.sourcePorts.push(getInputPort(inputNode, field));

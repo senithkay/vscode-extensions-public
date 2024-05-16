@@ -267,9 +267,13 @@ export class PositionVisitor implements Visitor {
 
     //Advanced Medaitors
     beginVisitCache = (node: Cache): void => {
-        this.setAdvancedMediatorPosition(node, {
-            OnCacheHit: node.onCacheHit
-        }, NodeTypes.GROUP_NODE);
+        if (node.collector) {
+            this.setBasicMediatorPosition(node);
+        } else {
+            this.setAdvancedMediatorPosition(node, {
+                OnCacheHit: node.onCacheHit
+            }, NodeTypes.GROUP_NODE);
+        }
     }
     endVisitCache = (node: Cache): void => this.setSkipChildrenVisit(false);
     beginVisitClone = (node: Clone): void => {
@@ -387,7 +391,7 @@ export class PositionVisitor implements Visitor {
         this.setBasicMediatorPosition(node);
     }
     endVisitXslt = (node: Xslt): void => this.setSkipChildrenVisit(false);
-   
+
     beginVisitDblookup = (node: DbMediator): void => {
         this.setSkipChildrenVisit(true);
         this.setBasicMediatorPosition(node);

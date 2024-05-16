@@ -113,14 +113,6 @@ export function activateDebugger(context: vscode.ExtensionContext) {
         }
     }, vscode.DebugConfigurationProviderTriggerKind.Dynamic));
 
-    // TODO: Check the possibility of using event to get the triggered breakpoint in the diagram
-    // context.subscriptions.push(vscode.debug.onDidReceiveDebugSessionCustomEvent((e) => {
-    //     if(e.event === 'StackTraceUpdated') {
-    //         const stateContext = StateMachine.context();
-    //         openView(EVENT_TYPE.OPEN_VIEW, stateContext);
-    //     }
-    // }));
-
     // Listener to support reflect breakpoint changes in diagram when debugger is inactive
     context.subscriptions.push(vscode.debug.onDidChangeBreakpoints((session) => {
         navigate();

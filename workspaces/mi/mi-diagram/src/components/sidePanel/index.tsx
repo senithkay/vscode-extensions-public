@@ -31,6 +31,11 @@ const ButtonContainer = styled.div`
     height: 30px;
 `;
 
+const ContentContainer = styled.div`
+    height: calc(100vh - 50px);
+    overflow-y: auto;
+`;
+
 const IconContainer = styled.div`
     width: 40px;
 
@@ -182,7 +187,11 @@ const SidePanelList = (props: SidePanelListProps) => {
                         {
                             sidePanelContext.pageStack.map((page: SidePanelPage, index) => {
                                 if (index === 0) {
-                                    return page.content;
+                                    return (
+                                        <ContentContainer key={index}>
+                                            {page.content}
+                                        </ContentContainer>
+                                    )
                                 }
                                 return <Drawer
                                     isOpen={page.isOpen}

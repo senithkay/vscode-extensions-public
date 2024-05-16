@@ -20,10 +20,11 @@ import {
     CallExpression,
     ReturnStatement,
     FunctionDeclaration,
-    SyntaxKind
+    SyntaxKind,
+    ElementAccessExpression
 } from "ts-morph";
 
-import { PropertyAccessNodeFindingVisitor } from "../../Visitors/PropertyAccessNodeFindingVisitor";
+import { InputAccessNodeFindingVisitor } from "../../Visitors/InputAccessNodeFindingVisitor";
 import { NodePosition, getPosition, isPositionsEquals, traversNode } from "./st-utils";
 import { DataMapperNodeModel } from "../Node/commons/DataMapperNode";
 import { ArrayOutputNode, InputNode, ObjectOutputNode } from "../Node";
@@ -40,14 +41,17 @@ import { FocusedInputNode } from "../Node/FocusedInput";
 import { PrimitiveOutputNode } from "../Node/PrimitiveOutput";
 import { View } from "../../../components/DataMapper/DataMapper";
 
-export function getPropertyAccessNodes(node: Node): (Identifier | PropertyAccessExpression)[] {
-    const propertyAccessNodeVisitor: PropertyAccessNodeFindingVisitor = new PropertyAccessNodeFindingVisitor();
-    traversNode(node, propertyAccessNodeVisitor);
-    return propertyAccessNodeVisitor.getPropertyAccessNodes();
+
+export function getInputAccessNodes(node: Node): (Identifier | ElementAccessExpression | PropertyAccessExpression)[] {
+    const ipnutAccessNodeVisitor: InputAccessNodeFindingVisitor = new InputAccessNodeFindingVisitor();
+    traversNode(node, ipnutAccessNodeVisitor);
+    return ipnutAccessNodeVisitor.getInputAccessNodes();
 }
 
 export function findInputNode(expr: Node, dmNode: DataMapperNodeModel) {
     const dmNodes = dmNode.getModel().getNodes();
+    const { functionST, views } = dmNode.context;
+    const isWithinSubMappingView = views.length > 1;
     let paramNode: ParameterDeclaration;
 
     if (Node.isIdentifier(expr)) {
@@ -60,22 +64,19 @@ export function findInputNode(expr: Node, dmNode: DataMapperNodeModel) {
 			}
         });
         paramNode = paramType instanceof InputNode ? paramType?.value : (paramType as FocusedInputNode)?.innerParam;
-    } else if (Node.isPropertyAccessExpression(expr)) {
-        const { functionST, views } = dmNode.context;
-        const valueExpr = getInnerExpr(expr);
+    } else if (isInputAccessExpr(expr)) {
+        const rootPropAccessExpr = getRootInputAccessExpr(expr as ElementAccessExpression | PropertyAccessExpression);
 
-        if (valueExpr && Node.isIdentifier(valueExpr)) {
-            const isWithinFocusedView = views.length > 0;        
-            paramNode = functionST.getParameters().find(param => param.getName() === valueExpr.getText());
+        if (rootPropAccessExpr && Node.isIdentifier(rootPropAccessExpr)) {        
+            paramNode = functionST.getParameters().find(param => param.getName() === rootPropAccessExpr.getText());
 
-            if (!paramNode) {
-                if (isWithinFocusedView) {
-                    const focusedInputNode = dmNodes.find(node => node instanceof FocusedInputNode) as FocusedInputNode;
-                    paramNode = focusedInputNode && focusedInputNode.innerParam;
-                }
+            if (!paramNode && isWithinSubMappingView) {
+                const focusedInputNode = dmNodes.find(node => node instanceof FocusedInputNode) as FocusedInputNode;
+                paramNode = focusedInputNode && focusedInputNode.innerParam;
             }
         }
     }
+
     if (paramNode) {
         return findNodeByValueNode(paramNode, dmNode);
     }
@@ -88,13 +89,13 @@ export function getInputPort(node: InputNode | FocusedInputNode, expr: Node): In
     if (node instanceof InputNode) {
         portIdBuffer = node.value.getName();
     } else if (node instanceof FocusedInputNode) {
-        portIdBuffer = FOCUSED_INPUT_SOURCE_PORT_PREFIX + "." + node.innerParam.getName();    
+        portIdBuffer = FOCUSED_INPUT_SOURCE_PORT_PREFIX + "." + node.innerParam.getName();
     }
 
     if (typeDesc && typeDesc.kind === TypeKind.Interface) {
 
-        if (Node.isPropertyAccessExpression(expr)) {
-            const fieldNames = getFieldNames(expr);
+        if (isInputAccessExpr(expr)) {
+            const fieldNames = getFieldNames(expr as ElementAccessExpression | PropertyAccessExpression);
             let nextTypeNode = typeDesc;
 
             for (let i = 1; i < fieldNames.length; i++) {
@@ -243,12 +244,14 @@ export function findNodeByValueNode(
     return foundNode;
 }
 
-export function getFieldNames(expr: PropertyAccessExpression) {
+export function getFieldNames(expr: ElementAccessExpression | PropertyAccessExpression) {
     const fieldNames: { name: string, isOptional: boolean }[] = [];
     let nextExp = expr;
-    while (nextExp && Node.isPropertyAccessExpression(nextExp)) {
+    while (nextExp && isInputAccessExpr(nextExp)) {
         fieldNames.push({
-            name: nextExp.getName(),
+            name: Node.isPropertyAccessExpression(nextExp)
+                ? nextExp.getName()
+                : nextExp.getArgumentExpression().getText(),
             isOptional: !!nextExp.getQuestionDotTokenNode()
         });
         if (Node.isIdentifier(nextExp.getExpression())) {
@@ -257,8 +260,8 @@ export function getFieldNames(expr: PropertyAccessExpression) {
                 isOptional: false
             });
         }
-        nextExp = Node.isPropertyAccessExpression(nextExp.getExpression())
-            ? nextExp.getExpression() as PropertyAccessExpression
+        nextExp = isInputAccessExpr(nextExp.getExpression())
+            ? nextExp.getExpression() as ElementAccessExpression | PropertyAccessExpression
             : undefined;
     }
     let isRestOptional = false;
@@ -328,7 +331,7 @@ export const getOptionalField = (field: DMType): DMType | undefined => {
 }
 
 export function isConnectedViaLink(field: Node) {
-	const inputNodes = getPropertyAccessNodes(field);
+	const inputNodes = getInputAccessNodes(field);
 
 	const isObjectLiteralExpr = Node.isObjectLiteralExpression(field);
 	const isArrayLiteralExpr = Node.isArrayLiteralExpression(field);
@@ -452,11 +455,11 @@ export function getEditorLineAndColumn(node: Node): Range {
 }
 
 export function canConnectWithLinkConnector(
-    properyAccessNodes: (Identifier | PropertyAccessExpression)[],
+    inputAccessNodes: (Identifier | ElementAccessExpression | PropertyAccessExpression)[],
     expr: Expression
 ): boolean {
-    const noOfPropAccessNodes = properyAccessNodes.length;
-    const isCallExpr = noOfPropAccessNodes === 1 && isNodeCallExpression(properyAccessNodes[0]);
+    const noOfPropAccessNodes = inputAccessNodes.length;
+    const isCallExpr = noOfPropAccessNodes === 1 && isNodeCallExpression(inputAccessNodes[0]);
     return noOfPropAccessNodes > 1 || (noOfPropAccessNodes === 1  && (isConditionalExpression(expr) || isCallExpr));
 }
 
@@ -478,8 +481,13 @@ export function isNodeCallExpression(node: Node): boolean {
 export function isMapFunction(callExpr: CallExpression): boolean {
     const expr = callExpr.getExpression();
 
-    if (Node.isPropertyAccessExpression(expr)) {
-        return expr.getName() === "map";
+    if (isInputAccessExpr(expr)) {
+        switch (expr.getKind()) {
+            case SyntaxKind.ElementAccessExpression:
+                return (expr as ElementAccessExpression).getArgumentExpression().getText() === "map";
+            case SyntaxKind.PropertyAccessExpression:
+                return (expr as PropertyAccessExpression).getName() === "map";
+        }
     }
 
     return false;
@@ -551,12 +559,21 @@ export function getMapFnIndex(views: View[], prevFieldFQN: string): number {
     }
 }
 
-function getInnerExpr(node: PropertyAccessExpression): Node {
-    let valueExpr = node.getExpression();
-    while (valueExpr && Node.isPropertyAccessExpression(valueExpr)) {
-        valueExpr = valueExpr.getExpression();
+export function isInputAccessExpr(node: Node): boolean {
+    return Node.isElementAccessExpression(node) || Node.isPropertyAccessExpression(node);
+}
+
+export function isQuotedString(str: string): boolean {
+    return str.startsWith('"') && str.endsWith('"')
+        || str.startsWith("'") && str.endsWith("'");
+}
+
+function getRootInputAccessExpr(node: ElementAccessExpression | PropertyAccessExpression): Node {
+    let expr = node.getExpression();
+    while (expr && isInputAccessExpr(expr)) {
+        expr = (expr as ElementAccessExpression | PropertyAccessExpression).getExpression();
     }
-    return valueExpr;
+    return expr;
 }
 
 function getNextField(

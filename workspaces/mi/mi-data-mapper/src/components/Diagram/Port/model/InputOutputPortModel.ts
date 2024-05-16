@@ -15,7 +15,7 @@ import { DMTypeWithValue } from "../../Mappings/DMTypeWithValue";
 import { IntermediatePortModel } from "../IntermediatePort";
 import { DataMapperNodeModel } from "../../Node/commons/DataMapperNode";
 import { isDefaultValue } from "../../utils/common-utils";
-import { createSourceForMapping, modifySourceForMultipleMappings } from "../../utils/modification-utils";
+import { buildInputAccessExpr, createSourceForMapping, modifySourceForMultipleMappings } from "../../utils/modification-utils";
 
 export interface InputOutputPortModelGenerics {
 	PORT: InputOutputPortModel;
@@ -70,15 +70,16 @@ export class InputOutputPortModel extends PortModel<PortModelGenerics & InputOut
 
 				if (valueType === ValueType.Default) {
 					let sourceField = sourcePort && sourcePort instanceof InputOutputPortModel && sourcePort.fieldFQN;
+					const sourceInputAccessExpr = buildInputAccessExpr(sourceField);
 					
 					if (targetPort) {
 						const typeWithValue = (targetPort as InputOutputPortModel).typeWithValue;
 						const expr = typeWithValue.value;
 
 						if (Node.isPropertyAssignment(expr)) {
-							expr.setInitializer(sourceField);
+							expr.setInitializer(sourceInputAccessExpr);
 						} else {
-							expr.replaceWithText(sourceField);
+							expr.replaceWithText(sourceInputAccessExpr);
 						}
 
 						targetNode.context.applyModifications();
