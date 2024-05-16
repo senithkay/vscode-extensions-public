@@ -84,6 +84,10 @@ export class VisualizerWebview {
                 ]
             }
         );
+        panel.iconPath = {
+			light: Uri.file(path.join(extension.context.extensionPath, 'assets', 'light-icon.svg')),
+			dark: Uri.file(path.join(extension.context.extensionPath, 'assets', 'dark-icon.svg'))
+		};
         return panel;
     }
 
@@ -125,7 +129,6 @@ export class VisualizerWebview {
           <meta name="viewport" content="width=device-width,initial-scale=1,shrink-to-fit=no">
           <meta name="theme-color" content="#000000">
           <title>Micro Integrator</title>
-         
           <style>
             body, html, #root {
                 height: 100%;
