@@ -67,12 +67,12 @@ interface IKeylookupBase {
 
 // Define the conditional properties for the ExpressionField
 type ExpressionFieldProps = {
-    enableExBtn: true;
+    isExpression: true;
     isExActive: boolean;
     setIsExpression: (isExpr: boolean) => void;
     canChangeEx?: boolean
 } | { 
-    enableExBtn?: false | never;
+    isExpression?: false | never;
     isExActive?: never;
     setIsExpression?: never;
     canChangeEx?: never
@@ -92,7 +92,7 @@ export type IFormKeylookup<T extends FieldValues> = IKeylookupBase
     & { label?: string }
     & UseControllerProps<T>
     // Properties for the ExpressionField
-    & ({ exprName: Path<T>; canChangeEx?: boolean } | { exprName?: never; canChangeEx?: never });
+    & ({ isExpression: true; canChangeEx?: boolean } | { isExpression?: false | never; canChangeEx?: never });
 
 // Styles
 const Container = styled.div({
@@ -157,7 +157,7 @@ export const Keylookup = (props: IKeylookup) => {
         allowItemCreate = true,
         path,
         errorMsg,
-        enableExBtn,
+        isExpression,
         isExActive,
         setIsExpression,
         canChangeEx,
@@ -244,7 +244,7 @@ export const Keylookup = (props: IKeylookup) => {
                     handleValueChange("");
                     props.onCreateButtonClick(fetchItems, handleValueChange);
                 } : null}
-                {...enableExBtn && { actionBtns: [
+                {...isExpression && { actionBtns: [
                     <ExButton
                         isActive={isExActive}
                         onClick={() => {
@@ -261,28 +261,33 @@ export const Keylookup = (props: IKeylookup) => {
 };
 
 export const FormKeylookup = <T extends FieldValues>(props: IFormKeylookup<T>) => {
-    const { control, name, label, exprName, canChangeEx = true, ...rest } = props;
+    const { control, name, label, isExpression, canChangeEx = true, ...rest } = props;
     const {
         field: { value, onChange },
     } = useController({ name, control });
     
-    if (exprName) {
-        const {
-            field: { value: exprValue, onChange: onExprChange },
-        } = useController({ name: exprName, control });
+    if (isExpression) {
+        const handleValueChange = (val: string) => {
+            onChange({ ...value, value: val });
+        }
+
+        const handleExprChange = (isExpr: boolean) => {
+            onChange({ ...value, isExpression: isExpr });
+        }
 
         return (
             <Keylookup
                 {...rest}
                 name={name}
                 label={label}
-                value={value}
-                onValueChange={onChange}
-                enableExBtn={true}
-                isExActive={exprValue}
-                setIsExpression={onExprChange}
+                value={value.value}
+                onValueChange={handleValueChange}
+                isExpression={true}
+                isExActive={value.isExpression}
+                setIsExpression={handleExprChange}
                 canChangeEx={canChangeEx}
-            />);
+            />
+        );
     }
 
     return <Keylookup {...rest} name={name} label={label} value={value} onValueChange={onChange} />;
