@@ -447,10 +447,9 @@ export class Debugger extends EventEmitter {
 
                             if (breakpointKey) {
                                 const breakpoint = this.runtimeVscodeBreakpointMap.get(breakpointKey);
-                                this.currentDebugpoint = breakpoint;
-                                this.currentFile = breakpoint?.filePath;
-                                this.sendEvent('stopOnBreakpoint');
-                                this.sendEvent('breakpointValidated', breakpoint);
+                                if (breakpoint) {
+                                    this.handleBreakpointEvent(breakpoint);
+                                }
                             } else {
                                 // if breakpoint not found in runtimeVscodeBreakpointMap, we need to check in stepOverBreakpointMap
                                 const stepOverBreakpointKey = Array.from(this.stepOverBreakpointMap.keys()).find(
@@ -460,10 +459,9 @@ export class Debugger extends EventEmitter {
 
                                 if (stepOverBreakpointKey) {
                                     const breakpoint = this.stepOverBreakpointMap.get(stepOverBreakpointKey);
-                                    this.currentDebugpoint = breakpoint;
-                                    this.currentFile = breakpoint?.filePath;
-                                    this.sendEvent('stopOnBreakpoint');
-                                    this.sendEvent('breakpointValidated', breakpoint);
+                                    if (breakpoint) {
+                                        this.handleBreakpointEvent(breakpoint);
+                                    }
                                 }
                             }
                         } else if (event.template) {
@@ -476,10 +474,9 @@ export class Debugger extends EventEmitter {
 
                             if (breakpointKey) {
                                 const breakpoint = this.runtimeVscodeBreakpointMap.get(breakpointKey);
-                                this.currentDebugpoint = breakpoint;
-                                this.currentFile = breakpoint?.filePath;
-                                this.sendEvent('stopOnBreakpoint');
-                                this.sendEvent('breakpointValidated', breakpoint);
+                                if (breakpoint) {
+                                    this.handleBreakpointEvent(breakpoint);
+                                }
                             } else {
                                 // if breakpoint not found in runtimeVscodeBreakpointMap, we need to check in stepOverBreakpointMap
                                 const stepOverBreakpointKey = Array.from(this.stepOverBreakpointMap.keys()).find(
@@ -488,10 +485,9 @@ export class Debugger extends EventEmitter {
 
                                 if (stepOverBreakpointKey) {
                                     const breakpoint = this.stepOverBreakpointMap.get(stepOverBreakpointKey);
-                                    this.currentDebugpoint = breakpoint;
-                                    this.currentFile = breakpoint?.filePath;
-                                    this.sendEvent('stopOnBreakpoint');
-                                    this.sendEvent('breakpointValidated', breakpoint);
+                                    if (breakpoint) {
+                                        this.handleBreakpointEvent(breakpoint);
+                                    }
                                 }
                             }
                         }
@@ -502,6 +498,13 @@ export class Debugger extends EventEmitter {
                 resolve();
             });
         });
+    }
+
+    private handleBreakpointEvent(breakpoint: RuntimeBreakpoint): void {
+        this.currentDebugpoint = breakpoint;
+        this.currentFile = breakpoint?.filePath;
+        this.sendEvent('stopOnBreakpoint');
+        this.sendEvent('breakpointValidated', breakpoint);
     }
 
     private mapSequenceInfo(sequence: SequenceBreakpoint): { key: string, mediatorPosition: string, sequenceType: string } {
