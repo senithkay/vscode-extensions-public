@@ -563,7 +563,12 @@ export function getMapFnIndex(views: View[], prevFieldFQN: string): number {
 }
 
 export function isInputAccessExpr(node: Node): boolean {
-    return Node.isElementAccessExpression(node) || Node.isPropertyAccessExpression(node);
+    if (Node.isElementAccessExpression(node)) {
+        const argExpr = node.getArgumentExpression();
+        // Check if the argument is a string literal to avoid the case of array access
+        return argExpr && Node.isStringLiteral(argExpr);
+    }
+    return Node.isPropertyAccessExpression(node);
 }
 
 export function isQuotedString(str: string): boolean {

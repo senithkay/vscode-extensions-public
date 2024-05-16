@@ -22,7 +22,7 @@ import {
     renderDeleteButton,
     renderEditButton,
     renderFunctionCallTooltip,
-    renderMultiInputExprTooltip,
+    renderExpressionTooltip,
     renderPortWidget
 } from './LinkConnectorWidgetComponents';
 
@@ -71,7 +71,7 @@ export function LinkConnectorNodeWidget(props: LinkConnectorNodeWidgetProps) {
             <div className={classes.root} data-testid={`link-connector-node-${node?.value}`}>
                 <div className={classes.header}>
                     {renderPortWidget(engine, node.inPort, `${node?.value}-input`)}
-                    {hasCallExprs ? renderFunctionCallTooltip() :  renderMultiInputExprTooltip()}
+                    {hasCallExprs ? renderFunctionCallTooltip() :  renderExpressionTooltip()}
                     {renderEditButton(onClickEdit, node?.value)}
                     {deleteInProgress ? (
                         loadingScreen
