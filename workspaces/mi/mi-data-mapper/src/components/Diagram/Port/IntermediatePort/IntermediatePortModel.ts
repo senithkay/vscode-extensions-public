@@ -8,7 +8,7 @@
  */
 import { LinkModel, PortModel, PortModelGenerics } from '@projectstorm/react-diagrams';
 
-import { DataMapperLinkModel } from '../../Link/model/DataMapperLink';
+import { DataMapperLinkModel } from '../../Link/DataMapperLink/DataMapperLink';
 
 export interface IntermediateNodeModelGenerics {
 	PORT: IntermediatePortModel;
