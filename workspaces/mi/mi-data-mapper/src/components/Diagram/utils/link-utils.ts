@@ -28,9 +28,10 @@ export function isTargetPortArray(port: PortModel): boolean {
 
 export function generateArrayToArrayMappingWithFn(srcExpr: string, targetType: DMType) {
 
-    const parts = srcExpr.split(/[\.\[\]]/).filter(Boolean); // Split by dot or square brackets and remove empty strings
+    const parts = splitSrcExprWithRegex(srcExpr) // Split by dot or square brackets
     let item = parts[parts.length - 1];
-    let varName = isQuotedString(item) ? `${item.substring(1, item.length - 1)}Item` : `${item}Item`;
+    const varName = isQuotedString(item) ? `${item.substring(1, item.length - 1)}Item` : `${item}Item`;
+    const refinedVarName = varName.replace(/[ .]/g, '_'); // Replace spaces and dots with underscores
     let returnExpr = '';
 
     if (targetType.kind === TypeKind.Interface) {
@@ -45,7 +46,7 @@ export function generateArrayToArrayMappingWithFn(srcExpr: string, targetType: D
         returnExpr = `return ${getDefaultValue(targetType.kind)}`;
     }
 
-    return `${srcExpr.trim()}.map((${varName}) => {${returnExpr}})`;
+    return `${srcExpr.trim()}.map((${refinedVarName}) => {${returnExpr}})`;
 }
 
 function fillWithDefaults(type: DMType): string {
@@ -63,3 +64,18 @@ function fillWithDefaults(type: DMType): string {
 
     return getDefaultValue(type.kind);
 };
+
+function splitSrcExprWithRegex(input: string): string[] {
+    // Regular expression to match tokens
+    const regex = /\[("[^"]*"|'[^']*'|[^[\]]+)\]|(["'])(?:(?=(\\?))\2.)*?\1|\w+/g;
+    // Match and return all tokens
+    const matches = input.match(regex);
+    if (!matches) return [];
+    
+    return matches.map(token => {
+        if (token.startsWith('[') && token.endsWith(']')) {
+            return token.slice(1, -1);
+        }
+        return token.replace(/['"]/g, '');
+    });
+}

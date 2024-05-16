@@ -543,12 +543,12 @@ export function isArrayOrInterface(dmType: DMType) {
 }
 
 export function getMapFnIndex(views: View[], prevFieldFQN: string): number {
-    // Find the relative index of the map function comes under the return statements of another map functions
-    // The index is relative to the map function which is declared within a property assignment
     let mapFnWithFieldIndex: number;
 
     const _ = views.find((view, index) => {
         if (view.targetFieldFQN === prevFieldFQN) {
+            // Find the relative index of the map function comes under the return statements of another map functions
+            // The index is relative to the map function which is declared within a property assignment
             mapFnWithFieldIndex = index;
             return true;
         }
@@ -557,10 +557,18 @@ export function getMapFnIndex(views: View[], prevFieldFQN: string): number {
     if (mapFnWithFieldIndex) {
         return views.length - mapFnWithFieldIndex;
     }
+
+    // The root of the map function is the transform functino return statement
+    return views.length - 1;
 }
 
 export function isInputAccessExpr(node: Node): boolean {
-    return Node.isElementAccessExpression(node) || Node.isPropertyAccessExpression(node);
+    if (Node.isElementAccessExpression(node)) {
+        const argExpr = node.getArgumentExpression();
+        // Check if the argument is a string literal to avoid the case of array access
+        return argExpr && Node.isStringLiteral(argExpr);
+    }
+    return Node.isPropertyAccessExpression(node);
 }
 
 export function isQuotedString(str: string): boolean {
