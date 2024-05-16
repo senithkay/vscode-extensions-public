@@ -55,11 +55,20 @@ export class MiDebugAdapter extends LoggingDebugSession {
                     if (VisualizerWebview.currentPanel) {
                         VisualizerWebview.currentPanel!.getWebview()?.reveal(ViewColumn.Beside);
                         setTimeout(() => {
-                            navigate();
+                            // check if currentFilePath is different from the one in the context, if so we need to open the currentFile
+                            if (StateMachine.context().documentUri !== this.debuggerHandler?.getCurrentFilePath()) {
+                                const newContext = StateMachine.context();
+                                newContext.documentUri = this.debuggerHandler?.getCurrentFilePath();
+                                openView(EVENT_TYPE.OPEN_VIEW, newContext);
+                            } else {
+                                navigate();
+                            }
                         }, 200);
                     } else {
                         extension.webviewReveal = true;
-                        openView(EVENT_TYPE.OPEN_VIEW, StateMachine.context());
+                        const newContext = StateMachine.context();
+                        newContext.documentUri = this.debuggerHandler?.getCurrentFilePath();
+                        openView(EVENT_TYPE.OPEN_VIEW, newContext);
                     }
                 }, 200);
             }

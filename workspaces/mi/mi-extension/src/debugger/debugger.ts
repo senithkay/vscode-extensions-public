@@ -16,7 +16,6 @@ import { BreakpointInfo, SequenceBreakpoint, GetBreakpointInfoRequest, GetBreakp
 import { checkServerReadiness, isADiagramView } from './debugHelper';
 import { VisualizerWebview } from '../visualizer/webview';
 import { extension } from '../MIExtensionContext';
-import { ViewColumn } from 'vscode';
 import { reject } from 'lodash';
 import { ERROR_LOG, INFO_LOG, logDebug } from '../util/logger';
 
@@ -115,7 +114,7 @@ export class Debugger extends EventEmitter {
                 }
 
                 // LS call for breakpoint info
-                const breakpointInfo = await this.getBreakpointInformation(breakpointPerFile);
+                const breakpointInfo = await this.getBreakpointInformation(breakpointPerFile, normalizedPath);
                 // map the runtime breakpoint to the breakpoint info
                 for (let i = 0; i < breakpointPerFile.length; i++) {
 
@@ -197,7 +196,7 @@ export class Debugger extends EventEmitter {
                 }
 
                 // LS call for breakpoint info
-                const breakpointInfo = await this.getBreakpointInformation(stepOverBreakpoints);
+                const breakpointInfo = await this.getBreakpointInformation(stepOverBreakpoints, normalizedPath);
                 // map the runtime breakpoint to the breakpoint info
                 for (let i = 0; i < stepOverBreakpoints.length; i++) {
 
@@ -239,7 +238,7 @@ export class Debugger extends EventEmitter {
         }
     }
 
-    public async getBreakpointInformation(breakpoints: RuntimeBreakpoint[]): Promise<BreakpointInfo[]> {
+    public async getBreakpointInformation(breakpoints: RuntimeBreakpoint[], filePath: string): Promise<BreakpointInfo[]> {
         const langClient = StateMachine.context().langClient!;
         // create BreakpointPosition[] array
         const breakpointPositions = breakpoints.map((breakpoint) => {
@@ -247,7 +246,7 @@ export class Debugger extends EventEmitter {
         });
 
         const getBreakpointInfoRequest: GetBreakpointInfoRequest = {
-            filePath: this.getCurrentFilePath(),
+            filePath: filePath,
             breakpoints: [...breakpointPositions]
         };
 
@@ -320,6 +319,10 @@ export class Debugger extends EventEmitter {
         return this.runtimeBreakpoints.get(this.normalizePathAndCasing(path)) || [];
     }
 
+    public getAllRuntimeBreakpoints(): Map<string, RuntimeBreakpoint[]> {
+        return this.runtimeBreakpoints;
+    }
+
     public getCurrentFilePath(): string {
         return this.currentFile || '';
     }
@@ -334,15 +337,14 @@ export class Debugger extends EventEmitter {
                 extension.preserveActivity = true;
                 checkServerReadiness().then(() => {
                     this.sendResumeCommand().then(async () => {
-                        const runtimeBreakpoints = this.getRuntimeBreakpoints(this.getCurrentFilePath());
-                        if (runtimeBreakpoints.length > 0) {
-                            const runtimeBreakpointInfo = await this.getBreakpointInformation(runtimeBreakpoints);
-
-                            for (const info of runtimeBreakpointInfo) {
-                                await this.sendClearBreakpointCommand(info);
-                                await this.sendSetBreakpointCommand(info);
-
-                                // TODO: Handle issue where invalid breakpoint positions are sent from the server 
+                        const allRuntimeBreakpoints = this.getAllRuntimeBreakpoints();
+                        if (allRuntimeBreakpoints.size > 0) {
+                            for (const [key, value] of allRuntimeBreakpoints) {
+                                const breakpointInfo = await this.getBreakpointInformation(value, key);
+                                for (const info of breakpointInfo) {
+                                    await this.sendClearBreakpointCommand(info);
+                                    await this.sendSetBreakpointCommand(info);
+                                }
                             }
                         }
                         resolve();
@@ -428,10 +430,6 @@ export class Debugger extends EventEmitter {
 
                     // check if the event is a breakpoint event
                     if (eventDataJson.event === 'breakpoint') {
-
-                        // send 'stopped' event
-                        this.sendEvent('stopOnBreakpoint');
-
                         // create new eventDataJson with removing the event field
                         const eventInfo = { ...eventDataJson };
                         delete eventInfo.event;
@@ -450,6 +448,8 @@ export class Debugger extends EventEmitter {
                             if (breakpointKey) {
                                 const breakpoint = this.runtimeVscodeBreakpointMap.get(breakpointKey);
                                 this.currentDebugpoint = breakpoint;
+                                this.currentFile = breakpoint?.filePath;
+                                this.sendEvent('stopOnBreakpoint');
                                 this.sendEvent('breakpointValidated', breakpoint);
                             } else {
                                 // if breakpoint not found in runtimeVscodeBreakpointMap, we need to check in stepOverBreakpointMap
@@ -461,6 +461,8 @@ export class Debugger extends EventEmitter {
                                 if (stepOverBreakpointKey) {
                                     const breakpoint = this.stepOverBreakpointMap.get(stepOverBreakpointKey);
                                     this.currentDebugpoint = breakpoint;
+                                    this.currentFile = breakpoint?.filePath;
+                                    this.sendEvent('stopOnBreakpoint');
                                     this.sendEvent('breakpointValidated', breakpoint);
                                 }
                             }
@@ -475,6 +477,8 @@ export class Debugger extends EventEmitter {
                             if (breakpointKey) {
                                 const breakpoint = this.runtimeVscodeBreakpointMap.get(breakpointKey);
                                 this.currentDebugpoint = breakpoint;
+                                this.currentFile = breakpoint?.filePath;
+                                this.sendEvent('stopOnBreakpoint');
                                 this.sendEvent('breakpointValidated', breakpoint);
                             } else {
                                 // if breakpoint not found in runtimeVscodeBreakpointMap, we need to check in stepOverBreakpointMap
@@ -485,6 +489,8 @@ export class Debugger extends EventEmitter {
                                 if (stepOverBreakpointKey) {
                                     const breakpoint = this.stepOverBreakpointMap.get(stepOverBreakpointKey);
                                     this.currentDebugpoint = breakpoint;
+                                    this.currentFile = breakpoint?.filePath;
+                                    this.sendEvent('stopOnBreakpoint');
                                     this.sendEvent('breakpointValidated', breakpoint);
                                 }
                             }
