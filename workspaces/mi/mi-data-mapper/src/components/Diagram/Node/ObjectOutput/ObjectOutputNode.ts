@@ -118,9 +118,12 @@ export class ObjectOutputNode extends DataMapperNodeModel {
                 const diagnostics = getDiagnostics(otherVal || value);
                 const lm = new DataMapperLinkModel(value, diagnostics, true);
                 const mappedField = mappedOutPort.typeWithValue && mappedOutPort.typeWithValue.type;
-                const keepDefault = ((mappedField && !mappedField?.fieldName
-                    && mappedField.kind !== TypeKind.Array
-                    && mappedField.kind !== TypeKind.Interface)
+                const keepDefault = ((
+                        mappedField
+                        && !mappedField?.fieldName
+                        && mappedField.kind !== TypeKind.Array
+                        && mappedField.kind !== TypeKind.Interface
+                    ) || !Node.isObjectLiteralExpression(this.value.getExpression())
                 );
 
                 lm.setTargetPort(mappedOutPort);
