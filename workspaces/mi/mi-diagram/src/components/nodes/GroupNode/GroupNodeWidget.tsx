@@ -193,7 +193,7 @@ export function GroupNodeWidget(props: CallNodeWidgetProps) {
 
     return (
         <div>
-            <Tooltip content={!isPopoverOpen ? <TooltipEl /> : ""} position={"bottom"} containerPosition={"absolute"}>
+            <Tooltip content={!isPopoverOpen && tooltip ? <TooltipEl /> : ""} position={"bottom"} containerPosition={"absolute"}>
                 <S.Node
                     selected={node.isSelected()}
                     hasError={hasDiagnotics}
