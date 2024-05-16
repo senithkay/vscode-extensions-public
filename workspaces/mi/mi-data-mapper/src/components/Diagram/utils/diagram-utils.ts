@@ -37,8 +37,8 @@ export function getIONodeHeight(noOfFields: number) {
 export function calculateControlPointOffset(screenWidth: number) {
     const minWidth = 850;
     const maxWidth = 1500;
-    const minOffset = 20;
-    const maxOffset = 300;
+    const minOffset = 25;
+    const maxOffset = 320;
 
     const clampedWidth = Math.min(Math.max(screenWidth, minWidth), maxWidth);
     const interpolationFactor = (clampedWidth - minWidth) / (maxWidth - minWidth);
