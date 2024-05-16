@@ -67,44 +67,49 @@ export class IONodesScrollCanvasAction extends Action {
 
                 if (isInputScrollable) {
 
+                    const totalHeight = inputNodes.reduce((acc, node) => acc + node.height, 0);
+                    const averageHeight = totalHeight / inputNodes.length;
+                    let scrollStep = Math.min(Math.abs(yDelta), averageHeight / 2) * Math.sign(yDelta);
+                
                     const firstNode = inputNodes[0];
                     const lastNode = inputNodes[inputNodes.length - 1];
 
                     if (firstNode) {
-                        const newY = firstNode.getY() - yDelta;
-                        if (newY >= 0 && yDelta < 0) {
+                        const newY = firstNode.getY() - scrollStep;
+                        if (newY >= 0 && scrollStep < 0) {
                             // If the first node is at the top of the canvas, do not scroll further
-                            yDelta = firstNode.getY();
+                            scrollStep = firstNode.getY();
                         }
                     }
 
                     if (lastNode) {
-                        const newY = lastNode.getY() - yDelta;
+                        const newY = lastNode.getY() - scrollStep;
                         const nodeBottomY = newY + lastNode.height;
                         if (nodeBottomY < MIN_VISIBLE_HEIGHT ) {
                             // If the last node is at the bottom of the canvas, do not scroll further
-                            yDelta = lastNode.getY() + lastNode.height - MIN_VISIBLE_HEIGHT;
+                            scrollStep = lastNode.getY() + lastNode.height - MIN_VISIBLE_HEIGHT;
                         }
                     }
 
                     inputNodes.forEach(element => {
-                        element.setPosition(element.getX(), element.getY() - yDelta);
+                        element.setPosition(element.getX(), element.getY() - scrollStep);
                     });
 
                 } else if (isOutputScrollable) {
 
                     if (ouputNode) {
-                        let newY = ouputNode.getY() - yDelta;
+                        let scrollStep = Math.min(Math.abs(yDelta), ouputNode.height / 2) * Math.sign(yDelta);
+                        let newY = ouputNode.getY() - scrollStep;
                         const nodeBottomY = newY + ouputNode.height;
-                        if (newY >= 0 && yDelta < 0) {
+                        if (newY >= 0 && scrollStep < 0) {
                             // If the output node is at the top of the canvas, do not scroll further
-                            yDelta = ouputNode.getY();
+                            scrollStep = ouputNode.getY();
                         }
                         if (nodeBottomY < MIN_VISIBLE_HEIGHT) {
                             // If the output node is at the bottom of the canvas, do not scroll further
-                            yDelta = ouputNode.getY() + ouputNode.height - MIN_VISIBLE_HEIGHT;
+                            scrollStep = ouputNode.getY() + ouputNode.height - MIN_VISIBLE_HEIGHT;
                         }
-                        ouputNode.setPosition(ouputNode.getX(), ouputNode.getY() - yDelta);
+                        ouputNode.setPosition(ouputNode.getX(), ouputNode.getY() - scrollStep);
                     }
                     repositionIntermediateNodes(ouputNode);
 
