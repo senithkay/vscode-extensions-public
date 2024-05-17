@@ -1073,7 +1073,7 @@ export interface BrowseFileRequest {
 export interface GetAvailableResourcesRequest {
     documentIdentifier: string | undefined;
     resourceType: "sequence" | "endpoint" | "messageStore" | "messageProcessor" | "task" | "sequenceTemplate" | "endpointTemplate" | "proxyService" |
-    "dataService" | "dataSource" | "localEntry" | "dataMapper" | "js" | "json" | "smooksConfig" | "wsdl" | "ws_policy" | "xsd" | "xsl" | "xslt" | "yaml" | "registry";
+    "dataService" | "dataSource" | "localEntry" | "dataMapper" | "js" | "json" | "smooksConfig" | "swagger" | "wsdl" | "ws_policy" | "xsd" | "xsl" | "xslt" | "yaml" | "registry";
 }
 
 export interface GetAvailableResourcesResponse {

@@ -21,7 +21,7 @@ import { yupResolver } from "@hookform/resolvers/yup"
 import * as yup from "yup";
 import { useForm } from "react-hook-form";
 import * as pathLib from "path";
-import { Keylookup } from "@wso2-enterprise/mi-diagram";
+import { FormKeylookup } from "@wso2-enterprise/mi-diagram";
 
 const TitleBar = styled.div({
     display: 'flex',
@@ -351,26 +351,23 @@ export function APIWizard({ apiData, path }: APIWizardProps) {
             {apiData ? (
                 <FieldGroup>
                     <span>Swagger Def Path</span>
-{!!watch('swaggerdefPath') ? <LocationText>{watch('swaggerdefPath')}</LocationText> : <span>Please choose a directory for swagger definition. </span>}
-                    <Button appearance="secondary" onClick={handleSwaggerPathSelection} id="select-swagger-path-btn">
-                        Select Location
-                    </Button>
-                    {/* TODO: Implement swagger filterType */}
-                    {/* <span>Swagger Def Path</span>
-                    <Keylookup
+                    <FormKeylookup
                         control={control}
                         label="Swagger Def Path"
                         name="swaggerdefPath"
                         filterType="swagger"
-                        path={path}
                         errorMsg={errors.swaggerdefPath?.message.toString()}
                         {...register("swaggerdefPath")}
-                    /> */}
+                    />
                 </FieldGroup>
             ) : (
                 <FieldGroup>
                     <span>Swagger Def Path</span>
-                    {!!watch('swaggerdefPath') ? <LocationText>{watch('swaggerdefPath')}</LocationText> : <span>Please choose a directory for swagger definition. </span>}
+                    {!!watch('swaggerdefPath') ? (
+                        <LocationText>{watch('swaggerdefPath')}</LocationText>
+                    ) : (
+                        <span>Please choose a directory for swagger definition. </span>
+                    )}
                     <Button appearance="secondary" onClick={handleSwaggerPathSelection} id="select-swagger-path-btn">
                         Select Location
                     </Button>
