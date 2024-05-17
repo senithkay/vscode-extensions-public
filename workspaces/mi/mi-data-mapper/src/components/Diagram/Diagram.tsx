@@ -27,24 +27,19 @@ import { DataMapperCanvasContainerWidget } from './Canvas/DataMapperCanvasContai
 import { DataMapperCanvasWidget } from './Canvas/DataMapperCanvasWidget';
 import { DefaultState as LinkState } from './LinkState/DefaultState';
 import { DataMapperNodeModel } from './Node/commons/DataMapperNode';
-import { LinkConnectorNode, LinkConnectorNodeFactory } from './Node/LinkConnector';
+import { LinkConnectorNode } from './Node/LinkConnector';
+import { ArrayFnConnectorNode } from './Node/ArrayFnConnector';
 import { OverlayLayerFactory } from './OverlayLayer/OverlayLayerFactory';
 import { OverriddenLinkLayerFactory } from './OverriddenLinkLayer/LinkLayerFactory';
 import { useDiagramModel, useRepositionedNodes } from '../Hooks';
-import { debounce } from 'lodash';
+import { throttle } from 'lodash';
 import { defaultModelOptions } from './utils/constants';
 import { calculateZoomLevel } from './utils/diagram-utils';
 import { IONodesScrollCanvasAction } from './Actions/IONodesScrollCanvasAction';
-import { IntermediatePortFactory, InputOutputPortFactory } from './Port';
-import { ExpressionLabelFactory } from './Label';
-import { DataMapperLinkFactory } from './Link';
-import { RightAngleLinkFactory } from './Link/RightAngleLink/RightAngleLinkFactory';
 import * as Nodes from "./Node";
-import { DataImportNodeFactory } from './Node/DataImport/DataImportNodeFactory';
-import { ArrayFnConnectorNode, ArrayFnConnectorNodeFactory } from './Node/ArrayFnConnector';
-import { FocusedInputNodeFactory } from './Node/FocusedInput';
-import { UnsupportedIONodeFactory } from './Node/UnsupportedIO';
-import { PrimitiveOutputNodeFactory } from './Node/PrimitiveOutput';
+import * as Ports from "./Port";
+import * as Labels from "./Label";
+import * as Links from "./Link";
 
 interface DataMapperDiagramProps {
 	nodes?: DataMapperNodeModel[];
@@ -74,22 +69,22 @@ function initDiagramEngine() {
 	engine.getLayerFactories().registerFactory(new OverlayLayerFactory());
 
 	engine.getNodeFactories().registerFactory(new Nodes.InputNodeFactory());
-	engine.getNodeFactories().registerFactory(new FocusedInputNodeFactory());
+	engine.getNodeFactories().registerFactory(new Nodes.FocusedInputNodeFactory());
 	engine.getNodeFactories().registerFactory(new Nodes.ArrayOutputNodeFactory());
 	engine.getNodeFactories().registerFactory(new Nodes.ObjectOutputNodeFactory());
-	engine.getNodeFactories().registerFactory(new PrimitiveOutputNodeFactory());
-	engine.getNodeFactories().registerFactory(new LinkConnectorNodeFactory());
-	engine.getNodeFactories().registerFactory(new ArrayFnConnectorNodeFactory());
-	engine.getNodeFactories().registerFactory(new DataImportNodeFactory());
-	engine.getNodeFactories().registerFactory(new UnsupportedIONodeFactory());
+	engine.getNodeFactories().registerFactory(new Nodes.PrimitiveOutputNodeFactory());
+	engine.getNodeFactories().registerFactory(new Nodes.LinkConnectorNodeFactory());
+	engine.getNodeFactories().registerFactory(new Nodes.ArrayFnConnectorNodeFactory());
+	engine.getNodeFactories().registerFactory(new Nodes.DataImportNodeFactory());
+	engine.getNodeFactories().registerFactory(new Nodes.UnsupportedIONodeFactory());
 
-	engine.getPortFactories().registerFactory(new InputOutputPortFactory());
-	engine.getPortFactories().registerFactory(new IntermediatePortFactory());
+	engine.getPortFactories().registerFactory(new Ports.InputOutputPortFactory());
+	engine.getPortFactories().registerFactory(new Ports.IntermediatePortFactory());
 
-	engine.getLabelFactories().registerFactory(new ExpressionLabelFactory());
+	engine.getLabelFactories().registerFactory(new Labels.ExpressionLabelFactory());
 
-	engine.getLinkFactories().registerFactory(new DataMapperLinkFactory());
-	engine.getLinkFactories().registerFactory(new RightAngleLinkFactory());
+	engine.getLinkFactories().registerFactory(new Links.DataMapperLinkFactory());
+	engine.getLinkFactories().registerFactory(new Links.RightAngleLinkFactory());
 
 	engine.getActionEventBus().registerAction(new IONodesScrollCanvasAction());
 
@@ -132,21 +127,29 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 
 	useEffect(() => {
 		if (!isFetching && engine.getModel()) {
-			engine.getModel().getNodes().forEach((node) => {
-				if (node instanceof LinkConnectorNode || node instanceof ArrayFnConnectorNode) {
-					node.initLinks();
-					const targetPortPosition = node.targetPort?.getPosition();
-					if (targetPortPosition) {
-						node.setPosition(targetPortPosition.x - 180, targetPortPosition.y - 4.5);
-						forceUpdate({} as any);
-					}
+			const nodesToUpdate = engine.getModel().getNodes().filter(node => 
+				node instanceof LinkConnectorNode || node instanceof ArrayFnConnectorNode
+			);
+
+			nodesToUpdate.forEach((node: LinkConnectorNode | ArrayFnConnectorNode) => {
+				node.initLinks();
+				const targetPortPosition = node.targetPort?.getPosition();
+				if (targetPortPosition) {
+					node.setPosition(targetPortPosition.x - 180, targetPortPosition.y - 4.5);
 				}
 			});
+	
+			if (nodesToUpdate.length > 0) {
+				forceUpdate({});
+			}
 		}
 	}, [diagramModel, isFetching, screenWidth]);
 
-	const handleResize = debounce((e: any) => {
-		setScreenWidth(window.innerWidth);
+	const handleResize = throttle(() => {
+		const newScreenWidth = window.innerWidth;
+		if (newScreenWidth !== screenWidth) {
+			setScreenWidth(newScreenWidth);
+		}
 	}, 100);
 
 	return (
