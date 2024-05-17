@@ -40,6 +40,7 @@ import { UnsupportedExprNodeKind, UnsupportedIONode } from "../Diagram/Node/Unsu
 import { OFFSETS } from "../Diagram/utils/constants";
 import { FocusedInputNode } from "../Diagram/Node/FocusedInput";
 import { PrimitiveOutputNode } from "../Diagram/Node/PrimitiveOutput";
+import { SubMappingNode } from "../Diagram/Node/SubMapping";
 
 export class NodeInitVisitor implements Visitor {
     private inputNode: DataMapperNodeModel | InputDataImportNodeModel;
@@ -258,12 +259,6 @@ export class NodeInitVisitor implements Visitor {
         }
     }
 
-    getNodes() {
-        const nodes = [this.inputNode ? this.inputNode : this.outputNode, this.outputNode];
-        nodes.push(...this.intermediateNodes);
-        return nodes;
-    }
-
     private createInputNodeForDmFunction(
         node: FunctionDeclaration
     ): InputNode | InputDataImportNodeModel {
@@ -348,5 +343,15 @@ export class NodeInitVisitor implements Visitor {
     private isObjectOrArrayLiteralExpression(node: Node): boolean {
         return Node.isObjectLiteralExpression(node)
             || Node.isArrayLiteralExpression(node);
+    }
+
+    getNodes() {
+        // create node for deal with sub mappings
+        const subMappingNode = new SubMappingNode(this.context);
+
+        const nodes = [this.inputNode, subMappingNode, this.outputNode];
+        nodes.push(subMappingNode, ...this.intermediateNodes);
+
+        return nodes;
     }
 }

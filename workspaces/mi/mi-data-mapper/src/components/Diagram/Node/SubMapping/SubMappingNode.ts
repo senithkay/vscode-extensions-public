@@ -1,0 +1,105 @@
+/**
+ * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
+import { Point } from "@projectstorm/geometry";
+import { Block, Node } from "ts-morph";
+import { DMType, TypeKind } from "@wso2-enterprise/mi-core";
+
+import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
+import { DataMapperNodeModel } from "../commons/DataMapperNode";
+import { useDMCollapsedFieldsStore, useDMSearchStore } from "../../../../store/store";
+import { SUB_MAPPING_INPUT_SOURCE_PORT_PREFIX } from "../../utils/constants";
+import { getSearchFilteredInput } from "../../utils/search-utils";
+
+export const SUB_MAPPING_SOURCE_NODE_TYPE = "datamapper-node-sub-mapping";
+const NODE_ID = "sub-mapping-node";
+
+export interface DMSubMapping {
+    name: string;
+    type: DMType;
+    declaration: Node;
+}
+
+export class SubMappingNode extends DataMapperNodeModel {
+    public letExpr: Node;
+    public subMappings: DMSubMapping[];
+    public hasNoMatchingFields: boolean;
+    public x: number;
+    public numberOfFields:  number;
+
+    constructor(
+        public context: IDataMapperContext
+    ) {
+        super(
+            NODE_ID,
+            context,
+            SUB_MAPPING_SOURCE_NODE_TYPE
+        );
+        this.numberOfFields = 1;
+        this.subMappings = [];
+    }
+
+    async initPorts() {
+        const searchValue = useDMSearchStore.getState().inputSearch;
+        const variableStatements = (this.context.functionST.getBody() as Block).getVariableStatements();
+
+        variableStatements.forEach(stmt => {
+            // Constraint: Only one variable declaration is allowed in a local variable statement.
+            const varDecl = stmt.getDeclarations()[0];
+            const varName = varDecl.getName();
+
+            // const exprPosition = stmt.expression.position as NodePosition;
+
+            const typeWithoutFilter: DMType = null; // TODO: Get the type from the variable declaration.
+
+            const type: DMType = getSearchFilteredInput(typeWithoutFilter, varName);
+
+            if (type) {
+                const collapsedFields = useDMCollapsedFieldsStore.getState().collapsedFields;
+                const parentPort = this.addPortsForHeader(
+                    type, varName, "OUT", SUB_MAPPING_INPUT_SOURCE_PORT_PREFIX, collapsedFields
+                );
+
+                if (type && (type.kind === TypeKind.Interface)) {
+                    const fields = type.fields;
+                    fields.forEach((subField) => {
+                        this.numberOfFields += 1 + this.addPortsForInputField(
+                            subField, "OUT", varName, SUB_MAPPING_INPUT_SOURCE_PORT_PREFIX,
+                            parentPort, collapsedFields, parentPort.collapsed
+                        );
+                    });
+                } else {
+                    this.numberOfFields += this.addPortsForInputField(
+                        type, "OUT", varName, SUB_MAPPING_INPUT_SOURCE_PORT_PREFIX,
+                        parentPort, collapsedFields, parentPort.collapsed
+                    );
+                }
+
+                this.subMappings.push({name: varName, type, declaration: stmt});
+            }
+
+        });
+
+        this.hasNoMatchingFields = searchValue && this.subMappings.length === 0;
+    }
+
+    async initLinks() {
+        // Links are always created from "IN" ports by backtracing the inputs.
+    }
+
+    setPosition(point: Point): void;
+    setPosition(x: number, y: number): void;
+    setPosition(x: unknown, y?: unknown): void {
+        if (typeof x === 'number' && typeof y === 'number'){
+            if (!this.x){
+                this.x = x;
+            }
+            super.setPosition(this.x, y);
+        }
+    }
+}

@@ -17,7 +17,7 @@ import { getIONodeHeight } from '../Diagram/utils/diagram-utils';
 import { OverlayLayerModel } from '../Diagram/OverlayLayer/OverlayLayerModel';
 import { ErrorNodeKind } from '../DataMapper/Error/DataMapperError';
 import { useDMCollapsedFieldsStore, useDMSearchStore } from '../../store/store';
-import { ArrayOutputNode, InputNode, ObjectOutputNode } from '../Diagram/Node';
+import { ArrayOutputNode, InputNode, ObjectOutputNode, SubMappingNode } from '../Diagram/Node';
 import { GAP_BETWEEN_INPUT_NODES, IO_NODE_DEFAULT_WIDTH, OFFSETS, VISUALIZER_PADDING } from '../Diagram/utils/constants';
 import { LinkConnectorNode } from '../Diagram/Node/LinkConnector';
 import { InputDataImportNodeModel, OutputDataImportNodeModel } from '../Diagram/Node/DataImport/DataImportNode';
@@ -45,6 +45,7 @@ export const useRepositionedNodes = (nodes: DataMapperNodeModel[], zoomLevel: nu
         if (node instanceof InputNode
             || node instanceof FocusedInputNode
             || node instanceof InputDataImportNodeModel
+            || node instanceof SubMappingNode
         ) {
             const x = OFFSETS.SOURCE_NODE.X;
             const computedY = prevBottomY + (prevBottomY ? GAP_BETWEEN_INPUT_NODES : 0);

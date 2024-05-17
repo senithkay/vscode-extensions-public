@@ -6,14 +6,5 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-
-export * from "./ArrayFnConnector";
-export * from "./ArrayOutput";
-export * from "./DataImport";
-export * from "./FocusedInput";
-export * from "./Input";
-export * from "./LinkConnector";
-export * from "./ObjectOutput";
-export * from "./PrimitiveOutput";
-export * from "./SubMapping";
-export * from "./UnsupportedIO";
+export * from "./SubMappingNode";
+export * from "./SubMappingNodeFactory";
