@@ -394,7 +394,6 @@ export class MiDebugAdapter extends LoggingDebugSession {
     protected async stackTraceRequest(response: DebugProtocol.StackTraceResponse, args: DebugProtocol.StackTraceArguments, request?: DebugProtocol.Request | undefined): Promise<void> {
         const stackFrames: DebugProtocol.StackFrame[] = [];
 
-        // TODO: get the correct path when there are breakpoints in multiple files
         const path = this.debuggerHandler?.getCurrentFilePath() || "";
         const currentBreakpoint = this.debuggerHandler?.getCurrentBreakpoint();
 
@@ -422,9 +421,6 @@ export class MiDebugAdapter extends LoggingDebugSession {
     }
 
     protected async variablesRequest(response: DebugProtocol.VariablesResponse, args: DebugProtocol.VariablesArguments, request?: DebugProtocol.Request | undefined): Promise<void> {
-        // TODO: Check the possibility of using customEvent to load the diagram
-        // const customEvent = { event: "StackTraceUpdated" } as DebugProtocol.Event;
-        // this.sendEvent(customEvent);
         const vars = this.variableHandles.get(args.variablesReference);
         if (vars !== null) {
             let variables: DebugProtocol.Variable[] = Array.isArray(vars) ? vars : [vars];
@@ -450,8 +446,6 @@ export class MiDebugAdapter extends LoggingDebugSession {
     }
 
     protected async scopesRequest(response: DebugProtocol.ScopesResponse, args?: DebugProtocol.ScopesArguments, request?: DebugProtocol.Request | undefined): Promise<void> {
-        // const customEvent = { event: "StackTraceUpdated" } as DebugProtocol.Event;
-        // this.sendEvent(customEvent);
         const variables = await this.debuggerHandler?.getVariables();
 
         const localScope = variables?.map((v: any): any => {
