@@ -44,6 +44,7 @@ export class LinkConnectorNode extends DataMapperNodeModel {
     public value: string;
     public diagnostics: Diagnostic[];
     public hidden: boolean;
+    public hasInitialized: boolean;
 
     constructor(
         public context: IDataMapperContext,
@@ -117,9 +118,10 @@ export class LinkConnectorNode extends DataMapperNodeModel {
                             this.fields, node.dmTypeWithValue, targetPortPrefix,
                             (portId: string) =>  node.getPort(portId) as InputOutputPortModel, rootName
                         );
-
-                        if (this.targetMappedPort?.portName !== this.targetPort?.portName) {
-                            this.hidden = true;
+                        const previouslyHidden = this.hidden;
+                        this.hidden = this.targetMappedPort?.portName !== this.targetPort?.portName;
+                        if (this.hidden !== previouslyHidden) {
+                            this.hasInitialized = false;
                         }
                     }
                 }
@@ -128,6 +130,9 @@ export class LinkConnectorNode extends DataMapperNodeModel {
     }
 
     initLinks(): void {
+        if (this.hasInitialized) {
+            return;
+        }
         if (this.hidden) {
             if (this.targetMappedPort) {
                 this.sourcePorts.forEach((sourcePort) => {
@@ -208,6 +213,7 @@ export class LinkConnectorNode extends DataMapperNodeModel {
                 this.getModel().addAll(lm);
             }
         }
+        this.hasInitialized = true;
     }
 
     updateSource(suffix: string): void {
