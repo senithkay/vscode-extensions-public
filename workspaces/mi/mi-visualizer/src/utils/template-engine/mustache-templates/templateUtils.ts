@@ -9,10 +9,20 @@
 
 import Mustache from "mustache";
 import { ARTIFACT_TEMPLATES } from "../../../constants";
-import { getAddAPIResourceTemplate, getEditAPIResourceTemplate, getEditProxyTemplate, getEditSequenceTemplate, getEditAPITemplate, getHandlersTemplate } from "./core/api";
+import {
+    getAddAPIResourceTemplate,
+    getEditAPIResourceTemplate,
+    getEditProxyTemplate,
+    getEditSequenceTemplate,
+    getEditAPITemplate,
+    getHandlersTemplate,
+    getAddAPITemplate
+} from "./core/api";
 
 export function getXML(name: string, data: { [key: string]: any }) {
     switch (name) {
+        case ARTIFACT_TEMPLATES.ADD_API:
+            return Mustache.render(getAddAPITemplate(), data);
         case ARTIFACT_TEMPLATES.EDIT_API:
             return Mustache.render(getEditAPITemplate(), data);
         case ARTIFACT_TEMPLATES.ADD_RESOURCE:

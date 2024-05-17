@@ -29,11 +29,17 @@ export interface ApplyEditResponse {
 
 export interface CreateAPIRequest {
     directory: string;
+    xmlData: string;
     name: string;
-    context: string;
     swaggerDef: string;
-    type: string;
-    version: string;
+}
+
+export interface EditAPIRequest {
+    documentUri: string;
+    xmlData: string;
+    handlersXmlData: string;
+    apiRange: Range;
+    handlersRange: Range;
 }
 
 export interface GetInboundEpDirRequest {
@@ -402,6 +408,10 @@ export interface OpenDiagramRequest {
 }
 
 export interface CreateAPIResponse {
+    path: string;
+}
+
+export interface EditAPIResponse {
     path: string;
 }
 

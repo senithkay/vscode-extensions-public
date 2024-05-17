@@ -31,6 +31,7 @@ import {
     DataSourceTemplate,
     DeleteArtifactRequest,
     DownloadConnectorRequest,
+    EditAPIRequest,
     ExportProjectRequest,
     GetAllArtifactsRequest,
     GetAllRegistryPathsRequest,
@@ -103,6 +104,7 @@ import {
     createTemplate,
     deleteArtifact,
     downloadConnector,
+    editAPI,
     executeCommand,
     exportProject,
     getAIResponse,
@@ -187,6 +189,7 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getConnector, (args: ConnectorRequest) => rpcManger.getConnector(args));
     messenger.onRequest(getAPIDirectory, () => rpcManger.getAPIDirectory());
     messenger.onRequest(createAPI, (args: CreateAPIRequest) => rpcManger.createAPI(args));
+    messenger.onRequest(editAPI, (args: EditAPIRequest) => rpcManger.editAPI(args));
     messenger.onRequest(getEndpointDirectory, () => rpcManger.getEndpointDirectory());
     messenger.onRequest(createEndpoint, (args: CreateEndpointRequest) => rpcManger.createEndpoint(args));
     messenger.onRequest(updateLoadBalanceEndpoint, (args: UpdateLoadBalanceEPRequest) => rpcManger.updateLoadBalanceEndpoint(args));

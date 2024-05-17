@@ -6,8 +6,21 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
+
+export function getAddAPITemplate() {
+    return `<?xml version="1.0" encoding="UTF-8" ?>
+    <api context="{{{context}}}" name="{{{name}}}"{{#swaggerDef}} publishSwagger="{{{swaggerDef}}}"{{/swaggerDef}}{{#version}} version="{{{version}}}"{{/version}}{{#versionType}} version-type="{{{versionType}}}"{{/versionType}} xmlns="http://ws.apache.org/ns/synapse">
+        <resource methods="GET" uri-template="/resource">
+            <inSequence>
+            </inSequence>
+            <faultSequence>
+            </faultSequence>
+        </resource>
+    </api>`
+}
+
 export function getEditAPITemplate() {
-    return `<api{{#hostName}} hostname="{{hostName}}"{{/hostName}} name="{{{name}}}"{{#port}} port="{{port}}"{{/port}}{{#statistics}} statistics="enable"{{/statistics}}{{#trace}} trace="enable"{{/trace}} context="{{{context}}}"{{#version}} version="{{{version}}}" version-type="{{version_type}}"{{/version}} xmlns="http://ws.apache.org/ns/synapse">`
+    return `<api{{#hostName}} hostname="{{hostName}}"{{/hostName}} name="{{{name}}}"{{#port}} port="{{port}}"{{/port}}{{#statistics}} statistics="enable"{{/statistics}}{{#trace}} trace="enable"{{/trace}} context="{{{context}}}"{{#swaggerDef}} publishSwagger="{{{swaggerDef}}}"{{/swaggerDef}}{{#version}} version="{{{version}}}" version-type="{{version_type}}"{{/version}} xmlns="http://ws.apache.org/ns/synapse">`
 }
 
 export function getHandlersTemplate() {

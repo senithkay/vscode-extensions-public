@@ -32,6 +32,7 @@ export const SIDE_PANEL_WIDTH = 450;
 
 // Actions for service designer
 export const ARTIFACT_TEMPLATES = {
+    ADD_API: "add-api",
     EDIT_API: "edit-api",
     ADD_RESOURCE: "add-resource",
     EDIT_RESOURCE: "edit-resource",

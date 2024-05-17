@@ -15,13 +15,13 @@ import { FieldGroup } from "../Commons";
 import { EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
 import { Range } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { getXML } from "../../../utils/template-engine/mustache-templates/templateUtils";
-import { SERVICE } from "../../../constants";
+import { ARTIFACT_TEMPLATES } from "../../../constants";
 import { FormHandler } from "./Handler";
 import { yupResolver } from "@hookform/resolvers/yup"
 import * as yup from "yup";
 import { useForm } from "react-hook-form";
 import * as pathLib from "path";
-
+import { Keylookup } from "@wso2-enterprise/mi-diagram";
 
 const TitleBar = styled.div({
     display: 'flex',
@@ -52,6 +52,7 @@ export interface APIData {
     version?: string;
     versionType?: "none" | "context" | "url";
     swaggerdefPath?: string;
+    saveSwagger?: boolean;
     apiRange?: Range;
     handlersRange?: Range;
     handlers?: any[];
@@ -67,6 +68,7 @@ const initialAPI: APIData = {
     version: "",
     versionType: "none",
     swaggerdefPath: "",
+    saveSwagger: false,
     apiRange: undefined,
     handlersRange: undefined,
     handlers: []
@@ -112,7 +114,12 @@ export function APIWizard({ apiData, path }: APIWizardProps) {
                 is: "url",
                 then: schema => schema.matches(/^https?:\/\/.*/, "Invalid URL format"),
             }),
-        swaggerdefPath: yup.string(),
+        saveSwagger: yup.boolean(),
+        swaggerdefPath: yup.string().when("saveSwagger", {
+            is: true,
+            then: schema => schema.required("Swagger Definition Path is required"),
+            otherwise: schema => schema.notRequired(),
+        }),
         apiRange: yup.object(),
         handlersRange: yup.object(),
         handlers: yup.array()
@@ -201,23 +208,33 @@ export function APIWizard({ apiData, path }: APIWizardProps) {
             // Create API
             const projectDir = (await rpcClient.getMiDiagramRpcClient().getProjectRoot({ path: path })).path;
             const APIDir =  pathLib.join(projectDir,'src','main','wso2mi','artifacts', 'apis');
-            const createAPIParams = {
-                directory: APIDir,
+            const formValues = {
                 name: values.apiName,
                 context: values.apiContext,
-                swaggerDef: values.swaggerdefPath,
-                type: values.versionType,
-                version: values.version
+                swaggerDef: values.saveSwagger && values.swaggerdefPath,
+                version: (values.versionType !== "none" && values.version) && values.version,
+                versionType: (values.versionType !== "none" && values.version) && values.versionType,
             }
+            const xml = getXML(ARTIFACT_TEMPLATES.ADD_API, formValues);
+            const createAPIParams = {
+                directory: APIDir,
+                xmlData: xml,
+                name: values.apiName,
+                swaggerDef: values.saveSwagger && values.swaggerdefPath,
+            };
             const file = await rpcClient.getMiDiagramRpcClient().createAPI(createAPIParams);
             console.log("API created");
             rpcClient.getMiVisualizerRpcClient().log({ message: "API created successfully." });
-            rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.ServiceDesigner, documentUri: file.path } });
+            rpcClient.getMiVisualizerRpcClient().openView({
+                type: EVENT_TYPE.OPEN_VIEW,
+                location: { view: MACHINE_VIEW.ServiceDesigner, documentUri: file.path }
+            });
         } else {
             // Update API
             const formValues = {
                 name: values.apiName,
                 context: values.apiContext,
+                swaggerDef: values.swaggerdefPath,
                 hostName: values.hostName,
                 version: values.version,
                 type: values.versionType,
@@ -226,20 +243,21 @@ export function APIWizard({ apiData, path }: APIWizardProps) {
                 trace: values.trace ? "enable" : undefined,
                 statistics: values.statistics ? "enable" : undefined,
             }
-            const xml = getXML(SERVICE.EDIT_SERVICE, formValues);
-            await rpcClient.getMiDiagramRpcClient().applyEdit({
-                text: xml,
+            const xml = getXML(ARTIFACT_TEMPLATES.EDIT_API, formValues);
+            const handlersXML = getXML(ARTIFACT_TEMPLATES.EDIT_HANDLERS, { show: handlers.length > 0, handlers });
+            const editAPIParams = {
                 documentUri: path,
-                range: apiData.apiRange
+                xmlData: xml,
+                handlersXmlData: handlersXML,
+                apiRange: apiData.apiRange,
+                handlersRange: apiData.handlersRange
+            };
+            await rpcClient.getMiDiagramRpcClient().editAPI(editAPIParams);
+            rpcClient.getMiVisualizerRpcClient().log({ message: `Updated API: ${apiData.apiName}.` });
+            rpcClient.getMiVisualizerRpcClient().openView({
+                type: EVENT_TYPE.OPEN_VIEW,
+                location: { view: MACHINE_VIEW.ServiceDesigner, documentUri: path }
             });
-
-            const handlersXML = getXML(SERVICE.EDIT_HANDLERS, { show: handlers.length > 0, handlers });
-            await rpcClient.getMiDiagramRpcClient().applyEdit({
-                text: handlersXML,
-                documentUri: path,
-                range: apiData.handlersRange
-            });
-            rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.ServiceDesigner, documentUri: path } });
         }
     };
 
@@ -249,7 +267,7 @@ export function APIWizard({ apiData, path }: APIWizardProps) {
 
     const handleSwaggerPathSelection = async () => {
         const projectDirectory = await rpcClient.getMiDiagramRpcClient().askFileDirPath();
-        setValue("swaggerdefPath", projectDirectory.path);
+        setValue("swaggerdefPath", projectDirectory.path, { shouldValidate: true, shouldDirty: true });
     }
 
     const handleOnClose = () => {
@@ -330,13 +348,39 @@ export function APIWizard({ apiData, path }: APIWizardProps) {
                     ))}
                 </FieldGroup>
             </>}
-            <FieldGroup>
-                <span>Swagger Def Path</span>
-                {!!watch('swaggerdefPath') ? <LocationText>{watch('swaggerdefPath')}</LocationText> : <span>Please choose a directory for swagger definition. </span>}
-                <Button appearance="secondary" onClick={handleSwaggerPathSelection} id="select-swagger-path-btn">
-                    Select Location
-                </Button>
-            </FieldGroup>
+            {apiData ? (
+                <FieldGroup>
+                    <span>Swagger Def Path</span>
+{!!watch('swaggerdefPath') ? <LocationText>{watch('swaggerdefPath')}</LocationText> : <span>Please choose a directory for swagger definition. </span>}
+                    <Button appearance="secondary" onClick={handleSwaggerPathSelection} id="select-swagger-path-btn">
+                        Select Location
+                    </Button>
+                    {/* TODO: Implement swagger filterType */}
+                    {/* <span>Swagger Def Path</span>
+                    <Keylookup
+                        control={control}
+                        label="Swagger Def Path"
+                        name="swaggerdefPath"
+                        filterType="swagger"
+                        path={path}
+                        errorMsg={errors.swaggerdefPath?.message.toString()}
+                        {...register("swaggerdefPath")}
+                    /> */}
+                </FieldGroup>
+            ) : (
+                <FieldGroup>
+                    <span>Swagger Def Path</span>
+                    {!!watch('swaggerdefPath') ? <LocationText>{watch('swaggerdefPath')}</LocationText> : <span>Please choose a directory for swagger definition. </span>}
+                    <Button appearance="secondary" onClick={handleSwaggerPathSelection} id="select-swagger-path-btn">
+                        Select Location
+                    </Button>
+                    <FormCheckBox
+                        name="saveSwagger"
+                        label="Save Swagger Def in Registry"
+                        control={control}
+                    />
+                </FieldGroup>
+            )}
             <FormActions>
                 <Button
                     appearance="primary"

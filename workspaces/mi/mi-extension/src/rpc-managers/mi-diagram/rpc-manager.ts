@@ -57,6 +57,8 @@ import {
     DownloadConnectorResponse,
     ESBConfigsResponse,
     EVENT_TYPE,
+    EditAPIRequest,
+    EditAPIResponse,
     EndpointDirectoryResponse,
     EndpointsAndSequencesResponse,
     ExportProjectRequest,
@@ -305,30 +307,11 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
     async createAPI(params: CreateAPIRequest): Promise<CreateAPIResponse> {
         return new Promise(async (resolve) => {
-            const { directory, name, context, swaggerDef, type, version } = params;
-            let versionAttributes = '';
-            let swaggerAttributes = '';
-            if (version && type !== 'none') {
-                versionAttributes = ` version="${version}" version-type="${type}"`;
-            }
-
-            if (swaggerDef) {
-                swaggerAttributes = ` publishSwagger="${swaggerDef}"`;
-            }
-
-            const xmlData =
-                `<?xml version="1.0" encoding="UTF-8" ?>
-    <api context="${context}" name="${name}" ${swaggerAttributes}${versionAttributes} xmlns="http://ws.apache.org/ns/synapse">
-        <resource methods="GET" uri-template="/resource">
-            <inSequence>
-            </inSequence>
-            <faultSequence>
-            </faultSequence>
-        </resource>
-    </api>`;
-
+            const { directory, xmlData, name, swaggerDef } = params;
+            
             const filePath = path.join(directory, `${name}.xml`);
             const sanitizedXmlData = xmlData.replace(/^\s*[\r\n]/gm, '');
+            
             fs.writeFileSync(filePath, sanitizedXmlData);
             await this.rangeFormat({
                 uri: filePath,
@@ -337,8 +320,41 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     end: { line: sanitizedXmlData.split('\n').length + 1, character: 0 }
                 }
             });
+
+            // Save swagger file
+            if (swaggerDef) {
+                const workspacePath = workspace.workspaceFolders![0].uri.fsPath;
+                const ext = path.extname(swaggerDef);
+                const swaggerPath = path.join(
+                    workspacePath,
+                    'src',
+                    'main',
+                    'resources',
+                    'registry',
+                    'gov',
+                    'swaggerFiles',
+                    `${name}.${ext}`
+                );
+                fs.writeFileSync(swaggerPath, swaggerDef);
+            }
+
             commands.executeCommand(COMMANDS.REFRESH_COMMAND);
             resolve({ path: filePath });
+        });
+    }
+
+    async editAPI(params: EditAPIRequest): Promise<EditAPIResponse> {
+        return new Promise(async (resolve) => {
+            const { documentUri, xmlData, handlersXmlData, apiRange, handlersRange } = params;
+
+            const sanitizedXmlData = xmlData.replace(/^\s*[\r\n]/gm, '');
+            const sanitizedHandlersXmlData = handlersXmlData.replace(/^\s*[\r\n]/gm, '');
+
+            await this.applyEdit({ text: sanitizedXmlData, documentUri, range: apiRange });
+            await this.applyEdit({ text: sanitizedHandlersXmlData, documentUri, range: handlersRange });
+
+            commands.executeCommand(COMMANDS.REFRESH_COMMAND);
+            resolve({ path: documentUri });
         });
     }
 

@@ -54,6 +54,8 @@ import {
     DownloadConnectorRequest,
     DownloadConnectorResponse,
     ESBConfigsResponse,
+    EditAPIRequest,
+    EditAPIResponse,
     EndpointDirectoryResponse,
     EndpointsAndSequencesResponse,
     ExportProjectRequest,
@@ -176,6 +178,7 @@ import {
     createTemplate,
     deleteArtifact,
     downloadConnector,
+    editAPI,
     executeCommand,
     exportProject,
     getAIResponse,
@@ -291,6 +294,10 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     createAPI(params: CreateAPIRequest): Promise<CreateAPIResponse> {
         return this._messenger.sendRequest(createAPI, HOST_EXTENSION, params);
+    }
+
+    editAPI(params: EditAPIRequest): Promise<EditAPIResponse> {
+        return this._messenger.sendRequest(editAPI, HOST_EXTENSION, params);
     }
 
     getEndpointDirectory(): Promise<EndpointDirectoryResponse> {
