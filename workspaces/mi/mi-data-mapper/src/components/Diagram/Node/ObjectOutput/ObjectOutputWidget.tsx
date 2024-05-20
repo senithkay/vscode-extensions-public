@@ -59,11 +59,12 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
     const setSidePanelIOType = useDMSidePanelStore(state => state.setSidePanelIOType);
 	const setIsSchemaOverridden = useDMSidePanelStore(state => state.setIsSchemaOverridden);
 
-	const fields = dmTypeWithValue && dmTypeWithValue.childrenTypes;
-	const hasValue = fields && fields.length > 0;
+	const { childrenTypes, value: objVal } = dmTypeWithValue;
+	const fields = childrenTypes || [];
+	const hasValue = fields.length > 0;
 	const isBodyObjectLiteralExpr = value && Node.isObjectLiteralExpression(value);
 
-	const hasDiagnostics = getDiagnostics(dmTypeWithValue?.value).length > 0;
+	const hasDiagnostics = objVal && !objVal.wasForgotten && getDiagnostics(objVal).length > 0;
 	const hasEmptyFields = mappings && (mappings.length === 0 || !mappings.some(mapping => {
 		if (mapping.value && !mapping.value.wasForgotten()) {
 			return !isEmptyValue(getPosition(mapping.value));

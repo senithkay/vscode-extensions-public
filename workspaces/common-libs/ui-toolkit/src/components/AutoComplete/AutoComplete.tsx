@@ -30,6 +30,29 @@ export interface DropdownContainerProps {
     display?: boolean;
 }
 
+const ActionButtonStyles = cx(css`
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding-inline: 5px;
+`);
+
+const ActionButtonContainerActive = cx(css`
+    background-color: var(--vscode-input-background);
+    border-right: 0 solid var(--vscode-focusBorder);
+    border-bottom: 1px solid var(--vscode-focusBorder);
+    border-top: 1px solid var(--vscode-focusBorder);
+    border-left: 0 solid var(--vscode-focusBorder); 
+`);
+
+const ActionButtonContainer = cx(css`
+    background-color: var(--vscode-input-background);
+    border-right: 0 solid var(--vscode-dropdown-border);
+    border-bottom: 1px solid var(--vscode-dropdown-border);
+    border-top: 1px solid var(--vscode-dropdown-border);
+    border-left: 0 solid var(--vscode-dropdown-border);
+`);
+
 const ComboboxButtonContainerActive = cx(css`
     padding-right: 5px;
     background-color: var(--vscode-input-background);
@@ -154,6 +177,7 @@ export interface ItemComponent {
 interface BaseProps {
     id?: string;
     items: (string | ItemComponent)[];
+    actionBtns?: ReactNode[];
     required?: boolean;
     widthOffset?: number;
     nullable?: boolean;
@@ -225,6 +249,7 @@ export const AutoComplete = React.forwardRef<HTMLInputElement, AutoCompleteProps
         name,
         value,
         items,
+        actionBtns,
         required,
         label,
         notItemsFoundMessage,
@@ -321,6 +346,14 @@ export const AutoComplete = React.forwardRef<HTMLInputElement, AutoCompleteProps
                             onClick={handleTextFieldClick}
                             onBlur={handleTextFieldOutFocused}
                         />
+                        {actionBtns?.length && (
+                            <div className={cx(
+                                ActionButtonStyles,
+                                isTextFieldFocused ? ActionButtonContainerActive : ActionButtonContainer
+                            )}>
+                                {actionBtns}
+                            </div>
+                        )}
                         <Combobox.Button
                             id={`autocomplete-dropdown-button-${btnId}`}
                             className={isTextFieldFocused ? ComboboxButtonContainerActive : ComboboxButtonContainer}

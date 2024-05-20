@@ -69,7 +69,7 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
     const collapsedFieldsStore = useDMCollapsedFieldsStore();
 
     const typeName = getTypeName(field.type);
-    const fieldName = field.type.fieldName;
+    const fieldName = field.type.fieldName || '';
     const fieldId = fieldIndex !== undefined
         ? `${parentId}.${fieldIndex}${fieldName ? `.${fieldName}` : ''}`
         : `${parentId}${fieldName ? `.${fieldName}` : ''}`;

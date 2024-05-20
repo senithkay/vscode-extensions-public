@@ -21,7 +21,6 @@ export interface DataMapperHeaderProps {
     views: View[];
     switchView: (index: number) => void;
     hasEditDisabled: boolean;
-    onConfigOpen: () => void;
     onClose?: () => void;
 }
 
@@ -45,15 +44,6 @@ export function DataMapperHeader(props: DataMapperHeaderProps) {
                         <HeaderSearchBox />
                     </FilterBar>
                 </>
-            )}
-            {onClose && (
-                <VSCodeButton 
-                    appearance="icon"
-                    onClick={onClose}
-                    style={{ marginLeft: "15px" }}
-                >
-                    <Codicon name="chrome-close" />
-                </VSCodeButton>
             )}
         </HeaderContainer>
     );
@@ -85,6 +75,5 @@ const FilterBar = styled.div`
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  margin-right: 20px;
   margin-bottom: 3px;
 `;

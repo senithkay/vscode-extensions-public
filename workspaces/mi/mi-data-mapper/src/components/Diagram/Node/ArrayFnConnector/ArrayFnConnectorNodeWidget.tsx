@@ -42,7 +42,13 @@ export function ArrayFnConnectorNodeWidget(props: ArrayFnConnectorNodeWidgetWidg
             // Navigating into another map function within the current map function
             const prevView = views[views.length - 1];
 
-            if (!!prevView.targetFieldFQN) {
+            if (!prevView.targetFieldFQN) {
+                if (!targetFieldFQN && targetPort.field.kind === TypeKind.Array) {
+                    // The visiting map function is declaired at the return statement of the current map function
+                    // The root of the current map function is the return statement of the transformation function
+                    mapFnIndex = getMapFnIndex(views, prevView.targetFieldFQN);
+                }
+            } else {
                 if (!targetFieldFQN && targetPort.field.kind === TypeKind.Array) {
                     // The visiting map function is declaired at the return statement of the current map function
                     targetFieldFQN = prevView.targetFieldFQN;
@@ -53,6 +59,12 @@ export function ArrayFnConnectorNodeWidget(props: ArrayFnConnectorNodeWidgetWidg
             }
             if (!!prevView.sourceFieldFQN) {
                 sourceFieldFQN = `${prevView.sourceFieldFQN}${sourceFieldFQN ? `.${sourceFieldFQN}` : ''}`;
+            }
+        } else {
+            // Navigating into the root map function
+            if (!targetFieldFQN && targetPort.field.kind === TypeKind.Array) {
+                // The visiting map function is the return statement of the transformation function
+                mapFnIndex = 0;
             }
         }
 

@@ -26,8 +26,7 @@ import {
 	getPropertyAssignment,
 	getCallExprReturnStmt,
 	isEmptyValue,
-	isMapFunction,
-	isQuotedString
+	isMapFunction
 } from "./common-utils";
 import { ArrayOutputNode, LinkConnectorNode, ObjectOutputNode } from "../Node";
 import { ExpressionLabelModel } from "../Label";
@@ -388,15 +387,18 @@ export function modifySourceForMultipleMappings(link: DataMapperLinkModel) {
 }
 
 export function buildInputAccessExpr(fieldFqn: string): string {
-    const parts = fieldFqn.split('.');
+    // Regular expression to match either quoted strings or non-quoted strings with dots
+    const regex = /"([^"]+)"|'([^"]+)'|([^".]+)/g;
 
-    const result = parts.map(part => {
-        if (isQuotedString(part)) {
-            return `["${part.slice(1, -1)}"]`; // If the part is enclosed in double quotes, wrap it in square brackets
-        } else {
-            return part; // Otherwise, leave the part unchanged
+    const result = fieldFqn.replace(regex, (match, doubleQuoted, singleQuoted, unquoted) => {
+        if (doubleQuoted) { 
+            return `["${doubleQuoted}"]`; // If the part is enclosed in double quotes, wrap it in square brackets
+        } else if (singleQuoted) {
+			return `['${singleQuoted}']`; // If the part is enclosed in single quotes, wrap it in square brackets
+		} else {
+            return unquoted; // Otherwise, leave the part unchanged
         }
-    }).join('.'); // Join the processed parts back together with '.' delimiter
+    });
 
     return result.replace(/\.\[/g, '['); // Replace occurrences of '.[' with '[' to handle consecutive bracketing
 }

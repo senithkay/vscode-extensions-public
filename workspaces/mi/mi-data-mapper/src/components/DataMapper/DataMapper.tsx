@@ -120,7 +120,6 @@ export function MIDataMapper(props: MIDataMapperProps) {
                     views={views}
                     switchView={switchView}
                     hasEditDisabled={false}
-                    onConfigOpen={undefined}
                     onClose={undefined}
                 />
             )}

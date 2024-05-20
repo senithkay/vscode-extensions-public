@@ -15,6 +15,7 @@ import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import SidePanelContext from '../SidePanelContexProvider';
 import { create } from 'xmlbuilder2';
 import { Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
+import { ExpressionField, ExpressionFieldValue } from '../../Form/ExpressionField/ExpressionInput';
 
 const cardStyle = {
     display: "block",
@@ -84,9 +85,17 @@ const AddConnection = (props: AddConnectionProps) => {
 
     useEffect(() => {
         if (sidePanelContext.formValues && Object.keys(sidePanelContext.formValues).length > 0 && sidePanelContext.formValues?.parameters) {
-            const parametersValues = sidePanelContext.formValues.parameters.map((param: any) => ({
-                [param.name]: param.value
-            }));
+            const parametersValues = sidePanelContext.formValues?.parameters?.map((param: any) => {
+                const validationError = formValidators[param.name]?.(param.value);
+                return {
+                    [param.name]: {
+                        "isExpression": param.isExpression ?? false,
+                        "value": param.isExpression ? param.value.replace(/[{}]/g, '') : param.value ?? '',
+                        "namespaces": param.namespaces ?? [],
+                        "error": validationError
+                    }
+                };
+            });
             const flattenedParameters = Object.assign({}, ...parametersValues);
             setFormValues({ ...formValues, ...flattenedParameters });
         }
@@ -128,9 +137,28 @@ const AddConnection = (props: AddConnectionProps) => {
             root.ele('connectionType').txt(connectionType);
             // Fill the values
             Object.keys(formValues).forEach((key) => {
-                if (key !== 'configRef') {
-                    if (key === 'connectionName') {
-                        root.ele('name').txt(formValues[key]);
+                if (key !== 'configRef' && formValues[key].value) {
+                    if (typeof formValues[key] === 'object' && formValues[key] !== null) {
+                        // Handle expression input type
+                        const namespaces = formValues[key].namespaces;
+                        const value = formValues[key].value;
+                        const isExpression = formValues[key].isExpression;
+                        key = (key === 'connectionName') ? 'name' : key;
+
+                        if (isExpression) {
+                            if (namespaces && namespaces.length > 0) {
+                                // Generate XML with namespaces
+                                const element = root.ele(key);
+                                namespaces.forEach((namespace: any) => {
+                                    element.att(`xmlns:${namespace.prefix}`, namespace.uri);
+                                });
+                                element.txt(`{${value}}`);
+                            } else{
+                                root.ele(key).txt(`{${value}}`);
+                            }
+                        } else {
+                            root.ele(key).txt(value);
+                        }
                     } else {
                         root.ele(key).txt(formValues[key]);
                     }
@@ -144,7 +172,7 @@ const AddConnection = (props: AddConnectionProps) => {
             const localEntryPath = [projectUri, 'src', 'main', 'wso2mi', 'artifacts', 'local-entries'].join(sep);
 
             const connectionName = await rpcClient.getMiDiagramRpcClient().createConnection({
-                connectionName: formValues['connectionName'],
+                connectionName: formValues['connectionName'].value,
                 keyValuesXML: modifiedXml,
                 directory: localEntryPath
             });
@@ -160,9 +188,9 @@ const AddConnection = (props: AddConnectionProps) => {
                     <TextField
                         label={element.displayName}
                         size={50}
-                        value={formValues[element.name] || ''}
+                        value={formValues[element.name]?.value || ''}
                         onTextChange={(e: any) => {
-                            setFormValues({ ...formValues, [element.name]: e });
+                            setFormValues({ ...formValues, [element.name]: { value: e } });
                             formValidators[element.name](e);
                         }}
                         required={element.required === 'true'}
@@ -171,30 +199,58 @@ const AddConnection = (props: AddConnectionProps) => {
                 );
             case 'stringOrExpression':
                 return (
-                    <TextField
+                    <ExpressionField
                         label={element.displayName}
-                        size={50}
-                        value={formValues[element.name] || ''}
-                        onTextChange={(e: any) => {
-                            setFormValues({ ...formValues, [element.name]: e });
-                            formValidators[element.name](e);
-                        }}
-                        required={element.required === 'true'}
                         placeholder={element.helpTip}
+                        required={element.required === 'true'}
+                        value={{
+                            "isExpression": formValues[element.name]?.isExpression ?? false,
+                            "value": formValues[element.name]?.value ?? '',
+                            "namespaces": formValues[element.name]?.namespaces ?? []
+                        }}
+                        canChange={true}
+                        onChange={(e: any) => {
+                            setFormValues({ ...formValues, [element.name]: e });
+                            formValidators[element.name](e.value);
+                        }}
+                        openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => {
+                            sidePanelContext.setSidePanelState({
+                                ...sidePanelContext,
+                                expressionEditor: {
+                                    isOpen: true,
+                                    value,
+                                    setValue
+                                }
+                            });
+                        }}
                     />
                 );
             case 'stringOrExpresion':
                 return (
-                    <TextField
+                    <ExpressionField
                         label={element.displayName}
-                        size={50}
-                        value={formValues[element.name] || ''}
-                        onTextChange={(e: any) => {
-                            setFormValues({ ...formValues, [element.name]: e });
-                            formValidators[element.name](e);
-                        }}
-                        required={element.required === 'true'}
                         placeholder={element.helpTip}
+                        required={element.required === 'true'}
+                        value={{
+                            "isExpression": formValues[element.name]?.isExpression ?? false,
+                            "value": formValues[element.name]?.value ?? '',
+                            "namespaces": formValues[element.name]?.namespaces ?? []
+                        }}
+                        canChange={true}
+                        onChange={(e: any) => {
+                            setFormValues({ ...formValues, [element.name]: e });
+                            formValidators[element.name](e.value);
+                        }}
+                        openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => {
+                            sidePanelContext.setSidePanelState({
+                                ...sidePanelContext,
+                                expressionEditor: {
+                                    isOpen: true,
+                                    value,
+                                    setValue
+                                }
+                            });
+                        }}
                     />
                 );
             case 'booleanOrExpression':
@@ -204,9 +260,9 @@ const AddConnection = (props: AddConnectionProps) => {
                         <AutoComplete
                             identifier={element.displayName}
                             items={["true", "false"]}
-                            value={formValues[element.name]}
+                            value={formValues[element.name]?.value}
                             onValueChange={(e: any) => {
-                                setFormValues({ ...formValues, [element.name]: e });
+                                setFormValues({ ...formValues, [element.name]: { value: e } });
                                 formValidators[element.name](e);
                             }}
                             allowItemCreate={true}
@@ -220,9 +276,9 @@ const AddConnection = (props: AddConnectionProps) => {
                         <AutoComplete
                             identifier={element.displayName}
                             items={element.comboValues}
-                            value={formValues[element.name]}
+                            value={formValues[element.name]?.value}
                             onValueChange={(e: any) => {
-                                setFormValues({ ...formValues, [element.name]: e });
+                                setFormValues({ ...formValues, [element.name]: { value: e } });
                                 formValidators[element.name](e);
                             }}
                             allowItemCreate={true}
@@ -235,17 +291,44 @@ const AddConnection = (props: AddConnectionProps) => {
                     <TextField
                         label={element.displayName}
                         size={50}
-                        value={formValues[element.name] || ''}
+                        value={formValues[element.name]?.value || ''}
                         onTextChange={(e: any) => {
-                            setFormValues({ ...formValues, [element.name]: e });
+                            setFormValues({ ...formValues, [element.name]: { value: e } });
                             formValidators[element.name](e);
                         }}
                         required={element.required === 'true'}
                         placeholder={element.helpTip}
                     />
                 );
+            case 'integerOrExpression':
+                return (
+                    <ExpressionField
+                        label={element.displayName}
+                        placeholder={element.helpTip}
+                        value={{
+                            "isExpression": false,
+                            "value": formValues[element.name]?.value ?? '',
+                            "namespaces": formValues[element.name]?.namespaces ?? []
+                        }}
+                        canChange={true}
+                        onChange={(e: any) => {
+                            setFormValues({ ...formValues, [element.name]: e });
+                            formValidators[element.name](e.value);
+                        }}
+                        openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => {
+                            sidePanelContext.setSidePanelState({
+                                ...sidePanelContext,
+                                expressionEditor: {
+                                    isOpen: true,
+                                    value,
+                                    setValue
+                                }
+                            });
+                        }}
+                    />
+                );
             case 'connection':
-                formValues[element.name] = formValues[element.name] ?? element.allowedConnectionTypes[0];
+                formValues[element.name] = formValues[element.name]?.value ?? element.allowedConnectionTypes[0];
                 return (<>
                     <label>{element.displayName}</label> {element.required && <RequiredFormInput />}
                     <div style={{ display: "flex", flexDirection: "row", width: '100%', gap: '10px' }}>
