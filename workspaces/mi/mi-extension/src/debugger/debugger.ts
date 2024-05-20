@@ -49,7 +49,6 @@ export class Debugger extends EventEmitter {
     private currentFile: string | undefined;
 
     // Mapping between debugger runtime and RuntimeBreakpoint
-    private debuggingRuntimeBreakpointMap = new Map<BreakpointInfo, RuntimeBreakpoint>();
     private runtimeVscodeBreakpointMap = new Map<RuntimeBreakpointInfo, RuntimeBreakpoint>();
     private stepOverBreakpointMap = new Map<RuntimeBreakpointInfo, RuntimeBreakpoint>();
 
@@ -115,6 +114,10 @@ export class Debugger extends EventEmitter {
 
                 // LS call for breakpoint info
                 const breakpointInfo = await this.getBreakpointInformation(breakpointPerFile, normalizedPath);
+                if (!breakpointInfo) {
+                    logDebug(`No breakpoint information available for path: ${normalizedPath}`, ERROR_LOG);
+                    return vscodeBreakpointsPerFile;
+                }
                 // map the runtime breakpoint to the breakpoint info
                 for (let i = 0; i < breakpointPerFile.length; i++) {
 
@@ -144,8 +147,7 @@ export class Debugger extends EventEmitter {
                         };
                         this.runtimeVscodeBreakpointMap.set(runtimeBreakpointInfo, breakpointPerFile[i]);
                     } else {
-                        // TODO: remove after testing
-                        this.debuggingRuntimeBreakpointMap.set(breakpointInfo[i], breakpointPerFile[i]);
+                        logDebug(`Breakpoint Information for ${breakpointPerFile[i]?.filePath}:${breakpointPerFile[i]?.line} is null`, ERROR_LOG);
                     }
                 }
 
@@ -197,6 +199,10 @@ export class Debugger extends EventEmitter {
 
                 // LS call for breakpoint info
                 const breakpointInfo = await this.getBreakpointInformation(stepOverBreakpoints, normalizedPath);
+                if (!breakpointInfo) {
+                    logDebug(`No step-over breakpoint information available for path: ${normalizedPath}`, ERROR_LOG);
+                    return;
+                }
                 // map the runtime breakpoint to the breakpoint info
                 for (let i = 0; i < stepOverBreakpoints.length; i++) {
 
@@ -225,6 +231,8 @@ export class Debugger extends EventEmitter {
                             completeInfo: breakpointInfo[i]
                         };
                         this.stepOverBreakpointMap.set(runtimeBreakpointInfo, stepOverBreakpoints[i]);
+                    } else {
+                        logDebug(`Breakpoint Information for ${stepOverBreakpoints[i]?.filePath}:${stepOverBreakpoints[i]?.line} is null`, ERROR_LOG);
                     }
                 }
                 if (this.isDebuggerActive) {
@@ -297,13 +305,6 @@ export class Debugger extends EventEmitter {
 
     public clearBreakpoints(path: string): void {
         this.runtimeBreakpoints.delete(this.normalizePathAndCasing(path));
-        // clear the debuggingRuntimeBreakpointMap fields with the matching path
-        for (const [key, value] of this.debuggingRuntimeBreakpointMap) {
-            if (value.filePath === this.normalizePathAndCasing(path)) {
-                this.sendClearBreakpointCommand(key);
-                this.debuggingRuntimeBreakpointMap.delete(key);
-            }
-        }
 
         // clear the runtimeVscodeBreakpointMap fields with the matching path
         for (const [key, value] of this.runtimeVscodeBreakpointMap) {
@@ -342,8 +343,10 @@ export class Debugger extends EventEmitter {
                             for (const [key, value] of allRuntimeBreakpoints) {
                                 const breakpointInfo = await this.getBreakpointInformation(value, key);
                                 for (const info of breakpointInfo) {
-                                    await this.sendClearBreakpointCommand(info);
-                                    await this.sendSetBreakpointCommand(info);
+                                    if(info){
+                                        await this.sendClearBreakpointCommand(info);
+                                        await this.sendSetBreakpointCommand(info);
+                                    }
                                 }
                             }
                         }
