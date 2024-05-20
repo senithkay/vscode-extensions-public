@@ -482,7 +482,7 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({
 const FormSectionHeader = ({ title }: { title: string }) => {
     return (
         <div className="flex items-center sm:gap-4 gap-2 mb-2">
-            <h1 className="text-lg opacity-50">{title}</h1>
+            <h1 className="text-lg opacity-50 font-light">{title}</h1>
             <Divider className="flex-1" />
         </div>
     );

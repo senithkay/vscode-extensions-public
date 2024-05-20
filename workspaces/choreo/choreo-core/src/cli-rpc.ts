@@ -61,8 +61,12 @@ export interface CreateDeploymentReq {
     cronExpression?: string;
     cronTimezone?: string;
 }
+export interface GetTestKeyReq { apimId: string; orgUuid: string; orgId: string; envName: string; }
+export interface GetSwaggerSpecReq { apimRevisionId: string; orgUuid: string; orgId: string; }
+
 
 export interface IsRepoAuthorizedResp { retrievedRepos: boolean; isAccessible: boolean }
+export interface GetTestKeyResp { apiKey: string; validityTime: number }
 
 export interface IChoreoRPCClient {
     getProjects(orgID: string): Promise<Project[]>;
@@ -83,6 +87,8 @@ export interface IChoreoRPCClient {
     getComponentEndpoints(params: GetComponentEndpointsReq): Promise<ComponentEP[]>;
     getDeploymentStatus(params: GetDeploymentStatusReq): Promise<ComponentDeployment | null>;
     createDeployment(params: CreateDeploymentReq): Promise<void>;
+    getTestKey(params: GetTestKeyReq): Promise<GetTestKeyResp>;
+    getSwaggerSpec(params: GetSwaggerSpecReq): Promise<object>;
 }
 
 export class ChoreoRpcWebview implements IChoreoRPCClient {
@@ -143,6 +149,12 @@ export class ChoreoRpcWebview implements IChoreoRPCClient {
     createDeployment(params:CreateDeploymentReq): Promise<void> {
         return this._messenger.sendRequest(ChoreoRpcCreateDeploymentRequest, HOST_EXTENSION, params);
     }
+    getTestKey(params:GetTestKeyReq): Promise<GetTestKeyResp> {
+        return this._messenger.sendRequest(ChoreoRpcGetTestKeyRequest, HOST_EXTENSION, params);
+    }
+    getSwaggerSpec(params:GetSwaggerSpecReq): Promise<object> {
+        return this._messenger.sendRequest(ChoreoRpcGetSwaggerRequest, HOST_EXTENSION, params);
+    }
 }
 
 export const ChoreoRpcGetProjectsRequest: RequestType<string, Project[]> = { method: 'rpc/project/getProjects' };
@@ -163,3 +175,5 @@ export const ChoreoRpcGetEnvsRequest: RequestType<GetProjectEnvsReq, Environment
 export const ChoreoRpcGetEndpointsRequest: RequestType<GetComponentEndpointsReq, ComponentEP[]> = { method: 'rpc/component/getEndpoints' };
 export const ChoreoRpcGetDeploymentStatusRequest: RequestType<GetDeploymentStatusReq, ComponentDeployment | null> = { method: 'rpc/component/getDeploymentStatus' };
 export const ChoreoRpcCreateDeploymentRequest: RequestType<CreateDeploymentReq, void> = { method: 'rpc/deployment/create' };
+export const ChoreoRpcGetTestKeyRequest: RequestType<GetTestKeyReq, GetTestKeyResp> = { method: 'rpc/apim/getTestKey' };
+export const ChoreoRpcGetSwaggerRequest: RequestType<GetSwaggerSpecReq, object> = { method: 'rpc/apim/getSwaggerSpec' };

@@ -105,6 +105,8 @@ import {
     GetDirectoryFileNames,
     FileExists,
     ShowInputBox,
+    OpenTestViewReq,
+    OpenTestView,
 } from "@wso2-enterprise/choreo-core";
 import { registerChoreoProjectRPCHandlers, registerChoreoCellViewRPCHandlers } from "@wso2-enterprise/choreo-client";
 import { registerChoreoGithubRPCHandlers } from "@wso2-enterprise/choreo-client/lib/github/rpc";
@@ -124,10 +126,11 @@ import { webviewStateStore } from "../../../stores/webview-state-store";
 import { registerChoreoRpcResolver } from "../../../choreo-rpc";
 import { getGitRemotes, removeCredentialsFromGitURL } from "../../../git/util";
 import { choreoEnvConfig } from "../../../auth/auth";
-import { showComponentDetails } from "../../../cmds/view-component-cmd";
-import { getChoreoExecPath } from "../../../choreo-rpc/cli-install";
+import { getChoreoEnv, getChoreoExecPath } from "../../../choreo-rpc/cli-install";
 import { getSubPath, goTosource, makeURLSafe, readEndpoints } from "../../../utils";
 import { submitCreateComponentHandler } from "../../../cmds/create-component-cmd";
+import { showComponentTestView } from "../ComponentTestView";
+import { showComponentDetailsView } from "../ComponentDetailsView";
 
 const manager = new ChoreoProjectManager();
 
@@ -206,7 +209,7 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
         return response === params.buttonText;
     });
     messenger.onRequest(ViewComponentDetails, async (params) => {
-        showComponentDetails(params.organization, params.project, params.component, params.componentPath)
+        showComponentDetailsView(params.organization, params.project, params.component, params.componentPath)
     });
     messenger.onRequest(ReadServiceEndpoints, async (componentPath: string) => readEndpoints(componentPath));
     messenger.onRequest(ShowQuickPick, async (params) => {
@@ -239,6 +242,10 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
         buildLogsOutputChannel.show();
     });
     messenger.onRequest(ViewRuntimeLogs, async ({orgName, projectName, componentName, deploymentTrackName, envName, type}) => {
+        if(getChoreoEnv() !== "prod"){
+            window.showErrorMessage("Choreo extension currently displays runtime logs is only if 'Advanced.ChoreoEnvironment' is set to 'prod'");
+            return;
+        }
         const args = ["logs", "-t", type, "-o", orgName, "-p", projectName, "-c", componentName, "-d", deploymentTrackName, "-e", envName, "-f"];
         window.createTerminal(`${componentName}:${type.replace("component-","")}-logs`, getChoreoExecPath(), args).show();
     });
@@ -270,6 +277,10 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
             return false;
         }
     });    
+    messenger.onRequest(OpenTestView, (props: OpenTestViewReq)=>{
+        showComponentTestView(props);
+    });
+    
     // TODO remove old ones
 
 

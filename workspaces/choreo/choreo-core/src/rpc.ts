@@ -31,6 +31,9 @@ import {
    ComponentKind,
    WebviewQuickPickItem,
    WebviewState,
+   Environment,
+   DeploymentTrack,
+   ComponentEP,
 } from './types';
 import { CreateComponentReq } from './cli-rpc';
 
@@ -61,6 +64,17 @@ export const TriggerGithubInstallFlow: RequestType<string, void> = { method: 'tr
 export const SubmitComponentCreate: RequestType<SubmitComponentCreateReq, ComponentKind> = { method: 'submitComponentCreate' };
 export const GetDirectoryFileNames: RequestType<string, string[]> = { method: 'getDirectoryFileNames' };
 export const FileExists: RequestType<string, boolean> = { method: 'fileExists' };
+export const OpenTestView: RequestType<OpenTestViewReq, void> = { method: 'openTestView' };
+
+export interface OpenTestViewReq{
+   component: ComponentKind;
+   project: Project;
+   org: Organization;
+   env: Environment;
+   deploymentTrack: DeploymentTrack;
+   allDeploymentTracks: DeploymentTrack[];
+   endpoints: ComponentEP[];
+}
 
 export interface SubmitComponentCreateReq  {
    org: Organization;

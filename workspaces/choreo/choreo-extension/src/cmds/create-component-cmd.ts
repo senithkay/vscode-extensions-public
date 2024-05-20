@@ -22,9 +22,9 @@ import * as path from "path";
 import { existsSync, mkdirSync, writeFileSync } from "fs";
 import { linkedDirectoryStore } from "../stores/linked-dir-store";
 import { getSubPath, makeURLSafe } from "../utils";
-import { showComponentDetails } from "./view-component-cmd";
 import * as yaml from "js-yaml";
 import { dataCacheStore } from "../stores/data-cache-store";
+import { showComponentDetailsView } from "../views/webviews/ComponentDetailsView";
 
 let componentWizard: ComponentFormView;
 
@@ -50,12 +50,12 @@ export function createNewComponentCommand(context: ExtensionContext) {
                         workspaceDir = await resolveWorkspaceDirectory();
                     }
 
-                    const selectedOrg = await selectOrg(userInfo, "Select organization (1/2)");
+                    const selectedOrg = await selectOrg(userInfo, "Select organization");
 
                     let selectedProject = await selectProjectWithCreateNew(
                         selectedOrg,
-                        `Loading projects from '${selectedOrg.name}' (2/2)`,
-                        `Select project from '${selectedOrg.name}' to create your component in (2/2)`
+                        `Loading projects from '${selectedOrg.name}'`,
+                        `Select project from '${selectedOrg.name}' to create your component in`
                     );
 
                     if (selectedProject === "new-project") {
@@ -178,7 +178,7 @@ export const submitCreateComponentHandler = async ({
     );
 
     if (createdComponent) {
-        showComponentDetails(org, project, createdComponent, createParams?.componentDir);
+        showComponentDetailsView(org, project, createdComponent, createParams?.componentDir);
         linkedDirectoryStore?.getState().refreshState();
     }
 

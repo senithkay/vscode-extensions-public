@@ -21,7 +21,7 @@ export const FormElementWrap: FC<Props> = (props) => {
         <div className={classNames("w-full flex flex-col", wrapClassName)}>
             <div className={classNames("flex justify-between gap-1",labelWrapClassName)} ref={labelWrapRef}>
                 <span className="flex gap-1">
-                    <label>{label}</label>
+                    <label className="font-light">{label}</label>
                     {required && <RequiredFormInput />}
                 </span>
                 {errorMsg && <label className="text-vsc-errorForeground text-right line-clamp-1" title={errorMsg}>{errorMsg}</label>}

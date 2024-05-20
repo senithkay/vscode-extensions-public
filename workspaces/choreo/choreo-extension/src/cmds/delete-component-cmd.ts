@@ -8,12 +8,12 @@
  */
 import { ExtensionContext, commands, window, ProgressLocation } from "vscode";
 import { CommandIds, ComponentKind, Organization, Project } from "@wso2-enterprise/choreo-core";
-import { authStore } from "../stores/auth-store";
 import { getUserInfoForCmd, selectComponent, selectOrg, selectProject } from "./cmd-utils";
 import { ext } from "../extensionVariables";
 import { deleteLinkFile } from "../utils";
 import { linkedDirectoryStore } from "../stores/linked-dir-store";
-import { closeWebviewPanel } from "./view-component-cmd";
+import { closeComponentDetailsView } from "../views/webviews/ComponentDetailsView";
+import { closeAllComponentTestView } from "../views/webviews/ComponentTestView";
 
 export function deleteComponentCommand(context: ExtensionContext) {
     context.subscriptions.push(
@@ -63,7 +63,13 @@ export function deleteComponentCommand(context: ExtensionContext) {
                                         componentName: selectedComponent.metadata.displayName,
                                     });
 
-                                    closeWebviewPanel(
+                                    closeComponentDetailsView(
+                                        selectedOrg.handle,
+                                        selectedProject.handler,
+                                        selectedComponent.metadata.name
+                                    );
+
+                                    closeAllComponentTestView(
                                         selectedOrg.handle,
                                         selectedProject.handler,
                                         selectedComponent.metadata.name

@@ -7,15 +7,12 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { ExtensionContext, window, commands, ProgressLocation } from "vscode";
-import { CommandIds, LinkFileContent } from "@wso2-enterprise/choreo-core";
-import { authStore } from "../stores/auth-store";
+import { CommandIds } from "@wso2-enterprise/choreo-core";
 import * as path from "path";
 import * as fs from "fs";
 import { getUserInfoForCmd, resolveWorkspaceDirectory, selectOrg } from "./cmd-utils";
 import { unlinkSync } from "fs";
 import { linkedDirectoryStore } from "../stores/linked-dir-store";
-import { closeWebviewPanel } from "./view-component-cmd";
-import * as yaml from "js-yaml";
 
 export function unlinkComponentCommand(context: ExtensionContext) {
     context.subscriptions.push(
@@ -51,7 +48,6 @@ export function unlinkComponentCommand(context: ExtensionContext) {
                     if (!fs.existsSync(linkFilePath)) {
                         throw new Error("Selected component directory does not contain any link files");
                     }
-                    const parsedData: LinkFileContent = yaml.load(fs.readFileSync(linkFilePath, "utf8")) as any;
 
                     const response = await window.showInformationMessage(
                         `Are you sure you want to unlink this component directory. This action will delete the file ${linkFilePath}, from the directory`,
@@ -65,7 +61,6 @@ export function unlinkComponentCommand(context: ExtensionContext) {
                                 location: ProgressLocation.Notification,
                             },
                             async () => {
-                                closeWebviewPanel(parsedData.org, parsedData.project, parsedData.component);
                                 unlinkSync(linkFilePath);
                                 const choreoDirFiles = fs.readdirSync(path.join(componentPath, ".choreo"));
                                 if (choreoDirFiles.length === 0) {

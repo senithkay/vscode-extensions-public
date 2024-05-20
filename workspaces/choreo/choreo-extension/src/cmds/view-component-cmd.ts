@@ -10,12 +10,12 @@ import { ExtensionContext, Uri, commands, workspace, window, WebviewPanel } from
 import { ext } from "../extensionVariables";
 import { CommandIds, ComponentKind, LinkFileContent, Organization, Project } from "@wso2-enterprise/choreo-core";
 import { authStore } from "../stores/auth-store";
-import { ComponentDetailsView } from "../views/webviews/ComponentDetailsView";
 import { getUserInfoForCmd, selectComponent, selectOrg, selectProject } from "./cmd-utils";
 import { readFileSync } from "fs";
 import * as yaml from "js-yaml";
 import * as path from "path";
 import { webviewStateStore } from "../stores/webview-state-store";
+import { showComponentDetailsView } from "../views/webviews/ComponentDetailsView";
 
 export function viewComponentCommand(context: ExtensionContext) {
     context.subscriptions.push(
@@ -54,7 +54,7 @@ export function viewComponentCommand(context: ExtensionContext) {
                         }
                     }
 
-                    showComponentDetails(selectedOrg, selectedProject, selectedComponent, matchingPath);
+                    showComponentDetailsView(selectedOrg, selectedProject, selectedComponent, matchingPath);
                 }
             } catch (err: any) {
                 console.error("Failed to create component", err);
@@ -63,57 +63,3 @@ export function viewComponentCommand(context: ExtensionContext) {
         })
     );
 }
-
-const componentViewMap = new Map<string, ComponentDetailsView>();
-
-export const getComponentView = (
-    orgHandle: string,
-    projectHandle: string,
-    component: string
-): WebviewPanel | undefined => {
-    const componentKey = `${orgHandle}-${projectHandle}-${component}`;
-    return componentViewMap.get(componentKey)?.getWebview();
-};
-
-export const closeWebviewPanel = (orgHandle: string, projectHandle: string, component: string): void => {
-    const webView = getComponentView(orgHandle, projectHandle, component);
-    if (webView) {
-        webView.dispose();
-    }
-};
-
-export const showComponentDetails = (
-    org: Organization,
-    project: Project,
-    component: ComponentKind,
-    componentPath: string
-) => {
-    const webView = getComponentView(org.handle, project.handler, component.metadata.name);
-
-    if (webView) {
-        webView?.reveal();
-    } else {
-        const componentDetailsView = new ComponentDetailsView(
-            ext.context.extensionUri,
-            org,
-            project,
-            component,
-            componentPath
-        );
-        componentDetailsView.getWebview()?.reveal();
-        componentViewMap.set(`${org.handle}-${project.handler}-${component.metadata.name}`, componentDetailsView);
-
-        webviewStateStore.getState().setOpenedComponentPath(componentPath ?? "");
-        componentDetailsView.getWebview()?.onDidChangeViewState((event) => {
-            if (event.webviewPanel.active) {
-                webviewStateStore.getState().setOpenedComponentPath(componentPath ?? "");
-            } else {
-                webviewStateStore.getState().onCloseComponentView(componentPath);
-            }
-        });
-        componentDetailsView.getWebview()?.onDidDispose(() => {
-            webviewStateStore.getState().onCloseComponentView(componentPath);
-        });
-    }
-};
-// TODO: clear webview when component delete

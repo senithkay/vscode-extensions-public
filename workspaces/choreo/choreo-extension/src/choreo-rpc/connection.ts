@@ -17,9 +17,8 @@ export class StdioConnection {
         getLogger().debug("Starting RPC server" + executablePath);
         this._serverProcess = spawn(executablePath, ['start-rpc-server'], {
             env: {
+                ...process.env,
                 "CHOREO_ENV": getChoreoEnv(),
-                "HOME": os.homedir(),
-                "USERPROFILE": os.homedir()
             }
         });
         this._connection = createMessageConnection(

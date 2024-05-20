@@ -21,7 +21,7 @@ export const SignInView: FC<Props> = ({ className }) => {
                 onClick={() => signInCmd()}
                 disabled={isInitSignIn}
             >
-                {isInitSignIn ? "Loading..." : "Sign In"}
+                Sign In
             </Button>
         </div>
     );

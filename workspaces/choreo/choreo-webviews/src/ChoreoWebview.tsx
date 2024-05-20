@@ -16,6 +16,7 @@ import { ChoreoWebviewQueryClientProvider } from "./utilities/reactQueryClient";
 import { LinkedDirContextProvider } from "./context/choreo-linked-dir-ctx";
 import { AuthContextProvider } from "./context/choreo-auth-ctx";
 import { ComponentFormView } from "./views/ComponentFormView";
+import { ComponentTestView } from "./views/ComponentTestView";
 import { ComponentDetailsView } from "./views/ComponentDetailsView";
 import { AccountView } from "./views/AccountView";
 import { ComponentListView } from "./views/ComponentListView";
@@ -26,6 +27,7 @@ import {
     AccountActivityViewProps,
     ComponentsListActivityViewProps,
     ComponentsDetailsWebviewProps,
+    TestWebviewProps,
 } from "@wso2-enterprise/choreo-core";
 
 function ChoreoWebview(props: WebviewProps) {
@@ -38,6 +40,8 @@ function ChoreoWebview(props: WebviewProps) {
                             switch (props.type) {
                                 case "NewComponentForm":
                                     return <ComponentFormView {...(props as NewComponentWebviewProps)} />;
+                                case "TestView":
+                                    return <ComponentTestView {...(props as TestWebviewProps)} />;
                                 case "ComponentDetailsView":
                                     return <ComponentDetailsView {...(props as ComponentsDetailsWebviewProps)} />;
                                 case "AccountActivityView":

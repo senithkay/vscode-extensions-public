@@ -1,0 +1,1 @@
+export { ComponentTestView } from "./ComponentTestView";

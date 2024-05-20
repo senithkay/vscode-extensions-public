@@ -32,6 +32,9 @@ import {
     ViewBuildLogsReq,
     GetComponentItemReq,
     IsRepoAuthorizedResp,
+    GetTestKeyReq,
+    GetTestKeyResp,
+    GetSwaggerSpecReq,
 } from "@wso2-enterprise/choreo-core";
 import { workspace } from "vscode";
 import { handlerError } from "../error-utils";
@@ -294,7 +297,7 @@ export class ChoreoRPCClient implements IChoreoRPCClient {
         if (!this.client) {
             throw new Error("RPC client is not initialized");
         }
-        const response: { logs: string }= await this.client.sendRequest("build/logs", params);
+        const response: { logs: string } = await this.client.sendRequest("build/logs", params);
         return response.logs;
     }
 
@@ -303,6 +306,22 @@ export class ChoreoRPCClient implements IChoreoRPCClient {
             throw new Error("RPC client is not initialized");
         }
         await this.client.sendRequest("repo/obtainGithubToken", params);
+    }
+
+    async getTestKey(params: GetTestKeyReq): Promise<GetTestKeyResp> {
+        if (!this.client) {
+            throw new Error("RPC client is not initialized");
+        }
+        const response: GetTestKeyResp = await this.client.sendRequest("apim/getTestKey", params);
+        return response;
+    }
+
+    async getSwaggerSpec(params: GetSwaggerSpecReq): Promise<object> {
+        if (!this.client) {
+            throw new Error("RPC client is not initialized");
+        }
+        const response: {swagger: object} = await this.client.sendRequest("apim/getSwaggerSpec", params);
+        return response.swagger;
     }
 }
 

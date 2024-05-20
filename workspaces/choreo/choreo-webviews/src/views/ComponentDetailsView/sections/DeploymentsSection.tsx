@@ -29,12 +29,13 @@ interface Props {
     project: Project;
     organization: Organization;
     deploymentTrack?: DeploymentTrack;
+    allDeploymentTracks?: DeploymentTrack[];
     envs: Environment[];
     loadingEnvs: boolean;
 }
 
 export const DeploymentsSection: FC<Props> = (props) => {
-    const { envs, loadingEnvs, deploymentTrack, component, organization, project } = props;
+    const { envs, loadingEnvs, deploymentTrack, component, organization, project, allDeploymentTracks = [] } = props;
     const [hasInactiveEndpoints, setHasInactiveEndpoints] = useState(false);
 
     const { data: endpoints = [], refetch: refetchEndpoints } = useQuery({
@@ -75,7 +76,7 @@ export const DeploymentsSection: FC<Props> = (props) => {
                 <EnvItem
                     key={item.name}
                     env={item}
-                    endpoints={endpoints}
+                    endpoints={endpoints.filter((endpointItem) => endpointItem.environmentId === item.id)}
                     refetchEndpoint={refetchEndpoints}
                     component={component}
                     organization={organization}
@@ -92,10 +93,20 @@ const EnvItem: FC<{
     project: Project;
     organization: Organization;
     deploymentTrack?: DeploymentTrack;
+    allDeploymentTracks?: DeploymentTrack[];
     env: Environment;
     endpoints: ComponentEP[];
     refetchEndpoint: () => void;
-}> = ({ organization, project, deploymentTrack, component, env, endpoints, refetchEndpoint }) => {
+}> = ({
+    organization,
+    project,
+    deploymentTrack,
+    component,
+    env,
+    endpoints,
+    allDeploymentTracks = [],
+    refetchEndpoint,
+}) => {
     const componentType = getTypeForDisplayType(component.spec.type);
     const [envDetailsRef] = useAutoAnimate();
 
@@ -176,6 +187,10 @@ const EnvItem: FC<{
         },
     });
 
+    const activePublicEndpoints = endpoints?.filter(
+        (item) => item.visibility === "Public" && item.state === "Active"
+    )
+
     return (
         <>
             <Divider />
@@ -191,16 +206,9 @@ const EnvItem: FC<{
                     >
                         <Codicon name="refresh" />
                     </Button>
-                    <Button
-                        appearance="secondary"
-                        disabled={deploymentStatus?.deploymentStatusV2 !== "ACTIVE"}
-                        onClick={() => selectLogType()}
-                    >
-                        View Logs
-                    </Button>
                 </div>
                 <div className="flex flex-col gap-3 ">
-                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-2" ref={envDetailsRef}>
+                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-2 gap-x-5" ref={envDetailsRef}>
                         {loadingDeploymentStatus ? (
                             <>
                                 <GridColumnItem label="Status">
@@ -243,54 +251,83 @@ const EnvItem: FC<{
                                         />
                                     </GridColumnItem>
                                 )}
-                                {deploymentStatus?.invokeUrl && (
-                                    <EndpointItem
-                                        type="Invoke"
-                                        name="invoke-url"
-                                        state="Active"
-                                        url={deploymentStatus?.invokeUrl}
-                                        showOpen={true}
-                                    />
-                                )}
-                                {componentType === ChoreoComponentType.Service && (
+                                {deploymentStatus?.deploymentStatusV2 === "ACTIVE" && (
                                     <>
-                                        {endpoints
-                                            .filter((item) => item.environmentId === env.id)
-                                            .map((item) => {
-                                                const endpointsNodes: ReactNode[] = [];
-                                                endpointsNodes.push(
-                                                    <EndpointItem
-                                                        type="Project"
-                                                        name={item.displayName}
-                                                        url={item.projectUrl}
-                                                        hasMultiple={endpoints.length > 1}
-                                                        state={item.state}
-                                                    />
-                                                );
-                                                if (item.visibility === "Organization") {
+                                        {deploymentStatus?.invokeUrl && (
+                                            <EndpointItem
+                                                type="Invoke"
+                                                name="invoke-url"
+                                                state="Active"
+                                                url={deploymentStatus?.invokeUrl}
+                                                showOpen={true}
+                                            />
+                                        )}
+                                        {componentType === ChoreoComponentType.Service && (
+                                            <>
+                                                {endpoints.map((item) => {
+                                                    const endpointsNodes: ReactNode[] = [];
                                                     endpointsNodes.push(
                                                         <EndpointItem
-                                                            type="Organization"
+                                                            type="Project"
                                                             name={item.displayName}
-                                                            url={item.organizationUrl}
+                                                            url={item.projectUrl}
                                                             hasMultiple={endpoints.length > 1}
                                                             state={item.state}
                                                         />
                                                     );
-                                                } else if (item.visibility === "Public") {
-                                                    endpointsNodes.push(
-                                                        <EndpointItem
-                                                            type="Public"
-                                                            name={item.displayName}
-                                                            url={item.publicUrl}
-                                                            showOpen={true}
-                                                            hasMultiple={endpoints.length > 1}
-                                                            state={item.state}
-                                                        />
-                                                    );
-                                                }
-                                                return endpointsNodes;
-                                            })}
+                                                    if (item.visibility === "Organization") {
+                                                        endpointsNodes.push(
+                                                            <EndpointItem
+                                                                type="Organization"
+                                                                name={item.displayName}
+                                                                url={item.organizationUrl}
+                                                                hasMultiple={endpoints.length > 1}
+                                                                state={item.state}
+                                                            />
+                                                        );
+                                                    } else if (item.visibility === "Public") {
+                                                        endpointsNodes.push(
+                                                            <EndpointItem
+                                                                type="Public"
+                                                                name={item.displayName}
+                                                                url={item.publicUrl}
+                                                                showOpen={true}
+                                                                hasMultiple={endpoints.length > 1}
+                                                                state={item.state}
+                                                            />
+                                                        );
+                                                    }
+                                                    return endpointsNodes;
+                                                })}
+                                            </>
+                                        )}
+
+                                        {activePublicEndpoints.length > 0 && (
+                                            <GridColumnItem label="Test">
+                                                <VSCodeLink
+                                                    className="text-vsc-foreground"
+                                                    onClick={() =>
+                                                        ChoreoWebViewAPI.getInstance().openTestView({
+                                                            component,
+                                                            project,
+                                                            org: organization,
+                                                            env,
+                                                            deploymentTrack,
+                                                            allDeploymentTracks,
+                                                            endpoints: activePublicEndpoints
+                                                        })
+                                                    }
+                                                >
+                                                    Open Swagger View
+                                                </VSCodeLink>
+                                            </GridColumnItem>
+                                        )}
+
+                                        <GridColumnItem label="Observability">
+                                            <VSCodeLink className="text-vsc-foreground" onClick={() => selectLogType()}>
+                                                View Runtime Logs
+                                            </VSCodeLink>
+                                        </GridColumnItem>
                                     </>
                                 )}
                             </>
@@ -366,7 +403,7 @@ const EndpointItem: FC<{
                     <VSCodeLink
                         title="Copy URL"
                         className={classNames({
-                            "flex-1  text-vsc-foreground": true,
+                            "flex-1 text-vsc-foreground": true,
                             "animate-pulse": ["Pending", "Progressing"].includes(state),
                             "text-vsc-errorForeground": state === "Error",
                         })}

@@ -21,6 +21,7 @@ module.exports = {
         filename: 'main.js',
         library: 'choreoWebviews'
     },
+    ignoreWarnings:[{ module: /autolinker/, message: /Failed to parse source map/ }],
     resolve: {
         extensions: ['.ts', '.tsx', '.js'],
         alias: {
@@ -51,6 +52,10 @@ module.exports = {
             {
                 test: /\.css$/i,
                 use: ['style-loader', 'css-loader', 'postcss-loader'],
+            },
+            {
+                test: /\.s[ac]ss$/i,
+                use: ["style-loader", "css-loader", "sass-loader"],
             },
             {
                 test: /\.(woff|woff2|ttf|eot|svg)$/,

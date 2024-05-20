@@ -7,7 +7,18 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-export type WebviewTypes = "NewComponentForm" | "ComponentsListActivityView" | "AccountActivityView" | "ComponentDetailsView" | "ChoreoCellView"
+export type WebviewTypes = "NewComponentForm" | "ComponentsListActivityView" | "AccountActivityView" | "ComponentDetailsView" | "TestView" | "ChoreoCellView"
+
+export interface TestWebviewProps {
+    type: "TestView";
+    component: ComponentKind;
+    project: Project;
+    org: Organization;
+    env: Environment;
+    deploymentTrack: DeploymentTrack;
+    allDeploymentTracks: DeploymentTrack[];
+    endpoints: ComponentEP[];
+}
 
 export interface NewComponentWebviewProps {
     type: "NewComponentForm";
@@ -36,7 +47,7 @@ export interface AccountActivityViewProps {
     type: "AccountActivityView";
 }
 
-export type WebviewProps = ComponentsDetailsWebviewProps | NewComponentWebviewProps | AccountActivityViewProps | ComponentsListActivityViewProps
+export type WebviewProps = ComponentsDetailsWebviewProps | NewComponentWebviewProps | AccountActivityViewProps | ComponentsListActivityViewProps | TestWebviewProps
 
 export interface Owner {
     id: string;

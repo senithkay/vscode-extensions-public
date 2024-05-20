@@ -14,8 +14,8 @@ import * as fs from "fs";
 import { linkedDirectoryStore } from "../stores/linked-dir-store";
 import { selectOrg, selectProject, resolveWorkspaceDirectory, resolveQuickPick, getUserInfoForCmd } from "./cmd-utils";
 import { getGitRoot, getGitRemotes, isSameRepo } from "../git/util";
-import { showComponentDetails } from "./view-component-cmd";
 import * as yaml from "js-yaml";
+import { showComponentDetailsView } from "../views/webviews/ComponentDetailsView";
 
 export function linkExistingComponentCommand(context: ExtensionContext) {
     context.subscriptions.push(
@@ -160,7 +160,7 @@ export function linkExistingComponentCommand(context: ExtensionContext) {
                     if (componentMap.size === 1) {
                         const linkedComp = Array.from(componentMap.values())[0][0];
                         const linkedCompPath = Array.from(componentMap.keys())[0];
-                        showComponentDetails(selectedOrg, selectedProject, linkedComp, linkedCompPath);
+                        showComponentDetailsView(selectedOrg, selectedProject, linkedComp, linkedCompPath);
                         window.showInformationMessage(
                             `Selected directory has been successfully linked with component ${linkedComp?.metadata.displayName}`
                         );

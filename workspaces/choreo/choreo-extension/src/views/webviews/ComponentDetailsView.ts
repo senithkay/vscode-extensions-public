@@ -10,8 +10,12 @@ import * as vscode from "vscode";
 import { WebViewPanelRpc } from "./rpc/WebviewRPC";
 import { getUri } from "./utils";
 import { ComponentKind, Organization, Project, WebviewProps } from "@wso2-enterprise/choreo-core";
+import { ext } from "../../extensionVariables";
+import { webviewStateStore } from "../../stores/webview-state-store";
 
-export class ComponentDetailsView {
+const componentViewMap = new Map<string, ComponentDetailsView>();
+
+class ComponentDetailsView {
     public static currentPanel: ComponentDetailsView | undefined;
     private _panel: vscode.WebviewPanel | undefined;
     private _disposables: vscode.Disposable[] = [];
@@ -95,3 +99,55 @@ export class ComponentDetailsView {
         this._panel = undefined;
     }
 }
+
+const getComponentDetailsView = (
+    orgHandle: string,
+    projectHandle: string,
+    component: string
+): vscode.WebviewPanel | undefined => {
+    const componentKey = `${orgHandle}-${projectHandle}-${component}`;
+    return componentViewMap.get(componentKey)?.getWebview();
+};
+
+export const closeComponentDetailsView = (orgHandle: string, projectHandle: string, component: string): void => {
+    const webView = getComponentDetailsView(orgHandle, projectHandle, component);
+    if (webView) {
+        webView.dispose();
+        componentViewMap.delete(`${orgHandle}-${projectHandle}-${component}`);
+    }
+};
+
+export const showComponentDetailsView = (
+    org: Organization,
+    project: Project,
+    component: ComponentKind,
+    componentPath: string
+) => {
+    const webView = getComponentDetailsView(org.handle, project.handler, component.metadata.name);
+
+    if (webView) {
+        webView?.reveal();
+    } else {
+        const componentDetailsView = new ComponentDetailsView(
+            ext.context.extensionUri,
+            org,
+            project,
+            component,
+            componentPath
+        );
+        componentDetailsView.getWebview()?.reveal();
+        componentViewMap.set(`${org.handle}-${project.handler}-${component.metadata.name}`, componentDetailsView);
+
+        webviewStateStore.getState().setOpenedComponentPath(componentPath ?? "");
+        componentDetailsView.getWebview()?.onDidChangeViewState((event) => {
+            if (event.webviewPanel.active) {
+                webviewStateStore.getState().setOpenedComponentPath(componentPath ?? "");
+            } else {
+                webviewStateStore.getState().onCloseComponentView(componentPath);
+            }
+        });
+        componentDetailsView.getWebview()?.onDidDispose(() => {
+            webviewStateStore.getState().onCloseComponentView(componentPath);
+        });
+    }
+};

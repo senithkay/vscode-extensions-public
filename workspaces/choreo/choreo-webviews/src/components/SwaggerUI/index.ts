@@ -1,0 +1,1 @@
+export { SwaggerUI } from "./SwaggerUI";

@@ -134,6 +134,8 @@ import {
     FileExists,
     ShowWebviewInputBoxReq,
     ShowInputBox,
+    OpenTestView,
+    OpenTestViewReq,
 } from "@wso2-enterprise/choreo-core";
 import { IChoreoProjectClient } from "@wso2-enterprise/choreo-client/lib/project/types";
 import { ChoreoProjectClientRPCWebView } from "@wso2-enterprise/choreo-client/lib/project/rpc";
@@ -298,6 +300,11 @@ export class ChoreoWebViewAPI {
     public async fileExist(path: string): Promise<boolean> {
         return this._messenger.sendRequest(FileExists, HOST_EXTENSION, path);
     }
+
+    public async openTestView(params: OpenTestViewReq): Promise<void> {
+        return this._messenger.sendRequest(OpenTestView, HOST_EXTENSION, params);
+    }
+    
     
     // todo: remove old ones
 

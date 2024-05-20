@@ -28,6 +28,8 @@ import {
     ChoreoRpcGetDeploymentStatusRequest,
     ChoreoRpcCreateDeploymentRequest,
     ChoreoRpcGetComponentItemRequest,
+    ChoreoRpcGetTestKeyRequest,
+    ChoreoRpcGetSwaggerRequest,
 } from "@wso2-enterprise/choreo-core";
 import { ProgressLocation, window } from "vscode";
 
@@ -75,4 +77,6 @@ export function registerChoreoRpcResolver(messenger: Messenger, rpcClient: IChor
             () => rpcClient.createDeployment(params)
         );
     });
+    messenger.onRequest(ChoreoRpcGetTestKeyRequest, (params) => rpcClient.getTestKey(params));
+    messenger.onRequest(ChoreoRpcGetSwaggerRequest, (params) => rpcClient.getSwaggerSpec(params));
 }
