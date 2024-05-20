@@ -12,7 +12,7 @@ import React, { useMemo } from "react";
 /** @jsx jsx */
 import { Global, css } from '@emotion/react';
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { DMType, Range } from "@wso2-enterprise/mi-core";
+import { DMType } from "@wso2-enterprise/mi-core";
 import { Project, SyntaxKind } from "ts-morph";
 
 import { MIDataMapper } from "./components/DataMapper/DataMapper";
@@ -44,7 +44,7 @@ export interface DataMapperViewProps {
     functionName: string;
     inputTrees: DMType[];
     outputTree: DMType;
-    goToSource: (range: Range) => void;
+    variableTypes: Record<string, DMType | undefined>;
     updateFileContent: (fileContent: string) => void;
     configName: string;
 }
@@ -56,7 +56,7 @@ export function DataMapperView(props: DataMapperViewProps) {
         functionName,
         inputTrees,
         outputTree,
-        goToSource,
+        variableTypes,
         updateFileContent,
         configName
     } = props;
@@ -117,8 +117,8 @@ export function DataMapperView(props: DataMapperViewProps) {
                     fnST={functionST}
                     inputTrees={inputTrees}
                     outputTree={outputTree}
+                    variableTypes={variableTypes}
                     fileContent={fileContent}
-                    goToSource={goToSource}
                     applyModifications={applyModifications}
                     filePath={filePath}
                     configName={configName}

@@ -53,9 +53,7 @@ export class SubMappingNode extends DataMapperNodeModel {
             const varDecl = stmt.getDeclarations()[0];
             const varName = varDecl.getName();
 
-            // const exprPosition = stmt.expression.position as NodePosition;
-
-            const typeWithoutFilter: DMType = null; // TODO: Get the type from the variable declaration.
+            const typeWithoutFilter: DMType = this.context.getTypeInfo(varDecl);
 
             const type: DMType = getSearchFilteredInput(typeWithoutFilter, varName);
 
@@ -65,9 +63,9 @@ export class SubMappingNode extends DataMapperNodeModel {
                     type, varName, "OUT", SUB_MAPPING_INPUT_SOURCE_PORT_PREFIX, collapsedFields
                 );
 
-                if (type && (type.kind === TypeKind.Interface)) {
+                if (type.kind === TypeKind.Interface) {
                     const fields = type.fields;
-                    fields.forEach((subField) => {
+                    fields.forEach(subField => {
                         this.numberOfFields += 1 + this.addPortsForInputField(
                             subField, "OUT", varName, SUB_MAPPING_INPUT_SOURCE_PORT_PREFIX,
                             parentPort, collapsedFields, parentPort.collapsed

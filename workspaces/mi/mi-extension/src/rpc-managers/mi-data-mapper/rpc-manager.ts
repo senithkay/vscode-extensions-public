@@ -23,7 +23,7 @@ import {
     ConvertRegPathToAbsPathResponse,
     UpdateDMCRequest
 } from "@wso2-enterprise/mi-core";
-import { fetchIOTypes } from "../../util/dataMapper";
+import { fetchDMTypes } from "../../util/dataMapper";
 import { Project } from "ts-morph";
 import { navigate } from "../../stateMachine";
 import { generateSchema } from "../../util/schemaBuilder";
@@ -41,11 +41,12 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
         return new Promise(async (resolve, reject) => {
             const { filePath, functionName } = params;
             try {
-                const {inputTypes, outputType} = fetchIOTypes(filePath, functionName);
+                const {inputTypes, outputType, variableTypes} = fetchDMTypes(filePath, functionName);
 
                 return resolve({
                     inputTrees: inputTypes,
-                    outputTree: outputType
+                    outputTree: outputType,
+                    variableTypes
                 });
             } catch (error: any) {
                 reject(error);

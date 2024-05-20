@@ -14,7 +14,6 @@ import { ProgressIndicator } from "@wso2-enterprise/ui-toolkit";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 
 import { useIOTypes } from "../../Hooks";
-import { Range } from "@wso2-enterprise/mi-core";
 
 interface DataMapperProps {
     filePath: string;
@@ -51,10 +50,6 @@ export function DataMapper(props: DataMapperProps) {
         }
     }, [isTypeError, isFileUpdateError]);
 
-    const goToSource = (range: Range) => {
-        rpcClient.getMiVisualizerRpcClient().goToSource({ filePath, position: range });
-    };
-
     return (
         <>
             {isFetchingIOTypes
@@ -66,7 +61,7 @@ export function DataMapper(props: DataMapperProps) {
                         functionName={functionName}
                         inputTrees={dmIOTypes.inputTrees}
                         outputTree={dmIOTypes.outputTree}
-                        goToSource={goToSource}
+                        variableTypes={dmIOTypes.variableTypes}
                         updateFileContent={updateFileContent}
                         configName= {props.configName}
                     />

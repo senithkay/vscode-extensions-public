@@ -6,14 +6,15 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { Node, Project, SourceFile, Type } from 'ts-morph';
+import { FunctionDeclaration, Node, Project, SourceFile, Type } from 'ts-morph';
 import * as path from 'path';
 import { DMType, TypeKind } from '@wso2-enterprise/mi-core';
 
 let inputTypes: DMType[] = [];
 let outputType: DMType | undefined;
+let variableTypes: Record<string, DMType | undefined> = {};
 
-export function fetchIOTypes(filePath: string, functionName: string) {
+export function fetchDMTypes(filePath: string, functionName: string) {
     inputTypes = [];
     outputType = undefined;
 
@@ -21,12 +22,12 @@ export function fetchIOTypes(filePath: string, functionName: string) {
         const resolvedPath = path.resolve(filePath);
         const project = new Project();
         const sourceFile = project.addSourceFileAtPath(resolvedPath);
-        findInputsAndOutput(functionName, sourceFile);
+        findTypes(functionName, sourceFile);
     } catch (error: any) {
         throw new Error("[MI Data Mapper] Failed to fetch input/output types. " + error.message);
     }
 
-    return { inputTypes, outputType };
+    return { inputTypes, outputType, variableTypes };
 }
 
 export function getSources(filePath: string) {
@@ -58,8 +59,8 @@ export function deriveConfigName(filePath: string) {
     return fileName.split(".")[0];
 }
 
-// Find inputs and output types
-function findInputsAndOutput(functionName: string, sourceFile: SourceFile) {
+// Find input, output and variable types
+function findTypes(functionName: string, sourceFile: SourceFile) {
     const fn = sourceFile.getFunctionOrThrow(functionName);
 
     if (fn) {
@@ -67,6 +68,7 @@ function findInputsAndOutput(functionName: string, sourceFile: SourceFile) {
             inputTypes.push(getTypeInfo(param.getType(), sourceFile));
         });
         outputType = getTypeInfo(fn.getReturnType(), sourceFile);
+        variableTypes = getVariableTypes(fn);
     }
 }
 
@@ -87,6 +89,21 @@ function getTypeInfo(typeNode: Type, sourceFile: SourceFile): DMType {
     }
 
     return { kind: TypeKind.Unknown };
+}
+
+// Find the types of variables declared in the function
+function getVariableTypes(fn: FunctionDeclaration) {
+    const variableTypes: Record<string, DMType | undefined> = {};
+
+    fn.getVariableStatements().forEach((stmt) => {
+        const varDecl = stmt.getDeclarations()[0];
+        const varInit = varDecl.getInitializer();
+        const type = varInit && getTypeInfo(varInit.getType(), fn.getSourceFile());
+        const key = varDecl.getStart().toString() + varDecl.getEnd().toString();
+        variableTypes[key] = type;
+    });
+
+    return variableTypes;
 }
 
 function getTypeInfoForInterface(typeNode: Type, sourceFile: SourceFile): DMType {

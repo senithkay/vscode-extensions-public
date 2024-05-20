@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { DMType, Range } from "@wso2-enterprise/mi-core";
-import { FunctionDeclaration, PropertyAssignment, ReturnStatement } from "ts-morph";
+import { FunctionDeclaration, PropertyAssignment, ReturnStatement, VariableDeclaration } from "ts-morph";
 
 import { View } from "../../components/DataMapper/DataMapper";
 
@@ -19,6 +19,7 @@ export interface IDataMapperContext {
     views: View[];
     addView: (view: View) => void;
     goToSource: (range: Range) => void;
+    getTypeInfo: (varDecl: VariableDeclaration) => DMType;
     applyModifications: () => void;
 }
 
@@ -32,6 +33,7 @@ export class DataMapperContext implements IDataMapperContext {
         public views: View[] = [],
         public addView: (view: View) => void,
         public goToSource: (range: Range) => void,
+        public getTypeInfo: (varDecl: VariableDeclaration) => DMType,
         public applyModifications: () => void
     ){}
 }

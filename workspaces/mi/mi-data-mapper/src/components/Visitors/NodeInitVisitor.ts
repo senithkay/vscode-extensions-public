@@ -350,7 +350,7 @@ export class NodeInitVisitor implements Visitor {
         const subMappingNode = new SubMappingNode(this.context);
 
         const nodes = [this.inputNode, subMappingNode, this.outputNode];
-        nodes.push(subMappingNode, ...this.intermediateNodes);
+        nodes.push(...this.intermediateNodes);
 
         return nodes;
     }
