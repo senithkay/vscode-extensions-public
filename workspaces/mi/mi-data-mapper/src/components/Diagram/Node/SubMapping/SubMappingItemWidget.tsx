@@ -21,6 +21,7 @@ import { OutputSearchHighlight } from "../commons/Search";
 import { TreeBody, TreeHeader } from '../commons/Tree/Tree';
 import { useIONodesStyles } from "../../../styles";
 import { InputNodeTreeItemWidget } from "../Input/InputNodeTreeItemWidget";
+import { useDMCollapsedFieldsStore } from "../../../../store/store";
 
 export interface LetVarDeclItemProps {
     id: string; // this will be the root ID used to prepend for UUIDs of nested fields
@@ -33,8 +34,9 @@ export interface LetVarDeclItemProps {
 }
 
 export function SubMappingItemWidget(props: LetVarDeclItemProps) {
-    const { engine, typeDesc, id, declaration, context, getPort, valueLabel } = props;
+    const { engine, typeDesc, id, getPort, valueLabel } = props;
     const classes = useIONodesStyles();
+    const collapsedFieldsStore = useDMCollapsedFieldsStore();
 
     const [ portState, setPortState ] = useState<PortState>(PortState.Unselected);
     const [isHovered, setIsHovered] = useState(false);
@@ -61,7 +63,12 @@ export function SubMappingItemWidget(props: LetVarDeclItemProps) {
     );
 
     const handleExpand = () => {
-        // TODO
+		const collapsedFields = collapsedFieldsStore.collapsedFields;
+        if (!expanded) {
+            collapsedFieldsStore.setCollapsedFields(collapsedFields.filter(element => element !== id));
+        } else {
+            collapsedFieldsStore.setCollapsedFields([...collapsedFields, id]);
+        }
     };
 
     const onMouseEnter = () => {
@@ -70,10 +77,6 @@ export function SubMappingItemWidget(props: LetVarDeclItemProps) {
 
     const onMouseLeave = () => {
         setIsHovered(false);
-    };
-
-    const handlePortState = (state: PortState) => {
-        setPortState(state)
     };
 
     return (

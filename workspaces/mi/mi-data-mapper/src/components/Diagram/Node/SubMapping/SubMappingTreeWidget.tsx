@@ -6,7 +6,6 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-// tslint:disable: jsx-no-multiline-js jsx-no-lambda
 import React, { ReactNode, useMemo } from 'react';
 
 import styled from "@emotion/styled";
@@ -18,19 +17,19 @@ import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapp
 import { InputOutputPortModel } from '../../Port';
 import { SUB_MAPPING_INPUT_SOURCE_PORT_PREFIX } from "../../utils/constants";
 import { TreeContainer } from '../commons/Tree/Tree';
-
 import { DMSubMapping } from "./index";
 import { useIONodesStyles } from '../../../styles';
+import { SubMappingItemWidget } from './SubMappingItemWidget';
 
 export interface LetExpressionTreeWidgetProps {
-    letVarDecls: DMSubMapping[];
+    subMappings: DMSubMapping[];
     engine: DiagramEngine;
     context: IDataMapperContext;
     getPort: (portId: string) => InputOutputPortModel;
 }
 
 export function SubMappingTreeWidget(props: LetExpressionTreeWidgetProps) {
-    const { engine, letVarDecls, context, getPort } = props;
+    const { engine, subMappings, context, getPort } = props;
     const searchValue = useDMSearchStore.getState().inputSearch;
     const classes = useIONodesStyles();
     const isFocusedView = context.views.length > 1;
@@ -39,13 +38,26 @@ export function SubMappingTreeWidget(props: LetExpressionTreeWidgetProps) {
         // TODO 
     };
 
-    const subMappings: ReactNode[] = useMemo(() => {
-        return [];
-    }, [letVarDecls]);
+    const subMappingItems: ReactNode[] = useMemo(() => {
+        return subMappings.map(mapping => {
+            return (
+                <SubMappingItemWidget
+                    key={`${SUB_MAPPING_INPUT_SOURCE_PORT_PREFIX}.${mapping.name}`}
+                    id={`${SUB_MAPPING_INPUT_SOURCE_PORT_PREFIX}.${mapping.name}`}
+                    engine={engine}
+                    declaration={mapping.declaration}
+                    context={context}
+                    typeDesc={mapping.type}
+                    getPort={(portId: string) => getPort(portId) as InputOutputPortModel}
+                    valueLabel={mapping.name}
+                />
+            );
+        }).filter(mapping => !!mapping);
+    }, [subMappings]);
 
     return (
         <>
-            {subMappings.length > 0 ? (
+            {subMappingItems.length > 0 ? (
                 <TreeContainer data-testid={"local-variables-node"}>
                     <SubMappingsHeader>
                         <HeaderText>Sub Mappings</HeaderText>
@@ -61,7 +73,7 @@ export function SubMappingTreeWidget(props: LetExpressionTreeWidgetProps) {
                             </Button>
                         )}
                     </SubMappingsHeader>
-                    {subMappings}
+                    {subMappingItems}
                 </TreeContainer>
             ) : !isFocusedView && !searchValue && (
                 <Button

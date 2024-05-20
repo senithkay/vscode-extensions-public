@@ -45,6 +45,7 @@ export class SubMappingNode extends DataMapperNodeModel {
     }
 
     async initPorts() {
+        this.subMappings = [];
         const searchValue = useDMSearchStore.getState().inputSearch;
         const variableStatements = (this.context.functionST.getBody() as Block).getVariableStatements();
 
