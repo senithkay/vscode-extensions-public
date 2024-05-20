@@ -351,9 +351,13 @@ export function APIWizard({ apiData, path }: APIWizardProps) {
             {apiData ? (
                 <FieldGroup>
                     <span>Swagger Def Path</span>
+                    {!!watch('swaggerdefPath') ? (
+                        <LocationText>{watch('swaggerdefPath')}</LocationText>
+                    ) : (
+                        <span>Please choose a directory for swagger definition. </span>
+                    )}
                     <FormKeylookup
                         control={control}
-                        label="Swagger Def Path"
                         name="swaggerdefPath"
                         filterType="swagger"
                         errorMsg={errors.swaggerdefPath?.message.toString()}
