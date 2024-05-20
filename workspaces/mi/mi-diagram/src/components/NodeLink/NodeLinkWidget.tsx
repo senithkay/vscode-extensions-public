@@ -94,6 +94,7 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
                 isOpen: true,
                 parentNode: link.getParentNode(),
                 previousNode: link.getPreviousNode(),
+                nextNode: link.getNextNode(),
                 nodeRange: nodeRange,
             });
         }
