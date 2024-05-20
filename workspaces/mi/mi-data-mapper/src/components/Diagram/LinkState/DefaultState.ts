@@ -24,6 +24,7 @@ import { DataMapperNodeModel } from "../Node/commons/DataMapperNode";
 import { LinkOverayContainerID } from '../OverriddenLinkLayer/LinkOverlayPortal';
 import { CreateLinkState } from './CreateLinkState';
 import { FocusedInputNode } from '../Node/FocusedInput';
+import { SubMappingNode } from '../Node/SubMapping';
 import { PrimitiveOutputNode } from '../Node/PrimitiveOutput';
 
 export class DefaultState extends State<DiagramEngine> {
@@ -90,6 +91,7 @@ export class DefaultState extends State<DiagramEngine> {
 							|| element instanceof PrimitiveOutputNode
 							|| element instanceof InputNode
 							|| element instanceof FocusedInputNode
+							|| element instanceof SubMappingNode
 						)
 					) {
 						this.transitionWithEvent(this.createLink, actionEvent);

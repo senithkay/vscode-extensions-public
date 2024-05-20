@@ -26,7 +26,7 @@ export class SubMappingNodeFactory extends AbstractReactFactory<SubMappingNode, 
         return (
             <>
                 {event.model.hasNoMatchingFields ? (
-                    <InputSearchNoResultFound kind={SearchNoResultFoundKind.LocalVariable} />
+                    <InputSearchNoResultFound kind={SearchNoResultFoundKind.SubMapping} />
                 ) : (
                     <SubMappingTreeWidget
                         engine={this.engine}

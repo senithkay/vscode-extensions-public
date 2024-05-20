@@ -22,10 +22,11 @@ import { TreeBody, TreeHeader } from '../commons/Tree/Tree';
 import { useIONodesStyles } from "../../../styles";
 import { InputNodeTreeItemWidget } from "../Input/InputNodeTreeItemWidget";
 import { useDMCollapsedFieldsStore } from "../../../../store/store";
+import classnames from "classnames";
 
 export interface LetVarDeclItemProps {
     id: string; // this will be the root ID used to prepend for UUIDs of nested fields
-    typeDesc: DMType;
+    type: DMType;
     engine: DiagramEngine;
     declaration: Node;
     context: IDataMapperContext;
@@ -34,28 +35,28 @@ export interface LetVarDeclItemProps {
 }
 
 export function SubMappingItemWidget(props: LetVarDeclItemProps) {
-    const { engine, typeDesc, id, getPort, valueLabel } = props;
+    const { engine, type, id, getPort, valueLabel } = props;
     const classes = useIONodesStyles();
     const collapsedFieldsStore = useDMCollapsedFieldsStore();
 
     const [ portState, setPortState ] = useState<PortState>(PortState.Unselected);
     const [isHovered, setIsHovered] = useState(false);
 
-    const typeName = getTypeName(typeDesc);
+    const typeName = getTypeName(type);
     const portOut = getPort(`${id}.OUT`);
     const expanded = !(portOut && portOut.collapsed);
-    const isRecord = typeDesc.kind === TypeKind.Interface;
-    const hasFields = !!typeDesc?.fields?.length;
+    const isRecord = type.kind === TypeKind.Interface;
+    const hasFields = !!type?.fields?.length;
 
     const label = (
-        <span style={{ marginRight: "auto" }} data-testid={`local-var-widget-label-${id}`}>
+        <span style={{ marginRight: "auto" }} data-testid={`sub-mapping-item-widget-label-${id}`}>
             <span className={classes.valueLabel}>
                 <OutputSearchHighlight>{valueLabel ? valueLabel : id}</OutputSearchHighlight>
                 {typeName && ":"}
             </span>
             {typeName && (
                 <span className={classes.inputTypeLabel}>
-                    {typeName !== `$CompilationError$` ? typeName : 'var'}
+                    {typeName}
                 </span>
             )}
 
@@ -79,13 +80,19 @@ export function SubMappingItemWidget(props: LetVarDeclItemProps) {
         setIsHovered(false);
     };
 
+    const handlePortState = (state: PortState) => {
+        setPortState(state)
+    };
+
     return (
         <>
-            <TreeHeader
+            <div
                 id={"recordfield-" + id}
-                isSelected={portState !== PortState.Unselected}
                 onMouseEnter={onMouseEnter}
                 onMouseLeave={onMouseLeave}
+                className={classnames(
+                    classes.treeLabel, (portState !== PortState.Unselected) ? classes.treeLabelPortSelected : ""
+                )}
             >
                 <span className={classes.label}>
                     {isRecord && hasFields && (
@@ -105,15 +112,16 @@ export function SubMappingItemWidget(props: LetVarDeclItemProps) {
                         <DataMapperPortWidget
                             engine={engine}
                             port={portOut}
-                            dataTestId={`local-variable-port-${portOut.getName()}`}
+                            dataTestId={`sub-mapping-port-${portOut.getName()}`}
+                            handlePortState={handlePortState}
                         />
                     )}
                 </span>
-            </TreeHeader>
+            </div>
             {
                 expanded && isRecord && hasFields && (
                     <TreeBody>
-                        {typeDesc.fields.map((field, index) => {
+                        {type.fields.map((field, index) => {
                             return (
                                 <InputNodeTreeItemWidget
                                     key={index}

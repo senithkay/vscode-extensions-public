@@ -38,22 +38,20 @@ export function SubMappingTreeWidget(props: LetExpressionTreeWidgetProps) {
         // TODO 
     };
 
-    const subMappingItems: ReactNode[] = useMemo(() => {
-        return subMappings.map(mapping => {
-            return (
-                <SubMappingItemWidget
-                    key={`${SUB_MAPPING_INPUT_SOURCE_PORT_PREFIX}.${mapping.name}`}
-                    id={`${SUB_MAPPING_INPUT_SOURCE_PORT_PREFIX}.${mapping.name}`}
-                    engine={engine}
-                    declaration={mapping.declaration}
-                    context={context}
-                    typeDesc={mapping.type}
-                    getPort={(portId: string) => getPort(portId) as InputOutputPortModel}
-                    valueLabel={mapping.name}
-                />
-            );
-        }).filter(mapping => !!mapping);
-    }, [subMappings]);
+    const subMappingItems: ReactNode[] = subMappings.map(mapping => {
+        return (
+            <SubMappingItemWidget
+                key={`${SUB_MAPPING_INPUT_SOURCE_PORT_PREFIX}.${mapping.name}`}
+                id={`${SUB_MAPPING_INPUT_SOURCE_PORT_PREFIX}.${mapping.name}`}
+                engine={engine}
+                declaration={mapping.declaration}
+                context={context}
+                type={mapping.type}
+                getPort={(portId: string) => getPort(portId) as InputOutputPortModel}
+                valueLabel={mapping.name}
+            />
+        );
+    }).filter(mapping => !!mapping);
 
     return (
         <>
