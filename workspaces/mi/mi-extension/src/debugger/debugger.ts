@@ -16,8 +16,8 @@ import { BreakpointInfo, SequenceBreakpoint, GetBreakpointInfoRequest, GetBreakp
 import { checkServerReadiness, isADiagramView } from './debugHelper';
 import { VisualizerWebview } from '../visualizer/webview';
 import { extension } from '../MIExtensionContext';
-import { ViewColumn } from 'vscode';
 import { reject } from 'lodash';
+import { ERROR_LOG, INFO_LOG, logDebug } from '../util/logger';
 
 export interface RuntimeBreakpoint {
     id: number;
@@ -49,7 +49,6 @@ export class Debugger extends EventEmitter {
     private currentFile: string | undefined;
 
     // Mapping between debugger runtime and RuntimeBreakpoint
-    private debuggingRuntimeBreakpointMap = new Map<BreakpointInfo, RuntimeBreakpoint>();
     private runtimeVscodeBreakpointMap = new Map<RuntimeBreakpointInfo, RuntimeBreakpoint>();
     private stepOverBreakpointMap = new Map<RuntimeBreakpointInfo, RuntimeBreakpoint>();
 
@@ -114,7 +113,11 @@ export class Debugger extends EventEmitter {
                 }
 
                 // LS call for breakpoint info
-                const breakpointInfo = await this.getBreakpointInformation(breakpointPerFile);
+                const breakpointInfo = await this.getBreakpointInformation(breakpointPerFile, normalizedPath);
+                if (!breakpointInfo) {
+                    logDebug(`No breakpoint information available for path: ${normalizedPath}`, ERROR_LOG);
+                    return vscodeBreakpointsPerFile;
+                }
                 // map the runtime breakpoint to the breakpoint info
                 for (let i = 0; i < breakpointPerFile.length; i++) {
 
@@ -144,8 +147,7 @@ export class Debugger extends EventEmitter {
                         };
                         this.runtimeVscodeBreakpointMap.set(runtimeBreakpointInfo, breakpointPerFile[i]);
                     } else {
-                        // TODO: remove after testing
-                        this.debuggingRuntimeBreakpointMap.set(breakpointInfo[i], breakpointPerFile[i]);
+                        logDebug(`Breakpoint Information for ${breakpointPerFile[i]?.filePath}:${breakpointPerFile[i]?.line} is null`, ERROR_LOG);
                     }
                 }
 
@@ -158,7 +160,7 @@ export class Debugger extends EventEmitter {
                 return vscodeBreakpointsPerFile;
             }
         } catch (error) {
-            console.error('Error setting breakpoint:', error);
+            logDebug(`Error updating breakpoints: ${error}`, ERROR_LOG);
             return Promise.reject(error);
         }
     }
@@ -196,7 +198,11 @@ export class Debugger extends EventEmitter {
                 }
 
                 // LS call for breakpoint info
-                const breakpointInfo = await this.getBreakpointInformation(stepOverBreakpoints);
+                const breakpointInfo = await this.getBreakpointInformation(stepOverBreakpoints, normalizedPath);
+                if (!breakpointInfo) {
+                    logDebug(`No step-over breakpoint information available for path: ${normalizedPath}`, ERROR_LOG);
+                    return;
+                }
                 // map the runtime breakpoint to the breakpoint info
                 for (let i = 0; i < stepOverBreakpoints.length; i++) {
 
@@ -225,6 +231,8 @@ export class Debugger extends EventEmitter {
                             completeInfo: breakpointInfo[i]
                         };
                         this.stepOverBreakpointMap.set(runtimeBreakpointInfo, stepOverBreakpoints[i]);
+                    } else {
+                        logDebug(`Breakpoint Information for ${stepOverBreakpoints[i]?.filePath}:${stepOverBreakpoints[i]?.line} is null`, ERROR_LOG);
                     }
                 }
                 if (this.isDebuggerActive) {
@@ -238,7 +246,7 @@ export class Debugger extends EventEmitter {
         }
     }
 
-    public async getBreakpointInformation(breakpoints: RuntimeBreakpoint[]): Promise<BreakpointInfo[]> {
+    public async getBreakpointInformation(breakpoints: RuntimeBreakpoint[], filePath: string): Promise<BreakpointInfo[]> {
         const langClient = StateMachine.context().langClient!;
         // create BreakpointPosition[] array
         const breakpointPositions = breakpoints.map((breakpoint) => {
@@ -246,12 +254,11 @@ export class Debugger extends EventEmitter {
         });
 
         const getBreakpointInfoRequest: GetBreakpointInfoRequest = {
-            filePath: this.getCurrentFilePath(),
+            filePath: filePath,
             breakpoints: [...breakpointPositions]
         };
 
         const breakpointInfo: GetBreakpointInfoResponse = await langClient.getBreakpointInfo(getBreakpointInfoRequest);
-        console.log('Breakpoint Info:', breakpointInfo);
         return breakpointInfo?.breakpointInfo;
     }
 
@@ -298,13 +305,6 @@ export class Debugger extends EventEmitter {
 
     public clearBreakpoints(path: string): void {
         this.runtimeBreakpoints.delete(this.normalizePathAndCasing(path));
-        // clear the debuggingRuntimeBreakpointMap fields with the matching path
-        for (const [key, value] of this.debuggingRuntimeBreakpointMap) {
-            if (value.filePath === this.normalizePathAndCasing(path)) {
-                this.sendClearBreakpointCommand(key);
-                this.debuggingRuntimeBreakpointMap.delete(key);
-            }
-        }
 
         // clear the runtimeVscodeBreakpointMap fields with the matching path
         for (const [key, value] of this.runtimeVscodeBreakpointMap) {
@@ -320,6 +320,10 @@ export class Debugger extends EventEmitter {
         return this.runtimeBreakpoints.get(this.normalizePathAndCasing(path)) || [];
     }
 
+    public getAllRuntimeBreakpoints(): Map<string, RuntimeBreakpoint[]> {
+        return this.runtimeBreakpoints;
+    }
+
     public getCurrentFilePath(): string {
         return this.currentFile || '';
     }
@@ -328,66 +332,37 @@ export class Debugger extends EventEmitter {
         return this.currentDebugpoint;
     }
 
-    public async setBreakpointsInServer(): Promise<void> {
-        return new Promise(async (resolve, reject) => {
-            // TODO: 1. check the delay of CApp undeployed 2. Why the server doesnt update the breakpoints even after successful breakpoint requests
-            checkServerReadiness().then(() => {
-                this.sendResumeCommand().then(async () => {
-                    setTimeout(async () => {
-                        const runtimeBreakpoints = this.getRuntimeBreakpoints(this.getCurrentFilePath());
-                        if (runtimeBreakpoints.length > 0) {
-                            const runtimeBreakpointInfo = await this.getBreakpointInformation(runtimeBreakpoints);
-
-                            for (const info of runtimeBreakpointInfo) {
-                                await this.sendClearBreakpointCommand(info);
-                                await this.sendSetBreakpointCommand(info);
-                            }
-                        }
-                    }, 3000);
-                    resolve();
-                }).catch((error) => {
-                    console.error('Error while resuming the debugger:', error);
-                    reject(`Error while resuming the debugger server: ${error}`);
-                });
-
-            }).catch((error) => {
-                console.error('Error while checking server readiness:', error);
-                reject(error);
-            });
-        });
-
-    }
-
     public async initializeDebugger(): Promise<void> {
         return new Promise(async (resolve, reject) => {
             this.startDebugger().then(() => {
                 extension.preserveActivity = true;
                 checkServerReadiness().then(() => {
                     this.sendResumeCommand().then(async () => {
-                        const runtimeBreakpoints = this.getRuntimeBreakpoints(this.getCurrentFilePath());
-                        if (runtimeBreakpoints.length > 0) {
-                            const runtimeBreakpointInfo = await this.getBreakpointInformation(runtimeBreakpoints);
-
-                            for (const info of runtimeBreakpointInfo) {
-                                await this.sendClearBreakpointCommand(info);
-                                await this.sendSetBreakpointCommand(info);
-
-                                // TODO: Handle issue where invalid breakpoint positions are sent from the server 
+                        const allRuntimeBreakpoints = this.getAllRuntimeBreakpoints();
+                        if (allRuntimeBreakpoints.size > 0) {
+                            for (const [key, value] of allRuntimeBreakpoints) {
+                                const breakpointInfo = await this.getBreakpointInformation(value, key);
+                                for (const info of breakpointInfo) {
+                                    if(info){
+                                        await this.sendClearBreakpointCommand(info);
+                                        await this.sendSetBreakpointCommand(info);
+                                    }
+                                }
                             }
                         }
                         resolve();
                     }).catch((error) => {
-                        console.error('Error while resuming the debugger:', error);
+                        logDebug(`Error while sending the resume command: ${error}`, ERROR_LOG);
                         reject(`Error while resuming the debugger server: ${error}`);
                     });
 
                 }).catch((error) => {
-                    console.error('Error while checking server readiness:', error);
+                    logDebug(`Error while checking server readiness: ${error}`, ERROR_LOG);
                     reject(error);
                 });
 
             }).catch((error) => {
-                console.error('Error while connecting the debugger to the MI server:', error);
+                logDebug(`Error while connecting the debugger to the MI server: ${error}`, ERROR_LOG);
                 reject(`Error while connecting the debugger to the MI server: ${error}`);
             });
         });
@@ -399,26 +374,24 @@ export class Debugger extends EventEmitter {
             this.eventClient = new net.Socket();
             // Connect to the command port
             this.commandClient?.connect(this.commandPort, this.host, () => {
-                console.log('Connected to command port');
                 this.isDebuggerActive = true;
                 resolve();
             });
 
             // Error handling for the command client
             this.commandClient?.on('error', (error) => {
-                console.error('Command client error:', error);
+                logDebug(`Command client error: ${error}`, ERROR_LOG);
                 reject(error); // Reject the promise if there's an error
             });
 
             // Connect to the event port
             this.eventClient?.connect(this.eventPort, this.host, () => {
-                console.log('Connected to event port');
                 resolve();
             });
 
             // Error handling for the event client
             this.eventClient?.on('error', (error) => {
-                console.error('Event client error:', error);
+                logDebug(`Event client error: ${error}`, ERROR_LOG);
                 reject(error);
             });
 
@@ -438,7 +411,7 @@ export class Debugger extends EventEmitter {
                     const message = incompleteMessage.slice(0, newlineIndex);
 
                     // Call a function with the received message
-                    console.log('Received event:', message);
+                    logDebug(`Event received: ${message}`, INFO_LOG);
 
                     // convert to eventData to json
                     const eventDataJson = JSON.parse(message);
@@ -460,10 +433,6 @@ export class Debugger extends EventEmitter {
 
                     // check if the event is a breakpoint event
                     if (eventDataJson.event === 'breakpoint') {
-
-                        // send 'stopped' event
-                        this.sendEvent('stopOnBreakpoint');
-
                         // create new eventDataJson with removing the event field
                         const eventInfo = { ...eventDataJson };
                         delete eventInfo.event;
@@ -481,8 +450,9 @@ export class Debugger extends EventEmitter {
 
                             if (breakpointKey) {
                                 const breakpoint = this.runtimeVscodeBreakpointMap.get(breakpointKey);
-                                this.currentDebugpoint = breakpoint;
-                                this.sendEvent('breakpointValidated', breakpoint);
+                                if (breakpoint) {
+                                    this.handleBreakpointEvent(breakpoint);
+                                }
                             } else {
                                 // if breakpoint not found in runtimeVscodeBreakpointMap, we need to check in stepOverBreakpointMap
                                 const stepOverBreakpointKey = Array.from(this.stepOverBreakpointMap.keys()).find(
@@ -492,8 +462,9 @@ export class Debugger extends EventEmitter {
 
                                 if (stepOverBreakpointKey) {
                                     const breakpoint = this.stepOverBreakpointMap.get(stepOverBreakpointKey);
-                                    this.currentDebugpoint = breakpoint;
-                                    this.sendEvent('breakpointValidated', breakpoint);
+                                    if (breakpoint) {
+                                        this.handleBreakpointEvent(breakpoint);
+                                    }
                                 }
                             }
                         } else if (event.template) {
@@ -506,8 +477,9 @@ export class Debugger extends EventEmitter {
 
                             if (breakpointKey) {
                                 const breakpoint = this.runtimeVscodeBreakpointMap.get(breakpointKey);
-                                this.currentDebugpoint = breakpoint;
-                                this.sendEvent('breakpointValidated', breakpoint);
+                                if (breakpoint) {
+                                    this.handleBreakpointEvent(breakpoint);
+                                }
                             } else {
                                 // if breakpoint not found in runtimeVscodeBreakpointMap, we need to check in stepOverBreakpointMap
                                 const stepOverBreakpointKey = Array.from(this.stepOverBreakpointMap.keys()).find(
@@ -516,8 +488,9 @@ export class Debugger extends EventEmitter {
 
                                 if (stepOverBreakpointKey) {
                                     const breakpoint = this.stepOverBreakpointMap.get(stepOverBreakpointKey);
-                                    this.currentDebugpoint = breakpoint;
-                                    this.sendEvent('breakpointValidated', breakpoint);
+                                    if (breakpoint) {
+                                        this.handleBreakpointEvent(breakpoint);
+                                    }
                                 }
                             }
                         }
@@ -528,6 +501,13 @@ export class Debugger extends EventEmitter {
                 resolve();
             });
         });
+    }
+
+    private handleBreakpointEvent(breakpoint: RuntimeBreakpoint): void {
+        this.currentDebugpoint = breakpoint;
+        this.currentFile = breakpoint?.filePath;
+        this.sendEvent('stopOnBreakpoint');
+        this.sendEvent('breakpointValidated', breakpoint);
     }
 
     private mapSequenceInfo(sequence: SequenceBreakpoint): { key: string, mediatorPosition: string, sequenceType: string } {
@@ -571,14 +551,13 @@ export class Debugger extends EventEmitter {
             let incompleteMessage = '';
 
             // Send request on the command port
-            console.log('\nSending request:', request);
+            logDebug(`Command: ${request}`, INFO_LOG);
             this.commandClient?.write(request);
 
             // Listen for response from the command port
             this.commandClient?.once('data', (data) => {
                 // Convert buffer to string
                 const receivedData = data.toString();
-                console.log('Received data from commandClient, waiting for complete data:', receivedData);
 
                 // Append the received data to incompleteMessage
                 incompleteMessage += receivedData;
@@ -590,7 +569,7 @@ export class Debugger extends EventEmitter {
                     const message = incompleteMessage.slice(0, newlineIndex);
 
                     // Call a function with the received message
-                    console.log('Received response:', message);
+                    logDebug(`Command response: ${message}`, INFO_LOG);
                     resolve(message); // Resolve the promise with the message
 
                     // Remove the processed message from incompleteMessage
@@ -625,7 +604,7 @@ export class Debugger extends EventEmitter {
 
                 variables.push(jsonResponse);
             } catch (error) {
-                console.error(`Error sending request for ${context}:`, error);
+                logDebug(`Error sending properties-command for ${context}: ${error}`, ERROR_LOG);
             }
         }
         return variables;

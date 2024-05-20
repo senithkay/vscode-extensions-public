@@ -16,6 +16,7 @@ import { useEffect, useState } from "react";
 interface Segment {
     label: string;
     onClick: () => void;
+    isClickable: boolean;
 }
 
 export interface HierachicalPathProps {
@@ -63,7 +64,8 @@ export function HierachicalPath(props: HierachicalPathProps) {
                                     type: EVENT_TYPE.OPEN_VIEW,
                                     location: { view: MACHINE_VIEW.ServiceDesigner, documentUri: machineView.documentUri }
                                 });
-                            }
+                            },
+                            isClickable: true
                         });
                     } catch (error) {
                         console.error(error);
@@ -71,7 +73,8 @@ export function HierachicalPath(props: HierachicalPathProps) {
                 } else {
                     segments.push({
                         label: pathItem,
-                        onClick: () => { }
+                        onClick: () => { },
+                        isClickable: false
                     });
                 }
             }
@@ -86,7 +89,7 @@ export function HierachicalPath(props: HierachicalPathProps) {
                 <Codicon name="chevron-right" sx={{ paddingTop: "3px" }} />
                 {segments.map((segment, index) => {
                     return <>
-                        <Button appearance="icon" disabled={index === 0} onClick={segment.onClick}>
+                        <Button appearance="icon" disabled={index === 0 || !segment.isClickable} onClick={segment.onClick}>
                             {segment.label}
                         </Button>
                         {index < segments.length - 1 && <Codicon name="chevron-right" sx={{ paddingTop: "2px" }} />}

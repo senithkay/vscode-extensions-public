@@ -131,7 +131,7 @@ export function ConditionNodeWidget(props: CallNodeWidgetProps) {
 
     return (
         <div >
-            <Tooltip content={!isPopoverOpen ? <TooltipEl /> : ""} position={'bottom'} containerPosition={'absolute'}>
+            <Tooltip content={!isPopoverOpen && tooltip ? <TooltipEl /> : ""} position={'bottom'} containerPosition={'absolute'}>
                 <S.Node
                     onMouseEnter={() => setIsHovered(true)}
                     onMouseLeave={() => setIsHovered(false)}

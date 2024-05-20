@@ -21,14 +21,14 @@ export const renderPortWidget = (engine: DiagramEngine, port: IntermediatePortMo
     />
 );
 
-export const renderMultiInputExprTooltip = () => (
+export const renderExpressionTooltip = () => (
     <Tooltip
-        content={"Multi Input Expression"}
+        content={"Expression"}
         position="bottom-end"
     >
         <Icon
             name={"explicit-outlined"}
-            sx={{ height: "20px", width: "20px" }}
+            sx={{ height: "20px", width: "20px", cursor: "default" }}
             iconSx={{ fontSize: "20px", color: "var(--vscode-input-placeholderForeground)" }}
         />
     </Tooltip>
@@ -41,6 +41,7 @@ export const renderFunctionCallTooltip = () => (
     >
         <Icon
             name={"function-icon"}
+            sx={{ cursor: "default" }}
             iconSx={{ fontSize: "15px", color: "var(--vscode-input-placeholderForeground)" }}
         />
     </Tooltip>

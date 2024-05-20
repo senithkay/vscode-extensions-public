@@ -17,7 +17,7 @@ import { Node } from "ts-morph";
 
 import { DiagnosticWidget } from '../Diagnostic/DiagnosticWidget';
 import { InputOutputPortModel } from '../Port';
-import { getEditorLineAndColumn } from '../utils/common-utils';
+import { getEditorLineAndColumn, isInputAccessExpr } from '../utils/common-utils';
 import { ExpressionLabelModel } from './ExpressionLabelModel';
 import { generateArrayToArrayMappingWithFn, isSourcePortArray, isTargetPortArray } from '../utils/link-utils';
 import { DataMapperLinkModel } from '../Link';
@@ -192,8 +192,7 @@ export function EditableLabelWidget(props: EditableLabelWidgetProps) {
     };
 
     const applyArrayFunction = (linkModel: DataMapperLinkModel, targetType: DMType) => {
-        if (linkModel.value
-            && (Node.isPropertyAccessExpression(linkModel.value) || Node.isIdentifier(linkModel.value))) {
+        if (linkModel.value && (isInputAccessExpr(linkModel.value) || Node.isIdentifier(linkModel.value))) {
 
                 let isOptionalSource = false;
                 const sourcePort = linkModel.getSourcePort();

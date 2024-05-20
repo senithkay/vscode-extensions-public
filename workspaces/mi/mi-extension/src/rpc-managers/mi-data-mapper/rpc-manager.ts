@@ -31,7 +31,7 @@ import { JSONSchema3or4 } from "to-json-schema";
 import { updateDMC, updateDMCContent } from "../../util/tsBuilder";
 import * as fs from "fs";
 import * as os from 'os';
-import { window, Uri, workspace } from "vscode";
+import { window, Uri, workspace, commands, TextEdit, WorkspaceEdit } from "vscode";
 import path = require("path");
 import { extension } from "../../MIExtensionContext";
 import { MiDiagramRpcManager } from "../mi-diagram/rpc-manager";
@@ -116,6 +116,7 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
                 }
                 try {
                     await updateDMC(configName, sourcePath);
+                    await this.formatDMC(documentUri);
                     navigate();
                     return resolve({success: true});
                 } catch (error: any) {
@@ -127,6 +128,15 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
             resolve({success: false});
             return;
         });
+    }
+
+    async formatDMC(documentUri: string): Promise<void> {
+        const uri = Uri.file(documentUri);
+        const edits: TextEdit[] = await commands.executeCommand("vscode.executeFormatDocumentProvider", uri);
+        const workspaceEdit = new WorkspaceEdit();
+        workspaceEdit.set(uri, edits);
+        await workspace.applyEdit(workspaceEdit);
+        return;
     }
 
     async loadDMConfigs(params: LoadDMConfigsRequest): Promise<LoadDMConfigsResponse> {

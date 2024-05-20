@@ -15,7 +15,8 @@ import {
     ArrayLiteralExpression,
     Identifier,
     PropertyAccessExpression,
-    CallExpression
+    CallExpression,
+    ElementAccessExpression
 } from "ts-morph";
 import { DMType, TypeKind } from "@wso2-enterprise/mi-core";
 
@@ -26,16 +27,15 @@ import { DataMapperContext } from "../../utils/DataMapperContext/DataMapperConte
 import { InputDataImportNodeModel, OutputDataImportNodeModel } from "../Diagram/Node/DataImport/DataImportNode";
 import {
     canConnectWithLinkConnector,
-    getPropertyAccessNodes,
+    getInputAccessNodes,
     getCallExprReturnStmt,
     getTypeName,
     isConditionalExpression,
-    isMapFunction,
-    getTnfFnReturnStatement
+    isMapFunction
 } from "../Diagram/utils/common-utils";
 import { ArrayFnConnectorNode } from "../Diagram/Node/ArrayFnConnector";
 import { getPosition, isPositionsEquals } from "../Diagram/utils/st-utils";
-import { getDMType } from "../Diagram/utils/type-utils";
+import { getDMType, getDMTypeForRootChaninedMapFunction } from "../Diagram/utils/type-utils";
 import { UnsupportedExprNodeKind, UnsupportedIONode } from "../Diagram/Node/UnsupportedIO";
 import { OFFSETS } from "../Diagram/utils/constants";
 import { FocusedInputNode } from "../Diagram/Node/FocusedInput";
@@ -95,7 +95,7 @@ export class NodeInitVisitor implements Visitor {
                     // Constraint: The return type of the transformation function should be an interface or an array
                 }
                 if (isConditionalExpression(innerExpr)) {
-                    const inputNodes = getPropertyAccessNodes(returnStatement);
+                    const inputNodes = getInputAccessNodes(returnStatement);
                     const linkConnectorNode = this.createLinkConnectorNode(
                         node, "", parent, inputNodes, this.mapIdentifiers.slice(0)
                     );
@@ -115,10 +115,10 @@ export class NodeInitVisitor implements Visitor {
         } else {
             const initializer = node.getInitializer();
             if (initializer && !this.isObjectOrArrayLiteralExpression(initializer) && this.isWithinMapFn === 0) {
-                const propAccessNodes = getPropertyAccessNodes(initializer);
-                if (canConnectWithLinkConnector(propAccessNodes, initializer)) {
+                const inputAccessNodes = getInputAccessNodes(initializer);
+                if (canConnectWithLinkConnector(inputAccessNodes, initializer)) {
                     const linkConnectorNode = this.createLinkConnectorNode(
-                        node, node.getName(), parent, propAccessNodes, this.mapIdentifiers.slice(0)
+                        node, node.getName(), parent, inputAccessNodes, this.mapIdentifiers.slice(0)
                     );
                     this.intermediateNodes.push(linkConnectorNode);
                 }
@@ -131,14 +131,16 @@ export class NodeInitVisitor implements Visitor {
         const { views, focusedST, outputTree } = this.context;
         const focusedView = views[views.length - 1];
         const { targetFieldFQN, mapFnIndex } = focusedView;
-        const isRootReturn = views.length === 2;
+        const mapFnAtRootReturnOrDecsendent = !targetFieldFQN && mapFnIndex !== undefined;
         const isFocusedST = views.length > 1 && isPositionsEquals(getPosition(node), getPosition(focusedST));
 
         // Create IO nodes whan the return statement contains the focused map function
         if (isFocusedST) {
             const callExpr = returnExpr as CallExpression;
             const mapFnReturnStmt = getCallExprReturnStmt(callExpr);
-            const outputType = isRootReturn ? outputTree : getDMType(targetFieldFQN, this.context.outputTree, mapFnIndex);
+            const outputType = mapFnAtRootReturnOrDecsendent
+                ? getDMTypeForRootChaninedMapFunction(outputTree, mapFnIndex)
+                : getDMType(targetFieldFQN, this.context.outputTree, mapFnIndex);
 
             if (outputType.kind === TypeKind.Array) {
                 const { memberType } = outputType;
@@ -159,7 +161,9 @@ export class NodeInitVisitor implements Visitor {
             // Create input node
             const { sourceFieldFQN } = views[views.length - 1];
             const inputRoot = this.context.inputTrees[0];
-            const inputType = sourceFieldFQN !== '' ? getDMType(sourceFieldFQN, inputRoot, mapFnIndex) : inputRoot;
+            const inputType = mapFnAtRootReturnOrDecsendent
+                ? getDMTypeForRootChaninedMapFunction(inputRoot, mapFnIndex)
+                : getDMType(sourceFieldFQN, inputRoot, mapFnIndex);
 
             const focusedInputNode = new FocusedInputNode(this.context, callExpr, inputType);
 
@@ -172,10 +176,10 @@ export class NodeInitVisitor implements Visitor {
             && !Node.isObjectLiteralExpression(returnExpr)
             && !Node.isArrayLiteralExpression(returnExpr)
         ) {
-            const propAccessNodes = getPropertyAccessNodes(returnExpr);
-            if (propAccessNodes.length > 1) {
+            const inputAccessNodes = getInputAccessNodes(returnExpr);
+            if (inputAccessNodes.length > 1) {
                 const linkConnectorNode = this.createLinkConnectorNode(
-                    returnExpr, "", parent, propAccessNodes, [...this.mapIdentifiers, returnExpr]
+                    returnExpr, "", parent, inputAccessNodes, [...this.mapIdentifiers, returnExpr]
                 );
                 this.intermediateNodes.push(linkConnectorNode);
             }
@@ -193,10 +197,10 @@ export class NodeInitVisitor implements Visitor {
         if (elements) {
             elements.forEach(element => {
                 if (!this.isObjectOrArrayLiteralExpression(element)) {
-                    const propAccessNodes = getPropertyAccessNodes(element);
-                    if (canConnectWithLinkConnector(propAccessNodes, element)) {
+                    const inputAccessNodes = getInputAccessNodes(element);
+                    if (canConnectWithLinkConnector(inputAccessNodes, element)) {
                         const linkConnectorNode = this.createLinkConnectorNode(
-                            element, "", parent, propAccessNodes, [...this.mapIdentifiers, element]
+                            element, "", parent, inputAccessNodes, [...this.mapIdentifiers, element]
                         );
                         this.intermediateNodes.push(linkConnectorNode);
                     }
@@ -318,7 +322,7 @@ export class NodeInitVisitor implements Visitor {
         node: Node,
         label: string,
         parent: Node | undefined,
-        propertyAccessNodes: (Identifier | PropertyAccessExpression)[],
+        inputAccessNodes: (Identifier | ElementAccessExpression | PropertyAccessExpression)[],
         fields: Node[]
     ): LinkConnectorNode {
 
@@ -327,7 +331,7 @@ export class NodeInitVisitor implements Visitor {
             node,
             label,
             parent,
-            propertyAccessNodes,
+            inputAccessNodes,
             fields
         );
     }

@@ -7,7 +7,12 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
+export * from "./ArrayFnConnector";
 export * from "./ArrayOutput";
-export * from "./ObjectOutput";
+export * from "./DataImport";
+export * from "./FocusedInput";
 export * from "./Input";
 export * from "./LinkConnector";
+export * from "./ObjectOutput";
+export * from "./PrimitiveOutput";
+export * from "./UnsupportedIO";

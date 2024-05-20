@@ -40,6 +40,20 @@
         "language": "SynapseXml"
       }
     ],
+    "taskDefinitions": [
+      {
+        "type": "mi-build"
+      },
+      {
+        "type": "mi-run"
+      },
+      {
+        "type": "mi-stop"
+      },
+      {
+        "type": "mi-copy"
+      }
+    ],
     "debuggers": [
       {
         "type": "mi",
@@ -540,7 +554,6 @@
     "@babel/core": "^7.24.4",
     "@types/json-schema": "7.0.15",
     "json-schema": "0.4.0",
-    "prettier": "3.2.5",
     "@apidevtools/json-schema-ref-parser": "11.6.1"
   }
 }

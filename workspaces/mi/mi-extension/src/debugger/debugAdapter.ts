@@ -14,11 +14,13 @@ import { executeBuildTask, executeTasks, getServerPath, isADiagramView, removeTe
 import { Subject } from 'await-notify';
 import { Debugger } from './debugger';
 import { StateMachine, navigate, openView } from '../stateMachine';
-import { EVENT_TYPE, MACHINE_VIEW } from '@wso2-enterprise/mi-core';
 import { VisualizerWebview } from '../visualizer/webview';
-import { extension } from '../MIExtensionContext';
 import { getBuildTask, getStopTask } from './tasks';
 import { ViewColumn } from 'vscode';
+import { COMMANDS } from '../constants';
+import { INCORRECT_SERVER_PATH_MSG } from './constants';
+import { extension } from '../MIExtensionContext';
+import { EVENT_TYPE } from '@wso2-enterprise/mi-core';
 
 export class MiDebugAdapter extends LoggingDebugSession {
     private _configurationDone = new Subject();
@@ -53,11 +55,20 @@ export class MiDebugAdapter extends LoggingDebugSession {
                     if (VisualizerWebview.currentPanel) {
                         VisualizerWebview.currentPanel!.getWebview()?.reveal(ViewColumn.Beside);
                         setTimeout(() => {
-                            navigate();
+                            // check if currentFilePath is different from the one in the context, if so we need to open the currentFile
+                            if (StateMachine.context().documentUri !== this.debuggerHandler?.getCurrentFilePath()) {
+                                const newContext = StateMachine.context();
+                                newContext.documentUri = this.debuggerHandler?.getCurrentFilePath();
+                                openView(EVENT_TYPE.OPEN_VIEW, newContext);
+                            } else {
+                                navigate();
+                            }
                         }, 200);
                     } else {
                         extension.webviewReveal = true;
-                        openView(EVENT_TYPE.OPEN_VIEW, StateMachine.context());
+                        const newContext = StateMachine.context();
+                        newContext.documentUri = this.debuggerHandler?.getCurrentFilePath();
+                        openView(EVENT_TYPE.OPEN_VIEW, newContext);
                     }
                 }, 200);
             }
@@ -233,8 +244,9 @@ export class MiDebugAdapter extends LoggingDebugSession {
         this._configurationDone.wait().then(() => {
             getServerPath().then((serverPath) => {
                 if (!serverPath) {
-                    response.success = false;
-                    this.sendResponse(response);
+                    const message = `Unable to locate the server path`;
+                    this.showErrorAndExecuteChangeServerPath(message);
+                    this.sendError(response, 1, message);
                 } else {
                     this.currentServerPath = serverPath;
                     const isDebugAllowed = !args?.noDebug ?? true;
@@ -248,16 +260,20 @@ export class MiDebugAdapter extends LoggingDebugSession {
                                     response.success = true;
                                     this.sendResponse(response);
                                 }).catch(error => {
-                                    vscode.window.showErrorMessage(`Error while initializing the Debugger: ${error}`);
-                                    response.success = false;
-                                    this.sendResponse(response);
+                                    const completeError = `Error while initializing the Debugger: ${error}`;
+                                    vscode.window.showErrorMessage(completeError);
+                                    this.sendError(response, 1, completeError);
                                 });
                             }
                         })
                         .catch(error => {
-                            response.success = false;
-                            this.sendResponse(response);
-                            vscode.window.showErrorMessage(`Error while launching run and debug: ${error}`);
+                            const completeError = `Error while launching run and debug: ${error}`;
+                            if (error === INCORRECT_SERVER_PATH_MSG) {
+                                this.showErrorAndExecuteChangeServerPath(completeError);
+                            } else {
+                                vscode.window.showErrorMessage(completeError);
+                            }
+                            this.sendError(response, 1, completeError);
                         });
                 }
             });
@@ -285,9 +301,13 @@ export class MiDebugAdapter extends LoggingDebugSession {
                 response.success = true;
                 this.sendResponse(response);
             }).catch(error => {
-                vscode.window.showErrorMessage(`Error while executing build task: ${error}`);
-                response.success = false;
-                this.sendResponse(response);
+                const completeError = `Error while executing build task: ${error}`;
+                if (error === INCORRECT_SERVER_PATH_MSG) {
+                    this.showErrorAndExecuteChangeServerPath(completeError);
+                } else {
+                    vscode.window.showErrorMessage(completeError);
+                }
+                this.sendError(response, 2, completeError);
             });
         }
     }
@@ -301,15 +321,20 @@ export class MiDebugAdapter extends LoggingDebugSession {
                 removeTempDebugBatchFile();
             } else {
                 const stopTask = getStopTask(this.currentServerPath);
-                stopTask.presentationOptions.close = true;
-                stopTask.presentationOptions.showReuseMessage = false;
-                vscode.tasks.executeTask(stopTask);
+                if (stopTask) {
+                    stopTask.presentationOptions.close = true;
+                    stopTask.presentationOptions.showReuseMessage = false;
+                    vscode.tasks.executeTask(stopTask);
+                    response.success = true;
+                    this.sendResponse(response);
+                } else {
+                    const completeError = `Error while stopping the server: ${INCORRECT_SERVER_PATH_MSG}`;
+                    this.showErrorAndExecuteChangeServerPath(completeError);
+                    this.sendError(response, 3, completeError);
+                }
             }
-            response.success = true;
-            this.sendResponse(response);
         } else {
-            response.success = false;
-            this.sendResponse(response);
+            this.sendError(response, 3, `Error while disconnecting: Task Run was not found`);
         }
     }
 
@@ -355,8 +380,9 @@ export class MiDebugAdapter extends LoggingDebugSession {
                 this.debuggerHandler?.stepOverBreakpoint(breakpointResponse).then(() => {
                     this.sendResponse(response);
                 }).catch(error => {
-                    vscode.window.showErrorMessage(`Error while stepping over: ${error}`);
-                    this.sendResponse(response);
+                    const completeError = `Error while stepping over: ${error}`;
+                    vscode.window.showErrorMessage(completeError);
+                    this.sendError(response, 1, completeError);
                 });
             } else {
                 await this.debuggerHandler?.sendResumeCommand();
@@ -368,7 +394,6 @@ export class MiDebugAdapter extends LoggingDebugSession {
     protected async stackTraceRequest(response: DebugProtocol.StackTraceResponse, args: DebugProtocol.StackTraceArguments, request?: DebugProtocol.Request | undefined): Promise<void> {
         const stackFrames: DebugProtocol.StackFrame[] = [];
 
-        // TODO: get the correct path when there are breakpoints in multiple files
         const path = this.debuggerHandler?.getCurrentFilePath() || "";
         const currentBreakpoint = this.debuggerHandler?.getCurrentBreakpoint();
 
@@ -396,9 +421,6 @@ export class MiDebugAdapter extends LoggingDebugSession {
     }
 
     protected async variablesRequest(response: DebugProtocol.VariablesResponse, args: DebugProtocol.VariablesArguments, request?: DebugProtocol.Request | undefined): Promise<void> {
-        // TODO: Check the possibility of using customEvent to load the diagram
-        // const customEvent = { event: "StackTraceUpdated" } as DebugProtocol.Event;
-        // this.sendEvent(customEvent);
         const vars = this.variableHandles.get(args.variablesReference);
         if (vars !== null) {
             let variables: DebugProtocol.Variable[] = Array.isArray(vars) ? vars : [vars];
@@ -424,8 +446,6 @@ export class MiDebugAdapter extends LoggingDebugSession {
     }
 
     protected async scopesRequest(response: DebugProtocol.ScopesResponse, args?: DebugProtocol.ScopesArguments, request?: DebugProtocol.Request | undefined): Promise<void> {
-        // const customEvent = { event: "StackTraceUpdated" } as DebugProtocol.Event;
-        // this.sendEvent(customEvent);
         const variables = await this.debuggerHandler?.getVariables();
 
         const localScope = variables?.map((v: any): any => {
@@ -444,5 +464,22 @@ export class MiDebugAdapter extends LoggingDebugSession {
         };
 
         this.sendResponse(response);
+    }
+
+    private sendError(response: DebugProtocol.Response, errorCode: number, errorMessage: string) {
+        response.success = false;
+        this.sendErrorResponse(response, {
+            id: errorCode,
+            format: errorMessage,
+            showUser: false,
+        });
+    }
+
+    private showErrorAndExecuteChangeServerPath(completeError: string) {
+        vscode.window.showErrorMessage(completeError, 'Change Server Path').then((selection) => {
+            if (selection) {
+                vscode.commands.executeCommand(COMMANDS.CHANGE_SERVER_PATH);
+            }
+        });
     }
 }
