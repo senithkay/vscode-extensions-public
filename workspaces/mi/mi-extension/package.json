@@ -40,6 +40,20 @@
         "language": "SynapseXml"
       }
     ],
+    "taskDefinitions": [
+      {
+        "type": "mi-build"
+      },
+      {
+        "type": "mi-run"
+      },
+      {
+        "type": "mi-stop"
+      },
+      {
+        "type": "mi-copy"
+      }
+    ],
     "debuggers": [
       {
         "type": "mi",
