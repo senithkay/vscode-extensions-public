@@ -41,6 +41,7 @@ export function Mediators(props: MediatorProps) {
         nodePosition: props.nodePosition,
         documentUri: props.documentUri,
         previousNode: sidePanelContext.previousNode,
+        nextNode: sidePanelContext.nextNode,
         parentNode: sidePanelContext.operationName?.toLowerCase() != sidePanelContext.parentNode?.toLowerCase() ? sidePanelContext.parentNode : undefined,
     });
 
