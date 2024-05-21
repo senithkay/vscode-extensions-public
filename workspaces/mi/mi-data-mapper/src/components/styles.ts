@@ -175,7 +175,7 @@ export const useIONodesStyles = () => ({
             margin: "0px 6px"
         }
     }),
-    addLocalVariableButton: css({
+    addSubMappingButton: css({
         "& > vscode-button": {
             ...addElementButton,
             width: `${IO_NODE_DEFAULT_WIDTH}px`,
@@ -217,7 +217,25 @@ export const useIONodesStyles = () => ({
     gotoExprIcon: css({
         color: "var(--vscode-input-placeholderForeground)",
         cursor: 'pointer'
-    })
+    }),
+    addAnotherSubMappingButton: css({
+        width: "auto",
+        margin: 0,
+        "& > vscode-button": {
+            backgroundColor: "var(--vscode-extensionButton-background)", padding: '2px',
+            "&:hover": {
+                backgroundColor: "var(--vscode-button-hoverBackground)"
+            },
+        }
+    }),
+    subMappingItemSeparator: css({
+        height: "8px",
+        width: "100%",
+        backgroundColor: "var(--vscode-titleBar-border)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center"
+    }),
 });
 
 export const useIntermediateNodeStyles = () => ({

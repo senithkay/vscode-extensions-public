@@ -28,6 +28,19 @@ export const TreeContainer = styled.div`
     width: ${IO_NODE_DEFAULT_WIDTH}px;
 `;
 
+export const SubMappingContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    background: var(--vscode-sideBar-background);
+    border: 1px solid var(--vscode-welcomePage-tileBorder);
+    font-style: normal;
+    font-weight: 600;
+    font-size: 13px;
+    line-height: 24px;
+    width: ${IO_NODE_DEFAULT_WIDTH}px;
+`;
+
 export const TreeHeader = styled.div((
     { isSelected, isDisabled }: { isSelected?: boolean, isDisabled?: boolean }
 ) => ({

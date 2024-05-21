@@ -26,7 +26,6 @@ export interface DMSubMapping {
 }
 
 export class SubMappingNode extends DataMapperNodeModel {
-    public letExpr: Node;
     public subMappings: DMSubMapping[];
     public hasNoMatchingFields: boolean;
     public x: number;
