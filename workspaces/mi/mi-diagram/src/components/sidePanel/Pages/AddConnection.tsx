@@ -18,7 +18,7 @@ import { Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 import { ExpressionField, ExpressionFieldValue } from '../../Form/ExpressionField/ExpressionInput';
 import { useForm, Controller } from 'react-hook-form';
 import ExpressionEditor from '../expressionEditor/ExpressionEditor';
-import { sidepanelAddPage, sidepanelGoBack } from '..';
+import { handleOpenExprEditor, sidepanelAddPage, sidepanelGoBack } from '..';
 
 const cardStyle = {
     display: "block",
@@ -197,29 +197,6 @@ const AddConnection = (props: AddConnectionProps) => {
         }
     };
 
-    const handleOpenExpressionEditor = (value: ExpressionFieldValue, setValue: any) => {
-        sidePanelContext.setSidePanelState({
-            ...sidePanelContext,
-            expressionEditor: {
-                isOpen: true,
-                value,
-                setValue
-            }
-        });
-
-        const content = <ExpressionEditor
-            value={value}
-            handleOnSave={(value) => {
-                setValue(value);
-                handleOnCancelExprEditorRef.current();
-            }}
-            handleOnCancel={() => {
-                handleOnCancelExprEditorRef.current();
-            }}
-        />;
-        sidepanelAddPage(sidePanelContext, content, "Expression Editor");
-    };
-
     const renderFormElement = (element: Element) => {
         switch (element.inputType) {
             case 'string':
@@ -257,7 +234,7 @@ const AddConnection = (props: AddConnectionProps) => {
                                     setFormValues({ ...formValues, [element.name]: e });
                                     formValidators[element.name](e.value);
                                 }}
-                                openExpressionEditor={handleOpenExpressionEditor}
+                                openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
                             />
                         )}
                     />
@@ -283,7 +260,7 @@ const AddConnection = (props: AddConnectionProps) => {
                                     setFormValues({ ...formValues, [element.name]: e });
                                     formValidators[element.name](e.value);
                                 }}
-                                openExpressionEditor={handleOpenExpressionEditor}
+                                openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
                             />
                         )}
                     />
@@ -368,7 +345,7 @@ const AddConnection = (props: AddConnectionProps) => {
                                     setFormValues({ ...formValues, [element.name]: e });
                                     formValidators[element.name](e.value);
                                 }}
-                                openExpressionEditor={handleOpenExpressionEditor}
+                                openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
                             />
                         )}
                     />
