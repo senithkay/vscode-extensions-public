@@ -7,6 +7,8 @@ import { HomePage } from './mediators';
 import { getAllMediators } from './mediators/Values';
 import AddConnector from './Pages/AddConnector';
 import { FirstCharToUpperCase } from '../../utils/commons';
+import ExpressionEditor from './expressionEditor/ExpressionEditor';
+import { ExpressionFieldValue } from '../..';
 
 const SidePanelContainer = styled.div`
     padding: 15px;
@@ -82,6 +84,20 @@ export const sidepanelGoBack = (sidePanelContext: SidePanelContext) => {
         }, 200);
     }
 };
+
+export const handleOpenExprEditor = (value: ExpressionFieldValue, setValue: any, handleOnCancelExprEditorRef: any, sidePanelContext: SidePanelContext) => {
+    const content = <ExpressionEditor
+        value={value}
+        handleOnSave={(value) => {
+            setValue(value);
+            handleOnCancelExprEditorRef.current();
+        }}
+        handleOnCancel={() => {
+            handleOnCancelExprEditorRef.current();
+        }}
+    />;
+    sidepanelAddPage(sidePanelContext, content, "Expression Editor");
+}
 
 const SidePanelList = (props: SidePanelListProps) => {
     const [isLoading, setLoading] = useState<boolean>(true);

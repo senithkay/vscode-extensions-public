@@ -205,19 +205,7 @@ const getParamManagerConfig = (elements: any[], tableKey: string, tableValue: st
 
         if (type === 'ExprField') {
             paramFields += paramField.slice(0, -3) + `, 
-                openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                    const content = <ExpressionEditor
-                        value={value}
-                        handleOnSave={(value) => {
-                            setValue(value);
-                            handleOnCancelExprEditorRef.current();
-                        }}
-                        handleOnCancel={() => {
-                            handleOnCancelExprEditorRef.current();
-                        }}
-                    />;
-                    sidepanelAddPage(sidePanelContext, content, "Expression Editor");
-                }` + paramField.slice(-2);
+                openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)` + paramField.slice(-2);
 
         } else if (type === 'ParamManager') {
             const { paramValues: paramValues2, paramFields: paramFields2 } = getParamManagerConfig(attribute.value.elements, tableKey, tableValue, name);
@@ -321,19 +309,7 @@ const generateForm = (jsonData: any): string => {
                             {...field} label="${displayName}"
                             placeholder="${helpTip}" 
                             canChange={${inputType === 'stringOrExpression'}}
-                            openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => {
-                                const content = <ExpressionEditor
-                                    value={value}
-                                    handleOnSave={(value) => {
-                                        setValue(value);
-                                        handleOnCancelExprEditorRef.current();
-                                    }}
-                                    handleOnCancel={() => {
-                                        handleOnCancelExprEditorRef.current();
-                                    }}
-                                />;
-                                sidepanelAddPage(sidePanelContext, content, "Expression Editor");
-                            }}
+                            openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
                          />`, indentation);
                 } else if (inputType === 'connection') {
 
@@ -511,7 +487,7 @@ import { Keylookup } from '../../../../Form';
 import { ExpressionField, ExpressionFieldValue } from '../../../../Form/ExpressionField/ExpressionInput';
 import { ParamManager, ParamConfig, ParamValue } from '../../../../Form/ParamManager/ParamManager';
 import { generateSpaceSeperatedStringFromParamValues } from '../../../../../utils/commons';
-import { sidepanelAddPage, sidepanelGoBack } from '../../..';
+import { handleOpenExprEditor, sidepanelAddPage, sidepanelGoBack } from '../../..';
 import ExpressionEditor from '../../../expressionEditor/ExpressionEditor';
 
 const cardStyle = { 
