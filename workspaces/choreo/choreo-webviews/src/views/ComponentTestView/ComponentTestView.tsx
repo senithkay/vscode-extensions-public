@@ -5,7 +5,6 @@ import { Dropdown } from "../../components/FormElements/Dropdown";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { Divider } from "../../components/Divider";
 import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
 import { FormElementWrap } from "../../components/FormElements/FormElementWrap";
 import { Button } from "../../components/Button";
@@ -14,6 +13,7 @@ import clipboardy from "clipboardy";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { SkeletonText } from "../../components/SkeletonText";
 import { VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
+import { HeaderSection } from "../../components/HeaderSection";
 
 const MAX_RESPONSE_SIZE = 4 * 1024 * 1024;
 const INTERNAL_KEY_HEADER_NAME = "API-Key";
@@ -79,6 +79,7 @@ export const ComponentTestView: FC<TestWebviewProps> = ({
     } = useQuery({
         queryKey: ["get-test-key", { selectedEndpoint, env, org }],
         enabled: !!selectedEndpoint,
+        refetchInterval: 10000,
         queryFn: () =>
             ChoreoWebViewAPI.getInstance().getChoreoRpcClient().getTestKey({
                 apimId: selectedEndpoint.apimId,
@@ -172,34 +173,19 @@ export const ComponentTestView: FC<TestWebviewProps> = ({
         return response;
     };
 
+    const headerLabels: { label: string; value: string }[] = [
+        { label: "Component", value: component.metadata.displayName },
+    ];
+    if (allDeploymentTracks.length > 1) {
+        headerLabels.push({ label: "Deployment Track", value: deploymentTrack.branch });
+    }
+    headerLabels.push({ label: "Project", value: project.name }, { label: "Organization", value: org.name });
+
     return (
         <div className="flex flex-row justify-center p-1 md:p-3 lg:p-4 xl:p-6">
             <div className="container">
                 <div className="mx-auto max-w-5xl flex flex-col gap-4 p-4">
-                    <div className="flex flex-col gap-2">
-                        <div className="flex gap-2">
-                            <div className="flex items-center flex-wrap gap-3 md:mb-1 flex-1">
-                                <h1 className="text-2xl md:text-3xl font-bold">{env.name} Environment</h1>
-                            </div>
-                        </div>
-                        <div className="flex flex-wrap gap-1 md:gap-2">
-                            <div>
-                                <span className="font-extralight">Component:</span> {component.metadata.displayName}
-                            </div>
-                            {allDeploymentTracks.length > 1 && (
-                                <div>
-                                    <span className="font-extralight">Deployment Track:</span> {deploymentTrack.branch}
-                                </div>
-                            )}
-                            <div>
-                                <span className="font-extralight">Project:</span> {project.name}
-                            </div>
-                            <div>
-                                <span className="opacity-70">Organization:</span> {org.name}
-                            </div>
-                        </div>
-                    </div>
-                    <Divider />
+                    <HeaderSection title={`${env.name} Environment`} tags={headerLabels} />
 
                     {endpoints.length > 1 && (
                         <Dropdown

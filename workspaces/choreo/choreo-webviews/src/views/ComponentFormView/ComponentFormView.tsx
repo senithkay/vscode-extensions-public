@@ -22,6 +22,7 @@ import { makeURLSafe } from "../../utilities/helpers";
 import { Codicon } from "../../components/Codicon";
 import { Divider } from "../../components/Divider";
 import { useAutoAnimate } from "@formkit/auto-animate/react";
+import { HeaderSection } from "../../components/HeaderSection";
 
 type ComponentFormType = z.infer<typeof componentFormSchema>;
 
@@ -97,18 +98,18 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({
     useEffect(() => {
         if (!buildpacks.find((item) => item.language === selectedLang)) {
             // Reset build pack selection if its invalid
-            setTimeout(()=>{
+            setTimeout(() => {
                 form.setValue("buildPackLang", "");
                 form.setValue("langVersion", "");
-            }, 100)
+            }, 100);
         }
     }, [form, selectedLang, buildpacks]);
 
     const { isLoading: isLoadingRemotes, data: gitRemotes = [] } = useQuery({
         queryKey: ["get-git-remotes", { directoryFsPath, subPath }],
         queryFn: async () => {
-            const joinedPath = await ChoreoWebViewAPI.getInstance().joinFilePaths([directoryFsPath, subPath])
-            return ChoreoWebViewAPI.getInstance().getGitRemotes(joinedPath)
+            const joinedPath = await ChoreoWebViewAPI.getInstance().joinFilePaths([directoryFsPath, subPath]);
+            return ChoreoWebViewAPI.getInstance().getGitRemotes(joinedPath);
         },
         keepPreviousData: true,
     });
@@ -154,7 +155,7 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({
                 orgId: organization.id.toString(),
             }),
         enabled: !!repoUrl,
-        keepPreviousData: true
+        keepPreviousData: true,
     });
 
     const selectedBuildPack = buildpacks?.find((item) => item.language === selectedLang);
@@ -348,57 +349,50 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({
         <div className="flex flex-row justify-center p-1 md:p-3 lg:p-4 xl:p-6">
             <div className="container">
                 <form className="mx-auto max-w-4xl flex flex-col gap-2 p-4">
-                    <div className="flex flex-col gap-1 mb-3">
-                        <h1 className="text-sm text-right">
-                            <span className="font-extralight">Organization: </span>
-                            {organization.name}
-                        </h1>
-                        <h1 className="text-sm text-right">
-                            <span className="font-extralight">Project: </span>
-                            {project.name}
-                        </h1>
-                    </div>
-
-                    <div className="flex flex-col gap-6" ref={formSections}>
-                        <div>
-                            <FormSectionHeader title="Component Details" />
-                            <div className="grid md:grid-cols-2 gap-4" ref={compDetailsSections}>
-                                <TextField
-                                    label="Name"
-                                    required
-                                    name="name"
-                                    placeholder="component-name"
-                                    control={form.control}
-                                />
+                    <HeaderSection
+                        title="Create New Component"
+                        tags={[
+                            { label: "Project", value: project.name },
+                            { label: "Organization", value: organization.name },
+                        ]}
+                    />
+                    <div className="flex flex-col gap-6 mt-4" ref={formSections}>
+                        <div className="grid md:grid-cols-2 gap-4" ref={compDetailsSections}>
+                            <TextField
+                                label="Name"
+                                required
+                                name="name"
+                                placeholder="component-name"
+                                control={form.control}
+                            />
+                            <Dropdown
+                                label="Type"
+                                required
+                                name="type"
+                                items={[
+                                    { label: "Service", value: ChoreoComponentType.Service },
+                                    { label: "Scheduled Task", value: ChoreoComponentType.ScheduledTask },
+                                    { label: "Manual Task", value: ChoreoComponentType.ManualTrigger },
+                                    { label: "Web Application", value: ChoreoComponentType.WebApplication },
+                                    // TODO: Re-enable this after testing webhooks
+                                    // { label: "Webhook", value: ChoreoComponentType.Webhook },
+                                ]}
+                                control={form.control}
+                            />
+                            {selectedType && (
                                 <Dropdown
-                                    label="Type"
+                                    label="Build Pack"
                                     required
-                                    name="type"
-                                    items={[
-                                        { label: "Service", value: ChoreoComponentType.Service },
-                                        { label: "Scheduled Task", value: ChoreoComponentType.ScheduledTask },
-                                        { label: "Manual Task", value: ChoreoComponentType.ManualTrigger },
-                                        { label: "Web Application", value: ChoreoComponentType.WebApplication },
-                                        // TODO: Re-enable this after testing webhooks
-                                        // { label: "Webhook", value: ChoreoComponentType.Webhook },
-                                    ]}
+                                    name="buildPackLang"
                                     control={form.control}
+                                    items={buildpacks?.map((item) => ({
+                                        label: item.displayName,
+                                        value: item.language,
+                                    }))}
+                                    loading={isLoadingBuildPacks}
+                                    disabled={buildpacks.length === 0}
                                 />
-                                {selectedType && (
-                                    <Dropdown
-                                        label="Build Pack"
-                                        required
-                                        name="buildPackLang"
-                                        control={form.control}
-                                        items={buildpacks?.map((item) => ({
-                                            label: item.displayName,
-                                            value: item.language,
-                                        }))}
-                                        loading={isLoadingBuildPacks}
-                                        disabled={buildpacks.length === 0}
-                                    />
-                                )}
-                            </div>
+                            )}
                         </div>
                         <div>
                             <FormSectionHeader title="Component Source" />
@@ -482,8 +476,8 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({
 const FormSectionHeader = ({ title }: { title: string }) => {
     return (
         <div className="flex items-center sm:gap-4 gap-2 mb-2">
-            <h1 className="text-lg opacity-50 font-light">{title}</h1>
             <Divider className="flex-1" />
+            <h1 className="text-base opacity-50 font-light">{title}</h1>
         </div>
     );
 };

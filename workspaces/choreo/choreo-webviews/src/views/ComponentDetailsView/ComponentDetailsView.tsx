@@ -50,7 +50,6 @@ export const ComponentDetailsView: FC<ComponentsDetailsWebviewProps> = (props) =
             <div className="container">
                 <div className="mx-auto max-w-7xl flex flex-col p-4">
                     <HeaderSection {...props} />
-                    <Divider className="mt-6" />
                     <div className="grid grid-cols-1 lg:grid-cols-4 gap-3 lg:gap-0">
                         <Divider className="mt-4 block lg:hidden" />
                         <div className="relative flex flex-col gap-6 col-span-1 lg:col-span-3 lg:p-4 pt-6 lg:border-r-1 border-vsc-editorIndentGuide-background">

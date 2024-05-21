@@ -2,8 +2,7 @@ import React, { FC } from "react";
 import { ComponentLink } from "@wso2-enterprise/choreo-core";
 import classNames from "classnames";
 import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
-import { Button } from "../../components/Button";
-import { Codicon } from "../../components/Codicon";
+import { ContextMenu } from "../../components/ContextMenu";
 
 interface Props {
     item: ComponentLink;
@@ -46,31 +45,15 @@ export const ComponentListItem: FC<Props> = ({ item, isListLoading, opened }) =>
                 )}
             </div>
             <div className="pt-1 pr-[6px]">
-                <Button
-                    appearance="icon"
-                    onClick={(event) => {
-                        event.preventDefault();
-                        event.target.dispatchEvent(
-                            new MouseEvent("contextmenu", {
-                                bubbles: true,
-                                clientX: event.currentTarget.getBoundingClientRect().left,
-                                clientY: event.currentTarget.getBoundingClientRect().bottom,
-                            })
-                        );
-                        event.stopPropagation();
-                    }}
-                    data-vscode-context={JSON.stringify({
-                        preventDefaultContextMenuItems: true,
-                        webviewSection: isItemEnriched ? "validLinkItem" : "invalidLinkItem",
+                <ContextMenu
+                    webviewSection={isItemEnriched ? "validLinkItem" : "invalidLinkItem"}
+                    params={{
                         component: item.component,
                         project: item.project,
                         organization: item.organization,
                         componentPath: item.componentFullPath,
-                    })}
-                    title="More Actions"
-                >
-                    <Codicon name="ellipsis" />
-                </Button>
+                    }}
+                />
             </div>
         </div>
     );
