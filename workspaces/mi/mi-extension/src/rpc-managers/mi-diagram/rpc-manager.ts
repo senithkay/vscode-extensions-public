@@ -320,7 +320,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     end: { line: sanitizedXmlData.split('\n').length + 1, character: 0 }
                 }
             });
-
+            
             // Save swagger file
             if (swaggerDef) {
                 const workspacePath = workspace.workspaceFolders![0].uri.fsPath;
@@ -329,13 +329,17 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     workspacePath,
                     'src',
                     'main',
+                    'wso2mi',
                     'resources',
                     'registry',
                     'gov',
                     'swaggerFiles',
-                    `${name}.${ext}`
+                    `${name}${ext}`
                 );
-                fs.writeFileSync(swaggerPath, swaggerDef);
+                if (!fs.existsSync(path.dirname(swaggerPath))) {
+                    fs.mkdirSync(path.dirname(swaggerPath), { recursive: true });
+                }
+                fs.copyFileSync(swaggerDef, swaggerPath);
             }
 
             commands.executeCommand(COMMANDS.REFRESH_COMMAND);
