@@ -8,8 +8,8 @@
  */
 
 import styled from "@emotion/styled";
-import { useEffect, useState } from "react";
-import { Button, TextField, FormView, FormActions, Dropdown, FormCheckBox } from "@wso2-enterprise/ui-toolkit";
+import React, { useEffect, useState } from "react";
+import { Button, TextField, FormView, FormActions, Dropdown, FormCheckBox, RadioButtonGroup } from "@wso2-enterprise/ui-toolkit";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { FieldGroup } from "../Commons";
 import { EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
@@ -51,8 +51,10 @@ export interface APIData {
     statistics?: boolean;
     version?: string;
     versionType?: "none" | "context" | "url";
-    swaggerdefPath?: string;
-    saveSwagger?: boolean;
+    apiCreateOption?: "create-api" | "swagger-to-api" | "wsdl-to-api";
+    swaggerDefPath?: string;
+    saveSwaggerDef?: boolean;
+    wsdlDefPath?: string;
     apiRange?: Range;
     handlersRange?: Range;
     handlers?: any[];
@@ -67,8 +69,10 @@ const initialAPI: APIData = {
     statistics: false,
     version: "",
     versionType: "none",
-    swaggerdefPath: "",
-    saveSwagger: false,
+    apiCreateOption: "create-api",
+    swaggerDefPath: "",
+    saveSwaggerDef: false,
+    wsdlDefPath: "",
     apiRange: undefined,
     handlersRange: undefined,
     handlers: []
@@ -114,11 +118,15 @@ export function APIWizard({ apiData, path }: APIWizardProps) {
                 is: "url",
                 then: schema => schema.matches(/^https?:\/\/.*/, "Invalid URL format"),
             }),
-        saveSwagger: yup.boolean(),
-        swaggerdefPath: yup.string().when("saveSwagger", {
-            is: true,
-            then: schema => schema.required("Swagger Definition Path is required"),
-            otherwise: schema => schema.notRequired(),
+        apiCreateOption: yup.string().oneOf(["create-api", "swagger-to-api", "wsdl-to-api"] as const).defined(),
+        swaggerDefPath: yup.string().when('apiCreateOption', {
+            is: "swagger-to-api",
+            then: schema => schema.required("Swagger definition is required"),
+        }),
+        saveSwaggerDef: yup.boolean(),
+        wsdlDefPath: yup.string().when('apiCreateOption', {
+            is: "wsdl-to-api",
+            then: schema => schema.required("WSDL definition is required"),
         }),
         apiRange: yup.object(),
         handlersRange: yup.object(),
@@ -142,6 +150,9 @@ export function APIWizard({ apiData, path }: APIWizardProps) {
     // Watchers
     const handlers = watch("handlers");
     const versionType = watch("versionType");
+    const apiCreateOption = watch("apiCreateOption");
+    const swaggerDefPath = watch("swaggerDefPath");
+    const wsdlDefPath = watch("wsdlDefPath");
 
     const identifyVersionType = (version: string): VersionType => {
         if (!version) {
@@ -266,12 +277,75 @@ export function APIWizard({ apiData, path }: APIWizardProps) {
     };
 
     const handleSwaggerPathSelection = async () => {
-        const projectDirectory = await rpcClient.getMiDiagramRpcClient().askFileDirPath();
-        setValue("swaggerdefPath", projectDirectory.path, { shouldValidate: true, shouldDirty: true });
+        const browseParams = {
+            canSelectFiles: true,
+            canSelectFolders: false,
+            canSelectMany: false,
+            defaultUri: "",
+            title: "Select a swagger file"
+        }
+        const projectDirectory = await rpcClient.getMiDiagramRpcClient().browseFile(browseParams);
+        setValue("swaggerDefPath", projectDirectory.filePath, {
+            shouldValidate: true,
+            shouldDirty: true
+        });
+    }
+
+    const handleWsdlPathSelection = async () => {
+        const browseParams = {
+            canSelectFiles: true,
+            canSelectFolders: false,
+            canSelectMany: false,
+            defaultUri: "",
+            title: "Select a wsdl file"
+        }
+        const projectDirectory = await rpcClient.getMiDiagramRpcClient().browseFile(browseParams);
+        setValue("wsdlDefPath", projectDirectory.filePath, {
+            shouldValidate: true,
+            shouldDirty: true
+        });
     }
 
     const handleOnClose = () => {
         rpcClient.getMiVisualizerRpcClient().goBack();
+    }
+
+    const getAdvanceAPICreationOptions = () => {
+        switch (apiCreateOption) {
+            case "swagger-to-api":
+                return (
+                    <React.Fragment>
+                        <FieldGroup>
+                            <span>Swagger File</span>
+                            {!!swaggerDefPath && <LocationText>{swaggerDefPath}</LocationText>}
+                            {!swaggerDefPath && <span>Please choose a file for OpenAPI definition.</span>}
+                            <Button appearance="secondary" onClick={handleSwaggerPathSelection} id="select-swagger-path-btn">
+                                Select Location
+                            </Button>
+                        </FieldGroup>
+                        <FormCheckBox
+                            name="saveSwaggerDef"
+                            label="Save Swagger Definition to Registry"
+                            control={control}
+                        />
+                    </React.Fragment>
+                );
+            case "wsdl-to-api":
+                return (
+                    <React.Fragment>
+                        <FieldGroup>
+                            <span>WSDL File</span>
+                            {!!wsdlDefPath && <LocationText>{wsdlDefPath}</LocationText>}
+                            {!wsdlDefPath && <span>Please choose a file for WSDL definition.</span>}
+                            <Button appearance="secondary" onClick={handleWsdlPathSelection} id="select-wsdl-path-btn">
+                                Select Location
+                            </Button>
+                        </FieldGroup>
+                    </React.Fragment>
+                );
+            default:
+                return null;
+        }
     }
 
     return (
@@ -350,37 +424,29 @@ export function APIWizard({ apiData, path }: APIWizardProps) {
             </>}
             {apiData ? (
                 <FieldGroup>
-                    <span>Swagger Def Path</span>
-                    {!!watch('swaggerdefPath') ? (
-                        <LocationText>{watch('swaggerdefPath')}</LocationText>
-                    ) : (
-                        <span>Please choose a directory for swagger definition. </span>
-                    )}
+                    <span>Swagger File</span>
+                    {!!swaggerDefPath && <LocationText>{swaggerDefPath}</LocationText>}
+                    {!swaggerDefPath && <span>Please choose an Open API Definition.</span>}
                     <FormKeylookup
                         control={control}
-                        name="swaggerdefPath"
+                        name="swaggerDefPath"
                         filterType="swagger"
-                        errorMsg={errors.swaggerdefPath?.message.toString()}
-                        {...register("swaggerdefPath")}
                     />
                 </FieldGroup>
             ) : (
-                <FieldGroup>
-                    <span>Swagger Def Path</span>
-                    {!!watch('swaggerdefPath') ? (
-                        <LocationText>{watch('swaggerdefPath')}</LocationText>
-                    ) : (
-                        <span>Please choose a directory for swagger definition. </span>
-                    )}
-                    <Button appearance="secondary" onClick={handleSwaggerPathSelection} id="select-swagger-path-btn">
-                        Select Location
-                    </Button>
-                    <FormCheckBox
-                        name="saveSwagger"
-                        label="Save Swagger Def in Registry"
-                        control={control}
+                <>
+                    <RadioButtonGroup
+                        orientation="vertical"
+                        label="Provide API Definition"
+                        options={[
+                            { content: "I don't have one", value: "create-api" },
+                            { content: "Provide OpenAPI definition", value: "swagger-to-api" },
+                            { content: "Provide WSDL definition", value: "wsdl-to-api" }
+                        ]}
+                        {...register("apiCreateOption")}
                     />
-                </FieldGroup>
+                    {getAdvanceAPICreationOptions()}
+                </>
             )}
             <FormActions>
                 <Button
