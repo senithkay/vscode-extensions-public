@@ -107,6 +107,12 @@
         "title": "View Component Details",
         "category": "Choreo",
         "icon": "$(preview)"
+      },
+      {
+        "command": "wso2.choreo.project.clone",
+        "title": "Clone Repository",
+        "category": "Choreo",
+        "icon": "$(repo-clone)"
       }
     ],
     "viewsContainers": {

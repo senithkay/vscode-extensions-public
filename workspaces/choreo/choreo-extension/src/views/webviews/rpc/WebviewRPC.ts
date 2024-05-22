@@ -114,7 +114,6 @@ import { registerChoreoProjectManagerRPCHandlers, ChoreoProjectManager } from "@
 import { ext } from "../../../extensionVariables";
 import { ProjectRegistry } from "../../../registry/project-registry";
 import * as vscode from "vscode";
-import { cloneProject, askProjectDirPath } from "../../../git/clone";
 import { getLogger } from "../../../logger/logger";
 import { initGit } from "../../../git/main";
 import { dirname, join } from "path";
@@ -448,11 +447,11 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
     });
 
     messenger.onRequest(AskProjectDirPath, async () => {
-        return await askProjectDirPath();
+        // return await askProjectDirPath();
     });
 
     messenger.onRequest(CloneChoreoProjectWithDir, (params: { project: Project; dirPath: string; askOpeningOptions?: boolean }) => {
-        cloneProject(params.project, params.dirPath, params.askOpeningOptions);
+        // cloneProject(params.project, params.dirPath, params.askOpeningOptions);
     });
 
     messenger.onRequest(IsBareRepoRequest, async (params: IsBareRepoRequestParams) => {

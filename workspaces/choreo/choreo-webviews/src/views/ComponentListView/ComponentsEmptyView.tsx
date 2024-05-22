@@ -2,6 +2,7 @@ import React from "react";
 import { CommandIds } from "@wso2-enterprise/choreo-core";
 import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
 import { Button } from "../../components/Button";
+import { VSCodeLink } from "@vscode/webview-ui-toolkit/react";
 
 export const ComponentsEmptyView = () => {
     return (
@@ -23,6 +24,13 @@ export const ComponentsEmptyView = () => {
             >
                 Link Directory
             </Button>
+            <p>
+                If you have an existing project that hasn't been cloned locally, click{" "}
+                <VSCodeLink onClick={() => ChoreoWebViewAPI.getInstance().triggerCmd(CommandIds.CloneProject)}>
+                    here
+                </VSCodeLink>
+                .
+            </p>
         </div>
     );
 };

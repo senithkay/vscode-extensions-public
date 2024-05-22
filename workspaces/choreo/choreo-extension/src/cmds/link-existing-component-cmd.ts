@@ -8,7 +8,7 @@
  */
 import { ExtensionContext, window, commands, ProgressLocation } from "vscode";
 import { ext } from "../extensionVariables";
-import { CommandIds, ComponentKind, LinkFileContent } from "@wso2-enterprise/choreo-core";
+import { CommandIds, ComponentKind, LinkFileContent, Organization, Project } from "@wso2-enterprise/choreo-core";
 import * as path from "path";
 import * as fs from "fs";
 import { linkedDirectoryStore } from "../stores/linked-dir-store";
@@ -46,7 +46,7 @@ export function linkExistingComponentCommand(context: ExtensionContext) {
                             throw new Error("Directory must be within the selected workspace");
                         }
 
-                        gitRoot = await getGitRoot(context, directory.uri.fsPath);
+                        gitRoot = await getGitRoot(context, componentDir[0].fsPath);
                         if (!gitRoot) {
                             throw new Error("Selected directory is not within a git repository");
                         }
@@ -81,47 +81,14 @@ export function linkExistingComponentCommand(context: ExtensionContext) {
                         throw new Error(`No components found to link within ${selectedProject.name}.`);
                     }
 
-                    const componentMap = new Map<string, ComponentKind[]>();
-                    let hasLinks = false;
-
-                    for (const component of components) {
-                        if (
-                            remotes.some((remoteItem) =>
-                                isSameRepo(component.spec.source.github?.repository, remoteItem.fetchUrl)
-                            )
-                        ) {
-                            // matching git repo
-                            const compPath = path.join(gitRoot, component.spec.source.github?.path!);
-                            // check if directory path is exists
-                            if (
-                                fs.existsSync(compPath) &&
-                                path.normalize(compPath).startsWith(path.normalize(directory.uri.fsPath))
-                            ) {
-                                // check if link file already exists
-                                const linkFilePath = path.join(compPath, ".choreo", "link.yaml");
-                                let parsedData: LinkFileContent | undefined = undefined;
-
-                                try {
-                                    if (fs.existsSync(linkFilePath)) {
-                                        parsedData = yaml.load(fs.readFileSync(linkFilePath, "utf8")) as any;
-                                    }
-                                } catch {
-                                    // Do nothing
-                                }
-
-                                if (
-                                    parsedData?.org === selectedOrg.handle &&
-                                    parsedData?.project === selectedProject.handler &&
-                                    components.some((item) => item.metadata.name === parsedData?.component)
-                                ) {
-                                    // do nothing, since its a valid link file
-                                    hasLinks = true;
-                                } else {
-                                    componentMap.set(compPath, [...(componentMap.get(compPath) ?? []), component]);
-                                }
-                            }
-                        }
-                    }
+                    const { hasLinks, componentMap } = await getComponentMapForLink(
+                        selectedOrg,
+                        selectedProject,
+                        components,
+                        remotes.map((item) => item.fetchUrl ?? ""),
+                        gitRoot,
+                        directory.uri.fsPath
+                    );
 
                     if (componentMap.size === 0) {
                         if (hasLinks) {
@@ -137,25 +104,7 @@ export function linkExistingComponentCommand(context: ExtensionContext) {
                         }
                     }
 
-                    for (const componentPath of componentMap.keys()) {
-                        const componentEntries = componentMap.get(componentPath) ?? [];
-                        if (componentEntries.length > 1) {
-                            const matchingComponent = await resolveQuickPick(
-                                componentEntries.map((item) => ({ item, label: item.metadata.displayName })),
-                                `Select component to link with directory ${
-                                    componentEntries[0].spec.source.github?.path ?? ""
-                                }`,
-                                "No components"
-                            );
-                            componentMap.set(componentPath, [matchingComponent]);
-                        }
-                        await ext.clients.rpcClient.createComponentLink({
-                            componentDir: componentPath,
-                            componentHandle: componentEntries[0]?.metadata.name!,
-                            orgHandle: selectedOrg.handle,
-                            projectHandle: selectedProject.handler,
-                        });
-                    }
+                    await createComponentLinks(selectedOrg, selectedProject, componentMap);
 
                     if (componentMap.size === 1) {
                         const linkedComp = Array.from(componentMap.values())[0][0];
@@ -180,3 +129,82 @@ export function linkExistingComponentCommand(context: ExtensionContext) {
         })
     );
 }
+
+export const createComponentLinks = async (
+    org: Organization,
+    project: Project,
+    componentMap: Map<string, ComponentKind[]>
+) => {
+    for (const componentPath of componentMap.keys()) {
+        const componentEntries = componentMap.get(componentPath) ?? [];
+        if (componentEntries.length > 1) {
+            const itemSelection = await window.showQuickPick(
+                componentEntries.map((item) => ({ item, label: item.metadata.displayName })),
+                {
+                    title: `Select component to link with directory ${
+                        componentEntries[0].spec.source.github?.path ?? ""
+                    }`,
+                    ignoreFocusOut: true,
+                }
+            );
+
+            if (itemSelection) {
+                componentMap.set(componentPath, [itemSelection.item]);
+            } else {
+                componentMap.delete(componentPath);
+            }
+        }
+        await ext.clients.rpcClient.createComponentLink({
+            componentDir: componentPath,
+            componentHandle: componentEntries[0]?.metadata.name!,
+            orgHandle: org.handle,
+            projectHandle: project.handler,
+        });
+    }
+};
+
+export const getComponentMapForLink = async (
+    org: Organization,
+    project: Project,
+    components: ComponentKind[],
+    remotes: string[],
+    repoRoot: string,
+    directoryFsPath: string
+) => {
+    const componentMap = new Map<string, ComponentKind[]>();
+    let hasLinks = false;
+
+    for (const component of components) {
+        if (remotes.some((remoteItem) => isSameRepo(component.spec.source.github?.repository, remoteItem))) {
+            // matching git repo
+            const compPath = path.join(repoRoot, component.spec.source.github?.path!);
+            // check if directory path is exists
+            if (fs.existsSync(compPath) && path.normalize(compPath).startsWith(path.normalize(directoryFsPath))) {
+                // check if link file already exists
+                const linkFilePath = path.join(compPath, ".choreo", "link.yaml");
+                let parsedData: LinkFileContent | undefined = undefined;
+
+                try {
+                    if (fs.existsSync(linkFilePath)) {
+                        parsedData = yaml.load(fs.readFileSync(linkFilePath, "utf8")) as any;
+                    }
+                } catch {
+                    // Do nothing
+                }
+
+                if (
+                    parsedData?.org === org.handle &&
+                    parsedData?.project === project.handler &&
+                    components.some((item) => item.metadata.name === parsedData?.component)
+                ) {
+                    // do nothing, since its a valid link file
+                    hasLinks = true;
+                } else {
+                    componentMap.set(compPath, [...(componentMap.get(compPath) ?? []), component]);
+                }
+            }
+        }
+    }
+
+    return { hasLinks, componentMap };
+};

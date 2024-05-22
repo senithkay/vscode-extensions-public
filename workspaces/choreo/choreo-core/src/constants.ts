@@ -13,6 +13,7 @@ export const CommandIds = {
     OpenWalkthrough:"wso2.choreo.getStarted",
     OpenComponentInConsole: "wso2.choreo.component.open.external",
     ViewComponent:"wso2.choreo.component.view",
+    CloneProject:"wso2.choreo.project.clone",
 };
 
 

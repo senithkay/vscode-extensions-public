@@ -89,7 +89,7 @@ export const ComponentTestView: FC<TestWebviewProps> = ({
             }),
     });
 
-    const { data: swaggerSpec, isFetching: isFetchingSwagger } = useQuery({
+    const { data: swaggerSpec, isLoading: isLoadingSwagger } = useQuery({
         queryKey: ["get-swagger-spec", { selectedEndpoint, org }],
         enabled: !!selectedEndpoint,
         refetchOnWindowFocus: false,
@@ -229,16 +229,18 @@ export const ComponentTestView: FC<TestWebviewProps> = ({
                             </Button>
                         </div>
                     </FormElementWrap>
-                    {isFetchingSwagger && !swaggerSpec && <VSCodeProgressRing className="my-10 self-center" />}
-                    <SwaggerUI
-                        spec={swaggerObj || undefined}
-                        requestInterceptor={requestInterceptor}
-                        responseInterceptor={responseInterceptor}
-                        plugins={getDisableAuthorizeAndInfoPlugin()}
-                        defaultModelExpandDepth={-1}
-                        docExpansion="list"
-                        tryItOutEnabled={!isLoadingTestKey}
-                    />
+                    {(isLoadingSwagger || isLoadingTestKey) && <VSCodeProgressRing className="my-10 self-center" />}
+                    {swaggerObj && !isLoadingTestKey && testKeyResp?.apiKey && (
+                        <SwaggerUI
+                            spec={swaggerObj}
+                            requestInterceptor={requestInterceptor}
+                            responseInterceptor={responseInterceptor}
+                            plugins={getDisableAuthorizeAndInfoPlugin()}
+                            defaultModelExpandDepth={-1}
+                            docExpansion="list"
+                            tryItOutEnabled={!isLoadingTestKey}
+                        />
+                    )}
                 </div>
             </div>
         </div>

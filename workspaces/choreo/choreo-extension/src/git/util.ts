@@ -11,6 +11,7 @@ import * as byline from 'byline';
 import { Remote } from './api/git';
 import { initGit } from './main';
 import { getLogger } from '../logger/logger';
+import { GitProvider } from '@wso2-enterprise/choreo-core';
 
 export const isMacintosh = process.platform === 'darwin';
 export const isWindows = process.platform === 'win32';
@@ -552,8 +553,8 @@ export const getGitRoot = async (context: ExtensionContext, directoryPath: strin
 	};
 };
 
-export const parseGitURL = (url?: string): null | [string, string] => {
-    let org: string, repoName: string;
+export const parseGitURL = (url?: string): null | [string, string, string] => {
+    let org: string, repoName: string, provider: string;
 	if(!url){
 		return null;
 	}
@@ -579,7 +580,14 @@ export const parseGitURL = (url?: string): null | [string, string] => {
     } else {
 		return null;
     }
-    return [org, repoName];
+
+	if(url.includes('bitbucket')){
+		provider = GitProvider.BITBUCKET;
+	}else{
+		provider = GitProvider.GITHUB;
+	}
+	
+    return [org, repoName, provider];
 };
 
 export const isSameRepo = (gitUrl1?: string, gitUrl2?: string): boolean => {
