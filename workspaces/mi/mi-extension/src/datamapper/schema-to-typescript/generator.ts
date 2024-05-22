@@ -373,6 +373,9 @@ function escapeKeyName(keyName: string): string {
   if (keyName.length && /[A-Za-z_$]/.test(keyName.charAt(0)) && /^[\w$]+$/.test(keyName)) {
     return keyName
   }
+  if (keyName.includes(':')) {
+    keyName = keyName.replace(":", "_"); // handling namespaces for xml payload
+  }
   if (keyName === '[k: string]') {
     return keyName
   }
