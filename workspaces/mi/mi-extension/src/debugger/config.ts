@@ -1,0 +1,52 @@
+
+/**
+ * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
+
+import * as vscode from 'vscode';
+
+export class DebuggerConfig {
+    private static commandPort: number = vscode.workspace.getConfiguration().get<number>('MIDebugger.commandPort', 9005);
+    private static eventPort: number = vscode.workspace.getConfiguration().get<number>('MIDebugger.eventPort', 9006);
+    private static baseServerPort: number = vscode.workspace.getConfiguration().get<number>('MI.serverPort', 8290);
+    private static serverReadinessPort: number = 9201;
+    private static host: string = 'localhost';
+    private static internalOffset = 10;
+
+    private static portOffset: number | undefined;
+
+    public static getCommandPort(): number {
+        return this.commandPort;
+    }
+
+    public static getEventPort(): number {
+        return this.eventPort;
+    }
+
+    public static setPortOffset(offset: number): void {
+        this.portOffset = offset;
+    }
+
+    public static getServerPort(): number {
+        if (this.portOffset !== undefined) {
+            return this.baseServerPort + this.portOffset - this.internalOffset;
+        }
+        return this.baseServerPort;
+    }
+
+    public static getServerReadinessPort(): number {
+        if (this.portOffset !== undefined) {
+            return this.serverReadinessPort + this.portOffset - this.internalOffset;
+        }
+        return this.serverReadinessPort;
+    }
+
+    public static getHost(): string {
+        return this.host;
+    }
+}
