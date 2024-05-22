@@ -86,7 +86,7 @@ const RespondForm = (props: AddMediatorProps) => {
     }
     return (
         <>
-            <Typography sx={{ padding: "10px 15px", borderBottom: "1px solid var(--vscode-editorWidget-border)" }} variant="body3">Terminates the processing of the current message flow and returns the message to the client.</Typography>
+            <Typography sx={{ padding: "10px 20px", borderBottom: "1px solid var(--vscode-editorWidget-border)" }} variant="body3">Terminates the processing of the current message flow and returns the message to the client.</Typography>
             <div style={{ padding: "20px" }}>
 
                 <Field>

@@ -86,7 +86,7 @@ const DropForm = (props: AddMediatorProps) => {
     }
     return (
         <>
-            <Typography sx={{ padding: "10px 15px", borderBottom: "1px solid var(--vscode-editorWidget-border)" }} variant="body3">Stops processing of the current message and terminates message flow.</Typography>
+            <Typography sx={{ padding: "10px 20px", borderBottom: "1px solid var(--vscode-editorWidget-border)" }} variant="body3">Stops processing of the current message and terminates message flow.</Typography>
             <div style={{ padding: "20px" }}>
 
                 <Field>

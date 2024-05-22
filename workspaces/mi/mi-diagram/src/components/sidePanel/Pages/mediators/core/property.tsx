@@ -95,7 +95,7 @@ const PropertyForm = (props: AddMediatorProps) => {
     }
     return (
         <>
-            <Typography sx={{ padding: "10px 15px", borderBottom: "1px solid var(--vscode-editorWidget-border)" }} variant="body3">Manipulates message properties by setting and/or removing property values, supporting both constant and dynamically generated values through XPath expressions.</Typography>
+            <Typography sx={{ padding: "10px 20px", borderBottom: "1px solid var(--vscode-editorWidget-border)" }} variant="body3">Manipulates message properties by setting and/or removing property values, supporting both constant and dynamically generated values through XPath expressions.</Typography>
             <div style={{ padding: "20px" }}>
 
                 <Field>

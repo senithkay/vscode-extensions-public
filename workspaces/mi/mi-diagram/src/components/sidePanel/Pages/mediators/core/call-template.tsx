@@ -113,7 +113,7 @@ const CallTemplateForm = (props: AddMediatorProps) => {
     }
     return (
         <>
-            <Typography sx={{ padding: "10px 15px", borderBottom: "1px solid var(--vscode-editorWidget-border)" }} variant="body3">Invokes sequence template by populating pre-configured parameters with static values or XPath expressions.</Typography>
+            <Typography sx={{ padding: "10px 20px", borderBottom: "1px solid var(--vscode-editorWidget-border)" }} variant="body3">Invokes sequence template by populating pre-configured parameters with static values or XPath expressions.</Typography>
             <div style={{ padding: "20px" }}>
 
                 <Field>

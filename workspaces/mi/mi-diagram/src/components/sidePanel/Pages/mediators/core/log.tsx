@@ -113,7 +113,7 @@ const LogForm = (props: AddMediatorProps) => {
     }
     return (
         <>
-            <Typography sx={{ padding: "10px 15px", borderBottom: "1px solid var(--vscode-editorWidget-border)" }} variant="body3">Generates logs for messages. Log details are customisable.</Typography>
+            <Typography sx={{ padding: "10px 20px", borderBottom: "1px solid var(--vscode-editorWidget-border)" }} variant="body3">Generates logs for messages. Log details are customisable.</Typography>
             <div style={{ padding: "20px" }}>
 
                 <Field>
