@@ -41,13 +41,13 @@ export function SubMappingTreeWidget(props: SubMappingTreeWidgetProps) {
     const subMappingItems: ReactNode[] = subMappings.map((mapping, index) => {
         return (
             <SubMappingItemWidget
+                index={index}
                 key={`${SUB_MAPPING_INPUT_SOURCE_PORT_PREFIX}.${mapping.name}`}
                 id={`${SUB_MAPPING_INPUT_SOURCE_PORT_PREFIX}.${mapping.name}`}
                 engine={engine}
-                declaration={mapping.declaration}
                 context={context}
                 type={mapping.type}
-                isLastItem={index === subMappings.length - 1}
+                subMappings={subMappings}
                 getPort={(portId: string) => getPort(portId) as InputOutputPortModel}
                 valueLabel={mapping.name}
             />

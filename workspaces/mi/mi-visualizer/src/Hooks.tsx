@@ -27,9 +27,33 @@ export const useIOTypes = (filePath: string, functionName: string, interfacesSou
     const {
         data: dmIOTypes,
         isFetching: isFetchingIOTypes,
-        isError: isTypeError,
+        isError: isIOTypeError,
         refetch
     } = useQuery(['getIOTypes', { filePath, functionName, interfacesSource }], () => getIOTypes(), {});
 
-    return {dmIOTypes, isFetchingIOTypes, isTypeError, refetch};
+    return {dmIOTypes, isFetchingIOTypes, isIOTypeError, refetch};
+};
+
+export const useSubMappingTypes = (filePath: string, functionName: string, localVariablesSource: string) => {
+    const { rpcClient } = useVisualizerContext();
+    const getSubMappingTypes = async () => {
+        try {
+            const res = await rpcClient
+                .getMiDataMapperRpcClient()
+                .getSubMappingTypes({ filePath, functionName });
+            return res;
+        } catch (error) {
+            console.error(error);
+            throw error;
+        }
+    }
+
+    const {
+        data: dmSubMappingTypes,
+        isFetching: isFetchingSubMappingTypes,
+        isError: isSubMappingTypeError,
+        refetch
+    } = useQuery(['getSubMappingTypes', { filePath, functionName, localVariablesSource }], () => getSubMappingTypes(), {});
+
+    return {dmSubMappingTypes, isFetchingSubMappingTypes, isSubMappingTypeError, refetch};
 };

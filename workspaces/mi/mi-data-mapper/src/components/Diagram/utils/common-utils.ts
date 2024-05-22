@@ -610,6 +610,16 @@ export function isQuotedString(str: string): boolean {
         || str.startsWith("'") && str.endsWith("'");
 }
 
+export function genVariableName(originalName: string, existingNames: string[]): string {
+	let modifiedName: string = originalName;
+	let index = 0;
+	while (existingNames.includes(modifiedName)) {
+		index++;
+		modifiedName = originalName + index;
+	}
+	return modifiedName;
+}
+
 function getRootInputAccessExpr(node: ElementAccessExpression | PropertyAccessExpression): Node {
     let expr = node.getExpression();
     while (expr && isInputAccessExpr(expr)) {

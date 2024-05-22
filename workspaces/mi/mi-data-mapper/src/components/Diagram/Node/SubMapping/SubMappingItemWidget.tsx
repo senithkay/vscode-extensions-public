@@ -12,12 +12,12 @@ import React, { useState } from "react";
 import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { DMType, TypeKind } from "@wso2-enterprise/mi-core";
-import { Node } from "ts-morph";
+import { Block } from "ts-morph";
 import { keyframes } from "@emotion/react";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { DataMapperPortWidget, PortState, InputOutputPortModel } from '../../Port';
-import { getTypeName } from "../../utils/common-utils";
+import { genVariableName, getTypeName } from "../../utils/common-utils";
 import { OutputSearchHighlight } from "../commons/Search";
 import { TreeBody } from '../commons/Tree/Tree';
 import { useIONodesStyles } from "../../../styles";
@@ -25,17 +25,19 @@ import { InputNodeTreeItemWidget } from "../Input/InputNodeTreeItemWidget";
 import { useDMCollapsedFieldsStore } from "../../../../store/store";
 import classnames from "classnames";
 import styled from "@emotion/styled";
+import { DMSubMapping } from "./SubMappingNode";
 
 export interface SubMappingItemProps {
+    index: number;
     id: string; // this will be the root ID used to prepend for UUIDs of nested fields
     type: DMType;
     engine: DiagramEngine;
-    declaration: Node;
     context: IDataMapperContext;
-    isLastItem: boolean;
+    subMappings: DMSubMapping[];
     getPort: (portId: string) => InputOutputPortModel;
     valueLabel?: string;
 };
+
 const fadeInZoomIn = keyframes`
     0% {
         opacity: 0;
@@ -64,7 +66,7 @@ const HoverButton = styled(Button)`
 `;
 
 export function SubMappingItemWidget(props: SubMappingItemProps) {
-    const { engine, type, id, isLastItem, getPort, valueLabel } = props;
+    const { index, id, type, engine, context, subMappings, getPort, valueLabel } = props;
     const classes = useIONodesStyles();
     const collapsedFieldsStore = useDMCollapsedFieldsStore();
 
@@ -77,6 +79,7 @@ export function SubMappingItemWidget(props: SubMappingItemProps) {
     const expanded = !(portOut && portOut.collapsed);
     const isRecord = type.kind === TypeKind.Interface;
     const hasFields = !!type?.fields?.length;
+    const isLastItem = index === subMappings.length - 1;
 
     const label = (
         <span style={{ marginRight: "auto" }} data-testid={`sub-mapping-item-widget-label-${id}`}>
@@ -92,6 +95,12 @@ export function SubMappingItemWidget(props: SubMappingItemProps) {
 
         </span>
     );
+
+    const onClickAddSubMapping = () => {
+        const varName = genVariableName("subMapping", subMappings.map(mapping => mapping.name));
+        (context.functionST.getBody() as Block).insertStatements(index + 1, `const ${varName} = {};`);
+        context.applyModifications();
+    };
 
     const handleExpand = () => {
 		const collapsedFields = collapsedFieldsStore.collapsedFields;
@@ -185,6 +194,7 @@ export function SubMappingItemWidget(props: SubMappingItemProps) {
                         appearance="icon"
                         tooltip="Add another sub mapping here"
                         className={classes.addAnotherSubMappingButton}
+                        onClick={onClickAddSubMapping}
                     >
                         <Codicon name="add" iconSx={{ fontSize: 10 }} />
                     </HoverButton>
@@ -195,7 +205,7 @@ export function SubMappingItemWidget(props: SubMappingItemProps) {
                     className={classes.addSubMappingButton}
                     appearance='icon'
                     aria-label="add"
-                    onClick={undefined}
+                    onClick={onClickAddSubMapping}
                     data-testid={"add-another-sub-mapping-btn"}
                 >
                     <Codicon name="add" iconSx={{ color: "var(--button-primary-foreground)"}} />

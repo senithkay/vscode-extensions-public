@@ -120,6 +120,7 @@ interface DataMapperProps {
     functionName?: string;
     fileContent?: string;
     interfacesSource?: string;
+    localVariablesSource?: string;
     configName: string;
 }
 

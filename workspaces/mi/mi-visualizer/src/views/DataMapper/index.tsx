@@ -13,22 +13,33 @@ import { DataMapperView } from "@wso2-enterprise/mi-data-mapper";
 import { ProgressIndicator } from "@wso2-enterprise/ui-toolkit";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 
-import { useIOTypes } from "../../Hooks";
+import { useIOTypes, useSubMappingTypes } from "../../Hooks";
 
 interface DataMapperProps {
     filePath: string;
     functionName?: string;
     fileContent?: string;
     interfacesSource?: string;
+    localVariablesSource?: string;
     configName: string;
 }
 
 export function DataMapper(props: DataMapperProps) {
     const { rpcClient } = useVisualizerContext();
-    const { filePath, functionName, fileContent, interfacesSource } = props;
+    const { filePath, functionName, fileContent, interfacesSource, localVariablesSource } = props;
+
     const [isFileUpdateError, setIsFileUpdateError] = useState(false);
 
-    const { dmIOTypes, isFetchingIOTypes, isTypeError } = useIOTypes(filePath, functionName, interfacesSource);
+    const {
+        dmIOTypes,
+        isFetchingIOTypes,
+        isIOTypeError
+    } = useIOTypes(filePath, functionName, interfacesSource);
+    const {
+        dmSubMappingTypes,
+        isFetchingSubMappingTypes,
+        isSubMappingTypeError
+    } = useSubMappingTypes(filePath, functionName, localVariablesSource);
 
     const updateFileContent = async (newContent: string) => {
         try {
@@ -43,16 +54,18 @@ export function DataMapper(props: DataMapperProps) {
 
     useEffect(() => {
         // Hack to hit the error boundary
-        if (isTypeError) {
+        if (isIOTypeError) {
             throw new Error("Error while fetching input/output types");
+        } else if (isSubMappingTypeError) {
+            throw new Error("Error while fetching sub mapping types");
         } else if (isFileUpdateError) {
             throw new Error("Error while updating file content");
         }
-    }, [isTypeError, isFileUpdateError]);
+    }, [isIOTypeError, isSubMappingTypeError, isFileUpdateError]);
 
     return (
         <>
-            {isFetchingIOTypes
+            {isFetchingIOTypes || isFetchingSubMappingTypes
                 ? <ProgressIndicator />
                 : (
                     <DataMapperView
@@ -61,7 +74,7 @@ export function DataMapper(props: DataMapperProps) {
                         functionName={functionName}
                         inputTrees={dmIOTypes.inputTrees}
                         outputTree={dmIOTypes.outputTree}
-                        variableTypes={dmIOTypes.variableTypes}
+                        variableTypes={dmSubMappingTypes.variableTypes}
                         updateFileContent={updateFileContent}
                         configName= {props.configName}
                     />

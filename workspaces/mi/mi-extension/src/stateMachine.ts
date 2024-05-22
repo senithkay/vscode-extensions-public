@@ -5,6 +5,7 @@ import { Uri, ViewColumn } from 'vscode';
 import { MILanguageClient } from './lang-client/activator';
 import { extension } from './MIExtensionContext';
 import {
+    DM_FUNCTION_NAME,
     EVENT_TYPE,
     HistoryEntry,
     MACHINE_VIEW,
@@ -349,14 +350,15 @@ const stateMachine = createMachine<MachineContext>({
                 if (context.view === MACHINE_VIEW.DataMapperView) {
                     if (context.documentUri) {
                         const filePath = context.documentUri;
-                        const functionName = "mapFunction";
+                        const functionName = DM_FUNCTION_NAME;
 
-                        const [fnSource, interfacesSource] = getSources(filePath);
+                        const [fnSource, interfacesSrc, localVariablesSrc] = getSources(filePath, functionName);
                         viewLocation.dataMapperProps = {
                             filePath: filePath,
                             functionName: functionName,
                             fileContent: fnSource,
-                            interfacesSource: interfacesSource,
+                            interfacesSource: interfacesSrc,
+                            localVariablesSource: localVariablesSrc,
                             configName: deriveConfigName(filePath)
                         };
                         viewLocation.view = MACHINE_VIEW.DataMapperView;

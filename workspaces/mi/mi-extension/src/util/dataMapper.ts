@@ -6,51 +6,62 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { FunctionDeclaration, Node, Project, SourceFile, Type } from 'ts-morph';
+import { Block, FunctionDeclaration, Node, Project, SourceFile, Type } from 'ts-morph';
 import * as path from 'path';
 import { DMType, TypeKind } from '@wso2-enterprise/mi-core';
 
-let inputTypes: DMType[] = [];
-let outputType: DMType | undefined;
-let variableTypes: Record<string, DMType | undefined> = {};
-
-export function fetchDMTypes(filePath: string, functionName: string) {
-    inputTypes = [];
-    outputType = undefined;
+export function fetchIOTypes(filePath: string, functionName: string) {
+    const inputTypes: DMType[] = [];
+    let outputType: DMType | undefined;
 
     try {
-        const resolvedPath = path.resolve(filePath);
-        const project = new Project();
-        const sourceFile = project.addSourceFileAtPath(resolvedPath);
-        findTypes(functionName, sourceFile);
+        const tnfFn = getDMFunction(filePath, functionName);
+        const sourceFile = tnfFn.getSourceFile();
+
+        tnfFn.getParameters().forEach((param) => {
+            inputTypes.push(getTypeInfo(param.getType(), sourceFile));
+        });
+        outputType = getTypeInfo(tnfFn.getReturnType(), sourceFile);
     } catch (error: any) {
         throw new Error("[MI Data Mapper] Failed to fetch input/output types. " + error.message);
     }
 
-    return { inputTypes, outputType, variableTypes };
+    return { inputTypes, outputType };
 }
 
-export function getSources(filePath: string) {
+export function fetchSubMappingTypes(filePath: string, functionName: string) {
+    try {
+        const tnfFn = getDMFunction(filePath, functionName);
+        return getVariableTypes(tnfFn)
+    } catch (error: any) {
+        throw new Error("[MI Data Mapper] Failed to fetch sub mapping types. " + error.message);
+    }
+}
+
+export function getSources(filePath: string, functionName: string) {
     let fileContent: string;
-    let interfaceSource: string;
+    let interfacesSrc: string;
+    let localVariablesSrc: string;
     try {
         const resolvedPath = path.resolve(filePath);
         const project = new Project();
         const sourceFile = project.addSourceFileAtPath(resolvedPath);
 
         fileContent = sourceFile.getText();
-        interfaceSource = sourceFile.getInterfaces().map((interfaceNode) => {
+        interfacesSrc = sourceFile.getInterfaces().map((interfaceNode) => {
             return interfaceNode.getText();
         }).join('\n');
+        const variableStmts = (sourceFile.getFunction(functionName)?.getBody() as Block).getVariableStatements();
+        localVariablesSrc = variableStmts.map((stmt) => stmt.getText()).join('\n');
 
     } catch (error: any) {
         throw new Error("[MI Data Mapper] Failed to fetch input/output types. " + error.message);
     }
 
-    if (!fileContent || !interfaceSource) {
+    if (!fileContent || !interfacesSrc) {
         throw new Error("[MI Data Mapper] Function or interfaces not found in the source file.");
     }
-    return [fileContent, interfaceSource];
+    return [fileContent, interfacesSrc, localVariablesSrc];
 }
 
 export function deriveConfigName(filePath: string) {
@@ -59,16 +70,14 @@ export function deriveConfigName(filePath: string) {
     return fileName.split(".")[0];
 }
 
-// Find input, output and variable types
-function findTypes(functionName: string, sourceFile: SourceFile) {
-    const fn = sourceFile.getFunctionOrThrow(functionName);
-
-    if (fn) {
-        fn.getParameters().forEach((param) => {
-            inputTypes.push(getTypeInfo(param.getType(), sourceFile));
-        });
-        outputType = getTypeInfo(fn.getReturnType(), sourceFile);
-        variableTypes = getVariableTypes(fn);
+function getDMFunction(filePath: string, functionName: string) {
+    try {
+        const resolvedPath = path.resolve(filePath);
+        const project = new Project();
+        const sourceFile = project.addSourceFileAtPath(resolvedPath);
+        return sourceFile.getFunctionOrThrow(functionName);
+    } catch (error: any) {
+        throw new Error("Transformation function not found. " + error.message);
     }
 }
 

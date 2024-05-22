@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { Point } from "@projectstorm/geometry";
-import { Block, Node } from "ts-morph";
+import { Block, VariableStatement } from "ts-morph";
 import { DMType, TypeKind } from "@wso2-enterprise/mi-core";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
@@ -22,7 +22,7 @@ const NODE_ID = "sub-mapping-node";
 export interface DMSubMapping {
     name: string;
     type: DMType;
-    declaration: Node;
+    variableStmt: VariableStatement;
 }
 
 export class SubMappingNode extends DataMapperNodeModel {
@@ -78,7 +78,7 @@ export class SubMappingNode extends DataMapperNodeModel {
                     );
                 }
 
-                this.subMappings.push({name: varName, type, declaration: stmt});
+                this.subMappings.push({name: varName, type, variableStmt: stmt});
             }
 
         });
