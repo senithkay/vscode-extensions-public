@@ -97,7 +97,7 @@ const IterateForm = (props: AddMediatorProps) => {
     }
     return (
         <>
-            <Typography sx={{ padding: "10px 15px", borderBottom: "1px solid var(--vscode-editorWidget-border)" }} variant="body3">Splits message into several for parallel processing (XPath/JSONPath).
+            <Typography sx={{ padding: "10px 20px", borderBottom: "1px solid var(--vscode-editorWidget-border)" }} variant="body3">Splits message into several for parallel processing (XPath/JSONPath).
             </Typography>
             <div style={{ padding: "20px" }}>
 

@@ -11,7 +11,7 @@ import ExpressionEditor from './expressionEditor/ExpressionEditor';
 import { ExpressionFieldValue } from '../..';
 
 const SidePanelContainer = styled.div`
-    padding: 15px;
+    padding: 20px;
 
     *{font-family: var(--font-family)}
 `;
@@ -191,7 +191,7 @@ const SidePanelList = (props: SidePanelListProps) => {
                     {/* Header */}
                     <ButtonContainer>
                         {sidePanelContext.pageStack.length > 1 && sidePanelContext.pageStack[sidePanelContext.pageStack.length - 1].isOpen &&
-                            <Codicon name="arrow-left" sx={{ width: "20px", position: "absolute", left: "0px", paddingLeft: "25px" }} onClick={() => sidepanelGoBack(sidePanelContext)} />}
+                            <Codicon name="arrow-left" sx={{ width: "20px", position: "absolute", left: "0px", paddingLeft: "20px" }} onClick={() => sidepanelGoBack(sidePanelContext)} />}
 
                         <Icon />
                         <Title />
@@ -214,7 +214,7 @@ const SidePanelList = (props: SidePanelListProps) => {
                                     id={`drawer${index}`}
                                     width={300}
                                     isSelected={page.isOpen}
-                                    sx={{ width: "100%", top: "40px", border: "none", boxShadow: "none", height: "calc(100vh - 50px)", overflowY: "auto" }}
+                                    sx={{ width: "100%", top: "45px", border: "none", boxShadow: "none", height: "calc(100vh - 50px)", overflowY: "auto" }}
                                 >
                                     {page.content}
                                 </Drawer>

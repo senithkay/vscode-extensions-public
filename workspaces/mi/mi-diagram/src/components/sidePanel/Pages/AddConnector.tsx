@@ -17,13 +17,12 @@ import { Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 import AddConnection from './AddConnection';
 import { ParamConfig, ParamManager } from '../../Form/ParamManager/ParamManager';
 import { ExpressionField, ExpressionFieldValue } from '../../Form/ExpressionField/ExpressionInput';
-import ExpressionEditor from '../expressionEditor/ExpressionEditor';
-import { handleOpenExprEditor, sidepanelAddPage, sidepanelGoBack } from '..';
+import { handleOpenExprEditor, sidepanelGoBack } from '..';
 import { useForm, Controller } from 'react-hook-form';
 
 const cardStyle = {
     display: "block",
-    margin: "5px 5px",
+    margin: "5px 0",
     padding: "10px 15px 15px 15px",
     width: "auto",
     cursor: "auto",
@@ -460,7 +459,7 @@ const AddConnector = (props: AddConnectorProps) => {
     };
 
     return (
-        <div style={{ padding: "10px" }}>
+        <div style={{ padding: "20px" }}>
             {!formData ? (
                 <>
                     <ParamManager

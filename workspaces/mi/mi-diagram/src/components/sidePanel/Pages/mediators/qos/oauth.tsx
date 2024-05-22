@@ -89,7 +89,7 @@ const OAuthForm = (props: AddMediatorProps) => {
     }
     return (
         <>
-            <Typography sx={{ padding: "10px 15px", borderBottom: "1px solid var(--vscode-editorWidget-border)" }} variant="body3">Validates client credentials for a RESTful service using OAuth (WSO2 IS).</Typography>
+            <Typography sx={{ padding: "10px 20px", borderBottom: "1px solid var(--vscode-editorWidget-border)" }} variant="body3">Validates client credentials for a RESTful service using OAuth (WSO2 IS).</Typography>
             <div style={{ padding: "20px" }}>
 
                 <Field>

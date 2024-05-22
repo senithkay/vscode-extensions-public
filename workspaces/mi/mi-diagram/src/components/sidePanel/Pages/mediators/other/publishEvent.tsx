@@ -366,7 +366,7 @@ const PublishEventForm = (props: AddMediatorProps) => {
     }
     return (
         <>
-            <Typography sx={{ padding: "10px 15px", borderBottom: "1px solid var(--vscode-editorWidget-border)" }} variant="body3">Constructs and publishes events to different systems such as WSO2 BAM/DAS/CEP/SP via event sinks.</Typography>
+            <Typography sx={{ padding: "10px 20px", borderBottom: "1px solid var(--vscode-editorWidget-border)" }} variant="body3">Constructs and publishes events to different systems such as WSO2 BAM/DAS/CEP/SP via event sinks.</Typography>
             <div style={{ padding: "20px" }}>
 
                 <Field>

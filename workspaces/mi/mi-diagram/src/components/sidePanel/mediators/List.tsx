@@ -93,7 +93,7 @@ export function Mediators(props: MediatorProps) {
                                         marginBottom: 10,
                                         padding: 10,
                                         transition: '0.3s',
-                                        width: 180
+                                        width: 172
                                     }}
                                 >
                                     <IconContainer>
