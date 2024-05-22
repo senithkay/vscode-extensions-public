@@ -98,6 +98,21 @@
             "type": "string",
             "default": "https://mi-copilot.wso2.com/vscode-auth",
             "description": "Redirect URL for Auth Service \n Default: https://mi-copilot.wso2.com/vscode-auth"
+          },
+          "MI.debugger.commandPort": {
+            "type": "number",
+            "default": 9005,
+            "description": "Command port for the debugger to communicate with the MI server"
+          },
+          "MI.debugger.eventPort": {
+            "type": "number",
+            "default": 9006,
+            "description": "Event port for the MI server to communicate with the debugger"
+          },
+          "MI.serverPort": {
+            "type": "number",
+            "default": 8290,
+            "description": "Port to check the readiness of the MI server"
           }
         }
       }
@@ -546,6 +561,7 @@
     "xml2js": "0.6.2",
     "tmp": "~0.2.3",
     "fs-extra": "~11.2.0",
+    "toml": "^3.0.0",
     "@types/tmp": "~0.2.6",
     "@types/fs-extra": "~11.0.4",
     "json-schema-to-ts": "3.0.1",
