@@ -99,12 +99,12 @@
             "default": "https://mi-copilot.wso2.com/vscode-auth",
             "description": "Redirect URL for Auth Service \n Default: https://mi-copilot.wso2.com/vscode-auth"
           },
-          "MIDebugger.commandPort": {
+          "MI.debugger.commandPort": {
             "type": "number",
             "default": 9005,
             "description": "Command port for the debugger to communicate with the MI server"
           },
-          "MIDebugger.eventPort": {
+          "MI.debugger.eventPort": {
             "type": "number",
             "default": 9006,
             "description": "Event port for the MI server to communicate with the debugger"

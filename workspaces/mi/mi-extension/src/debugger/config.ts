@@ -11,8 +11,8 @@
 import * as vscode from 'vscode';
 
 export class DebuggerConfig {
-    private static commandPort: number = vscode.workspace.getConfiguration().get<number>('MIDebugger.commandPort', 9005);
-    private static eventPort: number = vscode.workspace.getConfiguration().get<number>('MIDebugger.eventPort', 9006);
+    private static commandPort: number = vscode.workspace.getConfiguration().get<number>('MI.debugger.commandPort', 9005);
+    private static eventPort: number = vscode.workspace.getConfiguration().get<number>('MI.debugger.eventPort', 9006);
     private static baseServerPort: number = vscode.workspace.getConfiguration().get<number>('MI.serverPort', 8290);
     private static serverReadinessPort: number = 9201;
     private static host: string = 'localhost';
