@@ -352,13 +352,12 @@ const stateMachine = createMachine<MachineContext>({
                         const filePath = context.documentUri;
                         const functionName = DM_FUNCTION_NAME;
 
-                        const [fnSource, interfacesSrc, localVariablesSrc] = getSources(filePath, functionName);
+                        const [fnSource, interfacesSrc] = getSources(filePath);
                         viewLocation.dataMapperProps = {
                             filePath: filePath,
                             functionName: functionName,
                             fileContent: fnSource,
                             interfacesSource: interfacesSrc,
-                            localVariablesSource: localVariablesSrc,
                             configName: deriveConfigName(filePath)
                         };
                         viewLocation.view = MACHINE_VIEW.DataMapperView;

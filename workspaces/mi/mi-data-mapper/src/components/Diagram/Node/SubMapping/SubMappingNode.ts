@@ -15,6 +15,7 @@ import { DataMapperNodeModel } from "../commons/DataMapperNode";
 import { useDMCollapsedFieldsStore, useDMSearchStore } from "../../../../store/store";
 import { SUB_MAPPING_INPUT_SOURCE_PORT_PREFIX } from "../../utils/constants";
 import { getSearchFilteredInput } from "../../utils/search-utils";
+import { getTypeForVariable } from "../../utils/type-utils";
 
 export const SUB_MAPPING_SOURCE_NODE_TYPE = "datamapper-node-sub-mapping";
 const NODE_ID = "sub-mapping-node";
@@ -45,15 +46,20 @@ export class SubMappingNode extends DataMapperNodeModel {
 
     async initPorts() {
         this.subMappings = [];
+        const { rpcClient, filePath, functionST } = this.context;
         const searchValue = useDMSearchStore.getState().inputSearch;
-        const variableStatements = (this.context.functionST.getBody() as Block).getVariableStatements();
+        const variableStatements = (functionST.getBody() as Block).getVariableStatements();
+
+        const smTypesResp = await rpcClient
+            .getMiDataMapperRpcClient()
+            .getSubMappingTypes({ filePath, functionName: functionST.getName() });
 
         variableStatements.forEach(stmt => {
             // Constraint: Only one variable declaration is allowed in a local variable statement.
             const varDecl = stmt.getDeclarations()[0];
             const varName = varDecl.getName();
 
-            const typeWithoutFilter: DMType = this.context.getTypeInfo(varDecl);
+            const typeWithoutFilter: DMType = getTypeForVariable(smTypesResp.variableTypes, varDecl);
 
             const type: DMType = getSearchFilteredInput(typeWithoutFilter, varName);
 

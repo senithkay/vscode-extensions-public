@@ -38,30 +38,27 @@ export function fetchSubMappingTypes(filePath: string, functionName: string) {
     }
 }
 
-export function getSources(filePath: string, functionName: string) {
+export function getSources(filePath: string) {
     let fileContent: string;
-    let interfacesSrc: string;
-    let localVariablesSrc: string;
+    let interfacesSource: string;
     try {
         const resolvedPath = path.resolve(filePath);
         const project = new Project();
         const sourceFile = project.addSourceFileAtPath(resolvedPath);
 
         fileContent = sourceFile.getText();
-        interfacesSrc = sourceFile.getInterfaces().map((interfaceNode) => {
+        interfacesSource = sourceFile.getInterfaces().map((interfaceNode) => {
             return interfaceNode.getText();
         }).join('\n');
-        const variableStmts = (sourceFile.getFunction(functionName)?.getBody() as Block).getVariableStatements();
-        localVariablesSrc = variableStmts.map((stmt) => stmt.getText()).join('\n');
 
     } catch (error: any) {
         throw new Error("[MI Data Mapper] Failed to fetch input/output types. " + error.message);
     }
 
-    if (!fileContent || !interfacesSrc) {
+    if (!fileContent || !interfacesSource) {
         throw new Error("[MI Data Mapper] Function or interfaces not found in the source file.");
     }
-    return [fileContent, interfacesSrc, localVariablesSrc];
+    return [fileContent, interfacesSource];
 }
 
 export function deriveConfigName(filePath: string) {

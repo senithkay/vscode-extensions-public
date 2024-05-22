@@ -44,7 +44,6 @@ export interface DataMapperViewProps {
     functionName: string;
     inputTrees: DMType[];
     outputTree: DMType;
-    variableTypes: Record<string, DMType | undefined>;
     updateFileContent: (fileContent: string) => void;
     configName: string;
 }
@@ -56,7 +55,6 @@ export function DataMapperView(props: DataMapperViewProps) {
         functionName,
         inputTrees,
         outputTree,
-        variableTypes,
         updateFileContent,
         configName
     } = props;
@@ -117,7 +115,6 @@ export function DataMapperView(props: DataMapperViewProps) {
                     fnST={functionST}
                     inputTrees={inputTrees}
                     outputTree={outputTree}
-                    variableTypes={variableTypes}
                     fileContent={fileContent}
                     applyModifications={applyModifications}
                     filePath={filePath}

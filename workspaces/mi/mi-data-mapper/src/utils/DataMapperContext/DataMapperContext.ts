@@ -10,6 +10,7 @@ import { DMType, Range } from "@wso2-enterprise/mi-core";
 import { FunctionDeclaration, PropertyAssignment, ReturnStatement, VariableDeclaration } from "ts-morph";
 
 import { View } from "../../components/DataMapper/DataMapper";
+import { RpcClient } from "@wso2-enterprise/mi-rpc-client";
 
 export interface IDataMapperContext {
     functionST: FunctionDeclaration;
@@ -17,9 +18,10 @@ export interface IDataMapperContext {
     inputTrees: DMType[];
     outputTree: DMType;
     views: View[];
+    filePath: string;
+    rpcClient: RpcClient;
     addView: (view: View) => void;
     goToSource: (range: Range) => void;
-    getTypeInfo: (varDecl: VariableDeclaration) => DMType;
     applyModifications: () => void;
 }
 
@@ -31,9 +33,10 @@ export class DataMapperContext implements IDataMapperContext {
         public inputTrees: DMType[],
         public outputTree: DMType,
         public views: View[] = [],
+        public filePath: string,
+        public rpcClient: RpcClient,
         public addView: (view: View) => void,
         public goToSource: (range: Range) => void,
-        public getTypeInfo: (varDecl: VariableDeclaration) => DMType,
         public applyModifications: () => void
     ){}
 }
