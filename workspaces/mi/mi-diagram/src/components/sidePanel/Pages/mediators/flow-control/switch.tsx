@@ -19,8 +19,7 @@ import { MEDIATORS } from '../../../../../resources/constants';
 import { Controller, useForm } from 'react-hook-form';
 import { ExpressionField, ExpressionFieldValue } from '../../../../Form/ExpressionField/ExpressionInput';
 import { ParamManager, ParamValue } from '../../../../Form/ParamManager/ParamManager';
-import { sidepanelAddPage, sidepanelGoBack } from '../../..';
-import ExpressionEditor from '../../../expressionEditor/ExpressionEditor';
+import { handleOpenExprEditor, sidepanelGoBack } from '../../..';
 
 const cardStyle = { 
     display: "block",
@@ -114,19 +113,7 @@ const SwitchForm = (props: AddMediatorProps) => {
                                 {...field} label="Source XPath"
                                 placeholder=""
                                 canChange={false}
-                                openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => {
-                                    const content = <ExpressionEditor
-                                        value={value}
-                                        handleOnSave={(value) => {
-                                            setValue(value);
-                                            handleOnCancelExprEditorRef.current();
-                                        }}
-                                        handleOnCancel={() => {
-                                            handleOnCancelExprEditorRef.current();
-                                        }}
-                                    />;
-                                    sidepanelAddPage(sidePanelContext, content, "Expression Editor");
-                                }}
+                                openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
                             />
                         )}
                     />

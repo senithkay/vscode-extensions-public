@@ -18,7 +18,7 @@ import AddConnection from './AddConnection';
 import { ParamConfig, ParamManager } from '../../Form/ParamManager/ParamManager';
 import { ExpressionField, ExpressionFieldValue } from '../../Form/ExpressionField/ExpressionInput';
 import ExpressionEditor from '../expressionEditor/ExpressionEditor';
-import { sidepanelAddPage, sidepanelGoBack } from '..';
+import { handleOpenExprEditor, sidepanelAddPage, sidepanelGoBack } from '..';
 import { useForm, Controller } from 'react-hook-form';
 
 const cardStyle = {
@@ -268,29 +268,6 @@ const AddConnector = (props: AddConnectorProps) => {
         setIsAddingConnection(false);
     }
 
-    const handleOpenExpressionEditor = (value: ExpressionFieldValue, setValue: any) => {
-        sidePanelContext.setSidePanelState({
-            ...sidePanelContext,
-            expressionEditor: {
-                isOpen: true,
-                value,
-                setValue
-            }
-        });
-
-        const content = <ExpressionEditor
-            value={value}
-            handleOnSave={(value) => {
-                setValue(value);
-                handleOnCancelExprEditorRef.current();
-            }}
-            handleOnCancel={() => {
-                handleOnCancelExprEditorRef.current();
-            }}
-        />;
-        sidepanelAddPage(sidePanelContext, content, "Expression Editor");
-    };
-
     const renderFormElement = (element: Element) => {
         switch (element.inputType) {
             case 'string':
@@ -328,7 +305,7 @@ const AddConnector = (props: AddConnectorProps) => {
                                     setFormValues({ ...formValues, [element.name]: e });
                                     formValidators[element.name](e.value);
                                 }}
-                                openExpressionEditor={handleOpenExpressionEditor}
+                                openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
                             />
                         )}
                     />
@@ -414,7 +391,7 @@ const AddConnector = (props: AddConnectorProps) => {
                                     setFormValues({ ...formValues, [element.name]: e });
                                     formValidators[element.name](e.value);
                                 }}
-                                openExpressionEditor={handleOpenExpressionEditor}
+                                openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
                             />
                         )}
                     />

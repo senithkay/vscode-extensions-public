@@ -20,8 +20,7 @@ import { MEDIATORS } from '../../../../../resources/constants';
 import { Controller, useForm } from 'react-hook-form';
 import { ExpressionFieldValue } from '../../../../Form/ExpressionField/ExpressionInput';
 import { ParamManager, ParamConfig, ParamValue } from '../../../../Form/ParamManager/ParamManager';
-import { sidepanelAddPage, sidepanelGoBack } from '../../..';
-import ExpressionEditor from '../../../expressionEditor/ExpressionEditor';
+import { handleOpenExprEditor, sidepanelGoBack } from '../../..';
 
 const cardStyle = { 
     display: "block",
@@ -145,19 +144,7 @@ const DBLookupForm = (props: AddMediatorProps) => {
                                                 "1": "EXPRESSION"
                                             }
                                         ], 
-                                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                                            const content = <ExpressionEditor
-                                                value={value}
-                                                handleOnSave={(value) => {
-                                                    setValue(value);
-                                                    handleOnCancelExprEditorRef.current();
-                                                }}
-                                                handleOnCancel={() => {
-                                                    handleOnCancelExprEditorRef.current();
-                                                }}
-                                            />;
-                                            sidepanelAddPage(sidePanelContext, content, "Expression Editor");
-                                        }},
+                                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)},
                                 ]
                             },
                             openInDrawer: true,
