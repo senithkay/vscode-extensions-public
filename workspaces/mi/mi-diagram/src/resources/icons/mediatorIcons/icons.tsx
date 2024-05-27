@@ -217,7 +217,7 @@ export function getIconsFromFont(mediator: string, color: string) {
             icon = ( <Icon name="Aggregate" sx={{height: 25, width: 25, fontSize: 25, color: color}} /> );
             break;
         case MEDIATORS.BUILDER.toLowerCase():
-            icon = ( <Icon name="Builder" sx={{height: 25, width: 25, fontSize: 25, color: color}} /> );
+            icon = ( <Icon name="Builder" sx={{height: 32, width: 25, fontSize: 25, color: color}} /> );
             break;
         case MEDIATORS.CACHE.toLowerCase():
             icon = ( <Icon name="Cache" sx={{height: 25, width: 25, fontSize: 25, color: color}} /> );
