@@ -49,9 +49,6 @@
       },
       {
         "type": "mi-stop"
-      },
-      {
-        "type": "mi-copy"
       }
     ],
     "debuggers": [
