@@ -67,7 +67,7 @@ export async function updateDMC(dmName:string, sourcePath: string): Promise<stri
         }
     
         tsContent += `${inputTSInterfaces}\n${outputTSInterfaces}\nfunction mapFunction(input: ${inputSchema.title}${isInputArray ? "[]" : ""}): ${outputSchema.title}${isOutputArray ? "[]" : ""} {\n`;
-        tsContent += `\treturn ${isOutputArray ? "[" : ""}{}${isOutputArray ? "]" : ""}\n}\n\n`;
+        tsContent += `\treturn ${isOutputArray ? "[]" : "{}"}\n}\n\n`;
         tsContent += `// WARNING: Do not edit/remove below function\nfunction map_S_${getTitleSegment(inputSchemaTitle)}_S_${getTitleSegment(outputSchemaTitle)}() {\n\treturn mapFunction(input${inputSchemaTitle.replace(":", "_")});\n}\n`;
         fs.writeFileSync(tsFilepath, tsContent);
         const jsContent = convertTypeScriptToJavascript(tsContent);
