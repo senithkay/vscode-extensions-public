@@ -27,33 +27,6 @@ export function getBuildTask(): vscode.Task {
     return buildTask;
 }
 
-export function getCopyTask(serverPath: string, targetDirectory: vscode.Uri): vscode.Task | undefined {
-    const targetPath = path.join(serverPath, 'repository', 'deployment', 'server', 'carbonapps');
-    const currentPath = path.join(targetDirectory.fsPath, '*.car');
-    let commandToExecute: string;
-
-    if (!fs.existsSync(targetPath)) {
-        logDebug(`${targetPath} does not exist`, ERROR_LOG);
-        return;
-    }
-
-    if (process.platform === 'win32') {
-        commandToExecute = `copy ${currentPath} ${targetPath}`;
-    } else {
-        commandToExecute = `cp -f ${currentPath} ${targetPath}`;
-    }
-
-    const copyTask = new vscode.Task(
-        { type: 'mi-copy' },
-        vscode.TaskScope.Workspace,
-        'copy',
-        'mi',
-        new vscode.ShellExecution(commandToExecute)
-    );
-
-    return copyTask;
-}
-
 export async function getRunTask(serverPath: string, isDebug: boolean): Promise<vscode.Task | undefined> {
     let command;
     let binFile;

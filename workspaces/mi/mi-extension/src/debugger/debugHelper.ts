@@ -12,7 +12,7 @@ import * as vscode from 'vscode';
 import * as childprocess from 'child_process';
 import { COMMANDS } from '../constants';
 import { extension } from '../MIExtensionContext';
-import { getCopyTask, getBuildTask, getRunTask } from './tasks';
+import { getBuildTask, getRunTask } from './tasks';
 import * as fs from 'fs';
 import * as path from 'path';
 import { INCORRECT_SERVER_PATH_MSG, SELECTED_SERVER_PATH } from './constants';
@@ -24,6 +24,7 @@ import { StateMachine } from '../stateMachine';
 import { ERROR_LOG, INFO_LOG, logDebug } from '../util/logger';
 import * as toml from 'toml';
 import { DebuggerConfig } from './config';
+import { glob } from 'glob';
 
 export async function isPortActivelyListening(port: number, timeout: number): Promise<boolean> {
     return new Promise<boolean>((resolve) => {
@@ -146,16 +147,23 @@ export async function executeBuildTask(task: vscode.Task, serverPath: string, sh
                             if (workspaceFolders && workspaceFolders.length > 0) {
                                 const targetDirectory = vscode.Uri.joinPath(workspaceFolders[0].uri, "target");
                                 if (fs.existsSync(targetDirectory.fsPath)) {
-                                    const copyTask = getCopyTask(serverPath, targetDirectory);
-                                    if (copyTask) {
-                                        executeCopyTask(copyTask).then(() => {
+                                    try {
+                                        const sourceFiles = getCarFiles(targetDirectory);
+                                        if (sourceFiles.length === 0) {
+                                            const errorMessage = "No .car files were found in the target directory. Built without copying to the server's carbonapps directory.";
+                                            logDebug(errorMessage, ERROR_LOG);
+                                            reject(errorMessage);
+                                        } else {
+                                            const targetPath = path.join(serverPath, 'repository', 'deployment', 'server', 'carbonapps');
+                                            sourceFiles.forEach(sourceFile => {
+                                                const destinationFile = path.join(targetPath, path.basename(sourceFile));
+                                                fs.copyFileSync(sourceFile, destinationFile);
+                                            });
                                             logDebug('Build and copy tasks executed successfully', INFO_LOG);
                                             resolve();
-                                        }).catch((error) => {
-                                            reject(error);
-                                        });
-                                    } else {
-                                        reject(INCORRECT_SERVER_PATH_MSG);
+                                        }
+                                    } catch (err) {
+                                        reject(err);
                                     }
                                 }
                             }
@@ -170,6 +178,12 @@ export async function executeBuildTask(task: vscode.Task, serverPath: string, sh
             reject(error);
         });
     });
+}
+
+function getCarFiles(targetDirectory) {
+    const currentPath = path.join(targetDirectory.fsPath, '*.car');
+    const files = glob.sync(currentPath);
+    return files;
 }
 
 export async function executeTasks(serverPath: string, isDebug: boolean): Promise<void> {
@@ -309,7 +323,7 @@ export function removeTempDebugBatchFile() {
     }
 }
 
-export async function readPortOffset(serverConfigPath: string): Promise<number| undefined> {
+export async function readPortOffset(serverConfigPath: string): Promise<number | undefined> {
     try {
         const configPath = path.join(serverConfigPath, 'conf', 'deployment.toml');
         const content = await fs.promises.readFile(configPath, 'utf-8');
