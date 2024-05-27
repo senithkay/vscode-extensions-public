@@ -159,7 +159,7 @@ async function checkToken(context, event): Promise<UserToken> {
         try {
             const token = await extension.context.secrets.get('MIAIUser');
             if (token) {
-                const config = vscode.workspace.getConfiguration('integrationStudio');
+                const config = vscode.workspace.getConfiguration('MI');
                 const ROOT_URL = config.get('rootUrl') as string;
                 const url = ROOT_URL + USER_CHECK_BACKEND_URL;
                 const response = await fetch(url, {
