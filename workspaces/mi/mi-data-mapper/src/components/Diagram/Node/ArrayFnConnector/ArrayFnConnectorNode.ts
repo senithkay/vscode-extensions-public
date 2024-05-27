@@ -257,7 +257,7 @@ export class ArrayFnConnectorNode extends DataMapperNodeModel {
 
         if (dmNode) {
             if (Node.isPropertyAssignment(this.parentNode)) {
-                const rootConstruct = dmNode.value.getExpression();
+                const rootConstruct = dmNode.value;
                 const linkDeleteVisitor = new LinkDeletingVisitor(this.parentNode, rootConstruct);
                 traversNode(this.context.focusedST, linkDeleteVisitor);
                 const targetNodes = linkDeleteVisitor.getNodesToDelete();

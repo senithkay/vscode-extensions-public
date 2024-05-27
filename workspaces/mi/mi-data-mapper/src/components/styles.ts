@@ -214,10 +214,6 @@ export const useIONodesStyles = () => ({
         minHeight: "24px",
         backgroundColor: "var(--vscode-sideBar-background)"
     }),
-    gotoExprIcon: css({
-        color: "var(--vscode-input-placeholderForeground)",
-        cursor: 'pointer'
-    }),
     addAnotherSubMappingButton: css({
         width: "auto",
         margin: 0,

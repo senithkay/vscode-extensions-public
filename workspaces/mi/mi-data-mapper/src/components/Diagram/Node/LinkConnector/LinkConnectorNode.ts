@@ -252,7 +252,7 @@ export class LinkConnectorNode extends DataMapperNodeModel {
         } else {
             let rootExpr = this.parentNode;
             if (targetNode instanceof ObjectOutputNode || targetNode instanceof ArrayOutputNode) {
-                rootExpr = targetNode.value.getExpression();
+                rootExpr = targetNode.value;
             }
             const linkDeleteVisitor = new LinkDeletingVisitor(this.valueNode, rootExpr);
             traversNode(functionST, linkDeleteVisitor);

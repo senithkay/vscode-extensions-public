@@ -97,7 +97,7 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 
 	if (targetNode instanceof ObjectOutputNode) {
 		if (targetNode.value) {
-			const targetExpr = targetNode.value.getExpression();
+			const targetExpr = targetNode.value;
 			if (Node.isObjectLiteralExpression(targetExpr)) {
 				objectLitExpr = targetExpr;
 			}
@@ -110,7 +110,7 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 			objectLitExpr = returnStatement.getExpression() as ObjectLiteralExpression;
 		}
 	} else if (targetNode instanceof ArrayOutputNode && targetNode.value) {
-		const targetExpr = targetNode.value.getExpression();
+		const targetExpr = targetNode.value;
 		if (Node.isArrayLiteralExpression(targetExpr)
 			&& fieldIndexes !== undefined
 			&& !!fieldIndexes.length
@@ -186,7 +186,7 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
             writer.writeLine(source);
         });
 	} else if (targetNode instanceof ObjectOutputNode) {
-        targetNode.value.getExpression().replaceWithText(`{${getLinebreak()}${source}}`);
+        targetNode.value.replaceWithText(`{${getLinebreak()}${source}}`);
 	}
 
     applyModifications();

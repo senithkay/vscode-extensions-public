@@ -17,13 +17,15 @@ import DataMapperDiagram from "../Diagram/Diagram";
 import { DataMapperHeader } from "./Header/DataMapperHeader";
 import { DataMapperNodeModel } from "../Diagram/Node/commons/DataMapperNode";
 import { NodeInitVisitor } from "../Visitors/NodeInitVisitor";
-import { getFocusedST, traversNode } from "../Diagram/utils/st-utils";
+import { getFocusedST, getFocusedSubMapping, traversNode } from "../Diagram/utils/st-utils";
 import { DMType, Range } from "@wso2-enterprise/mi-core";
-import { FunctionDeclaration, PropertyAssignment, ReturnStatement } from "ts-morph";
+import { FunctionDeclaration, PropertyAssignment, ReturnStatement, VariableDeclaration } from "ts-morph";
 import { ImportDataForm } from "./SidePanel/ImportDataForm";
 import { useDMSearchStore, useDMSidePanelStore } from "../../store/store";
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getTypeName } from "../Diagram/utils/common-utils";
+import { getSubMappingTypes, getTypeForVariable } from "../Diagram/utils/type-utils";
+import { getSubMappingOutputNode } from "../Diagram/utils/node-utils";
 
 const classes = {
     root: css({
@@ -38,6 +40,7 @@ export interface View {
     sourceFieldFQN: string;
     label: string;
     mapFnIndex?: number;
+    subMappingIndex?: number;
 }
 
 export interface MIDataMapperProps {
@@ -90,20 +93,37 @@ export function MIDataMapper(props: MIDataMapperProps) {
 
     useEffect(() => {
         async function generateNodes() {
-            let focusedST: FunctionDeclaration | PropertyAssignment | ReturnStatement = fnST;
-    
-            if (views.length > 1) {
-                focusedST = getFocusedST(views[views.length - 1], fnST);
-            }
+            const lastView = views[views.length - 1];
 
             const context = new DataMapperContext(
-                fnST, focusedST, inputTrees, outputTree, views,
-                filePath, rpcClient, addView, goToSource, applyModifications
+                fnST, fnST, inputTrees, outputTree, views, filePath, rpcClient, addView, goToSource, applyModifications
             );
 
             const nodeInitVisitor = new NodeInitVisitor(context);
-            traversNode(focusedST, nodeInitVisitor);
-            setNodes(nodeInitVisitor.getNodes());
+
+            if (lastView.subMappingIndex !== undefined) {
+                let focusedST = getFocusedSubMapping(lastView.subMappingIndex, fnST);
+                context.focusedST = focusedST;
+
+                const varDecl = focusedST.getDeclarations()[0];
+                const subMappingTypes = await getSubMappingTypes(rpcClient, filePath, fnST.getName());
+                const subMappingType = getTypeForVariable(subMappingTypes, varDecl);
+
+                const inputNode = nodeInitVisitor.getInputNode();
+                const outputNode = getSubMappingOutputNode(context, varDecl.getInitializer(), subMappingType);
+                setNodes([inputNode, outputNode]);
+            } else {
+                let focusedST: FunctionDeclaration | PropertyAssignment | ReturnStatement = fnST;
+    
+                if (views.length > 1) {
+                    focusedST = getFocusedST(lastView, fnST);
+                }
+
+                context.focusedST = focusedST;
+
+                traversNode(focusedST, nodeInitVisitor);
+                setNodes(nodeInitVisitor.getNodes());
+            }
         }
         generateNodes();
         updateDMCFileContent();

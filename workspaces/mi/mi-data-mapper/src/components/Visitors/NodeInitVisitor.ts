@@ -70,7 +70,7 @@ export class NodeInitVisitor implements Visitor {
             const exprType = getDMType(targetFieldFQN, this.context.outputTree, mapFnIndex);
             const returnStatement = getCallExprReturnStmt(callExpr);
 
-            const innerExpr = returnStatement.getExpression();
+            const innerExpr = returnStatement?.getExpression();
 
             const hasConditionalOutput = Node.isConditionalExpression(innerExpr);
             if (hasConditionalOutput) {
@@ -83,15 +83,15 @@ export class NodeInitVisitor implements Visitor {
             } else if (exprType?.kind === TypeKind.Array) {
                 const { memberType } = exprType;
                 if (memberType.kind === TypeKind.Interface) {
-                    this.outputNode = new ObjectOutputNode(this.context, returnStatement, memberType);
+                    this.outputNode = new ObjectOutputNode(this.context, innerExpr, memberType);
                 } else if (memberType.kind === TypeKind.Array) {
-                    this.outputNode = new ArrayOutputNode(this.context, returnStatement, memberType);
+                    this.outputNode = new ArrayOutputNode(this.context, innerExpr, memberType);
                 } else {
-                    this.outputNode = new PrimitiveOutputNode(this.context, returnStatement, memberType);
+                    this.outputNode = new PrimitiveOutputNode(this.context, innerExpr, memberType);
                 }
             } else {
                 if (exprType?.kind === TypeKind.Interface) {
-                    this.outputNode = new ObjectOutputNode(this.context, returnStatement, exprType);
+                    this.outputNode = new ObjectOutputNode(this.context, innerExpr, exprType);
                 } else {
                     // Constraint: The return type of the transformation function should be an interface or an array
                 }
@@ -139,6 +139,7 @@ export class NodeInitVisitor implements Visitor {
         if (isFocusedST) {
             const callExpr = returnExpr as CallExpression;
             const mapFnReturnStmt = getCallExprReturnStmt(callExpr);
+            const mapFnReturnExpr = mapFnReturnStmt?.getExpression();
             const outputType = mapFnAtRootReturnOrDecsendent
                 ? getDMTypeForRootChaninedMapFunction(outputTree, mapFnIndex)
                 : getDMType(targetFieldFQN, this.context.outputTree, mapFnIndex);
@@ -146,14 +147,14 @@ export class NodeInitVisitor implements Visitor {
             if (outputType.kind === TypeKind.Array) {
                 const { memberType } = outputType;
                 if (memberType.kind === TypeKind.Interface) {
-                    this.outputNode = new ObjectOutputNode(this.context, mapFnReturnStmt, memberType);
+                    this.outputNode = new ObjectOutputNode(this.context, mapFnReturnExpr, memberType);
                 } else if (memberType.kind === TypeKind.Array) {
-                    this.outputNode = new ArrayOutputNode(this.context, mapFnReturnStmt, memberType);
+                    this.outputNode = new ArrayOutputNode(this.context, mapFnReturnExpr, memberType);
                 } else {
-                    this.outputNode = new PrimitiveOutputNode(this.context, mapFnReturnStmt, memberType);
+                    this.outputNode = new PrimitiveOutputNode(this.context, mapFnReturnExpr, memberType);
                 }
             } else if (outputTree?.kind === TypeKind.Interface) {
-                this.outputNode = new ObjectOutputNode(this.context, mapFnReturnStmt, outputTree);
+                this.outputNode = new ObjectOutputNode(this.context, mapFnReturnExpr, outputTree);
             } else {
                 // Constraint: The return type of the transformation function should be an interface or an array
             }
@@ -299,12 +300,13 @@ export class NodeInitVisitor implements Visitor {
             if (Node.isBlock(body)) {
                 const returnStatement = body.getStatements().find((statement) =>
                     Node.isReturnStatement(statement)) as ReturnStatement;
+                const returnExpr = returnStatement?.getExpression();
         
                 // Create output node based on return type
                 if (returnType.isInterface()) {
-                    return new ObjectOutputNode(this.context, returnStatement, outputType);
+                    return new ObjectOutputNode(this.context, returnExpr, outputType);
                 } else if (returnType.isArray()) {
-                    return new ArrayOutputNode(this.context, returnStatement, outputType);
+                    return new ArrayOutputNode(this.context, returnExpr, outputType);
                 }
             }
         }
@@ -353,5 +355,9 @@ export class NodeInitVisitor implements Visitor {
         nodes.push(...this.intermediateNodes);
 
         return nodes;
+    }
+
+    getInputNode() {
+        return this.createInputNodeForDmFunction(this.context.functionST);
     }
 }

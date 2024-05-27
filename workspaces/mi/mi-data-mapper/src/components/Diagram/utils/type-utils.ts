@@ -10,6 +10,7 @@ import { ArrayLiteralExpression, Node, ObjectLiteralExpression, PropertyAssignme
 import { DMType, TypeKind } from "@wso2-enterprise/mi-core";
 
 import { ArrayElement, DMTypeWithValue } from "../Mappings/DMTypeWithValue";
+import { RpcClient } from "@wso2-enterprise/mi-rpc-client";
 
 export function enrichAndProcessType(
     typeToBeProcessed: DMType,
@@ -123,6 +124,18 @@ export function getEnrichedDMType(
     }
 
     return dmTypeWithValue;
+}
+
+export async function getSubMappingTypes(
+    rpcClient: RpcClient,
+    filePath: string,
+    functionName: string
+): Promise<Record<string, DMType>> {
+    const smTypesResp = await rpcClient
+    .getMiDataMapperRpcClient()
+    .getSubMappingTypes({ filePath, functionName: functionName });
+
+    return smTypesResp.variableTypes;
 }
 
 function getEnrichedPrimitiveType(

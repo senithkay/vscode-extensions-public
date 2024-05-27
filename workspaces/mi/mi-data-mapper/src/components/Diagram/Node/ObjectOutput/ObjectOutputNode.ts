@@ -8,7 +8,7 @@
  */
 import { Point } from "@projectstorm/geometry";
 import { DMType, TypeKind } from "@wso2-enterprise/mi-core";
-import { Node, ReturnStatement } from "ts-morph";
+import { Expression, Node } from "ts-morph";
 
 import { useDMCollapsedFieldsStore, useDMSearchStore } from "../../../../store/store";
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
@@ -41,7 +41,7 @@ export class ObjectOutputNode extends DataMapperNodeModel {
 
     constructor(
         public context: IDataMapperContext,
-        public value: ReturnStatement | undefined,
+        public value: Expression | undefined,
         public originalType: DMType
     ) {
         super(
@@ -58,7 +58,7 @@ export class ObjectOutputNode extends DataMapperNodeModel {
             this.rootName = this.dmType?.fieldName;
 
             const collapsedFields = useDMCollapsedFieldsStore.getState().collapsedFields;
-            const [valueEnrichedType, type] = enrichAndProcessType(this.dmType, this.value && this.value.getExpression());
+            const [valueEnrichedType, type] = enrichAndProcessType(this.dmType, this.value);
             this.dmType = type;
             this.typeName = getTypeName(valueEnrichedType.type);
 
@@ -88,7 +88,7 @@ export class ObjectOutputNode extends DataMapperNodeModel {
             return;
         }
         const searchValue = useDMSearchStore.getState().outputSearch;
-        const mappings = this.genMappings(this.value.getExpression());
+        const mappings = this.genMappings(this.value);
         this.mappings = getFilteredMappings(mappings, searchValue);
         this.createLinks(this.mappings);
     }
@@ -123,7 +123,7 @@ export class ObjectOutputNode extends DataMapperNodeModel {
                         && !mappedField?.fieldName
                         && mappedField.kind !== TypeKind.Array
                         && mappedField.kind !== TypeKind.Interface
-                    ) || !Node.isObjectLiteralExpression(this.value.getExpression())
+                    ) || !Node.isObjectLiteralExpression(this.value)
                 );
 
                 lm.setTargetPort(mappedOutPort);
@@ -170,8 +170,8 @@ export class ObjectOutputNode extends DataMapperNodeModel {
             const replaceWith = getDefaultValue(typeOfValue.kind);
             field.replaceWithText(replaceWith);
         } else {
-            const linkDeleteVisitor = new LinkDeletingVisitor(field, this.value.getExpression());
-            traversNode(this.value.getExpression(), linkDeleteVisitor);
+            const linkDeleteVisitor = new LinkDeletingVisitor(field, this.value);
+            traversNode(this.value, linkDeleteVisitor);
             const targetNodes = linkDeleteVisitor.getNodesToDelete();
 
             targetNodes.forEach(node => {

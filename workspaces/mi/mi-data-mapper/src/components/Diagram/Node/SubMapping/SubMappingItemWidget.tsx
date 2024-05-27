@@ -9,7 +9,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useState } from "react";
 
-import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, ProgressRing } from "@wso2-enterprise/ui-toolkit";
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { DMType, TypeKind } from "@wso2-enterprise/mi-core";
 import { Block } from "ts-morph";
@@ -73,6 +73,7 @@ export function SubMappingItemWidget(props: SubMappingItemProps) {
     const [ portState, setPortState ] = useState<PortState>(PortState.Unselected);
     const [isHovered, setIsHovered] = useState(false);
     const [isHoveredSeperator, setIsHoveredSeperator] = useState(false);
+    const [deleteInProgress, setDeleteInProgress] = React.useState(false);
 
     const typeName = getTypeName(type);
     const portOut = getPort(`${id}.OUT`);
@@ -98,7 +99,16 @@ export function SubMappingItemWidget(props: SubMappingItemProps) {
 
     const onClickAddSubMapping = () => {
         const varName = genVariableName("subMapping", subMappings.map(mapping => mapping.name));
-        (context.functionST.getBody() as Block).insertStatements(index + 1, `const ${varName} = {};`);
+        const newSubMappingIndex = index + 1;
+        (context.functionST.getBody() as Block).insertStatements(newSubMappingIndex, `const ${varName} = {};`);
+
+        context.addView({
+            targetFieldFQN: "",
+            sourceFieldFQN: "",
+            label: varName,
+            subMappingIndex: newSubMappingIndex
+        });
+
         context.applyModifications();
     };
 
@@ -131,6 +141,24 @@ export function SubMappingItemWidget(props: SubMappingItemProps) {
         setPortState(state)
     };
 
+    const onClickOnExpand = () => {
+        context.addView(
+            {
+                targetFieldFQN: "",
+                sourceFieldFQN: "",
+                label: valueLabel,
+                subMappingIndex: index
+            }
+        );
+    };
+
+    const onClickOnDelete = async () => {
+        setDeleteInProgress(true);
+        (context.functionST.getBody() as Block).removeStatement(index);
+        context.applyModifications();
+        setDeleteInProgress(false);
+    }
+
     return (
         <>
             <div
@@ -153,6 +181,30 @@ export function SubMappingItemWidget(props: SubMappingItemProps) {
                         </Button>
                     )}
                     {label}
+                    <Button
+                        appearance="icon"
+                        data-testid={`go-to-sub-mapping-btn-${index}`}
+                        tooltip="Go to sub mapping"
+                        onClick={onClickOnExpand}
+                    >
+                        <Codicon
+                            name="export"
+                            iconSx={{ color: "var(--vscode-input-placeholderForeground)" }}
+                        />
+                    </Button>
+                    {deleteInProgress ? <ProgressRing sx={{ height: '16px', width: '16px' }} /> :
+                        <Button
+                            appearance="icon"
+                            tooltip="Delete sub mapping"
+                            onClick={onClickOnDelete}
+                            data-testid={`delete-sub-mapping-btn-${index}`}
+                        >
+                            <Codicon
+                                name="trash"
+                                iconSx={{ marginLeft: "5px", color: "var(--vscode-errorForeground)" }}
+                            />
+                        </Button>
+                    }
                 </span>
                 <span className={classes.outPort}>
                     {portOut && (
