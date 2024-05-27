@@ -8,8 +8,6 @@
  */
 
 export const SELECTED_SERVER_PATH = "selected-server-path";
-export const READINESS_ENDPOINT = 'http://localhost:9201/healthz';
-export const COMMAND_PORT = 9005;
 
 export const INCORRECT_SERVER_PATH_MSG = "Unable to locate the MI server at the provided path. Please provide the correct path.";
 

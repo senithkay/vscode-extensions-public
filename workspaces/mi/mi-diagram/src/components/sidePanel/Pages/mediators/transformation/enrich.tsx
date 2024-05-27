@@ -20,8 +20,7 @@ import { MEDIATORS } from '../../../../../resources/constants';
 import { Controller, useForm } from 'react-hook-form';
 import { Keylookup } from '../../../../Form';
 import { ExpressionField, ExpressionFieldValue } from '../../../../Form/ExpressionField/ExpressionInput';
-import { sidepanelAddPage, sidepanelGoBack } from '../../..';
-import ExpressionEditor from '../../../expressionEditor/ExpressionEditor';
+import { handleOpenExprEditor, sidepanelGoBack } from '../../..';
 
 const cardStyle = { 
     display: "block",
@@ -101,7 +100,7 @@ const EnrichForm = (props: AddMediatorProps) => {
     }
     return (
         <>
-            <Typography sx={{ padding: "10px 15px", borderBottom: "1px solid var(--vscode-editorWidget-border)" }} variant="body3">Enriches message content (envelope, body, etc.) based on specification.</Typography>
+            <Typography sx={{ padding: "10px 20px", borderBottom: "1px solid var(--vscode-editorWidget-border)" }} variant="body3">Enriches message content (envelope, body, etc.) based on specification.</Typography>
             <div style={{ padding: "20px" }}>
 
                 <ComponentCard sx={cardStyle} disbaleHoverEffect>
@@ -141,19 +140,7 @@ const EnrichForm = (props: AddMediatorProps) => {
                                     {...field} label="Source XPath"
                                     placeholder=""
                                     canChange={false}
-                                    openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => {
-                                        const content = <ExpressionEditor
-                                            value={value}
-                                            handleOnSave={(value) => {
-                                                setValue(value);
-                                                handleOnCancelExprEditorRef.current();
-                                            }}
-                                            handleOnCancel={() => {
-                                                handleOnCancelExprEditorRef.current();
-                                            }}
-                                        />;
-                                        sidepanelAddPage(sidePanelContext, content, "Expression Editor");
-                                    }}
+                                    openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
                                 />
                             )}
                         />
@@ -262,19 +249,7 @@ const EnrichForm = (props: AddMediatorProps) => {
                                     {...field} label="Target XPath / JSONPath"
                                     placeholder=""
                                     canChange={false}
-                                    openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => {
-                                        const content = <ExpressionEditor
-                                            value={value}
-                                            handleOnSave={(value) => {
-                                                setValue(value);
-                                                handleOnCancelExprEditorRef.current();
-                                            }}
-                                            handleOnCancel={() => {
-                                                handleOnCancelExprEditorRef.current();
-                                            }}
-                                        />;
-                                        sidepanelAddPage(sidePanelContext, content, "Expression Editor");
-                                    }}
+                                    openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
                                 />
                             )}
                         />

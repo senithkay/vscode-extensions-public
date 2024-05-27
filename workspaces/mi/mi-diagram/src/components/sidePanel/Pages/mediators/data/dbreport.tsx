@@ -20,8 +20,7 @@ import { MEDIATORS } from '../../../../../resources/constants';
 import { Controller, useForm } from 'react-hook-form';
 import { ExpressionFieldValue } from '../../../../Form/ExpressionField/ExpressionInput';
 import { ParamManager, ParamConfig, ParamValue } from '../../../../Form/ParamManager/ParamManager';
-import { sidepanelAddPage, sidepanelGoBack } from '../../..';
-import ExpressionEditor from '../../../expressionEditor/ExpressionEditor';
+import { handleOpenExprEditor, sidepanelGoBack } from '../../..';
 
 const cardStyle = { 
     display: "block",
@@ -145,19 +144,7 @@ const DBReportForm = (props: AddMediatorProps) => {
                                                 "1": "EXPRESSION"
                                             }
                                         ], 
-                                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                                            const content = <ExpressionEditor
-                                                value={value}
-                                                handleOnSave={(value) => {
-                                                    setValue(value);
-                                                    handleOnCancelExprEditorRef.current();
-                                                }}
-                                                handleOnCancel={() => {
-                                                    handleOnCancelExprEditorRef.current();
-                                                }}
-                                            />;
-                                            sidepanelAddPage(sidePanelContext, content, "Expression Editor");
-                                        }},
+                                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)},
                                 ]
                             },
                             openInDrawer: true,
@@ -246,7 +233,7 @@ const DBReportForm = (props: AddMediatorProps) => {
     }
     return (
         <>
-            <Typography sx={{ padding: "10px 15px", borderBottom: "1px solid var(--vscode-editorWidget-border)" }} variant="body3">Executes SQL INSERT/UPDATE/DELETE statements, and sets resulting values to message context as local properties.</Typography>
+            <Typography sx={{ padding: "10px 20px", borderBottom: "1px solid var(--vscode-editorWidget-border)" }} variant="body3">Executes SQL INSERT/UPDATE/DELETE statements, and sets resulting values to message context as local properties.</Typography>
             <div style={{ padding: "20px" }}>
 
                 <ComponentCard sx={cardStyle} disbaleHoverEffect>

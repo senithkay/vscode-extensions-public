@@ -45,6 +45,7 @@ export class ArrayFnConnectorNode extends DataMapperNodeModel {
 
     public targetFieldFQN: string;
     public hidden: boolean;
+    public hasInitialized: boolean;
 
     constructor(
         public context: IDataMapperContext,
@@ -162,8 +163,11 @@ export class ArrayFnConnectorNode extends DataMapperNodeModel {
             });
         }
 
-        if (this.targetPort?.hidden){
-            this.hidden = true;
+        const previouslyHidden = this.hidden;
+        this.hidden = this.targetPort?.hidden;
+    
+        if (this.hidden !== previouslyHidden) {
+            this.hasInitialized = false;
         }
         while (this.targetPort && this.targetPort.hidden){
             this.targetPort = this.targetPort.parentModel;
@@ -171,6 +175,9 @@ export class ArrayFnConnectorNode extends DataMapperNodeModel {
     }
 
     initLinks(): void {
+        if (this.hasInitialized) {
+            return;
+        }
         if (!this.hidden) {
             // Create links from "IN" ports and back tracing the inputs
             if (this.sourcePort && this.inPort) {
@@ -233,6 +240,7 @@ export class ArrayFnConnectorNode extends DataMapperNodeModel {
                 this.getModel().addAll(link);
             }
         }
+        this.hasInitialized = true;
     }
 
     public updatePosition() {

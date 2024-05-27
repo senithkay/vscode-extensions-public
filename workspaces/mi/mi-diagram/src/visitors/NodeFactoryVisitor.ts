@@ -223,6 +223,7 @@ export class NodeFactoryVisitor implements Visitor {
                         stRange: addPosition,
                         brokenLine: isBrokenLine ?? (type === NodeTypes.EMPTY_NODE || isSequnceConnect || isEmptyNodeConnect),
                         previousNode: previousStNode.tag,
+                        nextNode: type !== NodeTypes.END_NODE ? node.tag : undefined,
                         parentNode: this.parents.length > 1 ? this.parents[this.parents.length - 1].tag : undefined,
                         showArrow: !isSequnceConnect,
                         showAddButton: showAddButton,

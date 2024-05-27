@@ -10,7 +10,7 @@
 import { Breakpoint, BreakpointEvent, Handles, InitializedEvent, LoggingDebugSession, Scope, StoppedEvent, TerminatedEvent, Thread } from 'vscode-debugadapter';
 import { DebugProtocol } from 'vscode-debugprotocol';
 import * as vscode from 'vscode';
-import { executeBuildTask, executeTasks, getServerPath, isADiagramView, removeTempDebugBatchFile } from './debugHelper';
+import { executeBuildTask, executeTasks, getServerPath, isADiagramView, readPortOffset, removeTempDebugBatchFile } from './debugHelper';
 import { Subject } from 'await-notify';
 import { Debugger } from './debugger';
 import { StateMachine, navigate, openView } from '../stateMachine';
@@ -21,6 +21,7 @@ import { COMMANDS } from '../constants';
 import { INCORRECT_SERVER_PATH_MSG } from './constants';
 import { extension } from '../MIExtensionContext';
 import { EVENT_TYPE } from '@wso2-enterprise/mi-core';
+import { DebuggerConfig } from './config';
 
 export class MiDebugAdapter extends LoggingDebugSession {
     private _configurationDone = new Subject();
@@ -36,7 +37,7 @@ export class MiDebugAdapter extends LoggingDebugSession {
         this.setDebuggerLinesStartAt1(false);
         this.setDebuggerColumnsStartAt1(false);
 
-        this.debuggerHandler = new Debugger(9005, 9006, 'localhost');
+        this.debuggerHandler = new Debugger(DebuggerConfig.getCommandPort(), DebuggerConfig.getEventPort(), DebuggerConfig.getHost());
         // setup event handlers
         this.debuggerHandler.on('stopOnEntry', () => {
             this.sendEvent(new StoppedEvent('entry', MiDebugAdapter.threadID));
@@ -250,31 +251,37 @@ export class MiDebugAdapter extends LoggingDebugSession {
                 } else {
                     this.currentServerPath = serverPath;
                     const isDebugAllowed = !args?.noDebug ?? true;
-                    executeTasks(serverPath, isDebugAllowed)
-                        .then(async () => {
-                            if (args?.noDebug) {
-                                response.success = true;
-                                this.sendResponse(response);
-                            } else {
-                                this.debuggerHandler?.initializeDebugger().then(() => {
+                    readPortOffset(serverPath).then((portOffset) => {
+                        if (portOffset !== undefined) {
+                            DebuggerConfig.setPortOffset(portOffset);
+                        }
+
+                        executeTasks(serverPath, isDebugAllowed)
+                            .then(async () => {
+                                if (args?.noDebug) {
                                     response.success = true;
                                     this.sendResponse(response);
-                                }).catch(error => {
-                                    const completeError = `Error while initializing the Debugger: ${error}`;
+                                } else {
+                                    this.debuggerHandler?.initializeDebugger().then(() => {
+                                        response.success = true;
+                                        this.sendResponse(response);
+                                    }).catch(error => {
+                                        const completeError = `Error while initializing the Debugger: ${error}`;
+                                        vscode.window.showErrorMessage(completeError);
+                                        this.sendError(response, 1, completeError);
+                                    });
+                                }
+                            })
+                            .catch(error => {
+                                const completeError = `Error while launching run and debug: ${error}`;
+                                if (error === INCORRECT_SERVER_PATH_MSG) {
+                                    this.showErrorAndExecuteChangeServerPath(completeError);
+                                } else {
                                     vscode.window.showErrorMessage(completeError);
-                                    this.sendError(response, 1, completeError);
-                                });
-                            }
-                        })
-                        .catch(error => {
-                            const completeError = `Error while launching run and debug: ${error}`;
-                            if (error === INCORRECT_SERVER_PATH_MSG) {
-                                this.showErrorAndExecuteChangeServerPath(completeError);
-                            } else {
-                                vscode.window.showErrorMessage(completeError);
-                            }
-                            this.sendError(response, 1, completeError);
-                        });
+                                }
+                                this.sendError(response, 1, completeError);
+                            });
+                    });
                 }
             });
         });
@@ -394,7 +401,6 @@ export class MiDebugAdapter extends LoggingDebugSession {
     protected async stackTraceRequest(response: DebugProtocol.StackTraceResponse, args: DebugProtocol.StackTraceArguments, request?: DebugProtocol.Request | undefined): Promise<void> {
         const stackFrames: DebugProtocol.StackFrame[] = [];
 
-        // TODO: get the correct path when there are breakpoints in multiple files
         const path = this.debuggerHandler?.getCurrentFilePath() || "";
         const currentBreakpoint = this.debuggerHandler?.getCurrentBreakpoint();
 
@@ -422,9 +428,6 @@ export class MiDebugAdapter extends LoggingDebugSession {
     }
 
     protected async variablesRequest(response: DebugProtocol.VariablesResponse, args: DebugProtocol.VariablesArguments, request?: DebugProtocol.Request | undefined): Promise<void> {
-        // TODO: Check the possibility of using customEvent to load the diagram
-        // const customEvent = { event: "StackTraceUpdated" } as DebugProtocol.Event;
-        // this.sendEvent(customEvent);
         const vars = this.variableHandles.get(args.variablesReference);
         if (vars !== null) {
             let variables: DebugProtocol.Variable[] = Array.isArray(vars) ? vars : [vars];
@@ -450,8 +453,6 @@ export class MiDebugAdapter extends LoggingDebugSession {
     }
 
     protected async scopesRequest(response: DebugProtocol.ScopesResponse, args?: DebugProtocol.ScopesArguments, request?: DebugProtocol.Request | undefined): Promise<void> {
-        // const customEvent = { event: "StackTraceUpdated" } as DebugProtocol.Event;
-        // this.sendEvent(customEvent);
         const variables = await this.debuggerHandler?.getVariables();
 
         const localScope = variables?.map((v: any): any => {

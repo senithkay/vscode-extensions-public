@@ -107,7 +107,7 @@ const JSONTransformForm = (props: AddMediatorProps) => {
     }
     return (
         <>
-            <Typography sx={{ padding: "10px 15px", borderBottom: "1px solid var(--vscode-editorWidget-border)" }} variant="body3">Controls XML to JSON transformations inside a mediation.</Typography>
+            <Typography sx={{ padding: "10px 20px", borderBottom: "1px solid var(--vscode-editorWidget-border)" }} variant="body3">Controls XML to JSON transformations inside a mediation.</Typography>
             <div style={{ padding: "20px" }}>
 
                 <Field>

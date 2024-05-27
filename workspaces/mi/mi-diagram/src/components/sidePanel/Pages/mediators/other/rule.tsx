@@ -19,8 +19,7 @@ import { MEDIATORS } from '../../../../../resources/constants';
 import { Controller, useForm } from 'react-hook-form';
 import { ExpressionField, ExpressionFieldValue } from '../../../../Form/ExpressionField/ExpressionInput';
 import { ParamManager, ParamValue } from '../../../../Form/ParamManager/ParamManager';
-import { sidepanelAddPage, sidepanelGoBack } from '../../..';
-import ExpressionEditor from '../../../expressionEditor/ExpressionEditor';
+import { handleOpenExprEditor, sidepanelGoBack } from '../../..';
 
 const cardStyle = { 
     display: "block",
@@ -122,19 +121,7 @@ const RuleForm = (props: AddMediatorProps) => {
                         },
                         "isRequired": false,
                         "canChange": false, 
-                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                            const content = <ExpressionEditor
-                                value={value}
-                                handleOnSave={(value) => {
-                                    setValue(value);
-                                    handleOnCancelExprEditorRef.current();
-                                }}
-                                handleOnCancel={() => {
-                                    handleOnCancelExprEditorRef.current();
-                                }}
-                            />;
-                            sidepanelAddPage(sidePanelContext, content, "Expression Editor");
-                        }},
+                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)},
                 ]
             },
             outputWrapperName: sidePanelContext?.formValues?.outputWrapperName || "",
@@ -218,7 +205,7 @@ const RuleForm = (props: AddMediatorProps) => {
     }
     return (
         <>
-            <Typography sx={{ padding: "10px 15px", borderBottom: "1px solid var(--vscode-editorWidget-border)" }} variant="body3">Processes XML message by applying a set of rules.</Typography>
+            <Typography sx={{ padding: "10px 20px", borderBottom: "1px solid var(--vscode-editorWidget-border)" }} variant="body3">Processes XML message by applying a set of rules.</Typography>
             <div style={{ padding: "20px" }}>
 
                 <ComponentCard sx={cardStyle} disbaleHoverEffect>
@@ -244,19 +231,7 @@ const RuleForm = (props: AddMediatorProps) => {
                                     {...field} label="Source XPath"
                                     placeholder=""
                                     canChange={false}
-                                    openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => {
-                                        const content = <ExpressionEditor
-                                            value={value}
-                                            handleOnSave={(value) => {
-                                                setValue(value);
-                                                handleOnCancelExprEditorRef.current();
-                                            }}
-                                            handleOnCancel={() => {
-                                                handleOnCancelExprEditorRef.current();
-                                            }}
-                                        />;
-                                        sidepanelAddPage(sidePanelContext, content, "Expression Editor");
-                                    }}
+                                    openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
                                 />
                             )}
                         />
@@ -327,19 +302,7 @@ const RuleForm = (props: AddMediatorProps) => {
                                     {...field} label="Target XPath"
                                     placeholder=""
                                     canChange={false}
-                                    openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => {
-                                        const content = <ExpressionEditor
-                                            value={value}
-                                            handleOnSave={(value) => {
-                                                setValue(value);
-                                                handleOnCancelExprEditorRef.current();
-                                            }}
-                                            handleOnCancel={() => {
-                                                handleOnCancelExprEditorRef.current();
-                                            }}
-                                        />;
-                                        sidepanelAddPage(sidePanelContext, content, "Expression Editor");
-                                    }}
+                                    openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
                                 />
                             )}
                         />
@@ -355,19 +318,7 @@ const RuleForm = (props: AddMediatorProps) => {
                                     {...field} label="Target Result XPath"
                                     placeholder=""
                                     canChange={false}
-                                    openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => {
-                                        const content = <ExpressionEditor
-                                            value={value}
-                                            handleOnSave={(value) => {
-                                                setValue(value);
-                                                handleOnCancelExprEditorRef.current();
-                                            }}
-                                            handleOnCancel={() => {
-                                                handleOnCancelExprEditorRef.current();
-                                            }}
-                                        />;
-                                        sidepanelAddPage(sidePanelContext, content, "Expression Editor");
-                                    }}
+                                    openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
                                 />
                             )}
                         />

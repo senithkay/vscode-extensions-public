@@ -12,7 +12,7 @@ import { CancellationToken, DebugConfiguration, ProviderResult, WorkspaceFolder 
 import { MiDebugAdapter } from './debugAdapter';
 import { COMMANDS } from '../constants';
 import { extension } from '../MIExtensionContext';
-import { executeBuildTask, executeTasks, getServerPath } from './debugHelper';
+import { executeBuildTask, getServerPath } from './debugHelper';
 import { getBuildTask } from './tasks';
 import { navigate } from '../stateMachine';
 import { SELECTED_SERVER_PATH } from './constants';

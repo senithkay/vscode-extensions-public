@@ -88,7 +88,7 @@ const SequenceForm = (props: AddMediatorProps) => {
     }
     return (
         <>
-            <Typography sx={{ padding: "10px 15px", borderBottom: "1px solid var(--vscode-editorWidget-border)" }} variant="body3">Inserts reference to a sequence.</Typography>
+            <Typography sx={{ padding: "10px 20px", borderBottom: "1px solid var(--vscode-editorWidget-border)" }} variant="body3">Inserts reference to a sequence.</Typography>
             <div style={{ padding: "20px" }}>
 
                 <Field>

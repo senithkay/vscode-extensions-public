@@ -12,17 +12,19 @@ import * as vscode from 'vscode';
 import * as childprocess from 'child_process';
 import { COMMANDS } from '../constants';
 import { extension } from '../MIExtensionContext';
-import { getCopyTask, getBuildTask, getRunTask } from './tasks';
+import { getBuildTask, getRunTask } from './tasks';
 import * as fs from 'fs';
 import * as path from 'path';
-import { COMMAND_PORT, INCORRECT_SERVER_PATH_MSG, READINESS_ENDPOINT, SELECTED_SERVER_PATH } from './constants';
+import { INCORRECT_SERVER_PATH_MSG, SELECTED_SERVER_PATH } from './constants';
 import { reject } from 'lodash';
 import axios from 'axios';
 import * as net from 'net';
-import * as os from 'os';
 import { MACHINE_VIEW } from '@wso2-enterprise/mi-core';
 import { StateMachine } from '../stateMachine';
 import { ERROR_LOG, INFO_LOG, logDebug } from '../util/logger';
+import * as toml from 'toml';
+import { DebuggerConfig } from './config';
+import { glob } from 'glob';
 
 export async function isPortActivelyListening(port: number, timeout: number): Promise<boolean> {
     return new Promise<boolean>((resolve) => {
@@ -71,8 +73,7 @@ function checkServerLiveness(): Promise<boolean> {
             socket.destroy();
             resolve(false); // Port is not up
         });
-
-        socket.connect(8290, 'localhost'); // Attempt to connect to the 8290 server port
+        socket.connect(DebuggerConfig.getServerPort(), DebuggerConfig.getHost());
     });
 }
 
@@ -83,7 +84,8 @@ export function checkServerReadiness(): Promise<void> {
 
     return new Promise((resolve, reject) => {
         const checkReadiness = () => {
-            axios.get(READINESS_ENDPOINT)
+            const readinessEndpoint = `http://${DebuggerConfig.getHost()}:${DebuggerConfig.getServerReadinessPort()}/healthz`;
+            axios.get(readinessEndpoint)
                 .then((response: { status: number; data: any; }) => {
                     if (response.status === 200) {
                         if (response.data.status === 'ready') {
@@ -145,16 +147,23 @@ export async function executeBuildTask(task: vscode.Task, serverPath: string, sh
                             if (workspaceFolders && workspaceFolders.length > 0) {
                                 const targetDirectory = vscode.Uri.joinPath(workspaceFolders[0].uri, "target");
                                 if (fs.existsSync(targetDirectory.fsPath)) {
-                                    const copyTask = getCopyTask(serverPath, targetDirectory);
-                                    if (copyTask) {
-                                        executeCopyTask(copyTask).then(() => {
+                                    try {
+                                        const sourceFiles = getCarFiles(targetDirectory);
+                                        if (sourceFiles.length === 0) {
+                                            const errorMessage = "No .car files were found in the target directory. Built without copying to the server's carbonapps directory.";
+                                            logDebug(errorMessage, ERROR_LOG);
+                                            reject(errorMessage);
+                                        } else {
+                                            const targetPath = path.join(serverPath, 'repository', 'deployment', 'server', 'carbonapps');
+                                            sourceFiles.forEach(sourceFile => {
+                                                const destinationFile = path.join(targetPath, path.basename(sourceFile));
+                                                fs.copyFileSync(sourceFile, destinationFile);
+                                            });
                                             logDebug('Build and copy tasks executed successfully', INFO_LOG);
                                             resolve();
-                                        }).catch((error) => {
-                                            reject(error);
-                                        });
-                                    } else {
-                                        reject(INCORRECT_SERVER_PATH_MSG);
+                                        }
+                                    } catch (err) {
+                                        reject(err);
                                     }
                                 }
                             }
@@ -169,6 +178,12 @@ export async function executeBuildTask(task: vscode.Task, serverPath: string, sh
             reject(error);
         });
     });
+}
+
+function getCarFiles(targetDirectory) {
+    const currentPath = path.join(targetDirectory.fsPath, '*.car');
+    const files = glob.sync(currentPath);
+    return files;
 }
 
 export async function executeTasks(serverPath: string, isDebug: boolean): Promise<void> {
@@ -186,12 +201,12 @@ export async function executeTasks(serverPath: string, isDebug: boolean): Promis
                     await vscode.tasks.executeTask(runTask);
                     if (isDebug) {
                         // check if server command port is active
-                        isPortActivelyListening(COMMAND_PORT, maxTimeout).then((isListening) => {
+                        isPortActivelyListening(DebuggerConfig.getCommandPort(), maxTimeout).then((isListening) => {
                             if (isListening) {
                                 resolve();
                                 // Proceed with connecting to the port
                             } else {
-                                logDebug(`The ${COMMAND_PORT} port is not actively listening or the timeout has been reached.`, ERROR_LOG);
+                                logDebug(`The ${DebuggerConfig.getCommandPort()} port is not actively listening or the timeout has been reached.`, ERROR_LOG);
                                 reject(`Server command port isn't actively listening. Stop any running MI servers and restart the debugger.`);
                             }
                         });
@@ -204,7 +219,7 @@ export async function executeTasks(serverPath: string, isDebug: boolean): Promis
             } else {
                 // Server could be running in the background without debug mode, but we need to rerun to support this mode
                 if (isDebug) {
-                    isPortActivelyListening(COMMAND_PORT, maxTimeout).then((isListening) => {
+                    isPortActivelyListening(DebuggerConfig.getCommandPort(), maxTimeout).then((isListening) => {
                         if (isListening) {
                             resolve();
                             // Proceed with connecting to the port
@@ -305,5 +320,18 @@ export function removeTempDebugBatchFile() {
     if (tempWindowsDebug) {
         fs.unlinkSync(tempWindowsDebug);
         tempWindowsDebug = undefined;
+    }
+}
+
+export async function readPortOffset(serverConfigPath: string): Promise<number | undefined> {
+    try {
+        const configPath = path.join(serverConfigPath, 'conf', 'deployment.toml');
+        const content = await fs.promises.readFile(configPath, 'utf-8');
+        const config = toml.parse(content);
+        const offset = config?.server?.offset;
+        return offset;
+    } catch (error) {
+        logDebug(`Failed to read or parse deployment.toml: ${error}`, ERROR_LOG);
+        return undefined;
     }
 }

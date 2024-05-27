@@ -3265,6 +3265,7 @@ importers:
       rimraf: ~5.0.5
       tmp: ~0.2.3
       to-json-schema: 0.2.4
+      toml: ^3.0.0
       tree-kill: ^1.2.2
       ts-loader: ^9.4.4
       ts-morph: ^22.0.0
@@ -3313,6 +3314,7 @@ importers:
       recast: 0.20.5
       tmp: 0.2.3
       to-json-schema: 0.2.4
+      toml: 3.0.0
       tree-kill: 1.2.2
       unzipper: 0.10.14
       uuid: 9.0.1
