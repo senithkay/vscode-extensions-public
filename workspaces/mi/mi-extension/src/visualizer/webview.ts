@@ -84,6 +84,10 @@ export class VisualizerWebview {
                 ]
             }
         );
+        panel.iconPath = {
+			light: Uri.file(path.join(extension.context.extensionPath, 'assets', 'light-icon.svg')),
+			dark: Uri.file(path.join(extension.context.extensionPath, 'assets', 'dark-icon.svg'))
+		};
         return panel;
     }
 
