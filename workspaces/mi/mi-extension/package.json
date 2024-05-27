@@ -77,24 +77,24 @@
     "configuration": [
       {
         "type": "object",
-        "title": "Integration Studio",
+        "title": "Micro Integrator",
         "properties": {
-          "integrationStudio.rootUrl": {
+          "MI.rootUrl": {
             "type": "string",
             "default": "https://e95488c8-8511-4882-967f-ec3ae2a0f86f-prod.e1-us-east-azure.choreoapis.dev/miaideployments/micopilot/mi-copilot-backend-be2/v1.0",
             "description": "Root URL for Backend Services\n Default: https://e95488c8-8511-4882-967f-ec3ae2a0f86f-prod.e1-us-east-azure.choreoapis.dev/miaideployments/micopilot/mi-copilot-backend-be2/v1.0"
           },
-          "integrationStudio.authOrg": {
+          "MI.authOrg": {
             "type": "string",
             "default": "wso2mi",
             "description": "Asgardeo Organization for Auth Services\nDefault: wso2mi"
           },
-          "integrationStudio.authClientID": {
+          "MI.authClientID": {
             "type": "string",
             "default": "rTEgoRFEQMc1baXcsO6_AU1ugjAa",
             "description": "Client ID of the Asgardeo Organization for Auth Services\n Default: rTEgoRFEQMc1baXcsO6_AU1ugjAa"
           },
-          "integrationStudio.authRedirectURL": {
+          "MI.authRedirectURL": {
             "type": "string",
             "default": "https://mi-copilot.wso2.com/vscode-auth",
             "description": "Redirect URL for Auth Service \n Default: https://mi-copilot.wso2.com/vscode-auth"

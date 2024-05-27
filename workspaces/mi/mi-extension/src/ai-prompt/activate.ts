@@ -30,7 +30,7 @@ export function activateAiPrompt(context: vscode.ExtensionContext) {
 				progress.report({ increment: 0 });
 
 				try {
-					const apiKey = vscode.workspace.getConfiguration('integrationStudio').get('apiKey');
+					const apiKey = vscode.workspace.getConfiguration('MI').get('apiKey');
 					if (!apiKey) {
 						vscode.window.showErrorMessage('Please set your OpenAI API key in the settings.');
 						return;

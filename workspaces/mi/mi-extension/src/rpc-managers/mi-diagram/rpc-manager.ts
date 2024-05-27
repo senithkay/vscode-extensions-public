@@ -2936,7 +2936,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
     async getBackendRootUrl(): Promise<GetBackendRootUrlResponse> {
 
-        const config = vscode.workspace.getConfiguration('integrationStudio');
+        const config = vscode.workspace.getConfiguration('MI');
         const ROOT_URL = config.get('rootUrl') as string;
         return { url: ROOT_URL };
     }
@@ -3238,7 +3238,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             'Accept': 'application/json'
         };
         const refresh_token = await extension.context.secrets.get('MIAIRefreshToken');
-        const config = vscode.workspace.getConfiguration('integrationStudio');
+        const config = vscode.workspace.getConfiguration('MI');
         const AUTH_ORG = config.get('authOrg') as string;
         const AUTH_CLIENT_ID = config.get('authClientID') as string;
         if (!refresh_token) {
