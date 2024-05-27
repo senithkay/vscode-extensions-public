@@ -161,6 +161,26 @@ export class ArrayFnConnectorNode extends DataMapperNodeModel {
                     });
                 }
             });
+        } else if (Node.isVariableDeclaration(this.parentNode)) {
+            // When the local variable initializer is map function
+            const exprPosition = getPosition(this.parentNode.getInitializer());
+            this.getModel().getNodes().forEach((node) => {
+                if (node instanceof ArrayOutputNode) {
+                    const ports = Object.entries(node.getPorts());
+                    ports.map((entry) => {
+                        const port = entry[1];
+                        if (port instanceof InputOutputPortModel
+                            && port?.typeWithValue && port.typeWithValue?.value
+                            && Node.isCallExpression(port.typeWithValue.value)
+                            && isPositionsEquals(getPosition(port.typeWithValue.value), exprPosition)
+                            && port.portName === `${ARRAY_OUTPUT_TARGET_PORT_PREFIX}${node.rootName ? `.${node.rootName}` : ''}`
+                            && port.portType === 'IN'
+                        ) {
+                            this.targetPort = port;
+                        }
+                    });
+                }
+            });
         }
 
         const previouslyHidden = this.hidden;
