@@ -47,6 +47,8 @@ export class LinkConnectorNode extends DataMapperNodeModel {
     public hasInitialized: boolean;
     public innerNode: Node;
 
+    private _isFocusedOnSubMapping: boolean;
+
     constructor(
         public context: IDataMapperContext,
         public valueNode: Node,
@@ -86,7 +88,7 @@ export class LinkConnectorNode extends DataMapperNodeModel {
         this.addPort(this.inPort);
         this.addPort(this.outPort);
 
-        const isFocusedOnSubMapping = Node.isVariableStatement(this.context.focusedST);
+        this._isFocusedOnSubMapping = Node.isVariableStatement(this.context.focusedST);
 
         this.inputAccessNodes.forEach((field) => {
             const inputNode = findInputNode(field, this);
@@ -104,7 +106,7 @@ export class LinkConnectorNode extends DataMapperNodeModel {
                 ) {
                     const targetPortPrefix = getTargetPortPrefix(node);
 
-                    if (Node.isBlock(this.parentNode) || (isFocusedOnSubMapping && !this.parentNode)) {
+                    if (Node.isBlock(this.parentNode) || (this._isFocusedOnSubMapping && !this.parentNode)) {
                         if (!(node instanceof ObjectOutputNode)) {
                             const typeName = targetPortPrefix === PRIMITIVE_OUTPUT_TARGET_PORT_PREFIX
                                 ? node.dmTypeWithValue.type.kind
@@ -243,6 +245,7 @@ export class LinkConnectorNode extends DataMapperNodeModel {
         const targetNode = this.targetPort.getNode();
         const { functionST, applyModifications } = this.context;
         const exprFuncBodyPosition = getPosition(functionST.getBody());
+        const defaultValue = getDefaultValue(targetField?.kind);
 
         if ((!targetField?.fieldName
             && targetField?.kind !== TypeKind.Array
@@ -253,7 +256,7 @@ export class LinkConnectorNode extends DataMapperNodeModel {
             if (Node.isVariableStatement) {
                 targetNode = this.innerNode;
             }
-            targetNode.replaceWithText(getDefaultValue(targetField?.kind));
+            targetNode.replaceWithText(defaultValue);
         } else {
             let rootExpr = this.parentNode;
             if (targetNode instanceof ObjectOutputNode || targetNode instanceof ArrayOutputNode) {
@@ -267,7 +270,11 @@ export class LinkConnectorNode extends DataMapperNodeModel {
                 const parentNode = node.getParent();
 
                 if (Node.isPropertyAssignment(node)) {
-                    node.remove();
+                    if (this._isFocusedOnSubMapping) {
+                        node.getInitializer().replaceWithText(defaultValue);
+                    } else {
+                        node.remove();
+                    }
                 } else if (parentNode && Node.isArrayLiteralExpression(parentNode)) {
                     const elementIndex = parentNode.getElements().find(e => e === node);
                     parentNode.removeElement(elementIndex);
