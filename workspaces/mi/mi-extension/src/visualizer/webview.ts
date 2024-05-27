@@ -19,6 +19,7 @@ import { debounce } from 'lodash';
 import { navigate, StateMachine } from '../stateMachine';
 import { MACHINE_VIEW } from '@wso2-enterprise/mi-core';
 import { COMMANDS, REFRESH_ENABLED_DOCUMENTS } from '../constants';
+import { AiPanelWebview } from '../ai-panel/webview';
 
 export class VisualizerWebview {
     public static currentPanel: VisualizerWebview | undefined;
@@ -46,7 +47,16 @@ export class VisualizerWebview {
             if (!REFRESH_ENABLED_DOCUMENTS.includes(document.document.languageId)) {
                 return;
             }
-            await document.document.save();
+            if (VisualizerWebview.currentPanel?.getWebview()?.active || AiPanelWebview.currentPanel?.getWebview()?.active) {
+                await document.document.save();
+                refreshDiagram();
+            }
+        }, extension.context);
+
+        vscode.workspace.onDidSaveTextDocument(async function (document) {
+            if (!REFRESH_ENABLED_DOCUMENTS.includes(document.languageId)) {
+                return;
+            }
             refreshDiagram();
         }, extension.context);
 
@@ -85,9 +95,9 @@ export class VisualizerWebview {
             }
         );
         panel.iconPath = {
-			light: Uri.file(path.join(extension.context.extensionPath, 'assets', 'light-icon.svg')),
-			dark: Uri.file(path.join(extension.context.extensionPath, 'assets', 'dark-icon.svg'))
-		};
+            light: Uri.file(path.join(extension.context.extensionPath, 'assets', 'light-icon.svg')),
+            dark: Uri.file(path.join(extension.context.extensionPath, 'assets', 'dark-icon.svg'))
+        };
         return panel;
     }
 
