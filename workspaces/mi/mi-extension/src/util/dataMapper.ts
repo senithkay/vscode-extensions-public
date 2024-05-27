@@ -151,7 +151,7 @@ function getTypeInfoForObject(typeNode: Type, sourceFile: SourceFile): DMType {
     properties.forEach(property => {
         const decls = property.getDeclarations();
         const dmType = decls.map(decl => {
-            if (Node.isPropertySignature(decl)) {
+            if (Node.isPropertySignature(decl) || Node.isPropertyAssignment(decl)) {
                 return {
                     ...getTypeInfo(decl.getType()!, sourceFile),
                     fieldName: decl.getName()
