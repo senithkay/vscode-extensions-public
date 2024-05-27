@@ -37,10 +37,13 @@ export function getCopyTask(serverPath: string, targetDirectory: vscode.Uri): vs
         return;
     }
 
+    const wildcardIndex = currentPath.indexOf('*');
+    const pathBeforeWildcard = currentPath.substring(0, wildcardIndex);
+
     if (process.platform === 'win32') {
-        commandToExecute = `copy ${currentPath} ${targetPath}`;
+        commandToExecute = `copy "${pathBeforeWildcard}"*.car "${targetPath}"`;
     } else {
-        commandToExecute = `cp -f ${currentPath} ${targetPath}`;
+        commandToExecute = `cp -f "${pathBeforeWildcard}"*.car "${targetPath}"`;
     }
 
     const copyTask = new vscode.Task(
