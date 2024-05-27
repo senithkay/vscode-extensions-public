@@ -39,10 +39,18 @@ export class VisualizerWebview {
         }, 500);
 
         vscode.workspace.onDidChangeTextDocument(async function (document) {
-            if (document && document.document.languageId === "ballerina") {
+            if (document && document.document.languageId !== "ballerina") {
+                return;
+
+            }
+            if (VisualizerWebview.currentPanel?.getWebview()?.active) {
                 await document.document.save();
                 sendUpdateNotificationToWebview();
             }
+        }, extension.context);
+
+        vscode.workspace.onDidSaveTextDocument(async function (document) {
+            sendUpdateNotificationToWebview();
         }, extension.context);
     }
 

@@ -40,21 +40,22 @@ export class RPCLayer {
                     RPCLayer._messenger.sendNotification(stateChanged, { type: 'webview', webviewType: ActivityPanel.viewType }, state.value);
                 });
             });
-
-            RPCLayer._messenger.onRequest(getVisualizerLocation, () => getContext());
-            registerVisualizerRpcHandlers(RPCLayer._messenger);
-            registerLangServerRpcHandlers(RPCLayer._messenger);
-            registerEggplantDiagramRpcHandlers(RPCLayer._messenger);
-            registerLibraryBrowserRpcHandlers(RPCLayer._messenger);
-            registerServiceDesignerRpcHandlers(RPCLayer._messenger);
-            registerCommonRpcHandlers(RPCLayer._messenger);
         }
-
-
     }
 
     static create(webViewPanel: WebviewPanel | WebviewView) {
         return new RPCLayer(webViewPanel);
+    }
+
+    static init() {
+        // ----- Main Webview RPC Methods
+        RPCLayer._messenger.onRequest(getVisualizerLocation, () => getContext());
+        registerVisualizerRpcHandlers(RPCLayer._messenger);
+        registerLangServerRpcHandlers(RPCLayer._messenger);
+        registerEggplantDiagramRpcHandlers(RPCLayer._messenger);
+        registerLibraryBrowserRpcHandlers(RPCLayer._messenger);
+        registerServiceDesignerRpcHandlers(RPCLayer._messenger);
+        registerCommonRpcHandlers(RPCLayer._messenger);
     }
 }
 
