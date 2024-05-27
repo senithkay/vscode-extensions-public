@@ -13,15 +13,13 @@ import {
     FunctionDeclaration,
     ReturnStatement,
     ArrayLiteralExpression,
-    Identifier,
-    PropertyAccessExpression,
     CallExpression,
-    ElementAccessExpression
+    VariableStatement
 } from "ts-morph";
-import { DMType, TypeKind } from "@wso2-enterprise/mi-core";
+import { TypeKind } from "@wso2-enterprise/mi-core";
 
 import { Visitor } from "../../ts/base-visitor";
-import { ObjectOutputNode, InputNode, LinkConnectorNode, ArrayOutputNode } from "../Diagram/Node";
+import { ObjectOutputNode } from "../Diagram/Node";
 import { DataMapperNodeModel } from "../Diagram/Node/commons/DataMapperNode";
 import { DataMapperContext } from "../../utils/DataMapperContext/DataMapperContext";
 import { InputDataImportNodeModel, OutputDataImportNodeModel } from "../Diagram/Node/DataImport/DataImportNode";
@@ -29,7 +27,6 @@ import {
     canConnectWithLinkConnector,
     getInputAccessNodes,
     getCallExprReturnStmt,
-    getTypeName,
     isConditionalExpression,
     isMapFunction
 } from "../Diagram/utils/common-utils";
@@ -39,8 +36,14 @@ import { getDMType, getDMTypeForRootChaninedMapFunction } from "../Diagram/utils
 import { UnsupportedExprNodeKind, UnsupportedIONode } from "../Diagram/Node/UnsupportedIO";
 import { OFFSETS } from "../Diagram/utils/constants";
 import { FocusedInputNode } from "../Diagram/Node/FocusedInput";
-import { PrimitiveOutputNode } from "../Diagram/Node/PrimitiveOutput";
 import { SubMappingNode } from "../Diagram/Node/SubMapping";
+import {
+    createInputNodeForDmFunction,
+    createLinkConnectorNode,
+    createOutputNodeForDmFunction,
+    getOutputNode,
+    isObjectOrArrayLiteralExpression
+} from "../Diagram/utils/node-utils";
 
 export class NodeInitVisitor implements Visitor {
     private inputNode: DataMapperNodeModel | InputDataImportNodeModel;
@@ -48,12 +51,13 @@ export class NodeInitVisitor implements Visitor {
     private intermediateNodes: DataMapperNodeModel[] = [];
     private mapIdentifiers: Node[] = [];
     private isWithinMapFn = 0;
+    private isWithinVariableStmt = 0;
 
     constructor(private context: DataMapperContext) {}
 
     beginVisitFunctionDeclaration(node: FunctionDeclaration): void {
-        this.inputNode = this.createInputNodeForDmFunction(node);
-        this.outputNode = this.createOutputNodeForDmFunction(node);
+        this.inputNode = createInputNodeForDmFunction(node, this.context);
+        this.outputNode = createOutputNodeForDmFunction(node, this.context);
     }
 
     beginVisitPropertyAssignment(node: PropertyAssignment, parent?: Node): void {
@@ -82,13 +86,7 @@ export class NodeInitVisitor implements Visitor {
                 );
             } else if (exprType?.kind === TypeKind.Array) {
                 const { memberType } = exprType;
-                if (memberType.kind === TypeKind.Interface) {
-                    this.outputNode = new ObjectOutputNode(this.context, innerExpr, memberType);
-                } else if (memberType.kind === TypeKind.Array) {
-                    this.outputNode = new ArrayOutputNode(this.context, innerExpr, memberType);
-                } else {
-                    this.outputNode = new PrimitiveOutputNode(this.context, innerExpr, memberType);
-                }
+                this.outputNode = getOutputNode(this.context, innerExpr, memberType);
             } else {
                 if (exprType?.kind === TypeKind.Interface) {
                     this.outputNode = new ObjectOutputNode(this.context, innerExpr, exprType);
@@ -97,8 +95,8 @@ export class NodeInitVisitor implements Visitor {
                 }
                 if (isConditionalExpression(innerExpr)) {
                     const inputNodes = getInputAccessNodes(returnStatement);
-                    const linkConnectorNode = this.createLinkConnectorNode(
-                        node, "", parent, inputNodes, this.mapIdentifiers.slice(0)
+                    const linkConnectorNode = createLinkConnectorNode(
+                        node, "", parent, inputNodes, this.mapIdentifiers.slice(0), this.context
                     );
                     this.intermediateNodes.push(linkConnectorNode);
                 }
@@ -115,11 +113,15 @@ export class NodeInitVisitor implements Visitor {
             this.inputNode = focusedInputNode;
         } else {
             const initializer = node.getInitializer();
-            if (initializer && !this.isObjectOrArrayLiteralExpression(initializer) && this.isWithinMapFn === 0) {
+            if (initializer
+                && !isObjectOrArrayLiteralExpression(initializer)
+                && this.isWithinMapFn === 0
+                && this.isWithinVariableStmt === 0
+            ) {
                 const inputAccessNodes = getInputAccessNodes(initializer);
                 if (canConnectWithLinkConnector(inputAccessNodes, initializer)) {
-                    const linkConnectorNode = this.createLinkConnectorNode(
-                        node, node.getName(), parent, inputAccessNodes, this.mapIdentifiers.slice(0)
+                    const linkConnectorNode = createLinkConnectorNode(
+                        node, node.getName(), parent, inputAccessNodes, this.mapIdentifiers.slice(0), this.context
                     );
                     this.intermediateNodes.push(linkConnectorNode);
                 }
@@ -146,13 +148,7 @@ export class NodeInitVisitor implements Visitor {
 
             if (outputType.kind === TypeKind.Array) {
                 const { memberType } = outputType;
-                if (memberType.kind === TypeKind.Interface) {
-                    this.outputNode = new ObjectOutputNode(this.context, mapFnReturnExpr, memberType);
-                } else if (memberType.kind === TypeKind.Array) {
-                    this.outputNode = new ArrayOutputNode(this.context, mapFnReturnExpr, memberType);
-                } else {
-                    this.outputNode = new PrimitiveOutputNode(this.context, mapFnReturnExpr, memberType);
-                }
+                this.outputNode = getOutputNode(this.context, mapFnReturnExpr, memberType);
             } else if (outputTree?.kind === TypeKind.Interface) {
                 this.outputNode = new ObjectOutputNode(this.context, mapFnReturnExpr, outputTree);
             } else {
@@ -175,13 +171,14 @@ export class NodeInitVisitor implements Visitor {
 
         // Create link connector node for expressions within return statements
         if (this.isWithinMapFn === 0
+            && this.isWithinVariableStmt === 0
             && !Node.isObjectLiteralExpression(returnExpr)
             && !Node.isArrayLiteralExpression(returnExpr)
         ) {
             const inputAccessNodes = getInputAccessNodes(returnExpr);
             if (inputAccessNodes.length > 1) {
-                const linkConnectorNode = this.createLinkConnectorNode(
-                    returnExpr, "", parent, inputAccessNodes, [...this.mapIdentifiers, returnExpr]
+                const linkConnectorNode = createLinkConnectorNode(
+                    returnExpr, "", parent, inputAccessNodes, [...this.mapIdentifiers, returnExpr], this.context
                 );
                 this.intermediateNodes.push(linkConnectorNode);
             }
@@ -198,11 +195,11 @@ export class NodeInitVisitor implements Visitor {
 
         if (elements) {
             elements.forEach(element => {
-                if (!this.isObjectOrArrayLiteralExpression(element)) {
+                if (!isObjectOrArrayLiteralExpression(element)) {
                     const inputAccessNodes = getInputAccessNodes(element);
                     if (canConnectWithLinkConnector(inputAccessNodes, element)) {
-                        const linkConnectorNode = this.createLinkConnectorNode(
-                            element, "", parent, inputAccessNodes, [...this.mapIdentifiers, element]
+                        const linkConnectorNode = createLinkConnectorNode(
+                            element, "", parent, inputAccessNodes, [...this.mapIdentifiers, element], this.context
                         );
                         this.intermediateNodes.push(linkConnectorNode);
                     }
@@ -227,6 +224,30 @@ export class NodeInitVisitor implements Visitor {
             this.isWithinMapFn += 1;
             const arrayFnConnectorNode = new ArrayFnConnectorNode(this.context, node, parent);
             this.intermediateNodes.push(arrayFnConnectorNode);
+        }
+    }
+
+    beginVisitVariableStatement(node: VariableStatement, parent: Node): void {
+        const { focusedST, views } = this.context;
+        const { label } = views[views.length - 1];
+        // Constraint: Only one variable declaration is allowed in a local variable statement. 
+        const varDecl = node.getDeclarations()[0];
+    
+        const isFocusedST = isPositionsEquals(getPosition(node), getPosition(focusedST));
+        
+        if (isFocusedST) {
+            const initializer = varDecl.getInitializer();
+            if (initializer && !isObjectOrArrayLiteralExpression(initializer) && this.isWithinMapFn === 0) {
+                const inputAccessNodes = getInputAccessNodes(initializer);
+                if (canConnectWithLinkConnector(inputAccessNodes, initializer)) {
+                    const linkConnectorNode = createLinkConnectorNode(
+                        node, label, parent, inputAccessNodes, this.mapIdentifiers.slice(0), this.context
+                    );
+                    this.intermediateNodes.push(linkConnectorNode);
+                }
+            }
+        } else {
+            this.isWithinVariableStmt += 1;
         }
     }
 
@@ -260,91 +281,13 @@ export class NodeInitVisitor implements Visitor {
         }
     }
 
-    private createInputNodeForDmFunction(
-        node: FunctionDeclaration
-    ): InputNode | InputDataImportNodeModel {
-        /* Constraints:
-            1. The function should and must have a single parameter
-            2. The parameter type should be an interface or an array
-            3. Tuple and union parameter types are not supported
-        */
-        const param = node.getParameters()[0];
-        const inputType = param && this.context.inputTrees.find(inputTree =>
-            getTypeName(inputTree) === param.getType().getText());
-    
-        if (inputType && this.hasFields(inputType)) {
-            // Create input node
-            const inputNode = new InputNode(this.context, param);
-            inputNode.setPosition(0, 0);
-            return inputNode;
-        } else {
-            // Create input data import node
-            return new InputDataImportNodeModel();
-        }
-    }
-    
-    private createOutputNodeForDmFunction(
-        node: FunctionDeclaration
-    ): ArrayOutputNode | ObjectOutputNode | OutputDataImportNodeModel {
-        /* Constraints:
-            1. The function should have a return type and it should not be void
-            2. The return type should be an interface or an array
-            3. Tuple and union return types are not supported
-        */
-        const returnType = node.getReturnType();
-        const outputType = returnType && !returnType.isVoid() && this.context.outputTree;
-    
-        if (outputType && this.hasFields(outputType)) {
-            const body = node.getBody();
-    
-            if (Node.isBlock(body)) {
-                const returnStatement = body.getStatements().find((statement) =>
-                    Node.isReturnStatement(statement)) as ReturnStatement;
-                const returnExpr = returnStatement?.getExpression();
+    endVisitVariableStatement(node: VariableStatement, parent: Node): void {
+        const { focusedST } = this.context;
+        const isFocusedST = isPositionsEquals(getPosition(node), getPosition(focusedST));
         
-                // Create output node based on return type
-                if (returnType.isInterface()) {
-                    return new ObjectOutputNode(this.context, returnExpr, outputType);
-                } else if (returnType.isArray()) {
-                    return new ArrayOutputNode(this.context, returnExpr, outputType);
-                }
-            }
+        if (!isFocusedST) {
+            this.isWithinVariableStmt -= 1;
         }
-    
-        // Create output data import node
-        return new OutputDataImportNodeModel();
-    }
-
-    private createLinkConnectorNode(
-        node: Node,
-        label: string,
-        parent: Node | undefined,
-        inputAccessNodes: (Identifier | ElementAccessExpression | PropertyAccessExpression)[],
-        fields: Node[]
-    ): LinkConnectorNode {
-
-        return new LinkConnectorNode(
-            this.context,
-            node,
-            label,
-            parent,
-            inputAccessNodes,
-            fields
-        );
-    }
-
-    private hasFields(type: DMType): boolean {
-        if (type.kind === TypeKind.Interface) {
-            return type.fields && type.fields.length > 0;
-        } else if (type.kind === TypeKind.Array) {
-            return this.hasFields(type.memberType);
-        }
-        return false;
-    }
-
-    private isObjectOrArrayLiteralExpression(node: Node): boolean {
-        return Node.isObjectLiteralExpression(node)
-            || Node.isArrayLiteralExpression(node);
     }
 
     getNodes() {
@@ -358,6 +301,10 @@ export class NodeInitVisitor implements Visitor {
     }
 
     getInputNode() {
-        return this.createInputNodeForDmFunction(this.context.functionST);
+        return createInputNodeForDmFunction(this.context.functionST, this.context);
+    }
+
+    getIntermediateNodes() {
+        return this.intermediateNodes;
     }
 }

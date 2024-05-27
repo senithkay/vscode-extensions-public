@@ -25,7 +25,7 @@ import { useDMSearchStore, useDMSidePanelStore } from "../../store/store";
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getTypeName } from "../Diagram/utils/common-utils";
 import { getSubMappingTypes, getTypeForVariable } from "../Diagram/utils/type-utils";
-import { getSubMappingOutputNode } from "../Diagram/utils/node-utils";
+import { getOutputNode } from "../Diagram/utils/node-utils";
 
 const classes = {
     root: css({
@@ -109,9 +109,13 @@ export function MIDataMapper(props: MIDataMapperProps) {
                 const subMappingTypes = await getSubMappingTypes(rpcClient, filePath, fnST.getName());
                 const subMappingType = getTypeForVariable(subMappingTypes, varDecl);
 
+                traversNode(focusedST, nodeInitVisitor);
+
                 const inputNode = nodeInitVisitor.getInputNode();
-                const outputNode = getSubMappingOutputNode(context, varDecl.getInitializer(), subMappingType);
-                setNodes([inputNode, outputNode]);
+                const intermediateNodes = nodeInitVisitor.getIntermediateNodes();
+                const outputNode = getOutputNode(context, varDecl.getInitializer(), subMappingType);
+
+                setNodes([inputNode, outputNode, ...intermediateNodes]);
             } else {
                 let focusedST: FunctionDeclaration | PropertyAssignment | ReturnStatement = fnST;
     

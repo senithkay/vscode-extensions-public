@@ -45,6 +45,7 @@ export class LinkConnectorNode extends DataMapperNodeModel {
     public diagnostics: Diagnostic[];
     public hidden: boolean;
     public hasInitialized: boolean;
+    public innerNode: Node;
 
     constructor(
         public context: IDataMapperContext,
@@ -60,10 +61,18 @@ export class LinkConnectorNode extends DataMapperNodeModel {
             context,
             LINK_CONNECTOR_NODE_TYPE
         );
+
         if (Node.isPropertyAssignment(valueNode)) {
-            this.value = valueNode.getInitializer() ? valueNode.getInitializer().getText().trim() : '';
+            this.innerNode = valueNode.getInitializer();
+            this.value = this.innerNode ? this.innerNode.getText().trim() : '';
             this.diagnostics = getDiagnostics(valueNode.getInitializer());
+        } else if (Node.isVariableStatement(valueNode)) {
+            const varDecl = valueNode.getDeclarations()[0];
+            this.innerNode = varDecl.getInitializer();
+            this.value = this.innerNode ? this.innerNode.getText().trim() : '';
+            this.diagnostics = getDiagnostics(valueNode);
         } else {
+            this.innerNode = this.valueNode;
             this.value = valueNode.getText().trim();
             this.diagnostics = getDiagnostics(valueNode);
         }
@@ -72,16 +81,12 @@ export class LinkConnectorNode extends DataMapperNodeModel {
     initPorts(): void {
         this.sourcePorts = [];
         this.targetMappedPort = undefined;
-        this.inPort = new IntermediatePortModel(
-            md5(JSON.stringify(getPosition(this.valueNode)) + "IN")
-            , "IN"
-        );
+        this.inPort = new IntermediatePortModel(md5(JSON.stringify(getPosition(this.valueNode)) + "IN"), "IN");
+        this.outPort = new IntermediatePortModel(md5(JSON.stringify(getPosition(this.valueNode)) + "OUT"), "OUT");
         this.addPort(this.inPort);
-        this.outPort = new IntermediatePortModel(
-            md5(JSON.stringify(getPosition(this.valueNode)) + "OUT")
-            , "OUT"
-        );
         this.addPort(this.outPort);
+
+        const isFocusedOnSubMapping = Node.isVariableStatement(this.context.focusedST);
 
         this.inputAccessNodes.forEach((field) => {
             const inputNode = findInputNode(field, this);
@@ -99,7 +104,7 @@ export class LinkConnectorNode extends DataMapperNodeModel {
                 ) {
                     const targetPortPrefix = getTargetPortPrefix(node);
 
-                    if (Node.isBlock(this.parentNode)) {
+                    if (Node.isBlock(this.parentNode) || (isFocusedOnSubMapping && !this.parentNode)) {
                         if (!(node instanceof ObjectOutputNode)) {
                             const typeName = targetPortPrefix === PRIMITIVE_OUTPUT_TARGET_PORT_PREFIX
                                 ? node.dmTypeWithValue.type.kind
@@ -218,11 +223,7 @@ export class LinkConnectorNode extends DataMapperNodeModel {
 
     updateSource(suffix: string): void {
         this.value = `${this.value} + ${suffix}`;
-        const targetNode = Node.isPropertyAssignment(this.valueNode)
-            ? this.valueNode.getInitializer()
-            : this.valueNode;
-        
-        targetNode.replaceWithText(this.value);
+        this.innerNode.replaceWithText(this.value);
         this.context.applyModifications();
     }
 
@@ -248,7 +249,11 @@ export class LinkConnectorNode extends DataMapperNodeModel {
             && targetField?.kind !== TypeKind.Interface)
                 || isPositionsEquals(exprFuncBodyPosition, getPosition(this.valueNode)))
         {
-            this.valueNode.replaceWithText(getDefaultValue(targetField?.kind));
+            let targetNode = this.valueNode;
+            if (Node.isVariableStatement) {
+                targetNode = this.innerNode;
+            }
+            targetNode.replaceWithText(getDefaultValue(targetField?.kind));
         } else {
             let rootExpr = this.parentNode;
             if (targetNode instanceof ObjectOutputNode || targetNode instanceof ArrayOutputNode) {

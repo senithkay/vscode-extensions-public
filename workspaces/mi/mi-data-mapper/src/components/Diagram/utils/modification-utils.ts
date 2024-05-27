@@ -362,7 +362,7 @@ export function modifySourceForMultipleMappings(link: DataMapperLinkModel) {
 	
 				if (sourcePort instanceof IntermediatePortModel) {
 					if (sourcePort.getParent() instanceof LinkConnectorNode) {
-						valueNode = (sourcePort.getParent() as LinkConnectorNode).valueNode;
+						valueNode = (sourcePort.getParent() as LinkConnectorNode).innerNode;
 					}
 				} else if (targerPortLink.getLabels().length > 0) {
 					valueNode = (targerPortLink.getLabels()[0] as ExpressionLabelModel).valueNode;
@@ -375,7 +375,7 @@ export function modifySourceForMultipleMappings(link: DataMapperLinkModel) {
 						node instanceof LinkConnectorNode
 						&& node.targetPort.portName === (targerPortLink.getTargetPort() as InputOutputPortModel).portName
 					);
-					valueNode = (linkConnector as LinkConnectorNode).valueNode;
+					valueNode = (linkConnector as LinkConnectorNode).innerNode;
 				}
 
 				const newSource = `${valueNode.getText()} + ${rhs}`;

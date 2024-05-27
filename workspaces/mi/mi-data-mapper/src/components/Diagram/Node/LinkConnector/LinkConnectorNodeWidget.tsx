@@ -43,12 +43,7 @@ export function LinkConnectorNodeWidget(props: LinkConnectorNodeWidgetProps) {
     const [deleteInProgress, setDeleteInProgress] = useState(false);
 
     const onClickEdit = () => {
-        let nodeToBeEdited = node.valueNode;
-
-        if (Node.isPropertyAssignment(node.valueNode)) {
-            nodeToBeEdited = node.valueNode.getInitializer();
-        }
-
+        let nodeToBeEdited = node.innerNode;
         const range = getEditorLineAndColumn(nodeToBeEdited);
         goToSource(range);
     };

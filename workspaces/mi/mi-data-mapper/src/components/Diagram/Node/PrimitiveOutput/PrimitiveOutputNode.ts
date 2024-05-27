@@ -125,7 +125,11 @@ export class PrimitiveOutputNode extends DataMapperNodeModel {
                 );
             }
             if (inPort && mappedOutPort) {
-                const diagnostics = getDiagnostics(otherVal || value);
+                let targetNodeForDiagnostics = otherVal || value;
+                if (Node.isVariableStatement(this.context.focusedST)) {
+                    targetNodeForDiagnostics = this.context.focusedST;
+                }
+                const diagnostics = getDiagnostics(targetNodeForDiagnostics);
                 const lm = new DataMapperLinkModel(value, diagnostics, true);
 
                 lm.setTargetPort(mappedOutPort);
