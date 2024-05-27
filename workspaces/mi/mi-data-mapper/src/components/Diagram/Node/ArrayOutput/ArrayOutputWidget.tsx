@@ -20,7 +20,7 @@ import { DataMapperPortWidget, PortState, InputOutputPortModel } from '../../Por
 import { TreeBody, TreeContainer, TreeHeader } from '../commons/Tree/Tree';
 import { ArrayOutputFieldWidget } from "./ArrayOuptutFieldWidget";
 import { useIONodesStyles } from '../../../styles';
-import { useDMCollapsedFieldsStore, useDMSidePanelStore } from "../../../../store/store";
+import { useDMCollapsedFieldsStore, useDMIOConfigPanelStore } from "../../../../store/store";
 import { getDiagnostics } from "../../utils/diagnostics-utils";
 import { isConnectedViaLink } from "../../utils/common-utils";
 
@@ -48,9 +48,12 @@ export function ArrayOutputWidget(props: ArrayOutputWidgetProps) {
 
 	const [ portState, setPortState ] = useState<PortState>(PortState.Unselected);
 	const collapsedFieldsStore = useDMCollapsedFieldsStore();
-	const setSidePanelOpen = useDMSidePanelStore(state => state.setSidePanelOpen);
-	const setSidePanelIOType = useDMSidePanelStore(state => state.setSidePanelIOType);
-	const setIsSchemaOverridden = useDMSidePanelStore(state => state.setIsSchemaOverridden);
+
+	const { setIsIOConfigPanelOpen, setIOConfigPanelType, setIsSchemaOverridden } = useDMIOConfigPanelStore(state => ({
+		setIsIOConfigPanelOpen: state.setIsIOConfigPanelOpen,
+		setIOConfigPanelType: state.setIOConfigPanelType,
+		setIsSchemaOverridden: state.setIsSchemaOverridden
+	}));
 
 	const body = dmTypeWithValue && dmTypeWithValue.value;
 	const wasBodyForgotten = body && body.wasForgotten();
@@ -97,9 +100,9 @@ export function ArrayOutputWidget(props: ArrayOutputWidgetProps) {
 
 	const onRightClick = (event: React.MouseEvent) => {
         event.preventDefault(); 
-        setSidePanelIOType("Output");
+        setIOConfigPanelType("Output");
         setIsSchemaOverridden(true);
-        setSidePanelOpen(true);
+        setIsIOConfigPanelOpen(true);
     };
 
 	const label = (

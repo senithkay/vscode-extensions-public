@@ -21,11 +21,11 @@ export interface DataMapperCollapsedFieldsState {
     setCollapsedFields: (fields: string[]) => void;
 }
 
-export interface DataMapperSidePanelState {
-    sidePanelOpen: boolean;
-    setSidePanelOpen: (sidePanelOpen: boolean) => void;
-    sidePanelIOType: string;
-    setSidePanelIOType: (sidePanelIOType: string) => void;
+export interface DataMapperIOConfigPanelState {
+    isIOConfigPanelOpen: boolean;
+    setIsIOConfigPanelOpen: (sidePanelOpen: boolean) => void;
+    ioConfigPanelType: string;
+    setIOConfigPanelType: (sidePanelIOType: string) => void;
     isSchemaOverridden: boolean;
     setIsSchemaOverridden: (isSchemaOverridden: boolean) => void;
 }
@@ -43,11 +43,11 @@ export const useDMCollapsedFieldsStore = create<DataMapperCollapsedFieldsState>(
     setCollapsedFields: (collapsedFields: string[])  => set({ collapsedFields }),
 }));
 
-export const useDMSidePanelStore = create<DataMapperSidePanelState>((set) => ({
-    sidePanelOpen: false,
-    setSidePanelOpen: (sidePanelOpen: boolean) => set({ sidePanelOpen }),
-    sidePanelIOType: 'input',
-    setSidePanelIOType: (sidePanelIOType: string) => set({ sidePanelIOType }),
+export const useDMIOConfigPanelStore = create<DataMapperIOConfigPanelState>((set) => ({
+    isIOConfigPanelOpen: false,
+    setIsIOConfigPanelOpen: (isIOConfigPanelOpen: boolean) => set({ isIOConfigPanelOpen }),
+    ioConfigPanelType: 'input',
+    setIOConfigPanelType: (ioConfigPanelType: string) => set({ ioConfigPanelType }),
     isSchemaOverridden: false,
     setIsSchemaOverridden: (isSchemaOverridden: boolean) => set({ isSchemaOverridden }),
 }));

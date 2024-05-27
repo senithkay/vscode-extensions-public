@@ -19,7 +19,7 @@ import {
 } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
-import { useDMSidePanelStore } from "../../../store/store";
+import { useDMIOConfigPanelStore } from "../../../store/store";
 
 const SidePanelBodyWrapper = styled.div`
     display: flex;
@@ -52,7 +52,7 @@ export type ImportDataWizardProps = {
 export function ImportDataForm(props: ImportDataWizardProps) {
     const { configName, documentUri, ioType, overwriteSchema } = props;
     const { rpcClient } = useVisualizerContext();
-    const setSidePanelOpen = useDMSidePanelStore(state => state.setSidePanelOpen);
+    const setSidePanelOpen = useDMIOConfigPanelStore(state => state.setIsIOConfigPanelOpen);
     const [selectedResourceType, setSelectedResourceType] = React.useState<string>("JSON");
 
     const loadSchema = async () => {

@@ -20,7 +20,7 @@ import { DataMapperPortWidget, PortState, InputOutputPortModel } from '../../Por
 import { TreeBody, TreeContainer, TreeHeader } from '../commons/Tree/Tree';
 import { ObjectOutputFieldWidget } from "./ObjectOutputFieldWidget";
 import { useIONodesStyles } from '../../../styles';
-import { useDMCollapsedFieldsStore, useDMSidePanelStore } from '../../../../store/store';
+import { useDMCollapsedFieldsStore, useDMIOConfigPanelStore } from '../../../../store/store';
 import { getPosition } from '../../utils/st-utils';
 import { isEmptyValue } from '../../utils/common-utils';
 import { getDiagnostics } from '../../utils/diagnostics-utils';
@@ -55,9 +55,12 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 	const [portState, setPortState] = useState<PortState>(PortState.Unselected);
 	const [isHovered, setIsHovered] = useState(false);
 	const collapsedFieldsStore = useDMCollapsedFieldsStore();
-	const setSidePanelOpen = useDMSidePanelStore(state => state.setSidePanelOpen);
-    const setSidePanelIOType = useDMSidePanelStore(state => state.setSidePanelIOType);
-	const setIsSchemaOverridden = useDMSidePanelStore(state => state.setIsSchemaOverridden);
+
+	const { setIsIOConfigPanelOpen, setIOConfigPanelType, setIsSchemaOverridden } = useDMIOConfigPanelStore(state => ({
+		setIsIOConfigPanelOpen: state.setIsIOConfigPanelOpen,
+		setIOConfigPanelType: state.setIOConfigPanelType,
+		setIsSchemaOverridden: state.setIsSchemaOverridden
+	}));
 
 	const { childrenTypes, value: objVal } = dmTypeWithValue;
 	const fields = childrenTypes || [];
@@ -112,9 +115,9 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 
 	const onRightClick = (event: React.MouseEvent) => {
         event.preventDefault(); 
-        setSidePanelIOType("Output");
+        setIOConfigPanelType("Output");
 		setIsSchemaOverridden(true);
-        setSidePanelOpen(true);
+        setIsIOConfigPanelOpen(true);
     };
 
 	return (

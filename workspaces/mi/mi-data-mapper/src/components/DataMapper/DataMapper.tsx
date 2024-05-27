@@ -19,9 +19,9 @@ import { DataMapperNodeModel } from "../Diagram/Node/commons/DataMapperNode";
 import { NodeInitVisitor } from "../Visitors/NodeInitVisitor";
 import { getFocusedST, getFocusedSubMapping, traversNode } from "../Diagram/utils/st-utils";
 import { DMType, Range } from "@wso2-enterprise/mi-core";
-import { FunctionDeclaration, PropertyAssignment, ReturnStatement, VariableDeclaration } from "ts-morph";
+import { FunctionDeclaration, PropertyAssignment, ReturnStatement } from "ts-morph";
 import { ImportDataForm } from "./SidePanel/ImportDataForm";
-import { useDMSearchStore, useDMSidePanelStore } from "../../store/store";
+import { useDMSearchStore, useDMIOConfigPanelStore } from "../../store/store";
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getTypeName } from "../Diagram/utils/common-utils";
 import { getSubMappingTypes, getTypeForVariable } from "../Diagram/utils/type-utils";
@@ -70,10 +70,18 @@ export function MIDataMapper(props: MIDataMapperProps) {
     }]);
     const [nodes, setNodes] = useState<DataMapperNodeModel[]>([]);
 
-    const isSidePanelOpen = useDMSidePanelStore(state => state.sidePanelOpen);
-    const setSidePanelOpen = useDMSidePanelStore(state => state.setSidePanelOpen);
-    const sidePanelIOType = useDMSidePanelStore(state => state.sidePanelIOType);
-    const isSchemaOverridden = useDMSidePanelStore(state => state.isSchemaOverridden);
+    const {
+        isIOConfigPanelOpen,
+        ioConfigPanelType,
+        isSchemaOverridden,
+        setIsIOConfigPanelOpen
+    } = useDMIOConfigPanelStore(state => ({
+            isIOConfigPanelOpen: state.isIOConfigPanelOpen,
+            ioConfigPanelType: state.ioConfigPanelType,
+            isSchemaOverridden: state.isSchemaOverridden,
+            setIsIOConfigPanelOpen: state.setIsIOConfigPanelOpen
+        })
+    );
 
     const { rpcClient } = useVisualizerContext();
     const { resetSearchStore } = useDMSearchStore();
@@ -81,7 +89,7 @@ export function MIDataMapper(props: MIDataMapperProps) {
     const addView = (view: View) => {
         setViews(prev => [...prev, view]);
         resetSearchStore();
-    }
+    };
 
     const switchView = (navigateIndex: number) => {
         setViews(prev => {
@@ -89,7 +97,11 @@ export function MIDataMapper(props: MIDataMapperProps) {
             return newViews;
         });
         resetSearchStore();
-    }
+    };
+
+    const onCloseIOConfigPanel = () => {
+        setIsIOConfigPanelOpen(false);
+    };
 
     useEffect(() => {
         async function generateNodes() {
@@ -157,8 +169,14 @@ export function MIDataMapper(props: MIDataMapperProps) {
                     onError={undefined}
                 />
             )}
-            <ImportDataForm isOpen={isSidePanelOpen} onCancel={() => setSidePanelOpen(false)} 
-                    configName={configName} documentUri={filePath} ioType={sidePanelIOType} overwriteSchema={isSchemaOverridden} />
+            <ImportDataForm
+                isOpen={isIOConfigPanelOpen}
+                onCancel={onCloseIOConfigPanel} 
+                configName={configName}
+                documentUri={filePath}
+                ioType={ioConfigPanelType}
+                overwriteSchema={isSchemaOverridden}
+            />
         </div>
     )
 }
