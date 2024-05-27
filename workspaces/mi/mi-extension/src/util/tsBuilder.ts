@@ -48,13 +48,13 @@ export async function updateDMC(dmName:string, sourcePath: string): Promise<stri
             return { schema, tsInterfaces, isSchemaArray, schemaTitle };
         };
         
-        const { 
+        let { 
             schema: inputSchema, 
             tsInterfaces: inputTSInterfaces, 
             isSchemaArray: isInputArray, 
             schemaTitle: inputSchemaTitle  
         } = await readAndConvertSchema(inputSchemaPath, "InputRoot");
-        const { 
+        let { 
             schema: outputSchema, 
             tsInterfaces: outputTSInterfaces, 
             isSchemaArray: isOutputArray, 
@@ -62,12 +62,13 @@ export async function updateDMC(dmName:string, sourcePath: string): Promise<stri
         } = await readAndConvertSchema(outputSchemaPath, "OutputRoot");
         
         if (outputSchema.title === inputSchema.title) {
+            outputTSInterfaces =  outputTSInterfaces.replace('interface ' + outputSchema.title, 'interface Output' + outputSchema.title);
             outputSchema.title = `Output${outputSchema.title}`;
         }
     
         tsContent += `${inputTSInterfaces}\n${outputTSInterfaces}\nfunction mapFunction(input: ${inputSchema.title}${isInputArray ? "[]" : ""}): ${outputSchema.title}${isOutputArray ? "[]" : ""} {\n`;
         tsContent += `\treturn ${isOutputArray ? "[" : ""}{}${isOutputArray ? "]" : ""}\n}\n\n`;
-        tsContent += `// WARNING: Do not edit/remove below function\nfunction map_S_${getTitleSegment(inputSchemaTitle)}_S_${outputSchemaTitle}() {\n\treturn mapFunction(input${inputSchemaTitle.replace(":", "_")});\n}\n`;
+        tsContent += `// WARNING: Do not edit/remove below function\nfunction map_S_${getTitleSegment(inputSchemaTitle)}_S_${getTitleSegment(outputSchemaTitle)}() {\n\treturn mapFunction(input${inputSchemaTitle.replace(":", "_")});\n}\n`;
         fs.writeFileSync(tsFilepath, tsContent);
         const jsContent = convertTypeScriptToJavascript(tsContent);
         fs.writeFileSync(dmcFilePath, jsContent);
