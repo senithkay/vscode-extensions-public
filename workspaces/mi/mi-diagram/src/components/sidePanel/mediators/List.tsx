@@ -7,12 +7,12 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { ComponentCard, Icon, IconLabel } from '@wso2-enterprise/ui-toolkit';
+import { ComponentCard, IconLabel } from '@wso2-enterprise/ui-toolkit';
 import React, { ReactNode } from 'react';
 import styled from '@emotion/styled';
 import SidePanelContext from '../SidePanelContexProvider';
 import { getAllMediators } from './Values';
-import { getIconColor, getIconsFromFont } from '../../../resources/icons/mediatorIcons/icons';
+import { getMediatorIconsFromFont } from '../../../resources/icons/mediatorIcons/icons';
 import { FirstCharToUpperCase } from '../../../utils/commons';
 import { sidepanelAddPage } from '..';
 
@@ -97,7 +97,7 @@ export function Mediators(props: MediatorProps) {
                                     }}
                                 >
                                     <IconContainer>
-                                        {getIconsFromFont(action.operationName as string, getIconColor(key as string))}
+                                        {getMediatorIconsFromFont(action.operationName as string)}
                                     </IconContainer>
                                     <div >
                                         <IconLabel>{FirstCharToUpperCase(action.title)}</IconLabel>

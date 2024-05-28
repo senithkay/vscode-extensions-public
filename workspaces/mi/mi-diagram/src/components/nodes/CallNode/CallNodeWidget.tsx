@@ -11,14 +11,14 @@ import React, { useEffect, useMemo } from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { CallNodeModel } from "./CallNodeModel";
-import { Colors, ENDPOINTS, NODE_DIMENSIONS } from "../../../resources/constants";
+import { Colors, NODE_DIMENSIONS } from "../../../resources/constants";
 import { STNode } from "@wso2-enterprise/mi-syntax-tree/src";
 import { Button, Menu, MenuItem, Popover, Tooltip, ClickAwayListener } from "@wso2-enterprise/ui-toolkit";
-import { MoreVertIcon, PlusIcon } from "../../../resources";
+import { MoreVertIcon } from "../../../resources";
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import SidePanelContext from "../../sidePanel/SidePanelContexProvider";
 import { Range } from "@wso2-enterprise/mi-syntax-tree/lib/src";
-import { getSVGIcon } from "../../../resources/icons/mediatorIcons/icons";
+import { getMediatorIconsFromFont } from "../../../resources/icons/mediatorIcons/icons";
 import { getNodeDescription } from "../../../utils/node";
 import { Header, Description, Name } from "../BaseNodeModel";
 import { FirstCharToUpperCase } from "../../../utils/commons";
@@ -241,7 +241,7 @@ export function CallNodeWidget(props: CallNodeWidgetProps) {
                     )}
                     <S.TopPortWidget port={node.getPort("in")!} engine={engine} />
                     <div style={{ display: "flex", flexDirection: "row", width: NODE_DIMENSIONS.DEFAULT.WIDTH }}>
-                        <S.IconContainer>{getSVGIcon(node.stNode.tag)}</S.IconContainer>
+                        <S.IconContainer>{getMediatorIconsFromFont(node.stNode.tag)}</S.IconContainer>
                         <div>
                             {isHovered && (
                                 <S.StyledButton appearance="icon" onClick={handleOnClickMenu}>
@@ -279,8 +279,10 @@ export function CallNodeWidget(props: CallNodeWidgetProps) {
                             stroke={endpointHasDiagnotics ? Colors.ERROR : (isHoveredEndpoint || isEndpointSelected) ? Colors.SECONDARY : Colors.OUTLINE_VARIANT}
                             strokeWidth={2}
                         />
-                        {node.endpoint && <g transform="translate(81,20)">
-                            <image x="-17" y="-15" width="30" height="30" xlinkHref={getSVGIcon(node.endpoint.type, true)} />
+                        {node.endpoint && <g transform="translate(66,5)">
+                            <foreignObject width="25" height="25">
+                                {getMediatorIconsFromFont(node.endpoint.type)}
+                            </foreignObject>
                         </g>}
 
                         <line

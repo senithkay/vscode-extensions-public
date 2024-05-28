@@ -17,7 +17,7 @@ import { Button, ClickAwayListener, Menu, MenuItem, Popover, Tooltip } from "@ws
 import { MoreVertIcon } from "../../../resources";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import SidePanelContext from "../../sidePanel/SidePanelContexProvider";
-import { getSVGIcon } from "../../../resources/icons/mediatorIcons/icons";
+import { getMediatorIconsFromFont } from "../../../resources/icons/mediatorIcons/icons";
 import { FirstCharToUpperCase } from "../../../utils/commons";
 
 namespace S {
@@ -208,7 +208,7 @@ export function GroupNodeWidget(props: CallNodeWidgetProps) {
                     )}
                     <S.TopPortWidget port={node.getPort("in")!} engine={engine} />
                     <S.Header>
-                        <S.IconContainer>{getSVGIcon(node.stNode.tag)}</S.IconContainer>
+                        <S.IconContainer>{getMediatorIconsFromFont(node.stNode.tag)}</S.IconContainer>
                         <S.NodeText>{FirstCharToUpperCase(node.stNode.tag)}</S.NodeText>
                         {isHovered && (
                             <S.StyledButton appearance="icon" onClick={handleOnClickMenu}>

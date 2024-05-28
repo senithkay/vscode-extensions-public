@@ -17,7 +17,7 @@ import { Button, ClickAwayListener, Menu, MenuItem, Popover, Tooltip } from "@ws
 import { MoreVertIcon } from "../../../resources";
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import SidePanelContext from "../../sidePanel/SidePanelContexProvider";
-import { getSVGIcon } from "../../../resources/icons/mediatorIcons/icons";
+import { getMediatorIconsFromFont } from "../../../resources/icons/mediatorIcons/icons";
 import { getNodeDescription } from "../../../utils/node";
 import { Header, Description, Name } from "../BaseNodeModel";
 import { FirstCharToUpperCase } from "../../../utils/commons";
@@ -136,7 +136,7 @@ export function DataMapperNodeWidget(props: CallNodeWidgetProps) {
                 >
                     <S.TopPortWidget port={node.getPort("in")!} engine={engine} />
                     <div style={{ display: "flex", flexDirection: "row", width: NODE_DIMENSIONS.DEFAULT.WIDTH }}>
-                        <S.IconContainer>{getSVGIcon(node.stNode.tag)}</S.IconContainer>
+                        <S.IconContainer>{getMediatorIconsFromFont(node.stNode.tag)}</S.IconContainer>
                         <div>
                             {isHovered && (
                                 <S.StyledButton appearance="icon" onClick={handleOnClickMenu}>
