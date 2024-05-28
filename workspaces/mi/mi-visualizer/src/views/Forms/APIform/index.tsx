@@ -500,11 +500,11 @@ export function APIWizard({ apiData, path }: APIWizardProps) {
                 <>
                     <RadioButtonGroup
                         orientation="vertical"
-                        label="Provide API Definition"
+                        label="Generate API From"
                         options={[
-                            { content: "I don't have one", value: "create-api" },
-                            { content: "Provide OpenAPI definition", value: "swagger-to-api" },
-                            { content: "Provide WSDL definition", value: "wsdl-to-api" }
+                            { content: "None", value: "create-api" },
+                            { content: "From OpenAPI definition", value: "swagger-to-api" },
+                            { content: "From WSDL file", value: "wsdl-to-api" }
                         ]}
                         {...register("apiCreateOption")}
                     />
