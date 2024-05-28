@@ -9,10 +9,9 @@
 import { ts, Node, PropertyAssignment, FunctionDeclaration, ReturnStatement, VariableStatement, Block } from 'ts-morph';
 
 import { Visitor } from '../../../ts/base-visitor';
-import { View } from '../../../components/DataMapper/DataMapper';
+import { View } from "../../../components/DataMapper/Views/DataMapperView";
 import { FocusedSTFindingVisitor } from '../../../components/Visitors/FocusedSTFindingVisitor';
 import { getTnfFnReturnStatement, isMapFunction } from './common-utils';
-import { get } from 'lodash';
 
 enum SyntaxKindWithRepeatedValue {
     NumericLiteral = 9,

@@ -44,6 +44,7 @@ export class PrimitiveOutputNodeFactory extends AbstractReactFactory<PrimitiveOu
 						field={event.model.dmTypeWithValue}
 						getPort={(portId: string) => event.model.getPort(portId) as InputOutputPortModel}
 						context={event.model.context}
+						isSubMapping={event.model.isSubMapping}
 						typeName={event.model.typeName}
 						valueLabel={valueLabel}
 						deleteField={(node: Node) => event.model.deleteField(node)}

@@ -46,11 +46,9 @@ export class SubMappingNode extends DataMapperNodeModel {
 
     async initPorts() {
         this.subMappings = [];
-        const { rpcClient, filePath, functionST } = this.context;
+        const { functionST, subMappingTypes } = this.context;
         const searchValue = useDMSearchStore.getState().inputSearch;
         const variableStatements = (functionST.getBody() as Block).getVariableStatements();
-
-        const subMappingTypes = await getSubMappingTypes(rpcClient, filePath, functionST.getName());
 
         variableStatements.forEach(stmt => {
             // Constraint: Only one variable declaration is allowed in a local variable statement.

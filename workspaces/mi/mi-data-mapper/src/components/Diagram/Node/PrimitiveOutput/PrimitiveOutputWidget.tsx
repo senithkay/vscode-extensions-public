@@ -21,7 +21,7 @@ import { PrimitiveOutputElementWidget } from "./PrimitiveOutputElementWidget";
 import { TreeBody, TreeHeader, TreeContainer } from "../commons/Tree/Tree";
 import { useIONodesStyles } from "../../../../components/styles";
 import { OutputSearchHighlight } from "../commons/Search";
-import { useDMCollapsedFieldsStore } from "../../../../store/store";
+import { useDMCollapsedFieldsStore, useDMSubMappingConfigPanelStore } from "../../../../store/store";
 
 export interface PrimitiveOutputWidgetProps {
 	id: string;
@@ -29,16 +29,23 @@ export interface PrimitiveOutputWidgetProps {
 	engine: DiagramEngine;
 	getPort: (portId: string) => InputOutputPortModel;
 	context: IDataMapperContext;
+	isSubMapping: boolean;
 	typeName: string;
 	valueLabel?: string;
 	deleteField?: (node: Node) => Promise<void>;
 }
 
 export function PrimitiveOutputWidget(props: PrimitiveOutputWidgetProps) {
-	const { id, field, getPort, engine, context, typeName, valueLabel, deleteField } = props;
+	const { id, field, getPort, engine, context, isSubMapping, typeName, valueLabel, deleteField } = props;
 
 	const classes = useIONodesStyles();
 	const collapsedFieldsStore = useDMCollapsedFieldsStore();
+
+	const {subMappingConfig, setSubMappingConfig} = useDMSubMappingConfigPanelStore(state => ({
+		subMappingConfig: state.subMappingConfig,
+		setSubMappingConfig: state.setSubMappingConfig
+	}));
+
 
 	const type = typeName || field?.type?.typeName;
 	const fieldId = `${id}.${type}`;
@@ -72,8 +79,20 @@ export function PrimitiveOutputWidget(props: PrimitiveOutputWidgetProps) {
         }
 	};
 
+	const onRightClick = (event: React.MouseEvent) => {
+		event.preventDefault(); 
+		onSubMappingEditBtnClick();
+    };
+
+	const onSubMappingEditBtnClick = () => {
+		setSubMappingConfig({
+			...subMappingConfig,
+			isSMConfigPanelOpen: true
+		});
+	};
+
 	return (
-		<TreeContainer data-testid={`${id}-node`}>
+		<TreeContainer data-testid={`${id}-node`} onContextMenu={onRightClick}>
 			<TreeHeader>
 				<span className={classes.inPort}>
 					{portIn && !expanded &&
@@ -91,6 +110,19 @@ export function PrimitiveOutputWidget(props: PrimitiveOutputWidgetProps) {
 					</Button>
 					{label}
 				</span>
+				{isSubMapping && (
+					<Button
+						appearance="icon"
+						data-testid={"edit-sub-mapping-btn"}
+						tooltip="Edit name and type of the sub mapping "
+						onClick={onSubMappingEditBtnClick}
+					>
+						<Codicon
+							name="settings-gear"
+							iconSx={{ color: "var(--vscode-input-placeholderForeground)" }}
+						/>
+					</Button>
+				)}
 			</TreeHeader>
 			{expanded && field && (
 				<TreeBody>

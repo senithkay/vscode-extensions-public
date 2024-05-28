@@ -11,7 +11,7 @@ import React, { useMemo } from 'react';
 
 import { Breadcrumbs, Codicon } from '@wso2-enterprise/ui-toolkit';
 import { css } from '@emotion/css';
-import { View } from '../DataMapper';
+import { View } from "../Views/DataMapperView";
 
 const useStyles = () => ({
     active: css({
@@ -42,7 +42,7 @@ export default function HeaderBreadcrumb(props: HeaderBreadcrumbProps) {
     const [activeLink, links] = useMemo(() => {
         if (views) {
             const focusedView = views[views.length - 1];
-            const isFocusedOnSubMapping = focusedView?.subMappingIndex !== undefined;
+            const isFocusedOnSubMapping = focusedView?.subMappingInfo !== undefined;
             const otherViews = views.slice(0, -1);
             let isFnDef = views.length === 1;
             let label = focusedView.label;

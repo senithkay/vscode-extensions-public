@@ -27,6 +27,8 @@ import { getTypeName } from "../Diagram/utils/common-utils";
 import { getSubMappingTypes, getTypeForVariable } from "../Diagram/utils/type-utils";
 import { getOutputNode } from "../Diagram/utils/node-utils";
 import { SubMappingConfigForm } from "./SidePanel/SubMappingConfigForm";
+import { isInputNode } from "../Diagram/Actions/utils";
+import { View } from "./Views/DataMapperView";
 
 const classes = {
     root: css({
@@ -34,14 +36,6 @@ const classes = {
         height: "100vh",
         overflow: "hidden",
     })
-}
-
-export interface View {
-    targetFieldFQN: string;
-    sourceFieldFQN: string;
-    label: string;
-    mapFnIndex?: number;
-    subMappingIndex?: number;
 }
 
 export interface MIDataMapperProps {
@@ -84,14 +78,7 @@ export function MIDataMapper(props: MIDataMapperProps) {
         })
     );
 
-    const {
-        subMappingConfig: { isSMConfigPanelOpen },
-        resetSubMappingConfig
-    } = useDMSubMappingConfigPanelStore(state => ({
-            subMappingConfig: state.subMappingConfig,
-            resetSubMappingConfig: state.resetSubMappingConfig
-        })
-    );
+    const resetSubMappingConfig = useDMSubMappingConfigPanelStore(state => state.resetSubMappingConfig);
 
     const { rpcClient } = useVisualizerContext();
     const { resetSearchStore } = useDMSearchStore();
@@ -109,31 +96,40 @@ export function MIDataMapper(props: MIDataMapperProps) {
         resetSearchStore();
     };
 
+    const editView = (updatedView: View) => {
+        setViews(prev => {
+            const newViews = [...prev.slice(0, prev.length - 1), updatedView];
+            return newViews;
+        });
+    };
+
     useEffect(() => {
         async function generateNodes() {
             const lastView = views[views.length - 1];
+            const subMappingTypes = await getSubMappingTypes(rpcClient, filePath, fnST.getName());
 
             const context = new DataMapperContext(
-                fnST, fnST, inputTrees, outputTree, views, filePath, rpcClient, addView, goToSource, applyModifications
+                fnST, fnST, inputTrees, outputTree, views, subMappingTypes, addView, goToSource, applyModifications
             );
 
             const nodeInitVisitor = new NodeInitVisitor(context);
 
-            if (lastView.subMappingIndex !== undefined) {
-                let focusedST = getFocusedSubMapping(lastView.subMappingIndex, fnST);
+            if (lastView.subMappingInfo !== undefined) {
+                let focusedST = getFocusedSubMapping(lastView.subMappingInfo.index, fnST);
                 context.focusedST = focusedST;
 
                 const varDecl = focusedST.getDeclarations()[0];
-                const subMappingTypes = await getSubMappingTypes(rpcClient, filePath, fnST.getName());
                 const subMappingType = getTypeForVariable(subMappingTypes, varDecl);
 
-                traversNode(focusedST, nodeInitVisitor);
+                if (subMappingType) {
+                    traversNode(focusedST, nodeInitVisitor);
 
-                const inputNode = nodeInitVisitor.getInputNode();
-                const intermediateNodes = nodeInitVisitor.getIntermediateNodes();
-                const outputNode = getOutputNode(context, varDecl.getInitializer(), subMappingType, true);
-
-                setNodes([inputNode, outputNode, ...intermediateNodes]);
+                    const inputNode = nodeInitVisitor.getInputNode();
+                    const intermediateNodes = nodeInitVisitor.getIntermediateNodes();
+                    const outputNode = getOutputNode(context, varDecl.getInitializer(), subMappingType, true);
+    
+                    setNodes([inputNode, outputNode, ...intermediateNodes]);
+                }
             } else {
                 let focusedST: FunctionDeclaration | PropertyAssignment | ReturnStatement = fnST;
     
@@ -191,13 +187,16 @@ export function MIDataMapper(props: MIDataMapperProps) {
                 ioType={ioConfigPanelType}
                 overwriteSchema={isSchemaOverridden}
             />
-            <SubMappingConfigForm
-                isOpen={isSMConfigPanelOpen}
-                functionST={fnST}
-                addView={addView}
-                applyModifications={applyModifications}
-                onCancel={onCloseSMConfigPanel}
-            />
+            {nodes.length > 0 && (
+                <SubMappingConfigForm
+                    functionST={fnST}
+                    inputNode={nodes.find(node => isInputNode(node))}
+                    addView={addView}
+                    updateView={editView}
+                    applyModifications={applyModifications}
+                    onCancel={onCloseSMConfigPanel}
+                />
+            )}
         </div>
     )
 }

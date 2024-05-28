@@ -28,7 +28,6 @@ import {
 } from '../Node';
 import { DataMapperContext } from '../../../utils/DataMapperContext/DataMapperContext';
 import { getTypeName } from './common-utils';
-import { View } from '../../../components/DataMapper/DataMapper';
 
 type SubMappingOutputNode = ArrayOutputNode | ObjectOutputNode | PrimitiveOutputNode;
 

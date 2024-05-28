@@ -67,13 +67,13 @@ export const useDMIOConfigPanelStore = create<DataMapperIOConfigPanelState>((set
 export const useDMSubMappingConfigPanelStore = create<DataMapperSubMappingConfigPanelState>((set) => ({
     subMappingConfig: {
         isSMConfigPanelOpen: false,
-        nextSubMappingIndex: 0,
+        nextSubMappingIndex: -1,
         suggestedNextSubMappingName: undefined
     },
     setSubMappingConfig: (subMappingConfig: SubMappingConfig)  => set({ subMappingConfig }),
     resetSubMappingConfig: ()  => set({ subMappingConfig: {
         isSMConfigPanelOpen: false,
-        nextSubMappingIndex: 0,
+        nextSubMappingIndex: -1,
         suggestedNextSubMappingName: undefined
     }}),
 }));

@@ -40,7 +40,7 @@ import {
 } from "./constants";
 import { FocusedInputNode } from "../Node/FocusedInput";
 import { PrimitiveOutputNode } from "../Node/PrimitiveOutput";
-import { View } from "../../../components/DataMapper/DataMapper";
+import { View } from "../../../components/DataMapper/Views/DataMapperView";
 
 export function getInputAccessNodes(node: Node): (Identifier | ElementAccessExpression | PropertyAccessExpression)[] {
     const ipnutAccessNodeVisitor: InputAccessNodeFindingVisitor = new InputAccessNodeFindingVisitor();

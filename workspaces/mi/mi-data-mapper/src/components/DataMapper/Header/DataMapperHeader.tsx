@@ -15,7 +15,7 @@ import styled from "@emotion/styled";
 
 import HeaderSearchBox from "./HeaderSearchBox";
 import HeaderBreadcrumb from "./HeaderBreadcrumb";
-import { View } from "../DataMapper";
+import { View } from "../Views/DataMapperView";
 
 export interface DataMapperHeaderProps {
     views: View[];

@@ -22,13 +22,18 @@ import { TypeKind } from "@wso2-enterprise/mi-core";
 import { Controller, useForm } from 'react-hook-form';
 
 import { useDMSubMappingConfigPanelStore } from "../../../store/store";
-import { Block, FunctionDeclaration } from "ts-morph";
-import { View } from "../DataMapper";
+import { Block, FunctionDeclaration, VariableStatement } from "ts-morph";
+import { View } from "../Views/DataMapperView";
 import { getDefaultValue } from "../../../components/Diagram/utils/common-utils";
+import { DataMapperNodeModel } from "../../../components/Diagram/Node/commons/DataMapperNode";
 
 const Field = styled.div`
    margin-bottom: 12px;
 `;
+
+const ALLOWED_TYPES = ['string', 'number', 'boolean', 'object'];
+const ADD_NEW_SUB_MAPPING_HEADER = "Add New Sub Mapping";
+const EDIT_SUB_MAPPING_HEADER = "Edit Sub Mapping";
 
 interface SMConfigFormData {
     mappingName: string;
@@ -37,18 +42,21 @@ interface SMConfigFormData {
 }
 
 export type SubMappingConfigFormProps = {
-    isOpen: boolean;
     functionST: FunctionDeclaration;
+    inputNode: DataMapperNodeModel;
     addView: (view: View) => void;
+    updateView: (updatedView: View) => void;
     applyModifications: () => void;
     onCancel: () => void;
 };
 
 export function SubMappingConfigForm(props: SubMappingConfigFormProps) {
-    const { functionST, addView, applyModifications } = props;
+    const { functionST, inputNode, addView, updateView, applyModifications } = props;
+    const { focusedST, views } = inputNode.context;
+    const lastView = views[views.length - 1];
 
     const {
-        subMappingConfig: { nextSubMappingIndex, suggestedNextSubMappingName },
+        subMappingConfig: { isSMConfigPanelOpen, nextSubMappingIndex, suggestedNextSubMappingName },
         resetSubMappingConfig
     } = useDMSubMappingConfigPanelStore(state => ({
             subMappingConfig: state.subMappingConfig,
@@ -62,13 +70,20 @@ export function SubMappingConfigForm(props: SubMappingConfigFormProps) {
         }
     });
 
+    const isEdit = isSMConfigPanelOpen && nextSubMappingIndex === -1 && !suggestedNextSubMappingName;
+
     useEffect(() => {
-        setValue('mappingName', suggestedNextSubMappingName);
-    }, [suggestedNextSubMappingName, setValue]);
+        if (isEdit) {
+            const { mappingName, mappingType } = lastView.subMappingInfo;
 
-    const subMappingTypes = ['string', 'number', 'boolean', 'object'];
+            setValue('mappingName', mappingName);
+            setValue('mappingType', mappingType);
+        } else {
+            setValue('mappingName', suggestedNextSubMappingName);
+        }
+    }, [isEdit, suggestedNextSubMappingName, setValue]);
 
-    const onSubmit = (data: SMConfigFormData) => {
+    const onAdd = (data: SMConfigFormData) => {
         const { mappingName, mappingType, isArray } = data;
 
         const typeKind = isArray ? TypeKind.Array : mappingType ? mappingType as TypeKind : TypeKind.Object;
@@ -81,23 +96,69 @@ export function SubMappingConfigForm(props: SubMappingConfigFormProps) {
             targetFieldFQN: "",
             sourceFieldFQN: "",
             label: mappingName,
-            subMappingIndex: nextSubMappingIndex
+            subMappingInfo: {
+                index: nextSubMappingIndex,
+                mappingName: mappingName,
+                mappingType: typeDesc
+            }
         });
 
         applyModifications();
         resetSubMappingConfig();
         reset();
-    }
+    };
+
+    const onEdit = (data: SMConfigFormData) => {
+        const { mappingName, mappingType, isArray } = data;
+        const { mappingName: prevMappingName, mappingType: prevMappingType } = lastView.subMappingInfo;
+        let updatedName: string;
+        let updatedType: string;
+
+        const varDecl = (focusedST as VariableStatement).getDeclarations()[0];
+        const typeNode = varDecl.getTypeNode();
+
+        if (mappingName !== prevMappingName) {
+            varDecl.rename(mappingName);
+            updatedName = mappingName;
+        }
+
+        if (mappingType !== prevMappingType && mappingType !== "object") {
+            const typeKind = isArray ? TypeKind.Array : mappingType ? mappingType as TypeKind : TypeKind.Object;
+            const typeDesc = mappingType && (isArray ? `${mappingType}[]` : mappingType);
+            const defaultValue = getDefaultValue(typeKind);
+            if (typeNode) {
+                typeNode.replaceWithText(typeDesc);
+            } else {
+                varDecl.setType(typeDesc);
+            }
+            varDecl.getInitializer().replaceWithText(defaultValue);
+            updatedType = typeDesc;
+        }
+
+        updateView({
+            ...lastView,
+            label: updatedName ? updatedName : prevMappingName,
+            subMappingInfo: {
+                ...lastView.subMappingInfo,
+                mappingName: updatedName ? updatedName : prevMappingName,
+                mappingType: updatedType ? updatedType : prevMappingType
+            }
+        });
+
+        applyModifications();
+        resetSubMappingConfig();
+        reset();
+    };
 
     return (
         <SidePanel
-            isOpen={props.isOpen}
+            isOpen={isSMConfigPanelOpen}
             alignment="right"
             width={312}
             overlay={true}
         >
             <SidePanelTitleContainer>
-                <span>Configure Sub Mapping</span>
+                <span>{isEdit ? EDIT_SUB_MAPPING_HEADER : ADD_NEW_SUB_MAPPING_HEADER}</span>
                 <Button
                     sx={{ marginLeft: "auto" }}
                     onClick={props.onCancel}
@@ -129,7 +190,7 @@ export function SubMappingConfigForm(props: SubMappingConfigFormProps) {
                             <AutoComplete
                                 label="Type (Optional)"
                                 name="mappingType"
-                                items={subMappingTypes}
+                                items={ALLOWED_TYPES}
                                 nullable={true}
                                 value={field.value}
                                 onValueChange={(e) => {field.onChange(e);}}
@@ -156,15 +217,28 @@ export function SubMappingConfigForm(props: SubMappingConfigFormProps) {
                         />
                     </Field>
                 }
-                <div style={{ textAlign: "right", marginTop: "10px", float: "right" }}>
-                    <Button
-                        appearance="primary"
-                        onClick={handleSubmit(onSubmit)}
-                        disabled={watch("mappingName") === ""}
-                    >
-                        Add
-                    </Button>
-                </div>
+                {!isEdit && (
+                    <div style={{ textAlign: "right", marginTop: "10px", float: "right" }}>
+                        <Button
+                            appearance="primary"
+                            onClick={handleSubmit(onAdd)}
+                            disabled={watch("mappingName") === ""}
+                        >
+                            Add
+                        </Button>
+                    </div>
+                )}
+                {isEdit && (
+                    <div style={{ textAlign: "right", marginTop: "10px", float: "right" }}>
+                        <Button
+                            appearance="primary"
+                            onClick={handleSubmit(onEdit)}
+                            disabled={watch("mappingName") === ""}
+                        >
+                            Save
+                        </Button>
+                    </div>
+                )}
             </SidePanelBody>
         </SidePanel>
     );

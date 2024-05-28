@@ -20,7 +20,7 @@ import { DataMapperPortWidget, PortState, InputOutputPortModel } from '../../Por
 import { TreeBody, TreeContainer, TreeHeader } from '../commons/Tree/Tree';
 import { ArrayOutputFieldWidget } from "./ArrayOuptutFieldWidget";
 import { useIONodesStyles } from '../../../styles';
-import { useDMCollapsedFieldsStore, useDMIOConfigPanelStore } from "../../../../store/store";
+import { useDMCollapsedFieldsStore, useDMIOConfigPanelStore, useDMSubMappingConfigPanelStore } from "../../../../store/store";
 import { getDiagnostics } from "../../utils/diagnostics-utils";
 import { isConnectedViaLink } from "../../utils/common-utils";
 import { OutputSearchHighlight } from "../commons/Search";
@@ -32,6 +32,7 @@ export interface ArrayOutputWidgetProps {
 	engine: DiagramEngine;
 	getPort: (portId: string) => InputOutputPortModel;
 	context: IDataMapperContext;
+	isSubMapping: boolean;
 	valueLabel?: string;
 	deleteField?: (node: Node) => Promise<void>;
 }
@@ -43,6 +44,7 @@ export function ArrayOutputWidget(props: ArrayOutputWidgetProps) {
 		getPort,
 		engine,
 		context,
+		isSubMapping,
 		typeName,
 		valueLabel,
 		deleteField
@@ -56,6 +58,11 @@ export function ArrayOutputWidget(props: ArrayOutputWidgetProps) {
 		setIsIOConfigPanelOpen: state.setIsIOConfigPanelOpen,
 		setIOConfigPanelType: state.setIOConfigPanelType,
 		setIsSchemaOverridden: state.setIsSchemaOverridden
+	}));
+
+	const {subMappingConfig, setSubMappingConfig} = useDMSubMappingConfigPanelStore(state => ({
+		subMappingConfig: state.subMappingConfig,
+		setSubMappingConfig: state.setSubMappingConfig
 	}));
 
 	const body = dmTypeWithValue && dmTypeWithValue.value;
@@ -102,11 +109,22 @@ export function ArrayOutputWidget(props: ArrayOutputWidgetProps) {
 	};
 
 	const onRightClick = (event: React.MouseEvent) => {
-        event.preventDefault(); 
-        setIOConfigPanelType("Output");
-        setIsSchemaOverridden(true);
-        setIsIOConfigPanelOpen(true);
+		event.preventDefault(); 
+		if (isSubMapping) {
+			onSubMappingEditBtnClick();
+		} else {
+			setIOConfigPanelType("Output");
+			setIsSchemaOverridden(true);
+			setIsIOConfigPanelOpen(true);
+		}
     };
+
+	const onSubMappingEditBtnClick = () => {
+		setSubMappingConfig({
+			...subMappingConfig,
+			isSMConfigPanelOpen: true
+		});
+	};
 
 	const label = (
 		<span style={{ marginRight: "auto" }}>
@@ -151,6 +169,19 @@ export function ArrayOutputWidget(props: ArrayOutputWidgetProps) {
 						</Button>
 						{label}
 					</span>
+					{isSubMapping && (
+						<Button
+							appearance="icon"
+							data-testid={"edit-sub-mapping-btn"}
+							tooltip="Edit name and type of the sub mapping "
+							onClick={onSubMappingEditBtnClick}
+						>
+							<Codicon
+								name="settings-gear"
+								iconSx={{ color: "var(--vscode-input-placeholderForeground)" }}
+							/>
+						</Button>
+					)}
 				</TreeHeader>
 				{expanded && dmTypeWithValue && isBodyArrayLitExpr && (
 					<TreeBody>

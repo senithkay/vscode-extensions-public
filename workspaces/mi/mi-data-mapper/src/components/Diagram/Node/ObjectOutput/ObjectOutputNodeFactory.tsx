@@ -46,6 +46,7 @@ export class ObjectOutputNodeFactory extends AbstractReactFactory<ObjectOutputNo
 						value={event.model.value}
 						getPort={(portId: string) => event.model.getPort(portId) as InputOutputPortModel}
 						context={event.model.context}
+						isSubMapping={event.model.isSubMapping}
 						mappings={event.model.mappings}
 						valueLabel={valueLabel}
 						deleteField={(node: Node) => event.model.deleteField(node)}

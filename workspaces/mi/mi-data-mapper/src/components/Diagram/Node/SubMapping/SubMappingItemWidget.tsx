@@ -140,12 +140,17 @@ export function SubMappingItemWidget(props: SubMappingItemProps) {
     };
 
     const onClickOnExpand = () => {
+        const subMapping = subMappings[index];
         context.addView(
             {
                 targetFieldFQN: "",
                 sourceFieldFQN: "",
                 label: valueLabel,
-                subMappingIndex: index
+                subMappingInfo: {
+                    index,
+                    mappingName: subMapping.name,
+                    mappingType: typeName
+                }
             }
         );
     };
