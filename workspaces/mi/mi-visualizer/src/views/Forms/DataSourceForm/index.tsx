@@ -123,11 +123,7 @@ export function DataSourceWizard(props: DataSourceFormProps) {
         dataSourceConfigParameters: yup.object({
             ...schemaParams
         }),
-        jndiName: yup.string().when('type', {
-            is: 'RDBMS',
-            then: (schema) => schema.required("JNDI name is required"),
-            otherwise: (schema) => schema.notRequired(),
-        }),
+        jndiName: yup.string().notRequired(),
         useDatasourceFactory: yup.boolean().notRequired(),
     });
 
@@ -433,7 +429,6 @@ export function DataSourceWizard(props: DataSourceFormProps) {
                 <FormGroup title="Expose as a JNDI Datasource" isCollapsed={true}>
                     <TextField
                         label="JNDI Configuration Name"
-                        required
                         {...renderProps("jndiName")}
                     />
                     <FormCheckBox
