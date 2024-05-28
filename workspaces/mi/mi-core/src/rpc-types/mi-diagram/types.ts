@@ -1262,7 +1262,7 @@ interface GenerateAPIBase {
 }
 
 export type GenerateAPIRequest = GenerateAPIBase & (
-    { mode: "create.api.from.swagger"; publishSwaggerPath: boolean; wsdlEndpointName?: never; } |
+    { mode: "create.api.from.swagger"; publishSwaggerPath?: string; wsdlEndpointName?: never; } |
     { mode: "create.api.from.wsdl"; publishSwaggerPath?: never; wsdlEndpointName?: string; }
 )
 

@@ -319,6 +319,11 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 wsdlEndpointName
             } = params;
 
+            const getSwaggerName = (swaggerDefPath: string) => {
+                const ext = path.extname(swaggerDefPath);
+                return `${name}${ext}`;
+            };
+
             let response: GenerateAPIResponse = { apiXml: "", endpointXml: "" };
             if (!xmlData) {
                 const langClient = StateMachine.context().langClient!;
@@ -326,7 +331,8 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     response = await langClient.generateAPI({
                         apiName: name,
                         swaggerOrWsdlPath: swaggerDefPath,
-                        publishSwaggerPath: saveSwaggerDef!,
+                        publishSwaggerPath: 
+                            saveSwaggerDef ? `gov:swaggerFiles/${getSwaggerName(swaggerDefPath)}` : undefined,
                         mode: "create.api.from.swagger"
                     });
                 } else if (wsdlDefPath) {
@@ -378,7 +384,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     'registry',
                     'gov',
                     'swaggerFiles',
-                    `${name}${ext}`
+                    getSwaggerName(swaggerDefPath)
                 );
                 if (!fs.existsSync(path.dirname(swaggerRegPath))) {
                     fs.mkdirSync(path.dirname(swaggerRegPath), { recursive: true });
