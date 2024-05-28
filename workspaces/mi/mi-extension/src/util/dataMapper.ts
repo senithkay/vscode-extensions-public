@@ -103,8 +103,7 @@ function getVariableTypes(fn: FunctionDeclaration) {
 
     fn.getVariableStatements().forEach((stmt) => {
         const varDecl = stmt.getDeclarations()[0];
-        const varInit = varDecl.getInitializer();
-        const type = varInit && getTypeInfo(varInit.getType(), fn.getSourceFile());
+        const type = varDecl && getTypeInfo(varDecl.getType(), fn.getSourceFile());
         const key = varDecl.getStart().toString() + varDecl.getEnd().toString();
         variableTypes[key] = type;
     });
