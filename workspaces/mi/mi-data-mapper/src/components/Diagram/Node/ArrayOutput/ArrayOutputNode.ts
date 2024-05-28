@@ -30,7 +30,9 @@ import {
     getInputPort,
     getOutputPort,
     getTypeName,
-    getTypeOfValue
+    getTypeOfValue,
+    isMapFnAtPropAssignment,
+    isMapFnAtRootReturn
 } from "../../utils/common-utils";
 
 export const ARRAY_OUTPUT_NODE_TYPE = "data-mapper-node-array-output";
@@ -45,6 +47,7 @@ export class ArrayOutputNode extends DataMapperNodeModel {
     public hasNoMatchingFields: boolean;
     public x: number;
     public y: number;
+    public isMapFn: boolean;
 
     constructor(
         public context: IDataMapperContext,
@@ -63,6 +66,11 @@ export class ArrayOutputNode extends DataMapperNodeModel {
 
         if (this.dmType) {
             this.rootName = this.dmType?.fieldName;
+            const { focusedST, functionST, views } = this.context;
+
+            const isMapFnAtPropAsmt = isMapFnAtPropAssignment(focusedST);
+            const isMapFnAtRootRtn = views.length > 1 && isMapFnAtRootReturn(functionST, focusedST);
+            this.isMapFn = isMapFnAtPropAsmt || isMapFnAtRootRtn;
 
             const collapsedFields = useDMCollapsedFieldsStore.getState().collapsedFields;
             const [valueEnrichedType, type] = enrichAndProcessType(this.dmType, this.value);
@@ -73,7 +81,8 @@ export class ArrayOutputNode extends DataMapperNodeModel {
             this.dmTypeWithValue = valueEnrichedType;
 
             const parentPort = this.addPortsForHeader(
-                this.dmType, this.rootName, "IN", ARRAY_OUTPUT_TARGET_PORT_PREFIX, collapsedFields, valueEnrichedType
+                this.dmType, this.rootName, "IN", ARRAY_OUTPUT_TARGET_PORT_PREFIX,
+                collapsedFields, valueEnrichedType, this.isMapFn
             );
 
             if (valueEnrichedType.type.kind === TypeKind.Array) {
@@ -81,7 +90,7 @@ export class ArrayOutputNode extends DataMapperNodeModel {
                     this.dmTypeWithValue.elements.forEach((field, index) => {
                         this.addPortsForOutputField(
                             field.member, "IN", this.rootName, index, ARRAY_OUTPUT_TARGET_PORT_PREFIX,
-                            parentPort, collapsedFields, parentPort.collapsed
+                            parentPort, collapsedFields, parentPort.collapsed, this.isMapFn
                         );
                     });
                 }

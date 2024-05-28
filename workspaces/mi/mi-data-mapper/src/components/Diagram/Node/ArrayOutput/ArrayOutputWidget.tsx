@@ -23,6 +23,7 @@ import { useIONodesStyles } from '../../../styles';
 import { useDMCollapsedFieldsStore, useDMIOConfigPanelStore } from "../../../../store/store";
 import { getDiagnostics } from "../../utils/diagnostics-utils";
 import { isConnectedViaLink } from "../../utils/common-utils";
+import { OutputSearchHighlight } from "../commons/Search";
 
 export interface ArrayOutputWidgetProps {
 	id: string;
@@ -31,6 +32,7 @@ export interface ArrayOutputWidgetProps {
 	engine: DiagramEngine;
 	getPort: (portId: string) => InputOutputPortModel;
 	context: IDataMapperContext;
+	valueLabel?: string;
 	deleteField?: (node: Node) => Promise<void>;
 }
 
@@ -42,6 +44,7 @@ export function ArrayOutputWidget(props: ArrayOutputWidgetProps) {
 		engine,
 		context,
 		typeName,
+		valueLabel,
 		deleteField
 	} = props;
 	const classes = useIONodesStyles();
@@ -107,6 +110,12 @@ export function ArrayOutputWidget(props: ArrayOutputWidgetProps) {
 
 	const label = (
 		<span style={{ marginRight: "auto" }}>
+			{valueLabel && (
+				<span className={classes.valueLabel}>
+					<OutputSearchHighlight>{valueLabel}</OutputSearchHighlight>
+					{typeName && ":"}
+				</span>
+			)}
 			<span className={classnames(classes.outputTypeLabel, isDisabled ? classes.labelDisabled : "")}>
 				{typeName || ''}
 			</span>

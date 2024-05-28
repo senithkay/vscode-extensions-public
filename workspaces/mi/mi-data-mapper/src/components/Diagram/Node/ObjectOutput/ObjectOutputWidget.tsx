@@ -24,6 +24,7 @@ import { useDMCollapsedFieldsStore, useDMIOConfigPanelStore } from '../../../../
 import { getPosition } from '../../utils/st-utils';
 import { isEmptyValue } from '../../utils/common-utils';
 import { getDiagnostics } from '../../utils/diagnostics-utils';
+import { OutputSearchHighlight } from '../commons/Search';
 
 export interface ObjectOutputWidgetProps {
 	id: string; // this will be the root ID used to prepend for UUIDs of nested fields
@@ -34,6 +35,7 @@ export interface ObjectOutputWidgetProps {
 	getPort: (portId: string) => InputOutputPortModel;
 	context: IDataMapperContext;
 	mappings?: MappingMetadata[];
+	valueLabel?: string;
 	deleteField?: (node: Node) => Promise<void>;
 	originalTypeName?: string;
 }
@@ -48,6 +50,7 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 		getPort,
 		context,
 		mappings,
+		valueLabel,
 		deleteField
 	} = props;
 	const classes = useIONodesStyles();
@@ -107,6 +110,12 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 
 	const label = (
 		<span style={{ marginRight: "auto" }}>
+			{valueLabel && (
+				<span className={classes.valueLabel}>
+					<OutputSearchHighlight>{valueLabel}</OutputSearchHighlight>
+					{typeName && ":"}
+				</span>
+			)}
 			<span className={classes.outputTypeLabel}>
 				{typeName || ''}
 			</span>

@@ -620,6 +620,19 @@ export function genVariableName(originalName: string, existingNames: string[]): 
 	return modifiedName;
 }
 
+export function isMapFnAtPropAssignment(focusedST: Node) {
+    return  Node.isPropertyAssignment(focusedST)
+        && Node.isCallExpression(focusedST.getInitializer())
+        && isMapFunction(focusedST.getInitializer() as CallExpression);
+}
+
+export function isMapFnAtRootReturn(functionST: FunctionDeclaration, focusedST: Node ) {
+    const tnfFnRootReturn = getTnfFnReturnStatement(functionST);
+    return Node.isFunctionDeclaration(focusedST)
+        && Node.isCallExpression(tnfFnRootReturn)
+        && isMapFunction(tnfFnRootReturn);
+}
+
 function getRootInputAccessExpr(node: ElementAccessExpression | PropertyAccessExpression): Node {
     let expr = node.getExpression();
     while (expr && isInputAccessExpr(expr)) {

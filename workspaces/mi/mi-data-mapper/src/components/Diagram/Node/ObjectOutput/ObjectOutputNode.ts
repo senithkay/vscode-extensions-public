@@ -18,7 +18,16 @@ import { DataMapperNodeModel } from "../commons/DataMapperNode";
 import { getFilteredMappings, getSearchFilteredOutput, hasNoOutputMatchFound } from "../../utils/search-utils";
 import { enrichAndProcessType } from "../../utils/type-utils";
 import { OBJECT_OUTPUT_TARGET_PORT_PREFIX } from "../../utils/constants";
-import { findInputNode, getDefaultValue, getInputPort, getOutputPort, getTypeName, getTypeOfValue } from "../../utils/common-utils";
+import {
+    findInputNode,
+    getDefaultValue,
+    getInputPort,
+    getOutputPort,
+    getTypeName,
+    getTypeOfValue,
+    isMapFnAtPropAssignment,
+    isMapFnAtRootReturn
+} from "../../utils/common-utils";
 import { InputOutputPortModel } from "../../Port";
 import { DataMapperLinkModel } from "../../Link";
 import { ExpressionLabelModel } from "../../Label";
@@ -38,6 +47,7 @@ export class ObjectOutputNode extends DataMapperNodeModel {
     public hasNoMatchingFields: boolean;
     public x: number;
     public y: number;
+    public isMapFn: boolean;
 
     constructor(
         public context: IDataMapperContext,
@@ -56,6 +66,11 @@ export class ObjectOutputNode extends DataMapperNodeModel {
 
         if (this.dmType) {
             this.rootName = this.dmType?.fieldName;
+            const { focusedST, functionST, views } = this.context;
+
+            const isMapFnAtPropAsmt = isMapFnAtPropAssignment(focusedST);
+            const isMapFnAtRootRtn = views.length > 1 && isMapFnAtRootReturn(functionST, focusedST);
+            this.isMapFn = isMapFnAtPropAsmt || isMapFnAtRootRtn;
 
             const collapsedFields = useDMCollapsedFieldsStore.getState().collapsedFields;
             const [valueEnrichedType, type] = enrichAndProcessType(this.dmType, this.value);
@@ -65,7 +80,8 @@ export class ObjectOutputNode extends DataMapperNodeModel {
             this.hasNoMatchingFields = hasNoOutputMatchFound(this.originalType, valueEnrichedType);
     
             const parentPort = this.addPortsForHeader(
-                this.dmType, this.rootName, "IN", OBJECT_OUTPUT_TARGET_PORT_PREFIX, collapsedFields, valueEnrichedType
+                this.dmType, this.rootName, "IN", OBJECT_OUTPUT_TARGET_PORT_PREFIX,
+                collapsedFields, valueEnrichedType, this.isMapFn
             );
     
             if (valueEnrichedType.type.kind === TypeKind.Interface) {
@@ -75,7 +91,7 @@ export class ObjectOutputNode extends DataMapperNodeModel {
                     this.dmTypeWithValue.childrenTypes.forEach(field => {
                         this.addPortsForOutputField(
                             field, "IN", this.rootName, undefined, OBJECT_OUTPUT_TARGET_PORT_PREFIX,
-                            parentPort, collapsedFields, parentPort.collapsed
+                            parentPort, collapsedFields, parentPort.collapsed, this.isMapFn
                         );
                     });
                 }

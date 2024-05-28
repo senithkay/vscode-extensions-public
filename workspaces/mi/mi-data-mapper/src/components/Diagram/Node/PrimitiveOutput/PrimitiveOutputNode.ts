@@ -18,7 +18,16 @@ import { DMTypeWithValue } from "../../Mappings/DMTypeWithValue";
 import { MappingMetadata } from "../../Mappings/MappingMetadata";
 import { InputOutputPortModel } from "../../Port";
 import { PRIMITIVE_OUTPUT_TARGET_PORT_PREFIX } from "../../utils/constants";
-import { findInputNode, getDefaultValue, getInputPort, getOutputPort, getTnfFnReturnStatement, getTypeName, isArrayOrInterface, isMapFunction } from "../../utils/common-utils";
+import {
+    findInputNode,
+    getDefaultValue,
+    getInputPort,
+    getOutputPort,
+    getTypeName,
+    isArrayOrInterface,
+    isMapFnAtPropAssignment,
+    isMapFnAtRootReturn
+} from "../../utils/common-utils";
 import { getEnrichedDMType } from "../../utils/type-utils";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
 import { getFilteredMappings } from "../../utils/search-utils";
@@ -56,15 +65,9 @@ export class PrimitiveOutputNode extends DataMapperNodeModel {
             const collapsedFields = useDMCollapsedFieldsStore.getState().collapsedFields;
             const valueEnrichedType = getEnrichedDMType(this.dmType, this.value);
             const searchValue = useDMSearchStore.getState().outputSearch;
-            const tnfFnRootReturn = getTnfFnReturnStatement(functionST);
-            const isMapFnAtPropAssignment = Node.isPropertyAssignment(focusedST)
-                && Node.isCallExpression(focusedST.getInitializer())
-                && isMapFunction(focusedST.getInitializer() as CallExpression);
-            const isMapFnAtRootReturn = views.length > 1
-                && Node.isFunctionDeclaration(focusedST)
-                && Node.isCallExpression(tnfFnRootReturn)
-                && isMapFunction(tnfFnRootReturn);
-            this.isMapFn = isMapFnAtPropAssignment || isMapFnAtRootReturn;
+            const isMapFnAtPropAsmt = isMapFnAtPropAssignment(focusedST);
+            const isMapFnAtRootRtn = views.length > 1 && isMapFnAtRootReturn(functionST, focusedST);
+            this.isMapFn = isMapFnAtPropAsmt || isMapFnAtRootRtn;
 
             this.typeName = getTypeName(valueEnrichedType.type);
             this.dmTypeWithValue = valueEnrichedType;

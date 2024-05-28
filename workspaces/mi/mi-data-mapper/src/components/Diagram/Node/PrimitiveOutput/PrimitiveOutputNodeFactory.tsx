@@ -30,8 +30,7 @@ export class PrimitiveOutputNodeFactory extends AbstractReactFactory<PrimitiveOu
 		const { isMapFn, context } = event.model;
 		const { views, focusedST } = context;
 		const isMapFnAtFnReturn = views.length === 1 && Node.isFunctionDeclaration(focusedST);
-		if (isMapFn && !isMapFnAtFnReturn)
-		{
+		if (isMapFn && !isMapFnAtFnReturn) {
 			valueLabel = views[views.length - 1].targetFieldFQN.split('.').pop();
 		}
 		return (
