@@ -22,7 +22,7 @@ import { OutputSearchHighlight } from "../commons/Search";
 import { TreeBody } from '../commons/Tree/Tree';
 import { useIONodesStyles } from "../../../styles";
 import { InputNodeTreeItemWidget } from "../Input/InputNodeTreeItemWidget";
-import { useDMCollapsedFieldsStore } from "../../../../store/store";
+import { useDMCollapsedFieldsStore, useDMSubMappingConfigPanelStore } from "../../../../store/store";
 import classnames from "classnames";
 import styled from "@emotion/styled";
 import { DMSubMapping } from "./SubMappingNode";
@@ -70,6 +70,10 @@ export function SubMappingItemWidget(props: SubMappingItemProps) {
     const classes = useIONodesStyles();
     const collapsedFieldsStore = useDMCollapsedFieldsStore();
 
+    const { setSubMappingConfig } = useDMSubMappingConfigPanelStore(state => ({
+        setSubMappingConfig: state.setSubMappingConfig
+    }));
+
     const [ portState, setPortState ] = useState<PortState>(PortState.Unselected);
     const [isHovered, setIsHovered] = useState(false);
     const [isHoveredSeperator, setIsHoveredSeperator] = useState(false);
@@ -99,17 +103,11 @@ export function SubMappingItemWidget(props: SubMappingItemProps) {
 
     const onClickAddSubMapping = () => {
         const varName = genVariableName("subMapping", subMappings.map(mapping => mapping.name));
-        const newSubMappingIndex = index + 1;
-        (context.functionST.getBody() as Block).insertStatements(newSubMappingIndex, `const ${varName} = {};`);
-
-        context.addView({
-            targetFieldFQN: "",
-            sourceFieldFQN: "",
-            label: varName,
-            subMappingIndex: newSubMappingIndex
+        setSubMappingConfig({
+            isSMConfigPanelOpen: true,
+            nextSubMappingIndex: index + 1,
+            suggestedNextSubMappingName: varName
         });
-
-        context.applyModifications();
     };
 
     const handleExpand = () => {

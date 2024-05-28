@@ -8,6 +8,12 @@
  */
 import { create } from 'zustand';
 
+interface SubMappingConfig {
+    isSMConfigPanelOpen: boolean;
+    nextSubMappingIndex: number;
+    suggestedNextSubMappingName: string;
+}
+
 export interface DataMapperSearchState {
     inputSearch: string;
     setInputSearch: (inputSearch: string) => void;
@@ -23,11 +29,17 @@ export interface DataMapperCollapsedFieldsState {
 
 export interface DataMapperIOConfigPanelState {
     isIOConfigPanelOpen: boolean;
-    setIsIOConfigPanelOpen: (sidePanelOpen: boolean) => void;
+    setIsIOConfigPanelOpen: (isIOConfigPanelOpen: boolean) => void;
     ioConfigPanelType: string;
-    setIOConfigPanelType: (sidePanelIOType: string) => void;
+    setIOConfigPanelType: (ioConfigPanelType: string) => void;
     isSchemaOverridden: boolean;
     setIsSchemaOverridden: (isSchemaOverridden: boolean) => void;
+}
+
+export interface DataMapperSubMappingConfigPanelState {
+    subMappingConfig: SubMappingConfig;
+    setSubMappingConfig: (subMappingConfig: SubMappingConfig) => void;
+    resetSubMappingConfig: () => void;
 }
 
 export const useDMSearchStore = create<DataMapperSearchState>((set) => ({
@@ -50,4 +62,18 @@ export const useDMIOConfigPanelStore = create<DataMapperIOConfigPanelState>((set
     setIOConfigPanelType: (ioConfigPanelType: string) => set({ ioConfigPanelType }),
     isSchemaOverridden: false,
     setIsSchemaOverridden: (isSchemaOverridden: boolean) => set({ isSchemaOverridden }),
+}));
+
+export const useDMSubMappingConfigPanelStore = create<DataMapperSubMappingConfigPanelState>((set) => ({
+    subMappingConfig: {
+        isSMConfigPanelOpen: false,
+        nextSubMappingIndex: 0,
+        suggestedNextSubMappingName: undefined
+    },
+    setSubMappingConfig: (subMappingConfig: SubMappingConfig)  => set({ subMappingConfig }),
+    resetSubMappingConfig: ()  => set({ subMappingConfig: {
+        isSMConfigPanelOpen: false,
+        nextSubMappingIndex: 0,
+        suggestedNextSubMappingName: undefined
+    }}),
 }));
