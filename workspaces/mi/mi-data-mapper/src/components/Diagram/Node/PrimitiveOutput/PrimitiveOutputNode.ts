@@ -49,7 +49,8 @@ export class PrimitiveOutputNode extends DataMapperNodeModel {
     constructor(
         public context: IDataMapperContext,
         public value: Expression | undefined,
-        public originalType: DMType
+        public originalType: DMType,
+        public isSubMapping: boolean = false
     ) {
         super(
             NODE_ID,

@@ -103,14 +103,15 @@ export function createLinkConnectorNode(
 export function getOutputNode(
     context: DataMapperContext,
     expression: Expression,
-    outputType: DMType
+    outputType: DMType,
+    isSubMapping: boolean = false
 ): SubMappingOutputNode {
     if (outputType.kind === TypeKind.Interface || outputType.kind === TypeKind.Object) {
-        return new ObjectOutputNode(context, expression, outputType);
+        return new ObjectOutputNode(context, expression, outputType, isSubMapping);
     } else if (outputType.kind === TypeKind.Array) {
-        return new ArrayOutputNode(context, expression, outputType);
+        return new ArrayOutputNode(context, expression, outputType, isSubMapping);
     }
-    return new PrimitiveOutputNode(context, expression, outputType);
+    return new PrimitiveOutputNode(context, expression, outputType, isSubMapping);
 }
 
 export function isObjectOrArrayLiteralExpression(node: Node): boolean {

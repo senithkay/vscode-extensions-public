@@ -131,7 +131,7 @@ export function MIDataMapper(props: MIDataMapperProps) {
 
                 const inputNode = nodeInitVisitor.getInputNode();
                 const intermediateNodes = nodeInitVisitor.getIntermediateNodes();
-                const outputNode = getOutputNode(context, varDecl.getInitializer(), subMappingType);
+                const outputNode = getOutputNode(context, varDecl.getInitializer(), subMappingType, true);
 
                 setNodes([inputNode, outputNode, ...intermediateNodes]);
             } else {
