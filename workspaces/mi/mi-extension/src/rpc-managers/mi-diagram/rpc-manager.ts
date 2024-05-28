@@ -326,6 +326,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     response = await langClient.generateAPI({
                         apiName: name,
                         swaggerOrWsdlPath: swaggerDefPath,
+                        publishSwaggerPath: saveSwaggerDef!,
                         mode: "create.api.from.swagger"
                     });
                 } else if (wsdlDefPath) {

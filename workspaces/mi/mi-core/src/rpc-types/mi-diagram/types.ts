@@ -1262,8 +1262,8 @@ interface GenerateAPIBase {
 }
 
 export type GenerateAPIRequest = GenerateAPIBase & (
-    { mode: "create.api.from.swagger"; wsdlEndpointName?: never; } |
-    { mode: "create.api.from.wsdl"; wsdlEndpointName?: string; }
+    { mode: "create.api.from.swagger"; publishSwaggerPath: boolean; wsdlEndpointName?: never; } |
+    { mode: "create.api.from.wsdl"; publishSwaggerPath?: never; wsdlEndpointName?: string; }
 )
 
 export interface GenerateAPIResponse {
