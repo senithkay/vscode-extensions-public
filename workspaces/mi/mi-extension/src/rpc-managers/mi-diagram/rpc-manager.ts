@@ -309,7 +309,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
     async createAPI(params: CreateAPIRequest): Promise<CreateAPIResponse> {
         return new Promise(async (resolve) => {
             const {
-                directory,
+                artifactDir,
                 xmlData,
                 name,
                 saveSwaggerDef,
@@ -319,7 +319,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 wsdlEndpointName
             } = params;
 
-            let response: GenerateAPIResponse = { apiXml: "" };
+            let response: GenerateAPIResponse = { apiXml: "", endpointXml: "" };
             if (!xmlData) {
                 const langClient = StateMachine.context().langClient!;
                 if (swaggerDefPath) {
@@ -340,7 +340,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             }
 
             const sanitizedXmlData = (xmlData || response.apiXml).replace(/^\s*[\r\n]/gm, '');
-            const filePath = path.join(directory, `${name}.xml`);
+            const filePath = path.join(artifactDir, 'apis', `${name}.xml`);
             fs.writeFileSync(filePath, sanitizedXmlData);
             await this.rangeFormat({
                 uri: filePath,
@@ -349,6 +349,20 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     end: { line: sanitizedXmlData.split('\n').length + 1, character: 0 }
                 }
             });
+
+            // If WSDL is used, create an Endpoint
+            if (response.endpointXml) {
+                const sanitizedEndpointXml = response.endpointXml.replace(/^\s*[\r\n]/gm, '');
+                const endpointFilePath = path.join(artifactDir, 'endpoints', `${name}_SOAP_ENDPOINT.xml`);
+                fs.writeFileSync(endpointFilePath, sanitizedEndpointXml);
+                await this.rangeFormat({
+                    uri: endpointFilePath,
+                    range: {
+                        start: { line: 0, character: 0 },
+                        end: { line: sanitizedEndpointXml.split('\n').length + 1, character: 0 }
+                    }
+                });
+            }
             
             // Save swagger file
             if (saveSwaggerDef && swaggerDefPath) {

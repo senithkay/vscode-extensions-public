@@ -242,10 +242,10 @@ export function APIWizard({ apiData, path }: APIWizardProps) {
         if (!apiData) {
             // Create API
             const projectDir = (await rpcClient.getMiDiagramRpcClient().getProjectRoot({ path: path })).path;
-            const APIDir =  pathLib.join(projectDir,'src','main','wso2mi','artifacts', 'apis');
+            const artifactDir =  pathLib.join(projectDir,'src','main','wso2mi','artifacts');
 
             let createAPIParams: CreateAPIRequest = {
-                directory: APIDir,
+                artifactDir,
                 name: values.apiName,
             }
 

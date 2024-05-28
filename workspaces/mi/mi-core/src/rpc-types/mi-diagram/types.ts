@@ -28,7 +28,7 @@ export interface ApplyEditResponse {
 }
 
 export interface CreateAPIRequest {
-    directory: string;
+    artifactDir: string;
     name: string;
     xmlData?: string;
     saveSwaggerDef?: boolean;
@@ -1268,4 +1268,5 @@ export type GenerateAPIRequest = GenerateAPIBase & (
 
 export interface GenerateAPIResponse {
     apiXml: string;
+    endpointXml?: string;
 }
