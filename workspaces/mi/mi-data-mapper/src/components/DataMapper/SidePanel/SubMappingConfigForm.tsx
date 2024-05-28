@@ -47,7 +47,6 @@ export type SubMappingConfigFormProps = {
     addView: (view: View) => void;
     updateView: (updatedView: View) => void;
     applyModifications: () => void;
-    onCancel: () => void;
 };
 
 export function SubMappingConfigForm(props: SubMappingConfigFormProps) {
@@ -150,6 +149,10 @@ export function SubMappingConfigForm(props: SubMappingConfigFormProps) {
         reset();
     };
 
+    const onClose = () => {
+        resetSubMappingConfig();
+    };
+
     return (
         <SidePanel
             isOpen={isSMConfigPanelOpen}
@@ -161,7 +164,7 @@ export function SubMappingConfigForm(props: SubMappingConfigFormProps) {
                 <span>{isEdit ? EDIT_SUB_MAPPING_HEADER : ADD_NEW_SUB_MAPPING_HEADER}</span>
                 <Button
                     sx={{ marginLeft: "auto" }}
-                    onClick={props.onCancel}
+                    onClick={onClose}
                     appearance="icon"
                 >
                     <Codicon name="close" />

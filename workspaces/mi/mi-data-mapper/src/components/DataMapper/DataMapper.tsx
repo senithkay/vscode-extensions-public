@@ -7,22 +7,21 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useReducer, useState } from "react";
 
 import { css } from "@emotion/css";
+import { DMType, Range } from "@wso2-enterprise/mi-core";
+import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
+import { FunctionDeclaration, PropertyAssignment, ReturnStatement } from "ts-morph";
 
 import { DataMapperContext } from "../../utils/DataMapperContext/DataMapperContext";
 import DataMapperDiagram from "../Diagram/Diagram";
-
-import { DataMapperHeader } from "./Header/DataMapperHeader";
 import { DataMapperNodeModel } from "../Diagram/Node/commons/DataMapperNode";
 import { NodeInitVisitor } from "../Visitors/NodeInitVisitor";
 import { getFocusedST, getFocusedSubMapping, traversNode } from "../Diagram/utils/st-utils";
-import { DMType, Range } from "@wso2-enterprise/mi-core";
-import { FunctionDeclaration, PropertyAssignment, ReturnStatement } from "ts-morph";
 import { ImportDataForm } from "./SidePanel/ImportDataForm";
-import { useDMSearchStore, useDMIOConfigPanelStore, useDMSubMappingConfigPanelStore } from "../../store/store";
-import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
+import { DataMapperHeader } from "./Header/DataMapperHeader";
+import { useDMSearchStore } from "../../store/store";
 import { getTypeName } from "../Diagram/utils/common-utils";
 import { getSubMappingTypes, getTypeForVariable } from "../Diagram/utils/type-utils";
 import { getOutputNode } from "../Diagram/utils/node-utils";
@@ -37,71 +36,74 @@ const classes = {
         overflow: "hidden",
     })
 }
-
 export interface MIDataMapperProps {
     fnST: FunctionDeclaration;
     inputTrees: DMType[];
     outputTree: DMType;
     fileContent: string;
-    applyModifications: () => void;
     filePath: string;
     configName: string;
+    applyModifications: () => void;
+};
+
+enum ActionType {
+    ADD_VIEW,
+    SWITCH_VIEW,
+    EDIT_VIEW
+};
+
+type ViewState = View[];
+
+type ViewAction = {
+    type: ActionType,
+    payload: {
+        view?: View,
+        index?: number
+    },
+}
+
+function viewsReducer(state: ViewState, action: ViewAction) {
+    switch (action.type) {
+        case ActionType.ADD_VIEW:
+            return [...state, action.payload.view];
+        case ActionType.SWITCH_VIEW:
+            return state.slice(0, action.payload.index + 1);
+        case ActionType.EDIT_VIEW:
+            return [...state.slice(0, state.length - 1), action.payload.view];
+        default:
+            return state;
+    }
 }
 
 export function MIDataMapper(props: MIDataMapperProps) {
-    const {
-        fnST,
-        inputTrees,
-        outputTree,
-        fileContent,
-        applyModifications,
-        configName,
-        filePath
-    } = props;
-    const [views, setViews] = useState<View[]>([{
+    const { fnST, inputTrees, outputTree, fileContent, filePath, configName, applyModifications } = props;
+
+    const initialView = [{
         targetFieldFQN: "",
         sourceFieldFQN: "",
         label: `${getTypeName(inputTrees[0])} -> ${getTypeName(outputTree)}`
-    }]);
+    }];
+
+    const [views, dispatch] = useReducer(viewsReducer, initialView);
     const [nodes, setNodes] = useState<DataMapperNodeModel[]>([]);
-
-    const {
-        isIOConfigPanelOpen,
-        ioConfigPanelType,
-        isSchemaOverridden,
-        setIsIOConfigPanelOpen
-    } = useDMIOConfigPanelStore(state => ({
-            isIOConfigPanelOpen: state.isIOConfigPanelOpen,
-            ioConfigPanelType: state.ioConfigPanelType,
-            isSchemaOverridden: state.isSchemaOverridden,
-            setIsIOConfigPanelOpen: state.setIsIOConfigPanelOpen
-        })
-    );
-
-    const resetSubMappingConfig = useDMSubMappingConfigPanelStore(state => state.resetSubMappingConfig);
 
     const { rpcClient } = useVisualizerContext();
     const { resetSearchStore } = useDMSearchStore();
 
-    const addView = (view: View) => {
-        setViews(prev => [...prev, view]);
+    const addView = useCallback((view: View) => {
+        dispatch({ type: ActionType.ADD_VIEW, payload: {view} });
         resetSearchStore();
-    };
+    }, [resetSearchStore]);
 
-    const switchView = (navigateIndex: number) => {
-        setViews(prev => {
-            const newViews = prev.slice(0, navigateIndex + 1);
-            return newViews;
-        });
+    const switchView = useCallback((navigateIndex: number) => {
+        dispatch({ type: ActionType.SWITCH_VIEW, payload: {index: navigateIndex} });
         resetSearchStore();
-    };
+    }, [resetSearchStore]);
 
-    const editView = (updatedView: View) => {
-        setViews(prev => {
-            const newViews = [...prev.slice(0, prev.length - 1), updatedView];
-            return newViews;
-        });
-    };
+    const editView = useCallback((newData: View) => {
+        dispatch({ type: ActionType.EDIT_VIEW, payload: { view: newData} });
+        resetSearchStore();
+    }, [resetSearchStore]);
 
     useEffect(() => {
         async function generateNodes() {
@@ -155,14 +157,6 @@ export function MIDataMapper(props: MIDataMapperProps) {
         rpcClient.getMiDataMapperRpcClient().updateDMCFileContent({ dmName: configName, sourcePath: filePath });
     };
 
-    const onCloseIOConfigPanel = () => {
-        setIsIOConfigPanelOpen(false);
-    };
-
-    const onCloseSMConfigPanel = () => {
-        resetSubMappingConfig();
-    };
-
     return (
         <div className={classes.root}>
             {fnST && (
@@ -180,12 +174,8 @@ export function MIDataMapper(props: MIDataMapperProps) {
                 />
             )}
             <ImportDataForm
-                isOpen={isIOConfigPanelOpen}
-                onCancel={onCloseIOConfigPanel} 
                 configName={configName}
                 documentUri={filePath}
-                ioType={ioConfigPanelType}
-                overwriteSchema={isSchemaOverridden}
             />
             {nodes.length > 0 && (
                 <SubMappingConfigForm
@@ -194,7 +184,6 @@ export function MIDataMapper(props: MIDataMapperProps) {
                     addView={addView}
                     updateView={editView}
                     applyModifications={applyModifications}
-                    onCancel={onCloseSMConfigPanel}
                 />
             )}
         </div>
