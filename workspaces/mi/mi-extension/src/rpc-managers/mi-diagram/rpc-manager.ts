@@ -64,6 +64,7 @@ import {
     ExportProjectRequest,
     FileDirResponse,
     FileStructure,
+    GenerateAPIResponse,
     GetAllArtifactsRequest,
     GetAllArtifactsResponse,
     GetAllRegistryPathsRequest,
@@ -307,11 +308,39 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
     async createAPI(params: CreateAPIRequest): Promise<CreateAPIResponse> {
         return new Promise(async (resolve) => {
-            const { directory, xmlData, name, swaggerDef } = params;
-            
+            const {
+                directory,
+                xmlData,
+                name,
+                saveSwaggerDef,
+                swaggerDefPath,
+                wsdlType,
+                wsdlDefPath,
+                wsdlEndpointName
+            } = params;
+
+            let response: GenerateAPIResponse = { apiXml: "" };
+            if (!xmlData) {
+                const langClient = StateMachine.context().langClient!;
+                if (swaggerDefPath) {
+                    response = await langClient.generateAPI({
+                        apiName: name,
+                        swaggerOrWsdlPath: swaggerDefPath,
+                        mode: "create.api.from.swagger"
+                    });
+                } else if (wsdlDefPath) {
+                    const filePath = wsdlType === "file" && Uri.file(wsdlDefPath).toString();
+                    response = await langClient.generateAPI({
+                        apiName: name,
+                        swaggerOrWsdlPath: filePath || wsdlDefPath,
+                        mode: "create.api.from.wsdl",
+                        wsdlEndpointName
+                    });
+                }
+            }
+
+            const sanitizedXmlData = (xmlData || response.apiXml).replace(/^\s*[\r\n]/gm, '');
             const filePath = path.join(directory, `${name}.xml`);
-            const sanitizedXmlData = xmlData.replace(/^\s*[\r\n]/gm, '');
-            
             fs.writeFileSync(filePath, sanitizedXmlData);
             await this.rangeFormat({
                 uri: filePath,
@@ -322,10 +351,10 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             });
             
             // Save swagger file
-            if (swaggerDef) {
+            if (saveSwaggerDef && swaggerDefPath) {
                 const workspacePath = workspace.workspaceFolders![0].uri.fsPath;
-                const ext = path.extname(swaggerDef);
-                const swaggerPath = path.join(
+                const ext = path.extname(swaggerDefPath);
+                const swaggerRegPath = path.join(
                     workspacePath,
                     'src',
                     'main',
@@ -336,10 +365,10 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     'swaggerFiles',
                     `${name}${ext}`
                 );
-                if (!fs.existsSync(path.dirname(swaggerPath))) {
-                    fs.mkdirSync(path.dirname(swaggerPath), { recursive: true });
+                if (!fs.existsSync(path.dirname(swaggerRegPath))) {
+                    fs.mkdirSync(path.dirname(swaggerRegPath), { recursive: true });
                 }
-                fs.copyFileSync(swaggerDef, swaggerPath);
+                fs.copyFileSync(swaggerDefPath, swaggerRegPath);
             }
 
             commands.executeCommand(COMMANDS.REFRESH_COMMAND);

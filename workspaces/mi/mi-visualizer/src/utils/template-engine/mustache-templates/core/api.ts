@@ -9,7 +9,7 @@
 
 export function getAddAPITemplate() {
     return `<?xml version="1.0" encoding="UTF-8" ?>
-    <api context="{{{context}}}" name="{{{name}}}"{{#swaggerDef}} publishSwagger="{{{swaggerDef}}}"{{/swaggerDef}}{{#version}} version="{{{version}}}"{{/version}}{{#versionType}} version-type="{{{versionType}}}"{{/versionType}} xmlns="http://ws.apache.org/ns/synapse">
+    <api context="{{{context}}}" name="{{{name}}}"{{#version}} version="{{{version}}}"{{/version}}{{#versionType}} version-type="{{{versionType}}}"{{/versionType}} xmlns="http://ws.apache.org/ns/synapse">
         <resource methods="GET" uri-template="/resource">
             <inSequence>
             </inSequence>

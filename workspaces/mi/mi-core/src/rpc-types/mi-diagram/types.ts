@@ -29,9 +29,13 @@ export interface ApplyEditResponse {
 
 export interface CreateAPIRequest {
     directory: string;
-    xmlData: string;
     name: string;
-    swaggerDef: string;
+    xmlData?: string;
+    saveSwaggerDef?: boolean;
+    swaggerDefPath?: string;
+    wsdlType?: "file" | "url";
+    wsdlDefPath?: string;
+    wsdlEndpointName?: string;
 }
 
 export interface EditAPIRequest {
@@ -1250,4 +1254,18 @@ export interface DeleteArtifactRequest {
 
 export interface ExportProjectRequest {
     projectPath: string;
+}
+
+interface GenerateAPIBase {
+    apiName: string;
+    swaggerOrWsdlPath: string;
+}
+
+export type GenerateAPIRequest = GenerateAPIBase & (
+    { mode: "create.api.from.swagger"; wsdlEndpointName?: never; } |
+    { mode: "create.api.from.wsdl"; wsdlEndpointName?: string; }
+)
+
+export interface GenerateAPIResponse {
+    apiXml: string;
 }

@@ -12,7 +12,7 @@ import React, { useEffect, useState } from "react";
 import { Button, TextField, FormView, FormActions, Dropdown, FormCheckBox, RadioButtonGroup } from "@wso2-enterprise/ui-toolkit";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { FieldGroup } from "../Commons";
-import { EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
+import { CreateAPIRequest, EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
 import { Range } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { getXML } from "../../../utils/template-engine/mustache-templates/templateUtils";
 import { ARTIFACT_TEMPLATES } from "../../../constants";
@@ -54,7 +54,9 @@ export interface APIData {
     apiCreateOption?: "create-api" | "swagger-to-api" | "wsdl-to-api";
     swaggerDefPath?: string;
     saveSwaggerDef?: boolean;
+    wsdlType?: "file" | "url";
     wsdlDefPath?: string;
+    wsdlEndpointName?: string;
     apiRange?: Range;
     handlersRange?: Range;
     handlers?: any[];
@@ -72,7 +74,9 @@ const initialAPI: APIData = {
     apiCreateOption: "create-api",
     swaggerDefPath: "",
     saveSwaggerDef: false,
+    wsdlType: "file",
     wsdlDefPath: "",
+    wsdlEndpointName: "",
     apiRange: undefined,
     handlersRange: undefined,
     handlers: []
@@ -122,11 +126,30 @@ export function APIWizard({ apiData, path }: APIWizardProps) {
         swaggerDefPath: yup.string().when('apiCreateOption', {
             is: "swagger-to-api",
             then: schema => schema.required("Swagger definition is required"),
+            otherwise: schema => schema.transform(() => undefined),
         }),
-        saveSwaggerDef: yup.boolean(),
+        saveSwaggerDef: yup.boolean().when('apiCreateOption', {
+            is: "swagger-to-api",
+            otherwise: schema => schema.transform(() => false),
+        }),
+        wsdlType: yup.string().oneOf(["file", "url"] as const).defined(),
         wsdlDefPath: yup.string().when('apiCreateOption', {
             is: "wsdl-to-api",
-            then: schema => schema.required("WSDL definition is required"),
+            then: schema => schema
+                .when('wsdlType', {
+                    is: "file",
+                    then: schema => schema.required("WSDL definition is required"),
+                })
+                .when('wsdlType', {
+                    is: "url",
+                    then: schema => schema.matches(/^https?:\/\/.*/, "Invalid URL format"),
+                }),
+            otherwise: schema => schema.transform(() => undefined),
+        }),
+        wsdlEndpointName: yup.string().when('apiCreateOption', {
+            is: "wsdl-to-api",
+            then: schema => schema.notRequired(),
+            otherwise: schema => schema.transform(() => undefined),
         }),
         apiRange: yup.object(),
         handlersRange: yup.object(),
@@ -152,6 +175,7 @@ export function APIWizard({ apiData, path }: APIWizardProps) {
     const versionType = watch("versionType");
     const apiCreateOption = watch("apiCreateOption");
     const swaggerDefPath = watch("swaggerDefPath");
+    const wsdlType = watch("wsdlType");
     const wsdlDefPath = watch("wsdlDefPath");
 
     const identifyVersionType = (version: string): VersionType => {
@@ -219,20 +243,37 @@ export function APIWizard({ apiData, path }: APIWizardProps) {
             // Create API
             const projectDir = (await rpcClient.getMiDiagramRpcClient().getProjectRoot({ path: path })).path;
             const APIDir =  pathLib.join(projectDir,'src','main','wso2mi','artifacts', 'apis');
-            const formValues = {
-                name: values.apiName,
-                context: values.apiContext,
-                swaggerDef: values.saveSwagger && values.swaggerdefPath,
-                version: (values.versionType !== "none" && values.version) && values.version,
-                versionType: (values.versionType !== "none" && values.version) && values.versionType,
-            }
-            const xml = getXML(ARTIFACT_TEMPLATES.ADD_API, formValues);
-            const createAPIParams = {
+
+            let createAPIParams: CreateAPIRequest = {
                 directory: APIDir,
-                xmlData: xml,
                 name: values.apiName,
-                swaggerDef: values.saveSwagger && values.swaggerdefPath,
-            };
+            }
+
+            // Generate API using Swagger or WSDL
+            if (swaggerDefPath) {
+                createAPIParams = {
+                    ...createAPIParams,
+                    saveSwaggerDef: values.saveSwaggerDef,
+                    swaggerDefPath: swaggerDefPath
+                }
+            } else if (wsdlDefPath) {
+                createAPIParams = {
+                    ...createAPIParams,
+                    wsdlType: values.wsdlType,
+                    wsdlDefPath: wsdlDefPath,
+                    wsdlEndpointName: values.wsdlEndpointName
+                }
+            } else {
+                const formValues = {
+                    name: values.apiName,
+                    context: values.apiContext,
+                    version: (values.versionType !== "none" && values.version) && values.version,
+                    versionType: (values.versionType !== "none" && values.version) && values.versionType,
+                }
+                const xml = getXML(ARTIFACT_TEMPLATES.ADD_API, formValues);
+                createAPIParams = { ...createAPIParams, xmlData: xml }
+            }
+
             const file = await rpcClient.getMiDiagramRpcClient().createAPI(createAPIParams);
             console.log("API created");
             rpcClient.getMiVisualizerRpcClient().log({ message: "API created successfully." });
@@ -245,7 +286,7 @@ export function APIWizard({ apiData, path }: APIWizardProps) {
             const formValues = {
                 name: values.apiName,
                 context: values.apiContext,
-                swaggerDef: values.swaggerdefPath,
+                swaggerDef: values.swaggerDefPath,
                 hostName: values.hostName,
                 version: values.version,
                 type: values.versionType,
@@ -333,14 +374,36 @@ export function APIWizard({ apiData, path }: APIWizardProps) {
             case "wsdl-to-api":
                 return (
                     <React.Fragment>
-                        <FieldGroup>
-                            <span>WSDL File</span>
-                            {!!wsdlDefPath && <LocationText>{wsdlDefPath}</LocationText>}
-                            {!wsdlDefPath && <span>Please choose a file for WSDL definition.</span>}
-                            <Button appearance="secondary" onClick={handleWsdlPathSelection} id="select-wsdl-path-btn">
-                                Select Location
-                            </Button>
-                        </FieldGroup>
+                        <RadioButtonGroup
+                            label="WSDL Type"
+                            orientation="horizontal"
+                            options={[
+                                { content: "File", value: "file" },
+                                { content: "URL", value: "url" }
+                            ]}
+                            {...register("wsdlType")}
+                        />
+                        {wsdlType === "file" ? (
+                            <FieldGroup>
+                                <span>WSDL File</span>
+                                {!!wsdlDefPath && <LocationText>{wsdlDefPath}</LocationText>}
+                                {!wsdlDefPath && <span>Please choose a file for WSDL definition.</span>}
+                                <Button appearance="secondary" onClick={handleWsdlPathSelection} id="select-wsdl-path-btn">
+                                    Select Location
+                                </Button>
+                            </FieldGroup>
+                        ) : (
+                            <TextField
+                                label="WSDL URL"
+                                placeholder="WSDL URL"
+                                {...renderProps("wsdlDefPath")}
+                            />
+                        )}
+                        <TextField
+                            label="SOAP Endpoint"
+                            placeholder="SOAP Endpoint"
+                            {...renderProps("wsdlEndpointName")}
+                        />
                     </React.Fragment>
                 );
             default:
