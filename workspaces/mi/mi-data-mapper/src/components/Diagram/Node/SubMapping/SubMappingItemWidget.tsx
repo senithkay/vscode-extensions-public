@@ -183,6 +183,7 @@ export function SubMappingItemWidget(props: SubMappingItemProps) {
                     )}
                     {label}
                     <Button
+                        id={`go-to-sub-mapping-btn-${index}`}
                         appearance="icon"
                         data-testid={`go-to-sub-mapping-btn-${index}`}
                         tooltip="Go to sub mapping"
