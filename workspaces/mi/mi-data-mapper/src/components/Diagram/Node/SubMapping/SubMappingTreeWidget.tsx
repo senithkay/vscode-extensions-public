@@ -12,7 +12,7 @@ import styled from "@emotion/styled";
 import { Button, Codicon, Icon } from '@wso2-enterprise/ui-toolkit';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 
-import { useDMSearchStore } from "../../../../store/store";
+import { useDMSearchStore, useDMSubMappingConfigPanelStore } from "../../../../store/store";
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { InputOutputPortModel } from '../../Port';
 import { SUB_MAPPING_INPUT_SOURCE_PORT_PREFIX } from "../../utils/constants";
@@ -20,75 +20,6 @@ import { SubMappingContainer } from '../commons/Tree/Tree';
 import { DMSubMapping } from "./index";
 import { useIONodesStyles } from '../../../styles';
 import { SubMappingItemWidget } from './SubMappingItemWidget';
-
-export interface SubMappingTreeWidgetProps {
-    subMappings: DMSubMapping[];
-    engine: DiagramEngine;
-    context: IDataMapperContext;
-    getPort: (portId: string) => InputOutputPortModel;
-}
-
-export function SubMappingTreeWidget(props: SubMappingTreeWidgetProps) {
-    const { engine, subMappings, context, getPort } = props;
-    const searchValue = useDMSearchStore.getState().inputSearch;
-    const classes = useIONodesStyles();
-    const isFocusedView = context.views.length > 1;
-
-    const onClick = () => {
-        // TODO 
-    };
-
-    const subMappingItems: ReactNode[] = subMappings.map((mapping, index) => {
-        return (
-            <SubMappingItemWidget
-                index={index}
-                key={`${SUB_MAPPING_INPUT_SOURCE_PORT_PREFIX}.${mapping.name}`}
-                id={`${SUB_MAPPING_INPUT_SOURCE_PORT_PREFIX}.${mapping.name}`}
-                engine={engine}
-                context={context}
-                type={mapping.type}
-                subMappings={subMappings}
-                getPort={(portId: string) => getPort(portId) as InputOutputPortModel}
-                valueLabel={mapping.name}
-            />
-        );
-    }).filter(mapping => !!mapping);
-
-    return (
-        <>
-            {subMappingItems.length > 0 ? (
-                <SubMappingContainer data-testid={"sub-mapping-node"}>
-                    <SubMappingsHeader>
-                        <HeaderText>Sub Mappings</HeaderText>
-                        {!isFocusedView && (
-                            <Button
-                                appearance="icon"
-                                tooltip="Add or Edit Sub Mappings"
-                                onClick={onClick}
-                                data-testid={"edit-sub-mappings-btn"}
-                                sx={{ paddingRight: "8px" }}
-                            >
-                                <Icon name="editIcon" />
-                            </Button>
-                        )}
-                    </SubMappingsHeader>
-                    {subMappingItems}
-                </SubMappingContainer>
-            ) : !isFocusedView && !searchValue && (
-                <Button
-                    className={classes.addSubMappingButton}
-                    appearance='icon'
-                    aria-label="add"
-                    onClick={onClick}
-                    data-testid={"add-sub-mappings-btn"}
-                >
-                    <Codicon name="add" iconSx={{ color: "var(--button-primary-foreground)"}} />
-                    <div>Add Sub Mapping</div>
-                </Button>
-            )}
-        </>
-    );
-}
 
 const SubMappingsHeader = styled.div`
     background: var(--vscode-editorWidget-background);
@@ -108,3 +39,68 @@ const HeaderText = styled.span`
     font-weight: 600;
     color: var(--vscode-inputOption-activeForeground)
 `;
+
+export interface SubMappingTreeWidgetProps {
+    subMappings: DMSubMapping[];
+    engine: DiagramEngine;
+    context: IDataMapperContext;
+    getPort: (portId: string) => InputOutputPortModel;
+}
+
+export function SubMappingTreeWidget(props: SubMappingTreeWidgetProps) {
+    const { engine, subMappings, context, getPort } = props;
+    const searchValue = useDMSearchStore.getState().inputSearch;
+    const isFocusedView = context.views.length > 1;
+
+    const classes = useIONodesStyles();
+    const setSubMappingConfig = useDMSubMappingConfigPanelStore(state => state.setSubMappingConfig);
+
+    const subMappingItems: ReactNode[] = subMappings.map((mapping, index) => {
+        return (
+            <SubMappingItemWidget
+                index={index}
+                key={`${SUB_MAPPING_INPUT_SOURCE_PORT_PREFIX}.${mapping.name}`}
+                id={`${SUB_MAPPING_INPUT_SOURCE_PORT_PREFIX}.${mapping.name}`}
+                engine={engine}
+                context={context}
+                type={mapping.type}
+                subMappings={subMappings}
+                getPort={(portId: string) => getPort(portId) as InputOutputPortModel}
+                valueLabel={mapping.name}
+            />
+        );
+    }).filter(mapping => !!mapping);
+
+
+    const onClickAddSubMapping = () => {
+        setSubMappingConfig({
+            isSMConfigPanelOpen: true,
+            nextSubMappingIndex: 0,
+            suggestedNextSubMappingName: "subMapping"
+        });
+    };
+
+    return (
+        <>
+            {subMappingItems.length > 0 ? (
+                <SubMappingContainer data-testid={"sub-mapping-node"}>
+                    <SubMappingsHeader>
+                        <HeaderText>Sub Mappings</HeaderText>
+                    </SubMappingsHeader>
+                    {subMappingItems}
+                </SubMappingContainer>
+            ) : !isFocusedView && !searchValue && (
+                <Button
+                    className={classes.addSubMappingButton}
+                    appearance='icon'
+                    aria-label="add"
+                    onClick={onClickAddSubMapping}
+                    data-testid={"add-sub-mappings-btn"}
+                >
+                    <Codicon name="add" iconSx={{ color: "var(--button-primary-foreground)"}} />
+                    <div>Add Sub Mapping</div>
+                </Button>
+            )}
+        </>
+    );
+}

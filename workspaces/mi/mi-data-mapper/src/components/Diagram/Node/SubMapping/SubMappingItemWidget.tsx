@@ -12,8 +12,10 @@ import React, { useState } from "react";
 import { Button, Codicon, ProgressRing } from "@wso2-enterprise/ui-toolkit";
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { DMType, TypeKind } from "@wso2-enterprise/mi-core";
-import { Block } from "ts-morph";
 import { keyframes } from "@emotion/react";
+import styled from "@emotion/styled";
+import { Block } from "ts-morph";
+import classnames from "classnames";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { DataMapperPortWidget, PortState, InputOutputPortModel } from '../../Port';
@@ -23,8 +25,6 @@ import { TreeBody } from '../commons/Tree/Tree';
 import { useIONodesStyles } from "../../../styles";
 import { InputNodeTreeItemWidget } from "../Input/InputNodeTreeItemWidget";
 import { useDMCollapsedFieldsStore, useDMSubMappingConfigPanelStore } from "../../../../store/store";
-import classnames from "classnames";
-import styled from "@emotion/styled";
 import { DMSubMapping } from "./SubMappingNode";
 
 export interface SubMappingItemProps {
@@ -67,17 +67,15 @@ const HoverButton = styled(Button)`
 
 export function SubMappingItemWidget(props: SubMappingItemProps) {
     const { index, id, type, engine, context, subMappings, getPort, valueLabel } = props;
+
     const classes = useIONodesStyles();
     const collapsedFieldsStore = useDMCollapsedFieldsStore();
-
-    const { setSubMappingConfig } = useDMSubMappingConfigPanelStore(state => ({
-        setSubMappingConfig: state.setSubMappingConfig
-    }));
+    const setSubMappingConfig = useDMSubMappingConfigPanelStore(state => state.setSubMappingConfig);
 
     const [ portState, setPortState ] = useState<PortState>(PortState.Unselected);
     const [isHovered, setIsHovered] = useState(false);
     const [isHoveredSeperator, setIsHoveredSeperator] = useState(false);
-    const [deleteInProgress, setDeleteInProgress] = React.useState(false);
+    const [deleteInProgress, setDeleteInProgress] = useState(false);
 
     const typeName = getTypeName(type);
     const portOut = getPort(`${id}.OUT`);
