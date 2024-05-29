@@ -71,3 +71,27 @@ export const TreeBody = styled.div`
     cursor: pointer;
     color: var(--vscode-foreground);
 `;
+
+export const ObjectFieldAdder = styled.div`
+    height: 40px;
+    width: 100%;
+    padding: 8px;
+    background: repeating-linear-gradient(
+        -45deg,
+        var(--vscode-badge-background),
+        var(--vscode-badge-background) 3px,
+        var(--vscode-sideBar-background) 3px,
+        var(--vscode-sideBar-background) 6px
+    );
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    display: flex;
+    &:hover {
+        background-color: var(--vscode-list-hoverBackground);
+        // opacity: 0.8;
+    };
+    &:active {
+        opacity: 0.6;
+    }
+`

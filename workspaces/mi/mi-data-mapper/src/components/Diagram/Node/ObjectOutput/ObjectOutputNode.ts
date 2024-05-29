@@ -96,6 +96,12 @@ export class ObjectOutputNode extends DataMapperNodeModel {
                         );
                     });
                 }
+
+                if (this.isSubMapping) {
+                    this.addOutputFieldAdderPort(
+                        this.rootName, parentPort, collapsedFields, parentPort.collapsed, this.isMapFn
+                    );
+                }
             }
         }
     }

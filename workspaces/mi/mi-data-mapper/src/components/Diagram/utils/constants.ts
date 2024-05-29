@@ -11,6 +11,7 @@ export const ARRAY_OUTPUT_TARGET_PORT_PREFIX = "arrayOutput";
 export const PRIMITIVE_OUTPUT_TARGET_PORT_PREFIX = "primitiveOutput";
 export const FOCUSED_INPUT_SOURCE_PORT_PREFIX = "focusedInput";
 export const SUB_MAPPING_INPUT_SOURCE_PORT_PREFIX = "subMappingInput";
+export const OBJECT_OUTPUT_FIELD_ADDER_TARGET_PORT_PREFIX = "objectOutputFieldAdder";
 
 export const defaultModelOptions = { zoom: 90 };
 export const VISUALIZER_PADDING = 0;

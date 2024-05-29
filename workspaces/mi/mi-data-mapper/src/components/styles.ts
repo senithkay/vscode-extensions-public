@@ -232,6 +232,10 @@ export const useIONodesStyles = () => ({
         alignItems: "center",
         justifyContent: "center"
     }),
+    objectFieldAdderLabel: css({
+        display: "flex",
+        justifyContent: "center"
+    }),
 });
 
 export const useIntermediateNodeStyles = () => ({

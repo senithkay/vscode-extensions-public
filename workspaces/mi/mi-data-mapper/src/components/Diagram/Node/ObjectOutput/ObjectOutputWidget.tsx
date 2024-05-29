@@ -17,14 +17,19 @@ import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapp
 import { DMTypeWithValue } from "../../Mappings/DMTypeWithValue";
 import { MappingMetadata } from "../../Mappings/MappingMetadata";
 import { DataMapperPortWidget, PortState, InputOutputPortModel } from '../../Port';
-import { TreeBody, TreeContainer, TreeHeader } from '../commons/Tree/Tree';
+import { ObjectFieldAdder, TreeBody, TreeContainer, TreeHeader } from '../commons/Tree/Tree';
 import { ObjectOutputFieldWidget } from "./ObjectOutputFieldWidget";
 import { useIONodesStyles } from '../../../styles';
-import { useDMCollapsedFieldsStore, useDMIOConfigPanelStore, useDMSubMappingConfigPanelStore } from '../../../../store/store';
+import {
+	useDMCollapsedFieldsStore,
+	useDMIOConfigPanelStore,
+	useDMSubMappingConfigPanelStore
+} from '../../../../store/store';
 import { getPosition } from '../../utils/st-utils';
 import { isEmptyValue } from '../../utils/common-utils';
 import { getDiagnostics } from '../../utils/diagnostics-utils';
 import { OutputSearchHighlight } from '../commons/Search';
+import { OBJECT_OUTPUT_FIELD_ADDER_TARGET_PORT_PREFIX } from '../../utils/constants';
 
 export interface ObjectOutputWidgetProps {
 	id: string; // this will be the root ID used to prepend for UUIDs of nested fields
@@ -210,6 +215,13 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 							);
 						})}
 					</TreeBody>
+				)}
+				{isSubMapping && (
+					<ObjectFieldAdder id={`recordfield-${OBJECT_OUTPUT_FIELD_ADDER_TARGET_PORT_PREFIX}`}>
+						<span className={classes.objectFieldAdderLabel}>
+							Click here after clicking input field
+						</span>
+					</ObjectFieldAdder>
 				)}
 			</TreeContainer>
 		</>
