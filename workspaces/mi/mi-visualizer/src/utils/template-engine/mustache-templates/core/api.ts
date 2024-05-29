@@ -6,8 +6,21 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-export function getEditServiceTemplate() {
-    return `<api{{#hostName}} hostname="{{hostName}}"{{/hostName}} name="{{{name}}}"{{#port}} port="{{port}}"{{/port}}{{#statistics}} statistics="enable"{{/statistics}}{{#trace}} trace="enable"{{/trace}} context="{{{context}}}"{{#version}} version="{{{version}}}" version-type="{{version_type}}"{{/version}} xmlns="http://ws.apache.org/ns/synapse">`
+
+export function getAddAPITemplate() {
+    return `<?xml version="1.0" encoding="UTF-8" ?>
+    <api context="{{{context}}}" name="{{{name}}}"{{#version}} version="{{{version}}}"{{/version}}{{#versionType}} version-type="{{{versionType}}}"{{/versionType}} xmlns="http://ws.apache.org/ns/synapse">
+        <resource methods="GET" uri-template="/resource">
+            <inSequence>
+            </inSequence>
+            <faultSequence>
+            </faultSequence>
+        </resource>
+    </api>`
+}
+
+export function getEditAPITemplate() {
+    return `<api{{#hostName}} hostname="{{hostName}}"{{/hostName}} name="{{{name}}}"{{#port}} port="{{port}}"{{/port}}{{#statistics}} statistics="enable"{{/statistics}}{{#trace}} trace="enable"{{/trace}} context="{{{context}}}"{{#swaggerDef}} publishSwagger="{{{swaggerDef}}}"{{/swaggerDef}}{{#version}} version="{{{version}}}" version-type="{{version_type}}"{{/version}} xmlns="http://ws.apache.org/ns/synapse">`
 }
 
 export function getHandlersTemplate() {
@@ -20,7 +33,7 @@ export function getHandlersTemplate() {
     </handlers>{{/show}}`;
 };
 
-export function getAddApiResourceTemplate() {
+export function getAddAPIResourceTemplate() {
     return `<resource methods="{{methods}}"{{#protocol}} protocol="{{{protocol}}}"{{/protocol}}{{#uri_template}} uri-template="{{{uri_template}}}"{{/uri_template}}{{#url_mapping}} url-mapping="{{{url_mapping}}}"{{/url_mapping}}{{#version}} version="{{{version}}}" version-type="{{version_type}}"{{/version}}>
     <inSequence>
     </inSequence>
@@ -29,7 +42,7 @@ export function getAddApiResourceTemplate() {
 </resource>`;
 }
 
-export const getEditApiResourceTemplate = () => {
+export const getEditAPIResourceTemplate = () => {
     return `<resource methods="{{methods}}"{{#protocol}} protocol="{{{protocol}}}"{{/protocol}}{{#uri_template}} uri-template="{{{uri_template}}}"{{/uri_template}}{{#url_mapping}} url-mapping="{{{url_mapping}}}"{{/url_mapping}}{{#in_sequence}} inSequence="{{{in_sequence}}}"{{/in_sequence}}{{#out_sequence}} outSequence="{{{out_sequence}}}"{{/out_sequence}}{{#fault_sequence}} faultSequence="{{{fault_sequence}}}"{{/fault_sequence}}>{{#appened_in_sequence}}
     <inSequence>
     </inSequence>{{/appened_in_sequence}}{{#appened_fault_sequence}}

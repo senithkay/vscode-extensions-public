@@ -31,6 +31,7 @@ export type FilterType =
     | "js"
     | "json"
     | "smooksConfig"
+    | "swagger"
     | "wsdl"
     | "ws_policy"
     | "xsd"

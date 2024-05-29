@@ -57,11 +57,14 @@ import {
     DownloadConnectorResponse,
     ESBConfigsResponse,
     EVENT_TYPE,
+    EditAPIRequest,
+    EditAPIResponse,
     EndpointDirectoryResponse,
     EndpointsAndSequencesResponse,
     ExportProjectRequest,
     FileDirResponse,
     FileStructure,
+    GenerateAPIResponse,
     GetAllArtifactsRequest,
     GetAllArtifactsResponse,
     GetAllRegistryPathsRequest,
@@ -305,30 +308,46 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
     async createAPI(params: CreateAPIRequest): Promise<CreateAPIResponse> {
         return new Promise(async (resolve) => {
-            const { directory, name, context, swaggerDef, type, version } = params;
-            let versionAttributes = '';
-            let swaggerAttributes = '';
-            if (version && type !== 'none') {
-                versionAttributes = ` version="${version}" version-type="${type}"`;
+            const {
+                artifactDir,
+                xmlData,
+                name,
+                saveSwaggerDef,
+                swaggerDefPath,
+                wsdlType,
+                wsdlDefPath,
+                wsdlEndpointName
+            } = params;
+
+            const getSwaggerName = (swaggerDefPath: string) => {
+                const ext = path.extname(swaggerDefPath);
+                return `${name}${ext}`;
+            };
+
+            let response: GenerateAPIResponse = { apiXml: "", endpointXml: "" };
+            if (!xmlData) {
+                const langClient = StateMachine.context().langClient!;
+                if (swaggerDefPath) {
+                    response = await langClient.generateAPI({
+                        apiName: name,
+                        swaggerOrWsdlPath: swaggerDefPath,
+                        publishSwaggerPath: 
+                            saveSwaggerDef ? `gov:swaggerFiles/${getSwaggerName(swaggerDefPath)}` : undefined,
+                        mode: "create.api.from.swagger"
+                    });
+                } else if (wsdlDefPath) {
+                    const filePath = wsdlType === "file" && Uri.file(wsdlDefPath).toString();
+                    response = await langClient.generateAPI({
+                        apiName: name,
+                        swaggerOrWsdlPath: filePath || wsdlDefPath,
+                        mode: "create.api.from.wsdl",
+                        wsdlEndpointName
+                    });
+                }
             }
 
-            if (swaggerDef) {
-                swaggerAttributes = ` publishSwagger="${swaggerDef}"`;
-            }
-
-            const xmlData =
-                `<?xml version="1.0" encoding="UTF-8" ?>
-    <api context="${context}" name="${name}" ${swaggerAttributes}${versionAttributes} xmlns="http://ws.apache.org/ns/synapse">
-        <resource methods="GET" uri-template="/resource">
-            <inSequence>
-            </inSequence>
-            <faultSequence>
-            </faultSequence>
-        </resource>
-    </api>`;
-
-            const filePath = path.join(directory, `${name}.xml`);
-            const sanitizedXmlData = xmlData.replace(/^\s*[\r\n]/gm, '');
+            const sanitizedXmlData = (xmlData || response.apiXml).replace(/^\s*[\r\n]/gm, '');
+            const filePath = path.join(artifactDir, 'apis', `${name}.xml`);
             fs.writeFileSync(filePath, sanitizedXmlData);
             await this.rangeFormat({
                 uri: filePath,
@@ -337,8 +356,59 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     end: { line: sanitizedXmlData.split('\n').length + 1, character: 0 }
                 }
             });
+
+            // If WSDL is used, create an Endpoint
+            if (response.endpointXml) {
+                const sanitizedEndpointXml = response.endpointXml.replace(/^\s*[\r\n]/gm, '');
+                const endpointFilePath = path.join(artifactDir, 'endpoints', `${name}_SOAP_ENDPOINT.xml`);
+                fs.writeFileSync(endpointFilePath, sanitizedEndpointXml);
+                await this.rangeFormat({
+                    uri: endpointFilePath,
+                    range: {
+                        start: { line: 0, character: 0 },
+                        end: { line: sanitizedEndpointXml.split('\n').length + 1, character: 0 }
+                    }
+                });
+            }
+            
+            // Save swagger file
+            if (saveSwaggerDef && swaggerDefPath) {
+                const workspacePath = workspace.workspaceFolders![0].uri.fsPath;
+                const ext = path.extname(swaggerDefPath);
+                const swaggerRegPath = path.join(
+                    workspacePath,
+                    'src',
+                    'main',
+                    'wso2mi',
+                    'resources',
+                    'registry',
+                    'gov',
+                    'swaggerFiles',
+                    getSwaggerName(swaggerDefPath)
+                );
+                if (!fs.existsSync(path.dirname(swaggerRegPath))) {
+                    fs.mkdirSync(path.dirname(swaggerRegPath), { recursive: true });
+                }
+                fs.copyFileSync(swaggerDefPath, swaggerRegPath);
+            }
+
             commands.executeCommand(COMMANDS.REFRESH_COMMAND);
             resolve({ path: filePath });
+        });
+    }
+
+    async editAPI(params: EditAPIRequest): Promise<EditAPIResponse> {
+        return new Promise(async (resolve) => {
+            const { documentUri, xmlData, handlersXmlData, apiRange, handlersRange } = params;
+
+            const sanitizedXmlData = xmlData.replace(/^\s*[\r\n]/gm, '');
+            const sanitizedHandlersXmlData = handlersXmlData.replace(/^\s*[\r\n]/gm, '');
+
+            await this.applyEdit({ text: sanitizedXmlData, documentUri, range: apiRange });
+            await this.applyEdit({ text: sanitizedHandlersXmlData, documentUri, range: handlersRange });
+
+            commands.executeCommand(COMMANDS.REFRESH_COMMAND);
+            resolve({ path: documentUri });
         });
     }
 
