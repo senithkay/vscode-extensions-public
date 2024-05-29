@@ -7,92 +7,185 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import styled from "@emotion/styled";
 import React, { useEffect, useState } from "react";
-import { Dropdown, Button, TextField, Typography, Accordion, CheckBox, TextArea } from "@wso2-enterprise/ui-toolkit";
+import { Dropdown, Button, TextField, Typography, FormCheckBox, TextArea, FormView, FormActions, FormGroup } from "@wso2-enterprise/ui-toolkit";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { driverMap, engineOptions, propertyParamConfigs } from "./types";
 import { EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
 import { dataSourceParams } from "./ParamTemplate";
-import ParamField from "../Commons/ParamField";
+import ParamField from "./ParamField";
 import { ParamManager } from "@wso2-enterprise/mi-diagram";
-
-const WizardContainer = styled.div`
-    width: 95%;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    padding: 20px;
-    overflow-y: auto;
-`;
-
-const ActionContainer = styled.div`
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-end;
-    gap: 10px;
-    padding-bottom: 20px;
-`;
-
-const Container = styled.div`
-    display: flex;
-    flex-direction: row;
-    height: 50px;
-    align-items: center;
-    justify-content: flex-start;
-`;
+import { useForm, FormProvider } from "react-hook-form";
+import * as yup from "yup";
+import { yupResolver } from "@hookform/resolvers/yup";
 
 export interface DataSourceFormProps {
     path: string;
 }
 
+interface CommonObject {
+    [key: string]: any;
+}
+
+type InputsFields = {
+    name?: string;
+    description?: string;
+    type?: string;
+    dataSourceProvider?: string;
+    dbEngine?: string;
+    username?: string;
+    password?: string;
+    driverClassName?: string;
+    url?: string;
+    customDSType?: string;
+    customDSConfiguration?: string;
+    externalDSClassName?: string;
+    dataSourceConfigParameters?: {},
+    jndiName?: string;
+    useDatasourceFactory?: boolean;
+};
+
+const newDataSource: InputsFields = {
+    name: "",
+    description: "",
+    type: "RDBMS",
+    dataSourceProvider: "default",
+    dbEngine: "MySQL",
+    username: "",
+    password: "",
+    driverClassName: "com.mysql.jdbc.Driver",
+    url: "jdbc:mysql://[machine-name/ip]:[port]/[database-name]",
+    customDSType: "",
+    customDSConfiguration: "",
+    externalDSClassName: "",
+    dataSourceConfigParameters: {},
+    jndiName: "",
+    useDatasourceFactory: false
+};
+
 export function DataSourceWizard(props: DataSourceFormProps) {
     const { rpcClient } = useVisualizerContext();
-    const [dataSourceName, setDataSourceName] = useState("");
-    const [description, setDescription] = useState("");
-    const [dataSourceType, setDataSourceType] = useState("RDBMS");
-    const [dataSourceProvider, setDataSourceProvider] = useState("default");
-    const [driver, setDriver] = useState("com.mysql.jdbc.Driver");
-    const [url, setUrl] = useState("jdbc:mysql://[machine-name/ip]:[port]/[database-name]");
-    const [username, setUsername] = useState("");
-    const [password, setPassword] = useState("");
-    const [engine, setEngine] = useState("MySQL");
-    const [customDSType, setCustomDSType] = useState("");
-    const [jndiName, setJndiName] = useState("");
-    const [useDatasourceFactory, setUseDatasourceFactory] = useState(false);
-    const [existingFilePath,] = useState(props.path);
     const [dsConfigParams,] = useState<any>(dataSourceParams);
     const [jndiProperties, setJndiProperties] = useState(propertyParamConfigs);
     const [dsProperties, setDsProperties] = useState(propertyParamConfigs);
-    const [dsClassName, setDSClassName] = useState("");
-    const [paramState, setParamState] = useState<{ [key: string]: string | boolean | number }>({});
-    const [customConfiguration, setCunstomConfiguration] = useState("");
     const [isUpdate, setIsUpdate] = useState(false);
+    const [schemaParams, setSchemaParams] = useState({});
+
+    const schema = yup.object({
+        name: yup.string().required("Datasource name is required").matches(/^[^@\\^+;:!%&,=*#[\]$?'"<>{}() /]*$/, "Invalid characters in datasource name"),
+        description: yup.string().notRequired(),
+        type: yup.string().required("Datasource type is required"),
+        dataSourceProvider: yup.string().when('type', {
+            is: 'RDBMS',
+            then: (schema) => schema.required("Datasource provider is required"),
+            otherwise: (schema) => schema.notRequired(),
+        }),
+        dbEngine: yup.string().when(['type', 'dataSourceProvider'], {
+            is: (type: string, dataSourceProvider: string) => type === 'RDBMS' && dataSourceProvider === 'default',
+            then: (schema) => schema.required("Database engine is required"),
+            otherwise: (schema) => schema.notRequired(),
+        }),
+        username: yup.string().when(['type', 'dataSourceProvider'], {
+            is: (type: string, dataSourceProvider: string) => type === 'RDBMS' && dataSourceProvider === 'default',
+            then: (schema) => schema.required("Username is required"),
+            otherwise: (schema) => schema.notRequired(),
+        }),
+        password: yup.string().when(['type', 'dataSourceProvider'], {
+            is: (type: string, dataSourceProvider: string) => type === 'RDBMS' && dataSourceProvider === 'default',
+            then: (schema) => schema.required("Password is required"),
+            otherwise: (schema) => schema.notRequired(),
+        }),
+        driverClassName: yup.string().when(['type', 'dataSourceProvider'], {
+            is: (type: string, dataSourceProvider: string) => type === 'RDBMS' && dataSourceProvider === 'default',
+            then: (schema) => schema.required("Driver Class is required"),
+            otherwise: (schema) => schema.notRequired(),
+        }),
+        url: yup.string().when(['type', 'dataSourceProvider'], {
+            is: (type: string, dataSourceProvider: string) => type === 'RDBMS' && dataSourceProvider === 'default',
+            then: (schema) => schema.required("URL is required"),
+            otherwise: (schema) => schema.notRequired(),
+        }),
+        customDSType: yup.string().when('type', {
+            is: 'Custom',
+            then: (schema) => schema.required("Custom DS type is required"),
+            otherwise: (schema) => schema.notRequired(),
+        }),
+        customDSConfiguration: yup.string().when('type', {
+            is: 'Custom',
+            then: (schema) => schema.required("Custom DS configuration is required"),
+            otherwise: (schema) => schema.notRequired(),
+        }),
+        externalDSClassName: yup.string().when('dataSourceProvider', {
+            is: 'External Datasource',
+            then: (schema) => schema.required("External DS class name is required"),
+            otherwise: (schema) => schema.notRequired(),
+        }),
+        dataSourceConfigParameters: yup.object({
+            ...schemaParams
+        }),
+        jndiName: yup.string().notRequired(),
+        useDatasourceFactory: yup.boolean().notRequired(),
+    });
+
+    const formMethods = useForm({
+        defaultValues: newDataSource,
+        resolver: yupResolver(schema),
+        mode: "onChange"
+    });
+
+    const {
+        reset,
+        register,
+        control,
+        formState: { errors, isDirty },
+        handleSubmit,
+        watch,
+        setValue,
+        setError,
+        clearErrors
+    } = formMethods;
 
     useEffect(() => {
-        const newParamState: { [key: string]: any } = {};
+        const schemaItems: { [key: string]: any } = {};
         Object.keys(dsConfigParams).forEach((key: string) => {
-            newParamState[key] = dsConfigParams[key].defaultValue;
+            const param = dsConfigParams[key];
+            if (param.validate) {
+                let schemaItem;
+                if (param.validate?.type === 'string' && param.validate?.required) {
+                    schemaItem = yup.string().required("This is a required field");
+                } else if (param.type === 'checkbox') {
+                    schemaItem = yup.boolean().notRequired();
+                } else if (param.validate?.type === 'number') {
+                    schemaItem = yup.number()
+                        .transform((value, originalValue) => {
+                            return originalValue === '' ? undefined : value;
+                        }).nullable().notRequired()
+                        .typeError("Please enter a numeric value");
+                } else {
+                    schemaItem = yup.string().notRequired();
+                }
+                schemaItems[key] = schemaItem;
+            }
+            else {
+                schemaItems[key] = yup.string().notRequired()
+            }
         });
-        setParamState(newParamState);
+        setSchemaParams(schemaItems);
     }, [dsConfigParams]);
 
     useEffect(() => {
-        if (existingFilePath.endsWith(".xml")) {
+        if (props.path.endsWith(".xml")) {
             setIsUpdate(true);
+            if (props.path.includes('dataSources')) {
+                props.path = props.path.replace('dataSources', 'data-sources');
+            }
             (async () => {
                 const response = await rpcClient.getMiDiagramRpcClient().getDataSource({ path: props.path });
-                setDataSourceName(response.name);
-                setDescription(response.description);
+                reset(response);
                 if (response.type === "RDBMS") {
-                    setUsername(response.username);
-                    setPassword(response.password);
-                    setDriver(response.driverClassName);
-                    setUrl(response.url);
-                    setParamState((prev: any) => ({ ...prev, ...response.dataSourceConfigParameters }));
                     if (response.jndiConfig) {
-                        setJndiName(response.jndiConfig.JNDIConfigName);
-                        setUseDatasourceFactory(response.jndiConfig.useDataSourceFactory);
+                        setValue("jndiName", response.jndiConfig.JNDIConfigName);
+                        setValue("useDatasourceFactory", response.jndiConfig.useDataSourceFactory.toString() === 'true');
                         if (response.jndiConfig.properties) {
                             let i = 0;
                             setJndiProperties((prevState: any) => ({
@@ -111,10 +204,8 @@ export function DataSourceWizard(props: DataSourceFormProps) {
                             }));
                         }
                     }
-                    setDataSourceType(response.type);
                     if (response.externalDSClassName) {
-                        setDataSourceProvider("External Datasource");
-                        setDSClassName(response.externalDSClassName);
+                        setValue("dataSourceProvider", "External Datasource");
                         if (response.dataSourceProperties) {
                             let i = 0;
                             setDsProperties((prevState: any) => ({
@@ -132,55 +223,71 @@ export function DataSourceWizard(props: DataSourceFormProps) {
                                 }),
                             }));
                         }
-                        console.log(dsProperties);
                     }
-                } else {
-                    setCustomDSType(response.customDSType);
-                    setCunstomConfiguration(response.customDSConfiguration);
                 }
             })();
+        } else {
+            setIsUpdate(false);
+            reset(newDataSource);
         }
     }, [props.path]);
+
+    useEffect(() => {
+        const driverUrl = driverMap.get(watch("dbEngine"));
+        if (driverUrl) {
+            setValue("driverClassName", driverUrl.driver);
+            setValue("url", driverUrl.url);
+            setError("url", {type: "manual", message: "Update the URL by removing placeholders and adding the actual values"});
+        }
+    }, [watch("dbEngine")]);
+
+    useEffect(() => {
+        if (watch("url") !== driverMap.get(watch("dbEngine"))?.url) {
+            clearErrors("url");
+        }
+    }, [watch("url")]);
 
     const handleCancel = () => {
         rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Overview } });
     };
 
-    const handleSave = async () => {
-        const projectDir = (await rpcClient.getMiDiagramRpcClient().getProjectRoot({ path: props.path })).path;
+    const handleSave = async (values: any) => {
         const request = {
-            projectDirectory: projectDir,
-            name: dataSourceName,
-            description: description,
-            type: dataSourceType,
-            username: username,
-            password: password,
-            driverClassName: driver,
-            url: url,
-            customDSType: customDSType,
-            customDSConfiguration: customConfiguration,
-            externalDSClassName: dsClassName,
+            projectDirectory: props.path,
+            ...values,
             jndiConfig: undefined as any,
             dataSourceConfigParameters: undefined as any,
             dataSourceProperties: undefined as any
         }
-        if (jndiName) {
+        if (values.jndiName != '') {
             request.jndiConfig = {
-                JNDIConfigName: jndiName,
-                useDataSourceFactory: useDatasourceFactory,
+                JNDIConfigName: values.jndiName,
+                useDataSourceFactory: values.useDatasourceFactory,
                 properties: undefined as any
             }
-        }
-        const filteredParamState: { [key: string]: string | boolean | number } = Object.entries(paramState).reduce((accumulator, [key, value]) => {
-            if (value !== undefined) {
-                accumulator[key as string] = value;
+            if (jndiProperties.paramValues.length > 0) {
+                const jndiPropertiesMap = jndiProperties.paramValues.reduce((map: any, entry: any) => {
+                    const key = entry.paramValues[0].value.toString();
+                    const value = entry.paramValues[1].value.toString();
+                    map[key] = value;
+                    return map;
+                }, {} as { [key: string]: string });
+                request.jndiConfig.properties = jndiPropertiesMap;
             }
-            return accumulator;
-        }, {} as { [key: string]: string | boolean | number });
-        if (Object.keys(filteredParamState).length > 0) {
-            request.dataSourceConfigParameters = filteredParamState;
         }
-        if (dsClassName) {
+
+        const dsConfigParams = values.dataSourceConfigParameters;
+        const updatedDsConfigParams: CommonObject = {};
+        for (const key in dsConfigParams) {
+            if (dsConfigParams.hasOwnProperty(key)) {
+                if (dsConfigParams[key] !== '') {
+                    updatedDsConfigParams[key] = dsConfigParams[key];
+                }
+            }
+        }
+        request.dataSourceConfigParameters = updatedDsConfigParams;
+
+        if (values.externalDSClassName != '') {
             const dsPropertiesMap = dsProperties.paramValues.reduce((map: any, entry: any) => {
                 const key = entry.paramValues[0].value.toString();
                 const value = entry.paramValues[1].value.toString();
@@ -189,59 +296,13 @@ export function DataSourceWizard(props: DataSourceFormProps) {
             }, {} as { [key: string]: string });
             request.dataSourceProperties = dsPropertiesMap;
         }
-        if (jndiProperties.paramValues.length > 0) {
-            const jndiPropertiesMap = jndiProperties.paramValues.reduce((map: any, entry: any) => {
-                const key = entry.paramValues[0].value.toString();
-                const value = entry.paramValues[1].value.toString();
-                map[key] = value;
-                return map;
-            }, {} as { [key: string]: string });
-            request.jndiConfig.properties = jndiPropertiesMap;
-        }
 
-        const regfilePath = await rpcClient.getMiDiagramRpcClient().createDataSource(request);
-        rpcClient.getMiDiagramRpcClient().openFile(regfilePath);
-        rpcClient.getMiDiagramRpcClient().closeWebView();
-    }
-
-    const handleFormatChange = (value: string) => {
-        setDataSourceProvider(value);
-    }
-
-    const handleEngineChange = (value: string) => {
-        setEngine(value);
-        const driverUrl = driverMap.get(value);
-        if (driverUrl) {
-            setDriver(driverUrl.driver);
-            setUrl(driverUrl.url);
-        }
-    }
-
-    const handleParamChange = (field: string, value: any) => {
-        setParamState((prev: any) => {
-            return { ...prev, [field]: value };
-        });
-    }
-
-    const handleParamOnError = (field: string) => {
-        const param = dsConfigParams[field];
-        if (param.validation) {
-            if (param.validation.isNumber && isNaN(Number(paramState[field]))) {
-                return "Please enter a valid number";
-            }
-        }
-        return "";
-    }
-
-    const validateURL = (name: string) => {
-        if (name === driverMap.get(engine)?.url) {
-            return "Update the URL by removing placeholders and adding the actual values";
-        }
-        return "";
+        await rpcClient.getMiDiagramRpcClient().createDataSource(request);
+        handleCancel();
     }
 
     const generateDisplayValue = (paramValues: any) => {
-        const result: string = paramValues.parameters[0].value + " : " + paramValues.parameters[1].value;
+        const result: string = paramValues.paramValues[0].value + " : " + paramValues.paramValues[1].value;
         return result.trim();
     };
 
@@ -252,8 +313,7 @@ export function DataSourceWizard(props: DataSourceFormProps) {
                 return {
                     ...param,
                     key: "Property " + i++,
-                    value: generateDisplayValue(param),
-                    icon: "query"
+                    value: generateDisplayValue(param)
                 }
             })
         };
@@ -267,151 +327,131 @@ export function DataSourceWizard(props: DataSourceFormProps) {
                 return {
                     ...param,
                     key: "Property " + i++,
-                    value: generateDisplayValue(param),
-                    icon: "query"
+                    value: generateDisplayValue(param)
                 }
             })
         };
         setDsProperties(modifiedParams);
     };
 
+    const openOverview = () => {
+        rpcClient.getMiVisualizerRpcClient().openView({
+            type: EVENT_TYPE.OPEN_VIEW,
+            location: { view: MACHINE_VIEW.Overview }
+        });
+    };
+
+    const renderProps = (fieldName: keyof InputsFields) => {
+        return {
+            id: fieldName,
+            ...register(fieldName),
+            errorMsg: errors[fieldName] && errors[fieldName].message.toString()
+        }
+    };
+
     return (
-        <WizardContainer>
-            <Accordion header="New Datasource" isExpanded={true}>
+        <FormView title='Datasource Artifact' onClose={openOverview}>
+            <FormProvider {...formMethods}>
+            <FormGroup title="New Datasource" isCollapsed={false}>
                 <TextField
-                    value={dataSourceName}
-                    id='ds-name-input'
-                    label="Data source name"
-                    placeholder="DataSource1"
-                    onTextChange={(text: string) => setDataSourceName(text)}
-                    size={40}
+                    label="Datasource name"
                     autoFocus
                     required
+                    {...renderProps("name")}
                 />
                 <TextField
-                    value={description}
-                    id='ds-description-input'
                     label="Description"
-                    onTextChange={(text: string) => setDescription(text)}
-                    size={40}
+                    {...renderProps("description")}
                 />
                 <Typography variant="caption">Datasource Type</Typography>
-                <Dropdown items={[{ id: "rdbms", value: "RDBMS" }, { id: "custom", value: "Custom" }]} value={dataSourceType} onValueChange={(text: string) => setDataSourceType(text)} id="datasource-type" />
-                {dataSourceType === "RDBMS" && <>
+                <Dropdown items={[{ id: "rdbms", value: "RDBMS" }, { id: "custom", value: "Custom" }]} {...renderProps("type")} />
+                {watch("type") === "RDBMS" && <>
                     <Typography variant="caption">Data source provider</Typography>
-                    <Dropdown items={[{ id: "default", value: "default" }, { id: "external", value: "External Datasource" }]} value={dataSourceProvider} onValueChange={handleFormatChange} id="provider" />
-                    {dataSourceProvider === "default" && <>
+                    <Dropdown items={[{ id: "default", value: "default" }, { id: "external", value: "External Datasource" }]} {...renderProps("dataSourceProvider")} />
+                    {watch("dataSourceProvider") === "default" && <>
                         <Typography variant="caption">Database Engine</Typography>
-                        <Dropdown items={engineOptions} onValueChange={handleEngineChange} id="format" value={engine} />
+                        <Dropdown items={engineOptions} {...renderProps("dbEngine")} />
                         <TextField
-                            value={driver}
-                            id='ds-driver'
                             label="Driver"
-                            onTextChange={(text: string) => setDriver(text)}
-                            size={150}
                             required
+                            {...renderProps("driverClassName")}
                         />
                         <TextField
-                            value={url}
-                            id='ds-url'
                             label="URL"
-                            onTextChange={(text: string) => setUrl(text)}
-                            size={150}
-                            errorMsg={validateURL(url)}
                             required
+                            {...renderProps("url")}
                         />
                         <TextField
-                            value={username}
-                            id='ds-username'
-                            label="User Name"
-                            onTextChange={(text: string) => setUsername(text)}
-                            size={50}
+                            label="Username"
                             required
+                            {...renderProps("username")}
                         />
                         <TextField
-                            value={password}
-                            id='ds-password'
                             label="Password"
-                            onTextChange={(text: string) => setPassword(text)}
-                            size={50}
                             required
+                            {...renderProps("password")}
                         />
-                    </>} {dataSourceProvider === "External Datasource" && <>
+                    </>} {watch("dataSourceProvider") === "External Datasource" && <>
                         <TextField
-                            value={dsClassName}
-                            id='ds-class-name'
                             label="Datasource Class Name"
-                            onTextChange={(text: string) => setDSClassName(text)}
-                            size={50}
                             required
+                            {...renderProps("externalDSClassName")}
                         />
                         <ParamManager
                             paramConfigs={dsProperties}
                             readonly={false}
                             onChange={onChangeDSProperties} />
                     </>}
-                </>} {dataSourceType === "Custom" && <>
+                </>} {watch("type") === "Custom" && <>
                     <TextField
-                        value={customDSType}
-                        id='ds-custom-type'
                         label="Custom Datasource Type"
-                        onTextChange={(text: string) => setCustomDSType(text)}
-                        size={50}
                         required
+                        {...renderProps("customDSType")}
                     />
                     <TextArea
-                        value={customConfiguration}
-                        id='ds-custom-config'
                         label="Custom Configuration"
-                        onTextChange={(text: string) => setCunstomConfiguration(text)}
                         required
+                        {...renderProps("customDSConfiguration")}
                     />
                 </>
                 }
-            </Accordion>
-            {dataSourceType === "RDBMS" && <>
-                <Accordion header="Datasource Configuration Parameters" isExpanded={false}>
+            </FormGroup>
+            {watch("type") === "RDBMS" && <>
+                <FormGroup title="Datasource Configuration Parameters" isCollapsed={true}>
                     {dsConfigParams && Object.keys(dsConfigParams).map((key: string) => (
                         <ParamField
                             key={key}
                             id={key}
                             field={dsConfigParams[key]}
-                            stateValue={paramState[key]}
-                            handleOnChange={handleParamChange}
-                            handleOnError={handleParamOnError}
                         />
                     ))}
-                </Accordion>
-                <Accordion header="Expose as a JNDI Datasource" isExpanded={true}>
+                </FormGroup>
+                <FormGroup title="Expose as a JNDI Datasource" isCollapsed={true}>
                     <TextField
-                        value={jndiName}
-                        id='ds-jndi-name'
                         label="JNDI Configuration Name"
-                        onTextChange={(text: string) => setJndiName(text)}
-                        size={50}
-                        required
+                        {...renderProps("jndiName")}
                     />
-                    <CheckBox
-                        value="useDatasourceFactory"
+                    <FormCheckBox
                         label="Use Datasource Factory"
-                        checked={useDatasourceFactory}
-                        onChange={(checked: boolean) => setUseDatasourceFactory(checked)}
+                        {...register("useDatasourceFactory")}
+                        control={control}
                     />
                     <ParamManager
                         paramConfigs={jndiProperties}
                         readonly={false}
                         onChange={onChangeJNDIProperties} />
-                </Accordion>
+                </FormGroup>
             </>}
             <br />
-            <ActionContainer>
+            <FormActions>
                 <Button appearance="secondary" onClick={handleCancel}>
                     Cancel
                 </Button>
-                <Button disabled={dataSourceName === ''} onClick={handleSave}>
+                <Button disabled={!isDirty} onClick={handleSubmit(handleSave)}>
                     {isUpdate ? 'Update' : 'Create'}
                 </Button>
-            </ActionContainer>
-        </WizardContainer >
+            </FormActions>
+            </FormProvider>
+        </FormView>
     );
 }
