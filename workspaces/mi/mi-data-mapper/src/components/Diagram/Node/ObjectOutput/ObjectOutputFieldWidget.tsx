@@ -82,10 +82,13 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
         && !parentObjectLiteralExpr.wasForgotten()
         && Node.isObjectLiteralExpression(parentObjectLiteralExpr)
         && parentObjectLiteralExpr;
-    const hasValue = propertyAssignment
+    const initializer = propertyAssignment
         && !propertyAssignment.wasForgotten()
-        && propertyAssignment.getInitializer()
-        && !!propertyAssignment.getInitializer().getText();
+        && propertyAssignment.getInitializer();
+    const hasValue = initializer
+        && !!initializer.getText()
+        && initializer.getText() !== getDefaultValue(field.type.kind)
+        && initializer.getText() !== "null";
 
     const fields = isInterface && field.childrenTypes;
     const isWithinArray = fieldIndex !== undefined;
