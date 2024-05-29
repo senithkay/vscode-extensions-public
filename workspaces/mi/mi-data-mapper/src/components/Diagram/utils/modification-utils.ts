@@ -51,7 +51,7 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 	const { applyModifications } = targetNode.context;
 
 	rhs = buildInputAccessExpr(sourcePort.fieldFQN);
-	lhs = getFieldNameFromOutputPort(targetPort);
+	lhs = getFieldNameFromOutputPort(targetPort, sourcePort);
 
 	if (isMappedToRootArrayLiteralExpr(targetPort)
 		|| isMappedToRootObjectLiteralExpr(targetPort)
@@ -86,7 +86,7 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 	let fromFieldIndex = -1;
 
 	while (parent != null && parent.parentModel) {
-		const parentFieldName = getFieldNameFromOutputPort(parent);
+		const parentFieldName = getFieldNameFromOutputPort(parent, sourcePort);
 		if (parentFieldName
 			&& !(parent.field.kind === TypeKind.Interface && parent.parentModel.field.kind === TypeKind.Array)
 		) {
@@ -182,9 +182,14 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 	}
 
 	if (targetObjectLitExpr) {
-        targetObjectLitExpr.addProperty(writer => {
-            writer.writeLine(source);
-        });
+		const property = targetObjectLitExpr.getProperty(lhs);
+		// Add new property only if the propery with the lhs value doesn't exist
+		// This can occur when adding dynamic fields
+		if (!property) {
+			targetObjectLitExpr.addProperty(writer => {
+				writer.writeLine(source);
+			});
+		}
 	} else if (targetNode instanceof ObjectOutputNode) {
         targetNode.value.replaceWithText(`{${getLinebreak()}${source}}`);
 	}

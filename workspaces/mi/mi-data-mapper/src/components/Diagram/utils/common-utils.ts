@@ -34,6 +34,7 @@ import { useDMSearchStore } from "../../../store/store";
 import {
     ARRAY_OUTPUT_TARGET_PORT_PREFIX,
     FOCUSED_INPUT_SOURCE_PORT_PREFIX,
+    OBJECT_OUTPUT_FIELD_ADDER_TARGET_PORT_PREFIX,
     OBJECT_OUTPUT_TARGET_PORT_PREFIX,
     PRIMITIVE_OUTPUT_TARGET_PORT_PREFIX,
     SUB_MAPPING_INPUT_SOURCE_PORT_PREFIX
@@ -425,11 +426,13 @@ export function getFieldIndexes(targetPort: InputOutputPortModel): number[] {
 	return fieldIndexes;
 }
 
-export function getFieldNameFromOutputPort(outputPort: InputOutputPortModel): string {
+export function getFieldNameFromOutputPort(outputPort: InputOutputPortModel, inputPort: InputOutputPortModel): string {
 	let fieldName = outputPort.field?.fieldName;
 	if (outputPort?.typeWithValue?.originalType) {
 		fieldName = outputPort.typeWithValue.originalType?.fieldName;
-	}
+	} else if (outputPort.portName === OBJECT_OUTPUT_FIELD_ADDER_TARGET_PORT_PREFIX) {
+        fieldName = inputPort.fieldFQN.split('.').pop();
+    }
 	return fieldName;
 }
 
