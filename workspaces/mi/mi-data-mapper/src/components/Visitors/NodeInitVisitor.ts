@@ -193,7 +193,7 @@ export class NodeInitVisitor implements Visitor {
         this.mapIdentifiers.push(node);
         const elements = node.getElements();
 
-        if (elements) {
+        if (elements && this.isWithinVariableStmt === 0) {
             elements.forEach(element => {
                 if (!isObjectOrArrayLiteralExpression(element)) {
                     const inputAccessNodes = getInputAccessNodes(element);
