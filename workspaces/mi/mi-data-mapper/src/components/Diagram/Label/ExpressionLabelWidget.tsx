@@ -24,7 +24,7 @@ import { DataMapperLinkModel } from '../Link';
 import { useDMCollapsedFieldsStore } from '../../../store/store';
 import { CodeActionWidget } from '../CodeAction/CodeAction';
 
-export interface EditableLabelWidgetProps {
+export interface ExpressionLabelWidgetProps {
     model: ExpressionLabelModel;
 }
 
@@ -106,7 +106,7 @@ export enum ArrayMappingType {
 }
 
 // now we can render all what we want in the label
-export function EditableLabelWidget(props: EditableLabelWidgetProps) {
+export function ExpressionLabelWidget(props: ExpressionLabelWidgetProps) {
     const [linkStatus, setLinkStatus] = useState<LinkState>(LinkState.LinkNotSelected);
     const [arrayMappingType, setArrayMappingType] = React.useState<ArrayMappingType>(undefined);
     const [deleteInProgress, setDeleteInProgress] = useState(false);
@@ -155,7 +155,10 @@ export function EditableLabelWidget(props: EditableLabelWidgetProps) {
 
     const elements: ReactNode[] = [
         (
-            <div className={classes.btnContainer}>
+            <div
+                key={`expression-label-edit-${value}`}
+                className={classes.btnContainer}
+            >
                 <Button
                     appearance="icon"
                     onClick={onClickEdit}
@@ -232,6 +235,7 @@ export function EditableLabelWidget(props: EditableLabelWidgetProps) {
         elements.push(<div className={classes.separator}/>);
         elements.push(
             <CodeActionWidget
+                key={`expression-label-code-action-${value}`}
                 codeActions={codeActions}
                 btnSx={{ margin: "0 2px" }}
             />
@@ -242,6 +246,7 @@ export function EditableLabelWidget(props: EditableLabelWidgetProps) {
         elements.push(<div className={classes.separator}/>);
         elements.push(
             <DiagnosticWidget
+                key={`expression-label-diagnostic-${value}`}
                 diagnostic={diagnostic}
                 value={value}
                 onClick={onClickEdit}
