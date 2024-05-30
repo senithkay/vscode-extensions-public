@@ -32,7 +32,7 @@ import {
 } from "../Diagram/utils/common-utils";
 import { ArrayFnConnectorNode } from "../Diagram/Node/ArrayFnConnector";
 import { getPosition, isPositionsEquals } from "../Diagram/utils/st-utils";
-import { getDMType, getDMTypeForRootChaninedMapFunction } from "../Diagram/utils/type-utils";
+import { getDMType, getDMTypeForRootChaninedMapFunction, getDMTypeOfSubMappingItem } from "../Diagram/utils/type-utils";
 import { UnsupportedExprNodeKind, UnsupportedIONode } from "../Diagram/Node/UnsupportedIO";
 import { OFFSETS } from "../Diagram/utils/constants";
 import { FocusedInputNode } from "../Diagram/Node/FocusedInput";
@@ -44,6 +44,7 @@ import {
     getOutputNode,
     isObjectOrArrayLiteralExpression
 } from "../Diagram/utils/node-utils";
+import { SourceNodeType } from "../DataMapper/Views/DataMapperView";
 
 export class NodeInitVisitor implements Visitor {
     private inputNode: DataMapperNodeModel | InputDataImportNodeModel;
@@ -63,8 +64,8 @@ export class NodeInitVisitor implements Visitor {
     beginVisitPropertyAssignment(node: PropertyAssignment, parent?: Node): void {
         this.mapIdentifiers.push(node);
 
-        const { focusedST, views } = this.context;
-        const { sourceFieldFQN, targetFieldFQN, mapFnIndex } = views[views.length - 1];
+        const { focusedST, functionST, views, subMappingTypes } = this.context;
+        const { sourceFieldFQN, targetFieldFQN, sourceNodeType, mapFnIndex } = views[views.length - 1];
         const isFocusedST = isPositionsEquals(getPosition(node), getPosition(focusedST));
 
         if (isFocusedST) {
@@ -105,7 +106,9 @@ export class NodeInitVisitor implements Visitor {
             this.outputNode.setPosition(OFFSETS.TARGET_NODE.X, 0);
 
             // Create input node
-            const inputType = getDMType(sourceFieldFQN, this.context.inputTrees[0], mapFnIndex);
+            const inputType = sourceNodeType === SourceNodeType.SubMappingNode
+                ? getDMTypeOfSubMappingItem(functionST, sourceFieldFQN, subMappingTypes)
+                : getDMType(sourceFieldFQN, this.context.inputTrees[0], mapFnIndex);
 
             const focusedInputNode = new FocusedInputNode(this.context, callExpr, inputType);
 

@@ -26,6 +26,7 @@ import { useIONodesStyles } from "../../../styles";
 import { InputNodeTreeItemWidget } from "../Input/InputNodeTreeItemWidget";
 import { useDMCollapsedFieldsStore, useDMSubMappingConfigPanelStore } from "../../../../store/store";
 import { DMSubMapping } from "./SubMappingNode";
+import { SourceNodeType } from "../../../../components/DataMapper/Views/DataMapperView";
 
 export interface SubMappingItemProps {
     index: number;
@@ -143,6 +144,7 @@ export function SubMappingItemWidget(props: SubMappingItemProps) {
             {
                 targetFieldFQN: "",
                 sourceFieldFQN: "",
+                sourceNodeType: SourceNodeType.InputNode,
                 label: valueLabel,
                 subMappingInfo: {
                     index,

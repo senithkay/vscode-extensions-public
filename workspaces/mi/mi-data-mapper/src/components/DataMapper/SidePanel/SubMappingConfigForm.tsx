@@ -23,7 +23,7 @@ import { Controller, useForm } from 'react-hook-form';
 
 import { useDMSubMappingConfigPanelStore } from "../../../store/store";
 import { Block, FunctionDeclaration, VariableStatement } from "ts-morph";
-import { View } from "../Views/DataMapperView";
+import { SourceNodeType, View } from "../Views/DataMapperView";
 import { getDefaultValue } from "../../../components/Diagram/utils/common-utils";
 import { DataMapperNodeModel } from "../../../components/Diagram/Node/commons/DataMapperNode";
 
@@ -94,6 +94,7 @@ export function SubMappingConfigForm(props: SubMappingConfigFormProps) {
         addView({
             targetFieldFQN: "",
             sourceFieldFQN: "",
+            sourceNodeType: SourceNodeType.InputNode,
             label: mappingName,
             subMappingInfo: {
                 index: nextSubMappingIndex,

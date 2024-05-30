@@ -27,7 +27,7 @@ import { getSubMappingTypes, getTypeForVariable } from "../Diagram/utils/type-ut
 import { getOutputNode } from "../Diagram/utils/node-utils";
 import { SubMappingConfigForm } from "./SidePanel/SubMappingConfigForm";
 import { isInputNode } from "../Diagram/Actions/utils";
-import { View } from "./Views/DataMapperView";
+import { SourceNodeType, View } from "./Views/DataMapperView";
 
 const classes = {
     root: css({
@@ -81,6 +81,7 @@ export function MIDataMapper(props: MIDataMapperProps) {
     const initialView = [{
         targetFieldFQN: "",
         sourceFieldFQN: "",
+        sourceNodeType: SourceNodeType.InputNode,
         label: `${getTypeName(inputTrees[0])} -> ${getTypeName(outputTree)}`
     }];
 

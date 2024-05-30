@@ -19,15 +19,19 @@ import { DMType, TypeKind } from '@wso2-enterprise/mi-core';
 
 import {
     ArrayOutputNode,
+    FocusedInputNode,
     InputDataImportNodeModel,
     InputNode,
     LinkConnectorNode,
     ObjectOutputNode,
     OutputDataImportNodeModel,
-    PrimitiveOutputNode
+    PrimitiveOutputNode,
+    SubMappingNode
 } from '../Node';
 import { DataMapperContext } from '../../../utils/DataMapperContext/DataMapperContext';
 import { getTypeName } from './common-utils';
+import { InputOutputPortModel } from '../Port';
+import { SourceNodeType } from '../../../components/DataMapper/Views/DataMapperView';
 
 type SubMappingOutputNode = ArrayOutputNode | ObjectOutputNode | PrimitiveOutputNode;
 
@@ -111,6 +115,18 @@ export function getOutputNode(
         return new ArrayOutputNode(context, expression, outputType, isSubMapping);
     }
     return new PrimitiveOutputNode(context, expression, outputType, isSubMapping);
+}
+
+export function getSourceNodeType(sourcePort: InputOutputPortModel) {
+    const sourceNode = sourcePort.getNode();
+
+    if (sourceNode instanceof InputNode) {
+        return SourceNodeType.InputNode;
+    } else if (sourceNode instanceof FocusedInputNode) {
+        return SourceNodeType.FocusedInputNode;
+    } else if (sourceNode instanceof SubMappingNode) {
+        return SourceNodeType.SubMappingNode;
+    }
 }
 
 export function isObjectOrArrayLiteralExpression(node: Node): boolean {

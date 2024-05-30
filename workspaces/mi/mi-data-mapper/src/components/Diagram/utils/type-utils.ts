@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { ArrayLiteralExpression, Node, ObjectLiteralExpression, PropertyAssignment, VariableDeclaration } from "ts-morph"
+import { ArrayLiteralExpression, Block, FunctionDeclaration, Node, ObjectLiteralExpression, PropertyAssignment, VariableDeclaration } from "ts-morph"
 import { DMType, TypeKind } from "@wso2-enterprise/mi-core";
 
 import { ArrayElement, DMTypeWithValue } from "../Mappings/DMTypeWithValue";
@@ -85,6 +85,19 @@ export function getDMTypeForRootChaninedMapFunction(
         }
     }
     return currentType;
+}
+
+export function getDMTypeOfSubMappingItem(
+    functionST:FunctionDeclaration,
+    subMappingName: string,
+    subMappingTypes: Record<string, DMType>
+) {
+    const varStmt = (functionST.getBody() as Block).getVariableStatement(subMappingName);
+
+    if (!varStmt) return;
+
+    const varDecl = varStmt.getDeclarations()[0];
+    return getTypeForVariable(subMappingTypes, varDecl);
 }
 
 export function getTypeForVariable(varTypes: Record<string, DMType | undefined>, varDecl: VariableDeclaration): DMType {

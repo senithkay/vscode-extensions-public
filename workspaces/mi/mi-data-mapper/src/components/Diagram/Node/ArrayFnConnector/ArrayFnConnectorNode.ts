@@ -13,7 +13,7 @@ import { CallExpression, ElementAccessExpression, Identifier, Node, PropertyAcce
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { DataMapperLinkModel } from "../../Link";
 import { InputOutputPortModel, IntermediatePortModel } from "../../Port";
-import { ARRAY_OUTPUT_TARGET_PORT_PREFIX, FOCUSED_INPUT_SOURCE_PORT_PREFIX, OFFSETS } from "../../utils/constants";
+import { ARRAY_OUTPUT_TARGET_PORT_PREFIX, FOCUSED_INPUT_SOURCE_PORT_PREFIX, OFFSETS, SUB_MAPPING_INPUT_SOURCE_PORT_PREFIX } from "../../utils/constants";
 import {
     getDefaultValue,
     getFieldNames,
@@ -29,6 +29,7 @@ import { InputNode } from "../Input";
 import { getPosition, isPositionsEquals, traversNode } from "../../utils/st-utils";
 import { FocusedInputNode } from "../FocusedInput";
 import { LinkDeletingVisitor } from "../../../../components/Visitors/LinkDeletingVistior";
+import { SubMappingNode } from "../SubMapping";
 
 export const ARRAY_FUNCTION_CONNECTOR_NODE_TYPE = "array-function-connector-node";
 const NODE_ID = "array-function-connector-node";
@@ -106,6 +107,9 @@ export class ArrayFnConnectorNode extends DataMapperNodeModel {
                 this.sourcePort = node.getPort(fieldId + ".OUT") as InputOutputPortModel;
             } else if (node instanceof FocusedInputNode && node.innerParam.getName() === paramName) {
                 const portName = FOCUSED_INPUT_SOURCE_PORT_PREFIX + "." + fieldId + ".OUT";
+                this.sourcePort = node.getPort(portName) as InputOutputPortModel;
+            } else if (node instanceof SubMappingNode) {
+                const portName = SUB_MAPPING_INPUT_SOURCE_PORT_PREFIX + "." + fieldId + ".OUT";
                 this.sourcePort = node.getPort(portName) as InputOutputPortModel;
             }
 

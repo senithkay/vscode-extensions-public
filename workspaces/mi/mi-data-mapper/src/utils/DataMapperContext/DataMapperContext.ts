@@ -9,8 +9,7 @@
 import { DMType, Range } from "@wso2-enterprise/mi-core";
 import { FunctionDeclaration, PropertyAssignment, ReturnStatement, VariableStatement } from "ts-morph";
 
-import { View } from "src/components/DataMapper/Views/DataMapperView";
-import { RpcClient } from "@wso2-enterprise/mi-rpc-client";
+import { View } from "../../components/DataMapper/Views/DataMapperView";
 
 type FocusedST = FunctionDeclaration | PropertyAssignment | ReturnStatement | VariableStatement;
 

@@ -6,9 +6,17 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
+
+export enum SourceNodeType {
+    InputNode,
+    FocusedInputNode,
+    SubMappingNode
+}
+
 export interface View {
     targetFieldFQN: string;
     sourceFieldFQN: string;
+    sourceNodeType: SourceNodeType;
     label: string;
     mapFnIndex?: number;
     subMappingInfo?: SubMappingInfo;

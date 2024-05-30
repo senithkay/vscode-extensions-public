@@ -17,6 +17,8 @@ import { useIntermediateNodeStyles } from '../../../../components/styles';
 import { ArrayFnConnectorNode } from './ArrayFnConnectorNode';
 import { DataMapperPortWidget } from '../../Port';
 import { getMapFnIndex, getViewLabel } from '../../utils/common-utils';
+import { SUB_MAPPING_INPUT_SOURCE_PORT_PREFIX } from '../../utils/constants';
+import { getSourceNodeType } from '../../utils/node-utils';
 
 export interface ArrayFnConnectorNodeWidgetWidgetProps {
     node: ArrayFnConnectorNode;
@@ -27,6 +29,8 @@ export function ArrayFnConnectorNodeWidget(props: ArrayFnConnectorNodeWidgetWidg
     const { node, engine } = props;
     const { context, sourcePort, targetPort, inPort, outPort, hidden } = node;
     const { addView, views } = context;
+    const isSourcePortSubMapping = sourcePort.portName.startsWith(SUB_MAPPING_INPUT_SOURCE_PORT_PREFIX);
+    const sourceNodeType = getSourceNodeType(sourcePort);
 
     const [deleteInProgress, setDeleteInProgress] = React.useState(false);
 
@@ -35,7 +39,9 @@ export function ArrayFnConnectorNodeWidget(props: ArrayFnConnectorNodeWidgetWidg
     const onClickOnExpand = () => {
         let label = getViewLabel(targetPort, views);
         let targetFieldFQN = targetPort.fieldFQN;
-        let sourceFieldFQN = sourcePort.fieldFQN.split('.').slice(1).join('.');
+        let sourceFieldFQN = isSourcePortSubMapping
+            ? sourcePort.fieldFQN
+            : sourcePort.fieldFQN.split('.').slice(1).join('.');
         let mapFnIndex: number | undefined = undefined;
 
         if (views.length > 1) {
@@ -68,7 +74,7 @@ export function ArrayFnConnectorNodeWidget(props: ArrayFnConnectorNodeWidgetWidg
             }
         }
 
-        addView({ targetFieldFQN, sourceFieldFQN, label, mapFnIndex });
+        addView({ targetFieldFQN, sourceFieldFQN, sourceNodeType, label, mapFnIndex });
     }
 
     const deleteLink = async () => {
