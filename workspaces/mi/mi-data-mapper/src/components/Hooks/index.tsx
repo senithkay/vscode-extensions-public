@@ -32,15 +32,18 @@ export const useRepositionedNodes = (nodes: DataMapperNodeModel[], zoomLevel: nu
     let prevBottomY = 0;
 
     nodesClone.forEach(node => {
-        const nodeHeight = node.height === 0 ? 800 : node.height;
-        const exisitingNode = diagramModel.getNodes().find(n => (n as DataMapperNodeModel).id === node.id);
+        const prevNodes = diagramModel.getNodes() as DataMapperNodeModel[];
+        const exisitingNode = prevNodes.find(prevNode => prevNode.id === node.id);
+        const sameView = exisitingNode
+            && exisitingNode.context.views[exisitingNode.context.views.length - 1].label ===
+                node.context.views[node.context.views.length - 1].label;
         if (node instanceof ObjectOutputNode
             || node instanceof ArrayOutputNode
             || node instanceof PrimitiveOutputNode
             || node instanceof OutputDataImportNodeModel
         ) {
             const x = (window.innerWidth - VISUALIZER_PADDING) * (100 / zoomLevel) - IO_NODE_DEFAULT_WIDTH;
-            const y = exisitingNode && exisitingNode.getY() !== 0 ? exisitingNode.getY() : 0;
+            const y = exisitingNode && sameView && exisitingNode.getY() !== 0 ? exisitingNode.getY() : 0;
             node.setPosition(x, y);
         }
         if (node instanceof InputNode
@@ -50,11 +53,11 @@ export const useRepositionedNodes = (nodes: DataMapperNodeModel[], zoomLevel: nu
         ) {
             const x = OFFSETS.SOURCE_NODE.X;
             const computedY = prevBottomY + (prevBottomY ? GAP_BETWEEN_INPUT_NODES : 0);
-            let y = exisitingNode && exisitingNode.getY() !== 0 ? exisitingNode.getY() : computedY;
+            let y = exisitingNode && sameView && exisitingNode.getY() !== 0 ? exisitingNode.getY() : computedY;
 
             node.setPosition(x, y);
 
-            if (node instanceof InputNode) {
+            if (node instanceof InputNode || node instanceof FocusedInputNode) {
                 const nodeHeight = getIONodeHeight(node.numberOfFields);
                 prevBottomY = computedY + nodeHeight;
             }
