@@ -19,8 +19,7 @@ import { MEDIATORS } from '../../../../../resources/constants';
 import { Controller, useForm } from 'react-hook-form';
 import { ExpressionFieldValue } from '../../../../Form/ExpressionField/ExpressionInput';
 import { ParamManager, ParamValue } from '../../../../Form/ParamManager/ParamManager';
-import { sidepanelAddPage, sidepanelGoBack } from '../../..';
-import ExpressionEditor from '../../../expressionEditor/ExpressionEditor';
+import { handleOpenExprEditor, sidepanelGoBack } from '../../..';
 
 const cardStyle = { 
     display: "block",
@@ -111,19 +110,7 @@ const CommandForm = (props: AddMediatorProps) => {
                                 "1": "MESSAGE_ELEMENT"
                             }
                         ], 
-                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                            const content = <ExpressionEditor
-                                value={value}
-                                handleOnSave={(value) => {
-                                    setValue(value);
-                                    handleOnCancelExprEditorRef.current();
-                                }}
-                                handleOnCancel={() => {
-                                    handleOnCancelExprEditorRef.current();
-                                }}
-                            />;
-                            sidepanelAddPage(sidePanelContext, content, "Expression Editor");
-                        }},
+                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)},
                     {
                         "type": "TextField",
                         "label": "Value Context Property Name",
@@ -194,7 +181,7 @@ const CommandForm = (props: AddMediatorProps) => {
     }
     return (
         <>
-            <Typography sx={{ padding: "10px 15px", borderBottom: "1px solid var(--vscode-editorWidget-border)" }} variant="body3">Creates an instance of a custom class to invoke an object encapsulating a method call.</Typography>
+            <Typography sx={{ padding: "10px 20px", borderBottom: "1px solid var(--vscode-editorWidget-border)" }} variant="body3">Creates an instance of a custom class to invoke an object encapsulating a method call.</Typography>
             <div style={{ padding: "20px" }}>
 
                 <ComponentCard sx={cardStyle} disbaleHoverEffect>

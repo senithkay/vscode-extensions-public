@@ -8,22 +8,32 @@
  */
 
 import Mustache from "mustache";
-import { SERVICE } from "../../../constants";
-import { getAddApiResourceTemplate, getEditApiResourceTemplate, getEditProxyTemplate, getEditSequenceTemplate, getEditServiceTemplate, getHandlersTemplate } from "./core/api";
+import { ARTIFACT_TEMPLATES } from "../../../constants";
+import {
+    getAddAPIResourceTemplate,
+    getEditAPIResourceTemplate,
+    getEditProxyTemplate,
+    getEditSequenceTemplate,
+    getEditAPITemplate,
+    getHandlersTemplate,
+    getAddAPITemplate
+} from "./core/api";
 
 export function getXML(name: string, data: { [key: string]: any }) {
     switch (name) {
-        case SERVICE.EDIT_SERVICE:
-            return Mustache.render(getEditServiceTemplate(), data);
-        case SERVICE.ADD_RESOURCE:
-            return Mustache.render(getAddApiResourceTemplate(), data);
-        case SERVICE.EDIT_RESOURCE:
-            return Mustache.render(getEditApiResourceTemplate(), data);
-        case SERVICE.EDIT_SEQUENCE:
+        case ARTIFACT_TEMPLATES.ADD_API:
+            return Mustache.render(getAddAPITemplate(), data);
+        case ARTIFACT_TEMPLATES.EDIT_API:
+            return Mustache.render(getEditAPITemplate(), data);
+        case ARTIFACT_TEMPLATES.ADD_RESOURCE:
+            return Mustache.render(getAddAPIResourceTemplate(), data);
+        case ARTIFACT_TEMPLATES.EDIT_RESOURCE:
+            return Mustache.render(getEditAPIResourceTemplate(), data);
+        case ARTIFACT_TEMPLATES.EDIT_SEQUENCE:
             return Mustache.render(getEditSequenceTemplate(), data);
-        case SERVICE.EDIT_PROXY:
+        case ARTIFACT_TEMPLATES.EDIT_PROXY:
             return Mustache.render(getEditProxyTemplate(data.tag), data);    
-        case SERVICE.EDIT_HANDLERS:
+        case ARTIFACT_TEMPLATES.EDIT_HANDLERS:
             return Mustache.render(getHandlersTemplate(), data);
         default:
             return "";

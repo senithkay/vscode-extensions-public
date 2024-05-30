@@ -7,20 +7,22 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-interface Paramater {
+interface DataSourceConfigParameter {
     name?: string;
     type: string;
     value?: string | number | boolean;
     items?: { content: string; value: string }[];
-    validation?: {
+    validate?: {
+        type: string;
         required?: boolean;
-        pattern?: string;
-        isNumber?: boolean;
+        min?: number;
+        max?: number;
+        patter?: string;
     };
 }
 
 interface ParamPool {
-    [key: string]: Paramater;
+    [key: string]: DataSourceConfigParameter;
 }
 
 export const dataSourceParams: ParamPool = {
@@ -66,36 +68,36 @@ export const dataSourceParams: ParamPool = {
     maxActive: {
         name: 'Max Active',
         type: 'text',
-        validation: {
-            isNumber: true,
+        validate: {
+            type: 'number',
         },
     },
     maxIdle: {
         name: 'Max Idle',
         type: 'text',
-        validation: {
-            isNumber: true,
+        validate: {
+            type: 'number',
         },
     },
     minIdle: {
         name: 'Min Idle',
         type: 'text',
-        validation: {
-            isNumber: true,
+        validate: {
+            type: 'number',
         },
     },
     initialSize: {
         name: 'Initial Size',
         type: 'text',
-        validation: {
-            isNumber: true,
+        validate: {
+            type: 'number',
         },
     },
     maxWait: {
         name: 'Max Wait (ms)',
         type: 'text',
-        validation: {
-            isNumber: true,
+        validate: {
+            type: 'number',
         },
     },
     testOnBorrow: {
@@ -121,22 +123,22 @@ export const dataSourceParams: ParamPool = {
     timeBetweenEvictionRunsMillis: {
         name: 'Time Between Eviction Runs Millis',
         type: 'text',
-        validation: {
-            isNumber: true,
+        validate: {
+            type: 'number',
         },
     },
     numTestsPerEvictionRun: {
         name: 'Num Tests Per Eviction Run',
         type: 'text',
-        validation: {
-            isNumber: true,
+        validate: {
+            type: 'number',
         },
     },
     minEvictableIdleTimeMillis: {
         name: 'Min Evictable Idle Time Millis',
         type: 'text',
-        validation: {
-            isNumber: true,
+        validate: {
+            type: 'number',
         },
     },
     accessToUnderlyingConnectionAllowed: {
@@ -150,8 +152,8 @@ export const dataSourceParams: ParamPool = {
     removeAbandonedTimeout: {
         name: 'Remove Abandoned Timeout',
         type: 'text',
-        validation: {
-            isNumber: true,
+        validate: {
+            type: 'number',
         },
     },
     logAbandoned: {
@@ -173,8 +175,8 @@ export const dataSourceParams: ParamPool = {
     validationInterval: {
         name: 'Validation Interval',
         type: 'text',
-        validation: {
-            isNumber: true,
+        validate: {
+            type: 'number',
         },
     },
     jmxEnabled: {
@@ -188,15 +190,15 @@ export const dataSourceParams: ParamPool = {
     abandonWhenPercentageFull: {
         name: 'Abandon When Percentage Full',
         type: 'text',
-        validation: {
-            isNumber: true,
+        validate: {
+            type: 'number',
         },
     },
     maxAge: {
         name: 'Max Age',
         type: 'text',
-        validation: {
-            isNumber: true,
+        validate: {
+            type: 'number',
         },
     },
     useEquals: {
@@ -206,8 +208,8 @@ export const dataSourceParams: ParamPool = {
     suspectTimeout: {
         name: 'Suspect Timeout',
         type: 'text',
-        validation: {
-            isNumber: true,
+        validate: {
+            type: 'number',
         },
     },
     alternateUsernameAllowed: {
@@ -217,8 +219,8 @@ export const dataSourceParams: ParamPool = {
     validationQueryTimeout: {
         name: 'Validation Query Timeout',
         type: 'text',
-        validation: {
-            isNumber: true,
+        validate: {
+            type: 'number',
         },
     },
 };

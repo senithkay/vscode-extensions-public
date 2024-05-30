@@ -21,8 +21,7 @@ import { Keylookup } from '../../../../Form';
 import { ExpressionFieldValue } from '../../../../Form/ExpressionField/ExpressionInput';
 import { ParamManager, ParamConfig, ParamValue } from '../../../../Form/ParamManager/ParamManager';
 import { generateSpaceSeperatedStringFromParamValues } from '../../../../../utils/commons';
-import { sidepanelAddPage, sidepanelGoBack } from '../../..';
-import ExpressionEditor from '../../../expressionEditor/ExpressionEditor';
+import { handleOpenExprEditor, sidepanelGoBack } from '../../..';
 
 const cardStyle = { 
     display: "block",
@@ -113,19 +112,7 @@ const DataServiceCallForm = (props: AddMediatorProps) => {
                                                 "1": "EXPRESSION"
                                             }
                                         ], 
-                                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                                            const content = <ExpressionEditor
-                                                value={value}
-                                                handleOnSave={(value) => {
-                                                    setValue(value);
-                                                    handleOnCancelExprEditorRef.current();
-                                                }}
-                                                handleOnCancel={() => {
-                                                    handleOnCancelExprEditorRef.current();
-                                                }}
-                                            />;
-                                            sidepanelAddPage(sidePanelContext, content, "Expression Editor");
-                                        }},
+                                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)},
                                 ]
                             },
                             openInDrawer: true,
@@ -177,7 +164,7 @@ const DataServiceCallForm = (props: AddMediatorProps) => {
     }
     return (
         <>
-            <Typography sx={{ padding: "10px 15px", borderBottom: "1px solid var(--vscode-editorWidget-border)" }} variant="body3">Invokes data service operations.</Typography>
+            <Typography sx={{ padding: "10px 20px", borderBottom: "1px solid var(--vscode-editorWidget-border)" }} variant="body3">Invokes data service operations.</Typography>
             <div style={{ padding: "20px" }}>
 
                 <ComponentCard sx={cardStyle} disbaleHoverEffect>

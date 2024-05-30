@@ -20,8 +20,7 @@ import { MEDIATORS } from '../../../../../resources/constants';
 import { Controller, useForm } from 'react-hook-form';
 import { ExpressionField, ExpressionFieldValue } from '../../../../Form/ExpressionField/ExpressionInput';
 import { ParamManager, ParamValue } from '../../../../Form/ParamManager/ParamManager';
-import { sidepanelAddPage, sidepanelGoBack } from '../../..';
-import ExpressionEditor from '../../../expressionEditor/ExpressionEditor';
+import { handleOpenExprEditor, sidepanelGoBack } from '../../..';
 
 const cardStyle = { 
     display: "block",
@@ -100,19 +99,7 @@ const EJBForm = (props: AddMediatorProps) => {
                                 "1": "EXPRESSION"
                             }
                         ], 
-                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                            const content = <ExpressionEditor
-                                value={value}
-                                handleOnSave={(value) => {
-                                    setValue(value);
-                                    handleOnCancelExprEditorRef.current();
-                                }}
-                                handleOnCancel={() => {
-                                    handleOnCancelExprEditorRef.current();
-                                }}
-                            />;
-                            sidepanelAddPage(sidePanelContext, content, "Expression Editor");
-                        }},
+                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)},
                 ]
             },
             sessionIdType: sidePanelContext?.formValues?.sessionIdType || "LITERAL",
@@ -159,7 +146,7 @@ const EJBForm = (props: AddMediatorProps) => {
     }
     return (
         <>
-            <Typography sx={{ padding: "10px 15px", borderBottom: "1px solid var(--vscode-editorWidget-border)" }} variant="body3">Calls EJB (Stateless/Stateful) and stores result in message payload/property.</Typography>
+            <Typography sx={{ padding: "10px 20px", borderBottom: "1px solid var(--vscode-editorWidget-border)" }} variant="body3">Calls EJB (Stateless/Stateful) and stores result in message payload/property.</Typography>
             <div style={{ padding: "20px" }}>
 
                 <Field>
@@ -293,19 +280,7 @@ const EJBForm = (props: AddMediatorProps) => {
                                     {...field} label="Session Id Expression"
                                     placeholder=""
                                     canChange={false}
-                                    openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => {
-                                        const content = <ExpressionEditor
-                                            value={value}
-                                            handleOnSave={(value) => {
-                                                setValue(value);
-                                                handleOnCancelExprEditorRef.current();
-                                            }}
-                                            handleOnCancel={() => {
-                                                handleOnCancelExprEditorRef.current();
-                                            }}
-                                        />;
-                                        sidepanelAddPage(sidePanelContext, content, "Expression Editor");
-                                    }}
+                                    openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
                                 />
                             )}
                         />

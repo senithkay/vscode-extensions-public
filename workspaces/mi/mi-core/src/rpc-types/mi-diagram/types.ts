@@ -28,12 +28,22 @@ export interface ApplyEditResponse {
 }
 
 export interface CreateAPIRequest {
-    directory: string;
+    artifactDir: string;
     name: string;
-    context: string;
-    swaggerDef: string;
-    type: string;
-    version: string;
+    xmlData?: string;
+    saveSwaggerDef?: boolean;
+    swaggerDefPath?: string;
+    wsdlType?: "file" | "url";
+    wsdlDefPath?: string;
+    wsdlEndpointName?: string;
+}
+
+export interface EditAPIRequest {
+    documentUri: string;
+    xmlData: string;
+    handlersXmlData: string;
+    apiRange: Range;
+    handlersRange: Range;
 }
 
 export interface GetInboundEpDirRequest {
@@ -402,6 +412,10 @@ export interface OpenDiagramRequest {
 }
 
 export interface CreateAPIResponse {
+    path: string;
+}
+
+export interface EditAPIResponse {
     path: string;
 }
 
@@ -1063,7 +1077,7 @@ export interface BrowseFileRequest {
 export interface GetAvailableResourcesRequest {
     documentIdentifier: string | undefined;
     resourceType: "sequence" | "endpoint" | "messageStore" | "messageProcessor" | "task" | "sequenceTemplate" | "endpointTemplate" | "proxyService" |
-    "dataService" | "dataSource" | "localEntry" | "dataMapper" | "js" | "json" | "smooksConfig" | "wsdl" | "ws_policy" | "xsd" | "xsl" | "xslt" | "yaml" | "registry";
+    "dataService" | "dataSource" | "localEntry" | "dataMapper" | "js" | "json" | "smooksConfig" | "swagger" | "wsdl" | "ws_policy" | "xsd" | "xsl" | "xslt" | "yaml" | "registry";
 }
 
 export interface GetAvailableResourcesResponse {
@@ -1240,4 +1254,19 @@ export interface DeleteArtifactRequest {
 
 export interface ExportProjectRequest {
     projectPath: string;
+}
+
+interface GenerateAPIBase {
+    apiName: string;
+    swaggerOrWsdlPath: string;
+}
+
+export type GenerateAPIRequest = GenerateAPIBase & (
+    { mode: "create.api.from.swagger"; publishSwaggerPath?: string; wsdlEndpointName?: never; } |
+    { mode: "create.api.from.wsdl"; publishSwaggerPath?: never; wsdlEndpointName?: string; }
+)
+
+export interface GenerateAPIResponse {
+    apiXml: string;
+    endpointXml?: string;
 }

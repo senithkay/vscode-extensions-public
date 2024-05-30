@@ -17,13 +17,12 @@ import { Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 import AddConnection from './AddConnection';
 import { ParamConfig, ParamManager } from '../../Form/ParamManager/ParamManager';
 import { ExpressionField, ExpressionFieldValue } from '../../Form/ExpressionField/ExpressionInput';
-import ExpressionEditor from '../expressionEditor/ExpressionEditor';
-import { sidepanelAddPage, sidepanelGoBack } from '..';
+import { handleOpenExprEditor, sidepanelGoBack } from '..';
 import { useForm, Controller } from 'react-hook-form';
 
 const cardStyle = {
     display: "block",
-    margin: "5px 5px",
+    margin: "5px 0",
     padding: "10px 15px 15px 15px",
     width: "auto",
     cursor: "auto",
@@ -268,29 +267,6 @@ const AddConnector = (props: AddConnectorProps) => {
         setIsAddingConnection(false);
     }
 
-    const handleOpenExpressionEditor = (value: ExpressionFieldValue, setValue: any) => {
-        sidePanelContext.setSidePanelState({
-            ...sidePanelContext,
-            expressionEditor: {
-                isOpen: true,
-                value,
-                setValue
-            }
-        });
-
-        const content = <ExpressionEditor
-            value={value}
-            handleOnSave={(value) => {
-                setValue(value);
-                handleOnCancelExprEditorRef.current();
-            }}
-            handleOnCancel={() => {
-                handleOnCancelExprEditorRef.current();
-            }}
-        />;
-        sidepanelAddPage(sidePanelContext, content, "Expression Editor");
-    };
-
     const renderFormElement = (element: Element) => {
         switch (element.inputType) {
             case 'string':
@@ -308,30 +284,22 @@ const AddConnector = (props: AddConnectorProps) => {
                     />
                 );
             case 'stringOrExpression':
-                return (
-                    <Controller
-                        name={element.name as string}
-                        control={control}
-                        defaultValue={formValues[element.name] || ''}
-                        render={() => (
-                            <ExpressionField
-                                label={element.displayName}
-                                placeholder={element.helpTip}
-                                required={element.required === 'true'}
-                                value={{
-                                    "isExpression": formValues[element.name]?.isExpression ?? false,
-                                    "value": formValues[element.name]?.value ?? '',
-                                    "namespaces": formValues[element.name]?.namespaces ?? []
-                                }}
-                                canChange={true}
-                                onChange={(e: any) => {
-                                    setFormValues({ ...formValues, [element.name]: e });
-                                    formValidators[element.name](e.value);
-                                }}
-                                openExpressionEditor={handleOpenExpressionEditor}
-                            />
-                        )}
-                    />
+                return (<ExpressionField
+                    label={element.displayName}
+                    placeholder={element.helpTip}
+                    required={element.required === 'true'}
+                    value={{
+                        "isExpression": formValues[element.name]?.isExpression ?? false,
+                        "value": formValues[element.name]?.value ?? '',
+                        "namespaces": formValues[element.name]?.namespaces ?? []
+                    }}
+                    canChange={true}
+                    onChange={(e: any) => {
+                        setFormValues({ ...formValues, [element.name]: e });
+                        formValidators[element.name](e.value);
+                    }}
+                    openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
+                />
                 );
             case 'booleanOrExpression':
                 return (
@@ -395,28 +363,21 @@ const AddConnector = (props: AddConnectorProps) => {
                 );
             case 'integerOrExpression':
                 return (
-                    <Controller
-                        name={element.name as string}
-                        control={control}
-                        defaultValue={formValues[element.name] || ''}
-                        render={({ }) => (
-                            <ExpressionField
-                                label={element.displayName}
-                                placeholder={element.helpTip}
-                                required={element.required === 'true'}
-                                value={{
-                                    "isExpression": formValues[element.name]?.isExpression ?? false,
-                                    "value": formValues[element.name]?.value ?? '',
-                                    "namespaces": formValues[element.name]?.namespaces ?? []
-                                }}
-                                canChange={true}
-                                onChange={(e: any) => {
-                                    setFormValues({ ...formValues, [element.name]: e });
-                                    formValidators[element.name](e.value);
-                                }}
-                                openExpressionEditor={handleOpenExpressionEditor}
-                            />
-                        )}
+                    <ExpressionField
+                        label={element.displayName}
+                        placeholder={element.helpTip}
+                        required={element.required === 'true'}
+                        value={{
+                            "isExpression": formValues[element.name]?.isExpression ?? false,
+                            "value": formValues[element.name]?.value ?? '',
+                            "namespaces": formValues[element.name]?.namespaces ?? []
+                        }}
+                        canChange={true}
+                        onChange={(e: any) => {
+                            setFormValues({ ...formValues, [element.name]: e });
+                            formValidators[element.name](e.value);
+                        }}
+                        openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
                     />
                 );
             case 'connection':
@@ -483,7 +444,7 @@ const AddConnector = (props: AddConnectorProps) => {
     };
 
     return (
-        <div style={{ padding: "10px" }}>
+        <div style={{ padding: "20px" }}>
             {!formData ? (
                 <>
                     <ParamManager

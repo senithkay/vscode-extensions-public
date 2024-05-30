@@ -32,36 +32,43 @@ export async function updateDMC(dmName:string, sourcePath: string): Promise<stri
 
         let tsContent = "";
 
-        const inputSchemaContent = fs.readFileSync(inputSchemaPath, 'utf8');
-        const outputSchemaContent = fs.readFileSync(outputSchemaPath, 'utf8');
-        const inputSchema:JSONSchema3or4 = convertToJSONSchema(inputSchemaContent);
-        const outputSchema:JSONSchema3or4 = convertToJSONSchema(outputSchemaContent);
-        const inputSchemaTitle = inputSchema.title || "InputRoot";
-        const outputSchemaTitle = outputSchema.title || "OutputRoot";
-        const isInputArray = inputSchema.type === "array";
-        const isOutputArray = outputSchema.type === "array";
-
-        if (isInputArray && inputSchema.items && inputSchema.items.length > 0) {
-            inputSchema.type = "object";
-            inputSchema.properties = inputSchema.items[0].properties;
+        const readAndConvertSchema = async (schemaPath: string, defaultTitle: string) => {
+            const schemaContent = fs.readFileSync(schemaPath, 'utf8');
+            const schema: JSONSchema3or4 = convertToJSONSchema(schemaContent);
+            const isSchemaArray = schema.type === "array";
+            const schemaTitle = schema.title;
+            schema.title = schema.title ? formatTitle(schema.title) : defaultTitle;
+            if (schema.type === "array" && schema.items && schema.items.length > 0) {
+                schema.type = "object";
+                schema.properties = schema.items[0].properties;
+            }
+            const tsInterfaces = schemaContent.length > 0 
+                ? await generateTSInterfacesFromSchemaFile(schema) 
+                : `interface ${defaultTitle} {\n}\n\n`;
+            return { schema, tsInterfaces, isSchemaArray, schemaTitle };
+        };
+        
+        let { 
+            schema: inputSchema, 
+            tsInterfaces: inputTSInterfaces, 
+            isSchemaArray: isInputArray, 
+            schemaTitle: inputSchemaTitle  
+        } = await readAndConvertSchema(inputSchemaPath, "InputRoot");
+        let { 
+            schema: outputSchema, 
+            tsInterfaces: outputTSInterfaces, 
+            isSchemaArray: isOutputArray, 
+            schemaTitle: outputSchemaTitle  
+        } = await readAndConvertSchema(outputSchemaPath, "OutputRoot");
+        
+        if (outputSchema.title === inputSchema.title) {
+            outputTSInterfaces =  outputTSInterfaces.replace('interface ' + outputSchema.title, 'interface Output' + outputSchema.title);
+            outputSchema.title = `Output${outputSchema.title}`;
         }
-
-        if (isOutputArray && outputSchema.items && outputSchema.items.length > 0) {
-            outputSchema.type = "object";
-            outputSchema.properties = outputSchema.items[0].properties;
-        }
-
-        const inputTSInterfaces = inputSchemaContent.length > 0 
-            ? await generateTSInterfacesFromSchemaFile(inputSchema) 
-            : "interface InputRoot {\n}\n\n";
-
-        const outputTSInterfaces = outputSchemaContent.length > 0 
-            ? await generateTSInterfacesFromSchemaFile(outputSchema) 
-            : "interface OutputRoot {\n}\n\n";
-
-        tsContent += `${inputTSInterfaces}\n${outputTSInterfaces}\nfunction mapFunction(input: InputRoot${isInputArray ? "[]" : ""}): OutputRoot${isOutputArray ? "[]" : ""} {\n`;
-        tsContent += `\treturn ${isOutputArray ? "[" : ""}{}${isOutputArray ? "]" : ""}\n}\n\n`;
-        tsContent += `// WARNING: Do not edit/remove below function\nfunction map_S_${inputSchemaTitle}_S_${outputSchemaTitle}() {\n\treturn mapFunction(input${inputSchemaTitle});\n}\n`;
+    
+        tsContent += `${inputTSInterfaces}\n${outputTSInterfaces}\nfunction mapFunction(input: ${inputSchema.title}${isInputArray ? "[]" : ""}): ${outputSchema.title}${isOutputArray ? "[]" : ""} {\n`;
+        tsContent += `\treturn ${isOutputArray ? "[]" : "{}"}\n}\n\n`;
+        tsContent += `// WARNING: Do not edit/remove below function\nfunction map_S_${getTitleSegment(inputSchemaTitle)}_S_${getTitleSegment(outputSchemaTitle)}() {\n\treturn mapFunction(input${inputSchemaTitle.replace(":", "_")});\n}\n`;
         fs.writeFileSync(tsFilepath, tsContent);
         const jsContent = convertTypeScriptToJavascript(tsContent);
         fs.writeFileSync(dmcFilePath, jsContent);
@@ -82,4 +89,21 @@ export async function updateDMCContent(dmName:string, sourcePath: string): Promi
         fs.writeFileSync(dmcFilePath, jsContent);
     }
     return "";
+}
+
+function formatTitle(title: string): string {
+    const titleSegment = getTitleSegment(title);
+    return capitalizeFirstLetter(titleSegment);
+}
+
+function getTitleSegment(title: string): string {
+    if (title) {
+        const parts = title.split(":");
+        return parts[parts.length - 1];
+    }
+    return title;
+}
+
+function capitalizeFirstLetter(str: string): string {
+    return str.charAt(0).toUpperCase() + str.slice(1);
 }

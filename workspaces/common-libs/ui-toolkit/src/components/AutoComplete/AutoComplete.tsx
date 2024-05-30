@@ -328,10 +328,12 @@ export const AutoComplete = React.forwardRef<HTMLInputElement, AutoCompleteProps
     return (
         <Container sx={sx}>
             <Combobox value={value} onChange={handleChange} name={name} {...(nullable && { nullable })}>
-                <LabelContainer>
-                    <label htmlFor={id}>{label}</label>
-                    {(required && label) && (<RequiredFormInput />)}
-                </LabelContainer>
+                {label && (
+                    <LabelContainer>
+                        <label htmlFor={id}>{label}</label>
+                        {(required && label) && (<RequiredFormInput />)}
+                    </LabelContainer>
+                )}
                 <ComboboxContent>
                     <ComboboxInputWrapper ref={inputWrapperRef}>
                         <Combobox.Input

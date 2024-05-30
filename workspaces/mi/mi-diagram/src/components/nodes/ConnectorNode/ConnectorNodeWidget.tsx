@@ -17,7 +17,6 @@ import { Button, ClickAwayListener, Menu, MenuItem, Popover, Tooltip } from "@ws
 import { MoreVertIcon } from "../../../resources";
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import SidePanelContext from "../../sidePanel/SidePanelContexProvider";
-import { getSVGIcon } from "../../../resources/icons/mediatorIcons/icons";
 import { Connector } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 
 namespace S {

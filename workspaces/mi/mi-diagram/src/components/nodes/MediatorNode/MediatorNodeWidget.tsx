@@ -17,10 +17,10 @@ import { Button, ClickAwayListener, Menu, MenuItem, Popover, Tooltip } from "@ws
 import { MoreVertIcon } from "../../../resources";
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import SidePanelContext from "../../sidePanel/SidePanelContexProvider";
-import { getSVGIcon } from "../../../resources/icons/mediatorIcons/icons";
 import { getNodeDescription } from "../../../utils/node";
 import { Header, Description, Name } from "../BaseNodeModel";
 import { FirstCharToUpperCase } from "../../../utils/commons";
+import { getMediatorIconsFromFont } from "../../../resources/icons/mediatorIcons/icons";
 
 namespace S {
     export type NodeStyleProp = {
@@ -51,7 +51,7 @@ namespace S {
     `;
 
     export const IconContainer = styled.div`
-        padding: 5px;
+        padding: 0 5px;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -164,7 +164,7 @@ export function MediatorNodeWidget(props: CallNodeWidgetProps) {
                     )}
                     <S.TopPortWidget port={node.getPort("in")!} engine={engine} />
                     <div style={{ display: "flex", flexDirection: "row", width: NODE_DIMENSIONS.DEFAULT.WIDTH }}>
-                        <S.IconContainer>{getSVGIcon(node.stNode.tag)}</S.IconContainer>
+                        <S.IconContainer>{getMediatorIconsFromFont(node.stNode.tag)}</S.IconContainer>
                         <div>
                             {isHovered && (
                                 <S.StyledButton appearance="icon" onClick={handleOnClickMenu}>

@@ -12,7 +12,7 @@ import React, { ReactNode } from 'react';
 import styled from '@emotion/styled';
 import SidePanelContext from '../SidePanelContexProvider';
 import { getAllMediators } from './Values';
-import { getSVGIcon } from '../../../resources/icons/mediatorIcons/icons';
+import { getMediatorIconsFromFont } from '../../../resources/icons/mediatorIcons/icons';
 import { FirstCharToUpperCase } from '../../../utils/commons';
 import { sidepanelAddPage } from '..';
 
@@ -23,7 +23,7 @@ const ButtonGrid = styled.div`
 `;
 
 const IconContainer = styled.div`
-    width: 40px;
+    width: 30px;
 
     & img {
         width: 25px;
@@ -93,11 +93,11 @@ export function Mediators(props: MediatorProps) {
                                         marginBottom: 10,
                                         padding: 10,
                                         transition: '0.3s',
-                                        width: 180
+                                        width: 172
                                     }}
                                 >
                                     <IconContainer>
-                                        {getSVGIcon(action.operationName as string)}
+                                        {getMediatorIconsFromFont(action.operationName as string)}
                                     </IconContainer>
                                     <div >
                                         <IconLabel>{FirstCharToUpperCase(action.title)}</IconLabel>

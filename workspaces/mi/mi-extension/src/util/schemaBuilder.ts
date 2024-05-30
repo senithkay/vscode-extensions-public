@@ -31,11 +31,6 @@ export async function generateSchema(ioType: string, fileType: string, title: st
     title: title
   });
   let schema = JSON.parse(response.schema);
-  if (ioType.toLowerCase() === "input") {
-      schema.title = "InputRoot";
-  } else {
-      schema.title = "OutputRoot";
-  }
   return schema;
 }
 

@@ -149,6 +149,8 @@ import {
     GetConnectionFormResponse,
     DeleteArtifactRequest,
     ExportProjectRequest,
+    EditAPIRequest,
+    EditAPIResponse,
 } from "./types";
 
 export interface MiDiagramAPI {
@@ -161,6 +163,7 @@ export interface MiDiagramAPI {
     getConnector: (params: ConnectorRequest) => Promise<ConnectorResponse>;
     getAPIDirectory: () => Promise<ApiDirectoryResponse>;
     createAPI: (params: CreateAPIRequest) => Promise<CreateAPIResponse>;
+    editAPI: (params: EditAPIRequest) => Promise<EditAPIResponse>;
     getEndpointDirectory: () => Promise<EndpointDirectoryResponse>;
     createEndpoint: (params: CreateEndpointRequest) => Promise<CreateEndpointResponse>;
     updateLoadBalanceEndpoint: (params: UpdateLoadBalanceEPRequest) => Promise<UpdateLoadBalanceEPResponse>;

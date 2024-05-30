@@ -7,203 +7,273 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React from "react";
+import React, { ReactNode } from "react";
 import { ENDPOINTS, MEDIATORS } from "../../constants";
+import { Icon } from "@wso2-enterprise/ui-toolkit";
 
-export function getSVGIcon(mediator: string, returnPath: boolean = false) {
-    let icon = null;
+export function getMediatorIconsFromFont(mediator: string) {
+    let icon: ReactNode = null;
+    let color: string;
+
+    // get icon color
     switch (mediator.toLowerCase()) {
-        // Mediators
+        case MEDIATORS.CALL.toLowerCase():
+        case MEDIATORS.LOG.toLowerCase():
+        case MEDIATORS.RESPOND.toLowerCase():
+        case MEDIATORS.PROPERTY.toLowerCase():
+        case MEDIATORS.DROP.toLowerCase():
+        case MEDIATORS.CALLTEMPLATE.toLowerCase():
+        case MEDIATORS.SEQUENCE.toLowerCase():
+        case MEDIATORS.PROPERTYGROUP.toLowerCase():
+            color = "#3e97d3";
+            break;
+
+        case MEDIATORS.PAYLOAD.toLowerCase():
+        case MEDIATORS.DATAMAPPER.toLowerCase():
+        case MEDIATORS.XSLT.toLowerCase():
+        case MEDIATORS.ENRICH.toLowerCase():
+        case MEDIATORS.HEADER.toLowerCase():
+        case MEDIATORS.JSONTRANSFORM.toLowerCase():
+        case MEDIATORS.FAULT.toLowerCase():
+            color = "#955ba5";
+            break;
+
+        case MEDIATORS.FILTER.toLowerCase():
+        case MEDIATORS.SWITCH.toLowerCase():
+        case MEDIATORS.CLONE.toLowerCase():
+        case MEDIATORS.ITERATE.toLowerCase():
         case MEDIATORS.AGGREGATE.toLowerCase():
-            icon = require("./AggregateMediator.svg");
+        case MEDIATORS.FOREACHMEDIATOR.toLowerCase():
+        case MEDIATORS.STORE.toLowerCase():
+        case MEDIATORS.VALIDATE.toLowerCase():
+            color = "#26b99a";
+            break;
+
+        case MEDIATORS.CLASS.toLowerCase():
+        case MEDIATORS.SCRIPT.toLowerCase():
+            color = "#ff69d0";
+            break;
+
+        case MEDIATORS.CACHE.toLowerCase():
+        case MEDIATORS.ENTITLEMENT.toLowerCase():
+        case MEDIATORS.OAUTH.toLowerCase():
+        case MEDIATORS.NTLM.toLowerCase():
+        case MEDIATORS.THROTTLE.toLowerCase():
+            color = "#ffc369";
+            break;
+
+        case MEDIATORS.DATASERVICECALL.toLowerCase():
+        case MEDIATORS.DBLOOKUP.toLowerCase():
+        case MEDIATORS.DBREPORT.toLowerCase():
+            color = "#8ddefb";
+            break;
+
+        case MEDIATORS.SEND.toLowerCase():
+        case MEDIATORS.CALLOUT.toLowerCase():
+        case MEDIATORS.SMOOKS.toLowerCase():
+        case MEDIATORS.TRANSACTION.toLowerCase():
+        case MEDIATORS.BUILDER.toLowerCase():
+        case MEDIATORS.RULE.toLowerCase():
+        case MEDIATORS.LOOPBACK.toLowerCase():
+        case MEDIATORS.PUBLISHEVENT.toLowerCase():
+        case MEDIATORS.FASTXSLT.toLowerCase():
+        case MEDIATORS.REWRITE.toLowerCase():
+        case MEDIATORS.XQUERY.toLowerCase():
+        case MEDIATORS.EVENT.toLowerCase():
+        case MEDIATORS.ENQUEUE.toLowerCase():
+        case MEDIATORS.BEAN.toLowerCase():
+        case MEDIATORS.COMMAND.toLowerCase():
+        case MEDIATORS.EJB.toLowerCase():
+        case MEDIATORS.SPRING.toLowerCase():
+        case MEDIATORS.CONDITIONALROUTER.toLowerCase():
+        case MEDIATORS.BAM.toLowerCase():
+            color = "#e0e0d8";
+            break;
+
+        default:
+            color = "#FFB02E";
+    }
+
+    // get Mediators
+    switch (mediator.toLowerCase()) {
+        case MEDIATORS.AGGREGATE.toLowerCase():
+            icon = (<Icon name="Aggregate" sx={{ height: 25, width: 25, fontSize: 25, color: color }} />);
             break;
         case MEDIATORS.BUILDER.toLowerCase():
-            icon = require("./BuilderMediator.png");
+            icon = (<Icon name="Builder" sx={{ height: 32, width: 25, fontSize: 25, color: color }} />);
             break;
         case MEDIATORS.CACHE.toLowerCase():
-            icon = require("./CacheMediator.svg");
+            icon = (<Icon name="Cache" sx={{ height: 25, width: 25, fontSize: 25, color: color }} />);
             break;
         case MEDIATORS.CALL.toLowerCase():
-            icon = require("./CallMediator.svg");
+            icon = (<Icon name="Call" sx={{ height: 25, width: 25, fontSize: 25, color: color }} />);
             break;
         case MEDIATORS.CALLOUT.toLowerCase():
-            icon = require("./CalloutMediator.svg");
+            icon = (<Icon name="Callout" sx={{ height: 25, width: 25, fontSize: 25, color: color }} />);
             break;
         case MEDIATORS.CALLTEMPLATE.toLowerCase():
-            icon = require("./CallMediator.svg");
+            icon = (<Icon name="Call" sx={{ height: 25, width: 25, fontSize: 25, color: color }} />);
             break;
         case MEDIATORS.CLONE.toLowerCase():
-            icon = require("./CloneMediator.svg");
+            icon = (<Icon name="Clone" sx={{ height: 25, width: 25, fontSize: 25, color: color }} />);
             break;
         case MEDIATORS.DATAMAPPER.toLowerCase():
-            icon = require("./DataMapperMediator.svg");
+            icon = (<Icon name="dataMapper" sx={{ height: 25, width: 25, fontSize: 25, color: color }} />);
             break;
         case MEDIATORS.DATASERVICECALL.toLowerCase():
-            icon = require("./DataServiceCallMediator.png");
+            icon = (<Icon name="DataServiceCall" sx={{ height: 32, width: 25, fontSize: 25, color: color }} />);
             break;
         case MEDIATORS.DBLOOKUP.toLowerCase():
-            icon = require("./DBLookupMediator.png");
+            icon = (<Icon name="DBLookup" sx={{ height: 25, width: 25, fontSize: 25, color: color }} />);
             break;
         case MEDIATORS.DBREPORT.toLowerCase():
-            icon = require("./DBReportMediator.png");
+            icon = (<Icon name="DBReport" sx={{ height: 25, width: 25, fontSize: 25, color: color }} />);
             break;
-        // case MEDIATORS.DATASERVICE.toLowerCase():
-        //     icon = require("./DataServiceMediator.svg");
-        //     break;
         case MEDIATORS.DROP.toLowerCase():
-            icon = require("./DropMediator.svg");
+            icon = (<Icon name="Drop" sx={{ height: 25, width: 25, fontSize: 25, color: color }} />);
             break;
         case MEDIATORS.ENRICH.toLowerCase():
-            icon = require("./EnrichMediator.svg");
+            icon = (<Icon name="Enrich" sx={{ height: 25, width: 25, fontSize: 25, color: color }} />);
             break;
         case MEDIATORS.ENTITLEMENT.toLowerCase():
-            icon = require("./EntitlementMediator.svg");
+            icon = (<Icon name="Entitlement" sx={{ height: 25, width: 25, fontSize: 25, color: color }} />);
             break;
         case MEDIATORS.FASTXSLT.toLowerCase():
-            icon = require("./FastXSLTMediator.svg");
+            icon = (<Icon name="FastXSLT" sx={{ height: 25, width: 25, fontSize: 25, color: color }} />);
             break;
         case MEDIATORS.FAULT.toLowerCase():
-            icon = require("./FaultMediator.svg");
+            icon = (<Icon name="Fault" sx={{ height: 25, width: 25, fontSize: 25, color: color }} />);
             break;
         case MEDIATORS.FILTER.toLowerCase():
-            icon = require("./FilterMediator.svg");
+            icon = (<Icon name="Filter" sx={{ height: 25, width: 25, fontSize: 25, color: color }} />);
             break;
         case MEDIATORS.FOREACHMEDIATOR.toLowerCase():
-            icon = require("./ForEachMediator.svg");
+            icon = (<Icon name="ForEach" sx={{ height: 25, width: 25, fontSize: 25, color: color }} />);
             break;
         case MEDIATORS.HEADER.toLowerCase():
-            icon = require("./HeaderMediator.svg");
+            icon = (<Icon name="header" sx={{ height: 25, width: 25, fontSize: 25, color: color }} />);
             break;
         case MEDIATORS.ITERATE.toLowerCase():
-            icon = require("./IterateMediator.svg");
+            icon = (<Icon name="Iterate" sx={{ height: 25, width: 25, fontSize: 25, color: color }} />);
             break;
         case MEDIATORS.JSONTRANSFORM.toLowerCase():
-            icon = require("./JSONTransformMediator.png");
+            icon = (<Icon name="JSONTransform" sx={{ height: 25, width: 25, fontSize: 25, color: color }} />);
             break;
         case MEDIATORS.LOG.toLowerCase():
-            icon = require("./LogMediator.svg");
+            icon = (<Icon name="Log" sx={{ height: 25, width: 25, fontSize: 25, color: color }} />);
             break;
         case MEDIATORS.LOOPBACK.toLowerCase():
-            icon = require("./LoopBackMediator.svg");
+            icon = (<Icon name="LoopBack" sx={{ height: 25, width: 25, fontSize: 25, color: color }} />);
             break;
         case MEDIATORS.NTLM.toLowerCase():
-            icon = require("./NTLMMediator.png");
+            icon = (<Icon name="NTLM" sx={{ height: 25, width: 25, fontSize: 25, color: color }} />);
             break;
         case MEDIATORS.OAUTH.toLowerCase():
-            icon = require("./OAuthMediator.png");
+            icon = (<Icon name="OAuth" sx={{ height: 32, width: 25, fontSize: 25, color: color }} />);
             break;
         case MEDIATORS.PAYLOAD.toLowerCase():
-            icon = require("./PayloadFactoryMediator.svg");
+            icon = (<Icon name="PayloadFactory" sx={{ height: 25, width: 25, fontSize: 25, color: color }} />);
             break;
         case MEDIATORS.PROPERTY.toLowerCase():
-            icon = require("./PropertyMediator.svg");
+            icon = (<Icon name="Property" sx={{ height: 25, width: 25, fontSize: 25, color: color }} />);
             break;
         case MEDIATORS.PROPERTYGROUP.toLowerCase():
-            icon = require("./PropertyGroupMediator.svg");
+            icon = (<Icon name="PropertyGroup" sx={{ height: 25, width: 25, fontSize: 25, color: color }} />);
             break;
         case MEDIATORS.PUBLISHEVENT.toLowerCase():
-            icon = require("./PublishEventMediator.png");
+            icon = (<Icon name="PublishEvent" sx={{ height: 25, width: 25, fontSize: 25, color: color }} />);
             break;
         case MEDIATORS.RESPOND.toLowerCase():
-            icon = require("./RespondMediator.svg");
+            icon = (<Icon name="Respond" sx={{ height: 25, width: 25, fontSize: 25, color: color }} />);
             break;
         case MEDIATORS.REWRITE.toLowerCase():
-            icon = require("./URLRewriteMediator.svg");
+            icon = (<Icon name="URLRewrite" sx={{ height: 25, width: 25, fontSize: 25, color: color }} />);
             break;
         case MEDIATORS.RULE.toLowerCase():
-            icon = require("./RuleMediator.svg");
+            icon = (<Icon name="Rule" sx={{ height: 25, width: 25, fontSize: 25, color: color }} />);
             break;
         case MEDIATORS.SEND.toLowerCase():
-            icon = require("./SendMediator.svg");
+            icon = (<Icon name="Send" sx={{ height: 25, width: 25, fontSize: 25, color: color }} />);
             break;
         case MEDIATORS.SEQUENCE.toLowerCase():
-            icon = require("./Sequence.svg");
+            icon = (<Icon name="Sequence" sx={{ height: 25, width: 25, fontSize: 25, color: color }} />);
             break;
         case MEDIATORS.SMOOKS.toLowerCase():
-            icon = require("./SmooksMediator.svg");
+            icon = (<Icon name="Smooks" sx={{ height: 25, width: 25, fontSize: 25, color: color }} />);
             break;
         case MEDIATORS.STORE.toLowerCase():
-            icon = require("./StoreMediator.svg");
+            icon = (<Icon name="Store" sx={{ height: 25, width: 25, fontSize: 25, color: color }} />);
             break;
         case MEDIATORS.SWITCH.toLowerCase():
-            icon = require("./SwitchMediator.svg");
+            icon = (<Icon name="Switch" sx={{ height: 25, width: 25, fontSize: 25, color: color }} />);
             break;
         case MEDIATORS.THROTTLE.toLowerCase():
-            icon = require("./ThrottleMediator.svg");
+            icon = (<Icon name="Throttle" sx={{ height: 25, width: 25, fontSize: 25, color: color }} />);
             break;
         case MEDIATORS.VALIDATE.toLowerCase():
-            icon = require("./ValidateMediator.svg");
+            icon = (<Icon name="Validate" sx={{ height: 25, width: 25, fontSize: 25, color: color }} />);
             break;
         case MEDIATORS.XQUERY.toLowerCase():
-            icon = require("./XQueryMediator.svg");
+            icon = (<Icon name="XQuery" sx={{ height: 25, width: 25, fontSize: 25, color: color }} />);
             break;
         case MEDIATORS.XSLT.toLowerCase():
-            icon = require("./XSLTMediator.svg");
+            icon = (<Icon name="XSLT" sx={{ height: 25, width: 25, fontSize: 25, color: color }} />);
             break;
         case MEDIATORS.CONDITIONALROUTER.toLowerCase():
-            icon = require("./ConditionalRouterMediator.svg");
+            icon = (<Icon name="ConditionalRouter" sx={{ height: 25, width: 25, fontSize: 25, color: color }} />);
             break;
         case MEDIATORS.ENQUEUE.toLowerCase():
-            icon = require("./EnqueueMediator.svg");
+            icon = (<Icon name="Enqueue" sx={{ height: 25, width: 25, fontSize: 25, color: color }} />);
             break;
         case MEDIATORS.EVENT.toLowerCase():
-            icon = require("./EventMediator.svg");
+            icon = (<Icon name="Event" sx={{ height: 25, width: 25, fontSize: 25, color: color }} />);
             break;
         case MEDIATORS.TRANSACTION.toLowerCase():
-            icon = require("./TransactionMediator.svg");
+            icon = (<Icon name="Transaction" sx={{ height: 25, width: 25, fontSize: 25, color: color }} />);
             break;
         case MEDIATORS.BEAN.toLowerCase():
-            icon = require("./BeanMediator.svg");
+            icon = (<Icon name="Bean" sx={{ height: 25, width: 25, fontSize: 25, color: color }} />);
             break;
         case MEDIATORS.CLASS.toLowerCase():
-            icon = require("./ClassMediator.svg");
+            icon = (<Icon name="class-icon" sx={{ height: 25, width: 25, fontSize: 25, color: color }} />);
             break;
         case MEDIATORS.COMMAND.toLowerCase():
-            icon = require("./CommandMediator.svg");
+            icon = (<Icon name="Command" sx={{ height: 25, width: 25, fontSize: 25, color: color }} />);
             break;
         case MEDIATORS.EJB.toLowerCase():
-            icon = require("./EJBMediator.svg");
+            icon = (<Icon name="EJB" sx={{ height: 25, width: 25, fontSize: 25, color: color }} />);
             break;
         case MEDIATORS.SCRIPT.toLowerCase():
-            icon = require("./ScriptMediator.svg");
+            icon = (<Icon name="Script" sx={{ height: 25, width: 25, fontSize: 25, color: color }} />);
             break;
         case MEDIATORS.SPRING.toLowerCase():
-            icon = require("./SpringMediator.svg");
+            icon = (<Icon name="Spring" sx={{ height: 25, width: 25, fontSize: 25, color: color }} />);
             break;
         case MEDIATORS.BAM.toLowerCase():
-            icon = require("./BAMMediator.svg");
+            icon = (<Icon name="BAM" sx={{ height: 25, width: 25, fontSize: 25, color: color }} />);
             break;
 
         // Endpoints
         case ENDPOINTS.ADDRESS.toLowerCase():
-            icon = require("./AddressEndPoint.svg");
+            icon = (<Icon name="AddressEndPoint" sx={{ height: 25, width: 25, fontSize: 25, color: color }} />);
             break;
         case ENDPOINTS.DEFAULT.toLowerCase():
-            icon = require("./DefaultEndPoint.svg");
+            icon = (<Icon name="DefaultEndPoint" sx={{ height: 25, width: 25, fontSize: 25, color: color }} />);
             break;
         // case ENDPOINTS.FAILOVER.toLowerCase():
         //     icon = require("./FailoverEndpoint.svg");
         //     break;
         case ENDPOINTS.HTTP.toLowerCase():
-            icon = require("./HTTPEndpoint.svg");
+            icon = (<Icon name="HTTPEndpoint" sx={{ height: 25, width: 25, fontSize: 25, color: color }} />);
             break;
         case ENDPOINTS.LOADBALANCE.toLowerCase():
-            icon = require("./LoadBalanceEndPoint.svg");
+            icon = (<Icon name="LoadBalanceEndPoint" sx={{ height: 25, width: 25, fontSize: 25, color: color }} />);
             break;
         case ENDPOINTS.NAMED.toLowerCase():
-            icon = require("./NamedEndpoint.svg");
+            icon = (<Icon name="NamedEndpoint" sx={{ height: 25, width: 25, fontSize: 25, color: color }} />);
             break;
-        // case ENDPOINTS.RECIPIENTLIST.toLowerCase():
-        //     icon = require("./RecipientlistEndpoint.svg");
-        //     break;
-        // case ENDPOINTS.TEMPLATE.toLowerCase():
-        //     icon = require("./TemplateEndpoint.svg");
-        //     break;
-        // case ENDPOINTS.WSDL.toLowerCase():
-        //     icon = require("./WSDL.svg");
-        //     break;
         default:
-            icon = require("./Default.svg");
+            icon = (<Icon name="Default" sx={{ height: 25, width: 25, fontSize: 25, color: color }} />);
     }
-    return returnPath ? icon : <img src={icon} alt={mediator} />;
+    return icon;
 }

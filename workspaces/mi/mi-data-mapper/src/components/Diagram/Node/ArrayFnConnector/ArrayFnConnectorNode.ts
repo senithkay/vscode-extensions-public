@@ -108,7 +108,7 @@ export class ArrayFnConnectorNode extends DataMapperNodeModel {
             } else if (node instanceof FocusedInputNode && node.innerParam.getName() === paramName) {
                 const portName = FOCUSED_INPUT_SOURCE_PORT_PREFIX + "." + fieldId + ".OUT";
                 this.sourcePort = node.getPort(portName) as InputOutputPortModel;
-            } else if (node instanceof SubMappingNode) {
+            } else if (node instanceof SubMappingNode && node.subMappings.some(sm => sm.name === paramName)) {
                 const portName = SUB_MAPPING_INPUT_SOURCE_PORT_PREFIX + "." + fieldId + ".OUT";
                 this.sourcePort = node.getPort(portName) as InputOutputPortModel;
             }

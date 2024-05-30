@@ -57,11 +57,14 @@ import {
     DownloadConnectorResponse,
     ESBConfigsResponse,
     EVENT_TYPE,
+    EditAPIRequest,
+    EditAPIResponse,
     EndpointDirectoryResponse,
     EndpointsAndSequencesResponse,
     ExportProjectRequest,
     FileDirResponse,
     FileStructure,
+    GenerateAPIResponse,
     GetAllArtifactsRequest,
     GetAllArtifactsResponse,
     GetAllRegistryPathsRequest,
@@ -179,7 +182,7 @@ import { UndoRedoManager } from "../../undoRedoManager";
 import { createFolderStructure, getAddressEndpointXmlWrapper, getDefaultEndpointXmlWrapper, getFailoverXmlWrapper, getHttpEndpointXmlWrapper, getInboundEndpointXmlWrapper, getLoadBalanceXmlWrapper, getMessageProcessorXmlWrapper, getMessageStoreXmlWrapper, getProxyServiceXmlWrapper, getRegistryResourceContent, getTaskXmlWrapper, getTemplateEndpointXmlWrapper, getTemplateXmlWrapper, getWsdlEndpointXmlWrapper } from "../../util";
 import { addNewEntryToArtifactXML, addSynapseDependency, changeRootPomPackaging, createMetadataFilesForRegistryCollection, detectMediaType, getAvailableRegistryResources, getMediatypeAndFileExtension } from "../../util/fileOperations";
 import { importProject } from "../../util/migrationUtils";
-import { getDataserviceXml } from "../../util/template-engine/mustach-templates/Dataservice";
+import { getDataSourceXml } from "../../util/template-engine/mustach-templates/DataSource";
 import { getClassMediatorContent } from "../../util/template-engine/mustach-templates/classMediator";
 import { generateXmlData, writeXmlDataToFile } from "../../util/template-engine/mustach-templates/createLocalEntry";
 import { getRecipientEPXml } from "../../util/template-engine/mustach-templates/recipientEndpoint";
@@ -305,30 +308,46 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
     async createAPI(params: CreateAPIRequest): Promise<CreateAPIResponse> {
         return new Promise(async (resolve) => {
-            const { directory, name, context, swaggerDef, type, version } = params;
-            let versionAttributes = '';
-            let swaggerAttributes = '';
-            if (version && type !== 'none') {
-                versionAttributes = ` version="${version}" version-type="${type}"`;
+            const {
+                artifactDir,
+                xmlData,
+                name,
+                saveSwaggerDef,
+                swaggerDefPath,
+                wsdlType,
+                wsdlDefPath,
+                wsdlEndpointName
+            } = params;
+
+            const getSwaggerName = (swaggerDefPath: string) => {
+                const ext = path.extname(swaggerDefPath);
+                return `${name}${ext}`;
+            };
+
+            let response: GenerateAPIResponse = { apiXml: "", endpointXml: "" };
+            if (!xmlData) {
+                const langClient = StateMachine.context().langClient!;
+                if (swaggerDefPath) {
+                    response = await langClient.generateAPI({
+                        apiName: name,
+                        swaggerOrWsdlPath: swaggerDefPath,
+                        publishSwaggerPath: 
+                            saveSwaggerDef ? `gov:swaggerFiles/${getSwaggerName(swaggerDefPath)}` : undefined,
+                        mode: "create.api.from.swagger"
+                    });
+                } else if (wsdlDefPath) {
+                    const filePath = wsdlType === "file" && Uri.file(wsdlDefPath).toString();
+                    response = await langClient.generateAPI({
+                        apiName: name,
+                        swaggerOrWsdlPath: filePath || wsdlDefPath,
+                        mode: "create.api.from.wsdl",
+                        wsdlEndpointName
+                    });
+                }
             }
 
-            if (swaggerDef) {
-                swaggerAttributes = ` publishSwagger="${swaggerDef}"`;
-            }
-
-            const xmlData =
-                `<?xml version="1.0" encoding="UTF-8" ?>
-    <api context="${context}" name="${name}" ${swaggerAttributes}${versionAttributes} xmlns="http://ws.apache.org/ns/synapse">
-        <resource methods="GET" uri-template="/resource">
-            <inSequence>
-            </inSequence>
-            <faultSequence>
-            </faultSequence>
-        </resource>
-    </api>`;
-
-            const filePath = path.join(directory, `${name}.xml`);
-            const sanitizedXmlData = xmlData.replace(/^\s*[\r\n]/gm, '');
+            const sanitizedXmlData = (xmlData || response.apiXml).replace(/^\s*[\r\n]/gm, '');
+            const filePath = path.join(artifactDir, 'apis', `${name}.xml`);
             fs.writeFileSync(filePath, sanitizedXmlData);
             await this.rangeFormat({
                 uri: filePath,
@@ -337,8 +356,59 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     end: { line: sanitizedXmlData.split('\n').length + 1, character: 0 }
                 }
             });
+
+            // If WSDL is used, create an Endpoint
+            if (response.endpointXml) {
+                const sanitizedEndpointXml = response.endpointXml.replace(/^\s*[\r\n]/gm, '');
+                const endpointFilePath = path.join(artifactDir, 'endpoints', `${name}_SOAP_ENDPOINT.xml`);
+                fs.writeFileSync(endpointFilePath, sanitizedEndpointXml);
+                await this.rangeFormat({
+                    uri: endpointFilePath,
+                    range: {
+                        start: { line: 0, character: 0 },
+                        end: { line: sanitizedEndpointXml.split('\n').length + 1, character: 0 }
+                    }
+                });
+            }
+            
+            // Save swagger file
+            if (saveSwaggerDef && swaggerDefPath) {
+                const workspacePath = workspace.workspaceFolders![0].uri.fsPath;
+                const ext = path.extname(swaggerDefPath);
+                const swaggerRegPath = path.join(
+                    workspacePath,
+                    'src',
+                    'main',
+                    'wso2mi',
+                    'resources',
+                    'registry',
+                    'gov',
+                    'swaggerFiles',
+                    getSwaggerName(swaggerDefPath)
+                );
+                if (!fs.existsSync(path.dirname(swaggerRegPath))) {
+                    fs.mkdirSync(path.dirname(swaggerRegPath), { recursive: true });
+                }
+                fs.copyFileSync(swaggerDefPath, swaggerRegPath);
+            }
+
             commands.executeCommand(COMMANDS.REFRESH_COMMAND);
             resolve({ path: filePath });
+        });
+    }
+
+    async editAPI(params: EditAPIRequest): Promise<EditAPIResponse> {
+        return new Promise(async (resolve) => {
+            const { documentUri, xmlData, handlersXmlData, apiRange, handlersRange } = params;
+
+            const sanitizedXmlData = xmlData.replace(/^\s*[\r\n]/gm, '');
+            const sanitizedHandlersXmlData = handlersXmlData.replace(/^\s*[\r\n]/gm, '');
+
+            await this.applyEdit({ text: sanitizedXmlData, documentUri, range: apiRange });
+            await this.applyEdit({ text: sanitizedHandlersXmlData, documentUri, range: handlersRange });
+
+            commands.executeCommand(COMMANDS.REFRESH_COMMAND);
+            resolve({ path: documentUri });
         });
     }
 
@@ -2936,7 +3006,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
     async getBackendRootUrl(): Promise<GetBackendRootUrlResponse> {
 
-        const config = vscode.workspace.getConfiguration('integrationStudio');
+        const config = vscode.workspace.getConfiguration('MI');
         const ROOT_URL = config.get('rootUrl') as string;
         return { url: ROOT_URL };
     }
@@ -2987,11 +3057,30 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
     async createDataSource(params: DataSourceTemplate): Promise<CreateDataSourceResponse> {
         return new Promise(async (resolve) => {
-            const xmlData = await getDataserviceXml(params);
-            const dsPath = path.join(params.projectDirectory, 'src', 'main', 'wso2mi', 'artifacts', 'Data-Sources', params.name + '.xml');
-            fs.writeFileSync(dsPath, xmlData);
+            const xmlData = await getDataSourceXml(params);
+            const sanitizedXmlData = xmlData.replace(/^\s*[\r\n]/gm, '');
+
+            let filePath: string;
+            if (params.projectDirectory.endsWith('.xml')) {
+                filePath = params.projectDirectory;
+            } else {
+                filePath = path.join(params.projectDirectory, params.name + '.xml');
+            }
+
+            if (filePath.includes('dataSources')) {
+                filePath = filePath.replace('dataSources', 'data-sources');
+            }
+
+            fs.writeFileSync(filePath, sanitizedXmlData);
+            await this.rangeFormat({
+                uri: filePath,
+                range: {
+                    start: { line: 0, character: 0 },
+                    end: { line: sanitizedXmlData.split('\n').length + 1, character: 0 }
+                }
+            });
             commands.executeCommand(COMMANDS.REFRESH_COMMAND);
-            resolve({ path: dsPath });
+            resolve({ path: filePath });
         });
     }
 
@@ -3008,7 +3097,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 const xmlData = fs.readFileSync(filePath, "utf8");
                 const jsonData = parser.parse(xmlData);
                 var response: DataSourceTemplate = {
-                    projectDirectory: '',
+                    projectDirectory: filePath,
                     type: jsonData.datasource.definition['@type'] === 'RDBMS' ? 'RDBMS' : 'Custom',
                     name: jsonData.datasource.name,
                     description: jsonData.datasource.description ?? '',
@@ -3040,9 +3129,11 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                             JNDIConfigName: jsonData.datasource.jndiConfig.name,
                             useDataSourceFactory: jsonData.datasource.jndiConfig['@useDataSourceFactory'],
                         };
-                        if (jsonData.datasource.jndiConfig.environment.property) {
+                        if (jsonData.datasource.jndiConfig.environment) {
                             const params: { [key: string]: string | number | boolean } = {};
-                            jsonData.datasource.jndiConfig.environment.property.forEach((item) => {
+                            const jndiPropertiesData = jsonData.datasource.jndiConfig.environment.property;
+                            const jndiProperties = Array.isArray(jndiPropertiesData) ? jndiPropertiesData : [jndiPropertiesData];
+                            jndiProperties.forEach((item) => {
                                 const key = item['@name'].toString();
                                 const val = item['#text'];
                                 params[key] = val;
@@ -3054,7 +3145,9 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                         response.externalDSClassName = jsonData.datasource.definition.configuration.dataSourceClassName;
                         if (jsonData.datasource.definition.configuration.dataSourceProps.property) {
                             const params: { [key: string]: string | number | boolean } = {};
-                            jsonData.datasource.definition.configuration.dataSourceProps.property.forEach((item) => {
+                            const dsPropertiesData = jsonData.datasource.definition.configuration.dataSourceProps.property;
+                            const dsProperties = Array.isArray(dsPropertiesData) ? dsPropertiesData : [dsPropertiesData];
+                            dsProperties.forEach((item) => {
                                 const key = item['@name'].toString();
                                 const val = item['#text'];
                                 params[key] = val;
@@ -3238,7 +3331,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             'Accept': 'application/json'
         };
         const refresh_token = await extension.context.secrets.get('MIAIRefreshToken');
-        const config = vscode.workspace.getConfiguration('integrationStudio');
+        const config = vscode.workspace.getConfiguration('MI');
         const AUTH_ORG = config.get('authOrg') as string;
         const AUTH_CLIENT_ID = config.get('authClientID') as string;
         if (!refresh_token) {

@@ -49,9 +49,6 @@
       },
       {
         "type": "mi-stop"
-      },
-      {
-        "type": "mi-copy"
       }
     ],
     "debuggers": [
@@ -77,27 +74,42 @@
     "configuration": [
       {
         "type": "object",
-        "title": "Integration Studio",
+        "title": "Micro Integrator",
         "properties": {
-          "integrationStudio.rootUrl": {
+          "MI.rootUrl": {
             "type": "string",
             "default": "https://e95488c8-8511-4882-967f-ec3ae2a0f86f-prod.e1-us-east-azure.choreoapis.dev/miaideployments/micopilot/mi-copilot-backend-be2/v1.0",
             "description": "Root URL for Backend Services\n Default: https://e95488c8-8511-4882-967f-ec3ae2a0f86f-prod.e1-us-east-azure.choreoapis.dev/miaideployments/micopilot/mi-copilot-backend-be2/v1.0"
           },
-          "integrationStudio.authOrg": {
+          "MI.authOrg": {
             "type": "string",
             "default": "wso2mi",
             "description": "Asgardeo Organization for Auth Services\nDefault: wso2mi"
           },
-          "integrationStudio.authClientID": {
+          "MI.authClientID": {
             "type": "string",
             "default": "rTEgoRFEQMc1baXcsO6_AU1ugjAa",
             "description": "Client ID of the Asgardeo Organization for Auth Services\n Default: rTEgoRFEQMc1baXcsO6_AU1ugjAa"
           },
-          "integrationStudio.authRedirectURL": {
+          "MI.authRedirectURL": {
             "type": "string",
             "default": "https://mi-copilot.wso2.com/vscode-auth",
             "description": "Redirect URL for Auth Service \n Default: https://mi-copilot.wso2.com/vscode-auth"
+          },
+          "MI.debugger.commandPort": {
+            "type": "number",
+            "default": 9005,
+            "description": "Command port for the debugger to communicate with the MI server"
+          },
+          "MI.debugger.eventPort": {
+            "type": "number",
+            "default": 9006,
+            "description": "Event port for the MI server to communicate with the debugger"
+          },
+          "MI.serverPort": {
+            "type": "number",
+            "default": 8290,
+            "description": "Port to check the readiness of the MI server"
           }
         }
       }
@@ -468,7 +480,7 @@
         "description": "design-view",
         "default": {
           "fontPath": "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
-          "fontCharacter": "\\f116"
+          "fontCharacter": "\\f127"
         }
       }
     }
@@ -546,6 +558,7 @@
     "xml2js": "0.6.2",
     "tmp": "~0.2.3",
     "fs-extra": "~11.2.0",
+    "toml": "^3.0.0",
     "@types/tmp": "~0.2.6",
     "@types/fs-extra": "~11.0.4",
     "json-schema-to-ts": "3.0.1",
