@@ -223,7 +223,7 @@ export class NodeInitVisitor implements Visitor {
             && views.length > 1;
         const isParentFocusedST = isFocusedSTWithinPropAssignment || isFocusedSTWithinReturnStmt;
         
-        if (!isParentFocusedST && isMapFn) {
+        if (!isParentFocusedST && isMapFn && this.isWithinVariableStmt === 0) {
             this.isWithinMapFn += 1;
             const arrayFnConnectorNode = new ArrayFnConnectorNode(this.context, node, parent);
             this.intermediateNodes.push(arrayFnConnectorNode);
