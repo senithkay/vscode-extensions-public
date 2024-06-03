@@ -48,8 +48,8 @@ const PropertyForm = (props: AddMediatorProps) => {
     useEffect(() => {
         reset({
             propertyName: sidePanelContext?.formValues?.propertyName || "",
-            propertyDataType: sidePanelContext?.formValues?.propertyDataType || "STRING",
             propertyAction: sidePanelContext?.formValues?.propertyAction || "set",
+            propertyDataType: sidePanelContext?.formValues?.propertyDataType || "STRING",
             value: sidePanelContext?.formValues?.value || {"isExpression":true,"value":""},
             OMValue: sidePanelContext?.formValues?.OMValue || "",
             propertyScope: sidePanelContext?.formValues?.propertyScope || "DEFAULT",
@@ -109,6 +109,19 @@ const PropertyForm = (props: AddMediatorProps) => {
                     {errors.propertyName && <Error>{errors.propertyName.message.toString()}</Error>}
                 </Field>
 
+                <Field>
+                    <Controller
+                        name="propertyAction"
+                        control={control}
+                        render={({ field }) => (
+                            <AutoComplete label="Property Action" name="propertyAction" items={["set", "remove"]} value={field.value} onValueChange={(e: any) => {
+                                field.onChange(e);
+                            }} />
+                        )}
+                    />
+                    {errors.propertyAction && <Error>{errors.propertyAction.message.toString()}</Error>}
+                </Field>
+
                 {!((watch("propertyAction") == "remove") ) &&
                 <Field>
                     <Controller
@@ -123,19 +136,6 @@ const PropertyForm = (props: AddMediatorProps) => {
                     {errors.propertyDataType && <Error>{errors.propertyDataType.message.toString()}</Error>}
                 </Field>
                 }
-
-                <Field>
-                    <Controller
-                        name="propertyAction"
-                        control={control}
-                        render={({ field }) => (
-                            <AutoComplete label="Property Action" name="propertyAction" items={["set", "remove"]} value={field.value} onValueChange={(e: any) => {
-                                field.onChange(e);
-                            }} />
-                        )}
-                    />
-                    {errors.propertyAction && <Error>{errors.propertyAction.message.toString()}</Error>}
-                </Field>
 
                 {!(((watch("propertyDataType") == "OM") ||(watch("propertyAction") == "remove") )) &&
                 <Field>
