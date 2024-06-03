@@ -56,8 +56,8 @@ const FaultForm = (props: AddMediatorProps) => {
             actor: sidePanelContext?.formValues?.actor || "",
             serializeResponse: sidePanelContext?.formValues?.serializeResponse || "",
             markAsResponse: sidePanelContext?.formValues?.markAsResponse || "",
-            detail: sidePanelContext?.formValues?.detail || {"isExpression":true,"value":""},
-            reason: sidePanelContext?.formValues?.reason || {"isExpression":true,"value":""},
+            detail: sidePanelContext?.formValues?.detail || {"isExpression":false,"value":""},
+            reason: sidePanelContext?.formValues?.reason || {"isExpression":false,"value":""},
             description: sidePanelContext?.formValues?.description || "",
         });
         setIsLoading(false);
