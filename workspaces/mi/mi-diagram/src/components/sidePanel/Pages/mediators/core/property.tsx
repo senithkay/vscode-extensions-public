@@ -50,7 +50,7 @@ const PropertyForm = (props: AddMediatorProps) => {
             propertyName: sidePanelContext?.formValues?.propertyName || "",
             propertyAction: sidePanelContext?.formValues?.propertyAction || "set",
             propertyDataType: sidePanelContext?.formValues?.propertyDataType || "STRING",
-            value: sidePanelContext?.formValues?.value || {"isExpression":true,"value":""},
+            value: sidePanelContext?.formValues?.value || {"isExpression":false,"value":""},
             OMValue: sidePanelContext?.formValues?.OMValue || "",
             propertyScope: sidePanelContext?.formValues?.propertyScope || "DEFAULT",
             valueStringPattern: sidePanelContext?.formValues?.valueStringPattern || "",
