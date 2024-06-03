@@ -242,10 +242,24 @@ export class NodeInitVisitor implements Visitor {
         if (isFocusedST) {
             const initializer = varDecl.getInitializer();
             if (initializer) {
+                const { mapFnIndex } = lastView.subMappingInfo;
                 if (Node.isCallExpression(initializer)) {
-                    const { mapFnIndex } = lastView.subMappingInfo;
                     const inputType = getDMType(sourceFieldFQN, this.context.inputTrees[0], mapFnIndex);
                     this.inputNode = new FocusedInputNode(this.context, initializer, inputType);
+                } else if (Node.isObjectLiteralExpression(initializer)) {
+                    const properties = initializer.getProperties();
+                    const focusedProperty = properties.find(property => {
+                        if (Node.isPropertyAssignment(property)) {
+                            return property.getName() === sourceFieldFQN;
+                        }
+                    }) as PropertyAssignment;
+                    if (focusedProperty) {
+                        const focusedInitializer = focusedProperty.getInitializer();
+                        if (Node.isCallExpression(focusedInitializer)) {
+                            const inputType = getDMType(sourceFieldFQN, this.context.inputTrees[0], mapFnIndex);
+                            this.inputNode = new FocusedInputNode(this.context, focusedInitializer, inputType);
+                        }
+                    }
                 } else if (!isObjectOrArrayLiteralExpression(initializer) && this.isWithinMapFn === 0) {
                     const inputAccessNodes = getInputAccessNodes(initializer);
                     if (canConnectWithLinkConnector(inputAccessNodes, initializer)) {

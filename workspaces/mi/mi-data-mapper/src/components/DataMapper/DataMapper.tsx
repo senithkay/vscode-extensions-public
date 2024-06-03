@@ -23,7 +23,7 @@ import { ImportDataForm } from "./SidePanel/ImportDataForm";
 import { DataMapperHeader } from "./Header/DataMapperHeader";
 import { useDMSearchStore } from "../../store/store";
 import { getFocusedSubMappingExpr, getTypeName } from "../Diagram/utils/common-utils";
-import { getSubMappingTypes, getTypeForVariable } from "../Diagram/utils/type-utils";
+import { getDMType, getSubMappingTypes, getTypeForVariable } from "../Diagram/utils/type-utils";
 import { getOutputNode } from "../Diagram/utils/node-utils";
 import { SubMappingConfigForm } from "./SidePanel/SubMappingConfigForm";
 import { isInputNode } from "../Diagram/Actions/utils";
@@ -118,12 +118,16 @@ export function MIDataMapper(props: MIDataMapperProps) {
             const nodeInitVisitor = new NodeInitVisitor(context);
 
             if (lastView.subMappingInfo !== undefined) {
-                const { index, mapFnIndex } = lastView.subMappingInfo;
+                const { subMappingInfo, targetFieldFQN } = lastView;
+                const { index, mapFnIndex, mappingName } = subMappingInfo;
                 let focusedST = getFocusedSubMapping(index, fnST);
                 context.focusedST = focusedST;
 
                 const varDecl = focusedST.getDeclarations()[0];
-                const subMappingType = getTypeForVariable(subMappingTypes, varDecl, mapFnIndex);
+                let subMappingType = getTypeForVariable(subMappingTypes, varDecl, mapFnIndex);
+                if (targetFieldFQN && targetFieldFQN !== mappingName) {
+                    subMappingType = getDMType(targetFieldFQN, subMappingType, mapFnIndex + 1);
+                }
 
                 if (subMappingType) {
                     traversNode(focusedST, nodeInitVisitor);

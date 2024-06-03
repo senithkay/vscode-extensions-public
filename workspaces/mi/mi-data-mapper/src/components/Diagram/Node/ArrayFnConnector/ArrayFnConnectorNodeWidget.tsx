@@ -53,7 +53,7 @@ export function ArrayFnConnectorNodeWidget(props: ArrayFnConnectorNodeWidgetWidg
                 // Navigating into map function within focused sub-mapping view
                 prevViewSubMappingInfo = prevView.subMappingInfo;
                 const { mappingName: prevViewMappingName, mapFnIndex: prevViewMapFnIndex } = prevViewSubMappingInfo;
-                targetFieldFQN = prevViewMappingName;
+                targetFieldFQN = targetFieldFQN ?? prevViewMappingName;
                 mapFnIndex = prevViewMapFnIndex ? prevViewMapFnIndex + 1 : 0;
             } else {
                 // Navigating into another map function within the current map function
