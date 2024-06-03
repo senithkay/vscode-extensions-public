@@ -9,13 +9,12 @@
 // tslint:disable: jsx-no-multiline-js
 import React from "react";
 
-import { Codicon } from "@wso2-enterprise/ui-toolkit";
-import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import styled from "@emotion/styled";
 
 import HeaderSearchBox from "./HeaderSearchBox";
 import HeaderBreadcrumb from "./HeaderBreadcrumb";
 import { View } from "../DataMapper";
+import ExpressionBar from "./ExpressionBar";
 
 export interface DataMapperHeaderProps {
     views: View[];
@@ -29,34 +28,50 @@ export function DataMapperHeader(props: DataMapperHeaderProps) {
 
     return (
         <HeaderContainer>
-            <BreadCrumb>
-                <Title> DATA MAPPER </Title>
-                {!hasEditDisabled && (
-                    <HeaderBreadcrumb
-                        views={views}
-                        switchView={switchView}
-                    />
+            <HeaderContent>
+                <BreadCrumb>
+                    <Title> DATA MAPPER </Title>
+                    {!hasEditDisabled && (
+                        <HeaderBreadcrumb
+                            views={views}
+                            switchView={switchView}
+                        />
+                    )}
+                </BreadCrumb>
+                {!hasEditDisabled && !onClose && (
+                    <>
+                        <FilterBar>
+                            <HeaderSearchBox />
+                        </FilterBar>
+                    </>
                 )}
-            </BreadCrumb>
-            {!hasEditDisabled && !onClose && (
-                <>
-                    <FilterBar>
-                        <HeaderSearchBox />
-                    </FilterBar>
-                </>
-            )}
+            </HeaderContent>
+            <ExpressionContainer>
+                <ExpressionBar />
+            </ExpressionContainer>
         </HeaderContainer>
     );
 }
 
 const HeaderContainer = styled.div`
-    height: 50px;
+    height: 74px;
+    width: 100%;
     display: flex;
-    padding: 15px;
+    flex-direction: column;
     background-color: var(--vscode-editorWidget-background);
+`;
+
+const HeaderContent = styled.div`
+    display: flex;
     justify-content: space-between;
     align-items: center;
-    border-bottom: 1px solid rgba(102,103,133,0.15);
+    padding: 5px 15px;
+`;
+
+const ExpressionContainer = styled.div`
+    width: 100%;
+    display: flex;
+    border-bottom: 1px solid var(--vscode-menu-separatorBackground);
 `;
 
 const Title = styled.h3`
