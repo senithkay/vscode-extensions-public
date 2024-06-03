@@ -43,6 +43,12 @@ import {
     CreateProxyServiceResponse,
     CreateRegistryResourceRequest,
     CreateRegistryResourceResponse,
+    UpdateRegistryMetadataRequest,
+    UpdateRegistryMetadataResponse,
+    updateRegistryMetadata,
+    GetRegistryMetadataRequest,
+    GetRegistryMetadataResponse,
+    getMetadataOfRegistryResource,
     CreateSequenceRequest,
     CreateSequenceResponse,
     CreateTaskRequest,
@@ -558,6 +564,14 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     getAvailableRegistryResources(params: ListRegistryArtifactsRequest): Promise<RegistryArtifactNamesResponse> {
         return this._messenger.sendRequest(getAvailableRegistryResources, HOST_EXTENSION, params);
+    }
+
+    updateRegistryMetadata(params: UpdateRegistryMetadataRequest): Promise<UpdateRegistryMetadataResponse> {
+        return this._messenger.sendRequest(updateRegistryMetadata, HOST_EXTENSION, params);
+    }
+
+    getMetadataOfRegistryResource(params: GetRegistryMetadataRequest): Promise<GetRegistryMetadataResponse> {
+        return this._messenger.sendRequest(getMetadataOfRegistryResource, HOST_EXTENSION, params);
     }
 
     rangeFormat(params: RangeFormatRequest): Promise<ApplyEditResponse> {

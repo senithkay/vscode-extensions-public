@@ -9,12 +9,13 @@
 
 import * as vscode from 'vscode';
 import { MILanguageClient } from '../lang-client/activator';
-import { ProjectStructureResponse, ProjectStructureEntry, RegistryResourcesFolder } from '@wso2-enterprise/mi-core';
+import { ProjectStructureResponse, ProjectStructureEntry, RegistryResourcesFolder, RegistryArtifact, ListRegistryArtifactsResponse } from '@wso2-enterprise/mi-core';
 import { COMMANDS } from '../constants';
 import { window } from 'vscode';
 import path = require('path');
-import { findJavaFiles } from '../util/fileOperations';
+import { findJavaFiles, getAvailableRegistryResources } from '../util/fileOperations';
 
+let registryDetails: ListRegistryArtifactsResponse;
 export class ProjectExplorerEntry extends vscode.TreeItem {
 	children: ProjectExplorerEntry[] | undefined;
 	info: ProjectStructureEntry | undefined;
@@ -112,6 +113,7 @@ async function getProjectStructureData(context: vscode.ExtensionContext): Promis
 				const rootPath = workspace.uri.fsPath;
 
 				const resp = await langClient.getProjectStructure(rootPath);
+				registryDetails = getAvailableRegistryResources(rootPath);
 				const projectTree = generateTreeData(workspace, resp);
 				if (projectTree) {
 					data.push(projectTree);
@@ -567,8 +569,25 @@ function generateConnectionEntry(connectionsData: any): ProjectExplorerEntry {
 	return connectionsEntry;
 }
 
+function checkExistanceOfRegistryResource(registryPath: string): boolean {
+	if (registryDetails.artifacts) {
+		for (const artifact of registryDetails.artifacts) {
+			let transformedPath = artifact.path.replace("/_system/governance", '/gov').replace("/_system/config", '/conf');
+			if (!artifact.isCollection) {
+				transformedPath = transformedPath.endsWith('/') ? transformedPath + artifact.file : transformedPath + "/" + artifact.file;
+			}
+			if (transformedPath === registryPath) {
+				return true;
+			}
+		}
+		return false;
+	}
+	return false;
+}
+
 function genRegistryProjectStructureEntry(data: RegistryResourcesFolder): ProjectExplorerEntry[] {
 	const result: ProjectExplorerEntry[] = [];
+	const regPathPrefix = path.join("wso2mi", "resources", "registry");
 	if (data) {
 		if (data.files) {
 			for (const entry of data.files) {
@@ -577,7 +596,6 @@ function genRegistryProjectStructureEntry(data: RegistryResourcesFolder): Projec
 					type: 'resource',
 					path: `${entry.path}`
 				}, 'code');
-				explorerEntry.contextValue = "registry-file";
 				explorerEntry.id = entry.path;
 				explorerEntry.command = {
 					"title": "Edit Registry Resource",
@@ -585,6 +603,11 @@ function genRegistryProjectStructureEntry(data: RegistryResourcesFolder): Projec
 					"arguments": [vscode.Uri.file(entry.path)]
 				};
 				result.push(explorerEntry);
+				const lastIndex = entry.path.indexOf(regPathPrefix) !== -1 ? entry.path.indexOf(regPathPrefix) + regPathPrefix.length : 0;
+				const registryPath = entry.path.substring(lastIndex);
+				if (checkExistanceOfRegistryResource(registryPath)) {
+					explorerEntry.contextValue = "registry-with-metadata";
+				}
 			}
 		}
 		if (data.folders) {
@@ -598,8 +621,12 @@ function genRegistryProjectStructureEntry(data: RegistryResourcesFolder): Projec
 							path: `${entry.path}`
 						}, 'folder');
 					explorerEntry.children = genRegistryProjectStructureEntry(entry);
-					explorerEntry.contextValue = "registry-folder";
 					result.push(explorerEntry);
+					const lastIndex = entry.path.indexOf(regPathPrefix) !== -1 ? entry.path.indexOf(regPathPrefix) + regPathPrefix.length : 0;
+					const registryPath = entry.path.substring(lastIndex);
+					if (checkExistanceOfRegistryResource(registryPath)) {
+						explorerEntry.contextValue = "registry-with-metadata";
+					}
 				}
 			}
 		}
