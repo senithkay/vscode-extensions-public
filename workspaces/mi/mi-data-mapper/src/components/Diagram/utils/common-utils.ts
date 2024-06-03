@@ -596,7 +596,7 @@ export function getMapFnIndex(views: View[], prevFieldFQN: string): number {
         return views.length - mapFnWithFieldIndex;
     }
 
-    // The root of the map function is the transform functino return statement
+    // The root of the map function is the transform function return statement
     return views.length - 1;
 }
 
@@ -628,6 +628,21 @@ export function isMapFnAtPropAssignment(focusedST: Node) {
     return  Node.isPropertyAssignment(focusedST)
         && Node.isCallExpression(focusedST.getInitializer())
         && isMapFunction(focusedST.getInitializer() as CallExpression);
+}
+
+export function getFocusedSubMappingExpr(initializer: Expression, mapFnIndex?: number) {
+    if (mapFnIndex === undefined) return initializer;
+
+    // Constraint: In focused views, return statements are only allowed at map functions
+    const returnStmts = initializer.getDescendantsOfKind(ts.SyntaxKind.ReturnStatement);
+
+    if (returnStmts.length >= mapFnIndex) {
+        const returnStmt = returnStmts[mapFnIndex];
+        if (returnStmt) {
+            return returnStmt.getExpression();
+        }
+    }
+    return initializer;
 }
 
 export function isMapFnAtRootReturn(functionST: FunctionDeclaration, focusedST: Node ) {

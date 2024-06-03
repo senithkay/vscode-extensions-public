@@ -19,6 +19,7 @@ import { DataMapperPortWidget } from '../../Port';
 import { getMapFnIndex, getViewLabel } from '../../utils/common-utils';
 import { SUB_MAPPING_INPUT_SOURCE_PORT_PREFIX } from '../../utils/constants';
 import { getSourceNodeType } from '../../utils/node-utils';
+import { SubMappingInfo, View } from '../../../../components/DataMapper/Views/DataMapperView';
 
 export interface ArrayFnConnectorNodeWidgetWidgetProps {
     node: ArrayFnConnectorNode;
@@ -43,28 +44,37 @@ export function ArrayFnConnectorNodeWidget(props: ArrayFnConnectorNodeWidgetWidg
             ? sourcePort.fieldFQN
             : sourcePort.fieldFQN.split('.').slice(1).join('.');
         let mapFnIndex: number | undefined = undefined;
+        let prevViewSubMappingInfo: SubMappingInfo = undefined;
 
         if (views.length > 1) {
-            // Navigating into another map function within the current map function
             const prevView = views[views.length - 1];
 
-            if (!prevView.targetFieldFQN) {
-                if (!targetFieldFQN && targetPort.field.kind === TypeKind.Array) {
-                    // The visiting map function is declaired at the return statement of the current map function
-                    // The root of the current map function is the return statement of the transformation function
-                    mapFnIndex = getMapFnIndex(views, prevView.targetFieldFQN);
-                }
+            if (prevView.subMappingInfo) {
+                // Navigating into map function within focused sub-mapping view
+                prevViewSubMappingInfo = prevView.subMappingInfo;
+                const { mappingName: prevViewMappingName, mapFnIndex: prevViewMapFnIndex } = prevViewSubMappingInfo;
+                targetFieldFQN = prevViewMappingName;
+                mapFnIndex = prevViewMapFnIndex ? prevViewMapFnIndex + 1 : 0;
             } else {
-                if (!targetFieldFQN && targetPort.field.kind === TypeKind.Array) {
-                    // The visiting map function is declaired at the return statement of the current map function
-                    targetFieldFQN = prevView.targetFieldFQN;
-                    mapFnIndex = getMapFnIndex(views, prevView.targetFieldFQN);
+                // Navigating into another map function within the current map function
+                if (!prevView.targetFieldFQN) {
+                    if (!targetFieldFQN && targetPort.field.kind === TypeKind.Array) {
+                        // The visiting map function is declaired at the return statement of the current map function
+                        // The root of the current map function is the return statement of the transformation function
+                        mapFnIndex = getMapFnIndex(views, prevView.targetFieldFQN);
+                    }
                 } else {
-                    targetFieldFQN = `${prevView.targetFieldFQN}.${targetFieldFQN}`;
+                    if (!targetFieldFQN && targetPort.field.kind === TypeKind.Array) {
+                        // The visiting map function is declaired at the return statement of the current map function
+                        targetFieldFQN = prevView.targetFieldFQN;
+                        mapFnIndex = getMapFnIndex(views, prevView.targetFieldFQN);
+                    } else {
+                        targetFieldFQN = `${prevView.targetFieldFQN}.${targetFieldFQN}`;
+                    }
                 }
-            }
-            if (!!prevView.sourceFieldFQN) {
-                sourceFieldFQN = `${prevView.sourceFieldFQN}${sourceFieldFQN ? `.${sourceFieldFQN}` : ''}`;
+                if (!!prevView.sourceFieldFQN) {
+                    sourceFieldFQN = `${prevView.sourceFieldFQN}${sourceFieldFQN ? `.${sourceFieldFQN}` : ''}`;
+                }
             }
         } else {
             // Navigating into the root map function
@@ -74,7 +84,17 @@ export function ArrayFnConnectorNodeWidget(props: ArrayFnConnectorNodeWidgetWidg
             }
         }
 
-        addView({ targetFieldFQN, sourceFieldFQN, sourceNodeType, label, mapFnIndex });
+        const newView: View = { targetFieldFQN, sourceFieldFQN, sourceNodeType, label, mapFnIndex };
+
+        if (prevViewSubMappingInfo) {
+            const newViewSubMappingInfo = {
+                ...prevViewSubMappingInfo,
+                mapFnIndex: prevViewSubMappingInfo.mapFnIndex ? prevViewSubMappingInfo.mapFnIndex + 1 : 0
+            };
+            newView.subMappingInfo = newViewSubMappingInfo;
+        }
+
+        addView(newView);
     }
 
     const deleteLink = async () => {

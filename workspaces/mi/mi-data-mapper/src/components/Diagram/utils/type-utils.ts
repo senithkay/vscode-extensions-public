@@ -100,9 +100,20 @@ export function getDMTypeOfSubMappingItem(
     return getTypeForVariable(subMappingTypes, varDecl);
 }
 
-export function getTypeForVariable(varTypes: Record<string, DMType | undefined>, varDecl: VariableDeclaration): DMType {
+export function getTypeForVariable(
+    varTypes: Record<string, DMType | undefined>,
+    varDecl: VariableDeclaration,
+    subMappingMapFnIndex?: number
+): DMType {
     const key = varDecl.getStart().toString() + varDecl.getEnd().toString();
-    return varTypes[key];
+    let varType = varTypes[key];
+
+    if (subMappingMapFnIndex !== undefined && varType.kind === TypeKind.Array) {
+        for (let i = 0; i < subMappingMapFnIndex + 1; i++) {
+            varType = varType.memberType;
+        }
+    }
+    return varType;
 }
 
 export function getEnrichedDMType(

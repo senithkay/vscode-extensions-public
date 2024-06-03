@@ -232,7 +232,8 @@ export class NodeInitVisitor implements Visitor {
 
     beginVisitVariableStatement(node: VariableStatement, parent: Node): void {
         const { focusedST, views } = this.context;
-        const { label } = views[views.length - 1];
+        const lastView = views[views.length - 1];
+        const { label, sourceFieldFQN } = lastView;
         // Constraint: Only one variable declaration is allowed in a local variable statement. 
         const varDecl = node.getDeclarations()[0];
     
@@ -240,13 +241,19 @@ export class NodeInitVisitor implements Visitor {
         
         if (isFocusedST) {
             const initializer = varDecl.getInitializer();
-            if (initializer && !isObjectOrArrayLiteralExpression(initializer) && this.isWithinMapFn === 0) {
-                const inputAccessNodes = getInputAccessNodes(initializer);
-                if (canConnectWithLinkConnector(inputAccessNodes, initializer)) {
-                    const linkConnectorNode = createLinkConnectorNode(
-                        node, label, parent, inputAccessNodes, this.mapIdentifiers.slice(0), this.context
-                    );
-                    this.intermediateNodes.push(linkConnectorNode);
+            if (initializer) {
+                if (Node.isCallExpression(initializer)) {
+                    const { mapFnIndex } = lastView.subMappingInfo;
+                    const inputType = getDMType(sourceFieldFQN, this.context.inputTrees[0], mapFnIndex);
+                    this.inputNode = new FocusedInputNode(this.context, initializer, inputType);
+                } else if (!isObjectOrArrayLiteralExpression(initializer) && this.isWithinMapFn === 0) {
+                    const inputAccessNodes = getInputAccessNodes(initializer);
+                    if (canConnectWithLinkConnector(inputAccessNodes, initializer)) {
+                        const linkConnectorNode = createLinkConnectorNode(
+                            node, label, parent, inputAccessNodes, this.mapIdentifiers.slice(0), this.context
+                        );
+                        this.intermediateNodes.push(linkConnectorNode);
+                    }
                 }
             }
         } else {
@@ -303,8 +310,12 @@ export class NodeInitVisitor implements Visitor {
         return nodes;
     }
 
-    getInputNode() {
+    getRootInputNode() {
         return createInputNodeForDmFunction(this.context.functionST, this.context);
+    }
+
+    getInputNode() {
+        return this.inputNode;
     }
 
     getIntermediateNodes() {

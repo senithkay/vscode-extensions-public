@@ -22,8 +22,9 @@ export interface View {
     subMappingInfo?: SubMappingInfo;
 }
 
-interface SubMappingInfo {
+export interface SubMappingInfo {
     index: number;
     mappingName: string;
     mappingType: string;
+    mapFnIndex?: number;
 }

@@ -22,7 +22,7 @@ import { getFocusedST, getFocusedSubMapping, traversNode } from "../Diagram/util
 import { ImportDataForm } from "./SidePanel/ImportDataForm";
 import { DataMapperHeader } from "./Header/DataMapperHeader";
 import { useDMSearchStore } from "../../store/store";
-import { getTypeName } from "../Diagram/utils/common-utils";
+import { getFocusedSubMappingExpr, getTypeName } from "../Diagram/utils/common-utils";
 import { getSubMappingTypes, getTypeForVariable } from "../Diagram/utils/type-utils";
 import { getOutputNode } from "../Diagram/utils/node-utils";
 import { SubMappingConfigForm } from "./SidePanel/SubMappingConfigForm";
@@ -118,18 +118,22 @@ export function MIDataMapper(props: MIDataMapperProps) {
             const nodeInitVisitor = new NodeInitVisitor(context);
 
             if (lastView.subMappingInfo !== undefined) {
-                let focusedST = getFocusedSubMapping(lastView.subMappingInfo.index, fnST);
+                const { index, mapFnIndex } = lastView.subMappingInfo;
+                let focusedST = getFocusedSubMapping(index, fnST);
                 context.focusedST = focusedST;
 
                 const varDecl = focusedST.getDeclarations()[0];
-                const subMappingType = getTypeForVariable(subMappingTypes, varDecl);
+                const subMappingType = getTypeForVariable(subMappingTypes, varDecl, mapFnIndex);
 
                 if (subMappingType) {
                     traversNode(focusedST, nodeInitVisitor);
 
-                    const inputNode = nodeInitVisitor.getInputNode();
+                    const inputNode = mapFnIndex === undefined
+                        ? nodeInitVisitor.getRootInputNode()
+                        : nodeInitVisitor.getInputNode();
                     const intermediateNodes = nodeInitVisitor.getIntermediateNodes();
-                    const outputNode = getOutputNode(context, varDecl.getInitializer(), subMappingType, true);
+                    const subMappingExpr = getFocusedSubMappingExpr(varDecl.getInitializer(), mapFnIndex);
+                    const outputNode = getOutputNode(context, subMappingExpr, subMappingType, true);
     
                     setNodes([inputNode, outputNode, ...intermediateNodes]);
                 }
