@@ -860,14 +860,13 @@ export function AIProjectGenerationChat() {
                     </FlexRow>
                 )}
                 <FlexRow>
-                    <VSCodeButton
+                    <Button
                         appearance="secondary"
                         onClick={() => document.getElementById('fileInput').click()}
-                        style={{ width: "35px" }}
-                        title="Upload File"
+                        tooltip="Upload File"
                     >
                         <span className="codicon codicon-new-file"></span>
-                    </VSCodeButton>
+                    </Button>
                     <input
                         id="fileInput"
                         type="file"
