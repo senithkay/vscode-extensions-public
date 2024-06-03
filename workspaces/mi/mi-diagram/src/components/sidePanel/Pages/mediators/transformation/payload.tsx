@@ -20,6 +20,7 @@ import { Controller, useForm } from 'react-hook-form';
 import { ExpressionFieldValue } from '../../../../Form/ExpressionField/ExpressionInput';
 import { ParamManager, ParamValue } from '../../../../Form/ParamManager/ParamManager';
 import { handleOpenExprEditor, sidepanelGoBack } from '../../..';
+import { CodeTextArea } from '../../../../Form/CodeTextArea';
 
 const cardStyle = { 
     display: "block",
@@ -189,7 +190,7 @@ const PayloadForm = (props: AddMediatorProps) => {
                             name="payload"
                             control={control}
                             render={({ field }) => (
-                                <TextArea {...field} label="Payload" placeholder="" />
+                                <CodeTextArea {...field} label="Payload" placeholder="" resize="vertical" growRange={{ start: 5, offset: 10 }} />
                             )}
                         />
                         {errors.payload && <Error>{errors.payload.message.toString()}</Error>}
