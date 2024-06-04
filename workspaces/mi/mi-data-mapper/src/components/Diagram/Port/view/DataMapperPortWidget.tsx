@@ -36,8 +36,9 @@ export const DataMapperPortWidget: React.FC<DataMapperPortWidgetProps> = (props:
 	const [ portState, setPortState ] = useState<PortState>(PortState.Unselected);
 	const [ disableNewLinking, setDisableNewLinking] = useState<boolean>(false);
 
-	const { setExprBarFocusedPort, resetExprBarFocusedPort } = useDMExpressionBarStore(state => ({
+	const { setExprBarFocusedPort, setExprBarInputPort, resetExprBarFocusedPort } = useDMExpressionBarStore(state => ({
 		setExprBarFocusedPort: state.setFocusedPort,
+		setExprBarInputPort: state.setInputPort,
 		resetExprBarFocusedPort: state.resetFocusedPort
 	}));
 
@@ -50,9 +51,15 @@ export const DataMapperPortWidget: React.FC<DataMapperPortWidgetProps> = (props:
 		return false;
 	});
 
-	const handleExprBarFocusedPort = () => {
-		if (port instanceof InputOutputPortModel) {
+	const addExprBarFocusedPort = () => {
+		if (port instanceof InputOutputPortModel && port.portType === "IN") {
 			setExprBarFocusedPort(port);
+		}
+	};
+
+	const addToExpressionBar = () => {
+		if (port instanceof InputOutputPortModel && port.portType === "OUT") {
+			setExprBarInputPort(port);
 		}
 	};
 
@@ -79,7 +86,9 @@ export const DataMapperPortWidget: React.FC<DataMapperPortWidgetProps> = (props:
 						}
 						resetExprBarFocusedPort();
 					} else if (event.function === "expressionBarFocused") {
-						handleExprBarFocusedPort();
+						addExprBarFocusedPort();
+					} else if (event.function === "addToExpression") {
+						addToExpressionBar();
 					}
 				},
 			})

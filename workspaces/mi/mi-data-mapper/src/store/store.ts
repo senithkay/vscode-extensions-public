@@ -33,8 +33,11 @@ export interface DataMapperSidePanelState {
 
 export interface DataMapperExpressionBarState {
     focusedPort: InputOutputPortModel;
+    inputPort: InputOutputPortModel;
     setFocusedPort: (port: InputOutputPortModel) => void;
+    setInputPort: (port: InputOutputPortModel) => void;
     resetFocusedPort: () => void;
+    resetInputPort: () => void;
 }
 
 export const useDMSearchStore = create<DataMapperSearchState>((set) => ({
@@ -62,5 +65,8 @@ export const useDMSidePanelStore = create<DataMapperSidePanelState>((set) => ({
 export const useDMExpressionBarStore = create<DataMapperExpressionBarState>((set) => ({
     focusedPort: undefined,
     setFocusedPort: (focusedPort: InputOutputPortModel) => set({ focusedPort }),
-    resetFocusedPort: () => set({ focusedPort: undefined })
+    inputPort: undefined,
+    setInputPort: (inputPort: InputOutputPortModel) => set({ inputPort }),
+    resetFocusedPort: () => set({ focusedPort: undefined }),
+    resetInputPort: () => set({ inputPort: undefined })
 }));
