@@ -22,7 +22,7 @@ import { OutputSearchHighlight } from "../commons/Search";
 import { ValueConfigMenu, ValueConfigOption } from "../commons/ValueConfigButton";
 import { ValueConfigMenuItem } from "../commons/ValueConfigButton/ValueConfigMenuItem";
 import { useIONodesStyles } from "../../../styles";
-import { useDMCollapsedFieldsStore } from '../../../../store/store';
+import { useDMCollapsedFieldsStore, useDMExpressionBarStore } from '../../../../store/store';
 import { getDefaultValue, getEditorLineAndColumn, getTypeName, isConnectedViaLink } from "../../utils/common-utils";
 import { createSourceForUserInput } from "../../utils/modification-utils";
 import { ArrayOutputFieldWidget } from "../ArrayOutput/ArrayOuptutFieldWidget";
@@ -59,6 +59,7 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
     const [isHovered, setIsHovered] = useState(false);
     const [portState, setPortState] = useState<PortState>(PortState.Unselected);
     const collapsedFieldsStore = useDMCollapsedFieldsStore();
+    const exprBarFocusedPort = useDMExpressionBarStore(state => state.focusedPort);
 
     let fieldName = field.type.fieldName || '';
     let indentation = treeDepth * 16;
@@ -73,6 +74,7 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
         ? `${parentId}.${fieldIndex}${fieldName && `.${fieldName}`}`
         : `${parentId}${fieldName && `.${fieldName}`}`;
     const portIn = getPort(fieldId + ".IN");
+    const isExprBarFocused = exprBarFocusedPort === portIn;
 
     const propertyAssignment = field.hasValue()
         && !field.value.wasForgotten()
@@ -229,7 +231,8 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
                         isDisabled && !hasHoveredParent && !isHovered ? classes.treeLabelDisabled : "",
                         isDisabled && isHovered ? classes.treeLabelDisableHover : "",
                         portState !== PortState.Unselected ? classes.treeLabelPortSelected : "",
-                        hasHoveredParent ? classes.treeLabelParentHovered : ""
+                        hasHoveredParent ? classes.treeLabelParentHovered : "",
+                        isExprBarFocused ? classes.treeLabelPortExprFocused : ""
                     )}
                     onMouseEnter={onMouseEnter}
                     onMouseLeave={onMouseLeave}

@@ -55,7 +55,6 @@ export class InputOutputPortModel extends PortModel<PortModelGenerics & InputOut
 		this.linkedPorts = [];
 	}
 
-
 	createLinkModel(): LinkModel {
 		const lm = new DataMapperLinkModel();
 		lm.registerListener({

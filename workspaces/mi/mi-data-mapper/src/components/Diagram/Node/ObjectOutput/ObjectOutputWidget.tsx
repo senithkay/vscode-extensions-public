@@ -20,7 +20,7 @@ import { DataMapperPortWidget, PortState, InputOutputPortModel } from '../../Por
 import { TreeBody, TreeContainer, TreeHeader } from '../commons/Tree/Tree';
 import { ObjectOutputFieldWidget } from "./ObjectOutputFieldWidget";
 import { useIONodesStyles } from '../../../styles';
-import { useDMCollapsedFieldsStore, useDMSidePanelStore } from '../../../../store/store';
+import { useDMCollapsedFieldsStore, useDMExpressionBarStore, useDMSidePanelStore } from '../../../../store/store';
 import { getPosition } from '../../utils/st-utils';
 import { isEmptyValue } from '../../utils/common-utils';
 import { getDiagnostics } from '../../utils/diagnostics-utils';
@@ -58,6 +58,7 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 	const setSidePanelOpen = useDMSidePanelStore(state => state.setSidePanelOpen);
     const setSidePanelIOType = useDMSidePanelStore(state => state.setSidePanelIOType);
 	const setIsSchemaOverridden = useDMSidePanelStore(state => state.setIsSchemaOverridden);
+	const exprBarFocusedPort = useDMExpressionBarStore(state => state.focusedPort);
 
 	const { childrenTypes, value: objVal } = dmTypeWithValue;
 	const fields = childrenTypes || [];
@@ -73,6 +74,7 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 	}));
 
 	const portIn = getPort(`${id}.IN`);
+	const isExprBarFocused = exprBarFocusedPort === portIn;
 
 	let expanded = true;
 	if ((portIn && portIn.collapsed)) {
@@ -125,14 +127,19 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 					id={"recordfield-" + id}
 					onMouseEnter={onMouseEnter}
 					onMouseLeave={onMouseLeave}
+					className={isExprBarFocused ? classes.treeLabelPortExprFocused : ""}
 				>
 					<span className={classes.inPort}>
-						{portIn && (isBodyObjectLiteralExpr || !hasDiagnostics) && (!hasValue
-								|| !expanded
-								|| !isBodyObjectLiteralExpr
-								|| hasEmptyFields
-							) &&
-							<DataMapperPortWidget engine={engine} port={portIn} handlePortState={handlePortState} />
+						{portIn && (
+							<DataMapperPortWidget
+								engine={engine}
+								port={portIn}
+								handlePortState={handlePortState}
+								disable={
+									!((isBodyObjectLiteralExpr || !hasDiagnostics)
+									&& (!hasValue || !expanded || !isBodyObjectLiteralExpr || hasEmptyFields))
+								}
+							/>)
 						}
 					</span>
 					<span className={classes.label}>

@@ -25,6 +25,7 @@ import { LinkOverayContainerID } from '../OverriddenLinkLayer/LinkOverlayPortal'
 import { CreateLinkState } from './CreateLinkState';
 import { FocusedInputNode } from '../Node/FocusedInput';
 import { PrimitiveOutputNode } from '../Node/PrimitiveOutput';
+import { useDMExpressionBarStore } from '../../../store/store';
 
 export class DefaultState extends State<DiagramEngine> {
 	dragCanvas: DragCanvasState;
@@ -107,6 +108,8 @@ export class DefaultState extends State<DiagramEngine> {
 					if ((actionEvent.event as any).keyCode === 27) {
 						this.engine.getModel().getLinks().forEach((link) => {
 							link.setSelected(false);
+							link.getSourcePort()?.fireEvent({}, "link-unselected");
+							link.getTargetPort()?.fireEvent({}, "link-unselected");
 						});
 					}
 				}

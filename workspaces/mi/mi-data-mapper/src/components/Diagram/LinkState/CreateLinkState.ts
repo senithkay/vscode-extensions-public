@@ -73,8 +73,7 @@ export class CreateLinkState extends State<DiagramEngine> {
 								this.link = link;
 
 							} else {
-								// TODO: show a message: select input port first
-								element.fireEvent({}, "mappingStartedTo");
+								element.fireEvent({}, "expressionBarFocused");
 								this.clearState();
 								this.eject();
 							}
@@ -135,6 +134,8 @@ export class CreateLinkState extends State<DiagramEngine> {
 						this.link?.remove();
 						this.clearState();
 						this.eject();
+					} else {
+						console.log("Invalid element selected");
 					}
 
 					this.engine.repaintCanvas();

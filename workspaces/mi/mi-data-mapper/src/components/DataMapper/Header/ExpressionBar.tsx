@@ -6,14 +6,37 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import React from 'react';
+import React, { useMemo } from 'react';
 
 import { Icon, TextField } from '@wso2-enterprise/ui-toolkit';
+import { Node } from 'ts-morph';
+
+import { useDMExpressionBarStore } from '../../../store/store';
 
 export interface ExpressionBarProps {
 }
 
 export default function ExpressionBar() {
+    const focusedPort = useDMExpressionBarStore(state => state.focusedPort);
+
+    const { value, disabled } = useMemo(() => {
+        let value = "";
+        let disabled = false;
+    
+        if (focusedPort) {
+            const focusedNode = focusedPort.typeWithValue.value;
+    
+            if (Node.isPropertyAssignment(focusedNode)) {
+                value = focusedNode.getInitializer()?.getText();
+            } else {
+                value = focusedNode ? focusedNode.getText() : "";
+            }
+    
+            disabled = focusedPort.isDisabled();
+        }
+    
+        return { value, disabled };
+    }, [focusedPort]);
 
     const onChange = () => {
         // TODO
@@ -22,7 +45,7 @@ export default function ExpressionBar() {
     return (
         <TextField
             sx={{ width: '100%' }}
-            disabled={false}
+            disabled={disabled}
             icon={{
                 iconComponent: (
                     <Icon
@@ -32,7 +55,7 @@ export default function ExpressionBar() {
                 ),
                 position: "start"
             }}
-            value={""}
+            value={value}
             onTextChange={onChange}
         />
     );
