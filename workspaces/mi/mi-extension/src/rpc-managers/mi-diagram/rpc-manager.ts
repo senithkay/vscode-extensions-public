@@ -378,16 +378,14 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             // Save swagger file
             if (saveSwaggerDef && swaggerDefPath) {
                 const workspacePath = workspace.workspaceFolders![0].uri.fsPath;
-                const ext = path.extname(swaggerDefPath);
                 const swaggerRegPath = path.join(
                     workspacePath,
                     'src',
                     'main',
                     'wso2mi',
-                    'resources',
-                    'registry',
-                    'gov',
-                    'swaggerFiles',
+                    'artifacts',
+                    'apis',
+                    'api-definitions',
                     getSwaggerName(swaggerDefPath)
                 );
                 if (!fs.existsSync(path.dirname(swaggerRegPath))) {
