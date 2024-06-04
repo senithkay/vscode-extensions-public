@@ -74,7 +74,7 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
         ? `${parentId}.${fieldIndex}${fieldName && `.${fieldName}`}`
         : `${parentId}${fieldName && `.${fieldName}`}`;
     const portIn = getPort(fieldId + ".IN");
-    const isExprBarFocused = exprBarFocusedPort === portIn;
+    const isExprBarFocused = exprBarFocusedPort?.getName() === portIn?.getName();
 
     const propertyAssignment = field.hasValue()
         && !field.value.wasForgotten()

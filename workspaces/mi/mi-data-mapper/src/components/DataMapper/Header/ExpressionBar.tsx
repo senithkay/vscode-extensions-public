@@ -14,9 +14,11 @@ import { Node } from 'ts-morph';
 import { useDMExpressionBarStore } from '../../../store/store';
 
 export interface ExpressionBarProps {
+    applyModifications: () => void
 }
 
-export default function ExpressionBar() {
+export default function ExpressionBar(props: ExpressionBarProps) {
+    const { applyModifications } = props;
     const focusedPort = useDMExpressionBarStore(state => state.focusedPort);
 
     const { value, disabled } = useMemo(() => {
@@ -38,8 +40,22 @@ export default function ExpressionBar() {
         return { value, disabled };
     }, [focusedPort]);
 
-    const onChange = () => {
-        // TODO
+    const onKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+        const text = event.currentTarget.value;
+
+        if (event.key === 'Enter') {
+            event.preventDefault(); // Prevents the default behavior of the Enter key
+
+            const focusedNode = focusedPort?.typeWithValue.value;
+            let targetExpr: Node;
+
+            if (Node.isPropertyAssignment(focusedNode)) {
+                targetExpr = focusedNode.getInitializer();
+            }
+
+            targetExpr.replaceWithText(text);
+            applyModifications();
+        }
     };
 
     return (
@@ -56,7 +72,7 @@ export default function ExpressionBar() {
                 position: "start"
             }}
             value={value}
-            onTextChange={onChange}
+            onKeyDown={onKeyDown}
         />
     );
 }

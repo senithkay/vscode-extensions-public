@@ -74,7 +74,7 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 	}));
 
 	const portIn = getPort(`${id}.IN`);
-	const isExprBarFocused = exprBarFocusedPort === portIn;
+    const isExprBarFocused = exprBarFocusedPort?.getName() === portIn?.getName();
 
 	let expanded = true;
 	if ((portIn && portIn.collapsed)) {

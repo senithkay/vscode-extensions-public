@@ -124,6 +124,7 @@ export function MIDataMapper(props: MIDataMapperProps) {
                     switchView={switchView}
                     hasEditDisabled={false}
                     onClose={undefined}
+                    applyModifications={applyModifications}
                 />
             )}
             {nodes.length > 0 && (
