@@ -148,7 +148,7 @@ export async function executeBuildTask(task: vscode.Task, serverPath: string, sh
                                 const targetDirectory = vscode.Uri.joinPath(workspaceFolders[0].uri, "target");
                                 if (fs.existsSync(targetDirectory.fsPath)) {
                                     try {
-                                        const sourceFiles = getCarFiles(targetDirectory);
+                                        const sourceFiles = await getCarFiles(targetDirectory);
                                         if (sourceFiles.length === 0) {
                                             const errorMessage = "No .car files were found in the target directory. Built without copying to the server's carbonapps directory.";
                                             logDebug(errorMessage, ERROR_LOG);
@@ -156,8 +156,8 @@ export async function executeBuildTask(task: vscode.Task, serverPath: string, sh
                                         } else {
                                             const targetPath = path.join(serverPath, 'repository', 'deployment', 'server', 'carbonapps');
                                             sourceFiles.forEach(sourceFile => {
-                                                const destinationFile = path.join(targetPath, path.basename(sourceFile));
-                                                fs.copyFileSync(sourceFile, destinationFile);
+                                                const destinationFile = path.join(targetPath, path.basename(sourceFile.fsPath));
+                                                fs.copyFileSync(sourceFile.fsPath, destinationFile);
                                             });
                                             logDebug('Build and copy tasks executed successfully', INFO_LOG);
                                             resolve();
@@ -180,10 +180,11 @@ export async function executeBuildTask(task: vscode.Task, serverPath: string, sh
     });
 }
 
-function getCarFiles(targetDirectory) {
-    const currentPath = path.join(targetDirectory.fsPath, '*.car');
-    const files = glob.sync(currentPath);
-    return files;
+async function getCarFiles(targetDirectory) {
+    const carFiles = await vscode.workspace.findFiles(
+        new vscode.RelativePattern(targetDirectory.fsPath, '*.car')
+    );
+    return carFiles;
 }
 
 export async function executeTasks(serverPath: string, isDebug: boolean): Promise<void> {
@@ -291,7 +292,7 @@ export function isADiagramView() {
 let tempWindowsDebug;
 export function createTempDebugBatchFile(batchFilePath: string, binPath: string): Promise<string> {
     return new Promise((resolve, reject) => {
-        const destFilePath = path.join(binPath, 'micro-intergator-debug.bat');
+        const destFilePath = path.join(binPath, 'micro-integrator-debug.bat');
         fs.copyFileSync(batchFilePath, destFilePath);
         tempWindowsDebug = destFilePath;
 
