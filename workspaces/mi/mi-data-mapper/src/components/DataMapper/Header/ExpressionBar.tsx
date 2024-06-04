@@ -9,9 +9,19 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 
 import { Icon, TextField } from '@wso2-enterprise/ui-toolkit';
+import { css } from '@emotion/css';
 import { Node } from 'ts-morph';
 
 import { useDMExpressionBarStore } from '../../../store/store';
+
+const useStyles = () => ({
+    textField: css({
+        '&::part(control)': {
+            fontFamily: 'monospace',
+            fontSize: '12px',
+        },
+    }),
+});
 
 export interface ExpressionBarProps {
     applyModifications: () => void
@@ -19,6 +29,7 @@ export interface ExpressionBarProps {
 
 export default function ExpressionBar(props: ExpressionBarProps) {
     const { applyModifications } = props;
+    const classes = useStyles();
 
     const [, setForceUpdate] = useState(false);
 
@@ -90,6 +101,7 @@ export default function ExpressionBar(props: ExpressionBarProps) {
         <TextField
             ref={textFieldRef}
             sx={{ width: '100%' }}
+            className={classes.textField}
             disabled={disabled}
             icon={{
                 iconComponent: (
