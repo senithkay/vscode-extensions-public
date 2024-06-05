@@ -175,7 +175,7 @@ const AddConnector = (props: AddConnectorProps) => {
     }, [sidePanelContext.formValues]);
 
     const validateField = (id: string, e: any, isRequired: boolean, validation?: "e-mail" | "nameWithoutSpecialCharactors" | "custom", regex?: string): string => {
-        let value = e ?? getValues(id);
+        let value = e ?? getValues(getNameForController(id));
         if (typeof value === 'object') {
             value = value.value;
         }
@@ -192,6 +192,14 @@ const AddConnector = (props: AddConnectorProps) => {
         return error;
     };
 
+    function getNameForController(name: string | number) {
+        return String(name).replace('.', '__dot__');
+    }
+
+    function getOriginalName(name: string) {
+        return name.replace('__dot__', '.');
+    }
+    
     const cancelConnection = () => {
         setIsAddingConnection(false);
     }
@@ -237,25 +245,26 @@ const AddConnector = (props: AddConnectorProps) => {
                         const namespaces = values[key].namespaces;
                         const value = values[key].value;
                         const isExpression = values[key].isExpression;
+                        const name = getOriginalName(key);
 
                         if (value) {
                             if (isExpression) {
                                 if (namespaces && namespaces.length > 0) {
                                     // Generate XML with namespaces
-                                    const element = root.ele(key);
+                                    const element = root.ele(name);
                                     namespaces.forEach((namespace: any) => {
                                         element.att(`xmlns:${namespace.prefix}`, namespace.uri);
                                     });
                                     element.txt(`{${value}}`);
                                 } else {
-                                    root.ele(key).txt(`{${value}}`);
+                                    root.ele(name).txt(`{${value}}`);
                                 }
                             } else {
-                                root.ele(key).txt(value);
+                                root.ele(name).txt(value);
                             }
                         }
                     } else {
-                        root.ele(key).txt(values[key]);
+                        root.ele(getOriginalName(key)).txt(values[key]);
                     }
                 }
             });
@@ -306,7 +315,7 @@ const AddConnector = (props: AddConnectorProps) => {
                 return (
                     <Field>
                         <Controller
-                            name={element.name as string}
+                            name={getNameForController(element.name)}
                             control={control}
                             defaultValue={element.defaultValue}
                             rules={{ required: element.required === 'true' }}
@@ -324,7 +333,7 @@ const AddConnector = (props: AddConnectorProps) => {
                 return (
                     <Field>
                         <Controller
-                            name={element.name as string}
+                            name={getNameForController(element.name)}
                             control={control}
                             rules={{ required: element.required === 'true' }}
                             defaultValue={{ "isExpression": false, "value": element.defaultValue, "namespaces": [] }}
@@ -344,7 +353,7 @@ const AddConnector = (props: AddConnectorProps) => {
                 return (
                     <Field>
                         <Controller
-                            name={element.name as string}
+                            name={getNameForController(element.name)}
                             control={control}
                             defaultValue={element.defaultValue}
                             render={({ field }) => (
@@ -365,7 +374,7 @@ const AddConnector = (props: AddConnectorProps) => {
                 return (
                     <Field>
                         <Controller
-                            name={element.name as string}
+                            name={getNameForController(element.name)}
                             control={control}
                             defaultValue={element.defaultValue}
                             render={({ field }) => (
@@ -388,7 +397,7 @@ const AddConnector = (props: AddConnectorProps) => {
                 return (
                     <Field>
                         <Controller
-                            name={element.name as string}
+                            name={getNameForController(element.name)}
                             control={control}
                             defaultValue={element.defaultValue}
                             render={({ field }) => (
@@ -406,7 +415,7 @@ const AddConnector = (props: AddConnectorProps) => {
                 return (
                     <Field>
                         <Controller
-                            name={element.name as string}
+                            name={getNameForController(element.name)}
                             control={control}
                             defaultValue={{ "isExpression": false, "value": element.defaultValue, "namespaces": [] }}
                             render={({ field }) => (
