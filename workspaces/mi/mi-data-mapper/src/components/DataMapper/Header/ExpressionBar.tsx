@@ -101,9 +101,12 @@ export default function ExpressionBar(props: ExpressionBarProps) {
 
     const onChangeAutoComplete = (text: string) => {
         let updatedText = text;
-        const isFunction = functionNames.includes(text);
+        const fnName = text.split('(')[0];
+        const isFunctionName = functionNames.includes(text);
+        const hasFunctionName = functionNames.includes(fnName);
+        const isFunction = isFunctionName || hasFunctionName;
 
-        updatedText = isFunction ? `${text}(` : text;
+        updatedText = isFunctionName ? `${text}(` : addClosingBracketIfNeeded(text);
         expressionRef.current = updatedText;
 
         const focusedNode = focusedPort.getNode() as DataMapperNodeModel;
@@ -112,7 +115,7 @@ export default function ExpressionBar(props: ExpressionBarProps) {
 
         const isFunctionPresent = sourceFile.getFunctions().find(fn => fn.getName() === text);
         if (isFunction && !isFunctionPresent) {
-            sourceFile.addFunction(getFnDeclStructure(text));
+            sourceFile.addFunction(getFnDeclStructure(fnName));
         }
         
         applyChanges();
@@ -123,21 +126,7 @@ export default function ExpressionBar(props: ExpressionBarProps) {
         // Apply the expression when the Enter key is pressed
         if (event.key === 'Enter') {
             event.preventDefault(); // Prevents the default behavior of the Enter key
-
-            let updatedText = expressionRef.current;
-            const closingBracket = updatedText.includes('(') && !updatedText.includes(')');
-
-            // Add a closing bracket if the expression has an opening bracket but no closing bracket
-            if (closingBracket) {
-                updatedText += ')';
-            } else {
-                const openBrackets = (updatedText.match(/\(/g) || []).length;
-                const closeBrackets = (updatedText.match(/\)/g) || []).length;
-                if (openBrackets > closeBrackets) {
-                    updatedText+= ')';
-                }
-            }
-            expressionRef.current = updatedText;
+            expressionRef.current = addClosingBracketIfNeeded(expressionRef.current);
             applyChanges();
         }
     };
@@ -180,6 +169,27 @@ export default function ExpressionBar(props: ExpressionBarProps) {
             );
         }
     };
+
+    const addClosingBracketIfNeeded = (text: string) => {
+        let updatedText = text;
+
+        if (text.endsWith('(')) return updatedText;
+
+        const closingBracket = updatedText.includes('(') && !updatedText.includes(')');
+
+        // Add a closing bracket if the expression has an opening bracket but no closing bracket
+        if (closingBracket) {
+            updatedText += ')';
+        } else {
+            const openBrackets = (updatedText.match(/\(/g) || []).length;
+            const closeBrackets = (updatedText.match(/\)/g) || []).length;
+            if (openBrackets > closeBrackets) {
+                updatedText+= ')';
+            }
+        }
+
+        return updatedText;
+    }
 
     return (
         <>
