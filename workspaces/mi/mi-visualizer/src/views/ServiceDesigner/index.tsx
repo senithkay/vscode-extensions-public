@@ -222,11 +222,18 @@ export function ServiceDesignerView({ syntaxTree, documentUri }: ServiceDesigner
         });
     };
 
+    const editOpenAPISpec = () => {
+        rpcClient.getMiDiagramRpcClient().editOpenAPISpec({ apiName: serviceData.apiName });
+    };
+
     return (
         <>
             {serviceModel && (
                 <View>
                     <ViewHeader title="Service Designer" codicon="globe" onEdit={handleServiceEdit}>
+                        <VSCodeButton appearance="primary" title="Edit OpenAPI Definition" onClick={editOpenAPISpec}>
+                            <Codicon name="edit" sx={{ marginRight: 5 }} /> OpenAPI Spec
+                        </VSCodeButton>
                         <VSCodeButton appearance="primary" title="Edit Service" onClick={handleResourceAdd}>
                             <Codicon name="add" sx={{ marginRight: 5 }} /> Resource
                         </VSCodeButton>

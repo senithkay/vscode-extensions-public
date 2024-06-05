@@ -1291,3 +1291,8 @@ export interface GenerateAPIResponse {
     apiXml: string;
     endpointXml?: string;
 }
+
+export interface EditOpenAPISpecRequest {
+    apiName: string;
+}
+

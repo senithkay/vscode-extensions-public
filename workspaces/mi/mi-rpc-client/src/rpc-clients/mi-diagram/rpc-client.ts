@@ -62,6 +62,7 @@ import {
     ESBConfigsResponse,
     EditAPIRequest,
     EditAPIResponse,
+    EditOpenAPISpecRequest,
     EndpointDirectoryResponse,
     EndpointsAndSequencesResponse,
     ExportProjectRequest,
@@ -185,6 +186,7 @@ import {
     deleteArtifact,
     downloadConnector,
     editAPI,
+    editOpenAPISpec,
     executeCommand,
     exportProject,
     getAIResponse,
@@ -652,5 +654,9 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     checkOldProject(): Promise<boolean> {
         return this._messenger.sendRequest(checkOldProject, HOST_EXTENSION);
+    }
+
+    editOpenAPISpec(params: EditOpenAPISpecRequest): Promise<void> {
+        return this._messenger.sendRequest(editOpenAPISpec, HOST_EXTENSION, params);
     }
 }

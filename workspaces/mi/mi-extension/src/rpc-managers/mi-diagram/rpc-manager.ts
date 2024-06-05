@@ -63,6 +63,7 @@ import {
     EVENT_TYPE,
     EditAPIRequest,
     EditAPIResponse,
+    EditOpenAPISpecRequest,
     EndpointDirectoryResponse,
     EndpointsAndSequencesResponse,
     ExportProjectRequest,
@@ -3433,6 +3434,47 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             const oldProjectState = StateMachine.context().isOldProject;
             if (oldProjectState !== undefined) {
                 resolve(oldProjectState);
+            }
+        });
+    }
+
+    async editOpenAPISpec(params: EditOpenAPISpecRequest): Promise<void> {
+        return new Promise(async (resolve) => {
+            const { apiName } = params;
+            const workspacePath = workspace.workspaceFolders![0].uri.fsPath;
+            const openAPISpecPath = path.join(
+                workspacePath,
+                'src',
+                'main',
+                'wso2mi',
+                'artifacts',
+                'apis',
+                'api-definitions',
+                `${apiName}.yaml`
+            );
+
+            // Create directory if not exists
+            if (!fs.existsSync(path.dirname(openAPISpecPath))) {
+                fs.mkdirSync(path.dirname(openAPISpecPath), { recursive: true });
+            }
+            
+            // Create the file if not exists
+            if (!fs.existsSync(openAPISpecPath)) {
+                fs.writeFileSync(openAPISpecPath, '');
+            }
+
+            // Open the file in the editor
+            const openedEditor = window.visibleTextEditors.find(
+                editor => editor.document.uri.fsPath === openAPISpecPath
+            );
+            if (openedEditor) {
+                window.showTextDocument(openedEditor.document, {
+                    viewColumn: openedEditor.viewColumn
+                });
+            } else {
+                commands.executeCommand('vscode.open', Uri.file(openAPISpecPath), {
+                    viewColumn: ViewColumn.Beside
+                });
             }
         });
     }

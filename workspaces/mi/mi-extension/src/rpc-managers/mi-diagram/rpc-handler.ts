@@ -32,6 +32,7 @@ import {
     DeleteArtifactRequest,
     DownloadConnectorRequest,
     EditAPIRequest,
+    EditOpenAPISpecRequest,
     ExportProjectRequest,
     GetAllArtifactsRequest,
     GetAllRegistryPathsRequest,
@@ -105,6 +106,7 @@ import {
     deleteArtifact,
     downloadConnector,
     editAPI,
+    editOpenAPISpec,
     executeCommand,
     exportProject,
     getAIResponse,
@@ -281,4 +283,5 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onNotification(exportProject, (args: ExportProjectRequest) => rpcManger.exportProject(args));
     messenger.onRequest(checkOldProject, () => rpcManger.checkOldProject());
     messenger.onNotification(refreshAccessToken, () => rpcManger.refreshAccessToken());
+    messenger.onRequest(editOpenAPISpec, (args: EditOpenAPISpecRequest) => rpcManger.editOpenAPISpec(args));
 }

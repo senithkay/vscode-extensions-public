@@ -155,6 +155,7 @@ import {
     ExportProjectRequest,
     EditAPIRequest,
     EditAPIResponse,
+    EditOpenAPISpecRequest,
 } from "./types";
 
 export interface MiDiagramAPI {
@@ -255,4 +256,5 @@ export interface MiDiagramAPI {
     exportProject: (params: ExportProjectRequest) => void;
     checkOldProject: () => Promise<boolean>;
     refreshAccessToken: () => Promise<void>;
+    editOpenAPISpec: (params: EditOpenAPISpecRequest) => Promise<void>;
 }

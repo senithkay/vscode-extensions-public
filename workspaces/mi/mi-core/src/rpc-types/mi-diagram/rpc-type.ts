@@ -156,6 +156,7 @@ import {
     ExportProjectRequest,
     EditAPIRequest,
     EditAPIResponse,
+    EditOpenAPISpecRequest,
 } from "./types";
 import { RequestType, NotificationType } from "vscode-messenger-common";
 
@@ -257,3 +258,4 @@ export const buildProject: NotificationType<void> = { method: `${_preFix}/buildP
 export const exportProject: NotificationType<ExportProjectRequest> = { method: `${_preFix}/exportProject` };
 export const checkOldProject: RequestType<void, boolean> = { method: `${_preFix}/checkOldProject` };
 export const refreshAccessToken: NotificationType<void> = { method: `${_preFix}/refreshAccessToken` };
+export const editOpenAPISpec: RequestType<EditOpenAPISpecRequest, void> = { method: `${_preFix}/editOpenAPISpec` };
