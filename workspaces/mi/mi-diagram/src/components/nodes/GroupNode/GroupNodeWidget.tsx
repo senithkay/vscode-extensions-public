@@ -155,10 +155,13 @@ export function GroupNodeWidget(props: CallNodeWidgetProps) {
     const handleAddBreakpoint = async () => {
         const file = node.documentUri;
         const line = node.stNode.range.startTagRange.start.line;
+        const column = node.stNode.range.startTagRange.start?.character;
+
         const request = {
             filePath: file,
             breakpoint: {
-                line: line
+                line: line,
+                column: column
             }
         }
 
@@ -168,10 +171,13 @@ export function GroupNodeWidget(props: CallNodeWidgetProps) {
     const removeBreakpoint = async () => {
         const file = node.documentUri;
         const line = node.stNode.range.startTagRange.start.line;
+        const column = node.stNode.range.startTagRange.start?.character;
+
         const request = {
             filePath: file,
             breakpoint: {
-                line: line
+                line: line,
+                column: column
             }
         }
 

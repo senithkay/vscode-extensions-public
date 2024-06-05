@@ -14,12 +14,14 @@ export interface ValidateBreakpointsRequest {
 
 export interface BreakpointPosition {
     line: number;
+    column?: number;
 }
 
 export interface BreakpointValidity {
     line: number;
     valid: boolean;
     reason?: string;
+    column?: number;
 }
 
 export interface ValidateBreakpointsResponse {
@@ -50,7 +52,7 @@ export interface GetBreakpointsRequest {
 
 export interface GetBreakpointsResponse {
     breakpoints: BreakpointPosition[];
-    activeBreakpoint: number;
+    activeBreakpoint: BreakpointPosition;
 }
 
 export interface StepOverBreakpointRequest {

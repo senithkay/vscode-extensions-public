@@ -24,6 +24,7 @@ export interface RuntimeBreakpoint {
     line: number;
     verified: boolean;
     filePath: string;
+    column?: number;
 }
 
 export interface RuntimeBreakpointInfo {
@@ -78,7 +79,8 @@ export class Debugger extends EventEmitter {
             if (path) {
                 // create BreakpointPosition array
                 const breakpointPositions = breakpoints.map((breakpoint) => {
-                    return { line: breakpoint.line };
+                    return { line: breakpoint.line, column: breakpoint?.column };
+
                 });
                 const normalizedPath = this.normalizePathAndCasing(path);
 
@@ -95,7 +97,8 @@ export class Debugger extends EventEmitter {
                             id: this.breakpointId++,
                             line: breakpoint.line,
                             verified: breakpoint.valid,
-                            filePath: normalizedPath
+                            filePath: normalizedPath,
+                            column: breakpoint?.column
                         };
 
                         if (breakpoint.valid) {
@@ -172,7 +175,7 @@ export class Debugger extends EventEmitter {
             if (path) {
                 // create BreakpointPosition array
                 const breakpointPositions = breakpoints.map((breakpoint) => {
-                    return { line: breakpoint.line };
+                    return { line: breakpoint.line, column: breakpoint?.column };
                 });
                 const normalizedPath = this.normalizePathAndCasing(path);
 
@@ -187,7 +190,8 @@ export class Debugger extends EventEmitter {
                             id: this.breakpointId++,
                             line: breakpoint.line,
                             verified: breakpoint.valid,
-                            filePath: normalizedPath
+                            filePath: normalizedPath,
+                            column: breakpoint?.column
                         };
 
                         if (breakpoint.valid) {
@@ -250,7 +254,7 @@ export class Debugger extends EventEmitter {
         const langClient = StateMachine.context().langClient!;
         // create BreakpointPosition[] array
         const breakpointPositions = breakpoints.map((breakpoint) => {
-            return { line: breakpoint.line };
+            return { line: breakpoint.line, column: breakpoint?.column };
         });
 
         const getBreakpointInfoRequest: GetBreakpointInfoRequest = {
@@ -267,11 +271,16 @@ export class Debugger extends EventEmitter {
         try {
             const currentBreakpoint = this.getCurrentBreakpoint();
             const langClient = StateMachine.context().langClient!;
-            const stepOverBreakpoint: StepOverBreakpointResponse = await langClient.getStepOverBreakpoint({ filePath: this.getCurrentFilePath(), breakpoint: { line: currentBreakpoint?.line || 0 } });
+            const stepOverBreakpoint: StepOverBreakpointResponse = await langClient.getStepOverBreakpoint(
+                { filePath: this.getCurrentFilePath(), breakpoint: { line: currentBreakpoint?.line || 0, column: currentBreakpoint?.column } });
             // check if the stepOverBreakpoint is present in the runtimeVscodeBreakpointMap's value
             for (const breakpoint of stepOverBreakpoint?.stepOverBreakpoints) {
                 const breakpointKey = Array.from(this.runtimeVscodeBreakpointMap.values()).find(
-                    (runtimeBreakpointInfo) => runtimeBreakpointInfo?.line === breakpoint?.line && runtimeBreakpointInfo?.filePath === this.getCurrentFilePath());
+                    (runtimeBreakpointInfo) =>
+                        runtimeBreakpointInfo?.line === breakpoint?.line &&
+                        runtimeBreakpointInfo?.column === breakpoint?.column &&
+                        runtimeBreakpointInfo?.filePath === this.getCurrentFilePath()
+                );
                 if (breakpointKey) {
                     // we need to remove that breakpoint from the stepOverBreakpoint.stepOverBreakpoints
                     const index = stepOverBreakpoint.stepOverBreakpoints.indexOf(breakpoint);
@@ -343,7 +352,7 @@ export class Debugger extends EventEmitter {
                             for (const [key, value] of allRuntimeBreakpoints) {
                                 const breakpointInfo = await this.getBreakpointInformation(value, key);
                                 for (const info of breakpointInfo) {
-                                    if(info){
+                                    if (info) {
                                         await this.sendClearBreakpointCommand(info);
                                         await this.sendSetBreakpointCommand(info);
                                     }

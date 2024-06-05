@@ -123,7 +123,7 @@ export class NodeFactoryVisitor implements Visitor {
     private diagramType: DiagramType;
     private resource: DiagramService;
     private breakpointPositions: BreakpointPosition[];
-    private activatedBreakpoint: number;
+    private activatedBreakpoint: BreakpointPosition;
 
 
     constructor(documentUri: string, model: DiagramService, breakpoints: GetBreakpointsResponse) {
@@ -136,17 +136,20 @@ export class NodeFactoryVisitor implements Visitor {
     private createNodeAndLinks(params: createNodeAndLinks): void {
         let { node, name, type, data } = params;
 
-        for(const breakpoint of this.breakpointPositions) {
-            if(breakpoint.line === node.range.startTagRange.start.line) {
+        // When breakpoint added via sourceCode the column will be undefined, therefore in that case we only check line number
+        for (const breakpoint of this.breakpointPositions) {
+            if (breakpoint.line === node.range.startTagRange.start.line &&
+                (!breakpoint.column || breakpoint.column === node.range.startTagRange.start.character)) {
                 node.hasBreakpoint = true;
                 break;
             }
         }
 
-        if(this.activatedBreakpoint === node.range.startTagRange.start.line) {
+        if (this.activatedBreakpoint.line === node.range.startTagRange.start.line &&
+            (!this.activatedBreakpoint.column || this.activatedBreakpoint.column === node.range.startTagRange.start.character)) {
             node.isActiveBreakpoint = true;
         }
-        
+
         // create node
         let diagramNode: AnyNode;
         switch (type) {
@@ -198,12 +201,12 @@ export class NodeFactoryVisitor implements Visitor {
                 const previousNode = previousNodes[previousNodes.length - 1];
                 const currentNodeType = node.tag;
                 const previousNodeType = previousStNode.tag;
-                
+
                 const isSequnceConnect = diagramNode instanceof StartNodeModel && previousNode instanceof EndNodeModel;
                 const isEmptyNodeConnect = diagramNode instanceof EmptyNodeModel && previousNode instanceof EmptyNodeModel && type !== NodeTypes.CONDITION_NODE_END;
                 const showAddButton = !isSequnceConnect &&
-                 !(previousNode instanceof EmptyNodeModel 
-                    && !previousNode.visible) 
+                    !(previousNode instanceof EmptyNodeModel
+                        && !previousNode.visible)
                     && type !== NodeTypes.PLUS_NODE
                     && RESTRICTED_NODE_TYPES.indexOf(currentNodeType) < 0
                     && RESTRICTED_NODE_TYPES.indexOf(previousNodeType) < 0
