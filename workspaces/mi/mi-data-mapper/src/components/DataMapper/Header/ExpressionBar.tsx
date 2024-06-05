@@ -76,6 +76,14 @@ export default function ExpressionBar(props: ExpressionBarProps) {
     }));
 
     useEffect(() => {
+        // Keep the text field focused when an input port is selected
+        if (textFieldRef.current) {
+            if (focusedPort) {
+                textFieldRef.current.focus();
+            } else {
+                textFieldRef.current.blur();
+            }
+        }
         // Update the expression text when an input port is selected
         if (inputPort) {
             const updatedText = `${expressionRef.current}${inputPort.fieldFQN}`;
