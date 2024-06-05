@@ -115,7 +115,11 @@ export default function ExpressionBar(props: ExpressionBarProps) {
     };
 
     const onChangeAutoComplete = (text: string) => {
-        expressionRef.current = text + '(';
+        let updatedText = text;
+        if (functionNames.includes(text)) {
+            updatedText += '(';
+        }
+        expressionRef.current = updatedText;
         applyChanges();
 
     };
@@ -124,6 +128,21 @@ export default function ExpressionBar(props: ExpressionBarProps) {
         // Apply the expression when the Enter key is pressed
         if (event.key === 'Enter') {
             event.preventDefault(); // Prevents the default behavior of the Enter key
+
+            let updatedText = expressionRef.current;
+            const closingBracket = updatedText.includes('(') && !updatedText.includes(')');
+
+            // Add a closing bracket if the expression has an opening bracket but no closing bracket
+            if (closingBracket) {
+                updatedText += ')';
+            } else {
+                const openBrackets = (updatedText.match(/\(/g) || []).length;
+                const closeBrackets = (updatedText.match(/\)/g) || []).length;
+                if (openBrackets > closeBrackets) {
+                    updatedText+= ')';
+                }
+            }
+            expressionRef.current = updatedText;
             applyChanges();
         }
     };
