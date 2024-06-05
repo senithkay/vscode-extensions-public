@@ -15,32 +15,9 @@ import { Block, Node, ObjectLiteralExpression, ReturnStatement } from 'ts-morph'
 import { useDMExpressionBarStore } from '../../../store/store';
 import { createSourceForUserInput } from '../../../components/Diagram/utils/modification-utils';
 import { DataMapperNodeModel } from 'src/components/Diagram/Node/commons/DataMapperNode';
+import { getFnDeclStructure, operators } from '../Operators/operators';
 
-// TODO: Fetch this from the operators module
-const functionNames = [
-    'sum',
-    'max',
-    'min',
-    'average',
-    'ceiling',
-    'floor',
-    'round',
-    'toNumber',
-    'toBoolean',
-    'numberToString',
-    'booleanToString',
-    'concat',
-    'split',
-    'toUppercase',
-    'toLowercase',
-    'stringLength',
-    'startsWith',
-    'endsWith',
-    'substring',
-    'trim',
-    'replaceFirst',
-    'match'
-];
+const functionNames = Object.keys(operators);
 
 const useStyles = () => ({
     textField: css({
@@ -124,10 +101,20 @@ export default function ExpressionBar(props: ExpressionBarProps) {
 
     const onChangeAutoComplete = (text: string) => {
         let updatedText = text;
-        if (functionNames.includes(text)) {
-            updatedText += '(';
-        }
+        const isFunction = functionNames.includes(text);
+
+        updatedText = isFunction ? `${text}(` : text;
         expressionRef.current = updatedText;
+
+        const focusedNode = focusedPort.getNode() as DataMapperNodeModel;
+        const fnST = focusedNode.context.functionST;
+        const sourceFile = fnST.getSourceFile();
+
+        const isFunctionPresent = sourceFile.getFunctions().find(fn => fn.getName() === text);
+        if (isFunction && !isFunctionPresent) {
+            sourceFile.addFunction(getFnDeclStructure(text));
+        }
+        
         applyChanges();
 
     };
@@ -176,8 +163,8 @@ export default function ExpressionBar(props: ExpressionBarProps) {
 
             applyModifications();
         } else {
-            const dmNode = focusedPort.getNode() as DataMapperNodeModel;
-            const fnBody = dmNode.context.functionST.getBody() as Block;
+            const focusedNode = focusedPort.getNode() as DataMapperNodeModel;
+            const fnBody = focusedNode.context.functionST.getBody() as Block;
 
             const returnExpr = (fnBody.getStatements().find((statement) =>
                 Node.isReturnStatement(statement)
