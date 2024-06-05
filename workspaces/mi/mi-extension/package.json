@@ -289,6 +289,13 @@
         "category": "MI"
       },
       {
+        "command": "MI.project-explorer.edit-reg-metadata",
+        "title": "Edit Registry Metadata",
+        "icon": "$(notebook-edit)",
+        "group": "navigation",
+        "category": "MI"
+      },
+      {
         "command": "MI.project-explorer.add-class-mediator",
         "title": "Add Class Mediator",
         "icon": "$(add)",
@@ -436,6 +443,11 @@
         {
           "command": "MI.project-explorer.delete-reg-resource",
           "when": "view == MI.project-explorer && (viewItem == registry-folder || viewItem == registry-file)",
+          "group": "inline"
+        },
+        {
+          "command": "MI.project-explorer.edit-reg-metadata",
+          "when": "view == MI.project-explorer && (viewItem == registry-with-metadata)",
           "group": "inline"
         },
         {

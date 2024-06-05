@@ -116,6 +116,10 @@ export async function activateProjectExplorer(context: ExtensionContext) {
 		});
 	});
 
+	commands.registerCommand(COMMANDS.EDIT_REGISTRY_RESOURCE_METADATA_COMMAND, async (entry: ProjectExplorerEntry) => {
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.RegistryMetadataForm, documentUri: entry.info?.path });
+	});
+
 	commands.registerCommand(COMMANDS.EDIT_CLASS_MEDIATOR_COMMAND, async (entry: string) => {
 		workspace.openTextDocument(entry).then((doc) => {
 			window.showTextDocument(doc, { preview: false });

@@ -66,7 +66,7 @@ export const TextArea = React.forwardRef<HTMLTextAreaElement, TextAreaProps>(
                     {...rest}
                     { ...!props.name ? { value: props.value ? props.value : ""} : {} } // If name is not provided, then value should be empty (for react-hook-form)
                     onChange={handleChange}
-                    onInput={(e: any) => { onTextChange && onTextChange(e.target.value) }}
+                    onInput={handleChange}
                 >
                     <LabelContainer><div style={{ color: "var(--vscode-editor-foreground)" }}>
                         <label htmlFor={`${id}-label`}>{label}</label></div> {(required && label) && (<RequiredFormInput />)}

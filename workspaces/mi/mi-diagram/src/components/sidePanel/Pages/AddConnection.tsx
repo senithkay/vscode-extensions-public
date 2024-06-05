@@ -123,12 +123,6 @@ const AddConnection = (props: AddConnectionProps) => {
         let error;
         if (isRequired && !value) {
             error = "This field is required";
-        } else if (validation === "e-mail" && !value.match(emailRegex)) {
-            error = "Invalid e-mail address";
-        } else if (validation === "nameWithoutSpecialCharactors" && !value.match(nameWithoutSpecialCharactorsRegex)) {
-            error = "Invalid name";
-        } else if (validation === "custom" && !value.match(regex)) {
-            error = "Invalid input";
         } else {
             delete newErrors[id];
             setErrors(newErrors);

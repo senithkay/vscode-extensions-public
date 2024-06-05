@@ -47,11 +47,11 @@ const NTLMForm = (props: AddMediatorProps) => {
 
     useEffect(() => {
         reset({
-            username: sidePanelContext?.formValues?.username || {"isExpression":true,"value":""},
-            password: sidePanelContext?.formValues?.password || {"isExpression":true,"value":""},
-            host: sidePanelContext?.formValues?.host || {"isExpression":true,"value":""},
-            domain: sidePanelContext?.formValues?.domain || {"isExpression":true,"value":""},
-            ntlmVersion: sidePanelContext?.formValues?.ntlmVersion || {"isExpression":true,"value":""},
+            username: sidePanelContext?.formValues?.username || {"isExpression":false,"value":""},
+            password: sidePanelContext?.formValues?.password || {"isExpression":false,"value":""},
+            host: sidePanelContext?.formValues?.host || {"isExpression":false,"value":""},
+            domain: sidePanelContext?.formValues?.domain || {"isExpression":false,"value":""},
+            ntlmVersion: sidePanelContext?.formValues?.ntlmVersion || {"isExpression":false,"value":""},
             description: sidePanelContext?.formValues?.description || "",
         });
         setIsLoading(false);

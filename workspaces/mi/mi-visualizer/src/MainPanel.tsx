@@ -17,6 +17,7 @@ import styled from '@emotion/styled';
 import { InboundEPWizard } from './views/Forms/InboundEPform';
 import { LocalEntryWizard } from './views/Forms/LocalEntryForm';
 import { RegistryResourceForm } from './views/Forms/RegistryResourceForm';
+import { RegistryMetadataForm } from './views/Forms/RegistryMetadataForm';
 import { ProxyServiceWizard } from "./views/Forms/ProxyServiceForm";
 import { TemplateWizard } from "./views/Forms/TemplateForm";
 import { ClassMediatorForm } from './views/Forms/ClassMediatorForm';
@@ -37,6 +38,7 @@ import { ErrorBoundary, FormView } from '@wso2-enterprise/ui-toolkit';
 import PopupPanel from './PopupPanel';
 import { AddArtifactView } from './views/AddArtifact';
 import { SequenceTemplateView } from './views/Diagram/SequenceTemplate';
+import { set } from 'lodash';
 
 const MainContainer = styled.div`
     display: flex;
@@ -229,6 +231,9 @@ const MainPanel = () => {
                     break;
                 case MACHINE_VIEW.RegistryResourceForm:
                     setViewComponent(<RegistryResourceForm path={machineView.documentUri} />);
+                    break;
+                case MACHINE_VIEW.RegistryMetadataForm:
+                    setViewComponent(<RegistryMetadataForm path={machineView.documentUri} />);
                     break;
                 case MACHINE_VIEW.MessageProcessorForm:
                     setViewComponent(<MessageProcessorWizard path={machineView.documentUri} />);
