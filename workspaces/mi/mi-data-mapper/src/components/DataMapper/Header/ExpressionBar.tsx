@@ -8,13 +8,39 @@
  */
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 
-import { Icon, TextField } from '@wso2-enterprise/ui-toolkit';
+import { AutoComplete, Icon, TextField } from '@wso2-enterprise/ui-toolkit';
 import { css } from '@emotion/css';
 import { Block, Node, ObjectLiteralExpression, ReturnStatement } from 'ts-morph';
 
 import { useDMExpressionBarStore } from '../../../store/store';
 import { createSourceForUserInput } from '../../../components/Diagram/utils/modification-utils';
 import { DataMapperNodeModel } from 'src/components/Diagram/Node/commons/DataMapperNode';
+
+// TODO: Fetch this from the operators module
+const functionNames = [
+    'sum',
+    'max',
+    'min',
+    'average',
+    'ceiling',
+    'floor',
+    'round',
+    'toNumber',
+    'toBoolean',
+    'numberToString',
+    'booleanToString',
+    'concat',
+    'split',
+    'toUppercase',
+    'toLowercase',
+    'stringLength',
+    'startsWith',
+    'endsWith',
+    'substring',
+    'trim',
+    'replaceFirst',
+    'match'
+];
 
 const useStyles = () => ({
     textField: css({
@@ -23,6 +49,12 @@ const useStyles = () => ({
             fontSize: '12px',
         },
     }),
+    autoCompleteContainer: css({
+        display: "flex",
+        width: "100%",
+        height: "100%",
+        backgroundColor: "var(--vscode-input-background)",
+    })
 });
 
 export interface ExpressionBarProps {
@@ -46,7 +78,7 @@ export default function ExpressionBar(props: ExpressionBarProps) {
     useEffect(() => {
         // Update the expression text when an input port is selected
         if (inputPort) {
-            const updatedText = `${expressionRef.current} + ${inputPort.fieldFQN}`;
+            const updatedText = `${expressionRef.current}${inputPort.fieldFQN}`;
             expressionRef.current = updatedText;
             setForceUpdate(prev => !prev);
         }
@@ -78,64 +110,102 @@ export default function ExpressionBar(props: ExpressionBarProps) {
         return disabled;
     }, [focusedPort]);
 
-    const onChange = (text: string) => {
+    const onChangeTextField = (text: string) => {
         expressionRef.current = text;
+    };
+
+    const onChangeAutoComplete = (text: string) => {
+        expressionRef.current = text + '(';
+        applyChanges();
+
     };
 
     const onKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
         // Apply the expression when the Enter key is pressed
         if (event.key === 'Enter') {
             event.preventDefault(); // Prevents the default behavior of the Enter key
+            applyChanges();
+        }
+    };
 
-            const focusedFieldValue = focusedPort?.typeWithValue.value;
+    const applyChanges = () => {
+        const focusedFieldValue = focusedPort?.typeWithValue.value;
 
-            if (focusedFieldValue) {
-                let targetExpr: Node;
+        if (focusedFieldValue) {
+            let targetExpr: Node;
 
-                if (Node.isPropertyAssignment(focusedFieldValue)) {
-                    targetExpr = focusedFieldValue.getInitializer();
-                }
-    
-                targetExpr.replaceWithText(expressionRef.current );
-                applyModifications();
-            } else {
-                const dmNode = focusedPort.getNode() as DataMapperNodeModel;
-                const fnBody = dmNode.context.functionST.getBody() as Block;
-
-                const returnExpr = (fnBody.getStatements().find((statement) =>
-                    Node.isReturnStatement(statement)
-                ) as ReturnStatement)?.getExpression();
-
-                let objLitExpr: ObjectLiteralExpression;
-                if (returnExpr && Node.isObjectLiteralExpression(returnExpr)) {
-                    objLitExpr = returnExpr;
-                }
-
-                createSourceForUserInput(
-                    focusedPort?.typeWithValue, objLitExpr, expressionRef.current, fnBody, applyModifications
-                );
+            if (Node.isPropertyAssignment(focusedFieldValue)) {
+                targetExpr = focusedFieldValue.getInitializer();
             }
+
+            if (expressionRef.current !== '') {
+                targetExpr.replaceWithText(expressionRef.current);
+            } else {
+                if (Node.isPropertyAssignment(focusedFieldValue)) {
+                    focusedFieldValue.remove();
+                }
+                // TODO: Handle other types of nodes
+            }
+
+            applyModifications();
+        } else {
+            const dmNode = focusedPort.getNode() as DataMapperNodeModel;
+            const fnBody = dmNode.context.functionST.getBody() as Block;
+
+            const returnExpr = (fnBody.getStatements().find((statement) =>
+                Node.isReturnStatement(statement)
+            ) as ReturnStatement)?.getExpression();
+
+            let objLitExpr: ObjectLiteralExpression;
+            if (returnExpr && Node.isObjectLiteralExpression(returnExpr)) {
+                objLitExpr = returnExpr;
+            }
+
+            createSourceForUserInput(
+                focusedPort?.typeWithValue, objLitExpr, expressionRef.current, fnBody, applyModifications
+            );
         }
     };
 
     return (
-        <TextField
-            ref={textFieldRef}
-            sx={{ width: '100%' }}
-            className={classes.textField}
-            disabled={disabled}
-            icon={{
-                iconComponent: (
+        <>
+            {expressionRef.current !== "" || !focusedPort ? (
+                <TextField
+                    ref={textFieldRef}
+                    sx={{ width: '100%' }}
+                    className={classes.textField}
+                    disabled={disabled}
+                    icon={{
+                        iconComponent: (
+                            <Icon
+                                name={"function-icon"}
+                                iconSx={{ fontSize: "15px", color: "var(--vscode-input-placeholderForeground)" }}
+                            />
+                        ),
+                        position: "start"
+                    }}
+                    value={expressionRef.current}
+                    onTextChange={onChangeTextField}
+                    onKeyDown={onKeyDown}
+                />
+            ) : (
+                // Hack to list down the operator suggestions whenever the expression is empty
+                <div className={classes.autoCompleteContainer}>
                     <Icon
                         name={"function-icon"}
                         iconSx={{ fontSize: "15px", color: "var(--vscode-input-placeholderForeground)" }}
+                        sx={{ margin: "5px" }}
                     />
-                ),
-                position: "start"
-            }}
-            value={expressionRef.current}
-            onTextChange={onChange}
-            onKeyDown={onKeyDown}
-        />
+                    <AutoComplete
+                        sx={{ fontFamily: 'monospace', fontSize: '12px' }}
+                        identifier='expression-bar-autocomplete'
+                        items={functionNames}
+                        allowItemCreate={true}
+                        hideDropdown={true}
+                        onValueChange={onChangeAutoComplete}
+                    />
+                </div>
+            )}
+        </>
     );
 }

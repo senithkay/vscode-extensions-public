@@ -88,13 +88,13 @@ export const SearchableInput = cx(css`
     border-left: 1px solid var(--vscode-dropdown-border);
     border-bottom: 1px solid var(--vscode-dropdown-border);
     border-top: 1px solid var(--vscode-dropdown-border);
-    border-right: 0 solid var(--vscode-dropdown-border);
+    border-right: 1px solid var(--vscode-dropdown-border);
     &:focus {
       outline: none;
       border-left: 1px solid var(--vscode-focusBorder);
       border-bottom: 1px solid var(--vscode-focusBorder);
       border-top: 1px solid var(--vscode-focusBorder);
-      border-right: 0 solid var(--vscode-focusBorder);
+      border-right: 1px solid var(--vscode-focusBorder);
     }
 `);
 
@@ -189,6 +189,7 @@ interface BaseProps {
     onBlur?: React.FocusEventHandler<HTMLInputElement>;
     onCreateButtonClick?: () => void;
     notItemsFoundMessage?: string;
+    hideDropdown?: boolean;
 }
 
 // Define the conditional properties
@@ -261,7 +262,8 @@ export const AutoComplete = React.forwardRef<HTMLInputElement, AutoCompleteProps
         onBlur,
         onValueChange,
         onCreateButtonClick,
-        identifier
+        identifier,
+        hideDropdown
     } = props;
     const [query, setQuery] = useState('');
     const [isTextFieldFocused, setIsTextFieldFocused] = useState(false);
@@ -356,28 +358,30 @@ export const AutoComplete = React.forwardRef<HTMLInputElement, AutoCompleteProps
                                 {actionBtns}
                             </div>
                         )}
-                        <Combobox.Button
-                            id={`autocomplete-dropdown-button-${btnId}`}
-                            className={isTextFieldFocused ? ComboboxButtonContainerActive : ComboboxButtonContainer}
-                        >
-                            {isUpButton ? (
-                                <i
-                                    className={`codicon codicon-chevron-up ${DropdownIcon}`}
-                                    onClick={handleComboButtonClick}
-                                    onMouseDown={(e: React.MouseEvent) => {
-                                        e.preventDefault()
-                                    }}
-                                />
-                            ) : (
-                                <i
-                                    className={`codicon codicon-chevron-down ${DropdownIcon}`}
-                                    onClick={handleComboButtonClick}
-                                    onMouseDown={(e: React.MouseEvent) => {
-                                        e.preventDefault()
-                                    }}
-                                />
-                            )}
-                        </Combobox.Button>
+                        {!hideDropdown && (
+                            <Combobox.Button
+                                id={`autocomplete-dropdown-button-${btnId}`}
+                                className={isTextFieldFocused ? ComboboxButtonContainerActive : ComboboxButtonContainer}
+                            >
+                                {isUpButton ? (
+                                    <i
+                                        className={`codicon codicon-chevron-up ${DropdownIcon}`}
+                                        onClick={handleComboButtonClick}
+                                        onMouseDown={(e: React.MouseEvent) => {
+                                            e.preventDefault()
+                                        }}
+                                    />
+                                ) : (
+                                    <i
+                                        className={`codicon codicon-chevron-down ${DropdownIcon}`}
+                                        onClick={handleComboButtonClick}
+                                        onMouseDown={(e: React.MouseEvent) => {
+                                            e.preventDefault()
+                                        }}
+                                    />
+                                )}
+                            </Combobox.Button>
+                        )}
                     </ComboboxInputWrapper>
                     <Transition
                         as={Fragment}

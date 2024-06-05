@@ -71,6 +71,7 @@ const HeaderContent = styled.div`
 
 const ExpressionContainer = styled.div`
     width: 100%;
+    height: 100%;
     display: flex;
     border-bottom: 1px solid var(--vscode-menu-separatorBackground);
 `;
