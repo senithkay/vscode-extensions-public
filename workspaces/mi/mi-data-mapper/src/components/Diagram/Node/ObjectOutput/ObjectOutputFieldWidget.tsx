@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
 
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import { Button, Codicon, ProgressRing } from "@wso2-enterprise/ui-toolkit";
@@ -92,21 +92,12 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
     const fields = isInterface && field.childrenTypes;
     const isWithinArray = fieldIndex !== undefined;
 
-    const connectedViaLink = useMemo(() => {
-        if (hasValue) {
-            return isConnectedViaLink(propertyAssignment.getInitializer());
-        }
-        return false;
-    }, [field]);
-
-    const value: string = !isArray && !isInterface && hasValue && propertyAssignment.getInitializer().getText();
-
-    const handleAddValue = async () => {
+    const handleAddValue = () => {
         setIsLoading(true);
         try {
             const defaultValue = getDefaultValue(field.type.kind);
             const fnBody = context.functionST.getBody() as Block;
-            await createSourceForUserInput(field, objectLiteralExpr, defaultValue, fnBody, context.applyModifications);
+            createSourceForUserInput(field, objectLiteralExpr, defaultValue, fnBody, context.applyModifications);
         } finally {
             setIsLoading(false);
         }
@@ -150,8 +141,6 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
         setIsHovered(false);
     };
 
-    const hasValueWithoutLink = value && !connectedViaLink;
-    const hasDefaultValue = value && getDefaultValue(field.type.kind) === value.trim();
     let isDisabled = portIn?.descendantHasValue;
 
     if (!isDisabled) {
@@ -159,14 +148,6 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
             && (Object.entries(portIn?.parentModel.links).length > 0 || portIn?.parentModel.ancestorHasValue)
         ) {
             portIn.ancestorHasValue = true;
-            isDisabled = true;
-        }
-        if (hasValue
-            && !connectedViaLink
-            && !hasDefaultValue
-            && (isInterface || hasValueWithoutLink)
-        ) {
-            portIn?.setDescendantHasValue();
             isDisabled = true;
         }
     }

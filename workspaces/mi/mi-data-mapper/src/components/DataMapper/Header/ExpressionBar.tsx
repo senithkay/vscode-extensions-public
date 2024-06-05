@@ -10,9 +10,11 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 
 import { Icon, TextField } from '@wso2-enterprise/ui-toolkit';
 import { css } from '@emotion/css';
-import { Node } from 'ts-morph';
+import { Block, Node, ObjectLiteralExpression, ReturnStatement } from 'ts-morph';
 
 import { useDMExpressionBarStore } from '../../../store/store';
+import { createSourceForUserInput } from '../../../components/Diagram/utils/modification-utils';
+import { DataMapperNodeModel } from 'src/components/Diagram/Node/commons/DataMapperNode';
 
 const useStyles = () => ({
     textField: css({
@@ -52,7 +54,7 @@ export default function ExpressionBar(props: ExpressionBarProps) {
 
     const disabled = useMemo(() => {
         let value = "";
-        let disabled = false;
+        let disabled = true;
     
         if (focusedPort) {
             const focusedNode = focusedPort.typeWithValue.value;
@@ -85,15 +87,34 @@ export default function ExpressionBar(props: ExpressionBarProps) {
         if (event.key === 'Enter') {
             event.preventDefault(); // Prevents the default behavior of the Enter key
 
-            const focusedNode = focusedPort?.typeWithValue.value;
-            let targetExpr: Node;
+            const focusedFieldValue = focusedPort?.typeWithValue.value;
 
-            if (Node.isPropertyAssignment(focusedNode)) {
-                targetExpr = focusedNode.getInitializer();
+            if (focusedFieldValue) {
+                let targetExpr: Node;
+
+                if (Node.isPropertyAssignment(focusedFieldValue)) {
+                    targetExpr = focusedFieldValue.getInitializer();
+                }
+    
+                targetExpr.replaceWithText(expressionRef.current );
+                applyModifications();
+            } else {
+                const dmNode = focusedPort.getNode() as DataMapperNodeModel;
+                const fnBody = dmNode.context.functionST.getBody() as Block;
+
+                const returnExpr = (fnBody.getStatements().find((statement) =>
+                    Node.isReturnStatement(statement)
+                ) as ReturnStatement)?.getExpression();
+
+                let objLitExpr: ObjectLiteralExpression;
+                if (returnExpr && Node.isObjectLiteralExpression(returnExpr)) {
+                    objLitExpr = returnExpr;
+                }
+
+                createSourceForUserInput(
+                    focusedPort?.typeWithValue, objLitExpr, expressionRef.current, fnBody, applyModifications
+                );
             }
-
-            targetExpr.replaceWithText(expressionRef.current );
-            applyModifications();
         }
     };
 

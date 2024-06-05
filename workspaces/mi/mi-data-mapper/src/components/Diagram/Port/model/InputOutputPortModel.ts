@@ -67,7 +67,7 @@ export class InputOutputPortModel extends PortModel<PortModelGenerics & InputOut
 				const targetNode = targetPort.getNode() as DataMapperNodeModel;
 				const valueType = this.getValueType(lm);
 
-				if (valueType === ValueType.Default) {
+				if (valueType === ValueType.Default || valueType === ValueType.NonEmpty) {
 					let sourceField = sourcePort && sourcePort instanceof InputOutputPortModel && sourcePort.fieldFQN;
 					const sourceInputAccessExpr = buildInputAccessExpr(sourceField);
 					
