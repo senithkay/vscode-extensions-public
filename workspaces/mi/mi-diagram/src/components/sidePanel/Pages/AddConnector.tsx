@@ -153,6 +153,7 @@ const AddConnector = (props: AddConnectorProps) => {
         if (sidePanelContext.formValues && Object.keys(sidePanelContext.formValues).length > 0 && sidePanelContext.formValues?.parameters) {
             if (sidePanelContext.formValues.form) {
                 sidePanelContext.formValues?.parameters.forEach((param: any) => {
+                    param.name = getNameForController(param.name);
                     if (param.isExpression) {
                         let namespacesArray: any[] = [];
                         if (param.namespaces) {
