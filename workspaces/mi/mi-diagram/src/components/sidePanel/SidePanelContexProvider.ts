@@ -26,6 +26,7 @@ interface SidePanelContext {
     operationName?: string;
     parentNode?: string;
     previousNode?: string;
+    nextNode?: string;
     formValues?: { [key: string]: any };
     isFormOpen?: boolean;
     connectors?: any[];

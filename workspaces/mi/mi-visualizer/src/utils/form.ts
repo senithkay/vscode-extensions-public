@@ -9,7 +9,7 @@
 import { APIResource, Range, NamedSequence, Proxy, TagRange } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { RpcClient } from "@wso2-enterprise/mi-rpc-client";
 import { EditSequenceFields } from "../views/Forms/EditForms/EditSequenceForm";
-import { SERVICE } from "../constants";
+import { ARTIFACT_TEMPLATES } from "../constants";
 import { getXML } from "./template-engine/mustache-templates/templateUtils";
 import { EditProxyForm } from "../views/Forms/EditForms/EditProxyForm";
 import { XMLBuilder, XMLParser } from "fast-xml-parser";
@@ -139,7 +139,7 @@ export const onResourceCreate = (data: ResourceFormData, range: Range, documentU
         url_mapping: urlMapping,
     };
 
-    const xml = getXML(SERVICE.ADD_RESOURCE, formValues);
+    const xml = getXML(ARTIFACT_TEMPLATES.ADD_RESOURCE, formValues);
     rpcClient.getMiDiagramRpcClient().applyEdit({
         text: xml,
         documentUri: documentUri,
@@ -205,7 +205,7 @@ export const onResourceEdit = (
         appened_fault_sequence: isFaultSequenceDirty && faultSequenceType === "inline" ? true : false
     };
 
-    const xml = getXML(SERVICE.EDIT_RESOURCE, formValues);
+    const xml = getXML(ARTIFACT_TEMPLATES.EDIT_RESOURCE, formValues);
     const sortedRanges = deleteRanges.sort(
         (a, b) => b.start.line - a.start.line || b.start.character - a.start.character
     );
@@ -253,7 +253,7 @@ export const onSequenceEdit = (
         ...(data.statistics && { statistics: "enable" }),
         onError: data.onError,
     }
-    const xml = getXML(SERVICE.EDIT_SEQUENCE, formValues);
+    const xml = getXML(ARTIFACT_TEMPLATES.EDIT_SEQUENCE, formValues);
     rpcClient.getMiDiagramRpcClient().applyEdit({
         text: xml,
         documentUri: documentUri,
@@ -291,7 +291,7 @@ export const onProxyEdit = async (
     const tags = [ "other" , "target" , "proxy"];
     for (const tag of tags) {
         formValues.tag = tag;
-        const xml = getXML(SERVICE.EDIT_PROXY, formValues);
+        const xml = getXML(ARTIFACT_TEMPLATES.EDIT_PROXY, formValues);
         const ranges:Range = proxyRange(model,tag);
         await rpcClient.getMiDiagramRpcClient().applyEdit({
             text: xml,

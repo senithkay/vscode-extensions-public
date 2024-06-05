@@ -19,8 +19,8 @@ import { MEDIATORS } from '../../../../../resources/constants';
 import { Controller, useForm } from 'react-hook-form';
 import { ExpressionFieldValue } from '../../../../Form/ExpressionField/ExpressionInput';
 import { ParamManager, ParamValue } from '../../../../Form/ParamManager/ParamManager';
-import { sidepanelAddPage, sidepanelGoBack } from '../../..';
-import ExpressionEditor from '../../../expressionEditor/ExpressionEditor';
+import { handleOpenExprEditor, sidepanelGoBack } from '../../..';
+import { CodeTextArea } from '../../../../Form/CodeTextArea';
 
 const cardStyle = { 
     display: "block",
@@ -66,19 +66,7 @@ const PayloadForm = (props: AddMediatorProps) => {
                         },
                         "isRequired": false,
                         "canChange": true, 
-                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                            const content = <ExpressionEditor
-                                value={value}
-                                handleOnSave={(value) => {
-                                    setValue(value);
-                                    handleOnCancelExprEditorRef.current();
-                                }}
-                                handleOnCancel={() => {
-                                    handleOnCancelExprEditorRef.current();
-                                }}
-                            />;
-                            sidepanelAddPage(sidePanelContext, content, "Expression Editor");
-                        }},
+                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)},
                     {
                         "type": "Dropdown",
                         "label": "Evaluator",
@@ -138,7 +126,7 @@ const PayloadForm = (props: AddMediatorProps) => {
     }
     return (
         <>
-            <Typography sx={{ padding: "10px 15px", borderBottom: "1px solid var(--vscode-editorWidget-border)" }} variant="body3">Replaces message payload with a new SOAP/JSON payload.</Typography>
+            <Typography sx={{ padding: "10px 20px", borderBottom: "1px solid var(--vscode-editorWidget-border)" }} variant="body3">Replaces message payload with a new SOAP/JSON payload.</Typography>
             <div style={{ padding: "20px" }}>
 
                 <Field>
@@ -202,7 +190,7 @@ const PayloadForm = (props: AddMediatorProps) => {
                             name="payload"
                             control={control}
                             render={({ field }) => (
-                                <TextArea {...field} label="Payload" placeholder="" />
+                                <CodeTextArea {...field} label="Payload" placeholder="" resize="vertical" growRange={{ start: 5, offset: 10 }} />
                             )}
                         />
                         {errors.payload && <Error>{errors.payload.message.toString()}</Error>}

@@ -43,6 +43,12 @@ import {
     CreateProxyServiceResponse,
     CreateRegistryResourceRequest,
     CreateRegistryResourceResponse,
+    UpdateRegistryMetadataRequest,
+    UpdateRegistryMetadataResponse,
+    updateRegistryMetadata,
+    GetRegistryMetadataRequest,
+    GetRegistryMetadataResponse,
+    getMetadataOfRegistryResource,
     CreateSequenceRequest,
     CreateSequenceResponse,
     CreateTaskRequest,
@@ -54,6 +60,8 @@ import {
     DownloadConnectorRequest,
     DownloadConnectorResponse,
     ESBConfigsResponse,
+    EditAPIRequest,
+    EditAPIResponse,
     EndpointDirectoryResponse,
     EndpointsAndSequencesResponse,
     ExportProjectRequest,
@@ -176,6 +184,7 @@ import {
     createTemplate,
     deleteArtifact,
     downloadConnector,
+    editAPI,
     executeCommand,
     exportProject,
     getAIResponse,
@@ -291,6 +300,10 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     createAPI(params: CreateAPIRequest): Promise<CreateAPIResponse> {
         return this._messenger.sendRequest(createAPI, HOST_EXTENSION, params);
+    }
+
+    editAPI(params: EditAPIRequest): Promise<EditAPIResponse> {
+        return this._messenger.sendRequest(editAPI, HOST_EXTENSION, params);
     }
 
     getEndpointDirectory(): Promise<EndpointDirectoryResponse> {
@@ -551,6 +564,14 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     getAvailableRegistryResources(params: ListRegistryArtifactsRequest): Promise<RegistryArtifactNamesResponse> {
         return this._messenger.sendRequest(getAvailableRegistryResources, HOST_EXTENSION, params);
+    }
+
+    updateRegistryMetadata(params: UpdateRegistryMetadataRequest): Promise<UpdateRegistryMetadataResponse> {
+        return this._messenger.sendRequest(updateRegistryMetadata, HOST_EXTENSION, params);
+    }
+
+    getMetadataOfRegistryResource(params: GetRegistryMetadataRequest): Promise<GetRegistryMetadataResponse> {
+        return this._messenger.sendRequest(getMetadataOfRegistryResource, HOST_EXTENSION, params);
     }
 
     rangeFormat(params: RangeFormatRequest): Promise<ApplyEditResponse> {

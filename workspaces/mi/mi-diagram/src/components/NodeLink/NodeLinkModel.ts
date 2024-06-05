@@ -26,6 +26,7 @@ export interface NodeLinkModelOptions {
     onAddClick?: () => void;
     parentNode?: string;
     previousNode?: string;
+    nextNode?: string;
     diagnostics?: Diagnostic[];
 }
 
@@ -41,6 +42,7 @@ export class NodeLinkModel extends DefaultLinkModel {
     stRange: Range | Position;
     parentNode: string;
     previousNode: string;
+    nextNode: string;
     onAddClick?: () => void;
     diagnostics?: Diagnostic[];
 
@@ -82,6 +84,9 @@ export class NodeLinkModel extends DefaultLinkModel {
                 }
                 if ((options as NodeLinkModelOptions).previousNode) {
                     this.previousNode = (options as NodeLinkModelOptions).previousNode;
+                }
+                if ((options as NodeLinkModelOptions).nextNode) {
+                    this.nextNode = (options as NodeLinkModelOptions).nextNode;
                 }
                 if ((options as NodeLinkModelOptions).diagnostics) {
                     this.diagnostics = (options as NodeLinkModelOptions).diagnostics;
@@ -233,6 +238,10 @@ export class NodeLinkModel extends DefaultLinkModel {
 
     getPreviousNode(): string {
         return this.previousNode;
+    }
+
+    getNextNode(): string {
+        return this.nextNode;
     }
 
     hasDiagnotics(): boolean {

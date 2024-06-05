@@ -243,7 +243,7 @@ export function getCacheFormDataFromSTNode(data: { [key: string]: any }, node: C
     data.maxMessageSize = node.maxMessageSize;
     data.maxSize = node.implementation?.maxSize
     data.cacheTimeout = node.timeout;
-    data.sequenceKey = node.onCacheHit.sequence;
+    data.sequenceKey = node.onCacheHit?.sequence;
     data.cacheProtocolType = node.protocol?.type;
     data.cacheProtocolMethods = node.protocol?.methods?.textNode;
     data.headersToIncludeInHash = node.protocol?.headersToIncludeInHash?.textNode
@@ -254,14 +254,14 @@ export function getCacheFormDataFromSTNode(data: { [key: string]: any }, node: C
     data.maxEntryCount = node.implementation?.maxSize;
     data.cacheMediatorImplementation = node.protocol ? "Default" : "611 Compatible";
     data.cacheType = node.collector ? "COLLECTOR" : "FINDER";
-    data.sequenceType = node.onCacheHit.sequence ? "REGISTRY_REFERENCE" : "ANONYMOUS";
+    data.sequenceType = node.onCacheHit?.sequence ? "REGISTRY_REFERENCE" : "ANONYMOUS";
     data.ranges = {
         cache: node.range,
         onCacheHit: node.onCacheHit?.range,
         implementation: node.implementation?.range,
         protocol: node.protocol?.range
     }
-    data.isAnonymousSequence = node.onCacheHit.mediatorList.length > 0 ? true : false;
-    data.implementationType = node.implementation.type;
+    data.isAnonymousSequence = node.onCacheHit?.mediatorList?.length > 0 ? true : false;
+    data.implementationType = node.implementation?.type;
     return data;
 }

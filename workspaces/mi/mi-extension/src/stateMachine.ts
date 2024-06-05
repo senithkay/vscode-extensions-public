@@ -28,6 +28,7 @@ import { STNode } from '../../syntax-tree/lib/src';
 import { log } from './util/logger';
 import { deriveConfigName } from './util/dataMapper';
 import { fileURLToPath } from 'url';
+import path = require('path');
 
 interface MachineContext extends VisualizerLocation {
     langClient: ExtendedLanguageClient | null;
@@ -511,6 +512,11 @@ function updateProjectExplorer(location: VisualizerLocation | undefined) {
     if (webview) {
         if (location && location.view) {
             webview.title = location.view;
+            let icon: string = findViewIcon(location.view);
+            webview.iconPath = {
+                light: Uri.file(path.join(extension.context.extensionPath, 'assets', `light-${icon}.svg`)),
+                dark: Uri.file(path.join(extension.context.extensionPath, 'assets', `dark-${icon}.svg`)),
+            };;
         }
     }
 }
@@ -586,4 +592,59 @@ async function checkIfMiProject() {
         projectUri, // Return the path of the detected project
         emptyProject
     };
+}
+
+function findViewIcon(view) {
+    let icon = 'icon';
+    switch (view) {
+        case MACHINE_VIEW.ServiceDesigner:
+        case MACHINE_VIEW.ResourceView:
+        case MACHINE_VIEW.APIForm:
+            icon = 'globe';
+            break;
+        case MACHINE_VIEW.SequenceView:
+        case MACHINE_VIEW.SequenceForm:
+            icon = 'list-ordered';
+            break;
+        case MACHINE_VIEW.EndPointForm:
+        case MACHINE_VIEW.HttpEndpointForm:
+        case MACHINE_VIEW.WsdlEndpointForm:
+        case MACHINE_VIEW.AddressEndpointForm:
+        case MACHINE_VIEW.DefaultEndpointForm:
+        case MACHINE_VIEW.FailoverEndPointForm:
+        case MACHINE_VIEW.RecipientEndPointForm:
+        case MACHINE_VIEW.LoadBalanceEndPointForm:
+            icon = 'plug';
+            break;
+        case MACHINE_VIEW.InboundEPForm:
+            icon = 'fold-down';
+            break;
+        case MACHINE_VIEW.MessageStoreForm:
+            icon = 'database';
+            break;
+        case MACHINE_VIEW.MessageProcessorForm:
+            icon = 'gear';
+            break;
+        case MACHINE_VIEW.ProxyView:
+        case MACHINE_VIEW.ProxyServiceForm:
+            icon = 'arrow-swap';
+            break;
+        case MACHINE_VIEW.TaskForm:
+            icon = 'tasklist';
+            break;
+        case MACHINE_VIEW.LocalEntryForm:
+            icon = 'settings';
+            break;
+        case MACHINE_VIEW.TemplateEndPointForm:
+        case MACHINE_VIEW.TemplateForm:
+            icon = 'file';
+            break;
+        case MACHINE_VIEW.RegistryResourceForm:
+        case MACHINE_VIEW.RegistryMetadataForm:
+            icon = 'type-hierarchy';
+            break;
+        default:
+            break;
+    }
+    return icon;
 }

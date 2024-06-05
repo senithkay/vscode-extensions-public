@@ -52,6 +52,7 @@ export enum MACHINE_VIEW {
     ImportProjectForm = "Import Project Form",
     LocalEntryForm = "Local Entry Form",
     RegistryResourceForm = "Registry Resource Creation Form",
+    RegistryMetadataForm = "Registry Metadata Form",
     MessageStoreForm = "Message Store Form",
     ClassMediatorForm = "ClassMediator Creation Form",
     DataSourceForm = "Data Source Creation Form",

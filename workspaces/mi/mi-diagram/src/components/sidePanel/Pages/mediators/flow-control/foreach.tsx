@@ -19,8 +19,7 @@ import { MEDIATORS } from '../../../../../resources/constants';
 import { Controller, useForm } from 'react-hook-form';
 import { Keylookup } from '../../../../Form';
 import { ExpressionField, ExpressionFieldValue } from '../../../../Form/ExpressionField/ExpressionInput';
-import { sidepanelAddPage, sidepanelGoBack } from '../../..';
-import ExpressionEditor from '../../../expressionEditor/ExpressionEditor';
+import { handleOpenExprEditor, sidepanelGoBack } from '../../..';
 
 const cardStyle = { 
     display: "block",
@@ -93,7 +92,7 @@ const ForEachMediatorForm = (props: AddMediatorProps) => {
     }
     return (
         <>
-            <Typography sx={{ padding: "10px 15px", borderBottom: "1px solid var(--vscode-editorWidget-border)" }} variant="body3">Splits message based on XPath/JSONPath, processes sequentially, then merges back.</Typography>
+            <Typography sx={{ padding: "10px 20px", borderBottom: "1px solid var(--vscode-editorWidget-border)" }} variant="body3">Splits message based on XPath/JSONPath, processes sequentially, then merges back.</Typography>
             <div style={{ padding: "20px" }}>
 
                 <Field>
@@ -116,19 +115,7 @@ const ForEachMediatorForm = (props: AddMediatorProps) => {
                                 {...field} label="ForEach Expression"
                                 placeholder=""
                                 canChange={false}
-                                openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => {
-                                    const content = <ExpressionEditor
-                                        value={value}
-                                        handleOnSave={(value) => {
-                                            setValue(value);
-                                            handleOnCancelExprEditorRef.current();
-                                        }}
-                                        handleOnCancel={() => {
-                                            handleOnCancelExprEditorRef.current();
-                                        }}
-                                    />;
-                                    sidepanelAddPage(sidePanelContext, content, "Expression Editor");
-                                }}
+                                openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
                             />
                         )}
                     />

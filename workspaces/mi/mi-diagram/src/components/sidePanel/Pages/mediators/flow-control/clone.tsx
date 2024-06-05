@@ -155,7 +155,7 @@ const CloneForm = (props: AddMediatorProps) => {
     }
     return (
         <>
-            <Typography sx={{ padding: "10px 15px", borderBottom: "1px solid var(--vscode-editorWidget-border)" }} variant="body3">Clones a message into several messages.</Typography>
+            <Typography sx={{ padding: "10px 20px", borderBottom: "1px solid var(--vscode-editorWidget-border)" }} variant="body3">Clones a message into several messages.</Typography>
             <div style={{ padding: "20px" }}>
 
                 <Field>

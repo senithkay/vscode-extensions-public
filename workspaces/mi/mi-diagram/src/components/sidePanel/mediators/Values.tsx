@@ -76,6 +76,7 @@ export interface GetMediatorsProps {
     documentUri: string;
     parentNode?: string;
     previousNode?: string;
+    nextNode?: string;
 }
 export function getAllMediators(props: GetMediatorsProps) {
 
@@ -404,6 +405,11 @@ export function getAllMediators(props: GetMediatorsProps) {
                 form: <WSDLEndpointForm nodePosition={props.nodePosition} documentUri={props.documentUri}></WSDLEndpointForm>,
             }
         ]
+    }
+
+    // hide respond mediator if next node is present
+    if (props.nextNode || props.parentNode) {
+        allMediators["core"] = allMediators["core"].filter((mediator: any) => !["Respond"].includes(mediator.title));
     }
 
     if (props.parentNode) {

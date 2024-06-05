@@ -18,8 +18,7 @@ import { getXML } from '../../../../../utils/template-engine/mustach-templates/t
 import { MEDIATORS } from '../../../../../resources/constants';
 import { Controller, useForm } from 'react-hook-form';
 import { ExpressionField, ExpressionFieldValue } from '../../../../Form/ExpressionField/ExpressionInput';
-import { sidepanelAddPage, sidepanelGoBack } from '../../..';
-import ExpressionEditor from '../../../expressionEditor/ExpressionEditor';
+import { handleOpenExprEditor, sidepanelGoBack } from '../../..';
 
 const cardStyle = { 
     display: "block",
@@ -49,9 +48,9 @@ const PropertyForm = (props: AddMediatorProps) => {
     useEffect(() => {
         reset({
             propertyName: sidePanelContext?.formValues?.propertyName || "",
-            propertyDataType: sidePanelContext?.formValues?.propertyDataType || "STRING",
             propertyAction: sidePanelContext?.formValues?.propertyAction || "set",
-            value: sidePanelContext?.formValues?.value || {"isExpression":true,"value":""},
+            propertyDataType: sidePanelContext?.formValues?.propertyDataType || "STRING",
+            value: sidePanelContext?.formValues?.value || {"isExpression":false,"value":""},
             OMValue: sidePanelContext?.formValues?.OMValue || "",
             propertyScope: sidePanelContext?.formValues?.propertyScope || "DEFAULT",
             valueStringPattern: sidePanelContext?.formValues?.valueStringPattern || "",
@@ -96,7 +95,7 @@ const PropertyForm = (props: AddMediatorProps) => {
     }
     return (
         <>
-            <Typography sx={{ padding: "10px 15px", borderBottom: "1px solid var(--vscode-editorWidget-border)" }} variant="body3">Manipulates message properties by setting and/or removing property values, supporting both constant and dynamically generated values through XPath expressions.</Typography>
+            <Typography sx={{ padding: "10px 20px", borderBottom: "1px solid var(--vscode-editorWidget-border)" }} variant="body3">Manipulates message properties by setting and/or removing property values, supporting both constant and dynamically generated values through XPath expressions.</Typography>
             <div style={{ padding: "20px" }}>
 
                 <Field>
@@ -108,6 +107,19 @@ const PropertyForm = (props: AddMediatorProps) => {
                         )}
                     />
                     {errors.propertyName && <Error>{errors.propertyName.message.toString()}</Error>}
+                </Field>
+
+                <Field>
+                    <Controller
+                        name="propertyAction"
+                        control={control}
+                        render={({ field }) => (
+                            <AutoComplete label="Property Action" name="propertyAction" items={["set", "remove"]} value={field.value} onValueChange={(e: any) => {
+                                field.onChange(e);
+                            }} />
+                        )}
+                    />
+                    {errors.propertyAction && <Error>{errors.propertyAction.message.toString()}</Error>}
                 </Field>
 
                 {!((watch("propertyAction") == "remove") ) &&
@@ -125,19 +137,6 @@ const PropertyForm = (props: AddMediatorProps) => {
                 </Field>
                 }
 
-                <Field>
-                    <Controller
-                        name="propertyAction"
-                        control={control}
-                        render={({ field }) => (
-                            <AutoComplete label="Property Action" name="propertyAction" items={["set", "remove"]} value={field.value} onValueChange={(e: any) => {
-                                field.onChange(e);
-                            }} />
-                        )}
-                    />
-                    {errors.propertyAction && <Error>{errors.propertyAction.message.toString()}</Error>}
-                </Field>
-
                 {!(((watch("propertyDataType") == "OM") ||(watch("propertyAction") == "remove") )) &&
                 <Field>
                     <Controller
@@ -148,19 +147,7 @@ const PropertyForm = (props: AddMediatorProps) => {
                                 {...field} label="Property Value"
                                 placeholder="Value"
                                 canChange={true}
-                                openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => {
-                                    const content = <ExpressionEditor
-                                        value={value}
-                                        handleOnSave={(value) => {
-                                            setValue(value);
-                                            handleOnCancelExprEditorRef.current();
-                                        }}
-                                        handleOnCancel={() => {
-                                            handleOnCancelExprEditorRef.current();
-                                        }}
-                                    />;
-                                    sidepanelAddPage(sidePanelContext, content, "Expression Editor");
-                                }}
+                                openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
                             />
                         )}
                     />

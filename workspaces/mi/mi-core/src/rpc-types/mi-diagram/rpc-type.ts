@@ -61,6 +61,10 @@ import {
     BrowseFileResponse,
     CreateRegistryResourceRequest,
     CreateRegistryResourceResponse,
+    UpdateRegistryMetadataRequest,
+    UpdateRegistryMetadataResponse,
+    GetRegistryMetadataRequest,
+    GetRegistryMetadataResponse,
     BrowseFileRequest,
     CreateMessageProcessorRequest,
     CreateMessageProcessorResponse,
@@ -150,6 +154,8 @@ import {
     GetConnectionFormResponse,
     DeleteArtifactRequest,
     ExportProjectRequest,
+    EditAPIRequest,
+    EditAPIResponse,
 } from "./types";
 import { RequestType, NotificationType } from "vscode-messenger-common";
 
@@ -163,6 +169,7 @@ export const getConnectors: RequestType<void, ConnectorsResponse> = { method: `$
 export const getConnector: RequestType<ConnectorRequest, ConnectorResponse> = { method: `${_preFix}/getConnector` };
 export const getAPIDirectory: RequestType<void, ApiDirectoryResponse> = { method: `${_preFix}/getAPIDirectory` };
 export const createAPI: RequestType<CreateAPIRequest, CreateAPIResponse> = { method: `${_preFix}/createAPI` };
+export const editAPI: RequestType<EditAPIRequest, EditAPIResponse> = { method: `${_preFix}/editAPI` };
 export const getEndpointDirectory: RequestType<void, EndpointDirectoryResponse> = { method: `${_preFix}/getEndpointDirectory` };
 export const createEndpoint: RequestType<CreateEndpointRequest, CreateEndpointResponse> = { method: `${_preFix}/createEndpoint` };
 export const updateLoadBalanceEndpoint: RequestType<UpdateLoadBalanceEPRequest, UpdateLoadBalanceEPResponse> = { method: `${_preFix}/updateLoadBalanceEndpoint` };
@@ -223,6 +230,8 @@ export const getTextAtRange: RequestType<GetTextAtRangeRequest, GetTextAtRangeRe
 export const getDiagnostics: RequestType<GetDiagnosticsReqeust, GetDiagnosticsResponse> = { method: `${_preFix}/getDiagnostics` };
 export const browseFile: RequestType<BrowseFileRequest, BrowseFileResponse> = { method: `${_preFix}/browseFile` };
 export const createRegistryResource: RequestType<CreateRegistryResourceRequest, CreateRegistryResourceResponse> = { method: `${_preFix}/createRegistryResource` };
+export const updateRegistryMetadata: RequestType<UpdateRegistryMetadataRequest, UpdateRegistryMetadataResponse> = { method: `${_preFix}/updateRegistryMetadata` };
+export const getMetadataOfRegistryResource: RequestType<GetRegistryMetadataRequest, GetRegistryMetadataResponse> = { method: `${_preFix}/getMetadataOfRegistryResource` };
 export const getAvailableResources: RequestType<GetAvailableResourcesRequest, GetAvailableResourcesResponse> = { method: `${_preFix}/getAvailableResources` };
 export const createClassMediator: RequestType<CreateClassMediatorRequest, CreateClassMediatorResponse> = { method: `${_preFix}/createClassMediator` };
 export const getSelectiveWorkspaceContext: RequestType<void, GetSelectiveWorkspaceContextResponse> = { method: `${_preFix}/getSelectiveWorkspaceContext` };

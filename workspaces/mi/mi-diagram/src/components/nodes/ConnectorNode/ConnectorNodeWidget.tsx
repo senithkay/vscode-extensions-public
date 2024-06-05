@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { ConnectorNodeModel } from "./ConnectorNodeModel";
@@ -17,7 +17,6 @@ import { Button, ClickAwayListener, Menu, MenuItem, Popover, Tooltip } from "@ws
 import { MoreVertIcon } from "../../../resources";
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import SidePanelContext from "../../sidePanel/SidePanelContexProvider";
-import { getSVGIcon } from "../../../resources/icons/mediatorIcons/icons";
 import { Connector } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 
 namespace S {
@@ -85,6 +84,11 @@ namespace S {
         overflow: hidden;
         text-overflow: ellipsis;
     `;
+
+    export const TooltipContent = styled.div`
+        max-width: 80vw;
+        white-space: pre-wrap;
+    `;
 }
 interface ConnectorNodeWidgetProps {
     node: ConnectorNodeModel;
@@ -105,6 +109,14 @@ export function ConnectorNodeWidget(props: ConnectorNodeWidgetProps) {
     const hasBreakpoint = node.hasBreakpoint();
     const isActiveBreakpoint = node.isActiveBreakpoint();
     const tooltip = hasDiagnotics ? node.getDiagnostics().map(diagnostic => diagnostic.message).join("\n") : undefined;
+
+    const TooltipEl = useMemo(() => {
+        return () => (
+            <S.TooltipContent style={{ textWrap: "wrap" }}>
+                {tooltip}
+            </S.TooltipContent>
+        );
+    }, [tooltip]);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -200,7 +212,7 @@ export function ConnectorNodeWidget(props: ConnectorNodeWidgetProps) {
 
     return (
         <div >
-            <Tooltip content={!isPopoverOpen ? tooltip : ""} position={'bottom'} containerPosition={'absolute'}>
+            <Tooltip content={!isPopoverOpen && tooltip ? <TooltipEl /> : ""} position={'bottom'} containerPosition={'absolute'}>
                 <S.Node
                     selected={node.isSelected()}
                     hasError={hasDiagnotics}

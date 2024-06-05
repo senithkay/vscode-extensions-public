@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { MediatorNodeModel } from "./MediatorNodeModel";
@@ -17,10 +17,10 @@ import { Button, ClickAwayListener, Menu, MenuItem, Popover, Tooltip } from "@ws
 import { MoreVertIcon } from "../../../resources";
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import SidePanelContext from "../../sidePanel/SidePanelContexProvider";
-import { getSVGIcon } from "../../../resources/icons/mediatorIcons/icons";
 import { getNodeDescription } from "../../../utils/node";
 import { Header, Description, Name } from "../BaseNodeModel";
 import { FirstCharToUpperCase } from "../../../utils/commons";
+import { getMediatorIconsFromFont } from "../../../resources/icons/mediatorIcons/icons";
 
 namespace S {
     export type NodeStyleProp = {
@@ -51,7 +51,7 @@ namespace S {
     `;
 
     export const IconContainer = styled.div`
-        padding: 5px;
+        padding: 0 5px;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -77,6 +77,11 @@ namespace S {
 
     export const BottomPortWidget = styled(PortWidget)`
         margin-bottom: -3px;
+    `;
+
+    export const TooltipContent = styled.div`
+        max-width: 80vw;
+        white-space: pre-wrap;
     `;
 }
 interface CallNodeWidgetProps {
@@ -138,9 +143,17 @@ export function MediatorNodeWidget(props: CallNodeWidgetProps) {
         setIsPopoverOpen(false);
     }
 
+    const TooltipEl = useMemo(() => {
+        return () => (
+            <S.TooltipContent style={{ textWrap: "wrap" }}>
+                {tooltip}
+            </S.TooltipContent>
+        );
+    }, [tooltip])
+
     return (
         <div >
-            <Tooltip content={!isPopoverOpen ? tooltip : ""} position={'bottom'} containerPosition={'absolute'}>
+            <Tooltip content={!isPopoverOpen && tooltip ? <TooltipEl /> : ""} position={'bottom'} containerPosition={'absolute'}>
                 <S.Node
                     selected={node.isSelected()}
                     hasError={hasDiagnotics}
@@ -155,7 +168,7 @@ export function MediatorNodeWidget(props: CallNodeWidgetProps) {
                     )}
                     <S.TopPortWidget port={node.getPort("in")!} engine={engine} />
                     <div style={{ display: "flex", flexDirection: "row", width: NODE_DIMENSIONS.DEFAULT.WIDTH }}>
-                        <S.IconContainer>{getSVGIcon(node.stNode.tag)}</S.IconContainer>
+                        <S.IconContainer>{getMediatorIconsFromFont(node.stNode.tag)}</S.IconContainer>
                         <div>
                             {isHovered && (
                                 <S.StyledButton appearance="icon" onClick={handleOnClickMenu}>

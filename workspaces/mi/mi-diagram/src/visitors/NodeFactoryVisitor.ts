@@ -109,7 +109,7 @@ enum DiagramType {
 const RESTRICTED_NODE_TYPES = ["target"]
 
 export type AnyNode = MediatorNodeModel | StartNodeModel | ConditionNodeModel | EndNodeModel | CallNodeModel | EmptyNodeModel |
-                         GroupNodeModel | PlusNodeModel | DataMapperNodeModel;
+    GroupNodeModel | PlusNodeModel | DataMapperNodeModel;
 
 export class NodeFactoryVisitor implements Visitor {
     nodes: AnyNode[] = [];
@@ -226,6 +226,7 @@ export class NodeFactoryVisitor implements Visitor {
                         stRange: addPosition,
                         brokenLine: isBrokenLine ?? (type === NodeTypes.EMPTY_NODE || isSequnceConnect || isEmptyNodeConnect),
                         previousNode: previousStNode.tag,
+                        nextNode: type !== NodeTypes.END_NODE ? node.tag : undefined,
                         parentNode: this.parents.length > 1 ? this.parents[this.parents.length - 1].tag : undefined,
                         showArrow: !isSequnceConnect,
                         showAddButton: showAddButton,
@@ -476,7 +477,7 @@ export class NodeFactoryVisitor implements Visitor {
             this.createNodeAndLinks({ node: endNode, name: MEDIATORS.SEQUENCE, type: NodeTypes.END_NODE });
         }
     }
-    
+
     beginVisitTarget = (node: Target | ProxyTarget): void => {
         if (node.tag === "target") {
             const proxyTargetNode = node as ProxyTarget;
@@ -485,19 +486,19 @@ export class NodeFactoryVisitor implements Visitor {
                 const startNode = structuredClone(proxyTargetNode);
                 startNode.viewState.id = "inSequenceStart";
                 this.createNodeAndLinks({ node: startNode, type: NodeTypes.START_NODE, data: StartNodeType.IN_SEQUENCE });
-        
+
                 const sequneceReferenceNode = structuredClone(proxyTargetNode);
                 sequneceReferenceNode.viewState.id = "inSequenceNode";
                 sequneceReferenceNode.viewState.y += NODE_DIMENSIONS.START.EDITABLE.HEIGHT + NODE_GAP.Y;
                 sequneceReferenceNode.viewState.x += (NODE_DIMENSIONS.START.EDITABLE.WIDTH - NODE_DIMENSIONS.REFERENCE.WIDTH) / 2;
                 this.createNodeAndLinks({ node: sequneceReferenceNode, name: MEDIATORS.SEQUENCE, type: NodeTypes.REFERENCE_NODE, data: [proxyTargetNode.inSequenceAttribute] });
-        
+
                 const endNode = structuredClone(proxyTargetNode);
                 endNode.viewState.id = "inSequenceEnd";
                 endNode.viewState.y = sequneceReferenceNode.viewState.y + NODE_DIMENSIONS.REFERENCE.HEIGHT + NODE_GAP.Y;
                 endNode.viewState.x += (NODE_DIMENSIONS.START.EDITABLE.WIDTH - NODE_DIMENSIONS.END.WIDTH) / 2;
                 this.createNodeAndLinks({ node: endNode, name: MEDIATORS.SEQUENCE, type: NodeTypes.END_NODE });
-        
+
                 proxyTargetNode.viewState.y += endNode.viewState.y + NODE_DIMENSIONS.END.HEIGHT;
             }
             if (proxyTargetNode.outSequenceAttribute) {
@@ -505,12 +506,12 @@ export class NodeFactoryVisitor implements Visitor {
                 startNode.viewState.id = "outSequence";
                 startNode.viewState.x += (NODE_DIMENSIONS.START.EDITABLE.WIDTH - NODE_DIMENSIONS.START.DISABLED.WIDTH) / 2;
                 this.createNodeAndLinks({ node: startNode, type: NodeTypes.START_NODE, data: StartNodeType.OUT_SEQUENCE });
-        
+
                 const sequneceReferenceNode = structuredClone(proxyTargetNode);
                 sequneceReferenceNode.viewState.y += NODE_DIMENSIONS.START.EDITABLE.HEIGHT + NODE_GAP.Y;
                 sequneceReferenceNode.viewState.x += (NODE_DIMENSIONS.START.EDITABLE.WIDTH - NODE_DIMENSIONS.REFERENCE.WIDTH) / 2;
                 this.createNodeAndLinks({ node: sequneceReferenceNode, name: MEDIATORS.SEQUENCE, type: NodeTypes.REFERENCE_NODE, data: [proxyTargetNode.inSequenceAttribute] });
-        
+
                 const endNode = structuredClone(proxyTargetNode);
                 endNode.viewState.y = sequneceReferenceNode.viewState.y + NODE_DIMENSIONS.REFERENCE.HEIGHT + NODE_GAP.Y;
                 endNode.viewState.x += (NODE_DIMENSIONS.START.EDITABLE.WIDTH - NODE_DIMENSIONS.END.WIDTH) / 2;
@@ -577,16 +578,23 @@ export class NodeFactoryVisitor implements Visitor {
 
     //Advanced Mediators
     beginVisitCache(node: Cache): void {
-        this.createNodeAndLinks(({ node, name: MEDIATORS.CACHE, type: NodeTypes.GROUP_NODE }))
-        this.parents.push(node);
+        if (node.collector) {
+            this.createNodeAndLinks(({ node, name: MEDIATORS.CACHE, type: NodeTypes.MEDIATOR_NODE }))
 
-        this.visitSubSequences(node, MEDIATORS.CACHE, {
-            OnCacheHit: node.onCacheHit,
-        }, NodeTypes.GROUP_NODE, false);
+        } else {
+            this.createNodeAndLinks(({ node, name: MEDIATORS.CACHE, type: NodeTypes.GROUP_NODE }))
+            this.parents.push(node);
+
+            this.visitSubSequences(node, MEDIATORS.CACHE, {
+                OnCacheHit: node.onCacheHit,
+            }, NodeTypes.GROUP_NODE, false);
+        }
         this.skipChildrenVisit = true;
     }
     endVisitCache(node: Cache): void {
-        this.parents.pop();
+        if (!node.collector) {
+            this.parents.pop();
+        }
         this.skipChildrenVisit = false;
     }
     beginVisitClone(node: Clone): void {

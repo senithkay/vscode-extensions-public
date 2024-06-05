@@ -60,6 +60,10 @@ import {
     BrowseFileResponse,
     CreateRegistryResourceRequest,
     CreateRegistryResourceResponse,
+    UpdateRegistryMetadataRequest,
+    UpdateRegistryMetadataResponse,
+    GetRegistryMetadataRequest,
+    GetRegistryMetadataResponse,
     BrowseFileRequest,
     CreateMessageProcessorRequest,
     CreateMessageProcessorResponse,
@@ -149,6 +153,8 @@ import {
     GetConnectionFormResponse,
     DeleteArtifactRequest,
     ExportProjectRequest,
+    EditAPIRequest,
+    EditAPIResponse,
 } from "./types";
 
 export interface MiDiagramAPI {
@@ -161,6 +167,7 @@ export interface MiDiagramAPI {
     getConnector: (params: ConnectorRequest) => Promise<ConnectorResponse>;
     getAPIDirectory: () => Promise<ApiDirectoryResponse>;
     createAPI: (params: CreateAPIRequest) => Promise<CreateAPIResponse>;
+    editAPI: (params: EditAPIRequest) => Promise<EditAPIResponse>;
     getEndpointDirectory: () => Promise<EndpointDirectoryResponse>;
     createEndpoint: (params: CreateEndpointRequest) => Promise<CreateEndpointResponse>;
     updateLoadBalanceEndpoint: (params: UpdateLoadBalanceEPRequest) => Promise<UpdateLoadBalanceEPResponse>;
@@ -226,6 +233,8 @@ export interface MiDiagramAPI {
     getSelectiveWorkspaceContext: () => Promise<GetSelectiveWorkspaceContextResponse>;
     getBackendRootUrl: () => Promise<GetBackendRootUrlResponse>;
     getAvailableRegistryResources: (params: ListRegistryArtifactsRequest) => Promise<RegistryArtifactNamesResponse>;
+    updateRegistryMetadata: (params: UpdateRegistryMetadataRequest) => Promise<UpdateRegistryMetadataResponse>;
+    getMetadataOfRegistryResource: (params: GetRegistryMetadataRequest) => Promise<GetRegistryMetadataResponse>;
     rangeFormat: (params: RangeFormatRequest) => Promise<ApplyEditResponse>;
     downloadConnector: (params: DownloadConnectorRequest) => Promise<DownloadConnectorResponse>;
     getAvailableConnectors: (params: GetAvailableConnectorRequest) => Promise<GetAvailableConnectorResponse>;

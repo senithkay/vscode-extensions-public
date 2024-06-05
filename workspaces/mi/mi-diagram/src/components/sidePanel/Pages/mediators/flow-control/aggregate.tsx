@@ -19,8 +19,7 @@ import { MEDIATORS } from '../../../../../resources/constants';
 import { Controller, useForm } from 'react-hook-form';
 import { Keylookup } from '../../../../Form';
 import { ExpressionField, ExpressionFieldValue } from '../../../../Form/ExpressionField/ExpressionInput';
-import { sidepanelAddPage, sidepanelGoBack } from '../../..';
-import ExpressionEditor from '../../../expressionEditor/ExpressionEditor';
+import { handleOpenExprEditor, sidepanelGoBack } from '../../..';
 
 const cardStyle = { 
     display: "block",
@@ -50,8 +49,8 @@ const AggregateForm = (props: AddMediatorProps) => {
     useEffect(() => {
         reset({
             completionTimeout: sidePanelContext?.formValues?.completionTimeout || "0",
-            completionMinMessages: sidePanelContext?.formValues?.completionMinMessages || {"isExpression":true,"value":"-1"},
-            completionMaxMessages: sidePanelContext?.formValues?.completionMaxMessages || {"isExpression":true,"value":"-1"},
+            completionMinMessages: sidePanelContext?.formValues?.completionMinMessages || {"isExpression":false,"value":"-1"},
+            completionMaxMessages: sidePanelContext?.formValues?.completionMaxMessages || {"isExpression":false,"value":"-1"},
             aggregateID: sidePanelContext?.formValues?.aggregateID || "",
             enclosingElementProperty: sidePanelContext?.formValues?.enclosingElementProperty || "",
             correlationExpression: sidePanelContext?.formValues?.correlationExpression || {"isExpression":true,"value":""},
@@ -98,7 +97,7 @@ const AggregateForm = (props: AddMediatorProps) => {
     }
     return (
         <>
-            <Typography sx={{ padding: "10px 15px", borderBottom: "1px solid var(--vscode-editorWidget-border)" }} variant="body3">Combines message responses that were split by Clone/Iterate mediator.</Typography>
+            <Typography sx={{ padding: "10px 20px", borderBottom: "1px solid var(--vscode-editorWidget-border)" }} variant="body3">Combines message responses that were split by Clone/Iterate mediator.</Typography>
             <div style={{ padding: "20px" }}>
 
                 <ComponentCard sx={cardStyle} disbaleHoverEffect>
@@ -124,19 +123,7 @@ const AggregateForm = (props: AddMediatorProps) => {
                                     {...field} label="Completion Min Messages"
                                     placeholder=""
                                     canChange={true}
-                                    openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => {
-                                        const content = <ExpressionEditor
-                                            value={value}
-                                            handleOnSave={(value) => {
-                                                setValue(value);
-                                                handleOnCancelExprEditorRef.current();
-                                            }}
-                                            handleOnCancel={() => {
-                                                handleOnCancelExprEditorRef.current();
-                                            }}
-                                        />;
-                                        sidepanelAddPage(sidePanelContext, content, "Expression Editor");
-                                    }}
+                                    openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
                                 />
                             )}
                         />
@@ -152,19 +139,7 @@ const AggregateForm = (props: AddMediatorProps) => {
                                     {...field} label="Completion Max Messages"
                                     placeholder=""
                                     canChange={true}
-                                    openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => {
-                                        const content = <ExpressionEditor
-                                            value={value}
-                                            handleOnSave={(value) => {
-                                                setValue(value);
-                                                handleOnCancelExprEditorRef.current();
-                                            }}
-                                            handleOnCancel={() => {
-                                                handleOnCancelExprEditorRef.current();
-                                            }}
-                                        />;
-                                        sidepanelAddPage(sidePanelContext, content, "Expression Editor");
-                                    }}
+                                    openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
                                 />
                             )}
                         />
@@ -202,19 +177,7 @@ const AggregateForm = (props: AddMediatorProps) => {
                                     {...field} label="Correlation Expression"
                                     placeholder=""
                                     canChange={false}
-                                    openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => {
-                                        const content = <ExpressionEditor
-                                            value={value}
-                                            handleOnSave={(value) => {
-                                                setValue(value);
-                                                handleOnCancelExprEditorRef.current();
-                                            }}
-                                            handleOnCancel={() => {
-                                                handleOnCancelExprEditorRef.current();
-                                            }}
-                                        />;
-                                        sidepanelAddPage(sidePanelContext, content, "Expression Editor");
-                                    }}
+                                    openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
                                 />
                             )}
                         />
@@ -248,19 +211,7 @@ const AggregateForm = (props: AddMediatorProps) => {
                                     {...field} label="Aggregation Expression"
                                     placeholder=""
                                     canChange={false}
-                                    openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => {
-                                        const content = <ExpressionEditor
-                                            value={value}
-                                            handleOnSave={(value) => {
-                                                setValue(value);
-                                                handleOnCancelExprEditorRef.current();
-                                            }}
-                                            handleOnCancel={() => {
-                                                handleOnCancelExprEditorRef.current();
-                                            }}
-                                        />;
-                                        sidepanelAddPage(sidePanelContext, content, "Expression Editor");
-                                    }}
+                                    openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
                                 />
                             )}
                         />

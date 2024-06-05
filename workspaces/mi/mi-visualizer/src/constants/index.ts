@@ -9,7 +9,7 @@
 
 //add the rpc client to the context
 
-export const SAMPLE_ICONS_GITHUB_URL = "https://raw.githubusercontent.com/wso2/integration-studio/main/SamplesForVSCode/icons/";
+export const SAMPLE_ICONS_GITHUB_URL = "https://mi-connectors.wso2.com/samples/icons/";
 
 export const MI_COPILOT_BACKEND_URL = `/chat/copilot`;
 export const MI_ARTIFACT_GENERATION_BACKEND_URL = `/chat/artifact-generation`;
@@ -31,8 +31,9 @@ export const SYNTAX_TREE_KIND = {
 export const SIDE_PANEL_WIDTH = 450;
 
 // Actions for service designer
-export const SERVICE = {
-    EDIT_SERVICE: "edit-service",
+export const ARTIFACT_TEMPLATES = {
+    ADD_API: "add-api",
+    EDIT_API: "edit-api",
     ADD_RESOURCE: "add-resource",
     EDIT_RESOURCE: "edit-resource",
     EDIT_SEQUENCE: "edit-sequence",

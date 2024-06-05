@@ -111,7 +111,6 @@ export function SamplesView() {
     }
 
     const handleSearch = (searchText: string) => {
-        console.log("searchText", searchText);
         setSearch(searchText);
         if (searchText !== "") {
             let filteredData = filteredSampleDataCopy.filter(sample => sample.title.toLowerCase().includes(searchText.toLowerCase()));

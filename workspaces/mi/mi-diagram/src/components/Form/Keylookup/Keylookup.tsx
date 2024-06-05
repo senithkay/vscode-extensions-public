@@ -8,11 +8,12 @@
  */
 
 import React, { useEffect, useState } from "react";
-import { AutoComplete, ErrorBanner, getItemKey, ItemComponent } from "@wso2-enterprise/ui-toolkit";
+import { AutoComplete, ErrorBanner, getItemKey, ItemComponent, Typography } from "@wso2-enterprise/ui-toolkit";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import styled from "@emotion/styled";
 import { VSCodeTag } from "@vscode/webview-ui-toolkit/react";
-import { FieldValues, useController, UseControllerProps } from "react-hook-form";
+import { FieldValues, Path, useController, UseControllerProps } from "react-hook-form";
+import { Colors } from "../../../resources/constants";
 
 export type FilterType =
     | "sequence"
@@ -30,6 +31,7 @@ export type FilterType =
     | "js"
     | "json"
     | "smooksConfig"
+    | "swagger"
     | "wsdl"
     | "ws_policy"
     | "xsd"
@@ -64,6 +66,19 @@ interface IKeylookupBase {
     additionalItems?: string[];
 }
 
+// Define the conditional properties for the ExpressionField
+type ExpressionFieldProps = {
+    isExpression: true;
+    isExActive: boolean;
+    setIsExpression: (isExpr: boolean) => void;
+    canChangeEx?: boolean
+} | { 
+    isExpression?: false | never;
+    isExActive?: never;
+    setIsExpression?: never;
+    canChangeEx?: never
+};
+
 // Define the conditional properties
 type ConditionalProps = 
     | { label: string; name: string; identifier?: never }
@@ -72,9 +87,13 @@ type ConditionalProps =
     | { label?: never; name?: never; identifier: string };
 
 // Combine the base properties with conditional properties
-export type IKeylookup = IKeylookupBase & ConditionalProps;
+export type IKeylookup = IKeylookupBase & ExpressionFieldProps & ConditionalProps;
 
-export type IFormKeylookup<T extends FieldValues> = IKeylookupBase & { label?: string} & UseControllerProps<T>;
+export type IFormKeylookup<T extends FieldValues> = IKeylookupBase
+    & { label?: string }
+    & UseControllerProps<T>
+    // Properties for the ExpressionField
+    & ({ isExpression: true; canChangeEx?: boolean } | { isExpression?: false | never; canChangeEx?: never });
 
 // Styles
 const Container = styled.div({
@@ -100,6 +119,27 @@ const ItemText = styled.div({
     flex: "1 1 auto",
 });
 
+namespace ExBtn {
+    export const Container = styled.div({
+        display: "flex",
+        alignItems: "center",
+        backgroundColor: "inherit",
+    });
+
+    export const Wrapper = styled.div<{ isActive: boolean }>`
+        padding: 3px;
+        cursor: pointer;
+        background-color: ${(props: { isActive: any; }) => props.isActive ? 
+            Colors.INPUT_OPTION_ACTIVE : Colors.INPUT_OPTION_INACTIVE};
+        border: 1px solid ${(props: { isActive: any; }) => props.isActive ?
+            Colors.INPUT_OPTION_ACTIVE_BORDER : "transparent"};
+        &:hover {
+            background-color: ${(props: { isActive: any; }) => props.isActive ?
+                Colors.INPUT_OPTION_ACTIVE : Colors.INPUT_OPTION_HOVER};
+        }
+`;
+}
+
 const getItemComponent = (item: string, type?: "reg:") => {
     return (
         <ItemContainer>
@@ -118,6 +158,10 @@ export const Keylookup = (props: IKeylookup) => {
         allowItemCreate = true,
         path,
         errorMsg,
+        isExpression,
+        isExActive,
+        setIsExpression,
+        canChangeEx,
         ...rest
     } = props;
     const [items, setItems] = useState<(string | ItemComponent)[]>([]);
@@ -178,6 +222,16 @@ export const Keylookup = (props: IKeylookup) => {
         onValueChange && onValueChange(val);
     };
 
+    const ExButton = (props: { isActive: boolean; onClick: () => void }) => {
+        return (
+            <ExBtn.Container>
+                <ExBtn.Wrapper isActive={props.isActive} onClick={props.onClick}>
+                    <Typography sx={{ textAlign: "center", margin: 0 }} variant="h6">EX</Typography>
+                </ExBtn.Wrapper>
+            </ExBtn.Container>
+        );
+    }
+
     return (
         <Container>
             <AutoComplete
@@ -191,6 +245,16 @@ export const Keylookup = (props: IKeylookup) => {
                     handleValueChange("");
                     props.onCreateButtonClick(fetchItems, handleValueChange);
                 } : null}
+                {...isExpression && { actionBtns: [
+                    <ExButton
+                        isActive={isExActive}
+                        onClick={() => {
+                            if (canChangeEx) {
+                                setIsExpression(!isExActive);
+                            }
+                        }}
+                    />
+                ] }}
             />
             {errorMsg && <ErrorBanner errorMsg={errorMsg} />}
         </Container>
@@ -198,10 +262,34 @@ export const Keylookup = (props: IKeylookup) => {
 };
 
 export const FormKeylookup = <T extends FieldValues>(props: IFormKeylookup<T>) => {
-    const { control, name, label, ...rest } = props;
+    const { control, name, label, isExpression, canChangeEx = true, ...rest } = props;
     const {
         field: { value, onChange },
     } = useController({ name, control });
+    
+    if (isExpression) {
+        const handleValueChange = (val: string) => {
+            onChange({ ...value, value: val });
+        }
+
+        const handleExprChange = (isExpr: boolean) => {
+            onChange({ ...value, isExpression: isExpr });
+        }
+
+        return (
+            <Keylookup
+                {...rest}
+                name={name}
+                label={label}
+                value={value.value}
+                onValueChange={handleValueChange}
+                isExpression={true}
+                isExActive={value.isExpression}
+                setIsExpression={handleExprChange}
+                canChangeEx={canChangeEx}
+            />
+        );
+    }
 
     return <Keylookup {...rest} name={name} label={label} value={value} onValueChange={onChange} />;
 };

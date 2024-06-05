@@ -7,9 +7,11 @@ import { HomePage } from './mediators';
 import { getAllMediators } from './mediators/Values';
 import AddConnector from './Pages/AddConnector';
 import { FirstCharToUpperCase } from '../../utils/commons';
+import ExpressionEditor from './expressionEditor/ExpressionEditor';
+import { ExpressionFieldValue } from '../..';
 
 const SidePanelContainer = styled.div`
-    padding: 15px;
+    padding: 20px;
 
     *{font-family: var(--font-family)}
 `;
@@ -29,6 +31,11 @@ const ButtonContainer = styled.div`
     gap: 10px;
     align-items: center;
     height: 30px;
+`;
+
+const ContentContainer = styled.div`
+    height: calc(100vh - 50px);
+    overflow-y: auto;
 `;
 
 const IconContainer = styled.div`
@@ -77,6 +84,20 @@ export const sidepanelGoBack = (sidePanelContext: SidePanelContext) => {
         }, 200);
     }
 };
+
+export const handleOpenExprEditor = (value: ExpressionFieldValue, setValue: any, handleOnCancelExprEditorRef: any, sidePanelContext: SidePanelContext) => {
+    const content = <ExpressionEditor
+        value={value}
+        handleOnSave={(value) => {
+            setValue(value);
+            handleOnCancelExprEditorRef.current();
+        }}
+        handleOnCancel={() => {
+            handleOnCancelExprEditorRef.current();
+        }}
+    />;
+    sidepanelAddPage(sidePanelContext, content, "Expression Editor");
+}
 
 const SidePanelList = (props: SidePanelListProps) => {
     const [isLoading, setLoading] = useState<boolean>(true);
@@ -170,7 +191,7 @@ const SidePanelList = (props: SidePanelListProps) => {
                     {/* Header */}
                     <ButtonContainer>
                         {sidePanelContext.pageStack.length > 1 && sidePanelContext.pageStack[sidePanelContext.pageStack.length - 1].isOpen &&
-                            <Codicon name="arrow-left" sx={{ width: "20px", position: "absolute", left: "0px", paddingLeft: "25px" }} onClick={() => sidepanelGoBack(sidePanelContext)} />}
+                            <Codicon name="arrow-left" sx={{ width: "20px", position: "absolute", left: "0px", paddingLeft: "20px" }} onClick={() => sidepanelGoBack(sidePanelContext)} />}
 
                         <Icon />
                         <Title />
@@ -182,14 +203,18 @@ const SidePanelList = (props: SidePanelListProps) => {
                         {
                             sidePanelContext.pageStack.map((page: SidePanelPage, index) => {
                                 if (index === 0) {
-                                    return page.content;
+                                    return (
+                                        <ContentContainer key={index}>
+                                            {page.content}
+                                        </ContentContainer>
+                                    )
                                 }
                                 return <Drawer
                                     isOpen={page.isOpen}
                                     id={`drawer${index}`}
                                     width={300}
                                     isSelected={page.isOpen}
-                                    sx={{ width: "100%", top: "40px", border: "none", boxShadow: "none", height: "calc(100vh - 50px)", overflowY: "auto" }}
+                                    sx={{ width: "100%", top: "45px", border: "none", boxShadow: "none", height: "calc(100vh - 50px)", overflowY: "auto" }}
                                 >
                                     {page.content}
                                 </Drawer>

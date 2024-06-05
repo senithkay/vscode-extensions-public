@@ -8,7 +8,7 @@
  */
 import { DMType } from "@wso2-enterprise/mi-core";
 import md5 from "blueimp-md5";
-import { CallExpression, Identifier, Node, PropertyAccessExpression } from "ts-morph";
+import { CallExpression, ElementAccessExpression, Identifier, Node, PropertyAccessExpression } from "ts-morph";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { DataMapperLinkModel } from "../../Link";
@@ -19,7 +19,8 @@ import {
     getFieldNames,
     isMapFunction,
     getTnfFnReturnStatement,
-    representsTnfFnReturnStmt
+    representsTnfFnReturnStmt,
+    isInputAccessExpr
 } from "../../utils/common-utils";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
 import { ArrayOutputNode } from "../ArrayOutput";
@@ -44,6 +45,7 @@ export class ArrayFnConnectorNode extends DataMapperNodeModel {
 
     public targetFieldFQN: string;
     public hidden: boolean;
+    public hasInitialized: boolean;
 
     constructor(
         public context: IDataMapperContext,
@@ -80,18 +82,18 @@ export class ArrayFnConnectorNode extends DataMapperNodeModel {
     private findSourcePort(): void {
         let fieldId: string;
         let paramName: string;
-        let sourceExpr: PropertyAccessExpression | Identifier;
+        let sourceExpr: ElementAccessExpression | PropertyAccessExpression | Identifier;
         const exprWithMethod = this.value.getExpression();
 
-        if (Node.isPropertyAccessExpression(exprWithMethod)) {
-            const innerExpr = exprWithMethod.getExpression();
-            if (Node.isPropertyAccessExpression(innerExpr) || Node.isIdentifier(innerExpr)) {
-                sourceExpr = innerExpr;
+        if (isInputAccessExpr(exprWithMethod)) {
+            const innerExpr = (exprWithMethod as ElementAccessExpression).getExpression();
+            if (isInputAccessExpr(innerExpr) || Node.isIdentifier(innerExpr)) {
+                sourceExpr = innerExpr as ElementAccessExpression | PropertyAccessExpression | Identifier;
             }
         }
 
-        if (Node.isPropertyAccessExpression(sourceExpr)) {
-            const fieldNames = getFieldNames(sourceExpr);
+        if (isInputAccessExpr(sourceExpr)) {
+            const fieldNames = getFieldNames(sourceExpr as ElementAccessExpression | PropertyAccessExpression);
             fieldId = fieldNames.reduce((pV, cV) => pV ? `${pV}.${cV.name}` : cV.name, "");
             paramName = fieldNames[0].name;
         } else if (Node.isIdentifier(sourceExpr)) {
@@ -161,8 +163,11 @@ export class ArrayFnConnectorNode extends DataMapperNodeModel {
             });
         }
 
-        if (this.targetPort?.hidden){
-            this.hidden = true;
+        const previouslyHidden = this.hidden;
+        this.hidden = this.targetPort?.hidden;
+    
+        if (this.hidden !== previouslyHidden) {
+            this.hasInitialized = false;
         }
         while (this.targetPort && this.targetPort.hidden){
             this.targetPort = this.targetPort.parentModel;
@@ -170,6 +175,9 @@ export class ArrayFnConnectorNode extends DataMapperNodeModel {
     }
 
     initLinks(): void {
+        if (this.hasInitialized) {
+            return;
+        }
         if (!this.hidden) {
             // Create links from "IN" ports and back tracing the inputs
             if (this.sourcePort && this.inPort) {
@@ -232,6 +240,7 @@ export class ArrayFnConnectorNode extends DataMapperNodeModel {
                 this.getModel().addAll(link);
             }
         }
+        this.hasInitialized = true;
     }
 
     public updatePosition() {

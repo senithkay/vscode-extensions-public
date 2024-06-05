@@ -10,8 +10,6 @@
 import {JSONSchema4} from 'json-schema';
 import {ParserOptions as $RefOptions} from '@apidevtools/json-schema-ref-parser';
 import {cloneDeep, endsWith, merge} from 'lodash';
-import {Options as PrettierOptions} from 'prettier';
-import {format} from './formatter';
 import {generate} from './generator';
 import {normalize} from './normalizer';
 import {optimize} from './optimizer';
@@ -76,10 +74,6 @@ export interface Options {
    */
   strictIndexSignatures: boolean
   /**
-   * A [Prettier](https://prettier.io/docs/en/options.html) configuration.
-   */
-  style: PrettierOptions
-  /**
    * Generate code for `definitions` that aren't referenced by the schema?
    */
   unreachableDefinitions: boolean
@@ -105,15 +99,6 @@ export const DEFAULT_OPTIONS: Options = {
   ignoreMinAndMaxItems: false,
   maxItems: 20,
   strictIndexSignatures: false,
-  style: {
-    bracketSpacing: false,
-    printWidth: 120,
-    semi: true,
-    singleQuote: false,
-    tabWidth: 2,
-    trailingComma: 'none',
-    useTabs: false,
-  },
   unreachableDefinitions: false,
   unknownAny: true,
 }
@@ -154,9 +139,7 @@ export async function compile(schema: JSONSchema4, name: string, options: Partia
 
   const generated = generate(optimized, _options)
 
-  const formatted = await format(generated, _options)
-
-  return formatted
+  return generated;
 }
 
 export class ValidationError extends Error {}

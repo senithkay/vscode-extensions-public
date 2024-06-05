@@ -205,19 +205,7 @@ const getParamManagerConfig = (elements: any[], tableKey: string, tableValue: st
 
         if (type === 'ExprField') {
             paramFields += paramField.slice(0, -3) + `, 
-                openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => {
-                    const content = <ExpressionEditor
-                        value={value}
-                        handleOnSave={(value) => {
-                            setValue(value);
-                            handleOnCancelExprEditorRef.current();
-                        }}
-                        handleOnCancel={() => {
-                            handleOnCancelExprEditorRef.current();
-                        }}
-                    />;
-                    sidepanelAddPage(sidePanelContext, content, "Expression Editor");
-                }` + paramField.slice(-2);
+                openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)` + paramField.slice(-2);
 
         } else if (type === 'ParamManager') {
             const { paramValues: paramValues2, paramFields: paramFields2 } = getParamManagerConfig(attribute.value.elements, tableKey, tableValue, name);
@@ -314,26 +302,14 @@ const generateForm = (jsonData: any): string => {
                         fixIndentation(`
                         <TextArea {...field} label="${displayName}" placeholder="${helpTip}" />`, indentation);
                 } else if (inputType === 'stringOrExpression' || inputType === 'expression') {
-                    defaultValue = { isExpression: true, value: defaultValue || '' };
+                    defaultValue = { isExpression: inputType === "expression", value: defaultValue || '' };
                     fields +=
                         fixIndentation(`
                         <ExpressionField 
                             {...field} label="${displayName}"
                             placeholder="${helpTip}" 
                             canChange={${inputType === 'stringOrExpression'}}
-                            openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => {
-                                const content = <ExpressionEditor
-                                    value={value}
-                                    handleOnSave={(value) => {
-                                        setValue(value);
-                                        handleOnCancelExprEditorRef.current();
-                                    }}
-                                    handleOnCancel={() => {
-                                        handleOnCancelExprEditorRef.current();
-                                    }}
-                                />;
-                                sidepanelAddPage(sidePanelContext, content, "Expression Editor");
-                            }}
+                            openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
                          />`, indentation);
                 } else if (inputType === 'connection') {
 
@@ -511,7 +487,7 @@ import { Keylookup } from '../../../../Form';
 import { ExpressionField, ExpressionFieldValue } from '../../../../Form/ExpressionField/ExpressionInput';
 import { ParamManager, ParamConfig, ParamValue } from '../../../../Form/ParamManager/ParamManager';
 import { generateSpaceSeperatedStringFromParamValues } from '../../../../../utils/commons';
-import { sidepanelAddPage, sidepanelGoBack } from '../../..';
+import { handleOpenExprEditor, sidepanelAddPage, sidepanelGoBack } from '../../..';
 import ExpressionEditor from '../../../expressionEditor/ExpressionEditor';
 
 const cardStyle = { 
@@ -580,7 +556,7 @@ const ${operationNameCapitalized} = (props: AddMediatorProps) => {
     }
     return (
         <>
-        <Typography sx={{ padding: "10px 15px", borderBottom: "1px solid var(--vscode-editorWidget-border)" }} variant="body3">${description || ""}</Typography>
+        <Typography sx={{ padding: "10px 20px", borderBottom: "1px solid var(--vscode-editorWidget-border)" }} variant="body3">${description || ""}</Typography>
         <div style={{ padding: "20px" }}>\n`, 0);
     componentContent += fields;
 

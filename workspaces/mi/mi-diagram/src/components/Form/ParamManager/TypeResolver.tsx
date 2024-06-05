@@ -106,7 +106,7 @@ export function TypeResolver(props: TypeResolverProps) {
                     <VSCodeCheckbox
                         id={`checkbox-${id}`}
                         checked={value as boolean}
-                        onChange={handleCheckboxChange}
+                        onClick={handleCheckboxChange}
                         disabled={disabled}
                     >
                         {label || "Is Required?"}

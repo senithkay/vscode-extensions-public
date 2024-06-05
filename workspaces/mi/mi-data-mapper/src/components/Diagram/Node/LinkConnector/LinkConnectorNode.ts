@@ -8,7 +8,7 @@
  */
 import { TypeKind } from "@wso2-enterprise/mi-core";
 import md5 from "blueimp-md5";
-import { Diagnostic, Identifier, Node, PropertyAccessExpression } from "ts-morph";
+import { Diagnostic, ElementAccessExpression, Identifier, Node, PropertyAccessExpression } from "ts-morph";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { DataMapperLinkModel } from "../../Link";
@@ -44,13 +44,14 @@ export class LinkConnectorNode extends DataMapperNodeModel {
     public value: string;
     public diagnostics: Diagnostic[];
     public hidden: boolean;
+    public hasInitialized: boolean;
 
     constructor(
         public context: IDataMapperContext,
         public valueNode: Node,
         public editorLabel: string,
         public parentNode: Node,
-        public fieldAccessNodes: (PropertyAccessExpression | Identifier)[],
+        public inputAccessNodes: (PropertyAccessExpression | ElementAccessExpression | Identifier)[],
         public fields: Node[],
         public isPrimitiveTypeArrayElement?: boolean
     ) {
@@ -82,7 +83,7 @@ export class LinkConnectorNode extends DataMapperNodeModel {
         );
         this.addPort(this.outPort);
 
-        this.fieldAccessNodes.forEach((field) => {
+        this.inputAccessNodes.forEach((field) => {
             const inputNode = findInputNode(field, this);
             if (inputNode) {
                 this.sourcePorts.push(getInputPort(inputNode, field));
@@ -117,9 +118,10 @@ export class LinkConnectorNode extends DataMapperNodeModel {
                             this.fields, node.dmTypeWithValue, targetPortPrefix,
                             (portId: string) =>  node.getPort(portId) as InputOutputPortModel, rootName
                         );
-
-                        if (this.targetMappedPort?.portName !== this.targetPort?.portName) {
-                            this.hidden = true;
+                        const previouslyHidden = this.hidden;
+                        this.hidden = this.targetMappedPort?.portName !== this.targetPort?.portName;
+                        if (this.hidden !== previouslyHidden) {
+                            this.hasInitialized = false;
                         }
                     }
                 }
@@ -128,6 +130,9 @@ export class LinkConnectorNode extends DataMapperNodeModel {
     }
 
     initLinks(): void {
+        if (this.hasInitialized) {
+            return;
+        }
         if (this.hidden) {
             if (this.targetMappedPort) {
                 this.sourcePorts.forEach((sourcePort) => {
@@ -208,6 +213,7 @@ export class LinkConnectorNode extends DataMapperNodeModel {
                 this.getModel().addAll(lm);
             }
         }
+        this.hasInitialized = true;
     }
 
     updateSource(suffix: string): void {

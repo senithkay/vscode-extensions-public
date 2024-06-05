@@ -10,7 +10,7 @@ import { PortModel } from "@projectstorm/react-diagrams-core";
 import { DMType, TypeKind } from "@wso2-enterprise/mi-core";
 
 import { InputOutputPortModel } from "../Port";
-import { getDefaultValue, getLinebreak } from "./common-utils";
+import { getDefaultValue, getLinebreak, isQuotedString } from "./common-utils";
 
 export function isSourcePortArray(port: PortModel): boolean {
     if (port instanceof InputOutputPortModel) {
@@ -28,7 +28,10 @@ export function isTargetPortArray(port: PortModel): boolean {
 
 export function generateArrayToArrayMappingWithFn(srcExpr: string, targetType: DMType) {
 
-    let itemName = `${srcExpr.split('.').pop().trim()}Item`;
+    const parts = splitSrcExprWithRegex(srcExpr) // Split by dot or square brackets
+    let item = parts[parts.length - 1];
+    const varName = isQuotedString(item) ? `${item.substring(1, item.length - 1)}Item` : `${item}Item`;
+    const refinedVarName = varName.replace(/[ .]/g, '_'); // Replace spaces and dots with underscores
     let returnExpr = '';
 
     if (targetType.kind === TypeKind.Interface) {
@@ -43,7 +46,7 @@ export function generateArrayToArrayMappingWithFn(srcExpr: string, targetType: D
         returnExpr = `return ${getDefaultValue(targetType.kind)}`;
     }
 
-    return `${srcExpr.trim()}.map((${itemName}) => {${returnExpr}})`;
+    return `${srcExpr.trim()}.map((${refinedVarName}) => {${returnExpr}})`;
 }
 
 function fillWithDefaults(type: DMType): string {
@@ -61,3 +64,18 @@ function fillWithDefaults(type: DMType): string {
 
     return getDefaultValue(type.kind);
 };
+
+function splitSrcExprWithRegex(input: string): string[] {
+    // Regular expression to match tokens
+    const regex = /\[("[^"]*"|'[^']*'|[^[\]]+)\]|(["'])(?:(?=(\\?))\2.)*?\1|\w+/g;
+    // Match and return all tokens
+    const matches = input.match(regex);
+    if (!matches) return [];
+    
+    return matches.map(token => {
+        if (token.startsWith('[') && token.endsWith(']')) {
+            return token.slice(1, -1);
+        }
+        return token.replace(/['"]/g, '');
+    });
+}

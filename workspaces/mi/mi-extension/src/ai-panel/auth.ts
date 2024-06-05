@@ -27,7 +27,7 @@ const CommonReqHeaders = {
     'Accept': 'application/json'
 };
 
-const config = vscode.workspace.getConfiguration('integrationStudio');
+const config = vscode.workspace.getConfiguration('MI');
 const AUTH_ORG = config.get('authOrg') as string;
 const AUTH_CLIENT_ID = config.get('authClientID') as string;
 const AUTH_REDIRECT_URL = config.get('authRedirectURL') as string;
@@ -78,7 +78,7 @@ export async function exchangeAuthCode(authCode: string) {
             await extension.context.secrets.store('MIAIUser', response.accessToken);
             await extension.context.secrets.store('MIAIRefreshToken', response.refreshToken ?? '');
 
-            const config = vscode.workspace.getConfiguration('integrationStudio');
+            const config = vscode.workspace.getConfiguration('MI');
             const ROOT_URL = config.get('rootUrl') as string;
             const url = ROOT_URL + USER_CHECK_BACKEND_URL;
             

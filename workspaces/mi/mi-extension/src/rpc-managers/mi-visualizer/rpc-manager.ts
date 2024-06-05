@@ -19,10 +19,15 @@ import {
     HistoryEntryResponse,
     LogRequest,
     MIVisualizerAPI,
+    NotificationRequest,
+    NotificationResponse,
     OpenViewRequest,
     ProjectStructureRequest,
     ProjectStructureResponse,
+    RetrieveContextRequest,
+    RetrieveContextResponse,
     SampleDownloadRequest,
+    UpdateContextRequest,
     VisualizerLocation,
     WorkspaceFolder,
     WorkspacesResponse,
@@ -94,7 +99,7 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
 
     async fetchSamplesFromGithub(): Promise<GettingStartedData> {
         return new Promise(async (resolve) => {
-            const url = 'https://raw.githubusercontent.com/wso2/integration-studio/main/SamplesForVSCode/info.json';
+            const url = 'https://mi-connectors.wso2.com/samples/info.json';
             try {
                 const response = await fetch(url);
 
@@ -140,7 +145,7 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
     }
 
     downloadSelectedSampleFromGithub(params: SampleDownloadRequest): void {
-        const url = 'https://github.com/wso2/integration-studio/raw/main/SamplesForVSCode/samples/';
+        const url = 'https://mi-connectors.wso2.com/samples/samples/';
         handleOpenFile(params.zipFileName, url);
     }
 
@@ -199,5 +204,43 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
     log(params: LogRequest): void {
         // Logs the message to the output channel
         log(params.message);
+    }
+
+    async updateContext(params: UpdateContextRequest): Promise<void> {
+        return new Promise(async (resolve) => {
+            const { key, value, contextType = "global" } = params;
+            if (contextType === "workspace") {
+                await extension.context.workspaceState.update(key, value);
+            } else {
+                await extension.context.globalState.update(key, value);
+            }
+            resolve();
+        });
+    }
+
+    async retrieveContext(params: RetrieveContextRequest): Promise<RetrieveContextResponse> {
+        return new Promise((resolve) => {
+            const { key, contextType = "global" } = params;
+            const value = contextType === "workspace" ?
+                extension.context.workspaceState.get(key) :
+                extension.context.globalState.get(key);
+            resolve({ value });
+        });
+    }
+
+    async showNotification(params: NotificationRequest): Promise<NotificationResponse> {
+        return new Promise(async (resolve) => {
+            const { message, options, type = "info" } = params;
+            let selection: string | undefined;
+            if (type === "info") {
+                selection = await window.showInformationMessage(message, ...options ?? []);
+            } else if (type === "warning") {
+                selection = await window.showWarningMessage(message, ...options ?? []);
+            } else {
+                selection = await window.showErrorMessage(message, ...options ?? []);
+            }
+
+            resolve({ selection });
+        });
     }
 }

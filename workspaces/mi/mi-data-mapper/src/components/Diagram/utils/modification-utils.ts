@@ -50,7 +50,7 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 	const parentFieldNames: string[] = [];
 	const { applyModifications } = targetNode.context;
 
-	rhs = sourcePort.fieldFQN;
+	rhs = buildInputAccessExpr(sourcePort.fieldFQN);
 	lhs = getFieldNameFromOutputPort(targetPort);
 
 	if (isMappedToRootArrayLiteralExpr(targetPort)
@@ -348,7 +348,7 @@ export function modifySourceForMultipleMappings(link: DataMapperLinkModel) {
 	const targetNode = targetPort.getNode();
 
 	if (sourcePort && sourcePort instanceof InputOutputPortModel) {
-		rhs = sourcePort.fieldFQN;
+		rhs = buildInputAccessExpr(sourcePort.fieldFQN);
 	}
 
 	if (targetNode instanceof LinkConnectorNode) {
@@ -384,6 +384,23 @@ export function modifySourceForMultipleMappings(link: DataMapperLinkModel) {
 			}
 		});
 	}
+}
+
+export function buildInputAccessExpr(fieldFqn: string): string {
+    // Regular expression to match either quoted strings or non-quoted strings with dots
+    const regex = /"([^"]+)"|'([^"]+)'|([^".]+)/g;
+
+    const result = fieldFqn.replace(regex, (match, doubleQuoted, singleQuoted, unquoted) => {
+        if (doubleQuoted) { 
+            return `["${doubleQuoted}"]`; // If the part is enclosed in double quotes, wrap it in square brackets
+        } else if (singleQuoted) {
+			return `['${singleQuoted}']`; // If the part is enclosed in single quotes, wrap it in square brackets
+		} else {
+            return unquoted; // Otherwise, leave the part unchanged
+        }
+    });
+
+    return result.replace(/\.\[/g, '['); // Replace occurrences of '.[' with '[' to handle consecutive bracketing
 }
 
 function isMappedToRootArrayLiteralExpr(targetPort: InputOutputPortModel): boolean {

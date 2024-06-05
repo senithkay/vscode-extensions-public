@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { GroupNodeModel } from "./GroupNodeModel";
@@ -17,7 +17,7 @@ import { Button, ClickAwayListener, Menu, MenuItem, Popover, Tooltip } from "@ws
 import { MoreVertIcon } from "../../../resources";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import SidePanelContext from "../../sidePanel/SidePanelContexProvider";
-import { getSVGIcon } from "../../../resources/icons/mediatorIcons/icons";
+import { getMediatorIconsFromFont } from "../../../resources/icons/mediatorIcons/icons";
 import { FirstCharToUpperCase } from "../../../utils/commons";
 
 namespace S {
@@ -117,6 +117,11 @@ namespace S {
         width: 0;
         height: 0;
     `;
+
+    export const TooltipContent = styled.div`
+        max-width: 80vw;
+        white-space: pre-wrap;
+    `;
 }
 
 interface CallNodeWidgetProps {
@@ -184,9 +189,17 @@ export function GroupNodeWidget(props: CallNodeWidgetProps) {
         await rpcClient.getMiDebuggerRpcClient().removeBreakpointFromSource(request);
     };
 
+    const TooltipEl = useMemo(() => {
+        return () => (
+            <S.TooltipContent style={{ textWrap: "wrap" }}>
+                {tooltip}
+            </S.TooltipContent>
+        );
+    }, [tooltip])
+
     return (
         <div>
-            <Tooltip content={!isPopoverOpen ? tooltip : ""} position={"bottom"} containerPosition={"absolute"}>
+            <Tooltip content={!isPopoverOpen && tooltip ? <TooltipEl /> : ""} position={"bottom"} containerPosition={"absolute"}>
                 <S.Node
                     selected={node.isSelected()}
                     hasError={hasDiagnotics}
@@ -201,7 +214,7 @@ export function GroupNodeWidget(props: CallNodeWidgetProps) {
                     )}
                     <S.TopPortWidget port={node.getPort("in")!} engine={engine} />
                     <S.Header>
-                        <S.IconContainer>{getSVGIcon(node.stNode.tag)}</S.IconContainer>
+                        <S.IconContainer>{getMediatorIconsFromFont(node.stNode.tag)}</S.IconContainer>
                         <S.NodeText>{FirstCharToUpperCase(node.stNode.tag)}</S.NodeText>
                         {isHovered && (
                             <S.StyledButton appearance="icon" onClick={handleOnClickMenu}>
