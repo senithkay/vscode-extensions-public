@@ -61,6 +61,10 @@ import {
     BrowseFileResponse,
     CreateRegistryResourceRequest,
     CreateRegistryResourceResponse,
+    UpdateRegistryMetadataRequest,
+    UpdateRegistryMetadataResponse,
+    GetRegistryMetadataRequest,
+    GetRegistryMetadataResponse,
     BrowseFileRequest,
     CreateMessageProcessorRequest,
     CreateMessageProcessorResponse,
@@ -226,6 +230,8 @@ export const getTextAtRange: RequestType<GetTextAtRangeRequest, GetTextAtRangeRe
 export const getDiagnostics: RequestType<GetDiagnosticsReqeust, GetDiagnosticsResponse> = { method: `${_preFix}/getDiagnostics` };
 export const browseFile: RequestType<BrowseFileRequest, BrowseFileResponse> = { method: `${_preFix}/browseFile` };
 export const createRegistryResource: RequestType<CreateRegistryResourceRequest, CreateRegistryResourceResponse> = { method: `${_preFix}/createRegistryResource` };
+export const updateRegistryMetadata: RequestType<UpdateRegistryMetadataRequest, UpdateRegistryMetadataResponse> = { method: `${_preFix}/updateRegistryMetadata` };
+export const getMetadataOfRegistryResource: RequestType<GetRegistryMetadataRequest, GetRegistryMetadataResponse> = { method: `${_preFix}/getMetadataOfRegistryResource` };
 export const getAvailableResources: RequestType<GetAvailableResourcesRequest, GetAvailableResourcesResponse> = { method: `${_preFix}/getAvailableResources` };
 export const createClassMediator: RequestType<CreateClassMediatorRequest, CreateClassMediatorResponse> = { method: `${_preFix}/createClassMediator` };
 export const getSelectiveWorkspaceContext: RequestType<void, GetSelectiveWorkspaceContextResponse> = { method: `${_preFix}/getSelectiveWorkspaceContext` };

@@ -60,6 +60,10 @@ import {
     BrowseFileResponse,
     CreateRegistryResourceRequest,
     CreateRegistryResourceResponse,
+    UpdateRegistryMetadataRequest,
+    UpdateRegistryMetadataResponse,
+    GetRegistryMetadataRequest,
+    GetRegistryMetadataResponse,
     BrowseFileRequest,
     CreateMessageProcessorRequest,
     CreateMessageProcessorResponse,
@@ -229,6 +233,8 @@ export interface MiDiagramAPI {
     getSelectiveWorkspaceContext: () => Promise<GetSelectiveWorkspaceContextResponse>;
     getBackendRootUrl: () => Promise<GetBackendRootUrlResponse>;
     getAvailableRegistryResources: (params: ListRegistryArtifactsRequest) => Promise<RegistryArtifactNamesResponse>;
+    updateRegistryMetadata: (params: UpdateRegistryMetadataRequest) => Promise<UpdateRegistryMetadataResponse>;
+    getMetadataOfRegistryResource: (params: GetRegistryMetadataRequest) => Promise<GetRegistryMetadataResponse>;
     rangeFormat: (params: RangeFormatRequest) => Promise<ApplyEditResponse>;
     downloadConnector: (params: DownloadConnectorRequest) => Promise<DownloadConnectorResponse>;
     getAvailableConnectors: (params: GetAvailableConnectorRequest) => Promise<GetAvailableConnectorResponse>;

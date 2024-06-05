@@ -640,6 +640,7 @@ function findViewIcon(view) {
             icon = 'file';
             break;
         case MACHINE_VIEW.RegistryResourceForm:
+        case MACHINE_VIEW.RegistryMetadataForm:
             icon = 'type-hierarchy';
             break;
         default:

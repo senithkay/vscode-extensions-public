@@ -45,6 +45,10 @@ import {
     CreateProxyServiceResponse,
     CreateRegistryResourceRequest,
     CreateRegistryResourceResponse,
+    UpdateRegistryMetadataRequest,
+    UpdateRegistryMetadataResponse,
+    GetRegistryMetadataRequest,
+    GetRegistryMetadataResponse,
     CreateSequenceRequest,
     CreateSequenceResponse,
     CreateTaskRequest,
@@ -180,7 +184,7 @@ import { StateMachine, navigate, openView } from "../../stateMachine";
 import { openPopupView } from "../../stateMachinePopup";
 import { UndoRedoManager } from "../../undoRedoManager";
 import { createFolderStructure, getAddressEndpointXmlWrapper, getDefaultEndpointXmlWrapper, getFailoverXmlWrapper, getHttpEndpointXmlWrapper, getInboundEndpointXmlWrapper, getLoadBalanceXmlWrapper, getMessageProcessorXmlWrapper, getMessageStoreXmlWrapper, getProxyServiceXmlWrapper, getRegistryResourceContent, getTaskXmlWrapper, getTemplateEndpointXmlWrapper, getTemplateXmlWrapper, getWsdlEndpointXmlWrapper } from "../../util";
-import { addNewEntryToArtifactXML, addSynapseDependency, changeRootPomPackaging, createMetadataFilesForRegistryCollection, detectMediaType, getAvailableRegistryResources, getMediatypeAndFileExtension } from "../../util/fileOperations";
+import { addNewEntryToArtifactXML, addSynapseDependency, changeRootPomPackaging, createMetadataFilesForRegistryCollection, detectMediaType, getAvailableRegistryResources, getMediatypeAndFileExtension, getRegistryResourceMetadata, updateRegistryResourceMetadata } from "../../util/fileOperations";
 import { importProject } from "../../util/migrationUtils";
 import { getDataSourceXml } from "../../util/template-engine/mustach-templates/DataSource";
 import { getClassMediatorContent } from "../../util/template-engine/mustach-templates/classMediator";
@@ -331,7 +335,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     response = await langClient.generateAPI({
                         apiName: name,
                         swaggerOrWsdlPath: swaggerDefPath,
-                        publishSwaggerPath: 
+                        publishSwaggerPath:
                             saveSwaggerDef ? `gov:swaggerFiles/${getSwaggerName(swaggerDefPath)}` : undefined,
                         mode: "create.api.from.swagger"
                     });
@@ -370,7 +374,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     }
                 });
             }
-            
+
             // Save swagger file
             if (saveSwaggerDef && swaggerDefPath) {
                 const workspacePath = workspace.workspaceFolders![0].uri.fsPath;
@@ -2548,7 +2552,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
     async writeContentToFile(params: WriteContentToFileRequest): Promise<WriteContentToFileResponse> {
         const fetchConnectors = async (name) => {
             const response = await fetch('https://raw.githubusercontent.com/rosensilva/connectors/main/connectors_list.json');
-            if(!response.ok) {
+            if (!response.ok) {
                 console.error('Failed to fetch connectors');
             }
             const data = await response.json();
@@ -2634,7 +2638,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 }
 
                 //write the content to a file, if file exists, overwrite else create new file
-                const fullPath = path.join(directoryPath ?? '', 'src','main','wso2mi','artifacts', fileType, path.sep, `${name}.xml`);
+                const fullPath = path.join(directoryPath ?? '', 'src', 'main', 'wso2mi', 'artifacts', fileType, path.sep, `${name}.xml`);
                 console.log('Full path:', fullPath);
                 try {
                     console.log('Writing content to file:', fullPath);
@@ -2945,6 +2949,20 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 commands.executeCommand(COMMANDS.REFRESH_COMMAND);
                 resolve({ path: destPath });
             }
+        });
+    }
+
+    async getMetadataOfRegistryResource(params: GetRegistryMetadataRequest): Promise<GetRegistryMetadataResponse> {
+        return new Promise(async (resolve) => {
+            resolve({ metadata: getRegistryResourceMetadata(params.projectDirectory) });
+        });
+    }
+
+    async updateRegistryMetadata(params: UpdateRegistryMetadataRequest): Promise<UpdateRegistryMetadataResponse> {
+        return new Promise(async (resolve) => {
+            let message = updateRegistryResourceMetadata(params);
+            window.showInformationMessage(message);
+            resolve({ message: message });
         });
     }
 

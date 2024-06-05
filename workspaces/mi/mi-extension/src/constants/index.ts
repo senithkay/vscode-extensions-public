@@ -56,6 +56,7 @@ export const COMMANDS = {
     ADD_REGISTERY_RESOURCE_COMMAND: 'MI.project-explorer.add-registry-resource',
     DELETE_REGISTERY_RESOURCE_COMMAND: 'MI.project-explorer.delete-reg-resource',
     EDIT_REGISTERY_RESOURCE_COMMAND: 'MI.project-explorer.edit-reg-resource',
+    EDIT_REGISTRY_RESOURCE_METADATA_COMMAND: 'MI.project-explorer.edit-reg-metadata',
     ADD_CLASS_MEDIATOR_COMMAND: 'MI.project-explorer.add-class-mediator',
     EDIT_CLASS_MEDIATOR_COMMAND: 'MI.project-explorer.edit-class-mediator',
     CHANGE_SERVER_PATH: 'MI.change.server',
