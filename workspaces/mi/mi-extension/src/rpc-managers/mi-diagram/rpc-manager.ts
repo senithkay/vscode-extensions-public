@@ -178,6 +178,8 @@ import * as tmp from 'tmp';
 import { v4 as uuidv4 } from 'uuid';
 import * as vscode from 'vscode';
 import { Position, Range, Selection, TextEdit, Uri, ViewColumn, WorkspaceEdit, commands, window, workspace } from "vscode";
+import { isEqual } from "lodash";
+import { parse } from 'yaml';
 import { extension } from '../../MIExtensionContext';
 import { StateMachineAI } from '../../ai-panel/aiMachine';
 import { COMMANDS, DEFAULT_PROJECT_VERSION, MI_COPILOT_BACKEND_URL } from "../../constants";
@@ -3439,8 +3441,8 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
     }
 
     async editOpenAPISpec(params: EditOpenAPISpecRequest): Promise<void> {
-        return new Promise(async (resolve) => {
-            const { apiName } = params;
+        return new Promise(async () => {
+            const { apiName, apiPath } = params;
             const workspacePath = workspace.workspaceFolders![0].uri.fsPath;
             const openAPISpecPath = path.join(
                 workspacePath,
@@ -3456,12 +3458,33 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             // Create directory if not exists
             if (!fs.existsSync(path.dirname(openAPISpecPath))) {
                 fs.mkdirSync(path.dirname(openAPISpecPath), { recursive: true });
-            }
+            };
             
-            // Create the file if not exists
+            const langClient = StateMachine.context().langClient!;
+            const { swagger } = await langClient.swaggerFromAPI({ apiPath });
             if (!fs.existsSync(openAPISpecPath)) {
-                fs.writeFileSync(openAPISpecPath, '');
-            }
+                // Create the file if not exists
+                fs.writeFileSync(openAPISpecPath, swagger);
+            } else {
+                /**
+                 * TODO: Complete the following checklist
+                 * - Check if the existing swagger differs from the API
+                 * - If so, provide a warning message
+                 * - Provide an option to overwrite the existing file
+                 */
+                const existingSwagger = fs.readFileSync(openAPISpecPath, 'utf-8');
+                const isEqualSwagger = isEqual(parse(existingSwagger), parse(swagger));
+                if (!isEqualSwagger) {
+                    const overwrite = await window.showWarningMessage(
+                        "The existing OpenAPI spec differs from the API. Do you want to overwrite the existing file?",
+                        "Yes",
+                        "No"
+                    );
+                    if (overwrite === "Yes") {
+                        fs.writeFileSync(openAPISpecPath, swagger);
+                    }
+                }
+            };
 
             // Open the file in the editor
             const openedEditor = window.visibleTextEditors.find(
@@ -3473,7 +3496,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 });
             } else {
                 commands.executeCommand('vscode.open', Uri.file(openAPISpecPath), {
-                    viewColumn: ViewColumn.Beside
+                    viewColumn: ViewColumn.Active
                 });
             }
         });

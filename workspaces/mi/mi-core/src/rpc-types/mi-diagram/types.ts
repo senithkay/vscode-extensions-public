@@ -1294,5 +1294,17 @@ export interface GenerateAPIResponse {
 
 export interface EditOpenAPISpecRequest {
     apiName: string;
+    apiPath: string;
+}
+
+export interface SwaggerFromAPIRequest {
+    apiPath: string;
+    swaggerPath?: string;
+    isJsonIn?: boolean;
+    isJsonOut?: boolean;
+}
+
+export interface SwaggerFromAPIResponse {
+    swagger: string;
 }
 
