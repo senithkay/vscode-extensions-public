@@ -55,16 +55,24 @@ export default function ExpressionBar(props: ExpressionBarProps) {
     useEffect(() => {
         // Keep the text field focused when an input port is selected
         if (textFieldRef.current) {
+            const inputElement = textFieldRef.current.shadowRoot.querySelector('input');
             if (focusedPort) {
-                textFieldRef.current.focus();
+                inputElement.focus();
             } else {
-                textFieldRef.current.blur();
+                inputElement.blur();
             }
         }
         // Update the expression text when an input port is selected
-        if (inputPort) {
-            const updatedText = `${expressionRef.current}${inputPort.fieldFQN}`;
+        if (inputPort && textFieldRef.current) {
+            const inputElement = textFieldRef.current.shadowRoot.querySelector('input');
+            const cursorPosition = inputElement.selectionStart;
+            const currentText = expressionRef.current;
+            const beforeCursor = currentText.substring(0, cursorPosition);
+            const afterCursor = currentText.substring(cursorPosition);
+            const updatedText = `${beforeCursor}${inputPort.fieldFQN}${afterCursor}`;
             expressionRef.current = updatedText;
+            inputElement.value = updatedText; // Update the text field's value
+            inputElement.setSelectionRange(cursorPosition + inputPort.fieldFQN.length, cursorPosition + inputPort.fieldFQN.length); // Set cursor position right after the inserted text
             setForceUpdate(prev => !prev);
         }
     }, [inputPort]);
