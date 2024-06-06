@@ -120,5 +120,6 @@ export class DefaultState extends State<DiagramEngine> {
 			link.getSourcePort()?.fireEvent({}, "link-unselected");
 			link.getTargetPort()?.fireEvent({}, "link-unselected");
 		});
+		useDMExpressionBarStore.getState().resetFocusedPort();
 	}
 }
