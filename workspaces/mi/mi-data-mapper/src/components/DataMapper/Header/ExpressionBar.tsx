@@ -151,16 +151,21 @@ export default function ExpressionBar(props: ExpressionBarProps) {
 
             if (Node.isPropertyAssignment(focusedFieldValue)) {
                 targetExpr = focusedFieldValue.getInitializer();
-            }
 
-            if (expressionRef.current !== '') {
-                targetExpr.replaceWithText(expressionRef.current);
-            } else {
-                if (Node.isPropertyAssignment(focusedFieldValue)) {
+                if (expressionRef.current !== '') {
+                    const parent = focusedFieldValue.getParent();
+                    const propName = focusedFieldValue.getName();
+
+                    focusedFieldValue.remove();
+                    parent.addPropertyAssignment({
+                        name: propName,
+                        initializer: expressionRef.current
+                    });
+                } else {
                     focusedFieldValue.remove();
                 }
-                // TODO: Handle other types of nodes
             }
+            // TODO: Handle other types of nodes
 
             applyModifications();
         } else {
