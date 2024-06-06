@@ -55,7 +55,7 @@ export function DataMapperHeader(props: DataMapperHeaderProps) {
 }
 
 const HeaderContainer = styled.div`
-    height: 74px;
+    height: 66px;
     width: 100%;
     display: flex;
     flex-direction: column;

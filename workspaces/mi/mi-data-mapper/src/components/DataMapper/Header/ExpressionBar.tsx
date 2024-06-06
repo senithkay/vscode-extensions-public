@@ -20,17 +20,17 @@ import { getFnDeclStructure, operators } from '../Operators/operators';
 const functionNames = Object.keys(operators);
 
 const useStyles = () => ({
+    exprBarContainer: css({
+        display: "flex",
+        width: "100%",
+        height: "25px",
+        backgroundColor: "var(--vscode-input-background)",
+    }),
     textField: css({
         '&::part(control)': {
             fontFamily: 'monospace',
-            fontSize: '12px',
+            fontSize: '12px'
         },
-    }),
-    autoCompleteContainer: css({
-        display: "flex",
-        width: "100%",
-        height: "100%",
-        backgroundColor: "var(--vscode-input-background)",
     })
 });
 
@@ -196,14 +196,14 @@ export default function ExpressionBar(props: ExpressionBarProps) {
     }
 
     return (
-        <>
+        <div className={classes.exprBarContainer}>
             {focusedPort && expressionRef.current === "" ? (
                 // Hack to list down the operator suggestions whenever the expression is empty
-                <div className={classes.autoCompleteContainer}>
+                <>
                     <Icon
                         name={"function-icon"}
                         iconSx={{ fontSize: "15px", color: "var(--vscode-input-placeholderForeground)" }}
-                        sx={{ margin: "5px" }}
+                        sx={{ margin: "5px 9px" }}
                     />
                     <AutoComplete
                         sx={{ fontFamily: 'monospace', fontSize: '12px' }}
@@ -213,7 +213,7 @@ export default function ExpressionBar(props: ExpressionBarProps) {
                         hideDropdown={true}
                         onValueChange={onChangeAutoComplete}
                     />
-                </div>
+                </>
             ) : (
                 <TextField
                     ref={textFieldRef}
@@ -234,6 +234,6 @@ export default function ExpressionBar(props: ExpressionBarProps) {
                     onKeyDown={onKeyDown}
                 />
             )}
-        </>
+        </div>
     );
 }
