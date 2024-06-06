@@ -119,7 +119,6 @@ export default function ExpressionBar(props: ExpressionBarProps) {
         }
         
         applyChanges();
-
     };
 
     const onKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {

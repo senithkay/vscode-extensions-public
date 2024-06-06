@@ -9,6 +9,8 @@
 
 import { FunctionDeclarationStructure, StructureKind } from "ts-morph";
 
+const AUTO_GEN_MSG = "#### AUTO-GENERATED FUNCTION, DO NOT MODIFY ####";
+
 export const operators: Record<string, FunctionDeclarationStructure> = {
     // ########################### Arithmetic Operators ###########################
     "sum": {
@@ -18,7 +20,8 @@ export const operators: Record<string, FunctionDeclarationStructure> = {
         returnType: "number",
         statements: "return numbers.reduce((acc, curr) => acc + curr, 0);",
         docs: [{description:
-`Calculates the sum of multiple numbers.
+`${AUTO_GEN_MSG}
+Calculates the sum of multiple numbers.
 @parameter numbers - The numbers to sum.
 @returns The sum of the numbers.`
         }],
@@ -30,7 +33,8 @@ export const operators: Record<string, FunctionDeclarationStructure> = {
         returnType: "number",
         statements: "return Math.max(...numbers);",
         docs: [{description:
-`Finds the maximum number from a list of numbers.
+`${AUTO_GEN_MSG}
+Finds the maximum number from a list of numbers.
 @param numbers - The numbers to find the maximum from.
 @returns The maximum number.`
         }],
@@ -42,7 +46,8 @@ export const operators: Record<string, FunctionDeclarationStructure> = {
         returnType: "number",
         statements: "return Math.min(...numbers);",
         docs: [{description:
-`Finds the minimum number from a list of numbers.
+`${AUTO_GEN_MSG}
+Finds the minimum number from a list of numbers.
 @param numbers - The numbers to find the minimum from.
 @returns The minimum number.`
         }]
@@ -52,9 +57,10 @@ export const operators: Record<string, FunctionDeclarationStructure> = {
         name: "average",
         parameters: [{name: "...numbers", type: "number[]"}],
         returnType: "number",
-        statements: "return sum(...numbers) / numbers.length;",
+        statements: "return numbers.reduce((acc, curr) => acc + curr, 0) / numbers.length;",
         docs: [{description:
-`Calculates the average of multiple numbers.
+`${AUTO_GEN_MSG}
+Calculates the average of multiple numbers.
 @param numbers - The numbers to average.
 @returns The average of the numbers.`
         }]
@@ -66,7 +72,8 @@ export const operators: Record<string, FunctionDeclarationStructure> = {
         returnType: "number",
         statements: "return Math.ceil(num);",
         docs: [{description:
-`Finds the ceiling of a number.
+`${AUTO_GEN_MSG}
+Finds the ceiling of a number.
 @param num - The number to find the ceiling of.
 @returns The ceiling of the number.`
         }]
@@ -78,7 +85,8 @@ export const operators: Record<string, FunctionDeclarationStructure> = {
         returnType: "number",
         statements: "return Math.floor(num);",
         docs: [{description:
-`Finds the floor of a number.
+`${AUTO_GEN_MSG}
+Finds the floor of a number.
 * @param num - The number to find the floor of.
 * @returns The floor of the number.`
         }]
@@ -90,7 +98,8 @@ export const operators: Record<string, FunctionDeclarationStructure> = {
         returnType: "number",
         statements: "return Math.round(num);",
         docs: [{description:
-`Rounds a number to the nearest integer.
+`${AUTO_GEN_MSG}
+Rounds a number to the nearest integer.
 * @param num - The number to round.
 * @returns The rounded number.`
         }]
@@ -103,7 +112,8 @@ export const operators: Record<string, FunctionDeclarationStructure> = {
         returnType: "number",
         statements: "return Number(str);",
         docs: [{description:
-`Converts a string to a number.
+`${AUTO_GEN_MSG}
+Converts a string to a number.
 @param str - The string to convert.
 @returns The number.`
         }]
@@ -115,7 +125,8 @@ export const operators: Record<string, FunctionDeclarationStructure> = {
         returnType: "boolean",
         statements: "return str.toLowerCase() === 'true';",
         docs: [{description:
-`Converts a string to a boolean.
+`${AUTO_GEN_MSG}
+Converts a string to a boolean.
 @param str - The string to convert.
 @returns The boolean value.`
         }]
@@ -127,7 +138,8 @@ export const operators: Record<string, FunctionDeclarationStructure> = {
         returnType: "string",
         statements: "return num.toString();",
         docs: [{description:
-`Converts a number to a string.
+`${AUTO_GEN_MSG}
+Converts a number to a string.
 @param num - The number to convert.
 @returns The string representation of the number.`
         }]
@@ -139,7 +151,8 @@ export const operators: Record<string, FunctionDeclarationStructure> = {
         returnType: "string",
         statements: "return bool.toString();",
         docs: [{description:
-`Converts a boolean to a string.
+`${AUTO_GEN_MSG}
+Converts a boolean to a string.
 @param bool - The boolean to convert.
 @returns The string representation of the boolean.`
         }]
@@ -152,7 +165,8 @@ export const operators: Record<string, FunctionDeclarationStructure> = {
         returnType: "string",
         statements: "return strings.join('');",
         docs: [{description:
-`Concatenates two or more strings.
+`${AUTO_GEN_MSG}
+Concatenates two or more strings.
 @param strings - The strings to concatenate.
 @returns The concatenated string.`
         }]
@@ -167,7 +181,8 @@ export const operators: Record<string, FunctionDeclarationStructure> = {
         returnType: "string[]",
         statements: "return str.split(separator);",
         docs: [{description:
-`Splits a string into an array of substrings based on a specified separator.
+`${AUTO_GEN_MSG}
+Splits a string into an array of substrings based on a specified separator.
 @param str - The string to split.
 @param separator - The separator to use for splitting.
 @returns An array of substrings.`
@@ -180,7 +195,8 @@ export const operators: Record<string, FunctionDeclarationStructure> = {
         returnType: "string",
         statements: "return str.toUpperCase();",
         docs: [{description:
-`Converts a string to uppercase.
+`${AUTO_GEN_MSG}
+Converts a string to uppercase.
 @param str - The string to convert.
 @returns The uppercase string.`
         }]
@@ -192,7 +208,8 @@ export const operators: Record<string, FunctionDeclarationStructure> = {
         returnType: "string",
         statements: "return str.toLowerCase();",
         docs: [{description:
-`Converts a string to lowercase.
+`${AUTO_GEN_MSG}
+Converts a string to lowercase.
 @param str - The string to convert.
 @returns The lowercase string.`
         }]
@@ -204,7 +221,8 @@ export const operators: Record<string, FunctionDeclarationStructure> = {
         returnType: "number",
         statements: "return str.length;",
         docs: [{description:
-`Returns the length of a string.
+`${AUTO_GEN_MSG}
+Returns the length of a string.
 @param str - The string to get the length of.
 @returns The length of the string.`
         }]
@@ -219,7 +237,8 @@ export const operators: Record<string, FunctionDeclarationStructure> = {
         returnType: "boolean",
         statements: "return str.startsWith(searchString);",
         docs: [{description:
-`Checks if a string starts with a specified prefix.
+`${AUTO_GEN_MSG}
+Checks if a string starts with a specified prefix.
 @param str - The string to check.
 @param searchString - The prefix to check for.
 @returns True if the string starts with the prefix, false otherwise.`
@@ -235,7 +254,8 @@ export const operators: Record<string, FunctionDeclarationStructure> = {
         returnType: "boolean",
         statements: "return str.endsWith(searchString);",
         docs: [{description:
-`Checks if a string ends with a specified suffix.
+`${AUTO_GEN_MSG}
+Checks if a string ends with a specified suffix.
 @param str - The string to check.
 @param searchString - The suffix to check for.
 @returns True if the string ends with the suffix, false otherwise.`
@@ -252,7 +272,8 @@ export const operators: Record<string, FunctionDeclarationStructure> = {
         returnType: "string",
         statements: "return str.substring(start, end);",
         docs: [{description:
-`Extracts a substring from a string based on the specified start and end indices.
+`${AUTO_GEN_MSG}
+Extracts a substring from a string based on the specified start and end indices.
 @param str - The string to extract the substring from.
 @param start - The index to start extracting from.
 @param end - The index to end extracting at.
@@ -266,7 +287,8 @@ export const operators: Record<string, FunctionDeclarationStructure> = {
         returnType: "string",
         statements: "return str.trim();",
         docs: [{description:
-`Trims whitespace from both ends of a string.
+`${AUTO_GEN_MSG}
+Trims whitespace from both ends of a string.
 @param str - The string to trim.
 @returns The trimmed string.`
         }]
@@ -282,7 +304,8 @@ export const operators: Record<string, FunctionDeclarationStructure> = {
         returnType: "string",
         statements: "return str.replace(searchString, replaceString);",
         docs: [{description:
-`Replaces the first occurrence of a target string with another string.
+`${AUTO_GEN_MSG}
+Replaces the first occurrence of a target string with another string.
 @param str - The original string.
 @param searchString - The target string to replace.
 @param replacement - The string to replace the target with.
@@ -299,7 +322,8 @@ export const operators: Record<string, FunctionDeclarationStructure> = {
         returnType: "string[]",
         statements: "return str.match(new RegExp(regex));",
         docs: [{description:
-`Checks if a string matches a specified regular expression.
+`${AUTO_GEN_MSG}
+Checks if a string matches a specified regular expression.
 @param str - The string to check.
 @param regex - The regular expression to match against.
 @returns True if the string matches the regular expression, false otherwise.`
