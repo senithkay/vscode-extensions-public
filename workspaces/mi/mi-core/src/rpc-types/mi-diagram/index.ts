@@ -155,7 +155,9 @@ import {
     ExportProjectRequest,
     EditAPIRequest,
     EditAPIResponse,
-    EditOpenAPISpecRequest,
+    SwaggerTypeRequest,
+    UpdateAPIFromSwaggerRequest,
+    CompareSwaggerAndAPIResponse,
 } from "./types";
 
 export interface MiDiagramAPI {
@@ -256,5 +258,8 @@ export interface MiDiagramAPI {
     exportProject: (params: ExportProjectRequest) => void;
     checkOldProject: () => Promise<boolean>;
     refreshAccessToken: () => Promise<void>;
-    editOpenAPISpec: (params: EditOpenAPISpecRequest) => Promise<void>;
+    editOpenAPISpec: (params: SwaggerTypeRequest) => Promise<void>;
+    compareSwaggerAndAPI: (params: SwaggerTypeRequest) => Promise<CompareSwaggerAndAPIResponse>;
+    updateSwaggerFromAPI: (params: SwaggerTypeRequest) => Promise<void>;
+    updateAPIFromSwagger: (params: UpdateAPIFromSwaggerRequest) => Promise<void>;
 }

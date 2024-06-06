@@ -17,6 +17,7 @@ import {
     BrowseFileResponse,
     CommandsRequest,
     CommandsResponse,
+    CompareSwaggerAndAPIResponse,
     ConnectorRequest,
     ConnectorResponse,
     ConnectorsResponse,
@@ -62,7 +63,6 @@ import {
     ESBConfigsResponse,
     EditAPIRequest,
     EditAPIResponse,
-    EditOpenAPISpecRequest,
     EndpointDirectoryResponse,
     EndpointsAndSequencesResponse,
     ExportProjectRequest,
@@ -138,8 +138,10 @@ import {
     RetrieveWsdlEndpointResponse,
     SequenceDirectoryResponse,
     ShowErrorMessageRequest,
+    SwaggerTypeRequest,
     TemplatesResponse,
     UndoRedoParams,
+    UpdateAPIFromSwaggerRequest,
     UpdateAddressEndpointRequest,
     UpdateAddressEndpointResponse,
     UpdateConnectorRequest,
@@ -168,6 +170,7 @@ import {
     checkOldProject,
     closeWebView,
     closeWebViewNotification,
+    compareSwaggerAndAPI,
     createAPI,
     createClassMediator,
     createConnection,
@@ -247,6 +250,7 @@ import {
     refreshAccessToken,
     showErrorMessage,
     undo,
+    updateAPIFromSwagger,
     updateAddressEndpoint,
     updateConnectors,
     updateDefaultEndpoint,
@@ -254,6 +258,7 @@ import {
     updateHttpEndpoint,
     updateLoadBalanceEndpoint,
     updateRecipientEndpoint,
+    updateSwaggerFromAPI,
     updateTemplateEndpoint,
     updateWsdlEndpoint,
     writeContentToFile
@@ -656,7 +661,19 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
         return this._messenger.sendRequest(checkOldProject, HOST_EXTENSION);
     }
 
-    editOpenAPISpec(params: EditOpenAPISpecRequest): Promise<void> {
+    editOpenAPISpec(params: SwaggerTypeRequest): Promise<void> {
         return this._messenger.sendRequest(editOpenAPISpec, HOST_EXTENSION, params);
+    }
+
+    compareSwaggerAndAPI(params: SwaggerTypeRequest): Promise<CompareSwaggerAndAPIResponse> {
+        return this._messenger.sendRequest(compareSwaggerAndAPI, HOST_EXTENSION, params);
+    }
+
+    updateSwaggerFromAPI(params: SwaggerTypeRequest): Promise<void> {
+        return this._messenger.sendRequest(updateSwaggerFromAPI, HOST_EXTENSION, params);
+    }
+
+    updateAPIFromSwagger(params: UpdateAPIFromSwaggerRequest): Promise<void> {
+        return this._messenger.sendRequest(updateAPIFromSwagger, HOST_EXTENSION, params);
     }
 }

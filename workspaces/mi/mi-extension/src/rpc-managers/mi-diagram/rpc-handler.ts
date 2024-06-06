@@ -32,7 +32,6 @@ import {
     DeleteArtifactRequest,
     DownloadConnectorRequest,
     EditAPIRequest,
-    EditOpenAPISpecRequest,
     ExportProjectRequest,
     GetAllArtifactsRequest,
     GetAllRegistryPathsRequest,
@@ -68,7 +67,9 @@ import {
     RetrieveTemplateRequest,
     RetrieveWsdlEndpointRequest,
     ShowErrorMessageRequest,
+    SwaggerTypeRequest,
     UndoRedoParams,
+    UpdateAPIFromSwaggerRequest,
     UpdateAddressEndpointRequest,
     UpdateConnectorRequest,
     UpdateDefaultEndpointRequest,
@@ -88,6 +89,7 @@ import {
     checkOldProject,
     closeWebView,
     closeWebViewNotification,
+    compareSwaggerAndAPI,
     createAPI,
     createClassMediator,
     createConnection,
@@ -166,6 +168,7 @@ import {
     refreshAccessToken,
     showErrorMessage,
     undo,
+    updateAPIFromSwagger,
     updateAddressEndpoint,
     updateConnectors,
     updateDefaultEndpoint,
@@ -173,6 +176,7 @@ import {
     updateHttpEndpoint,
     updateLoadBalanceEndpoint,
     updateRecipientEndpoint,
+    updateSwaggerFromAPI,
     updateTemplateEndpoint,
     updateWsdlEndpoint,
     writeContentToFile,
@@ -283,5 +287,8 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onNotification(exportProject, (args: ExportProjectRequest) => rpcManger.exportProject(args));
     messenger.onRequest(checkOldProject, () => rpcManger.checkOldProject());
     messenger.onNotification(refreshAccessToken, () => rpcManger.refreshAccessToken());
-    messenger.onRequest(editOpenAPISpec, (args: EditOpenAPISpecRequest) => rpcManger.editOpenAPISpec(args));
+    messenger.onRequest(editOpenAPISpec, (args: SwaggerTypeRequest) => rpcManger.editOpenAPISpec(args));
+    messenger.onRequest(compareSwaggerAndAPI, (args: SwaggerTypeRequest) => rpcManger.compareSwaggerAndAPI(args));
+    messenger.onRequest(updateSwaggerFromAPI, (args: SwaggerTypeRequest) => rpcManger.updateSwaggerFromAPI(args));
+    messenger.onRequest(updateAPIFromSwagger, (args: UpdateAPIFromSwaggerRequest) => rpcManger.updateAPIFromSwagger(args));
 }

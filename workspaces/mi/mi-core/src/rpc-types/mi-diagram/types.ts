@@ -1292,9 +1292,11 @@ export interface GenerateAPIResponse {
     endpointXml?: string;
 }
 
-export interface EditOpenAPISpecRequest {
+export interface SwaggerTypeRequest {
     apiName: string;
     apiPath: string;
+    generatedSwagger?: string;
+    existingSwagger?: string;
 }
 
 export interface SwaggerFromAPIRequest {
@@ -1304,7 +1306,19 @@ export interface SwaggerFromAPIRequest {
     isJsonOut?: boolean;
 }
 
-export interface SwaggerFromAPIResponse {
+export interface CompareSwaggerAndAPIResponse {
+    swaggerExists: boolean;
+    isEqual?: boolean;
+    generatedSwagger?: string;
+    existingSwagger?: string;
+}
+
+export interface UpdateSwaggerFromAPIResponse {
     swagger: string;
+}
+
+export interface UpdateAPIFromSwaggerRequest extends SwaggerTypeRequest {
+    resources: any[];
+    insertPosition: Position;
 }
 

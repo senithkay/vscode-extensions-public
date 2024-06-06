@@ -128,6 +128,50 @@ export function ServiceDesignerView({ syntaxTree, documentUri }: ServiceDesigner
             }
         }
         setServiceModel(model);
+
+        // If swagger file exists, compare it with the API data
+        rpcClient.getMiDiagramRpcClient().compareSwaggerAndAPI({
+            apiName: serviceData.apiName,
+            apiPath: documentUri
+        }).then(response => {
+            if (response.swaggerExists && !response.isEqual) {
+                rpcClient.getMiVisualizerRpcClient().showNotification({
+                    message: "The OpenAPI definition is different from the Synapse API.",
+                    type: "warning",
+                    options: ["Update Swagger", "Update API", "Ignore"]
+                }).then(option => {
+                    switch (option.selection) {
+                        case "Update Swagger":
+                            rpcClient.getMiDiagramRpcClient().updateSwaggerFromAPI({
+                                apiName: serviceData.apiName,
+                                apiPath: documentUri,
+                                existingSwagger: response.existingSwagger,
+                                generatedSwagger: response.generatedSwagger
+                            });
+                            break;
+                        case "Update API":
+                            rpcClient.getMiDiagramRpcClient().updateAPIFromSwagger({
+                                apiName: serviceData.apiName,
+                                apiPath: documentUri,
+                                existingSwagger: response.existingSwagger,
+                                generatedSwagger: response.generatedSwagger,
+                                resources: resources.map(r => ({
+                                    path: r.path,
+                                    methods: r.methods,
+                                    position: r.position
+                                })),
+                                insertPosition: {
+                                    line: st.range.endTagRange.start.line,
+                                    character: st.range.endTagRange.start.character
+                                }
+                            });
+                            break;
+                        default:
+                            break;
+                    }
+                })
+            }
+        })
     }, [syntaxTree, documentUri]);
 
     const highlightCode = (resource: Resource, force?: boolean) => {
