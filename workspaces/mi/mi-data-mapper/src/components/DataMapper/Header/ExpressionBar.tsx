@@ -14,7 +14,7 @@ import { Block, Node, ObjectLiteralExpression, ReturnStatement } from 'ts-morph'
 
 import { useDMExpressionBarStore } from '../../../store/store';
 import { createSourceForUserInput } from '../../../components/Diagram/utils/modification-utils';
-import { DataMapperNodeModel } from 'src/components/Diagram/Node/commons/DataMapperNode';
+import { DataMapperNodeModel } from '../../../components/Diagram/Node/commons/DataMapperNode';
 import { getFnDeclStructure, operators } from '../Operators/operators';
 
 const functionNames = Object.keys(operators);
