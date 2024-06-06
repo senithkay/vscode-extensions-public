@@ -361,30 +361,29 @@ export const AutoComplete = React.forwardRef<HTMLInputElement, AutoCompleteProps
                                 {actionBtns}
                             </div>
                         )}
-                        {!hideDropdown && (
-                            <Combobox.Button
-                                id={`autocomplete-dropdown-button-${btnId}`}
-                                className={isTextFieldFocused ? ComboboxButtonContainerActive : ComboboxButtonContainer}
-                            >
-                                {isUpButton ? (
-                                    <i
-                                        className={`codicon codicon-chevron-up ${DropdownIcon}`}
-                                        onClick={handleComboButtonClick}
-                                        onMouseDown={(e: React.MouseEvent) => {
-                                            e.preventDefault()
-                                        }}
-                                    />
-                                ) : (
-                                    <i
-                                        className={`codicon codicon-chevron-down ${DropdownIcon}`}
-                                        onClick={handleComboButtonClick}
-                                        onMouseDown={(e: React.MouseEvent) => {
-                                            e.preventDefault()
-                                        }}
-                                    />
-                                )}
-                            </Combobox.Button>
-                        )}
+                        <Combobox.Button
+                            id={`autocomplete-dropdown-button-${btnId}`}
+                            hidden={hideDropdown}
+                            className={isTextFieldFocused ? ComboboxButtonContainerActive : ComboboxButtonContainer}
+                        >
+                            {isUpButton ? (
+                                <i
+                                    className={`codicon codicon-chevron-up ${DropdownIcon}`}
+                                    onClick={handleComboButtonClick}
+                                    onMouseDown={(e: React.MouseEvent) => {
+                                        e.preventDefault()
+                                    }}
+                                />
+                            ) : (
+                                <i
+                                    className={`codicon codicon-chevron-down ${DropdownIcon}`}
+                                    onClick={handleComboButtonClick}
+                                    onMouseDown={(e: React.MouseEvent) => {
+                                        e.preventDefault()
+                                    }}
+                                />
+                            )}
+                        </Combobox.Button>
                     </ComboboxInputWrapper>
                     <Transition
                         as={Fragment}
