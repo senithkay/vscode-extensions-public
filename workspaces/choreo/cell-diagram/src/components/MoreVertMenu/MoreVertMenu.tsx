@@ -44,7 +44,6 @@ const IconStyles = styled.div`
     height: 24px;
     border-radius: 50%;
     transform: rotate(90deg);
-    border: 1px solid var(--vscode-dropdown-border);
     display: flex;
     flex-direction: column;
     justify-content: center;

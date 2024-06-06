@@ -11,7 +11,7 @@ import React from "react";
 import { storiesOf } from "@storybook/react";
 import { CellDiagram } from "../Diagram";
 import { Organization } from "../types";
-import { Container } from "./utils";
+import { Container, handleComponentDoubleClick } from "./utils";
 import { CellBounds } from "../components/Cell/CellNode/CellModel";
 import wso2OrgModel from "./wso2-org-model.json";
 import yOrgModel from "./y-org-model.json";
@@ -440,25 +440,25 @@ storiesOf("Org", module).add("Simple org without dependencies", () => (
 
 storiesOf("Org", module).add("Multi projects organization", () => (
     <Container>
-        <CellDiagram organization={multiProjectsOrgModel} />
+        <CellDiagram organization={multiProjectsOrgModel} onComponentDoubleClick={handleComponentDoubleClick} />
     </Container>
 ));
 
 storiesOf("Org", module).add("Complex organization", () => (
     <Container>
-        <CellDiagram organization={complexOrgModel} />
+        <CellDiagram organization={complexOrgModel} onComponentDoubleClick={handleComponentDoubleClick} />
     </Container>
 ));
 
 storiesOf("Org", module).add("wso2 organization", () => (
     <Container>
-        <CellDiagram organization={wso2OrgModel as Organization} animation={false} />
+        <CellDiagram organization={wso2OrgModel as Organization} animation={false} onComponentDoubleClick={handleComponentDoubleClick} />
     </Container>
 ));
 
 storiesOf("Org", module).add("large organization without connections", () => (
     <Container>
-        <CellDiagram organization={kOrgModel as Organization} animation={false} />
+        <CellDiagram organization={kOrgModel as Organization} animation={false} onComponentDoubleClick={handleComponentDoubleClick} />
     </Container>
 ));
 
