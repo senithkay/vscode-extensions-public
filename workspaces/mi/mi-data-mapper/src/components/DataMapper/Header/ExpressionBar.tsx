@@ -97,6 +97,11 @@ export default function ExpressionBar(props: ExpressionBarProps) {
 
     const onChangeTextField = (text: string) => {
         expressionRef.current = text;
+
+        if (text === '') {
+            // Render auto-complete suggestions when the text field is empty
+            setForceUpdate(prev => !prev);
+        }
     };
 
     const onChangeAutoComplete = (text: string) => {
@@ -192,7 +197,24 @@ export default function ExpressionBar(props: ExpressionBarProps) {
 
     return (
         <>
-            {expressionRef.current !== "" || !focusedPort ? (
+            {focusedPort && expressionRef.current === "" ? (
+                // Hack to list down the operator suggestions whenever the expression is empty
+                <div className={classes.autoCompleteContainer}>
+                    <Icon
+                        name={"function-icon"}
+                        iconSx={{ fontSize: "15px", color: "var(--vscode-input-placeholderForeground)" }}
+                        sx={{ margin: "5px" }}
+                    />
+                    <AutoComplete
+                        sx={{ fontFamily: 'monospace', fontSize: '12px' }}
+                        identifier='expression-bar-autocomplete'
+                        items={functionNames}
+                        allowItemCreate={true}
+                        hideDropdown={true}
+                        onValueChange={onChangeAutoComplete}
+                    />
+                </div>
+            ) : (
                 <TextField
                     ref={textFieldRef}
                     sx={{ width: '100%' }}
@@ -211,23 +233,6 @@ export default function ExpressionBar(props: ExpressionBarProps) {
                     onTextChange={onChangeTextField}
                     onKeyDown={onKeyDown}
                 />
-            ) : (
-                // Hack to list down the operator suggestions whenever the expression is empty
-                <div className={classes.autoCompleteContainer}>
-                    <Icon
-                        name={"function-icon"}
-                        iconSx={{ fontSize: "15px", color: "var(--vscode-input-placeholderForeground)" }}
-                        sx={{ margin: "5px" }}
-                    />
-                    <AutoComplete
-                        sx={{ fontFamily: 'monospace', fontSize: '12px' }}
-                        identifier='expression-bar-autocomplete'
-                        items={functionNames}
-                        allowItemCreate={true}
-                        hideDropdown={true}
-                        onValueChange={onChangeAutoComplete}
-                    />
-                </div>
             )}
         </>
     );
