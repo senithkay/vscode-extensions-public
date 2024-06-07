@@ -21,7 +21,7 @@ import { getFocusedST, traversNode } from "../Diagram/utils/st-utils";
 import { DMType, Range } from "@wso2-enterprise/mi-core";
 import { FunctionDeclaration, PropertyAssignment, ReturnStatement } from "ts-morph";
 import { ImportDataForm } from "./SidePanel/ImportDataForm";
-import { useDMSearchStore, useDMSidePanelStore } from "../../store/store";
+import { useDMExpressionBarStore, useDMSearchStore, useDMSidePanelStore } from "../../store/store";
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getTypeName } from "../Diagram/utils/common-utils";
 
@@ -76,10 +76,12 @@ export function MIDataMapper(props: MIDataMapperProps) {
 
     const { rpcClient } = useVisualizerContext();
     const { resetSearchStore } = useDMSearchStore();
+    const { resetFocusedPort } = useDMExpressionBarStore();
 
     const addView = (view: View) => {
         setViews(prev => [...prev, view]);
         resetSearchStore();
+        resetFocusedPort();
     }
 
     const switchView = (navigateIndex: number) => {
@@ -88,6 +90,7 @@ export function MIDataMapper(props: MIDataMapperProps) {
             return newViews;
         });
         resetSearchStore();
+        resetFocusedPort();
     }
 
     useEffect(() => {
@@ -121,6 +124,7 @@ export function MIDataMapper(props: MIDataMapperProps) {
                     switchView={switchView}
                     hasEditDisabled={false}
                     onClose={undefined}
+                    applyModifications={applyModifications}
                 />
             )}
             {nodes.length > 0 && (

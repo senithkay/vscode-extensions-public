@@ -571,6 +571,16 @@ export function isInputAccessExpr(node: Node): boolean {
     return Node.isPropertyAccessExpression(node);
 }
 
+export function isFunctionCall(node: Node): boolean {
+    // Check if the node is a function call
+    // ie: `sum(a, b)` or `trim("  hello  ")`
+    if (Node.isCallExpression(node)) {
+        const expr = node.getExpression();
+        return Node.isIdentifier(expr);
+    }
+    return false;
+}
+
 export function isQuotedString(str: string): boolean {
     return str.startsWith('"') && str.endsWith('"')
         || str.startsWith("'") && str.endsWith("'");

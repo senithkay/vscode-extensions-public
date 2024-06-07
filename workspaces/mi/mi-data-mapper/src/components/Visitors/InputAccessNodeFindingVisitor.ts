@@ -8,7 +8,7 @@
  */
 import { CallExpression, ElementAccessExpression, Identifier, Node, PropertyAccessExpression } from "ts-morph";
 import { Visitor } from "../../ts/base-visitor";
-import { isInputAccessExpr, isMapFunction } from "../Diagram/utils/common-utils";
+import { isFunctionCall, isInputAccessExpr, isMapFunction } from "../Diagram/utils/common-utils";
 
 export class InputAccessNodeFindingVisitor implements Visitor {
     private inputNodes: (PropertyAccessExpression | ElementAccessExpression | Identifier)[];
@@ -29,7 +29,7 @@ export class InputAccessNodeFindingVisitor implements Visitor {
     }
 
     public beginVisitIdentifier(node: Identifier, parent?: Node) {
-        if ((!parent || !isInputAccessExpr(parent)) && this.mapFnDepth === 0) {
+        if ((!parent || !(isInputAccessExpr(parent) || isFunctionCall(parent))) && this.mapFnDepth === 0) {
             this.inputNodes.push(node);
         }
     }
@@ -56,6 +56,11 @@ export class InputAccessNodeFindingVisitor implements Visitor {
 
             if (isInputAccessExpr(expr)) {
                 this.inputNodes.push(expr as ElementAccessExpression | PropertyAccessExpression);
+            } else if (isFunctionCall(parent)) {
+                const args = parent.getArguments();
+                if (args.includes(node)) {
+                    this.inputNodes.push(node);
+                }
             }
         }
     }

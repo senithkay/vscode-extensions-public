@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
 
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import { Button, Codicon, ProgressRing } from "@wso2-enterprise/ui-toolkit";
@@ -22,7 +22,7 @@ import { OutputSearchHighlight } from "../commons/Search";
 import { ValueConfigMenu, ValueConfigOption } from "../commons/ValueConfigButton";
 import { ValueConfigMenuItem } from "../commons/ValueConfigButton/ValueConfigMenuItem";
 import { useIONodesStyles } from "../../../styles";
-import { useDMCollapsedFieldsStore } from '../../../../store/store';
+import { useDMCollapsedFieldsStore, useDMExpressionBarStore } from '../../../../store/store';
 import { getDefaultValue, getEditorLineAndColumn, getTypeName, isConnectedViaLink } from "../../utils/common-utils";
 import { createSourceForUserInput } from "../../utils/modification-utils";
 import { ArrayOutputFieldWidget } from "../ArrayOutput/ArrayOuptutFieldWidget";
@@ -59,6 +59,7 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
     const [isHovered, setIsHovered] = useState(false);
     const [portState, setPortState] = useState<PortState>(PortState.Unselected);
     const collapsedFieldsStore = useDMCollapsedFieldsStore();
+    const exprBarFocusedPort = useDMExpressionBarStore(state => state.focusedPort);
 
     let fieldName = field.type.fieldName || '';
     let indentation = treeDepth * 16;
@@ -73,6 +74,7 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
         ? `${parentId}.${fieldIndex}${fieldName && `.${fieldName}`}`
         : `${parentId}${fieldName && `.${fieldName}`}`;
     const portIn = getPort(fieldId + ".IN");
+    const isExprBarFocused = exprBarFocusedPort?.getName() === portIn?.getName();
 
     const propertyAssignment = field.hasValue()
         && !field.value.wasForgotten()
@@ -90,21 +92,12 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
     const fields = isInterface && field.childrenTypes;
     const isWithinArray = fieldIndex !== undefined;
 
-    const connectedViaLink = useMemo(() => {
-        if (hasValue) {
-            return isConnectedViaLink(propertyAssignment.getInitializer());
-        }
-        return false;
-    }, [field]);
-
-    const value: string = !isArray && !isInterface && hasValue && propertyAssignment.getInitializer().getText();
-
-    const handleAddValue = async () => {
+    const handleAddValue = () => {
         setIsLoading(true);
         try {
             const defaultValue = getDefaultValue(field.type.kind);
             const fnBody = context.functionST.getBody() as Block;
-            await createSourceForUserInput(field, objectLiteralExpr, defaultValue, fnBody, context.applyModifications);
+            createSourceForUserInput(field, objectLiteralExpr, defaultValue, fnBody, context.applyModifications);
         } finally {
             setIsLoading(false);
         }
@@ -148,8 +141,6 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
         setIsHovered(false);
     };
 
-    const hasValueWithoutLink = value && !connectedViaLink;
-    const hasDefaultValue = value && getDefaultValue(field.type.kind) === value.trim();
     let isDisabled = portIn?.descendantHasValue;
 
     if (!isDisabled) {
@@ -157,14 +148,6 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
             && (Object.entries(portIn?.parentModel.links).length > 0 || portIn?.parentModel.ancestorHasValue)
         ) {
             portIn.ancestorHasValue = true;
-            isDisabled = true;
-        }
-        if (hasValue
-            && !connectedViaLink
-            && !hasDefaultValue
-            && (isInterface || hasValueWithoutLink)
-        ) {
-            portIn?.setDescendantHasValue();
             isDisabled = true;
         }
     }
@@ -229,7 +212,8 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
                         isDisabled && !hasHoveredParent && !isHovered ? classes.treeLabelDisabled : "",
                         isDisabled && isHovered ? classes.treeLabelDisableHover : "",
                         portState !== PortState.Unselected ? classes.treeLabelPortSelected : "",
-                        hasHoveredParent ? classes.treeLabelParentHovered : ""
+                        hasHoveredParent ? classes.treeLabelParentHovered : "",
+                        isExprBarFocused ? classes.treeLabelPortExprFocused : ""
                     )}
                     onMouseEnter={onMouseEnter}
                     onMouseLeave={onMouseLeave}

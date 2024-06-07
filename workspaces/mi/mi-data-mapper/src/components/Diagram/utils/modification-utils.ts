@@ -209,7 +209,7 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 	return `${lhs} = ${rhs}`;
 }
 
-export async function createSourceForUserInput(
+export function createSourceForUserInput(
 	field: DMTypeWithValue,
 	objectLitExpr: ObjectLiteralExpression,
 	newValue: string,
