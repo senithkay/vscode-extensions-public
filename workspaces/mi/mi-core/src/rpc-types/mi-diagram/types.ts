@@ -1074,10 +1074,39 @@ export interface BrowseFileRequest {
     openLabel?: string;
 }
 
+type ResourceType =
+    | "sequence"
+    | "endpoint"
+    | "messageStore"
+    | "messageProcessor"
+    | "task"
+    | "sequenceTemplate"
+    | "endpointTemplate"
+    | "proxyService"
+    | "dataService"
+    | "dataSource"
+    | "localEntry"
+    | "dataMapper"
+    | "js"
+    | "json"
+    | "smooksConfig"
+    | "swagger"
+    | "wsdl"
+    | "ws_policy"
+    | "xsd"
+    | "xsl"
+    | "xslt"
+    | "yaml"
+    | "registry";
+
+export interface MultipleResourceType {
+    type: ResourceType;
+    needRegistry?: boolean;
+}
+
 export interface GetAvailableResourcesRequest {
     documentIdentifier: string | undefined;
-    resourceType: "sequence" | "endpoint" | "messageStore" | "messageProcessor" | "task" | "sequenceTemplate" | "endpointTemplate" | "proxyService" |
-    "dataService" | "dataSource" | "localEntry" | "dataMapper" | "js" | "json" | "smooksConfig" | "swagger" | "wsdl" | "ws_policy" | "xsd" | "xsl" | "xslt" | "yaml" | "registry";
+    resourceType: ResourceType | MultipleResourceType[];
 }
 
 export interface GetAvailableResourcesResponse {
