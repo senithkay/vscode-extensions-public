@@ -28,7 +28,6 @@ import {
 } from '../../../../store/store';
 import { getPosition } from '../../utils/st-utils';
 import { isEmptyValue } from '../../utils/common-utils';
-import { getDiagnostics } from '../../utils/diagnostics-utils';
 import { OutputSearchHighlight } from '../commons/Search';
 import { OBJECT_OUTPUT_FIELD_ADDER_TARGET_PORT_PREFIX } from '../../utils/constants';
 
@@ -80,12 +79,11 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 
 	const exprBarFocusedPort = useDMExpressionBarStore(state => state.focusedPort);
 
-	const { childrenTypes, value: objVal } = dmTypeWithValue;
+	const { childrenTypes } = dmTypeWithValue;
 	const fields = childrenTypes || [];
-	const hasValue = fields.length > 0;
+	const hasFields = fields.length > 0;
 	const isBodyObjectLiteralExpr = value && !value.wasForgotten && Node.isObjectLiteralExpression(value);
 
-	const hasDiagnostics = objVal && !objVal.wasForgotten && getDiagnostics(objVal).length > 0;
 	const hasEmptyFields = mappings && (mappings.length === 0 || !mappings.some(mapping => {
 		if (mapping.value && !mapping.value.wasForgotten()) {
 			return !isEmptyValue(getPosition(mapping.value));
@@ -100,8 +98,9 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 	if ((portIn && portIn.collapsed)) {
 		expanded = false;
 	}
+	const isDisabled = portIn?.descendantHasValue;
 
-	const indentation = (portIn && (!hasValue || !expanded)) ? 0 : 24;
+	const indentation = (portIn && (!hasFields || !expanded)) ? 0 : 24;
 
 	const handleExpand = () => {
 		const collapsedFields = collapsedFieldsStore.collapsedFields;
@@ -172,10 +171,7 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 								engine={engine}
 								port={portIn}
 								handlePortState={handlePortState}
-								disable={
-									!((isBodyObjectLiteralExpr || !hasDiagnostics)
-									&& (!hasValue || !expanded || !isBodyObjectLiteralExpr || hasEmptyFields))
-								}
+								disable={isDisabled && !expanded}
 							/>)
 						}
 					</span>
