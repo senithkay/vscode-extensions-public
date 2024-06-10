@@ -168,7 +168,7 @@ export default function ExpressionBar(props: ExpressionBarProps) {
             } else {
                 targetExpr = focusedFieldValue;
                 const replaceWith = expressionRef.current === ''
-                    ? getDefaultValue(focusedPort.typeWithValue.type)
+                    ? getDefaultValue(focusedPort.typeWithValue.type.kind)
                     : expressionRef.current;
 
                 targetExpr.replaceWithText(replaceWith);
