@@ -22,6 +22,7 @@ import { getMediatorIconsFromFont } from "../../../resources/icons/mediatorIcons
 import { getNodeDescription } from "../../../utils/node";
 import { Header, Description, Name } from "../BaseNodeModel";
 import { FirstCharToUpperCase } from "../../../utils/commons";
+import { BreakpointMenu } from "../../BreakpointMenu/BreakpointMenu";
 
 namespace S {
     export type NodeStyleProp = {
@@ -309,10 +310,7 @@ export function CallNodeWidget(props: CallNodeWidgetProps) {
                     <Menu>
                         <MenuItem key={'delete-btn'} item={{ label: 'Delete', id: "delete", onClick: () => node.delete(rpcClient) }} />
                         <MenuItem key={'delete-endpoint-btn'} item={{ label: 'Delete Endpoint', id: "delete-endpoint", onClick: handleOnDeleteEndpointClick }} />
-                        {hasBreakpoint ?
-                            <MenuItem key={'remove-breakpoint-btn'} item={{ label: 'Remove Breakpoint', id: "removeBreakpoint", onClick: () => node.removeBreakpoint(rpcClient) }} /> :
-                            <MenuItem key={'breakpoint-btn'} item={{ label: 'Add Breakpoint', id: "addBreakpoint", onClick: () => node.addBreakpoint(rpcClient) }} />
-                        }
+                        <BreakpointMenu hasBreakpoint={hasBreakpoint} node={node} rpcClient={rpcClient} />
                     </Menu>
                 </ClickAwayListener>
             </Popover>

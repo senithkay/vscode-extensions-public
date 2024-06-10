@@ -20,6 +20,7 @@ import { MoreVertIcon } from "../../../resources";
 import { FirstCharToUpperCase } from "../../../utils/commons";
 import { Description, Name } from "../BaseNodeModel";
 import { getNodeDescription } from "../../../utils/node";
+import { BreakpointMenu } from "../../BreakpointMenu/BreakpointMenu";
 
 namespace S {
     export const Node = styled.div<{}>`
@@ -168,10 +169,7 @@ export function ConditionNodeWidget(props: CallNodeWidgetProps) {
                 <ClickAwayListener onClickAway={handlePopoverClose}>
                     <Menu>
                         <MenuItem key={'delete-btn'} item={{ label: 'Delete', id: "delete", onClick: () => node.delete(rpcClient) }} />
-                        {hasBreakpoint ?
-                            <MenuItem key={'remove-breakpoint-btn'} item={{ label: 'Remove Breakpoint', id: "removeBreakpoint", onClick: () => node.removeBreakpoint(rpcClient) }} /> :
-                            <MenuItem key={'breakpoint-btn'} item={{ label: 'Add Breakpoint', id: "addBreakpoint", onClick: () => node.addBreakpoint(rpcClient) }} />
-                        }
+                        <BreakpointMenu hasBreakpoint={hasBreakpoint} node={node} rpcClient={rpcClient} />
                     </Menu>
                 </ClickAwayListener>
             </Popover>

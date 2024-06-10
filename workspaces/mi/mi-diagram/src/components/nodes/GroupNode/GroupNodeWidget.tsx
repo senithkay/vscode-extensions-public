@@ -19,6 +19,7 @@ import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import SidePanelContext from "../../sidePanel/SidePanelContexProvider";
 import { getMediatorIconsFromFont } from "../../../resources/icons/mediatorIcons/icons";
 import { FirstCharToUpperCase } from "../../../utils/commons";
+import { BreakpointMenu } from "../../BreakpointMenu/BreakpointMenu";
 
 namespace S {
     export type NodeStyleProp = {
@@ -211,10 +212,7 @@ export function GroupNodeWidget(props: CallNodeWidgetProps) {
                             key={"delete-btn"}
                             item={{ label: "Delete", id: "delete", onClick: () => node.delete(rpcClient) }}
                         />
-                        {hasBreakpoint ?
-                            <MenuItem key={'remove-breakpoint-btn'} item={{ label: 'Remove Breakpoint', id: "removeBreakpoint", onClick: () => node.removeBreakpoint(rpcClient) }} /> :
-                            <MenuItem key={'breakpoint-btn'} item={{ label: 'Add Breakpoint', id: "addBreakpoint", onClick: () => node.addBreakpoint(rpcClient) }} />
-                        }
+                        <BreakpointMenu hasBreakpoint={hasBreakpoint} node={node} rpcClient={rpcClient} />
                     </Menu>
                 </ClickAwayListener>
             </Popover>
