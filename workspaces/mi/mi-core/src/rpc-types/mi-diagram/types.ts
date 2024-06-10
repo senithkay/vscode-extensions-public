@@ -1291,3 +1291,30 @@ export interface GenerateAPIResponse {
     apiXml: string;
     endpointXml?: string;
 }
+
+export interface SwaggerTypeRequest {
+    apiName: string;
+    apiPath: string;
+    generatedSwagger?: string;
+    existingSwagger?: string;
+}
+
+export interface SwaggerFromAPIRequest {
+    apiPath: string;
+    swaggerPath?: string;
+    isJsonIn?: boolean;
+    isJsonOut?: boolean;
+}
+
+export interface CompareSwaggerAndAPIResponse {
+    swaggerExists: boolean;
+    isEqual?: boolean;
+    generatedSwagger?: string;
+    existingSwagger?: string;
+}
+
+export interface UpdateAPIFromSwaggerRequest extends SwaggerTypeRequest {
+    resources: any[];
+    insertPosition: Position;
+}
+

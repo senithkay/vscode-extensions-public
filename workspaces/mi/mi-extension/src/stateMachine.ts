@@ -478,7 +478,6 @@ export function openView(type: EVENT_TYPE, viewLocation?: VisualizerLocation) {
         viewLocation!.projectUri = vscode.workspace.workspaceFolders![0].uri.fsPath;
     }
     updateProjectExplorer(viewLocation);
-    const value = StateMachine.state();
     stateService.send({ type: type, viewLocation: viewLocation });
 }
 

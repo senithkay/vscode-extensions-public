@@ -17,8 +17,8 @@ import { RPCLayer } from '../RPCLayer';
 import { extension } from '../MIExtensionContext';
 import { debounce } from 'lodash';
 import { navigate, StateMachine } from '../stateMachine';
-import { MACHINE_VIEW } from '@wso2-enterprise/mi-core';
-import { COMMANDS, REFRESH_ENABLED_DOCUMENTS } from '../constants';
+import { MACHINE_VIEW, onDocumentSave } from '@wso2-enterprise/mi-core';
+import { COMMANDS, REFRESH_ENABLED_DOCUMENTS, SWAGGER_LANG_ID, SWAGGER_REL_DIR } from '../constants';
 import { AiPanelWebview } from '../ai-panel/webview';
 
 export class VisualizerWebview {
@@ -54,9 +54,20 @@ export class VisualizerWebview {
         }, extension.context);
 
         vscode.workspace.onDidSaveTextDocument(async function (document) {
-            if (!REFRESH_ENABLED_DOCUMENTS.includes(document.languageId)) {
+            if (SWAGGER_LANG_ID === document.languageId) {
+                // Check if the saved document is a swagger file
+                const relativePath = vscode.workspace.asRelativePath(document.uri);
+                if (path.dirname(relativePath) === SWAGGER_REL_DIR) {
+                    VisualizerWebview.currentPanel?.getWebview()?.reveal(beside ? ViewColumn.Beside : ViewColumn.Active);
+                }
+            } else if (!REFRESH_ENABLED_DOCUMENTS.includes(document.languageId)) {
                 return;
             }
+            RPCLayer._messenger.sendNotification(
+                onDocumentSave,
+                { type: 'webview', webviewType: VisualizerWebview.viewType },
+                { uri: document.uri.toString() }
+            );
             refreshDiagram();
         }, extension.context);
 
