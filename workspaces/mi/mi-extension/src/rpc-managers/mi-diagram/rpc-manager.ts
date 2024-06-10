@@ -2992,7 +2992,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         var currentFile = StateMachine.context().documentUri;
         //get the current file's content
         let currentFileContent = '';
-        if (currentFile) {
+        if (currentFile && !fs.lstatSync(currentFile).isDirectory()) {
             currentFileContent = fs.readFileSync(currentFile, 'utf8');
         }
         var rootPath = workspaceFolders[0].uri.fsPath;
