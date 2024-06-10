@@ -123,6 +123,30 @@ export class BaseNodeModel extends NodeModel {
         });
     };
 
+    async addBreakpoint(rpcClient: any) {
+        const request = {
+            filePath: this.documentUri,
+            breakpoint: {
+                line: this.stNode.range.startTagRange.start.line,
+                column: this.stNode.range.startTagRange.start?.character
+            }
+        };
+    
+        await rpcClient.getMiDebuggerRpcClient().addBreakpointToSource(request);
+    }
+    
+    async removeBreakpoint(rpcClient: any) {
+        const request = {
+            filePath: this.documentUri,
+            breakpoint: {
+                line: this.stNode.range.startTagRange.start.line,
+                column: this.stNode.range.startTagRange.start?.character
+            }
+        };
+    
+        await rpcClient.getMiDebuggerRpcClient().removeBreakpointFromSource(request);
+    }
+
     hasDiagnotics(): boolean {
         return this.stNode.diagnostics !== undefined && this.stNode.diagnostics.length > 0;
     }

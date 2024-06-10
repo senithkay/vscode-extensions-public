@@ -198,36 +198,6 @@ export function CallNodeWidget(props: CallNodeWidgetProps) {
         setIsPopoverOpen(false);
     }
 
-    const handleAddBreakpoint = async () => {
-        const file = node.documentUri;
-        const line = node.stNode.range.startTagRange.start.line;
-        const column = node.stNode.range.startTagRange.start?.character;
-        const request = {
-            filePath: file,
-            breakpoint: {
-                line: line,
-                column: column
-            }
-        }
-
-        await rpcClient.getMiDebuggerRpcClient().addBreakpointToSource(request);
-    };
-
-    const removeBreakpoint = async () => {
-        const file = node.documentUri;
-        const line = node.stNode.range.startTagRange.start.line;
-        const column = node.stNode.range.startTagRange.start?.character;
-        const request = {
-            filePath: file,
-            breakpoint: {
-                line: line,
-                column: column
-            }
-        }
-
-        await rpcClient.getMiDebuggerRpcClient().removeBreakpointFromSource(request);
-    };
-
     return (
         <div>
             <Tooltip content={!isPopoverOpen && tooltip ? <TooltipEl /> : ""} position={'bottom'} containerPosition={'absolute'}>
@@ -340,8 +310,8 @@ export function CallNodeWidget(props: CallNodeWidgetProps) {
                         <MenuItem key={'delete-btn'} item={{ label: 'Delete', id: "delete", onClick: () => node.delete(rpcClient) }} />
                         <MenuItem key={'delete-endpoint-btn'} item={{ label: 'Delete Endpoint', id: "delete-endpoint", onClick: handleOnDeleteEndpointClick }} />
                         {hasBreakpoint ?
-                            <MenuItem key={'remove-breakpoint-btn'} item={{ label: 'Remove Breakpoint', id: "removeBreakpoint", onClick: removeBreakpoint }} /> :
-                            <MenuItem key={'breakpoint-btn'} item={{ label: 'Add Breakpoint', id: "addBreakpoint", onClick: handleAddBreakpoint }} />
+                            <MenuItem key={'remove-breakpoint-btn'} item={{ label: 'Remove Breakpoint', id: "removeBreakpoint", onClick: () => node.removeBreakpoint(rpcClient) }} /> :
+                            <MenuItem key={'breakpoint-btn'} item={{ label: 'Add Breakpoint', id: "addBreakpoint", onClick: () => node.addBreakpoint(rpcClient) }} />
                         }
                     </Menu>
                 </ClickAwayListener>
