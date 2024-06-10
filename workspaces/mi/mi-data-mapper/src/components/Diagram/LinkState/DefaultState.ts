@@ -26,6 +26,7 @@ import { CreateLinkState } from './CreateLinkState';
 import { FocusedInputNode } from '../Node/FocusedInput';
 import { SubMappingNode } from '../Node/SubMapping';
 import { PrimitiveOutputNode } from '../Node/PrimitiveOutput';
+import { useDMExpressionBarStore } from '../../../store/store';
 
 export class DefaultState extends State<DiagramEngine> {
 	dragCanvas: DragCanvasState;
@@ -55,6 +56,7 @@ export class DefaultState extends State<DiagramEngine> {
 							// Clicked on a link overlay item or a diagnostic tooltip,
 							// hence, do not propagate as a canvas drag
 						} else if (dmCanvasContainer) {
+							this.deselectLinks();
 							this.transitionWithEvent(this.dragCanvas, event);
 						}
 					}
@@ -107,12 +109,19 @@ export class DefaultState extends State<DiagramEngine> {
 				fire: (actionEvent) => {
 					// On esc press unselect any selected link
 					if ((actionEvent.event as any).keyCode === 27) {
-						this.engine.getModel().getLinks().forEach((link) => {
-							link.setSelected(false);
-						});
+						this.deselectLinks();
 					}
 				}
 			})
 		);
+	}
+
+	deselectLinks() {
+		this.engine.getModel().getLinks().forEach((link) => {
+			link.setSelected(false);
+			link.getSourcePort()?.fireEvent({}, "link-unselected");
+			link.getTargetPort()?.fireEvent({}, "link-unselected");
+		});
+		useDMExpressionBarStore.getState().resetFocusedPort();
 	}
 }

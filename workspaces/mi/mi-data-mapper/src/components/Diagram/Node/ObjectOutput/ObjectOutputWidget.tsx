@@ -22,6 +22,7 @@ import { ObjectOutputFieldWidget } from "./ObjectOutputFieldWidget";
 import { useIONodesStyles } from '../../../styles';
 import {
 	useDMCollapsedFieldsStore,
+	useDMExpressionBarStore,
 	useDMIOConfigPanelStore,
 	useDMSubMappingConfigPanelStore
 } from '../../../../store/store';
@@ -77,6 +78,8 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 		setSubMappingConfig: state.setSubMappingConfig
 	}));
 
+	const exprBarFocusedPort = useDMExpressionBarStore(state => state.focusedPort);
+
 	const { childrenTypes, value: objVal } = dmTypeWithValue;
 	const fields = childrenTypes || [];
 	const hasValue = fields.length > 0;
@@ -91,6 +94,7 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 	}));
 
 	const portIn = getPort(`${id}.IN`);
+    const isExprBarFocused = exprBarFocusedPort?.getName() === portIn?.getName();
 
 	let expanded = true;
 	if ((portIn && portIn.collapsed)) {
@@ -135,7 +139,7 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 	);
 
 	const onRightClick = (event: React.MouseEvent) => {
-		event.preventDefault(); 
+		event.preventDefault();
 		if (isSubMapping) {
 			onSubMappingEditBtnClick();
 		} else {
@@ -160,14 +164,19 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 					id={"recordfield-" + id}
 					onMouseEnter={onMouseEnter}
 					onMouseLeave={onMouseLeave}
+					className={isExprBarFocused ? classes.treeLabelPortExprFocused : ""}
 				>
 					<span className={classes.inPort}>
-						{portIn && (isBodyObjectLiteralExpr || !hasDiagnostics) && (!hasValue
-								|| !expanded
-								|| !isBodyObjectLiteralExpr
-								|| hasEmptyFields
-							) &&
-							<DataMapperPortWidget engine={engine} port={portIn} handlePortState={handlePortState} />
+						{portIn && (
+							<DataMapperPortWidget
+								engine={engine}
+								port={portIn}
+								handlePortState={handlePortState}
+								disable={
+									!((isBodyObjectLiteralExpr || !hasDiagnostics)
+									&& (!hasValue || !expanded || !isBodyObjectLiteralExpr || hasEmptyFields))
+								}
+							/>)
 						}
 					</span>
 					<span className={classes.label}>

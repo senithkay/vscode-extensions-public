@@ -153,6 +153,8 @@ export function AIProjectGenerationChat() {
     const [isOpen, setIsOpen] = useState(false);
     const [isSuggestionLoading, setIsSuggestionLoading] = useState(false);
     const [isCodeLoading, setIsCodeLoading] = useState(false);
+    const [uploadedFile, setUploadedFile] = useState({ fileName: '', fileContent: '' });
+    const [fileUploadStatus, setFileUploadStatus] = useState({ type: '', text: '' });
 
     async function fetchBackendUrl() {
         try {
@@ -412,6 +414,7 @@ export function AIProjectGenerationChat() {
         const machineView = await rpcClient.getVisualizerState();
         switch (machineView?.view) {
             case MACHINE_VIEW.Overview:
+            case MACHINE_VIEW.ADD_ARTIFACT:
                 backendUrl = MI_ARTIFACT_GENERATION_BACKEND_URL;
                 view = "Overview";
                 break;
@@ -438,7 +441,7 @@ export function AIProjectGenerationChat() {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token.token}`,
                     },
-                    body: JSON.stringify({ messages: chatArray, context: context[0].context }),
+                    body: JSON.stringify({ messages: chatArray, context: context[0].context, uploadedFile:JSON.stringify(uploadedFile) }),
                     signal: signal,
                 })
                 if (!response.ok && response.status != 401) {
@@ -709,6 +712,29 @@ export function AIProjectGenerationChat() {
         }
     };
 
+    const handleFileAttach = (e: any) => {
+        const file = e.target.files[0];
+        const validTypes = ["text/plain", "application/json", "application/x-yaml", "application/xml", "text/xml"];
+
+        if (file && validTypes.includes(file.type)) {
+            const reader = new FileReader();
+            reader.onload = (event: any) => {
+                const fileContents = event.target.result;
+                setUploadedFile({ fileName: file.name, fileContent: fileContents });
+                setFileUploadStatus({ type: 'success', text: 'File uploaded successfully.' });
+            };
+            reader.readAsText(file);
+            e.target.value = '';
+        } else {
+            setFileUploadStatus({ type: 'error', text: 'Please select a valid XML, JSON, YAML, or text file.' });
+        }
+    };
+
+    const handleRemoveFile = () => {
+        setUploadedFile({ fileName: '', fileContent: '' });
+        setFileUploadStatus({ type: '', text: '' });
+    };
+
     return (
         <AIChatView>
             <Header>
@@ -822,7 +848,32 @@ export function AIProjectGenerationChat() {
                     </div>
                 </>
                 ))}
+                {uploadedFile && uploadedFile.fileName && (
+                    <FlexRow >
+                        <span>{uploadedFile.fileName}</span>
+                        <VSCodeButton
+                            appearance="secondary"
+                            onClick={handleRemoveFile}
+                            style={{ marginLeft: '10px', backgroundColor: '#1C1C1C' }}
+                        >
+                            <span className="codicon codicon-close"></span>
+                        </VSCodeButton>
+                    </FlexRow>
+                )}
                 <FlexRow>
+                    <Button
+                        appearance="secondary"
+                        onClick={() => document.getElementById('fileInput').click()}
+                        tooltip="Upload File"
+                    >
+                        <span className="codicon codicon-new-file"></span>
+                    </Button>
+                    <input
+                        id="fileInput"
+                        type="file"
+                        style={{ display: "none" }}
+                        onChange={(e: any) => handleFileAttach(e)}
+                    />
                 <VSCodeTextField
                         value={userInput}
                         onInput={(e: any) => setUserInput(e.target.value)}
@@ -840,6 +891,11 @@ export function AIProjectGenerationChat() {
                         <span className={`codicon ${isLoading ? 'codicon-debug-stop' : 'codicon-send'}`}></span>
                     </VSCodeButton>
                 </FlexRow>
+                {fileUploadStatus.text && (
+            <div style={{ color: fileUploadStatus.type === 'error' ? 'red' : 'green' }}>
+                {fileUploadStatus.text}
+            </div>
+        )}
             </Footer>
         </AIChatView>
     );

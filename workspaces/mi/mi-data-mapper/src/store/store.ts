@@ -6,6 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
+import { InputOutputPortModel } from 'src/components/Diagram/Port';
 import { create } from 'zustand';
 
 interface SubMappingConfig {
@@ -42,6 +43,15 @@ export interface DataMapperSubMappingConfigPanelState {
     resetSubMappingConfig: () => void;
 }
 
+export interface DataMapperExpressionBarState {
+    focusedPort: InputOutputPortModel;
+    inputPort: InputOutputPortModel;
+    setFocusedPort: (port: InputOutputPortModel) => void;
+    setInputPort: (port: InputOutputPortModel) => void;
+    resetFocusedPort: () => void;
+    resetInputPort: () => void;
+}
+
 export const useDMSearchStore = create<DataMapperSearchState>((set) => ({
     inputSearch: "",
     outputSearch: "",
@@ -76,4 +86,13 @@ export const useDMSubMappingConfigPanelStore = create<DataMapperSubMappingConfig
         nextSubMappingIndex: -1,
         suggestedNextSubMappingName: undefined
     }}),
+}));
+
+export const useDMExpressionBarStore = create<DataMapperExpressionBarState>((set) => ({
+    focusedPort: undefined,
+    setFocusedPort: (focusedPort: InputOutputPortModel) => set({ focusedPort }),
+    inputPort: undefined,
+    setInputPort: (inputPort: InputOutputPortModel) => set({ inputPort }),
+    resetFocusedPort: () => set({ focusedPort: undefined }),
+    resetInputPort: () => set({ inputPort: undefined })
 }));

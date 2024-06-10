@@ -18,6 +18,7 @@ import {
     BrowseFileResponse,
     CommandsRequest,
     CommandsResponse,
+    CompareSwaggerAndAPIResponse,
     Connector,
     ConnectorRequest,
     ConnectorResponse,
@@ -45,6 +46,10 @@ import {
     CreateProxyServiceResponse,
     CreateRegistryResourceRequest,
     CreateRegistryResourceResponse,
+    UpdateRegistryMetadataRequest,
+    UpdateRegistryMetadataResponse,
+    GetRegistryMetadataRequest,
+    GetRegistryMetadataResponse,
     CreateSequenceRequest,
     CreateSequenceResponse,
     CreateTaskRequest,
@@ -138,8 +143,10 @@ import {
     RetrieveWsdlEndpointResponse,
     SequenceDirectoryResponse,
     ShowErrorMessageRequest,
+    SwaggerTypeRequest,
     TemplatesResponse,
     UndoRedoParams,
+    UpdateAPIFromSwaggerRequest,
     UpdateAddressEndpointRequest,
     UpdateAddressEndpointResponse,
     UpdateConnectorRequest,
@@ -173,14 +180,16 @@ import * as tmp from 'tmp';
 import { v4 as uuidv4 } from 'uuid';
 import * as vscode from 'vscode';
 import { Position, Range, Selection, TextEdit, Uri, ViewColumn, WorkspaceEdit, commands, window, workspace } from "vscode";
+import { parse, stringify } from "yaml";
 import { extension } from '../../MIExtensionContext';
 import { StateMachineAI } from '../../ai-panel/aiMachine';
 import { COMMANDS, DEFAULT_PROJECT_VERSION, MI_COPILOT_BACKEND_URL } from "../../constants";
 import { StateMachine, navigate, openView } from "../../stateMachine";
 import { openPopupView } from "../../stateMachinePopup";
 import { UndoRedoManager } from "../../undoRedoManager";
-import { createFolderStructure, getAddressEndpointXmlWrapper, getDefaultEndpointXmlWrapper, getFailoverXmlWrapper, getHttpEndpointXmlWrapper, getInboundEndpointXmlWrapper, getLoadBalanceXmlWrapper, getMessageProcessorXmlWrapper, getMessageStoreXmlWrapper, getProxyServiceXmlWrapper, getRegistryResourceContent, getTaskXmlWrapper, getTemplateEndpointXmlWrapper, getTemplateXmlWrapper, getWsdlEndpointXmlWrapper } from "../../util";
-import { addNewEntryToArtifactXML, addSynapseDependency, changeRootPomPackaging, createMetadataFilesForRegistryCollection, detectMediaType, getAvailableRegistryResources, getMediatypeAndFileExtension } from "../../util/fileOperations";
+import { createFolderStructure, getAddressEndpointXmlWrapper, getAPIResourceXmlWrapper, getDefaultEndpointXmlWrapper, getFailoverXmlWrapper, getHttpEndpointXmlWrapper, getInboundEndpointXmlWrapper, getLoadBalanceXmlWrapper, getMessageProcessorXmlWrapper, getMessageStoreXmlWrapper, getProxyServiceXmlWrapper, getRegistryResourceContent, getTaskXmlWrapper, getTemplateEndpointXmlWrapper, getTemplateXmlWrapper, getWsdlEndpointXmlWrapper } from "../../util";
+import { addNewEntryToArtifactXML, addSynapseDependency, changeRootPomPackaging, createMetadataFilesForRegistryCollection, deleteRegistryResource, detectMediaType, getAvailableRegistryResources, getMediatypeAndFileExtension, getRegistryResourceMetadata, updateRegistryResourceMetadata } from "../../util/fileOperations";
+import { log } from "../../util/logger";
 import { importProject } from "../../util/migrationUtils";
 import { getDataSourceXml } from "../../util/template-engine/mustach-templates/DataSource";
 import { getClassMediatorContent } from "../../util/template-engine/mustach-templates/classMediator";
@@ -190,8 +199,8 @@ import { rootPomXmlContent } from "../../util/templates";
 import { replaceFullContentToFile } from "../../util/workspace";
 import { VisualizerWebview } from "../../visualizer/webview";
 import path = require("path");
-import { deleteRegistryResource } from "../../util/fileOperations"
-import { log } from "../../util/logger";
+import { getResourceInfo, isEqualSwaggers, mergeSwaggers } from "../../util/swagger";
+import { isEqual } from "lodash";
 
 const { XMLParser, XMLBuilder } = require("fast-xml-parser");
 
@@ -331,7 +340,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     response = await langClient.generateAPI({
                         apiName: name,
                         swaggerOrWsdlPath: swaggerDefPath,
-                        publishSwaggerPath: 
+                        publishSwaggerPath:
                             saveSwaggerDef ? `gov:swaggerFiles/${getSwaggerName(swaggerDefPath)}` : undefined,
                         mode: "create.api.from.swagger"
                     });
@@ -370,20 +379,18 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     }
                 });
             }
-            
+
             // Save swagger file
             if (saveSwaggerDef && swaggerDefPath) {
                 const workspacePath = workspace.workspaceFolders![0].uri.fsPath;
-                const ext = path.extname(swaggerDefPath);
                 const swaggerRegPath = path.join(
                     workspacePath,
                     'src',
                     'main',
                     'wso2mi',
-                    'resources',
-                    'registry',
-                    'gov',
-                    'swaggerFiles',
+                    'artifacts',
+                    'apis',
+                    'api-definitions',
                     getSwaggerName(swaggerDefPath)
                 );
                 if (!fs.existsSync(path.dirname(swaggerRegPath))) {
@@ -2548,7 +2555,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
     async writeContentToFile(params: WriteContentToFileRequest): Promise<WriteContentToFileResponse> {
         const fetchConnectors = async (name) => {
             const response = await fetch('https://raw.githubusercontent.com/rosensilva/connectors/main/connectors_list.json');
-            if(!response.ok) {
+            if (!response.ok) {
                 console.error('Failed to fetch connectors');
             }
             const data = await response.json();
@@ -2634,7 +2641,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 }
 
                 //write the content to a file, if file exists, overwrite else create new file
-                const fullPath = path.join(directoryPath ?? '', 'src','main','wso2mi','artifacts', fileType, path.sep, `${name}.xml`);
+                const fullPath = path.join(directoryPath ?? '', 'src', 'main', 'wso2mi', 'artifacts', fileType, path.sep, `${name}.xml`);
                 console.log('Full path:', fullPath);
                 try {
                     console.log('Writing content to file:', fullPath);
@@ -2945,6 +2952,20 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 commands.executeCommand(COMMANDS.REFRESH_COMMAND);
                 resolve({ path: destPath });
             }
+        });
+    }
+
+    async getMetadataOfRegistryResource(params: GetRegistryMetadataRequest): Promise<GetRegistryMetadataResponse> {
+        return new Promise(async (resolve) => {
+            resolve({ metadata: getRegistryResourceMetadata(params.projectDirectory) });
+        });
+    }
+
+    async updateRegistryMetadata(params: UpdateRegistryMetadataRequest): Promise<UpdateRegistryMetadataResponse> {
+        return new Promise(async (resolve) => {
+            let message = updateRegistryResourceMetadata(params);
+            window.showInformationMessage(message);
+            resolve({ message: message });
         });
     }
 
@@ -3417,6 +3438,186 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             const oldProjectState = StateMachine.context().isOldProject;
             if (oldProjectState !== undefined) {
                 resolve(oldProjectState);
+            }
+        });
+    }
+
+    async editOpenAPISpec(params: SwaggerTypeRequest): Promise<void> {
+        return new Promise(async () => {
+            const { apiName, apiPath } = params;
+            const workspacePath = workspace.workspaceFolders![0].uri.fsPath;
+            const openAPISpecPath = path.join(
+                workspacePath,
+                'src',
+                'main',
+                'wso2mi',
+                'resources',
+                'api-definitions',
+                `${apiName}.yaml`
+            );
+
+            // Create directory if not exists
+            if (!fs.existsSync(path.dirname(openAPISpecPath))) {
+                fs.mkdirSync(path.dirname(openAPISpecPath), { recursive: true });
+            };
+            
+            const langClient = StateMachine.context().langClient!;
+            const { swagger } = await langClient.swaggerFromAPI({ apiPath });
+            if (!fs.existsSync(openAPISpecPath)) {
+                // Create the file if not exists
+                fs.writeFileSync(openAPISpecPath, swagger);
+            };
+
+            // Open the file in the editor
+            const openedEditor = window.visibleTextEditors.find(
+                editor => editor.document.uri.fsPath === openAPISpecPath
+            );
+            if (openedEditor) {
+                window.showTextDocument(openedEditor.document, {
+                    viewColumn: openedEditor.viewColumn
+                });
+            } else {
+                commands.executeCommand('vscode.open', Uri.file(openAPISpecPath), {
+                    viewColumn: ViewColumn.Active
+                });
+            }
+        });
+    }
+
+    async compareSwaggerAndAPI(params: SwaggerTypeRequest): Promise<CompareSwaggerAndAPIResponse> {
+        return new Promise(async (resolve) => {
+            const { apiPath, apiName } = params;
+            const workspacePath = workspace.workspaceFolders![0].uri.fsPath;
+            const swaggerPath = path.join(
+                workspacePath,
+                'src',
+                'main',
+                'wso2mi',
+                'resources',
+                'api-definitions',
+                `${apiName}.yaml`
+            );
+
+            if (!fs.existsSync(swaggerPath)) {
+                return resolve({ swaggerExists: false });
+            }
+
+            const langClient = StateMachine.context().langClient!;
+            const { swagger: generatedSwagger } = await langClient.swaggerFromAPI({ apiPath });
+            const swaggerContent = fs.readFileSync(swaggerPath, 'utf-8');
+            const isEqualSwagger = isEqualSwaggers({
+                existingSwagger: parse(swaggerContent),
+                generatedSwagger: parse(generatedSwagger!)
+            });
+            return resolve({
+                swaggerExists: true,
+                isEqual: isEqualSwagger,
+                generatedSwagger,
+                existingSwagger: swaggerContent
+            });
+        });
+    }
+
+    async updateSwaggerFromAPI(params: SwaggerTypeRequest): Promise<void> {
+        return new Promise(async () => {
+            const { apiName, apiPath } = params;
+            const workspacePath = workspace.workspaceFolders![0].uri.fsPath;
+            const swaggerPath = path.join(
+                workspacePath,
+                'src',
+                'main',
+                'wso2mi',
+                'resources',
+                'api-definitions',
+                `${apiName}.yaml`
+            );
+
+            let generatedSwagger = params.generatedSwagger;
+            let existingSwagger = params.existingSwagger;
+            if (!generatedSwagger || !existingSwagger) {
+                const langClient = StateMachine.context().langClient!;
+                const response = await langClient.swaggerFromAPI({ apiPath });
+                generatedSwagger = response.swagger;
+                existingSwagger = fs.readFileSync(swaggerPath, 'utf-8');
+            }
+
+            const mergedContent = mergeSwaggers({
+                existingSwagger: parse(existingSwagger),
+                generatedSwagger: parse(generatedSwagger!)
+            });
+            const yamlContent = stringify(mergedContent);
+            fs.writeFileSync(swaggerPath, yamlContent);
+        });
+    }
+
+    async updateAPIFromSwagger(params: UpdateAPIFromSwaggerRequest): Promise<void> {
+        return new Promise(async () => {
+            const { apiName, apiPath, resources, insertPosition } = params;
+            const workspacePath = workspace.workspaceFolders![0].uri.fsPath;
+            const swaggerPath = path.join(
+                workspacePath,
+                'src',
+                'main',
+                'wso2mi',
+                'resources',
+                'api-definitions',
+                `${apiName}.yaml`
+            );
+
+            let generatedSwagger = params.generatedSwagger;
+            let existingSwagger = params.existingSwagger;
+            if (!generatedSwagger || !existingSwagger) {
+                const langClient = StateMachine.context().langClient!;
+                const response = await langClient.swaggerFromAPI({ apiPath });
+                generatedSwagger = response.swagger;
+                existingSwagger = fs.readFileSync(swaggerPath, 'utf-8');
+            }
+            
+            // Add new resources
+            const { added, removed, updated } = getResourceInfo({
+                existingSwagger: parse(existingSwagger),
+                generatedSwagger: parse(generatedSwagger!),
+            });
+            const resourceXml = added.reduce((acc, resource) => {
+                return acc + "\n" + getAPIResourceXmlWrapper({
+                    methods: resource.methods,
+                    uriTemplate: resource.path
+                });
+            }, "").trim();
+            await this.applyEdit({
+                text: resourceXml,
+                documentUri: apiPath,
+                range: {
+                    start: {
+                        line: insertPosition.line,
+                        character: insertPosition.character,
+                    },
+                    end: {
+                        line: insertPosition.line,
+                        character: insertPosition.character,
+                    }
+                }
+            });
+
+            // Delete resources
+            const deleteResources = removed.map(resource => resources.find(
+                r => r.path === resource.path && isEqual(r.methods, resource.methods)
+            ));
+            for (const resource of deleteResources) {
+                await this.applyEdit({
+                    text: "",
+                    documentUri: apiPath,
+                    range: {
+                        start: {
+                            line: resource.position.startLine,
+                            character: resource.position.startColumn
+                        },
+                        end: {
+                            line: resource.position.endLine,
+                            character: resource.position.endColumn
+                        }
+                    }
+                });
             }
         });
     }

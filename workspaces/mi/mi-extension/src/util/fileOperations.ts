@@ -15,7 +15,7 @@ import * as path from 'path';
 import { XMLParser, XMLBuilder } from "fast-xml-parser";
 import { COMMANDS } from "../constants";
 import * as unzipper from 'unzipper';
-import { ListRegistryArtifactsResponse, Range, RegistryArtifact } from "@wso2-enterprise/mi-core";
+import { ListRegistryArtifactsResponse, Range, RegistryArtifact, UpdateRegistryMetadataRequest } from "@wso2-enterprise/mi-core";
 import { rm } from 'node:fs/promises';
 import { existsSync } from "fs";
 
@@ -354,9 +354,9 @@ export function getMediatypeAndFileExtension(templateType: string): { mediaType:
             fileExtension = 'dmc';
             break;
         case "Data Mapper Schema":
-                mediaType = 'text/plain';
-                fileExtension = 'json';
-                break;
+            mediaType = 'text/plain';
+            fileExtension = 'json';
+            break;
         case "Javascript File":
             mediaType = 'application/javascript';
             fileExtension = 'js';
@@ -531,58 +531,175 @@ export async function createMetadataFilesForRegistryCollection(collectionRoot: s
  * @param projectDir    The project directory.
  * @returns             The list of available registry resources.
  */
-export async function getAvailableRegistryResources(projectDir: string): Promise<ListRegistryArtifactsResponse> {
-    return new Promise(async (resolve) => {
-        const result: RegistryArtifact[] = [];
-        var artifactXMLPath = path.join(projectDir, 'artifact.xml');
-        if (!projectDir.endsWith('registry')) {
-            const fileUri = Uri.file(projectDir);
-            const workspaceFolder = workspace.getWorkspaceFolder(fileUri);
-            if (workspaceFolder) {
-                projectDir = path.join(workspaceFolder.uri.fsPath, 'src', 'main', 'wso2mi', 'resources', 'registry');
-                artifactXMLPath = path.join(projectDir, 'artifact.xml');
+export function getAvailableRegistryResources(projectDir: string): ListRegistryArtifactsResponse {
+    const result: RegistryArtifact[] = [];
+    var artifactXMLPath = path.join(projectDir, 'artifact.xml');
+    if (!projectDir.endsWith('registry')) {
+        const fileUri = Uri.file(projectDir);
+        const workspaceFolder = workspace.getWorkspaceFolder(fileUri);
+        if (workspaceFolder) {
+            projectDir = path.join(workspaceFolder.uri.fsPath, 'src', 'main', 'wso2mi', 'resources', 'registry');
+            artifactXMLPath = path.join(projectDir, 'artifact.xml');
+        }
+    }
+    if (fs.existsSync(artifactXMLPath)) {
+        const artifactXML = fs.readFileSync(artifactXMLPath, "utf8");
+        const options = {
+            ignoreAttributes: false,
+            attributeNamePrefix: "@",
+            parseTagValue: true,
+            format: true,
+        };
+        const parser = new XMLParser(options);
+        const artifactXMLData = parser.parse(artifactXML);
+        if (!artifactXMLData.artifacts) {
+            return { artifacts: [] };
+        }
+        if (!Array.isArray(artifactXMLData.artifacts.artifact)) {
+            artifactXMLData.artifacts.artifact = [artifactXMLData.artifacts.artifact];
+        }
+        for (const artifact of artifactXMLData.artifacts.artifact) {
+            if (artifact.collection) {
+                const registryArtifact: RegistryArtifact = {
+                    name: artifact["@name"],
+                    path: artifact.collection.path,
+                    file: artifact.collection.directory,
+                    isCollection: true
+                };
+                result.push(registryArtifact);
+            } else if (artifact.item) {
+                const registryArtifact: RegistryArtifact = {
+                    name: artifact["@name"],
+                    path: artifact.item.path,
+                    file: artifact.item.file,
+                    isCollection: false
+                };
+                result.push(registryArtifact);
             }
         }
-        if (fs.existsSync(artifactXMLPath)) {
-            const artifactXML = fs.readFileSync(artifactXMLPath, "utf8");
-            const options = {
-                ignoreAttributes: false,
-                attributeNamePrefix: "@",
-                parseTagValue: true,
-                format: true,
-            };
-            const parser = new XMLParser(options);
-            const artifactXMLData = parser.parse(artifactXML);
-            if (!artifactXMLData.artifacts) {
-                return resolve({ artifacts: [] });
+        return { artifacts: result };
+    } else {
+        return { artifacts: [] };
+    }
+}
+
+export function getRegistryResourceMetadata(projectDir: string): RegistryArtifact {
+    const regPathPrefix = path.join("wso2mi", "resources", "registry");
+    const lastIndex = projectDir.indexOf(regPathPrefix) !== -1 ? projectDir.indexOf(regPathPrefix) + regPathPrefix.length : 0;
+    const registryPath = projectDir.substring(lastIndex);
+    const transformedPath = registryPath.replace("/gov", "/_system/governance").replace("/conf", "/_system/config");
+    const artifactXMLData = getArtifactData(projectDir)[1];
+    for (const artifact of artifactXMLData) {
+        if (artifact.item && (artifact.item.path.endsWith("/") ? artifact.item.path +
+            artifact.item.file : artifact.item.path + "/" + artifact.item.file) === transformedPath) {
+            let properties = [];
+            if (artifact.item.properties && artifact.item.properties.property) {
+                if (!Array.isArray(artifact.item.properties.property)) {
+                    artifact.item.properties.property = [artifact.item.properties.property];
+                }
+                properties = artifact.item.properties.property;
             }
+            return {
+                name: artifact["@name"],
+                path: artifact.item.path,
+                file: artifact.item.file,
+                isCollection: false,
+                properties: properties,
+                mediaType: artifact.item.mediaType
+            };
+        } else if (artifact.collection && artifact.collection.path === transformedPath) {
+            let properties = [];
+            if (artifact.collection.properties && artifact.collection.properties.property) {
+                if (!Array.isArray(artifact.collection.properties.property)) {
+                    artifact.collection.properties.property = [artifact.collection.properties.property];
+                }
+                properties = artifact.collection.properties.property;
+            }
+            return {
+                name: artifact["@name"],
+                path: artifact.collection.path,
+                file: artifact.collection.directory,
+                isCollection: true,
+                properties: properties
+            };
+        }
+    }
+    return {} as RegistryArtifact;
+}
+
+export function updateRegistryResourceMetadata(request: UpdateRegistryMetadataRequest): string {
+    const artifactData = getArtifactData(request.projectDirectory);
+    const artifactXMLData = artifactData[0];
+    const artifacts = artifactData[1];
+    let updated = false;
+    if (artifacts) {
+        for (const artifact of artifacts) {
+            if (artifact.item && (artifact.item.path.endsWith("/") ? artifact.item.path +
+                artifact.item.file : artifact.item.path + "/" + artifact.item.file) === request.registryPath) {
+                artifact.item.mediaType = request.mediaType;
+                artifact.item.properties = {};
+                artifact.item.properties.property = [];
+                const propertiesArray = Object.entries(request.properties);
+                for (const [key, value] of propertiesArray) {
+                    artifact.item.properties.property.push({ "@key": key, "@value": value });
+                }
+                updated = true;
+                break;
+            } else if (artifact.collection && artifact.collection.path === request.registryPath) {
+                artifact.collection.properties = {};
+                artifact.collection.properties.property = [];
+                const propertiesArray = Object.entries(request.properties);
+                for (const [key, value] of propertiesArray) {
+                    artifact.collection.properties.property.push({ "@key": key, "@value": value });
+                }
+                updated = true;
+                break;
+            }
+        }
+        const options = {
+            ignoreAttributes: false,
+            attributeNamePrefix: "@",
+            parseTagValue: true,
+            format: true,
+        };
+        if (updated) {
+            const builder = new XMLBuilder(options);
+            const updatedXmlString = builder.build(artifactXMLData);
+            fs.writeFileSync(artifactData[2], updatedXmlString);
+            return "Metadata updated successfully";
+        } else {
+            window.showErrorMessage("Could not update the registry resource metadata. Please check the artifact.xml file");
+        }
+    }
+    return "Could not read the artifact.xml file";
+}
+
+function getArtifactData(projectDir: string): [any, any[], string] {
+    const fileUri = Uri.file(projectDir);
+    let artifactXMLPath = "";
+    const workspaceFolder = workspace.getWorkspaceFolder(fileUri);
+    if (workspaceFolder) {
+        projectDir = path.join(workspaceFolder.uri.fsPath, 'src', 'main', 'wso2mi', 'resources', 'registry');
+        artifactXMLPath = path.join(projectDir, 'artifact.xml');
+    }
+    if (fs.existsSync(artifactXMLPath)) {
+        const artifactXML = fs.readFileSync(artifactXMLPath, "utf8");
+        const options = {
+            ignoreAttributes: false,
+            attributeNamePrefix: "@",
+            parseTagValue: true,
+            format: true,
+        };
+        const parser = new XMLParser(options);
+        const artifactXMLData = parser.parse(artifactXML);
+        if (artifactXMLData.artifacts) {
             if (!Array.isArray(artifactXMLData.artifacts.artifact)) {
                 artifactXMLData.artifacts.artifact = [artifactXMLData.artifacts.artifact];
             }
-            for (const artifact of artifactXMLData.artifacts.artifact) {
-                if (artifact.collection) {
-                    const registryArtifact: RegistryArtifact = {
-                        name: artifact["@name"],
-                        path: artifact.collection.path,
-                        file: artifact.collection.directory,
-                        isCollection: true
-                    };
-                    result.push(registryArtifact);
-                } else if (artifact.item) {
-                    const registryArtifact: RegistryArtifact = {
-                        name: artifact["@name"],
-                        path: artifact.item.path,
-                        file: artifact.item.file,
-                        isCollection: false
-                    };
-                    result.push(registryArtifact);
-                }
-            }
-            resolve({ artifacts: result });
-        } else {
-            resolve({ artifacts: [] });
+            return [artifactXMLData, artifactXMLData.artifacts.artifact, artifactXMLPath];
         }
-    });
+    }
+    return [null, [], ""];
 }
 
 export function findJavaFiles(folderPath): Map<string, string> {
@@ -689,9 +806,9 @@ export function goToSource(filePath: string, position?: Range) {
     if (!position) {
         openTextEditor(openedDocument, filePath);
     } else {
-        const { start : { line, column } } = position;
+        const { start: { line, column } } = position;
         const range: VSCodeRange = new VSCodeRange(line, column, line!, column!);
-        
+
         if (openedDocument) {
             focusTextEditor(openedDocument, range);
         } else {
@@ -712,7 +829,7 @@ export function goToSource(filePath: string, position?: Range) {
         window.showTextDocument(editor.document, { preview: false, preserveFocus: false, viewColumn: editor.viewColumn })
             .then(textEditor => updateEditor(textEditor, range));
     }
-    
+
     function openAndFocusTextDocument(filePath: string, range: VSCodeRange) {
         workspace.openTextDocument(filePath).then(sourceFile => {
             window.showTextDocument(sourceFile, { preview: false, preserveFocus: false })

@@ -289,6 +289,13 @@
         "category": "MI"
       },
       {
+        "command": "MI.project-explorer.edit-reg-metadata",
+        "title": "Edit Registry Metadata",
+        "icon": "$(notebook-edit)",
+        "group": "navigation",
+        "category": "MI"
+      },
+      {
         "command": "MI.project-explorer.add-class-mediator",
         "title": "Add Class Mediator",
         "icon": "$(add)",
@@ -439,6 +446,11 @@
           "group": "inline"
         },
         {
+          "command": "MI.project-explorer.edit-reg-metadata",
+          "when": "view == MI.project-explorer && (viewItem == registry-with-metadata)",
+          "group": "inline"
+        },
+        {
           "command": "MI.project-explorer.add-class-mediator",
           "when": "view == MI.project-explorer && viewItem == class-mediator",
           "group": "inline"
@@ -522,7 +534,8 @@
     "@wso2-enterprise/mi-visualizer": "workspace:*",
     "@wso2-enterprise/mi-rpc-client": "workspace:*",
     "ts-morph": "^22.0.0",
-    "await-notify": "^1.0.1"
+    "await-notify": "^1.0.1",
+    "yaml": "~2.4.3"
   },
   "dependencies": {
     "copyfiles": "^2.4.1",

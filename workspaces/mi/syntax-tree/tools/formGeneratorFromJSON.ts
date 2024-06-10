@@ -302,7 +302,7 @@ const generateForm = (jsonData: any): string => {
                         fixIndentation(`
                         <TextArea {...field} label="${displayName}" placeholder="${helpTip}" />`, indentation);
                 } else if (inputType === 'stringOrExpression' || inputType === 'expression') {
-                    defaultValue = { isExpression: true, value: defaultValue || '' };
+                    defaultValue = { isExpression: inputType === "expression", value: defaultValue || '' };
                     fields +=
                         fixIndentation(`
                         <ExpressionField 

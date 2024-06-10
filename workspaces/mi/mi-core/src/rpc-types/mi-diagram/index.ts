@@ -60,6 +60,10 @@ import {
     BrowseFileResponse,
     CreateRegistryResourceRequest,
     CreateRegistryResourceResponse,
+    UpdateRegistryMetadataRequest,
+    UpdateRegistryMetadataResponse,
+    GetRegistryMetadataRequest,
+    GetRegistryMetadataResponse,
     BrowseFileRequest,
     CreateMessageProcessorRequest,
     CreateMessageProcessorResponse,
@@ -151,6 +155,9 @@ import {
     ExportProjectRequest,
     EditAPIRequest,
     EditAPIResponse,
+    SwaggerTypeRequest,
+    UpdateAPIFromSwaggerRequest,
+    CompareSwaggerAndAPIResponse,
 } from "./types";
 
 export interface MiDiagramAPI {
@@ -229,6 +236,8 @@ export interface MiDiagramAPI {
     getSelectiveWorkspaceContext: () => Promise<GetSelectiveWorkspaceContextResponse>;
     getBackendRootUrl: () => Promise<GetBackendRootUrlResponse>;
     getAvailableRegistryResources: (params: ListRegistryArtifactsRequest) => Promise<RegistryArtifactNamesResponse>;
+    updateRegistryMetadata: (params: UpdateRegistryMetadataRequest) => Promise<UpdateRegistryMetadataResponse>;
+    getMetadataOfRegistryResource: (params: GetRegistryMetadataRequest) => Promise<GetRegistryMetadataResponse>;
     rangeFormat: (params: RangeFormatRequest) => Promise<ApplyEditResponse>;
     downloadConnector: (params: DownloadConnectorRequest) => Promise<DownloadConnectorResponse>;
     getAvailableConnectors: (params: GetAvailableConnectorRequest) => Promise<GetAvailableConnectorResponse>;
@@ -249,4 +258,8 @@ export interface MiDiagramAPI {
     exportProject: (params: ExportProjectRequest) => void;
     checkOldProject: () => Promise<boolean>;
     refreshAccessToken: () => Promise<void>;
+    editOpenAPISpec: (params: SwaggerTypeRequest) => Promise<void>;
+    compareSwaggerAndAPI: (params: SwaggerTypeRequest) => Promise<CompareSwaggerAndAPIResponse>;
+    updateSwaggerFromAPI: (params: SwaggerTypeRequest) => Promise<void>;
+    updateAPIFromSwagger: (params: UpdateAPIFromSwaggerRequest) => Promise<void>;
 }

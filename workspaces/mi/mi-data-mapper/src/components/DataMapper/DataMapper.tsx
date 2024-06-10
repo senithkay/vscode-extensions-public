@@ -21,7 +21,7 @@ import { NodeInitVisitor } from "../Visitors/NodeInitVisitor";
 import { getFocusedST, getFocusedSubMapping, traversNode } from "../Diagram/utils/st-utils";
 import { ImportDataForm } from "./SidePanel/ImportDataForm";
 import { DataMapperHeader } from "./Header/DataMapperHeader";
-import { useDMSearchStore } from "../../store/store";
+import { useDMExpressionBarStore, useDMSearchStore } from "../../store/store";
 import { getFocusedSubMappingExpr, getTypeName } from "../Diagram/utils/common-utils";
 import { getDMType, getSubMappingTypes, getTypeForVariable } from "../Diagram/utils/type-utils";
 import { getOutputNode } from "../Diagram/utils/node-utils";
@@ -90,21 +90,25 @@ export function MIDataMapper(props: MIDataMapperProps) {
 
     const { rpcClient } = useVisualizerContext();
     const { resetSearchStore } = useDMSearchStore();
+    const { resetFocusedPort } = useDMExpressionBarStore();
 
     const addView = useCallback((view: View) => {
         dispatch({ type: ActionType.ADD_VIEW, payload: {view} });
         resetSearchStore();
-    }, [resetSearchStore]);
+        resetFocusedPort();
+    }, [resetSearchStore, resetFocusedPort]);
 
     const switchView = useCallback((navigateIndex: number) => {
         dispatch({ type: ActionType.SWITCH_VIEW, payload: {index: navigateIndex} });
         resetSearchStore();
-    }, [resetSearchStore]);
+        resetFocusedPort();
+    }, [resetSearchStore, resetFocusedPort]);
 
     const editView = useCallback((newData: View) => {
         dispatch({ type: ActionType.EDIT_VIEW, payload: { view: newData} });
         resetSearchStore();
-    }, [resetSearchStore]);
+        resetFocusedPort();
+    }, [resetSearchStore, resetFocusedPort]);
 
     useEffect(() => {
         async function generateNodes() {
@@ -138,12 +142,12 @@ export function MIDataMapper(props: MIDataMapperProps) {
                     const intermediateNodes = nodeInitVisitor.getIntermediateNodes();
                     const subMappingExpr = getFocusedSubMappingExpr(varDecl.getInitializer(), mapFnIndex);
                     const outputNode = getOutputNode(context, subMappingExpr, subMappingType, true);
-    
+
                     setNodes([inputNode, outputNode, ...intermediateNodes]);
                 }
             } else {
                 let focusedST: FunctionDeclaration | PropertyAssignment | ReturnStatement = fnST;
-    
+
                 if (views.length > 1) {
                     focusedST = getFocusedST(lastView, fnST);
                 }
@@ -174,6 +178,7 @@ export function MIDataMapper(props: MIDataMapperProps) {
                     switchView={switchView}
                     hasEditDisabled={false}
                     onClose={undefined}
+                    applyModifications={applyModifications}
                 />
             )}
             {nodes.length > 0 && (

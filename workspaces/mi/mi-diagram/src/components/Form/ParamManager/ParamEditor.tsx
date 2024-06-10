@@ -41,8 +41,8 @@ const EditorContent = styled.div`
 `;
 
 const DrawerContent = styled.div`
-    padding: 16px;
-    width: 390px;
+    padding: 16px 10px 0 20px;
+    width: 410px;
 `;
 
 export function ParamEditor(props: ParamProps) {

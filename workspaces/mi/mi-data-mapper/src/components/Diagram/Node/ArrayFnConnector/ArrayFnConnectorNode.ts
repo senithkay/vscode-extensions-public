@@ -148,7 +148,6 @@ export class ArrayFnConnectorNode extends DataMapperNodeModel {
         } else if (representsTnfFnReturnStmt(this.parentNode, returnStmt) || isRerurnStmtMapFn) {
             this.getModel().getNodes().forEach((node) => {
                 if (node instanceof ArrayOutputNode) {
-                    console.log(node.getPorts());
                     const ports = Object.entries(node.getPorts());
                     ports.map((entry) => {
                         const port = entry[1];

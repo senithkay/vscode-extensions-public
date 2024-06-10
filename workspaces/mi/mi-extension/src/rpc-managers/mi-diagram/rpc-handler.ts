@@ -67,7 +67,9 @@ import {
     RetrieveTemplateRequest,
     RetrieveWsdlEndpointRequest,
     ShowErrorMessageRequest,
+    SwaggerTypeRequest,
     UndoRedoParams,
+    UpdateAPIFromSwaggerRequest,
     UpdateAddressEndpointRequest,
     UpdateConnectorRequest,
     UpdateDefaultEndpointRequest,
@@ -87,6 +89,7 @@ import {
     checkOldProject,
     closeWebView,
     closeWebViewNotification,
+    compareSwaggerAndAPI,
     createAPI,
     createClassMediator,
     createConnection,
@@ -105,6 +108,7 @@ import {
     deleteArtifact,
     downloadConnector,
     editAPI,
+    editOpenAPISpec,
     executeCommand,
     exportProject,
     getAIResponse,
@@ -164,6 +168,7 @@ import {
     refreshAccessToken,
     showErrorMessage,
     undo,
+    updateAPIFromSwagger,
     updateAddressEndpoint,
     updateConnectors,
     updateDefaultEndpoint,
@@ -171,9 +176,14 @@ import {
     updateHttpEndpoint,
     updateLoadBalanceEndpoint,
     updateRecipientEndpoint,
+    updateSwaggerFromAPI,
     updateTemplateEndpoint,
     updateWsdlEndpoint,
     writeContentToFile,
+    GetRegistryMetadataRequest,
+    getMetadataOfRegistryResource,
+    updateRegistryMetadata,
+    UpdateRegistryMetadataRequest,
 } from "@wso2-enterprise/mi-core";
 import { Messenger } from "vscode-messenger";
 import { MiDiagramRpcManager } from "./rpc-manager";
@@ -255,6 +265,8 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getSelectiveWorkspaceContext, () => rpcManger.getSelectiveWorkspaceContext());
     messenger.onRequest(getBackendRootUrl, () => rpcManger.getBackendRootUrl());
     messenger.onRequest(getAvailableRegistryResources, (args: ListRegistryArtifactsRequest) => rpcManger.getAvailableRegistryResources(args));
+    messenger.onRequest(getMetadataOfRegistryResource, (args: GetRegistryMetadataRequest) => rpcManger.getMetadataOfRegistryResource(args));
+    messenger.onRequest(updateRegistryMetadata, (args: UpdateRegistryMetadataRequest) => rpcManger.updateRegistryMetadata(args));
     messenger.onRequest(rangeFormat, (args: RangeFormatRequest) => rpcManger.rangeFormat(args));
     messenger.onRequest(downloadConnector, (args: DownloadConnectorRequest) => rpcManger.downloadConnector(args));
     messenger.onRequest(getAvailableConnectors, (args: GetAvailableConnectorRequest) => rpcManger.getAvailableConnectors(args));
@@ -275,4 +287,8 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onNotification(exportProject, (args: ExportProjectRequest) => rpcManger.exportProject(args));
     messenger.onRequest(checkOldProject, () => rpcManger.checkOldProject());
     messenger.onNotification(refreshAccessToken, () => rpcManger.refreshAccessToken());
+    messenger.onRequest(editOpenAPISpec, (args: SwaggerTypeRequest) => rpcManger.editOpenAPISpec(args));
+    messenger.onRequest(compareSwaggerAndAPI, (args: SwaggerTypeRequest) => rpcManger.compareSwaggerAndAPI(args));
+    messenger.onRequest(updateSwaggerFromAPI, (args: SwaggerTypeRequest) => rpcManger.updateSwaggerFromAPI(args));
+    messenger.onRequest(updateAPIFromSwagger, (args: UpdateAPIFromSwaggerRequest) => rpcManger.updateAPIFromSwagger(args));
 }

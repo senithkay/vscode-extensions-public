@@ -96,8 +96,8 @@ const AddConnector = (props: AddConnectorProps) => {
             ...params, paramValues: params.paramValues.map((param: any) => {
                 return {
                     ...param,
-                    key: param.parameters[0].value,
-                    value: param.parameters[1].value,
+                    key: param.paramValues[0].value,
+                    value: param.paramValues[1].value,
                     icon: "query"
                 }
             })
@@ -144,24 +144,32 @@ const AddConnector = (props: AddConnectorProps) => {
 
     useEffect(() => {
         if (sidePanelContext.formValues && Object.keys(sidePanelContext.formValues).length > 0 && sidePanelContext.formValues?.parameters) {
-            const parametersValues = sidePanelContext.formValues?.parameters?.map((param: any) => {
-                const validationError = formValidators[param.name]?.(param.value);
-                let namespacesArray: any[] = [];
-                if (param.namespaces) {
-                    namespacesArray = Object.entries(param.namespaces).map(([prefix, uri]) => ({ prefix: prefix.split(':')[1], uri: uri }));
-                }
-
-                return {
-                    [param.name]: {
-                        "isExpression": param.isExpression ?? false,
-                        "value": param.isExpression ? param.value.replace(/[{}]/g, '') : param.value ?? '',
-                        "namespaces": namespacesArray,
-                        "error": validationError
+            if (sidePanelContext.formValues.form) {
+                const parametersValues = sidePanelContext.formValues?.parameters?.map((param: any) => {
+                    const validationError = formValidators[param.name]?.(param.value);
+                    let namespacesArray: any[] = [];
+                    if (param.namespaces) {
+                        namespacesArray = Object.entries(param.namespaces).map(([prefix, uri]) => ({ prefix: prefix.split(':')[1], uri: uri }));
                     }
+
+                    return {
+                        [param.name]: {
+                            "isExpression": param.isExpression ?? false,
+                            "value": param.isExpression ? param.value.replace(/[{}]/g, '') : param.value ?? '',
+                            "namespaces": namespacesArray,
+                            "error": validationError
+                        }
+                    };
+                });
+                const flattenedParameters = Object.assign({}, ...parametersValues);
+                setFormValues({ ...formValues, ...flattenedParameters });
+            } else {
+                //Handle connectors without uischema
+                const modifiedParams = {
+                    ...params, paramValues: generateParams(sidePanelContext.formValues.parameters)
                 };
-            });
-            const flattenedParameters = Object.assign({}, ...parametersValues);
-            setFormValues({ ...formValues, ...flattenedParameters });
+                setParams(modifiedParams);
+            }
         }
     }, [sidePanelContext.formValues]);
 
@@ -265,6 +273,25 @@ const AddConnector = (props: AddConnectorProps) => {
     const onNewConnection = async (connectionName: string) => {
         setConnections([...connections, connectionName]);
         setIsAddingConnection(false);
+    }
+
+    function generateParams(parameters: any[]) {
+        return parameters.map((param: any, id) => {
+            return {
+                id: id,
+                key: param.name,
+                value: param.value,
+                icon: "query",
+                paramValues: [
+                    {
+                        value: param.name,
+                    },
+                    {
+                        value: param.value,
+                    },
+                ]
+            }
+        });
     }
 
     const renderFormElement = (element: Element) => {

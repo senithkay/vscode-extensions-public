@@ -1061,6 +1061,25 @@ export interface CreateRegistryResourceResponse {
     path: string;
 }
 
+export interface GetRegistryMetadataRequest {
+    projectDirectory: string;
+}
+
+export interface GetRegistryMetadataResponse {
+    metadata: RegistryArtifact | undefined;
+}
+
+export interface UpdateRegistryMetadataRequest {
+    projectDirectory: string;
+    registryPath: string;
+    mediaType: string;
+    properties: { [key: string]: string };
+}
+
+export interface UpdateRegistryMetadataResponse {
+    message: string;
+}
+
 export interface BrowseFileResponse {
     filePath: string;
 }
@@ -1111,6 +1130,8 @@ export interface RegistryArtifact {
     file: string;
     path: string;
     isCollection: boolean;
+    properties?: { key: string, value: string }[];
+    mediaType?: string | null;
 }
 export interface RangeFormatRequest {
     uri: string;
@@ -1270,3 +1291,30 @@ export interface GenerateAPIResponse {
     apiXml: string;
     endpointXml?: string;
 }
+
+export interface SwaggerTypeRequest {
+    apiName: string;
+    apiPath: string;
+    generatedSwagger?: string;
+    existingSwagger?: string;
+}
+
+export interface SwaggerFromAPIRequest {
+    apiPath: string;
+    swaggerPath?: string;
+    isJsonIn?: boolean;
+    isJsonOut?: boolean;
+}
+
+export interface CompareSwaggerAndAPIResponse {
+    swaggerExists: boolean;
+    isEqual?: boolean;
+    generatedSwagger?: string;
+    existingSwagger?: string;
+}
+
+export interface UpdateAPIFromSwaggerRequest extends SwaggerTypeRequest {
+    resources: any[];
+    insertPosition: Position;
+}
+

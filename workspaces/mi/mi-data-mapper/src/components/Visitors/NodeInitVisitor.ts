@@ -179,7 +179,7 @@ export class NodeInitVisitor implements Visitor {
             && !Node.isArrayLiteralExpression(returnExpr)
         ) {
             const inputAccessNodes = getInputAccessNodes(returnExpr);
-            if (inputAccessNodes.length > 1) {
+            if (canConnectWithLinkConnector(inputAccessNodes, returnExpr)) {
                 const linkConnectorNode = createLinkConnectorNode(
                     returnExpr, "", parent, inputAccessNodes, [...this.mapIdentifiers, returnExpr], this.context
                 );
@@ -234,11 +234,11 @@ export class NodeInitVisitor implements Visitor {
         const { focusedST, views } = this.context;
         const lastView = views[views.length - 1];
         const { label, sourceFieldFQN } = lastView;
-        // Constraint: Only one variable declaration is allowed in a local variable statement. 
+        // Constraint: Only one variable declaration is allowed in a local variable statement.
         const varDecl = node.getDeclarations()[0];
-    
+
         const isFocusedST = isPositionsEquals(getPosition(node), getPosition(focusedST));
-        
+
         if (isFocusedST) {
             const initializer = varDecl.getInitializer();
             if (initializer) {
@@ -308,7 +308,7 @@ export class NodeInitVisitor implements Visitor {
     endVisitVariableStatement(node: VariableStatement, parent: Node): void {
         const { focusedST } = this.context;
         const isFocusedST = isPositionsEquals(getPosition(node), getPosition(focusedST));
-        
+
         if (!isFocusedST) {
             this.isWithinVariableStmt -= 1;
         }

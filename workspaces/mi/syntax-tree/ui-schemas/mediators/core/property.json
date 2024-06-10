@@ -18,6 +18,21 @@
         {
             "type": "attribute",
             "value": {
+                "name": "propertyAction",
+                "displayName": "Property Action",
+                "inputType": "combo",
+                "defaultValue": "set",
+                "comboValues": [
+                    "set",
+                    "remove"
+                ],
+                "required": true,
+                "helpTip": "Property Action"
+            }
+        },
+        {
+            "type": "attribute",
+            "value": {
                 "name": "propertyDataType",
                 "displayName": "Property Data Type",
                 "inputType": "combo",
@@ -41,21 +56,6 @@
                         "propertyAction": "remove"
                     }
                 ]
-            }
-        },
-        {
-            "type": "attribute",
-            "value": {
-                "name": "propertyAction",
-                "displayName": "Property Action",
-                "inputType": "combo",
-                "defaultValue": "set",
-                "comboValues": [
-                    "set",
-                    "remove"
-                ],
-                "required": true,
-                "helpTip": "Property Action"
             }
         },
         {

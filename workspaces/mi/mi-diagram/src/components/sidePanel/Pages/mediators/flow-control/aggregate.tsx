@@ -49,8 +49,8 @@ const AggregateForm = (props: AddMediatorProps) => {
     useEffect(() => {
         reset({
             completionTimeout: sidePanelContext?.formValues?.completionTimeout || "0",
-            completionMinMessages: sidePanelContext?.formValues?.completionMinMessages || {"isExpression":true,"value":"-1"},
-            completionMaxMessages: sidePanelContext?.formValues?.completionMaxMessages || {"isExpression":true,"value":"-1"},
+            completionMinMessages: sidePanelContext?.formValues?.completionMinMessages || {"isExpression":false,"value":"-1"},
+            completionMaxMessages: sidePanelContext?.formValues?.completionMaxMessages || {"isExpression":false,"value":"-1"},
             aggregateID: sidePanelContext?.formValues?.aggregateID || "",
             enclosingElementProperty: sidePanelContext?.formValues?.enclosingElementProperty || "",
             correlationExpression: sidePanelContext?.formValues?.correlationExpression || {"isExpression":true,"value":""},
