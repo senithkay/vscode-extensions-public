@@ -42,12 +42,12 @@ export function HierachicalPath(props: HierachicalPathProps) {
         }
 
         const isWindows = navigator.platform.toLowerCase().includes("win");
-        const splitString = isWindows ? path.win32.join("src", "main") : path.join("src", "main");
-        const filePath = path.relative(path.normalize(machineView.projectUri), path.normalize(machineView.documentUri)).split(splitString)[1];
+        const splitString = isWindows ? path.win32.join(machineView.projectUri, "src") : path.join(machineView.projectUri, "src");
+        const filePath = machineView.documentUri.split(splitString)[1];
         const pathItems = filePath.substring(1).split(isWindows ? path.win32.sep : path.sep);
 
         const segments: Segment[] = [];
-        const updateSegments = async () => {  
+        const updateSegments = async () => {
 
             for (const pathItem of pathItems) {
                 if (pathItem.endsWith(".xml")) {
