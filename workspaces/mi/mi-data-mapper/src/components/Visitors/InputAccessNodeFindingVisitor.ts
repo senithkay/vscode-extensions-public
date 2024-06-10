@@ -29,7 +29,16 @@ export class InputAccessNodeFindingVisitor implements Visitor {
     }
 
     public beginVisitIdentifier(node: Identifier, parent?: Node) {
-        if ((!parent || !(isInputAccessExpr(parent) || isFunctionCall(parent))) && this.mapFnDepth === 0) {
+        const inputAccessExpr = isInputAccessExpr(parent);
+        let functionCall = false;
+        
+        
+        if (isFunctionCall(parent)) {
+            const fnName = (parent as CallExpression).getExpression().getText();
+            functionCall = fnName === node.getText();
+        }
+
+        if ((!parent || !(inputAccessExpr || functionCall)) && this.mapFnDepth === 0) {
             this.inputNodes.push(node);
         }
     }
@@ -54,13 +63,13 @@ export class InputAccessNodeFindingVisitor implements Visitor {
         } else if (parent && Node.isCallExpression(parent)) {
             const expr = node.getExpression();
 
-            if (isInputAccessExpr(expr)) {
-                this.inputNodes.push(expr as ElementAccessExpression | PropertyAccessExpression);
-            } else if (isFunctionCall(parent)) {
+            if (isFunctionCall(parent)) {
                 const args = parent.getArguments();
                 if (args.includes(node)) {
                     this.inputNodes.push(node);
                 }
+            } else if (isInputAccessExpr(expr) || Node.isIdentifier(expr)) {
+                this.inputNodes.push(expr as ElementAccessExpression | PropertyAccessExpression | Identifier);
             }
         }
     }

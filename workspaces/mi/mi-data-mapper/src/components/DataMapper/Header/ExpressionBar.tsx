@@ -16,6 +16,7 @@ import { useDMExpressionBarStore } from '../../../store/store';
 import { createSourceForUserInput } from '../../../components/Diagram/utils/modification-utils';
 import { DataMapperNodeModel } from '../../../components/Diagram/Node/commons/DataMapperNode';
 import { getFnDeclStructure, operators } from '../Operators/operators';
+import { getDefaultValue } from '../../../components/Diagram/utils/common-utils';
 
 const functionNames = Object.keys(operators);
 
@@ -164,8 +165,14 @@ export default function ExpressionBar(props: ExpressionBarProps) {
                 } else {
                     focusedFieldValue.remove();
                 }
+            } else {
+                targetExpr = focusedFieldValue;
+                const replaceWith = expressionRef.current === ''
+                    ? getDefaultValue(focusedPort.typeWithValue.type.kind)
+                    : expressionRef.current;
+
+                targetExpr.replaceWithText(replaceWith);
             }
-            // TODO: Handle other types of nodes
 
             applyModifications();
         } else {
