@@ -8,7 +8,7 @@
  */
 
 import React, { useEffect } from "react";
-import { EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
+import { Document, EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { Resource, Service, ServiceDesigner } from "@wso2-enterprise/service-designer";
 import { Item } from "@wso2-enterprise/ui-toolkit";
@@ -33,6 +33,7 @@ export function ServiceDesignerView({ syntaxTree, documentUri }: ServiceDesigner
     const [formData, setFormData] = React.useState<ResourceType>(null);
     const [mode, setMode] = React.useState<"create" | "edit">("create");
     const [selectedResource, setSelectedResource] = React.useState<APIResource>(null);
+    const [swaggerUpdated, setSwaggerUpdated] = React.useState<boolean>(false);
 
     const getResources = (st: any): Resource[] => {
         const resources = st.resource as APIResource[];
@@ -80,6 +81,14 @@ export function ServiceDesignerView({ syntaxTree, documentUri }: ServiceDesigner
             };
         });
     };
+
+    if (rpcClient) {
+        rpcClient.onDocumentSave((document: Document) => {
+            if (document.uri.includes(`${serviceData.apiName}.yaml`)) {
+                setSwaggerUpdated(!swaggerUpdated);
+            }
+        });
+    }
 
     useEffect(() => {
         const st = syntaxTree;
@@ -172,7 +181,7 @@ export function ServiceDesignerView({ syntaxTree, documentUri }: ServiceDesigner
                 })
             }
         })
-    }, [syntaxTree, documentUri]);
+    }, [syntaxTree, documentUri, swaggerUpdated]);
 
     const highlightCode = (resource: Resource, force?: boolean) => {
         rpcClient.getMiDiagramRpcClient().highlightCode({

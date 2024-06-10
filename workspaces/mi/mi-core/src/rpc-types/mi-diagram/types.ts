@@ -1313,10 +1313,6 @@ export interface CompareSwaggerAndAPIResponse {
     existingSwagger?: string;
 }
 
-export interface UpdateSwaggerFromAPIResponse {
-    swagger: string;
-}
-
 export interface UpdateAPIFromSwaggerRequest extends SwaggerTypeRequest {
     resources: any[];
     insertPosition: Position;
