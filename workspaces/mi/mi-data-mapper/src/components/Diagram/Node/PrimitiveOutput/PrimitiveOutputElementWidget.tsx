@@ -21,6 +21,7 @@ import { OutputSearchHighlight } from "../commons/Search";
 
 import { ValueConfigMenu, ValueConfigOption } from "../commons/ValueConfigButton";
 import { useIONodesStyles } from "../../../styles";
+import { useDMExpressionBarStore } from "../../../../store/store";
 
 export interface PrimitiveOutputElementWidgetWidgetProps {
     parentId: string;
@@ -47,6 +48,7 @@ export function PrimitiveOutputElementWidget(props: PrimitiveOutputElementWidget
         hasHoveredParent
     } = props;
     const classes = useIONodesStyles();
+    const exprBarFocusedPort = useDMExpressionBarStore(state => state.focusedPort);
 
     const [portState, setPortState] = useState<PortState>(PortState.Unselected);
 
@@ -65,6 +67,7 @@ export function PrimitiveOutputElementWidget(props: PrimitiveOutputElementWidget
     }
 
     const portIn = getPort(`${fieldId}.IN`);
+    const isExprBarFocused = exprBarFocusedPort?.getName() === portIn?.getName();
 
     const handleEditValue = () => {
         if (field.value) {
@@ -115,7 +118,8 @@ export function PrimitiveOutputElementWidget(props: PrimitiveOutputElementWidget
                     id={"recordfield-" + fieldId}
                     className={classnames(classes.treeLabel,
                         (portState !== PortState.Unselected) ? classes.treeLabelPortSelected : "",
-                        hasHoveredParent ? classes.treeLabelParentHovered : ""
+                        hasHoveredParent ? classes.treeLabelParentHovered : "",
+                        isExprBarFocused ? classes.treeLabelPortExprFocused : ""
                     )}
                 >
                     <span className={classes.inPort}>
