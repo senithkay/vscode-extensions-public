@@ -188,7 +188,6 @@ const AddConnection = (props: AddConnectionProps) => {
                         <Controller
                             name={element.name as string}
                             control={control}
-                            rules={{ required: element.required === 'true' }}
                             defaultValue={element.defaultValue}
                             render={({ field }) => (
                                 <TextField {...field}
@@ -206,7 +205,6 @@ const AddConnection = (props: AddConnectionProps) => {
                         <Controller
                             name={element.name as string}
                             control={control}
-                            rules={{ required: element.required === 'true' }}
                             defaultValue={{ "isExpression": false, "value": element.defaultValue, "namespaces": [] }}
                             render={({ field }) => (
                                 <ExpressionField
@@ -247,15 +245,21 @@ const AddConnection = (props: AddConnectionProps) => {
                             control={control}
                             defaultValue={element.defaultValue}
                             render={({ field }) => (
-                                <AutoComplete
-                                    label={element.displayName}
-                                    name={element.name as string}
-                                    items={["true", "false"]}
-                                    onValueChange={(e: any) => {
-                                        field.onChange(e);
-                                    }}
-                                    required={element.required === 'true'}
-                                />
+                                <>
+                                    <div style={{ display: "flex", alignItems: "center", gap: '10px' }}>
+                                        <label>{element.displayName}</label>
+                                        {element.required && <RequiredFormInput />}
+                                    </div>
+                                    <AutoComplete
+                                        name={element.name as string}
+                                        items={["true", "false"]}
+                                        value={field.value}
+                                        onValueChange={(e: any) => {
+                                            field.onChange(e);
+                                        }}
+                                        required={element.required === 'true'}
+                                    />
+                                </>
                             )}
                         />
                     </Field>
@@ -268,17 +272,22 @@ const AddConnection = (props: AddConnectionProps) => {
                             control={control}
                             defaultValue={element.defaultValue}
                             render={({ field }) => (
-                                <AutoComplete
-                                    label={element.displayName}
-                                    name={element.name as string}
-                                    items={element.comboValues}
-                                    value={field.value.value}
-                                    onValueChange={(e: any) => {
-                                        field.onChange(e);
-                                    }}
-                                    allowItemCreate={true}
-                                    required={element.required === 'true'}
-                                />
+                                <>
+                                    <div style={{ display: "flex", alignItems: "center", gap: '10px' }}>
+                                        <label>{element.displayName}</label>
+                                        {element.required && <RequiredFormInput />}
+                                    </div>
+                                    <AutoComplete
+                                        name={element.name as string}
+                                        items={element.comboValues}
+                                        value={field.value}
+                                        onValueChange={(e: any) => {
+                                            field.onChange(e);
+                                        }}
+                                        allowItemCreate={true}
+                                        required={element.required === 'true'}
+                                    />
+                                </>
                             )}
                         />
                     </Field>
@@ -289,14 +298,15 @@ const AddConnection = (props: AddConnectionProps) => {
                         <Controller
                             name={element.name as string}
                             control={control}
-                            defaultValue={element.defaultValue}
+                            defaultValue={{ "isExpression": false, "value": element.defaultValue, "namespaces": [] }}
                             render={({ field }) => (
-                                <TextField {...field}
-                                    label={element.displayName}
-                                    size={50}
+                                <ExpressionField
+                                    {...field} label={element.displayName}
                                     placeholder={element.helpTip}
-                                    value={field.value.value}
-                                    required={element.required === 'true'} />
+                                    canChange={true}
+                                    required={element.required === 'true'}
+                                    openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
+                                />
                             )}
                         />
                     </Field>

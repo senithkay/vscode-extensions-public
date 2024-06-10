@@ -58,6 +58,7 @@ interface Element {
 
 const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g;
 const nameWithoutSpecialCharactorsRegex = /^[a-zA-Z0-9]+$/g;
+const expressionFieldTypes = ['stringOrExpression', 'integerOrExpression','textAreaOrExpression'];
 
 const AddConnector = (props: AddConnectorProps) => {
     const { formData, nodePosition, documentUri } = props;
@@ -154,15 +155,20 @@ const AddConnector = (props: AddConnectorProps) => {
             if (sidePanelContext.formValues.form) {
                 sidePanelContext.formValues?.parameters.forEach((param: any) => {
                     param.name = getNameForController(param.name);
-                    if (param.isExpression) {
-                        let namespacesArray: any[] = [];
-                        if (param.namespaces) {
-                            namespacesArray = Object.entries(param.namespaces).map(([prefix, uri]) => ({ prefix: prefix.split(':')[1], uri: uri }));
+                    let inputType = getInputType(formData, param.name);
+                    if (expressionFieldTypes.includes(inputType)) {
+                        if (param.isExpression) {
+                            let namespacesArray: any[] = [];
+                            if (param.namespaces) {
+                                namespacesArray = Object.entries(param.namespaces).map(([prefix, uri]) => ({ prefix: prefix.split(':')[1], uri: uri }));
+                            }
+                            setValue(param.name, { isExpression: true, value: param.value.replace(/[{}]/g, ''), namespaces: namespacesArray });
+                        } else {
+                            param.namespaces = [];
+                            setValue(param.name, param);
                         }
-                        setValue(param.name, { isExpression: true, value: param.value.replace(/[{}]/g, ''), namespaces: namespacesArray });
                     } else {
-                        param.namespaces = [];
-                        setValue(param.name, param);
+                        setValue(param.name, param.value);
                     }
                 });
             } else {
@@ -200,7 +206,28 @@ const AddConnector = (props: AddConnectorProps) => {
     function getOriginalName(name: string) {
         return name.replace('__dot__', '.');
     }
+
+    function getInputType(formData: any, paramName: string): string {
+        let inputType = null;
     
+        function traverseElements(elements: any) {
+            for (let element of elements) {
+                if (element.type === 'attribute' && element.value.name === paramName) {
+                    inputType = element.value.inputType;
+                    return;
+                }
+    
+                if (element.type === 'attributeGroup') {
+                    traverseElements(element.value.elements);
+                }
+            }
+        }
+    
+        traverseElements(formData.elements);
+    
+        return inputType;
+    }
+
     const cancelConnection = () => {
         setIsAddingConnection(false);
     }
@@ -319,7 +346,6 @@ const AddConnector = (props: AddConnectorProps) => {
                             name={getNameForController(element.name)}
                             control={control}
                             defaultValue={element.defaultValue}
-                            rules={{ required: element.required === 'true' }}
                             render={({ field }) => (
                                 <TextField {...field}
                                     label={element.displayName}
@@ -336,7 +362,6 @@ const AddConnector = (props: AddConnectorProps) => {
                         <Controller
                             name={getNameForController(element.name)}
                             control={control}
-                            rules={{ required: element.required === 'true' }}
                             defaultValue={{ "isExpression": false, "value": element.defaultValue, "namespaces": [] }}
                             render={({ field }) => (
                                 <ExpressionField
@@ -358,15 +383,21 @@ const AddConnector = (props: AddConnectorProps) => {
                             control={control}
                             defaultValue={element.defaultValue}
                             render={({ field }) => (
-                                <AutoComplete
-                                    label={element.displayName}
-                                    name={element.name as string}
-                                    items={["true", "false"]}
-                                    onValueChange={(e: any) => {
-                                        field.onChange(e);
-                                    }}
-                                    required={element.required === 'true'}
-                                />
+                                <>
+                                    <div style={{ display: "flex", alignItems: "center", gap: '10px' }}>
+                                        <label>{element.displayName}</label>
+                                        {element.required && <RequiredFormInput />}
+                                    </div>
+                                    <AutoComplete
+                                        name={element.name as string}
+                                        items={["true", "false"]}
+                                        value={field.value}
+                                        onValueChange={(e: any) => {
+                                            field.onChange(e);
+                                        }}
+                                        required={element.required === 'true'}
+                                    />
+                                </>
                             )}
                         />
                     </Field>
@@ -379,17 +410,22 @@ const AddConnector = (props: AddConnectorProps) => {
                             control={control}
                             defaultValue={element.defaultValue}
                             render={({ field }) => (
-                                <AutoComplete
-                                    label={element.displayName}
-                                    name={element.name as string}
-                                    items={element.comboValues}
-                                    value={field.value.value}
-                                    onValueChange={(e: any) => {
-                                        field.onChange(e);
-                                    }}
-                                    allowItemCreate={true}
-                                    required={element.required === 'true'}
-                                />
+                                <>
+                                    <div style={{ display: "flex", alignItems: "center", gap: '10px' }}>
+                                        <label>{element.displayName}</label>
+                                        {element.required && <RequiredFormInput />}
+                                    </div>
+                                    <AutoComplete
+                                        name={element.name as string}
+                                        items={element.comboValues}
+                                        value={field.value}
+                                        onValueChange={(e: any) => {
+                                            field.onChange(e);
+                                        }}
+                                        allowItemCreate={true}
+                                        required={element.required === 'true'}
+                                    />
+                                </>
                             )}
                         />
                     </Field>
@@ -400,14 +436,15 @@ const AddConnector = (props: AddConnectorProps) => {
                         <Controller
                             name={getNameForController(element.name)}
                             control={control}
-                            defaultValue={element.defaultValue}
+                            defaultValue={{ "isExpression": false, "value": element.defaultValue, "namespaces": [] }}
                             render={({ field }) => (
-                                <TextField {...field}
-                                    label={element.displayName}
-                                    size={50}
+                                <ExpressionField
+                                    {...field} label={element.displayName}
                                     placeholder={element.helpTip}
-                                    value={field.value.value}
-                                    required={element.required === 'true'} />
+                                    canChange={true}
+                                    required={element.required === 'true'}
+                                    openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
+                                />
                             )}
                         />
                     </Field>
@@ -453,12 +490,13 @@ const AddConnector = (props: AddConnectorProps) => {
                                         </LinkButton>
                                     </div>
                                     <AutoComplete
-                                        name={element.name as string}
+                                        name="configKey"
                                         items={connections}
                                         value={field.value}
                                         onValueChange={(e: any) => {
                                             field.onChange(e);
                                         }}
+                                        required={element.required === 'true'}
                                     />
                                 </>
                             )}
