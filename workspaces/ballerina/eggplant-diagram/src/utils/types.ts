@@ -12,19 +12,17 @@ import { EmptyNodeModel } from "../components/nodes/EmptyNode";
 
 export type NodeModel = BaseNodeModel | EmptyNodeModel;
 
-export type {
-    Flow,
-    Client,
-    ClientKind,
-    ClientScope,
-    Node,
-    NodeKind,
-    Branch,
-    LineRange,
-    Expression,
-    TypeKind,
-    NodeProperties,
-    NodePropertyKey,
-    ViewState,
-    TargetMetadata,
-} from "@wso2-enterprise/eggplant-core";
+export type Flow = any;
+export type Client = any;
+export type ClientKind = any;
+export type ClientScope = any;
+export type Node = any;
+export type NodeKind = any;
+export type Branch = any;
+export type LineRange = any;
+export type Expression = any;
+export type TypeKind = any;
+export type NodeProperties = any;
+export type NodePropertyKey = any;
+export type ViewState = any;
+export type TargetMetadata = any;

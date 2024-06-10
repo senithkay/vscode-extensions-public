@@ -41,18 +41,18 @@ export function FormWidget(props: FormWidgetProps) {
         const el = (
             <NodeStyles.Row key={key}>
                 <Tooltip
-                    content={expression.documentation}
+                    content={(expression as Expression).documentation}
                     sx={{
                         fontFamily: "GilmerRegular",
                         fontSize: "12px",
                     }}
                 >
-                    <NodeStyles.StyledText>{expression.label}</NodeStyles.StyledText>
+                    <NodeStyles.StyledText>{(expression as any).label}</NodeStyles.StyledText>
                 </Tooltip>
                 {generateEditor(key, expression, id, index++, debouncedOnChange.bind(null, key as NodePropertyKey))}
             </NodeStyles.Row>
         );
-        (expression.optional ? opt : required).push(el);
+        ((expression as Expression).optional ? opt : required).push(el);
     }
 
     return (
