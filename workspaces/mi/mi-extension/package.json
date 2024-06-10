@@ -129,6 +129,12 @@
           "id": "MI.project-explorer",
           "name": "Project Explorer"
         }
+      ],
+      "test": [
+        {
+          "id": "MI.mock-services",
+          "name": "Mock Services"
+        }
       ]
     },
     "viewsWelcome": [
@@ -151,6 +157,10 @@
         "view": "MI.project-explorer",
         "contents": "Some errors occured while activating the extension. Please check the output channel for more information.",
         "when": "MI.status == 'disabled'"
+      },
+      {
+        "view": "testing",
+        "contents": "[Add new test suite](command:MI.test.add.suite)"
       }
     ],
     "commands": [
@@ -348,6 +358,30 @@
         "title": "Build and Run",
         "icon": "$(play)",
         "category": "MI"
+      },
+      {
+        "command": "MI.test.add.suite",
+        "title": "Add test suite",
+        "icon": "$(add)",
+        "category": "MI"
+      },
+      {
+        "command": "MI.test.add.case",
+        "title": "Add test case",
+        "icon": "$(add)",
+        "category": "MI"
+      },
+      {
+        "command": "MI.test.add.mock-service",
+        "title": "Add mock service",
+        "icon": "$(add)",
+        "category": "MI"
+      },
+      {
+        "command": "MI.test.refresh.mock-services",
+        "title": "Refresh",
+        "icon": "$(refresh)",
+        "category": "MI"
       }
     ],
     "menus": {
@@ -370,6 +404,21 @@
         {
           "command": "MI.project-explorer.add",
           "when": "view == MI.project-explorer && projectOpened",
+          "group": "navigation"
+        },
+        {
+          "command": "MI.test.add.suite",
+          "when": "view == workbench.view.testing",
+          "group": "navigation"
+        },
+        {
+          "command": "MI.test.add.mock-service",
+          "when": "view == MI.mock-services && projectOpened",
+          "group": "navigation"
+        },
+        {
+          "command": "MI.test.refresh.mock-services",
+          "when": "view == MI.mock-services && projectOpened",
           "group": "navigation"
         }
       ],
@@ -485,6 +534,25 @@
           "when": "view == MI.project-explorer && viewItem == templates",
           "group": "inline"
         }
+      ],
+      "testing/item/context": [
+        {
+          "command": "MI.test.add.suite",
+          "group": "inline",
+          "when": "testId in test.canAddTestSuite"
+        },
+        {
+          "command": "MI.test.add.case",
+          "group": "inline",
+          "when": "testId not in test.canAddTestSuite"
+        }
+      ],
+      "testing/message/context": [
+        {
+          "command": "MI.test.add.mock-service",
+          "group": "inline",
+          "when": "messageId in test.canAddMockService"
+        }
       ]
     },
     "icons": {
@@ -565,7 +633,7 @@
     "unzipper": "~0.10.14",
     "vscode-debugadapter": "^1.51.0",
     "vscode-debugprotocol": "^1.51.0",
-    "tree-kill": "^1.2.2",
+    "tree-kill": "~1.2.2",
     "node-loader": "~2.0.0",
     "to-json-schema": "0.2.4",
     "xml2js": "0.6.2",

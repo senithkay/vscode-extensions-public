@@ -469,7 +469,7 @@ export const StateMachine = {
     sendEvent: (eventType: EVENT_TYPE) => { stateService.send({ type: eventType }); },
 };
 
-export function openView(type: EVENT_TYPE, viewLocation?: VisualizerLocation) {
+export function openView(type: EVENT_TYPE, viewLocation?: VisualizerLocation, revealProjectExplorer = true) {
     if (viewLocation?.documentUri) {
         viewLocation.documentUri = viewLocation.documentUri.startsWith("file") ? fileURLToPath(viewLocation.documentUri) : Uri.file(viewLocation.documentUri).fsPath;
     }
@@ -478,6 +478,10 @@ export function openView(type: EVENT_TYPE, viewLocation?: VisualizerLocation) {
         viewLocation!.projectUri = vscode.workspace.workspaceFolders![0].uri.fsPath;
     }
     updateProjectExplorer(viewLocation);
+    if (revealProjectExplorer) {
+        updateProjectExplorer(viewLocation);
+    }
+
     stateService.send({ type: type, viewLocation: viewLocation });
 }
 

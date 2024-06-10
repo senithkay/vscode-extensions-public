@@ -72,8 +72,10 @@ import {
     GenerateAPIResponse,
     GetAllArtifactsRequest,
     GetAllArtifactsResponse,
+    GetAllMockServicesResponse,
     GetAllRegistryPathsRequest,
     GetAllRegistryPathsResponse,
+    GetAllTestSuitsResponse,
     GetAvailableConnectorRequest,
     GetAvailableConnectorResponse,
     GetAvailableResourcesRequest,
@@ -158,16 +160,22 @@ import {
     UpdateHttpEndpointResponse,
     UpdateLoadBalanceEPRequest,
     UpdateLoadBalanceEPResponse,
+    UpdateMockServiceRequest,
+    UpdateMockServiceResponse,
     UpdateRecipientEPRequest,
     UpdateRecipientEPResponse,
     UpdateTemplateEPRequest,
     UpdateTemplateEPResponse,
+    UpdateTestCaseRequest,
+    UpdateTestCaseResponse,
+    UpdateTestSuiteRequest,
+    UpdateTestSuiteResponse,
     UpdateWsdlEndpointRequest,
     UpdateWsdlEndpointResponse,
     WriteContentToFileRequest,
     WriteContentToFileResponse,
     getSTRequest,
-    getSTResponse
+    getSTResponse,
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
 import { error } from "console";
@@ -186,12 +194,14 @@ import { StateMachineAI } from '../../ai-panel/aiMachine';
 import { COMMANDS, DEFAULT_PROJECT_VERSION, MI_COPILOT_BACKEND_URL } from "../../constants";
 import { StateMachine, navigate, openView } from "../../stateMachine";
 import { openPopupView } from "../../stateMachinePopup";
+import { testFileMatchPattern } from "../../test-explorer/discover";
 import { UndoRedoManager } from "../../undoRedoManager";
 import { createFolderStructure, getAddressEndpointXmlWrapper, getAPIResourceXmlWrapper, getDefaultEndpointXmlWrapper, getFailoverXmlWrapper, getHttpEndpointXmlWrapper, getInboundEndpointXmlWrapper, getLoadBalanceXmlWrapper, getMessageProcessorXmlWrapper, getMessageStoreXmlWrapper, getProxyServiceXmlWrapper, getRegistryResourceContent, getTaskXmlWrapper, getTemplateEndpointXmlWrapper, getTemplateXmlWrapper, getWsdlEndpointXmlWrapper } from "../../util";
 import { addNewEntryToArtifactXML, addSynapseDependency, changeRootPomPackaging, createMetadataFilesForRegistryCollection, deleteRegistryResource, detectMediaType, getAvailableRegistryResources, getMediatypeAndFileExtension, getRegistryResourceMetadata, updateRegistryResourceMetadata } from "../../util/fileOperations";
 import { log } from "../../util/logger";
 import { importProject } from "../../util/migrationUtils";
 import { getDataSourceXml } from "../../util/template-engine/mustach-templates/DataSource";
+import { getMockServiceXML, getTestCaseXML, getTestSuiteXML } from "../../util/template-engine/mustach-templates/TestSuite";
 import { getClassMediatorContent } from "../../util/template-engine/mustach-templates/classMediator";
 import { generateXmlData, writeXmlDataToFile } from "../../util/template-engine/mustach-templates/createLocalEntry";
 import { getRecipientEPXml } from "../../util/template-engine/mustach-templates/recipientEndpoint";
@@ -201,6 +211,7 @@ import { VisualizerWebview } from "../../visualizer/webview";
 import path = require("path");
 import { getResourceInfo, isEqualSwaggers, mergeSwaggers } from "../../util/swagger";
 import { isEqual } from "lodash";
+import { mockSerivesFilesMatchPattern } from "../../test-explorer/mock-services/activator";
 
 const { XMLParser, XMLBuilder } = require("fast-xml-parser");
 
@@ -1476,10 +1487,6 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         };
         const parser = new XMLParser(options);
 
-        interface Parameter {
-            name: string;
-            value: string;
-        }
 
         return new Promise(async (resolve) => {
             const filePath = params.path;
@@ -3619,6 +3626,130 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     }
                 });
             }
+        });
+    }
+
+    async updateTestSuite(params: UpdateTestSuiteRequest): Promise<UpdateTestSuiteResponse> {
+        return new Promise(async (resolve) => {
+            const { name, artifact } = params;
+            let filePath = params.path;
+
+            if (!artifact) {
+                throw new Error('Artifact is required');
+            }
+
+            if (!filePath) {
+                const projeectRoot = workspace.getWorkspaceFolder(Uri.file(artifact))?.uri.fsPath;
+                const testDir = path.join(projeectRoot!, 'src', 'main', 'test');
+                filePath = path.join(testDir, `${name}.xml`);
+
+                if (!fs.existsSync(testDir)) {
+                    fs.mkdirSync(testDir, { recursive: true });
+                }
+
+            }
+            const xml = getTestSuiteXML(params);
+
+            if (!fs.existsSync(filePath) || params.path) {
+                fs.writeFileSync(filePath, xml);
+            } else {
+                throw new Error('Test suite already exists');
+            }
+
+            resolve({ path: filePath, content: xml });
+        });
+    }
+
+    async updateTestCase(params: UpdateTestCaseRequest): Promise<UpdateTestCaseResponse> {
+        return new Promise(async (resolve) => {
+            const filePath = params.path;
+            if (!filePath) {
+                throw new Error('File path is required');
+            }
+
+            const xml = getTestCaseXML(params);
+            // fs.writeFileSync(filePath, xml);
+            // if (!fs.existsSync(filePath)) {
+            // } else {
+            //     throw new Error('Test case already exists');
+            // }
+
+            resolve({ path: filePath, content: xml });
+        });
+    }
+
+    async getAllTestSuites(): Promise<GetAllTestSuitsResponse> {
+        return new Promise(async (resolve) => {
+            const suites: any[] = [];
+            if (workspace.workspaceFolders) {
+                const workspaceFolder = workspace.workspaceFolders[0];
+                const pattern = new vscode.RelativePattern(workspaceFolder, testFileMatchPattern);
+                const files = await workspace.findFiles(pattern);
+                for (const fileX of files) {
+                    const file = fileX.fsPath;
+                    const fileName = path.parse(file).name;
+
+                    suites.push({
+                        name: fileName,
+                        path: file,
+                        testCases: []
+                    });
+                }
+            }
+
+            return resolve({ testSuites: suites });
+        });
+    }
+
+    async updateMockService(params: UpdateMockServiceRequest): Promise<UpdateMockServiceResponse> {
+        return new Promise(async (resolve) => {
+            const name = params.name;
+            let filePath = params.path;
+
+            if (!filePath) {
+                if (workspace?.workspaceFolders?.length === 0) {
+                    throw new Error('No workspace is currently open');
+                }
+                const projeectRoot = workspace.workspaceFolders![0].uri.fsPath;
+                const testDir = path.join(projeectRoot!, 'src', 'main', 'test', 'resources', 'mock-services');
+                filePath = path.join(testDir, `${name}.xml`);
+
+                if (!fs.existsSync(testDir)) {
+                    fs.mkdirSync(testDir, { recursive: true });
+                }
+            }
+
+            const xml = getMockServiceXML(params);
+
+            if (!fs.existsSync(filePath) || params.path) {
+                fs.writeFileSync(filePath, xml);
+            } else {
+                throw new Error('Mock service already exists');
+            }
+
+            resolve({ path: filePath, content: xml });
+        });
+    }
+
+    async getAllMockServices(): Promise<GetAllMockServicesResponse> {
+        return new Promise(async (resolve) => {
+            const services: any[] = [];
+            if (workspace.workspaceFolders) {
+                const workspaceFolder = workspace.workspaceFolders[0];
+                const pattern = new vscode.RelativePattern(workspaceFolder, mockSerivesFilesMatchPattern);
+                const files = await workspace.findFiles(pattern);
+                for (const fileX of files) {
+                    const file = fileX.fsPath;
+                    const fileName = path.parse(file).name;
+
+                    services.push({
+                        name: fileName,
+                        path: file,
+                    });
+                }
+            }
+
+            return resolve({ mockServices: services });
         });
     }
 }

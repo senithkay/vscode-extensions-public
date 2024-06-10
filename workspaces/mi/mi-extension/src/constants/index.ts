@@ -67,6 +67,11 @@ export const COMMANDS = {
     ADD_DATA_SOURCE_COMMAND: 'MI.project-explorer.add-data-source',
     SHOW_DATA_SOURCE: 'MI.show.data-source',
     SHOW_DATA_MAPPER: 'MI.show.data-mapper',
+    ADD_TEST_SUITE: 'MI.test.add.suite',
+    ADD_TEST_CASE: 'MI.test.add.case',
+    ADD_MOCK_SERVICE: 'MI.test.add.mock-service',
+    REFRESH_MOCK_SERVICES: 'MI.test.refresh.mock-services',
+    UPDATE_MOCK_SERVICE: 'MI.test.update.mock-service',
 };
 
 export const DEFAULT_PROJECT_VERSION = "1.0.0";

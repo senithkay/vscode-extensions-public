@@ -38,7 +38,9 @@ import { ErrorBoundary, FormView } from '@wso2-enterprise/ui-toolkit';
 import PopupPanel from './PopupPanel';
 import { AddArtifactView } from './views/AddArtifact';
 import { SequenceTemplateView } from './views/Diagram/SequenceTemplate';
-import { set } from 'lodash';
+import { TestSuiteForm } from './views/Forms/Tests/TestSuiteForm';
+import { TestCaseForm } from './views/Forms/Tests/TestCaseForm';
+import { MockServiceForm } from './views/Forms/Tests/MockServices/MockServiceForm';
 
 const MainContainer = styled.div`
     display: flex;
@@ -278,6 +280,20 @@ const MainPanel = () => {
                     break;
                 case MACHINE_VIEW.DataSourceForm:
                     setViewComponent(<DataSourceWizard path={machineView.documentUri} />);
+                    break;
+                case MACHINE_VIEW.TestSuiteForm:
+                    setViewComponent(<TestSuiteForm filePath={machineView.documentUri} />);
+                    break;
+                case MACHINE_VIEW.TestCaseForm:
+                    setViewComponent(<TestCaseForm
+                        filePath={machineView.documentUri}
+                        range={machineView.customProps?.range}
+                        availableTestCases={machineView.customProps?.availableTestCases}
+                        testCase={machineView.customProps?.testCase}
+                    />);
+                    break;
+                case MACHINE_VIEW.MockServiceForm:
+                    setViewComponent(<MockServiceForm filePath={machineView.documentUri} />);
                     break;
                 default:
                     setViewComponent(null);
