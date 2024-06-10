@@ -300,7 +300,7 @@ export class NodeInitVisitor implements Visitor {
             && Node.isPropertyAssignment(parent)
             && isPositionsEquals(getPosition(parent), getPosition(focusedST));
         
-        if (!isParentFocusedST && isMapFn) {
+        if (!isParentFocusedST && isMapFn && this.isWithinVariableStmt === 0) {
             this.isWithinMapFn -= 1;
         }
     }
