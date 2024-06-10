@@ -8,18 +8,15 @@
  */
 
 import React from "react";
-import VisualizerActivity from "./VisualizerActivity";
-import VisualizerMain from "./VisualizerMain";
+// import VisualizerMain from "./VisualizerMain";
 
 export function Visualizer({ mode }: { mode: string }) {
     return (
         <>
             {(() => {
                 switch (mode) {
-                    case "activityPanel":
-                        return <VisualizerActivity />;
                     case "visualizer":
-                        return <VisualizerMain />;
+                        return <div>Eggplant Webview</div>;
                 }
             })()}
         </>
