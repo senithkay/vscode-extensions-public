@@ -130,7 +130,7 @@ const AddConnection = (props: AddConnectionProps) => {
             root.ele('connectionType').txt(connectionType);
 
             if (errors && Object.keys(errors).length > 0) {
-                console.log("have errors");
+                console.error("Errors in saving connection form", errors);
             }
 
             // Fill the values

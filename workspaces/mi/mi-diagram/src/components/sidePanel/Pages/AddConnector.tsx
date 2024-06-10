@@ -154,8 +154,8 @@ const AddConnector = (props: AddConnectorProps) => {
         if (sidePanelContext.formValues && Object.keys(sidePanelContext.formValues).length > 0 && sidePanelContext.formValues?.parameters) {
             if (sidePanelContext.formValues.form) {
                 sidePanelContext.formValues?.parameters.forEach((param: any) => {
+                    const inputType = getInputType(formData, param.name);
                     param.name = getNameForController(param.name);
-                    let inputType = getInputType(formData, param.name);
                     if (expressionFieldTypes.includes(inputType)) {
                         if (param.isExpression) {
                             let namespacesArray: any[] = [];
@@ -389,7 +389,7 @@ const AddConnector = (props: AddConnectorProps) => {
                                         {element.required && <RequiredFormInput />}
                                     </div>
                                     <AutoComplete
-                                        name={element.name as string}
+                                        name={getNameForController(element.name)}
                                         items={["true", "false"]}
                                         value={field.value}
                                         onValueChange={(e: any) => {
@@ -416,7 +416,7 @@ const AddConnector = (props: AddConnectorProps) => {
                                         {element.required && <RequiredFormInput />}
                                     </div>
                                     <AutoComplete
-                                        name={element.name as string}
+                                        name={getNameForController(element.name)}
                                         items={element.comboValues}
                                         value={field.value}
                                         onValueChange={(e: any) => {
