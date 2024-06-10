@@ -103,3 +103,4 @@ export class RpcClient {
         this.messenger.onNotification(onDocumentSave, callback);
     }
 }
+

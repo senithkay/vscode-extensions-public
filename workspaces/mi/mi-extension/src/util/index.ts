@@ -26,6 +26,7 @@ import { GetLoadBalanceEPTemplatesArgs, getLoadBalanceEPXml } from './template-e
 import { GetFailoverEPTemplatesArgs, getFailoverEPXml } from './template-engine/mustach-templates/failoverEndpoint';
 import { GetRecipientEPTemplatesArgs, getRecipientEPXml } from './template-engine/mustach-templates/recipientEndpoint';
 import { GetTemplateEPTemplatesArgs, getTemplateEPXml } from './template-engine/mustach-templates/templateEndpoint';
+import { APIResourceArgs, getAPIResourceXml } from './template-engine/mustach-templates/API';
 
 const isDevMode = process.env.WEB_VIEW_WATCH_MODE === "true";
 
@@ -111,4 +112,8 @@ export function getWsdlEndpointXmlWrapper(props: WsdlEndpointArgs) {
 
 export function getDefaultEndpointXmlWrapper(props: DefaultEndpointArgs) {
 	return getDefaultEndpointXml(props);
+}
+
+export function getAPIResourceXmlWrapper(props: APIResourceArgs) {
+	return getAPIResourceXml(props);
 }

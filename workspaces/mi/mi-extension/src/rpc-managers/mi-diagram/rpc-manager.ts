@@ -187,7 +187,7 @@ import { COMMANDS, DEFAULT_PROJECT_VERSION, MI_COPILOT_BACKEND_URL } from "../..
 import { StateMachine, navigate, openView } from "../../stateMachine";
 import { openPopupView } from "../../stateMachinePopup";
 import { UndoRedoManager } from "../../undoRedoManager";
-import { createFolderStructure, getAddressEndpointXmlWrapper, getDefaultEndpointXmlWrapper, getFailoverXmlWrapper, getHttpEndpointXmlWrapper, getInboundEndpointXmlWrapper, getLoadBalanceXmlWrapper, getMessageProcessorXmlWrapper, getMessageStoreXmlWrapper, getProxyServiceXmlWrapper, getRegistryResourceContent, getTaskXmlWrapper, getTemplateEndpointXmlWrapper, getTemplateXmlWrapper, getWsdlEndpointXmlWrapper } from "../../util";
+import { createFolderStructure, getAddressEndpointXmlWrapper, getAPIResourceXmlWrapper, getDefaultEndpointXmlWrapper, getFailoverXmlWrapper, getHttpEndpointXmlWrapper, getInboundEndpointXmlWrapper, getLoadBalanceXmlWrapper, getMessageProcessorXmlWrapper, getMessageStoreXmlWrapper, getProxyServiceXmlWrapper, getRegistryResourceContent, getTaskXmlWrapper, getTemplateEndpointXmlWrapper, getTemplateXmlWrapper, getWsdlEndpointXmlWrapper } from "../../util";
 import { addNewEntryToArtifactXML, addSynapseDependency, changeRootPomPackaging, createMetadataFilesForRegistryCollection, deleteRegistryResource, detectMediaType, getAvailableRegistryResources, getMediatypeAndFileExtension, getRegistryResourceMetadata, updateRegistryResourceMetadata } from "../../util/fileOperations";
 import { log } from "../../util/logger";
 import { importProject } from "../../util/migrationUtils";
@@ -3579,13 +3579,11 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 generatedSwagger: parse(generatedSwagger!),
             });
             const resourceXml = added.reduce((acc, resource) => {
-                return acc + `\n<resource methods="${resource.methods.join(" ")}" uri-template="${resource.path}">
-    <inSequence>
-    </inSequence>
-    <faultSequence>
-    </faultSequence>
-</resource>`;
-            }, "");
+                return acc + "\n" + getAPIResourceXmlWrapper({
+                    methods: resource.methods,
+                    uriTemplate: resource.path
+                });
+            }, "").trim();
             await this.applyEdit({
                 text: resourceXml,
                 documentUri: apiPath,
