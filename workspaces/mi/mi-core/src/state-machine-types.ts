@@ -169,6 +169,10 @@ export interface ConnectorStatus {
     message: string;
 }
 
+export interface Document {
+    uri: string;
+}
+
 export const stateChanged: NotificationType<MachineStateValue> = { method: 'stateChanged' };
 export const aiStateChanged: NotificationType<AIMachineStateValue> = { method: 'aiStateChanged' };
 export const popupStateChanged: NotificationType<PopupMachineStateValue> = { method: 'popupStateChanged' };
@@ -181,3 +185,4 @@ export const onFileContentUpdate: NotificationType<void> = { method: `onFileCont
 export const webviewReady: NotificationType<void> = { method: `webviewReady` };
 export const onParentPopupSubmitted: NotificationType<ParentPopupData> = { method: `onParentPopupSubmitted` };
 export const onConnectorStatusUpdate: NotificationType<ConnectorStatus> = { method: `onConnectorStatusUpdate` }; 
+export const onDocumentSave: NotificationType<Document> = { method: `onDocumentSave` };

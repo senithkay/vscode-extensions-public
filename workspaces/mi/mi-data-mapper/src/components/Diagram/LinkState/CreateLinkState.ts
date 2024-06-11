@@ -16,6 +16,7 @@ import { LinkConnectorNode } from '../Node';
 import { InputOutputPortModel } from '../Port/model/InputOutputPortModel';
 import { IntermediatePortModel } from '../Port/IntermediatePort';
 import { isInputNode, isOutputNode } from '../Actions/utils';
+import { useDMExpressionBarStore } from '../../../store/store';
 /**
  * This state is controlling the creation of a link.
  */
@@ -31,6 +32,7 @@ export class CreateLinkState extends State<DiagramEngine> {
 				type: InputType.MOUSE_UP,
 				fire: (actionEvent: ActionEvent<MouseEvent>) => {
 					let element = this.engine.getActionEventBus().getModelForEvent(actionEvent);
+					const exprFocusedPort = useDMExpressionBarStore.getState().focusedPort;
 
 					if (!(element instanceof PortModel)) {
 						if (isOutputNode(element)) {
@@ -56,7 +58,11 @@ export class CreateLinkState extends State<DiagramEngine> {
 						}
 					}
 
-					if (element instanceof PortModel && !this.sourcePort) {
+					if (exprFocusedPort && element instanceof InputOutputPortModel && element.portType === "OUT") {
+						element.fireEvent({}, "addToExpression");
+						this.clearState();
+						this.eject();
+					} else if (element instanceof PortModel && !this.sourcePort) {
 						if (element instanceof InputOutputPortModel) {
 							if (element.portType === "OUT") {
 								this.sourcePort = element;
@@ -73,8 +79,7 @@ export class CreateLinkState extends State<DiagramEngine> {
 								this.link = link;
 
 							} else {
-								// TODO: show a message: select input port first
-								element.fireEvent({}, "mappingStartedTo");
+								element.fireEvent({}, "expressionBarFocused");
 								this.clearState();
 								this.eject();
 							}
@@ -135,6 +140,8 @@ export class CreateLinkState extends State<DiagramEngine> {
 						this.link?.remove();
 						this.clearState();
 						this.eject();
+					} else {
+						console.log("Invalid element selected");
 					}
 
 					this.engine.repaintCanvas();

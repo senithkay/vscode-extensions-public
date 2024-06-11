@@ -46,7 +46,8 @@ export class MiDebuggerRpcManager implements MiDebuggerAPI {
 
     async addBreakpointToSource(params: AddBreakpointToSourceRequest): Promise<AddBreakpointToSourceResponse> {
         return new Promise(async (resolve) => {
-            const breakpoint = new vscode.SourceBreakpoint(new vscode.Location(vscode.Uri.file(params.filePath), new vscode.Position(params.breakpoint.line, 0)));
+            const breakpoint = new vscode.SourceBreakpoint(
+                new vscode.Location(vscode.Uri.file(params.filePath), new vscode.Position(params.breakpoint.line, params.breakpoint?.column || 0)));
             vscode.debug.addBreakpoints([breakpoint]);
             navigate();
 
@@ -63,7 +64,8 @@ export class MiDebuggerRpcManager implements MiDebuggerAPI {
 
             const breakpoints = breakpointsForFile.map((breakpoint) => {
                 return {
-                    line: breakpoint.location.range.start.line
+                    line: breakpoint.location.range.start.line,
+                    column: breakpoint.location.range.start?.character
                 };
             });
 
@@ -71,6 +73,7 @@ export class MiDebuggerRpcManager implements MiDebuggerAPI {
             // get the  current stackTrace to find the triggered breakpoint
             const debugSession = vscode.debug.activeDebugSession;
             let currentLine = 0;
+            let currentColumn = 0;
             if (debugSession) {
                 // Request the stack trace for the current thread
                 const response = await debugSession.customRequest('stackTrace', {
@@ -82,18 +85,13 @@ export class MiDebuggerRpcManager implements MiDebuggerAPI {
                     const firstFrame = response.stackFrames[0];
                     const currentFile = firstFrame.source.path;
                     if (currentFile === params.filePath) {
-                        currentLine = firstFrame.line;
-                        // convert to debugger line if current line is not 0
-                        if (currentLine !== 0) { // TODO: use the util method
-                            currentLine = currentLine - 1;
-                        }
+                        // convert to debugger line since its zero based
+                        currentLine = Math.max(0, firstFrame.line - 1);
+                        currentColumn = Math.max(0, firstFrame?.column - 1);
                     }
-                    // console.log(`Hit breakpoint at ${currentFile}:${currentLine}`);
                 }
-            } else {
-                currentLine = 0;
             }
-            resolve({ breakpoints, activeBreakpoint: currentLine });
+            resolve({ breakpoints, activeBreakpoint: { line: currentLine, column: currentColumn } });
         });
     }
 
@@ -113,12 +111,20 @@ export class MiDebuggerRpcManager implements MiDebuggerAPI {
         }) as vscode.SourceBreakpoint[];
 
         const breakpoints = breakpointsForFile.filter((breakpoint) => {
-            return breakpoint.location.range.start.line === params.breakpoint.line;
+            return breakpoint.location.range.start.line === params.breakpoint.line && breakpoint.location.range.start?.character === params.breakpoint?.column;
         });
 
-        breakpoints.forEach((breakpoint) => {
-            vscode.debug.removeBreakpoints([breakpoint]);
-        });
+        // If there are no breakpoints found, then it could be due the breakpoint has been added from the sourceCode, where the column is not provided
+        // so we need to check for breakpoint with the same line and remove
+        if (breakpoints.length === 0) {
+            vscode.debug.removeBreakpoints(breakpointsForFile.filter((breakpoint) => {
+                return breakpoint.location.range.start.line === params.breakpoint.line;
+            }));
+        } else {
+            breakpoints.forEach((breakpoint) => {
+                vscode.debug.removeBreakpoints([breakpoint]);
+            });
+        }
 
         navigate();
     }

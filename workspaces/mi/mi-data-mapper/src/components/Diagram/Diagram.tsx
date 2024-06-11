@@ -36,6 +36,9 @@ import { throttle } from 'lodash';
 import { defaultModelOptions } from './utils/constants';
 import { calculateZoomLevel } from './utils/diagram-utils';
 import { IONodesScrollCanvasAction } from './Actions/IONodesScrollCanvasAction';
+import { useDMExpressionBarStore } from '../../store/store';
+import { isOutputNode } from './Actions/utils';
+import { InputOutputPortModel } from './Port';
 import * as Nodes from "./Node";
 import * as Ports from "./Port";
 import * as Labels from "./Label";
@@ -127,7 +130,8 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 
 	useEffect(() => {
 		if (!isFetching && engine.getModel()) {
-			const nodesToUpdate = engine.getModel().getNodes().filter(node => 
+			const modelNodes = engine.getModel().getNodes();
+			const nodesToUpdate = modelNodes.filter(node => 
 				node instanceof LinkConnectorNode || node instanceof ArrayFnConnectorNode
 			);
 
@@ -142,6 +146,17 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 			if (nodesToUpdate.length > 0) {
 				forceUpdate({});
 			}
+
+			// Update the expression bar focused output port if any
+			const focusedPort = useDMExpressionBarStore.getState().focusedPort;
+			const outputPorts = (modelNodes.find(node => isOutputNode(node)) as DataMapperNodeModel)?.getPorts();
+			const outputPortEntries = outputPorts ? Object.entries(outputPorts) : [];
+			outputPortEntries.forEach((entry) => {
+				const port = entry[1] as InputOutputPortModel;
+				if (port.getName() === focusedPort?.getName() && port.getID() !== focusedPort?.getID()) {
+					useDMExpressionBarStore.getState().setFocusedPort(port);
+				}
+			});
 		}
 	}, [diagramModel, isFetching, screenWidth]);
 

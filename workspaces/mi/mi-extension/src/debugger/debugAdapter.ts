@@ -209,13 +209,22 @@ export class MiDebugAdapter extends LoggingDebugSession {
             //convert all the breakpoints lines to debugger lines
             breakpoints.forEach(bp => {
                 bp.line = this.convertClientLineToDebugger(bp.line);
+                // only set bp.column if its present in the bp
+                if (bp.column) {
+                    bp.column = this.convertClientColumnToDebugger(bp.column);
+                }
+
             });
             // set runtime breakpoints
             const runtimeBreakpoints = await this.debuggerHandler?.createRuntimeBreakpoints(path, breakpoints);
             // create debug breakpoints from runtime breakpoints
             if (runtimeBreakpoints) {
                 const vscodeBreakpoints = runtimeBreakpoints.map(async runtimeBp => {
-                    const bp = new Breakpoint(runtimeBp?.verified, this.convertDebuggerLineToClient(runtimeBp?.line), 0) as DebugProtocol.Breakpoint;
+                    const bp = new Breakpoint(
+                        runtimeBp?.verified,
+                        this.convertDebuggerLineToClient(runtimeBp?.line),
+                        runtimeBp?.column ? this.convertDebuggerColumnToClient(runtimeBp?.column) : undefined,
+                    ) as DebugProtocol.Breakpoint;
                     bp.source = source;
                     bp.id = runtimeBp?.id;
                     return bp;
@@ -405,6 +414,7 @@ export class MiDebugAdapter extends LoggingDebugSession {
         const currentBreakpoint = this.debuggerHandler?.getCurrentBreakpoint();
 
         const line = currentBreakpoint?.line ? this.convertDebuggerLineToClient(currentBreakpoint.line) : 0;
+        const column = currentBreakpoint?.column ? this.convertDebuggerColumnToClient(currentBreakpoint.column) : 0;
 
         const miStackFrame: DebugProtocol.StackFrame = {
             id: 1,
@@ -414,7 +424,7 @@ export class MiDebugAdapter extends LoggingDebugSession {
                 presentationHint: "normal",
             },
             line: line,
-            column: 0
+            column: column
         };
 
         stackFrames.push(miStackFrame);

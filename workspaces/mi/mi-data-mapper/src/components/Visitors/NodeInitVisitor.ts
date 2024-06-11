@@ -177,7 +177,7 @@ export class NodeInitVisitor implements Visitor {
             && !Node.isArrayLiteralExpression(returnExpr)
         ) {
             const inputAccessNodes = getInputAccessNodes(returnExpr);
-            if (inputAccessNodes.length > 1) {
+            if (canConnectWithLinkConnector(inputAccessNodes, returnExpr)) {
                 const linkConnectorNode = this.createLinkConnectorNode(
                     returnExpr, "", parent, inputAccessNodes, [...this.mapIdentifiers, returnExpr]
                 );

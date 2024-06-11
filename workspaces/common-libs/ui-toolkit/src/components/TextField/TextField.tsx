@@ -121,13 +121,15 @@ export const TextField = React.forwardRef<HTMLInputElement, TextFieldProps>((pro
                 onInput={handleChange}
             >
                 {iconComponent && <span onClick={iconClick} slot={position}>{iconComponent}</span>}
-                <LabelContainer>
-                    <div style={{color: "var(--vscode-editor-foreground	)"}}>
-                        <label htmlFor={`${id}-label`}>{label}</label>
-                    </div>
-                    {(required && label) && (<RequiredFormInput />)}
-                    {labelAdornment && labelAdornment}
-                </LabelContainer>
+                {label && (
+                    <LabelContainer>
+                        <div style={{color: "var(--vscode-editor-foreground	)"}}>
+                            <label htmlFor={`${id}-label`}>{label}</label>
+                        </div>
+                        {(required && label) && (<RequiredFormInput />)}
+                        {labelAdornment && labelAdornment}
+                    </LabelContainer>
+                )}
                 {description && (
                     <Description>
                         {description}

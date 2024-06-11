@@ -309,7 +309,7 @@ export function getAllMediators(props: GetMediatorsProps) {
                 form: <NTLMForm nodePosition={props.nodePosition} documentUri={props.documentUri}></NTLMForm>,
             }
         ],
-        "Database": [
+        "database": [
             {
                 title: "Call Dataservice",
                 operationName: MEDIATORS.DATASERVICECALL,

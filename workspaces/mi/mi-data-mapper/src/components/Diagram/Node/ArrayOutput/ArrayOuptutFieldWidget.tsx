@@ -288,11 +288,11 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
         }
     };
 
-    const handleArrayInitialization = async () => {
+    const handleArrayInitialization = () => {
         setLoading(true);
         try {
             const fnBody = context.functionST.getBody() as Block;
-            await createSourceForUserInput(field, parentObjectLiteralExpr, '[]', fnBody, context.applyModifications);
+            createSourceForUserInput(field, parentObjectLiteralExpr, '[]', fnBody, context.applyModifications);
         } finally {
             setLoading(false);
         }

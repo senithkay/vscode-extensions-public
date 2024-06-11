@@ -79,22 +79,22 @@ export const DropdownIcon = cx(css`
     padding-right: 8px;
 `);
 
-export const SearchableInput = cx(css`
+export const SearchableInput = (hideDropdown: boolean) => cx(css`
     color: var(--vscode-input-foreground);
     background-color: var(--vscode-input-background);
-    height: 24px;
-    width: calc(100% - 5px);
+    height: ${hideDropdown ? '100%' : '24px'};
+    width: ${hideDropdown ? '100%' : 'calc(100% - 5px)' };
     padding-left: 8px;
     border-left: 1px solid var(--vscode-dropdown-border);
     border-bottom: 1px solid var(--vscode-dropdown-border);
     border-top: 1px solid var(--vscode-dropdown-border);
-    border-right: 0 solid var(--vscode-dropdown-border);
+    border-right: ${hideDropdown ? '1px' : '0px'} solid var(--vscode-dropdown-border);
     &:focus {
       outline: none;
       border-left: 1px solid var(--vscode-focusBorder);
       border-bottom: 1px solid var(--vscode-focusBorder);
       border-top: 1px solid var(--vscode-focusBorder);
-      border-right: 0 solid var(--vscode-focusBorder);
+      border-right: ${hideDropdown ? '1px' : '0px'} solid var(--vscode-focusBorder);
     }
 `);
 
@@ -105,6 +105,7 @@ const LabelContainer = styled.div`
 `;
 
 const ComboboxInputWrapper = styled.div`
+    height: 100%;
     display: flex;
     flex-direction: row;
 `;
@@ -166,6 +167,7 @@ interface ContainerProps {
 
 export const Container = styled.div<ContainerProps>`
     width: 100%;
+    height: 100%;
     ${(props: ContainerProps) => props.sx}
 `;
 
@@ -189,6 +191,7 @@ interface BaseProps {
     onBlur?: React.FocusEventHandler<HTMLInputElement>;
     onCreateButtonClick?: () => void;
     notItemsFoundMessage?: string;
+    hideDropdown?: boolean;
 }
 
 // Define the conditional properties
@@ -203,6 +206,7 @@ export type AutoCompleteProps = BaseProps & ConditionalProps;
 
 const ComboboxContent: React.FC = styled.div`
     position: relative;
+    height: 100%;
 `;
 
 const ComboboxOption: React.FC<ComboboxOptionProps> = styled.div`
@@ -261,7 +265,8 @@ export const AutoComplete = React.forwardRef<HTMLInputElement, AutoCompleteProps
         onBlur,
         onValueChange,
         onCreateButtonClick,
-        identifier
+        identifier,
+        hideDropdown
     } = props;
     const [query, setQuery] = useState('');
     const [isTextFieldFocused, setIsTextFieldFocused] = useState(false);
@@ -341,7 +346,7 @@ export const AutoComplete = React.forwardRef<HTMLInputElement, AutoCompleteProps
                             ref={inputRef}
                             displayValue={displayItemValue}
                             onChange={handleInputQueryChange}
-                            className={cx(SearchableInput, borderBox && cx(css`
+                            className={cx(SearchableInput(hideDropdown), borderBox && cx(css`
                                 height: 28px;
                             `))}
                             onFocus={handleTextFieldFocused}
@@ -358,6 +363,7 @@ export const AutoComplete = React.forwardRef<HTMLInputElement, AutoCompleteProps
                         )}
                         <Combobox.Button
                             id={`autocomplete-dropdown-button-${btnId}`}
+                            hidden={hideDropdown}
                             className={isTextFieldFocused ? ComboboxButtonContainerActive : ComboboxButtonContainer}
                         >
                             {isUpButton ? (
