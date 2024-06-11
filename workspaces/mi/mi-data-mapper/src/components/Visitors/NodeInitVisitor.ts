@@ -14,7 +14,8 @@ import {
     ReturnStatement,
     ArrayLiteralExpression,
     CallExpression,
-    VariableStatement
+    VariableStatement,
+    SyntaxKind
 } from "ts-morph";
 import { TypeKind } from "@wso2-enterprise/mi-core";
 
@@ -108,7 +109,7 @@ export class NodeInitVisitor implements Visitor {
             // Create input node
             const inputType = sourceNodeType === SourceNodeType.SubMappingNode
                 ? getDMTypeOfSubMappingItem(functionST, sourceFieldFQN, subMappingTypes)
-                : getDMType(sourceFieldFQN, this.context.inputTrees[0], mapFnIndex);
+                : getDMType(sourceFieldFQN, this.context.inputTrees[0]);
 
             const focusedInputNode = new FocusedInputNode(this.context, callExpr, inputType);
 
@@ -162,9 +163,11 @@ export class NodeInitVisitor implements Visitor {
             // Create input node
             const { sourceFieldFQN } = views[views.length - 1];
             const inputRoot = this.context.inputTrees[0];
+            const noOfSourceFields = sourceFieldFQN.split('.').length;
             const inputType = mapFnAtRootReturnOrDecsendent
                 ? getDMTypeForRootChaninedMapFunction(inputRoot, mapFnIndex)
-                : getDMType(sourceFieldFQN, inputRoot, mapFnIndex);
+                // Use mapFnIndex when the input of the focused map function is root of the input tree
+                : getDMType(sourceFieldFQN, inputRoot, noOfSourceFields === 1 ? mapFnIndex : undefined);
 
             const focusedInputNode = new FocusedInputNode(this.context, callExpr, inputType);
 
@@ -242,10 +245,16 @@ export class NodeInitVisitor implements Visitor {
         if (isFocusedST) {
             const initializer = varDecl.getInitializer();
             if (initializer) {
-                const { mapFnIndex } = lastView.subMappingInfo;
                 if (Node.isCallExpression(initializer)) {
-                    const inputType = getDMType(sourceFieldFQN, this.context.inputTrees[0], mapFnIndex);
-                    this.inputNode = new FocusedInputNode(this.context, initializer, inputType);
+                    const { mapFnIndex } = lastView.subMappingInfo;
+                    const callExprs = initializer.getDescendantsOfKind(SyntaxKind.CallExpression);
+                    const mapFns = callExprs.filter(expr => {
+                        const expression = expr.getExpression();
+                        return Node.isPropertyAccessExpression(expression) && expression.getName() === "map";
+                    });
+                    const inputType = getDMType(sourceFieldFQN, this.context.inputTrees[0]);
+                    const mapFn = !!mapFnIndex ? mapFns[mapFnIndex - 1] : initializer;
+                    this.inputNode = new FocusedInputNode(this.context, mapFn, inputType);
                 } else if (Node.isObjectLiteralExpression(initializer)) {
                     const properties = initializer.getProperties();
                     const focusedProperty = properties.find(property => {
@@ -256,7 +265,7 @@ export class NodeInitVisitor implements Visitor {
                     if (focusedProperty) {
                         const focusedInitializer = focusedProperty.getInitializer();
                         if (Node.isCallExpression(focusedInitializer)) {
-                            const inputType = getDMType(sourceFieldFQN, this.context.inputTrees[0], mapFnIndex);
+                            const inputType = getDMType(sourceFieldFQN, this.context.inputTrees[0]);
                             this.inputNode = new FocusedInputNode(this.context, focusedInitializer, inputType);
                         }
                     }

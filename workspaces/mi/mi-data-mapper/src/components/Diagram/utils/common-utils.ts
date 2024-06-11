@@ -587,6 +587,7 @@ export function getMapFnIndex(views: View[], prevFieldFQN: string): number {
         if (view.targetFieldFQN === prevFieldFQN) {
             // Find the relative index of the map function comes under the return statements of another map functions
             // The index is relative to the map function which is declared within a property assignment
+            // Applicable when map functions are chained using the root of the inputs
             mapFnWithFieldIndex = index;
             return true;
         }

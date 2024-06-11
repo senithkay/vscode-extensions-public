@@ -54,12 +54,11 @@ export function ArrayFnConnectorNodeWidget(props: ArrayFnConnectorNodeWidgetWidg
                 prevViewSubMappingInfo = prevView.subMappingInfo;
                 const { mappingName: prevViewMappingName, mapFnIndex: prevViewMapFnIndex } = prevViewSubMappingInfo;
                 targetFieldFQN = targetFieldFQN ?? prevViewMappingName;
-                mapFnIndex = prevViewMapFnIndex ? prevViewMapFnIndex + 1 : 0;
             } else {
                 // Navigating into another map function within the current map function
                 if (!prevView.targetFieldFQN) {
+                    // The visiting map function is declaired at the return statement of the current map function
                     if (!targetFieldFQN && targetPort.field.kind === TypeKind.Array) {
-                        // The visiting map function is declaired at the return statement of the current map function
                         // The root of the current map function is the return statement of the transformation function
                         mapFnIndex = getMapFnIndex(views, prevView.targetFieldFQN);
                     }
@@ -72,9 +71,9 @@ export function ArrayFnConnectorNodeWidget(props: ArrayFnConnectorNodeWidgetWidg
                         targetFieldFQN = `${prevView.targetFieldFQN}.${targetFieldFQN}`;
                     }
                 }
-                if (!!prevView.sourceFieldFQN) {
-                    sourceFieldFQN = `${prevView.sourceFieldFQN}${sourceFieldFQN ? `.${sourceFieldFQN}` : ''}`;
-                }
+            }
+            if (!!prevView.sourceFieldFQN) {
+                sourceFieldFQN = `${prevView.sourceFieldFQN}${sourceFieldFQN ? `.${sourceFieldFQN}` : ''}`;
             }
         } else {
             // Navigating into the root map function
@@ -89,7 +88,7 @@ export function ArrayFnConnectorNodeWidget(props: ArrayFnConnectorNodeWidgetWidg
         if (prevViewSubMappingInfo) {
             const newViewSubMappingInfo = {
                 ...prevViewSubMappingInfo,
-                mapFnIndex: prevViewSubMappingInfo.mapFnIndex ? prevViewSubMappingInfo.mapFnIndex + 1 : 0
+                mapFnIndex: prevViewSubMappingInfo.mapFnIndex !== undefined ? prevViewSubMappingInfo.mapFnIndex + 1 : 0
             };
             newView.subMappingInfo = newViewSubMappingInfo;
         }

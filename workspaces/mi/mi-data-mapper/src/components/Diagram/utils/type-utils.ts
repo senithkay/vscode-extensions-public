@@ -24,7 +24,7 @@ export function enrichAndProcessType(
 export function getDMType(
     propertiesExpr: string,
     parentType: DMType,
-    mapFnIndex: number,
+    mapFnIndex?: number,
     isPropeAccessExpr?: boolean
 ): DMType {
     /*
