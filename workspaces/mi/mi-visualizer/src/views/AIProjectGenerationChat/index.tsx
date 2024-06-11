@@ -153,7 +153,7 @@ export function AIProjectGenerationChat() {
     const [isOpen, setIsOpen] = useState(false);
     const [isSuggestionLoading, setIsSuggestionLoading] = useState(false);
     const [isCodeLoading, setIsCodeLoading] = useState(false);
-    const [uploadedFile, setUploadedFile] = useState({ fileName: '', fileContent: '' });
+    const [uploadedFiles, setUploadedFiles] = useState([]);
     const [fileUploadStatus, setFileUploadStatus] = useState({ type: '', text: '' });
 
     async function fetchBackendUrl() {
@@ -434,6 +434,7 @@ export function AIProjectGenerationChat() {
         }
         console.log(context[0].context);
         const token = await rpcClient.getMiDiagramRpcClient().getUserAccessToken();
+        const stringifiedUploadedFiles = uploadedFiles.map(file => JSON.stringify(file));
         try{
                 var response = await fetch(backendRootUri + backendUrl, {
                     method: 'POST',
@@ -441,7 +442,7 @@ export function AIProjectGenerationChat() {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token.token}`,
                     },
-                    body: JSON.stringify({ messages: chatArray, context: context[0].context, uploadedFile:JSON.stringify(uploadedFile) }),
+                    body: JSON.stringify({ messages: chatArray, context: context[0].context, uploadedFiles: stringifiedUploadedFiles}),
                     signal: signal,
                 })
                 if (!response.ok && response.status != 401) {
@@ -720,7 +721,7 @@ export function AIProjectGenerationChat() {
             const reader = new FileReader();
             reader.onload = (event: any) => {
                 const fileContents = event.target.result;
-                setUploadedFile({ fileName: file.name, fileContent: fileContents });
+                setUploadedFiles(prevFiles => [...prevFiles, { fileName: file.name, fileContent: fileContents }]);
                 setFileUploadStatus({ type: 'success', text: 'File uploaded successfully.' });
             };
             reader.readAsText(file);
@@ -730,9 +731,8 @@ export function AIProjectGenerationChat() {
         }
     };
 
-    const handleRemoveFile = () => {
-        setUploadedFile({ fileName: '', fileContent: '' });
-        setFileUploadStatus({ type: '', text: '' });
+    const handleRemoveFile = (index: number) => {
+        setUploadedFiles(prevFiles => prevFiles.filter((file, i) => i !== index));
     };
 
     return (
@@ -848,18 +848,18 @@ export function AIProjectGenerationChat() {
                     </div>
                 </>
                 ))}
-                {uploadedFile && uploadedFile.fileName && (
-                    <FlexRow >
-                        <span>{uploadedFile.fileName}</span>
+                {uploadedFiles.map((file, index) => (
+                    <FlexRow key={index}>
+                        <span>{file.fileName}</span>
                         <VSCodeButton
                             appearance="secondary"
-                            onClick={handleRemoveFile}
+                            onClick={() => handleRemoveFile(index)}
                             style={{ marginLeft: '10px', backgroundColor: '#1C1C1C' }}
                         >
                             <span className="codicon codicon-close"></span>
                         </VSCodeButton>
                     </FlexRow>
-                )}
+                ))}
                 <FlexRow>
                     <Button
                         appearance="secondary"
