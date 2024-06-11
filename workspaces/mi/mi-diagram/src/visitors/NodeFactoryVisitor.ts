@@ -123,7 +123,7 @@ export class NodeFactoryVisitor implements Visitor {
     private diagramType: DiagramType;
     private resource: DiagramService;
     private breakpointPositions: BreakpointPosition[];
-    private activatedBreakpoint: number;
+    private activatedBreakpoint: BreakpointPosition;
 
 
     constructor(documentUri: string, model: DiagramService, breakpoints: GetBreakpointsResponse) {
@@ -136,14 +136,17 @@ export class NodeFactoryVisitor implements Visitor {
     private createNodeAndLinks(params: createNodeAndLinks): void {
         let { node, name, type, data } = params;
 
+        // When breakpoint added via sourceCode the column will be undefined, therefore in that case we only check line number
         for (const breakpoint of this.breakpointPositions) {
-            if (breakpoint.line === node.range.startTagRange.start.line) {
+            if (breakpoint.line === node.range.startTagRange.start.line &&
+                (!breakpoint.column || breakpoint.column === node.range.startTagRange.start.character)) {
                 node.hasBreakpoint = true;
                 break;
             }
         }
 
-        if (this.activatedBreakpoint === node.range.startTagRange.start.line) {
+        if (this.activatedBreakpoint.line === node.range.startTagRange.start.line &&
+            (!this.activatedBreakpoint.column || this.activatedBreakpoint.column === node.range.startTagRange.start.character)) {
             node.isActiveBreakpoint = true;
         }
 

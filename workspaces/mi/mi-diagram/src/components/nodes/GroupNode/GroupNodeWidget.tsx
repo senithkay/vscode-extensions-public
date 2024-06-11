@@ -19,6 +19,7 @@ import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import SidePanelContext from "../../sidePanel/SidePanelContexProvider";
 import { getMediatorIconsFromFont } from "../../../resources/icons/mediatorIcons/icons";
 import { FirstCharToUpperCase } from "../../../utils/commons";
+import { BreakpointMenu } from "../../BreakpointMenu/BreakpointMenu";
 
 namespace S {
     export type NodeStyleProp = {
@@ -157,32 +158,6 @@ export function GroupNodeWidget(props: CallNodeWidgetProps) {
         setIsPopoverOpen(false);
     };
 
-    const handleAddBreakpoint = async () => {
-        const file = node.documentUri;
-        const line = node.stNode.range.startTagRange.start.line;
-        const request = {
-            filePath: file,
-            breakpoint: {
-                line: line
-            }
-        }
-
-        await rpcClient.getMiDebuggerRpcClient().addBreakpointToSource(request);
-    };
-
-    const removeBreakpoint = async () => {
-        const file = node.documentUri;
-        const line = node.stNode.range.startTagRange.start.line;
-        const request = {
-            filePath: file,
-            breakpoint: {
-                line: line
-            }
-        }
-
-        await rpcClient.getMiDebuggerRpcClient().removeBreakpointFromSource(request);
-    };
-
     const TooltipEl = useMemo(() => {
         return () => (
             <S.TooltipContent style={{ textWrap: "wrap" }}>
@@ -237,10 +212,7 @@ export function GroupNodeWidget(props: CallNodeWidgetProps) {
                             key={"delete-btn"}
                             item={{ label: "Delete", id: "delete", onClick: () => node.delete(rpcClient) }}
                         />
-                        {hasBreakpoint ?
-                            <MenuItem key={'remove-breakpoint-btn'} item={{ label: 'Remove Breakpoint', id: "removeBreakpoint", onClick: removeBreakpoint }} /> :
-                            <MenuItem key={'breakpoint-btn'} item={{ label: 'Add Breakpoint', id: "addBreakpoint", onClick: handleAddBreakpoint }} />
-                        }
+                        <BreakpointMenu hasBreakpoint={hasBreakpoint} node={node} rpcClient={rpcClient} />
                     </Menu>
                 </ClickAwayListener>
             </Popover>
