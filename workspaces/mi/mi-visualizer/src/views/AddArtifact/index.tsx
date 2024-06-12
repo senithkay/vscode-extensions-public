@@ -275,6 +275,12 @@ export function AddArtifactView() {
                                         description="Define local resource entries for reuse."
                                         onClick={() => handleClick("localEntries")}
                                     />
+                                    <Card
+                                        icon="vm-connect"
+                                        title="Connections"
+                                        description="Create resuable connections."
+                                        onClick={() => handleClick("connections")}
+                                    />
                                 </HorizontalCardContainer>
                             </PanelViewMore>
                         </Transition>

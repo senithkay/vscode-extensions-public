@@ -7,18 +7,16 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { AutoComplete, Button, ComponentCard, FormActions, RequiredFormInput, TextField } from '@wso2-enterprise/ui-toolkit';
-import { VSCodeDropdown, VSCodeOption } from '@vscode/webview-ui-toolkit/react';
 import styled from '@emotion/styled';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { create } from 'xmlbuilder2';
-import { Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 import { useForm, Controller } from 'react-hook-form';
 import { ExpressionField } from '@wso2-enterprise/mi-diagram/lib/components/Form/ExpressionField/ExpressionInput';
 import { ExpressionFieldValue } from '@wso2-enterprise/mi-diagram/lib/components/Form/ExpressionField/ExpressionInput';
 import { EVENT_TYPE, MACHINE_VIEW } from '@wso2-enterprise/mi-core';
-import ExpressionEditor from '@wso2-enterprise/mi-diagram/lib/components/Form/expressionEditor/ExpressionEditor';
+import ExpressionEditor from '@wso2-enterprise/mi-diagram/lib/components/Form/ExpressionEditor/ExpressionEditor';
 
 const cardStyle = {
     display: "block",
