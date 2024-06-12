@@ -16,7 +16,7 @@ import classnames from 'classnames';
 import { useIntermediateNodeStyles } from '../../../../components/styles';
 import { ArrayFnConnectorNode } from './ArrayFnConnectorNode';
 import { DataMapperPortWidget } from '../../Port';
-import { getMapFnIndex, getViewLabel } from '../../utils/common-utils';
+import { getMapFnIndex, getMapFnViewLabel } from '../../utils/common-utils';
 import { SUB_MAPPING_INPUT_SOURCE_PORT_PREFIX } from '../../utils/constants';
 import { getSourceNodeType } from '../../utils/node-utils';
 import { SubMappingInfo, View } from '../../../../components/DataMapper/Views/DataMapperView';
@@ -38,7 +38,7 @@ export function ArrayFnConnectorNodeWidget(props: ArrayFnConnectorNodeWidgetWidg
     const classes = useIntermediateNodeStyles();
 
     const onClickOnExpand = () => {
-        let label = getViewLabel(targetPort, views);
+        let label = getMapFnViewLabel(targetPort, views);
         let targetFieldFQN = targetPort.fieldFQN;
         let sourceFieldFQN = isSourcePortSubMapping
             ? sourcePort.fieldFQN

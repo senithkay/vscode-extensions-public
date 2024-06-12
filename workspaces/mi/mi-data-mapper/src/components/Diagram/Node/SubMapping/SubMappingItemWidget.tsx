@@ -19,7 +19,7 @@ import classnames from "classnames";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { DataMapperPortWidget, PortState, InputOutputPortModel } from '../../Port';
-import { genVariableName, getTypeName } from "../../utils/common-utils";
+import { genVariableName, getSubMappingViewLabel, getTypeName } from "../../utils/common-utils";
 import { OutputSearchHighlight } from "../commons/Search";
 import { TreeBody } from '../commons/Tree/Tree';
 import { useIONodesStyles } from "../../../styles";
@@ -140,12 +140,13 @@ export function SubMappingItemWidget(props: SubMappingItemProps) {
 
     const onClickOnExpand = () => {
         const subMapping = subMappings[index];
+        const label = getSubMappingViewLabel(subMapping.name, subMapping.type);
         context.addView(
             {
                 targetFieldFQN: "",
                 sourceFieldFQN: "",
                 sourceNodeType: SourceNodeType.InputNode,
-                label: valueLabel,
+                label: label,
                 subMappingInfo: {
                     index,
                     mappingName: subMapping.name,

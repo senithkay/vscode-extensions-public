@@ -42,20 +42,21 @@ export default function HeaderBreadcrumb(props: HeaderBreadcrumbProps) {
     const [activeLink, links] = useMemo(() => {
         if (views) {
             const focusedView = views[views.length - 1];
-            const isFocusedOnSubMapping = focusedView?.subMappingInfo !== undefined;
+            const isFocusedOnSubMappingRoot = views.length === 2 && focusedView?.subMappingInfo !== undefined;
             const otherViews = views.slice(0, -1);
             let isFnDef = views.length === 1;
             let label = focusedView.label;
 
             const selectedLink = (
                 <div className={classes.active}>
-                    {isFnDef ? label : `${label}:${isFocusedOnSubMapping ? 'SubMapping' : 'Map'}`}
+                    {isFnDef ? label : `${label}:${isFocusedOnSubMappingRoot ? 'SubMapping' : 'Map'}`}
                 </div>
             );
 
             const restLinks = otherViews.length > 0 && (
-                otherViews.map((node, index) => {
-                    label = node.label;
+                otherViews.map((view, index) => {
+                    label = view.label;
+                    const isSubMappingRoot = index === 1 && view.subMappingInfo !== undefined;
                     isFnDef = index === 0;
                     return (
                         <a
@@ -65,7 +66,7 @@ export default function HeaderBreadcrumb(props: HeaderBreadcrumbProps) {
                             className={classes.link}
                             data-testid={`dm-header-breadcrumb-${index}`}
                         >
-                            {isFnDef ? label : `${label}:map`}
+                            {isFnDef ? label : `${label}:${isSubMappingRoot ? 'SubMapping' : 'Map'}`}
                         </a>
                     );
                 })

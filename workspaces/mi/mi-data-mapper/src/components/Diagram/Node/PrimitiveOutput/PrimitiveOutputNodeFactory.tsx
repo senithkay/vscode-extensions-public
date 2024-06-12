@@ -31,7 +31,7 @@ export class PrimitiveOutputNodeFactory extends AbstractReactFactory<PrimitiveOu
 		const { views, focusedST } = context;
 		const isMapFnAtFnReturn = views.length === 1 && Node.isFunctionDeclaration(focusedST);
 		if ((isMapFn && !isMapFnAtFnReturn) || isSubMapping) {
-			valueLabel = views[views.length - 1].label;
+			valueLabel = views[views.length - 1].label.replace(/\[\]/g, '');
 		}
 		return (
 			<>

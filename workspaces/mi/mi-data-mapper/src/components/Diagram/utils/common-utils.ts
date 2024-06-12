@@ -326,7 +326,7 @@ export function getTypeName(field: DMType): string {
 	return typeName;
 }
 
-export function getViewLabel(targetPort: InputOutputPortModel, views: View[]): string {
+export function getMapFnViewLabel(targetPort: InputOutputPortModel, views: View[]): string {
     const { field, fieldFQN } = targetPort;
     let label = fieldFQN;
 
@@ -354,6 +354,17 @@ export function getViewLabel(targetPort: InputOutputPortModel, views: View[]): s
             return str.slice(0, lastIndex);
         }
         return str;
+    }
+
+    return label;
+}
+
+export function getSubMappingViewLabel(subMappingName: string, subMappingType: DMType): string {
+    let label = subMappingName;
+    if (subMappingType.kind === TypeKind.Array) {
+        const typeName = getTypeName(subMappingType);
+        const bracketsCount = (typeName.match(/\[\]/g) || []).length; // Count the number of pairs of brackets
+        label = label + `${"[]".repeat(bracketsCount)}`;
     }
 
     return label;

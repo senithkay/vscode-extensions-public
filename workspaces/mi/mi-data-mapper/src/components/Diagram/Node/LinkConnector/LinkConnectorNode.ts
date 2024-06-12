@@ -215,7 +215,8 @@ export class LinkConnectorNode extends DataMapperNodeModel {
                 })
 
                 if (!this.editorLabel) {
-                    this.editorLabel = this.targetMappedPort.fieldFQN.split('.').pop();
+                    const fieldFQN = this.targetMappedPort.fieldFQN;
+                    this.editorLabel = fieldFQN ? this.targetMappedPort.fieldFQN.split('.').pop() : '';
                 }
                 this.getModel().addAll(lm);
             }
