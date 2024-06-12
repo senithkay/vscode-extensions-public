@@ -567,7 +567,7 @@ export function getCallExprReturnStmt(mapFn: CallExpression): ReturnStatement {
 }
 
 export function getTnfFnReturnStatement(tnfFn: FunctionDeclaration): ReturnStatement {
-    return tnfFn.getStatementByKind(SyntaxKind.ReturnStatement)
+    return tnfFn.getStatementByKind(SyntaxKind.ReturnStatement);
 }
 
 export function representsTnfFnReturnStmt(mapFnParentNode: Node, returnStmt: ReturnStatement): boolean {
@@ -661,6 +661,29 @@ export function isMapFnAtRootReturn(functionST: FunctionDeclaration, focusedST: 
     return Node.isFunctionDeclaration(focusedST)
         && Node.isCallExpression(tnfFnRootReturn)
         && isMapFunction(tnfFnRootReturn);
+}
+
+export function getInnermostArrowFnBody(callExpr: CallExpression): Node {
+    const arrowFn = callExpr.getArguments()[0];
+
+    if (!Node.isArrowFunction(arrowFn)) {
+        return callExpr;
+    };
+
+    const arrowFnBody = arrowFn.getBody();
+
+    if (Node.isBlock(arrowFnBody)) {
+        const returnStmt = arrowFnBody.getStatementByKind(SyntaxKind.ReturnStatement)
+        if (returnStmt) {
+            const returnExpr = returnStmt.getExpression();
+            if (returnExpr && Node.isCallExpression(returnExpr)) {
+                return getInnermostArrowFnBody(returnExpr);
+            }
+            return returnExpr;
+        }
+    }
+
+    return callExpr;
 }
 
 function getRootInputAccessExpr(node: ElementAccessExpression | PropertyAccessExpression): Node {

@@ -15,7 +15,8 @@ import {
     ArrayLiteralExpression,
     CallExpression,
     VariableStatement,
-    SyntaxKind
+    SyntaxKind,
+    Expression
 } from "ts-morph";
 import { TypeKind } from "@wso2-enterprise/mi-core";
 
@@ -29,7 +30,8 @@ import {
     getInputAccessNodes,
     getCallExprReturnStmt,
     isConditionalExpression,
-    isMapFunction
+    isMapFunction,
+    getInnermostArrowFnBody
 } from "../Diagram/utils/common-utils";
 import { ArrayFnConnectorNode } from "../Diagram/Node/ArrayFnConnector";
 import { getPosition, isPositionsEquals } from "../Diagram/utils/st-utils";
@@ -237,6 +239,7 @@ export class NodeInitVisitor implements Visitor {
         const { focusedST, views } = this.context;
         const lastView = views[views.length - 1];
         const { label, sourceFieldFQN } = lastView;
+        const focusedOnSubMappingRoot = views.length === 2;
         // Constraint: Only one variable declaration is allowed in a local variable statement.
         const varDecl = node.getDeclarations()[0];
 
@@ -244,34 +247,49 @@ export class NodeInitVisitor implements Visitor {
 
         if (isFocusedST) {
             const initializer = varDecl.getInitializer();
+            let callExpr = initializer;
             if (initializer) {
-                if (Node.isCallExpression(initializer)) {
-                    const { mapFnIndex } = lastView.subMappingInfo;
-                    const callExprs = initializer.getDescendantsOfKind(SyntaxKind.CallExpression);
-                    const mapFns = callExprs.filter(expr => {
-                        const expression = expr.getExpression();
-                        return Node.isPropertyAccessExpression(expression) && expression.getName() === "map";
-                    });
-                    const inputType = getDMType(sourceFieldFQN, this.context.inputTrees[0]);
-                    const mapFn = !!mapFnIndex ? mapFns[mapFnIndex - 1] : initializer;
-                    this.inputNode = new FocusedInputNode(this.context, mapFn, inputType);
-                } else if (Node.isObjectLiteralExpression(initializer)) {
-                    const properties = initializer.getProperties();
-                    const focusedProperty = properties.find(property => {
-                        if (Node.isPropertyAssignment(property)) {
-                            return property.getName() === sourceFieldFQN;
-                        }
-                    }) as PropertyAssignment;
-                    if (focusedProperty) {
-                        const focusedInitializer = focusedProperty.getInitializer();
-                        if (Node.isCallExpression(focusedInitializer)) {
-                            const inputType = getDMType(sourceFieldFQN, this.context.inputTrees[0]);
-                            this.inputNode = new FocusedInputNode(this.context, focusedInitializer, inputType);
+                if (!focusedOnSubMappingRoot) {
+                    // Variable Statement become focused when the view is sub mapping
+                    // This case, always the input node of the second view is the input node of the first view
+                    // Hence, creating focused input node from the thrid view onwards
+                    if (Node.isCallExpression(initializer)) {
+                        // A2A mappings with map function within focused sub mappings at the root output level
+                        const { mapFnIndex } = lastView.subMappingInfo;
+                        const callExprs = initializer.getDescendantsOfKind(SyntaxKind.CallExpression);
+                        const mapFns = callExprs.filter(expr => {
+                            const expression = expr.getExpression();
+                            return Node.isPropertyAccessExpression(expression) && expression.getName() === "map";
+                        });
+                        const inputType = getDMType(sourceFieldFQN, this.context.inputTrees[0]);
+                        callExpr = !!mapFnIndex ? mapFns[mapFnIndex - 1] : initializer;
+                        this.inputNode = new FocusedInputNode(this.context, callExpr as CallExpression, inputType);
+                    } else if (Node.isObjectLiteralExpression(initializer)) {
+                        // A2A mappings with map function within focused sub mappings at the output field level
+                        const properties = initializer.getProperties();
+                        const focusedProperty = properties.find(property => {
+                            if (Node.isPropertyAssignment(property)) {
+                                return property.getName() === sourceFieldFQN;
+                            }
+                        }) as PropertyAssignment;
+                        if (focusedProperty) {
+                            const focusedInitializer = focusedProperty.getInitializer();
+                            if (Node.isCallExpression(focusedInitializer)) {
+                                callExpr = focusedInitializer;
+                                const inputType = getDMType(sourceFieldFQN, this.context.inputTrees[0]);
+                                this.inputNode = new FocusedInputNode(this.context, focusedInitializer, inputType);
+                            }
                         }
                     }
-                } else if (!isObjectOrArrayLiteralExpression(initializer) && this.isWithinMapFn === 0) {
-                    const inputAccessNodes = getInputAccessNodes(initializer);
-                    if (canConnectWithLinkConnector(inputAccessNodes, initializer)) {
+                }
+
+                const shouldCheckForLinkConnectorNodes = !(focusedOnSubMappingRoot
+                    && isObjectOrArrayLiteralExpression(initializer));
+                
+                if (shouldCheckForLinkConnectorNodes && this.isWithinMapFn === 0) {
+                    let targetExpr = Node.isCallExpression(callExpr) ? getInnermostArrowFnBody(callExpr) : callExpr;
+                    const inputAccessNodes = getInputAccessNodes(targetExpr);
+                    if (canConnectWithLinkConnector(inputAccessNodes, targetExpr as Expression)) {
                         const linkConnectorNode = createLinkConnectorNode(
                             node, label, parent, inputAccessNodes, this.mapIdentifiers.slice(0), this.context
                         );
