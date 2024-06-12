@@ -37,7 +37,6 @@ export interface ObjectOutputWidgetProps {
 	engine: DiagramEngine;
 	getPort: (portId: string) => InputOutputPortModel;
 	context: IDataMapperContext;
-	isSubMapping: boolean;
 	mappings?: MappingMetadata[];
 	valueLabel?: string;
 	deleteField?: (node: Node) => Promise<void>;
@@ -53,7 +52,6 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 		engine,
 		getPort,
 		context,
-		isSubMapping,
 		valueLabel,
 		deleteField
 	} = props;

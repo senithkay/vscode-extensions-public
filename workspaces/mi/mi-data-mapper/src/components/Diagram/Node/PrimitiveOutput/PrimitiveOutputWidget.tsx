@@ -29,14 +29,17 @@ export interface PrimitiveOutputWidgetProps {
 	engine: DiagramEngine;
 	getPort: (portId: string) => InputOutputPortModel;
 	context: IDataMapperContext;
-	isSubMapping: boolean;
 	typeName: string;
 	valueLabel?: string;
 	deleteField?: (node: Node) => Promise<void>;
 }
 
 export function PrimitiveOutputWidget(props: PrimitiveOutputWidgetProps) {
-	const { id, field, getPort, engine, context, isSubMapping, typeName, valueLabel, deleteField } = props;
+	const { id, field, getPort, engine, context, typeName, valueLabel, deleteField } = props;
+	const { views } = context;
+	const focusedView = views[views.length - 1];
+	const focuesOnSubMappingRoot = focusedView.subMappingInfo && focusedView.subMappingInfo.focusedOnSubMappingRoot;
+
 
 	const classes = useIONodesStyles();
 	const collapsedFieldsStore = useDMCollapsedFieldsStore();
@@ -110,7 +113,7 @@ export function PrimitiveOutputWidget(props: PrimitiveOutputWidgetProps) {
 					</Button>
 					{label}
 				</span>
-				{isSubMapping && (
+				{focuesOnSubMappingRoot && (
 					<Button
 						appearance="icon"
 						data-testid={"edit-sub-mapping-btn"}

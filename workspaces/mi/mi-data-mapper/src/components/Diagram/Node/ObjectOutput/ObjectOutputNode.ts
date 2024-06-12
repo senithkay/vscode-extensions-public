@@ -68,6 +68,7 @@ export class ObjectOutputNode extends DataMapperNodeModel {
         if (this.dmType) {
             this.rootName = this.dmType?.fieldName;
             const { focusedST, functionST, views } = this.context;
+            const focusedView = views[views.length - 1];
 
             const isMapFnAtPropAsmt = isMapFnAtPropAssignment(focusedST);
             const isMapFnAtRootRtn = views.length > 1 && isMapFnAtRootReturn(functionST, focusedST);
@@ -97,7 +98,7 @@ export class ObjectOutputNode extends DataMapperNodeModel {
                     });
                 }
 
-                if (this.isSubMapping) {
+                if (this.isSubMapping && focusedView.subMappingInfo.focusedOnSubMappingRoot) {
                     this.addOutputFieldAdderPort(
                         this.rootName, parentPort, collapsedFields, parentPort.collapsed, this.isMapFn
                     );

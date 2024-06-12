@@ -32,7 +32,6 @@ export interface ArrayOutputWidgetProps {
 	engine: DiagramEngine;
 	getPort: (portId: string) => InputOutputPortModel;
 	context: IDataMapperContext;
-	isSubMapping: boolean;
 	valueLabel?: string;
 	deleteField?: (node: Node) => Promise<void>;
 }
@@ -44,11 +43,14 @@ export function ArrayOutputWidget(props: ArrayOutputWidgetProps) {
 		getPort,
 		engine,
 		context,
-		isSubMapping,
 		typeName,
 		valueLabel,
 		deleteField
 	} = props;
+	const { views } = context;
+	const focusedView = views[views.length - 1];
+	const focuesOnSubMappingRoot = focusedView.subMappingInfo && focusedView.subMappingInfo.focusedOnSubMappingRoot;
+
 	const classes = useIONodesStyles();
 
 	const [ portState, setPortState ] = useState<PortState>(PortState.Unselected);
@@ -110,7 +112,7 @@ export function ArrayOutputWidget(props: ArrayOutputWidgetProps) {
 
 	const onRightClick = (event: React.MouseEvent) => {
 		event.preventDefault(); 
-		if (isSubMapping) {
+		if (focuesOnSubMappingRoot) {
 			onSubMappingEditBtnClick();
 		} else {
 			setIOConfigPanelType("Output");
@@ -169,7 +171,7 @@ export function ArrayOutputWidget(props: ArrayOutputWidgetProps) {
 						</Button>
 						{label}
 					</span>
-					{isSubMapping && (
+					{focuesOnSubMappingRoot && (
 						<Button
 							appearance="icon"
 							data-testid={"edit-sub-mapping-btn"}
