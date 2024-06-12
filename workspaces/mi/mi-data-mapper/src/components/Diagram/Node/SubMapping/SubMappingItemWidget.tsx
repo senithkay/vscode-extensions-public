@@ -12,8 +12,6 @@ import React, { useState } from "react";
 import { Button, Codicon, ProgressRing } from "@wso2-enterprise/ui-toolkit";
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { DMType, TypeKind } from "@wso2-enterprise/mi-core";
-import { keyframes } from "@emotion/react";
-import styled from "@emotion/styled";
 import { Block } from "ts-morph";
 import classnames from "classnames";
 
@@ -27,6 +25,7 @@ import { InputNodeTreeItemWidget } from "../Input/InputNodeTreeItemWidget";
 import { useDMCollapsedFieldsStore, useDMSubMappingConfigPanelStore } from "../../../../store/store";
 import { DMSubMapping } from "./SubMappingNode";
 import { SourceNodeType } from "../../../../components/DataMapper/Views/DataMapperView";
+import { SubMappingSeparator } from "./SubMappingSeparator";
 
 export interface SubMappingItemProps {
     index: number;
@@ -39,33 +38,6 @@ export interface SubMappingItemProps {
     valueLabel?: string;
 };
 
-const fadeInZoomIn = keyframes`
-    0% {
-        opacity: 0;
-        transform: scale(0.5);
-    }
-    100% {
-        opacity: 1;
-        transform: scale(1);
-    }
-`;
-
-const zoomIn = keyframes`
-    0% {
-        transform: scale(0.9);
-    }
-    100% {
-        transform: scale(1.2);
-    }
-`;
-
-const HoverButton = styled(Button)`
-    animation: ${fadeInZoomIn} 0.2s ease-out forwards;
-    &:hover {
-        animation: ${zoomIn} 0.2s ease-out forwards;
-    };
-`;
-
 export function SubMappingItemWidget(props: SubMappingItemProps) {
     const { index, id, type, engine, context, subMappings, getPort, valueLabel } = props;
 
@@ -75,7 +47,6 @@ export function SubMappingItemWidget(props: SubMappingItemProps) {
 
     const [ portState, setPortState ] = useState<PortState>(PortState.Unselected);
     const [isHovered, setIsHovered] = useState(false);
-    const [isHoveredSeperator, setIsHoveredSeperator] = useState(false);
     const [deleteInProgress, setDeleteInProgress] = useState(false);
 
     const typeName = getTypeName(type);
@@ -83,6 +54,7 @@ export function SubMappingItemWidget(props: SubMappingItemProps) {
     const expanded = !(portOut && portOut.collapsed);
     const isRecord = type.kind === TypeKind.Interface;
     const hasFields = !!type?.fields?.length;
+    const isFirstItem = index === 0;
     const isLastItem = index === subMappings.length - 1;
 
     const label = (
@@ -104,7 +76,7 @@ export function SubMappingItemWidget(props: SubMappingItemProps) {
         const varName = genVariableName("subMapping", subMappings.map(mapping => mapping.name));
         setSubMappingConfig({
             isSMConfigPanelOpen: true,
-            nextSubMappingIndex: index + 1,
+            nextSubMappingIndex: isFirstItem ? index : index + 1,
             suggestedNextSubMappingName: varName
         });
     };
@@ -124,14 +96,6 @@ export function SubMappingItemWidget(props: SubMappingItemProps) {
 
     const onMouseLeave = () => {
         setIsHovered(false);
-    };
-
-    const onMouseEnterSeperator = () => {
-        setIsHoveredSeperator(true);
-    };
-
-    const onMouseLeaveSeperator = () => {
-        setIsHoveredSeperator(false);
     };
 
     const handlePortState = (state: PortState) => {
@@ -161,10 +125,11 @@ export function SubMappingItemWidget(props: SubMappingItemProps) {
         (context.functionST.getBody() as Block).removeStatement(index);
         context.applyModifications();
         setDeleteInProgress(false);
-    }
+    };
 
     return (
         <>
+            {isFirstItem && <SubMappingSeparator onClickAddSubMapping={onClickAddSubMapping} />}
             <div
                 id={"recordfield-" + id}
                 onMouseEnter={onMouseEnter}
@@ -241,22 +206,10 @@ export function SubMappingItemWidget(props: SubMappingItemProps) {
                     </TreeBody>
                 )
             }
-            <div
-                onMouseEnter={onMouseEnterSeperator}
-                onMouseLeave={onMouseLeaveSeperator}
-                className={classes.subMappingItemSeparator}
-            >
-                {isHoveredSeperator && !isLastItem && (
-                    <HoverButton
-                        appearance="icon"
-                        tooltip="Add another sub mapping here"
-                        className={classes.addAnotherSubMappingButton}
-                        onClick={onClickAddSubMapping}
-                    >
-                        <Codicon name="add" iconSx={{ fontSize: 10 }} />
-                    </HoverButton>
-                )}
-            </div>
+            <SubMappingSeparator 
+                isLastItem={isLastItem}
+                onClickAddSubMapping={onClickAddSubMapping}
+            />
             {isLastItem && (
                 <Button
                     className={classes.addSubMappingButton}
