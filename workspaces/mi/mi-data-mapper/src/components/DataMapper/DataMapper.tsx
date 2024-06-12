@@ -24,7 +24,7 @@ import { DataMapperHeader } from "./Header/DataMapperHeader";
 import { useDMExpressionBarStore, useDMSearchStore } from "../../store/store";
 import { getFocusedSubMappingExpr, getTypeName } from "../Diagram/utils/common-utils";
 import { getDMType, getSubMappingTypes, getTypeForVariable } from "../Diagram/utils/type-utils";
-import { getOutputNode } from "../Diagram/utils/node-utils";
+import { getOutputNode, getSubMappingNode } from "../Diagram/utils/node-utils";
 import { SubMappingConfigForm } from "./SidePanel/SubMappingConfigForm";
 import { isInputNode } from "../Diagram/Actions/utils";
 import { SourceNodeType, View } from "./Views/DataMapperView";
@@ -143,7 +143,9 @@ export function MIDataMapper(props: MIDataMapperProps) {
                     const subMappingExpr = getFocusedSubMappingExpr(varDecl.getInitializer(), mapFnIndex);
                     const outputNode = getOutputNode(context, subMappingExpr, subMappingType, true);
 
-                    setNodes([inputNode, outputNode, ...intermediateNodes]);
+                    const subMappingNode = getSubMappingNode(context);
+
+                    setNodes([inputNode, subMappingNode, outputNode, ...intermediateNodes]);
                 }
             } else {
                 let focusedST: FunctionDeclaration | PropertyAssignment | ReturnStatement = fnST;

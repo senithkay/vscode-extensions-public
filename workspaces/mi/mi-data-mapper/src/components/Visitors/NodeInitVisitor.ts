@@ -39,12 +39,12 @@ import { getDMType, getDMTypeForRootChaninedMapFunction, getDMTypeOfSubMappingIt
 import { UnsupportedExprNodeKind, UnsupportedIONode } from "../Diagram/Node/UnsupportedIO";
 import { OFFSETS } from "../Diagram/utils/constants";
 import { FocusedInputNode } from "../Diagram/Node/FocusedInput";
-import { SubMappingNode } from "../Diagram/Node/SubMapping";
 import {
     createInputNodeForDmFunction,
     createLinkConnectorNode,
     createOutputNodeForDmFunction,
     getOutputNode,
+    getSubMappingNode,
     isObjectOrArrayLiteralExpression
 } from "../Diagram/utils/node-utils";
 import { SourceNodeType } from "../DataMapper/Views/DataMapperView";
@@ -344,8 +344,8 @@ export class NodeInitVisitor implements Visitor {
     }
 
     getNodes() {
-        // create node for deal with sub mappings
-        const subMappingNode = new SubMappingNode(this.context);
+        // Add node to capture the sub mappings
+        const subMappingNode = getSubMappingNode(this.context);;
 
         const nodes = [this.inputNode, subMappingNode, this.outputNode];
         nodes.push(...this.intermediateNodes);

@@ -114,7 +114,8 @@ export function SubMappingItemWidget(props: SubMappingItemProps) {
                 subMappingInfo: {
                     index,
                     mappingName: subMapping.name,
-                    mappingType: typeName
+                    mappingType: typeName,
+                    focusedOnSubMappingRoot: true
                 }
             }
         );

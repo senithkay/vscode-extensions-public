@@ -46,12 +46,22 @@ export class SubMappingNode extends DataMapperNodeModel {
 
     async initPorts() {
         this.subMappings = [];
-        const { functionST, subMappingTypes } = this.context;
+        const { functionST, subMappingTypes, views } = this.context;
         const searchValue = useDMSearchStore.getState().inputSearch;
         const variableStatements = (functionST.getBody() as Block).getVariableStatements();
+        const focusedView = views[views.length - 1];
+        const subMappingView = focusedView.subMappingInfo;
 
-        variableStatements.forEach(stmt => {
+        variableStatements.forEach((stmt, index) => {
             // Constraint: Only one variable declaration is allowed in a local variable statement.
+
+            if (subMappingView) {
+                if (index >= subMappingView.index) {
+                    // Skip the variable declarations that are after the focused sub-mapping
+                    return;
+                }
+            }
+
             const varDecl = stmt.getDeclarations()[0];
             const varName = varDecl.getName();
 

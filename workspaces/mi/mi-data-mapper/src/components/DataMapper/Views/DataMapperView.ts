@@ -27,4 +27,5 @@ export interface SubMappingInfo {
     mappingName: string;
     mappingType: string;
     mapFnIndex?: number;
+    focusedOnSubMappingRoot?: boolean;
 }

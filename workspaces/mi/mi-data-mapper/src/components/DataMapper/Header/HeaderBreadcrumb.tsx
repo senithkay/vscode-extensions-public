@@ -42,7 +42,8 @@ export default function HeaderBreadcrumb(props: HeaderBreadcrumbProps) {
     const [activeLink, links] = useMemo(() => {
         if (views) {
             const focusedView = views[views.length - 1];
-            const isFocusedOnSubMappingRoot = views.length === 2 && focusedView?.subMappingInfo !== undefined;
+            const isFocusedOnSubMappingRoot = focusedView.subMappingInfo
+                && focusedView.subMappingInfo.focusedOnSubMappingRoot;
             const otherViews = views.slice(0, -1);
             let isFnDef = views.length === 1;
             let label = focusedView.label;
@@ -56,7 +57,7 @@ export default function HeaderBreadcrumb(props: HeaderBreadcrumbProps) {
             const restLinks = otherViews.length > 0 && (
                 otherViews.map((view, index) => {
                     label = view.label;
-                    const isSubMappingRoot = index === 1 && view.subMappingInfo !== undefined;
+                    const isSubMappingRoot = view.subMappingInfo && view.subMappingInfo.focusedOnSubMappingRoot;
                     isFnDef = index === 0;
                     return (
                         <a

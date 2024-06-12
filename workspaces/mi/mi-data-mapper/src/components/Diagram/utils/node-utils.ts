@@ -117,6 +117,10 @@ export function getOutputNode(
     return new PrimitiveOutputNode(context, expression, outputType, isSubMapping);
 }
 
+export function getSubMappingNode(context: DataMapperContext) {
+    return new SubMappingNode(context);
+}
+
 export function getSourceNodeType(sourcePort: InputOutputPortModel) {
     const sourceNode = sourcePort.getNode();
 
