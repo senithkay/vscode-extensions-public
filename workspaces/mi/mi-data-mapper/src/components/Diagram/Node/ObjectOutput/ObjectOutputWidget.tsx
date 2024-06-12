@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { Button, Codicon } from '@wso2-enterprise/ui-toolkit';
@@ -57,10 +57,16 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 		valueLabel,
 		deleteField
 	} = props;
+	const { views } = context;
+	const focusedView = views[views.length - 1];
+	const focuesOnSubMappingRoot = focusedView.subMappingInfo && focusedView.subMappingInfo.focusedOnSubMappingRoot;
+
 	const classes = useIONodesStyles();
 
 	const [portState, setPortState] = useState<PortState>(PortState.Unselected);
 	const [isHovered, setIsHovered] = useState(false);
+	const [hasFirstClickOnOutput, setHasFirstClickOnOutput] = useState(false);
+
 	const collapsedFieldsStore = useDMCollapsedFieldsStore();
 
 	const { setIsIOConfigPanelOpen, setIOConfigPanelType, setIsSchemaOverridden } = useDMIOConfigPanelStore(state => ({
@@ -90,6 +96,21 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 	const isDisabled = portIn?.descendantHasValue;
 
 	const indentation = (portIn && (!hasFields || !expanded)) ? 0 : 24;
+
+	useEffect(() => {
+		if (focuesOnSubMappingRoot) {
+			const dynamicOutputPort = getPort(`${OBJECT_OUTPUT_FIELD_ADDER_TARGET_PORT_PREFIX}.IN`);
+			
+			dynamicOutputPort.registerListener({
+				eventDidFire(event) {
+					if (event.function === "firstClickedOnDynamicOutput") {
+						setHasFirstClickOnOutput(true);
+						setTimeout(() => setHasFirstClickOnOutput(false), 3000);
+					}
+				},
+			})
+		}
+	}, []);
 
 	const handleExpand = () => {
 		const collapsedFields = collapsedFieldsStore.collapsedFields;
@@ -128,7 +149,7 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 
 	const onRightClick = (event: React.MouseEvent) => {
 		event.preventDefault();
-		if (isSubMapping) {
+		if (focuesOnSubMappingRoot) {
 			onSubMappingEditBtnClick();
 		} else {
 			setIOConfigPanelType("Output");
@@ -176,7 +197,7 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 						</Button>
 						{label}
 					</span>
-					{isSubMapping && (
+					{focuesOnSubMappingRoot && (
 						<Button
 							appearance="icon"
 							data-testid={"edit-sub-mapping-btn"}
@@ -210,11 +231,16 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 						})}
 					</TreeBody>
 				)}
-				{isSubMapping && (
+				{focuesOnSubMappingRoot && (
 					<ObjectFieldAdder id={`recordfield-${OBJECT_OUTPUT_FIELD_ADDER_TARGET_PORT_PREFIX}`}>
 						<span className={classes.objectFieldAdderLabel}>
 							Dynamically add inputs to output
 						</span>
+						{hasFirstClickOnOutput && (
+							<div className={classes.dynamicOutputNotification}>
+								Click on input field first to add a dynamic output
+							</div>
+						)}
 					</ObjectFieldAdder>
 				)}
 			</TreeContainer>

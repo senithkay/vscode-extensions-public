@@ -88,6 +88,7 @@ export function ArrayFnConnectorNodeWidget(props: ArrayFnConnectorNodeWidgetWidg
         if (prevViewSubMappingInfo) {
             const newViewSubMappingInfo = {
                 ...prevViewSubMappingInfo,
+                focusedOnSubMappingRoot: false,
                 mapFnIndex: prevViewSubMappingInfo.mapFnIndex !== undefined ? prevViewSubMappingInfo.mapFnIndex + 1 : 0
             };
             newView.subMappingInfo = newViewSubMappingInfo;

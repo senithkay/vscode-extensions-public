@@ -17,6 +17,7 @@ import { InputOutputPortModel } from '../Port/model/InputOutputPortModel';
 import { IntermediatePortModel } from '../Port/IntermediatePort';
 import { isInputNode, isOutputNode } from '../Actions/utils';
 import { useDMExpressionBarStore } from '../../../store/store';
+import { OBJECT_OUTPUT_FIELD_ADDER_TARGET_PORT_PREFIX } from '../utils/constants';
 /**
  * This state is controlling the creation of a link.
  */
@@ -81,7 +82,11 @@ export class CreateLinkState extends State<DiagramEngine> {
 								}));
 								this.link = link;
 							} else {
-								element.fireEvent({}, "expressionBarFocused");
+								if (element.portName === OBJECT_OUTPUT_FIELD_ADDER_TARGET_PORT_PREFIX) {
+									element.fireEvent({}, "firstClickedOnDynamicOutput");
+								} else {
+									element.fireEvent({}, "expressionBarFocused");
+								}
 								this.clearState();
 								this.eject();
 							}

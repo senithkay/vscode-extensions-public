@@ -245,6 +245,17 @@ export const useIONodesStyles = () => ({
         color: "var(--button-primary-foreground)",
         opacity: 0.7
     }),
+    dynamicOutputNotification: css({
+        position: "absolute",
+        bottom: "-40px",
+        left: "0",
+        backgroundColor: "var(--vscode-notifications-background)",
+        color: "var(--vscode-notifications-foreground)",
+        fontSize: "12px",
+        border: "1px solid var(--vscode-notifications-border)",
+        padding: "5px 10px",
+        boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+    }),
 });
 
 export const useIntermediateNodeStyles = () => ({
