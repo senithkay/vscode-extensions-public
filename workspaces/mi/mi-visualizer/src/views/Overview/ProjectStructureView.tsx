@@ -106,7 +106,7 @@ const artifactTypeMap: Record<string, ArtifactType> = {
     connections: {
         title: "Connections",
         command: "MI.project-explorer.add-connection",
-        view: MACHINE_VIEW.ConnectionForm,
+        view: MACHINE_VIEW.LocalEntryForm,
         icon: "link",
         description: (entry: any) => "Connection",
         path: (entry: any) => entry.path,
@@ -172,6 +172,17 @@ const ProjectStructureView = (props: { projectStructure: any, workspaceDir: stri
         return view;
     }
 
+    function checkHasConnections(value: any) {
+        return value.some((entry: any) => {
+            for (let key in entry) {
+                if (Array.isArray(entry[key])) {
+                    return entry[key].some((innerItem: any) => innerItem.connectorName !== undefined);
+                }
+            }
+            return false;
+        });
+    }
+
     return (
         <Fragment>
             {/* If has entries render content*/}
@@ -181,11 +192,12 @@ const ProjectStructureView = (props: { projectStructure: any, workspaceDir: stri
                         .filter(([key, value]) => artifactTypeMap.hasOwnProperty(key) && Array.isArray(value) && value.length > 0)
                         .map(([key, value]) => {
                             const hasOnlyUndefinedItems = Object.values(value).every(entry => entry.path === undefined);
-                            return !hasOnlyUndefinedItems && (
+                            const hasConnections = hasOnlyUndefinedItems ? checkHasConnections(value) : false;
+                            return (!hasOnlyUndefinedItems || hasConnections) && (
                                 <div>
                                     <h3>{artifactTypeMap[key].title}</h3>
                                     {Object.entries(value).map(([_, entry]) => (
-                                        entry.path && (
+                                        entry.path ? (
                                             <Entry
                                                 key={entry.name}
                                                 icon={artifactTypeMap[key].icon}
@@ -196,6 +208,30 @@ const ProjectStructureView = (props: { projectStructure: any, workspaceDir: stri
                                                 goToSource={() => goToSource(artifactTypeMap[key].path(entry))}
                                                 deleteArtifact={() => deleteArtifact(artifactTypeMap[key].path(entry))}
                                             />
+                                        ) : (
+                                            (key === "localEntries") && Object.entries(entry).map(([key, value]) => {
+                                                if (Array.isArray(value)) {
+                                                    return (
+                                                        <div>
+                                                            <h3>{artifactTypeMap["connections"].title}</h3>
+                                                            {value.map(connectionEntry => (
+                                                                connectionEntry.type === "localEntry" && (
+                                                                    <Entry
+                                                                        key={connectionEntry.name}
+                                                                        icon={artifactTypeMap["connections"].icon}
+                                                                        name={connectionEntry.name}
+                                                                        description={artifactTypeMap["connections"].description(connectionEntry)}
+                                                                        onClick={() => goToView(artifactTypeMap["connections"].path(connectionEntry), artifactTypeMap["connections"].view)}
+                                                                        goToView={() => goToView(artifactTypeMap["connections"].path(connectionEntry), artifactTypeMap["connections"].view)}
+                                                                        goToSource={() => goToSource(artifactTypeMap["connections"].path(connectionEntry))}
+                                                                        deleteArtifact={() => deleteArtifact(artifactTypeMap["connections"].path(connectionEntry))}
+                                                                    />
+                                                                )
+                                                            ))}
+                                                        </div>
+                                                    )
+                                                }
+                                            })
                                         )
                                     ))}
                                 </div>
