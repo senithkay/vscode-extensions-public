@@ -68,7 +68,7 @@ export class NodeInitVisitor implements Visitor {
         this.mapIdentifiers.push(node);
 
         const { focusedST, functionST, views, subMappingTypes } = this.context;
-        const { sourceFieldFQN, targetFieldFQN, sourceNodeType, mapFnIndex } = views[views.length - 1];
+        const { sourceFieldFQN, targetFieldFQN, sourceNodeType, mapFnIndex, subMappingInfo } = views[views.length - 1];
         const isFocusedST = isPositionsEquals(getPosition(node), getPosition(focusedST));
 
         if (isFocusedST) {
@@ -121,7 +121,7 @@ export class NodeInitVisitor implements Visitor {
             const initializer = node.getInitializer();
             if (initializer
                 && !isObjectOrArrayLiteralExpression(initializer)
-                && this.isWithinMapFn === 0
+                && ( this.isWithinMapFn === 0 || (views.length > 2 && !!subMappingInfo))
                 && this.isWithinVariableStmt === 0
             ) {
                 const inputAccessNodes = getInputAccessNodes(initializer);
@@ -289,7 +289,9 @@ export class NodeInitVisitor implements Visitor {
                 if (shouldCheckForLinkConnectorNodes && this.isWithinMapFn === 0) {
                     let targetExpr = Node.isCallExpression(callExpr) ? getInnermostArrowFnBody(callExpr) : callExpr;
                     const inputAccessNodes = getInputAccessNodes(targetExpr);
-                    if (canConnectWithLinkConnector(inputAccessNodes, targetExpr as Expression)) {
+                    const isObjectLiteralExpr = Node.isObjectLiteralExpression(targetExpr);
+
+                    if (canConnectWithLinkConnector(inputAccessNodes, targetExpr as Expression) && !isObjectLiteralExpr) {
                         const linkConnectorNode = createLinkConnectorNode(
                             node, label, parent, inputAccessNodes, this.mapIdentifiers.slice(0), this.context
                         );
