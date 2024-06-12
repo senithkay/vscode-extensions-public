@@ -37,6 +37,7 @@ export async function activateProjectExplorer(context: ExtensionContext) {
 			{ label: 'Task', description: 'Add new task' },
 			{ label: 'Proxy Service', description: 'Add new proxy service' },
 			{ label: 'Template', description: 'Add new template' },
+			{ label: 'Connection', description: 'Add new connection'}
 		], {
 			placeHolder: 'Select the construct to add'
 		}).then(selection => {
@@ -62,6 +63,8 @@ export async function activateProjectExplorer(context: ExtensionContext) {
 				commands.executeCommand(COMMANDS.ADD_LOCAL_ENTRY_COMMAND);
 			} else if (selection?.label === 'Message Store') {
 				commands.executeCommand(COMMANDS.ADD_MESSAGE_STORE_COMMAND);
+			} else if (selection?.label === 'Connection') {
+				commands.executeCommand(COMMANDS.ADD_CONNECTION_COMMAND);
 			}
 		});
 
@@ -169,6 +172,11 @@ export async function activateProjectExplorer(context: ExtensionContext) {
 	commands.registerCommand(COMMANDS.ADD_LOCAL_ENTRY_COMMAND, (entry: ProjectExplorerEntry) => {
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.LocalEntryForm, documentUri: entry.info?.path });
 		console.log('Add Local Entry');
+	});
+
+	commands.registerCommand(COMMANDS.ADD_CONNECTION_COMMAND, (entry: ProjectExplorerEntry) => {
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.ConnectionForm, documentUri: entry.info?.path });
+		console.log('Add Connection');
 	});
 
 	commands.registerCommand(COMMANDS.ADD_DATA_SOURCE_COMMAND, (entry: ProjectExplorerEntry) => {

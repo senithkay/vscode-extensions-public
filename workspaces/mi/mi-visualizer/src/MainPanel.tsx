@@ -39,6 +39,7 @@ import PopupPanel from './PopupPanel';
 import { AddArtifactView } from './views/AddArtifact';
 import { SequenceTemplateView } from './views/Diagram/SequenceTemplate';
 import { set } from 'lodash';
+import { ConnectionForm } from './views/Forms/ConnectionForm';
 
 const MainContainer = styled.div`
     display: flex;
@@ -278,6 +279,9 @@ const MainPanel = () => {
                     break;
                 case MACHINE_VIEW.DataSourceForm:
                     setViewComponent(<DataSourceWizard path={machineView.documentUri} />);
+                    break;
+                case MACHINE_VIEW.ConnectionForm:
+                    setViewComponent(<ConnectionForm path={machineView.documentUri} />);
                     break;
                 default:
                     setViewComponent(null);

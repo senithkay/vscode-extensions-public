@@ -103,6 +103,14 @@ const artifactTypeMap: Record<string, ArtifactType> = {
         description: (entry: any) => `Type: ${entry.subType}`,
         path: (entry: any) => entry.path,
     },
+    connections: {
+        title: "Connections",
+        command: "MI.project-explorer.add-connection",
+        view: MACHINE_VIEW.ConnectionForm,
+        icon: "link",
+        description: (entry: any) => "Connection",
+        path: (entry: any) => entry.path,
+    }
     // Add more artifact types as needed
 };
 

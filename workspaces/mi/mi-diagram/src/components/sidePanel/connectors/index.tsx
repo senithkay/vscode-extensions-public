@@ -122,12 +122,16 @@ export function ConnectorPage(props: ConnectorPageProps) {
     const connectionStatus = useRef(null);
 
     const fetchConnectors = async () => {
-        const response = await fetch('https://raw.githubusercontent.com/rosensilva/connectors/main/connectors_list.json');
-        const data = await response.json();
-        sidePanelContext.setSidePanelState({
-            ...sidePanelContext,
-            connectors: data.data,
-        });
+        try {
+            const response = await fetch('https://mi-connectors.wso2.com/icons/mi-connectors-info.json');
+            const data = await response.json();
+            sidePanelContext.setSidePanelState({
+                ...sidePanelContext,
+                connectors: data.data,
+            });
+        } catch (e) {
+            console.error("Error fetching connectors", e);
+        }
     };
 
     const fetchLocalConnectorData = async () => {

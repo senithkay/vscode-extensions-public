@@ -3436,6 +3436,7 @@ importers:
       webpack: ~5.88.2
       webpack-cli: ~5.1.4
       webpack-dev-server: ~4.15.1
+      xmlbuilder2: ~3.1.1
       yup: ~1.4.0
     dependencies:
       '@codemirror/lang-xml': 6.0.2
@@ -3471,6 +3472,7 @@ importers:
       react-markdown: 9.0.1_eteh3so6nztr56vqc4nbg6qqla
       react-split-pane: 0.1.92_biqbaboplfbrettd7655fr4n2y
       react-syntax-highlighter: 15.5.0_react@18.2.0
+      xmlbuilder2: 3.1.1
       yup: 1.4.0
     devDependencies:
       '@babel/plugin-syntax-flow': 7.22.5

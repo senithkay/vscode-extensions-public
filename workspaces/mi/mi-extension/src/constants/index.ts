@@ -45,6 +45,7 @@ export const COMMANDS = {
     ADD_PROXY_SERVICE_COMMAND: 'MI.project-explorer.add-proxy-service',
     ADD_TASK_COMMAND: 'MI.project-explorer.add-task',
     ADD_LOCAL_ENTRY_COMMAND: 'MI.project-explorer.add-local-entry',
+    ADD_CONNECTION_COMMAND: 'MI.project-explorer.add-connection',
     ADD_MESSAGE_PROCESSOR_COMMAND: 'MI.project-explorer.add-message-processor',
     ADD_MESSAGE_STORE_COMMAND: 'MI.project-explorer.add-message-store',
     ADD_TEMPLATE_COMMAND: 'MI.project-explorer.add-template',
