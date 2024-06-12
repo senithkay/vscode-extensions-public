@@ -78,10 +78,10 @@ export const ObjectFieldAdder = styled.div`
     padding: 8px;
     background: repeating-linear-gradient(
         -45deg,
-        var(--vscode-badge-background),
-        var(--vscode-badge-background) 3px,
-        var(--vscode-sideBar-background) 3px,
-        var(--vscode-sideBar-background) 6px
+        var(--vscode-button-secondaryBackground),
+        var(--vscode-button-secondaryBackground) 3px,
+        var(--vscode-button-secondaryHoverBackground) 3px,
+        var(--vscode-button-secondaryHoverBackground) 6px
     );
     cursor: pointer;
     align-items: center;
@@ -89,7 +89,6 @@ export const ObjectFieldAdder = styled.div`
     display: flex;
     &:hover {
         background-color: var(--vscode-list-hoverBackground);
-        // opacity: 0.8;
     };
     &:active {
         opacity: 0.6;

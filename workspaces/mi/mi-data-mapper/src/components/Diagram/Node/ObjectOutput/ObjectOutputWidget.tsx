@@ -26,8 +26,6 @@ import {
 	useDMIOConfigPanelStore,
 	useDMSubMappingConfigPanelStore
 } from '../../../../store/store';
-import { getPosition } from '../../utils/st-utils';
-import { isEmptyValue } from '../../utils/common-utils';
 import { OutputSearchHighlight } from '../commons/Search';
 import { OBJECT_OUTPUT_FIELD_ADDER_TARGET_PORT_PREFIX } from '../../utils/constants';
 
@@ -56,7 +54,6 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 		getPort,
 		context,
 		isSubMapping,
-		mappings,
 		valueLabel,
 		deleteField
 	} = props;
@@ -82,14 +79,6 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 	const { childrenTypes } = dmTypeWithValue;
 	const fields = childrenTypes || [];
 	const hasFields = fields.length > 0;
-	const isBodyObjectLiteralExpr = value && !value.wasForgotten && Node.isObjectLiteralExpression(value);
-
-	const hasEmptyFields = mappings && (mappings.length === 0 || !mappings.some(mapping => {
-		if (mapping.value && !mapping.value.wasForgotten()) {
-			return !isEmptyValue(getPosition(mapping.value));
-		}
-		return true;
-	}));
 
 	const portIn = getPort(`${id}.IN`);
     const isExprBarFocused = exprBarFocusedPort?.getName() === portIn?.getName();
@@ -224,7 +213,7 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 				{isSubMapping && (
 					<ObjectFieldAdder id={`recordfield-${OBJECT_OUTPUT_FIELD_ADDER_TARGET_PORT_PREFIX}`}>
 						<span className={classes.objectFieldAdderLabel}>
-							Click here after clicking input field
+							Dynamically add inputs to output
 						</span>
 					</ObjectFieldAdder>
 				)}

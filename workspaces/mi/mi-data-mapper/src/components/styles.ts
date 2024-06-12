@@ -185,11 +185,11 @@ export const useIONodesStyles = () => ({
             height: "40px",
             border: "1px solid var(--vscode-welcomePage-tileBorder)",
             color: "var(--button-primary-foreground)",
-            backgroundColor: "var(--button-primary-background)",
+            backgroundColor: "var(--vscode-button-secondaryBackground)",
             borderRadius: "0px",
             textTransform: "none",
             "&:hover": {
-                backgroundColor: "var(--vscode-button-hoverBackground)"
+                backgroundColor: "var(--vscode-button-secondaryHoverBackground)"
             },
         },
         "& > vscode-button > *": {
@@ -208,6 +208,10 @@ export const useIONodesStyles = () => ({
         ...treeLabel,
         height: 'fit-content',
         flexDirection: "column"
+    }),
+    subMappingItemLabel: css({
+        ...treeLabel,
+        cursor: "pointer"
     }),
     enumHeaderTreeLabel: css({
         verticalAlign: "middle",
@@ -237,7 +241,9 @@ export const useIONodesStyles = () => ({
     }),
     objectFieldAdderLabel: css({
         display: "flex",
-        justifyContent: "center"
+        justifyContent: "center",
+        color: "var(--button-primary-foreground)",
+        opacity: 0.7
     }),
 });
 

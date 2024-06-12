@@ -136,7 +136,7 @@ export function SubMappingItemWidget(props: SubMappingItemProps) {
                 onMouseEnter={onMouseEnter}
                 onMouseLeave={onMouseLeave}
                 className={classnames(
-                    classes.treeLabel, (portState !== PortState.Unselected) ? classes.treeLabelPortSelected : ""
+                    classes.subMappingItemLabel, portState !== PortState.Unselected ? classes.treeLabelPortSelected : ""
                 )}
             >
                 <span className={classes.label}>

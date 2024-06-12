@@ -22,7 +22,7 @@ import { useIONodesStyles } from '../../../styles';
 import { SubMappingItemWidget } from './SubMappingItemWidget';
 
 const SubMappingsHeader = styled.div`
-    background: var(--vscode-editorWidget-background);
+    background: var(--vscode-sideBarSectionHeader-background);
     height: 40px;
     width: 100%;
     line-height: 35px;

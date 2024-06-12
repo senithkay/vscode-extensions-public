@@ -80,7 +80,6 @@ export class CreateLinkState extends State<DiagramEngine> {
 									context: undefined
 								}));
 								this.link = link;
-
 							} else {
 								element.fireEvent({}, "expressionBarFocused");
 								this.clearState();
