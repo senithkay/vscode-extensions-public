@@ -3655,7 +3655,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     throw new Error('Name is required');
                 }
                 const projeectRoot = workspace.getWorkspaceFolder(Uri.file(artifact))?.uri.fsPath;
-                const testDir = path.join(projeectRoot!, 'src', 'main', 'test');
+                const testDir = path.join(projeectRoot!, 'src', 'test');
                 filePath = path.join(testDir, `${name}.xml`);
 
                 if (fs.existsSync(filePath)) {

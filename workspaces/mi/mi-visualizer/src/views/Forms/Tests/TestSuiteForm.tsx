@@ -71,6 +71,7 @@ export function TestSuiteForm(props: TestSuiteFormProps) {
 
     const [currentTestCase, setCurrentTestCase] = useState<TestCaseEntry | undefined>(undefined);
     const [currentMockService, setCurrentMockService] = useState<MockServiceEntry | undefined>(undefined);
+    const [projectUri, setProjectUri] = useState("");
 
     const [allTestSuites, setAllTestSuites] = useState([]);
     const artifactTypes = ["Api", "Sequence", "Template"];
@@ -78,7 +79,7 @@ export function TestSuiteForm(props: TestSuiteFormProps) {
     const filePath = props.filePath;
 
     const isWindows = navigator.platform.toLowerCase().includes("win");
-    const fileName = filePath.split(isWindows ? path.win32.sep : path.sep).pop().split(".xml")[0];
+    const fileName = filePath ? filePath.split(isWindows ? path.win32.sep : path.sep).pop().split(".xml")[0] : undefined;
 
     // Schema
     const schema = yup.object({
@@ -123,6 +124,7 @@ export function TestSuiteForm(props: TestSuiteFormProps) {
             const allArtifacts = [...apis, ...sequences, ...templates];
 
             setArtifacts(allArtifacts);
+            setProjectUri(projectUri);
 
             // get all test suites
             const testSuites = await rpcClient.getMiDiagramRpcClient().getAllTestSuites();
@@ -194,7 +196,8 @@ export function TestSuiteForm(props: TestSuiteFormProps) {
         values.mockServices = mockServicePaths;
 
         const xml = getTestSuiteXML(values);
-        rpcClient.getMiDiagramRpcClient().updateTestSuite({ path: props.filePath, content: xml, name: values.name, artifact: values.artifact }).then(() => {
+        const artifact = isWindows ? path.win32.join(projectUri, values.artifact) : path.join(projectUri, values.artifact);
+        rpcClient.getMiDiagramRpcClient().updateTestSuite({ path: props.filePath, content: xml, name: values.name, artifact }).then(() => {
             openOverview();
         });
     }
