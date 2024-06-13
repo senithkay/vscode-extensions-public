@@ -8,16 +8,19 @@
  */
 
 import { yupResolver } from "@hookform/resolvers/yup";
-import { EVENT_TYPE, MACHINE_VIEW, MockService, UpdateTestSuiteResponse } from "@wso2-enterprise/mi-core";
+import { EVENT_TYPE, MACHINE_VIEW, UpdateTestSuiteResponse } from "@wso2-enterprise/mi-core";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { Button, ComponentCard, FormActions, FormView, TextField, Typography } from "@wso2-enterprise/ui-toolkit";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
+import { getMockServiceXML } from "../../../../utils/template-engine/mustache-templates/TestSuite";
+import path from "path";
+import { MockService } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 
 export interface MockServiceFormProps {
     filePath?: string;
-    mockService?: MockService;
+    mockServiceNode?: MockService;
     availableMockServices?: string[];
     onGoBack?: () => void;
     onSubmit?: (values: any) => void;
@@ -34,8 +37,13 @@ const cardStyle = {
 export function MockServiceForm(props: MockServiceFormProps) {
     const { rpcClient } = useVisualizerContext();
     const [isLoaded, setIsLoaded] = useState(false);
-    const isUpdate = !!props.mockService || !!props.filePath;
     const [availableMockServices, setAvailableMockServices] = useState(props.availableMockServices || []);
+    const isUpdate = !!props.mockServiceNode;
+    const mockService = props.mockServiceNode;
+    const filePath = props.filePath;
+
+    const isWindows = navigator.platform.toLowerCase().includes("win");
+    const fileName = filePath ? filePath.split(isWindows ? path.win32.sep : path.sep).pop().split(".xml")[0] : "";
 
     // Schema
     const schema = yup.object({
@@ -46,13 +54,9 @@ export function MockServiceForm(props: MockServiceFormProps) {
     });
 
     const {
-        control,
         handleSubmit,
-        formState: { errors, isValid, isDirty, dirtyFields },
+        formState: { errors },
         register,
-        watch,
-        getValues,
-        setValue,
         reset
     } = useForm({
         resolver: yupResolver(schema),
@@ -65,14 +69,14 @@ export function MockServiceForm(props: MockServiceFormProps) {
             const mockServicesNames = mockServices.mockServices.map((mockService: any) => mockService.name);
             setAvailableMockServices([...availableMockServices, ...mockServicesNames]);
 
-            if (isUpdate) {
-                const mockService = props.mockService;
-                reset({
-                    name: mockService?.name,
-                    endpointName: mockService?.endpointName,
-                    servicePort: mockService?.servicePort,
-                    serviceContext: mockService?.serviceContext
-                });
+            if (mockService) {
+                // TODO: fix this after LS support for mock services
+                // reset({
+                //     name: fileName,
+                //     endpointName: mockService?.endpointName,
+                //     servicePort: mockService?.servicePort,
+                //     serviceContext: mockService?.serviceContext
+                // });
                 setIsLoaded(true);
                 return;
             }
@@ -100,12 +104,13 @@ export function MockServiceForm(props: MockServiceFormProps) {
     };
 
     const submitForm = async (values: any) => {
-        if (props.onSubmit) {
-            delete values.filePath;
-            props.onSubmit(values);
-            return;
-        }
-        rpcClient.getMiDiagramRpcClient().updateMockService({ path: props.filePath, ...values }).then((resp: UpdateTestSuiteResponse) => {
+        const xml = getMockServiceXML(values);
+        rpcClient.getMiDiagramRpcClient().updateMockService({ path: props.filePath, content: xml, name: values.name }).then((resp: UpdateTestSuiteResponse) => {
+            if (props.onSubmit) {
+                values.filePath = resp.path;
+                props.onSubmit(values);
+                return;
+            }
             openOverview();
         });
     }
