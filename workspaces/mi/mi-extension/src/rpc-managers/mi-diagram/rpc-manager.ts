@@ -196,7 +196,7 @@ import { StateMachine, navigate, openView } from "../../stateMachine";
 import { openPopupView } from "../../stateMachinePopup";
 import { testFileMatchPattern } from "../../test-explorer/discover";
 import { UndoRedoManager } from "../../undoRedoManager";
-import { createFolderStructure, getAddressEndpointXmlWrapper, getAPIResourceXmlWrapper, getDefaultEndpointXmlWrapper, getFailoverXmlWrapper, getHttpEndpointXmlWrapper, getInboundEndpointXmlWrapper, getLoadBalanceXmlWrapper, getMessageProcessorXmlWrapper, getMessageStoreXmlWrapper, getProxyServiceXmlWrapper, getRegistryResourceContent, getTaskXmlWrapper, getTemplateEndpointXmlWrapper, getTemplateXmlWrapper, getWsdlEndpointXmlWrapper } from "../../util";
+import { createFolderStructure, getAddressEndpointXmlWrapper, getAPIResourceXmlWrapper, getDefaultEndpointXmlWrapper, getFailoverXmlWrapper, getHttpEndpointXmlWrapper, getInboundEndpointXmlWrapper, getLoadBalanceXmlWrapper, getMessageProcessorXmlWrapper, getMessageStoreXmlWrapper, getProxyServiceXmlWrapper, getRegistryResourceContent, getTaskXmlWrapper, getTemplateEndpointXmlWrapper, getTemplateXmlWrapper, getWsdlEndpointXmlWrapper, copyDockerResources } from "../../util";
 import { addNewEntryToArtifactXML, addSynapseDependency, changeRootPomPackaging, createMetadataFilesForRegistryCollection, deleteRegistryResource, detectMediaType, getAvailableRegistryResources, getMediatypeAndFileExtension, getRegistryResourceMetadata, updateRegistryResourceMetadata } from "../../util/fileOperations";
 import { log } from "../../util/logger";
 import { importProject } from "../../util/migrationUtils";
@@ -204,7 +204,7 @@ import { getDataSourceXml } from "../../util/template-engine/mustach-templates/D
 import { getClassMediatorContent } from "../../util/template-engine/mustach-templates/classMediator";
 import { generateXmlData, writeXmlDataToFile } from "../../util/template-engine/mustach-templates/createLocalEntry";
 import { getRecipientEPXml } from "../../util/template-engine/mustach-templates/recipientEndpoint";
-import { rootPomXmlContent } from "../../util/templates";
+import { rootPomXmlContent, dockerfileContent } from "../../util/templates";
 import { replaceFullContentToFile } from "../../util/workspace";
 import { VisualizerWebview } from "../../visualizer/webview";
 import path = require("path");
@@ -2440,10 +2440,18 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                             'test': ''
                         },
                     },
+                    'deployment': {
+                        'docker': {
+                            'Dockerfile': dockerfileContent(),
+                            'resources': ''
+                        },
+                        'libs': '',
+                    },
                 },
             };
 
             createFolderStructure(directory, folderStructure);
+            copyDockerResources(path.join(directory, name));
 
             window.showInformationMessage(`Successfully created ${name} project`);
             const projectOpened = StateMachine.context().projectOpened;
@@ -3001,7 +3009,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         var currentFile = StateMachine.context().documentUri;
         //get the current file's content
         let currentFileContent = '';
-        if (currentFile) {
+        if (currentFile && !fs.lstatSync(currentFile).isDirectory()) {
             currentFileContent = fs.readFileSync(currentFile, 'utf8');
         }
         var rootPath = workspaceFolders[0].uri.fsPath;
