@@ -394,7 +394,7 @@ export const configsPomXmlContent = (projectName: string, directory: string) => 
       <plugin>
         <groupId>org.wso2.maven</groupId>
         <artifactId>synapse-unit-test-maven-plugin</artifactId>
-        <version>5.2.41</version>
+        <version>5.2.53</version>
         <executions>
           <execution>
             <id>synapse-unit-test</id>
