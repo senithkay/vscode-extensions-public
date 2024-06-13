@@ -544,7 +544,7 @@
         {
           "command": "MI.test.add.case",
           "group": "inline",
-          "when": "testId not in test.canAddTestSuite"
+          "when": "testId in test.canAddTestCase"
         }
       ],
       "testing/message/context": [

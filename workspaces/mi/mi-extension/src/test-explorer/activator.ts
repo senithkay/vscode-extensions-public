@@ -8,7 +8,7 @@
  */
 
 import path = require("path");
-import { TestController, tests, TestRunProfileKind, Uri, TestItem, ExtensionContext, commands } from "vscode";
+import { TestController, tests, TestRunProfileKind, Uri, TestItem, ExtensionContext, commands, Range, Position } from "vscode";
 import { runHandler } from "./runner";
 import { createTestsForAllFiles, testFileMatchPattern } from "./discover";
 import { getProjectName, getProjectRoot, startWatchingWorkspace } from "./helper";
@@ -16,13 +16,19 @@ import { EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
 import { COMMANDS } from "../constants";
 import { openView } from '../stateMachine';
 import { activateMockServiceTreeView } from "./mock-services/activator";
+import { TagRange, TestCase, UnitTest } from "../../../syntax-tree/lib/src";
+import { MILanguageClient } from "../lang-client/activator";
+import { ExtendedLanguageClient } from "../lang-client/ExtendedLanguageClient";
 
 export let testController: TestController;
 const testSuiteNodes: string[] = [];
+const testCaseNodes: string[] = [];
+let langClient: ExtendedLanguageClient | undefined;
 
 export async function activateTextExplorer(extensionContext: ExtensionContext) {
     testController = tests.createTestController('synapse-tests', 'Synapse Tests');
     extensionContext.subscriptions.push(testController);
+    langClient = (await MILanguageClient.getInstance(extensionContext)).languageClient;
 
     // create test profiles to display.
     testController.createRunProfile('Run Tests', TestRunProfileKind.Run, runHandler, true);
@@ -62,6 +68,24 @@ export async function createTests(uri: Uri) {
     if (!testController || !projectRoot || !projectName) {
         return;
     }
+
+    const testCases: TestCase[] = [];
+    if (langClient) {
+        const st = await langClient.getSyntaxTree({
+            documentIdentifier: {
+                uri: uri.fsPath
+            },
+        });
+        if (st) {
+            const unitTestST: UnitTest = st?.syntaxTree["unit-test"];
+            if (unitTestST && unitTestST.testCases) {
+                unitTestST.testCases.testCases.forEach((testCase) => {
+                    testCases.push(testCase);
+                });
+            }
+        }
+    }
+
     const testsRoot = path.join(projectRoot, "src", "test");
 
     let relativePath = path.relative(testsRoot, uri.fsPath).toString().split(path.sep);
@@ -112,6 +136,11 @@ export async function createTests(uri: Uri) {
             await setCanAddTestSuite(currentPath);
         } else {
             node = createTestItem(testController, currentPath, level.split(".xml")[0], false);
+            testCases.forEach((testCase) => {
+                const tcase = createTestCase(testController, currentPath, testCase.name, testCase.range);
+                node.children.add(tcase);
+            });
+            await setCanAddTestCase(currentPath);
         }
         parent ? parent.children.add(node) : testController.items.add(node);
         ancestors.push(node);
@@ -125,16 +154,22 @@ async function setCanAddTestSuite(id: string) {
     await commands.executeCommand('setContext', 'test.canAddTestSuite', testSuiteNodes);
 }
 
+async function setCanAddTestCase(id: string) {
+    if (!testCaseNodes.includes(id)) {
+        testCaseNodes.push(id);
+    }
+    await commands.executeCommand('setContext', 'test.canAddTestCase', testCaseNodes);
+}
+
 /**
- * Create test item for file. 
+ * Create test item for test case. 
  */
-//   function createTestCase(controller: TestController, position: ExecutorPosition) {
-//     const tcase = createTestItem(controller, `${position.filePath}/${position.name}`, position.filePath, position.name);
-//     tcase.canResolveChildren = false;
-//     tcase.range = new Range(new Position(position.range.startLine.line, position.range.startLine.offset),
-//       new Position(position.range.endLine.line, position.range.endLine.offset));
-//     return tcase;
-//   }
+function createTestCase(controller: TestController, testSuite: string, testCase: string, range: TagRange) {
+    const tcase = createTestItem(controller, `${testSuite}/${testCase}`, testCase, false, testSuite);
+    tcase.canResolveChildren = false;
+    tcase.range = new Range(new Position(range.startTagRange.start.line, range.startTagRange.start.character), new Position(range.endTagRange.end.line, range.endTagRange.end.character));
+    return tcase;
+}
 
 /**
  * Create test tree item. 
