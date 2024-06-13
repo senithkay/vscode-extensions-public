@@ -23,7 +23,9 @@ function modityTestCaseData(data: TestCaseEntry) {
     }
     const assertions = data.assertions.map((assertion: string[]) => {
         // replace spaces and join camel case
-        const type = assertion[0].replace(/\s/g, '').replace(/(^\w{1})|(\s+\w{1})/g, letter => letter.toUpperCase());
+        let type = assertion[0].replace(/\s/g, '').replace(/(^\w{1})|(\s+\w{1})/g, letter => letter.toUpperCase());
+        // make first char lowercase
+        type = type.charAt(0).toLowerCase() + type.slice(1);
         const expression = assertion[1];
 
         let expectedValue;
