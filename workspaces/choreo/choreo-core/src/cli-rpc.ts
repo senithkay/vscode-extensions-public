@@ -7,7 +7,6 @@ export interface GetBranchesReq { orgId: string; repoUrl: string }
 export interface IsRepoAuthorizedReq { orgId: string; repoUrl: string }
 export interface GetComponentItemReq { orgId: string; projectHandle: string; componentName: string; }
 export interface GetComponentsReq { orgId: string; projectHandle: string }
-export interface CreateLinkReq { componentDir: string; orgHandle: string; projectHandle: string; componentHandle: string; }
 export interface CreateProjectReq { orgId: string; orgHandler: string; projectName: string; region: string; }
 export interface DeleteCompReq { orgId: string; orgHandler: string; projectId: string; componentId: string; componentName: string; }
 export interface CreateComponentReq {
@@ -72,7 +71,6 @@ export interface IChoreoRPCClient {
     getProjects(orgID: string): Promise<Project[]>;
     getComponentItem(params: GetComponentItemReq): Promise<ComponentKind>;
     getComponentList(params: GetComponentsReq): Promise<ComponentKind[]>;
-    createComponentLink(params: CreateLinkReq): Promise<void>;
     createProject(params: CreateProjectReq): Promise<Project>;
     createComponent(params: CreateComponentReq): Promise<void>;
     getBuildPacks(params: BuildPackReq): Promise<Buildpack[]>;
@@ -103,9 +101,6 @@ export class ChoreoRpcWebview implements IChoreoRPCClient {
     }
     getComponentList(params: GetComponentsReq): Promise<ComponentKind[]> {
         return this._messenger.sendRequest(ChoreoRpcGetComponentsRequest, HOST_EXTENSION, params);
-    }
-    createComponentLink(params: CreateLinkReq): Promise<void> {
-        return this._messenger.sendRequest(ChoreoRpcCreateLinkRequest, HOST_EXTENSION, params);
     }
     createProject(params: CreateProjectReq): Promise<Project> {
         return this._messenger.sendRequest(ChoreoRpcCreateProjectRequest, HOST_EXTENSION, params);
@@ -160,7 +155,6 @@ export class ChoreoRpcWebview implements IChoreoRPCClient {
 export const ChoreoRpcGetProjectsRequest: RequestType<string, Project[]> = { method: 'rpc/project/getProjects' };
 export const ChoreoRpcGetComponentsRequest: RequestType<GetComponentsReq, ComponentKind[]> = { method: 'rpc/component/getList' };
 export const ChoreoRpcGetComponentItemRequest: RequestType<GetComponentItemReq, ComponentKind> = { method: 'rpc/component/getItem' };
-export const ChoreoRpcCreateLinkRequest: RequestType<CreateLinkReq, void> = { method: 'rpc/component/createLink' };
 export const ChoreoRpcCreateProjectRequest: RequestType<CreateProjectReq, Project> = { method: 'rpc/project/create' };
 export const ChoreoRpcCreateComponentRequest: RequestType<CreateComponentReq, void> = { method: 'rpc/component/create' };
 export const ChoreoRpcGetBuildPacksRequest: RequestType<BuildPackReq, Buildpack[]> = { method: 'rpc/component/getBuildPacks' };

@@ -98,15 +98,11 @@ import {
     AuthState,
     AuthStoreChangedNotification,
     GetAuthState,
-    GetLinkedDirState,
-    LinkedDirectoryState,
-    LinkedDirStoreChangedNotification,
     IChoreoRPCClient,
     ChoreoRpcWebview,
     OpenSubDialogRequest,
     GetGitRemotes,
     JoinFilePaths,
-    RefreshLinkedDirState,
     DeleteFile,
     ShowConfirmMessage,
     ShowConfirmBoxReq,
@@ -136,6 +132,10 @@ import {
     ShowInputBox,
     OpenTestView,
     OpenTestViewReq,
+    ContextStoreState,
+    ContextStoreChangedNotification,
+    GetContextState,
+    RefreshContextState,
 } from "@wso2-enterprise/choreo-core";
 import { IChoreoProjectClient } from "@wso2-enterprise/choreo-client/lib/project/types";
 import { ChoreoProjectClientRPCWebView } from "@wso2-enterprise/choreo-client/lib/project/rpc";
@@ -180,12 +180,12 @@ export class ChoreoWebViewAPI {
         this._messenger.onNotification(AuthStoreChangedNotification, callback);
     }
 
-    public onLinkedDirStateChanged(callback: (state: LinkedDirectoryState) => void) {
-        this._messenger.onNotification(LinkedDirStoreChangedNotification, callback);
-    }
-
     public onWebviewStateChanged(callback: (state: WebviewState) => void) {
         this._messenger.onNotification(WebviewStateChangedNotification, callback);
+    }
+
+    public onContextStateChanged(callback: (state: ContextStoreState) => void) {
+        this._messenger.onNotification(ContextStoreChangedNotification, callback);
     }
 
     // New RPC calls
@@ -205,16 +205,16 @@ export class ChoreoWebViewAPI {
         return this._messenger.sendRequest(GetAuthState, HOST_EXTENSION, undefined);
     }
 
-    public async getLinkedDirState(): Promise<LinkedDirectoryState> {
-        return this._messenger.sendRequest(GetLinkedDirState, HOST_EXTENSION, undefined);
+    public async getContextState(): Promise<ContextStoreState> {
+        return this._messenger.sendRequest(GetContextState, HOST_EXTENSION, undefined);
     }
-
+    
     public async getWebviewStoreState(): Promise<WebviewState> {
         return this._messenger.sendRequest(GetWebviewStoreState, HOST_EXTENSION, undefined);
     }
 
-    public refreshLinkedDirState() {
-        this._messenger.sendNotification(RefreshLinkedDirState, HOST_EXTENSION, undefined);
+    public refreshContextState() {
+        this._messenger.sendNotification(RefreshContextState, HOST_EXTENSION, undefined);
     }
 
     public async showOpenSubDialog(options: OpenDialogOptions): Promise<string[] | undefined> {

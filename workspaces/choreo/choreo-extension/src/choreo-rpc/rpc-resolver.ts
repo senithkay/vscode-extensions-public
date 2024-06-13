@@ -15,7 +15,6 @@ import {
     ChoreoRpcIsRepoAuthorizedRequest,
     ChoreoRpcGetProjectsRequest,
     ChoreoRpcGetComponentsRequest,
-    ChoreoRpcCreateLinkRequest,
     ChoreoRpcCreateProjectRequest,
     ChoreoRpcCreateComponentRequest,
     ChoreoRpcDeleteComponentRequest,
@@ -37,7 +36,6 @@ export function registerChoreoRpcResolver(messenger: Messenger, rpcClient: IChor
     messenger.onRequest(ChoreoRpcGetProjectsRequest, (orgID) => rpcClient.getProjects(orgID));
     messenger.onRequest(ChoreoRpcGetComponentItemRequest, (params) => rpcClient.getComponentItem(params));
     messenger.onRequest(ChoreoRpcGetComponentsRequest, (params) => rpcClient.getComponentList(params));
-    messenger.onRequest(ChoreoRpcCreateLinkRequest, (params) => rpcClient.createComponentLink(params));
     messenger.onRequest(ChoreoRpcCreateProjectRequest, async (params) => {
         return window.withProgress(
             { title: `Creating project ${params.projectName}`, location: ProgressLocation.Notification },

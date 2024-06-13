@@ -11,7 +11,6 @@ import {
     GetBranchesReq,
     IsRepoAuthorizedReq,
     GetComponentsReq,
-    CreateLinkReq,
     CreateProjectReq,
     CreateComponentReq,
     DeleteCompReq,
@@ -184,13 +183,6 @@ export class ChoreoRPCClient implements IChoreoRPCClient {
         }
         const response = await this.client.sendRequest<IsRepoAuthorizedResp>("repo/isRepoAuthorized", params);
         return response;
-    }
-
-    async createComponentLink(params: CreateLinkReq): Promise<void> {
-        if (!this.client) {
-            throw new Error("RPC client is not initialized");
-        }
-        await this.client.sendRequest("component/createLink", params);
     }
 
     async getUserInfo(): Promise<UserInfo> {

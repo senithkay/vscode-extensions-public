@@ -9,17 +9,17 @@
 import { ExtensionContext, commands } from "vscode";
 import { CommandIds } from "@wso2-enterprise/choreo-core";
 import { authStore } from "../stores/auth-store";
-import { linkedDirectoryStore } from "../stores/linked-dir-store";
+import { contextStore } from "../stores/context-store";
 
-export function refreshComponentsCommand(context: ExtensionContext) {
+export function refreshContextCommand(context: ExtensionContext) {
     context.subscriptions.push(
-        commands.registerCommand(CommandIds.RefreshComponent, async () => {
+        commands.registerCommand(CommandIds.RefreshDirectoryContext, async () => {
             const userInfo = authStore.getState().state.userInfo;
             if (!userInfo) {
                 throw new Error("You are not logged in. Please log in and retry.");
             }
 
-            await linkedDirectoryStore.getState().refreshState();
+            await contextStore.getState().refreshState();
         })
     );
 }

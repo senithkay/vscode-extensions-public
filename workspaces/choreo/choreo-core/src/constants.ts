@@ -7,13 +7,13 @@ export const CommandIds = {
     AddComponent: "wso2.choreo.add.component",
     CreateNewComponent: "wso2.choreo.create.component",
     DeleteComponent: "wso2.choreo.delete.component",
-    LinkExistingComponent: "wso2.choreo.link.component",
-    UnlinkComponent: "wso2.choreo.unlink.component",
-    RefreshComponent: "wso2.choreo.refresh.component",
     OpenWalkthrough:"wso2.choreo.getStarted",
     OpenComponentInConsole: "wso2.choreo.component.open.external",
     ViewComponent:"wso2.choreo.component.view",
     CloneProject:"wso2.choreo.project.clone",
+    SetDirectoryContext: "wso2.choreo.project.context.create",
+    SwitchDirectoryContext: "wso2.choreo.project.context.switch",
+    RefreshDirectoryContext: "wso2.choreo.project.context.refresh",
 };
 
 

@@ -17,14 +17,14 @@ import {
     SubmitComponentCreateReq,
 } from "@wso2-enterprise/choreo-core";
 import { ComponentFormView } from "../views/webviews/ComponentFormView";
-import { getUserInfoForCmd, resolveWorkspaceDirectory, selectOrg, selectProjectWithCreateNew } from "./cmd-utils";
+import { getUserInfoForCmd } from "./cmd-utils";
 import * as path from "path";
 import { existsSync, mkdirSync, writeFileSync } from "fs";
-import { linkedDirectoryStore } from "../stores/linked-dir-store";
 import { getSubPath, makeURLSafe } from "../utils";
 import * as yaml from "js-yaml";
-import { dataCacheStore } from "../stores/data-cache-store";
 import { showComponentDetailsView } from "../views/webviews/ComponentDetailsView";
+import { contextStore } from "../stores/context-store";
+import { dataCacheStore } from "../stores/data-cache-store";
 
 let componentWizard: ComponentFormView;
 
@@ -34,6 +34,11 @@ export function createNewComponentCommand(context: ExtensionContext) {
             try {
                 const userInfo = await getUserInfoForCmd("create a component");
                 if (userInfo) {
+                    const selected = contextStore.getState().state.selected;
+                    if (!selected) {
+                        throw new Error("Please set the project context and try again");
+                    }
+
                     let subPath: string | null = null;
                     let workspaceDir: WorkspaceFolder | undefined;
 
@@ -46,72 +51,20 @@ export function createNewComponentCommand(context: ExtensionContext) {
                         }
                     }
 
-                    if (!workspaceDir) {
-                        workspaceDir = await resolveWorkspaceDirectory();
-                    }
-
-                    const selectedOrg = await selectOrg(userInfo, "Select organization");
-
-                    let selectedProject = await selectProjectWithCreateNew(
-                        selectedOrg,
-                        `Loading projects from '${selectedOrg.name}'`,
-                        `Select project from '${selectedOrg.name}' to create your component in`
-                    );
-
-                    if (selectedProject === "new-project") {
-                        const projectCache = dataCacheStore.getState().getProjects(selectedOrg.handle);
-
-                        const newProjectName = await window.showInputBox({
-                            placeHolder: "project-name",
-                            title: "New Project Name",
-                            validateInput: (val) => {
-                                if (!val) {
-                                    return "Project name is required";
-                                }
-                                if (projectCache?.some((item) => item.name === val)) {
-                                    return "Project name already exists";
-                                }
-                                if (val?.length > 60 || val?.length < 3) {
-                                    return "Project name must be between 3 and 60 characters";
-                                }
-                                if (!/^[A-Za-z]/.test(val)) {
-                                    return "Project name must start with an alphabetic letter";
-                                }
-                                if (!/^[A-Za-z\s\d\-_]+$/.test(val)) {
-                                    return "Project name cannot have any special characters";
-                                }
-                                return null;
-                            },
-                        });
-
-                        if (!newProjectName) {
-                            throw new Error("New project name is required to create a component.");
-                        }
-
-                        selectedProject = await window.withProgress(
-                            {
-                                title: `Creating new project ${newProjectName}...`,
-                                location: ProgressLocation.Notification,
-                            },
-                            () =>
-                                ext.clients.rpcClient.createProject({
-                                    orgHandler: selectedOrg.handle,
-                                    orgId: selectedOrg.id.toString(),
-                                    projectName: newProjectName,
-                                    region: "US",
-                                })
-                        );
-                    }
-
                     if (componentWizard) {
                         componentWizard.dispose();
                     }
+
+                    if (selected.contextDirs.length === 0) {
+                        throw new Error("Directories associated with the selected project not deleted");
+                    }
+
                     componentWizard = new ComponentFormView(ext.context.extensionUri, {
-                        directoryPath: workspaceDir.uri.path,
-                        directoryFsPath: workspaceDir.uri.fsPath,
-                        directoryName: workspaceDir.name,
-                        organization: selectedOrg,
-                        project: selectedProject as Project,
+                        directoryPath: selected.contextDirs?.[0].dirFsPath,
+                        directoryFsPath: selected.contextDirs?.[0].dirFsPath,
+                        directoryName: selected.contextDirs?.[0].workspaceName,
+                        organization: selected.org!,
+                        project: selected.project!,
                         initialValues: {
                             type: params?.initialValues?.type,
                             buildPackLang: params?.initialValues?.buildPackLang,
@@ -155,13 +108,6 @@ export const submitCreateComponentHandler = async ({
         writeFileSync(path.join(choreoDir, "endpoints.yaml"), yaml.dump(endpointFileContent));
     }
 
-    await ext.clients.rpcClient.createComponentLink({
-        componentDir: createParams.componentDir,
-        componentHandle: cleanCompName,
-        orgHandle: org.handle,
-        projectHandle: project.handler,
-    });
-
     window.showInformationMessage(`Component ${createParams?.name} has been successfully created`);
 
     const createdComponent = await window.withProgress(
@@ -179,7 +125,11 @@ export const submitCreateComponentHandler = async ({
 
     if (createdComponent) {
         showComponentDetailsView(org, project, createdComponent, createParams?.componentDir);
-        linkedDirectoryStore?.getState().refreshState();
+
+        const compCache = dataCacheStore.getState().getComponents(org.handle, project.handler);
+        dataCacheStore.getState().setComponents(org.handle, project.handler, [...compCache, createdComponent]);
+
+        contextStore.getState().refreshState();
     }
 
     return createdComponent;

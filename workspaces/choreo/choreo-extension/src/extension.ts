@@ -23,7 +23,8 @@ import { activateActivityBarWebViews } from "./views/webviews/ActivityBar/activa
 import { activateCmds } from "./cmds";
 import { activateClients } from "./auth/auth";
 import { initRPCServer } from "./choreo-rpc/activate";
-import { linkedDirectoryStore } from "./stores/linked-dir-store";
+import { contextStore } from "./stores/context-store";
+
 import { authStore } from "./stores/auth-store";
 import { dataCacheStore } from "./stores/data-cache-store";
 import { CommandIds } from "@wso2-enterprise/choreo-core";
@@ -38,12 +39,22 @@ export async function activate(context: vscode.ExtensionContext) {
 
     // Initialize stores
     await authStore.persist.rehydrate();
-    await linkedDirectoryStore.persist.rehydrate();
+    await contextStore.persist.rehydrate();
     await dataCacheStore.persist.rehydrate();
 
     // Set context values
-    authStore.subscribe(({ state }) => vscode.commands.executeCommand("setContext", "isLoggedIn", !!state.userInfo));
-    linkedDirectoryStore.subscribe(({ state }) => vscode.commands.executeCommand("setContext", "isLoadingLinkedDirs", state.loading));
+    authStore.subscribe(({ state }) => {
+        vscode.commands.executeCommand("setContext", "isLoggedIn", !!state.userInfo);
+    });
+    contextStore.subscribe(({ state }) => {
+        vscode.commands.executeCommand("setContext", "isLoadingContextDirs", state.loading);
+        vscode.commands.executeCommand("setContext", "hasSelectedContext", !!state.selected);
+        const validCtxItems = Object.values(state.items).filter((item) => item.org && item.project);
+        vscode.commands.executeCommand("setContext", "hasMultipleContexts", validCtxItems.length > 1);
+    });
+    workspace.onDidChangeWorkspaceFolders(() =>
+        vscode.commands.executeCommand("setContext", "isValidWorkspace", !!workspace.workspaceFolders?.length)
+    );
     vscode.commands.executeCommand("setContext", "isValidWorkspace", !!workspace.workspaceFolders?.length);
 
     initRPCServer()
@@ -52,7 +63,6 @@ export async function activate(context: vscode.ExtensionContext) {
             await ext.clients.rpcClient.init();
 
             authStore.getState().initAuth();
-            linkedDirectoryStore.getState().refreshState();
 
             activateCmds(context);
             activateActivityBarWebViews(context); // activity web views
@@ -96,7 +106,7 @@ function registerPreInitHandlers(): any {
                 "Restart Now"
             );
             if (selection === "Restart Now") {
-                if(affectsConfiguration("Advanced.ChoreoEnvironment")){
+                if (affectsConfiguration("Advanced.ChoreoEnvironment")) {
                     authStore.getState().logout();
                 }
                 commands.executeCommand("workbench.action.reloadWindow");

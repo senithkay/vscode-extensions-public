@@ -10,10 +10,10 @@ import { ExtensionContext, commands, window, ProgressLocation } from "vscode";
 import { CommandIds, ComponentKind, Organization, Project } from "@wso2-enterprise/choreo-core";
 import { getUserInfoForCmd, selectComponent, selectOrg, selectProject } from "./cmd-utils";
 import { ext } from "../extensionVariables";
-import { deleteLinkFile } from "../utils";
-import { linkedDirectoryStore } from "../stores/linked-dir-store";
 import { closeComponentDetailsView } from "../views/webviews/ComponentDetailsView";
 import { closeAllComponentTestView } from "../views/webviews/ComponentTestView";
+import { contextStore } from "../stores/context-store";
+import { dataCacheStore } from "../stores/data-cache-store";
 
 export function deleteComponentCommand(context: ExtensionContext) {
     context.subscriptions.push(
@@ -23,8 +23,7 @@ export function deleteComponentCommand(context: ExtensionContext) {
                 try {
                     const userInfo = await getUserInfoForCmd("delete a component");
                     if (userInfo) {
-                        const selectedOrg =
-                            params?.organization ?? (await selectOrg(userInfo, "Select organization"));
+                        const selectedOrg = params?.organization ?? (await selectOrg(userInfo, "Select organization"));
 
                         const selectedProject =
                             params?.project ??
@@ -75,13 +74,16 @@ export function deleteComponentCommand(context: ExtensionContext) {
                                         selectedComponent.metadata.name
                                     );
 
-                                    await deleteLinkFile(
+                                    const compCache = dataCacheStore
+                                        .getState()
+                                        .getComponents(selectedOrg.handle, selectedProject.handler);
+                                    dataCacheStore.getState().setComponents(
                                         selectedOrg.handle,
                                         selectedProject.handler,
-                                        selectedComponent.metadata.name
+                                        compCache.filter((item) => item.metadata.id !== selectedComponent.metadata.id)
                                     );
 
-                                    linkedDirectoryStore.getState().refreshState();
+                                    contextStore.getState().refreshState();
 
                                     window.showInformationMessage(
                                         `Component ${selectedComponent.metadata.displayName} has been successfully deleted`

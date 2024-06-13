@@ -4,6 +4,7 @@ import { persist } from "zustand/middleware";
 import { getGlobalStateStore } from "./store-utils";
 import { ext } from "../extensionVariables";
 import { dataCacheStore } from "./data-cache-store";
+import { contextStore } from "./context-store";
 
 interface AuthStore {
     state: AuthState;
@@ -23,6 +24,7 @@ export const authStore = createStore(
             loginSuccess: (userInfo) => {
                 dataCacheStore.getState().setOrgs(userInfo.organizations);
                 set(({ state }) => ({ state: { ...state, userInfo } }));
+                contextStore.getState().refreshState();
             },
             logout: () => {
                 ext.clients.rpcClient.signOut();

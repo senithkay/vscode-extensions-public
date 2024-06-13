@@ -13,6 +13,7 @@ import { ext } from '../../../extensionVariables';
 import { choreoEnvConfig } from '../../../auth/auth';
 import { FREE_COMPONENT_LIMIT } from '../../../auth/config';
 import { WebviewProps } from '@wso2-enterprise/choreo-core';
+import { contextStore } from '../../../stores/context-store';
 
 
 export class ComponentsView implements vscode.WebviewViewProvider {
@@ -43,6 +44,11 @@ export class ComponentsView implements vscode.WebviewViewProvider {
 		webviewView.webview.html = this._getWebviewContent(webviewView.webview);
 		this._rpc = new WebViewViewRPC(webviewView);
 		// this.updateProjectInfo();
+
+		contextStore.subscribe((store=>{
+			webviewView.title = store?.state?.selected?.project?.name ?? "Components";
+			// webviewView.description = store?.state?.selected?.org?.name;
+		}));
 	}
 
 	// private async updateProjectInfo() {

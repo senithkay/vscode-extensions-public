@@ -13,7 +13,6 @@
 
 import React from "react";
 import { ChoreoWebviewQueryClientProvider } from "./utilities/reactQueryClient";
-import { LinkedDirContextProvider } from "./context/choreo-linked-dir-ctx";
 import { AuthContextProvider } from "./context/choreo-auth-ctx";
 import { ComponentFormView } from "./views/ComponentFormView";
 import { ComponentTestView } from "./views/ComponentTestView";
@@ -47,11 +46,7 @@ function ChoreoWebview(props: WebviewProps) {
                                 case "AccountActivityView":
                                     return <AccountView {...(props as AccountActivityViewProps)} />;
                                 case "ComponentsListActivityView":
-                                    return (
-                                        <LinkedDirContextProvider>
-                                            <ComponentListView {...(props as ComponentsListActivityViewProps)} />
-                                        </LinkedDirContextProvider>
-                                    );
+                                    return <ComponentListView {...(props as ComponentsListActivityViewProps)} />;
                                 default:
                                     return null;
                             }

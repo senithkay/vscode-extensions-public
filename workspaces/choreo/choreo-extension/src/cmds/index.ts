@@ -7,10 +7,10 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { commands, ExtensionContext } from "vscode";
-import { linkExistingComponentCommand } from './link-existing-component-cmd';
-import { unlinkComponentCommand } from './unlink-component-cmd';
+import { setDirectoryContextCommand } from './set-directory-context-cmd';
+import { switchDirectoryContextCommand } from './switch-directory-context-cmd';
 import { createNewComponentCommand } from './create-component-cmd';
-import { refreshComponentsCommand } from './refresh-components-cmd';
+import { refreshContextCommand } from './refresh-directory-context-cmd';
 import { deleteComponentCommand } from './delete-component-cmd';
 import { signInCommand } from './sign-in-cmd';
 import { signInWithAuthCodeCommand } from './sign-in-with-code-cmd';
@@ -21,9 +21,9 @@ import { cloneRepoCommand } from './clone-project-cmd';
 
 export function activateCmds(context: ExtensionContext) {
     createNewComponentCommand(context);
-    linkExistingComponentCommand(context);
-    unlinkComponentCommand(context);
-    refreshComponentsCommand(context);
+    setDirectoryContextCommand(context);
+    switchDirectoryContextCommand(context);
+    refreshContextCommand(context);
     deleteComponentCommand(context);
     signInCommand(context);
     signInWithAuthCodeCommand(context);

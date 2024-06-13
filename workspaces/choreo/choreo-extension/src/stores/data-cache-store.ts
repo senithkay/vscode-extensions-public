@@ -33,7 +33,7 @@ export const dataCacheStore = createStore(
                 } = {};
                 projects.forEach((item) => {
                     updatedProjects[item.handler] = {
-                        components: updatedProjects[item.handler]?.components || {},
+                        components: get().state?.orgs?.[orgHandle]?.projects?.[item.handler]?.components || {},
                         data: item,
                     };
                 });

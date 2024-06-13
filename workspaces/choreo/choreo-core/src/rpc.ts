@@ -27,18 +27,18 @@ import {
    EndpointData,
    Buildpack,
    AuthState,
-   LinkedDirectoryState,
    ComponentKind,
    WebviewQuickPickItem,
    WebviewState,
    Environment,
    DeploymentTrack,
    ComponentEP,
+   ContextStoreState,
 } from './types';
 import { CreateComponentReq } from './cli-rpc';
 
 export const GetAuthState: RequestType<void, AuthState> = { method: 'getAuthState' };
-export const GetLinkedDirState: RequestType<void, LinkedDirectoryState> = { method: 'getLinkedState' };
+export const GetContextState: RequestType<void, ContextStoreState> = { method: 'getContextState' };
 export const GetWebviewStoreState: RequestType<void, WebviewState> = { method: 'getWebviewStoreState' };
 export const OpenSubDialogRequest: RequestType<OpenDialogOptions, string[]> = { method: 'openDialog' };
 export const GetGitRemotes: RequestType<string, string[]> = { method: 'getGitRemotes' };
@@ -50,7 +50,7 @@ export const ClearWebviewCache: RequestType<IDBValidKey, void> = { method: 'clea
 export const GoToSource: RequestType<string, void> = { method: 'goToSource' };
 export const ShowErrorMessage: NotificationType<string> = { method: 'showErrorMessage' };
 export const ShowInfoMessage: NotificationType<string> = { method: 'showInfoMessage' };
-export const RefreshLinkedDirState: NotificationType<void> = { method: 'refreshLinkedDirState' };
+export const RefreshContextState: NotificationType<void> = { method: 'refreshContextState' };
 export const DeleteFile: RequestType<string, void> = { method: 'deleteFile' };
 export const ShowConfirmMessage: RequestType<ShowConfirmBoxReq, boolean> = { method: 'showConfirmMessage' };
 export const ShowQuickPick: RequestType<ShowWebviewQuickPickItemsReq, WebviewQuickPickItem | undefined> = { method: 'showQuickPicks' };

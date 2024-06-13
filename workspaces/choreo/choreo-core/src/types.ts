@@ -102,34 +102,40 @@ export interface WebviewState {
     openedComponentPath: string;
 }
 
-export interface LinkFileContent {
-    component: string;
+export interface ContextItem {
     project: string;
     org: string;
 }
 
-export interface ComponentLinkContent {
-    componentHandle: string;
-    projectHandle: string;
-    orgHandle: string;
-}
-export interface ComponentLink {
+export interface ContextItemDir {
     workspaceName: string;
-    workspacePath: string;
-    componentRelativePath: string;
-    componentFullPath: string;
-    linkFullPath: string;
-    linkRelativePath: string;
-    linkContent: ComponentLinkContent;
-    organization?: Organization;
-    project?: Project;
-    component?: ComponentKind;
+    contextFileFsPath: string;
+    projectRootFsPath: string;
+    dirFsPath: string;
 }
 
-export interface LinkedDirectoryState {
-    links: ComponentLink[];
+export interface ContextItemEnriched {
+    projectHandle: string;
+    project?: Project;
+    orgHandle: string;
+    org?: Organization;
+    contextDirs: ContextItemDir[],
+}
+
+export interface ContextStoreComponentState {
+    component?: ComponentKind;
+    workspaceName: string;
+    componentFsPath: string;
+    componentRelativePath: string;
+}
+
+export interface ContextStoreState{
+    items: {
+        [key: string]: ContextItemEnriched
+    };
+    selected?: ContextItemEnriched;
+    components?: ContextStoreComponentState[];
     loading?: boolean;
-    error?: Error;
 }
 
 export interface ComponentKindBitbucketSource {

@@ -34,7 +34,7 @@ export const HeaderSection: FC<ComponentsDetailsWebviewProps> = ({
             ]}
             menu={
                 <ContextMenu
-                    webviewSection={directoryPath ? "validLinkItem" : "invalidLinkItem"}
+                    webviewSection="componentListItem"
                     params={{
                         component: component,
                         project: project,

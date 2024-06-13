@@ -6,7 +6,15 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { window, QuickPickItem, QuickPickItemKind, workspace, WorkspaceFolder, commands } from "vscode";
+import {
+    window,
+    QuickPickItem,
+    QuickPickItemKind,
+    workspace,
+    WorkspaceFolder,
+    commands,
+    ProgressLocation,
+} from "vscode";
 import { ext } from "../extensionVariables";
 import { CommandIds, ComponentKind, Organization, Project, UserInfo } from "@wso2-enterprise/choreo-core";
 import { dataCacheStore } from "../stores/data-cache-store";
@@ -86,7 +94,7 @@ export const selectProjectWithCreateNew = async (
     org: Organization,
     loadingTitle = "Loading projects...",
     selectTitle = "Select project"
-): Promise<Project | "new-project"> => {
+): Promise<{ selectedProject: Project; projectList: Project[] }> => {
     type ProjectQuickPick = QuickPickItem & { item?: Project };
     const projectQuickPicks: ProjectQuickPick[] = [];
     const projectCachePicks = dataCacheStore
@@ -112,10 +120,13 @@ export const selectProjectWithCreateNew = async (
     quickPick.items = projectQuickPicks;
     quickPick.show();
 
+    let projectList = dataCacheStore.getState().getProjects(org.handle);
+
     ext.clients.rpcClient
         .getProjects(org.id.toString())
         .then((projects) => {
             dataCacheStore.getState().setProjects(org.handle, projects);
+            projectList = projects;
             quickPick.busy = false;
             quickPick.title = selectTitle || "Select an options";
             const updatedQuickPicks: ProjectQuickPick[] = [];
@@ -148,9 +159,51 @@ export const selectProjectWithCreateNew = async (
     quickPick.dispose();
 
     if ((selectedQuickPick as QuickPickItem)?.label === "Create New") {
-        return "new-project";
+        const projectCache = dataCacheStore.getState().getProjects(org.handle);
+
+        const newProjectName = await window.showInputBox({
+            placeHolder: "project-name",
+            title: "New Project Name",
+            validateInput: (val) => {
+                if (!val) {
+                    return "Project name is required";
+                }
+                if (projectCache?.some((item) => item.name === val)) {
+                    return "Project name already exists";
+                }
+                if (val?.length > 60 || val?.length < 3) {
+                    return "Project name must be between 3 and 60 characters";
+                }
+                if (!/^[A-Za-z]/.test(val)) {
+                    return "Project name must start with an alphabetic letter";
+                }
+                if (!/^[A-Za-z\s\d\-_]+$/.test(val)) {
+                    return "Project name cannot have any special characters";
+                }
+                return null;
+            },
+        });
+
+        if (!newProjectName) {
+            throw new Error("New project name is required to create a component.");
+        }
+
+        const selectedProject = await window.withProgress(
+            {
+                title: `Creating new project ${newProjectName}...`,
+                location: ProgressLocation.Notification,
+            },
+            () =>
+                ext.clients.rpcClient.createProject({
+                    orgHandler: org.handle,
+                    orgId: org.id.toString(),
+                    projectName: newProjectName,
+                    region: "US",
+                })
+        );
+        return { projectList, selectedProject: selectedProject };
     } else if ((selectedQuickPick as ProjectQuickPick)?.item) {
-        return (selectedQuickPick as ProjectQuickPick)?.item!;
+        return { projectList, selectedProject: (selectedQuickPick as ProjectQuickPick)?.item! };
     }
 
     throw new Error("Failed to select project");

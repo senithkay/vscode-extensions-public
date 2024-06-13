@@ -1,0 +1,290 @@
+import {
+    ComponentKind,
+    ContextItem,
+    ContextItemDir,
+    ContextItemEnriched,
+    ContextStoreComponentState,
+    ContextStoreState,
+    Organization,
+    Project,
+} from "@wso2-enterprise/choreo-core";
+import { Uri, workspace } from "vscode";
+import * as path from "path";
+import * as yaml from "js-yaml";
+import { existsSync, readFileSync } from "fs";
+import { createStore } from "zustand";
+import { persist } from "zustand/middleware";
+import { getGlobalStateStore } from "./store-utils";
+import { ext } from "../extensionVariables";
+import { authStore } from "./auth-store";
+import { dataCacheStore } from "./data-cache-store";
+import { getGitRoot } from "../git/util";
+
+interface ContextStore {
+    state: ContextStoreState;
+    refreshState: () => Promise<void>;
+    changeContext: (selected: ContextItemEnriched) => Promise<void>;
+    onSetNewContext: (org: Organization, project: Project, contextDir: ContextItemDir) => void;
+}
+
+export const contextStore = createStore(
+    persist<ContextStore>(
+        (set, get) => ({
+            state: { items: {}, components: [], loading: false },
+            refreshState: async () => {
+                try {
+                    if (authStore.getState().state?.userInfo) {
+                        set(({ state }) => ({ state: { ...state, loading: true } }));
+                        let items = await getAllContexts(get().state?.items);
+                        let selected = getSelected(items, get().state?.selected);
+                        let components = await getComponentsInfoCache(selected);
+                        set(({ state }) => ({ state: { ...state, items, selected, components } }));
+                        items = await getEnrichedContexts(get().state?.items);
+                        selected = getSelected(items, selected);
+                        components = await getComponentsInfoCache(selected);
+                        set(({ state }) => ({ state: { ...state, items, selected, components } }));
+                        components = await getComponentsInfo(selected);
+                        set(({ state }) => ({ state: { ...state, loading: false, items, selected, components } }));
+                    }
+                } catch (err) {
+                    set(({ state }) => ({ state: { ...state, loading: false, error: err as Error } }));
+                }
+            },
+            onSetNewContext: async (org, project, contextDir) => {
+                try {
+                    const item: ContextItemEnriched = {
+                        orgHandle: org.handle,
+                        org,
+                        projectHandle: project.handler,
+                        project,
+                        contextDirs: [contextDir],
+                    };
+                    set(({ state }) => ({
+                        state: {
+                            ...state,
+                            items: { ...state.items, [`${org.handle}-${project.handler}`]: item },
+                            selected: item,
+                        },
+                    }));
+                    get().refreshState();
+                } catch (err) {
+                    set(({ state }) => ({ state: { ...state, loading: false, error: err as Error } }));
+                }
+            },
+            changeContext: async (selected) => {
+                try {
+                    let components = await getComponentsInfoCache(selected);
+                    set(({ state }) => ({ state: { ...state, selected, loading: true, components } }));
+                    components = await getComponentsInfo(selected);
+                    set(({ state }) => ({ state: { ...state, selected, loading: false, components } }));
+                } catch (err) {
+                    set(({ state }) => ({ state: { ...state, loading: false, error: err as Error } }));
+                }
+            },
+        }),
+        getGlobalStateStore("dir-context-zustand-storage")
+    )
+);
+
+const getAllContexts = async (previousItems: { [key: string]: ContextItemEnriched }) => {
+    const contextFiles = await workspace.findFiles("**/.choreo/context.yaml");
+    const contextItems: { [key: string]: ContextItemEnriched } = {};
+
+    const setContextObj = (contextFilePath: string, dirPath?: string, workspace?: string) => {
+        let parsedData: ContextItem[] = yaml.load(readFileSync(contextFilePath, "utf8")) as any;
+        if (!Array.isArray(parsedData) && (parsedData as any).org && (parsedData as any).project) {
+            parsedData = [{ org: (parsedData as any).org, project: (parsedData as any).project }];
+        }
+        // loop through the item and create a map
+        for (const contextItem of parsedData) {
+            const key = `${contextItem.org}-${contextItem.project}`;
+
+            const workspaceDir = dirPath ?? path.dirname(path.dirname(contextFilePath));
+            const projectRootFsPath = path.dirname(path.dirname(contextFilePath));
+            const workspaceName = workspace ?? path.basename(workspaceDir);
+
+            const contextDir: ContextItemDir = {
+                contextFileFsPath: contextFilePath,
+                dirFsPath: workspaceDir,
+                workspaceName,
+                projectRootFsPath,
+            };
+
+            if (contextItems[key]) {
+                contextItems[key] = {
+                    ...contextItems[key],
+                    contextDirs: [...contextItems[key].contextDirs, contextDir],
+                };
+            } else if (previousItems?.[key] && previousItems?.[key].org && previousItems?.[key].project) {
+                contextItems[key] = { ...previousItems?.[key], contextDirs: [contextDir] };
+            } else {
+                const userOrgs = authStore.getState().state.userInfo?.organizations;
+                const matchingOrg = userOrgs?.find((item) => item.handle === contextItem.org);
+
+                const projectsOfOrg = dataCacheStore.getState().getProjects(contextItem.org);
+                const matchingProject = projectsOfOrg.find((item) => item.handler === contextItem.project);
+
+                contextItems[key] = {
+                    orgHandle: contextItem.org,
+                    org: matchingOrg,
+                    projectHandle: contextItem.project,
+                    project: matchingProject,
+                    contextDirs: [contextDir],
+                };
+            }
+        }
+    };
+
+    if (contextFiles.length > 0) {
+        // Check if sub directories contain context.yaml files
+        for (const contextFile of contextFiles) {
+            setContextObj(contextFile.fsPath);
+        }
+    } else if (workspace.workspaceFolders) {
+        // for each directory in the workspace
+        // bubble up and check if the repo root contains a .choreo/context.yaml file
+        const gitRootSets = new Set<string>();
+        for (const workspaceFolder of workspace.workspaceFolders) {
+            try {
+                let gitRoot = await getGitRoot(ext.context, workspaceFolder.uri.fsPath);
+                if (gitRoot) {
+                    const contextPath = path.join(gitRoot, ".choreo", "context.yaml");
+                    if (existsSync(contextPath) && !gitRootSets.has(contextPath)) {
+                        gitRootSets.add(contextPath);
+                        setContextObj(contextPath, workspaceFolder.uri.fsPath, workspaceFolder.name);
+                    }
+                }
+            } catch {
+                console.log(`workspaceFolder.uri.fsPat is not a Git repo`);
+            }
+        }
+    }
+
+    return contextItems;
+};
+
+const getSelected = (items: { [key: string]: ContextItemEnriched }, prevSelected?: ContextItemEnriched) => {
+    let selected: ContextItemEnriched | undefined = undefined;
+    const matchingItem = Object.values(items).find(
+        (item) =>
+            prevSelected?.orgHandle === item.orgHandle &&
+            prevSelected?.projectHandle === item.projectHandle &&
+            prevSelected?.org &&
+            prevSelected?.project
+    );
+    if (!prevSelected || !matchingItem) {
+        // if no selected or unavailable selected, set first selected
+        const filtered = Object.values(items).filter((item) => item.org && item.project);
+        if (filtered.length > 0) {
+            selected = filtered[0];
+        }
+    }
+
+    return selected || matchingItem;
+};
+
+const getEnrichedContexts = async (items: { [key: string]: ContextItemEnriched }) => {
+    const userOrgs = authStore.getState().state.userInfo?.organizations;
+
+    const orgsSet = new Set<string>();
+    Object.values(items).forEach((item) => {
+        if (item.org) {
+            orgsSet.add(item.org.handle);
+        }
+    });
+    const orgHandleList = Array.from(orgsSet);
+
+    const projectsMap = new Map<string, Project[]>();
+    await Promise.all(
+        orgHandleList.map(async (orgHandle) => {
+            const matchingOrg = userOrgs?.find((item) => item.handle === orgHandle);
+            if (matchingOrg) {
+                try {
+                    const projects = await ext.clients.rpcClient.getProjects(matchingOrg.id.toString());
+                    dataCacheStore.getState().setProjects(matchingOrg.handle, projects);
+                    projectsMap.set(orgHandle, projects);
+                } catch (err) {
+                    console.log("failed to fetch project", err);
+                }
+            }
+        })
+    );
+
+    const enrichedItems: { [key: string]: ContextItemEnriched } = {};
+    Object.keys(items).forEach((itemKey) => {
+        const itemToEnrich = items[itemKey];
+        const matchingProject = projectsMap
+            .get(itemToEnrich.orgHandle)
+            ?.find((item) => item.handler === itemToEnrich.projectHandle);
+
+        enrichedItems[itemKey] = { ...itemToEnrich, project: matchingProject };
+    });
+
+    return enrichedItems;
+};
+
+const getComponentsInfoCache = async (selected?: ContextItemEnriched): Promise<ContextStoreComponentState[]> => {
+    if (!selected) {
+        return [];
+    }
+
+    const componentCache = dataCacheStore.getState().getComponents(selected.orgHandle, selected.projectHandle);
+
+    return mapComponentList(componentCache, selected);
+};
+
+const getComponentsInfo = async (selected?: ContextItemEnriched): Promise<ContextStoreComponentState[]> => {
+    if (!selected || !selected?.org?.id) {
+        return getComponentsInfoCache(selected);
+    }
+
+    const components = await ext.clients.rpcClient.getComponentList({
+        orgId: selected?.org?.id.toString(),
+        projectHandle: selected.projectHandle,
+    });
+    dataCacheStore.getState().setComponents(selected.orgHandle, selected.projectHandle, components);
+
+    return mapComponentList(components, selected);
+};
+
+const mapComponentList = async (
+    components: ComponentKind[],
+    selected?: ContextItemEnriched
+): Promise<ContextStoreComponentState[]> => {
+    const comps: ContextStoreComponentState[] = [];
+
+    for (const componentItem of components) {
+        if (selected?.contextDirs) {
+            for (const item of selected?.contextDirs) {
+                const projectDirPath = path.dirname(path.dirname(item.contextFileFsPath));
+                const subPathDir = path.join(projectDirPath, componentItem.spec.source.github?.path ?? "");
+                const isSubPath = isSubpath(item.dirFsPath, subPathDir);
+                if (
+                    isSubPath &&
+                    existsSync(subPathDir) &&
+                    !comps.some((item) => item.component?.metadata?.id === componentItem.metadata?.id)
+                ) {
+                    comps.push({
+                        component: componentItem,
+                        workspaceName: item.workspaceName,
+                        componentFsPath: subPathDir,
+                        componentRelativePath: path.relative(item.dirFsPath, subPathDir),
+                    });
+                }
+            }
+        }
+    }
+
+    return comps;
+};
+
+function isSubpath(parent: string, sub: string) {
+    const normalizedParent = path.normalize(parent).toLowerCase();
+    const normalizedSub = path.normalize(sub).toLowerCase();
+    if (normalizedParent === normalizedSub) {
+        return true;
+    }
+
+    const relative = path.relative(normalizedParent, normalizedSub);
+    return relative && !relative.startsWith("..") && !path.isAbsolute(relative);
+}

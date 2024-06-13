@@ -48,7 +48,7 @@ export const ComponentDetailsView: FC<ComponentsDetailsWebviewProps> = (props) =
     return (
         <div className="flex flex-row justify-center p-1 md:p-3 lg:p-4 xl:p-6">
             <div className="container">
-                <div className="mx-auto max-w-7xl flex flex-col p-4">
+                <div className="mx-auto max-w-6xl flex flex-col p-4">
                     <HeaderSection {...props} />
                     <div className="grid grid-cols-1 lg:grid-cols-4 gap-3 lg:gap-0">
                         <Divider className="mt-4 block lg:hidden" />

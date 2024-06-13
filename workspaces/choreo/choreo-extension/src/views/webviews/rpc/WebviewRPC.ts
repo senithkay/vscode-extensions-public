@@ -75,13 +75,10 @@ import {
     AuthStoreChangedNotification,
     NotificationsMethodList,
     GetAuthState,
-    GetLinkedDirState,
-    LinkedDirStoreChangedNotification,
     OpenSubDialogRequest,
     GetGitRemotes,
     ShowInfoMessage,
     JoinFilePaths,
-    RefreshLinkedDirState,
     DeleteFile,
     ShowConfirmMessage,
     ShowConfirmBoxReq,
@@ -107,6 +104,9 @@ import {
     ShowInputBox,
     OpenTestViewReq,
     OpenTestView,
+    ContextStoreChangedNotification,
+    GetContextState,
+    RefreshContextState,
 } from "@wso2-enterprise/choreo-core";
 import { registerChoreoProjectRPCHandlers, registerChoreoCellViewRPCHandlers } from "@wso2-enterprise/choreo-client";
 import { registerChoreoGithubRPCHandlers } from "@wso2-enterprise/choreo-client/lib/github/rpc";
@@ -120,7 +120,7 @@ import { dirname, join } from "path";
 import { sendTelemetryEvent, sendTelemetryException } from "../../../telemetry/utils";
 import { accessSync, existsSync, mkdirSync, readFileSync, readdirSync, statSync, unlinkSync } from "fs";
 import { authStore } from "../../../stores/auth-store";
-import { linkedDirectoryStore } from "../../../stores/linked-dir-store";
+import { contextStore } from "../../../stores/context-store";
 import { webviewStateStore } from "../../../stores/webview-state-store";
 import { registerChoreoRpcResolver } from "../../../choreo-rpc";
 import { getGitRemotes, removeCredentialsFromGitURL } from "../../../git/util";
@@ -137,16 +137,17 @@ const manager = new ChoreoProjectManager();
 export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPanel | WebviewView) {
 
     authStore.subscribe((store)=> messenger.sendNotification(AuthStoreChangedNotification, BROADCAST, store.state));
-    linkedDirectoryStore.subscribe((store)=> messenger.sendNotification(LinkedDirStoreChangedNotification, BROADCAST, store.state));
     webviewStateStore.subscribe((store)=> messenger.sendNotification(WebviewStateChangedNotification, BROADCAST, store.state));
+    contextStore.subscribe((store)=> messenger.sendNotification(ContextStoreChangedNotification, BROADCAST, store.state));
 
     messenger.onRequest(GetAuthState, ()=>authStore.getState().state);
-    messenger.onRequest(GetLinkedDirState, async ()=>linkedDirectoryStore.getState().state);
     messenger.onRequest(GetWebviewStoreState, async ()=>webviewStateStore.getState().state);
-    
-    messenger.onNotification(RefreshLinkedDirState, () => {
-        linkedDirectoryStore.getState().refreshState();
-    });
+    messenger.onRequest(GetContextState, async ()=>contextStore.getState().state);
+
+    // TODO: remove
+    // messenger.onNotification(RefreshContextState, () => {
+    //     contextStore.getState().refreshState();
+    // });
     messenger.onRequest(OpenSubDialogRequest, async (options: OpenDialogOptions) => {
         try {
             const result = await window.showOpenDialog({ ...options, defaultUri: Uri.parse(options.defaultUri) });
@@ -200,8 +201,8 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
     messenger.onRequest(GoToSource, async (filePath): Promise<void> => {
         await goTosource(filePath, false);
     });
-    messenger.onRequest(DeleteFile, async (linkFilePath) => {
-        unlinkSync(linkFilePath);
+    messenger.onRequest(DeleteFile, async (filePath) => {
+        unlinkSync(filePath);
     });
     messenger.onRequest(ShowConfirmMessage, async (params: ShowConfirmBoxReq) => {
         const response = await window.showInformationMessage(params.message,{modal: true},params.buttonText);

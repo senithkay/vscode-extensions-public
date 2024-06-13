@@ -70,31 +70,10 @@
         "enablement": "isValidWorkspace == true"
       },
       {
-        "command": "wso2.choreo.refresh.component",
-        "title": "Refresh Components",
-        "category": "Choreo",
-        "icon": "$(refresh)",
-        "enablement": "isLoggedIn == true && isValidWorkspace == true && isLoadingLinkedDirs == false"
-      },
-      {
-        "command": "wso2.choreo.link.component",
-        "title": "Link Directory",
-        "category": "Choreo",
-        "icon": "$(link)",
-        "enablement": "isValidWorkspace == true"
-      },
-      {
         "command": "wso2.choreo.component.open.external",
         "title": "Open in Console",
         "category": "Choreo",
         "icon": "$(link-external)"
-      },
-      {
-        "command": "wso2.choreo.unlink.component",
-        "title": "Unlink Directory",
-        "category": "Choreo",
-        "icon": "$(debug-disconnect)",
-        "enablement": "isValidWorkspace == true"
       },
       {
         "command": "wso2.choreo.delete.component",
@@ -113,6 +92,27 @@
         "title": "Clone Repository",
         "category": "Choreo",
         "icon": "$(repo-clone)"
+      },
+      {
+        "command": "wso2.choreo.project.context.create",
+        "title": "Select Project",
+        "category": "Choreo",
+        "icon": "$(link)",
+        "enablement": "isValidWorkspace == true"
+      },
+      {
+        "command": "wso2.choreo.project.context.switch",
+        "title": "Switch Project",
+        "category": "Choreo",
+        "icon": "$(edit)",
+        "enablement": "isValidWorkspace == true && isLoadingContextDirs == false && hasMultipleContexts == true"
+      },
+      {
+        "command": "wso2.choreo.project.context.refresh",
+        "title": "Refresh Workspace",
+        "category": "Choreo",
+        "icon": "$(refresh)",
+        "enablement": "isLoggedIn == true && isValidWorkspace == true && isLoadingContextDirs == false"
       }
     ],
     "viewsContainers": {
@@ -141,17 +141,17 @@
     "menus": {
       "view/title": [
         {
-          "command": "wso2.choreo.link.component",
-          "when": "view == choreo.activity.components && isLoggedIn == true",
+          "command": "wso2.choreo.project.context.switch",
+          "when": "view == choreo.activity.components && isLoggedIn == true && hasMultipleContexts == true",
           "group": "navigation"
         },
         {
           "command": "wso2.choreo.create.component",
-          "when": "view == choreo.activity.components && isLoggedIn == true",
+          "when": "view == choreo.activity.components && isLoggedIn == true && hasSelectedContext == true",
           "group": "navigation"
         },
         {
-          "command": "wso2.choreo.refresh.component",
+          "command": "wso2.choreo.project.context.refresh",
           "when": "view == choreo.activity.components && isLoggedIn == true",
           "group": "navigation"
         }
@@ -159,17 +159,12 @@
       "webview/context": [
         {
           "command": "wso2.choreo.component.open.external",
-          "when": "webviewId == choreo.activity.components && webviewSection == 'validLinkItem'",
+          "when": "webviewId == choreo.activity.components && webviewSection == 'componentListItem'",
           "group": "access"
         },
         {
-          "command": "wso2.choreo.unlink.component",
-          "when": "(webviewSection == 'validLinkItem' || webviewSection == 'invalidLinkItem')",
-          "group": "destructive"
-        },
-        {
           "command": "wso2.choreo.delete.component",
-          "when": "webviewSection == 'validLinkItem'",
+          "when": "webviewSection == 'componentListItem'",
           "group": "destructive"
         }
       ]

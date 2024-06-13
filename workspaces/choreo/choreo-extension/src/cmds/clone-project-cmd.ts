@@ -13,7 +13,6 @@ import { getUserInfoForCmd, selectOrg, selectProject } from "./cmd-utils";
 import { parseGitURL } from "../git/util";
 import * as os from "os";
 import { initGit } from "../git/main";
-import { getComponentMapForLink, createComponentLinks } from "./link-existing-component-cmd";
 
 export function cloneRepoCommand(context: ExtensionContext) {
     context.subscriptions.push(
@@ -123,16 +122,16 @@ export function cloneRepoCommand(context: ExtensionContext) {
                         gitBranch
                     );
 
-                    const { componentMap } = await getComponentMapForLink(
-                        selectedOrg,
-                        selectedProject,
-                        components,
-                        [gitUrl],
-                        clonedPath,
-                        clonedPath
-                    );
+                    // const { componentMap } = await getComponentMapForLink(
+                    //     selectedOrg,
+                    //     selectedProject,
+                    //     components,
+                    //     [gitUrl],
+                    //     clonedPath,
+                    //     clonedPath
+                    // );
 
-                    await createComponentLinks(selectedOrg, selectedProject, componentMap);
+                    // await createComponentLinks(selectedOrg, selectedProject, componentMap);
 
                     await openClonedDirectory(clonedPath);
                 }
