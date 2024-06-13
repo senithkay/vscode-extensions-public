@@ -95,12 +95,12 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
     const fields = isInterface && field.childrenTypes;
     const isWithinArray = fieldIndex !== undefined;
 
-    const handleAddValue = () => {
+    const handleAddValue = async () => {
         setIsLoading(true);
         try {
             const defaultValue = getDefaultValue(field.type.kind);
             const fnBody = context.functionST.getBody() as Block;
-            createSourceForUserInput(field, objectLiteralExpr, defaultValue, fnBody, context.applyModifications);
+            await createSourceForUserInput(field, objectLiteralExpr, defaultValue, fnBody, context.applyModifications);
         } finally {
             setIsLoading(false);
         }

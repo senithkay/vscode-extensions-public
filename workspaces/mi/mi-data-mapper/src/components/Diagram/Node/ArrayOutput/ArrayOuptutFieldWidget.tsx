@@ -138,8 +138,8 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
         context.goToSource(range);
     };
 
-    const onAddElementClick = () => {
-        handleAddArrayElement(field.type?.memberType.kind);
+    const onAddElementClick = async () => {
+        await handleAddArrayElement(field.type?.memberType.kind);
     };
 
     const label = (
@@ -290,11 +290,11 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
         }
     };
 
-    const handleArrayInitialization = () => {
+    const handleArrayInitialization = async () => {
         setLoading(true);
         try {
             const fnBody = context.functionST.getBody() as Block;
-            createSourceForUserInput(field, parentObjectLiteralExpr, '[]', fnBody, context.applyModifications);
+            await createSourceForUserInput(field, parentObjectLiteralExpr, '[]', fnBody, context.applyModifications);
         } finally {
             setLoading(false);
         }
@@ -322,7 +322,7 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
                 targetExpr = returnStatement.getExpression() as ArrayLiteralExpression;
             }
             targetExpr.addElement(defaultValue);
-            context.applyModifications();
+            await context.applyModifications();
         } finally {
             setIsAddingElement(false);
         }

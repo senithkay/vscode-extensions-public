@@ -173,7 +173,7 @@ export class PrimitiveOutputNode extends DataMapperNodeModel {
         const typeOfValue = this.isLocked && this.dmType?.memberType ? this.dmType.memberType : this.dmType;
         const defaultValue = getDefaultValue(typeOfValue?.kind);
         field.replaceWithText(defaultValue);
-        this.context.applyModifications();
+        await this.context.applyModifications();
     }
 
     public updatePosition() {

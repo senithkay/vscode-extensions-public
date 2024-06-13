@@ -184,17 +184,17 @@ export function ExpressionLabelWidget(props: ExpressionLabelWidgetProps) {
         ),
     ];
 
-    const onClickMapViaArrayFn = () => {
+    const onClickMapViaArrayFn = async () => {
         if (target instanceof InputOutputPortModel) {
             const targetPortField = target.field;
 
             if (targetPortField.kind === TypeKind.Array && targetPortField?.memberType) {
-                applyArrayFunction(link, targetPortField.memberType);
+                await applyArrayFunction(link, targetPortField.memberType);
             }
         }
     };
 
-    const applyArrayFunction = (linkModel: DataMapperLinkModel, targetType: DMType) => {
+    const applyArrayFunction = async (linkModel: DataMapperLinkModel, targetType: DMType) => {
         if (linkModel.value && (isInputAccessExpr(linkModel.value) || Node.isIdentifier(linkModel.value))) {
 
                 let isOptionalSource = false;
@@ -217,7 +217,7 @@ export function ExpressionLabelWidget(props: ExpressionLabelWidgetProps) {
                 const mapFnSrc = generateArrayToArrayMappingWithFn(linkModel.value.getText(), targetType);
 
                 targetExpr.replaceWithText(mapFnSrc);
-                void context.applyModifications();
+                await context.applyModifications();
         }
     };
 

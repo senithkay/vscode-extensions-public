@@ -134,7 +134,7 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 				if (!valueExpr.getText()) {
 					const valueExprSource = constructValueExprSource(lhs, rhs, fieldNames, i);
                     valueExpr.replaceWithText(valueExprSource);
-                    applyModifications();
+                    await applyModifications();
                     return valueExprSource;
 				}
 
@@ -164,7 +164,7 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 			if (propAssignment && !propAssignment.getInitializer().getText()) {
 				const valueExprSource = constructValueExprSource(lhs, rhs, [], 0);
                 propAssignment.getInitializer().replaceWithText(valueExprSource);
-                applyModifications();
+               await applyModifications();
                 return valueExprSource;
 			}
 			source = `${lhs}: ${rhs}`;
@@ -175,7 +175,7 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 		if (propAssignment && !propAssignment.getInitializer().getText()) {
 			const valueExprSource = constructValueExprSource(lhs, rhs, [], 0);
             propAssignment.getInitializer().replaceWithText(valueExprSource);
-            applyModifications();
+            await applyModifications();
             return valueExprSource;
 		}
 		source = `${lhs}: ${rhs}`;
@@ -194,7 +194,7 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
         targetNode.value.replaceWithText(`{${getLinebreak()}${source}}`);
 	}
 
-    applyModifications();
+    await applyModifications();
 
 	function createPropAssignment(missingFields: string[]): string {
 		return missingFields.length > 0
@@ -214,12 +214,12 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 	return `${lhs} = ${rhs}`;
 }
 
-export function createSourceForUserInput(
+export async function createSourceForUserInput(
 	field: DMTypeWithValue,
 	objectLitExpr: ObjectLiteralExpression,
 	newValue: string,
 	fnBody: Block,
-	applyModifications: () => void
+	applyModifications: () => Promise<void>
 ) {
 
 	let source: string;
@@ -242,7 +242,7 @@ export function createSourceForUserInput(
 			if (!parentFieldInitializer.getText()) {
 				const valueExprSource = constructValueExprSource(fieldName, newValue, parentFields.reverse(), 0);
 				parentField.setInitializer(valueExprSource);
-				applyModifications();
+				await applyModifications();
 				return valueExprSource;
 			}
 
@@ -252,7 +252,7 @@ export function createSourceForUserInput(
 				if (propAssignment && !propAssignment.getInitializer().getText()) {
 					const valExprSource = constructValueExprSource(fieldName, newValue, parentFields, 1);
 					propAssignment.setInitializer(valExprSource);
-					applyModifications();
+					await applyModifications();
 					return valExprSource;
 				}
 				source = createSpecificField(parentFields.reverse());
@@ -268,7 +268,7 @@ export function createSourceForUserInput(
 						if (propAssignment && !propAssignment.getInitializer().getText()) {
 							const valExprSource = constructValueExprSource(fieldName, newValue, parentFields, 1);
 							propAssignment.setInitializer(valExprSource);
-							applyModifications();
+							await applyModifications();
 							return valExprSource;
 						}
 						source = createSpecificField(parentFields.reverse());
@@ -288,7 +288,7 @@ export function createSourceForUserInput(
 		if (propAssignment && !propAssignment.getInitializer().getText()) {
 			const valueExprSource = constructValueExprSource(field.originalType.fieldName, newValue, parentFields, 1);
 			propAssignment.setInitializer(valueExprSource);
-			applyModifications();
+			await applyModifications();
 			return valueExprSource;
 		}
 		source = createSpecificField(parentFields.reverse());
@@ -309,7 +309,7 @@ export function createSourceForUserInput(
 		targetObjectLitExpr.replaceWithText(`{${source}}`);
 	}
 
-	applyModifications();
+	await applyModifications();
 	return source;
 
 	function createSpecificField(missingFields: string[]): string {
@@ -342,7 +342,7 @@ function constructValueExprSource(lhs: string, rhs: string, fieldNames: string[]
 	return source;
 }
 
-export function modifySourceForMultipleMappings(link: DataMapperLinkModel) {
+export async function modifySourceForMultipleMappings(link: DataMapperLinkModel) {
 	const targetPort = link.getTargetPort();
 	if (!targetPort) {
 		return;
@@ -357,9 +357,9 @@ export function modifySourceForMultipleMappings(link: DataMapperLinkModel) {
 	}
 
 	if (targetNode instanceof LinkConnectorNode) {
-		targetNode.updateSource(rhs);
+		await targetNode.updateSource(rhs);
 	} else {
-		Object.keys(targetPort.getLinks()).forEach((linkId) => {
+		Object.keys(targetPort.getLinks()).forEach(async (linkId) => {
 
 			if (linkId !== link.getID()) {
 				const targerPortLink = targetPort.getLinks()[linkId];
@@ -385,7 +385,7 @@ export function modifySourceForMultipleMappings(link: DataMapperLinkModel) {
 
 				const newSource = `${valueNode.getText()} + ${rhs}`;
 				valueNode.replaceWithText(newSource);
-				(targetNode as DataMapperNodeModel).context.applyModifications();
+				await (targetNode as DataMapperNodeModel).context.applyModifications();
 			}
 		});
 	}

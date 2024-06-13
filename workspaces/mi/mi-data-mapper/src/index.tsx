@@ -44,7 +44,7 @@ export interface DataMapperViewProps {
     functionName: string;
     inputTrees: DMType[];
     outputTree: DMType;
-    updateFileContent: (fileContent: string) => void;
+    updateFileContent: (fileContent: string) => Promise<void>;
     configName: string;
 }
 
@@ -103,8 +103,8 @@ export function DataMapperView(props: DataMapperViewProps) {
 
     }, [rpcClient, filePath, fileContent, functionName]);
 
-    const applyModifications = () => {
-        updateFileContent(sourceFile.getText());
+    const applyModifications = async () => {
+        await updateFileContent(sourceFile.getText());
     };
 
     return (

@@ -224,10 +224,10 @@ export class LinkConnectorNode extends DataMapperNodeModel {
         this.hasInitialized = true;
     }
 
-    updateSource(suffix: string): void {
+    async updateSource(suffix: string): Promise<void> {
         this.value = `${this.value} + ${suffix}`;
         this.innerNode.replaceWithText(this.value);
-        this.context.applyModifications();
+        await this.context.applyModifications();
     }
 
     public updatePosition() {

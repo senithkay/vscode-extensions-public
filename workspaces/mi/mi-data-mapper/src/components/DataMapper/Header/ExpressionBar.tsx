@@ -36,7 +36,7 @@ const useStyles = () => ({
 });
 
 export interface ExpressionBarProps {
-    applyModifications: () => void
+    applyModifications: () => Promise<void>
 }
 
 export default function ExpressionBar(props: ExpressionBarProps) {
@@ -113,7 +113,7 @@ export default function ExpressionBar(props: ExpressionBarProps) {
         }
     };
 
-    const onChangeAutoComplete = (text: string) => {
+    const onChangeAutoComplete = async (text: string) => {
         let updatedText = text;
         const fnName = text.split('(')[0];
         const isFunctionName = functionNames.includes(text);
@@ -132,19 +132,19 @@ export default function ExpressionBar(props: ExpressionBarProps) {
             sourceFile.addFunction(getFnDeclStructure(fnName));
         }
         
-        applyChanges();
+        await applyChanges();
     };
 
-    const onKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    const onKeyDown = async (event: React.KeyboardEvent<HTMLInputElement>) => {
         // Apply the expression when the Enter key is pressed
         if (event.key === 'Enter') {
             event.preventDefault(); // Prevents the default behavior of the Enter key
             expressionRef.current = addClosingBracketIfNeeded(expressionRef.current);
-            applyChanges();
+            await applyChanges();
         }
     };
 
-    const applyChanges = () => {
+    const applyChanges = async () => {
         const focusedFieldValue = focusedPort?.typeWithValue.value;
 
         if (focusedFieldValue) {
@@ -174,7 +174,7 @@ export default function ExpressionBar(props: ExpressionBarProps) {
                 targetExpr.replaceWithText(replaceWith);
             }
 
-            applyModifications();
+            await applyModifications();
         } else {
             const focusedNode = focusedPort.getNode() as DataMapperNodeModel;
             const fnBody = focusedNode.context.functionST.getBody() as Block;
@@ -188,7 +188,7 @@ export default function ExpressionBar(props: ExpressionBarProps) {
                 objLitExpr = returnExpr;
             }
 
-            createSourceForUserInput(
+            await createSourceForUserInput(
                 focusedPort?.typeWithValue, objLitExpr, expressionRef.current, fnBody, applyModifications
             );
         }

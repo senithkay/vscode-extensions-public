@@ -126,7 +126,7 @@ export function SubMappingItemWidget(props: SubMappingItemProps) {
     const onClickOnDelete = async () => {
         setDeleteInProgress(true);
         (functionST.getBody() as Block).removeStatement(index);
-        applyModifications();
+        await applyModifications();
         setDeleteInProgress(false);
     };
 
