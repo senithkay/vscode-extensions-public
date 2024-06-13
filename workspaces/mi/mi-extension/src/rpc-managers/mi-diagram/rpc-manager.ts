@@ -3389,7 +3389,12 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
     async buildProject(): Promise<void> {
         return new Promise(async (resolve) => {
-            await commands.executeCommand(COMMANDS.BUILD_PROJECT, false);
+            const selection = await window.showQuickPick(["Build CAPP", "Create Docker Image"]);
+            if (selection === "Build CAPP") {
+                await commands.executeCommand(COMMANDS.BUILD_PROJECT, false);
+            } else if (selection === "Create Docker Image") {
+                await commands.executeCommand(COMMANDS.CREATE_DOCKER_IMAGE);
+            }
             resolve();
         });
     }
