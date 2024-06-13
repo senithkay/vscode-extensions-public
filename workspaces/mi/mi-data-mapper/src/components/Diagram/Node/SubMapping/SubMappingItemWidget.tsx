@@ -74,11 +74,19 @@ export function SubMappingItemWidget(props: SubMappingItemProps) {
         </span>
     );
 
+    const onClickAddSubMappingAtTop = () => {
+        addSubMapping(0);
+    };
+
     const onClickAddSubMapping = () => {
+        addSubMapping(index + 1);
+    };
+
+    const addSubMapping = (targetIndex: number) => {
         const varName = genVariableName("subMapping", subMappings.map(mapping => mapping.name));
         setSubMappingConfig({
             isSMConfigPanelOpen: true,
-            nextSubMappingIndex: isFirstItem ? index : index + 1,
+            nextSubMappingIndex: targetIndex,
             suggestedNextSubMappingName: varName
         });
     };
@@ -135,7 +143,7 @@ export function SubMappingItemWidget(props: SubMappingItemProps) {
             {isFirstItem && (
                 <SubMappingSeparator
                     isOnRootView={isOnRootView}
-                    onClickAddSubMapping={onClickAddSubMapping}
+                    onClickAddSubMapping={onClickAddSubMappingAtTop}
                 />
             )}
             <div
