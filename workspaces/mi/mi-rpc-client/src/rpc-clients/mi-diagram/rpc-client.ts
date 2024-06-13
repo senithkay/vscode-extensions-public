@@ -69,8 +69,10 @@ import {
     FileDirResponse,
     GetAllArtifactsRequest,
     GetAllArtifactsResponse,
+    GetAllMockServicesResponse,
     GetAllRegistryPathsRequest,
     GetAllRegistryPathsResponse,
+    GetAllTestSuitsResponse,
     GetAvailableConnectorRequest,
     GetAvailableConnectorResponse,
     GetAvailableResourcesRequest,
@@ -153,10 +155,16 @@ import {
     UpdateHttpEndpointResponse,
     UpdateLoadBalanceEPRequest,
     UpdateLoadBalanceEPResponse,
+    UpdateMockServiceRequest,
+    UpdateMockServiceResponse,
     UpdateRecipientEPRequest,
     UpdateRecipientEPResponse,
     UpdateTemplateEPRequest,
     UpdateTemplateEPResponse,
+    UpdateTestCaseRequest,
+    UpdateTestCaseResponse,
+    UpdateTestSuiteRequest,
+    UpdateTestSuiteResponse,
     UpdateWsdlEndpointRequest,
     UpdateWsdlEndpointResponse,
     WriteContentToFileRequest,
@@ -196,7 +204,9 @@ import {
     getAPIDirectory,
     getAddressEndpoint,
     getAllArtifacts,
+    getAllMockServices,
     getAllRegistryPaths,
+    getAllTestSuites,
     getAvailableConnectors,
     getAvailableRegistryResources,
     getAvailableResources,
@@ -257,9 +267,12 @@ import {
     updateFailoverEndpoint,
     updateHttpEndpoint,
     updateLoadBalanceEndpoint,
+    updateMockService,
     updateRecipientEndpoint,
     updateSwaggerFromAPI,
     updateTemplateEndpoint,
+    updateTestCase,
+    updateTestSuite,
     updateWsdlEndpoint,
     writeContentToFile
 } from "@wso2-enterprise/mi-core";
@@ -675,5 +688,25 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     updateAPIFromSwagger(params: UpdateAPIFromSwaggerRequest): Promise<void> {
         return this._messenger.sendRequest(updateAPIFromSwagger, HOST_EXTENSION, params);
+    }
+
+    updateTestSuite(params: UpdateTestSuiteRequest): Promise<UpdateTestSuiteResponse> {
+        return this._messenger.sendRequest(updateTestSuite, HOST_EXTENSION, params);
+    }
+
+    updateTestCase(params: UpdateTestCaseRequest): Promise<UpdateTestCaseResponse> {
+        return this._messenger.sendRequest(updateTestCase, HOST_EXTENSION, params);
+    }
+
+    updateMockService(params: UpdateMockServiceRequest): Promise<UpdateMockServiceResponse> {
+        return this._messenger.sendRequest(updateMockService, HOST_EXTENSION, params);
+    }
+
+    getAllTestSuites(): Promise<GetAllTestSuitsResponse> {
+        return this._messenger.sendRequest(getAllTestSuites, HOST_EXTENSION);
+    }
+
+    getAllMockServices(): Promise<GetAllMockServicesResponse> {
+        return this._messenger.sendRequest(getAllMockServices, HOST_EXTENSION);
     }
 }

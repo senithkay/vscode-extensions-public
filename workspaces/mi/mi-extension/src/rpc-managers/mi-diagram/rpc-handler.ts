@@ -76,8 +76,11 @@ import {
     UpdateFailoverEPRequest,
     UpdateHttpEndpointRequest,
     UpdateLoadBalanceEPRequest,
+    UpdateMockServiceRequest,
     UpdateRecipientEPRequest,
     UpdateTemplateEPRequest,
+    UpdateTestCaseRequest,
+    UpdateTestSuiteRequest,
     UpdateWsdlEndpointRequest,
     WriteContentToFileRequest,
     applyEdit,
@@ -115,7 +118,9 @@ import {
     getAPIDirectory,
     getAddressEndpoint,
     getAllArtifacts,
+    getAllMockServices,
     getAllRegistryPaths,
+    getAllTestSuites,
     getAvailableConnectors,
     getAvailableRegistryResources,
     getAvailableResources,
@@ -175,9 +180,12 @@ import {
     updateFailoverEndpoint,
     updateHttpEndpoint,
     updateLoadBalanceEndpoint,
+    updateMockService,
     updateRecipientEndpoint,
     updateSwaggerFromAPI,
     updateTemplateEndpoint,
+    updateTestCase,
+    updateTestSuite,
     updateWsdlEndpoint,
     writeContentToFile,
     GetRegistryMetadataRequest,
@@ -291,4 +299,9 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(compareSwaggerAndAPI, (args: SwaggerTypeRequest) => rpcManger.compareSwaggerAndAPI(args));
     messenger.onRequest(updateSwaggerFromAPI, (args: SwaggerTypeRequest) => rpcManger.updateSwaggerFromAPI(args));
     messenger.onRequest(updateAPIFromSwagger, (args: UpdateAPIFromSwaggerRequest) => rpcManger.updateAPIFromSwagger(args));
+    messenger.onRequest(updateTestSuite, (args: UpdateTestSuiteRequest) => rpcManger.updateTestSuite(args));
+    messenger.onRequest(updateTestCase, (args: UpdateTestCaseRequest) => rpcManger.updateTestCase(args));
+    messenger.onRequest(updateMockService, (args: UpdateMockServiceRequest) => rpcManger.updateMockService(args));
+    messenger.onRequest(getAllTestSuites, () => rpcManger.getAllTestSuites());
+    messenger.onRequest(getAllMockServices, () => rpcManger.getAllMockServices());
 }

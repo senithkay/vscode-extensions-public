@@ -47,7 +47,8 @@
         "yup": "~1.4.0",
         "@hookform/resolvers": "~3.3.4",
         "react-dnd": "16.0.1",
-        "react-dnd-html5-backend": "16.0.1"
+        "react-dnd-html5-backend": "16.0.1",
+        "path": "~0.12.7"
     },
     "devDependencies": {
         "@storybook/addon-essentials": "^7.6.17",

@@ -24,7 +24,7 @@ import { activateProjectExplorer } from './project-explorer/activate';
 import { StateMachineAI } from './ai-panel/aiMachine';
 import { getSources } from './util/dataMapper';
 import { StateMachinePopup } from './stateMachinePopup';
-import { STNode } from '../../syntax-tree/lib/src';
+import { STNode, UnitTest } from '../../syntax-tree/lib/src';
 import { log } from './util/logger';
 import { deriveConfigName } from './util/dataMapper';
 import { fileURLToPath } from 'url';
@@ -400,6 +400,9 @@ const stateMachine = createMachine<MachineContext>({
                                         viewLocation.stNode = node.template;
                                         break;
                                     }
+                                case !!node["unit-test"]:
+                                    viewLocation.stNode = node["unit-test"] as UnitTest;
+                                    break;
                                 default:
                                     // Handle default case
                                     viewLocation.stNode = node as any as STNode;
@@ -500,7 +503,12 @@ export function navigate(entry?: HistoryEntry) {
 function updateProjectExplorer(location: VisualizerLocation | undefined) {
     if (location && location.documentUri) {
         const projectRoot = vscode.workspace.getWorkspaceFolder(vscode.Uri.file(location.documentUri));
-        if (projectRoot && !extension.preserveActivity) {
+
+        const relativePath = vscode.workspace.asRelativePath(location.documentUri);
+        const isTestFile = relativePath.startsWith(`src${path.sep}test${path.sep}`);
+        if (isTestFile) {
+            vscode.commands.executeCommand(COMMANDS.REVEAL_TEST_PANE);
+        } else if (projectRoot && !extension.preserveActivity) {
             location.projectUri = projectRoot.uri.fsPath;
             if (!StateMachine.context().isOldProject) {
                 vscode.commands.executeCommand(COMMANDS.REVEAL_ITEM_COMMAND, location);

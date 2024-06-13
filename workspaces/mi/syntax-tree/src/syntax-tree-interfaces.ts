@@ -884,7 +884,7 @@ export interface NamedEndpoint extends Endpoint, STNode {
 export interface ProxyPublishWSDL extends STNode {
     definitions: TDefinitions;
     description: DescriptionType;
-    inlineWsdl:string;
+    inlineWsdl: string;
     resource: Resource[];
     uri: string;
     key: string;
@@ -911,7 +911,7 @@ export interface ServiceParameter {
     value: string;
 }
 
-export interface ServicePolicy  {
+export interface ServicePolicy {
     value: string;
 }
 
@@ -1776,4 +1776,60 @@ export interface ConnectorParameter extends STNode {
     name: string;
     value: string;
     isExpression: boolean;
+}
+
+export interface UnitTest extends STNode {
+    unitTestArtifacts: UnitTestArtifacts;
+    testCases: TestCases;
+    mockServices: MockServices;
+}
+
+export interface UnitTestArtifacts {
+    testArtifact: TestArtifact;
+    supportiveArtifacts: STNode;
+    registryResources: STNode;
+    connectorResources: STNode;
+}
+
+export interface TestArtifact extends STNode {
+    artifact: Artifact;
+}
+
+export interface Artifact extends STNode {
+    content: string;
+}
+
+export interface TestCases extends STNode {
+    testCases: TestCase[];
+}
+
+export interface TestCase extends STNode {
+    name: string;
+    assertions: Assertions;
+    input: TestCaseInput;
+}
+
+export interface Assertions extends STNode {
+    assertions: Assertion[];
+}
+
+export interface TestCaseInput extends STNode {
+    requestPath: STNode;
+    requestMethod: STNode;
+    requestProtocol: STNode;
+    payload: STNode;
+}
+
+export interface Assertion extends STNode {
+    expected: STNode;
+    actual: STNode;
+    message: STNode;
+
+}
+
+export interface MockServices extends STNode {
+    services: MockService[];
+}
+
+export interface MockService extends STNode {
 }

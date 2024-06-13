@@ -159,6 +159,14 @@ import {
     SwaggerTypeRequest,
     UpdateAPIFromSwaggerRequest,
     CompareSwaggerAndAPIResponse,
+    UpdateTestSuiteRequest,
+    UpdateTestCaseRequest,
+    UpdateTestCaseResponse,
+    UpdateTestSuiteResponse,
+    GetAllTestSuitsResponse,
+    UpdateMockServiceRequest,
+    UpdateMockServiceResponse,
+    GetAllMockServicesResponse,
 } from "./types";
 import { RequestType, NotificationType } from "vscode-messenger-common";
 
@@ -264,3 +272,8 @@ export const editOpenAPISpec: RequestType<SwaggerTypeRequest, void> = { method: 
 export const compareSwaggerAndAPI: RequestType<SwaggerTypeRequest, CompareSwaggerAndAPIResponse> = { method: `${_preFix}/compareSwaggerAndAPI` };
 export const updateSwaggerFromAPI: RequestType<SwaggerTypeRequest, void> = { method: `${_preFix}/updateSwaggerFromAPI` };
 export const updateAPIFromSwagger: RequestType<UpdateAPIFromSwaggerRequest, void> = { method: `${_preFix}/updateAPIFromSwagger` };
+export const updateTestSuite: RequestType<UpdateTestSuiteRequest, UpdateTestSuiteResponse> = { method: `${_preFix}/updateTestSuite` };
+export const updateTestCase: RequestType<UpdateTestCaseRequest, UpdateTestCaseResponse> = { method: `${_preFix}/updateTestCase` };
+export const updateMockService: RequestType<UpdateMockServiceRequest, UpdateMockServiceResponse> = { method: `${_preFix}/updateMockService` };
+export const getAllTestSuites: RequestType<void, GetAllTestSuitsResponse> = { method: `${_preFix}/getAllTestSuites` };
+export const getAllMockServices: RequestType<void, GetAllMockServicesResponse> = { method: `${_preFix}/getAllMockServices` };

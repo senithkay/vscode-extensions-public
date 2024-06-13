@@ -12,7 +12,7 @@ export const COMMANDS = {
     OPEN_AI_PANEL: "MI.openAiPanel",
     CLEAR_AI_PROMPT: "MI.clearAIPrompt",
     OPEN_WELCOME: "MI.openWelcome",
-    SHOW_DIAGRAM: "MI.show.diagram",
+    SHOW_GRAPHICAL_VIEW: "MI.show.graphical-view",
     SHOW_RESOURCE_VIEW: "MI.show.resource-view",
     SHOW_SEQUENCE_VIEW: "MI.show.sequence-view",
     SHOW_SEQUENCE_TEMPLATE_VIEW: "MI.show.sequence_template-view",
@@ -53,7 +53,6 @@ export const COMMANDS = {
     REVEAL_ITEM_COMMAND: 'MI.project-explorer.revealItem',
     FOCUS_PROJECT_EXPLORER: 'MI.project-explorer.focus',
     OPEN_SERVICE_DESIGNER: 'MI.project-explorer.open-service-designer',
-    OPEN_SERVICE_DESIGNER_BESIDE: 'MI.project-explorer.open-service-designer-beside',
     OPEN_PROJECT_OVERVIEW: 'MI.project-explorer.open-project-overview',
     ADD_REGISTERY_RESOURCE_COMMAND: 'MI.project-explorer.add-registry-resource',
     DELETE_REGISTERY_RESOURCE_COMMAND: 'MI.project-explorer.delete-reg-resource',
@@ -68,6 +67,14 @@ export const COMMANDS = {
     ADD_DATA_SOURCE_COMMAND: 'MI.project-explorer.add-data-source',
     SHOW_DATA_SOURCE: 'MI.show.data-source',
     SHOW_DATA_MAPPER: 'MI.show.data-mapper',
+    ADD_TEST_SUITE: 'MI.test.add.suite',
+    UPDATE_TEST_SUITE: 'MI.test.update.suite',
+    ADD_TEST_CASE: 'MI.test.add.case',
+    UPDATE_TEST_CASE: 'MI.test.update.case',
+    ADD_MOCK_SERVICE: 'MI.test.add.mock-service',
+    REFRESH_MOCK_SERVICES: 'MI.test.refresh.mock-services',
+    UPDATE_MOCK_SERVICE: 'MI.test.update.mock-service',
+    REVEAL_TEST_PANE: 'MI.mock-services.focus',
 };
 
 export const DEFAULT_PROJECT_VERSION = "1.0.0";
