@@ -80,11 +80,14 @@ export function activateMockServiceTreeView(context: ExtensionContext): void {
     context.subscriptions.push(workspace.onDidCreateFiles(() => mockServiceTreeProvider.refresh()));
     context.subscriptions.push(workspace.onDidDeleteFiles(() => mockServiceTreeProvider.refresh()));
     context.subscriptions.push(workspace.onDidRenameFiles(() => mockServiceTreeProvider.refresh()));
+    // keep state
+    let lastSelectedItem: string | undefined = undefined;
+    let lastSelectedAt = Date.now()
 
     window.createTreeView('MI.mock-services', { treeDataProvider: mockServiceTreeProvider });
 
     commands.registerCommand(COMMANDS.ADD_MOCK_SERVICE, () => {
-        openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.MockService }, false);
+        openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.MockService });
         console.log('Add Mock Service');
     });
 
@@ -94,7 +97,20 @@ export function activateMockServiceTreeView(context: ExtensionContext): void {
     });
 
     commands.registerCommand(COMMANDS.UPDATE_MOCK_SERVICE, (documentUri: string) => {
-        openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.MockService, documentUri }, false);
+        const now = Date.now()
+        const isSameItem = documentUri === lastSelectedItem
+        const isWithinShortTime = now - lastSelectedAt < 500
+        if (isSameItem && isWithinShortTime) {
+            // reset state
+            lastSelectedItem = undefined;
+            lastSelectedAt = now;
+            openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.MockService, documentUri });
+        } else {
+            // set new state
+            lastSelectedItem = documentUri;
+            lastSelectedAt = now;
+        }
+
         console.log('Update Mock Service');
     });
 }

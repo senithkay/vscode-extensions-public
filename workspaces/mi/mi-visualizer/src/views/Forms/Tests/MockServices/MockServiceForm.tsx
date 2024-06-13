@@ -165,7 +165,7 @@ export function MockServiceForm(props: MockServiceFormProps) {
                 >
                     {`${isUpdate ? "Update" : "Create"}`}
                 </Button>
-                <Button appearance="secondary" onClick={handleGoBack}>
+                <Button appearance="secondary" onClick={openOverview}>
                     Cancel
                 </Button>
             </FormActions>

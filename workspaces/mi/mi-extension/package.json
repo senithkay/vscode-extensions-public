@@ -366,9 +366,21 @@
         "category": "MI"
       },
       {
+        "command": "MI.test.update.suite",
+        "title": "Update test suite",
+        "icon": "$(distro-design-view)",
+        "category": "MI"
+      },
+      {
         "command": "MI.test.add.case",
         "title": "Add test case",
         "icon": "$(add)",
+        "category": "MI"
+      },
+      {
+        "command": "MI.test.update.case",
+        "title": "Update test case",
+        "icon": "$(distro-design-view)",
         "category": "MI"
       },
       {
@@ -539,12 +551,17 @@
         {
           "command": "MI.test.add.suite",
           "group": "inline",
-          "when": "testId in test.canAddTestSuite"
+          "when": "testId in test.dirs"
+        },
+        {
+          "command": "MI.test.update.suite",
+          "group": "inline",
+          "when": "testId in test.suites"
         },
         {
           "command": "MI.test.add.case",
           "group": "inline",
-          "when": "testId in test.canAddTestCase"
+          "when": "testId in test.suites"
         }
       ],
       "testing/message/context": [

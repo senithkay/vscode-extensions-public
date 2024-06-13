@@ -47,9 +47,32 @@ export async function activateTextExplorer(extensionContext: ExtensionContext) {
         console.log('Add Test suite');
     });
 
-    commands.registerCommand(COMMANDS.ADD_TEST_CASE, (entry: TestItem) => {
-        openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.TestCase, documentUri: entry.uri?.fsPath });
+    commands.registerCommand(COMMANDS.UPDATE_TEST_SUITE, (entry: TestItem) => {
+        if (!langClient || !entry?.id) {
+            return;
+        }
+        openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.TestSuite, documentUri: entry.id });
+        console.log('Update Test suite');
+    });
+
+    commands.registerCommand(COMMANDS.ADD_TEST_CASE, async (entry: TestItem) => {
+        if (!langClient || !entry?.id) {
+            return;
+        }
+        const fileUri = Uri.parse(entry.id);
+        const testCaseNames: string[] = [];
+        const testCases: TestCase[] = await getTestCases(fileUri);
+        testCases.forEach((testCase) => {
+            testCaseNames.push(testCase.name);
+        });
+
+        openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.TestCase, documentUri: fileUri.fsPath, customProps: { availableTestCases: testCaseNames } });
         console.log('Add Test Case');
+    });
+
+    commands.registerCommand(COMMANDS.UPDATE_TEST_CASE, (entry: TestItem) => {
+        openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.TestSuite, documentUri: entry.uri?.fsPath });
+        console.log('Update Test Case');
     });
 
     activateMockServiceTreeView(extensionContext);
@@ -69,22 +92,7 @@ export async function createTests(uri: Uri) {
         return;
     }
 
-    const testCases: TestCase[] = [];
-    if (langClient) {
-        const st = await langClient.getSyntaxTree({
-            documentIdentifier: {
-                uri: uri.fsPath
-            },
-        });
-        if (st) {
-            const unitTestST: UnitTest = st?.syntaxTree["unit-test"];
-            if (unitTestST && unitTestST.testCases) {
-                unitTestST.testCases.testCases.forEach((testCase) => {
-                    testCases.push(testCase);
-                });
-            }
-        }
-    }
+    const testCases: TestCase[] = await getTestCases(uri);
 
     const testsRoot = path.join(projectRoot, "src", "test");
 
@@ -133,32 +141,62 @@ export async function createTests(uri: Uri) {
         let node;
         if (i < relativePath.length - 1) {
             node = createTestItem(testController, currentPath, level, true);
-            await setCanAddTestSuite(currentPath);
+            await setStateforTestDirs(currentPath);
         } else {
             node = createTestItem(testController, currentPath, level.split(".xml")[0], false);
-            testCases.forEach((testCase) => {
+            testCases.forEach(async (testCase) => {
                 const tcase = createTestCase(testController, currentPath, testCase.name, testCase.range);
                 node.children.add(tcase);
+                await setStateForTestCases(testCase.name);
             });
-            await setCanAddTestCase(currentPath);
+            await setStateForTestSuites(currentPath);
         }
         parent ? parent.children.add(node) : testController.items.add(node);
         ancestors.push(node);
     }
 }
 
-async function setCanAddTestSuite(id: string) {
+async function getTestCases(uri: Uri) {
+    const testCases: TestCase[] = [];
+    if (!langClient) {
+        throw new Error('Language client is not initialized');
+    }
+    const st = await langClient.getSyntaxTree({
+        documentIdentifier: {
+            uri: uri.fsPath
+        },
+    });
+    if (st) {
+        const unitTestST: UnitTest = st?.syntaxTree["unit-test"];
+        if (unitTestST && unitTestST.testCases) {
+            unitTestST.testCases.testCases.forEach((testCase) => {
+                testCases.push(testCase);
+            });
+        }
+    }
+
+    return testCases;
+}
+
+async function setStateforTestDirs(id: string) {
     if (!testSuiteNodes.includes(id)) {
         testSuiteNodes.push(id);
     }
-    await commands.executeCommand('setContext', 'test.canAddTestSuite', testSuiteNodes);
+    await commands.executeCommand('setContext', 'test.dirs', testSuiteNodes);
 }
 
-async function setCanAddTestCase(id: string) {
+async function setStateForTestSuites(id: string) {
     if (!testCaseNodes.includes(id)) {
         testCaseNodes.push(id);
     }
-    await commands.executeCommand('setContext', 'test.canAddTestCase', testCaseNodes);
+    await commands.executeCommand('setContext', 'test.suites', testCaseNodes);
+}
+
+async function setStateForTestCases(id: string) {
+    if (!testCaseNodes.includes(id)) {
+        testCaseNodes.push(id);
+    }
+    await commands.executeCommand('setContext', 'test.cases', testCaseNodes);
 }
 
 /**

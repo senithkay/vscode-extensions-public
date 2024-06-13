@@ -211,6 +211,7 @@ import path = require("path");
 import { getResourceInfo, isEqualSwaggers, mergeSwaggers } from "../../util/swagger";
 import { isEqual } from "lodash";
 import { mockSerivesFilesMatchPattern } from "../../test-explorer/mock-services/activator";
+import { UnitTest } from "../../../../syntax-tree/lib/src";
 
 const { XMLParser, XMLBuilder } = require("fast-xml-parser");
 
@@ -3688,11 +3689,24 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 throw new Error('Test case does not exist');
             }
 
-            const range = new Range(params.range.start.line, params.range.start.character, params.range.end.line, params.range.end.character);
+            const langClient = StateMachine.context().langClient!;
+            const st = await langClient.getSyntaxTree({
+                documentIdentifier: {
+                    uri: filePath
+                },
+            });
+            const stNode: UnitTest = st?.syntaxTree?.["unit-test"];
+            if (!stNode) {
+                throw new Error('Invalid test case file');
+            }
+            const endTag = stNode.testCases.range.endTagRange.start
+
+            const range = new Range(endTag.line, endTag.character, endTag.line, endTag.character);
             const workspaceEdit = new WorkspaceEdit();
             workspaceEdit.replace(Uri.file(filePath), range, params.content);
             await workspace.applyEdit(workspaceEdit);
 
+            await this.rangeFormat({ uri: filePath, range: this.getFormatRange(range, params.content) });
             resolve({});
         });
     }

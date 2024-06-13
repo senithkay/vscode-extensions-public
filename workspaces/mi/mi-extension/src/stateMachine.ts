@@ -401,7 +401,6 @@ const stateMachine = createMachine<MachineContext>({
                                         break;
                                     }
                                 case !!node["unit-test"]:
-                                    viewLocation.view = MACHINE_VIEW.TestSuite;
                                     viewLocation.stNode = node["unit-test"] as UnitTest;
                                     break;
                                 default:

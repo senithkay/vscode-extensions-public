@@ -1360,7 +1360,6 @@ export interface UpdateTestSuiteResponse {
 
 export interface UpdateTestCaseRequest {
     path: string;
-    range: Range;
     content: string;
 }
 

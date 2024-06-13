@@ -15,6 +15,7 @@ import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { TagRange } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 import * as yup from "yup";
+import { getTestCaseXML } from "../../../utils/template-engine/mustache-templates/TestSuite";
 
 interface TestCaseFormProps {
     filePath?: string;
@@ -74,11 +75,8 @@ export function TestCaseForm(props: TestCaseFormProps) {
     const {
         control,
         handleSubmit,
-        formState: { errors, isValid, isDirty, dirtyFields },
+        formState: { errors },
         register,
-        watch,
-        getValues,
-        setValue,
         reset
     } = useForm({
         resolver: yupResolver(schema),
@@ -200,7 +198,8 @@ export function TestCaseForm(props: TestCaseFormProps) {
             props.onSubmit(values);
             return;
         }
-        rpcClient.getMiDiagramRpcClient().updateTestCase({ path: props.filePath, range: props.range, ...values }).then((resp: UpdateTestCaseResponse) => {
+        const content = getTestCaseXML(values);
+        rpcClient.getMiDiagramRpcClient().updateTestCase({ path: props.filePath, content }).then(() => {
             openOverview();
         });
     }
@@ -260,7 +259,7 @@ export function TestCaseForm(props: TestCaseFormProps) {
                             readonly={false}
                             addParamText="Add Property"
                             onChange={(values) => {
-                                values.paramValues = values.paramValues.map((param: any, index: number) => {
+                                values.paramValues = values.paramValues.map((param: any) => {
                                     const property: ParamValue[] = param.paramValues;
                                     param.key = property[0].value;
                                     param.value = property[1].value;
@@ -288,7 +287,7 @@ export function TestCaseForm(props: TestCaseFormProps) {
                             readonly={false}
                             addParamText="Add Assertion"
                             onChange={(values) => {
-                                values.paramValues = values.paramValues.map((param: any, index: number) => {
+                                values.paramValues = values.paramValues.map((param: any) => {
                                     const property: ParamValue[] = param.paramValues;
                                     param.key = property[0].value;
                                     param.value = property[1].value;
