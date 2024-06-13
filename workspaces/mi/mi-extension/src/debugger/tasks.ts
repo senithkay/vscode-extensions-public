@@ -27,6 +27,20 @@ export function getBuildTask(): vscode.Task {
     return buildTask;
 }
 
+export function getDockerTask(): vscode.Task {
+    const commandToExecute = "mvn clean install -P docker";
+
+    const dockerTask = new vscode.Task(
+        { type: 'mi-docker' },
+        vscode.TaskScope.Workspace,
+        'docker',
+        'mi',
+        new vscode.ShellExecution(commandToExecute)
+    );
+
+    return dockerTask;
+}
+
 export async function getRunTask(serverPath: string, isDebug: boolean): Promise<vscode.Task | undefined> {
     let command;
     let binFile;
