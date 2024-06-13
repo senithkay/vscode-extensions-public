@@ -1318,70 +1318,34 @@ export interface UpdateAPIFromSwaggerRequest extends SwaggerTypeRequest {
     insertPosition: Position;
 }
 
-export interface UpdateTestSuiteRequest extends TestSuite {
-    path: string;
-}
-
-export interface TestSuite {
-    name: string;
-    artifact: string;
-    supporttiveArtifacts?: string[];
-    testCases: TestCase[];
-    mockServices?: string[];
+export interface UpdateTestSuiteRequest {
+    path?: string;
+    content: string;
+    artifact?: string;
+    name?: string;
 }
 
 export interface UpdateTestSuiteResponse {
     path: string;
+}
+
+export interface UpdateTestCaseRequest {
+    path: string;
+    range: Range;
     content: string;
-}
-
-export interface UpdateTestCaseRequest extends TestCase {
-    path?: string;
-    range?: Range;
-}
-
-export interface TestCase {
-    name: string;
-    resourcePath: string;
-    resourceMethod: string;
-    resourceProtocol?: string;
-    inputPayload?: string;
-    inputProperties?: TestCaseProperty[];
-    assertions: TestCaseAssertion[];
 }
 
 export interface UpdateTestCaseResponse {
-    path: string;
-    content: string;
 }
 
-export interface TestCaseAssertion {
-    type: string;
-    actualExpression: string;
-    expectedValue?: string;
-    errorMessage: string;
-}
-
-export interface TestCaseProperty {
-    name: string;
-    scope: string;
-    value: string;
-}
-
-export interface UpdateMockServiceRequest extends MockService {
+export interface UpdateMockServiceRequest {
     path?: string;
-}
-
-export interface MockService {
-    name: string;
-    endpointName: string;
-    servicePort: number;
-    serviceContext: string;
+    content: string;
+    name?: string;
 }
 
 export interface UpdateMockServiceResponse {
     path: string;
-    content: string;
 }
 
 export interface GetAllTestSuitsResponse {
