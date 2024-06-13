@@ -18,6 +18,8 @@ import { signOutCommand } from './sign-out-cmd';
 import { openComponentInConsoleCommand } from './open-component-in-console-cmd';
 import { viewComponentCommand } from './view-component-cmd';
 import { cloneRepoCommand } from './clone-project-cmd';
+import { createProjectWorkspaceCommand } from './create-project-workspace-cmd';
+
 
 export function activateCmds(context: ExtensionContext) {
     createNewComponentCommand(context);
@@ -31,4 +33,5 @@ export function activateCmds(context: ExtensionContext) {
     openComponentInConsoleCommand(context);
     viewComponentCommand(context);
     cloneRepoCommand(context);
+    createProjectWorkspaceCommand(context);
 }

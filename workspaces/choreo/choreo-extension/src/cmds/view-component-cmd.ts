@@ -37,9 +37,7 @@ export function viewComponentCommand(context: ExtensionContext) {
 
                     let matchingPath: string = "";
 
-                    const contextItems = Object.values(contextStore.getState().state.items).filter(
-                        (item) => item.org && item.project
-                    );
+                    const contextItems = contextStore.getState().getValidItems();
                     for (const item of contextItems) {
                         if (item.orgHandle === selectedOrg.handle && item.projectHandle === selectedProject.handler) {
                             const matchingCts = item.contextDirs.find((ctxItem) => {

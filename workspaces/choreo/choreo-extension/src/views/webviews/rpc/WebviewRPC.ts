@@ -144,10 +144,9 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
     messenger.onRequest(GetWebviewStoreState, async ()=>webviewStateStore.getState().state);
     messenger.onRequest(GetContextState, async ()=>contextStore.getState().state);
 
-    // TODO: remove
-    // messenger.onNotification(RefreshContextState, () => {
-    //     contextStore.getState().refreshState();
-    // });
+    messenger.onNotification(RefreshContextState, () => {
+        contextStore.getState().refreshState();
+    });
     messenger.onRequest(OpenSubDialogRequest, async (options: OpenDialogOptions) => {
         try {
             const result = await window.showOpenDialog({ ...options, defaultUri: Uri.parse(options.defaultUri) });

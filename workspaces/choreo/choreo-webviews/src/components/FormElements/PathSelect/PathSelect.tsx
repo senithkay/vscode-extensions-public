@@ -45,10 +45,6 @@ export const PathSelect: FC<Props> = (props) => {
                     subPath: paths[0],
                     parentPath: basePath,
                 });
-                if (subPath === null) {
-                    ChoreoWebViewAPI.getInstance().showErrorMsg("Selected path is not inside your workspace.");
-                    return;
-                }
                 onSelect(subPath);
             }
         },

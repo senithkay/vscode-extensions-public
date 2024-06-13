@@ -94,26 +94,34 @@
         "icon": "$(repo-clone)"
       },
       {
-        "command": "wso2.choreo.project.context.create",
+        "command": "wso2.choreo.project.create.context",
         "title": "Select Project",
         "category": "Choreo",
         "icon": "$(link)",
         "enablement": "isValidWorkspace == true"
       },
       {
-        "command": "wso2.choreo.project.context.switch",
+        "command": "wso2.choreo.project.switch",
         "title": "Switch Project",
         "category": "Choreo",
         "icon": "$(edit)",
         "enablement": "isValidWorkspace == true && isLoadingContextDirs == false && hasMultipleContexts == true"
       },
       {
-        "command": "wso2.choreo.project.context.refresh",
+        "command": "wso2.choreo.project.refresh",
         "title": "Refresh Workspace",
         "category": "Choreo",
         "icon": "$(refresh)",
         "enablement": "isLoggedIn == true && isValidWorkspace == true && isLoadingContextDirs == false"
+      },
+      {
+        "command": "wso2.choreo.project.create.workspace",
+        "title": "Create Project Workspace",
+        "category": "Choreo",
+        "icon": "$(new-file)",
+        "enablement": "isLoggedIn == true && isValidWorkspace == true && hasSelectedContext == true"
       }
+      
     ],
     "viewsContainers": {
       "activitybar": [
@@ -141,17 +149,17 @@
     "menus": {
       "view/title": [
         {
-          "command": "wso2.choreo.project.context.switch",
+          "command": "wso2.choreo.project.switch",
           "when": "view == choreo.activity.components && isLoggedIn == true && hasMultipleContexts == true",
           "group": "navigation"
         },
         {
           "command": "wso2.choreo.create.component",
-          "when": "view == choreo.activity.components && isLoggedIn == true && hasSelectedContext == true",
+          "when": "view == choreo.activity.components && isLoggedIn == true",
           "group": "navigation"
         },
         {
-          "command": "wso2.choreo.project.context.refresh",
+          "command": "wso2.choreo.project.refresh",
           "when": "view == choreo.activity.components && isLoggedIn == true",
           "group": "navigation"
         }

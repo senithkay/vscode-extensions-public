@@ -35,7 +35,7 @@ export const ComponentListView: FC<ComponentsListActivityViewProps> = ({ directo
 
     const [componentListRef] = useAutoAnimate();
 
-    const validContextItems = Object.values(linkedDirState?.items).filter((item) => item.project && item.org);
+    const validContextItems = Object.values(linkedDirState?.items ?? {}).filter((item) => item.project && item.org);
 
     if (!directoryPath) {
         return <InvalidWorkspaceView loading={isLoading || linkedDirState.loading} />;

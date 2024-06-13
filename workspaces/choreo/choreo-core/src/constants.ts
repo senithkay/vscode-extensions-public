@@ -11,9 +11,10 @@ export const CommandIds = {
     OpenComponentInConsole: "wso2.choreo.component.open.external",
     ViewComponent:"wso2.choreo.component.view",
     CloneProject:"wso2.choreo.project.clone",
-    SetDirectoryContext: "wso2.choreo.project.context.create",
-    SwitchDirectoryContext: "wso2.choreo.project.context.switch",
-    RefreshDirectoryContext: "wso2.choreo.project.context.refresh",
+    SetDirectoryContext: "wso2.choreo.project.create.context",
+    SwitchDirectoryContext: "wso2.choreo.project.switch",
+    RefreshDirectoryContext: "wso2.choreo.project.refresh",
+    CreateProjectWorkspace: "wso2.choreo.project.create.workspace",
 };
 
 

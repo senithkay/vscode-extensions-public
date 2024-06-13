@@ -8,7 +8,7 @@ import {
     Organization,
     Project,
 } from "@wso2-enterprise/choreo-core";
-import { Uri, workspace } from "vscode";
+import { Uri, window, workspace } from "vscode";
 import * as path from "path";
 import * as yaml from "js-yaml";
 import { existsSync, readFileSync } from "fs";
@@ -19,9 +19,11 @@ import { ext } from "../extensionVariables";
 import { authStore } from "./auth-store";
 import { dataCacheStore } from "./data-cache-store";
 import { getGitRoot } from "../git/util";
+import { showProjectWorkspaceCreateNotification } from "../cmds/create-project-workspace-cmd";
 
 interface ContextStore {
     state: ContextStoreState;
+    getValidItems: () => ContextItemEnriched[];
     refreshState: () => Promise<void>;
     changeContext: (selected: ContextItemEnriched) => Promise<void>;
     onSetNewContext: (org: Organization, project: Project, contextDir: ContextItemDir) => void;
@@ -48,8 +50,11 @@ export const contextStore = createStore(
                     }
                 } catch (err) {
                     set(({ state }) => ({ state: { ...state, loading: false, error: err as Error } }));
+                } finally {
+                    showProjectWorkspaceCreateNotification();
                 }
             },
+            getValidItems: () => Object.values(get().state.items).filter((item) => item.org && item.project),
             onSetNewContext: async (org, project, contextDir) => {
                 try {
                     const item: ContextItemEnriched = {
@@ -143,14 +148,12 @@ const getAllContexts = async (previousItems: { [key: string]: ContextItemEnriche
     } else if (workspace.workspaceFolders) {
         // for each directory in the workspace
         // bubble up and check if the repo root contains a .choreo/context.yaml file
-        const gitRootSets = new Set<string>();
         for (const workspaceFolder of workspace.workspaceFolders) {
             try {
                 let gitRoot = await getGitRoot(ext.context, workspaceFolder.uri.fsPath);
                 if (gitRoot) {
                     const contextPath = path.join(gitRoot, ".choreo", "context.yaml");
-                    if (existsSync(contextPath) && !gitRootSets.has(contextPath)) {
-                        gitRootSets.add(contextPath);
+                    if (existsSync(contextPath)) {
                         setContextObj(contextPath, workspaceFolder.uri.fsPath, workspaceFolder.name);
                     }
                 }
@@ -255,10 +258,12 @@ const mapComponentList = async (
 
     for (const componentItem of components) {
         if (selected?.contextDirs) {
+            console.log('selected?.contextDirs', selected?.contextDirs)
             for (const item of selected?.contextDirs) {
                 const projectDirPath = path.dirname(path.dirname(item.contextFileFsPath));
                 const subPathDir = path.join(projectDirPath, componentItem.spec.source.github?.path ?? "");
                 const isSubPath = isSubpath(item.dirFsPath, subPathDir);
+                console.log('isSubPath', isSubPath)
                 if (
                     isSubPath &&
                     existsSync(subPathDir) &&
@@ -278,7 +283,7 @@ const mapComponentList = async (
     return comps;
 };
 
-function isSubpath(parent: string, sub: string) {
+function isSubpath(parent: string, sub: string): boolean {
     const normalizedParent = path.normalize(parent).toLowerCase();
     const normalizedSub = path.normalize(sub).toLowerCase();
     if (normalizedParent === normalizedSub) {
@@ -286,5 +291,5 @@ function isSubpath(parent: string, sub: string) {
     }
 
     const relative = path.relative(normalizedParent, normalizedSub);
-    return relative && !relative.startsWith("..") && !path.isAbsolute(relative);
+    return !!relative && !relative.startsWith("..") && !path.isAbsolute(relative);
 }

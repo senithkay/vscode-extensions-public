@@ -7,15 +7,10 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { ExtensionContext, window, commands } from "vscode";
-import { CommandIds, ContextItem } from "@wso2-enterprise/choreo-core";
+import { CommandIds, ContextItem, Organization, Project, UserInfo } from "@wso2-enterprise/choreo-core";
 import * as path from "path";
 import { readFileSync, existsSync, writeFileSync, mkdirSync } from "fs";
-import {
-    selectOrg,
-    resolveWorkspaceDirectory,
-    getUserInfoForCmd,
-    selectProjectWithCreateNew,
-} from "./cmd-utils";
+import { selectOrg, resolveWorkspaceDirectory, getUserInfoForCmd, selectProjectWithCreateNew } from "./cmd-utils";
 import { getGitRoot, getGitRemotes } from "../git/util";
 import * as yaml from "js-yaml";
 import { contextStore } from "../stores/context-store";
@@ -76,51 +71,20 @@ export function setDirectoryContextCommand(context: ExtensionContext) {
                         `Select project from '${selectedOrg.name}'`
                     );
 
-                    const contextFilePath = path.join(gitRoot, ".choreo", "context.yaml");
-                    if (existsSync(contextFilePath)) {
-                        let parsedData: ContextItem[] = yaml.load(readFileSync(contextFilePath, "utf8")) as any;
-                        if (!Array.isArray(parsedData) && (parsedData as any).org && (parsedData as any).project) {
-                            parsedData = [{ org: (parsedData as any).org, project: (parsedData as any).project }];
-                        }
+                    const contextFilePath = updateContextFile(
+                        gitRoot,
+                        userInfo,
+                        selectedProject,
+                        selectedOrg,
+                        projectList
+                    );
 
-                        const newList = parsedData.filter(
-                            (item) =>
-                                userInfo.organizations.some((org) => org.handle === item.org) ||
-                                (item.org === selectedOrg.handle &&
-                                    projectList.some((project) => project.handler === item.project))
-                        );
-                        if (
-                            !newList.some(
-                                (item) => item.org === selectedOrg.handle && item.project === selectedProject.handler
-                            )
-                        ) {
-                            newList.push({ org: selectedOrg.handle, project: selectedProject.handler });
-                        }
-                        writeFileSync(contextFilePath, yaml.dump(newList));
-                    } else {
-                        const choreoDir = path.join(gitRoot, ".choreo");
-                        if (!existsSync(choreoDir)) {
-                            mkdirSync(choreoDir);
-                        }
-                        let contextYamlData: ContextItem[] = [
-                            { org: selectedOrg.handle, project: selectedProject.handler },
-                        ];
-                        writeFileSync(path.join(choreoDir, "context.yaml"), yaml.dump(contextYamlData));
-                    }
-
-                    contextStore
-                        .getState()
-                        .onSetNewContext(
-                            selectedOrg,
-                            selectedProject,
-                            {
-                                contextFileFsPath: contextFilePath,
-                                dirFsPath: directoryUrl.fsPath,
-                                workspaceName: directory.name,
-                                projectRootFsPath: path.dirname(path.dirname(contextFilePath))
-                                
-                            }
-                        );
+                    contextStore.getState().onSetNewContext(selectedOrg, selectedProject, {
+                        contextFileFsPath: contextFilePath,
+                        dirFsPath: directoryUrl.fsPath,
+                        workspaceName: directory.name,
+                        projectRootFsPath: path.dirname(path.dirname(contextFilePath)),
+                    });
                 }
             } catch (err: any) {
                 console.error("Failed to link project", err);
@@ -129,3 +93,38 @@ export function setDirectoryContextCommand(context: ExtensionContext) {
         })
     );
 }
+
+export const updateContextFile = (
+    gitRoot: string,
+    userInfo: UserInfo,
+    selectedProject: Project,
+    selectedOrg: Organization,
+    projectList: Project[]
+) => {
+    const contextFilePath = path.join(gitRoot, ".choreo", "context.yaml");
+    if (existsSync(contextFilePath)) {
+        let parsedData: ContextItem[] = yaml.load(readFileSync(contextFilePath, "utf8")) as any;
+        if (!Array.isArray(parsedData) && (parsedData as any).org && (parsedData as any).project) {
+            parsedData = [{ org: (parsedData as any).org, project: (parsedData as any).project }];
+        }
+
+        const newList = parsedData.filter(
+            (item) =>
+                userInfo.organizations.some((org) => org.handle === item.org) ||
+                (item.org === selectedOrg.handle && projectList.some((project) => project.handler === item.project))
+        );
+        if (!newList.some((item) => item.org === selectedOrg.handle && item.project === selectedProject.handler)) {
+            newList.push({ org: selectedOrg.handle, project: selectedProject.handler });
+        }
+        writeFileSync(contextFilePath, yaml.dump(newList));
+    } else {
+        const choreoDir = path.join(gitRoot, ".choreo");
+        if (!existsSync(choreoDir)) {
+            mkdirSync(choreoDir);
+        }
+        let contextYamlData: ContextItem[] = [{ org: selectedOrg.handle, project: selectedProject.handler }];
+        writeFileSync(path.join(choreoDir, "context.yaml"), yaml.dump(contextYamlData));
+    }
+
+    return contextFilePath;
+};

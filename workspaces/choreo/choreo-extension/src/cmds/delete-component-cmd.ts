@@ -6,14 +6,15 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { ExtensionContext, commands, window, ProgressLocation } from "vscode";
-import { CommandIds, ComponentKind, Organization, Project } from "@wso2-enterprise/choreo-core";
+import { ExtensionContext, commands, window, ProgressLocation, workspace, Uri } from "vscode";
+import { CommandIds, ComponentKind, Organization, Project, WorkspaceConfig } from "@wso2-enterprise/choreo-core";
 import { getUserInfoForCmd, selectComponent, selectOrg, selectProject } from "./cmd-utils";
 import { ext } from "../extensionVariables";
 import { closeComponentDetailsView } from "../views/webviews/ComponentDetailsView";
 import { closeAllComponentTestView } from "../views/webviews/ComponentTestView";
 import { contextStore } from "../stores/context-store";
 import { dataCacheStore } from "../stores/data-cache-store";
+import { basename } from "path";
 
 export function deleteComponentCommand(context: ExtensionContext) {
     context.subscriptions.push(
@@ -82,6 +83,18 @@ export function deleteComponentCommand(context: ExtensionContext) {
                                         selectedProject.handler,
                                         compCache.filter((item) => item.metadata.id !== selectedComponent.metadata.id)
                                     );
+
+                                    if (
+                                        workspace.workspaceFile &&
+                                        basename(workspace.workspaceFile.path) ===
+                                            `${selectedProject?.handler}.code-workspace`
+                                    ) {
+                                        const folderIndex =
+                                            workspace.workspaceFolders?.findIndex(
+                                                (item) => item.name === selectedComponent.metadata.name
+                                            ) ?? -1;
+                                        workspace.updateWorkspaceFolders(folderIndex, 1);
+                                    }
 
                                     contextStore.getState().refreshState();
 

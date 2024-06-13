@@ -39,8 +39,7 @@ have settings icon(change project) and clicking that should provide
 during create component command, if context not set, ask to select org & project
 during component creation, do not validate if the directory is within the root dir, only check if its a git repo, after creating, update the context.yaml at the root of the repo
 check clone functionality
-test with workspace files
-create workspace file
+
 sync workspace file
 remove link.yaml related stuff
 check all commands to use context if available, user should be able to select stuff outside of context

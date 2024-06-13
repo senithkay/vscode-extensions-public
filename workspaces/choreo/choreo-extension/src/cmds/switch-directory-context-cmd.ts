@@ -17,9 +17,7 @@ export function switchDirectoryContextCommand(context: ExtensionContext) {
             try {
                 const userInfo = await getUserInfoForCmd("switch directory context");
                 if (userInfo) {
-                    const contextItems = Object.values(contextStore.getState().state.items).filter(
-                        (item) => item.project && item.org
-                    );
+                    const contextItems = contextStore.getState().getValidItems();
 
                     if (contextItems.length === 0) {
                         commands.executeCommand(CommandIds.SetDirectoryContext);

@@ -1,0 +1,90 @@
+/*
+ * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
+import { ExtensionContext, Uri, commands, window, workspace } from "vscode";
+import { ext } from "../extensionVariables";
+import { CommandIds, WorkspaceConfig } from "@wso2-enterprise/choreo-core";
+import { getUserInfoForCmd } from "./cmd-utils";
+import * as path from "path";
+import { writeFileSync } from "fs";
+import { contextStore } from "../stores/context-store";
+import * as os from "os";
+
+export function createProjectWorkspaceCommand(context: ExtensionContext) {
+    context.subscriptions.push(
+        commands.registerCommand(CommandIds.CreateProjectWorkspace, async () => {
+            try {
+                const userInfo = await getUserInfoForCmd("create a project workspace");
+                if (userInfo) {
+                    const selected = contextStore.getState().state.selected!;
+
+                    const workspaceFileDirs = await window.showOpenDialog({
+                        canSelectFolders: true,
+                        canSelectFiles: false,
+                        canSelectMany: false,
+                        title: "Select a folder to create the project workspace file",
+                        defaultUri: Uri.file(os.homedir()),
+                    });
+
+                    if (workspaceFileDirs === undefined || workspaceFileDirs.length === 0) {
+                        throw new Error("Directory is required in order to create the workspace file");
+                    }
+
+                    const workspaceFileDir = workspaceFileDirs[0];
+
+                    const workspaceFile: WorkspaceConfig = {
+                        folders:
+                            contextStore.getState().state.components?.map((item) => ({
+                                name: item.component?.metadata.name!,
+                                path: path.normalize(path.relative(workspaceFileDir.fsPath, item.componentFsPath)),
+                            })) ?? [],
+                    };
+                    const workspaceFilePath = path.join(
+                        workspaceFileDir.fsPath,
+                        `${selected?.project?.handler}.code-workspace`
+                    );
+                    writeFileSync(workspaceFilePath, JSON.stringify(workspaceFile, null, 4));
+
+                    const openInCurrentWorkspace = await window.showInformationMessage(
+                        "Where do you want to open the project workspace?",
+                        { modal: true },
+                        "Current Window",
+                        "New Window"
+                    );
+
+                    if (openInCurrentWorkspace) {
+                        await commands.executeCommand("vscode.openFolder", Uri.file(workspaceFilePath), {
+                            forceNewWindow: openInCurrentWorkspace === "New Window",
+                        });
+                    }
+                }
+            } catch (err: any) {
+                console.error("Failed to create project workspace", err);
+                window.showErrorMessage(err?.message || "Failed to create project workspace");
+            }
+        })
+    );
+}
+
+export const showProjectWorkspaceCreateNotification = async () => {
+    if (!workspace.workspaceFile && contextStore.getState().getValidItems().length > 0) {
+        if (!ext.context.workspaceState.get("shown-workspace-create-notification")) {
+            ext.context.workspaceState.update("shown-workspace-create-notification", "true");
+            window
+                .showInformationMessage(
+                    "Choreo project detected. Would you like to open it within a workspace",
+                    "Create workspace"
+                )
+                .then((resp) => {
+                    if (resp === "Create workspace") {
+                        commands.executeCommand(CommandIds.CreateProjectWorkspace);
+                    }
+                });
+        }
+    }
+};

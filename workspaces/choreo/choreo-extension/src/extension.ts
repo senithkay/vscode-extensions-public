@@ -46,11 +46,10 @@ export async function activate(context: vscode.ExtensionContext) {
     authStore.subscribe(({ state }) => {
         vscode.commands.executeCommand("setContext", "isLoggedIn", !!state.userInfo);
     });
-    contextStore.subscribe(({ state }) => {
+    contextStore.subscribe(({ state, getValidItems }) => {
         vscode.commands.executeCommand("setContext", "isLoadingContextDirs", state.loading);
         vscode.commands.executeCommand("setContext", "hasSelectedContext", !!state.selected);
-        const validCtxItems = Object.values(state.items).filter((item) => item.org && item.project);
-        vscode.commands.executeCommand("setContext", "hasMultipleContexts", validCtxItems.length > 1);
+        vscode.commands.executeCommand("setContext", "hasMultipleContexts", getValidItems().length > 1);
     });
     workspace.onDidChangeWorkspaceFolders(() =>
         vscode.commands.executeCommand("setContext", "isValidWorkspace", !!workspace.workspaceFolders?.length)
