@@ -84,7 +84,7 @@ export function activateMockServiceTreeView(context: ExtensionContext): void {
     window.createTreeView('MI.mock-services', { treeDataProvider: mockServiceTreeProvider });
 
     commands.registerCommand(COMMANDS.ADD_MOCK_SERVICE, () => {
-        openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.MockServiceForm }, false);
+        openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.MockService }, false);
         console.log('Add Mock Service');
     });
 
@@ -94,7 +94,7 @@ export function activateMockServiceTreeView(context: ExtensionContext): void {
     });
 
     commands.registerCommand(COMMANDS.UPDATE_MOCK_SERVICE, (documentUri: string) => {
-        openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.MockServiceForm, documentUri }, false);
+        openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.MockService, documentUri }, false);
         console.log('Update Mock Service');
     });
 }

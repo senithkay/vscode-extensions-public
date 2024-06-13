@@ -20,7 +20,7 @@ import { MockService } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 
 export interface MockServiceFormProps {
     filePath?: string;
-    mockServiceNode?: MockService;
+    stNode?: MockService;
     availableMockServices?: string[];
     onGoBack?: () => void;
     onSubmit?: (values: any) => void;
@@ -38,8 +38,8 @@ export function MockServiceForm(props: MockServiceFormProps) {
     const { rpcClient } = useVisualizerContext();
     const [isLoaded, setIsLoaded] = useState(false);
     const [availableMockServices, setAvailableMockServices] = useState(props.availableMockServices || []);
-    const isUpdate = !!props.mockServiceNode;
-    const mockService = props.mockServiceNode;
+    const isUpdate = !!props.stNode;
+    const mockService = props.stNode;
     const filePath = props.filePath;
 
     const isWindows = navigator.platform.toLowerCase().includes("win");

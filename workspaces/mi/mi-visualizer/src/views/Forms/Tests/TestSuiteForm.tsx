@@ -22,7 +22,7 @@ import { getTestSuiteXML } from "../../../utils/template-engine/mustache-templat
 import { SelectMockService } from "./MockServices/SelectMockService";
 
 interface TestSuiteFormProps {
-    syntaxTree?: UnitTest;
+    stNode?: UnitTest;
     filePath?: string;
 }
 
@@ -74,7 +74,7 @@ export function TestSuiteForm(props: TestSuiteFormProps) {
 
     const [allTestSuites, setAllTestSuites] = useState([]);
     const artifactTypes = ["Api", "Sequence", "Template"];
-    const syntaxTree = props.syntaxTree;
+    const syntaxTree = props.stNode;
     const filePath = props.filePath;
 
     const isWindows = navigator.platform.toLowerCase().includes("win");

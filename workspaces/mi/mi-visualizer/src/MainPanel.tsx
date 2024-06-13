@@ -28,7 +28,7 @@ import { WsdlEndpointWizard } from "./views/Forms/WSDLEndpointForm/index";
 import { DefaultEndpointWizard } from "./views/Forms/DefaultEndpointForm";
 import { LoadBalanceWizard } from './views/Forms/LoadBalanceEPform';
 import { FailoverWizard } from './views/Forms/FailoverEndpointForm';
-import { APIResource, NamedSequence, Proxy, Template } from '@wso2-enterprise/mi-syntax-tree/lib/src';
+import { APIResource, NamedSequence, Proxy, Template, MockService, UnitTest } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 import { ProxyView, ResourceView, SequenceView } from './views/Diagram';
 import { RecipientWizard } from './views/Forms/RecipientEndpointForm';
 import { TemplateEndpointWizard } from './views/Forms/TemplateEndpointForm';
@@ -282,7 +282,7 @@ const MainPanel = () => {
                     setViewComponent(<DataSourceWizard path={machineView.documentUri} />);
                     break;
                 case MACHINE_VIEW.TestSuiteForm:
-                    setViewComponent(<TestSuiteForm filePath={machineView.documentUri} />);
+                    setViewComponent(<TestSuiteForm filePath={machineView.documentUri} stNode={machineView.stNode as UnitTest} />);
                     break;
                 case MACHINE_VIEW.TestCaseForm:
                     setViewComponent(<TestCaseForm
@@ -293,7 +293,7 @@ const MainPanel = () => {
                     />);
                     break;
                 case MACHINE_VIEW.MockServiceForm:
-                    setViewComponent(<MockServiceForm filePath={machineView.documentUri} />);
+                    setViewComponent(<MockServiceForm filePath={machineView.documentUri} stNode={machineView.stNode as MockService} />);
                     break;
                 default:
                     setViewComponent(null);

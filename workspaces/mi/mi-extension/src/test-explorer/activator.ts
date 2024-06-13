@@ -37,12 +37,12 @@ export async function activateTextExplorer(extensionContext: ExtensionContext) {
     startWatchingWorkspace(testFileMatchPattern, createTestsForAllFiles);
 
     commands.registerCommand(COMMANDS.ADD_TEST_SUITE, () => {
-        openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.TestSuiteForm }, false);
+        openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.TestSuite }, false);
         console.log('Add Test suite');
     });
 
     commands.registerCommand(COMMANDS.ADD_TEST_CASE, (entry: TestItem) => {
-        openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.TestCaseForm, documentUri: entry.uri?.fsPath }, false);
+        openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.TestCase, documentUri: entry.uri?.fsPath }, false);
         console.log('Add Test Case');
     });
 
