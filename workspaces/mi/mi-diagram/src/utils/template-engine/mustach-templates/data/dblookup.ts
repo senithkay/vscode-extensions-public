@@ -18,66 +18,50 @@ export function getDBLookupMustacheTemplate() {
                 {{#isDbConnection}}
                 {{#isRegistryBasedDriverConfig}}
                 {{#registryBasedConnectionDBDriver}}<driver key="{{{registryBasedConnectionDBDriver}}}" />{{/registryBasedConnectionDBDriver}}
-                {{^registryBasedConnectionDBDriver}}<driver key=""/>{{/registryBasedConnectionDBDriver}}
                 {{/isRegistryBasedDriverConfig}}
                 {{^isRegistryBasedDriverConfig}}
                 {{#connectionDBDriver}}<driver>{{{connectionDBDriver}}}</driver>{{/connectionDBDriver}}
-                {{^connectionDBDriver}}<driver/>{{/connectionDBDriver}}
                 {{/isRegistryBasedDriverConfig}}
                 {{#isRegistryBasedURLConfig}}
                 {{#registryBasedURLConfigKey}}<url key="{{{registryBasedURLConfigKey}}}" />{{/registryBasedURLConfigKey}}
-                {{^registryBasedURLConfigKey}}<url key=""/>{{/registryBasedURLConfigKey}}
                 {{/isRegistryBasedURLConfig}}
                 {{^isRegistryBasedURLConfig}}
                 {{#connectionURL}}<url>{{{connectionURL}}}</url>{{/connectionURL}}
-                {{^connectionURL}}<url/>{{/connectionURL}}
                 {{/isRegistryBasedURLConfig}}
                 {{#isRegistryBasedUserConfig}}
                 {{#registryBasedUserConfigKey}}<user key="{{{registryBasedUserConfigKey}}}" />{{/registryBasedUserConfigKey}}
-                {{^registryBasedUserConfigKey}}<user key=""/>{{/registryBasedUserConfigKey}}
                 {{/isRegistryBasedUserConfig}}
                 {{^isRegistryBasedUserConfig}}
                 {{#connectionUsername}}<user>{{{connectionUsername}}}</user>{{/connectionUsername}}
-                {{^connectionUsername}}<user/>{{/connectionUsername}}
                 {{/isRegistryBasedUserConfig}}
                 {{#isRegistryBasedPassConfig}}
                 {{#registryBasedPassConfigKey}}<password key="{{{registryBasedPassConfigKey}}}" />{{/registryBasedPassConfigKey}}
-                {{^registryBasedPassConfigKey}}<password key=""/>{{/registryBasedPassConfigKey}}
                 {{/isRegistryBasedPassConfig}}
                 {{^isRegistryBasedPassConfig}}
                 {{#connectionPassword}}<password>{{{connectionPassword}}}</password>{{/connectionPassword}}
-                {{^connectionPassword}}<password/>{{/connectionPassword}}
                 {{/isRegistryBasedPassConfig}}
                 {{/isDbConnection}}
                 {{^isDbConnection}}
                 {{#connectionDSName}}<dsName>{{{connectionDSName}}}</dsName>{{/connectionDSName}}
-                {{^connectionDSName}}<dsName/>{{/connectionDSName}}
                 {{#connectionDSInitialContext}}<icClass>{{{connectionDSInitialContext}}}</icClass>{{/connectionDSInitialContext}}
-                {{^connectionDSInitialContext}}<icClass/>{{/connectionDSInitialContext}}
                 {{^isCarbonDs}}
                 {{#isRegistryBasedURLConfig}}
-                {{#registryBasedURLConfigKey}}<url key="{{{registryBasedURLConfigKey}}}" />{{/registryBasedURLConfigKey}}
-                {{^registryBasedURLConfigKey}}<url key=""/>{{/registryBasedURLConfigKey}}
+                {{#registryBasedURLConfigKey}}<url>{{{registryBasedURLConfigKey}}}</url>{{/registryBasedURLConfigKey}}
                 {{/isRegistryBasedURLConfig}}
                 {{^isRegistryBasedURLConfig}}
                 {{#connectionURL}}<url>{{{connectionURL}}}</url>{{/connectionURL}}
-                {{^connectionURL}}<url/>{{/connectionURL}}
                 {{/isRegistryBasedURLConfig}}
                 {{#isRegistryBasedUserConfig}}
-                {{#registryBasedUserConfigKey}}<user key="{{{registryBasedUserConfigKey}}}" />{{/registryBasedUserConfigKey}}
-                {{^registryBasedUserConfigKey}}<user key=""/>{{/registryBasedUserConfigKey}}
+                {{#registryBasedUserConfigKey}}<user>{{{registryBasedUserConfigKey}}}</user>{{/registryBasedUserConfigKey}}
                 {{/isRegistryBasedUserConfig}}
                 {{^isRegistryBasedUserConfig}}
                 {{#connectionUsername}}<user>{{{connectionUsername}}}</user>{{/connectionUsername}}
-                {{^connectionUsername}}<user/>{{/connectionUsername}}
                 {{/isRegistryBasedUserConfig}}
                 {{#isRegistryBasedPassConfig}}
-                {{#registryBasedPassConfigKey}}<password key="{{{registryBasedPassConfigKey}}}" />{{/registryBasedPassConfigKey}}
-                {{^registryBasedPassConfigKey}}<password key=""/>{{/registryBasedPassConfigKey}}
+                {{#registryBasedPassConfigKey}}<password>{{{registryBasedPassConfigKey}}}</password>{{/registryBasedPassConfigKey}}
                 {{/isRegistryBasedPassConfig}}
                 {{^isRegistryBasedPassConfig}}
                 {{#connectionPassword}}<password>{{{connectionPassword}}}</password>{{/connectionPassword}}
-                {{^connectionPassword}}<password/>{{/connectionPassword}}
                 {{/isRegistryBasedPassConfig}}
                 {{/isCarbonDs}}
                 {{/isDbConnection}}
