@@ -400,7 +400,7 @@ const stateMachine = createMachine<MachineContext>({
                                         viewLocation.stNode = node.template;
                                         break;
                                     }
-                                case !!node["unit-test"]: 
+                                case !!node["unit-test"]:
                                     viewLocation.view = MACHINE_VIEW.TestSuite;
                                     viewLocation.stNode = node["unit-test"] as UnitTest;
                                     break;
@@ -473,7 +473,7 @@ export const StateMachine = {
     sendEvent: (eventType: EVENT_TYPE) => { stateService.send({ type: eventType }); },
 };
 
-export function openView(type: EVENT_TYPE, viewLocation?: VisualizerLocation, revealProjectExplorer = true) {
+export function openView(type: EVENT_TYPE, viewLocation?: VisualizerLocation) {
     if (viewLocation?.documentUri) {
         viewLocation.documentUri = viewLocation.documentUri.startsWith("file") ? fileURLToPath(viewLocation.documentUri) : Uri.file(viewLocation.documentUri).fsPath;
     }
@@ -482,10 +482,6 @@ export function openView(type: EVENT_TYPE, viewLocation?: VisualizerLocation, re
         viewLocation!.projectUri = vscode.workspace.workspaceFolders![0].uri.fsPath;
     }
     updateProjectExplorer(viewLocation);
-    if (revealProjectExplorer) {
-        updateProjectExplorer(viewLocation);
-    }
-
     stateService.send({ type: type, viewLocation: viewLocation });
 }
 
@@ -508,7 +504,12 @@ export function navigate(entry?: HistoryEntry) {
 function updateProjectExplorer(location: VisualizerLocation | undefined) {
     if (location && location.documentUri) {
         const projectRoot = vscode.workspace.getWorkspaceFolder(vscode.Uri.file(location.documentUri));
-        if (projectRoot && !extension.preserveActivity) {
+
+        const relativePath = vscode.workspace.asRelativePath(location.documentUri);
+        const isTestFile = relativePath.startsWith(`src${path.sep}test${path.sep}`);
+        if (isTestFile) {
+            vscode.commands.executeCommand(COMMANDS.REVEAL_TEST_PANE);
+        } else if (projectRoot && !extension.preserveActivity) {
             location.projectUri = projectRoot.uri.fsPath;
             if (!StateMachine.context().isOldProject) {
                 vscode.commands.executeCommand(COMMANDS.REVEAL_ITEM_COMMAND, location);
