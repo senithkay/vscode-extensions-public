@@ -201,7 +201,6 @@ import { addNewEntryToArtifactXML, addSynapseDependency, changeRootPomPackaging,
 import { log } from "../../util/logger";
 import { importProject } from "../../util/migrationUtils";
 import { getDataSourceXml } from "../../util/template-engine/mustach-templates/DataSource";
-import { getMockServiceXML, getTestCaseXML, getTestSuiteXML } from "../../util/template-engine/mustach-templates/TestSuite";
 import { getClassMediatorContent } from "../../util/template-engine/mustach-templates/classMediator";
 import { generateXmlData, writeXmlDataToFile } from "../../util/template-engine/mustach-templates/createLocalEntry";
 import { getRecipientEPXml } from "../../util/template-engine/mustach-templates/recipientEndpoint";
@@ -3467,7 +3466,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             if (!fs.existsSync(path.dirname(openAPISpecPath))) {
                 fs.mkdirSync(path.dirname(openAPISpecPath), { recursive: true });
             };
-            
+
             const langClient = StateMachine.context().langClient!;
             const { swagger } = await langClient.swaggerFromAPI({ apiPath });
             if (!fs.existsSync(openAPISpecPath)) {
@@ -3579,7 +3578,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 generatedSwagger = response.swagger;
                 existingSwagger = fs.readFileSync(swaggerPath, 'utf-8');
             }
-            
+
             // Add new resources
             const { added, removed, updated } = getResourceInfo({
                 existingSwagger: parse(existingSwagger),
@@ -3631,32 +3630,43 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
     async updateTestSuite(params: UpdateTestSuiteRequest): Promise<UpdateTestSuiteResponse> {
         return new Promise(async (resolve) => {
-            const { name, artifact } = params;
+            const { content, name, artifact } = params;
             let filePath = params.path;
+            const fileName = filePath ? path.parse(filePath).name : "";
 
-            if (!artifact) {
-                throw new Error('Artifact is required');
+            if (!content) {
+                throw new Error('Content is required');
             }
 
             if (!filePath) {
+                if (!artifact) {
+                    throw new Error('Artifact is required');
+                }
+                if (!name) {
+                    throw new Error('Name is required');
+                }
                 const projeectRoot = workspace.getWorkspaceFolder(Uri.file(artifact))?.uri.fsPath;
                 const testDir = path.join(projeectRoot!, 'src', 'main', 'test');
                 filePath = path.join(testDir, `${name}.xml`);
 
+                if (fs.existsSync(filePath)) {
+                    throw new Error('Test suite already exists');
+                }
+
                 if (!fs.existsSync(testDir)) {
                     fs.mkdirSync(testDir, { recursive: true });
                 }
-
-            }
-            const xml = getTestSuiteXML(params);
-
-            if (!fs.existsSync(filePath) || params.path) {
-                fs.writeFileSync(filePath, xml);
-            } else {
-                throw new Error('Test suite already exists');
+            } else if (name != fileName && params.path) {
+                filePath = filePath.replace(`${fileName}.xml`, `${name}.xml`);
+                if (fs.existsSync(filePath)) {
+                    throw new Error('Test suite already exists');
+                }
+                fs.renameSync(params.path, filePath);
             }
 
-            resolve({ path: filePath, content: xml });
+            fs.writeFileSync(filePath, content);
+
+            resolve({ path: filePath });
         });
     }
 
@@ -3666,15 +3676,16 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             if (!filePath) {
                 throw new Error('File path is required');
             }
+            if (!fs.existsSync(filePath)) {
+                throw new Error('Test case does not exist');
+            }
 
-            const xml = getTestCaseXML(params);
-            // fs.writeFileSync(filePath, xml);
-            // if (!fs.existsSync(filePath)) {
-            // } else {
-            //     throw new Error('Test case already exists');
-            // }
+            const range = new Range(params.range.start.line, params.range.start.character, params.range.end.line, params.range.end.character);
+            const workspaceEdit = new WorkspaceEdit();
+            workspaceEdit.replace(Uri.file(filePath), range, params.content);
+            await workspace.applyEdit(workspaceEdit);
 
-            resolve({ path: filePath, content: xml });
+            resolve({});
         });
     }
 
@@ -3703,31 +3714,40 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
     async updateMockService(params: UpdateMockServiceRequest): Promise<UpdateMockServiceResponse> {
         return new Promise(async (resolve) => {
-            const name = params.name;
+            const { content, name } = params;
             let filePath = params.path;
+            const fileName = filePath ? path.parse(filePath).name : "";
+
+            if (!content) {
+                throw new Error('Content is required');
+            }
 
             if (!filePath) {
-                if (workspace?.workspaceFolders?.length === 0) {
-                    throw new Error('No workspace is currently open');
+                if (!name) {
+                    throw new Error('Name is required');
                 }
                 const projeectRoot = workspace.workspaceFolders![0].uri.fsPath;
-                const testDir = path.join(projeectRoot!, 'src', 'main', 'test', 'resources', 'mock-services');
+                const testDir = path.join(projeectRoot!, 'src', 'test', 'resources', 'mock-services');
                 filePath = path.join(testDir, `${name}.xml`);
+
+                if (fs.existsSync(filePath)) {
+                    throw new Error('Mock service already exists');
+                }
 
                 if (!fs.existsSync(testDir)) {
                     fs.mkdirSync(testDir, { recursive: true });
                 }
+            } else if (name != fileName && params.path) {
+                filePath = filePath.replace(`${fileName}.xml`, `${name}.xml`);
+                if (fs.existsSync(filePath)) {
+                    throw new Error('Mock service already exists');
+                }
+                fs.renameSync(params.path, filePath);
             }
 
-            const xml = getMockServiceXML(params);
+            fs.writeFileSync(filePath, content);
 
-            if (!fs.existsSync(filePath) || params.path) {
-                fs.writeFileSync(filePath, xml);
-            } else {
-                throw new Error('Mock service already exists');
-            }
-
-            resolve({ path: filePath, content: xml });
+            resolve({ path: filePath });
         });
     }
 

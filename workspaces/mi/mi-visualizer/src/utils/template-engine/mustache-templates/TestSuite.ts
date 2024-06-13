@@ -7,24 +7,21 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { render } from "mustache";
-import { getProjectRoot } from "../../../test-explorer/helper";
-import { Uri } from "vscode";
+import Mustache from "mustache";
+import { TestCaseEntry } from "../../../views/Forms/Tests/TestCaseForm";
 
 export function getTestSuiteXML(data: any) {
-    data.testCases = data.testCases.map((testCase: any) => {
+    data.testCases = data.testCases.map((testCase: TestCaseEntry) => {
         return modityTestCaseData(testCase);
     });
-    data.mockServices = data.mockServices.map((mockService: any) => {
-        const projectRoot = getProjectRoot(Uri.parse(mockService));
-        const relativePath = mockService.replace(projectRoot, '');
-        return relativePath;
-    });
-    return render(getTestSuiteMustacheTemplate(), data);
+    return Mustache.render(getTestSuiteMustacheTemplate(), data);
 }
 
-function modityTestCaseData(data: any) {
-    const assertions = data.assertions.map((assertion: string) => {
+function modityTestCaseData(data: TestCaseEntry) {
+    if (data.input.payload && data.input.payload.startsWith("<![CDATA[")) {
+        data.input.payload = data.input.payload.substring(9, data.input.payload.length - 3);
+    }
+    const assertions = data.assertions.map((assertion: string[]) => {
         // replace spaces and join camel case
         const type = assertion[0].replace(/\s/g, '').replace(/(^\w{1})|(\s+\w{1})/g, letter => letter.toUpperCase());
         const expression = assertion[1];
@@ -34,6 +31,10 @@ function modityTestCaseData(data: any) {
         if (Object.keys(assertion).length > 3) {
             expectedValue = assertion[2];
             errorMessage = assertion[3];
+
+            if (expectedValue.startsWith("<![CDATA[")) {
+                expectedValue = expectedValue.substring(9, expectedValue.length - 3);
+            }
         } else {
             errorMessage = assertion[2];
         }
@@ -53,16 +54,24 @@ function modityTestCaseData(data: any) {
 }
 export function getTestCaseXML(data: any) {
     const modifiedData = modityTestCaseData(data);
-    return render(getTestCaseMustacheTemplate(), modifiedData);
+    return Mustache.render(getTestCaseMustacheTemplate(), modifiedData);
 }
 
 export function getMockServiceXML(data: any) {
-    return render(getMockServiceMustacheTemplate(), data);
+    return Mustache.render(getMockServiceMustacheTemplate(), data);
 }
 
-export function getTestSuiteMustacheTemplate() {
+function getTestSuiteMustacheTemplate() {
     return `<unit-test>
     <artifacts>
+        <test-artifact>
+            <artifact>{{{artifact}}}</artifact>
+        </test-artifact>
+        <supporttive-artifacts>
+            {{#supportiveArtifacts}}
+                <artifact>{{{.}}}</artifact>
+            {{/supportiveArtifacts}}
+        </supporttive-artifacts>
     </artifacts>
     <test-cases>
         {{#testCases}}
@@ -71,33 +80,33 @@ export function getTestSuiteMustacheTemplate() {
     </test-cases>
     <mock-services>
         {{#mockServices}}
-            <mock-service>{{{.}}}</mock-service>
+        <mock-service>{{{.}}}</mock-service>
         {{/mockServices}}
     </mock-services>
 </unit-test>`;
 }
 
-export function getTestCaseMustacheTemplate() {
+function getTestCaseMustacheTemplate() {
     return `<test-case name="{{name}}">
             <input>
-                <request-path>{{{resourcePath}}}</request-path>
-                <request-method>{{resourceMethod}}</request-method>
-                <request-protocol>{{resourceProtocol}}</request-protocol>{{#inputPayload}}
-                <payload><![CDATA[{{inputPayload}}]]></payload>{{/inputPayload}}
+                <request-path>{{{input.requestPath}}}</request-path>
+                <request-method>{{input.requestMethod}}</request-method>
+                <request-protocol>{{input.requestProtocol}}</request-protocol>{{#input.payload}}
+                <payload><![CDATA[{{{input.payload}}}]]></payload>{{/input.payload}}
             </input>
             <assertions>
                 {{#assertions}}
-                    <{{type}}>
-                        <actual>{{expression}}</actual>{{#expectedValue}}
-                        <expected>{{expectedValue}}</expected>{{/expectedValue}}
-                        <message>{{errorMessage}}</message>
-                    </{{type}}>
+                <{{type}}>
+                    <actual>{{expression}}</actual>{{#expectedValue}}
+                    <expected><![CDATA[{{{expectedValue}}}]]></expected>{{/expectedValue}}
+                    <message>{{errorMessage}}</message>
+                </{{type}}>
                 {{/assertions}}    
             </assertions>
         </test-case>`;
 }
 
-export function getMockServiceMustacheTemplate() {
+function getMockServiceMustacheTemplate() {
     return `<mock-service>
     <service-name>{{endpointName}}</service-name>
     <port>{{servicePort}}</port>
