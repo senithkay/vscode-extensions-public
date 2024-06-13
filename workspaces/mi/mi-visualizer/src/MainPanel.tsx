@@ -281,10 +281,10 @@ const MainPanel = () => {
                 case MACHINE_VIEW.DataSourceForm:
                     setViewComponent(<DataSourceWizard path={machineView.documentUri} />);
                     break;
-                case MACHINE_VIEW.TestSuiteForm:
+                case MACHINE_VIEW.TestSuite:
                     setViewComponent(<TestSuiteForm filePath={machineView.documentUri} stNode={machineView.stNode as UnitTest} />);
                     break;
-                case MACHINE_VIEW.TestCaseForm:
+                case MACHINE_VIEW.TestCase:
                     setViewComponent(<TestCaseForm
                         filePath={machineView.documentUri}
                         range={machineView.customProps?.range}
@@ -292,7 +292,7 @@ const MainPanel = () => {
                         testCase={machineView.customProps?.testCase}
                     />);
                     break;
-                case MACHINE_VIEW.MockServiceForm:
+                case MACHINE_VIEW.MockService:
                     setViewComponent(<MockServiceForm filePath={machineView.documentUri} stNode={machineView.stNode as MockService} />);
                     break;
                 default:

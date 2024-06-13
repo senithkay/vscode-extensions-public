@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { yupResolver } from "@hookform/resolvers/yup";
-import { EVENT_TYPE, MACHINE_VIEW, UpdateTestSuiteResponse } from "@wso2-enterprise/mi-core";
+import { EVENT_TYPE, MACHINE_VIEW, UpdateTestCaseResponse } from "@wso2-enterprise/mi-core";
 import { ParamManager, ParamValue, getParamManagerFromValues, getParamManagerValues } from "@wso2-enterprise/mi-diagram";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { Button, ComponentCard, Dropdown, FormActions, FormView, TextArea, TextField, Typography } from "@wso2-enterprise/ui-toolkit";
@@ -200,7 +200,7 @@ export function TestCaseForm(props: TestCaseFormProps) {
             props.onSubmit(values);
             return;
         }
-        rpcClient.getMiDiagramRpcClient().updateTestCase({ path: props.filePath, range: props.range, ...values }).then((resp: UpdateTestSuiteResponse) => {
+        rpcClient.getMiDiagramRpcClient().updateTestCase({ path: props.filePath, range: props.range, ...values }).then((resp: UpdateTestCaseResponse) => {
             openOverview();
         });
     }
