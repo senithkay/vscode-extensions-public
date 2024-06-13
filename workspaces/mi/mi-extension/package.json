@@ -231,7 +231,7 @@
         "when": "false"
       },
       {
-        "command": "MI.project-explorer.open-service-designer-beside",
+        "command": "MI.show.graphical-view",
         "title": "Open Graphical View",
         "icon": "$(distro-design-view)"
       },
@@ -391,7 +391,7 @@
           "when": "false"
         },
         {
-          "command": "MI.project-explorer.open-service-designer-beside",
+          "command": "MI.show.graphical-view",
           "when": "false"
         }
       ],
@@ -438,7 +438,7 @@
           "title": "Open AI Panel"
         },
         {
-          "command": "MI.project-explorer.open-service-designer-beside",
+          "command": "MI.show.graphical-view",
           "when": "MI.status == 'projectLoaded' && resourceLangId == SynapseXml",
           "group": "navigation@3"
         },
