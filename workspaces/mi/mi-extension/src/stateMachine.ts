@@ -24,7 +24,7 @@ import { activateProjectExplorer } from './project-explorer/activate';
 import { StateMachineAI } from './ai-panel/aiMachine';
 import { getSources } from './util/dataMapper';
 import { StateMachinePopup } from './stateMachinePopup';
-import { STNode } from '../../syntax-tree/lib/src';
+import { STNode, UnitTest } from '../../syntax-tree/lib/src';
 import { log } from './util/logger';
 import { deriveConfigName } from './util/dataMapper';
 import { fileURLToPath } from 'url';
@@ -400,6 +400,10 @@ const stateMachine = createMachine<MachineContext>({
                                         viewLocation.stNode = node.template;
                                         break;
                                     }
+                                case !!node["unit-test"]: 
+                                    viewLocation.view = MACHINE_VIEW.TestSuite;
+                                    viewLocation.stNode = node["unit-test"] as UnitTest;
+                                    break;
                                 default:
                                     // Handle default case
                                     viewLocation.stNode = node as any as STNode;

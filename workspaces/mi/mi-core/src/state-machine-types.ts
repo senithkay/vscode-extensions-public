@@ -58,9 +58,9 @@ export enum MACHINE_VIEW {
     DataSourceForm = "Data Source Creation Form",
     Samples = "Samples",
     ImportProject = "Import Project",
-    TestSuiteForm = "Test Suite Form",
-    TestCaseForm = "Test Cases Form",
-    MockServiceForm = "Mock Service Form",
+    TestSuite = "Test Suite",
+    TestCase = "Test Cases",
+    MockService = "Mock Service",
 }
 
 export enum AI_MACHINE_VIEW {
