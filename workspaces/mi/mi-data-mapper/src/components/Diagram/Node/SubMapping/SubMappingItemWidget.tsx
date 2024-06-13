@@ -40,6 +40,8 @@ export interface SubMappingItemProps {
 
 export function SubMappingItemWidget(props: SubMappingItemProps) {
     const { index, id, type, engine, context, subMappings, getPort, valueLabel } = props;
+    const { functionST, views, addView, applyModifications } = context;
+    const isOnRootView = views.length === 1;
 
     const classes = useIONodesStyles();
     const collapsedFieldsStore = useDMCollapsedFieldsStore();
@@ -105,7 +107,7 @@ export function SubMappingItemWidget(props: SubMappingItemProps) {
     const onClickOnExpand = () => {
         const subMapping = subMappings[index];
         const label = getSubMappingViewLabel(subMapping.name, subMapping.type);
-        context.addView(
+        addView(
             {
                 targetFieldFQN: "",
                 sourceFieldFQN: "",
@@ -123,14 +125,19 @@ export function SubMappingItemWidget(props: SubMappingItemProps) {
 
     const onClickOnDelete = async () => {
         setDeleteInProgress(true);
-        (context.functionST.getBody() as Block).removeStatement(index);
-        context.applyModifications();
+        (functionST.getBody() as Block).removeStatement(index);
+        applyModifications();
         setDeleteInProgress(false);
     };
 
     return (
         <>
-            {isFirstItem && <SubMappingSeparator onClickAddSubMapping={onClickAddSubMapping} />}
+            {isFirstItem && (
+                <SubMappingSeparator
+                    isOnRootView={isOnRootView}
+                    onClickAddSubMapping={onClickAddSubMapping}
+                />
+            )}
             <div
                 id={"recordfield-" + id}
                 onMouseEnter={onMouseEnter}
@@ -207,11 +214,12 @@ export function SubMappingItemWidget(props: SubMappingItemProps) {
                     </TreeBody>
                 )
             }
-            <SubMappingSeparator 
+            <SubMappingSeparator
+                isOnRootView={isOnRootView}
                 isLastItem={isLastItem}
                 onClickAddSubMapping={onClickAddSubMapping}
             />
-            {isLastItem && (
+            {isLastItem && isOnRootView && (
                 <Button
                     className={classes.addSubMappingButton}
                     appearance='icon'

@@ -15,6 +15,7 @@ import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
 import { useIONodesStyles } from "../../../../components/styles";
 
 interface SubMappingSeparatorProps {
+    isOnRootView: boolean;
     onClickAddSubMapping: () => void;
     isLastItem?: boolean;
 };
@@ -47,7 +48,7 @@ const HoverButton = styled(Button)`
 `;
 
 export function SubMappingSeparator(props: SubMappingSeparatorProps) {
-    const { onClickAddSubMapping, isLastItem } = props;
+    const { isOnRootView, onClickAddSubMapping, isLastItem } = props;
     const classes = useIONodesStyles();
     const [isHoveredSeperator, setIsHoveredSeperator] = useState(false);
 
@@ -65,7 +66,7 @@ export function SubMappingSeparator(props: SubMappingSeparatorProps) {
             onMouseLeave={handleMouseLeave}
             className={classes.subMappingItemSeparator}
         >
-            {isHoveredSeperator && !isLastItem && (
+            {isHoveredSeperator && !isLastItem && isOnRootView && (
                 <HoverButton
                     appearance="icon"
                     tooltip="Add another sub mapping here"
