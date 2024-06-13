@@ -7,21 +7,37 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { yupResolver } from "@hookform/resolvers/yup";
-import { EVENT_TYPE, MACHINE_VIEW, Range, TestCase, UpdateTestSuiteResponse } from "@wso2-enterprise/mi-core";
+import { EVENT_TYPE, MACHINE_VIEW, UpdateTestSuiteResponse } from "@wso2-enterprise/mi-core";
 import { ParamManager, ParamValue, getParamManagerFromValues, getParamManagerValues } from "@wso2-enterprise/mi-diagram";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { Button, ComponentCard, Dropdown, FormActions, FormView, TextArea, TextField, Typography } from "@wso2-enterprise/ui-toolkit";
 import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
+import { TagRange } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 import * as yup from "yup";
 
 interface TestCaseFormProps {
     filePath?: string;
     range?: Range;
-    testCase?: TestCase;
+    testCase?: TestCaseEntry;
     availableTestCases?: string[];
     onGoBack?: () => void;
     onSubmit?: (values: any) => void;
+}
+
+export interface TestCaseEntry {
+    name: string;
+    assertions?: string[][];
+    input: TestCaseInput;
+    inputProperties?: string[][];
+    range?: TagRange;
+}
+
+export interface TestCaseInput {
+    requestPath: string;
+    requestMethod: string;
+    requestProtocol: string;
+    payload?: string;
 }
 
 const cardStyle = {
@@ -36,8 +52,8 @@ export function TestCaseForm(props: TestCaseFormProps) {
     const { rpcClient } = useVisualizerContext();
 
     const [isLoaded, setIsLoaded] = useState(false);
-    const resourceMethods = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS', 'TRACE', 'CONNECT'];
-    const resourceProtocols = ['HTTP', 'HTTPS'];
+    const requestMethods = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS', 'TRACE', 'CONNECT'];
+    const requestProtocols = ['HTTP', 'HTTPS'];
     const isUpdate = !!props.testCase;
     const [availableTestCases, setAvailableTestCases] = useState(props.availableTestCases || []);
 
@@ -45,10 +61,12 @@ export function TestCaseForm(props: TestCaseFormProps) {
     const schema = yup.object({
         name: yup.string().required("Test case name is required").matches(/^[a-zA-Z0-9_-]*$/, "Invalid characters in test case name")
             .notOneOf(availableTestCases, "Test case name already exists"),
-        resourcePath: yup.string().required("Resource path is required"),
-        resourceMethod: yup.string().oneOf(resourceMethods).required("Resource method is required"),
-        resourceProtocol: yup.string().oneOf(resourceProtocols).required("Resource type is required"),
-        inputPayload: yup.string(),
+        input: yup.object({
+            requestPath: yup.string().required("Resource path is required"),
+            requestMethod: yup.string().oneOf(requestMethods).required("Resource method is required"),
+            requestProtocol: yup.string().oneOf(requestProtocols).required("Resource type is required"),
+            payload: yup.string(),
+        }),
         inputProperties: yup.mixed(),
         assertions: yup.mixed(),
     });
@@ -116,6 +134,17 @@ export function TestCaseForm(props: TestCaseFormProps) {
             ];
 
             if (isUpdate) {
+                if (props?.testCase?.input?.payload?.startsWith("<![CDATA[")) {
+                    props.testCase.input.payload = props.testCase.input.payload.substring(9, props.testCase.input.payload.length - 3);
+                }
+                if (props?.testCase?.assertions) {
+                    props.testCase.assertions = props.testCase.assertions.map((assertion: string[]) => {
+                        if (assertion[2].startsWith("<![CDATA[")) {
+                            assertion[2] = assertion[2].substring(9, assertion[2].length - 3);
+                        }
+                        return assertion;
+                    });
+                }
                 reset({
                     ...props.testCase,
                     inputProperties: {
@@ -132,9 +161,11 @@ export function TestCaseForm(props: TestCaseFormProps) {
             }
 
             reset({
-                resourcePath: "/",
-                resourceMethod: "GET",
-                resourceProtocol: "HTTP",
+                input: {
+                    requestPath: "/",
+                    requestMethod: "GET",
+                    requestProtocol: "HTTP",
+                },
                 inputProperties: {
                     paramValues: [],
                     paramFields: inputPropertiesFields
@@ -189,31 +220,31 @@ export function TestCaseForm(props: TestCaseFormProps) {
                 {...register("name")}
             />
             <TextField
-                id="resourcePath"
+                id="requestPath"
                 label="Resource path"
                 placeholder="/"
                 required
-                errorMsg={errors.resourcePath?.message.toString()}
-                {...register("resourcePath")}
+                errorMsg={errors.input?.requestPath?.message.toString()}
+                {...register("input.requestPath")}
             />
             <Dropdown
-                id="resourceMethod"
+                id="requestMethod"
                 label="Resource method"
-                items={resourceMethods.map((method) => ({ value: method, content: method }))}
-                errorMsg={errors.resourceMethod?.message.toString()}
-                {...register('resourceMethod')} />
+                items={requestMethods.map((method) => ({ value: method, content: method }))}
+                errorMsg={errors.input?.requestMethod?.message.toString()}
+                {...register('input.requestMethod')} />
             <Dropdown
-                id="resourceProtocol"
+                id="requestProtocol"
                 label="Resource Protocol"
-                items={resourceProtocols.map((method) => ({ value: method, content: method }))}
-                errorMsg={errors.resourceProtocol?.message.toString()}
-                {...register('resourceProtocol')} />
+                items={requestProtocols.map((method) => ({ value: method, content: method }))}
+                errorMsg={errors.input?.requestProtocol?.message.toString()}
+                {...register('input.requestProtocol')} />
             <TextArea
-                id="inputPayload"
+                id="payload"
                 label="Input Payload"
                 placeholder="Input payload"
                 rows={5}
-                {...register("inputPayload")}
+                {...register("input.payload")}
             />
 
             <ComponentCard sx={cardStyle} disbaleHoverEffect>
