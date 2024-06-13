@@ -55,7 +55,7 @@ export function TestCaseForm(props: TestCaseFormProps) {
     const requestMethods = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS', 'TRACE', 'CONNECT'];
     const requestProtocols = ['HTTP', 'HTTPS'];
     const isUpdate = !!props.testCase;
-    const [availableTestCases, setAvailableTestCases] = useState(props.availableTestCases || []);
+    const availableTestCases = props.availableTestCases;
 
     // Schema
     const schema = yup.object({
