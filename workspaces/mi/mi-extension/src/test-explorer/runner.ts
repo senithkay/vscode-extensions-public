@@ -172,7 +172,8 @@ export function runHandler(request: TestRunRequest, cancellation: CancellationTo
                 stopTestServer();
             }
         } else if (request.profile?.kind == TestRunProfileKind.Debug) {
-            window.showWarningMessage("Test debugging is not yet supported.");
+            window.showErrorMessage("Test debugging is not yet supported.");
+            run.end();
         }
     }
 
