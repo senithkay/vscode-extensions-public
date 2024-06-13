@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-export const mockSerivesFilesMatchPattern = '**/src/main/test/resources/mock-services/**/*.xml';
+export const mockSerivesFilesMatchPattern = '**/src/test/resources/mock-services/**/*.xml';
 
 import { TreeDataProvider, Event, EventEmitter, ExtensionContext, TreeItem, TreeItemCollapsibleState, workspace, RelativePattern, window, ThemeIcon, commands } from 'vscode';
 import { startWatchingWorkspace } from '../helper';
