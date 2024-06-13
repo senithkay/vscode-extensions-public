@@ -43,7 +43,7 @@ export function createFolderStructure(targetPath: string, structure: FileStructu
 	for (const [key, value] of Object.entries(structure)) {
 		const fullPath = path.join(targetPath, key);
 
-		if (key.includes('.')) {
+		if (key.includes('.') || key === 'Dockerfile') {
 			// If it's a file, create the file
 			fs.writeFileSync(fullPath, value as string);
 		} else {
@@ -52,6 +52,15 @@ export function createFolderStructure(targetPath: string, structure: FileStructu
 			createFolderStructure(fullPath, value as FileStructure);
 		}
 	}
+}
+
+export function copyDockerResources(targetPath: string) {
+	const commonResourcesPath = path.join(targetPath, 'deployment');
+	const dockerResourcesPath = path.join(commonResourcesPath, 'docker', 'resources');
+	const dockerResourcesFolderPath = path.join(__dirname, '..', '..', 'resources', 'docker-resources');
+	fs.copyFileSync(path.join(dockerResourcesFolderPath, 'deployment.toml'), path.join(commonResourcesPath, 'deployment.toml'));
+	fs.copyFileSync(path.join(dockerResourcesFolderPath, 'client-truststore.jks'), path.join(dockerResourcesPath, 'client-truststore.jks'));
+	fs.copyFileSync(path.join(dockerResourcesFolderPath, 'wso2carbon.jks'), path.join(dockerResourcesPath, 'wso2carbon.jks'));
 }
 
 export function getInboundEndpointXmlWrapper(props: GetInboundTemplatesArgs) {
@@ -71,23 +80,23 @@ export function getProxyServiceXmlWrapper(props: ProxyServiceTemplateArgs) {
 }
 
 export function getTaskXmlWrapper(data: GetTaskTemplatesArgs) {
-    return getTaskXml(data);
+	return getTaskXml(data);
 }
 
 export function getLoadBalanceXmlWrapper(data: GetLoadBalanceEPTemplatesArgs) {
-    return getLoadBalanceEPXml(data);
+	return getLoadBalanceEPXml(data);
 }
 
 export function getFailoverXmlWrapper(data: GetFailoverEPTemplatesArgs) {
-    return getFailoverEPXml(data);
+	return getFailoverEPXml(data);
 }
 
 export function getRecipientXmlWrapper(data: GetRecipientEPTemplatesArgs) {
-    return getRecipientEPXml(data);
+	return getRecipientEPXml(data);
 }
 
 export function getTemplateEndpointXmlWrapper(data: GetTemplateEPTemplatesArgs) {
-    return getTemplateEPXml(data);
+	return getTemplateEPXml(data);
 }
 
 export function getMessageStoreXmlWrapper(props: GetMessageStoreTemplatesArgs) {
