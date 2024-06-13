@@ -11,7 +11,7 @@
  * Test explorer run and debug related funtions.
  */
 
-import { Uri, WorkspaceFolder, workspace, CancellationToken, TestItem, TestMessage, TestRunProfileKind, TestRunRequest, window } from "vscode";
+import { Uri, CancellationToken, TestItem, TestMessage, TestRunProfileKind, TestRunRequest, window, MarkdownString } from "vscode";
 
 import { discoverTests, gatherTestItems } from "./discover";
 import { testController } from "./activator";
@@ -30,7 +30,7 @@ enum EXEC_ARG {
 }
 enum TEST_STATUS {
     PASSED = 'PASSED',
-    FAILED = 'FAILURE'
+    FAILED = 'FAILED'
 }
 const TEST_RESULTS_PATH = path.join("target", "unit-test-report.json").toString();
 
@@ -48,7 +48,7 @@ export function runHandler(request: TestRunRequest, cancellation: CancellationTo
             window.showErrorMessage("No tests found.");
             return;
         }
-        const projectRoot = getProjectRoot(queue[0].test.uri!);
+        const projectRoot = getProjectRoot(Uri.parse(queue[0].test.id));
         let stopTestServer: () => void;
 
         if (!projectRoot) {
@@ -65,7 +65,7 @@ export function runHandler(request: TestRunRequest, cancellation: CancellationTo
             // mark tests as running in test explorer
             for (const { test, } of queue) {
                 testNames = testNames == "" ? test.label : `${testNames},${test.label}`;
-                run.started(test);
+                markSatusAsRunning(test);
             }
 
             try {
@@ -95,7 +95,18 @@ export function runHandler(request: TestRunRequest, cancellation: CancellationTo
                 } else {
 
                     for (const { test, } of queue) {
-                        const testResults = testsJson[test.id];
+                        let testResults;
+                        let testCases;
+                        if (test.id.endsWith(".xml")) {
+                            testResults = testsJson[test.id];
+                            testCases = test.children;
+                        } else {
+                            const strs = test.id.split("/");
+                            strs.pop();
+                            const suiteName = strs.join("/");
+                            testResults = testsJson[suiteName];
+                            testCases = [[test.id, test]]
+                        }
 
                         if (!testResults) {
                             const testMessage: TestMessage = new TestMessage("Test result not found");
@@ -105,10 +116,44 @@ export function runHandler(request: TestRunRequest, cancellation: CancellationTo
 
                         const mediationStatus = testResults["mediationStatus"];
                         const deploymentStatus = testResults["deploymentStatus"];
-                        const testCases = testResults["testCases"];
+                        const testCasesResults = testResults["testCases"];
 
-                        if (mediationStatus === TEST_STATUS.PASSED) {
-                            run.passed(test, timeElapsed);
+                        if (deploymentStatus === TEST_STATUS.PASSED && mediationStatus === TEST_STATUS.PASSED) {
+
+                            for (const testCase of testCases) {
+                                const testCaseItem = testCase[1];
+                                const testCaseName = testCaseItem.label;
+                                const testCaseResult = testCasesResults.find((testCaseResult: any) => testCaseResult["testCaseName"] === testCaseName);
+                                if (testCaseResult) {
+                                    const mediationStatus = testCaseResult["mediationStatus"];
+                                    const assertionStatus = testCaseResult["assertionStatus"];
+                                    if (mediationStatus === TEST_STATUS.PASSED && assertionStatus === TEST_STATUS.PASSED) {
+                                        run.passed(testCaseItem, timeElapsed);
+                                    } else {
+                                        let message: TestMessage;
+                                        if (assertionStatus === TEST_STATUS.FAILED) {
+                                            const failureAssertions = testCaseResult["failureAssertions"];
+                                            const table = new MarkdownString();
+                                            table.appendMarkdown(`| Test Case | Assert Expression | Failure Message |\n`);
+                                            table.appendMarkdown(`| --- | --- | --- |\n`);
+                                            for (const assertion of failureAssertions) {
+                                                const actualValue = assertion["actual"];
+                                                const expectedValue = assertion["expected"];
+                                                const failureMessage = `Expected: ${expectedValue}, Actual: ${actualValue}`
+                                                table.appendMarkdown(`| ${testCaseName} | ${assertion["assertionExpression"]} | ${failureMessage} |\n`);
+                                            }
+                                            message = new TestMessage(table);
+                                        } else {
+                                            message = new TestMessage("Test mediation failed");
+                                        }
+                                        run.failed(testCaseItem, message, timeElapsed);
+                                    }
+                                } else {
+                                    const testMessage: TestMessage = new TestMessage("Test result not found");
+                                    run.failed(testCaseItem, testMessage, timeElapsed);
+                                }
+                            }
+                            // run.passed(test, timeElapsed);
                         } else {
                             // test failed
                             const testMessage: TestMessage = new TestMessage("Mediation failed");
@@ -128,6 +173,15 @@ export function runHandler(request: TestRunRequest, cancellation: CancellationTo
             }
         } else if (request.profile?.kind == TestRunProfileKind.Debug) {
             window.showWarningMessage("Test debugging is not yet supported.");
+        }
+    }
+
+    function markSatusAsRunning(test: TestItem) {
+        run.started(test);
+        if (test.children) {
+            for (const child of test.children) {
+                markSatusAsRunning(child[1]);
+            }
         }
     }
 }
@@ -174,10 +228,9 @@ async function startTestServer(): Promise<{ cp: ChildProcess }> {
 async function runTests(testNames: string, projectRoot: string): Promise<void> {
     return new Promise<void>(async (resolve, reject) => {
         const mvnCmd = process.platform === "win32" ? "mvn.cmd" : "mvn";
-        const testRunCmd = `${mvnCmd} test -DtestServerType=remote -DtestServerHost=${TestRunnerConfig.getHost()} -DtestServerPort=${TestRunnerConfig.getServerPort()}`;
+        const testRunCmd = `${mvnCmd} test -DtestServerType=remote -DtestServerHost=${TestRunnerConfig.getHost()} -DtestServerPort=${TestRunnerConfig.getServerPort()} -P test`;
 
         const onData = (data: string) => {
-            console.log(data);
             if (data.includes("Finished at:")) {
                 resolve();
             }
@@ -201,7 +254,7 @@ async function runTests(testNames: string, projectRoot: string): Promise<void> {
  * @param pathToRun Path to execute the command.
  * @param returnData Indicates whether to return the stdout
  */
-export function runCommand(command, pathToRun?: string, onData?: (data: string) => void, onError?: (data: string) => void, onClose?: (code: number) => void, killProcess?: () => void): ChildProcess {
+export function runCommand(command, pathToRun?: string, onData?: (data: string) => void, onError?: (data: string) => void, onClose?: (code: number) => void): ChildProcess {
     try {
         if (pathToRun) {
             command = `cd ${pathToRun} && ${command}`
@@ -220,13 +273,6 @@ export function runCommand(command, pathToRun?: string, onData?: (data: string) 
 
         if (typeof onClose === 'function') {
             cp.on('close', onClose);
-        }
-
-        if (typeof killProcess === 'function') {
-            // killProcess = () => {
-            console.log('Killing process');
-            cp.kill();
-            // }
         }
 
         return cp;
