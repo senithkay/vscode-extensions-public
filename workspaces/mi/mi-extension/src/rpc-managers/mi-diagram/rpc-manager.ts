@@ -2445,7 +2445,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             };
 
             createFolderStructure(directory, folderStructure);
-            copyDockerResources(path.join(directory, name));
+            copyDockerResources(extension.context.asAbsolutePath(path.join('resources', 'docker-resources')), path.join(directory, name));
 
             window.showInformationMessage(`Successfully created ${name} project`);
             const projectOpened = StateMachine.context().projectOpened;
@@ -3468,7 +3468,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             if (!fs.existsSync(path.dirname(openAPISpecPath))) {
                 fs.mkdirSync(path.dirname(openAPISpecPath), { recursive: true });
             };
-            
+
             const langClient = StateMachine.context().langClient!;
             const { swagger } = await langClient.swaggerFromAPI({ apiPath });
             if (!fs.existsSync(openAPISpecPath)) {
@@ -3580,7 +3580,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 generatedSwagger = response.swagger;
                 existingSwagger = fs.readFileSync(swaggerPath, 'utf-8');
             }
-            
+
             // Add new resources
             const { added, removed, updated } = getResourceInfo({
                 existingSwagger: parse(existingSwagger),
