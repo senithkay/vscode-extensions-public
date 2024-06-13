@@ -211,20 +211,32 @@ const ProjectStructureView = (props: { projectStructure: any, workspaceDir: stri
                                         ) : (
                                             (key === "localEntries") && Object.entries(entry).map(([key, value]) => {
                                                 if (Array.isArray(value)) {
+                                                    const connectionType = key.charAt(0).toUpperCase() + key.slice(1);
+                                                    key = "connections"
                                                     return (
                                                         <div>
-                                                            <h3>{artifactTypeMap["connections"].title}</h3>
+                                                            <h3>{`${connectionType} ${artifactTypeMap[key].title}`}</h3>
                                                             {value.map(connectionEntry => (
                                                                 connectionEntry.type === "localEntry" && (
                                                                     <Entry
                                                                         key={connectionEntry.name}
-                                                                        icon={artifactTypeMap["connections"].icon}
+                                                                        icon={artifactTypeMap[key].icon}
                                                                         name={connectionEntry.name}
-                                                                        description={artifactTypeMap["connections"].description(connectionEntry)}
-                                                                        onClick={() => goToView(artifactTypeMap["connections"].path(connectionEntry), artifactTypeMap["connections"].view)}
-                                                                        goToView={() => goToView(artifactTypeMap["connections"].path(connectionEntry), artifactTypeMap["connections"].view)}
-                                                                        goToSource={() => goToSource(artifactTypeMap["connections"].path(connectionEntry))}
-                                                                        deleteArtifact={() => deleteArtifact(artifactTypeMap["connections"].path(connectionEntry))}
+                                                                        description={artifactTypeMap[key].description(connectionEntry)}
+                                                                        onClick={() => 
+                                                                            goToView(artifactTypeMap[key].path(connectionEntry),
+                                                                            artifactTypeMap[key].view)
+                                                                        }
+                                                                        goToView={() => 
+                                                                            goToView(artifactTypeMap[key].path(connectionEntry),
+                                                                            artifactTypeMap[key].view)
+                                                                        }
+                                                                        goToSource={() => 
+                                                                            goToSource(artifactTypeMap[key].path(connectionEntry))
+                                                                        }
+                                                                        deleteArtifact={() => 
+                                                                            deleteArtifact(artifactTypeMap[key].path(connectionEntry))
+                                                                        }
                                                                     />
                                                                 )
                                                             ))}

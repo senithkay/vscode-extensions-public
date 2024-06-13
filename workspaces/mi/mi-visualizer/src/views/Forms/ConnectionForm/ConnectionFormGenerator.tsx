@@ -179,6 +179,49 @@ const AddConnection = (props: AddConnectionProps) => {
         }
     };
 
+    const ExpressionFieldComponent = ({ element }: { element: Element }) => (
+        <Field>
+            <Controller
+                name={element.name as string}
+                control={control}
+                defaultValue={{ "isExpression": false, "value": element.defaultValue, "namespaces": [] }}
+                render={({ field }) => (
+                    expressionEditorField !== element.name ? (
+                        <ExpressionField
+                            {...field} label={element.displayName}
+                            placeholder={element.helpTip}
+                            canChange={true}
+                            required={element.required === 'true'}
+                            openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => {
+                                setCurrentExpressionValue({value, setValue});
+                                setExpressionEditorField(String(element.name));
+                            }}
+                        />
+                    ) : (
+                        <>
+                            <div style={{ display: "flex", alignItems: "center", gap: '10px' }}>
+                                <label>{element.displayName}</label>
+                                {element.required === "true" && <RequiredFormInput />}
+                            </div>
+                            <ExpressionEditor
+                                value={currentExpressionValue.value || { isExpression: false, value: '', namespaces: [] }}
+                                handleOnSave={(newValue) => {
+                                    if (currentExpressionValue) {
+                                        currentExpressionValue.setValue(newValue);
+                                    }
+                                    setExpressionEditorField(null);
+                                }}
+                                handleOnCancel={() => {
+                                    setExpressionEditorField(null);
+                                }}
+                            />
+                        </>
+                    )
+                )}
+            />
+        </Field>
+    );
+
     const renderFormElement = (element: Element) => {
         switch (element.inputType) {
             case 'string':
@@ -200,89 +243,11 @@ const AddConnection = (props: AddConnectionProps) => {
                 );
             case 'stringOrExpression':
                 return (
-                    <Field>
-                        <Controller
-                            name={element.name as string}
-                            control={control}
-                            defaultValue={{ "isExpression": false, "value": element.defaultValue, "namespaces": [] }}
-                            render={({ field }) => (
-                                expressionEditorField !== element.name ? (
-                                    <ExpressionField
-                                        {...field} label={element.displayName}
-                                        placeholder={element.helpTip}
-                                        canChange={true}
-                                        required={element.required === 'true'}
-                                        openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => {
-                                            setCurrentExpressionValue({value, setValue});
-                                            setExpressionEditorField(String(element.name));
-                                        }}
-                                    />
-                                ) : (
-                                    <>
-                                        <div style={{ display: "flex", alignItems: "center", gap: '10px' }}>
-                                            <label>{element.displayName}</label>
-                                            {element.required === "true" && <RequiredFormInput />}
-                                        </div>
-                                        <ExpressionEditor
-                                            value={currentExpressionValue.value || { isExpression: false, value: '', namespaces: [] }}
-                                            handleOnSave={(newValue) => {
-                                                if (currentExpressionValue) {
-                                                    currentExpressionValue.setValue(newValue);
-                                                }
-                                                setExpressionEditorField(null);
-                                            }}
-                                            handleOnCancel={() => {
-                                                setExpressionEditorField(null);
-                                            }}
-                                        />
-                                    </>
-                                )
-                            )}
-                        />
-                    </Field>
+                    <ExpressionFieldComponent element={element} />
                 );
             case 'stringOrExpresion':
                 return (
-                    <Field>
-                        <Controller
-                            name={element.name as string}
-                            control={control}
-                            defaultValue={{ "isExpression": false, "value": element.defaultValue, "namespaces": [] }}
-                            render={({ field }) => (
-                                expressionEditorField !== element.name ? (
-                                    <ExpressionField
-                                        {...field} label={element.displayName}
-                                        placeholder={element.helpTip}
-                                        canChange={true}
-                                        required={element.required === 'true'}
-                                        openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => {
-                                            setCurrentExpressionValue({value, setValue});
-                                            setExpressionEditorField(String(element.name));
-                                        }}
-                                    />
-                                ) : (
-                                    <>
-                                        <div style={{ display: "flex", alignItems: "center", gap: '10px' }}>
-                                            <label>{element.displayName}</label>
-                                            {element.required === "true" && <RequiredFormInput />}
-                                        </div>
-                                        <ExpressionEditor
-                                            value={currentExpressionValue.value || { isExpression: false, value: '', namespaces: [] }}
-                                            handleOnSave={(newValue) => {
-                                                if (currentExpressionValue) {
-                                                    currentExpressionValue.setValue(newValue);
-                                                }
-                                                setExpressionEditorField(null);
-                                            }}
-                                            handleOnCancel={() => {
-                                                setExpressionEditorField(null);
-                                            }}
-                                        />
-                                    </>
-                                )
-                            )}
-                        />
-                    </Field>
+                    <ExpressionFieldComponent element={element} />
                 );
             case 'booleanOrExpression':
                 return (
@@ -341,46 +306,7 @@ const AddConnection = (props: AddConnectionProps) => {
                 );
             case 'textAreaOrExpression':
                 return (
-                    <Field>
-                        <Controller
-                            name={element.name as string}
-                            control={control}
-                            defaultValue={{ "isExpression": false, "value": element.defaultValue, "namespaces": [] }}
-                            render={({ field }) => (
-                                expressionEditorField !== element.name ? (
-                                    <ExpressionField
-                                        {...field} label={element.displayName}
-                                        placeholder={element.helpTip}
-                                        canChange={true}
-                                        required={element.required === 'true'}
-                                        openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => {
-                                            setCurrentExpressionValue({value, setValue});
-                                            setExpressionEditorField(String(element.name));
-                                        }}
-                                    />
-                                ) : (
-                                    <>
-                                        <div style={{ display: "flex", alignItems: "center", gap: '10px' }}>
-                                            <label>{element.displayName}</label>
-                                            {element.required === "true" && <RequiredFormInput />}
-                                        </div>
-                                        <ExpressionEditor
-                                            value={currentExpressionValue.value || { isExpression: false, value: '', namespaces: [] }}
-                                            handleOnSave={(newValue) => {
-                                                if (currentExpressionValue) {
-                                                    currentExpressionValue.setValue(newValue);
-                                                }
-                                                setExpressionEditorField(null);
-                                            }}
-                                            handleOnCancel={() => {
-                                                setExpressionEditorField(null);
-                                            }}
-                                        />
-                                    </>
-                                )
-                            )}
-                        />
-                    </Field>
+                    <ExpressionFieldComponent element={element} />
                 );
             case 'integerOrExpression':
                 return (
@@ -460,29 +386,6 @@ const AddConnection = (props: AddConnectionProps) => {
 
     return (
         <div>
-            {/* <Field>
-                <label>{"Connection Type"}</label> {<RequiredFormInput />}
-                <VSCodeDropdown
-                    label={"Connection Type"}
-                    value={connectionType}
-                    autoWidth={true}
-                    onChange={(e: any) => {
-                        setConnectionType(e.target.value);
-                    }}
-                    style={{ color: 'var(--vscode-editor-foreground)', width: '100%' }}
-                >
-                    {
-                        allowedConnectionTypes.map((value: string) => (
-                            <VSCodeOption
-                                style={{
-                                    color: 'var(--vscode-editor-foreground)',
-                                    background: 'var(--vscode-editor-background)'
-                                }}>{value}
-                            </VSCodeOption>
-                        ))
-                    }
-                </VSCodeDropdown>
-            </Field> */}
             <Controller
                 name={"ConnectionType"}
                 control={control}
