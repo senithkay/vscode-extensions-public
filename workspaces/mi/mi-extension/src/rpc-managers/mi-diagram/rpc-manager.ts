@@ -2508,7 +2508,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
                 const ESBConfigs: string[] = [];
 
-                for (const esbConfig of resp.directoryMap.esbConfigs) {
+                for (const esbConfig of (resp.directoryMap as any).esbConfigs) {
                     const config = esbConfig.name;
                     ESBConfigs.push(config);
                 }
@@ -3655,7 +3655,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     throw new Error('Name is required');
                 }
                 const projeectRoot = workspace.getWorkspaceFolder(Uri.file(artifact))?.uri.fsPath;
-                const testDir = path.join(projeectRoot!, 'src', 'test');
+                const testDir = path.join(projeectRoot!, 'src', 'test', "wso2mi");
                 filePath = path.join(testDir, `${name}.xml`);
 
                 if (fs.existsSync(filePath)) {
