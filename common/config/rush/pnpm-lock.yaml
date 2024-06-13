@@ -3162,6 +3162,7 @@ importers:
       lodash: ~4.17.21
       mousetrap: ~1.6.5
       mustache: ~4.2.0
+      path: ~0.12.7
       react: ~18.2.0
       react-dnd: 16.0.1
       react-dnd-html5-backend: 16.0.1
@@ -3198,6 +3199,7 @@ importers:
       lodash: 4.17.21
       mousetrap: 1.6.5
       mustache: 4.2.0
+      path: 0.12.7
       react: 18.2.0
       react-dnd: 16.0.1_wlzgh7zzfpldw6fjbg2b43gvx4
       react-dnd-html5-backend: 16.0.1
