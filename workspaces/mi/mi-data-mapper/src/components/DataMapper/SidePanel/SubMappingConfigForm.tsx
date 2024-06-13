@@ -46,7 +46,7 @@ export type SubMappingConfigFormProps = {
     inputNode: DataMapperNodeModel;
     addView: (view: View) => void;
     updateView: (updatedView: View) => void;
-    applyModifications: () => void;
+    applyModifications: () => Promise<void>;
 };
 
 export function SubMappingConfigForm(props: SubMappingConfigFormProps) {
@@ -82,7 +82,7 @@ export function SubMappingConfigForm(props: SubMappingConfigFormProps) {
         }
     }, [isEdit, suggestedNextSubMappingName, setValue]);
 
-    const onAdd = (data: SMConfigFormData) => {
+    const onAdd = async (data: SMConfigFormData) => {
         const { mappingName, mappingType, isArray } = data;
 
         const typeKind = isArray ? TypeKind.Array : mappingType ? mappingType as TypeKind : TypeKind.Object;
@@ -91,24 +91,13 @@ export function SubMappingConfigForm(props: SubMappingConfigFormProps) {
         const varStmt = `const ${mappingName}${typeDesc ? `: ${typeDesc}`: ''} = ${defaultValue};`;
         (functionST.getBody() as Block).insertStatements(nextSubMappingIndex, varStmt);
 
-        addView({
-            targetFieldFQN: "",
-            sourceFieldFQN: "",
-            sourceNodeType: SourceNodeType.InputNode,
-            label: mappingName,
-            subMappingInfo: {
-                index: nextSubMappingIndex,
-                mappingName: mappingName,
-                mappingType: typeDesc
-            }
-        });
+        await applyModifications();
 
-        applyModifications();
         resetSubMappingConfig();
         reset();
     };
 
-    const onEdit = (data: SMConfigFormData) => {
+    const onEdit = async (data: SMConfigFormData) => {
         const { mappingName, mappingType, isArray } = data;
         const { mappingName: prevMappingName, mappingType: prevMappingType } = lastView.subMappingInfo;
         let updatedName: string;
@@ -145,7 +134,7 @@ export function SubMappingConfigForm(props: SubMappingConfigFormProps) {
             }
         });
 
-        applyModifications();
+        await applyModifications();
         resetSubMappingConfig();
         reset();
     };
