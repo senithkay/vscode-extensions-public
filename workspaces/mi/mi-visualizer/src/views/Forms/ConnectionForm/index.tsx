@@ -82,7 +82,7 @@ export interface ConnectionFormProps {
 
 export function ConnectionForm(props: ConnectionFormProps) {
     const { rpcClient } = useVisualizerContext();
-    const [localConnectors, setLocalConnectors] = useState<any[]>([]);
+    const [localConnectors, setLocalConnectors] = useState<any[]>(undefined);
     const [connectionTypes, setConnectionTypes] = useState<any[]>();
     const [isGeneratingForm, setIsGeneratingForm] = useState(false);
     const [selectedConnector, setSelectedConnector] = useState<any>();
@@ -158,10 +158,14 @@ export function ConnectionForm(props: ConnectionFormProps) {
                 <>
                     <div>
                         <SubTitle>Local Connectors</SubTitle>
-                        {!localConnectors ? (
+                        {localConnectors === undefined ? (
                             <LoaderWrapper>
                                 <ProgressRing />
                                 Loading connectors...
+                            </LoaderWrapper>
+                        ) : localConnectors.length === 0 ? (
+                            <LoaderWrapper>
+                                No local connectors available. Please add connectors to create connections..
                             </LoaderWrapper>
                         ) : (
                             <SampleGrid>
