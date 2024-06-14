@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { Button, Codicon } from '@wso2-enterprise/ui-toolkit';
@@ -17,13 +17,17 @@ import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapp
 import { DMTypeWithValue } from "../../Mappings/DMTypeWithValue";
 import { MappingMetadata } from "../../Mappings/MappingMetadata";
 import { DataMapperPortWidget, PortState, InputOutputPortModel } from '../../Port';
-import { TreeBody, TreeContainer, TreeHeader } from '../commons/Tree/Tree';
+import { ObjectFieldAdder, TreeBody, TreeContainer, TreeHeader } from '../commons/Tree/Tree';
 import { ObjectOutputFieldWidget } from "./ObjectOutputFieldWidget";
 import { useIONodesStyles } from '../../../styles';
-import { useDMCollapsedFieldsStore, useDMExpressionBarStore, useDMSidePanelStore } from '../../../../store/store';
-import { getPosition } from '../../utils/st-utils';
-import { isEmptyValue } from '../../utils/common-utils';
-import { getDiagnostics } from '../../utils/diagnostics-utils';
+import {
+	useDMCollapsedFieldsStore,
+	useDMExpressionBarStore,
+	useDMIOConfigPanelStore,
+	useDMSubMappingConfigPanelStore
+} from '../../../../store/store';
+import { OutputSearchHighlight } from '../commons/Search';
+import { OBJECT_OUTPUT_FIELD_ADDER_TARGET_PORT_PREFIX } from '../../utils/constants';
 
 export interface ObjectOutputWidgetProps {
 	id: string; // this will be the root ID used to prepend for UUIDs of nested fields
@@ -34,6 +38,7 @@ export interface ObjectOutputWidgetProps {
 	getPort: (portId: string) => InputOutputPortModel;
 	context: IDataMapperContext;
 	mappings?: MappingMetadata[];
+	valueLabel?: string;
 	deleteField?: (node: Node) => Promise<void>;
 	originalTypeName?: string;
 }
@@ -47,31 +52,37 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 		engine,
 		getPort,
 		context,
-		mappings,
+		valueLabel,
 		deleteField
 	} = props;
+	const { views } = context;
+	const focusedView = views[views.length - 1];
+	const focuesOnSubMappingRoot = focusedView.subMappingInfo && focusedView.subMappingInfo.focusedOnSubMappingRoot;
+
 	const classes = useIONodesStyles();
 
 	const [portState, setPortState] = useState<PortState>(PortState.Unselected);
 	const [isHovered, setIsHovered] = useState(false);
+	const [hasFirstClickOnOutput, setHasFirstClickOnOutput] = useState(false);
+
 	const collapsedFieldsStore = useDMCollapsedFieldsStore();
-	const setSidePanelOpen = useDMSidePanelStore(state => state.setSidePanelOpen);
-    const setSidePanelIOType = useDMSidePanelStore(state => state.setSidePanelIOType);
-	const setIsSchemaOverridden = useDMSidePanelStore(state => state.setIsSchemaOverridden);
+
+	const { setIsIOConfigPanelOpen, setIOConfigPanelType, setIsSchemaOverridden } = useDMIOConfigPanelStore(state => ({
+		setIsIOConfigPanelOpen: state.setIsIOConfigPanelOpen,
+		setIOConfigPanelType: state.setIOConfigPanelType,
+		setIsSchemaOverridden: state.setIsSchemaOverridden
+	}));
+
+	const {subMappingConfig, setSubMappingConfig} = useDMSubMappingConfigPanelStore(state => ({
+		subMappingConfig: state.subMappingConfig,
+		setSubMappingConfig: state.setSubMappingConfig
+	}));
+
 	const exprBarFocusedPort = useDMExpressionBarStore(state => state.focusedPort);
 
-	const { childrenTypes, value: objVal } = dmTypeWithValue;
+	const { childrenTypes } = dmTypeWithValue;
 	const fields = childrenTypes || [];
-	const hasValue = fields.length > 0;
-	const isBodyObjectLiteralExpr = value && Node.isObjectLiteralExpression(value);
-
-	const hasDiagnostics = objVal && !objVal.wasForgotten && getDiagnostics(objVal).length > 0;
-	const hasEmptyFields = mappings && (mappings.length === 0 || !mappings.some(mapping => {
-		if (mapping.value && !mapping.value.wasForgotten()) {
-			return !isEmptyValue(getPosition(mapping.value));
-		}
-		return true;
-	}));
+	const hasFields = fields.length > 0;
 
 	const portIn = getPort(`${id}.IN`);
     const isExprBarFocused = exprBarFocusedPort?.getName() === portIn?.getName();
@@ -80,8 +91,24 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 	if ((portIn && portIn.collapsed)) {
 		expanded = false;
 	}
+	const isDisabled = portIn?.descendantHasValue;
 
-	const indentation = (portIn && (!hasValue || !expanded)) ? 0 : 24;
+	const indentation = (portIn && (!hasFields || !expanded)) ? 0 : 24;
+
+	useEffect(() => {
+		if (focuesOnSubMappingRoot) {
+			const dynamicOutputPort = getPort(`${OBJECT_OUTPUT_FIELD_ADDER_TARGET_PORT_PREFIX}.IN`);
+			
+			dynamicOutputPort.registerListener({
+				eventDidFire(event) {
+					if (event.function === "firstClickedOnDynamicOutput") {
+						setHasFirstClickOnOutput(true);
+						setTimeout(() => setHasFirstClickOnOutput(false), 3000);
+					}
+				},
+			})
+		}
+	}, []);
 
 	const handleExpand = () => {
 		const collapsedFields = collapsedFieldsStore.collapsedFields;
@@ -106,6 +133,12 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 
 	const label = (
 		<span style={{ marginRight: "auto" }}>
+			{valueLabel && (
+				<span className={classes.valueLabel}>
+					<OutputSearchHighlight>{valueLabel}</OutputSearchHighlight>
+					{typeName && ":"}
+				</span>
+			)}
 			<span className={classes.outputTypeLabel}>
 				{typeName || ''}
 			</span>
@@ -113,11 +146,22 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 	);
 
 	const onRightClick = (event: React.MouseEvent) => {
-        event.preventDefault(); 
-        setSidePanelIOType("Output");
-		setIsSchemaOverridden(true);
-        setSidePanelOpen(true);
+		event.preventDefault();
+		if (focuesOnSubMappingRoot) {
+			onSubMappingEditBtnClick();
+		} else {
+			setIOConfigPanelType("Output");
+			setIsSchemaOverridden(true);
+			setIsIOConfigPanelOpen(true);
+		}
     };
+
+	const onSubMappingEditBtnClick = () => {
+		setSubMappingConfig({
+			...subMappingConfig,
+			isSMConfigPanelOpen: true
+		});
+	};
 
 	return (
 		<>
@@ -135,10 +179,7 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 								engine={engine}
 								port={portIn}
 								handlePortState={handlePortState}
-								disable={
-									!((isBodyObjectLiteralExpr || !hasDiagnostics)
-									&& (!hasValue || !expanded || !isBodyObjectLiteralExpr || hasEmptyFields))
-								}
+								disable={isDisabled && !expanded}
 							/>)
 						}
 					</span>
@@ -154,6 +195,19 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 						</Button>
 						{label}
 					</span>
+					{focuesOnSubMappingRoot && (
+						<Button
+							appearance="icon"
+							data-testid={"edit-sub-mapping-btn"}
+							tooltip="Edit name and type of the sub mapping "
+							onClick={onSubMappingEditBtnClick}
+						>
+							<Codicon
+								name="settings-gear"
+								iconSx={{ color: "var(--vscode-input-placeholderForeground)" }}
+							/>
+						</Button>
+					)}
 				</TreeHeader>
 				{(expanded && fields) && (
 					<TreeBody>
@@ -174,6 +228,18 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 							);
 						})}
 					</TreeBody>
+				)}
+				{focuesOnSubMappingRoot && (
+					<ObjectFieldAdder id={`recordfield-${OBJECT_OUTPUT_FIELD_ADDER_TARGET_PORT_PREFIX}`}>
+						<span className={classes.objectFieldAdderLabel}>
+							Dynamically add inputs to output
+						</span>
+						{hasFirstClickOnOutput && (
+							<div className={classes.dynamicOutputNotification}>
+								Click on input field first to add a dynamic output
+							</div>
+						)}
+					</ObjectFieldAdder>
 				)}
 			</TreeContainer>
 		</>

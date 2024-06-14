@@ -11,7 +11,11 @@ import React, { ReactNode } from "react";
 import { ENDPOINTS, MEDIATORS } from "../../constants";
 import { Icon } from "@wso2-enterprise/ui-toolkit";
 
-export function getMediatorIconsFromFont(mediator: string) {
+export function getMostPopularIconColor() {
+    return "#ff7f36";
+}
+
+export function getMediatorIconsFromFont(mediator: string, isMostPopular?: boolean) {
     let icon: ReactNode = null;
     let color: string;
 
@@ -25,6 +29,9 @@ export function getMediatorIconsFromFont(mediator: string) {
         case MEDIATORS.CALLTEMPLATE.toLowerCase():
         case MEDIATORS.SEQUENCE.toLowerCase():
         case MEDIATORS.PROPERTYGROUP.toLowerCase():
+        case MEDIATORS.CACHE.toLowerCase():
+        case MEDIATORS.THROTTLE.toLowerCase():
+        case MEDIATORS.STORE.toLowerCase():
             color = "#3e97d3";
             break;
 
@@ -44,7 +51,6 @@ export function getMediatorIconsFromFont(mediator: string) {
         case MEDIATORS.ITERATE.toLowerCase():
         case MEDIATORS.AGGREGATE.toLowerCase():
         case MEDIATORS.FOREACHMEDIATOR.toLowerCase():
-        case MEDIATORS.STORE.toLowerCase():
         case MEDIATORS.VALIDATE.toLowerCase():
             color = "#26b99a";
             break;
@@ -54,11 +60,9 @@ export function getMediatorIconsFromFont(mediator: string) {
             color = "#ff69d0";
             break;
 
-        case MEDIATORS.CACHE.toLowerCase():
         case MEDIATORS.ENTITLEMENT.toLowerCase():
         case MEDIATORS.OAUTH.toLowerCase():
         case MEDIATORS.NTLM.toLowerCase():
-        case MEDIATORS.THROTTLE.toLowerCase():
             color = "#ffc369";
             break;
 
@@ -92,6 +96,10 @@ export function getMediatorIconsFromFont(mediator: string) {
 
         default:
             color = "#FFB02E";
+    }
+
+    if (isMostPopular) {
+        color = getMostPopularIconColor();
     }
 
     // get Mediators

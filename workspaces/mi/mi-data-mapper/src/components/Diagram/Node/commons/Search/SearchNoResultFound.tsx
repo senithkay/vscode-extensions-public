@@ -26,7 +26,7 @@ export enum SearchNoResultFoundKind {
     InputField = "input field",
     OutputField = "output field",
     OutputValue = "output value",
-    LocalVariable = "local variable",
+    SubMapping = "sub mapping",
     ModuleVariable = "module variable"
 }
 

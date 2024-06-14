@@ -62,6 +62,7 @@ export const COMMANDS = {
     EDIT_CLASS_MEDIATOR_COMMAND: 'MI.project-explorer.edit-class-mediator',
     CHANGE_SERVER_PATH: 'MI.change.server',
     BUILD_PROJECT: 'MI.build-project',
+    CREATE_DOCKER_IMAGE: 'MI.create-docker-image',
     BUILD_AND_RUN_PROJECT: 'MI.build-and-run',
     ADD_DATA_SOURCE_COMMAND: 'MI.project-explorer.add-data-source',
     SHOW_DATA_SOURCE: 'MI.show.data-source',

@@ -54,13 +54,12 @@ export function createFolderStructure(targetPath: string, structure: FileStructu
 	}
 }
 
-export function copyDockerResources(targetPath: string) {
+export function copyDockerResources(resourcePath: string, targetPath: string) {
 	const commonResourcesPath = path.join(targetPath, 'deployment');
 	const dockerResourcesPath = path.join(commonResourcesPath, 'docker', 'resources');
-	const dockerResourcesFolderPath = path.join(__dirname, '..', '..', 'resources', 'docker-resources');
-	fs.copyFileSync(path.join(dockerResourcesFolderPath, 'deployment.toml'), path.join(commonResourcesPath, 'deployment.toml'));
-	fs.copyFileSync(path.join(dockerResourcesFolderPath, 'client-truststore.jks'), path.join(dockerResourcesPath, 'client-truststore.jks'));
-	fs.copyFileSync(path.join(dockerResourcesFolderPath, 'wso2carbon.jks'), path.join(dockerResourcesPath, 'wso2carbon.jks'));
+	fs.copyFileSync(path.join(resourcePath, 'deployment.toml'), path.join(commonResourcesPath, 'deployment.toml'));
+	fs.copyFileSync(path.join(resourcePath, 'client-truststore.jks'), path.join(dockerResourcesPath, 'client-truststore.jks'));
+	fs.copyFileSync(path.join(resourcePath, 'wso2carbon.jks'), path.join(dockerResourcesPath, 'wso2carbon.jks'));
 }
 
 export function getInboundEndpointXmlWrapper(props: GetInboundTemplatesArgs) {

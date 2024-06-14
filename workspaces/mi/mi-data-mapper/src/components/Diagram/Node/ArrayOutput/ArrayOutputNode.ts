@@ -8,7 +8,7 @@
  */
 import { Point } from "@projectstorm/geometry";
 import { DMType, TypeKind } from "@wso2-enterprise/mi-core";
-import { Node, ReturnStatement } from "ts-morph";
+import { Expression, Node } from "ts-morph";
 
 import { useDMCollapsedFieldsStore, useDMSearchStore } from "../../../../store/store";
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
@@ -30,7 +30,9 @@ import {
     getInputPort,
     getOutputPort,
     getTypeName,
-    getTypeOfValue
+    getTypeOfValue,
+    isMapFnAtPropAssignment,
+    isMapFnAtRootReturn
 } from "../../utils/common-utils";
 
 export const ARRAY_OUTPUT_NODE_TYPE = "data-mapper-node-array-output";
@@ -45,11 +47,13 @@ export class ArrayOutputNode extends DataMapperNodeModel {
     public hasNoMatchingFields: boolean;
     public x: number;
     public y: number;
+    public isMapFn: boolean;
 
     constructor(
         public context: IDataMapperContext,
-        public value: ReturnStatement | undefined,
-        public originalType: DMType
+        public value: Expression | undefined,
+        public originalType: DMType,
+        public isSubMapping: boolean = false
     ) {
         super(
             NODE_ID,
@@ -63,9 +67,14 @@ export class ArrayOutputNode extends DataMapperNodeModel {
 
         if (this.dmType) {
             this.rootName = this.dmType?.fieldName;
+            const { focusedST, functionST, views } = this.context;
+
+            const isMapFnAtPropAsmt = isMapFnAtPropAssignment(focusedST);
+            const isMapFnAtRootRtn = views.length > 1 && isMapFnAtRootReturn(functionST, focusedST);
+            this.isMapFn = isMapFnAtPropAsmt || isMapFnAtRootRtn;
 
             const collapsedFields = useDMCollapsedFieldsStore.getState().collapsedFields;
-            const [valueEnrichedType, type] = enrichAndProcessType(this.dmType, this.value && this.value.getExpression());
+            const [valueEnrichedType, type] = enrichAndProcessType(this.dmType, this.value);
             this.dmType = type;
             this.typeName = getTypeName(valueEnrichedType.type);
 
@@ -73,7 +82,8 @@ export class ArrayOutputNode extends DataMapperNodeModel {
             this.dmTypeWithValue = valueEnrichedType;
 
             const parentPort = this.addPortsForHeader(
-                this.dmType, this.rootName, "IN", ARRAY_OUTPUT_TARGET_PORT_PREFIX, collapsedFields, valueEnrichedType
+                this.dmType, this.rootName, "IN", ARRAY_OUTPUT_TARGET_PORT_PREFIX,
+                collapsedFields, valueEnrichedType, this.isMapFn
             );
 
             if (valueEnrichedType.type.kind === TypeKind.Array) {
@@ -81,7 +91,7 @@ export class ArrayOutputNode extends DataMapperNodeModel {
                     this.dmTypeWithValue.elements.forEach((field, index) => {
                         this.addPortsForOutputField(
                             field.member, "IN", this.rootName, index, ARRAY_OUTPUT_TARGET_PORT_PREFIX,
-                            parentPort, collapsedFields, parentPort.collapsed
+                            parentPort, collapsedFields, parentPort.collapsed, this.isMapFn
                         );
                     });
                 }
@@ -94,7 +104,7 @@ export class ArrayOutputNode extends DataMapperNodeModel {
             return;
         }
         const searchValue = useDMSearchStore.getState().outputSearch;
-        const mappings = this.genMappings(this.value.getExpression());
+        const mappings = this.genMappings(this.value);
         this.mappings = getFilteredMappings(mappings, searchValue);
         this.createLinks(this.mappings);
     }
@@ -178,8 +188,8 @@ export class ArrayOutputNode extends DataMapperNodeModel {
             const replaceWith = getDefaultValue(typeOfValue.kind);
             field.replaceWithText(replaceWith);
         }  else {
-            const linkDeleteVisitor = new LinkDeletingVisitor(field, this.value.getExpression());
-            traversNode(this.value.getExpression(), linkDeleteVisitor);
+            const linkDeleteVisitor = new LinkDeletingVisitor(field, this.value);
+            traversNode(this.value, linkDeleteVisitor);
             const targetNodes = linkDeleteVisitor.getNodesToDelete();
 
             targetNodes.forEach(node => {

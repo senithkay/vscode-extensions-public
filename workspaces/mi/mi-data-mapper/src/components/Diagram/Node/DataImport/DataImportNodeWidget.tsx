@@ -9,7 +9,7 @@
 import React, { useState } from "react";
 
 import { TreeContainer } from "../commons/Tree/Tree";
-import { useDMSidePanelStore } from "../../../../store/store";
+import { useDMIOConfigPanelStore } from "../../../../store/store";
 import { Codicon } from "@wso2-enterprise/ui-toolkit";
 import { Label } from "../../OverriddenLinkLayer/LabelWidget";
 
@@ -20,12 +20,15 @@ export interface DataImportNodeWidgetProps {
 
 export function DataImportNodeWidget(props: DataImportNodeWidgetProps) {
     const {configName, ioType} = props;
-    const setSidePanelOpen = useDMSidePanelStore(state => state.setSidePanelOpen);
-    const setSidePanelIOType = useDMSidePanelStore(state => state.setSidePanelIOType);
+
+    const { setIsIOConfigPanelOpen, setIOConfigPanelType } = useDMIOConfigPanelStore(state => ({
+		setIsIOConfigPanelOpen: state.setIsIOConfigPanelOpen,
+		setIOConfigPanelType: state.setIOConfigPanelType
+	}));
 
     const handleOnClick = () => {
-        setSidePanelOpen(true);
-        setSidePanelIOType(ioType);
+        setIsIOConfigPanelOpen(true);
+        setIOConfigPanelType(ioType);
     };
 
     return (

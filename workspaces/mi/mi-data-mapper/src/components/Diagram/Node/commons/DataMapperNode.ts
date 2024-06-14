@@ -16,6 +16,7 @@ import { ArrayElement, DMTypeWithValue } from "../../Mappings/DMTypeWithValue";
 import { MappingMetadata } from '../../Mappings/MappingMetadata';
 import { InputOutputPortModel } from "../../Port";
 import { getInputAccessNodes } from '../../utils/common-utils';
+import { OBJECT_OUTPUT_FIELD_ADDER_TARGET_PORT_PREFIX } from '../../utils/constants';
 
 export interface DataMapperNodeModelGenerics {
 	PORT: InputOutputPortModel;
@@ -156,6 +157,22 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 		this.addPort(headerPort)
 
 		return headerPort;
+	}
+
+	protected addOutputFieldAdderPort(
+		parentId: string,
+		parent?: InputOutputPortModel,
+		collapsedFields?: string[],
+		hidden?: boolean,
+		isWithinMapFunction?: boolean
+	) {
+		const portName = OBJECT_OUTPUT_FIELD_ADDER_TARGET_PORT_PREFIX;
+		const isCollapsed = !hidden && collapsedFields && collapsedFields.includes(portName);
+		const fieldPort = new InputOutputPortModel(
+			undefined, portName, "IN", parentId, undefined, undefined,
+			undefined, parent, isCollapsed, hidden, false, false, isWithinMapFunction
+		);
+		this.addPort(fieldPort);
 	}
 
 	protected genMappings(val: Node, parentFields?: Node[]) {
