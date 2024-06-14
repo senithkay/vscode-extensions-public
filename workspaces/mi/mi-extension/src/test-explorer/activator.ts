@@ -22,12 +22,12 @@ import { ExtendedLanguageClient } from "../lang-client/ExtendedLanguageClient";
 export let testController: TestController;
 const testSuiteNodes: string[] = [];
 const testCaseNodes: string[] = [];
-let langClient: ExtendedLanguageClient | null;
+let langClient: ExtendedLanguageClient;
 
-export async function activateTextExplorer(extensionContext: ExtensionContext) {
+export async function activateTestExplorer(extensionContext: ExtensionContext, lsClient: ExtendedLanguageClient) {
     testController = tests.createTestController('synapse-tests', 'Synapse Tests');
     extensionContext.subscriptions.push(testController);
-    langClient = StateMachine.context().langClient;
+    langClient = lsClient;
 
     // create test profiles to display.
     testController.createRunProfile('Run Tests', TestRunProfileKind.Run, runHandler, true);

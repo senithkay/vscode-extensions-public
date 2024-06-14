@@ -30,7 +30,7 @@ import { log } from './util/logger';
 import { deriveConfigName } from './util/dataMapper';
 import { fileURLToPath } from 'url';
 import path = require('path');
-import { activateTextExplorer } from './test-explorer/activator';
+import { activateTestExplorer } from './test-explorer/activator';
 
 interface MachineContext extends VisualizerLocation {
     langClient: ExtendedLanguageClient | null;
@@ -170,8 +170,16 @@ const stateMachine = createMachine<MachineContext>({
             }
         },
         ready: {
-            initial: 'viewLoading',
+            initial: 'activateOtherFeatures',
             states: {
+                activateOtherFeatures: {
+                    invoke: {
+                        src: 'activateOtherFeatures',
+                        onDone: {
+                            target: 'viewLoading'
+                        }
+                    }
+                },
                 viewLoading: {
                     invoke: {
                         src: 'openWebPanel',
@@ -218,14 +226,6 @@ const stateMachine = createMachine<MachineContext>({
                 viewNavigated: {
                     invoke: {
                         src: 'updateAIView',
-                        onDone: {
-                            target: "activateTestExplorer"
-                        }
-                    }
-                },
-                activateTestExplorer: {
-                    invoke: {
-                        src: 'activateTextExplorer',
                         onDone: {
                             target: "viewReady"
                         }
@@ -459,9 +459,9 @@ const stateMachine = createMachine<MachineContext>({
                 resolve(true);
             });
         },
-        activateTextExplorer: (context, event) => {
+        activateOtherFeatures: (context, event) => {
             return new Promise(async (resolve, reject) => {
-                await activateTextExplorer(extension.context);
+                await activateTestExplorer(extension.context, context.langClient!);
                 resolve(true);
             });
         },
