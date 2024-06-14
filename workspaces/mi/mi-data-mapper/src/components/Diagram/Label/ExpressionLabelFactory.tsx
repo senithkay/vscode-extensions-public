@@ -12,7 +12,7 @@ import { AbstractReactFactory, GenerateWidgetEvent } from '@projectstorm/react-c
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 
 import { ExpressionLabelModel } from './ExpressionLabelModel';
-import { EditableLabelWidget } from './ExpressionLabelWidget';
+import { ExpressionLabelWidget } from './ExpressionLabelWidget';
 
 export class ExpressionLabelFactory extends AbstractReactFactory<ExpressionLabelModel, DiagramEngine> {
 	constructor() {
@@ -24,6 +24,6 @@ export class ExpressionLabelFactory extends AbstractReactFactory<ExpressionLabel
 	}
 
 	generateReactWidget(event: GenerateWidgetEvent<ExpressionLabelModel>): JSX.Element {
-		return <EditableLabelWidget model={event.model} />;
+		return <ExpressionLabelWidget model={event.model} />;
 	}
 }

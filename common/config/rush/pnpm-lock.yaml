@@ -3068,6 +3068,7 @@ importers:
       lodash.debounce: ^4.0.8
       react: ^17.0.2
       react-dom: ^17.0.2
+      react-hook-form: ~7.51.2
       resize-observer-polyfill: ^1.5.1
       ts-loader: ^9.4.1
       ts-morph: ^22.0.0
@@ -3116,6 +3117,7 @@ importers:
       eslint-plugin-react-hooks: 4.6.0_eslint@8.56.0
       eslint-plugin-react-refresh: 0.4.5_eslint@8.56.0
       file-loader: 5.1.0
+      react-hook-form: 7.51.2_react@17.0.2
       ts-loader: 9.5.1_typescript@5.3.3
       ts-morph: 22.0.0
       tslib: 2.6.2
@@ -41936,6 +41938,15 @@ packages:
     peerDependencies:
       react: ^16.8.0 || ^17 || ^18
     dev: false
+
+  /react-hook-form/7.51.2_react@17.0.2:
+    resolution: {integrity: sha512-y++lwaWjtzDt/XNnyGDQy6goHskFualmDlf+jzEZvjvz6KWDf7EboL7pUvRCzPTJd0EOPpdekYaQLEvvG6m6HA==}
+    engines: {node: '>=12.22.0'}
+    peerDependencies:
+      react: ^16.8.0 || ^17 || ^18
+    dependencies:
+      react: 17.0.2
+    dev: true
 
   /react-hook-form/7.51.2_react@18.2.0:
     resolution: {integrity: sha512-y++lwaWjtzDt/XNnyGDQy6goHskFualmDlf+jzEZvjvz6KWDf7EboL7pUvRCzPTJd0EOPpdekYaQLEvvG6m6HA==}

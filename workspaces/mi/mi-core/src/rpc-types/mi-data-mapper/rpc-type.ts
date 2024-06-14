@@ -9,8 +9,9 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
-    IOTypeRequest, 
-    IOTypeResponse, 
+    DMTypeRequest, 
+    IOTypeResponse,
+    SubMappingTypesResponse,
     UpdateFileContentRequest, 
     GenerateDMInputRequest, 
     GenerateDMInputResponse, 
@@ -25,7 +26,8 @@ import {
 import { RequestType, NotificationType } from "vscode-messenger-common";
 
 const _preFix = "mi-data-mapper";
-export const getIOTypes: RequestType<IOTypeRequest, IOTypeResponse> = { method: `${_preFix}/getIOTypes` };
+export const getIOTypes: RequestType<DMTypeRequest, IOTypeResponse> = { method: `${_preFix}/getIOTypes` };
+export const getSubMappingTypes: RequestType<DMTypeRequest, SubMappingTypesResponse> = { method: `${_preFix}/getSubMappingTypes` };
 export const updateFileContent: NotificationType<UpdateFileContentRequest> = { method: `${_preFix}/updateFileContent` };
 export const browseSchema: RequestType<BrowseSchemaRequest, BrowseSchemaResponse> = { method: `${_preFix}/browseSchema` };
 export const loadDMConfigs: RequestType<LoadDMConfigsRequest, LoadDMConfigsResponse> = { method: `${_preFix}/loadDMConfigs` };

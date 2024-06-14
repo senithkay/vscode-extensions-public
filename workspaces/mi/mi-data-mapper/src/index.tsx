@@ -12,7 +12,7 @@ import React, { useMemo } from "react";
 /** @jsx jsx */
 import { Global, css } from '@emotion/react';
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { DMType, Range } from "@wso2-enterprise/mi-core";
+import { DMType } from "@wso2-enterprise/mi-core";
 import { Project, SyntaxKind } from "ts-morph";
 
 import { MIDataMapper } from "./components/DataMapper/DataMapper";
@@ -44,8 +44,7 @@ export interface DataMapperViewProps {
     functionName: string;
     inputTrees: DMType[];
     outputTree: DMType;
-    goToSource: (range: Range) => void;
-    updateFileContent: (fileContent: string) => void;
+    updateFileContent: (fileContent: string) => Promise<void>;
     configName: string;
 }
 
@@ -56,7 +55,6 @@ export function DataMapperView(props: DataMapperViewProps) {
         functionName,
         inputTrees,
         outputTree,
-        goToSource,
         updateFileContent,
         configName
     } = props;
@@ -105,8 +103,8 @@ export function DataMapperView(props: DataMapperViewProps) {
 
     }, [rpcClient, filePath, fileContent, functionName]);
 
-    const applyModifications = () => {
-        updateFileContent(sourceFile.getText());
+    const applyModifications = async () => {
+        await updateFileContent(sourceFile.getText());
     };
 
     return (
@@ -118,7 +116,6 @@ export function DataMapperView(props: DataMapperViewProps) {
                     inputTrees={inputTrees}
                     outputTree={outputTree}
                     fileContent={fileContent}
-                    goToSource={goToSource}
                     applyModifications={applyModifications}
                     filePath={filePath}
                     configName={configName}

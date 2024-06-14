@@ -27,12 +27,11 @@ export class PrimitiveOutputNodeFactory extends AbstractReactFactory<PrimitiveOu
 
 	generateReactWidget(event: { model: PrimitiveOutputNode; }): JSX.Element {
 		let valueLabel: string;
-		const { isMapFn, context } = event.model;
+		const { isMapFn, isSubMapping, context } = event.model;
 		const { views, focusedST } = context;
 		const isMapFnAtFnReturn = views.length === 1 && Node.isFunctionDeclaration(focusedST);
-		if (isMapFn && !isMapFnAtFnReturn)
-		{
-			valueLabel = views[views.length - 1].targetFieldFQN.split('.').pop();
+		if ((isMapFn && !isMapFnAtFnReturn) || isSubMapping) {
+			valueLabel = views[views.length - 1].label.replace(/\[\]/g, '');
 		}
 		return (
 			<>

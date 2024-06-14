@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { 
-    IOTypeRequest, 
+    DMTypeRequest, 
     IOTypeResponse, 
     UpdateFileContentRequest,
     GenerateDMInputRequest, 
@@ -16,11 +16,13 @@ import {
     LoadDMConfigsResponse,
     ConvertRegPathToAbsPathRequest,
     ConvertRegPathToAbsPathResponse,
-    UpdateDMCRequest
+    UpdateDMCRequest,
+    SubMappingTypesResponse
 } from "./types";
 
 export interface MIDataMapperAPI {
-    getIOTypes: (params: IOTypeRequest) => Promise<IOTypeResponse>;
+    getIOTypes: (params: DMTypeRequest) => Promise<IOTypeResponse>;
+    getSubMappingTypes: (params: DMTypeRequest) => Promise<SubMappingTypesResponse>;
     updateFileContent: (params: UpdateFileContentRequest) => void;
     loadDMConfigs: (params: LoadDMConfigsRequest) => Promise<LoadDMConfigsResponse>;
     convertRegPathToAbsPath: (params: ConvertRegPathToAbsPathRequest) => Promise<ConvertRegPathToAbsPathResponse>;

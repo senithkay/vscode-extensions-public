@@ -6,10 +6,11 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { ArrayLiteralExpression, Node, ObjectLiteralExpression, PropertyAssignment } from "ts-morph"
+import { ArrayLiteralExpression, Block, FunctionDeclaration, Node, ObjectLiteralExpression, PropertyAssignment, VariableDeclaration } from "ts-morph"
 import { DMType, TypeKind } from "@wso2-enterprise/mi-core";
 
 import { ArrayElement, DMTypeWithValue } from "../Mappings/DMTypeWithValue";
+import { RpcClient } from "@wso2-enterprise/mi-rpc-client";
 
 export function enrichAndProcessType(
     typeToBeProcessed: DMType,
@@ -23,7 +24,7 @@ export function enrichAndProcessType(
 export function getDMType(
     propertiesExpr: string,
     parentType: DMType,
-    mapFnIndex: number,
+    mapFnIndex?: number,
     isPropeAccessExpr?: boolean
 ): DMType {
     /*
@@ -86,6 +87,35 @@ export function getDMTypeForRootChaninedMapFunction(
     return currentType;
 }
 
+export function getDMTypeOfSubMappingItem(
+    functionST:FunctionDeclaration,
+    subMappingName: string,
+    subMappingTypes: Record<string, DMType>
+) {
+    const varStmt = (functionST.getBody() as Block).getVariableStatement(subMappingName);
+
+    if (!varStmt) return;
+
+    const varDecl = varStmt.getDeclarations()[0];
+    return getTypeForVariable(subMappingTypes, varDecl);
+}
+
+export function getTypeForVariable(
+    varTypes: Record<string, DMType | undefined>,
+    varDecl: VariableDeclaration,
+    subMappingMapFnIndex?: number
+): DMType {
+    const key = varDecl.getStart().toString() + varDecl.getEnd().toString();
+    let varType = varTypes[key];
+
+    if (subMappingMapFnIndex !== undefined && varType.kind === TypeKind.Array) {
+        for (let i = 0; i < subMappingMapFnIndex + 1; i++) {
+            varType = varType.memberType;
+        }
+    }
+    return varType;
+}
+
 export function getEnrichedDMType(
     type: DMType,
     node: Node | undefined,
@@ -118,6 +148,18 @@ export function getEnrichedDMType(
     }
 
     return dmTypeWithValue;
+}
+
+export async function getSubMappingTypes(
+    rpcClient: RpcClient,
+    filePath: string,
+    functionName: string
+): Promise<Record<string, DMType>> {
+    const smTypesResp = await rpcClient
+    .getMiDataMapperRpcClient()
+    .getSubMappingTypes({ filePath, functionName: functionName });
+
+    return smTypesResp.variableTypes;
 }
 
 function getEnrichedPrimitiveType(

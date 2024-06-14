@@ -9,11 +9,13 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
-    IOTypeRequest,
+    DMTypeRequest,
     IOTypeResponse,
+    SubMappingTypesResponse,
     MIDataMapperAPI,
     UpdateFileContentRequest,
     getIOTypes,
+    getSubMappingTypes,
     updateFileContent,
     GenerateDMInputRequest,
     GenerateDMInputResponse,
@@ -40,8 +42,12 @@ export class MiDataMapperRpcClient implements MIDataMapperAPI {
         this._messenger = messenger;
     }
 
-    getIOTypes(params: IOTypeRequest): Promise<IOTypeResponse> {
+    getIOTypes(params: DMTypeRequest): Promise<IOTypeResponse> {
         return this._messenger.sendRequest(getIOTypes, HOST_EXTENSION, params);
+    }
+
+    getSubMappingTypes(params: DMTypeRequest): Promise<SubMappingTypesResponse> {
+        return this._messenger.sendRequest(getSubMappingTypes, HOST_EXTENSION, params);
     }
 
     updateFileContent(params: UpdateFileContentRequest): void {

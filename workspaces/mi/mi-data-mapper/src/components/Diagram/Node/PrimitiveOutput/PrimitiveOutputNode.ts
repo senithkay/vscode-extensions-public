@@ -8,7 +8,7 @@
  */
 import { Point } from "@projectstorm/geometry";
 import { DMType, TypeKind } from "@wso2-enterprise/mi-core";
-import { CallExpression, Node, ReturnStatement } from "ts-morph";
+import { Expression, CallExpression, Node } from "ts-morph";
 
 import { useDMCollapsedFieldsStore, useDMSearchStore } from "../../../../store/store";
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
@@ -18,7 +18,16 @@ import { DMTypeWithValue } from "../../Mappings/DMTypeWithValue";
 import { MappingMetadata } from "../../Mappings/MappingMetadata";
 import { InputOutputPortModel } from "../../Port";
 import { PRIMITIVE_OUTPUT_TARGET_PORT_PREFIX } from "../../utils/constants";
-import { findInputNode, getDefaultValue, getInputPort, getOutputPort, getTnfFnReturnStatement, getTypeName, isArrayOrInterface, isMapFunction } from "../../utils/common-utils";
+import {
+    findInputNode,
+    getDefaultValue,
+    getInputPort,
+    getOutputPort,
+    getTypeName,
+    isArrayOrInterface,
+    isMapFnAtPropAssignment,
+    isMapFnAtRootReturn
+} from "../../utils/common-utils";
 import { getEnrichedDMType } from "../../utils/type-utils";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
 import { getFilteredMappings } from "../../utils/search-utils";
@@ -39,8 +48,9 @@ export class PrimitiveOutputNode extends DataMapperNodeModel {
 
     constructor(
         public context: IDataMapperContext,
-        public value: ReturnStatement | undefined,
-        public originalType: DMType
+        public value: Expression | undefined,
+        public originalType: DMType,
+        public isSubMapping: boolean = false
     ) {
         super(
             NODE_ID,
@@ -54,21 +64,15 @@ export class PrimitiveOutputNode extends DataMapperNodeModel {
         if (this.dmType) {
             const { focusedST, functionST, views } = this.context;
             const collapsedFields = useDMCollapsedFieldsStore.getState().collapsedFields;
-            const valueEnrichedType = getEnrichedDMType(this.dmType, this.value && this.value.getExpression());
+            const valueEnrichedType = getEnrichedDMType(this.dmType, this.value);
             const searchValue = useDMSearchStore.getState().outputSearch;
-            const tnfFnRootReturn = getTnfFnReturnStatement(functionST);
-            const isMapFnAtPropAssignment = Node.isPropertyAssignment(focusedST)
-                && Node.isCallExpression(focusedST.getInitializer())
-                && isMapFunction(focusedST.getInitializer() as CallExpression);
-            const isMapFnAtRootReturn = views.length > 1
-                && Node.isFunctionDeclaration(focusedST)
-                && Node.isCallExpression(tnfFnRootReturn)
-                && isMapFunction(tnfFnRootReturn);
-            this.isMapFn = isMapFnAtPropAssignment || isMapFnAtRootReturn;
+            const isMapFnAtPropAsmt = isMapFnAtPropAssignment(focusedST);
+            const isMapFnAtRootRtn = views.length > 1 && isMapFnAtRootReturn(functionST, focusedST);
+            this.isMapFn = isMapFnAtPropAsmt || isMapFnAtRootRtn;
 
             this.typeName = getTypeName(valueEnrichedType.type);
             this.dmTypeWithValue = valueEnrichedType;
-            this.hasNoMatchingFields = searchValue && !this.value.getExpression().getText().includes(searchValue);
+            this.hasNoMatchingFields = searchValue && !this.value.getText().includes(searchValue);
             
             if (valueEnrichedType.type.kind === TypeKind.Array && this.isMapFn) {
                 this.dmTypeWithValue = valueEnrichedType.elements[0].member;
@@ -89,7 +93,7 @@ export class PrimitiveOutputNode extends DataMapperNodeModel {
             return;
         }
         const searchValue = useDMSearchStore.getState().outputSearch;
-        const mappings = this.genMappings(this.value.getExpression());
+        const mappings = this.genMappings(this.value);
         const filteredMappings = getFilteredMappings(mappings, searchValue);
         this.createLinks(filteredMappings);
     }
@@ -125,7 +129,11 @@ export class PrimitiveOutputNode extends DataMapperNodeModel {
                 );
             }
             if (inPort && mappedOutPort) {
-                const diagnostics = getDiagnostics(otherVal || value);
+                let targetNodeForDiagnostics = otherVal || value;
+                if (Node.isVariableStatement(this.context.focusedST)) {
+                    targetNodeForDiagnostics = this.context.focusedST;
+                }
+                const diagnostics = getDiagnostics(targetNodeForDiagnostics);
                 const lm = new DataMapperLinkModel(value, diagnostics, true);
 
                 lm.setTargetPort(mappedOutPort);
@@ -165,7 +173,7 @@ export class PrimitiveOutputNode extends DataMapperNodeModel {
         const typeOfValue = this.isLocked && this.dmType?.memberType ? this.dmType.memberType : this.dmType;
         const defaultValue = getDefaultValue(typeOfValue?.kind);
         field.replaceWithText(defaultValue);
-        this.context.applyModifications();
+        await this.context.applyModifications();
     }
 
     public updatePosition() {
