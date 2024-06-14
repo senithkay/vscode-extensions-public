@@ -14,21 +14,20 @@ import { createTestsForAllFiles, testFileMatchPattern } from "./discover";
 import { getProjectName, getProjectRoot, startWatchingWorkspace } from "./helper";
 import { EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
 import { COMMANDS } from "../constants";
-import { openView } from '../stateMachine';
+import { StateMachine, openView } from '../stateMachine';
 import { activateMockServiceTreeView } from "./mock-services/activator";
 import { TagRange, TestCase, UnitTest } from "../../../syntax-tree/lib/src";
-import { MILanguageClient } from "../lang-client/activator";
 import { ExtendedLanguageClient } from "../lang-client/ExtendedLanguageClient";
 
 export let testController: TestController;
 const testSuiteNodes: string[] = [];
 const testCaseNodes: string[] = [];
-let langClient: ExtendedLanguageClient | undefined;
+let langClient: ExtendedLanguageClient;
 
-export async function activateTextExplorer(extensionContext: ExtensionContext) {
+export async function activateTestExplorer(extensionContext: ExtensionContext, lsClient: ExtendedLanguageClient) {
     testController = tests.createTestController('synapse-tests', 'Synapse Tests');
     extensionContext.subscriptions.push(testController);
-    langClient = (await MILanguageClient.getInstance(extensionContext)).languageClient;
+    langClient = lsClient;
 
     // create test profiles to display.
     testController.createRunProfile('Run Tests', TestRunProfileKind.Run, runHandler, true);
