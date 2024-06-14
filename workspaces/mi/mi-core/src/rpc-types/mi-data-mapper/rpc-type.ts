@@ -21,7 +21,8 @@ import {
     LoadDMConfigsResponse,
     ConvertRegPathToAbsPathRequest,
     ConvertRegPathToAbsPathResponse,
-    UpdateDMCRequest
+    UpdateDMCRequest,
+    UpdateDMUndoRedoMangerRequest
 } from "./types";
 import { RequestType, NotificationType } from "vscode-messenger-common";
 
@@ -34,3 +35,8 @@ export const loadDMConfigs: RequestType<LoadDMConfigsRequest, LoadDMConfigsRespo
 export const convertRegPathToAbsPath: RequestType<ConvertRegPathToAbsPathRequest, ConvertRegPathToAbsPathResponse> = { method: `${_preFix}/convertRegPathToAbsPath` };
 export const createDMFiles: RequestType<GenerateDMInputRequest, GenerateDMInputResponse> = { method: `${_preFix}/createDMFiles` };
 export const updateDMCFileContent: RequestType<UpdateDMCRequest, void> = { method: `${_preFix}/updateDMCFileContent` };
+export const initDMUndoRedoManager: NotificationType<UpdateDMUndoRedoMangerRequest> = { method: `${_preFix}/initDMUndoRedoManager` };
+export const dmUndo: RequestType<void, string> = { method: `${_preFix}/dmUndo` };
+export const dmRedo: RequestType<void, string> = { method: `${_preFix}/dmRedo` };
+export const addToDMUndoStack: NotificationType<string> = { method: `${_preFix}/addToDMUndoStack` };
+export const updateDMUndoRedoManager: NotificationType<UpdateDMUndoRedoMangerRequest> = { method: `${_preFix}/updateDMUndoRedoManager` };

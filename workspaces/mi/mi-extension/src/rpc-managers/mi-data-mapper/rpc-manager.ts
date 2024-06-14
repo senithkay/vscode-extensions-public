@@ -22,7 +22,8 @@ import {
     LoadDMConfigsResponse,
     ConvertRegPathToAbsPathRequest,
     ConvertRegPathToAbsPathResponse,
-    UpdateDMCRequest
+    UpdateDMCRequest,
+    UpdateDMUndoRedoMangerRequest
 } from "@wso2-enterprise/mi-core";
 import { fetchIOTypes, fetchSubMappingTypes } from "../../util/dataMapper";
 import { Project } from "ts-morph";
@@ -269,5 +270,30 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
                 reject(error);
             }
         });
+    }
+
+    async initDMUndoRedoManager(params: UpdateDMUndoRedoMangerRequest): Promise<void> {
+        // ADD YOUR IMPLEMENTATION HERE
+        throw new Error('Not implemented');
+    }
+
+    async dmUndo(): Promise<string> {
+        // ADD YOUR IMPLEMENTATION HERE
+        throw new Error('Not implemented');
+    }
+
+    async dmRedo(): Promise<string> {
+        // ADD YOUR IMPLEMENTATION HERE
+        throw new Error('Not implemented');
+    }
+
+    async addToDMUndoStack(source: string): Promise<void> {
+        // ADD YOUR IMPLEMENTATION HERE
+        throw new Error('Not implemented');
+    }
+
+    async updateDMUndoRedoManager(params: UpdateDMUndoRedoMangerRequest): Promise<void> {
+        // ADD YOUR IMPLEMENTATION HERE
+        throw new Error('Not implemented');
     }
 }
