@@ -2153,10 +2153,6 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 description, datasources, authProviderClass, authProperties, queries, operations, resources
             };
 
-            console.log(params.resources)
-            console.log(params.operations)
-            console.log(params.queries)
-
             let filePath = params.directory;
             if (filePath.includes('dataServices')) {
                 filePath = filePath.replace('dataServices', 'data-services');
