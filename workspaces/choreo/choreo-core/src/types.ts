@@ -99,7 +99,7 @@ export interface AuthState {
 }
 
 export interface WebviewState {
-    openedComponentPath: string;
+    openedComponentKey: string;
 }
 
 export interface ContextItem {

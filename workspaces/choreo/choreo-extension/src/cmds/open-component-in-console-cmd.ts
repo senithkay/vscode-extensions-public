@@ -11,6 +11,7 @@ import { CommandIds, ComponentKind, Organization, Project } from "@wso2-enterpri
 import { authStore } from "../stores/auth-store";
 import { selectOrg, selectProject, selectComponent, getUserInfoForCmd } from "./cmd-utils";
 import { choreoEnvConfig } from "../auth/auth";
+import { contextStore } from "../stores/context-store";
 
 export function openComponentInConsoleCommand(context: ExtensionContext) {
     context.subscriptions.push(
@@ -20,16 +21,21 @@ export function openComponentInConsoleCommand(context: ExtensionContext) {
                 try {
                     const userInfo = await getUserInfoForCmd("open a component in Choreo console");
                     if (userInfo) {
-                        const selectedOrg =
-                            params?.organization ?? (await selectOrg(userInfo, "Select organization"));
+                        let selectedOrg = params?.organization;
+                        let selectedProject = params?.project;
 
-                        const selectedProject =
-                            params?.project ??
-                            (await selectProject(
+                        const selected = contextStore.getState().state.selected;
+                        if (selected) {
+                            selectedOrg = selected.org!;
+                            selectedProject = selected.project!;
+                        } else {
+                            selectedOrg = await selectOrg(userInfo, "Select organization");
+                            selectedProject = await selectProject(
                                 selectedOrg,
                                 `Loading projects from '${selectedOrg.name}'`,
                                 `Select project from '${selectedOrg.name}'`
-                            ));
+                            );
+                        }
 
                         const selectedComponent =
                             params?.component ??

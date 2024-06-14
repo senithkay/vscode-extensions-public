@@ -82,8 +82,6 @@ import {
     DeleteFile,
     ShowConfirmMessage,
     ShowConfirmBoxReq,
-    ViewComponentDetails,
-    ViewComponentDetailsReq,
     ReadServiceEndpoints,
     EndpointYamlContent,
     ShowQuickPick,
@@ -206,9 +204,6 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
     messenger.onRequest(ShowConfirmMessage, async (params: ShowConfirmBoxReq) => {
         const response = await window.showInformationMessage(params.message,{modal: true},params.buttonText);
         return response === params.buttonText;
-    });
-    messenger.onRequest(ViewComponentDetails, async (params) => {
-        showComponentDetailsView(params.organization, params.project, params.component, params.componentPath)
     });
     messenger.onRequest(ReadServiceEndpoints, async (componentPath: string) => readEndpoints(componentPath));
     messenger.onRequest(ShowQuickPick, async (params) => {

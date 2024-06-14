@@ -31,6 +31,9 @@ create a project view
 // New context yaml
 
 have settings icon(change project) and clicking that should provide
+during cloning flow, always create a workspace file and open it
+automatically sync
+
 1. current project
 2. available projects
 3. other options

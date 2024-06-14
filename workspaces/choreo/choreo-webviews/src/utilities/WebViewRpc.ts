@@ -106,8 +106,6 @@ import {
     DeleteFile,
     ShowConfirmMessage,
     ShowConfirmBoxReq,
-    ViewComponentDetailsReq,
-    ViewComponentDetails,
     ReadServiceEndpoints,
     ReadEndpointsResp,
     ShowQuickPick,
@@ -255,10 +253,6 @@ export class ChoreoWebViewAPI {
 
     public async showConfirmMessage(params: ShowConfirmBoxReq): Promise<boolean> {
         return this._messenger.sendRequest(ShowConfirmMessage, HOST_EXTENSION, params);
-    }
-
-    public async ViewComponent(params: ViewComponentDetailsReq): Promise<void> {
-        return this._messenger.sendRequest(ViewComponentDetails, HOST_EXTENSION, params);
     }
 
     public async readServiceEndpoints(componentPath: string): Promise<ReadEndpointsResp> {

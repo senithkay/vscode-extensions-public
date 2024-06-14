@@ -1,5 +1,11 @@
 import React, { FC } from "react";
-import { ContextStoreComponentState, Organization, Project } from "@wso2-enterprise/choreo-core";
+import {
+    CommandIds,
+    ContextStoreComponentState,
+    Organization,
+    Project,
+    ViewComponentDetailsReq,
+} from "@wso2-enterprise/choreo-core";
 import classNames from "classnames";
 import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
 import { ContextMenu } from "../../components/ContextMenu";
@@ -13,14 +19,13 @@ interface Props {
 }
 
 export const ComponentListItem: FC<Props> = ({ item, isListLoading, opened, org, project }) => {
-
     const viewComponentDetails = () =>
-        ChoreoWebViewAPI.getInstance().ViewComponent({
+        ChoreoWebViewAPI.getInstance().triggerCmd(CommandIds.ViewComponent, {
             component: item.component!,
             project: project,
             organization: org,
             componentPath: item.componentFsPath,
-        });
+        } as ViewComponentDetailsReq);
 
     return (
         <div
@@ -33,9 +38,7 @@ export const ComponentListItem: FC<Props> = ({ item, isListLoading, opened, org,
             onClick={viewComponentDetails}
         >
             <div className="flex-1 flex flex-col gap-0.5 pl-5 py-3 break-all">
-                <h3 className="text-sm font-bold line-clamp-1">
-                    {item?.component?.metadata?.displayName}
-                </h3>
+                <h3 className="text-sm font-bold line-clamp-1">{item?.component?.metadata?.displayName}</h3>
                 <p className="text-xs">
                     Path: {item.workspaceName}/{item.componentRelativePath}
                 </p>

@@ -17,10 +17,10 @@ export const ComponentListView: FC<ComponentsListActivityViewProps> = ({ directo
         queryFn: () => ChoreoWebViewAPI.getInstance().getContextState(),
     });
 
-    const { data: activeComponentPath } = useQuery({
+    const { data: openedComponentKey } = useQuery({
         queryKey: ["active_component"],
         queryFn: () => ChoreoWebViewAPI.getInstance().getWebviewStoreState(),
-        select: (data) => data.openedComponentPath,
+        select: (data) => data.openedComponentKey,
     });
 
     useEffect(() => {
@@ -66,7 +66,10 @@ export const ComponentListView: FC<ComponentsListActivityViewProps> = ({ directo
                             org={linkedDirState.selected?.org}
                             project={linkedDirState.selected?.project}
                             isListLoading={isLoading}
-                            opened={activeComponentPath === item.componentFsPath}
+                            opened={
+                                openedComponentKey ===
+                                `${linkedDirState.selected?.org?.handle}-${linkedDirState.selected?.project?.handler}-${item?.component.metadata.name}`
+                            }
                         />
                         {index !== linkedDirState.components?.length - 1 && (
                             <div className="h-[0.5px] bg-vsc-dropdown-border opacity-70" />

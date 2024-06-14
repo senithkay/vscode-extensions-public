@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { ExtensionContext, commands, window } from "vscode";
-import { CommandIds } from "@wso2-enterprise/choreo-core";
+import { CommandIds, ComponentKind, Organization, Project, ViewComponentDetailsReq } from "@wso2-enterprise/choreo-core";
 import { getUserInfoForCmd, selectComponent, selectOrg, selectProject } from "./cmd-utils";
 import { existsSync } from "fs";
 import * as path from "path";
@@ -16,43 +16,55 @@ import { contextStore } from "../stores/context-store";
 
 export function viewComponentCommand(context: ExtensionContext) {
     context.subscriptions.push(
-        commands.registerCommand(CommandIds.ViewComponent, async () => {
+        commands.registerCommand(CommandIds.ViewComponent, async (params: ViewComponentDetailsReq) => {
             try {
                 const userInfo = await getUserInfoForCmd("view component details");
                 if (userInfo) {
-                    const selectedOrg = await selectOrg(userInfo, "Select organization");
+                    let selectedOrg = params?.organization;
+                        let selectedProject = params?.project;
 
-                    const selectedProject = await selectProject(
-                        selectedOrg,
-                        `Loading projects from '${selectedOrg.name}'`,
-                        `Select project from '${selectedOrg.name}'`
-                    );
+                        const selected = contextStore.getState().state.selected;
+                        if (selected) {
+                            selectedOrg = selected.org!;
+                            selectedProject = selected.project!;
+                        } else {
+                            selectedOrg = await selectOrg(userInfo, "Select organization");
+                            selectedProject = await selectProject(
+                                selectedOrg,
+                                `Loading projects from '${selectedOrg.name}'`,
+                                `Select project from '${selectedOrg.name}'`
+                            );
+                        }
 
-                    const selectedComponent = await selectComponent(
-                        selectedOrg,
-                        selectedProject,
-                        `Loading components from '${selectedProject.name}'`,
-                        `Select component from '${selectedProject.name}' to view`
-                    );
+                        const selectedComponent =
+                            params?.component ??
+                            (await selectComponent(
+                                selectedOrg,
+                                selectedProject,
+                                `Loading components from '${selectedProject.name}'`,
+                                `Select component from '${selectedProject.name}' to view`
+                            ));
 
-                    let matchingPath: string = "";
+                    let matchingPath: string = params.componentPath;
 
-                    const contextItems = contextStore.getState().getValidItems();
-                    for (const item of contextItems) {
-                        if (item.orgHandle === selectedOrg.handle && item.projectHandle === selectedProject.handler) {
-                            const matchingCts = item.contextDirs.find((ctxItem) => {
-                                const componentPath = path.join(
-                                    ctxItem.projectRootFsPath,
-                                    selectedComponent.spec.source.github?.path!
-                                );
-                                return existsSync(componentPath);
-                            });
-                            if (matchingCts) {
-                                matchingPath = path.join(
-                                    matchingCts.projectRootFsPath,
-                                    selectedComponent.spec.source.github?.path!
-                                );
-                                break;
+                    if(!matchingPath){
+                        const contextItems = contextStore.getState().getValidItems();
+                        for (const item of contextItems) {
+                            if (item.orgHandle === selectedOrg.handle && item.projectHandle === selectedProject.handler) {
+                                const matchingCts = item.contextDirs.find((ctxItem) => {
+                                    const componentPath = path.join(
+                                        ctxItem.projectRootFsPath,
+                                        selectedComponent.spec.source.github?.path!
+                                    );
+                                    return existsSync(componentPath);
+                                });
+                                if (matchingCts) {
+                                    matchingPath = path.join(
+                                        matchingCts.projectRootFsPath,
+                                        selectedComponent.spec.source.github?.path!
+                                    );
+                                    break;
+                                }
                             }
                         }
                     }

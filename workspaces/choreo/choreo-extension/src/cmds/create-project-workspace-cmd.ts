@@ -8,7 +8,7 @@
  */
 import { ExtensionContext, Uri, commands, window, workspace } from "vscode";
 import { ext } from "../extensionVariables";
-import { CommandIds, WorkspaceConfig } from "@wso2-enterprise/choreo-core";
+import { CommandIds, ComponentKind, Project, WorkspaceConfig } from "@wso2-enterprise/choreo-core";
 import { getUserInfoForCmd } from "./cmd-utils";
 import * as path from "path";
 import { writeFileSync } from "fs";
@@ -37,18 +37,16 @@ export function createProjectWorkspaceCommand(context: ExtensionContext) {
 
                     const workspaceFileDir = workspaceFileDirs[0];
 
-                    const workspaceFile: WorkspaceConfig = {
-                        folders:
-                            contextStore.getState().state.components?.map((item) => ({
-                                name: item.component?.metadata.name!,
-                                path: path.normalize(path.relative(workspaceFileDir.fsPath, item.componentFsPath)),
-                            })) ?? [],
-                    };
-                    const workspaceFilePath = path.join(
+                    const workspaceFilePath = createWorkspaceFile(
                         workspaceFileDir.fsPath,
-                        `${selected?.project?.handler}.code-workspace`
+                        selected.project!,
+                        contextStore
+                            .getState()
+                            .state.components?.map((item) => ({
+                                component: item.component!,
+                                fsPath: item.componentFsPath,
+                            })) ?? []
                     );
-                    writeFileSync(workspaceFilePath, JSON.stringify(workspaceFile, null, 4));
 
                     const openInCurrentWorkspace = await window.showInformationMessage(
                         "Where do you want to open the project workspace?",
@@ -87,4 +85,22 @@ export const showProjectWorkspaceCreateNotification = async () => {
                 });
         }
     }
+};
+
+export const createWorkspaceFile = (
+    workspaceFileDirFsPath: string,
+    project: Project,
+    items: { component: ComponentKind; fsPath: string }[]
+) => {
+    const workspaceFile: WorkspaceConfig = {
+        folders:
+            items?.map((item) => ({
+                name: item.component?.metadata.name!,
+                path: path.normalize(path.relative(workspaceFileDirFsPath, item.fsPath)),
+            })) ?? [],
+    };
+    const workspaceFilePath = path.join(workspaceFileDirFsPath, `${project?.handler}.code-workspace`);
+    writeFileSync(workspaceFilePath, JSON.stringify(workspaceFile, null, 4));
+
+    return workspaceFilePath;
 };

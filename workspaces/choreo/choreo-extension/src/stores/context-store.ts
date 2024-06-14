@@ -20,6 +20,7 @@ import { authStore } from "./auth-store";
 import { dataCacheStore } from "./data-cache-store";
 import { getGitRoot } from "../git/util";
 import { showProjectWorkspaceCreateNotification } from "../cmds/create-project-workspace-cmd";
+import { isSubpath } from "../utils";
 
 interface ContextStore {
     state: ContextStoreState;
@@ -283,13 +284,3 @@ const mapComponentList = async (
     return comps;
 };
 
-function isSubpath(parent: string, sub: string): boolean {
-    const normalizedParent = path.normalize(parent).toLowerCase();
-    const normalizedSub = path.normalize(sub).toLowerCase();
-    if (normalizedParent === normalizedSub) {
-        return true;
-    }
-
-    const relative = path.relative(normalizedParent, normalizedSub);
-    return !!relative && !relative.startsWith("..") && !path.isAbsolute(relative);
-}

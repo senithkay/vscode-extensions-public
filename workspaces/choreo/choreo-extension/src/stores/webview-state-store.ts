@@ -3,18 +3,18 @@ import { createStore } from "zustand";
 
 interface WebviewStateStore {
     state: WebviewState;
-    setOpenedComponentPath: (openedComponentPath: string) => void;
-    onCloseComponentView: (openedComponentPath: string) => void;
+    setOpenedComponentKey: (openedComponentKey: string) => void;
+    onCloseComponentView: (openedComponentKey: string) => void;
 }
 
 export const webviewStateStore = createStore<WebviewStateStore>((set) => ({
-    state: { openedComponentPath: "" },
-    setOpenedComponentPath: (openedComponentPath) => set(({ state }) => ({ state: { ...state, openedComponentPath } })),
-    onCloseComponentView: (openedComponentPath) =>
+    state: { openedComponentKey: "" },
+    setOpenedComponentKey: (openedComponentKey) => set(({ state }) => ({ state: { ...state, openedComponentKey } })),
+    onCloseComponentView: (openedComponentKey) =>
         set(({ state }) => ({
             state: {
                 ...state,
-                openedComponentPath: openedComponentPath === state.openedComponentPath ? "" : state.openedComponentPath,
+                openedComponentKey: openedComponentKey === state.openedComponentKey ? "" : state.openedComponentKey,
             },
         })),
 }));

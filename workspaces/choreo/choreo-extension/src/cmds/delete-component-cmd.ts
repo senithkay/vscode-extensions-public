@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { ExtensionContext, commands, window, ProgressLocation, workspace, Uri } from "vscode";
+import { ExtensionContext, commands, window, ProgressLocation, workspace, Uri, QuickPickItem } from "vscode";
 import { CommandIds, ComponentKind, Organization, Project, WorkspaceConfig } from "@wso2-enterprise/choreo-core";
 import { getUserInfoForCmd, selectComponent, selectOrg, selectProject } from "./cmd-utils";
 import { ext } from "../extensionVariables";
@@ -24,15 +24,21 @@ export function deleteComponentCommand(context: ExtensionContext) {
                 try {
                     const userInfo = await getUserInfoForCmd("delete a component");
                     if (userInfo) {
-                        const selectedOrg = params?.organization ?? (await selectOrg(userInfo, "Select organization"));
+                        let selectedOrg = params?.organization;
+                        let selectedProject = params?.project;
 
-                        const selectedProject =
-                            params?.project ??
-                            (await selectProject(
+                        const selected = contextStore.getState().state.selected;
+                        if (selected) {
+                            selectedOrg = selected.org!;
+                            selectedProject = selected.project!;
+                        } else {
+                            selectedOrg = await selectOrg(userInfo, "Select organization");
+                            selectedProject = await selectProject(
                                 selectedOrg,
                                 `Loading projects from '${selectedOrg.name}'`,
                                 `Select project from '${selectedOrg.name}' to delete`
-                            ));
+                            );
+                        }
 
                         const selectedComponent =
                             params?.component ??

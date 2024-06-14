@@ -66,8 +66,26 @@ export function makeURLSafe(input: string): string {
     return input.trim().replace(/\s+/g, "-").toLowerCase();
 }
 
+export const isSubpath = (parent: string, sub: string): boolean =>{
+    const normalizedParent = path.normalize(parent).toLowerCase();
+    const normalizedSub = path.normalize(sub).toLowerCase();
+    if (normalizedParent === normalizedSub) {
+        return true;
+    }
+
+    const relative = path.relative(normalizedParent, normalizedSub);
+    return !!relative && !relative.startsWith("..") && !path.isAbsolute(relative);
+}
+
+
 export const getSubPath = (subPath: string, parentPath: string): string | null => {
-    const relative = path.relative(parentPath, subPath);
+    const normalizedParent = path.normalize(parentPath).toLowerCase();
+    const normalizedSub = path.normalize(subPath).toLowerCase();
+    if (normalizedParent === normalizedSub) {
+        return ".";
+    }
+
+    const relative = path.relative(normalizedParent, normalizedSub);
     // If the relative path starts with '..', it means subPath is outside of parentPath
     if (!relative.startsWith("..")) {
         // If subPath and parentPath are the same, return '.'
@@ -77,4 +95,24 @@ export const getSubPath = (subPath: string, parentPath: string): string | null =
         return relative;
     }
     return null;
+};
+
+export const createDirectory = (basePath: string, dirName: string) => {
+    let newDirName = dirName;
+    let counter = 1;
+
+    // Define the full path for the initial directory
+    let dirPath = path.join(basePath, newDirName);
+
+    // Check if the directory exists
+    while (existsSync(dirPath)) {
+        newDirName = `${dirName}-${counter}`;
+        dirPath = path.join(basePath, newDirName);
+        counter++;
+    }
+
+    // Create the directory
+    mkdirSync(dirPath);
+
+    return { dirName: newDirName, dirPath };
 };

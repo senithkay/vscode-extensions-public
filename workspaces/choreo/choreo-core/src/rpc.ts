@@ -55,7 +55,6 @@ export const DeleteFile: RequestType<string, void> = { method: 'deleteFile' };
 export const ShowConfirmMessage: RequestType<ShowConfirmBoxReq, boolean> = { method: 'showConfirmMessage' };
 export const ShowQuickPick: RequestType<ShowWebviewQuickPickItemsReq, WebviewQuickPickItem | undefined> = { method: 'showQuickPicks' };
 export const ShowInputBox: RequestType<ShowWebviewInputBoxReq, string | undefined> = { method: 'showWebviewInputBoxReq' };
-export const ViewComponentDetails: RequestType<ViewComponentDetailsReq, void> = { method: 'viewComponentDetails' };
 export const ReadServiceEndpoints: RequestType<string, ReadEndpointsResp> = { method: 'readServiceEndpoints' };
 export const ViewBuildsLogs: RequestType<ViewBuildLogsReq, void> = { method: 'viewBuildLogs' };
 export const ViewRuntimeLogs: RequestType<ViewRuntimeLogsReq, void> = { method: 'viewRuntimeLogs' };

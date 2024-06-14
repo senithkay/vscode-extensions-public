@@ -124,6 +124,7 @@ export const showComponentDetailsView = (
     componentPath: string
 ) => {
     const webView = getComponentDetailsView(org.handle, project.handler, component.metadata.name);
+    const componentKey = `${org.handle}-${project.handler}-${component.metadata.name}`;
 
     if (webView) {
         webView?.reveal();
@@ -136,18 +137,18 @@ export const showComponentDetailsView = (
             componentPath
         );
         componentDetailsView.getWebview()?.reveal();
-        componentViewMap.set(`${org.handle}-${project.handler}-${component.metadata.name}`, componentDetailsView);
+        componentViewMap.set(componentKey, componentDetailsView);
 
-        webviewStateStore.getState().setOpenedComponentPath(componentPath ?? "");
+        webviewStateStore.getState().setOpenedComponentKey(componentKey ?? "");
         componentDetailsView.getWebview()?.onDidChangeViewState((event) => {
             if (event.webviewPanel.active) {
-                webviewStateStore.getState().setOpenedComponentPath(componentPath ?? "");
+                webviewStateStore.getState().setOpenedComponentKey(componentKey ?? "");
             } else {
-                webviewStateStore.getState().onCloseComponentView(componentPath);
+                webviewStateStore.getState().onCloseComponentView(componentKey);
             }
         });
         componentDetailsView.getWebview()?.onDidDispose(() => {
-            webviewStateStore.getState().onCloseComponentView(componentPath);
+            webviewStateStore.getState().onCloseComponentView(componentKey);
         });
     }
 };
