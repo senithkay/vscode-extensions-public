@@ -135,13 +135,8 @@
     "views": {
       "wso2-choreo": [
         {
-          "id": "choreo.activity.components",
-          "name": "Components",
-          "type": "webview"
-        },
-        {
-          "id": "choreo.activity.account",
-          "name": "Account",
+          "id": "choreo.activity.project",
+          "name": "Project",
           "type": "webview"
         }
       ]
@@ -150,24 +145,24 @@
       "view/title": [
         {
           "command": "wso2.choreo.project.switch",
-          "when": "view == choreo.activity.components && isLoggedIn == true && hasMultipleContexts == true",
+          "when": "view == choreo.activity.project && isLoggedIn == true && hasMultipleContexts == true",
           "group": "navigation"
         },
         {
           "command": "wso2.choreo.create.component",
-          "when": "view == choreo.activity.components && isLoggedIn == true",
+          "when": "view == choreo.activity.project && isLoggedIn == true",
           "group": "navigation"
         },
         {
           "command": "wso2.choreo.project.refresh",
-          "when": "view == choreo.activity.components && isLoggedIn == true",
+          "when": "view == choreo.activity.project && isLoggedIn == true",
           "group": "navigation"
         }
       ],
       "webview/context": [
         {
           "command": "wso2.choreo.component.open.external",
-          "when": "webviewId == choreo.activity.components && webviewSection == 'componentListItem'",
+          "when": "webviewId == choreo.activity.project && webviewSection == 'componentListItem'",
           "group": "access"
         },
         {
@@ -232,7 +227,7 @@
           {
             "id": "createComponent",
             "title": "Create components",
-            "description": "Choreo simplifies the deployment and management of your source code in the cloud through components. \nVarious types of components are supported, including Services, Manual Triggers, Cron Jobs, Web Applications, and more.\n[Create Component](command:wso2.choreo.create.component)\n Once created, you will be able to easily access your components from the [Choreo activity panel](command:choreo.activity.components.focus).",
+            "description": "Choreo simplifies the deployment and management of your source code in the cloud through components. \nVarious types of components are supported, including Services, Manual Triggers, Cron Jobs, Web Applications, and more.\n[Create Component](command:wso2.choreo.create.component)\n Once created, you will be able to easily access your components from the [Choreo activity panel](command:choreo.activity.project.focus).",
             "media": {
               "markdown": "resources/walkthrough/comp-create.md"
             }
@@ -248,7 +243,7 @@
           {
             "id": "manageComponent",
             "title": "Manage your components",
-            "description": "Access the component details view to manage a selected component. This view is accessible by selecting a component in the [Choreo activity panel](command:choreo.activity.components.focus) or by running the [View Component Details](command:wso2.choreo.component.view) command.\n**Build component**: Initiate a new build by selecting the commit you wish to build. In case of build failures, diagnose them by reviewing the build logs.\n**Deploy component**: Once a component's commit has been successfully built, deploy the build onto any available environment (e.g., Development, Production, etc.).\n**View Logs**: After successful deployment, monitor real-time application and gateway logs of the component within VSCode's integrated terminal.",
+            "description": "Access the component details view to manage a selected component. This view is accessible by selecting a component in the [Choreo activity panel](command:choreo.activity.project.focus) or by running the [View Component Details](command:wso2.choreo.component.view) command.\n**Build component**: Initiate a new build by selecting the commit you wish to build. In case of build failures, diagnose them by reviewing the build logs.\n**Deploy component**: Once a component's commit has been successfully built, deploy the build onto any available environment (e.g., Development, Production, etc.).\n**View Logs**: After successful deployment, monitor real-time application and gateway logs of the component within VSCode's integrated terminal.",
             "media": {
               "markdown": "resources/walkthrough/comp-details.md"
             }

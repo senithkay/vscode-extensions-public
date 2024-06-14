@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-export type WebviewTypes = "NewComponentForm" | "ComponentsListActivityView" | "AccountActivityView" | "ComponentDetailsView" | "TestView" | "ChoreoCellView"
+export type WebviewTypes = "NewComponentForm" | "ComponentsListActivityView" | "ComponentDetailsView" | "TestView" | "ChoreoCellView"
 
 export interface TestWebviewProps {
     type: "TestView";
@@ -43,11 +43,7 @@ export interface ComponentsListActivityViewProps {
     directoryPath?: string;
 }
 
-export interface AccountActivityViewProps {
-    type: "AccountActivityView";
-}
-
-export type WebviewProps = ComponentsDetailsWebviewProps | NewComponentWebviewProps | AccountActivityViewProps | ComponentsListActivityViewProps | TestWebviewProps
+export type WebviewProps = ComponentsDetailsWebviewProps | NewComponentWebviewProps | ComponentsListActivityViewProps | TestWebviewProps
 
 export interface Owner {
     id: string;

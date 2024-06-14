@@ -7,17 +7,11 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import * as vscode from 'vscode';
-import { ComponentsView } from './ComponentsView'
-import { AccountView } from './AccountView';
+import { ProjectActivityView } from './ProjectActivityView';
 
 export function activateActivityBarWebViews(context: vscode.ExtensionContext) {
-    const componentsViewProvider = new ComponentsView(context.extensionUri);
+    const projectActivityViewProvider = new ProjectActivityView(context.extensionUri);
 
 	context.subscriptions.push(
-		vscode.window.registerWebviewViewProvider(ComponentsView.viewType, componentsViewProvider));
-
-    const accountViewProvider = new AccountView(context.extensionUri);
-
-    context.subscriptions.push(
-        vscode.window.registerWebviewViewProvider(AccountView.viewType, accountViewProvider));
+		vscode.window.registerWebviewViewProvider(ProjectActivityView.viewType, projectActivityViewProvider));
 }

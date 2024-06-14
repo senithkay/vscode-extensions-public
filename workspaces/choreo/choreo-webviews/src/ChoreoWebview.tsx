@@ -17,13 +17,11 @@ import { AuthContextProvider } from "./context/choreo-auth-ctx";
 import { ComponentFormView } from "./views/ComponentFormView";
 import { ComponentTestView } from "./views/ComponentTestView";
 import { ComponentDetailsView } from "./views/ComponentDetailsView";
-import { AccountView } from "./views/AccountView";
 import { ComponentListView } from "./views/ComponentListView";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import {
     NewComponentWebviewProps,
     WebviewProps,
-    AccountActivityViewProps,
     ComponentsListActivityViewProps,
     ComponentsDetailsWebviewProps,
     TestWebviewProps,
@@ -43,8 +41,6 @@ function ChoreoWebview(props: WebviewProps) {
                                     return <ComponentTestView {...(props as TestWebviewProps)} />;
                                 case "ComponentDetailsView":
                                     return <ComponentDetailsView {...(props as ComponentsDetailsWebviewProps)} />;
-                                case "AccountActivityView":
-                                    return <AccountView {...(props as AccountActivityViewProps)} />;
                                 case "ComponentsListActivityView":
                                     return <ComponentListView {...(props as ComponentsListActivityViewProps)} />;
                                 default:

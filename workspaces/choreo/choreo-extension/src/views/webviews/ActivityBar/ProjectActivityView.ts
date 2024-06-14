@@ -16,9 +16,9 @@ import { WebviewProps } from '@wso2-enterprise/choreo-core';
 import { contextStore } from '../../../stores/context-store';
 
 
-export class ComponentsView implements vscode.WebviewViewProvider {
+export class ProjectActivityView implements vscode.WebviewViewProvider {
 
-	public static readonly viewType = 'choreo.activity.components';
+	public static readonly viewType = 'choreo.activity.project';
 
 	private _view?: vscode.WebviewView;
 	private _rpc?: WebViewViewRPC;
