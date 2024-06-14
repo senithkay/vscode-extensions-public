@@ -206,6 +206,8 @@ const MainPanel = () => {
                             <DataMapper {...machineView.dataMapperProps} />
                         </ErrorBoundary >
                     );
+                    const { filePath, fileContent } = machineView.dataMapperProps;
+                    await rpcClient.getMiDataMapperRpcClient().initDMUndoRedoManager({filePath, fileContent});
                     break;
                 case MACHINE_VIEW.APIForm:
                     setViewComponent(<APIWizard apiData={(machineView.customProps as APIWizardProps)?.apiData} path={machineView.documentUri} />);

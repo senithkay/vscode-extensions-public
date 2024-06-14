@@ -30,8 +30,8 @@ export interface MIDataMapperAPI {
     createDMFiles: (params: GenerateDMInputRequest) => Promise<GenerateDMInputResponse>;
     updateDMCFileContent: (params: UpdateDMCRequest) => void;
     initDMUndoRedoManager: (params: UpdateDMUndoRedoMangerRequest) => void;
-    dmUndo: () => Promise<string>;
-    dmRedo: () => Promise<string>;
+    dmUndo: () => Promise<string | undefined>;
+    dmRedo: () => Promise<string | undefined>;
     addToDMUndoStack: (source: string) => void;
     updateDMUndoRedoManager: (params: UpdateDMUndoRedoMangerRequest) => void;
 }
