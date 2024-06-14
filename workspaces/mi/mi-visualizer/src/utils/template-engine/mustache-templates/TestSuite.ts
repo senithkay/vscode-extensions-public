@@ -116,21 +116,37 @@ function getMockServiceMustacheTemplate() {
     <resources>
         {{#resources}}
         <resource>
-            <sub-context>{{subContext}}</sub-context>
+            <sub-context>{{{subContext}}}</sub-context>
             <method>{{method}}</method>
+            {{#request}}
             <request>
                 <headers>
                     {{#headers}}
-                    <header name="{{name}}" value="{{value}}"/>
+                    <header name="{{name}}" value="{{value}}" />
                     {{/headers}}
                 </headers>
+                {{#payload}}
+                <payload>
+                    <![CDATA[{{{payload}}}]]>
+                </payload>
+                {{/payload}}
             </request>
+            {{/request}}
+            {{#response}}
             <response>
                 <status-code>{{statusCode}}</status-code>
+                <headers>
+                    {{#headers}}
+                    <header name="{{name}}" value="{{value}}" />
+                    {{/headers}}
+                </headers>
+                {{#payload}}
                 <payload>
-                    <![CDATA[{{payload}}]]>
+                    <![CDATA[{{{payload}}}]]>
                 </payload>
+                {{/payload}}
             </response>
+            {{/response}}
         </resource>
         {{/resources}}
     </resources>

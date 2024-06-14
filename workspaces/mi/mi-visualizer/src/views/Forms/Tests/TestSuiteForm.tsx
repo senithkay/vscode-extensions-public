@@ -38,7 +38,7 @@ const cardStyle = {
     cursor: "auto"
 };
 
-const AccordionContainer = styled.div<ContainerProps>`
+export const AccordionContainer = styled.div<ContainerProps>`
     padding-left: 10px;
     overflow: hidden;
     display: flex;
@@ -49,7 +49,7 @@ const AccordionContainer = styled.div<ContainerProps>`
     }
 `;
 
-const verticalIconStyles = {
+export const verticalIconStyles = {
     transform: "rotate(90deg)",
     ":hover": {
         backgroundColor: "var(--vscode-welcomePage-tileHoverBackground)",

@@ -1839,4 +1839,32 @@ export interface MockService extends STNode {
 }
 
 export interface MockServiceResources extends STNode {
+    resources: MockServiceResource[];
+}
+
+export interface MockServiceResource extends STNode {
+    method: STNode;
+    request: MockRequest;
+    response: MockResponse;
+    subContext: STNode;
+}
+
+export interface MockRequest extends STNode {
+    headers: MockResourceHeaders;
+    payload: STNode;
+}
+
+export interface MockResponse extends STNode {
+    headers: MockResourceHeaders;
+    statusCode: STNode;
+    payload: STNode;
+}
+
+export interface MockResourceHeaders extends STNode {
+    headers: MockResourceHeader[];
+}
+
+export interface MockResourceHeader {
+    name: string;
+    value: string;
 }

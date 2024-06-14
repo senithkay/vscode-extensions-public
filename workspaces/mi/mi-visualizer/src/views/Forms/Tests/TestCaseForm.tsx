@@ -119,7 +119,7 @@ export function TestCaseForm(props: TestCaseFormProps) {
                     "label": "Expected Value",
                     "defaultValue": "",
                     "isRequired": true,
-                    enableCondition: [
+                    "enableCondition": [
                         { 0: "Assert Equals" }
                     ]
                 },
@@ -127,7 +127,7 @@ export function TestCaseForm(props: TestCaseFormProps) {
                     "type": "TextField",
                     "label": "Error Message",
                     "defaultValue": "",
-                    "isRequired": true
+                    "isRequired": true,
                 }
             ];
 
