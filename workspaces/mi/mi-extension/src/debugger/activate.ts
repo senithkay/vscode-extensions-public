@@ -13,7 +13,7 @@ import { MiDebugAdapter } from './debugAdapter';
 import { COMMANDS } from '../constants';
 import { extension } from '../MIExtensionContext';
 import { executeBuildTask, getServerPath } from './debugHelper';
-import { getBuildTask } from './tasks';
+import { getBuildTask, getDockerTask } from './tasks';
 import { navigate } from '../stateMachine';
 import { SELECTED_SERVER_PATH } from './constants';
 
@@ -44,6 +44,11 @@ export function activateDebugger(context: vscode.ExtensionContext) {
             await executeBuildTask(buildTask, serverPath, shouldCopyTarget);
         });
 
+    });
+
+    vscode.commands.registerCommand(COMMANDS.CREATE_DOCKER_IMAGE, async () => {
+        const dockerTask = getDockerTask();
+        await vscode.tasks.executeTask(dockerTask);
     });
 
     vscode.commands.registerCommand(COMMANDS.CHANGE_SERVER_PATH, async () => {

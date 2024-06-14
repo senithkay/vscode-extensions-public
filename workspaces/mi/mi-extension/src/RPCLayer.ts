@@ -37,7 +37,7 @@ export class RPCLayer {
             });
             window.onDidChangeActiveColorTheme((theme) => {
                 RPCLayer._messenger.sendNotification(themeChanged, { type: 'webview', webviewType: VisualizerWebview.viewType }, theme.kind);
-            })
+            });
         } else {
             RPCLayer._messenger.registerWebviewPanel(webViewPanel as WebviewPanel);
             StateMachineAI.service().onTransition((state) => {

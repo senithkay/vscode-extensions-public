@@ -9,8 +9,9 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
-    IOTypeRequest,
+    DMTypeRequest,
     IOTypeResponse,
+    SubMappingTypesResponse,
     MIDataMapperAPI,
     UpdateFileContentRequest,
     GenerateDMInputRequest,
@@ -23,7 +24,7 @@ import {
     ConvertRegPathToAbsPathResponse,
     UpdateDMCRequest
 } from "@wso2-enterprise/mi-core";
-import { fetchIOTypes } from "../../util/dataMapper";
+import { fetchIOTypes, fetchSubMappingTypes } from "../../util/dataMapper";
 import { Project } from "ts-morph";
 import { navigate } from "../../stateMachine";
 import { generateSchema } from "../../util/schemaBuilder";
@@ -37,15 +38,30 @@ import { extension } from "../../MIExtensionContext";
 import { MiDiagramRpcManager } from "../mi-diagram/rpc-manager";
 
 export class MiDataMapperRpcManager implements MIDataMapperAPI {
-    async getIOTypes(params: IOTypeRequest): Promise<IOTypeResponse> {
+    async getIOTypes(params: DMTypeRequest): Promise<IOTypeResponse> {
         return new Promise(async (resolve, reject) => {
             const { filePath, functionName } = params;
             try {
-                const {inputTypes, outputType} = fetchIOTypes(filePath, functionName);
+                const {inputTypes, outputType } = fetchIOTypes(filePath, functionName);
 
                 return resolve({
                     inputTrees: inputTypes,
                     outputTree: outputType
+                });
+            } catch (error: any) {
+                reject(error);
+            }
+        });
+    }
+
+    async getSubMappingTypes(params: DMTypeRequest): Promise<SubMappingTypesResponse> {
+        return new Promise(async (resolve, reject) => {
+            const { filePath, functionName } = params;
+            try {
+                const subMappingTypes = fetchSubMappingTypes(filePath, functionName);
+
+                return resolve({
+                    variableTypes: subMappingTypes
                 });
             } catch (error: any) {
                 reject(error);

@@ -9,4 +9,4 @@
 
 export { Diagram } from "./components/Diagram";
 export * from "./components/Form";
-
+export { getParamManagerValues, getParamManagerFromValues } from "./components/sidePanel/Pages/mediators/common";

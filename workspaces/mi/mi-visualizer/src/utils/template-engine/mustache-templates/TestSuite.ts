@@ -1,0 +1,138 @@
+/*
+ * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
+
+import Mustache from "mustache";
+import { TestCaseEntry } from "../../../views/Forms/Tests/TestCaseForm";
+
+export function getTestSuiteXML(data: any) {
+    data.testCases = data.testCases.map((testCase: TestCaseEntry) => {
+        return modityTestCaseData(testCase);
+    });
+    return Mustache.render(getTestSuiteMustacheTemplate(), data);
+}
+
+function modityTestCaseData(data: TestCaseEntry) {
+    if (data.input.payload && data.input.payload.startsWith("<![CDATA[")) {
+        data.input.payload = data.input.payload.substring(9, data.input.payload.length - 3);
+    }
+    const assertions = data.assertions.map((assertion: string[]) => {
+        // replace spaces and join camel case
+        let type = assertion[0].replace(/\s/g, '').replace(/(^\w{1})|(\s+\w{1})/g, letter => letter.toUpperCase());
+        // make first char lowercase
+        type = type.charAt(0).toLowerCase() + type.slice(1);
+        const expression = assertion[1];
+
+        let expectedValue;
+        let errorMessage;
+        if (Object.keys(assertion).length > 3) {
+            expectedValue = assertion[2];
+            errorMessage = assertion[3];
+
+            if (expectedValue.startsWith("<![CDATA[")) {
+                expectedValue = expectedValue.substring(9, expectedValue.length - 3);
+            }
+        } else {
+            errorMessage = assertion[2];
+        }
+
+        return {
+            type,
+            expression,
+            ...(expectedValue) && { expectedValue },
+            errorMessage
+        }
+    });
+
+    return {
+        ...data,
+        assertions
+    }
+}
+export function getTestCaseXML(data: any) {
+    const modifiedData = modityTestCaseData(data);
+    return Mustache.render(getTestCaseMustacheTemplate(), modifiedData);
+}
+
+export function getMockServiceXML(data: any) {
+    return Mustache.render(getMockServiceMustacheTemplate(), data);
+}
+
+function getTestSuiteMustacheTemplate() {
+    return `<unit-test>
+    <artifacts>
+        <test-artifact>
+            <artifact>{{{artifact}}}</artifact>
+        </test-artifact>
+        <supporttive-artifacts>
+            {{#supportiveArtifacts}}
+                <artifact>{{{.}}}</artifact>
+            {{/supportiveArtifacts}}
+        </supporttive-artifacts>
+    </artifacts>
+    <test-cases>
+        {{#testCases}}
+        ${getTestCaseMustacheTemplate()}
+        {{/testCases}}
+    </test-cases>
+    <mock-services>
+        {{#mockServices}}
+        <mock-service>{{{.}}}</mock-service>
+        {{/mockServices}}
+    </mock-services>
+</unit-test>`;
+}
+
+function getTestCaseMustacheTemplate() {
+    return `<test-case name="{{name}}">
+            <input>
+                <request-path>{{{input.requestPath}}}</request-path>
+                <request-method>{{input.requestMethod}}</request-method>
+                <request-protocol>{{input.requestProtocol}}</request-protocol>{{#input.payload}}
+                <payload><![CDATA[{{{input.payload}}}]]></payload>{{/input.payload}}
+            </input>
+            <assertions>
+                {{#assertions}}
+                <{{type}}>
+                    <actual>{{expression}}</actual>{{#expectedValue}}
+                    <expected><![CDATA[{{{expectedValue}}}]]></expected>{{/expectedValue}}
+                    <message>{{errorMessage}}</message>
+                </{{type}}>
+                {{/assertions}}    
+            </assertions>
+        </test-case>`;
+}
+
+function getMockServiceMustacheTemplate() {
+    return `<mock-service>
+    <service-name>{{endpointName}}</service-name>
+    <port>{{servicePort}}</port>
+    <context>{{serviceContext}}</context>
+    <resources>
+        {{#resources}}
+        <resource>
+            <sub-context>{{subContext}}</sub-context>
+            <method>{{method}}</method>
+            <request>
+                <headers>
+                    {{#headers}}
+                    <header name="{{name}}" value="{{value}}"/>
+                    {{/headers}}
+                </headers>
+            </request>
+            <response>
+                <status-code>{{statusCode}}</status-code>
+                <payload>
+                    <![CDATA[{{payload}}]]>
+                </payload>
+            </response>
+        </resource>
+        {{/resources}}
+    </resources>
+</mock-service>`;
+}

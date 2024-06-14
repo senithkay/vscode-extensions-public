@@ -366,7 +366,7 @@ export function APIWizard({ apiData, path }: APIWizardProps) {
                         </FieldGroup>
                         <FormCheckBox
                             name="saveSwaggerDef"
-                            label="Save Swagger Definition to Registry"
+                            label="Save Swagger Definition"
                             control={control}
                         />
                     </React.Fragment>

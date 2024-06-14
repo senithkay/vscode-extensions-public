@@ -127,6 +127,9 @@ export const useIONodesStyles = () => ({
             backgroundColor: 'var(--vscode-list-activeSelectionBackground)'
         }
     }),
+    treeLabelPortExprFocused: css({
+        outline: "2px solid var(--vscode-list-focusAndSelectionOutline, var(--vscode-contrastActiveBorder, var(--vscode-list-focusOutline)))",
+    }),
     treeLabelParentHovered: css({
         backgroundColor: 'var(--vscode-list-hoverBackground)',
     }),
@@ -175,18 +178,18 @@ export const useIONodesStyles = () => ({
             margin: "0px 6px"
         }
     }),
-    addLocalVariableButton: css({
+    addSubMappingButton: css({
         "& > vscode-button": {
             ...addElementButton,
             width: `${IO_NODE_DEFAULT_WIDTH}px`,
             height: "40px",
             border: "1px solid var(--vscode-welcomePage-tileBorder)",
             color: "var(--button-primary-foreground)",
-            backgroundColor: "var(--button-primary-background)",
+            backgroundColor: "var(--vscode-button-secondaryBackground)",
             borderRadius: "0px",
             textTransform: "none",
             "&:hover": {
-                backgroundColor: "var(--vscode-button-hoverBackground)"
+                backgroundColor: "var(--vscode-button-secondaryHoverBackground)"
             },
         },
         "& > vscode-button > *": {
@@ -206,6 +209,10 @@ export const useIONodesStyles = () => ({
         height: 'fit-content',
         flexDirection: "column"
     }),
+    subMappingItemLabel: css({
+        ...treeLabel,
+        cursor: "pointer"
+    }),
     enumHeaderTreeLabel: css({
         verticalAlign: "middle",
         padding: "5px",
@@ -214,10 +221,41 @@ export const useIONodesStyles = () => ({
         minHeight: "24px",
         backgroundColor: "var(--vscode-sideBar-background)"
     }),
-    gotoExprIcon: css({
-        color: "var(--vscode-input-placeholderForeground)",
-        cursor: 'pointer'
-    })
+    addAnotherSubMappingButton: css({
+        width: "auto",
+        margin: 0,
+        "& > vscode-button": {
+            backgroundColor: "var(--vscode-extensionButton-background)", padding: '2px',
+            "&:hover": {
+                backgroundColor: "var(--vscode-button-hoverBackground)"
+            },
+        }
+    }),
+    subMappingItemSeparator: css({
+        height: "8px",
+        width: "100%",
+        backgroundColor: "var(--vscode-titleBar-border)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center"
+    }),
+    objectFieldAdderLabel: css({
+        display: "flex",
+        justifyContent: "center",
+        color: "var(--button-primary-foreground)",
+        opacity: 0.7
+    }),
+    dynamicOutputNotification: css({
+        position: "absolute",
+        bottom: "-40px",
+        left: "0",
+        backgroundColor: "var(--vscode-notifications-background)",
+        color: "var(--vscode-notifications-foreground)",
+        fontSize: "12px",
+        border: "1px solid var(--vscode-notifications-border)",
+        padding: "5px 10px",
+        boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+    }),
 });
 
 export const useIntermediateNodeStyles = () => ({

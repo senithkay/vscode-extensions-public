@@ -1,3 +1,5 @@
+import * as path from 'path';
+
 export const SAMPLE_ICONS_GITHUB_URL = "https://raw.githubusercontent.com/wso2/integration-studio/main/SamplesForVSCode/icons/";
 export const MI_COPILOT_BACKEND_URL = "https://e95488c8-8511-4882-967f-ec3ae2a0f86f-dev.e1-us-east-azure.choreoapis.dev/miaideployments/micopilot/mi-copilot-backend-be2/v1.0";
 export const USER_CHECK_BACKEND_URL = '/user/usage';
@@ -10,7 +12,7 @@ export const COMMANDS = {
     OPEN_AI_PANEL: "MI.openAiPanel",
     CLEAR_AI_PROMPT: "MI.clearAIPrompt",
     OPEN_WELCOME: "MI.openWelcome",
-    SHOW_DIAGRAM: "MI.show.diagram",
+    SHOW_GRAPHICAL_VIEW: "MI.show.graphical-view",
     SHOW_RESOURCE_VIEW: "MI.show.resource-view",
     SHOW_SEQUENCE_VIEW: "MI.show.sequence-view",
     SHOW_SEQUENCE_TEMPLATE_VIEW: "MI.show.sequence_template-view",
@@ -51,7 +53,6 @@ export const COMMANDS = {
     REVEAL_ITEM_COMMAND: 'MI.project-explorer.revealItem',
     FOCUS_PROJECT_EXPLORER: 'MI.project-explorer.focus',
     OPEN_SERVICE_DESIGNER: 'MI.project-explorer.open-service-designer',
-    OPEN_SERVICE_DESIGNER_BESIDE: 'MI.project-explorer.open-service-designer-beside',
     OPEN_PROJECT_OVERVIEW: 'MI.project-explorer.open-project-overview',
     ADD_REGISTERY_RESOURCE_COMMAND: 'MI.project-explorer.add-registry-resource',
     DELETE_REGISTERY_RESOURCE_COMMAND: 'MI.project-explorer.delete-reg-resource',
@@ -61,12 +62,25 @@ export const COMMANDS = {
     EDIT_CLASS_MEDIATOR_COMMAND: 'MI.project-explorer.edit-class-mediator',
     CHANGE_SERVER_PATH: 'MI.change.server',
     BUILD_PROJECT: 'MI.build-project',
+    CREATE_DOCKER_IMAGE: 'MI.create-docker-image',
     BUILD_AND_RUN_PROJECT: 'MI.build-and-run',
     ADD_DATA_SOURCE_COMMAND: 'MI.project-explorer.add-data-source',
     SHOW_DATA_SOURCE: 'MI.show.data-source',
     SHOW_DATA_MAPPER: 'MI.show.data-mapper',
+    ADD_TEST_SUITE: 'MI.test.add.suite',
+    UPDATE_TEST_SUITE: 'MI.test.update.suite',
+    ADD_TEST_CASE: 'MI.test.add.case',
+    UPDATE_TEST_CASE: 'MI.test.update.case',
+    ADD_MOCK_SERVICE: 'MI.test.add.mock-service',
+    REFRESH_MOCK_SERVICES: 'MI.test.refresh.mock-services',
+    UPDATE_MOCK_SERVICE: 'MI.test.update.mock-service',
+    REVEAL_TEST_PANE: 'MI.mock-services.focus',
 };
 
 export const DEFAULT_PROJECT_VERSION = "1.0.0";
 
 export const REFRESH_ENABLED_DOCUMENTS = ["SynapseXml", "typescript"];
+
+export const SWAGGER_LANG_ID = "yaml";
+export const SWAGGER_REL_DIR = path.join('src', 'main', 'wso2mi', 'resources', 'api-definitions');
+

@@ -1093,10 +1093,39 @@ export interface BrowseFileRequest {
     openLabel?: string;
 }
 
+type ResourceType =
+    | "sequence"
+    | "endpoint"
+    | "messageStore"
+    | "messageProcessor"
+    | "task"
+    | "sequenceTemplate"
+    | "endpointTemplate"
+    | "proxyService"
+    | "dataService"
+    | "dataSource"
+    | "localEntry"
+    | "dataMapper"
+    | "js"
+    | "json"
+    | "smooksConfig"
+    | "swagger"
+    | "wsdl"
+    | "ws_policy"
+    | "xsd"
+    | "xsl"
+    | "xslt"
+    | "yaml"
+    | "registry";
+
+export interface MultipleResourceType {
+    type: ResourceType;
+    needRegistry?: boolean;
+}
+
 export interface GetAvailableResourcesRequest {
     documentIdentifier: string | undefined;
-    resourceType: "sequence" | "endpoint" | "messageStore" | "messageProcessor" | "task" | "sequenceTemplate" | "endpointTemplate" | "proxyService" |
-    "dataService" | "dataSource" | "localEntry" | "dataMapper" | "js" | "json" | "smooksConfig" | "swagger" | "wsdl" | "ws_policy" | "xsd" | "xsl" | "xslt" | "yaml" | "registry";
+    resourceType: ResourceType | MultipleResourceType[];
 }
 
 export interface GetAvailableResourcesResponse {
@@ -1290,4 +1319,77 @@ export type GenerateAPIRequest = GenerateAPIBase & (
 export interface GenerateAPIResponse {
     apiXml: string;
     endpointXml?: string;
+}
+
+export interface SwaggerTypeRequest {
+    apiName: string;
+    apiPath: string;
+    generatedSwagger?: string;
+    existingSwagger?: string;
+}
+
+export interface SwaggerFromAPIRequest {
+    apiPath: string;
+    swaggerPath?: string;
+    isJsonIn?: boolean;
+    isJsonOut?: boolean;
+}
+
+export interface CompareSwaggerAndAPIResponse {
+    swaggerExists: boolean;
+    isEqual?: boolean;
+    generatedSwagger?: string;
+    existingSwagger?: string;
+}
+
+export interface UpdateAPIFromSwaggerRequest extends SwaggerTypeRequest {
+    resources: any[];
+    insertPosition: Position;
+}
+
+export interface UpdateTestSuiteRequest {
+    path?: string;
+    content: string;
+    artifact?: string;
+    name?: string;
+}
+
+export interface UpdateTestSuiteResponse {
+    path: string;
+}
+
+export interface UpdateTestCaseRequest {
+    path: string;
+    content: string;
+}
+
+export interface UpdateTestCaseResponse {
+}
+
+export interface UpdateMockServiceRequest {
+    path?: string;
+    content: string;
+    name?: string;
+}
+
+export interface UpdateMockServiceResponse {
+    path: string;
+}
+
+export interface GetAllTestSuitsResponse {
+    testSuites: {
+        name: string;
+        path: string;
+        testCases: {
+            name: string;
+            range: Range;
+        }[];
+    }[];
+}
+
+export interface GetAllMockServicesResponse {
+    mockServices: {
+        name: string;
+        path: string;
+    }[];
 }

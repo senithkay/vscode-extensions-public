@@ -30,7 +30,8 @@ import {
     SchemaGenResponse,
     onConnectorStatusUpdate,
     GenerateAPIRequest,
-    GenerateAPIResponse
+    GenerateAPIResponse,
+    SwaggerFromAPIRequest
 } from "@wso2-enterprise/mi-core";
 import { readFileSync } from "fs";
 import { CancellationToken, FormattingOptions, Position, Uri, workspace } from "vscode";
@@ -227,5 +228,9 @@ export class ExtendedLanguageClient extends LanguageClient {
     
     async generateAPI(req: GenerateAPIRequest): Promise<GenerateAPIResponse> {
         return this.sendRequest("synapse/generateAPI", req);
+    }
+
+    async swaggerFromAPI(req: SwaggerFromAPIRequest): Promise<any> {
+        return this.sendRequest("synapse/swaggerFromAPI", req);
     }
 }

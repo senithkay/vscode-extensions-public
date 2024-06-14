@@ -24,7 +24,7 @@ import { DataMapperLinkModel } from '../Link';
 import { useDMCollapsedFieldsStore } from '../../../store/store';
 import { CodeActionWidget } from '../CodeAction/CodeAction';
 
-export interface EditableLabelWidgetProps {
+export interface ExpressionLabelWidgetProps {
     model: ExpressionLabelModel;
 }
 
@@ -106,7 +106,7 @@ export enum ArrayMappingType {
 }
 
 // now we can render all what we want in the label
-export function EditableLabelWidget(props: EditableLabelWidgetProps) {
+export function ExpressionLabelWidget(props: ExpressionLabelWidgetProps) {
     const [linkStatus, setLinkStatus] = useState<LinkState>(LinkState.LinkNotSelected);
     const [arrayMappingType, setArrayMappingType] = React.useState<ArrayMappingType>(undefined);
     const [deleteInProgress, setDeleteInProgress] = useState(false);
@@ -155,7 +155,10 @@ export function EditableLabelWidget(props: EditableLabelWidgetProps) {
 
     const elements: ReactNode[] = [
         (
-            <div className={classes.btnContainer}>
+            <div
+                key={`expression-label-edit-${value}`}
+                className={classes.btnContainer}
+            >
                 <Button
                     appearance="icon"
                     onClick={onClickEdit}
@@ -181,17 +184,17 @@ export function EditableLabelWidget(props: EditableLabelWidgetProps) {
         ),
     ];
 
-    const onClickMapViaArrayFn = () => {
+    const onClickMapViaArrayFn = async () => {
         if (target instanceof InputOutputPortModel) {
             const targetPortField = target.field;
 
             if (targetPortField.kind === TypeKind.Array && targetPortField?.memberType) {
-                applyArrayFunction(link, targetPortField.memberType);
+                await applyArrayFunction(link, targetPortField.memberType);
             }
         }
     };
 
-    const applyArrayFunction = (linkModel: DataMapperLinkModel, targetType: DMType) => {
+    const applyArrayFunction = async (linkModel: DataMapperLinkModel, targetType: DMType) => {
         if (linkModel.value && (isInputAccessExpr(linkModel.value) || Node.isIdentifier(linkModel.value))) {
 
                 let isOptionalSource = false;
@@ -214,7 +217,7 @@ export function EditableLabelWidget(props: EditableLabelWidgetProps) {
                 const mapFnSrc = generateArrayToArrayMappingWithFn(linkModel.value.getText(), targetType);
 
                 targetExpr.replaceWithText(mapFnSrc);
-                void context.applyModifications();
+                await context.applyModifications();
         }
     };
 
@@ -232,6 +235,7 @@ export function EditableLabelWidget(props: EditableLabelWidgetProps) {
         elements.push(<div className={classes.separator}/>);
         elements.push(
             <CodeActionWidget
+                key={`expression-label-code-action-${value}`}
                 codeActions={codeActions}
                 btnSx={{ margin: "0 2px" }}
             />
@@ -242,6 +246,7 @@ export function EditableLabelWidget(props: EditableLabelWidgetProps) {
         elements.push(<div className={classes.separator}/>);
         elements.push(
             <DiagnosticWidget
+                key={`expression-label-diagnostic-${value}`}
                 diagnostic={diagnostic}
                 value={value}
                 onClick={onClickEdit}

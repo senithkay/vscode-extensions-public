@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { ComponentCard, IconLabel } from '@wso2-enterprise/ui-toolkit';
+import { ComponentCard, IconLabel, Tooltip } from '@wso2-enterprise/ui-toolkit';
 import React, { ReactNode } from 'react';
 import styled from '@emotion/styled';
 import SidePanelContext from '../SidePanelContexProvider';
@@ -48,7 +48,7 @@ export function Mediators(props: MediatorProps) {
     const searchForm = (value: string, search?: boolean) => {
         return Object.keys(allMediators).reduce((acc: any, key: string) => {
             const filtered = (allMediators as any)[key].filter((mediator: { title: string; operationName: string }) =>
-                search ? mediator.title.toLowerCase().includes(value?.toLowerCase()) : mediator.operationName.toLowerCase() === value?.toLowerCase());
+                search ? (key === "most popular" ? null : mediator.title.toLowerCase().includes(value?.toLowerCase())) : mediator.operationName.toLowerCase() === value?.toLowerCase());
             if (filtered.length > 0) {
                 acc[key] = filtered;
             }
@@ -71,38 +71,40 @@ export function Mediators(props: MediatorProps) {
                     <div key={key}>
                         <h4>{FirstCharToUpperCase(key)}</h4>
                         <ButtonGrid>
-                            {(values as any[]).map((action: { form: ReactNode, operationName: React.Key; title: string; }) => (
-                                <ComponentCard
-                                    key={action.operationName}
-                                    onClick={() => sidepanelAddPage(sidePanelContext, action.form, action.title)}
-                                    sx={{
-                                        '&:hover, &.active': {
-                                            '.icon svg g': {
-                                                fill: 'var(--vscode-editor-foreground)'
+                            {(values as any[]).map((action: { form: ReactNode, operationName: React.Key; tooltip: string; title: string; }) => (
+                                <Tooltip content={action.tooltip} position='bottom' sx={{zIndex: 2010}}>
+                                    <ComponentCard
+                                        key={action.operationName}
+                                        onClick={() => sidepanelAddPage(sidePanelContext, action.form, action.title)}
+                                        sx={{
+                                            '&:hover, &.active': {
+                                                '.icon svg g': {
+                                                    fill: 'var(--vscode-editor-foreground)'
+                                                },
+                                                backgroundColor: 'var(--vscode-pickerGroup-border)',
+                                                border: '0.5px solid var(--vscode-focusBorder)'
                                             },
-                                            backgroundColor: 'var(--vscode-pickerGroup-border)',
-                                            border: '0.5px solid var(--vscode-focusBorder)'
-                                        },
-                                        alignItems: 'center',
-                                        border: '0.5px solid var(--vscode-editor-foreground)',
-                                        borderRadius: 2,
-                                        cursor: 'pointer',
-                                        display: 'flex',
-                                        height: 20,
-                                        justifyContent: 'left',
-                                        marginBottom: 10,
-                                        padding: 10,
-                                        transition: '0.3s',
-                                        width: 172
-                                    }}
-                                >
-                                    <IconContainer>
-                                        {getMediatorIconsFromFont(action.operationName as string)}
-                                    </IconContainer>
-                                    <div >
-                                        <IconLabel>{FirstCharToUpperCase(action.title)}</IconLabel>
-                                    </div>
-                                </ComponentCard>
+                                            alignItems: 'center',
+                                            border: '0.5px solid var(--vscode-editor-foreground)',
+                                            borderRadius: 2,
+                                            cursor: 'pointer',
+                                            display: 'flex',
+                                            height: 20,
+                                            justifyContent: 'left',
+                                            marginBottom: 10,
+                                            padding: 10,
+                                            transition: '0.3s',
+                                            width: 172
+                                        }}
+                                    >
+                                        <IconContainer>
+                                            {getMediatorIconsFromFont(action.operationName as string, key === "most popular")}
+                                        </IconContainer>
+                                        <div >
+                                            <IconLabel>{FirstCharToUpperCase(action.title)}</IconLabel>
+                                        </div>
+                                    </ComponentCard>
+                                </Tooltip>
                             ))}
                         </ButtonGrid>
                         <hr style={{

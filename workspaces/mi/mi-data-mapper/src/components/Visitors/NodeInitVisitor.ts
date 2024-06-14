@@ -13,15 +13,15 @@ import {
     FunctionDeclaration,
     ReturnStatement,
     ArrayLiteralExpression,
-    Identifier,
-    PropertyAccessExpression,
     CallExpression,
-    ElementAccessExpression
+    VariableStatement,
+    SyntaxKind,
+    Expression
 } from "ts-morph";
-import { DMType, TypeKind } from "@wso2-enterprise/mi-core";
+import { TypeKind } from "@wso2-enterprise/mi-core";
 
 import { Visitor } from "../../ts/base-visitor";
-import { ObjectOutputNode, InputNode, LinkConnectorNode, ArrayOutputNode } from "../Diagram/Node";
+import { ObjectOutputNode } from "../Diagram/Node";
 import { DataMapperNodeModel } from "../Diagram/Node/commons/DataMapperNode";
 import { DataMapperContext } from "../../utils/DataMapperContext/DataMapperContext";
 import { InputDataImportNodeModel, OutputDataImportNodeModel } from "../Diagram/Node/DataImport/DataImportNode";
@@ -29,17 +29,25 @@ import {
     canConnectWithLinkConnector,
     getInputAccessNodes,
     getCallExprReturnStmt,
-    getTypeName,
     isConditionalExpression,
-    isMapFunction
+    isMapFunction,
+    getInnermostArrowFnBody
 } from "../Diagram/utils/common-utils";
 import { ArrayFnConnectorNode } from "../Diagram/Node/ArrayFnConnector";
 import { getPosition, isPositionsEquals } from "../Diagram/utils/st-utils";
-import { getDMType, getDMTypeForRootChaninedMapFunction } from "../Diagram/utils/type-utils";
+import { getDMType, getDMTypeForRootChaninedMapFunction, getDMTypeOfSubMappingItem } from "../Diagram/utils/type-utils";
 import { UnsupportedExprNodeKind, UnsupportedIONode } from "../Diagram/Node/UnsupportedIO";
 import { OFFSETS } from "../Diagram/utils/constants";
 import { FocusedInputNode } from "../Diagram/Node/FocusedInput";
-import { PrimitiveOutputNode } from "../Diagram/Node/PrimitiveOutput";
+import {
+    createInputNodeForDmFunction,
+    createLinkConnectorNode,
+    createOutputNodeForDmFunction,
+    getOutputNode,
+    getSubMappingNode,
+    isObjectOrArrayLiteralExpression
+} from "../Diagram/utils/node-utils";
+import { SourceNodeType } from "../DataMapper/Views/DataMapperView";
 
 export class NodeInitVisitor implements Visitor {
     private inputNode: DataMapperNodeModel | InputDataImportNodeModel;
@@ -47,19 +55,20 @@ export class NodeInitVisitor implements Visitor {
     private intermediateNodes: DataMapperNodeModel[] = [];
     private mapIdentifiers: Node[] = [];
     private isWithinMapFn = 0;
+    private isWithinVariableStmt = 0;
 
     constructor(private context: DataMapperContext) {}
 
     beginVisitFunctionDeclaration(node: FunctionDeclaration): void {
-        this.inputNode = this.createInputNodeForDmFunction(node);
-        this.outputNode = this.createOutputNodeForDmFunction(node);
+        this.inputNode = createInputNodeForDmFunction(node, this.context);
+        this.outputNode = createOutputNodeForDmFunction(node, this.context);
     }
 
     beginVisitPropertyAssignment(node: PropertyAssignment, parent?: Node): void {
         this.mapIdentifiers.push(node);
 
-        const { focusedST, views } = this.context;
-        const { sourceFieldFQN, targetFieldFQN, mapFnIndex } = views[views.length - 1];
+        const { focusedST, functionST, views, subMappingTypes } = this.context;
+        const { sourceFieldFQN, targetFieldFQN, sourceNodeType, mapFnIndex, subMappingInfo } = views[views.length - 1];
         const isFocusedST = isPositionsEquals(getPosition(node), getPosition(focusedST));
 
         if (isFocusedST) {
@@ -69,7 +78,7 @@ export class NodeInitVisitor implements Visitor {
             const exprType = getDMType(targetFieldFQN, this.context.outputTree, mapFnIndex);
             const returnStatement = getCallExprReturnStmt(callExpr);
 
-            const innerExpr = returnStatement.getExpression();
+            const innerExpr = returnStatement?.getExpression();
 
             const hasConditionalOutput = Node.isConditionalExpression(innerExpr);
             if (hasConditionalOutput) {
@@ -81,23 +90,17 @@ export class NodeInitVisitor implements Visitor {
                 );
             } else if (exprType?.kind === TypeKind.Array) {
                 const { memberType } = exprType;
-                if (memberType.kind === TypeKind.Interface) {
-                    this.outputNode = new ObjectOutputNode(this.context, returnStatement, memberType);
-                } else if (memberType.kind === TypeKind.Array) {
-                    this.outputNode = new ArrayOutputNode(this.context, returnStatement, memberType);
-                } else {
-                    this.outputNode = new PrimitiveOutputNode(this.context, returnStatement, memberType);
-                }
+                this.outputNode = getOutputNode(this.context, innerExpr, memberType);
             } else {
                 if (exprType?.kind === TypeKind.Interface) {
-                    this.outputNode = new ObjectOutputNode(this.context, returnStatement, exprType);
+                    this.outputNode = new ObjectOutputNode(this.context, innerExpr, exprType);
                 } else {
                     // Constraint: The return type of the transformation function should be an interface or an array
                 }
                 if (isConditionalExpression(innerExpr)) {
                     const inputNodes = getInputAccessNodes(returnStatement);
-                    const linkConnectorNode = this.createLinkConnectorNode(
-                        node, "", parent, inputNodes, this.mapIdentifiers.slice(0)
+                    const linkConnectorNode = createLinkConnectorNode(
+                        node, "", parent, inputNodes, this.mapIdentifiers.slice(0), this.context
                     );
                     this.intermediateNodes.push(linkConnectorNode);
                 }
@@ -106,7 +109,9 @@ export class NodeInitVisitor implements Visitor {
             this.outputNode.setPosition(OFFSETS.TARGET_NODE.X, 0);
 
             // Create input node
-            const inputType = getDMType(sourceFieldFQN, this.context.inputTrees[0], mapFnIndex);
+            const inputType = sourceNodeType === SourceNodeType.SubMappingNode
+                ? getDMTypeOfSubMappingItem(functionST, sourceFieldFQN, subMappingTypes)
+                : getDMType(sourceFieldFQN, this.context.inputTrees[0]);
 
             const focusedInputNode = new FocusedInputNode(this.context, callExpr, inputType);
 
@@ -114,11 +119,15 @@ export class NodeInitVisitor implements Visitor {
             this.inputNode = focusedInputNode;
         } else {
             const initializer = node.getInitializer();
-            if (initializer && !this.isObjectOrArrayLiteralExpression(initializer) && this.isWithinMapFn === 0) {
+            if (initializer
+                && !isObjectOrArrayLiteralExpression(initializer)
+                && ( this.isWithinMapFn === 0 || (views.length > 2 && !!subMappingInfo))
+                && this.isWithinVariableStmt === 0
+            ) {
                 const inputAccessNodes = getInputAccessNodes(initializer);
                 if (canConnectWithLinkConnector(inputAccessNodes, initializer)) {
-                    const linkConnectorNode = this.createLinkConnectorNode(
-                        node, node.getName(), parent, inputAccessNodes, this.mapIdentifiers.slice(0)
+                    const linkConnectorNode = createLinkConnectorNode(
+                        node, node.getName(), parent, inputAccessNodes, this.mapIdentifiers.slice(0), this.context
                     );
                     this.intermediateNodes.push(linkConnectorNode);
                 }
@@ -138,21 +147,16 @@ export class NodeInitVisitor implements Visitor {
         if (isFocusedST) {
             const callExpr = returnExpr as CallExpression;
             const mapFnReturnStmt = getCallExprReturnStmt(callExpr);
+            const mapFnReturnExpr = mapFnReturnStmt?.getExpression();
             const outputType = mapFnAtRootReturnOrDecsendent
                 ? getDMTypeForRootChaninedMapFunction(outputTree, mapFnIndex)
                 : getDMType(targetFieldFQN, this.context.outputTree, mapFnIndex);
 
             if (outputType.kind === TypeKind.Array) {
                 const { memberType } = outputType;
-                if (memberType.kind === TypeKind.Interface) {
-                    this.outputNode = new ObjectOutputNode(this.context, mapFnReturnStmt, memberType);
-                } else if (memberType.kind === TypeKind.Array) {
-                    this.outputNode = new ArrayOutputNode(this.context, mapFnReturnStmt, memberType);
-                } else {
-                    this.outputNode = new PrimitiveOutputNode(this.context, mapFnReturnStmt, memberType);
-                }
+                this.outputNode = getOutputNode(this.context, mapFnReturnExpr, memberType);
             } else if (outputTree?.kind === TypeKind.Interface) {
-                this.outputNode = new ObjectOutputNode(this.context, mapFnReturnStmt, outputTree);
+                this.outputNode = new ObjectOutputNode(this.context, mapFnReturnExpr, outputTree);
             } else {
                 // Constraint: The return type of the transformation function should be an interface or an array
             }
@@ -161,9 +165,11 @@ export class NodeInitVisitor implements Visitor {
             // Create input node
             const { sourceFieldFQN } = views[views.length - 1];
             const inputRoot = this.context.inputTrees[0];
+            const noOfSourceFields = sourceFieldFQN.split('.').length;
             const inputType = mapFnAtRootReturnOrDecsendent
                 ? getDMTypeForRootChaninedMapFunction(inputRoot, mapFnIndex)
-                : getDMType(sourceFieldFQN, inputRoot, mapFnIndex);
+                // Use mapFnIndex when the input of the focused map function is root of the input tree
+                : getDMType(sourceFieldFQN, inputRoot, noOfSourceFields === 1 ? mapFnIndex : undefined);
 
             const focusedInputNode = new FocusedInputNode(this.context, callExpr, inputType);
 
@@ -173,13 +179,14 @@ export class NodeInitVisitor implements Visitor {
 
         // Create link connector node for expressions within return statements
         if (this.isWithinMapFn === 0
+            && this.isWithinVariableStmt === 0
             && !Node.isObjectLiteralExpression(returnExpr)
             && !Node.isArrayLiteralExpression(returnExpr)
         ) {
             const inputAccessNodes = getInputAccessNodes(returnExpr);
-            if (inputAccessNodes.length > 1) {
-                const linkConnectorNode = this.createLinkConnectorNode(
-                    returnExpr, "", parent, inputAccessNodes, [...this.mapIdentifiers, returnExpr]
+            if (canConnectWithLinkConnector(inputAccessNodes, returnExpr)) {
+                const linkConnectorNode = createLinkConnectorNode(
+                    returnExpr, "", parent, inputAccessNodes, [...this.mapIdentifiers, returnExpr], this.context
                 );
                 this.intermediateNodes.push(linkConnectorNode);
             }
@@ -194,13 +201,13 @@ export class NodeInitVisitor implements Visitor {
         this.mapIdentifiers.push(node);
         const elements = node.getElements();
 
-        if (elements) {
+        if (elements && this.isWithinVariableStmt === 0) {
             elements.forEach(element => {
-                if (!this.isObjectOrArrayLiteralExpression(element)) {
+                if (!isObjectOrArrayLiteralExpression(element)) {
                     const inputAccessNodes = getInputAccessNodes(element);
                     if (canConnectWithLinkConnector(inputAccessNodes, element)) {
-                        const linkConnectorNode = this.createLinkConnectorNode(
-                            element, "", parent, inputAccessNodes, [...this.mapIdentifiers, element]
+                        const linkConnectorNode = createLinkConnectorNode(
+                            element, "", parent, inputAccessNodes, [...this.mapIdentifiers, element], this.context
                         );
                         this.intermediateNodes.push(linkConnectorNode);
                     }
@@ -221,10 +228,79 @@ export class NodeInitVisitor implements Visitor {
             && views.length > 1;
         const isParentFocusedST = isFocusedSTWithinPropAssignment || isFocusedSTWithinReturnStmt;
         
-        if (!isParentFocusedST && isMapFn) {
+        if (!isParentFocusedST && isMapFn && this.isWithinVariableStmt === 0) {
             this.isWithinMapFn += 1;
             const arrayFnConnectorNode = new ArrayFnConnectorNode(this.context, node, parent);
             this.intermediateNodes.push(arrayFnConnectorNode);
+        }
+    }
+
+    beginVisitVariableStatement(node: VariableStatement, parent: Node): void {
+        const { focusedST, views } = this.context;
+        const lastView = views[views.length - 1];
+        const { label, sourceFieldFQN } = lastView;
+        const focusedOnSubMappingRoot = views.length === 2;
+        // Constraint: Only one variable declaration is allowed in a local variable statement.
+        const varDecl = node.getDeclarations()[0];
+
+        const isFocusedST = isPositionsEquals(getPosition(node), getPosition(focusedST));
+
+        if (isFocusedST) {
+            const initializer = varDecl.getInitializer();
+            let callExpr = initializer;
+            if (initializer) {
+                if (!focusedOnSubMappingRoot) {
+                    // Variable Statement become focused when the view is sub mapping
+                    // This case, always the input node of the second view is the input node of the first view
+                    // Hence, creating focused input node from the thrid view onwards
+                    if (Node.isCallExpression(initializer)) {
+                        // A2A mappings with map function within focused sub mappings at the root output level
+                        const { mapFnIndex } = lastView.subMappingInfo;
+                        const callExprs = initializer.getDescendantsOfKind(SyntaxKind.CallExpression);
+                        const mapFns = callExprs.filter(expr => {
+                            const expression = expr.getExpression();
+                            return Node.isPropertyAccessExpression(expression) && expression.getName() === "map";
+                        });
+                        const inputType = getDMType(sourceFieldFQN, this.context.inputTrees[0]);
+                        callExpr = !!mapFnIndex ? mapFns[mapFnIndex - 1] : initializer;
+                        this.inputNode = new FocusedInputNode(this.context, callExpr as CallExpression, inputType);
+                    } else if (Node.isObjectLiteralExpression(initializer)) {
+                        // A2A mappings with map function within focused sub mappings at the output field level
+                        const properties = initializer.getProperties();
+                        const focusedProperty = properties.find(property => {
+                            if (Node.isPropertyAssignment(property)) {
+                                return property.getName() === sourceFieldFQN;
+                            }
+                        }) as PropertyAssignment;
+                        if (focusedProperty) {
+                            const focusedInitializer = focusedProperty.getInitializer();
+                            if (Node.isCallExpression(focusedInitializer)) {
+                                callExpr = focusedInitializer;
+                                const inputType = getDMType(sourceFieldFQN, this.context.inputTrees[0]);
+                                this.inputNode = new FocusedInputNode(this.context, focusedInitializer, inputType);
+                            }
+                        }
+                    }
+                }
+
+                const shouldCheckForLinkConnectorNodes = !(focusedOnSubMappingRoot
+                    && isObjectOrArrayLiteralExpression(initializer));
+                
+                if (shouldCheckForLinkConnectorNodes && this.isWithinMapFn === 0) {
+                    let targetExpr = Node.isCallExpression(callExpr) ? getInnermostArrowFnBody(callExpr) : callExpr;
+                    const inputAccessNodes = getInputAccessNodes(targetExpr);
+                    const isObjectLiteralExpr = Node.isObjectLiteralExpression(targetExpr);
+
+                    if (canConnectWithLinkConnector(inputAccessNodes, targetExpr as Expression) && !isObjectLiteralExpr) {
+                        const linkConnectorNode = createLinkConnectorNode(
+                            node, label, parent, inputAccessNodes, this.mapIdentifiers.slice(0), this.context
+                        );
+                        this.intermediateNodes.push(linkConnectorNode);
+                    }
+                }
+            }
+        } else {
+            this.isWithinVariableStmt += 1;
         }
     }
 
@@ -253,100 +329,39 @@ export class NodeInitVisitor implements Visitor {
             && Node.isPropertyAssignment(parent)
             && isPositionsEquals(getPosition(parent), getPosition(focusedST));
         
-        if (!isParentFocusedST && isMapFn) {
+        if (!isParentFocusedST && isMapFn && this.isWithinVariableStmt === 0) {
             this.isWithinMapFn -= 1;
         }
     }
 
+    endVisitVariableStatement(node: VariableStatement, parent: Node): void {
+        const { focusedST } = this.context;
+        const isFocusedST = isPositionsEquals(getPosition(node), getPosition(focusedST));
+
+        if (!isFocusedST) {
+            this.isWithinVariableStmt -= 1;
+        }
+    }
+
     getNodes() {
-        const nodes = [this.inputNode ? this.inputNode : this.outputNode, this.outputNode];
+        // Add node to capture the sub mappings
+        const subMappingNode = getSubMappingNode(this.context);;
+
+        const nodes = [this.inputNode, subMappingNode, this.outputNode];
         nodes.push(...this.intermediateNodes);
+
         return nodes;
     }
 
-    private createInputNodeForDmFunction(
-        node: FunctionDeclaration
-    ): InputNode | InputDataImportNodeModel {
-        /* Constraints:
-            1. The function should and must have a single parameter
-            2. The parameter type should be an interface or an array
-            3. Tuple and union parameter types are not supported
-        */
-        const param = node.getParameters()[0];
-        const inputType = param && this.context.inputTrees.find(inputTree =>
-            getTypeName(inputTree) === param.getType().getText());
-    
-        if (inputType && this.hasFields(inputType)) {
-            // Create input node
-            const inputNode = new InputNode(this.context, param);
-            inputNode.setPosition(0, 0);
-            return inputNode;
-        } else {
-            // Create input data import node
-            return new InputDataImportNodeModel();
-        }
-    }
-    
-    private createOutputNodeForDmFunction(
-        node: FunctionDeclaration
-    ): ArrayOutputNode | ObjectOutputNode | OutputDataImportNodeModel {
-        /* Constraints:
-            1. The function should have a return type and it should not be void
-            2. The return type should be an interface or an array
-            3. Tuple and union return types are not supported
-        */
-        const returnType = node.getReturnType();
-        const outputType = returnType && !returnType.isVoid() && this.context.outputTree;
-    
-        if (outputType && this.hasFields(outputType)) {
-            const body = node.getBody();
-    
-            if (Node.isBlock(body)) {
-                const returnStatement = body.getStatements().find((statement) =>
-                    Node.isReturnStatement(statement)) as ReturnStatement;
-        
-                // Create output node based on return type
-                if (returnType.isInterface()) {
-                    return new ObjectOutputNode(this.context, returnStatement, outputType);
-                } else if (returnType.isArray()) {
-                    return new ArrayOutputNode(this.context, returnStatement, outputType);
-                }
-            }
-        }
-    
-        // Create output data import node
-        return new OutputDataImportNodeModel();
+    getRootInputNode() {
+        return createInputNodeForDmFunction(this.context.functionST, this.context);
     }
 
-    private createLinkConnectorNode(
-        node: Node,
-        label: string,
-        parent: Node | undefined,
-        inputAccessNodes: (Identifier | ElementAccessExpression | PropertyAccessExpression)[],
-        fields: Node[]
-    ): LinkConnectorNode {
-
-        return new LinkConnectorNode(
-            this.context,
-            node,
-            label,
-            parent,
-            inputAccessNodes,
-            fields
-        );
+    getInputNode() {
+        return this.inputNode;
     }
 
-    private hasFields(type: DMType): boolean {
-        if (type.kind === TypeKind.Interface) {
-            return type.fields && type.fields.length > 0;
-        } else if (type.kind === TypeKind.Array) {
-            return this.hasFields(type.memberType);
-        }
-        return false;
-    }
-
-    private isObjectOrArrayLiteralExpression(node: Node): boolean {
-        return Node.isObjectLiteralExpression(node)
-            || Node.isArrayLiteralExpression(node);
+    getIntermediateNodes() {
+        return this.intermediateNodes;
     }
 }

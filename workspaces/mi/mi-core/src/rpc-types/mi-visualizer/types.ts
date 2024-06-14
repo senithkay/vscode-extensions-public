@@ -36,17 +36,39 @@ export interface ProjectStructureRequest {
 
 export interface ProjectStructureResponse {
     directoryMap: {
-        esbConfigs: EsbDirectoryMap[];
-        dataServiceConfigs: ProjectStructureEntry[],
-        dataSourceConfigs: ProjectStructureEntry[],
-        mediatorProjects: ProjectStructureEntry[],
-        registryResources: ProjectStructureEntry[],
-        javaLibraryProjects: ProjectStructureEntry[],
-        compositeExporters: ProjectStructureEntry[],
-        connectorExporters: ProjectStructureEntry[],
-        dockerExporters: ProjectStructureEntry[],
-        kubernetesExporters: ProjectStructureEntry[]
+        src: {
+            main: {
+                test: ProjectDirectoryMap,
+                wso2mi: {
+                    artifacts: {
+                        apis: ProjectStructureArtifactResponse[],
+                        dataServices: ProjectStructureArtifactResponse[],
+                        dataSources: ProjectStructureArtifactResponse[],
+                        endpoints: ProjectStructureArtifactResponse[],
+                        inboundEndpoints: ProjectStructureArtifactResponse[],
+                        localEntries: ProjectStructureArtifactResponse[],
+                        messageProcessors: ProjectStructureArtifactResponse[],
+                        messageStores: ProjectStructureArtifactResponse[],
+                        proxyServices: ProjectStructureArtifactResponse[],
+                        sequences: ProjectStructureArtifactResponse[],
+                        tasks: ProjectStructureArtifactResponse[],
+                        templates: ProjectStructureArtifactResponse[],
+                    },
+                    resources: {
+                        connectors: ProjectStructureArtifactResponse[],
+                        metadata: ProjectStructureArtifactResponse[],
+                        registry: ProjectStructureArtifactResponse[],
+                    },
+                }
+            }
+        }
     };
+}
+
+export interface ProjectStructureArtifactResponse {
+    name: string;
+    path: string;
+    type: string;
 }
 
 export interface ProjectDirectoryMap {

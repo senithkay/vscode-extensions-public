@@ -26,6 +26,7 @@ import { GetLoadBalanceEPTemplatesArgs, getLoadBalanceEPXml } from './template-e
 import { GetFailoverEPTemplatesArgs, getFailoverEPXml } from './template-engine/mustach-templates/failoverEndpoint';
 import { GetRecipientEPTemplatesArgs, getRecipientEPXml } from './template-engine/mustach-templates/recipientEndpoint';
 import { GetTemplateEPTemplatesArgs, getTemplateEPXml } from './template-engine/mustach-templates/templateEndpoint';
+import { APIResourceArgs, getAPIResourceXml } from './template-engine/mustach-templates/API';
 
 const isDevMode = process.env.WEB_VIEW_WATCH_MODE === "true";
 
@@ -42,7 +43,7 @@ export function createFolderStructure(targetPath: string, structure: FileStructu
 	for (const [key, value] of Object.entries(structure)) {
 		const fullPath = path.join(targetPath, key);
 
-		if (key.includes('.')) {
+		if (key.includes('.') || key === 'Dockerfile') {
 			// If it's a file, create the file
 			fs.writeFileSync(fullPath, value as string);
 		} else {
@@ -51,6 +52,14 @@ export function createFolderStructure(targetPath: string, structure: FileStructu
 			createFolderStructure(fullPath, value as FileStructure);
 		}
 	}
+}
+
+export function copyDockerResources(resourcePath: string, targetPath: string) {
+	const commonResourcesPath = path.join(targetPath, 'deployment');
+	const dockerResourcesPath = path.join(commonResourcesPath, 'docker', 'resources');
+	fs.copyFileSync(path.join(resourcePath, 'deployment.toml'), path.join(commonResourcesPath, 'deployment.toml'));
+	fs.copyFileSync(path.join(resourcePath, 'client-truststore.jks'), path.join(dockerResourcesPath, 'client-truststore.jks'));
+	fs.copyFileSync(path.join(resourcePath, 'wso2carbon.jks'), path.join(dockerResourcesPath, 'wso2carbon.jks'));
 }
 
 export function getInboundEndpointXmlWrapper(props: GetInboundTemplatesArgs) {
@@ -70,23 +79,23 @@ export function getProxyServiceXmlWrapper(props: ProxyServiceTemplateArgs) {
 }
 
 export function getTaskXmlWrapper(data: GetTaskTemplatesArgs) {
-    return getTaskXml(data);
+	return getTaskXml(data);
 }
 
 export function getLoadBalanceXmlWrapper(data: GetLoadBalanceEPTemplatesArgs) {
-    return getLoadBalanceEPXml(data);
+	return getLoadBalanceEPXml(data);
 }
 
 export function getFailoverXmlWrapper(data: GetFailoverEPTemplatesArgs) {
-    return getFailoverEPXml(data);
+	return getFailoverEPXml(data);
 }
 
 export function getRecipientXmlWrapper(data: GetRecipientEPTemplatesArgs) {
-    return getRecipientEPXml(data);
+	return getRecipientEPXml(data);
 }
 
 export function getTemplateEndpointXmlWrapper(data: GetTemplateEPTemplatesArgs) {
-    return getTemplateEPXml(data);
+	return getTemplateEPXml(data);
 }
 
 export function getMessageStoreXmlWrapper(props: GetMessageStoreTemplatesArgs) {
@@ -111,4 +120,8 @@ export function getWsdlEndpointXmlWrapper(props: WsdlEndpointArgs) {
 
 export function getDefaultEndpointXmlWrapper(props: DefaultEndpointArgs) {
 	return getDefaultEndpointXml(props);
+}
+
+export function getAPIResourceXmlWrapper(props: APIResourceArgs) {
+	return getAPIResourceXml(props);
 }

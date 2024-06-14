@@ -15,4 +15,5 @@ export * from "./Input";
 export * from "./LinkConnector";
 export * from "./ObjectOutput";
 export * from "./PrimitiveOutput";
+export * from "./SubMapping";
 export * from "./UnsupportedIO";

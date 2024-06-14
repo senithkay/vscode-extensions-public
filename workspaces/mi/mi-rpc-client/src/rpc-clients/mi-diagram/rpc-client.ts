@@ -17,6 +17,7 @@ import {
     BrowseFileResponse,
     CommandsRequest,
     CommandsResponse,
+    CompareSwaggerAndAPIResponse,
     ConnectorRequest,
     ConnectorResponse,
     ConnectorsResponse,
@@ -68,8 +69,10 @@ import {
     FileDirResponse,
     GetAllArtifactsRequest,
     GetAllArtifactsResponse,
+    GetAllMockServicesResponse,
     GetAllRegistryPathsRequest,
     GetAllRegistryPathsResponse,
+    GetAllTestSuitsResponse,
     GetAvailableConnectorRequest,
     GetAvailableConnectorResponse,
     GetAvailableResourcesRequest,
@@ -137,8 +140,10 @@ import {
     RetrieveWsdlEndpointResponse,
     SequenceDirectoryResponse,
     ShowErrorMessageRequest,
+    SwaggerTypeRequest,
     TemplatesResponse,
     UndoRedoParams,
+    UpdateAPIFromSwaggerRequest,
     UpdateAddressEndpointRequest,
     UpdateAddressEndpointResponse,
     UpdateConnectorRequest,
@@ -150,10 +155,16 @@ import {
     UpdateHttpEndpointResponse,
     UpdateLoadBalanceEPRequest,
     UpdateLoadBalanceEPResponse,
+    UpdateMockServiceRequest,
+    UpdateMockServiceResponse,
     UpdateRecipientEPRequest,
     UpdateRecipientEPResponse,
     UpdateTemplateEPRequest,
     UpdateTemplateEPResponse,
+    UpdateTestCaseRequest,
+    UpdateTestCaseResponse,
+    UpdateTestSuiteRequest,
+    UpdateTestSuiteResponse,
     UpdateWsdlEndpointRequest,
     UpdateWsdlEndpointResponse,
     WriteContentToFileRequest,
@@ -167,6 +178,7 @@ import {
     checkOldProject,
     closeWebView,
     closeWebViewNotification,
+    compareSwaggerAndAPI,
     createAPI,
     createClassMediator,
     createConnection,
@@ -185,13 +197,16 @@ import {
     deleteArtifact,
     downloadConnector,
     editAPI,
+    editOpenAPISpec,
     executeCommand,
     exportProject,
     getAIResponse,
     getAPIDirectory,
     getAddressEndpoint,
     getAllArtifacts,
+    getAllMockServices,
     getAllRegistryPaths,
+    getAllTestSuites,
     getAvailableConnectors,
     getAvailableRegistryResources,
     getAvailableResources,
@@ -245,14 +260,19 @@ import {
     refreshAccessToken,
     showErrorMessage,
     undo,
+    updateAPIFromSwagger,
     updateAddressEndpoint,
     updateConnectors,
     updateDefaultEndpoint,
     updateFailoverEndpoint,
     updateHttpEndpoint,
     updateLoadBalanceEndpoint,
+    updateMockService,
     updateRecipientEndpoint,
+    updateSwaggerFromAPI,
     updateTemplateEndpoint,
+    updateTestCase,
+    updateTestSuite,
     updateWsdlEndpoint,
     writeContentToFile
 } from "@wso2-enterprise/mi-core";
@@ -652,5 +672,41 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     checkOldProject(): Promise<boolean> {
         return this._messenger.sendRequest(checkOldProject, HOST_EXTENSION);
+    }
+
+    editOpenAPISpec(params: SwaggerTypeRequest): Promise<void> {
+        return this._messenger.sendRequest(editOpenAPISpec, HOST_EXTENSION, params);
+    }
+
+    compareSwaggerAndAPI(params: SwaggerTypeRequest): Promise<CompareSwaggerAndAPIResponse> {
+        return this._messenger.sendRequest(compareSwaggerAndAPI, HOST_EXTENSION, params);
+    }
+
+    updateSwaggerFromAPI(params: SwaggerTypeRequest): Promise<void> {
+        return this._messenger.sendRequest(updateSwaggerFromAPI, HOST_EXTENSION, params);
+    }
+
+    updateAPIFromSwagger(params: UpdateAPIFromSwaggerRequest): Promise<void> {
+        return this._messenger.sendRequest(updateAPIFromSwagger, HOST_EXTENSION, params);
+    }
+
+    updateTestSuite(params: UpdateTestSuiteRequest): Promise<UpdateTestSuiteResponse> {
+        return this._messenger.sendRequest(updateTestSuite, HOST_EXTENSION, params);
+    }
+
+    updateTestCase(params: UpdateTestCaseRequest): Promise<UpdateTestCaseResponse> {
+        return this._messenger.sendRequest(updateTestCase, HOST_EXTENSION, params);
+    }
+
+    updateMockService(params: UpdateMockServiceRequest): Promise<UpdateMockServiceResponse> {
+        return this._messenger.sendRequest(updateMockService, HOST_EXTENSION, params);
+    }
+
+    getAllTestSuites(): Promise<GetAllTestSuitsResponse> {
+        return this._messenger.sendRequest(getAllTestSuites, HOST_EXTENSION);
+    }
+
+    getAllMockServices(): Promise<GetAllMockServicesResponse> {
+        return this._messenger.sendRequest(getAllMockServices, HOST_EXTENSION);
     }
 }

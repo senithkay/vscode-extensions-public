@@ -45,6 +45,9 @@ export class LinkConnectorNode extends DataMapperNodeModel {
     public diagnostics: Diagnostic[];
     public hidden: boolean;
     public hasInitialized: boolean;
+    public innerNode: Node;
+
+    private _isFocusedOnSubMapping: boolean;
 
     constructor(
         public context: IDataMapperContext,
@@ -60,10 +63,18 @@ export class LinkConnectorNode extends DataMapperNodeModel {
             context,
             LINK_CONNECTOR_NODE_TYPE
         );
+
         if (Node.isPropertyAssignment(valueNode)) {
-            this.value = valueNode.getInitializer() ? valueNode.getInitializer().getText().trim() : '';
+            this.innerNode = valueNode.getInitializer();
+            this.value = this.innerNode ? this.innerNode.getText().trim() : '';
             this.diagnostics = getDiagnostics(valueNode.getInitializer());
+        } else if (Node.isVariableStatement(valueNode)) {
+            const varDecl = valueNode.getDeclarations()[0];
+            this.innerNode = varDecl.getInitializer();
+            this.value = this.innerNode ? this.innerNode.getText().trim() : '';
+            this.diagnostics = getDiagnostics(valueNode);
         } else {
+            this.innerNode = this.valueNode;
             this.value = valueNode.getText().trim();
             this.diagnostics = getDiagnostics(valueNode);
         }
@@ -72,16 +83,12 @@ export class LinkConnectorNode extends DataMapperNodeModel {
     initPorts(): void {
         this.sourcePorts = [];
         this.targetMappedPort = undefined;
-        this.inPort = new IntermediatePortModel(
-            md5(JSON.stringify(getPosition(this.valueNode)) + "IN")
-            , "IN"
-        );
+        this.inPort = new IntermediatePortModel(md5(JSON.stringify(getPosition(this.valueNode)) + "IN"), "IN");
+        this.outPort = new IntermediatePortModel(md5(JSON.stringify(getPosition(this.valueNode)) + "OUT"), "OUT");
         this.addPort(this.inPort);
-        this.outPort = new IntermediatePortModel(
-            md5(JSON.stringify(getPosition(this.valueNode)) + "OUT")
-            , "OUT"
-        );
         this.addPort(this.outPort);
+
+        this._isFocusedOnSubMapping = Node.isVariableStatement(this.context.focusedST);
 
         this.inputAccessNodes.forEach((field) => {
             const inputNode = findInputNode(field, this);
@@ -99,7 +106,7 @@ export class LinkConnectorNode extends DataMapperNodeModel {
                 ) {
                     const targetPortPrefix = getTargetPortPrefix(node);
 
-                    if (Node.isBlock(this.parentNode)) {
+                    if (Node.isBlock(this.parentNode) || (this._isFocusedOnSubMapping && !this.parentNode)) {
                         if (!(node instanceof ObjectOutputNode)) {
                             const typeName = targetPortPrefix === PRIMITIVE_OUTPUT_TARGET_PORT_PREFIX
                                 ? node.dmTypeWithValue.type.kind
@@ -208,7 +215,8 @@ export class LinkConnectorNode extends DataMapperNodeModel {
                 })
 
                 if (!this.editorLabel) {
-                    this.editorLabel = this.targetMappedPort.fieldFQN.split('.').pop();
+                    const fieldFQN = this.targetMappedPort.fieldFQN;
+                    this.editorLabel = fieldFQN ? this.targetMappedPort.fieldFQN.split('.').pop() : '';
                 }
                 this.getModel().addAll(lm);
             }
@@ -216,14 +224,10 @@ export class LinkConnectorNode extends DataMapperNodeModel {
         this.hasInitialized = true;
     }
 
-    updateSource(suffix: string): void {
+    async updateSource(suffix: string): Promise<void> {
         this.value = `${this.value} + ${suffix}`;
-        const targetNode = Node.isPropertyAssignment(this.valueNode)
-            ? this.valueNode.getInitializer()
-            : this.valueNode;
-        
-        targetNode.replaceWithText(this.value);
-        this.context.applyModifications();
+        this.innerNode.replaceWithText(this.value);
+        await this.context.applyModifications();
     }
 
     public updatePosition() {
@@ -242,17 +246,22 @@ export class LinkConnectorNode extends DataMapperNodeModel {
         const targetNode = this.targetPort.getNode();
         const { functionST, applyModifications } = this.context;
         const exprFuncBodyPosition = getPosition(functionST.getBody());
+        const defaultValue = getDefaultValue(targetField?.kind);
 
         if ((!targetField?.fieldName
             && targetField?.kind !== TypeKind.Array
             && targetField?.kind !== TypeKind.Interface)
                 || isPositionsEquals(exprFuncBodyPosition, getPosition(this.valueNode)))
         {
-            this.valueNode.replaceWithText(getDefaultValue(targetField?.kind));
+            let targetNode = this.valueNode;
+            if (Node.isVariableStatement) {
+                targetNode = this.innerNode;
+            }
+            targetNode.replaceWithText(defaultValue);
         } else {
             let rootExpr = this.parentNode;
             if (targetNode instanceof ObjectOutputNode || targetNode instanceof ArrayOutputNode) {
-                rootExpr = targetNode.value.getExpression();
+                rootExpr = targetNode.value;
             }
             const linkDeleteVisitor = new LinkDeletingVisitor(this.valueNode, rootExpr);
             traversNode(functionST, linkDeleteVisitor);
@@ -262,7 +271,11 @@ export class LinkConnectorNode extends DataMapperNodeModel {
                 const parentNode = node.getParent();
 
                 if (Node.isPropertyAssignment(node)) {
-                    node.remove();
+                    if (this._isFocusedOnSubMapping) {
+                        node.getInitializer().replaceWithText(defaultValue);
+                    } else {
+                        node.remove();
+                    }
                 } else if (parentNode && Node.isArrayLiteralExpression(parentNode)) {
                     const elementIndex = parentNode.getElements().find(e => e === node);
                     parentNode.removeElement(elementIndex);
