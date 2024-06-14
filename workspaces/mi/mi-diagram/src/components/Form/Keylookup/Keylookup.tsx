@@ -14,6 +14,7 @@ import styled from "@emotion/styled";
 import { VSCodeTag } from "@vscode/webview-ui-toolkit/react";
 import { FieldValues, Path, useController, UseControllerProps } from "react-hook-form";
 import { Colors } from "../../../resources/constants";
+import fsPath from "path";
 
 export type FilterType =
     | "sequence"
@@ -38,7 +39,8 @@ export type FilterType =
     | "xsl"
     | "xslt"
     | "yaml"
-    | "registry";
+    | "registry"
+    | "mockService";
 
 // Interfaces
 interface IKeylookupBase {
@@ -72,7 +74,7 @@ type ExpressionFieldProps = {
     isExActive: boolean;
     setIsExpression: (isExpr: boolean) => void;
     canChangeEx?: boolean
-} | { 
+} | {
     isExpression?: false | never;
     isExActive?: never;
     setIsExpression?: never;
@@ -80,7 +82,7 @@ type ExpressionFieldProps = {
 };
 
 // Define the conditional properties
-type ConditionalProps = 
+type ConditionalProps =
     | { label: string; name: string; identifier?: never }
     | { label: string; name?: never; identifier?: never }
     | { label?: never; name: string; identifier?: never }
@@ -129,13 +131,13 @@ namespace ExBtn {
     export const Wrapper = styled.div<{ isActive: boolean }>`
         padding: 3px;
         cursor: pointer;
-        background-color: ${(props: { isActive: any; }) => props.isActive ? 
+        background-color: ${(props: { isActive: any; }) => props.isActive ?
             Colors.INPUT_OPTION_ACTIVE : Colors.INPUT_OPTION_INACTIVE};
         border: 1px solid ${(props: { isActive: any; }) => props.isActive ?
             Colors.INPUT_OPTION_ACTIVE_BORDER : "transparent"};
         &:hover {
             background-color: ${(props: { isActive: any; }) => props.isActive ?
-                Colors.INPUT_OPTION_ACTIVE : Colors.INPUT_OPTION_HOVER};
+            Colors.INPUT_OPTION_ACTIVE : Colors.INPUT_OPTION_HOVER};
         }
 `;
 }
@@ -173,6 +175,30 @@ export const Keylookup = (props: IKeylookup) => {
     }, []);
 
     const fetchItems = async () => {
+        if (filterType === "mockService") {
+            const result = await rpcClient.getMiDiagramRpcClient().getAllMockServices();
+            let items: (string | ItemComponent)[] = [];
+            if (result?.mockServices) {
+                const machineView = await rpcClient.getVisualizerState();
+                const projectUri = machineView.projectUri;
+                const isWindows = navigator.platform.toLowerCase().includes("win");
+                const mockServicesDirs = [projectUri, "src", "test", "resources", "mock-services"];
+                const mockServicesRoot = isWindows ? fsPath.win32.join(...mockServicesDirs) : fsPath.join(...mockServicesDirs);
+
+                result.mockServices.forEach((mockService) => {
+                    const fileName = mockService.path.split(mockServicesRoot)[1];
+                    const item = { key: mockService.name, item: getItemComponent(fileName.substring(1, fileName.length - 4)) };
+                    if (mockService.name === initialValue) {
+                        items.unshift(item);
+                    } else {
+                        items.push(item);
+                    }
+                });
+            }
+            setItems(items);
+            return;
+        }
+
         const result = await rpcClient.getMiDiagramRpcClient().getAvailableResources({
             documentIdentifier: path,
             resourceType: filterType,
@@ -245,16 +271,18 @@ export const Keylookup = (props: IKeylookup) => {
                     handleValueChange("");
                     props.onCreateButtonClick(fetchItems, handleValueChange);
                 } : null}
-                {...isExpression && { actionBtns: [
-                    <ExButton
-                        isActive={isExActive}
-                        onClick={() => {
-                            if (canChangeEx) {
-                                setIsExpression(!isExActive);
-                            }
-                        }}
-                    />
-                ] }}
+                {...isExpression && {
+                    actionBtns: [
+                        <ExButton
+                            isActive={isExActive}
+                            onClick={() => {
+                                if (canChangeEx) {
+                                    setIsExpression(!isExActive);
+                                }
+                            }}
+                        />
+                    ]
+                }}
             />
             {errorMsg && <ErrorBanner errorMsg={errorMsg} />}
         </Container>
@@ -266,7 +294,7 @@ export const FormKeylookup = <T extends FieldValues>(props: IFormKeylookup<T>) =
     const {
         field: { value, onChange },
     } = useController({ name, control });
-    
+
     if (isExpression) {
         const handleValueChange = (val: string) => {
             onChange({ ...value, value: val });

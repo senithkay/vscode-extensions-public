@@ -26,6 +26,13 @@ export class ObjectOutputNodeFactory extends AbstractReactFactory<ObjectOutputNo
 	}
 
 	generateReactWidget(event: { model: ObjectOutputNode; }): JSX.Element {
+		let valueLabel: string;
+		const { isMapFn, isSubMapping, context } = event.model;
+		const { views, focusedST } = context;
+		const isMapFnAtFnReturn = views.length === 1 && Node.isFunctionDeclaration(focusedST);
+		if ((isMapFn && !isMapFnAtFnReturn) || isSubMapping) {
+			valueLabel = views[views.length - 1].label.replace(/\[\]/g, '');
+		}
 		return (
 			<>
 				{event.model.hasNoMatchingFields ? (
@@ -36,10 +43,11 @@ export class ObjectOutputNodeFactory extends AbstractReactFactory<ObjectOutputNo
 						id={`${OBJECT_OUTPUT_TARGET_PORT_PREFIX}${event.model.rootName ? `.${event.model.rootName}` : ''}`}
 						dmTypeWithValue={event.model.dmTypeWithValue}
 						typeName={event.model.typeName}
-						value={event.model.value && event.model.value.getExpression()}
+						value={event.model.value}
 						getPort={(portId: string) => event.model.getPort(portId) as InputOutputPortModel}
 						context={event.model.context}
 						mappings={event.model.mappings}
+						valueLabel={valueLabel}
 						deleteField={(node: Node) => event.model.deleteField(node)}
 						originalTypeName={event.model.dmType?.fieldName}
 					/>

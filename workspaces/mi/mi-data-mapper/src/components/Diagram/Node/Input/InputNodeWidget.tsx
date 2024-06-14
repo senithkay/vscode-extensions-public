@@ -18,7 +18,7 @@ import { InputSearchHighlight } from '../commons/Search';
 import { TreeBody, TreeContainer, TreeHeader } from '../commons/Tree/Tree';
 import { InputNodeTreeItemWidget } from "./InputNodeTreeItemWidget";
 import { useIONodesStyles } from "../../../styles";
-import { useDMCollapsedFieldsStore, useDMSidePanelStore } from '../../../../store/store';
+import { useDMCollapsedFieldsStore, useDMIOConfigPanelStore } from '../../../../store/store';
 import { getTypeName } from "../../utils/common-utils";
 
 export interface InputNodeWidgetProps {
@@ -36,10 +36,13 @@ export function InputNodeWidget(props: InputNodeWidgetProps) {
     const [ portState, setPortState ] = useState<PortState>(PortState.Unselected);
     const [isHovered, setIsHovered] = useState(false);
     const collapsedFieldsStore = useDMCollapsedFieldsStore();
-    const setSidePanelOpen = useDMSidePanelStore(state => state.setSidePanelOpen);
-    const setSidePanelIOType = useDMSidePanelStore(state => state.setSidePanelIOType);
-    const setIsSchemaOverridden = useDMSidePanelStore(state => state.setIsSchemaOverridden);
-    
+
+	const { setIsIOConfigPanelOpen, setIOConfigPanelType, setIsSchemaOverridden } = useDMIOConfigPanelStore(state => ({
+		setIsIOConfigPanelOpen: state.setIsIOConfigPanelOpen,
+		setIOConfigPanelType: state.setIOConfigPanelType,
+		setIsSchemaOverridden: state.setIsSchemaOverridden
+	}));
+
     const classes = useIONodesStyles();
     const typeName = getTypeName(dmType);
 
@@ -89,9 +92,9 @@ export function InputNodeWidget(props: InputNodeWidgetProps) {
 
     const onRightClick = (event: React.MouseEvent) => {
         event.preventDefault(); 
-        setSidePanelIOType("Input");
+        setIOConfigPanelType("Input");
         setIsSchemaOverridden(true);
-        setSidePanelOpen(true);
+        setIsIOConfigPanelOpen(true);
     };
     
 

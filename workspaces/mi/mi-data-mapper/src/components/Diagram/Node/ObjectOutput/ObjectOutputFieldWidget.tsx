@@ -84,20 +84,23 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
         && !parentObjectLiteralExpr.wasForgotten()
         && Node.isObjectLiteralExpression(parentObjectLiteralExpr)
         && parentObjectLiteralExpr;
-    const hasValue = propertyAssignment
+    const initializer = propertyAssignment
         && !propertyAssignment.wasForgotten()
-        && propertyAssignment.getInitializer()
-        && !!propertyAssignment.getInitializer().getText();
+        && propertyAssignment.getInitializer();
+    const hasValue = initializer
+        && !!initializer.getText()
+        && initializer.getText() !== getDefaultValue(field.type.kind)
+        && initializer.getText() !== "null";
 
     const fields = isInterface && field.childrenTypes;
     const isWithinArray = fieldIndex !== undefined;
 
-    const handleAddValue = () => {
+    const handleAddValue = async () => {
         setIsLoading(true);
         try {
             const defaultValue = getDefaultValue(field.type.kind);
             const fnBody = context.functionST.getBody() as Block;
-            createSourceForUserInput(field, objectLiteralExpr, defaultValue, fnBody, context.applyModifications);
+            await createSourceForUserInput(field, objectLiteralExpr, defaultValue, fnBody, context.applyModifications);
         } finally {
             setIsLoading(false);
         }

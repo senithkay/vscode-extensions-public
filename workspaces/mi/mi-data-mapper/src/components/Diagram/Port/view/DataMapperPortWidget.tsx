@@ -36,6 +36,8 @@ export const DataMapperPortWidget: React.FC<DataMapperPortWidgetProps> = (props:
 	const [ portState, setPortState ] = useState<PortState>(PortState.Unselected);
 	const [ disableNewLinking, setDisableNewLinking] = useState<boolean>(false);
 
+	const isDisabled = disable || (port instanceof InputOutputPortModel && port.isDisabled());
+
 	const { setExprBarFocusedPort, setExprBarInputPort, resetExprBarFocusedPort } = useDMExpressionBarStore(state => ({
 		setExprBarFocusedPort: state.setFocusedPort,
 		setExprBarInputPort: state.setInputPort,
@@ -110,26 +112,26 @@ export const DataMapperPortWidget: React.FC<DataMapperPortWidgetProps> = (props:
 		hasError,
 		hasLinks,
 		active: portState === PortState.PortSelected,
-		disable,
+		isDisabled,
 		'data-testid': dataTestId
 	};
 
 	const RadioButton = (checked: boolean, disabled?: boolean) => {
 		const iconSx = {
 			display: "flex",
-			fontSize: "18px"
+			fontSize: "15px"
 		};
 	
 		if (disabled) {
 			Object.assign(iconSx, {
 				cursor: 'not-allowed',
-				color: 'var(--vscode-disabledForeground)'
+				opacity: 0.5
 			});
 		}
 
 		return (
 			<Icon
-				sx={{ height: "18px", width: "18px" }}
+				sx={{ height: "15px", width: "15px" }}
 				iconSx={iconSx}
 				name={checked ? "radio-button-checked" : "radio-button-unchecked"}
 			/>
@@ -146,7 +148,7 @@ export const DataMapperPortWidget: React.FC<DataMapperPortWidgetProps> = (props:
 		pointer-events: auto;
 	`;
 
-	return !disable ? (
+	return !isDisabled ? (
 		!disableNewLinking ? (
 			<PortWidget
 				port={port}
@@ -167,7 +169,7 @@ export const DataMapperPortWidget: React.FC<DataMapperPortWidgetProps> = (props:
 			</PortWidget>
 		)
 
-	) : <RadioButtonUnchecked disabled={disable} data-testid={dataTestId}/>;
+	) : <RadioButtonUnchecked disabled={isDisabled} data-testid={dataTestId}/>;
 }
 
 interface PortsContainerProps {
@@ -182,7 +184,7 @@ const ActivePortContainer = styled.div((props: PortsContainerProps) => ({
 	cursor: "pointer",
 	display: "flex",
 	strokeOpacity: props.active ? 0.1 : 0,
-	color: (props.active ? portActiveColor : props.hasLinks ? (props.hasError ? "var(--vscode-errorForeground)" : portActiveColor) : "var(--vscode-list-activeSelectionBackground)"),
+	color: (props.active ? portActiveColor : props.hasLinks ? (props.hasError ? "var(--vscode-errorForeground)" : portActiveColor) : "var(--vscode-foreground)"),
 	"&:hover": {
 		color: portActiveColor
 	}
@@ -191,5 +193,5 @@ const ActivePortContainer = styled.div((props: PortsContainerProps) => ({
 const DisabledNewLinkingPortContainer = styled.div((props: PortsContainerProps) => ({
 	cursor: "not-allowed",
 	display: "flex",
-	color: props.hasLinks ? (props.hasError ? 'var(--vscode-errorForeground)' : portActiveColor) : "var(--vscode-list-activeSelectionBackground)",
+	color: props.hasLinks ? (props.hasError ? 'var(--vscode-errorForeground)' : portActiveColor) : "var(--vscode-foreground)",
 }));

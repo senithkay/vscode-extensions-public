@@ -13,7 +13,7 @@ import { CallExpression, ElementAccessExpression, Identifier, Node, PropertyAcce
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { DataMapperLinkModel } from "../../Link";
 import { InputOutputPortModel, IntermediatePortModel } from "../../Port";
-import { ARRAY_OUTPUT_TARGET_PORT_PREFIX, FOCUSED_INPUT_SOURCE_PORT_PREFIX, OFFSETS } from "../../utils/constants";
+import { ARRAY_OUTPUT_TARGET_PORT_PREFIX, FOCUSED_INPUT_SOURCE_PORT_PREFIX, OFFSETS, SUB_MAPPING_INPUT_SOURCE_PORT_PREFIX } from "../../utils/constants";
 import {
     getDefaultValue,
     getFieldNames,
@@ -29,6 +29,7 @@ import { InputNode } from "../Input";
 import { getPosition, isPositionsEquals, traversNode } from "../../utils/st-utils";
 import { FocusedInputNode } from "../FocusedInput";
 import { LinkDeletingVisitor } from "../../../../components/Visitors/LinkDeletingVistior";
+import { SubMappingNode } from "../SubMapping";
 
 export const ARRAY_FUNCTION_CONNECTOR_NODE_TYPE = "array-function-connector-node";
 const NODE_ID = "array-function-connector-node";
@@ -107,6 +108,9 @@ export class ArrayFnConnectorNode extends DataMapperNodeModel {
             } else if (node instanceof FocusedInputNode && node.innerParam.getName() === paramName) {
                 const portName = FOCUSED_INPUT_SOURCE_PORT_PREFIX + "." + fieldId + ".OUT";
                 this.sourcePort = node.getPort(portName) as InputOutputPortModel;
+            } else if (node instanceof SubMappingNode && node.subMappings.some(sm => sm.name === paramName)) {
+                const portName = SUB_MAPPING_INPUT_SOURCE_PORT_PREFIX + "." + fieldId + ".OUT";
+                this.sourcePort = node.getPort(portName) as InputOutputPortModel;
             }
 
             while (this.sourcePort && this.sourcePort.hidden){
@@ -152,6 +156,26 @@ export class ArrayFnConnectorNode extends DataMapperNodeModel {
                             && Node.isCallExpression(port.typeWithValue.value)
                             && isMapFunction(port.typeWithValue.value)
                             && isPositionsEquals(getPosition(port.typeWithValue.value), getPosition(this.value))
+                            && port.portName === `${ARRAY_OUTPUT_TARGET_PORT_PREFIX}${node.rootName ? `.${node.rootName}` : ''}`
+                            && port.portType === 'IN'
+                        ) {
+                            this.targetPort = port;
+                        }
+                    });
+                }
+            });
+        } else if (Node.isVariableDeclaration(this.parentNode)) {
+            // When the local variable initializer is map function
+            const exprPosition = getPosition(this.parentNode.getInitializer());
+            this.getModel().getNodes().forEach((node) => {
+                if (node instanceof ArrayOutputNode) {
+                    const ports = Object.entries(node.getPorts());
+                    ports.map((entry) => {
+                        const port = entry[1];
+                        if (port instanceof InputOutputPortModel
+                            && port?.typeWithValue && port.typeWithValue?.value
+                            && Node.isCallExpression(port.typeWithValue.value)
+                            && isPositionsEquals(getPosition(port.typeWithValue.value), exprPosition)
                             && port.portName === `${ARRAY_OUTPUT_TARGET_PORT_PREFIX}${node.rootName ? `.${node.rootName}` : ''}`
                             && port.portType === 'IN'
                         ) {
@@ -256,7 +280,7 @@ export class ArrayFnConnectorNode extends DataMapperNodeModel {
 
         if (dmNode) {
             if (Node.isPropertyAssignment(this.parentNode)) {
-                const rootConstruct = dmNode.value.getExpression();
+                const rootConstruct = dmNode.value;
                 const linkDeleteVisitor = new LinkDeletingVisitor(this.parentNode, rootConstruct);
                 traversNode(this.context.focusedST, linkDeleteVisitor);
                 const targetNodes = linkDeleteVisitor.getNodesToDelete();

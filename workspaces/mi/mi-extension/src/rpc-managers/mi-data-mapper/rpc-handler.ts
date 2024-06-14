@@ -9,8 +9,9 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
-    IOTypeRequest,
+    DMTypeRequest,
     getIOTypes,
+    getSubMappingTypes,
     updateFileContent,
     UpdateFileContentRequest,
     GenerateDMInputRequest,
@@ -29,7 +30,8 @@ import { MiDataMapperRpcManager } from "./rpc-manager";
 
 export function registerMiDataMapperRpcHandlers(messenger: Messenger) {
     const rpcManger = new MiDataMapperRpcManager();
-    messenger.onRequest(getIOTypes, (args: IOTypeRequest) => rpcManger.getIOTypes(args));
+    messenger.onRequest(getIOTypes, (args: DMTypeRequest) => rpcManger.getIOTypes(args));
+    messenger.onRequest(getSubMappingTypes, (args: DMTypeRequest) => rpcManger.getSubMappingTypes(args));
     messenger.onNotification(updateFileContent, (args: UpdateFileContentRequest) => rpcManger.updateFileContent(args));
     messenger.onRequest(browseSchema, (args: BrowseSchemaRequest) => rpcManger.browseSchema(args));
     messenger.onRequest(loadDMConfigs, (args: LoadDMConfigsRequest) => rpcManger.loadDMConfigs(args));

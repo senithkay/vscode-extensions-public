@@ -79,6 +79,7 @@ function initDiagramEngine() {
 	engine.getNodeFactories().registerFactory(new Nodes.LinkConnectorNodeFactory());
 	engine.getNodeFactories().registerFactory(new Nodes.ArrayFnConnectorNodeFactory());
 	engine.getNodeFactories().registerFactory(new Nodes.DataImportNodeFactory());
+	engine.getNodeFactories().registerFactory(new Nodes.SubMappingNodeFactory());
 	engine.getNodeFactories().registerFactory(new Nodes.UnsupportedIONodeFactory());
 
 	engine.getPortFactories().registerFactory(new Ports.InputOutputPortFactory());
@@ -139,7 +140,7 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 				node.initLinks();
 				const targetPortPosition = node.targetPort?.getPosition();
 				if (targetPortPosition) {
-					node.setPosition(targetPortPosition.x - 180, targetPortPosition.y - 4.5);
+					node.setPosition(targetPortPosition.x - 180, targetPortPosition.y - 6.5);
 				}
 			});
 	

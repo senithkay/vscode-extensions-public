@@ -8,7 +8,7 @@
  */
 import { Point } from "@projectstorm/geometry";
 import { DMType, TypeKind } from "@wso2-enterprise/mi-core";
-import { ArrowFunction, CallExpression, ParameterDeclaration } from "ts-morph";
+import { CallExpression, Node, ParameterDeclaration } from "ts-morph";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { FOCUSED_INPUT_SOURCE_PORT_PREFIX } from "../../utils/constants";
@@ -41,10 +41,13 @@ export class FocusedInputNode extends DataMapperNodeModel {
         this.dmType = this.originalType;
         this.numberOfFields = 1;
 
-        const innerFn = value.getArguments()[0] as ArrowFunction;
-        // Constraint: Inner fuction should have only one parameter.
-        this.innerParam = innerFn.getParameters()[0];
-        this.nodeLabel = this.innerParam.getName();
+        const firstArg = value.getArguments()[0];
+
+        if (firstArg && Node.isArrowFunction(firstArg)) {
+            // Constraint: Inner fuction should have only one parameter.
+            this.innerParam = firstArg && firstArg.getParameters()[0];
+            this.nodeLabel = this.innerParam && this.innerParam.getName();
+        }
     }
 
     initPorts(): void {

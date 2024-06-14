@@ -32,7 +32,7 @@ export function activateVisualizer(context: vscode.ExtensionContext) {
     );
     // Activate editor/title items
     context.subscriptions.push(
-        commands.registerCommand(COMMANDS.OPEN_SERVICE_DESIGNER_BESIDE, async (file: vscode.Uri) => {
+        commands.registerCommand(COMMANDS.SHOW_GRAPHICAL_VIEW, async (file: vscode.Uri) => {
             extension.webviewReveal = true;
             openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.ServiceDesigner, documentUri: file.fsPath });
         })

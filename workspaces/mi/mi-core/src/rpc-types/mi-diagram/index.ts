@@ -158,6 +158,14 @@ import {
     SwaggerTypeRequest,
     UpdateAPIFromSwaggerRequest,
     CompareSwaggerAndAPIResponse,
+    UpdateTestSuiteRequest,
+    UpdateTestCaseRequest,
+    UpdateTestCaseResponse,
+    UpdateTestSuiteResponse,
+    GetAllTestSuitsResponse,
+    UpdateMockServiceRequest,
+    UpdateMockServiceResponse,
+    GetAllMockServicesResponse,
 } from "./types";
 
 export interface MiDiagramAPI {
@@ -262,4 +270,9 @@ export interface MiDiagramAPI {
     compareSwaggerAndAPI: (params: SwaggerTypeRequest) => Promise<CompareSwaggerAndAPIResponse>;
     updateSwaggerFromAPI: (params: SwaggerTypeRequest) => Promise<void>;
     updateAPIFromSwagger: (params: UpdateAPIFromSwaggerRequest) => Promise<void>;
+    updateTestSuite: (params: UpdateTestSuiteRequest) => Promise<UpdateTestSuiteResponse>;
+    updateTestCase: (params: UpdateTestCaseRequest) => Promise<UpdateTestCaseResponse>;
+    updateMockService: (params: UpdateMockServiceRequest) => Promise<UpdateMockServiceResponse>;
+    getAllTestSuites: () => Promise<GetAllTestSuitsResponse>;
+    getAllMockServices: () => Promise<GetAllMockServicesResponse>;
 }

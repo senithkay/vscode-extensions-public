@@ -6,13 +6,12 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { ts, Node, PropertyAssignment, FunctionDeclaration, ReturnStatement } from 'ts-morph';
+import { ts, Node, PropertyAssignment, FunctionDeclaration, ReturnStatement, VariableStatement, Block } from 'ts-morph';
 
 import { Visitor } from '../../../ts/base-visitor';
-import { View } from '../../../components/DataMapper/DataMapper';
+import { View } from "../../../components/DataMapper/Views/DataMapperView";
 import { FocusedSTFindingVisitor } from '../../../components/Visitors/FocusedSTFindingVisitor';
 import { getTnfFnReturnStatement, isMapFunction } from './common-utils';
-import { get } from 'lodash';
 
 enum SyntaxKindWithRepeatedValue {
     NumericLiteral = 9,
@@ -113,3 +112,10 @@ export function getFocusedST(focusedView: View, fnST: FunctionDeclaration): Prop
         return resolvedNode;
     }
 }
+
+export function getFocusedSubMapping(subMappingIndex: number, fnST: FunctionDeclaration): VariableStatement {
+    const fnBlock = fnST.getBody() as Block;
+    const variableStatements = fnBlock.getVariableStatements();
+    return variableStatements[subMappingIndex];
+}
+

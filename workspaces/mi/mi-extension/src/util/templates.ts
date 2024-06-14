@@ -7,19 +7,6 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-export const projectFileContent = (projectName: string) => `<?xml version="1.0" encoding="UTF-8"?>
-<projectDescription>
-	<name>${projectName}</name>
-	<comment></comment>
-	<projects>
-	</projects>
-	<buildSpec>
-	</buildSpec>
-	<natures>
-		<nature>org.wso2.developerstudio.eclipse.mavenmultimodule.project.nature</nature>
-	</natures>
-</projectDescription>`;
-
 export const rootPomXmlContent = (projectName: string, groupID: string, artifactID: string, projectUuid: string, version: string) => `<?xml version="1.0" encoding="UTF-8"?>
 <project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
@@ -30,11 +17,6 @@ export const rootPomXmlContent = (projectName: string, groupID: string, artifact
   <packaging>pom</packaging>
   <name>${projectName}</name>
   <description>${projectName}</description>
-  <properties>
-    <projectType>integration-project</projectType>
-    <uuid>${projectUuid}</uuid>
-    <!-- <archiveLocation>configure a custom target directory for CAPP</archiveLocation> -->
-  </properties>
   <repositories>
     <repository>
         <id>wso2-nexus</id>
@@ -71,6 +53,18 @@ export const rootPomXmlContent = (projectName: string, groupID: string, artifact
   </repositories>
   <pluginRepositories>
     <pluginRepository>
+      <id>wso2.snapshots</id>
+      <name>Apache Snapshot Repository</name>
+      <url>https://maven.wso2.org/nexus/content/repositories/snapshots/</url>
+      <snapshots>
+        <enabled>true</enabled>
+        <updatePolicy>daily</updatePolicy>
+      </snapshots>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+    </pluginRepository>
+    <pluginRepository>
       <releases>
         <enabled>true</enabled>
         <updatePolicy>daily</updatePolicy>
@@ -80,341 +74,253 @@ export const rootPomXmlContent = (projectName: string, groupID: string, artifact
       <url>https://maven.wso2.org/nexus/content/groups/wso2-public/</url>
     </pluginRepository>
   </pluginRepositories>
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <configuration>
-          <source>1.8</source>
-          <target>1.8</target>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.wso2.maven</groupId>
-        <artifactId>vscode-car-plugin</artifactId>
-        <version>5.2.51</version>
-        <extensions>true</extensions>
-        <executions>
-          <execution>
-            <goals>
-              <goal>car</goal>
-            </goals>
+  <profiles>
+    <profile>
+      <id>default</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <configuration>
+              <source>1.8</source>
+              <target>1.8</target>
+            </configuration>
+          </plugin>
+          <plugin>
+            <groupId>org.wso2.maven</groupId>
+            <artifactId>vscode-car-plugin</artifactId>
+            <version>5.2.54</version>
+            <extensions>true</extensions>
+            <executions>
+              <execution>
+                <goals>
+                  <goal>car</goal>
+                </goals>
+                <configuration/>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-install-plugin</artifactId>
+            <version>2.5.2</version>
+            <executions>
+              <execution>
+                <id>install-car</id>
+                <phase>install</phase>
+                <goals>
+                  <goal>install-file</goal>
+                </goals>
+                <configuration>
+                  <packaging>car</packaging>
+                  <artifactId>\${project.artifactId}</artifactId>
+                  <groupId>\${project.groupId}</groupId>
+                  <version>\${project.version}</version>
+                  <file>\${project.build.directory}/\${project.artifactId}_\${project.version}.car</file>
+                  <!-- Use the following configuration when archiveLocation is configured -->
+                  <!-- <file>\${archiveLocation}/\${project.artifactId}_\${project.version}.car</file> -->
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <profile>
+      <id>test</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.wso2.maven</groupId>
+            <artifactId>synapse-unit-test-maven-plugin</artifactId>
+            <version>5.2.54</version>
+            <executions>
+              <execution>
+                <id>synapse-unit-test</id>
+                <phase>test</phase>
+                <goals>
+                  <goal>synapse-unit-test</goal>
+                </goals>
+              </execution>
+            </executions>
+            <configuration>
+              <server>
+                <testServerType>\${testServerType}</testServerType>
+                <testServerHost>\${testServerHost}</testServerHost>
+                <testServerPort>\${testServerPort}</testServerPort>
+                <testServerPath>\${testServerPath}</testServerPath>
+              </server>
+              <testCasesFilePath>\${project.basedir}/src/test/wso2mi/\${testFile}</testCasesFilePath>
+              <mavenTestSkip>\${maven.test.skip}</mavenTestSkip>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <profile>
+      <id>docker</id>
+      <build>
+        <plugins>
+            <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>default-compile</id>
+                <phase>generate-sources</phase>
+                <goals>
+                  <goal>compile</goal>
+                </goals>
+              </execution>
+            </executions>
+            <configuration>
+              <source>1.8</source>
+              <target>1.8</target>
+            </configuration>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-jar-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>default-jar</id>
+                <phase>generate-sources</phase>
+                <goals>
+                  <goal>jar</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.wso2.maven</groupId>
+            <artifactId>vscode-car-plugin</artifactId>
+            <version>5.2.54</version>
+            <extensions>true</extensions>
+            <executions>
+              <execution>
+                <phase>generate-sources</phase>
+                <goals>
+                  <goal>car</goal>
+                </goals>
+                <configuration></configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.wso2.maven</groupId>
+            <artifactId>mi-container-config-mapper</artifactId>
+            <version>5.2.54</version>
+            <extensions>true</extensions>
+            <executions>
+              <execution>
+                <id>config-mapper-parser</id>
+                <phase>generate-resources</phase>
+                <goals>
+                  <goal>config-mapper-parser</goal>
+                </goals>
+                <configuration>
+                  <miVersion>4.2.0</miVersion>
+                  <executeCipherTool>\${ciphertool.enable}</executeCipherTool>
+                  <keystoreName>\${keystore.name}</keystoreName>
+                  <keystoreAlias>\${keystore.alias}</keystoreAlias>
+                  <keystoreType>\${keystore.type}</keystoreType>
+                  <keystorePassword>\${keystore.password}</keystorePassword>
+                  <projectLocation>\${project.basedir}</projectLocation>
+                </configuration>
+              </execution>
+            </executions>
             <configuration/>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-install-plugin</artifactId>
-        <version>2.5.2</version>
-        <executions>
-          <execution>
-            <id>install-car</id>
-            <phase>install</phase>
-            <goals>
-              <goal>install-file</goal>
-            </goals>
-            <configuration>
-              <packaging>car</packaging>
-              <artifactId>\${project.artifactId}</artifactId>
-              <groupId>\${project.groupId}</groupId>
-              <version>\${project.version}</version>
-              <file>\${project.build.directory}/\${project.artifactId}_\${project.version}.car</file>
-              <!-- Use the following configuration when archiveLocation is configured -->
-              <!-- <file>\${archiveLocation}/\${project.artifactId}_\${project.version}.car</file> -->
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-    </plugins>
-  </build>
-</project>`;
-
-export const compositeProjectContent = (projectName: string) => `<?xml version="1.0" encoding="UTF-8"?>
-<projectDescription>
-	<name>${projectName}CompositeExporter</name>
-	<comment></comment>
-	<projects>
-	</projects>
-	<buildSpec>
-	</buildSpec>
-	<natures>
-		<nature>org.wso2.developerstudio.eclipse.distribution.project.nature</nature>
-	</natures>
-</projectDescription>`
-
-export const compositePomXmlContent = (projectName: string, directory: string) => `<?xml version="1.0" encoding="UTF-8"?>
-<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  <modelVersion>4.0.0</modelVersion>
-  <parent>
-    <groupId>com.example</groupId>
-    <artifactId>${projectName}</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
-  </parent>
-  <groupId>com.example</groupId>
-  <artifactId>${projectName}CompositeExporter</artifactId>
-  <version>1.0.0-SNAPSHOT</version>
-  <packaging>carbon/application</packaging>
-  <name>${projectName}CompositeExporter</name>
-  <description>${projectName}CompositeExporter</description>
+          </plugin>
+          <plugin>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <version>3.0.0</version>
+            <extensions>true</extensions>
+            <executions>
+              <execution>
+                <id>antrun-edit</id>
+                <phase>process-resources</phase>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+                <configuration>
+                  <target>
+                    <copy todir="\${basedir}/target/tmp_docker/CompositeApps">
+                      <fileset dir="\${basedir}/target">
+                        <include name="*.car"/>
+                      </fileset>
+                    </copy>
+                    <move todir="\${basedir}/target/tmp_docker/CarbonHome/metadata">
+                      <fileset dir="\${basedir}/target/tmp_docker/CarbonHome/.metadata"/>
+                    </move>
+                    <replace file="\${basedir}/target/tmp_docker/Dockerfile">
+                      <replacefilter token="CarbonHome/.metadata/metadata_config.properties" value="CarbonHome/metadata/metadata_config.properties"/>
+                      <replacefilter token="CarbonHome/.metadata/references.properties" value="CarbonHome/metadata/references.properties"/>
+                    </replace>
+                  </target>
+                </configuration>
+              </execution>
+            </executions>
+            <configuration/>
+          </plugin>
+          <plugin>
+            <groupId>io.fabric8</groupId>
+            <artifactId>docker-maven-plugin</artifactId>
+            <version>0.43.4</version>
+            <extensions>true</extensions>
+            <executions>
+              <execution>
+                <id>docker-build</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>build</goal>
+                </goals>
+                <configuration>
+                  <images>
+                    <image>
+                      <name>\${project.artifactId}:\${project.version}</name>
+                      <build>
+                        <from>\${dockerfile.base.image}</from>
+                        <dockerFile>\${basedir}/target/tmp_docker/Dockerfile</dockerFile>
+                        <args>
+                          <BASE_IMAGE>\${dockerfile.base.image}</BASE_IMAGE>
+                        </args>
+                      </build>
+                    </image>
+                  </images>
+                  <authConfig>
+                    <username>\${dockerfile.pull.username}</username>
+                    <password>\${dockerfile.pull.password}</password>
+                  </authConfig>
+                  <verbose>true</verbose>
+                </configuration>
+              </execution>
+            </executions>
+            <configuration/>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>    
   <properties>
-    <artifact.types>jaggery/app=zip,synapse/priority-executor=xml,synapse/inbound-endpoint=xml,service/rule=aar,synapse/message-store=xml,event/stream=json,service/meta=xml,datasource/datasource=xml,synapse/proxy-service=xml,bpel/workflow=zip,synapse/sequence=xml,synapse/endpointTemplate=xml,carbon/application=car,wso2/gadget=dar,synapse/api=xml,synapse/event-source=xml,synapse/message-processors=xml,event/receiver=xml,lib/dataservice/validator=jar,synapse/template=xml,synapse/endpoint=xml,lib/carbon/ui=jar,lib/synapse/mediator=jar,synapse/metadata=yaml,event/publisher=xml,synapse/local-entry=xml,synapse/task=xml,webapp/jaxws=war,registry/resource=zip,synapse/configuration=xml,service/axis2=aar,synapse/lib=zip,synapse/sequenceTemplate=xml,event/execution-plan=siddhiql,service/dataservice=dbs,web/application=war,lib/library/bundle=jar</artifact.types>
+    <projectType>integration-project</projectType>
+    <uuid>${projectUuid}</uuid>
+    <!-- <archiveLocation>configure a custom target directory for CAPP</archiveLocation> -->
+    <keystore.type>JKS</keystore.type>
+    <keystore.name>wso2carbon.jks</keystore.name>
+    <keystore.password>wso2carbon</keystore.password>
+    <keystore.alias>wso2carbon</keystore.alias>
+    <ciphertool.enable>true</ciphertool.enable>
+    <dockerfile.base.image>docker.wso2.com/wso2mi:4.2.0</dockerfile.base.image>
   </properties>
-  <repositories>
-    <repository>
-      <releases>
-        <enabled>true</enabled>
-        <updatePolicy>daily</updatePolicy>
-        <checksumPolicy>ignore</checksumPolicy>
-      </releases>
-      <id>wso2-nexus</id>
-      <url>https://maven.wso2.org/nexus/content/groups/wso2-public/</url>
-    </repository>
-    <repository>
-      <id>wso2-maven2-repository-1</id>
-      <url>https://maven.wso2.org/nexus/content/groups/wso2-public/</url>
-    </repository>
-    <repository>
-      <id>wso2-nexus-repository-1</id>
-      <url>https://maven.wso2.org/nexus/content/groups/wso2-public/</url>
-    </repository>
-  </repositories>
-  <pluginRepositories>
-    <pluginRepository>
-      <releases>
-        <enabled>true</enabled>
-        <updatePolicy>daily</updatePolicy>
-        <checksumPolicy>ignore</checksumPolicy>
-      </releases>
-      <id>wso2-nexus</id>
-      <url>https://maven.wso2.org/nexus/content/groups/wso2-public/</url>
-    </pluginRepository>
-    <pluginRepository>
-      <id>wso2-maven2-repository-1</id>
-      <url>https://maven.wso2.org/nexus/content/groups/wso2-public/</url>
-    </pluginRepository>
-    <pluginRepository>
-      <id>wso2-nexus-repository-1</id>
-      <url>https://maven.wso2.org/nexus/content/groups/wso2-public/</url>
-    </pluginRepository>
-  </pluginRepositories>
-  <build>
-    <plugins>
-      <plugin>
-        <artifactId>maven-eclipse-plugin</artifactId>
-        <version>2.9</version>
-        <configuration>
-          <buildcommands />
-          <projectnatures>
-            <projectnature>org.wso2.developerstudio.eclipse.distribution.project.nature</projectnature>
-          </projectnatures>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.wso2.maven</groupId>
-        <artifactId>maven-car-plugin</artifactId>
-        <version>5.2.42</version>
-        <extensions>true</extensions>
-        <executions>
-          <execution>
-            <id>car</id>
-            <phase>package</phase>
-            <goals>
-              <goal>car</goal>
-            </goals>
-          </execution>
-        </executions>
-        <dependencies>
-          <dependency>
-            <groupId>com.sun.activation</groupId>
-            <artifactId>javax.activation</artifactId>
-            <version>1.2.0</version>
-          </dependency>
-        </dependencies>
-        <configuration />
-      </plugin>
-      <plugin>
-        <groupId>org.wso2.maven</groupId>
-        <artifactId>maven-car-deploy-plugin</artifactId>
-        <version>5.2.42</version>
-        <extensions>true</extensions>
-        <dependencies>
-          <dependency>
-            <groupId>com.sun.activation</groupId>
-            <artifactId>javax.activation</artifactId>
-            <version>1.2.0</version>
-          </dependency>
-        </dependencies>
-        <configuration>
-          <carbonServers>
-            <CarbonServer>
-              <trustStorePath>${directory}/${projectName}Configs/src/main/resources/security/wso2carbon.jks</trustStorePath>
-              <trustStorePassword>wso2carbon</trustStorePassword>
-              <trustStoreType>JKS</trustStoreType>
-              <serverUrl>https://localhost:9443</serverUrl>
-              <userName>admin</userName>
-              <password>admin</password>
-              <operation>deploy</operation>
-            </CarbonServer>
-          </carbonServers>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
 </project>`;
 
-export const artifactsContent = () => `<?xml version="1.0" encoding="UTF-8"?><artifacts/>`;
-
-export const configsProjectContent = (projectName: string) => `<?xml version="1.0" encoding="UTF-8"?>
-<projectDescription>
-	<name>${projectName}Configs</name>
-	<comment></comment>
-	<projects>
-	</projects>
-	<buildSpec>
-	</buildSpec>
-	<natures>
-		<nature>org.wso2.developerstudio.eclipse.esb.project.nature</nature>
-	</natures>
-</projectDescription>`
-
-export const configsPomXmlContent = (projectName: string, directory: string) => `<?xml version="1.0" encoding="UTF-8"?>
-<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  <modelVersion>4.0.0</modelVersion>
-  <parent>
-    <groupId>com.example</groupId>
-    <artifactId>${projectName}</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
-  </parent>
-  <groupId>com.example</groupId>
-  <artifactId>${projectName}Configs</artifactId>
-  <version>1.0.0-SNAPSHOT</version>
-  <packaging>pom</packaging>
-  <name>${projectName}Configs</name>
-  <description>${projectName}Configs</description>
-  <properties>
-    <maven.test.skip>false</maven.test.skip>
-    <CApp.type>bpel/workflow=zip,lib/registry/filter=jar,webapp/jaxws=war,lib/library/bundle=jar,service/dataservice=dbs,synapse/local-entry=xml,synapse/proxy-service=xml,carbon/application=car,registry/resource=zip,lib/dataservice/validator=jar,synapse/endpoint=xml,web/application=war,lib/carbon/ui=jar,service/axis2=aar,synapse/sequence=xml,synapse/configuration=xml,wso2/gadget=dar,lib/registry/handlers=jar,lib/synapse/mediator=jar,synapse/task=xml,synapse/api=xml,synapse/template=xml,synapse/message-store=xml,synapse/message-processors=xml,synapse/inbound-endpoint=xml,synapse/metadata=yaml</CApp.type>
-  </properties>
-  <repositories>
-    <repository>
-      <releases>
-        <enabled>true</enabled>
-        <updatePolicy>daily</updatePolicy>
-        <checksumPolicy>ignore</checksumPolicy>
-      </releases>
-      <id>wso2-nexus</id>
-      <url>https://maven.wso2.org/nexus/content/groups/wso2-public/</url>
-    </repository>
-  </repositories>
-  <pluginRepositories>
-    <pluginRepository>
-      <releases>
-        <enabled>true</enabled>
-        <updatePolicy>daily</updatePolicy>
-        <checksumPolicy>ignore</checksumPolicy>
-      </releases>
-      <id>wso2-nexus</id>
-      <url>https://maven.wso2.org/nexus/content/groups/wso2-public/</url>
-    </pluginRepository>
-  </pluginRepositories>
-  <build>
-    <directory>target/capp</directory>
-    <plugins>
-      <!-- ... (existing plugins) ... -->
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>exec-maven-plugin</artifactId>
-        <version>1.4.0</version>
-        <extensions>true</extensions>
-        <executions>
-          <execution>
-            <id>package</id>
-            <phase>package</phase>
-            <goals>
-              <goal>exec</goal>
-            </goals>
-            <configuration>
-              <executable>mvn</executable>
-              <workingDirectory>{project.build.directory}</workingDirectory>
-              <arguments>
-                <argument>clean</argument>
-                <argument>package</argument>
-                <argument>-Dmaven.test.skip={maven.test.skip}</argument>
-              </arguments>
-            </configuration>
-          </execution>
-          <execution>
-            <id>install</id>
-            <phase>install</phase>
-            <goals>
-              <goal>exec</goal>
-            </goals>
-            <configuration>
-              <executable>mvn</executable>
-              <workingDirectory>{project.build.directory}</workingDirectory>
-              <arguments>
-                <argument>clean</argument>
-                <argument>install</argument>
-                <argument>-Dmaven.test.skip={maven.test.skip}</argument>
-              </arguments>
-            </configuration>
-          </execution>
-          <execution>
-            <id>deploy</id>
-            <phase>deploy</phase>
-            <goals>
-              <goal>exec</goal>
-            </goals>
-            <configuration>
-              <executable>mvn</executable>
-              <workingDirectory>{project.build.directory}</workingDirectory>
-              <arguments>
-                <argument>deploy</argument>
-                <argument>-Dmaven.test.skip={maven.test.skip}</argument>
-              </arguments>
-            </configuration>
-          </execution>
-        </executions>
-        <configuration />
-      </plugin>
-      <plugin>
-        <artifactId>maven-eclipse-plugin</artifactId>
-        <version>2.9</version>
-        <configuration>
-          <buildcommands />
-          <projectnatures>
-            <projectnature>org.wso2.developerstudio.eclipse.esb.project.nature</projectnature>
-          </projectnatures>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.wso2.maven</groupId>
-        <artifactId>synapse-unit-test-maven-plugin</artifactId>
-        <version>5.2.41</version>
-        <executions>
-          <execution>
-            <id>synapse-unit-test</id>
-            <phase>test</phase>
-            <goals>
-              <goal>synapse-unit-test</goal>
-            </goals>
-          </execution>
-        </executions>
-        <configuration>
-          <server>
-            <testServerType>{testServerType}</testServerType>
-            <testServerHost>{testServerHost}</testServerHost>
-            <testServerPort>{testServerPort}</testServerPort>
-            <testServerPath>{testServerPath}</testServerPath>
-          </server>
-          <testCasesFilePath>${directory}/${projectName}Configs/test/{testFile}</testCasesFilePath>
-          <mavenTestSkip>{maven.test.skip}</mavenTestSkip>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
-</project>`;
+export const dockerfileContent = () => `ARG BASE_IMAGE
+FROM \${BASE_IMAGE}
+COPY CompositeApps/*.car \${WSO2_SERVER_HOME}/repository/deployment/server/carbonapps/
+COPY resources/wso2carbon.jks \${WSO2_SERVER_HOME}/repository/resources/security/wso2carbon.jks
+COPY resources/client-truststore.jks \${WSO2_SERVER_HOME}/repository/resources/security/client-truststore.jks
+# COPY Libs/*.jar \${WSO2_SERVER_HOME}/lib/`;
