@@ -22,25 +22,13 @@ remove cellview and choreo client dependencies
 cleanup everything
 improve docs
 
-
-////
 Fix first time user flow in cli and vscode (org creation flow)
 
-create a project view
 
 // New context yaml
-
-have settings icon(change project) and clicking that should provide
-automatically sync
-
-1. current project
-2. available projects
-3. other options
-3.1 create link with a different project
-3.2 Remove link for selected project
 
 sync workspace file automatically
 
 tree view for component list
 
-remote account view
+hamburger icon in component details page, replace it with small delete button

@@ -4,6 +4,7 @@ export const CommandIds = {
     SignIn: "wso2.choreo.sign.in",
     SignInWithAuthCode: "wso2.choreo.sign.in.with.authCode",
     SignOut: "wso2.choreo.sign.out",
+    ManageAccount: "wso2.choreo.manage.account",
     AddComponent: "wso2.choreo.add.component",
     CreateNewComponent: "wso2.choreo.create.component",
     DeleteComponent: "wso2.choreo.delete.component",
@@ -12,7 +13,7 @@ export const CommandIds = {
     ViewComponent:"wso2.choreo.component.view",
     CloneProject:"wso2.choreo.project.clone",
     SetDirectoryContext: "wso2.choreo.project.create.context",
-    SwitchDirectoryContext: "wso2.choreo.project.switch",
+    ManageProjectContext: "wso2.choreo.project.manage",
     RefreshDirectoryContext: "wso2.choreo.project.refresh",
     CreateProjectWorkspace: "wso2.choreo.project.create.workspace",
 };

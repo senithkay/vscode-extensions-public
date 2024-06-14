@@ -6,14 +6,16 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { ExtensionContext, window, commands } from "vscode";
+import { ExtensionContext, window, commands, workspace, Uri } from "vscode";
 import { CommandIds, ContextItem, Organization, Project, UserInfo } from "@wso2-enterprise/choreo-core";
 import * as path from "path";
-import { readFileSync, existsSync, writeFileSync, mkdirSync } from "fs";
+import { readFileSync, existsSync, writeFileSync, mkdirSync, unlinkSync, readdirSync, rmdirSync } from "fs";
 import { selectOrg, resolveWorkspaceDirectory, getUserInfoForCmd, selectProjectWithCreateNew } from "./cmd-utils";
 import { getGitRoot, getGitRemotes } from "../git/util";
 import * as yaml from "js-yaml";
 import { contextStore } from "../stores/context-store";
+import { dirname } from "path";
+import * as os from "os";
 
 export function setDirectoryContextCommand(context: ExtensionContext) {
     context.subscriptions.push(
@@ -21,41 +23,23 @@ export function setDirectoryContextCommand(context: ExtensionContext) {
             try {
                 const userInfo = await getUserInfoForCmd("link a directory with a Choreo project");
                 if (userInfo) {
-                    const directory = await resolveWorkspaceDirectory();
-                    let directoryUrl = directory.uri;
+                    const componentDir = await window.showOpenDialog({
+                        canSelectFolders: true,
+                        canSelectFiles: false,
+                        canSelectMany: false,
+                        title: "Select directory that needs to be linked with Choreo",
+                        defaultUri: Uri.file(os.homedir()),
+                    });
 
-                    let gitRoot: string | void = "";
-                    try {
-                        gitRoot = await getGitRoot(context, directory.uri.fsPath);
-                    } catch {
-                        // ignore error
+                    if (componentDir === undefined || componentDir.length === 0) {
+                        throw new Error("Directory is required to link with Choreo");
                     }
 
+                    const directoryUrl = componentDir[0];
+
+                    const gitRoot = await getGitRoot(context, componentDir[0].fsPath);
                     if (!gitRoot) {
-                        // currently opened directory does not contain any Git remotes
-
-                        const componentDir = await window.showOpenDialog({
-                            canSelectFolders: true,
-                            canSelectFiles: false,
-                            canSelectMany: false,
-                            title: "Select directory that needs to be linked with Choreo",
-                            defaultUri: directory.uri,
-                        });
-
-                        if (componentDir === undefined || componentDir.length === 0) {
-                            throw new Error("Directory is required to link with Choreo");
-                        }
-
-                        if (!componentDir[0].fsPath.startsWith(directory.uri.fsPath)) {
-                            throw new Error("Directory must be within the selected workspace");
-                        }
-
-                        directoryUrl = componentDir[0];
-
-                        gitRoot = await getGitRoot(context, componentDir[0].fsPath);
-                        if (!gitRoot) {
-                            throw new Error("Selected directory is not within a git repository");
-                        }
+                        throw new Error("Selected directory is not within a git repository");
                     }
 
                     const remotes = await getGitRemotes(context, gitRoot);
@@ -82,7 +66,7 @@ export function setDirectoryContextCommand(context: ExtensionContext) {
                     contextStore.getState().onSetNewContext(selectedOrg, selectedProject, {
                         contextFileFsPath: contextFilePath,
                         dirFsPath: directoryUrl.fsPath,
-                        workspaceName: directory.name,
+                        workspaceName: path.basename(gitRoot),
                         projectRootFsPath: path.dirname(path.dirname(contextFilePath)),
                     });
                 }
@@ -127,4 +111,30 @@ export const updateContextFile = (
     }
 
     return contextFilePath;
+};
+
+export const removeContext = (selectedProject: Project, selectedOrg: Organization, projectRootsFsPaths: string[]) => {
+    for (const projectRootPath of projectRootsFsPaths) {
+        const contextFilePath = path.join(projectRootPath, ".choreo", "context.yaml");
+        if (existsSync(contextFilePath)) {
+            let parsedData: ContextItem[] = yaml.load(readFileSync(contextFilePath, "utf8")) as any;
+            if (!Array.isArray(parsedData) && (parsedData as any).org && (parsedData as any).project) {
+                parsedData = [{ org: (parsedData as any).org, project: (parsedData as any).project }];
+            }
+
+            const newList = parsedData.filter(
+                (item) => item.project !== selectedProject.handler && item.org !== selectedOrg.handle
+            );
+            if (newList.length > 0) {
+                writeFileSync(contextFilePath, yaml.dump(newList));
+            } else {
+                unlinkSync(contextFilePath);
+                const choreoDirPath = dirname(contextFilePath);
+                const choreoDirFiles = readdirSync(choreoDirPath);
+                if (choreoDirFiles.length === 0) {
+                    rmdirSync(choreoDirPath);
+                }
+            }
+        }
+    }
 };

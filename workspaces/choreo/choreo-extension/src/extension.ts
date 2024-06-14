@@ -46,10 +46,8 @@ export async function activate(context: vscode.ExtensionContext) {
     authStore.subscribe(({ state }) => {
         vscode.commands.executeCommand("setContext", "isLoggedIn", !!state.userInfo);
     });
-    contextStore.subscribe(({ state, getValidItems }) => {
+    contextStore.subscribe(({ state }) => {
         vscode.commands.executeCommand("setContext", "isLoadingContextDirs", state.loading);
-        vscode.commands.executeCommand("setContext", "hasSelectedContext", !!state.selected);
-        vscode.commands.executeCommand("setContext", "hasMultipleContexts", getValidItems().length > 1);
     });
     workspace.onDidChangeWorkspaceFolders(() =>
         vscode.commands.executeCommand("setContext", "isValidWorkspace", !!workspace.workspaceFolders?.length)

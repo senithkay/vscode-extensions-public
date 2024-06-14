@@ -16,7 +16,10 @@ export const ComponentsEmptyView: FC<Props> = ({ items, loading, selected }) => 
         <>
             {loading && <ProgressIndicator />}
             <div className="w-full flex flex-col px-6 py-2 gap-[10px]">
-                <p>Choreo component directories associated with project {selected.project?.name}, are not detected within the current workspace.</p>
+                <p>
+                    Choreo component directories associated with project {selected.project?.name}, are not detected
+                    within the current workspace.
+                </p>
                 <p>Create a new component.</p>
                 <Button
                     className="w-full max-w-80 self-center sm:self-start"
@@ -30,7 +33,11 @@ export const ComponentsEmptyView: FC<Props> = ({ items, loading, selected }) => 
                         <p>Multiple projects detected within the current workspace</p>
                         <Button
                             className="w-full max-w-80 self-center sm:self-start"
-                            onClick={() => ChoreoWebViewAPI.getInstance().triggerCmd(CommandIds.SwitchDirectoryContext)}
+                            onClick={() =>
+                                ChoreoWebViewAPI.getInstance().triggerCmd(CommandIds.ManageProjectContext, {
+                                    onlyShowSwitchProject: true,
+                                })
+                            }
                             title="Switch to different project context to manage the components of that project."
                         >
                             Switch Project

@@ -101,11 +101,11 @@
         "enablement": "isValidWorkspace == true"
       },
       {
-        "command": "wso2.choreo.project.switch",
-        "title": "Switch Project",
+        "command": "wso2.choreo.project.manage",
+        "title": "Manage Project",
         "category": "Choreo",
-        "icon": "$(edit)",
-        "enablement": "isValidWorkspace == true && isLoadingContextDirs == false && hasMultipleContexts == true"
+        "icon": "$(settings-gear)",
+        "enablement": "isValidWorkspace == true && isLoadingContextDirs == false"
       },
       {
         "command": "wso2.choreo.project.refresh",
@@ -119,9 +119,15 @@
         "title": "Create Project Workspace",
         "category": "Choreo",
         "icon": "$(new-file)",
-        "enablement": "isLoggedIn == true && isValidWorkspace == true && hasSelectedContext == true"
+        "enablement": "isLoggedIn == true && isValidWorkspace == true"
+      },
+      {
+        "command": "wso2.choreo.manage.account",
+        "title": "Manage Account",
+        "category": "Choreo",
+        "icon": "$(account)",
+        "enablement": "isLoggedIn == true"
       }
-      
     ],
     "viewsContainers": {
       "activitybar": [
@@ -144,11 +150,6 @@
     "menus": {
       "view/title": [
         {
-          "command": "wso2.choreo.project.switch",
-          "when": "view == choreo.activity.project && isLoggedIn == true && hasMultipleContexts == true",
-          "group": "navigation"
-        },
-        {
           "command": "wso2.choreo.create.component",
           "when": "view == choreo.activity.project && isLoggedIn == true",
           "group": "navigation"
@@ -157,6 +158,14 @@
           "command": "wso2.choreo.project.refresh",
           "when": "view == choreo.activity.project && isLoggedIn == true",
           "group": "navigation"
+        },
+        {
+          "command": "wso2.choreo.project.manage",
+          "when": "view == choreo.activity.project && isLoggedIn == true"
+        },
+        {
+          "command": "wso2.choreo.manage.account",
+          "when": "view == choreo.activity.project && isLoggedIn == true"
         }
       ],
       "webview/context": [

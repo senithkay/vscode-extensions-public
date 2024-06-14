@@ -8,8 +8,8 @@
  */
 import { ExtensionContext, Uri, commands, window, workspace } from "vscode";
 import { ext } from "../extensionVariables";
-import { CommandIds, ComponentKind, Project, WorkspaceConfig } from "@wso2-enterprise/choreo-core";
-import { getUserInfoForCmd } from "./cmd-utils";
+import { CommandIds, ComponentKind, Organization, Project, WorkspaceConfig } from "@wso2-enterprise/choreo-core";
+import { getUserInfoForCmd, selectOrg, selectProject } from "./cmd-utils";
 import * as path from "path";
 import { writeFileSync } from "fs";
 import { contextStore } from "../stores/context-store";
@@ -21,7 +21,21 @@ export function createProjectWorkspaceCommand(context: ExtensionContext) {
             try {
                 const userInfo = await getUserInfoForCmd("create a project workspace");
                 if (userInfo) {
-                    const selected = contextStore.getState().state.selected!;
+                    let selectedOrg: Organization;
+                    let selectedProject: Project;
+
+                    const selected = contextStore.getState().state.selected;
+                    if (selected) {
+                        selectedOrg = selected.org!;
+                        selectedProject = selected.project!;
+                    } else {
+                        selectedOrg = await selectOrg(userInfo, "Select organization");
+                        selectedProject = await selectProject(
+                            selectedOrg,
+                            `Loading projects from '${selectedOrg.name}'`,
+                            `Select project from '${selectedOrg.name}'`
+                        );
+                    }
 
                     const workspaceFileDirs = await window.showOpenDialog({
                         canSelectFolders: true,
@@ -39,13 +53,11 @@ export function createProjectWorkspaceCommand(context: ExtensionContext) {
 
                     const workspaceFilePath = createWorkspaceFile(
                         workspaceFileDir.fsPath,
-                        selected.project!,
-                        contextStore
-                            .getState()
-                            .state.components?.map((item) => ({
-                                component: item.component!,
-                                fsPath: item.componentFsPath,
-                            })) ?? []
+                        selectedProject!,
+                        contextStore.getState().state.components?.map((item) => ({
+                            component: item.component!,
+                            fsPath: item.componentFsPath,
+                        })) ?? []
                     );
 
                     const openInCurrentWorkspace = await window.showInformationMessage(
