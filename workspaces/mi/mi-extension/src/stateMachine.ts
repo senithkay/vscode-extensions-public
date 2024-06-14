@@ -24,11 +24,12 @@ import { activateProjectExplorer } from './project-explorer/activate';
 import { StateMachineAI } from './ai-panel/aiMachine';
 import { getSources } from './util/dataMapper';
 import { StateMachinePopup } from './stateMachinePopup';
-import { STNode, UnitTest } from '../../syntax-tree/lib/src';
+import { MockService, STNode, UnitTest } from '../../syntax-tree/lib/src';
 import { log } from './util/logger';
 import { deriveConfigName } from './util/dataMapper';
 import { fileURLToPath } from 'url';
 import path = require('path');
+import { activateTextExplorer } from './test-explorer/activator';
 
 interface MachineContext extends VisualizerLocation {
     langClient: ExtendedLanguageClient | null;
@@ -216,6 +217,14 @@ const stateMachine = createMachine<MachineContext>({
                 viewNavigated: {
                     invoke: {
                         src: 'updateAIView',
+                        onDone: {
+                            target: "activateTestExplorer"
+                        }
+                    }
+                },
+                activateTestExplorer: {
+                    invoke: {
+                        src: 'activateTextExplorer',
                         onDone: {
                             target: "viewReady"
                         }
@@ -446,6 +455,12 @@ const stateMachine = createMachine<MachineContext>({
                 if (AiPanelWebview.currentPanel) {
                     openAIWebview();
                 }
+                resolve(true);
+            });
+        },
+        activateTextExplorer: (context, event) => {
+            return new Promise(async (resolve, reject) => {
+                await activateTextExplorer(extension.context);
                 resolve(true);
             });
         },

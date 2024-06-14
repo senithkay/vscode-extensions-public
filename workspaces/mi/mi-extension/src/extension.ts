@@ -17,7 +17,6 @@ import { RPCLayer } from './RPCLayer';
 
 import { activateDebugger } from './debugger/activate';
 import { activateMigrationSupport } from './migration';
-import { activateTextExplorer } from './test-explorer/activator';
 
 export async function activate(context: vscode.ExtensionContext) {
 	extension.context = context;
@@ -31,6 +30,4 @@ export async function activate(context: vscode.ExtensionContext) {
 	activateVisualizer(context);
 	activateAiPanel(context);
 	StateMachine.initialize();
-
-	activateTextExplorer(context);
 }
