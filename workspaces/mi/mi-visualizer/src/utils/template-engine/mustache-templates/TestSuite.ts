@@ -112,7 +112,7 @@ function getMockServiceMustacheTemplate() {
     return `<mock-service>
     <service-name>{{endpointName}}</service-name>
     <port>{{servicePort}}</port>
-    <context>{{serviceContext}}</context>
+    <context>{{{serviceContext}}}</context>
     <resources>
         {{#resources}}
         <resource>

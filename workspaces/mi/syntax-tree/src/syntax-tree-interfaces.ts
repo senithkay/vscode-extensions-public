@@ -1828,8 +1828,15 @@ export interface Assertion extends STNode {
 }
 
 export interface MockServices extends STNode {
-    services: MockService[];
+    services: STNode[];
 }
 
 export interface MockService extends STNode {
+    context: STNode;
+    port: STNode;
+    serviceName: STNode;
+    resources: MockServiceResources;
+}
+
+export interface MockServiceResources extends STNode {
 }

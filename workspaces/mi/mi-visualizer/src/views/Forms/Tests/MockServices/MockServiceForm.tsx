@@ -67,16 +67,17 @@ export function MockServiceForm(props: MockServiceFormProps) {
         (async () => {
             const mockServices = await rpcClient.getMiDiagramRpcClient().getAllMockServices();
             const mockServicesNames = mockServices.mockServices.map((mockService: any) => mockService.name);
-            setAvailableMockServices([...availableMockServices, ...mockServicesNames]);
+            const allMockServices = mockServicesNames.concat(availableMockServices).filter((value) => value !== fileName);
+            setAvailableMockServices(allMockServices);
 
             if (mockService) {
-                // TODO: fix this after LS support for mock services
-                // reset({
-                //     name: fileName,
-                //     endpointName: mockService?.endpointName,
-                //     servicePort: mockService?.servicePort,
-                //     serviceContext: mockService?.serviceContext
-                // });
+
+                reset({
+                    name: fileName,
+                    endpointName: mockService.serviceName?.textNode,
+                    servicePort: parseInt(mockService?.port?.textNode || '0'),
+                    serviceContext: mockService?.context?.textNode
+                });
                 setIsLoaded(true);
                 return;
             }

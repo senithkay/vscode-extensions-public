@@ -16,7 +16,7 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
 import { TestCaseEntry, TestCaseForm } from "./TestCaseForm";
-import { UnitTest, TestCase, MockService } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { UnitTest, TestCase, STNode } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import path from "path";
 import { getTestSuiteXML } from "../../../utils/template-engine/mustache-templates/TestSuite";
 import { SelectMockService } from "./MockServices/SelectMockService";
@@ -228,7 +228,7 @@ export function TestSuiteForm(props: TestSuiteFormProps) {
         });
     };
 
-    const getMockServices = (mockServices: MockService[]): MockServiceEntry[] => {
+    const getMockServices = (mockServices: STNode[]): MockServiceEntry[] => {
         return mockServices.map((mockService) => {
             const mockServicePath = mockService.textNode;
             const mockServicesDirs = ["src", "test", "resources", "mock-services"];

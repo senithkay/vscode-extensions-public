@@ -413,6 +413,9 @@ const stateMachine = createMachine<MachineContext>({
                                 case !!node["unit-test"]:
                                     viewLocation.stNode = node["unit-test"] as UnitTest;
                                     break;
+                                case !!node["mock-service"]:
+                                    viewLocation.stNode = node["mock-service"] as MockService;
+                                    break;
                                 default:
                                     // Handle default case
                                     viewLocation.stNode = node as any as STNode;
