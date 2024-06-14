@@ -36,6 +36,8 @@ interface ServiceDesignerProps {
     onResourceClick?: (resource: Resource) => void;
     // Disable service header
     disableServiceHeader?: boolean;
+    customTitle?: string;
+    customEmptyResourceMessage?: string;
 }
 
 const defaultService: Service = {
@@ -63,13 +65,14 @@ const ResourceListHeader = styled.div`
     align-items: center;
 `;
 
-const emptyView = (
-    <Typography variant="h3" sx={{ textAlign: "center"}}>
-        No resources found. Add a new resource.
-    </Typography>
-);
-
 export function ServiceDesigner(props: ServiceDesignerProps) {
+
+    const emptyView = (
+        <Typography variant="h3" sx={{ textAlign: "center"}}>
+            { props.customEmptyResourceMessage ?? "No resources found. Add a new resource." }
+        </Typography>
+    );
+
     const {
         model = defaultService,
         goToSource, onResourceAdd,
@@ -123,7 +126,7 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
                 </ServiceHeader>
             )}
             <ResourceListHeader>
-                <Typography sx={{ marginBlockEnd: 10 }} variant="h3">Available resources </Typography>
+                <Typography sx={{ marginBlockEnd: 10 }} variant="h3">{props.customTitle ?? "Available resources"}</Typography>
                 {onResourceAdd && (
                     <VSCodeButton appearance="primary" title="Edit Service" onClick={onResourceAdd}>
                         <Codicon name="add" sx={{ marginRight: 5 }} /> Resource

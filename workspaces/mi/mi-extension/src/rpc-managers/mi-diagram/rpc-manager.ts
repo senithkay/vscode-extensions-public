@@ -56,6 +56,8 @@ import {
     CreateTaskResponse,
     CreateTemplateRequest,
     CreateTemplateResponse,
+    CreateDataServiceRequest,
+    CreateDataServiceResponse,
     DataSourceTemplate,
     DeleteArtifactRequest,
     DownloadConnectorRequest,
@@ -143,6 +145,8 @@ import {
     RetrieveTemplateResponse,
     RetrieveWsdlEndpointRequest,
     RetrieveWsdlEndpointResponse,
+    RetrieveDataServiceRequest,
+    RetrieveDataServiceResponse,
     SequenceDirectoryResponse,
     ShowErrorMessageRequest,
     SwaggerTypeRequest,
@@ -176,6 +180,9 @@ import {
     WriteContentToFileResponse,
     getSTRequest,
     getSTResponse,
+    Datasource,
+    Property,
+    Configuration
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
 import { error } from "console";
@@ -196,7 +203,7 @@ import { StateMachine, navigate, openView } from "../../stateMachine";
 import { openPopupView } from "../../stateMachinePopup";
 import { testFileMatchPattern } from "../../test-explorer/discover";
 import { UndoRedoManager } from "../../undoRedoManager";
-import { createFolderStructure, getAddressEndpointXmlWrapper, getAPIResourceXmlWrapper, getDefaultEndpointXmlWrapper, getFailoverXmlWrapper, getHttpEndpointXmlWrapper, getInboundEndpointXmlWrapper, getLoadBalanceXmlWrapper, getMessageProcessorXmlWrapper, getMessageStoreXmlWrapper, getProxyServiceXmlWrapper, getRegistryResourceContent, getTaskXmlWrapper, getTemplateEndpointXmlWrapper, getTemplateXmlWrapper, getWsdlEndpointXmlWrapper, copyDockerResources } from "../../util";
+import { createFolderStructure, getAddressEndpointXmlWrapper, getAPIResourceXmlWrapper, getDefaultEndpointXmlWrapper, getFailoverXmlWrapper, getHttpEndpointXmlWrapper, getInboundEndpointXmlWrapper, getLoadBalanceXmlWrapper, getMessageProcessorXmlWrapper, getMessageStoreXmlWrapper, getProxyServiceXmlWrapper, getRegistryResourceContent, getTaskXmlWrapper, getTemplateEndpointXmlWrapper, getTemplateXmlWrapper, getWsdlEndpointXmlWrapper, copyDockerResources, getDataServiceXmlWrapper } from "../../util";
 import { addNewEntryToArtifactXML, addSynapseDependency, changeRootPomPackaging, createMetadataFilesForRegistryCollection, deleteRegistryResource, detectMediaType, getAvailableRegistryResources, getMediatypeAndFileExtension, getRegistryResourceMetadata, updateRegistryResourceMetadata } from "../../util/fileOperations";
 import { log } from "../../util/logger";
 import { importProject } from "../../util/migrationUtils";
@@ -2063,6 +2070,184 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 response.requireProperties = response.properties.length > 0;
                 response.requireTemplateParameters = response.templateParameters.length > 0;
 
+                resolve(response);
+            }
+        });
+    }
+
+    async createDataService(params: CreateDataServiceRequest): Promise<CreateDataServiceResponse> {
+        return new Promise(async (resolve) => {
+            let filePath;
+            if (params.directory.endsWith('.xml')) {
+                filePath = params.directory;
+                const data = await fs.readFileSync(filePath);
+                const resourcePattern = /<resource[\s\S]*?<\/resource>/g;
+                const operationPattern = /<operation[\s\S]*?<\/operation>/g;
+                const queryPattern = /<query[\s\S]*?<\/query>/g;
+                const resources: any[] = [];
+                const operations: any[] = [];
+                const queries: any[] = [];
+                let match;
+
+                while ((match = resourcePattern.exec(data.toString())) !== null) {
+                    resources.push(match[0]);
+                }
+                while ((match = operationPattern.exec(data.toString())) !== null) {
+                    operations.push(match[0]);
+                }
+                while ((match = queryPattern.exec(data.toString())) !== null) {
+                    queries.push(match[0]);
+                }
+
+                params.resources = resources;
+                params.operations = operations;
+                params.queries = queries;
+                await this.updateDataService(params);
+            } else {
+                const {
+                    directory, dataServiceName, dataServiceNamespace, serviceGroup, selectedTransports, publishSwagger, jndiName,
+                    enableBoxcarring, enableBatchRequests, serviceStatus, disableLegacyBoxcarringMode, enableStreaming,
+                    description, datasources, authProviderClass, authProperties, queries, operations, resources
+                } = params;
+
+                const getDataServiceParams = {
+                    dataServiceName, dataServiceNamespace, serviceGroup, selectedTransports, publishSwagger, jndiName,
+                    enableBoxcarring, enableBatchRequests, serviceStatus, disableLegacyBoxcarringMode, enableStreaming,
+                    description, datasources, authProviderClass, authProperties, queries, operations, resources
+                };
+
+                const xmlData = getDataServiceXmlWrapper({...getDataServiceParams, writeType: "create"});
+                const sanitizedXmlData = xmlData.replace(/^\s*[\r\n]/gm, '');
+
+                filePath = path.join(directory, `${dataServiceName}.xml`);
+                if (filePath.includes('dataServices')) {
+                    filePath = filePath.replace('dataServices', 'data-services');
+                }
+
+                fs.writeFileSync(filePath, sanitizedXmlData);
+                await this.rangeFormat({
+                    uri: filePath,
+                    range: {
+                        start: { line: 0, character: 0 },
+                        end: { line: sanitizedXmlData.split('\n').length + 1, character: 0 }
+                    }
+                });
+            }
+
+            commands.executeCommand(COMMANDS.REFRESH_COMMAND);
+            resolve({ path: filePath });
+        });
+    }
+
+    async updateDataService(params: CreateDataServiceRequest): Promise<CreateDataServiceResponse> {
+        return new Promise(async (resolve) => {
+            const {
+                directory, dataServiceName, dataServiceNamespace, serviceGroup, selectedTransports, publishSwagger, jndiName,
+                enableBoxcarring, enableBatchRequests, serviceStatus, disableLegacyBoxcarringMode, enableStreaming,
+                description, datasources, authProviderClass, authProperties, queries, operations, resources
+            } = params;
+
+            const getDataServiceParams = {
+                dataServiceName, dataServiceNamespace, serviceGroup, selectedTransports, publishSwagger, jndiName,
+                enableBoxcarring, enableBatchRequests, serviceStatus, disableLegacyBoxcarringMode, enableStreaming,
+                description, datasources, authProviderClass, authProperties, queries, operations, resources
+            };
+
+            console.log(params.resources)
+            console.log(params.operations)
+            console.log(params.queries)
+
+            let filePath = params.directory;
+            if (filePath.includes('dataServices')) {
+                filePath = filePath.replace('dataServices', 'data-services');
+            }
+
+            const xmlData = getDataServiceXmlWrapper({...getDataServiceParams, writeType: "edit"});
+            const sanitizedXmlData = xmlData.replace(/^\s*[\r\n]/gm, '');
+
+            fs.writeFileSync(filePath, sanitizedXmlData);
+            await this.rangeFormat({
+                uri: filePath,
+                range: {
+                    start: { line: 0, character: 0 },
+                    end: { line: sanitizedXmlData.split('\n').length + 1, character: 0 }
+                }
+            });
+
+            resolve({ path: filePath });
+        });
+    }
+
+    async getDataService(params: RetrieveDataServiceRequest): Promise<RetrieveDataServiceResponse> {
+
+        const dataServiceSyntaxTree = await this.getSyntaxTree({ documentUri: params.path });
+        const dataServiceParams = dataServiceSyntaxTree.syntaxTree.data;
+
+        return new Promise(async (resolve) => {
+            const filePath = params.path;
+
+            if (fs.existsSync(filePath)) {
+                let response: RetrieveDataServiceResponse = {
+                    dataServiceName: dataServiceParams.name,
+                    dataServiceNamespace: dataServiceParams.serviceNamespace,
+                    serviceGroup: dataServiceParams.serviceGroup,
+                    selectedTransports: dataServiceParams.transports,
+                    publishSwagger: dataServiceParams.publishSwagger != undefined ? dataServiceParams.publishSwagger : false,
+                    jndiName: dataServiceParams.txManagerJNDIName != undefined ? dataServiceParams.txManagerJNDIName : '',
+                    enableBoxcarring: dataServiceParams.enableBoxcarring != undefined ? dataServiceParams.enableBoxcarring : false,
+                    enableBatchRequests: dataServiceParams.enableBatchRequests != undefined ? dataServiceParams.enableBatchRequests : false,
+                    serviceStatus: dataServiceParams.serviceStatus != undefined ? dataServiceParams.serviceStatus === "active" ? true : false : false,
+                    disableLegacyBoxcarringMode: dataServiceParams.disableLegacyBoxcarringMode != undefined ? dataServiceParams.disableLegacyBoxcarringMode : false,
+                    enableStreaming: dataServiceParams.disableStreaming != undefined ? !dataServiceParams.disableStreaming : true,
+                    description: dataServiceParams.description != undefined ? dataServiceParams.description.textNode : '',
+                    datasources: [] as Datasource[],
+                    authProviderClass: dataServiceParams.authorizationProvider != undefined ? dataServiceParams.authorizationProvider.clazz : '',
+                    http: dataServiceParams.transports.split(' ').includes('http'),
+                    https: dataServiceParams.transports.split(' ').includes('https'),
+                    jms: dataServiceParams.transports.split(' ').includes('jms'),
+                    local: dataServiceParams.transports.split(' ').includes('local'),
+                    authProperties: [] as Property[],
+                };
+
+                if (dataServiceParams.configs != undefined) {
+                    let datasources: any[];
+                    datasources = dataServiceParams.configs;
+                    datasources.forEach((datasource) => {
+                        let datasourceObject: Datasource = {
+                            dataSourceName: datasource.id,
+                            enableOData: datasource.enableOData != undefined ? datasource.enableOData : false,
+                            dynamicUserAuthClass: '',
+                            datasourceProperties: [] as Property[],
+                            datasourceConfigurations: [] as Configuration[]
+                        }
+                        let params = datasource.property;
+                        params.forEach((element) => {
+                            if (element.name === 'dynamicUserAuthMapping') {
+                                let configs = element.configuration;
+                                configs.forEach((config) => {
+                                    let entries = config.entry;
+                                    entries.forEach((entry) => {
+                                        datasourceObject.datasourceConfigurations.push({ carbonUsername: entry.request, username: entry.username.textNode, password: entry.password.textNode });
+                                    });
+                                });
+                            } else {
+                                if (element.name === 'dynamicUserAuthClass') {
+                                    datasourceObject.dynamicUserAuthClass = element.textNode;
+                                } else {
+                                    datasourceObject.datasourceProperties.push({ key: element.name, value: element.textNode });
+                                }
+                            }
+                        });
+                        response.datasources.push(datasourceObject);
+                    });
+                }
+
+                if (dataServiceParams.authorizationProvider != undefined) {
+                    const params = dataServiceParams.authorizationProvider.property;
+                    params.forEach(element => {
+                        response.authProperties.push({ key: element.name, value: element.value });
+                    });
+                }
                 resolve(response);
             }
         });
