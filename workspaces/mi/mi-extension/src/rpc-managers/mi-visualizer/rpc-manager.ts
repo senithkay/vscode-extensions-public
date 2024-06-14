@@ -26,6 +26,7 @@ import {
     ProjectStructureResponse,
     RetrieveContextRequest,
     RetrieveContextResponse,
+    RuntimeServicesResponse,
     SampleDownloadRequest,
     UpdateContextRequest,
     VisualizerLocation,
@@ -46,6 +47,8 @@ import { openAIWebview } from "../../ai-panel/aiMachine";
 import { extension } from "../../MIExtensionContext";
 import { openPopupView } from "../../stateMachinePopup";
 import { log, outputChannel } from "../../util/logger";
+import axios from "axios";
+import * as https from "https";
 
 export class MiVisualizerRpcManager implements MIVisualizerAPI {
     async getWorkspaces(): Promise<WorkspacesResponse> {
@@ -241,6 +244,116 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
             }
 
             resolve({ selection });
+        });
+    }
+
+    async getAvailableRuntimeServices(): Promise<RuntimeServicesResponse> {
+        return new Promise(async (resolve) => {
+            const username = 'admin';
+            const password = 'admin';
+            const token = Buffer.from(`${username}:${password}`, 'utf8').toString('base64');
+            const authHeader = `Basic ${token}`;
+            // Create an HTTPS agent that ignores SSL certificate verification
+            const agent = new https.Agent({ rejectUnauthorized: false });
+
+            const runtimeServicesResponse : RuntimeServicesResponse = {
+                api: undefined,
+                proxy: undefined,
+                dataServices: undefined
+            };
+
+            const response = await fetch('https://localhost:9164/management/login', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Basic ${token}`,
+                },
+                agent: agent // Pass the custom agent
+            });
+
+            if (response.ok) {
+                const responseBody = await response.json();
+                const authToken = responseBody.AccessToken;
+                console.log('Token:', authToken);
+
+                const apiResponse = await fetch('https://localhost:9164/management/apis', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    agent: agent // Pass the custom agent
+                });
+
+                if (apiResponse.ok) {
+                    // create new structire to hold the apiDetails
+                    
+                    const apiResponseData = await apiResponse.json();
+                    // const apiList = apiResponseData?.list;
+                    // for (let i = 0; i < apiList.length; i++) {
+                    //     const apiName = apiList[i]?.name;
+                    //     const completeUrl = `https://localhost:9164/management/apis?apiName=${apiName}`;
+                    //     const detailedResponse = await fetch(completeUrl, {
+                    //         method: 'GET',
+                    //         headers: {
+                    //             'Content-Type': 'application/json',
+                    //             'Authorization': `Bearer ${authToken}`
+                    //         },
+                    //         agent: agent // Pass the custom agent
+                    //     });
+
+                    //     if (detailedResponse.ok) {
+                    //         const detailedResponseData = await detailedResponse.json();
+                    //         // add detailedResponseData.resources to the apiResponseData
+                    //         apiList[i].resources = detailedResponseData.resources;
+                    //     } else {
+                    //         throw new Error(`Error while fetching API data: ${apiResponse.statusText}`);
+                    //     }
+
+                    // }
+                    runtimeServicesResponse.api = apiResponseData;
+                    // resolve({ api: apiResponseData, proxy: undefined, dataServices: undefined });
+                }
+
+
+                // get the proxy details
+                const proxyResponse = await fetch('https://localhost:9164/management/proxy-services', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    agent: agent // Pass the custom agent
+                });
+
+                if (proxyResponse.ok) {
+                    const proxyResponseData = await proxyResponse.json();
+                    runtimeServicesResponse.proxy = proxyResponseData;
+                    // resolve({ api: undefined, proxy: proxyResponseData, dataServices: undefined });
+                }
+
+                // get the data services details
+                const dataServicesResponse = await fetch('https://localhost:9164/management/data-services', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    agent: agent // Pass the custom agent
+                });
+
+                if (dataServicesResponse.ok) {
+                    const dataServicesResponseData = await dataServicesResponse.json();
+                    runtimeServicesResponse.dataServices = dataServicesResponseData;
+                    // resolve({ api: undefined, proxy: undefined, dataServices: dataServicesResponseData });
+                }
+
+                resolve(runtimeServicesResponse);
+
+
+            } else {
+                throw new Error(`Error while checking token usage: ${response.statusText}`);
+            }
         });
     }
 }

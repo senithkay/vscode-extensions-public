@@ -23,6 +23,7 @@ import {
     ProjectStructureResponse,
     RetrieveContextRequest,
     RetrieveContextResponse,
+    RuntimeServicesResponse,
     SampleDownloadRequest,
     UpdateContextRequest,
     WorkspacesResponse,
@@ -45,7 +46,8 @@ import {
     goToSource,
     retrieveContext,
     showNotification,
-    updateContext
+    updateContext,
+    getAvailableRuntimeServices
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -131,5 +133,9 @@ export class MiVisualizerRpcClient implements MIVisualizerAPI {
 
     showNotification(params: NotificationRequest): Promise<NotificationResponse> {
         return this._messenger.sendRequest(showNotification, HOST_EXTENSION, params);
+    }
+
+    getAvailableRuntimeServices(): Promise<RuntimeServicesResponse> {
+        return this._messenger.sendRequest(getAvailableRuntimeServices, HOST_EXTENSION);
     }
 }
