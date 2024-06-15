@@ -562,6 +562,11 @@
           "command": "MI.test.add.case",
           "group": "inline",
           "when": "testId in test.suites"
+        },
+        {
+          "command": "MI.test.update.case",
+          "group": "inline",
+          "when": "testId in test.cases"
         }
       ],
       "testing/message/context": [
