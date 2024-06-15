@@ -1,5 +1,5 @@
 import { useForm, Controller } from "react-hook-form";
-import { Button, Dropdown, FormActions, FormView, TextArea, TextField, ComponentCard, FormGroup } from "@wso2-enterprise/ui-toolkit";
+import { Button, Dropdown, FormActions, FormView, TextArea, TextField, ComponentCard, FormGroup, ProgressIndicator } from "@wso2-enterprise/ui-toolkit";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { ParamManager, ParamValue, getParamManagerFromValues, getParamManagerValues } from "@wso2-enterprise/mi-diagram";
@@ -130,7 +130,7 @@ export function MockResourceForm(props: MockResourceFormProps) {
     };
 
     if (!isLoaded) {
-        return <div>Loading...</div>
+        return <ProgressIndicator/>;
     }
 
     return (

@@ -11,7 +11,7 @@ import styled from "@emotion/styled";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { EVENT_TYPE, MACHINE_VIEW, ProjectStructureArtifactResponse } from "@wso2-enterprise/mi-core";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
-import { Button, ComponentCard, ContainerProps, ContextMenu, Dropdown, FormActions, FormGroup, FormView, Item, TextField, Typography } from "@wso2-enterprise/ui-toolkit";
+import { Button, ComponentCard, ContainerProps, ContextMenu, Dropdown, FormActions, FormGroup, FormView, Item, ProgressIndicator, TextField, Typography } from "@wso2-enterprise/ui-toolkit";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
@@ -307,7 +307,7 @@ export function TestSuiteForm(props: TestSuiteFormProps) {
     };
 
     if (!isLoaded) {
-        return <div>Loading...</div>
+        return <ProgressIndicator/>;
     }
 
     if (showAddTestCase) {
