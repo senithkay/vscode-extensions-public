@@ -22,7 +22,8 @@ import {
     LoadDMConfigsResponse,
     ConvertRegPathToAbsPathRequest,
     ConvertRegPathToAbsPathResponse,
-    UpdateDMCRequest
+    UpdateDMCRequest,
+    UpdateDMUndoRedoMangerRequest
 } from "@wso2-enterprise/mi-core";
 import { fetchIOTypes, fetchSubMappingTypes } from "../../util/dataMapper";
 import { Project } from "ts-morph";
@@ -36,6 +37,9 @@ import { window, Uri, workspace, commands, TextEdit, WorkspaceEdit } from "vscod
 import path = require("path");
 import { extension } from "../../MIExtensionContext";
 import { MiDiagramRpcManager } from "../mi-diagram/rpc-manager";
+import { UndoRedoManager } from "../../undoRedoManager";
+
+const undoRedoManager = new UndoRedoManager();
 
 export class MiDataMapperRpcManager implements MIDataMapperAPI {
     async getIOTypes(params: DMTypeRequest): Promise<IOTypeResponse> {
@@ -269,5 +273,31 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
                 reject(error);
             }
         });
+    }
+
+    async initDMUndoRedoManager(params: UpdateDMUndoRedoMangerRequest): Promise<void> {
+        undoRedoManager.updateContent(params.filePath, params.fileContent);
+    }
+
+    async dmUndo(): Promise<string | undefined> {
+        return new Promise(async (resolve) => {
+            const undoContent = undoRedoManager.undo();
+            resolve(undoContent);
+        });
+    }
+
+    async dmRedo(): Promise<string | undefined> {
+        return new Promise(async (resolve) => {
+            const redoContent = undoRedoManager.redo();
+            resolve(redoContent);
+        });
+    }
+
+    async addToDMUndoStack(source: string): Promise<void> {
+        undoRedoManager.addModification(source);
+    }
+
+    async updateDMUndoRedoManager(params: UpdateDMUndoRedoMangerRequest): Promise<void> {
+        undoRedoManager.updateContent(params.filePath, params.fileContent);
     }
 }
