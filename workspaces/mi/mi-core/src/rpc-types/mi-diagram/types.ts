@@ -8,7 +8,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
+import { Range, TagRange } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 import { Diagnostic, Position, TextDocumentIdentifier } from "vscode-languageserver-types";
 
 interface Record {
@@ -1361,6 +1361,7 @@ export interface UpdateTestSuiteResponse {
 export interface UpdateTestCaseRequest {
     path: string;
     content: string;
+    range?: TagRange
 }
 
 export interface UpdateTestCaseResponse {

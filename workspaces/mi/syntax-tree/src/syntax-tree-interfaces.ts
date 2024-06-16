@@ -1828,8 +1828,43 @@ export interface Assertion extends STNode {
 }
 
 export interface MockServices extends STNode {
-    services: MockService[];
+    services: STNode[];
 }
 
 export interface MockService extends STNode {
+    context: STNode;
+    port: STNode;
+    serviceName: STNode;
+    resources: MockServiceResources;
+}
+
+export interface MockServiceResources extends STNode {
+    resources: MockServiceResource[];
+}
+
+export interface MockServiceResource extends STNode {
+    method: STNode;
+    request: MockRequest;
+    response: MockResponse;
+    subContext: STNode;
+}
+
+export interface MockRequest extends STNode {
+    headers: MockResourceHeaders;
+    payload: STNode;
+}
+
+export interface MockResponse extends STNode {
+    headers: MockResourceHeaders;
+    statusCode: STNode;
+    payload: STNode;
+}
+
+export interface MockResourceHeaders extends STNode {
+    headers: MockResourceHeader[];
+}
+
+export interface MockResourceHeader {
+    name: string;
+    value: string;
 }

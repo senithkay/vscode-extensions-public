@@ -11,12 +11,12 @@ import styled from "@emotion/styled";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { EVENT_TYPE, MACHINE_VIEW, ProjectStructureArtifactResponse } from "@wso2-enterprise/mi-core";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
-import { Button, ComponentCard, ContainerProps, ContextMenu, Dropdown, FormActions, FormGroup, FormView, Item, TextField, Typography } from "@wso2-enterprise/ui-toolkit";
+import { Button, ComponentCard, ContainerProps, ContextMenu, Dropdown, FormActions, FormGroup, FormView, Item, ProgressIndicator, TextField, Typography } from "@wso2-enterprise/ui-toolkit";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
 import { TestCaseEntry, TestCaseForm } from "./TestCaseForm";
-import { UnitTest, TestCase, MockService } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { UnitTest, TestCase, STNode } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import path from "path";
 import { getTestSuiteXML } from "../../../utils/template-engine/mustache-templates/TestSuite";
 import { SelectMockService } from "./MockServices/SelectMockService";
@@ -38,7 +38,7 @@ const cardStyle = {
     cursor: "auto"
 };
 
-const AccordionContainer = styled.div<ContainerProps>`
+export const AccordionContainer = styled.div<ContainerProps>`
     padding-left: 10px;
     overflow: hidden;
     display: flex;
@@ -49,7 +49,7 @@ const AccordionContainer = styled.div<ContainerProps>`
     }
 `;
 
-const verticalIconStyles = {
+export const verticalIconStyles = {
     transform: "rotate(90deg)",
     ":hover": {
         backgroundColor: "var(--vscode-welcomePage-tileHoverBackground)",
@@ -228,7 +228,7 @@ export function TestSuiteForm(props: TestSuiteFormProps) {
         });
     };
 
-    const getMockServices = (mockServices: MockService[]): MockServiceEntry[] => {
+    const getMockServices = (mockServices: STNode[]): MockServiceEntry[] => {
         return mockServices.map((mockService) => {
             const mockServicePath = mockService.textNode;
             const mockServicesDirs = ["src", "test", "resources", "mock-services"];
@@ -307,7 +307,7 @@ export function TestSuiteForm(props: TestSuiteFormProps) {
     };
 
     if (!isLoaded) {
-        return <div>Loading...</div>
+        return <ProgressIndicator/>;
     }
 
     if (showAddTestCase) {

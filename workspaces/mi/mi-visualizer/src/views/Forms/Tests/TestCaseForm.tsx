@@ -7,10 +7,10 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { yupResolver } from "@hookform/resolvers/yup";
-import { EVENT_TYPE, MACHINE_VIEW, UpdateTestCaseResponse } from "@wso2-enterprise/mi-core";
+import { EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
 import { ParamManager, ParamValue, getParamManagerFromValues, getParamManagerValues } from "@wso2-enterprise/mi-diagram";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
-import { Button, ComponentCard, Dropdown, FormActions, FormView, TextArea, TextField, Typography } from "@wso2-enterprise/ui-toolkit";
+import { Button, ComponentCard, Dropdown, FormActions, FormView, ProgressIndicator, TextArea, TextField, Typography } from "@wso2-enterprise/ui-toolkit";
 import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { TagRange } from '@wso2-enterprise/mi-syntax-tree/lib/src';
@@ -19,7 +19,7 @@ import { getTestCaseXML } from "../../../utils/template-engine/mustache-template
 
 interface TestCaseFormProps {
     filePath?: string;
-    range?: Range;
+    range?: TagRange;
     testCase?: TestCaseEntry;
     availableTestCases?: string[];
     onGoBack?: () => void;
@@ -56,7 +56,7 @@ export function TestCaseForm(props: TestCaseFormProps) {
     const requestMethods = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS', 'TRACE', 'CONNECT'];
     const requestProtocols = ['HTTP', 'HTTPS'];
     const isUpdate = !!props.testCase;
-    const availableTestCases = props.availableTestCases;
+    const availableTestCases = props.availableTestCases || [];
 
     // Schema
     const schema = yup.object({
@@ -119,7 +119,7 @@ export function TestCaseForm(props: TestCaseFormProps) {
                     "label": "Expected Value",
                     "defaultValue": "",
                     "isRequired": true,
-                    enableCondition: [
+                    "enableCondition": [
                         { 0: "Assert Equals" }
                     ]
                 },
@@ -127,7 +127,7 @@ export function TestCaseForm(props: TestCaseFormProps) {
                     "type": "TextField",
                     "label": "Error Message",
                     "defaultValue": "",
-                    "isRequired": true
+                    "isRequired": true,
                 }
             ];
 
@@ -150,7 +150,7 @@ export function TestCaseForm(props: TestCaseFormProps) {
                         paramFields: inputPropertiesFields
                     },
                     assertions: {
-                        paramValues: props.testCase.assertions ? getParamManagerFromValues(props.testCase.assertions) : [],
+                        paramValues: props.testCase.assertions ? getParamManagerFromValues(props.testCase.assertions, 0) : [],
                         paramFields: assertionsFields
                     },
                 });
@@ -199,13 +199,13 @@ export function TestCaseForm(props: TestCaseFormProps) {
             return;
         }
         const content = getTestCaseXML(values);
-        rpcClient.getMiDiagramRpcClient().updateTestCase({ path: props.filePath, content }).then(() => {
+        rpcClient.getMiDiagramRpcClient().updateTestCase({ path: props.filePath, content, range: props.range }).then(() => {
             openOverview();
         });
     }
 
     if (!isLoaded) {
-        return <div>Loading...</div>
+        return <ProgressIndicator/>;
     }
 
     return (

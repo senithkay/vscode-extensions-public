@@ -3694,19 +3694,27 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 throw new Error('Test case does not exist');
             }
 
-            const langClient = StateMachine.context().langClient!;
-            const st = await langClient.getSyntaxTree({
-                documentIdentifier: {
-                    uri: filePath
-                },
-            });
-            const stNode: UnitTest = st?.syntaxTree?.["unit-test"];
-            if (!stNode) {
-                throw new Error('Invalid test case file');
-            }
-            const endTag = stNode.testCases.range.endTagRange.start
+            let range;
+            if (!params.range) {
+                const langClient = StateMachine.context().langClient!;
+                const st = await langClient.getSyntaxTree({
+                    documentIdentifier: {
+                        uri: filePath
+                    },
+                });
+                const stNode: UnitTest = st?.syntaxTree?.["unit-test"];
+                if (!stNode) {
+                    throw new Error('Invalid test case file');
+                }
+                const endTag = stNode.testCases.range.endTagRange.start
 
-            const range = new Range(endTag.line, endTag.character, endTag.line, endTag.character);
+                range = new Range(endTag.line, endTag.character, endTag.line, endTag.character);
+            } else{
+                const startTag = params.range.startTagRange.start;
+                const endTag = params.range.endTagRange.end;
+                range = new Range(startTag.line, startTag.character, endTag.line, endTag.character);
+            }
+
             const workspaceEdit = new WorkspaceEdit();
             workspaceEdit.replace(Uri.file(filePath), range, params.content);
             await workspace.applyEdit(workspaceEdit);

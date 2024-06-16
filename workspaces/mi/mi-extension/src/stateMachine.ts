@@ -411,7 +411,13 @@ const stateMachine = createMachine<MachineContext>({
                                         break;
                                     }
                                 case !!node["unit-test"]:
+                                    if (viewLocation.view !== MACHINE_VIEW.TestCase) {
+                                        viewLocation.view = MACHINE_VIEW.TestSuite;
+                                    }
                                     viewLocation.stNode = node["unit-test"] as UnitTest;
+                                    break;
+                                case !!node["mock-service"]:
+                                    viewLocation.stNode = node["mock-service"] as MockService;
                                     break;
                                 default:
                                     // Handle default case
