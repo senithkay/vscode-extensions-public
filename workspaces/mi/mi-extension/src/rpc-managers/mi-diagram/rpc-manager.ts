@@ -3991,11 +3991,16 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
     }
 
     async addDependencyToPom(params: AddDependencyToPomRequest): Promise<void> {
+        const showErrorMessage = () => {
+            window.showErrorMessage('Failed to add the dependency to the POM file');
+        }
+
         return new Promise(async (resolve) => {
             const { groupId, artifactId, version, file } = params;
             const workspaceFolder = workspace.getWorkspaceFolder(Uri.file(file));
 
             if (!workspaceFolder) {
+                showErrorMessage();
                 throw new Error('Cannot find workspace folder');
             }
 
@@ -4009,6 +4014,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             const pom = parser.parse(pomContent);
 
             if (!pom) {
+                showErrorMessage();
                 throw new Error('Failed to parse POM XML');
             }
 
@@ -4055,11 +4061,12 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     const builder = new XMLBuilder({ format: true, oneListGroup: "true" });
                     let text = builder.build(dependencies);
                     const lines = text.split('\n');
-                    text = lines.map((line, index) => (index === lines.length - 1 ) ? line : indentation + line).join('\n');
+                    text = lines.map((line, index) => (index === lines.length - 1) ? line : indentation + line).join('\n');
                     text = isUpdate ? text : `\n${text}`;
 
                     fs.writeFileSync(pomPath, pomContent.slice(0, insertIndex) + text + pomContent.slice(insertIndex + (isUpdate ? 0 : 1)));
                 } else {
+                    showErrorMessage();
                     throw new Error(`Failed to find ${tagToFind} tag`);
                 }
             }
