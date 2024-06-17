@@ -141,10 +141,12 @@ export const ExpressionField = React.forwardRef<HTMLInputElement, ExpressionFiel
     const textFieldRef = useRef<HTMLInputElement | null>(null);
     React.useImperativeHandle(ref, () => textFieldRef.current);
     useEffect(() => {
-        if (isExpression) {
-            value.isExpression = true;
-        } else {
-            value.isExpression = false;
+        if (value && typeof value === 'object') {
+            if (isExpression) {
+                value.isExpression = true;
+            } else {
+                value.isExpression = false;
+            }
         }
         onChange(value);
     }, [isExpression]); // eslint-disable-line react-hooks/exhaustive-deps
