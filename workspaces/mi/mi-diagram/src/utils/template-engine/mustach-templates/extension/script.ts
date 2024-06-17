@@ -66,10 +66,13 @@ export function getScriptFormDataFromSTNode(data: { [key: string]: any }, node: 
     return data;
 }
 
-function getScriptBody(content: string[]) {
-    let body;
+function getScriptBody(content: string[]): string | null {
     for (const c of content) {
-        const match = c.match(/<!\[CDATA\[(.*?)]]>/);
-        return body = match ? match[1] : null;
-    };
+        const match = c.match(/<!\[CDATA\[(.*?)]]>/s);
+        if (match) {
+            return match[1];
+        }
+        return c;
+    }
+    return null;
 }

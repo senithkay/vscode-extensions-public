@@ -17,7 +17,8 @@ import {
     ConvertRegPathToAbsPathRequest,
     ConvertRegPathToAbsPathResponse,
     UpdateDMCRequest,
-    SubMappingTypesResponse
+    SubMappingTypesResponse,
+    UpdateDMUndoRedoMangerRequest
 } from "./types";
 
 export interface MIDataMapperAPI {
@@ -28,4 +29,9 @@ export interface MIDataMapperAPI {
     convertRegPathToAbsPath: (params: ConvertRegPathToAbsPathRequest) => Promise<ConvertRegPathToAbsPathResponse>;
     createDMFiles: (params: GenerateDMInputRequest) => Promise<GenerateDMInputResponse>;
     updateDMCFileContent: (params: UpdateDMCRequest) => void;
+    initDMUndoRedoManager: (params: UpdateDMUndoRedoMangerRequest) => void;
+    dmUndo: () => Promise<string | undefined>;
+    dmRedo: () => Promise<string | undefined>;
+    addToDMUndoStack: (source: string) => void;
+    updateDMUndoRedoManager: (params: UpdateDMUndoRedoMangerRequest) => void;
 }

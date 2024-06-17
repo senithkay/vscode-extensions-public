@@ -88,3 +88,8 @@ export interface SchemaGenRequest {
 export interface SchemaGenResponse {
     schema: string;
 }
+
+export interface UpdateDMUndoRedoMangerRequest {
+    filePath: string;
+    fileContent: string;
+}

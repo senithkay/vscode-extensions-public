@@ -8,27 +8,27 @@
  */
 
 import path = require("path");
-import { TestController, tests, TestRunProfileKind, Uri, TestItem, ExtensionContext, commands, Range, Position } from "vscode";
+import { TestController, tests, TestRunProfileKind, Uri, TestItem, ExtensionContext, commands, Range, Position, window } from "vscode";
 import { runHandler } from "./runner";
 import { createTestsForAllFiles, testFileMatchPattern } from "./discover";
 import { getProjectName, getProjectRoot, startWatchingWorkspace } from "./helper";
 import { EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
 import { COMMANDS } from "../constants";
-import { openView } from '../stateMachine';
+import { StateMachine, openView } from '../stateMachine';
 import { activateMockServiceTreeView } from "./mock-services/activator";
 import { TagRange, TestCase, UnitTest } from "../../../syntax-tree/lib/src";
-import { MILanguageClient } from "../lang-client/activator";
 import { ExtendedLanguageClient } from "../lang-client/ExtendedLanguageClient";
 
 export let testController: TestController;
+const testDirNodes: string[] = [];
 const testSuiteNodes: string[] = [];
 const testCaseNodes: string[] = [];
-let langClient: ExtendedLanguageClient | undefined;
+let langClient: ExtendedLanguageClient;
 
-export async function activateTextExplorer(extensionContext: ExtensionContext) {
+export async function activateTestExplorer(extensionContext: ExtensionContext, lsClient: ExtendedLanguageClient) {
     testController = tests.createTestController('synapse-tests', 'Synapse Tests');
     extensionContext.subscriptions.push(testController);
-    langClient = (await MILanguageClient.getInstance(extensionContext)).languageClient;
+    langClient = lsClient;
 
     // create test profiles to display.
     testController.createRunProfile('Run Tests', TestRunProfileKind.Run, runHandler, true);
@@ -70,8 +70,57 @@ export async function activateTextExplorer(extensionContext: ExtensionContext) {
         console.log('Add Test Case');
     });
 
-    commands.registerCommand(COMMANDS.UPDATE_TEST_CASE, (entry: TestItem) => {
-        openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.TestSuite, documentUri: entry.uri?.fsPath });
+    commands.registerCommand(COMMANDS.UPDATE_TEST_CASE, async (entry: TestItem) => {
+        if (!langClient) {
+            window.showErrorMessage('Language client is not initialized');
+            return;
+        }
+        const id = entry?.id;
+        if (!id || id.split('.xml/').length < 1) {
+            window.showErrorMessage('Test case id is not available');
+            return;
+        }
+        const fileUri = `${id.split('.xml/')[0]}.xml`;
+        const testCaseName = id.split('.xml/')[1];
+        const testCaseNames: string[] = [];
+        const st = await langClient.getSyntaxTree({
+            documentIdentifier: {
+                uri: fileUri
+            },
+        });
+        if (!st) {
+            window.showErrorMessage('Syntax tree is not available');
+            return;
+        }
+        const unitTestsST: UnitTest = st?.syntaxTree["unit-test"];
+        const unitTestST = unitTestsST?.testCases?.testCases.find((testCase) => testCase.name === testCaseName);
+
+        if (unitTestsST && unitTestsST.testCases) {
+            unitTestsST.testCases.testCases.forEach((testCase) => {
+                if (testCase.name !== unitTestST?.name) {
+                    testCaseNames.push(testCase.name);
+                }
+            });
+        }
+
+        if (!unitTestST) {
+            window.showErrorMessage('Syntax tree for test case is not found');
+            return;
+        }
+
+        const testCase = {
+            name: unitTestST.name,
+            assertions: unitTestST?.assertions?.assertions.map((assertion) => { return [assertion.tag, assertion?.actual?.textNode, assertion?.expected?.textNode, assertion?.message?.textNode] }),
+            input: {
+                requestPath: unitTestST?.input?.requestPath?.textNode,
+                requestMethod: unitTestST?.input?.requestMethod?.textNode,
+                requestProtocol: unitTestST?.input?.requestProtocol?.textNode,
+                payload: unitTestST?.input?.payload?.textNode,
+            },
+            // inputProperties: unitTestST?.input?.properties?.map((property) => { return [property.name, property.value.textNode] }),
+        };
+
+        openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.TestCase, documentUri: entry.uri?.fsPath, customProps: { testCase, availableTestCases: testCaseNames, range: unitTestST?.range } });
         console.log('Update Test Case');
     });
 
@@ -147,7 +196,7 @@ export async function createTests(uri: Uri) {
             testCases.forEach(async (testCase) => {
                 const tcase = createTestCase(testController, currentPath, testCase.name, testCase.range);
                 node.children.add(tcase);
-                await setStateForTestCases(testCase.name);
+                await setStateForTestCases(`${currentPath}/${testCase.name}`);
             });
             await setStateForTestSuites(currentPath);
         }
@@ -179,17 +228,17 @@ async function getTestCases(uri: Uri) {
 }
 
 async function setStateforTestDirs(id: string) {
-    if (!testSuiteNodes.includes(id)) {
-        testSuiteNodes.push(id);
+    if (!testDirNodes.includes(id)) {
+        testDirNodes.push(id);
     }
-    await commands.executeCommand('setContext', 'test.dirs', testSuiteNodes);
+    await commands.executeCommand('setContext', 'test.dirs', testDirNodes);
 }
 
 async function setStateForTestSuites(id: string) {
-    if (!testCaseNodes.includes(id)) {
-        testCaseNodes.push(id);
+    if (!testSuiteNodes.includes(id)) {
+        testSuiteNodes.push(id);
     }
-    await commands.executeCommand('setContext', 'test.suites', testCaseNodes);
+    await commands.executeCommand('setContext', 'test.suites', testSuiteNodes);
 }
 
 async function setStateForTestCases(id: string) {

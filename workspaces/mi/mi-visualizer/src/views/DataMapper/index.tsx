@@ -33,6 +33,7 @@ export function DataMapper(props: DataMapperProps) {
 
     const updateFileContent = async (newContent: string) => {
         try {
+            rpcClient.getMiDataMapperRpcClient().addToDMUndoStack(newContent);
             await rpcClient
                 .getMiDataMapperRpcClient()
                 .updateFileContent({ filePath, fileContent: newContent });

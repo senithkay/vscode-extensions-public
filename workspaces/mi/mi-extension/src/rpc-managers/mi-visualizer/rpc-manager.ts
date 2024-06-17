@@ -102,7 +102,7 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
 
     async fetchSamplesFromGithub(): Promise<GettingStartedData> {
         return new Promise(async (resolve) => {
-            const url = 'https://mi-connectors.wso2.com/samples/info.json';
+            const url = 'https://raw.githubusercontent.com/wso2/integration-studio/main/SamplesForVSCode/info.json';
             try {
                 const response = await fetch(url);
 
@@ -148,7 +148,7 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
     }
 
     downloadSelectedSampleFromGithub(params: SampleDownloadRequest): void {
-        const url = 'https://mi-connectors.wso2.com/samples/samples/';
+        const url = 'https://github.com/wso2/integration-studio/raw/main/SamplesForVSCode/samples/';
         handleOpenFile(params.zipFileName, url);
     }
 

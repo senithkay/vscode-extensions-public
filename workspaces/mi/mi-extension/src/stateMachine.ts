@@ -25,11 +25,12 @@ import { activateProjectExplorer } from './project-explorer/activate';
 import { StateMachineAI } from './ai-panel/aiMachine';
 import { getSources } from './util/dataMapper';
 import { StateMachinePopup } from './stateMachinePopup';
-import { STNode, UnitTest } from '../../syntax-tree/lib/src';
+import { MockService, STNode, UnitTest } from '../../syntax-tree/lib/src';
 import { log } from './util/logger';
 import { deriveConfigName } from './util/dataMapper';
 import { fileURLToPath } from 'url';
 import path = require('path');
+import { activateTestExplorer } from './test-explorer/activator';
 
 interface MachineContext extends VisualizerLocation {
     langClient: ExtendedLanguageClient | null;
@@ -118,21 +119,13 @@ const stateMachine = createMachine<MachineContext>({
         },
         projectDetected: {
             invoke: {
-                src: 'activateProjectExplorer',
-                onDone: {
-                    target: 'projectExplorerActivated'
-                }
-            }
-        },
-        oldProjectDetected: {
-            invoke: {
                 src: 'openWebPanel',
                 onDone: {
                     target: 'lsInit'
                 }
             }
         },
-        projectExplorerActivated: {
+        oldProjectDetected: {
             invoke: {
                 src: 'openWebPanel',
                 onDone: {
@@ -169,8 +162,16 @@ const stateMachine = createMachine<MachineContext>({
             }
         },
         ready: {
-            initial: 'viewLoading',
+            initial: 'activateOtherFeatures',
             states: {
+                activateOtherFeatures: {
+                    invoke: {
+                        src: 'activateOtherFeatures',
+                        onDone: {
+                            target: 'viewLoading'
+                        }
+                    }
+                },
                 viewLoading: {
                     invoke: {
                         src: 'openWebPanel',
@@ -321,12 +322,6 @@ const stateMachine = createMachine<MachineContext>({
                 }
             });
         },
-        activateProjectExplorer: (context, event) => {
-            return new Promise(async (resolve, reject) => {
-                await activateProjectExplorer(extension.context);
-                resolve(true);
-            });
-        },
         openWebPanel: (context, event) => {
             // Get context values from the project storage so that we can restore the earlier state when user reopens vscode
             return new Promise((resolve, reject) => {
@@ -402,7 +397,13 @@ const stateMachine = createMachine<MachineContext>({
                                         break;
                                     }
                                 case !!node["unit-test"]:
+                                    if (viewLocation.view !== MACHINE_VIEW.TestCase) {
+                                        viewLocation.view = MACHINE_VIEW.TestSuite;
+                                    }
                                     viewLocation.stNode = node["unit-test"] as UnitTest;
+                                    break;
+                                case !!node["mock-service"]:
+                                    viewLocation.stNode = node["mock-service"] as MockService;
                                     break;
                                 default:
                                     // Handle default case
@@ -447,6 +448,13 @@ const stateMachine = createMachine<MachineContext>({
                 if (AiPanelWebview.currentPanel) {
                     openAIWebview();
                 }
+                resolve(true);
+            });
+        },
+        activateOtherFeatures: (context, event) => {
+            return new Promise(async (resolve, reject) => {
+                await activateProjectExplorer(extension.context, context.langClient!); 
+                await activateTestExplorer(extension.context, context.langClient!);
                 resolve(true);
             });
         },

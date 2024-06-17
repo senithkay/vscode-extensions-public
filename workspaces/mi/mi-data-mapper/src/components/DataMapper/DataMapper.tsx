@@ -28,6 +28,7 @@ import { getOutputNode, getSubMappingNode } from "../Diagram/utils/node-utils";
 import { SubMappingConfigForm } from "./SidePanel/SubMappingConfigForm";
 import { isInputNode } from "../Diagram/Actions/utils";
 import { SourceNodeType, View } from "./Views/DataMapperView";
+import { KeyboardNavigationManager } from "../../utils/keyboard-navigation-manager";
 
 const classes = {
     root: css({
@@ -162,6 +163,15 @@ export function MIDataMapper(props: MIDataMapperProps) {
         }
         generateNodes();
         updateDMCFileContent();
+
+        const mouseTrapClient = KeyboardNavigationManager.getClient();
+
+        mouseTrapClient.bindNewKey(['command+z', 'ctrl+z'], () => handleVersionChange('dmUndo'));
+        mouseTrapClient.bindNewKey(['command+shift+z', 'ctrl+y'], async () => handleVersionChange('dmRedo'));
+
+        return () => {
+            mouseTrapClient.resetMouseTrapInstance();
+        }
     }, [fileContent, views]);
 
     const goToSource = (range: Range) => {
@@ -170,6 +180,17 @@ export function MIDataMapper(props: MIDataMapperProps) {
 
     const updateDMCFileContent = () => {
         rpcClient.getMiDataMapperRpcClient().updateDMCFileContent({ dmName: configName, sourcePath: filePath });
+    };
+
+    const handleVersionChange = async (action: 'dmUndo' | 'dmRedo') => {
+        const lastSource = await rpcClient.getMiDataMapperRpcClient()[action]();
+        if (lastSource) {
+            await updateFileContent(lastSource);
+        }
+    };
+
+    const updateFileContent = async (content: string) => {
+        await rpcClient.getMiDataMapperRpcClient().updateFileContent({filePath, fileContent: content});
     };
 
     return (

@@ -87,6 +87,10 @@ import {
     GetProjectUuidResponse,
     CreateClassMediatorRequest,
     CreateClassMediatorResponse,
+    CreateDataServiceRequest,
+    CreateDataServiceResponse,
+    RetrieveDataServiceRequest,
+    RetrieveDataServiceResponse,
     UpdateHttpEndpointRequest,
     UpdateHttpEndpointResponse,
     RetrieveHttpEndpointRequest,
@@ -215,6 +219,8 @@ export interface MiDiagramAPI {
     getWsdlEndpoint: (params: RetrieveWsdlEndpointRequest) => Promise<RetrieveWsdlEndpointResponse>;
     updateDefaultEndpoint: (params: UpdateDefaultEndpointRequest) => Promise<UpdateDefaultEndpointResponse>;
     getDefaultEndpoint: (params: RetrieveDefaultEndpointRequest) => Promise<RetrieveDefaultEndpointResponse>;
+    createDataService: (params: CreateDataServiceRequest) => Promise<CreateDataServiceResponse>;
+    getDataService: (params: RetrieveDataServiceRequest) => Promise<RetrieveDataServiceResponse>;
     closeWebView: () => void;
     openDiagram: (params: OpenDiagramRequest) => void;
     openFile: (params: OpenDiagramRequest) => void;
