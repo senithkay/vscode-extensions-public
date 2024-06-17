@@ -62,7 +62,10 @@ export function DataMapperView(props: DataMapperViewProps) {
 
     const { functionST, sourceFile } = useMemo(() => {
 
-        const project = new Project({useInMemoryFileSystem: true});
+        const project = new Project({
+            useInMemoryFileSystem: true,
+            compilerOptions: { target: 2 }
+        });
         const sourceFile = project.createSourceFile(filePath, fileContent);
         const fnST = sourceFile.getFunction(functionName);
 
