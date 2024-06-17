@@ -145,6 +145,7 @@ import {
     RetrieveWsdlEndpointResponse,
     SequenceDirectoryResponse,
     ShowErrorMessageRequest,
+    SwaggerFromAPIResponse,
     SwaggerTypeRequest,
     TemplatesResponse,
     UndoRedoParams,
@@ -3798,6 +3799,13 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
             return resolve({ mockServices: services });
         });
+    }
+
+    async getOpenAPISpec(params: SwaggerTypeRequest): Promise<SwaggerFromAPIResponse> {
+        const langClient = StateMachine.context().langClient!;
+        const response = await langClient.swaggerFromAPI({ apiPath: params.apiPath });
+        const generatedSwagger = response.swagger;
+        return { generatedSwagger: generatedSwagger };
     }
 }
 

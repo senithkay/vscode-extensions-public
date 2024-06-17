@@ -145,6 +145,7 @@ import {
     getLocalEntry,
     getMessageProcessor,
     getMessageStore,
+    getOpenAPISpec,
     getProjectRoot,
     getProjectUuid,
     getRecipientEndpoint,
@@ -295,6 +296,7 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onNotification(exportProject, (args: ExportProjectRequest) => rpcManger.exportProject(args));
     messenger.onRequest(checkOldProject, () => rpcManger.checkOldProject());
     messenger.onNotification(refreshAccessToken, () => rpcManger.refreshAccessToken());
+    messenger.onRequest(getOpenAPISpec, (args: SwaggerTypeRequest) => rpcManger.getOpenAPISpec(args));
     messenger.onRequest(editOpenAPISpec, (args: SwaggerTypeRequest) => rpcManger.editOpenAPISpec(args));
     messenger.onRequest(compareSwaggerAndAPI, (args: SwaggerTypeRequest) => rpcManger.compareSwaggerAndAPI(args));
     messenger.onRequest(updateSwaggerFromAPI, (args: SwaggerTypeRequest) => rpcManger.updateSwaggerFromAPI(args));

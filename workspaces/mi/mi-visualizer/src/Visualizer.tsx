@@ -18,6 +18,7 @@ import { ErrorBoundary } from "@wso2-enterprise/ui-toolkit";
 import { WelcomePanel } from "./WelcomePanel";
 import { DisabledView } from "./views/Disabled";
 import { RuntimeServicePanel } from "./RuntimeServicesPanel";
+import { SwaggerPanel } from "./SwaggerPanel";
 
 const LoaderWrapper = styled.div`
     display: flex;
@@ -61,6 +62,8 @@ export function Visualizer({ mode }: { mode: string }) {
                         return <AiVisualizerComponent state={state as AIMachineStateValue} />
                     case "runtime-services":
                         return <RuntimeServicesComponent />
+                    case "swagger":
+                        return <SwaggerComponent/>
                 }
             })()}
         </ErrorBoundary>
@@ -99,4 +102,8 @@ const AiVisualizerComponent = React.memo(({ state }: { state: AIMachineStateValu
 
 const RuntimeServicesComponent = () => {
     return <RuntimeServicePanel />;
+}
+
+const SwaggerComponent = () => {
+    return <SwaggerPanel />;
 }

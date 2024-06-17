@@ -49,10 +49,30 @@ export function RuntimeServicePanel() {
         }
     }, [rpcClient]);
 
-    const onTryit = () => {
+    const onTryit = async (name: any) => {
         // Find the filePath for the given service name
         // Call the LS and get the OAPI spec
         // Open the swagger view
+        const api_resource = await rpcClient.getMiDiagramRpcClient().getAvailableResources({
+            documentIdentifier: undefined,
+            resourceType: "api"
+        });
+
+        const resource = api_resource.resources.find((resource: any) => resource.name === name);
+        const aboslutePath = resource?.absolutePath;
+        console.log(resource);
+
+        if(aboslutePath) {
+            const swaggerResponse = await rpcClient.getMiDiagramRpcClient().getOpenAPISpec({
+                apiName: name,
+                apiPath: aboslutePath
+            });
+
+            console.log(swaggerResponse);
+            
+            
+
+        }
 
     };
 
@@ -72,9 +92,9 @@ export function RuntimeServicePanel() {
                                 <div style={{ flex: 9 }}>
                                     {entry.url}
                                 </div>
-                                {/* <VSCodeButton appearance="secondary" onClick={onTryit} title={"Try service"} disabled={false} style={{ marginRight: 8 }}>
+                                <VSCodeButton appearance="secondary" onClick={() => onTryit(entry.name)} title={"Try service"} style={{ marginRight: 8 }}>
                                     <ButtonWrapper style={{ minWidth: "50px" }}>{"Try it"}</ButtonWrapper>
-                                </VSCodeButton> */}
+                                </VSCodeButton>
                             </EntryContainer>
                         </>
                     ))}
@@ -100,9 +120,9 @@ export function RuntimeServicePanel() {
                                 <div style={{ flex: '1 1 40%', marginRight: '10px' }}>
                                     {entry.wsdl2_0}
                                 </div>
-                                {/* <VSCodeButton appearance="secondary" onClick={onTryit} title={"Try service"} disabled={false} style={{ marginRight: 8 }}>
+                                <VSCodeButton appearance="secondary" onClick={onTryit} title={"Try service"} disabled={false} style={{ marginRight: 8 }}>
                                     <ButtonWrapper style={{ minWidth: "50px" }}>{"Try it"}</ButtonWrapper>
-                                </VSCodeButton> */}
+                                </VSCodeButton>
                             </EntryContainer>
                         </>
                     ))}

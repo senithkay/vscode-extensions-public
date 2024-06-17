@@ -167,6 +167,7 @@ import {
     UpdateMockServiceRequest,
     UpdateMockServiceResponse,
     GetAllMockServicesResponse,
+    SwaggerFromAPIResponse,
 } from "./types";
 import { RequestType, NotificationType } from "vscode-messenger-common";
 
@@ -268,6 +269,7 @@ export const buildProject: NotificationType<void> = { method: `${_preFix}/buildP
 export const exportProject: NotificationType<ExportProjectRequest> = { method: `${_preFix}/exportProject` };
 export const checkOldProject: RequestType<void, boolean> = { method: `${_preFix}/checkOldProject` };
 export const refreshAccessToken: NotificationType<void> = { method: `${_preFix}/refreshAccessToken` };
+export const getOpenAPISpec: RequestType<SwaggerTypeRequest, SwaggerFromAPIResponse> = { method: `${_preFix}/getOpenAPISpec` };
 export const editOpenAPISpec: RequestType<SwaggerTypeRequest, void> = { method: `${_preFix}/editOpenAPISpec` };
 export const compareSwaggerAndAPI: RequestType<SwaggerTypeRequest, CompareSwaggerAndAPIResponse> = { method: `${_preFix}/compareSwaggerAndAPI` };
 export const updateSwaggerFromAPI: RequestType<SwaggerTypeRequest, void> = { method: `${_preFix}/updateSwaggerFromAPI` };

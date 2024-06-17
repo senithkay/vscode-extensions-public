@@ -141,6 +141,7 @@ import {
     SequenceDirectoryResponse,
     ShowErrorMessageRequest,
     SwaggerTypeRequest,
+    SwaggerFromAPIResponse,
     TemplatesResponse,
     UndoRedoParams,
     UpdateAPIFromSwaggerRequest,
@@ -231,6 +232,7 @@ import {
     getLocalEntry,
     getMessageProcessor,
     getMessageStore,
+    getOpenAPISpec,
     getProjectRoot,
     getProjectUuid,
     getRecipientEndpoint,
@@ -680,6 +682,10 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     compareSwaggerAndAPI(params: SwaggerTypeRequest): Promise<CompareSwaggerAndAPIResponse> {
         return this._messenger.sendRequest(compareSwaggerAndAPI, HOST_EXTENSION, params);
+    }
+
+    getOpenAPISpec(params: SwaggerTypeRequest): Promise<SwaggerFromAPIResponse> {
+        return this._messenger.sendRequest(getOpenAPISpec, HOST_EXTENSION, params);
     }
 
     updateSwaggerFromAPI(params: SwaggerTypeRequest): Promise<void> {
