@@ -32,6 +32,7 @@ import { DataMapperContext } from '../../../utils/DataMapperContext/DataMapperCo
 import { getTypeName } from './common-utils';
 import { InputOutputPortModel } from '../Port';
 import { SourceNodeType } from '../../../components/DataMapper/Views/DataMapperView';
+import { DataMapperNodeModel } from '../Node/commons/DataMapperNode';
 
 type SubMappingOutputNode = ArrayOutputNode | ObjectOutputNode | PrimitiveOutputNode;
 
@@ -131,6 +132,11 @@ export function getSourceNodeType(sourcePort: InputOutputPortModel) {
     } else if (sourceNode instanceof SubMappingNode) {
         return SourceNodeType.SubMappingNode;
     }
+}
+
+export function isDataImportNode(node: DataMapperNodeModel) {
+    return node instanceof InputDataImportNodeModel
+        || node instanceof OutputDataImportNodeModel;
 }
 
 export function isObjectOrArrayLiteralExpression(node: Node): boolean {

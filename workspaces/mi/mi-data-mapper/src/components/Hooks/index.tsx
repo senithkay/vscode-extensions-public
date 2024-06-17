@@ -14,7 +14,7 @@ import {
 } from "@projectstorm/react-diagrams";
 
 import { DataMapperNodeModel } from '../Diagram/Node/commons/DataMapperNode';
-import { getIONodeHeight } from '../Diagram/utils/diagram-utils';
+import { getIONodeHeight, isSameView } from '../Diagram/utils/diagram-utils';
 import { OverlayLayerModel } from '../Diagram/OverlayLayer/OverlayLayerModel';
 import { ErrorNodeKind } from '../DataMapper/Error/DataMapperError';
 import { useDMCollapsedFieldsStore, useDMSearchStore } from '../../store/store';
@@ -34,9 +34,7 @@ export const useRepositionedNodes = (nodes: DataMapperNodeModel[], zoomLevel: nu
     nodesClone.forEach(node => {
         const prevNodes = diagramModel.getNodes() as DataMapperNodeModel[];
         const exisitingNode = prevNodes.find(prevNode => prevNode.id === node.id);
-        const sameView = exisitingNode
-            && exisitingNode.context.views[exisitingNode.context.views.length - 1].label ===
-                node.context.views[node.context.views.length - 1].label;
+        const sameView = isSameView(node, exisitingNode);;
         if (node instanceof ObjectOutputNode
             || node instanceof ArrayOutputNode
             || node instanceof PrimitiveOutputNode
@@ -82,9 +80,9 @@ export const useDiagramModel = (
     const offSetY = diagramModel.getOffsetY();
     const noOfNodes = nodes.length;
     const context = nodes.find(node => node.context)?.context;
-    const { focusedST, views } = context;
-	const focusedSrc = context ? focusedST.getText() : undefined;
-    const lastView = views[views.length - 1];
+    const { focusedST, views } = context ?? {};
+	const focusedSrc = focusedST ? focusedST.getText() : undefined;
+    const lastView = views ? views[views.length - 1] : undefined;
     const collapsedFields = useDMCollapsedFieldsStore(state => state.collapsedFields); // Subscribe to collapsedFields
     const { inputSearch, outputSearch } = useDMSearchStore();
 
