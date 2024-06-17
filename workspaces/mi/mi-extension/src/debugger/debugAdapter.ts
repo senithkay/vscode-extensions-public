@@ -10,7 +10,7 @@
 import { Breakpoint, BreakpointEvent, Handles, InitializedEvent, LoggingDebugSession, Scope, StoppedEvent, TerminatedEvent, Thread } from 'vscode-debugadapter';
 import { DebugProtocol } from 'vscode-debugprotocol';
 import * as vscode from 'vscode';
-import { executeBuildTask, executeTasks, getServerPath, isADiagramView, readPortOffset, removeTempDebugBatchFile } from './debugHelper';
+import { checkServerReadiness, executeBuildTask, executeTasks, getServerPath, isADiagramView, readPortOffset, removeTempDebugBatchFile } from './debugHelper';
 import { Subject } from 'await-notify';
 import { Debugger } from './debugger';
 import { StateMachine, navigate, openView } from '../stateMachine';
@@ -22,6 +22,7 @@ import { INCORRECT_SERVER_PATH_MSG } from './constants';
 import { extension } from '../MIExtensionContext';
 import { EVENT_TYPE } from '@wso2-enterprise/mi-core';
 import { DebuggerConfig } from './config';
+import { openRuntimeServicesWebview } from '../runtime-services-panel/activate';
 
 export class MiDebugAdapter extends LoggingDebugSession {
     private _configurationDone = new Subject();
@@ -268,10 +269,17 @@ export class MiDebugAdapter extends LoggingDebugSession {
                         executeTasks(serverPath, isDebugAllowed)
                             .then(async () => {
                                 if (args?.noDebug) {
-                                    response.success = true;
-                                    this.sendResponse(response);
+                                    checkServerReadiness().then(() => {
+                                        openRuntimeServicesWebview();
+                                        response.success = true;
+                                        this.sendResponse(response);
+                                    }).catch(error => {
+                                        vscode.window.showErrorMessage(error);
+                                        this.sendError(response, 1, error);
+                                    });
                                 } else {
                                     this.debuggerHandler?.initializeDebugger().then(() => {
+                                        openRuntimeServicesWebview();
                                         response.success = true;
                                         this.sendResponse(response);
                                     }).catch(error => {

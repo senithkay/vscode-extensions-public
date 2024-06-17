@@ -17,6 +17,7 @@ import AIPanel from "./AIPanel";
 import { ErrorBoundary } from "@wso2-enterprise/ui-toolkit";
 import { WelcomePanel } from "./WelcomePanel";
 import { DisabledView } from "./views/Disabled";
+import { RuntimeServicePanel } from "./RuntimeServicesPanel";
 
 const LoaderWrapper = styled.div`
     display: flex;
@@ -58,6 +59,8 @@ export function Visualizer({ mode }: { mode: string }) {
                         return <VisualizerComponent state={state as MachineStateValue} />
                     case "ai":
                         return <AiVisualizerComponent state={state as AIMachineStateValue} />
+                    case "runtime-services":
+                        return <RuntimeServicesComponent />
                 }
             })()}
         </ErrorBoundary>
@@ -93,3 +96,7 @@ const AiVisualizerComponent = React.memo(({ state }: { state: AIMachineStateValu
             );
     }
 });
+
+const RuntimeServicesComponent = () => {
+    return <RuntimeServicePanel />;
+}
