@@ -592,7 +592,7 @@
     "compile": "tsc -p .",
     "watch": "tsc -p . -w",
     "package": "if [ $isPreRelease = true ]; then vsce package --no-dependencies --pre-release; else vsce package --no-dependencies; fi",
-    "build": "pnpm clean && pnpm run copyLSLibs && pnpm run copyFonts && webpack --mode production --devtool hidden-source-map && pnpm run package && pnpm run postbuild",
+    "build": "pnpm clean && pnpm run copyLSLibs && pnpm run copyFonts && pnpm run copyDMLibs && webpack --mode production --devtool hidden-source-map && pnpm run package && pnpm run postbuild",
     "compile-tests": "pnpm run compile",
     "watch-tests": "pnpm run watch",
     "pretest": "pnpm run compile-tests && pnpm run compile && pnpm run lint",
@@ -602,6 +602,8 @@
     "e2e-test": "pnpm run compile-tests && pnpm exec playwright test",
     "copyFonts": "copyfiles -f ./node_modules/@wso2-enterprise/font-wso2-vscode/dist/* ./resources/font-wso2-vscode/dist/",
     "copyLSLibs": "copyfiles -f language-server/org.eclipse.lemminx/target/*.jar ls",
+    "copyDMLibs": "copyfiles -f ./node_modules/todo-lib-from-chamodabey/dist/* ./resources/data-mapper-libs/",
+
     "copyVSIX": "copyfiles *.vsix ./vsix",
     "copyVSIXToRoot": "copyfiles -f ./vsix/* ../../..",
     "postbuild": "pnpm run copyVSIX"
@@ -625,7 +627,8 @@
     "@wso2-enterprise/mi-rpc-client": "workspace:*",
     "ts-morph": "^22.0.0",
     "await-notify": "^1.0.1",
-    "yaml": "~2.4.3"
+    "yaml": "~2.4.3",
+    "todo-lib-from-chamodabey": "^2.0.0"
   },
   "dependencies": {
     "copyfiles": "^2.4.1",
