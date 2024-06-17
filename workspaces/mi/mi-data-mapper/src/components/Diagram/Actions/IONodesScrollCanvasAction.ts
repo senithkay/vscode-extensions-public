@@ -111,9 +111,9 @@ export class IONodesScrollCanvasAction extends Action {
                         }
                         ouputNode.setPosition(ouputNode.getX(), ouputNode.getY() - scrollStep);
                     }
-                    repositionIntermediateNodes(ouputNode);
+                    ouputNode && repositionIntermediateNodes(ouputNode);
 
-                } else {
+                } else if (!element) {
                     yDelta = getYDeltaForGlobalScroll(diagramEngine, yDelta, zoomOffset);
 					const offsetY = Math.min(0, model.getOffsetY() - yDelta);
                     model.setOffset(model.getOffsetX(), offsetY);
@@ -163,6 +163,8 @@ function getYDeltaForGlobalScroll(diagramEngine: DiagramEngine, yDelta: number, 
 
     const lastInputNode = getInputNodes(diagramEngine).pop();
     const outputNode = getOutputNode(diagramEngine);
+
+    if (!lastInputNode || !outputNode) return; // When data import nodes present
 
     const nodeWithMaxBottomY = [lastInputNode, outputNode].reduce((prevNode, currentNode) => {
         return prevNode.getBoundingBox().getBottomLeft().y > currentNode.getBoundingBox().getBottomLeft().y

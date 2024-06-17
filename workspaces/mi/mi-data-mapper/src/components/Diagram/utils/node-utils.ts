@@ -15,6 +15,7 @@ import {
     PropertyAccessExpression,
     ReturnStatement
 } from 'ts-morph';
+import { BaseModel } from '@projectstorm/react-canvas-core';
 import { DMType, TypeKind } from '@wso2-enterprise/mi-core';
 
 import {
@@ -131,6 +132,11 @@ export function getSourceNodeType(sourcePort: InputOutputPortModel) {
     } else if (sourceNode instanceof SubMappingNode) {
         return SourceNodeType.SubMappingNode;
     }
+}
+
+export function isDataImportNode(node: BaseModel) {
+    return node instanceof InputDataImportNodeModel
+        || node instanceof OutputDataImportNodeModel;
 }
 
 export function isObjectOrArrayLiteralExpression(node: Node): boolean {
