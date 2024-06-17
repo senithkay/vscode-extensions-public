@@ -37,6 +37,9 @@ export async function activateProjectExplorer(context: ExtensionContext) {
 			{ label: 'Task', description: 'Add new task' },
 			{ label: 'Proxy Service', description: 'Add new proxy service' },
 			{ label: 'Template', description: 'Add new template' },
+			// TODO: Will introduce back when both datasource and dataservice functionalities are completely supported
+			// { label: 'Data Service', description: 'Add new data service' },
+			// { label: 'Data Source', description: 'Add new data source' }
 		], {
 			placeHolder: 'Select the construct to add'
 		}).then(selection => {
@@ -63,6 +66,12 @@ export async function activateProjectExplorer(context: ExtensionContext) {
 			} else if (selection?.label === 'Message Store') {
 				commands.executeCommand(COMMANDS.ADD_MESSAGE_STORE_COMMAND);
 			}
+			// TODO: Will introduce back when both datasource and dataservice functionalities are completely supported
+			// else if (selection?.label === 'Data Service') {
+			// 	commands.executeCommand(COMMANDS.ADD_DATA_SERVICE_COMMAND);
+			// } else if (selection?.label === 'Data Source') {
+			// 	commands.executeCommand(COMMANDS.ADD_DATA_SOURCE_COMMAND);
+			// }
 		});
 
 	});
@@ -94,6 +103,11 @@ export async function activateProjectExplorer(context: ExtensionContext) {
 	commands.registerCommand(COMMANDS.ADD_CLASS_MEDIATOR_COMMAND, async (entry: ProjectExplorerEntry) => {
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.ClassMediatorForm, documentUri: entry.info?.path });
 		console.log('Add Class Mediator');
+	});
+
+	commands.registerCommand(COMMANDS.ADD_DATA_SERVICE_COMMAND, (entry: ProjectExplorerEntry) => {
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.DataServiceForm, documentUri: entry.info?.path });
+		console.log('Add Data Service');
 	});
 
 	commands.registerCommand(COMMANDS.ADD_MESSAGE_PROCESSOR_COMMAND, (entry: ProjectExplorerEntry) => {
@@ -314,6 +328,10 @@ export async function activateProjectExplorer(context: ExtensionContext) {
 		revealWebviewPanel(beside);
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.TemplateEndPointForm, documentUri: documentUri?.fsPath });
 	});
+	commands.registerCommand(COMMANDS.SHOW_DATA_SERVICE, (documentUri: Uri, resourceIndex: string, beside: boolean = true) => {
+		revealWebviewPanel(beside);
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.DataServiceForm, documentUri: documentUri?.fsPath });
+	});
 	commands.registerCommand(COMMANDS.OPEN_PROJECT_OVERVIEW, async (entry: ProjectExplorerEntry) => {
 		revealWebviewPanel(false);
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.Overview });
@@ -321,6 +339,10 @@ export async function activateProjectExplorer(context: ExtensionContext) {
 	commands.registerCommand(COMMANDS.OPEN_SERVICE_DESIGNER, async (entry: ProjectExplorerEntry) => {
 		revealWebviewPanel(false);
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.ServiceDesigner, documentUri: entry.info?.path });
+	});
+	commands.registerCommand(COMMANDS.OPEN_DSS_SERVICE_DESIGNER, async (entry: ProjectExplorerEntry) => {
+		revealWebviewPanel(false);
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.DSSServiceDesigner, documentUri: entry.info?.path });
 	});
 }
 

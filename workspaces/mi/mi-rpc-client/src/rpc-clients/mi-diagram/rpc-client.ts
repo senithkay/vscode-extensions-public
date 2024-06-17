@@ -60,6 +60,8 @@ import {
     DeleteArtifactRequest,
     DownloadConnectorRequest,
     DownloadConnectorResponse,
+    CreateDataServiceRequest,
+    CreateDataServiceResponse,
     ESBConfigsResponse,
     EditAPIRequest,
     EditAPIResponse,
@@ -134,6 +136,8 @@ import {
     RetrieveHttpEndpointResponse,
     RetrieveMessageProcessorRequest,
     RetrieveMessageProcessorResponse,
+    RetrieveDataServiceRequest,
+    RetrieveDataServiceResponse,
     RetrieveTemplateRequest,
     RetrieveTemplateResponse,
     RetrieveWsdlEndpointRequest,
@@ -194,6 +198,7 @@ import {
     createSequence,
     createTask,
     createTemplate,
+    createDataService,
     deleteArtifact,
     downloadConnector,
     editAPI,
@@ -230,6 +235,7 @@ import {
     getLoadBalanceEndpoint,
     getLocalEntry,
     getMessageProcessor,
+    getDataService,
     getMessageStore,
     getProjectRoot,
     getProjectUuid,
@@ -464,6 +470,14 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     getDefaultEndpoint(params: RetrieveDefaultEndpointRequest): Promise<RetrieveDefaultEndpointResponse> {
         return this._messenger.sendRequest(getDefaultEndpoint, HOST_EXTENSION, params);
+    }
+
+    createDataService(params: CreateDataServiceRequest): Promise<CreateDataServiceResponse> {
+        return this._messenger.sendRequest(createDataService, HOST_EXTENSION, params);
+    }
+
+    getDataService(params: RetrieveDataServiceRequest): Promise<RetrieveDataServiceResponse> {
+        return this._messenger.sendRequest(getDataService, HOST_EXTENSION, params);
     }
 
     closeWebView(): void {

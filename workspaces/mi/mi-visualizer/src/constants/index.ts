@@ -41,3 +41,11 @@ export const ARTIFACT_TEMPLATES = {
     EDIT_PROXY: "edit-proxy",
 } as const;
 
+export const DSS_TEMPLATES = {
+    ADD_RESOURCE: "add-dss-resource",
+    EDIT_RESOURCE: "edit-dss-resource",
+    ADD_OPERATION: "add-dss-operation",
+    EDIT_OPERATION: "edit-dss-operation",
+    EDIT_DESCRIPTION: "edit-dss-description",
+} as const;
+

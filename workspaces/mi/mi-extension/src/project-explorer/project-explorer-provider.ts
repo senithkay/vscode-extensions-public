@@ -492,7 +492,7 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 				"arguments": [vscode.Uri.file(entry.path), undefined, false]
 			};
 		}
-		// TODO: Will introduce back when both data services and data sources are supported
+		// TODO: Will introduce back when both datasource and dataservice functionalities are completely supported
 		// else if (entry.type === "DATA_SOURCE") {
 		// 	explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, 'code');
 		// 	explorerEntry.contextValue = 'dataSource';
@@ -501,7 +501,15 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 		// 		"command": COMMANDS.SHOW_DATA_SOURCE,
 		// 		"arguments": [vscode.Uri.file(entry.path), undefined, false]
 		// 	};
-		// } 
+		// } else if (entry.type === "DATA_SERVICE") {
+		// 	explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, 'code');
+		// 	explorerEntry.contextValue = 'data-service';
+		// 	explorerEntry.command = {
+		// 		"title": "Show Data Service",
+		// 		"command": COMMANDS.SHOW_DATA_SERVICE,
+		// 		"arguments": [vscode.Uri.parse(entry.path), undefined, false]
+		// 	};
+		// }
 		else {
 			if (entry.name) {
 				explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, 'code');

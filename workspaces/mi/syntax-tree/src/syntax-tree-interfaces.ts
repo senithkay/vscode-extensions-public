@@ -1085,6 +1085,20 @@ export interface APIResource extends STNode {
     urlMapping: string;
 }
 
+export interface DSSResource extends STNode {
+    path: string;
+    method: string;
+    description: string;
+    enableStreaming: boolean;
+    returnRequestStatus: boolean;
+}
+
+export interface DSSOperation extends STNode {
+    name: string;
+    description: string;
+    enableStreaming: boolean;
+}
+
 export interface DataServiceCallOperationsOperation extends STNode {
     param: DataServiceCallOperationsOperationParam[];
     name: string;
