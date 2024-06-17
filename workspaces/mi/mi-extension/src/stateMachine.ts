@@ -119,21 +119,13 @@ const stateMachine = createMachine<MachineContext>({
         },
         projectDetected: {
             invoke: {
-                src: 'activateProjectExplorer',
-                onDone: {
-                    target: 'projectExplorerActivated'
-                }
-            }
-        },
-        oldProjectDetected: {
-            invoke: {
                 src: 'openWebPanel',
                 onDone: {
                     target: 'lsInit'
                 }
             }
         },
-        projectExplorerActivated: {
+        oldProjectDetected: {
             invoke: {
                 src: 'openWebPanel',
                 onDone: {
@@ -330,12 +322,6 @@ const stateMachine = createMachine<MachineContext>({
                 }
             });
         },
-        activateProjectExplorer: (context, event) => {
-            return new Promise(async (resolve, reject) => {
-                await activateProjectExplorer(extension.context);
-                resolve(true);
-            });
-        },
         openWebPanel: (context, event) => {
             // Get context values from the project storage so that we can restore the earlier state when user reopens vscode
             return new Promise((resolve, reject) => {
@@ -467,6 +453,7 @@ const stateMachine = createMachine<MachineContext>({
         },
         activateOtherFeatures: (context, event) => {
             return new Promise(async (resolve, reject) => {
+                await activateProjectExplorer(extension.context, context.langClient!); 
                 await activateTestExplorer(extension.context, context.langClient!);
                 resolve(true);
             });

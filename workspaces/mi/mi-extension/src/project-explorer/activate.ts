@@ -12,18 +12,17 @@ import { StateMachine, openView } from '../stateMachine';
 import { EVENT_TYPE, MACHINE_VIEW, VisualizerLocation } from '@wso2-enterprise/mi-core';
 import { COMMANDS } from '../constants';
 import { ExtensionContext, Uri, ViewColumn, commands, window, workspace } from 'vscode';
-import { VisualizerWebview } from '../visualizer/webview';
 import path = require("path");
 import { deleteRegistryResource } from '../util/fileOperations';
-import { RpcClient } from '@wso2-enterprise/mi-rpc-client';
 import { extension } from '../MIExtensionContext';
+import { ExtendedLanguageClient } from '../lang-client/ExtendedLanguageClient';
 
-export async function activateProjectExplorer(context: ExtensionContext) {
+export async function activateProjectExplorer(context: ExtensionContext, lsClient: ExtendedLanguageClient) {
 
 	const projectExplorerDataProvider = new ProjectExplorerEntryProvider(context);
-	await projectExplorerDataProvider.refresh();
+	await projectExplorerDataProvider.refresh(lsClient);
 	const projectTree = window.createTreeView('MI.project-explorer', { treeDataProvider: projectExplorerDataProvider });
-	commands.registerCommand(COMMANDS.REFRESH_COMMAND, () => { return projectExplorerDataProvider.refresh(); });
+	commands.registerCommand(COMMANDS.REFRESH_COMMAND, () => { return projectExplorerDataProvider.refresh(lsClient); });
 	commands.registerCommand(COMMANDS.ADD_COMMAND, () => {
 		window.showQuickPick([
 			{ label: 'New Project', description: 'Create new project' },
@@ -142,7 +141,7 @@ export async function activateProjectExplorer(context: ExtensionContext) {
 						const res = await deleteRegistryResource(filePath);
 						if (res.status === true) {
 							window.showInformationMessage(res.info);
-							projectExplorerDataProvider.refresh();
+							projectExplorerDataProvider.refresh(lsClient);
 						} else {
 							window.showErrorMessage(res.info);
 						}
