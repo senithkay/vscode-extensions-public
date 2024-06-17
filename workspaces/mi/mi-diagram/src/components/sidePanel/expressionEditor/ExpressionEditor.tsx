@@ -26,7 +26,7 @@ export interface ExpressionEditorProps {
     handleOnCancel: () => void;
     handleOnSave: (data: ExpressionFieldValue) => void;
 }
-const ExpressionEditor = (props: ExpressionEditorProps) => {
+export const ExpressionEditor = (props: ExpressionEditorProps) => {
     const data: ExpressionFieldValue = props.value;
 
     const { control, handleSubmit } = useForm({

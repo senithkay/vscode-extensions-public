@@ -10,4 +10,3 @@
 export * from "./Keylookup/Keylookup";
 export * from "./ParamManager/ParamManager";
 export * from "./ExpressionField/ExpressionInput";
-export * from "./ExpressionEditor/ExpressionEditor";

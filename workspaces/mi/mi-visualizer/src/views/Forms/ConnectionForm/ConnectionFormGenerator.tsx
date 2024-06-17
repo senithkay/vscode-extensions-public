@@ -16,7 +16,7 @@ import { useForm, Controller } from 'react-hook-form';
 import { ExpressionField } from '@wso2-enterprise/mi-diagram/lib/components/Form/ExpressionField/ExpressionInput';
 import { ExpressionFieldValue } from '@wso2-enterprise/mi-diagram/lib/components/Form/ExpressionField/ExpressionInput';
 import { EVENT_TYPE, MACHINE_VIEW } from '@wso2-enterprise/mi-core';
-import ExpressionEditor from '@wso2-enterprise/mi-diagram/lib/components/Form/ExpressionEditor/ExpressionEditor';
+import { ExpressionEditor } from '@wso2-enterprise/mi-diagram/lib/components/sidePanel/expressionEditor/ExpressionEditor';
 
 const cardStyle = {
     display: "block",
