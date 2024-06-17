@@ -1573,3 +1573,10 @@ export interface GetAllMockServicesResponse {
         path: string;
     }[];
 }
+
+export interface AddDependencyToPomRequest {
+    groupId: string;
+    artifactId: string;
+    version: string;
+    file: string
+}
