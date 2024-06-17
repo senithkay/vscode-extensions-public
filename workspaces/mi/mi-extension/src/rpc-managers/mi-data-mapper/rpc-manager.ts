@@ -201,6 +201,7 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
 
     async updateDMCFileContent(params: UpdateDMCRequest): Promise<void> {
         const { dmName, sourcePath } = params;
+        console.log("updateDMCFileContent");
         updateDMCContent(dmName, sourcePath);
     }
 
@@ -211,6 +212,10 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
                 const { filePath, dmName } = params;
                 const workspaceFolder = workspace.getWorkspaceFolder(Uri.file(filePath));
                 let miDiagramRpcManager: MiDiagramRpcManager = new MiDiagramRpcManager();
+                
+                console.log("createDMFiles");
+                // console.log(extension.context.extensionUri.fsPath);
+                
                 if (workspaceFolder) {
                     const dataMapperConfigFolder = path.join(
                         workspaceFolder.uri.fsPath,  'src', 'main', 'wso2mi', 'resources', 'registry', 'gov', 'datamapper', dmName);
