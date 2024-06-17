@@ -15,6 +15,7 @@ import {
     PropertyAccessExpression,
     ReturnStatement
 } from 'ts-morph';
+import { BaseModel } from '@projectstorm/react-canvas-core';
 import { DMType, TypeKind } from '@wso2-enterprise/mi-core';
 
 import {
@@ -32,7 +33,6 @@ import { DataMapperContext } from '../../../utils/DataMapperContext/DataMapperCo
 import { getTypeName } from './common-utils';
 import { InputOutputPortModel } from '../Port';
 import { SourceNodeType } from '../../../components/DataMapper/Views/DataMapperView';
-import { DataMapperNodeModel } from '../Node/commons/DataMapperNode';
 
 type SubMappingOutputNode = ArrayOutputNode | ObjectOutputNode | PrimitiveOutputNode;
 
@@ -134,7 +134,7 @@ export function getSourceNodeType(sourcePort: InputOutputPortModel) {
     }
 }
 
-export function isDataImportNode(node: DataMapperNodeModel) {
+export function isDataImportNode(node: BaseModel) {
     return node instanceof InputDataImportNodeModel
         || node instanceof OutputDataImportNodeModel;
 }
