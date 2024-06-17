@@ -9,7 +9,7 @@
 
 //add the rpc client to the context
 
-export const SAMPLE_ICONS_GITHUB_URL = "https://mi-connectors.wso2.com/samples/icons/";
+export const SAMPLE_ICONS_GITHUB_URL = "https://raw.githubusercontent.com/wso2/integration-studio/main/SamplesForVSCode/icons/";
 
 export const MI_COPILOT_BACKEND_URL = `/chat/copilot`;
 export const MI_ARTIFACT_GENERATION_BACKEND_URL = `/chat/artifact-generation`;
@@ -39,5 +39,13 @@ export const ARTIFACT_TEMPLATES = {
     EDIT_SEQUENCE: "edit-sequence",
     EDIT_HANDLERS: "edit-handlers",
     EDIT_PROXY: "edit-proxy",
+} as const;
+
+export const DSS_TEMPLATES = {
+    ADD_RESOURCE: "add-dss-resource",
+    EDIT_RESOURCE: "edit-dss-resource",
+    ADD_OPERATION: "add-dss-operation",
+    EDIT_OPERATION: "edit-dss-operation",
+    EDIT_DESCRIPTION: "edit-dss-description",
 } as const;
 

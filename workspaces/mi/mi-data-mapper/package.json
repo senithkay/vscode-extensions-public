@@ -35,7 +35,9 @@
     "classnames": "^2.2.6",
     "resize-observer-polyfill": "^1.5.1",
     "zustand": "^4.4.7",
-    "blueimp-md5": "^2.19.0"
+    "blueimp-md5": "^2.19.0",
+    "mousetrap": "^1.6.5",
+    "@types/mousetrap": "~1.6.15"
   },
   "devDependencies": {
     "@types/classnames": "^2.2.9",

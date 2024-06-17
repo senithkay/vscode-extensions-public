@@ -341,6 +341,19 @@
         "category": "MI"
       },
       {
+        "command": "MI.project-explorer.add-data-service",
+        "title": "Add Data Service",
+        "icon": "$(add)",
+        "group": "navigation",
+        "category": "MI"
+      },
+      {
+        "command": "MI.project-explorer.open-dss-service-designer",
+        "title": "Open Service Designer",
+        "icon": "$(distro-design-view)",
+        "when": "false"
+      },
+      {
         "command": "project-explorer.view",
         "title": "View"
       },
@@ -557,6 +570,16 @@
           "command": "MI.project-explorer.add-template",
           "when": "view == MI.project-explorer && viewItem == templates",
           "group": "inline"
+        },
+        {
+          "command": "MI.project-explorer.add-data-service",
+          "when": "view == MI.project-explorer && viewItem == dataServices",
+          "group": "inline"
+        },
+        {
+          "command": "MI.project-explorer.open-dss-service-designer",
+          "when": "viewItem == data-service",
+          "group": "inline"
         }
       ],
       "testing/item/context": [
@@ -574,6 +597,11 @@
           "command": "MI.test.add.case",
           "group": "inline",
           "when": "testId in test.suites"
+        },
+        {
+          "command": "MI.test.update.case",
+          "group": "inline",
+          "when": "testId in test.cases"
         }
       ],
       "testing/message/context": [

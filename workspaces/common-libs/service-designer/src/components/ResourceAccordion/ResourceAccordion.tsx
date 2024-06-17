@@ -72,10 +72,11 @@ const MethodBox = styled.div<MethodProp>`
     display: flex;
     justify-content: center;
     height: 25px;
-    width: 70px;
+    min-width: 70px;
+    width: auto;
     margin-left: ${(p: MethodProp) => p.hasLeftMargin ? "10px" : "0px"};
     text-align: center;
-    padding: 3px 0px 3px 0px;
+    padding: 3px 5px 3px 5px;
     background-color: ${(p: MethodProp) => p.color};
     color: #FFF;
     align-items: center;
@@ -137,7 +138,7 @@ export function getColorByMethod(method: string) {
         case "HEAD":
             return colors.HEAD;
         default:
-            return '#FFF'; // Default color
+            return '#876036'; // Default color
     }
 }
 

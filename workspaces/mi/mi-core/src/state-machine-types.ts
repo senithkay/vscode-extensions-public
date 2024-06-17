@@ -48,6 +48,8 @@ export enum MACHINE_VIEW {
     AddressEndpointForm = "Address Endpoint Form",
     WsdlEndpointForm = "Wsdl Endpoint Form",
     DefaultEndpointForm = "Default Endpoint Form",
+    DataServiceForm = "Data Service Form",
+    DSSServiceDesigner = "DSS Service Designer",
     ProjectCreationForm = "Project Creation Form",
     ImportProjectForm = "Import Project Form",
     LocalEntryForm = "Local Entry Form",

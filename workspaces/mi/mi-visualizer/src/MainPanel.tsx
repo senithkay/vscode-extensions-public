@@ -3,6 +3,7 @@ import { EVENT_TYPE, POPUP_EVENT_TYPE, PopupMachineStateValue, MACHINE_VIEW, Mac
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { Overview } from './views/Overview';
 import { ServiceDesignerView } from './views/ServiceDesigner';
+import { DSSServiceDesignerView } from './views/Forms/DataServiceForm/ServiceDesigner';
 import { APIWizard, APIWizardProps } from './views/Forms/APIform';
 import { EndpointWizard } from './views/Forms/EndpointForm';
 import { SequenceWizard } from './views/Forms/SequenceForm';
@@ -42,6 +43,7 @@ import { ConnectionForm } from './views/Forms/ConnectionForm';
 import { TestSuiteForm } from './views/Forms/Tests/TestSuiteForm';
 import { TestCaseForm } from './views/Forms/Tests/TestCaseForm';
 import { MockServiceForm } from './views/Forms/Tests/MockServices/MockServiceForm';
+import { DataServiceWizard } from './views/Forms/DataServiceForm/MainPanelForms';
 
 const MainContainer = styled.div`
     display: flex;
@@ -207,6 +209,8 @@ const MainPanel = () => {
                             <DataMapper {...machineView.dataMapperProps} />
                         </ErrorBoundary >
                     );
+                    const { filePath, fileContent } = machineView.dataMapperProps;
+                    await rpcClient.getMiDataMapperRpcClient().initDMUndoRedoManager({filePath, fileContent});
                     break;
                 case MACHINE_VIEW.APIForm:
                     setViewComponent(<APIWizard apiData={(machineView.customProps as APIWizardProps)?.apiData} path={machineView.documentUri} />);
@@ -263,6 +267,9 @@ const MainPanel = () => {
                 case MACHINE_VIEW.DefaultEndpointForm:
                     setViewComponent(<DefaultEndpointWizard path={machineView.documentUri} type={machineView.customProps.type} />);
                     break;
+                case MACHINE_VIEW.DataServiceForm:
+                    setViewComponent(<DataServiceWizard path={machineView.documentUri} />);
+                    break;
                 case MACHINE_VIEW.ProjectCreationForm:
                     setViewComponent(<ProjectWizard cancelView={MACHINE_VIEW.Overview} />);
                     shouldShowNavigator = false;
@@ -298,6 +305,9 @@ const MainPanel = () => {
                     break;
                 case MACHINE_VIEW.MockService:
                     setViewComponent(<MockServiceForm filePath={machineView.documentUri} stNode={machineView.stNode as MockService} />);
+                    break;
+                case MACHINE_VIEW.DSSServiceDesigner:
+                    setViewComponent(<DSSServiceDesignerView syntaxTree={machineView.stNode} documentUri={machineView.documentUri} />);
                     break;
                 default:
                     setViewComponent(null);

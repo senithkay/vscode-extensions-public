@@ -496,7 +496,7 @@ export function ConnectorPage(props: ConnectorPageProps) {
                                                                                 justifyContent: 'left',
                                                                                 padding: 10,
                                                                                 transition: '0.3s',
-                                                                                width: 170
+                                                                                width: 160
                                                                             }}
                                                                         >
                                                                             <div style={{
@@ -621,7 +621,7 @@ export function ConnectorPage(props: ConnectorPageProps) {
                                                                                 justifyContent: 'left',
                                                                                 padding: 10,
                                                                                 transition: '0.3s',
-                                                                                width: 170
+                                                                                width: 160
                                                                             }}
                                                                         >
                                                                             <div style={{
