@@ -9,10 +9,7 @@
 import { Organization, Project, WebviewProps } from "@wso2-enterprise/choreo-core";
 import * as vscode from "vscode";
 import { WebViewPanelRpc } from "./rpc/WebviewRPC";
-import { ext } from "../../extensionVariables";
 import { getUri } from "./utils";
-import { FREE_COMPONENT_LIMIT } from "../../auth/config";
-import { choreoEnvConfig } from "../../auth/auth";
 
 export class ProjectOverview {
 

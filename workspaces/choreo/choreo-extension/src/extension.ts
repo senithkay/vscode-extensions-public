@@ -21,13 +21,13 @@ import { getLogger, initLogger } from "./logger/logger";
 import { activateTelemetry } from "./telemetry/telemetry";
 import { activateActivityBarWebViews } from "./views/webviews/ActivityBar/activate";
 import { activateCmds } from "./cmds";
-import { activateClients } from "./auth/auth";
 import { initRPCServer } from "./choreo-rpc/activate";
 import { contextStore } from "./stores/context-store";
 
 import { authStore } from "./stores/auth-store";
 import { dataCacheStore } from "./stores/data-cache-store";
 import { CommandIds } from "@wso2-enterprise/choreo-core";
+import { ChoreoRPCClient } from "./choreo-rpc";
 
 export async function activate(context: vscode.ExtensionContext) {
     activateTelemetry(context);
@@ -56,7 +56,8 @@ export async function activate(context: vscode.ExtensionContext) {
 
     initRPCServer()
         .then(async () => {
-            activateClients(); // TODO: remove (after extracting rpc client out!)
+            const rpcClient = new ChoreoRPCClient();
+            ext.clients = { rpcClient: rpcClient };
             await ext.clients.rpcClient.init();
 
             authStore.getState().initAuth();

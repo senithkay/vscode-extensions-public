@@ -7,6 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { GHAppConfig } from "@wso2-enterprise/choreo-client/lib/github";
+import { workspace } from "vscode";
 
 export enum ChoreoSessionConfig {
     serviceName = "wso2.ballerina.choreo",
@@ -251,3 +252,24 @@ export class ChoreoEnvConfig {
         return this._config.apis.devopsAPI;
     }
 }
+
+// eslint-disable-next-line @typescript-eslint/naming-convention
+const choreoEnv = process.env.TEST_CHOREO_EXT_ENV ?? workspace.getConfiguration().get("Advanced.ChoreoEnvironment");
+
+let pickedEnvConfig: IChoreoEnvConfig;
+
+switch (choreoEnv) {
+    case 'prod':
+        pickedEnvConfig = DEFAULT_CHOREO_ENV_CONFIG;
+        break;
+    case 'stage':
+        pickedEnvConfig = CHOREO_ENV_CONFIG_STAGE;
+        break;
+    case 'dev':
+        pickedEnvConfig = CHOREO_ENV_CONFIG_DEV;
+        break;
+    default:
+        pickedEnvConfig = DEFAULT_CHOREO_ENV_CONFIG;
+}
+
+export const choreoEnvConfig: ChoreoEnvConfig = new ChoreoEnvConfig(pickedEnvConfig);

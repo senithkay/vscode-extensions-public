@@ -3,7 +3,7 @@ import { ResponseError } from "vscode-jsonrpc";
 import { ErrorCode } from "./choreo-rpc/constants";
 import { getLogger } from "./logger/logger";
 import { authStore } from "./stores/auth-store";
-import { choreoEnvConfig } from "./auth/auth";
+import { choreoEnvConfig } from "./config";
 
 export function handlerError(err: any) {
     if (err instanceof ResponseError) {

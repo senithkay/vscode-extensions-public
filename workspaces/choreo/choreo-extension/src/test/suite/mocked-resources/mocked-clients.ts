@@ -14,7 +14,7 @@ import {
     GetProjectsParams, GitHubRepoValidationRequestParams, GitHubRepoValidationResponse, IAuthClient, IChoreoOrgClient, IChoreoProjectClient, ITokenStorage, LinkRepoMutationParams, GetComponentBuildStatusParams, CreateBuildpackComponentParams, CreateMiComponentParams
 } from "@wso2-enterprise/choreo-client";
 import { BuildStatus, Component, ComponentCount, Deployment, Organization, Project, Repository, UserInfo } from "@wso2-enterprise/choreo-core";
-import { ProjectRegistry } from "../../../registry/project-registry";
+// import { ProjectRegistry } from "../../../registry/project-registry";
 import { ALL_COMPONENTS, FOO_OWNER_ORGS, FOO_OWNER_PROJECTS, FOO_PROJECT_1, FOO_PROJECT_2, FOO_USER, TOKEN_EXPIRATION_TIME } from "./mocked-data";
 import { TEST_PROJECT_NAME } from "../project-based-tests/choreo-project.test";
 
@@ -114,7 +114,7 @@ export class MockProjectClient implements IChoreoProjectClient {
     }
     async getProjects(params: GetProjectsParams): Promise<Project[]> {
         // To mock a successfully cloned environment
-        setProjectLocation();
+        // setProjectLocation();
 
         const userProjects: Project[] = FOO_OWNER_PROJECTS;
         return userProjects.filter(project => project.orgId === params.orgId.toString());
@@ -148,8 +148,8 @@ export class MockProjectClient implements IChoreoProjectClient {
     }
 }
 
-function setProjectLocation() {
-    const projectRoot = join(__dirname, '..', '..', '..', '..', 'src', 'test', 'data', TEST_PROJECT_NAME);
-    ProjectRegistry.getInstance().setProjectLocation(TEST_PROJECT_NAME === 'FooProject2' ? FOO_PROJECT_2.id : FOO_PROJECT_1.id,
-        join(projectRoot, `${TEST_PROJECT_NAME}.code-workspace`));
-}
+// function setProjectLocation() {
+//     const projectRoot = join(__dirname, '..', '..', '..', '..', 'src', 'test', 'data', TEST_PROJECT_NAME);
+//     ProjectRegistry.getInstance().setProjectLocation(TEST_PROJECT_NAME === 'FooProject2' ? FOO_PROJECT_2.id : FOO_PROJECT_1.id,
+//         join(projectRoot, `${TEST_PROJECT_NAME}.code-workspace`));
+// }

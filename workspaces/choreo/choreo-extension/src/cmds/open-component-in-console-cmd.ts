@@ -10,7 +10,7 @@ import { ExtensionContext, commands, env, Uri, window } from "vscode";
 import { CommandIds, ComponentKind, Organization, Project } from "@wso2-enterprise/choreo-core";
 import { authStore } from "../stores/auth-store";
 import { selectOrg, selectProject, selectComponent, getUserInfoForCmd } from "./cmd-utils";
-import { choreoEnvConfig } from "../auth/auth";
+import { choreoEnvConfig } from "../config";
 import { contextStore } from "../stores/context-store";
 
 export function openComponentInConsoleCommand(context: ExtensionContext) {

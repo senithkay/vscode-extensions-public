@@ -21,79 +21,79 @@ import * as fs from 'fs'
 //     return { project: {} as Project, component: openedComponent, isLocalComponent };
 // }
 
-async function registerYamlLanguageServer(): Promise<void> {
-    try {
-        const yamlExtension = extensions.getExtension("redhat.vscode-yaml");
-        if (!yamlExtension) {
-            window.showErrorMessage(
-                'Please install "YAML Language Support by Red Hat" extension to proceed'
-            );
-            return;
-        }
-        const yamlExtensionAPI = await yamlExtension.activate();
-        const SCHEMA = COMPONENT_YAML_SCHEMA;
+// async function registerYamlLanguageServer(): Promise<void> {
+//     try {
+//         const yamlExtension = extensions.getExtension("redhat.vscode-yaml");
+//         if (!yamlExtension) {
+//             window.showErrorMessage(
+//                 'Please install "YAML Language Support by Red Hat" extension to proceed'
+//             );
+//             return;
+//         }
+//         const yamlExtensionAPI = await yamlExtension.activate();
+//         const SCHEMA = COMPONENT_YAML_SCHEMA;
 
-        // cache
-        const componentYamlCache = new Cache<ComponentYamlContent[], [number, string, string]>({
-            getDataFunc: (orgId: number, projectHandler: string, componentName: string) =>
-                ext.clients.projectClient.getComponentConfig(orgId, projectHandler, componentName)
-        });
+//         // cache
+//         const componentYamlCache = new Cache<ComponentYamlContent[], [number, string, string]>({
+//             getDataFunc: (orgId: number, projectHandler: string, componentName: string) =>
+//                 ext.clients.projectClient.getComponentConfig(orgId, projectHandler, componentName)
+//         });
 
-        // Read the schema file content
-        const schemaFilePath = path.join(ext.context.extensionPath, COMPONENT_YAML_SCHEMA_DIR);
+//         // Read the schema file content
+//         const schemaFilePath = path.join(ext.context.extensionPath, COMPONENT_YAML_SCHEMA_DIR);
 
-        const schemaContent = fs.readFileSync(schemaFilePath, "utf8");
-        const schemaContentJSON = JSON.parse(schemaContent) as ComponentYamlSchema;
+//         const schemaContent = fs.readFileSync(schemaFilePath, "utf8");
+//         const schemaContentJSON = JSON.parse(schemaContent) as ComponentYamlSchema;
 
-        function onRequestSchemaURI(resource: string): string | undefined {
-            if (/\.choreo\/component.*\.yaml$/.test(resource)) {
-                return `${SCHEMA}://schema/component-yaml`;
-            }
-            return undefined;
-        }
+//         function onRequestSchemaURI(resource: string): string | undefined {
+//             if (/\.choreo\/component.*\.yaml$/.test(resource)) {
+//                 return `${SCHEMA}://schema/component-yaml`;
+//             }
+//             return undefined;
+//         }
 
-        function onRequestSchemaContent(schemaUri: string): Promise<string> | undefined {
-            const parsedUri = Uri.parse(schemaUri);
-            if (parsedUri.scheme !== SCHEMA) {
-                return undefined;
-            }
-            if (!parsedUri.fsPath || !parsedUri.fsPath.startsWith("/")) {
-                return undefined;
-            }
+//         function onRequestSchemaContent(schemaUri: string): Promise<string> | undefined {
+//             const parsedUri = Uri.parse(schemaUri);
+//             if (parsedUri.scheme !== SCHEMA) {
+//                 return undefined;
+//             }
+//             if (!parsedUri.fsPath || !parsedUri.fsPath.startsWith("/")) {
+//                 return undefined;
+//             }
 
-            return new Promise(async (resolve, reject) => {
-                // const componentMetadata = await getComponentYamlMetadata();
-                // if (!componentMetadata) {
-                    resolve(JSON.stringify(schemaContentJSON));
-                // } else {
-                //     try {
-                //         const componentConfigKey = `${componentMetadata.project.orgId}-${componentMetadata.project.handler}-${componentMetadata.component}`;
-                //         let componentConfigs: ComponentYamlContent[] | undefined;
-                //         if (!componentMetadata.isLocalComponent) {
-                //             componentConfigs = await componentYamlCache.get(componentConfigKey, parseInt(componentMetadata.project.orgId), componentMetadata.project.handler, componentMetadata.component);
-                //         }
-                //         const clonedSchema = JSON.parse(JSON.stringify(schemaContentJSON)) as ComponentYamlSchema;
-                //         const enrichedSchema = enrichComponentSchema(
-                //             clonedSchema,
-                //             componentMetadata.component,
-                //             componentMetadata.project.name,
-                //             componentConfigs
-                //         );
-                //         resolve(JSON.stringify(enrichedSchema));
-                //     } catch (err) {
-                //         reject(window.showErrorMessage("Could not register schema"));
-                //     }
-                // }
-            });
-        }
+//             return new Promise(async (resolve, reject) => {
+//                 // const componentMetadata = await getComponentYamlMetadata();
+//                 // if (!componentMetadata) {
+//                     resolve(JSON.stringify(schemaContentJSON));
+//                 // } else {
+//                 //     try {
+//                 //         const componentConfigKey = `${componentMetadata.project.orgId}-${componentMetadata.project.handler}-${componentMetadata.component}`;
+//                 //         let componentConfigs: ComponentYamlContent[] | undefined;
+//                 //         if (!componentMetadata.isLocalComponent) {
+//                 //             componentConfigs = await componentYamlCache.get(componentConfigKey, parseInt(componentMetadata.project.orgId), componentMetadata.project.handler, componentMetadata.component);
+//                 //         }
+//                 //         const clonedSchema = JSON.parse(JSON.stringify(schemaContentJSON)) as ComponentYamlSchema;
+//                 //         const enrichedSchema = enrichComponentSchema(
+//                 //             clonedSchema,
+//                 //             componentMetadata.component,
+//                 //             componentMetadata.project.name,
+//                 //             componentConfigs
+//                 //         );
+//                 //         resolve(JSON.stringify(enrichedSchema));
+//                 //     } catch (err) {
+//                 //         reject(window.showErrorMessage("Could not register schema"));
+//                 //     }
+//                 // }
+//             });
+//         }
 
-        // Register the schema provider
-        yamlExtensionAPI.registerContributor(SCHEMA, onRequestSchemaURI, onRequestSchemaContent);
-    } catch {
-        window.showErrorMessage("Could not register YAML Language Server");
-        return;
-    }
-}
+//         // Register the schema provider
+//         yamlExtensionAPI.registerContributor(SCHEMA, onRequestSchemaURI, onRequestSchemaContent);
+//     } catch {
+//         window.showErrorMessage("Could not register YAML Language Server");
+//         return;
+//     }
+// }
 
 
 export function enrichComponentSchema(

@@ -10,8 +10,6 @@ import * as vscode from 'vscode';
 import { WebViewViewRPC } from "../rpc/WebviewRPC";
 import { getUri } from '../utils';
 import { ext } from '../../../extensionVariables';
-import { choreoEnvConfig } from '../../../auth/auth';
-import { FREE_COMPONENT_LIMIT } from '../../../auth/config';
 import { WebviewProps } from '@wso2-enterprise/choreo-core';
 import { contextStore } from '../../../stores/context-store';
 
@@ -46,7 +44,7 @@ export class ProjectActivityView implements vscode.WebviewViewProvider {
 		// this.updateProjectInfo();
 
 		contextStore.subscribe((store=>{
-			webviewView.title = store?.state?.selected?.project?.name ?? "Components";
+			webviewView.title = store?.state?.selected?.project?.name ?? "Project";
 			// webviewView.description = store?.state?.selected?.org?.name;
 		}));
 	}

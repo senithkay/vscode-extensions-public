@@ -20,7 +20,7 @@ import * as path from "path";
 import { showComponentDetailsView } from "../views/webviews/ComponentDetailsView";
 import { contextStore } from "../stores/context-store";
 import { authStore } from "../stores/auth-store";
-import { choreoEnvConfig } from "../auth/auth";
+import { choreoEnvConfig } from "../config";
 
 export function manageAccountCommand(context: ExtensionContext) {
     context.subscriptions.push(

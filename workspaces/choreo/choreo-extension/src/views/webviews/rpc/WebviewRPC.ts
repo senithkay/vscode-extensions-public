@@ -110,7 +110,7 @@ import { registerChoreoProjectRPCHandlers, registerChoreoCellViewRPCHandlers } f
 import { registerChoreoGithubRPCHandlers } from "@wso2-enterprise/choreo-client/lib/github/rpc";
 import { registerChoreoProjectManagerRPCHandlers, ChoreoProjectManager } from "@wso2-enterprise/choreo-client/lib/manager/";
 import { ext } from "../../../extensionVariables";
-import { ProjectRegistry } from "../../../registry/project-registry";
+// import { ProjectRegistry } from "../../../registry/project-registry";
 import * as vscode from "vscode";
 import { getLogger } from "../../../logger/logger";
 import { initGit } from "../../../git/main";
@@ -122,7 +122,7 @@ import { contextStore } from "../../../stores/context-store";
 import { webviewStateStore } from "../../../stores/webview-state-store";
 import { registerChoreoRpcResolver } from "../../../choreo-rpc";
 import { getGitRemotes, removeCredentialsFromGitURL } from "../../../git/util";
-import { choreoEnvConfig } from "../../../auth/auth";
+import { choreoEnvConfig } from "../../../config";
 import { getChoreoEnv, getChoreoExecPath } from "../../../choreo-rpc/cli-install";
 import { getSubPath, goTosource, makeURLSafe, readEndpoints } from "../../../utils";
 import { submitCreateComponentHandler } from "../../../cmds/create-component-cmd";
@@ -315,17 +315,17 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
     //     }
     // });
 
-    messenger.onRequest(CreateNonBalLocalComponent, async (params: ChoreoComponentCreationParams) => {
-        return ProjectRegistry.getInstance().createNonBalLocalComponent(params);
-    });
+    // messenger.onRequest(CreateNonBalLocalComponent, async (params: ChoreoComponentCreationParams) => {
+    //     return ProjectRegistry.getInstance().createNonBalLocalComponent(params);
+    // });
 
-    messenger.onRequest(CreateNonBalLocalComponentFromExistingSource, async (params: ChoreoComponentCreationParams) => {
-        return ProjectRegistry.getInstance().createNonBalLocalComponentFromExistingSource(params);
-    });
+    // messenger.onRequest(CreateNonBalLocalComponentFromExistingSource, async (params: ChoreoComponentCreationParams) => {
+    //     return ProjectRegistry.getInstance().createNonBalLocalComponentFromExistingSource(params);
+    // });
 
-    messenger.onRequest(CreateBalLocalComponentFromExistingSource, async (params: ChoreoComponentCreationParams) => {
-        return ProjectRegistry.getInstance().createBalLocalComponentFromExistingSource(params);
-    });
+    // messenger.onRequest(CreateBalLocalComponentFromExistingSource, async (params: ChoreoComponentCreationParams) => {
+    //     return ProjectRegistry.getInstance().createBalLocalComponentFromExistingSource(params);
+    // });
 
     // messenger.onRequest(GetBuildpack, async (params: GetBuildPackParams) => {
     //     const { orgId, componentType } = params;
@@ -336,16 +336,16 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
     //     return false;
     // });
 
-    messenger.onRequest(RemoveDeletedComponents, async (params: { projectId: string, components: PushedComponent[] }) => {
-        const answer = await vscode.window.showInformationMessage(
-            "Some components are deleted in Choreo. Do you want to remove them from workspace?",
-            "Yes",
-            "No"
-        );
-        if (answer === "Yes") {
-            ProjectRegistry.getInstance().removeDeletedComponents(params.components, params.projectId);
-        }
-    });
+    // messenger.onRequest(RemoveDeletedComponents, async (params: { projectId: string, components: PushedComponent[] }) => {
+    //     const answer = await vscode.window.showInformationMessage(
+    //         "Some components are deleted in Choreo. Do you want to remove them from workspace?",
+    //         "Yes",
+    //         "No"
+    //     );
+    //     if (answer === "Yes") {
+    //         ProjectRegistry.getInstance().removeDeletedComponents(params.components, params.projectId);
+    //     }
+    // });
 
     // messenger.onRequest(GetComponentDevDeployment, async (component: Component) => {
     //     const { orgHandler } = component;
@@ -365,29 +365,29 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
 
     // });
 
-    messenger.onRequest(DeleteComponent, async (params: { projectId: string; component: Component }) => {
-        const { orgHandler, displayName } = params.component;
-        // const org = ext.api.getOrgByHandle(orgHandler);
-        // if (org) {
-        //     const answer = await vscode.window.showWarningMessage(
-        //         `Are you sure you want to delete the component ${displayName}? `,
-        //         { modal: true },
-        //         "Delete Component"
-        //     );
-        //     if (answer === "Delete Component") {
-        //         await ProjectRegistry.getInstance().deleteComponent(params.component, org.id, org.handle, params.projectId);
-        //         return params.component;
-        //     }
-        //     return null;
-        // }
-        return null;
-    });
+    // messenger.onRequest(DeleteComponent, async (params: { projectId: string; component: Component }) => {
+    //     const { orgHandler, displayName } = params.component;
+    //     // const org = ext.api.getOrgByHandle(orgHandler);
+    //     // if (org) {
+    //     //     const answer = await vscode.window.showWarningMessage(
+    //     //         `Are you sure you want to delete the component ${displayName}? `,
+    //     //         { modal: true },
+    //     //         "Delete Component"
+    //     //     );
+    //     //     if (answer === "Delete Component") {
+    //     //         await ProjectRegistry.getInstance().deleteComponent(params.component, org.id, org.handle, params.projectId);
+    //     //         return params.component;
+    //     //     }
+    //     //     return null;
+    //     // }
+    //     return null;
+    // });
 
-    messenger.onRequest(getEndpointsForVersion, async (params: { componentId: string; versionId: string; orgId: number }): Promise<EndpointData | null> => {
-        return await ProjectRegistry.getInstance().getEndpointsForVersion(params.componentId, params.versionId, params.orgId);
-    });
+    // messenger.onRequest(getEndpointsForVersion, async (params: { componentId: string; versionId: string; orgId: number }): Promise<EndpointData | null> => {
+    //     return await ProjectRegistry.getInstance().getEndpointsForVersion(params.componentId, params.versionId, params.orgId);
+    // });
 
-    messenger.onRequest(PullComponent, async (params: { projectId: string; componentId: string }) => {
+    // messenger.onRequest(PullComponent, async (params: { projectId: string; componentId: string }) => {
         // const project = await ext.api.getChoreoProject();
         // if (!project) {
         //     throw new Error("Project not found");
@@ -397,7 +397,7 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
         //     throw new Error("Org not found");
         // }
         // await ProjectRegistry.getInstance().pullComponent(org.id, params.componentId, params.projectId);
-    });
+    // });
 
     // messenger.onRequest(GetComponentCount, async (params: GetComponentCountParams) => {
     //     const { orgId } = params;
@@ -415,96 +415,96 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
     //     // }
     // });
 
-    messenger.onRequest(GetProjectLocation, async (projectId: string) => {
-        return ProjectRegistry.getInstance().getProjectLocation(projectId);
-    });
+    // messenger.onRequest(GetProjectLocation, async (projectId: string) => {
+    //     return ProjectRegistry.getInstance().getProjectLocation(projectId);
+    // });
 
-    messenger.onRequest(OpenChoreoProject, async (projectId: string) => {
-        const workspaceFilePath = ProjectRegistry.getInstance().getProjectLocation(projectId);
-        if (workspaceFilePath !== undefined) {
-            await commands.executeCommand("vscode.openFolder", Uri.file(workspaceFilePath));
-            await commands.executeCommand("workbench.explorer.fileView.focus");
-        }
-    });
+    // messenger.onRequest(OpenChoreoProject, async (projectId: string) => {
+    //     const workspaceFilePath = ProjectRegistry.getInstance().getProjectLocation(projectId);
+    //     if (workspaceFilePath !== undefined) {
+    //         await commands.executeCommand("vscode.openFolder", Uri.file(workspaceFilePath));
+    //         await commands.executeCommand("workbench.explorer.fileView.focus");
+    //     }
+    // });
 
-    messenger.onRequest(CloneChoreoProject, (params: CloneChoreoProjectParams) => {
-        const { orgId, projectId } = params;
-        // const org = ext.api.getOrgById(orgId);
-        // if (org) {
-        //     ProjectRegistry.getInstance()
-        //         .getProject(projectId, orgId, org.handle)
-        //         .then((project: Project | undefined) => {
-        //             if (project) {
-        //                 cloneProject(project);
-        //             }
-        //         });
-        // }
-    });
+    // messenger.onRequest(CloneChoreoProject, (params: CloneChoreoProjectParams) => {
+    //     const { orgId, projectId } = params;
+    //     // const org = ext.api.getOrgById(orgId);
+    //     // if (org) {
+    //     //     ProjectRegistry.getInstance()
+    //     //         .getProject(projectId, orgId, org.handle)
+    //     //         .then((project: Project | undefined) => {
+    //     //             if (project) {
+    //     //                 cloneProject(project);
+    //     //             }
+    //     //         });
+    //     // }
+    // });
 
-    messenger.onRequest(AskProjectDirPath, async () => {
-        // return await askProjectDirPath();
-        return undefined;
-    });
+    // messenger.onRequest(AskProjectDirPath, async () => {
+    //     // return await askProjectDirPath();
+    //     return undefined;
+    // });
 
-    messenger.onRequest(CloneChoreoProjectWithDir, (params: { project: Project; dirPath: string; askOpeningOptions?: boolean }) => {
-        // cloneProject(params.project, params.dirPath, params.askOpeningOptions);
-    });
+    // messenger.onRequest(CloneChoreoProjectWithDir, (params: { project: Project; dirPath: string; askOpeningOptions?: boolean }) => {
+    //     // cloneProject(params.project, params.dirPath, params.askOpeningOptions);
+    // });
 
-    messenger.onRequest(IsBareRepoRequest, async (params: IsBareRepoRequestParams) => {
-        const projectLocation: string | undefined = ProjectRegistry.getInstance().getProjectLocation(params.projectID);
-        if (projectLocation) {
-            const repoPath = join(dirname(projectLocation), "repos", params.orgName, params.repoName);
-            const git = await initGit(ext.context);
-            if (git) {
-                return git.isEmptyRepository(repoPath);
-            } else {
-                getLogger().error("Git is not initialized, cannot check if the repo is bare.");
-            }
-        } else {
-            getLogger().error("Project location is not found for the project: " + params.projectID);
-        }
-        return false;
-    });
+    // messenger.onRequest(IsBareRepoRequest, async (params: IsBareRepoRequestParams) => {
+    //     const projectLocation: string | undefined = ProjectRegistry.getInstance().getProjectLocation(params.projectID);
+    //     if (projectLocation) {
+    //         const repoPath = join(dirname(projectLocation), "repos", params.orgName, params.repoName);
+    //         const git = await initGit(ext.context);
+    //         if (git) {
+    //             return git.isEmptyRepository(repoPath);
+    //         } else {
+    //             getLogger().error("Git is not initialized, cannot check if the repo is bare.");
+    //         }
+    //     } else {
+    //         getLogger().error("Project location is not found for the project: " + params.projectID);
+    //     }
+    //     return false;
+    // });
 
-    messenger.onRequest(SetExpandedComponents, async (params) => {
-        ProjectRegistry.getInstance().setExpandedComponents(params.projId, params.componentNames);
-    });
+    // messenger.onRequest(SetExpandedComponents, async (params) => {
+    //     ProjectRegistry.getInstance().setExpandedComponents(params.projId, params.componentNames);
+    // });
 
-    messenger.onRequest(GetExpandedComponents, (projectId: string) => {
-        return ProjectRegistry.getInstance().getExpandedComponents(projectId);
-    });
+    // messenger.onRequest(GetExpandedComponents, (projectId: string) => {
+    //     return ProjectRegistry.getInstance().getExpandedComponents(projectId);
+    // });
 
-    messenger.onRequest(setPreferredProjectRepository, async (params) => {
-        ProjectRegistry.getInstance().setPreferredProjectRepository(params.projId, params.repo);
-    });
+    // messenger.onRequest(setPreferredProjectRepository, async (params) => {
+    //     ProjectRegistry.getInstance().setPreferredProjectRepository(params.projId, params.repo);
+    // });
 
-    messenger.onRequest(getPreferredProjectRepository, (projectId: string) => {
-        return ProjectRegistry.getInstance().getPreferredProjectRepository(projectId);
-    });
+    // messenger.onRequest(getPreferredProjectRepository, (projectId: string) => {
+    //     return ProjectRegistry.getInstance().getPreferredProjectRepository(projectId);
+    // });
 
-    messenger.onRequest(getConsoleUrl, () => {
-        return ProjectRegistry.getInstance().getConsoleUrl();
-    });
+    // messenger.onRequest(getConsoleUrl, () => {
+    //     return ProjectRegistry.getInstance().getConsoleUrl();
+    // });
 
-    messenger.onRequest(isSubpathAvailable, (params: SubpathAvailableRequest) => {
-        return ProjectRegistry.getInstance().isSubpathAvailable(params.projectID, params.orgName, params.repoName, params.subpath);
-    });
+    // messenger.onRequest(isSubpathAvailable, (params: SubpathAvailableRequest) => {
+    //     return ProjectRegistry.getInstance().isSubpathAvailable(params.projectID, params.orgName, params.repoName, params.subpath);
+    // });
 
-    messenger.onRequest(ReadEndpointsYaml, (params: SubpathAvailableRequest) => {
-        return ProjectRegistry.getInstance().readEndpointsYaml(params.projectID, params.orgName, params.repoName, params.subpath);
-    });
+    // messenger.onRequest(ReadEndpointsYaml, (params: SubpathAvailableRequest) => {
+    //     return ProjectRegistry.getInstance().readEndpointsYaml(params.projectID, params.orgName, params.repoName, params.subpath);
+    // });
 
-    messenger.onRequest(OpenBillingPortal, (orgId: string) => {
-        return ProjectRegistry.getInstance().openBillingPortal(orgId);
-    });
+    // messenger.onRequest(OpenBillingPortal, (orgId: string) => {
+    //     return ProjectRegistry.getInstance().openBillingPortal(orgId);
+    // });
 
-    messenger.onRequest(getChoreoProject, () => {
-        return {} as Project;
-    });
+    // messenger.onRequest(getChoreoProject, () => {
+    //     return {} as Project;
+    // });
 
-    messenger.onRequest(OpenCellView, () => {
-        commands.executeCommand("ballerina.view.cellView");
-    });
+    // messenger.onRequest(OpenCellView, () => {
+    //     commands.executeCommand("ballerina.view.cellView");
+    // });
 
     // messenger.onRequest(getDiagramComponentModel, async (params): Promise<GetComponentModelResponse> => {
     //     let componentModels: { [key: string]: ComponentModel } = {};
@@ -541,30 +541,30 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
     // });
 
 
-    messenger.onRequest(PushLocalComponentsToChoreo, async function (params: PushLocalComponentsToChoreoParams): Promise<string[]> {
-        const { orgId, projectId, componentNames } = params;
-        // const org = ext.api.getOrgById(orgId);
-        // if (org) {
-        //     return ProjectRegistry.getInstance().pushLocalComponentsToChoreo(projectId, componentNames, org);
-        // }
-        return [];
-    });
+    // messenger.onRequest(PushLocalComponentsToChoreo, async function (params: PushLocalComponentsToChoreoParams): Promise<string[]> {
+    //     const { orgId, projectId, componentNames } = params;
+    //     // const org = ext.api.getOrgById(orgId);
+    //     // if (org) {
+    //     //     return ProjectRegistry.getInstance().pushLocalComponentsToChoreo(projectId, componentNames, org);
+    //     // }
+    //     return [];
+    // });
 
-    messenger.onRequest(PushLocalComponentToChoreo, async (params: { projectId: string; componentName: string }): Promise<void> => {
-        return window.withProgress(
-            {
-                title: `Pushing the ${params.componentName} component from your local machine to Choreo.`,
-                location: ProgressLocation.Notification,
-                cancellable: false,
-            },
-            async (_progress, cancellationToken) => {
-                // const org = await ext.api.getSelectedOrg();
-                // if (org) {
-                //     await ProjectRegistry.getInstance().pushLocalComponentToChoreo(params.projectId, params.componentName, org);
-                // }
-            }
-        );
-    });
+    // messenger.onRequest(PushLocalComponentToChoreo, async (params: { projectId: string; componentName: string }): Promise<void> => {
+    //     return window.withProgress(
+    //         {
+    //             title: `Pushing the ${params.componentName} component from your local machine to Choreo.`,
+    //             location: ProgressLocation.Notification,
+    //             cancellable: false,
+    //         },
+    //         async (_progress, cancellationToken) => {
+    //             // const org = await ext.api.getSelectedOrg();
+    //             // if (org) {
+    //             //     await ProjectRegistry.getInstance().pushLocalComponentToChoreo(params.projectId, params.componentName, org);
+    //             // }
+    //         }
+    //     );
+    // });
 
     ext.api.onRefreshWorkspaceMetadata(() => {
         messenger.sendNotification(RefreshWorkspaceNotification, BROADCAST, null);
@@ -580,9 +580,9 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
         }
     });
 
-    messenger.onRequest(GetLocalComponentDirMetaData, (params: getLocalComponentDirMetaDataRequest) => {
-        return ProjectRegistry.getInstance().getLocalComponentDirMetaData(params);
-    });
+    // messenger.onRequest(GetLocalComponentDirMetaData, (params: getLocalComponentDirMetaDataRequest) => {
+    //     return ProjectRegistry.getInstance().getLocalComponentDirMetaData(params);
+    // });
 
     messenger.onNotification(SendTelemetryEventNotification, (event: SendTelemetryEventParams) => {
         sendTelemetryEvent(event.eventName, event.properties, event.measurements);
@@ -597,16 +597,16 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
     });
 
     // Register RPC handlers for Choreo project client
-    registerChoreoProjectRPCHandlers(messenger, ext.clients.projectClient);
+    // registerChoreoProjectRPCHandlers(messenger, ext.clients.projectClient);
 
     // Register RPC handlers for Choreo Github app client
-    registerChoreoGithubRPCHandlers(messenger, ext.clients.githubAppClient);
+    // registerChoreoGithubRPCHandlers(messenger, ext.clients.githubAppClient);
 
     // Register RPC handlers for the Choreo Project Manager
     registerChoreoProjectManagerRPCHandlers(messenger, manager);
 
     // Register RPC handlers for the Choreo Cell View
-    registerChoreoCellViewRPCHandlers(messenger, ext.clients.cellViewClient);
+    // registerChoreoCellViewRPCHandlers(messenger, ext.clients.cellViewClient);
 
     // Register Choreo CLL RPC handler
     registerChoreoRpcResolver(messenger, ext.clients.rpcClient);
@@ -655,7 +655,11 @@ export class WebViewViewRPC {
 
     constructor(view: WebviewView) {
         this.registerView(view);
-        registerWebviewRPCHandlers(this._messenger, view);
+        try{
+            registerWebviewRPCHandlers(this._messenger, view);
+        } catch(err){
+            console.log('ewewr', err)
+        }
     }
 
     public get view(): WebviewView | undefined {

@@ -11,7 +11,7 @@ import { CommandIds } from "@wso2-enterprise/choreo-core";
 import { getUserInfoForCmd } from "./cmd-utils";
 import { contextStore } from "../stores/context-store";
 import { authStore } from "../stores/auth-store";
-import { choreoEnvConfig } from "../auth/auth";
+import { choreoEnvConfig } from "../config";
 import { removeContext } from "./set-directory-context-cmd";
 
 export function manageProjectContextCommand(context: ExtensionContext) {

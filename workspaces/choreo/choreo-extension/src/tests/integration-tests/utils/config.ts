@@ -9,7 +9,7 @@
 
 import { workspace } from "vscode";
 
-import { CHOREO_ENV_CONFIG_DEV, CHOREO_ENV_CONFIG_STAGE, DEFAULT_CHOREO_ENV_CONFIG, IChoreoEnvConfig } from "../../../auth/config";
+import { CHOREO_ENV_CONFIG_DEV, CHOREO_ENV_CONFIG_STAGE, DEFAULT_CHOREO_ENV_CONFIG, IChoreoEnvConfig } from "../../../config";
 
 export function getChoreoEnvConfig(): IChoreoEnvConfig {
     const choreoEnv = workspace.getConfiguration().get("Advanced.ChoreoEnvironment");

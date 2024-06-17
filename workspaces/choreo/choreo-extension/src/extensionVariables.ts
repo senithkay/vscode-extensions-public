@@ -8,10 +8,6 @@
  */
 import { ExtensionContext, StatusBarItem } from "vscode";
 import { ChoreoExtensionApi } from "./ChoreoExtensionApi";
-// import { RpcApi } from "./RpcApi";
-
-import { ChoreoProjectClient, ChoreoSubscriptionClient, ComponentManagementClient, ChoreoCellViewClient, ChoreoDevopsClient } from "@wso2-enterprise/choreo-client";
-import { ChoreoGithubAppClient } from "@wso2-enterprise/choreo-client/lib/github";
 import { ChoreoRPCClient } from "./choreo-rpc";
 
 export class ExtensionVariables {
@@ -21,13 +17,6 @@ export class ExtensionVariables {
     public statusBarItem!: StatusBarItem;    
 
     public clients!: {
-        projectClient: ChoreoProjectClient,
-        githubAppClient: ChoreoGithubAppClient,
-        subscriptionClient: ChoreoSubscriptionClient,
-        componentManagementClient: ComponentManagementClient,
-        devopsClient: ChoreoDevopsClient,
-        cellViewClient: ChoreoCellViewClient,
-
         rpcClient:ChoreoRPCClient
     };
 }
