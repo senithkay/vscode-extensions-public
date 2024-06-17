@@ -13,9 +13,9 @@ import getBabelOptions from "recast/parsers/_babel_options";
 import { parser } from "recast/parsers/babel";
 import { parse, print } from "recast";
 import { transformFromAstSync } from "@babel/core";
-import { MILanguageClient } from "./../lang-client/activator";
 import { ExtensionContext } from "vscode";
 import { JSONSchema3or4 } from "to-json-schema";
+import { StateMachine } from "../stateMachine";
 
 export function convertToJSONSchema(fileContent: string): JSONSchema3or4 {
     let schema = JSON.parse(fileContent);
@@ -23,7 +23,7 @@ export function convertToJSONSchema(fileContent: string): JSONSchema3or4 {
 }
 
 export async function generateSchema(ioType: string, fileType: string, title: string, context: ExtensionContext, filePath: string): Promise<JSONSchema3or4> {
-  const langClient = (await MILanguageClient.getInstance(context)).languageClient!;
+  const langClient = StateMachine.context().langClient!;
   const response = await langClient.generateSchema({
     filePath: filePath,
     delimiter: "",
