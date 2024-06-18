@@ -40,7 +40,8 @@ export type FilterType =
     | "xslt"
     | "yaml"
     | "registry"
-    | "mockService";
+    | "mockService"
+    | "dssQuery";
 
 // Interfaces
 interface IKeylookupBase {
@@ -196,6 +197,21 @@ export const Keylookup = (props: IKeylookup) => {
                 });
             }
             setItems(items);
+            return;
+        }
+
+        if (filterType === "dssQuery") {
+            const machineView = await rpcClient.getVisualizerState();
+            const dsSyntaxTree = await rpcClient.getMiDiagramRpcClient().getSyntaxTree({ documentUri: machineView.documentUri });
+            const dataServiceQueryParams = dsSyntaxTree.syntaxTree.data.queries;
+            const queryNames: string[] = [];
+
+            if (dataServiceQueryParams != undefined) {
+                dataServiceQueryParams.forEach((query: any) => {
+                    queryNames.push(query.id);
+                });
+            }
+            setItems(queryNames);
             return;
         }
 
