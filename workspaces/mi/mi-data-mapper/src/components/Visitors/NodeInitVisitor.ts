@@ -167,7 +167,7 @@ export class NodeInitVisitor implements Visitor {
             const { sourceFieldFQN } = views[views.length - 1];
             const inputRoot = this.context.inputTrees[0];
             const noOfSourceFields = sourceFieldFQN.split('.').length;
-            const inputType = mapFnAtRootReturnOrDecsendent
+            const inputType = mapFnAtRootReturnOrDecsendent && inputRoot.kind === TypeKind.Array
                 ? getDMTypeForRootChaninedMapFunction(inputRoot, mapFnIndex)
                 // Use mapFnIndex when the input of the focused map function is root of the input tree
                 : getDMType(sourceFieldFQN, inputRoot, noOfSourceFields === 1 ? mapFnIndex : undefined);
