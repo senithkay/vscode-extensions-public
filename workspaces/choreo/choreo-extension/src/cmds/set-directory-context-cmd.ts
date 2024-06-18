@@ -23,21 +23,33 @@ export function setDirectoryContextCommand(context: ExtensionContext) {
             try {
                 const userInfo = await getUserInfoForCmd("link a directory with a Choreo project");
                 if (userInfo) {
-                    const componentDir = await window.showOpenDialog({
-                        canSelectFolders: true,
-                        canSelectFiles: false,
-                        canSelectMany: false,
-                        title: "Select directory that needs to be linked with Choreo",
-                        defaultUri: Uri.file(os.homedir()),
-                    });
+                    let directoryUrl: Uri;
+                    if (!workspace.workspaceFile) {
+                        // is within a standard directory
+                        if (workspace.workspaceFolders?.length === 1) {
+                            directoryUrl = workspace.workspaceFolders[0].uri;
+                        } else {
+                            const wd = await resolveWorkspaceDirectory();
+                            directoryUrl = wd.uri;
+                        }
+                    } else {
+                        // let user pick the directory
+                        const componentDir = await window.showOpenDialog({
+                            canSelectFolders: true,
+                            canSelectFiles: false,
+                            canSelectMany: false,
+                            title: "Select directory that needs to be linked with Choreo",
+                            defaultUri: Uri.file(os.homedir()),
+                        });
 
-                    if (componentDir === undefined || componentDir.length === 0) {
-                        throw new Error("Directory is required to link with Choreo");
+                        if (componentDir === undefined || componentDir.length === 0) {
+                            throw new Error("Directory is required to link with Choreo");
+                        }
+
+                        directoryUrl = componentDir[0];
                     }
 
-                    const directoryUrl = componentDir[0];
-
-                    const gitRoot = await getGitRoot(context, componentDir[0].fsPath);
+                    const gitRoot = await getGitRoot(context, directoryUrl.fsPath);
                     if (!gitRoot) {
                         throw new Error("Selected directory is not within a git repository");
                     }

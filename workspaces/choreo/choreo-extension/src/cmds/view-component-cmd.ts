@@ -45,7 +45,7 @@ export function viewComponentCommand(context: ExtensionContext) {
                                 `Select component from '${selectedProject.name}' to view`
                             ));
 
-                    let matchingPath: string = params.componentPath;
+                    let matchingPath: string = params?.componentPath;
 
                     if(!matchingPath){
                         const contextItems = contextStore.getState().getValidItems();

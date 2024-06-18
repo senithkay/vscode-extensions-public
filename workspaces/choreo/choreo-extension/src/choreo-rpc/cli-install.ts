@@ -5,7 +5,9 @@ import * as fs from "fs";
 import * as path from "path";
 import axios from "axios";
 import { ext } from "../extensionVariables";
-import { workspace } from "vscode";
+import { ProgressLocation, window, workspace } from "vscode";
+import { GitProvider } from "@wso2-enterprise/choreo-core";
+import { initGit } from "src/git/main";
 
 export const getCliVersion = (): string => {
     const packageJson = JSON.parse(fs.readFileSync(path.join(ext.context.extensionPath, "package.json"), "utf8"));
@@ -40,7 +42,7 @@ export const downloadCLI = async () => {
 
     fs.mkdirSync(CHOREO_BIN_DIR, { recursive: true });
 
-    const FILE_NAME = `choreo-cli-${CLI_VERSION}-${OS === 'win32' ? "windows" : OS}-${ARCH}`;
+    const FILE_NAME = `choreo-cli-${CLI_VERSION}-${OS === "win32" ? "windows" : OS}-${ARCH}`;
     let FILE_TYPE = "";
 
     if (OS === "linux") {
@@ -67,7 +69,9 @@ export const downloadCLI = async () => {
         if (OS === "darwin") {
             execSync(`unzip -q ${CHOREO_TMP_FILE_DEST} -d ${CHOREO_TMP_DIR}`);
         } else if (OS === "win32") {
-            execSync(`powershell.exe -Command "Expand-Archive '${CHOREO_TMP_FILE_DEST}' -DestinationPath '${CHOREO_TMP_DIR}' -Force"`);
+            execSync(
+                `powershell.exe -Command "Expand-Archive '${CHOREO_TMP_FILE_DEST}' -DestinationPath '${CHOREO_TMP_DIR}' -Force"`
+            );
         }
     }
 
@@ -79,7 +83,7 @@ export const downloadCLI = async () => {
     await fs.promises.rm(CHOREO_TMP_DIR, { recursive: true });
 
     process.chdir(CHOREO_BIN_DIR);
-    if(OS !== "win32"){
+    if (OS !== "win32") {
         fs.promises.chmod(CHOREO_CLI_EXEC, 0o755);
     }
 
@@ -87,23 +91,46 @@ export const downloadCLI = async () => {
 };
 
 async function downloadFile(url: string, dest: string) {
-    const response = await axios({ url, method: "GET", responseType: "stream" });
-    const writer = fs.createWriteStream(dest);
+    const controller = new AbortController();
+    const response = await axios({ url, method: "GET", responseType: "stream", signal: controller.signal });
+    await window.withProgress(
+        {
+            title: `Initializing Choreo extension`,
+            location: ProgressLocation.Notification,
+            cancellable: true,
+        },
+        async (progress, cancellationToken) => {
+            return new Promise((resolve, reject) => {
+                const writer = fs.createWriteStream(dest);
+                const totalSize = parseInt(response.headers["content-length"], 10);
+                let downloadedSize = 0;
+                let previousPercentage = 0;
 
-    // const totalSize = parseInt(response.headers["content-length"], 10);
-    // let downloadedSize = 0;
-    // response.data.on("data", (chunk: string) => {
-    //     downloadedSize += chunk.length;
-    //     const progress = Math.round((downloadedSize / totalSize) * 100);
-    //     console.log(`Download Choreo RPC progress: ${progress}%`);
-    // });
+                response.data.on("data", (chunk: string) => {
+                    downloadedSize += chunk.length;
 
-    response.data.pipe(writer);
+                    const progressPercentage = Math.round((downloadedSize / totalSize) * 100);
+                    if (progressPercentage !== previousPercentage) {
+                        progress.report({
+                            increment: progressPercentage - previousPercentage,
+                            message: `${progressPercentage}%`,
+                        });
+                        previousPercentage = progressPercentage;
+                    }
+                });
 
-    return new Promise((resolve, reject) => {
-        writer.on("finish", resolve);
-        writer.on("error", reject);
-    });
+                response.data.pipe(writer);
+
+                cancellationToken.onCancellationRequested(() => {
+                    controller.abort();
+                    reject();
+                });
+
+                writer.on("finish", resolve);
+                writer.on("error", reject);
+            });
+        }
+    );
 }
 
 function getArchitecture() {

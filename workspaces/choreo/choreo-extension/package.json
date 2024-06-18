@@ -242,9 +242,9 @@
             }
           },
           {
-            "id": "componentLinks",
-            "title": "Component links",
-            "description": "Upon component creation, a .choreo/link.yaml will be created within the component directory, generating an association between the directory and the created component. \nIf the link.yaml file is not available, you can generate it by linking the directory with the component.\n[Link Directory](command:wso2.choreo.link.component)",
+            "id": "projectDirectory",
+            "title": "Project directory",
+            "description": "Upon creating a component or linking a directory with a project, a `.choreo/context.yaml` will be created in the root of the Git repository, establishing an association between the directory and the Choreo project.\nA directory can be associated with multiple projects, and you have the ability to switch between these projects.\nIf the `context.yaml` file is not available, you can generate it by [linking the directory](command:wso2.choreo.project.create.context) with the project.\n[Manage Project](command:wso2.choreo.project.manage)",
             "media": {
               "markdown": "resources/walkthrough/link-dir.md"
             }
@@ -252,7 +252,7 @@
           {
             "id": "manageComponent",
             "title": "Manage your components",
-            "description": "Access the component details view to manage a selected component. This view is accessible by selecting a component in the [Choreo activity panel](command:choreo.activity.project.focus) or by running the [View Component Details](command:wso2.choreo.component.view) command.\n**Build component**: Initiate a new build by selecting the commit you wish to build. In case of build failures, diagnose them by reviewing the build logs.\n**Deploy component**: Once a component's commit has been successfully built, deploy the build onto any available environment (e.g., Development, Production, etc.).\n**View Logs**: After successful deployment, monitor real-time application and gateway logs of the component within VSCode's integrated terminal.",
+            "description": "Access the component details view to manage a selected component. This view is accessible by selecting a component in the [Choreo activity panel](command:choreo.activity.project.focus) or by running the [View Component Details](command:wso2.choreo.component.view) command.\n**Build component**: Initiate a new build by selecting the commit you wish to build. In case of build failures, diagnose them by reviewing the build logs.\n**Deploy component**: Once a component's commit has been successfully built, deploy the build onto any available environment (e.g., Development, Production, etc.).\n**Test component**: Depending on the component type, you can test it using an Open API view, manually triggering functions, or accessing publicly available URLs.\n**View Logs**: After successful deployment, monitor real-time application and gateway logs of the component within VSCode's integrated terminal.",
             "media": {
               "markdown": "resources/walkthrough/comp-details.md"
             }
