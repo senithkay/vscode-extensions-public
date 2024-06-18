@@ -6,7 +6,6 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
 */
-// AUTO-GENERATED FILE. DO NOT MODIFY.
 
 import React, { useEffect, useRef } from 'react';
 import { AutoComplete, Button, ComponentCard, ProgressIndicator, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
@@ -218,6 +217,7 @@ const DBReportForm = (props: AddMediatorProps) => {
                 documentUri: props.documentUri, range: props.nodePosition, text: xml
             });
         }
+        rpcClient.getMiDiagramRpcClient().addDependencyToPom({ groupId: "org.postgresql", artifactId: "postgresql", version: "42.7.3", file: props.documentUri });
         sidePanelContext.setSidePanelState({
             ...sidePanelContext,
             isOpen: false,

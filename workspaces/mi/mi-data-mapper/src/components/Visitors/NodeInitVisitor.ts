@@ -45,6 +45,7 @@ import {
     createOutputNodeForDmFunction,
     getOutputNode,
     getSubMappingNode,
+    isDataImportNode,
     isObjectOrArrayLiteralExpression
 } from "../Diagram/utils/node-utils";
 import { SourceNodeType } from "../DataMapper/Views/DataMapperView";
@@ -344,10 +345,15 @@ export class NodeInitVisitor implements Visitor {
     }
 
     getNodes() {
-        // Add node to capture the sub mappings
-        const subMappingNode = getSubMappingNode(this.context);;
+        const nodes = [this.inputNode, this.outputNode];
 
-        const nodes = [this.inputNode, subMappingNode, this.outputNode];
+        if (!isDataImportNode(this.inputNode) && !isDataImportNode(this.outputNode)) {
+            // Add node to capture the sub mappings
+            const subMappingNode = getSubMappingNode(this.context);
+            // Insert subMappingNode in the middle
+            nodes.splice(1, 0, subMappingNode);
+        }
+
         nodes.push(...this.intermediateNodes);
 
         return nodes;

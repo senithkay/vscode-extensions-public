@@ -340,7 +340,7 @@ export function ConnectorPage(props: ConnectorPageProps) {
                 connectorName={connector.name}
                 operationName={operation} />;
 
-                sidepanelAddPage(sidePanelContext, connecterForm, `${sidePanelContext.isEditing ? "Edit" : "Add"} ${operation}`, iconPathUri.uri);
+            sidepanelAddPage(sidePanelContext, connecterForm, `${sidePanelContext.isEditing ? "Edit" : "Add"} ${operation}`, iconPathUri.uri);
         } else {
             fetchLocalConnectorData();
         }
@@ -405,64 +405,88 @@ export function ConnectorPage(props: ConnectorPageProps) {
                             ) : (
                                 <ButtonGrid>
                                     {displayeLocalConnectors.map((connector: any) => (
-                                        <ComponentCard
-                                            key={connector.name}
-                                            onClick={() => selectConnector(connector)}
-                                            sx={{
-                                                '&:hover, &.active': {
-                                                    ...(expandedConnectors.includes(connector) && {
-                                                        '.icon svg g': {
-                                                            fill: 'var(--vscode-editor-foreground)'
-                                                        },
-                                                        backgroundColor: 'var(--vscode-pickerGroup-border)',
-                                                        border: '0.5px solid var(--vscode-focusBorder)'
-                                                    })
-                                                },
-                                                alignItems: 'center',
-                                                border: '0.5px solid var(--vscode-editor-foreground)',
-                                                borderRadius: 2,
-                                                cursor: 'pointer',
-                                                display: 'flex',
-                                                justifyContent: 'left',
-                                                marginBottom: 10,
-                                                padding: 10,
-                                                transition: '0.3s',
-                                                width: 'calc(100% - 25px)'
-                                            }}
-                                        >
-                                            <CardContent>
-                                                <CardLabel>
-                                                    <IconContainer>
-                                                        <img
-                                                            src={connector.iconPathUri.uri}
-                                                            alt="Icon"
-                                                        />
-                                                    </IconContainer>
-                                                    <div style={{
-                                                        width: '100%',
-                                                        overflow: 'hidden',
-                                                        textOverflow: 'ellipsis',
-                                                        whiteSpace: 'nowrap',
-                                                        textAlign: 'left'
-                                                    }}>
-                                                        <IconLabel>
-                                                            {connector.name}
-                                                        </IconLabel>
-                                                        <VersionTag>
-                                                            {connector.version}
-                                                        </VersionTag>
-                                                    </div>
-                                                    <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                                                        {expandedConnectors.includes(connector) ?
-                                                            <Codicon name={"chevron-up"} /> : <Codicon name={"chevron-down"} />
-                                                        }
-                                                    </div>
-                                                </CardLabel>
-                                                {(filteredOperations.some(
-                                                    ([filteredConnector]) =>
-                                                        filteredConnector.name === connector.name
-                                                )
-                                                    || (expandedConnectors && expandedConnectors.includes(connector))) && (
+                                        <>
+                                            <ComponentCard
+                                                key={connector.name}
+                                                onClick={() => selectConnector(connector)}
+                                                sx={{
+                                                    '&:hover, &.active': {
+                                                        ...(expandedConnectors.includes(connector) && {
+                                                            '.icon svg g': {
+                                                                fill: 'var(--vscode-editor-foreground)'
+                                                            },
+                                                            backgroundColor: 'var(--vscode-pickerGroup-border)',
+                                                            border: '0.5px solid var(--vscode-focusBorder)'
+                                                        })
+                                                    },
+                                                    alignItems: 'center',
+                                                    backgroundColor: expandedConnectors.includes(connector) ?
+                                                        'var(--vscode-pickerGroup-border)' :
+                                                        'defaultColor',
+                                                    border: '0.5px solid var(--vscode-editor-foreground)',
+                                                    borderRadius: 2,
+                                                    cursor: 'pointer',
+                                                    display: 'flex',
+                                                    justifyContent: 'left',
+                                                    marginBottom: 10,
+                                                    padding: 10,
+                                                    transition: '0.3s',
+                                                    width: 'calc(100% - 25px)'
+                                                }}
+                                            >
+                                                <CardContent>
+                                                    <CardLabel>
+                                                        <IconContainer>
+                                                            <img
+                                                                src={connector.iconPathUri.uri}
+                                                                alt="Icon"
+                                                            />
+                                                        </IconContainer>
+                                                        <div style={{
+                                                            width: '100%',
+                                                            overflow: 'hidden',
+                                                            textOverflow: 'ellipsis',
+                                                            whiteSpace: 'nowrap',
+                                                            textAlign: 'left'
+                                                        }}>
+                                                            <IconLabel>
+                                                                {connector.name}
+                                                            </IconLabel>
+                                                            <VersionTag>
+                                                                {connector.version}
+                                                            </VersionTag>
+                                                        </div>
+                                                        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                                                            {expandedConnectors.includes(connector) ?
+                                                                <Codicon name={"chevron-up"} /> : <Codicon name={"chevron-down"} />
+                                                            }
+                                                        </div>
+                                                    </CardLabel>
+                                                </CardContent>
+                                            </ComponentCard>
+                                            {(filteredOperations.some(
+                                                ([filteredConnector]) =>
+                                                    filteredConnector.name === connector.name
+                                            )
+                                                || (expandedConnectors && expandedConnectors.includes(connector))) && (
+                                                    <div
+                                                        key={connector.name}
+                                                        style={{
+                                                            alignItems: 'center',
+                                                            border: '0.5px solid var(--vscode-editor-foreground)',
+                                                            borderRadius: 2,
+                                                            cursor: 'pointer',
+                                                            display: 'flex',
+                                                            justifyContent: 'left',
+                                                            marginBottom: 10,
+                                                            padding: 10,
+                                                            transition: '0.3s',
+                                                            width: 'calc(100% - 25px)',
+                                                            flexDirection: 'column',
+                                                            backgroundColor: 'var(--vscode-editorWidget-background)'
+                                                        }}
+                                                    >
+                                                        <div style={{ width: '100%', textAlign: 'left' }}>Select Operations</div>
                                                         <OperationGrid>
                                                             {((filteredOperations.find(([filteredConnector]) => filteredConnector === connector)?.slice(1))
                                                                 || (connector.actions)).map((operation: any) => {
@@ -492,7 +516,7 @@ export function ConnectorPage(props: ConnectorPageProps) {
                                                                                 justifyContent: 'left',
                                                                                 padding: 10,
                                                                                 transition: '0.3s',
-                                                                                width: 170
+                                                                                width: 160
                                                                             }}
                                                                         >
                                                                             <div style={{
@@ -508,10 +532,10 @@ export function ConnectorPage(props: ConnectorPageProps) {
                                                                     );
                                                                 })}
                                                         </OperationGrid>
-                                                    )
-                                                }
-                                            </CardContent>
-                                        </ComponentCard>
+                                                    </div>
+                                                )
+                                            }
+                                        </>
                                     ))}
                                 </ButtonGrid>
                             )}
@@ -526,68 +550,92 @@ export function ConnectorPage(props: ConnectorPageProps) {
                             ) :
                                 <ButtonGrid>
                                     {(displayedStoreConnectors.sort((a: any, b: any) => a.rank - b.rank).map((connector: any) => (
-                                        <ComponentCard
-                                            key={connector.name}
-                                            onClick={() => selectConnector(connector)}
-                                            sx={{
-                                                '&:hover, &.active': {
-                                                    ...(expandedConnectors.includes(connector) && {
-                                                        '.icon svg g': {
-                                                            fill: 'var(--vscode-editor-foreground)'
-                                                        },
-                                                        backgroundColor: 'var(--vscode-pickerGroup-border)',
-                                                        border: '0.5px solid var(--vscode-focusBorder)'
-                                                    })
-                                                },
-                                                alignItems: 'center',
-                                                border: '0.5px solid var(--vscode-editor-foreground)',
-                                                borderRadius: 2,
-                                                cursor: 'pointer',
-                                                display: 'flex',
-                                                justifyContent: 'left',
-                                                marginBottom: 10,
-                                                padding: 10,
-                                                transition: '0.3s',
-                                                width: 'calc(100% - 25px)'
-                                            }}
-                                        >
-                                            <CardContent>
-                                                <CardLabel>
-                                                    <IconContainer>
-                                                        <img
-                                                            src={connector.icon_url}
-                                                            alt="Icon"
-                                                            onError={(e) => {
-                                                                const target = e.target as HTMLImageElement;
-                                                                target.src = 'https://mi-connectors.wso2.com/icons/wordpress.gif'
-                                                            }}
-                                                        />
-                                                    </IconContainer>
-                                                    <div style={{
-                                                        width: '100%',
-                                                        overflow: 'hidden',
-                                                        textOverflow: 'ellipsis',
-                                                        whiteSpace: 'nowrap',
-                                                        textAlign: 'left'
-                                                    }}>
-                                                        <IconLabel>
-                                                            {connector.name}
-                                                        </IconLabel>
-                                                        <VersionTag>
-                                                            {connector.version}
-                                                        </VersionTag>
-                                                    </div>
-                                                    <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                                                        {expandedConnectors.includes(connector) ?
-                                                            <Codicon name={"chevron-up"} /> : <Codicon name={"chevron-down"} />
-                                                        }
-                                                    </div>
-                                                </CardLabel>
-                                                {(filteredOperations.some(
-                                                    ([filteredConnector]) =>
-                                                        filteredConnector.name === connector.name
-                                                )
-                                                    || (expandedConnectors && expandedConnectors.includes(connector))) && (
+                                        <>
+                                            <ComponentCard
+                                                key={connector.name}
+                                                onClick={() => selectConnector(connector)}
+                                                sx={{
+                                                    '&:hover, &.active': {
+                                                        ...(expandedConnectors.includes(connector) && {
+                                                            '.icon svg g': {
+                                                                fill: 'var(--vscode-editor-foreground)'
+                                                            },
+                                                            backgroundColor: 'var(--vscode-pickerGroup-border)',
+                                                            border: '0.5px solid var(--vscode-focusBorder)'
+                                                        })
+                                                    },
+                                                    alignItems: 'center',
+                                                    backgroundColor: expandedConnectors.includes(connector) ?
+                                                        'var(--vscode-pickerGroup-border)' :
+                                                        'defaultColor',
+                                                    border: '0.5px solid var(--vscode-editor-foreground)',
+                                                    borderRadius: 2,
+                                                    cursor: 'pointer',
+                                                    display: 'flex',
+                                                    justifyContent: 'left',
+                                                    marginBottom: 10,
+                                                    padding: 10,
+                                                    transition: '0.3s',
+                                                    width: 'calc(100% - 25px)'
+                                                }}
+                                            >
+                                                <CardContent>
+                                                    <CardLabel>
+                                                        <IconContainer>
+                                                            <img
+                                                                src={connector.icon_url}
+                                                                alt="Icon"
+                                                                onError={(e) => {
+                                                                    const target = e.target as HTMLImageElement;
+                                                                    target.src = 'https://mi-connectors.wso2.com/icons/wordpress.gif'
+                                                                }}
+                                                            />
+                                                        </IconContainer>
+                                                        <div style={{
+                                                            width: '100%',
+                                                            overflow: 'hidden',
+                                                            textOverflow: 'ellipsis',
+                                                            whiteSpace: 'nowrap',
+                                                            textAlign: 'left'
+                                                        }}>
+                                                            <IconLabel>
+                                                                {connector.name}
+                                                            </IconLabel>
+                                                            <VersionTag>
+                                                                {connector.version}
+                                                            </VersionTag>
+                                                        </div>
+                                                        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                                                            {expandedConnectors.includes(connector) ?
+                                                                <Codicon name={"chevron-up"} /> : <Codicon name={"chevron-down"} />
+                                                            }
+                                                        </div>
+                                                    </CardLabel>
+                                                </CardContent>
+                                            </ComponentCard>
+                                            {(filteredOperations.some(
+                                                ([filteredConnector]) =>
+                                                    filteredConnector.name === connector.name
+                                            )
+                                                || (expandedConnectors && expandedConnectors.includes(connector))) && (
+                                                    <div
+                                                        key={connector.name}
+                                                        style={{
+                                                            alignItems: 'center',
+                                                            border: '0.5px solid var(--vscode-editor-foreground)',
+                                                            borderRadius: 2,
+                                                            cursor: 'pointer',
+                                                            display: 'flex',
+                                                            justifyContent: 'left',
+                                                            marginBottom: 10,
+                                                            padding: 10,
+                                                            transition: '0.3s',
+                                                            width: 'calc(100% - 25px)',
+                                                            flexDirection: 'column',
+                                                            backgroundColor: 'var(--vscode-editorWidget-background)'
+                                                        }}
+                                                    >
+                                                        <div style={{ width: '100%', textAlign: 'left' }}>Select Operations</div>
                                                         <OperationGrid>
                                                             {((filteredOperations.find(([filteredConnector]) => filteredConnector === connector)?.slice(1))
                                                                 || connector.operations).map((operation: any) => {
@@ -617,7 +665,7 @@ export function ConnectorPage(props: ConnectorPageProps) {
                                                                                 justifyContent: 'left',
                                                                                 padding: 10,
                                                                                 transition: '0.3s',
-                                                                                width: 170
+                                                                                width: 160
                                                                             }}
                                                                         >
                                                                             <div style={{
@@ -633,10 +681,10 @@ export function ConnectorPage(props: ConnectorPageProps) {
                                                                     );
                                                                 })}
                                                         </OperationGrid>
-                                                    )
-                                                }
-                                            </CardContent>
-                                        </ComponentCard>
+                                                    </div>
+                                                )
+                                            }
+                                        </>
                                     ))
                                     )}
                                 </ButtonGrid>

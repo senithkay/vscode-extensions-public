@@ -86,37 +86,37 @@ export function getAllMediators(props: GetMediatorsProps) {
                 title: "Call Endpoint",
                 operationName: MEDIATORS.CALL,
                 tooltip: "Invokes external services in blocking/non-blocking mode",
-                form: <PayloadForm nodePosition={props.nodePosition} documentUri={props.documentUri}></PayloadForm>,
+                form: <CallForm nodePosition={props.nodePosition} documentUri={props.documentUri}></CallForm>,
             },
             {
                 title: "Property",
                 operationName: MEDIATORS.PROPERTY,
                 tooltip: "Manipulates message properties by setting and/or removing property values, supporting both constant and dynamically generated values through XPath expressions",
-                form: <DataMapperForm nodePosition={props.nodePosition} documentUri={props.documentUri}></DataMapperForm>,
+                form: <PropertyForm nodePosition={props.nodePosition} documentUri={props.documentUri}></PropertyForm>,
             },
             {
                 title: "Log",
                 operationName: MEDIATORS.LOG,
                 tooltip: "Generates logs for messages. Log details are customisable",
-                form: <XSLTForm nodePosition={props.nodePosition} documentUri={props.documentUri}></XSLTForm>,
+                form: <LogForm nodePosition={props.nodePosition} documentUri={props.documentUri}></LogForm>,
             },
             {
                 title: "Payload",
                 operationName: MEDIATORS.PAYLOAD,
                 tooltip: "Replaces message payload with a new SOAP/JSON payload",
-                form: <EnrichForm nodePosition={props.nodePosition} documentUri={props.documentUri}></EnrichForm>,
+                form: <PayloadForm nodePosition={props.nodePosition} documentUri={props.documentUri}></PayloadForm>,
             },
             {
                 title: "Respond",
                 operationName: MEDIATORS.RESPOND,
                 tooltip: "Terminates the processing of the current message flow and returns the message to the client",
-                form: <HeaderForm nodePosition={props.nodePosition} documentUri={props.documentUri}></HeaderForm>,
+                form: <RespondForm nodePosition={props.nodePosition} documentUri={props.documentUri}></RespondForm>,
             },
             {
                 title: "Data Mapper",
                 operationName: MEDIATORS.DATAMAPPER,
                 tooltip: "Transforms one data format to another, or changes the data structure in the message",
-                form: <JSONTransformForm nodePosition={props.nodePosition} documentUri={props.documentUri}></JSONTransformForm>,
+                form: <DataMapperForm nodePosition={props.nodePosition} documentUri={props.documentUri}></DataMapperForm>,
             }
         ],
         "flow control": [
@@ -286,7 +286,7 @@ export function getAllMediators(props: GetMediatorsProps) {
                 title: "Store Message",
                 operationName: MEDIATORS.STORE,
                 tooltip: "Routes message to a predefined message store",
-                form: <NTLMForm nodePosition={props.nodePosition} documentUri={props.documentUri}></NTLMForm>,
+                form: <StoreForm nodePosition={props.nodePosition} documentUri={props.documentUri}></StoreForm>,
             }
         ],
         "security": [

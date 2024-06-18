@@ -11,6 +11,7 @@
 import {
     AIUserInput,
     AI_EVENT_TYPE,
+    AddDependencyToPomRequest,
     ApiDirectoryResponse,
     ApplyEditRequest,
     ApplyEditResponse,
@@ -19,6 +20,7 @@ import {
     CommandsRequest,
     CommandsResponse,
     CompareSwaggerAndAPIResponse,
+    Configuration,
     Connector,
     ConnectorRequest,
     ConnectorResponse,
@@ -29,6 +31,8 @@ import {
     CreateClassMediatorResponse,
     CreateConnectionRequest,
     CreateConnectionResponse,
+    CreateDataServiceRequest,
+    CreateDataServiceResponse,
     CreateDataSourceResponse,
     CreateEndpointRequest,
     CreateEndpointResponse,
@@ -46,10 +50,6 @@ import {
     CreateProxyServiceResponse,
     CreateRegistryResourceRequest,
     CreateRegistryResourceResponse,
-    UpdateRegistryMetadataRequest,
-    UpdateRegistryMetadataResponse,
-    GetRegistryMetadataRequest,
-    GetRegistryMetadataResponse,
     CreateSequenceRequest,
     CreateSequenceResponse,
     CreateTaskRequest,
@@ -57,6 +57,7 @@ import {
     CreateTemplateRequest,
     CreateTemplateResponse,
     DataSourceTemplate,
+    Datasource,
     DeleteArtifactRequest,
     DownloadConnectorRequest,
     DownloadConnectorResponse,
@@ -108,6 +109,8 @@ import {
     GetProjectUuidResponse,
     GetRecipientEPRequest,
     GetRecipientEPResponse,
+    GetRegistryMetadataRequest,
+    GetRegistryMetadataResponse,
     GetSelectiveWorkspaceContextResponse,
     GetTaskRequest,
     GetTaskResponse,
@@ -129,10 +132,13 @@ import {
     POPUP_EVENT_TYPE,
     ProjectDirResponse,
     ProjectRootResponse,
+    Property,
     RangeFormatRequest,
     RegistryArtifactNamesResponse,
     RetrieveAddressEndpointRequest,
     RetrieveAddressEndpointResponse,
+    RetrieveDataServiceRequest,
+    RetrieveDataServiceResponse,
     RetrieveDefaultEndpointRequest,
     RetrieveDefaultEndpointResponse,
     RetrieveHttpEndpointRequest,
@@ -164,6 +170,8 @@ import {
     UpdateMockServiceResponse,
     UpdateRecipientEPRequest,
     UpdateRecipientEPResponse,
+    UpdateRegistryMetadataRequest,
+    UpdateRegistryMetadataResponse,
     UpdateTemplateEPRequest,
     UpdateTemplateEPResponse,
     UpdateTestCaseRequest,
@@ -175,12 +183,13 @@ import {
     WriteContentToFileRequest,
     WriteContentToFileResponse,
     getSTRequest,
-    getSTResponse,
+    getSTResponse
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
 import { error } from "console";
 import * as fs from "fs";
 import { copy } from 'fs-extra';
+import { isEqual } from "lodash";
 import fetch from 'node-fetch';
 import * as os from 'os';
 import { Transform } from 'stream';
@@ -189,29 +198,28 @@ import { v4 as uuidv4 } from 'uuid';
 import * as vscode from 'vscode';
 import { Position, Range, Selection, TextEdit, Uri, ViewColumn, WorkspaceEdit, commands, window, workspace } from "vscode";
 import { parse, stringify } from "yaml";
+import { UnitTest } from "../../../../syntax-tree/lib/src";
 import { extension } from '../../MIExtensionContext';
 import { StateMachineAI } from '../../ai-panel/aiMachine';
 import { COMMANDS, DEFAULT_PROJECT_VERSION, MI_COPILOT_BACKEND_URL } from "../../constants";
 import { StateMachine, navigate, openView } from "../../stateMachine";
 import { openPopupView } from "../../stateMachinePopup";
 import { testFileMatchPattern } from "../../test-explorer/discover";
+import { mockSerivesFilesMatchPattern } from "../../test-explorer/mock-services/activator";
 import { UndoRedoManager } from "../../undoRedoManager";
-import { createFolderStructure, getAddressEndpointXmlWrapper, getAPIResourceXmlWrapper, getDefaultEndpointXmlWrapper, getFailoverXmlWrapper, getHttpEndpointXmlWrapper, getInboundEndpointXmlWrapper, getLoadBalanceXmlWrapper, getMessageProcessorXmlWrapper, getMessageStoreXmlWrapper, getProxyServiceXmlWrapper, getRegistryResourceContent, getTaskXmlWrapper, getTemplateEndpointXmlWrapper, getTemplateXmlWrapper, getWsdlEndpointXmlWrapper, copyDockerResources } from "../../util";
+import { copyDockerResources, createFolderStructure, getAPIResourceXmlWrapper, getAddressEndpointXmlWrapper, getDataServiceXmlWrapper, getDefaultEndpointXmlWrapper, getFailoverXmlWrapper, getHttpEndpointXmlWrapper, getInboundEndpointXmlWrapper, getLoadBalanceXmlWrapper, getMessageProcessorXmlWrapper, getMessageStoreXmlWrapper, getProxyServiceXmlWrapper, getRegistryResourceContent, getTaskXmlWrapper, getTemplateEndpointXmlWrapper, getTemplateXmlWrapper, getWsdlEndpointXmlWrapper } from "../../util";
 import { addNewEntryToArtifactXML, addSynapseDependency, changeRootPomPackaging, createMetadataFilesForRegistryCollection, deleteRegistryResource, detectMediaType, getAvailableRegistryResources, getMediatypeAndFileExtension, getRegistryResourceMetadata, updateRegistryResourceMetadata } from "../../util/fileOperations";
 import { log } from "../../util/logger";
 import { importProject } from "../../util/migrationUtils";
+import { getResourceInfo, isEqualSwaggers, mergeSwaggers } from "../../util/swagger";
 import { getDataSourceXml } from "../../util/template-engine/mustach-templates/DataSource";
 import { getClassMediatorContent } from "../../util/template-engine/mustach-templates/classMediator";
 import { generateXmlData, writeXmlDataToFile } from "../../util/template-engine/mustach-templates/createLocalEntry";
 import { getRecipientEPXml } from "../../util/template-engine/mustach-templates/recipientEndpoint";
-import { rootPomXmlContent, dockerfileContent } from "../../util/templates";
+import { dockerfileContent, rootPomXmlContent } from "../../util/templates";
 import { replaceFullContentToFile } from "../../util/workspace";
 import { VisualizerWebview } from "../../visualizer/webview";
 import path = require("path");
-import { getResourceInfo, isEqualSwaggers, mergeSwaggers } from "../../util/swagger";
-import { isEqual } from "lodash";
-import { mockSerivesFilesMatchPattern } from "../../test-explorer/mock-services/activator";
-import { UnitTest } from "../../../../syntax-tree/lib/src";
 
 const { XMLParser, XMLBuilder } = require("fast-xml-parser");
 
@@ -2068,6 +2076,180 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         });
     }
 
+    async createDataService(params: CreateDataServiceRequest): Promise<CreateDataServiceResponse> {
+        return new Promise(async (resolve) => {
+            let filePath;
+            if (params.directory.endsWith('.xml')) {
+                filePath = params.directory;
+                const data = await fs.readFileSync(filePath);
+                const resourcePattern = /<resource[\s\S]*?<\/resource>/g;
+                const operationPattern = /<operation[\s\S]*?<\/operation>/g;
+                const queryPattern = /<query[\s\S]*?<\/query>/g;
+                const resources: any[] = [];
+                const operations: any[] = [];
+                const queries: any[] = [];
+                let match;
+
+                while ((match = resourcePattern.exec(data.toString())) !== null) {
+                    resources.push(match[0]);
+                }
+                while ((match = operationPattern.exec(data.toString())) !== null) {
+                    operations.push(match[0]);
+                }
+                while ((match = queryPattern.exec(data.toString())) !== null) {
+                    queries.push(match[0]);
+                }
+
+                params.resources = resources;
+                params.operations = operations;
+                params.queries = queries;
+                await this.updateDataService(params);
+            } else {
+                const {
+                    directory, dataServiceName, dataServiceNamespace, serviceGroup, selectedTransports, publishSwagger, jndiName,
+                    enableBoxcarring, enableBatchRequests, serviceStatus, disableLegacyBoxcarringMode, enableStreaming,
+                    description, datasources, authProviderClass, authProperties, queries, operations, resources
+                } = params;
+
+                const getDataServiceParams = {
+                    dataServiceName, dataServiceNamespace, serviceGroup, selectedTransports, publishSwagger, jndiName,
+                    enableBoxcarring, enableBatchRequests, serviceStatus, disableLegacyBoxcarringMode, enableStreaming,
+                    description, datasources, authProviderClass, authProperties, queries, operations, resources
+                };
+
+                const xmlData = getDataServiceXmlWrapper({ ...getDataServiceParams, writeType: "create" });
+                const sanitizedXmlData = xmlData.replace(/^\s*[\r\n]/gm, '');
+
+                filePath = path.join(directory, `${dataServiceName}.xml`);
+                if (filePath.includes('dataServices')) {
+                    filePath = filePath.replace('dataServices', 'data-services');
+                }
+
+                fs.writeFileSync(filePath, sanitizedXmlData);
+                await this.rangeFormat({
+                    uri: filePath,
+                    range: {
+                        start: { line: 0, character: 0 },
+                        end: { line: sanitizedXmlData.split('\n').length + 1, character: 0 }
+                    }
+                });
+            }
+
+            commands.executeCommand(COMMANDS.REFRESH_COMMAND);
+            resolve({ path: filePath });
+        });
+    }
+
+    async updateDataService(params: CreateDataServiceRequest): Promise<CreateDataServiceResponse> {
+        return new Promise(async (resolve) => {
+            const {
+                directory, dataServiceName, dataServiceNamespace, serviceGroup, selectedTransports, publishSwagger, jndiName,
+                enableBoxcarring, enableBatchRequests, serviceStatus, disableLegacyBoxcarringMode, enableStreaming,
+                description, datasources, authProviderClass, authProperties, queries, operations, resources
+            } = params;
+
+            const getDataServiceParams = {
+                dataServiceName, dataServiceNamespace, serviceGroup, selectedTransports, publishSwagger, jndiName,
+                enableBoxcarring, enableBatchRequests, serviceStatus, disableLegacyBoxcarringMode, enableStreaming,
+                description, datasources, authProviderClass, authProperties, queries, operations, resources
+            };
+
+            let filePath = params.directory;
+            if (filePath.includes('dataServices')) {
+                filePath = filePath.replace('dataServices', 'data-services');
+            }
+
+            const xmlData = getDataServiceXmlWrapper({ ...getDataServiceParams, writeType: "edit" });
+            const sanitizedXmlData = xmlData.replace(/^\s*[\r\n]/gm, '');
+
+            fs.writeFileSync(filePath, sanitizedXmlData);
+            await this.rangeFormat({
+                uri: filePath,
+                range: {
+                    start: { line: 0, character: 0 },
+                    end: { line: sanitizedXmlData.split('\n').length + 1, character: 0 }
+                }
+            });
+
+            resolve({ path: filePath });
+        });
+    }
+
+    async getDataService(params: RetrieveDataServiceRequest): Promise<RetrieveDataServiceResponse> {
+
+        const dataServiceSyntaxTree = await this.getSyntaxTree({ documentUri: params.path });
+        const dataServiceParams = dataServiceSyntaxTree.syntaxTree.data;
+
+        return new Promise(async (resolve) => {
+            const filePath = params.path;
+
+            if (fs.existsSync(filePath)) {
+                let response: RetrieveDataServiceResponse = {
+                    dataServiceName: dataServiceParams.name,
+                    dataServiceNamespace: dataServiceParams.serviceNamespace,
+                    serviceGroup: dataServiceParams.serviceGroup,
+                    selectedTransports: dataServiceParams.transports,
+                    publishSwagger: dataServiceParams.publishSwagger != undefined ? dataServiceParams.publishSwagger : false,
+                    jndiName: dataServiceParams.txManagerJNDIName != undefined ? dataServiceParams.txManagerJNDIName : '',
+                    enableBoxcarring: dataServiceParams.enableBoxcarring != undefined ? dataServiceParams.enableBoxcarring : false,
+                    enableBatchRequests: dataServiceParams.enableBatchRequests != undefined ? dataServiceParams.enableBatchRequests : false,
+                    serviceStatus: dataServiceParams.serviceStatus != undefined ? dataServiceParams.serviceStatus === "active" ? true : false : false,
+                    disableLegacyBoxcarringMode: dataServiceParams.disableLegacyBoxcarringMode != undefined ? dataServiceParams.disableLegacyBoxcarringMode : false,
+                    enableStreaming: dataServiceParams.disableStreaming != undefined ? !dataServiceParams.disableStreaming : true,
+                    description: dataServiceParams.description != undefined ? dataServiceParams.description.textNode : '',
+                    datasources: [] as Datasource[],
+                    authProviderClass: dataServiceParams.authorizationProvider != undefined ? dataServiceParams.authorizationProvider.clazz : '',
+                    http: dataServiceParams.transports.split(' ').includes('http'),
+                    https: dataServiceParams.transports.split(' ').includes('https'),
+                    jms: dataServiceParams.transports.split(' ').includes('jms'),
+                    local: dataServiceParams.transports.split(' ').includes('local'),
+                    authProperties: [] as Property[],
+                };
+
+                if (dataServiceParams.configs != undefined) {
+                    let datasources: any[];
+                    datasources = dataServiceParams.configs;
+                    datasources.forEach((datasource) => {
+                        let datasourceObject: Datasource = {
+                            dataSourceName: datasource.id,
+                            enableOData: datasource.enableOData != undefined ? datasource.enableOData : false,
+                            dynamicUserAuthClass: '',
+                            datasourceProperties: [] as Property[],
+                            datasourceConfigurations: [] as Configuration[]
+                        }
+                        let params = datasource.property;
+                        params.forEach((element) => {
+                            if (element.name === 'dynamicUserAuthMapping') {
+                                let configs = element.configuration;
+                                configs.forEach((config) => {
+                                    let entries = config.entry;
+                                    entries.forEach((entry) => {
+                                        datasourceObject.datasourceConfigurations.push({ carbonUsername: entry.request, username: entry.username.textNode, password: entry.password.textNode });
+                                    });
+                                });
+                            } else {
+                                if (element.name === 'dynamicUserAuthClass') {
+                                    datasourceObject.dynamicUserAuthClass = element.textNode;
+                                } else {
+                                    datasourceObject.datasourceProperties.push({ key: element.name, value: element.textNode });
+                                }
+                            }
+                        });
+                        response.datasources.push(datasourceObject);
+                    });
+                }
+
+                if (dataServiceParams.authorizationProvider != undefined) {
+                    const params = dataServiceParams.authorizationProvider.property;
+                    params.forEach(element => {
+                        response.authProperties.push({ key: element.name, value: element.value });
+                    });
+                }
+                resolve(response);
+            }
+        });
+    }
+
     async applyEdit(params: ApplyEditRequest): Promise<ApplyEditResponse> {
         return new Promise(async (resolve) => {
             const edit = new WorkspaceEdit();
@@ -3709,7 +3891,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 const endTag = stNode.testCases.range.endTagRange.start
 
                 range = new Range(endTag.line, endTag.character, endTag.line, endTag.character);
-            } else{
+            } else {
                 const startTag = params.range.startTagRange.start;
                 const endTag = params.range.endTagRange.end;
                 range = new Range(startTag.line, startTag.character, endTag.line, endTag.character);
@@ -3805,6 +3987,91 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             }
 
             return resolve({ mockServices: services });
+        });
+    }
+
+    async addDependencyToPom(params: AddDependencyToPomRequest): Promise<void> {
+        const showErrorMessage = () => {
+            window.showErrorMessage('Failed to add the dependency to the POM file');
+        }
+
+        return new Promise(async (resolve) => {
+            const { groupId, artifactId, version, file } = params;
+            const workspaceFolder = workspace.getWorkspaceFolder(Uri.file(file));
+
+            if (!workspaceFolder) {
+                showErrorMessage();
+                throw new Error('Cannot find workspace folder');
+            }
+
+            const pomPath = path.join(workspaceFolder.uri.fsPath, 'pom.xml');
+            const pomContent = fs.readFileSync(pomPath, 'utf-8');
+            const options = {
+                ignoreAttributes: false,
+                attributeNamePrefix: "@_"
+            };
+            const parser = new XMLParser(options);
+            const pom = parser.parse(pomContent);
+
+            if (!pom) {
+                showErrorMessage();
+                throw new Error('Failed to parse POM XML');
+            }
+
+            let dependencies = Array.isArray(pom.project?.dependencies?.dependency) ? pom.project.dependencies.dependency : [pom.project?.dependencies?.dependency].filter(Boolean);
+            let dependencyExists = dependencies.some(dep =>
+                dep.groupId === groupId &&
+                dep.artifactId === artifactId &&
+                dep.version === version
+            );
+
+            if (!dependencyExists) {
+                const newDependency = {
+                    groupId: groupId,
+                    artifactId: artifactId,
+                    version: version
+                };
+
+                const isUpdate = dependencies.length > 0;
+                const tagToFind = !isUpdate ? '</pluginRepositories>' : '</dependencies>';
+                const index = pomContent.lastIndexOf(tagToFind);
+
+                if (!isUpdate) {
+                    dependencies.push(newDependency);
+
+                    dependencies = {
+                        dependencies: dependencies.map(dep => { return { dependency: dep } })
+                    }
+                } else {
+                    dependencies = {
+                        dependency: newDependency
+                    }
+                }
+
+                if (index !== -1) {
+                    let insertIndex = index + (isUpdate ? 0 : tagToFind.length);
+                    const lineString = pomContent.substring(0, insertIndex).split('\n').pop();
+                    const spacesCount = lineString?.match(/^\s*/)?.[0].length ?? 0;
+                    const indentation = ' '.repeat(spacesCount * (isUpdate ? 2 : 1));
+
+                    if (isUpdate) {
+                        insertIndex -= spacesCount;
+                    }
+
+                    const builder = new XMLBuilder({ format: true, oneListGroup: "true" });
+                    let text = builder.build(dependencies);
+                    const lines = text.split('\n');
+                    text = lines.map((line, index) => (index === lines.length - 1) ? line : indentation + line).join('\n');
+                    text = isUpdate ? text : `\n${text}`;
+
+                    fs.writeFileSync(pomPath, pomContent.slice(0, insertIndex) + text + pomContent.slice(insertIndex + (isUpdate ? 0 : 1)));
+                } else {
+                    showErrorMessage();
+                    throw new Error(`Failed to find ${tagToFind} tag`);
+                }
+            }
+
+            resolve();
         });
     }
 }

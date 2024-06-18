@@ -10,6 +10,7 @@
  */
 import {
     AIUserInput,
+    AddDependencyToPomRequest,
     ApiDirectoryResponse,
     ApplyEditRequest,
     ApplyEditResponse,
@@ -27,6 +28,8 @@ import {
     CreateClassMediatorResponse,
     CreateConnectionRequest,
     CreateConnectionResponse,
+    CreateDataServiceRequest,
+    CreateDataServiceResponse,
     CreateDataSourceResponse,
     CreateEndpointRequest,
     CreateEndpointResponse,
@@ -44,12 +47,6 @@ import {
     CreateProxyServiceResponse,
     CreateRegistryResourceRequest,
     CreateRegistryResourceResponse,
-    UpdateRegistryMetadataRequest,
-    UpdateRegistryMetadataResponse,
-    updateRegistryMetadata,
-    GetRegistryMetadataRequest,
-    GetRegistryMetadataResponse,
-    getMetadataOfRegistryResource,
     CreateSequenceRequest,
     CreateSequenceResponse,
     CreateTaskRequest,
@@ -105,6 +102,8 @@ import {
     GetProjectUuidResponse,
     GetRecipientEPRequest,
     GetRecipientEPResponse,
+    GetRegistryMetadataRequest,
+    GetRegistryMetadataResponse,
     GetSelectiveWorkspaceContextResponse,
     GetTaskRequest,
     GetTaskResponse,
@@ -128,6 +127,8 @@ import {
     RegistryArtifactNamesResponse,
     RetrieveAddressEndpointRequest,
     RetrieveAddressEndpointResponse,
+    RetrieveDataServiceRequest,
+    RetrieveDataServiceResponse,
     RetrieveDefaultEndpointRequest,
     RetrieveDefaultEndpointResponse,
     RetrieveHttpEndpointRequest,
@@ -159,6 +160,8 @@ import {
     UpdateMockServiceResponse,
     UpdateRecipientEPRequest,
     UpdateRecipientEPResponse,
+    UpdateRegistryMetadataRequest,
+    UpdateRegistryMetadataResponse,
     UpdateTemplateEPRequest,
     UpdateTemplateEPResponse,
     UpdateTestCaseRequest,
@@ -169,6 +172,7 @@ import {
     UpdateWsdlEndpointResponse,
     WriteContentToFileRequest,
     WriteContentToFileResponse,
+    addDependencyToPom,
     applyEdit,
     askFileDirPath,
     askProjectDirPath,
@@ -182,6 +186,7 @@ import {
     createAPI,
     createClassMediator,
     createConnection,
+    createDataService,
     createDataSource,
     createEndpoint,
     createInboundEndpoint,
@@ -216,6 +221,7 @@ import {
     getConnectorConnections,
     getConnectorForm,
     getConnectors,
+    getDataService,
     getDataSource,
     getDefaultEndpoint,
     getDefinition,
@@ -231,6 +237,7 @@ import {
     getLocalEntry,
     getMessageProcessor,
     getMessageStore,
+    getMetadataOfRegistryResource,
     getProjectRoot,
     getProjectUuid,
     getRecipientEndpoint,
@@ -269,6 +276,7 @@ import {
     updateLoadBalanceEndpoint,
     updateMockService,
     updateRecipientEndpoint,
+    updateRegistryMetadata,
     updateSwaggerFromAPI,
     updateTemplateEndpoint,
     updateTestCase,
@@ -464,6 +472,14 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     getDefaultEndpoint(params: RetrieveDefaultEndpointRequest): Promise<RetrieveDefaultEndpointResponse> {
         return this._messenger.sendRequest(getDefaultEndpoint, HOST_EXTENSION, params);
+    }
+
+    createDataService(params: CreateDataServiceRequest): Promise<CreateDataServiceResponse> {
+        return this._messenger.sendRequest(createDataService, HOST_EXTENSION, params);
+    }
+
+    getDataService(params: RetrieveDataServiceRequest): Promise<RetrieveDataServiceResponse> {
+        return this._messenger.sendRequest(getDataService, HOST_EXTENSION, params);
     }
 
     closeWebView(): void {
@@ -708,5 +724,9 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     getAllMockServices(): Promise<GetAllMockServicesResponse> {
         return this._messenger.sendRequest(getAllMockServices, HOST_EXTENSION);
+    }
+
+    addDependencyToPom(params: AddDependencyToPomRequest): Promise<void> {
+        return this._messenger.sendRequest(addDependencyToPom, HOST_EXTENSION, params);
     }
 }

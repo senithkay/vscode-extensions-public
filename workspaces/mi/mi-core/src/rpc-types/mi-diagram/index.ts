@@ -87,6 +87,10 @@ import {
     GetProjectUuidResponse,
     CreateClassMediatorRequest,
     CreateClassMediatorResponse,
+    CreateDataServiceRequest,
+    CreateDataServiceResponse,
+    RetrieveDataServiceRequest,
+    RetrieveDataServiceResponse,
     UpdateHttpEndpointRequest,
     UpdateHttpEndpointResponse,
     RetrieveHttpEndpointRequest,
@@ -166,6 +170,7 @@ import {
     UpdateMockServiceRequest,
     UpdateMockServiceResponse,
     GetAllMockServicesResponse,
+    AddDependencyToPomRequest,
 } from "./types";
 
 export interface MiDiagramAPI {
@@ -214,6 +219,8 @@ export interface MiDiagramAPI {
     getWsdlEndpoint: (params: RetrieveWsdlEndpointRequest) => Promise<RetrieveWsdlEndpointResponse>;
     updateDefaultEndpoint: (params: UpdateDefaultEndpointRequest) => Promise<UpdateDefaultEndpointResponse>;
     getDefaultEndpoint: (params: RetrieveDefaultEndpointRequest) => Promise<RetrieveDefaultEndpointResponse>;
+    createDataService: (params: CreateDataServiceRequest) => Promise<CreateDataServiceResponse>;
+    getDataService: (params: RetrieveDataServiceRequest) => Promise<RetrieveDataServiceResponse>;
     closeWebView: () => void;
     openDiagram: (params: OpenDiagramRequest) => void;
     openFile: (params: OpenDiagramRequest) => void;
@@ -275,4 +282,5 @@ export interface MiDiagramAPI {
     updateMockService: (params: UpdateMockServiceRequest) => Promise<UpdateMockServiceResponse>;
     getAllTestSuites: () => Promise<GetAllTestSuitsResponse>;
     getAllMockServices: () => Promise<GetAllMockServicesResponse>;
+    addDependencyToPom: (params: AddDependencyToPomRequest) => Promise<void>;
 }

@@ -6,7 +6,6 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
 */
-// AUTO-GENERATED FILE. DO NOT MODIFY.
 
 import React, { useEffect, useRef } from 'react';
 import { AutoComplete, Button, ComponentCard, ProgressIndicator, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
@@ -22,7 +21,7 @@ import { ExpressionFieldValue } from '../../../../Form/ExpressionField/Expressio
 import { ParamManager, ParamConfig, ParamValue } from '../../../../Form/ParamManager/ParamManager';
 import { handleOpenExprEditor, sidepanelGoBack } from '../../..';
 
-const cardStyle = { 
+const cardStyle = {
     display: "block",
     margin: "15px 0",
     padding: "0 15px 15px 15px",
@@ -42,7 +41,7 @@ const Field = styled.div`
 const DBLookupForm = (props: AddMediatorProps) => {
     const { rpcClient } = useVisualizerContext();
     const sidePanelContext = React.useContext(SidePanelContext);
-    const [ isLoading, setIsLoading ] = React.useState(true);
+    const [isLoading, setIsLoading] = React.useState(true);
     const handleOnCancelExprEditorRef = useRef(() => { });
 
     const { control, formState: { errors, dirtyFields }, handleSubmit, watch, reset } = useForm();
@@ -80,7 +79,7 @@ const DBLookupForm = (props: AddMediatorProps) => {
                         "type": "ParamManager",
                         "label": "Parameters",
                         "defaultValue": "",
-                        "isRequired": false, 
+                        "isRequired": false,
                         "paramManager": {
                             paramConfigs: {
                                 paramValues: sidePanelContext?.formValues?.parameters ? getParamManagerFromValues(sidePanelContext?.formValues?.parameters) : [],
@@ -143,8 +142,9 @@ const DBLookupForm = (props: AddMediatorProps) => {
                                             {
                                                 "1": "EXPRESSION"
                                             }
-                                        ], 
-                                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)},
+                                        ],
+                                        openExpressionEditor: (value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)
+                                    },
                                 ]
                             },
                             openInDrawer: true,
@@ -155,7 +155,7 @@ const DBLookupForm = (props: AddMediatorProps) => {
                         "type": "ParamManager",
                         "label": "Results",
                         "defaultValue": "",
-                        "isRequired": false, 
+                        "isRequired": false,
                         "paramManager": {
                             paramConfigs: {
                                 paramValues: sidePanelContext?.formValues?.results ? getParamManagerFromValues(sidePanelContext?.formValues?.results) : [],
@@ -204,7 +204,7 @@ const DBLookupForm = (props: AddMediatorProps) => {
     }, [sidePanelContext.pageStack]);
 
     const onClick = async (values: any) => {
-        
+
         values["sqlStatements"] = getParamManagerValues(values.sqlStatements);
         const xml = getXML(MEDIATORS.DBLOOKUP, values, dirtyFields, sidePanelContext.formValues);
         if (Array.isArray(xml)) {
@@ -218,6 +218,7 @@ const DBLookupForm = (props: AddMediatorProps) => {
                 documentUri: props.documentUri, range: props.nodePosition, text: xml
             });
         }
+        rpcClient.getMiDiagramRpcClient().addDependencyToPom({ groupId: "org.postgresql", artifactId: "postgresql", version: "42.7.3", file: props.documentUri });
         sidePanelContext.setSidePanelState({
             ...sidePanelContext,
             isOpen: false,
@@ -253,228 +254,228 @@ const DBLookupForm = (props: AddMediatorProps) => {
                     </Field>
 
                     {watch("connectionType") == "DB_CONNECTION" &&
-                    <Field>
-                        <Controller
-                            name="databaseConfiguration"
-                            control={control}
-                            render={({ field }) => (
-                                <TextField {...field} label="Database Configuration" size={50} placeholder="Customize the database configuration" />
-                            )}
-                        />
-                        {errors.databaseConfiguration && <Error>{errors.databaseConfiguration.message.toString()}</Error>}
-                    </Field>
+                        <Field>
+                            <Controller
+                                name="databaseConfiguration"
+                                control={control}
+                                render={({ field }) => (
+                                    <TextField {...field} label="Database Configuration" size={50} placeholder="Customize the database configuration" />
+                                )}
+                            />
+                            {errors.databaseConfiguration && <Error>{errors.databaseConfiguration.message.toString()}</Error>}
+                        </Field>
                     }
 
                     {watch("connectionType") == "DB_CONNECTION" &&
-                    <Field>
-                        <Controller
-                            name="connectionDBType"
-                            control={control}
-                            render={({ field }) => (
-                                <AutoComplete label="Connection DB Type" name="connectionDbType" items={["OTHER", "MYSQL", "ORACLE", "MSSQL", "POSTGRESQL"]} value={field.value} onValueChange={(e: any) => {
-                                    field.onChange(e);
-                                }} />
-                            )}
-                        />
-                        {errors.connectionDBType && <Error>{errors.connectionDBType.message.toString()}</Error>}
-                    </Field>
+                        <Field>
+                            <Controller
+                                name="connectionDBType"
+                                control={control}
+                                render={({ field }) => (
+                                    <AutoComplete label="Connection DB Type" name="connectionDbType" items={["OTHER", "MYSQL", "ORACLE", "MSSQL", "POSTGRESQL"]} value={field.value} onValueChange={(e: any) => {
+                                        field.onChange(e);
+                                    }} />
+                                )}
+                            />
+                            {errors.connectionDBType && <Error>{errors.connectionDBType.message.toString()}</Error>}
+                        </Field>
                     }
 
                     {watch("connectionType") == "DB_CONNECTION" &&
-                    <Field>
-                        <Controller
-                            name="isRegistryBasedDriverConfig"
-                            control={control}
-                            render={({ field }) => (
-                                <VSCodeCheckbox {...field} type="checkbox" checked={field.value} onChange={(e: any) => {field.onChange(e.target.checked)}}>Is Registry Based Driver Config</VSCodeCheckbox>
-                            )}
-                        />
-                        {errors.isRegistryBasedDriverConfig && <Error>{errors.isRegistryBasedDriverConfig.message.toString()}</Error>}
-                    </Field>
+                        <Field>
+                            <Controller
+                                name="isRegistryBasedDriverConfig"
+                                control={control}
+                                render={({ field }) => (
+                                    <VSCodeCheckbox {...field} type="checkbox" checked={field.value} onChange={(e: any) => { field.onChange(e.target.checked) }}>Is Registry Based Driver Config</VSCodeCheckbox>
+                                )}
+                            />
+                            {errors.isRegistryBasedDriverConfig && <Error>{errors.isRegistryBasedDriverConfig.message.toString()}</Error>}
+                        </Field>
                     }
 
-                    {((watch("connectionType") == "DB_CONNECTION") &&(watch("isRegistryBasedDriverConfig") == false) ) &&
-                    <Field>
-                        <Controller
-                            name="connectionDBDriver"
-                            control={control}
-                            render={({ field }) => (
-                                <TextField {...field} label="Connection DB Driver" size={50} placeholder="Enter the database driver" />
-                            )}
-                        />
-                        {errors.connectionDBDriver && <Error>{errors.connectionDBDriver.message.toString()}</Error>}
-                    </Field>
+                    {((watch("connectionType") == "DB_CONNECTION") && (watch("isRegistryBasedDriverConfig") == false)) &&
+                        <Field>
+                            <Controller
+                                name="connectionDBDriver"
+                                control={control}
+                                render={({ field }) => (
+                                    <TextField {...field} label="Connection DB Driver" size={50} placeholder="Enter the database driver" />
+                                )}
+                            />
+                            {errors.connectionDBDriver && <Error>{errors.connectionDBDriver.message.toString()}</Error>}
+                        </Field>
                     }
 
-                    {((watch("connectionType") == "DB_CONNECTION") &&(watch("isRegistryBasedDriverConfig") == true) ) &&
-                    <Field>
-                        <Controller
-                            name="registryBasedConnectionDBDriver"
-                            control={control}
-                            render={({ field }) => (
-                                <TextField {...field} label="Registry Based Connection DB Driver" size={50} placeholder="Enter the database driver" />
-                            )}
-                        />
-                        {errors.registryBasedConnectionDBDriver && <Error>{errors.registryBasedConnectionDBDriver.message.toString()}</Error>}
-                    </Field>
-                    }
-
-                    {watch("connectionType") == "DATA_SOURCE" &&
-                    <Field>
-                        <Controller
-                            name="connectionDSType"
-                            control={control}
-                            render={({ field }) => (
-                                <AutoComplete label="Connection DS Type" name="connectionDsType" items={["EXTERNAL", "CARBON"]} value={field.value} onValueChange={(e: any) => {
-                                    field.onChange(e);
-                                }} />
-                            )}
-                        />
-                        {errors.connectionDSType && <Error>{errors.connectionDSType.message.toString()}</Error>}
-                    </Field>
+                    {((watch("connectionType") == "DB_CONNECTION") && (watch("isRegistryBasedDriverConfig") == true)) &&
+                        <Field>
+                            <Controller
+                                name="registryBasedConnectionDBDriver"
+                                control={control}
+                                render={({ field }) => (
+                                    <TextField {...field} label="Registry Based Connection DB Driver" size={50} placeholder="Enter the database driver" />
+                                )}
+                            />
+                            {errors.registryBasedConnectionDBDriver && <Error>{errors.registryBasedConnectionDBDriver.message.toString()}</Error>}
+                        </Field>
                     }
 
                     {watch("connectionType") == "DATA_SOURCE" &&
-                    <Field>
-                        <Controller
-                            name="connectionDSInitialContext"
-                            control={control}
-                            render={({ field }) => (
-                                <TextField {...field} label="Connection DS Initial Context" size={50} placeholder="Provide the DS initial context" />
-                            )}
-                        />
-                        {errors.connectionDSInitialContext && <Error>{errors.connectionDSInitialContext.message.toString()}</Error>}
-                    </Field>
+                        <Field>
+                            <Controller
+                                name="connectionDSType"
+                                control={control}
+                                render={({ field }) => (
+                                    <AutoComplete label="Connection DS Type" name="connectionDsType" items={["EXTERNAL", "CARBON"]} value={field.value} onValueChange={(e: any) => {
+                                        field.onChange(e);
+                                    }} />
+                                )}
+                            />
+                            {errors.connectionDSType && <Error>{errors.connectionDSType.message.toString()}</Error>}
+                        </Field>
                     }
 
                     {watch("connectionType") == "DATA_SOURCE" &&
-                    <Field>
-                        <Controller
-                            name="connectionDSName"
-                            control={control}
-                            render={({ field }) => (
-                                <TextField {...field} label="Connection DS Name" size={50} placeholder="Enter the DS name" />
-                            )}
-                        />
-                        {errors.connectionDSName && <Error>{errors.connectionDSName.message.toString()}</Error>}
-                    </Field>
+                        <Field>
+                            <Controller
+                                name="connectionDSInitialContext"
+                                control={control}
+                                render={({ field }) => (
+                                    <TextField {...field} label="Connection DS Initial Context" size={50} placeholder="Provide the DS initial context" />
+                                )}
+                            />
+                            {errors.connectionDSInitialContext && <Error>{errors.connectionDSInitialContext.message.toString()}</Error>}
+                        </Field>
                     }
 
-                    {((watch("connectionType") == "DB_CONNECTION") ||((watch("connectionType") == "DATA_SOURCE") &&(watch("connectionDSType") == "EXTERNAL") )) &&
-                    <Field>
-                        <Controller
-                            name="isRegistryBasedURLConfig"
-                            control={control}
-                            render={({ field }) => (
-                                <VSCodeCheckbox {...field} type="checkbox" checked={field.value} onChange={(e: any) => {field.onChange(e.target.checked)}}>Is Registry Based URL Config</VSCodeCheckbox>
-                            )}
-                        />
-                        {errors.isRegistryBasedURLConfig && <Error>{errors.isRegistryBasedURLConfig.message.toString()}</Error>}
-                    </Field>
+                    {watch("connectionType") == "DATA_SOURCE" &&
+                        <Field>
+                            <Controller
+                                name="connectionDSName"
+                                control={control}
+                                render={({ field }) => (
+                                    <TextField {...field} label="Connection DS Name" size={50} placeholder="Enter the DS name" />
+                                )}
+                            />
+                            {errors.connectionDSName && <Error>{errors.connectionDSName.message.toString()}</Error>}
+                        </Field>
                     }
 
-                    {((watch("isRegistryBasedURLConfig") == false) &&((watch("connectionType") == "DB_CONNECTION") ||((watch("connectionType") == "DATA_SOURCE") &&(watch("connectionDSType") == "EXTERNAL") ))) &&
-                    <Field>
-                        <Controller
-                            name="connectionURL"
-                            control={control}
-                            render={({ field }) => (
-                                <TextField {...field} label="Connection URL" size={50} placeholder="Enter the connection URL" />
-                            )}
-                        />
-                        {errors.connectionURL && <Error>{errors.connectionURL.message.toString()}</Error>}
-                    </Field>
+                    {((watch("connectionType") == "DB_CONNECTION") || ((watch("connectionType") == "DATA_SOURCE") && (watch("connectionDSType") == "EXTERNAL"))) &&
+                        <Field>
+                            <Controller
+                                name="isRegistryBasedURLConfig"
+                                control={control}
+                                render={({ field }) => (
+                                    <VSCodeCheckbox {...field} type="checkbox" checked={field.value} onChange={(e: any) => { field.onChange(e.target.checked) }}>Is Registry Based URL Config</VSCodeCheckbox>
+                                )}
+                            />
+                            {errors.isRegistryBasedURLConfig && <Error>{errors.isRegistryBasedURLConfig.message.toString()}</Error>}
+                        </Field>
                     }
 
-                    {((watch("isRegistryBasedURLConfig") == true) &&((watch("connectionType") == "DB_CONNECTION") ||((watch("connectionType") == "DATA_SOURCE") &&(watch("connectionDSType") == "EXTERNAL") ))) &&
-                    <Field>
-                        <Controller
-                            name="registryBasedURLConfigKey"
-                            control={control}
-                            render={({ field }) => (
-                                <TextField {...field} label="Registry Based URL Config Key" size={50} placeholder="Enter the registry based URL config key" />
-                            )}
-                        />
-                        {errors.registryBasedURLConfigKey && <Error>{errors.registryBasedURLConfigKey.message.toString()}</Error>}
-                    </Field>
+                    {((watch("isRegistryBasedURLConfig") == false) && ((watch("connectionType") == "DB_CONNECTION") || ((watch("connectionType") == "DATA_SOURCE") && (watch("connectionDSType") == "EXTERNAL")))) &&
+                        <Field>
+                            <Controller
+                                name="connectionURL"
+                                control={control}
+                                render={({ field }) => (
+                                    <TextField {...field} label="Connection URL" size={50} placeholder="Enter the connection URL" />
+                                )}
+                            />
+                            {errors.connectionURL && <Error>{errors.connectionURL.message.toString()}</Error>}
+                        </Field>
                     }
 
-                    {((watch("connectionType") == "DB_CONNECTION") ||((watch("connectionType") == "DATA_SOURCE") &&(watch("connectionDSType") == "EXTERNAL") )) &&
-                    <Field>
-                        <Controller
-                            name="isRegistryBasedUserConfig"
-                            control={control}
-                            render={({ field }) => (
-                                <VSCodeCheckbox {...field} type="checkbox" checked={field.value} onChange={(e: any) => {field.onChange(e.target.checked)}}>Is Registry Based User Config</VSCodeCheckbox>
-                            )}
-                        />
-                        {errors.isRegistryBasedUserConfig && <Error>{errors.isRegistryBasedUserConfig.message.toString()}</Error>}
-                    </Field>
+                    {((watch("isRegistryBasedURLConfig") == true) && ((watch("connectionType") == "DB_CONNECTION") || ((watch("connectionType") == "DATA_SOURCE") && (watch("connectionDSType") == "EXTERNAL")))) &&
+                        <Field>
+                            <Controller
+                                name="registryBasedURLConfigKey"
+                                control={control}
+                                render={({ field }) => (
+                                    <TextField {...field} label="Registry Based URL Config Key" size={50} placeholder="Enter the registry based URL config key" />
+                                )}
+                            />
+                            {errors.registryBasedURLConfigKey && <Error>{errors.registryBasedURLConfigKey.message.toString()}</Error>}
+                        </Field>
                     }
 
-                    {((watch("isRegistryBasedUserConfig") == false) &&((watch("connectionType") == "DB_CONNECTION") ||((watch("connectionType") == "DATA_SOURCE") &&(watch("connectionDSType") == "EXTERNAL") ))) &&
-                    <Field>
-                        <Controller
-                            name="connectionUsername"
-                            control={control}
-                            render={({ field }) => (
-                                <TextField {...field} label="Connection Username" size={50} placeholder="Enter the connection username" />
-                            )}
-                        />
-                        {errors.connectionUsername && <Error>{errors.connectionUsername.message.toString()}</Error>}
-                    </Field>
+                    {((watch("connectionType") == "DB_CONNECTION") || ((watch("connectionType") == "DATA_SOURCE") && (watch("connectionDSType") == "EXTERNAL"))) &&
+                        <Field>
+                            <Controller
+                                name="isRegistryBasedUserConfig"
+                                control={control}
+                                render={({ field }) => (
+                                    <VSCodeCheckbox {...field} type="checkbox" checked={field.value} onChange={(e: any) => { field.onChange(e.target.checked) }}>Is Registry Based User Config</VSCodeCheckbox>
+                                )}
+                            />
+                            {errors.isRegistryBasedUserConfig && <Error>{errors.isRegistryBasedUserConfig.message.toString()}</Error>}
+                        </Field>
                     }
 
-                    {((watch("isRegistryBasedUserConfig") == true) &&((watch("connectionType") == "DB_CONNECTION") ||((watch("connectionType") == "DATA_SOURCE") &&(watch("connectionDSType") == "EXTERNAL") ))) &&
-                    <Field>
-                        <Controller
-                            name="registryBasedUserConfigKey"
-                            control={control}
-                            render={({ field }) => (
-                                <TextField {...field} label="Registry Based User Config Key" size={50} placeholder="Enter the registry based user config key" />
-                            )}
-                        />
-                        {errors.registryBasedUserConfigKey && <Error>{errors.registryBasedUserConfigKey.message.toString()}</Error>}
-                    </Field>
+                    {((watch("isRegistryBasedUserConfig") == false) && ((watch("connectionType") == "DB_CONNECTION") || ((watch("connectionType") == "DATA_SOURCE") && (watch("connectionDSType") == "EXTERNAL")))) &&
+                        <Field>
+                            <Controller
+                                name="connectionUsername"
+                                control={control}
+                                render={({ field }) => (
+                                    <TextField {...field} label="Connection Username" size={50} placeholder="Enter the connection username" />
+                                )}
+                            />
+                            {errors.connectionUsername && <Error>{errors.connectionUsername.message.toString()}</Error>}
+                        </Field>
                     }
 
-                    {((watch("connectionType") == "DB_CONNECTION") ||((watch("connectionType") == "DATA_SOURCE") &&(watch("connectionDSType") == "EXTERNAL") )) &&
-                    <Field>
-                        <Controller
-                            name="isRegistryBasedPassConfig"
-                            control={control}
-                            render={({ field }) => (
-                                <VSCodeCheckbox {...field} type="checkbox" checked={field.value} onChange={(e: any) => {field.onChange(e.target.checked)}}>Is Registry Based Pass Config</VSCodeCheckbox>
-                            )}
-                        />
-                        {errors.isRegistryBasedPassConfig && <Error>{errors.isRegistryBasedPassConfig.message.toString()}</Error>}
-                    </Field>
+                    {((watch("isRegistryBasedUserConfig") == true) && ((watch("connectionType") == "DB_CONNECTION") || ((watch("connectionType") == "DATA_SOURCE") && (watch("connectionDSType") == "EXTERNAL")))) &&
+                        <Field>
+                            <Controller
+                                name="registryBasedUserConfigKey"
+                                control={control}
+                                render={({ field }) => (
+                                    <TextField {...field} label="Registry Based User Config Key" size={50} placeholder="Enter the registry based user config key" />
+                                )}
+                            />
+                            {errors.registryBasedUserConfigKey && <Error>{errors.registryBasedUserConfigKey.message.toString()}</Error>}
+                        </Field>
                     }
 
-                    {((watch("isRegistryBasedPassConfig") == false) &&((watch("connectionType") == "DB_CONNECTION") ||((watch("connectionType") == "DATA_SOURCE") &&(watch("connectionDSType") == "EXTERNAL") ))) &&
-                    <Field>
-                        <Controller
-                            name="connectionPassword"
-                            control={control}
-                            render={({ field }) => (
-                                <TextField {...field} label="Connection Password" size={50} placeholder="Enter the connection password" />
-                            )}
-                        />
-                        {errors.connectionPassword && <Error>{errors.connectionPassword.message.toString()}</Error>}
-                    </Field>
+                    {((watch("connectionType") == "DB_CONNECTION") || ((watch("connectionType") == "DATA_SOURCE") && (watch("connectionDSType") == "EXTERNAL"))) &&
+                        <Field>
+                            <Controller
+                                name="isRegistryBasedPassConfig"
+                                control={control}
+                                render={({ field }) => (
+                                    <VSCodeCheckbox {...field} type="checkbox" checked={field.value} onChange={(e: any) => { field.onChange(e.target.checked) }}>Is Registry Based Pass Config</VSCodeCheckbox>
+                                )}
+                            />
+                            {errors.isRegistryBasedPassConfig && <Error>{errors.isRegistryBasedPassConfig.message.toString()}</Error>}
+                        </Field>
                     }
 
-                    {((watch("isRegistryBasedPassConfig") == true) &&((watch("connectionType") == "DB_CONNECTION") ||((watch("connectionType") == "DATA_SOURCE") &&(watch("connectionDSType") == "EXTERNAL") ))) &&
-                    <Field>
-                        <Controller
-                            name="registryBasedPassConfigKey"
-                            control={control}
-                            render={({ field }) => (
-                                <TextField {...field} label="Registry Based Pass Config Key" size={50} placeholder="Enter the registry based password config key" />
-                            )}
-                        />
-                        {errors.registryBasedPassConfigKey && <Error>{errors.registryBasedPassConfigKey.message.toString()}</Error>}
-                    </Field>
+                    {((watch("isRegistryBasedPassConfig") == false) && ((watch("connectionType") == "DB_CONNECTION") || ((watch("connectionType") == "DATA_SOURCE") && (watch("connectionDSType") == "EXTERNAL")))) &&
+                        <Field>
+                            <Controller
+                                name="connectionPassword"
+                                control={control}
+                                render={({ field }) => (
+                                    <TextField {...field} label="Connection Password" size={50} placeholder="Enter the connection password" />
+                                )}
+                            />
+                            {errors.connectionPassword && <Error>{errors.connectionPassword.message.toString()}</Error>}
+                        </Field>
+                    }
+
+                    {((watch("isRegistryBasedPassConfig") == true) && ((watch("connectionType") == "DB_CONNECTION") || ((watch("connectionType") == "DATA_SOURCE") && (watch("connectionDSType") == "EXTERNAL")))) &&
+                        <Field>
+                            <Controller
+                                name="registryBasedPassConfigKey"
+                                control={control}
+                                render={({ field }) => (
+                                    <TextField {...field} label="Registry Based Pass Config Key" size={50} placeholder="Enter the registry based password config key" />
+                                )}
+                            />
+                            {errors.registryBasedPassConfigKey && <Error>{errors.registryBasedPassConfigKey.message.toString()}</Error>}
+                        </Field>
                     }
 
                 </ComponentCard>
@@ -493,7 +494,7 @@ const DBLookupForm = (props: AddMediatorProps) => {
                                 <ParamManager
                                     paramConfigs={value}
                                     readonly={false}
-                                    onChange= {(values) => {
+                                    onChange={(values) => {
                                         values.paramValues = values.paramValues.map((param: any, index: number) => {
                                             const property: ParamValue[] = param.paramValues;
                                             param.key = index;
@@ -507,7 +508,7 @@ const DBLookupForm = (props: AddMediatorProps) => {
                                                 param.icon = 'query';
                                                 return param;
                                             });
-            
+
 
                                             (property[2].value as ParamConfig).paramValues = (property[2].value as ParamConfig).paramValues.map((param: any, index: number) => {
                                                 const property: ParamValue[] = param.paramValues;
@@ -516,7 +517,7 @@ const DBLookupForm = (props: AddMediatorProps) => {
                                                 param.icon = 'query';
                                                 return param;
                                             });
-            
+
                                             return param;
                                         });
                                         onChange(values);
@@ -697,7 +698,7 @@ const DBLookupForm = (props: AddMediatorProps) => {
                         appearance="primary"
                         onClick={handleSubmit(onClick)}
                     >
-                    Submit
+                        Submit
                     </Button>
                 </div>
 
