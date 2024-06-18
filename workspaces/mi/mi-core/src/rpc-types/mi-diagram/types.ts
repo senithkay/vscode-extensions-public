@@ -1188,6 +1188,13 @@ export interface GetSelectiveWorkspaceContextResponse {
     context: string[];
 }
 
+export interface GetSelectiveArtifactsRequest {
+    path: string;
+}
+
+export interface GetSelectiveArtifactsResponse {
+    artifacts: string[];
+}
 export interface GetProjectUuidResponse {
     uuid: string;
 }

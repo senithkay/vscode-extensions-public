@@ -71,6 +71,7 @@ export const COMMANDS = {
     SHOW_DATA_SOURCE: 'MI.show.data-source',
     SHOW_DATA_MAPPER: 'MI.show.data-mapper',
     ADD_TEST_SUITE: 'MI.test.add.suite',
+    GEN_AI_TESTS: 'MI.test.gen.ai-test',
     UPDATE_TEST_SUITE: 'MI.test.update.suite',
     ADD_TEST_CASE: 'MI.test.add.case',
     UPDATE_TEST_CASE: 'MI.test.update.case',
