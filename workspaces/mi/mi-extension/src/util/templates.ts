@@ -82,6 +82,26 @@ export const rootPomXmlContent = (projectName: string, groupID: string, artifact
       </activation>
       <build>
         <plugins>
+          <!-- Download dependency jars to the deployment/libs folder -->
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-dependency-plugin</artifactId>
+            <version>3.5.0</version>
+            <executions>
+              <execution>
+                <phase>process-resources</phase>
+                <goals>
+                  <goal>copy-dependencies</goal>
+                </goals>
+                <configuration>
+                  <outputDirectory>\${basedir}/deployment/libs</outputDirectory>
+                  <excludeTransitive>true</excludeTransitive>
+                  <!-- exclude dependencies which already available in MI -->
+                  <excludeGroupIds>org.apache.synapse,org.apache.axis2</excludeGroupIds>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-compiler-plugin</artifactId>
@@ -165,6 +185,7 @@ export const rootPomXmlContent = (projectName: string, groupID: string, artifact
       <id>docker</id>
       <build>
         <plugins>
+            <!-- Compile and build the class mediator jars -->
             <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-compiler-plugin</artifactId>
@@ -195,6 +216,7 @@ export const rootPomXmlContent = (projectName: string, groupID: string, artifact
               </execution>
             </executions>
           </plugin>
+          <!-- Build the Carbon Application -->
           <plugin>
             <groupId>org.wso2.maven</groupId>
             <artifactId>vscode-car-plugin</artifactId>
@@ -210,6 +232,27 @@ export const rootPomXmlContent = (projectName: string, groupID: string, artifact
               </execution>
             </executions>
           </plugin>
+          <!-- Download dependency jars to the deployment/libs folder -->
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-dependency-plugin</artifactId>
+            <version>3.5.0</version>
+            <executions>
+              <execution>
+                <phase>process-resources</phase>
+                <goals>
+                  <goal>copy-dependencies</goal>
+                </goals>
+                <configuration>
+                  <outputDirectory>\${basedir}/deployment/libs</outputDirectory>
+                  <excludeTransitive>true</excludeTransitive>
+                  <!-- exclude dependencies which already available in MI -->
+                  <excludeGroupIds>org.apache.synapse,org.apache.axis2</excludeGroupIds>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <!-- Run config mapper to transform configuration files -->
           <plugin>
             <groupId>org.wso2.maven</groupId>
             <artifactId>mi-container-config-mapper</artifactId>
@@ -266,6 +309,7 @@ export const rootPomXmlContent = (projectName: string, groupID: string, artifact
             </executions>
             <configuration/>
           </plugin>
+          <!-- Build docker image -->
           <plugin>
             <groupId>io.fabric8</groupId>
             <artifactId>docker-maven-plugin</artifactId>
@@ -314,7 +358,9 @@ export const rootPomXmlContent = (projectName: string, groupID: string, artifact
     <keystore.password>wso2carbon</keystore.password>
     <keystore.alias>wso2carbon</keystore.alias>
     <ciphertool.enable>true</ciphertool.enable>
-    <dockerfile.base.image>docker.wso2.com/wso2mi:4.2.0</dockerfile.base.image>
+    <dockerfile.base.image>wso2/wso2mi:4.2.0</dockerfile.base.image>
+    <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.compiler.target>1.8</maven.compiler.target>
   </properties>
 </project>`;
 
@@ -323,4 +369,4 @@ FROM \${BASE_IMAGE}
 COPY CompositeApps/*.car \${WSO2_SERVER_HOME}/repository/deployment/server/carbonapps/
 COPY resources/wso2carbon.jks \${WSO2_SERVER_HOME}/repository/resources/security/wso2carbon.jks
 COPY resources/client-truststore.jks \${WSO2_SERVER_HOME}/repository/resources/security/client-truststore.jks
-# COPY Libs/*.jar \${WSO2_SERVER_HOME}/lib/`;
+# COPY libs/*.jar \${WSO2_SERVER_HOME}/lib/`;
