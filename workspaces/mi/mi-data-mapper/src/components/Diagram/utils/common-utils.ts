@@ -527,19 +527,27 @@ export function isNodeCallExpression(node: Node): boolean {
     return false;
 }
 
-export function isMapFunction(callExpr: CallExpression): boolean {
+export function isSpecificMethodCall(callExpr: CallExpression, methodName: string): boolean {
     const expr = callExpr.getExpression();
 
     if (isInputAccessExpr(expr)) {
         switch (expr.getKind()) {
             case SyntaxKind.ElementAccessExpression:
-                return (expr as ElementAccessExpression).getArgumentExpression().getText() === "map";
+                return (expr as ElementAccessExpression).getArgumentExpression().getText() === methodName;
             case SyntaxKind.PropertyAccessExpression:
-                return (expr as PropertyAccessExpression).getName() === "map";
+                return (expr as PropertyAccessExpression).getName() === methodName;
         }
     }
 
     return false;
+}
+
+export function isMapFunction(callExpr: CallExpression): boolean {
+    return isSpecificMethodCall(callExpr, "map");
+}
+
+export function isFilterFunction(callExpr: CallExpression): boolean {
+    return isSpecificMethodCall(callExpr, "filter");
 }
 
 export function getTypeOfValue(typeWithValue: DMTypeWithValue, targetPosition: NodePosition): DMType {
