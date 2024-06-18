@@ -150,33 +150,6 @@ const DBReportForm = (props: AddMediatorProps) => {
                             addParamText: "New Parameters"
                         },
                     },
-                    {
-                        "type": "ParamManager",
-                        "label": "Results",
-                        "defaultValue": "",
-                        "isRequired": false, 
-                        "paramManager": {
-                            paramConfigs: {
-                                paramValues: sidePanelContext?.formValues?.results ? getParamManagerFromValues(sidePanelContext?.formValues?.results) : [],
-                                paramFields: [
-                                    {
-                                        "type": "TextField",
-                                        "label": "Property Name",
-                                        "defaultValue": "",
-                                        "isRequired": false
-                                    },
-                                    {
-                                        "type": "TextField",
-                                        "label": "Column ID",
-                                        "defaultValue": "",
-                                        "isRequired": false
-                                    },
-                                ]
-                            },
-                            openInDrawer: true,
-                            addParamText: "New Results"
-                        },
-                    },
                 ]
             },
             propertyAutocommit: sidePanelContext?.formValues?.propertyAutocommit || "DEFAULT",
@@ -504,15 +477,6 @@ const DBReportForm = (props: AddMediatorProps) => {
                                                 const property: ParamValue[] = param.paramValues;
                                                 param.key = property[0].value;
                                                 param.value = property[2].value;
-                                                param.icon = 'query';
-                                                return param;
-                                            });
-            
-
-                                            (property[2].value as ParamConfig).paramValues = (property[2].value as ParamConfig).paramValues.map((param: any, index: number) => {
-                                                const property: ParamValue[] = param.paramValues;
-                                                param.key = property[0].value;
-                                                param.value = property[1].value;
                                                 param.icon = 'query';
                                                 return param;
                                             });
