@@ -82,6 +82,17 @@ namespace S {
         max-width: 80vw;
         white-space: pre-wrap;
     `;
+
+    interface TagProps {
+        selectable: boolean;
+    };
+
+    export const NodeText = styled(Name) <TagProps>`        
+        &:hover {
+            text-decoration: ${(props: TagProps) => props.selectable ? "underline" : "none"};
+            color: ${(props: TagProps) => props.selectable ? Colors.SECONDARY : Colors.ON_SURFACE};
+        }
+    `;
 }
 interface CallNodeWidgetProps {
     node: DataMapperNodeModel;
@@ -144,7 +155,7 @@ export function DataMapperNodeWidget(props: CallNodeWidgetProps) {
                                 </S.StyledButton>
                             )}
                             <Header showBorder={description !== undefined}>
-                                <Name>{FirstCharToUpperCase(node.stNode.tag)}</Name>
+                                <S.NodeText onClick={handleOnDataMapperOpen} selectable={true}>{FirstCharToUpperCase(node.stNode.tag)}</S.NodeText>
                             </Header>
                             <S.Body>
                                 <Tooltip content={description} position={'bottom'} >
