@@ -119,7 +119,7 @@ export function ReferenceNodeWidget(props: ReferenceNodeWidgetProps) {
             range: node.stNode.range.startTagRange,
         });
 
-        const regex = /\s*(?:key|inSequence|outSequence)\s*=\s*(['"])(.*?)\1/;
+        const regex = /\s*(?:key|inSequence|outSequence|serviceName)\s*=\s*(['"])(.*?)\1/;
         const match = text.text.match(regex);
         if (match) {
             const keyPart = match[0].split("=")[0];
@@ -173,6 +173,8 @@ export function ReferenceNodeWidget(props: ReferenceNodeWidgetProps) {
             if (definition) {
                 node.openSequenceDiagram(rpcClient, definition.uri);
             }
+        } else if (node.mediatorName === MEDIATORS.DATASERVICECALL) {
+            node.openDSSServiceDesigner(rpcClient, definition.uri);
         } else if (node.mediatorName === MEDIATORS.DATAMAPPER) {
             node.openDataMapperView(rpcClient);
         }
@@ -232,7 +234,7 @@ export function ReferenceNodeWidget(props: ReferenceNodeWidgetProps) {
             >
                 <ClickAwayListener onClickAway={handlePopoverClose}>
                     <Menu>
-                        <MenuItem key={'share-btn'} item={{ label: node.openViewName || 'Open View', id: "open-view", onClick: handleOpenView }} />
+                        {canOpenView && <MenuItem key={'share-btn'} item={{ label: node.openViewName || 'Open View', id: "open-view", onClick: handleOpenView }} />}
                         <MenuItem key={'delete-btn'} item={{ label: 'Delete', id: "delete", onClick: () => node.delete(rpcClient) }} />
                     </Menu>
                 </ClickAwayListener>

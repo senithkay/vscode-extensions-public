@@ -81,7 +81,7 @@ import { NodeModel } from "@projectstorm/react-diagrams";
 import { ConditionNodeModel } from "../components/nodes/ConditionNode/ConditionNodeModel";
 import { EndNodeModel } from "../components/nodes/EndNode/EndNodeModel";
 import { CallNodeModel } from "../components/nodes/CallNode/CallNodeModel";
-import { ADD_NEW_SEQUENCE_TAG, DATA_SERVICE_NODES, ENDPOINTS, MEDIATORS, NODE_DIMENSIONS, NODE_GAP, NodeTypes, OPEN_DATA_MAPPER_VIEW, OPEN_SEQUENCE_VIEW } from "../resources/constants";
+import { ADD_NEW_SEQUENCE_TAG, DATA_SERVICE_NODES, ENDPOINTS, MEDIATORS, NODE_DIMENSIONS, NODE_GAP, NodeTypes, OPEN_DATA_MAPPER_VIEW, OPEN_DSS_SERVICE_DESIGNER, OPEN_SEQUENCE_VIEW } from "../resources/constants";
 import { AllNodeModel, SourceNodeModel, TargetNodeModel, createNodesLink } from "../utils/diagram";
 import { EmptyNodeModel } from "../components/nodes/EmptyNode/EmptyNodeModel";
 import { Diagnostic } from "vscode-languageserver-types";
@@ -623,7 +623,10 @@ export class NodeFactoryVisitor implements Visitor {
         this.skipChildrenVisit = false;
     }
 
-    beginVisitDataServiceCall = (node: DataServiceCall): void => this.createNodeAndLinks({ node, name: MEDIATORS.DATASERVICECALL });
+    beginVisitDataServiceCall = (node: DataServiceCall): void => {
+        this.createNodeAndLinks({ node, name: MEDIATORS.DATASERVICECALL, type: NodeTypes.REFERENCE_NODE, data: { referenceName: node.serviceName, openViewName: OPEN_DSS_SERVICE_DESIGNER } });
+    }
+
     beginVisitEnqueue = (node: Enqueue): void => this.createNodeAndLinks({ node, name: MEDIATORS.ENQUEUE });
     beginVisitTransaction = (node: Transaction): void => this.createNodeAndLinks({ node, name: MEDIATORS.TRANSACTION });
     beginVisitEvent = (node: Event): void => this.createNodeAndLinks({ node, name: MEDIATORS.EVENT });

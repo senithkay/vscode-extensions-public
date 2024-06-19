@@ -15,6 +15,7 @@ import { getPropertyDescription } from "./template-engine/mustach-templates/core
 import { getSwitchDescription } from "./template-engine/mustach-templates/filter/switch";
 import { getSequenceDescription } from "./template-engine/mustach-templates/core/sequence";
 import { getDataMapperDescription } from "./template-engine/mustach-templates/transformation/datamapper";
+import { getDSCallDescription } from "./template-engine/mustach-templates/data/dataServiceCall";
 
 export function getNodeIdFromModel(model: STNode, prefix?: string) {
     if (model.viewState?.id) {
@@ -62,6 +63,9 @@ export function getNodeDescription(name: string, stNode: any): string {
         }
         case (MEDIATORS.DATAMAPPER): {
             return getDataMapperDescription(stNode);
+        }
+        case (MEDIATORS.DATASERVICECALL): {
+            return getDSCallDescription(stNode);
         }
         default:
             return;

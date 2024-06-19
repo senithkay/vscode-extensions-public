@@ -36,6 +36,19 @@ export class ReferenceNodeModel extends BaseNodeModel {
         }
     }
 
+    async openDSSServiceDesigner(rpcClient: RpcClient, uri: string) {
+        // go to the DSS service designer view
+        if (uri) {
+            rpcClient.getMiVisualizerRpcClient().openView({
+                type: EVENT_TYPE.OPEN_VIEW,
+                location: {
+                    view: MACHINE_VIEW.DSSServiceDesigner,
+                    documentUri: uri
+                }
+            });
+        }
+    }
+
     async openDataMapperView(rpcClient: RpcClient) {
         const formData = getDataFromST(
             this.mediatorName,

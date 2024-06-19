@@ -171,7 +171,7 @@ export const MEDIATORS = {
     CALLTEMPLATE: "CallTemplate",
     CLONE: "Clone",
     DATAMAPPER: "DataMapper",
-    DATASERVICECALL: "DataServiceCall",
+    DATASERVICECALL: "Call Data Service",
     DROP: "Drop",
     ENRICH: "Enrich",
     ENTITLEMENT: "EntitlementService",
@@ -271,3 +271,4 @@ export const SERVICE = {
 export const ADD_NEW_SEQUENCE_TAG = "addNewSequence";
 export const OPEN_SEQUENCE_VIEW = "Open Sequence View";
 export const OPEN_DATA_MAPPER_VIEW = "Open Data Mapping";
+export const OPEN_DSS_SERVICE_DESIGNER = "Open Service Designer";
