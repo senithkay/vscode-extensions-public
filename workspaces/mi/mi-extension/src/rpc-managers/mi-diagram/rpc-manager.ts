@@ -3862,6 +3862,15 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
             fs.writeFileSync(filePath, content);
 
+            const openFileButton = 'Open File';
+            window.showInformationMessage(`Test suite ${!filePath ? "created" : "updated"} successfully`, openFileButton).then(selection => {
+                if (selection === openFileButton) {
+                    workspace.openTextDocument(filePath).then(doc => {
+                        window.showTextDocument(doc);
+                    });
+                }
+            });
+
             resolve({ path: filePath });
         });
     }
@@ -3902,6 +3911,16 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             await workspace.applyEdit(workspaceEdit);
 
             await this.rangeFormat({ uri: filePath, range: this.getFormatRange(range, params.content) });
+
+            const openFileButton = 'Open File';
+            window.showInformationMessage(`Test case ${!filePath ? "created" : "updated"} successfully`, openFileButton).then(selection => {
+                if (selection === openFileButton) {
+                    workspace.openTextDocument(filePath).then(doc => {
+                        window.showTextDocument(doc);
+                    });
+                }
+            });
+
             resolve({});
         });
     }
@@ -3963,6 +3982,15 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             }
 
             fs.writeFileSync(filePath, content);
+
+            const openFileButton = 'Open File';
+            window.showInformationMessage(`Mock service ${!filePath ? "created" : "updated"} successfully`, openFileButton).then(selection => {
+                if (selection === openFileButton) {
+                    workspace.openTextDocument(filePath).then(doc => {
+                        window.showTextDocument(doc);
+                    });
+                }
+            });
 
             resolve({ path: filePath });
         });
