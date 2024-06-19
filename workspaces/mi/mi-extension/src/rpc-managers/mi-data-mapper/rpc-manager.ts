@@ -212,10 +212,7 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
                 const workspaceFolder = workspace.getWorkspaceFolder(Uri.file(filePath));
                 let miDiagramRpcManager: MiDiagramRpcManager = new MiDiagramRpcManager();
 
-                // console.log("createDMFiles");
-                // console.log(extension.context.extensionUri.fsPath);
-                // workspaces/mi/mi-extension/resources/data-mapper-libs
-                // console.log(dataMapperLibsFolder);
+               
 
                 if (workspaceFolder) {
                     const dataMapperConfigFolder = path.join(
@@ -228,7 +225,7 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
                         fs.writeFileSync(tsFilePath, dmContent);
                     }
 
-                    const operatorsSrcFilePath = path.join(extension.context.extensionUri.fsPath, "resources", "data-mapper-libs", "operators.ts");
+                    const operatorsSrcFilePath = path.join(extension.context.extensionUri.fsPath, "resources", "data-mapper-operators", "operators.ts");
                     const operatorsDstFilePath = path.join(dataMapperConfigFolder, "operators.ts");
                     fs.copyFileSync(operatorsSrcFilePath, operatorsDstFilePath, fs.constants.COPYFILE_FICLONE);
 
