@@ -147,7 +147,7 @@ export function MediatorNodeWidget(props: CallNodeWidgetProps) {
                                 </S.StyledButton>
                             )}
                             <Header showBorder={description !== undefined}>
-                                <Name>{FirstCharToUpperCase(node.stNode.tag)}</Name>
+                                <Name>{node.mediatorName}</Name>
                             </Header>
                             <S.Body>
                                 <Tooltip content={description} position={'bottom'} >
