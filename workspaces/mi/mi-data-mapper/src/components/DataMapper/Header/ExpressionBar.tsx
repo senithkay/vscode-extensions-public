@@ -226,7 +226,7 @@ export default function ExpressionBar(props: ExpressionBarProps) {
                         sx={{ margin: "5px 9px" }}
                     />
                     <AutoComplete
-                        sx={{ fontFamily: 'monospace', fontSize: '12px' }}
+                        sx={{ fontFamily: 'monospace', fontSize: '12px', height: 'auto' }}
                         identifier='expression-bar-autocomplete'
                         items={functionNames}
                         allowItemCreate={true}
