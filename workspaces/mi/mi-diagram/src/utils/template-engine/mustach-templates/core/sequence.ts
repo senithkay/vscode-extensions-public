@@ -28,9 +28,5 @@ export function getSequenceDataFromSTNode(data: { [key: string]: any }) {
 }
 
 export function getSequenceDescription(data: { [key: string]: any }) {
-    if (data.staticReferenceKey) {
-        return data.staticReferenceKey;
-    } else if (data.dynamicReferenceKey) {
-        return data.dynamicReferenceKey;
-    }
+    return data.staticReferenceKey || data.dynamicReferenceKey || data.key;
 }
