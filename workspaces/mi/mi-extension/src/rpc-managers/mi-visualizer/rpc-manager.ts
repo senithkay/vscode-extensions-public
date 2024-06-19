@@ -254,9 +254,10 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
             const token = Buffer.from(`${username}:${password}`, 'utf8').toString('base64');
             const authHeader = `Basic ${token}`;
             // Create an HTTPS agent that ignores SSL certificate verification
+            // MI has ignored the verification for management api, check on this
             const agent = new https.Agent({ rejectUnauthorized: false });
 
-            const runtimeServicesResponse : RuntimeServicesResponse = {
+            const runtimeServicesResponse: RuntimeServicesResponse = {
                 api: undefined,
                 proxy: undefined,
                 dataServices: undefined
@@ -286,33 +287,8 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
                 });
 
                 if (apiResponse.ok) {
-                    // create new structire to hold the apiDetails
-                    
                     const apiResponseData = await apiResponse.json();
-                    // const apiList = apiResponseData?.list;
-                    // for (let i = 0; i < apiList.length; i++) {
-                    //     const apiName = apiList[i]?.name;
-                    //     const completeUrl = `https://localhost:9164/management/apis?apiName=${apiName}`;
-                    //     const detailedResponse = await fetch(completeUrl, {
-                    //         method: 'GET',
-                    //         headers: {
-                    //             'Content-Type': 'application/json',
-                    //             'Authorization': `Bearer ${authToken}`
-                    //         },
-                    //         agent: agent // Pass the custom agent
-                    //     });
-
-                    //     if (detailedResponse.ok) {
-                    //         const detailedResponseData = await detailedResponse.json();
-                    //         // add detailedResponseData.resources to the apiResponseData
-                    //         apiList[i].resources = detailedResponseData.resources;
-                    //     } else {
-                    //         throw new Error(`Error while fetching API data: ${apiResponse.statusText}`);
-                    //     }
-
-                    // }
                     runtimeServicesResponse.api = apiResponseData;
-                    // resolve({ api: apiResponseData, proxy: undefined, dataServices: undefined });
                 }
 
 
@@ -329,7 +305,6 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
                 if (proxyResponse.ok) {
                     const proxyResponseData = await proxyResponse.json();
                     runtimeServicesResponse.proxy = proxyResponseData;
-                    // resolve({ api: undefined, proxy: proxyResponseData, dataServices: undefined });
                 }
 
                 // get the data services details
@@ -345,12 +320,9 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
                 if (dataServicesResponse.ok) {
                     const dataServicesResponseData = await dataServicesResponse.json();
                     runtimeServicesResponse.dataServices = dataServicesResponseData;
-                    // resolve({ api: undefined, proxy: undefined, dataServices: dataServicesResponseData });
                 }
 
                 resolve(runtimeServicesResponse);
-
-
             } else {
                 throw new Error(`Error while checking token usage: ${response.statusText}`);
             }
