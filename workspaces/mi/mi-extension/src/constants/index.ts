@@ -78,6 +78,7 @@ export const COMMANDS = {
     ADD_MOCK_SERVICE: 'MI.test.add.mock-service',
     REFRESH_MOCK_SERVICES: 'MI.test.refresh.mock-services',
     UPDATE_MOCK_SERVICE: 'MI.test.update.mock-service',
+    OPEN_RUNTIME_VIEW: 'MI.Open-runtime-service-view',
     REVEAL_TEST_PANE: 'MI.mock-services.focus',
 };
 

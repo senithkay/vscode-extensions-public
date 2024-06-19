@@ -22,6 +22,7 @@ import {
     toggleDisplayOverview,
     downloadSelectedSampleFromGithub,
     fetchSamplesFromGithub,
+    getAvailableRuntimeServices,
     getCurrentThemeKind,
     getHistory,
     getProjectStructure,
@@ -63,4 +64,5 @@ export function registerMiVisualizerRpcHandlers(messenger: Messenger) {
     messenger.onRequest(updateContext, (args: UpdateContextRequest) => rpcManger.updateContext(args));
     messenger.onRequest(retrieveContext, (args: RetrieveContextRequest) => rpcManger.retrieveContext(args));
     messenger.onRequest(showNotification, (args: NotificationRequest) => rpcManger.showNotification(args));
+    messenger.onRequest(getAvailableRuntimeServices, () => rpcManger.getAvailableRuntimeServices());
 }
