@@ -1188,6 +1188,13 @@ export interface GetSelectiveWorkspaceContextResponse {
     context: string[];
 }
 
+export interface GetSelectiveArtifactsRequest {
+    path: string;
+}
+
+export interface GetSelectiveArtifactsResponse {
+    artifacts: string[];
+}
 export interface GetProjectUuidResponse {
     uuid: string;
 }
@@ -1577,4 +1584,11 @@ export interface GetAllMockServicesResponse {
         name: string;
         path: string;
     }[];
+}
+
+export interface AddDependencyToPomRequest {
+    groupId: string;
+    artifactId: string;
+    version: string;
+    file: string
 }

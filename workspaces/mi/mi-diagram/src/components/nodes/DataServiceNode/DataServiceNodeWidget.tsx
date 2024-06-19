@@ -10,18 +10,15 @@
 import React, { useMemo, useState } from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
-import { MediatorNodeModel } from "./MediatorNodeModel";
+import { DataServiceNodeModel } from "./DataServiceNodeModel";
 import { Colors, NODE_DIMENSIONS } from "../../../resources/constants";
 import { STNode } from "@wso2-enterprise/mi-syntax-tree/src";
-import { Button, ClickAwayListener, Menu, MenuItem, Popover, Tooltip } from "@wso2-enterprise/ui-toolkit";
-import { MoreVertIcon } from "../../../resources";
+import { Button, Tooltip } from "@wso2-enterprise/ui-toolkit";
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import SidePanelContext from "../../sidePanel/SidePanelContexProvider";
 import { getNodeDescription } from "../../../utils/node";
 import { Header, Description, Name } from "../BaseNodeModel";
-import { FirstCharToUpperCase } from "../../../utils/commons";
 import { getMediatorIconsFromFont } from "../../../resources/icons/mediatorIcons/icons";
-import { BreakpointMenu } from "../../BreakpointMenu/BreakpointMenu";
 
 namespace S {
     export type NodeStyleProp = {
@@ -86,16 +83,15 @@ namespace S {
     `;
 }
 interface CallNodeWidgetProps {
-    node: MediatorNodeModel;
+    node: DataServiceNodeModel;
     engine: DiagramEngine;
     onClick?: (node: STNode) => void;
 }
 
-export function MediatorNodeWidget(props: CallNodeWidgetProps) {
+export function DataServiceNodeWidget(props: CallNodeWidgetProps) {
     const { node, engine } = props;
     const [isHovered, setIsHovered] = React.useState(false);
     const [isPopoverOpen, setIsPopoverOpen] = useState(false);
-    const [popoverAnchorEl, setPopoverAnchorEl] = useState(null);
     const sidePanelContext = React.useContext(SidePanelContext);
     const { rpcClient } = useVisualizerContext();
     const hasDiagnotics = node.hasDiagnotics();
@@ -103,16 +99,6 @@ export function MediatorNodeWidget(props: CallNodeWidgetProps) {
     const hasBreakpoint = node.hasBreakpoint();
     const isActiveBreakpoint = node.isActiveBreakpoint();
     const description = getNodeDescription(node.stNode);
-
-    const handleOnClickMenu = (event: any) => {
-        setIsPopoverOpen(!isPopoverOpen);
-        setPopoverAnchorEl(event.currentTarget);
-        event.stopPropagation();
-    };
-
-    const handlePopoverClose = () => {
-        setIsPopoverOpen(false);
-    }
 
     const TooltipEl = useMemo(() => {
         return () => (
@@ -138,14 +124,9 @@ export function MediatorNodeWidget(props: CallNodeWidgetProps) {
                         <div style={{ position: "absolute", left: -5, width: 15, height: 15, borderRadius: "50%", backgroundColor: "red" }}></div>
                     )}
                     <S.TopPortWidget port={node.getPort("in")!} engine={engine} />
-                    <div style={{ display: "flex", flexDirection: "row", width: NODE_DIMENSIONS.DEFAULT.WIDTH }}>
-                        <S.IconContainer>{getMediatorIconsFromFont(node.stNode.tag)}</S.IconContainer>
+                    <div style={{ display: "flex", flexDirection: "row" }}>
+                        {/* <S.IconContainer>{getMediatorIconsFromFont(node.stNode.tag)}</S.IconContainer> */}
                         <div>
-                            {isHovered && (
-                                <S.StyledButton appearance="icon" onClick={handleOnClickMenu}>
-                                    <MoreVertIcon />
-                                </S.StyledButton>
-                            )}
                             <Header showBorder={description !== undefined}>
                                 <Name>{node.mediatorName}</Name>
                             </Header>
@@ -159,23 +140,6 @@ export function MediatorNodeWidget(props: CallNodeWidgetProps) {
                     <S.BottomPortWidget port={node.getPort("out")!} engine={engine} />
                 </S.Node>
             </Tooltip>
-            <Popover
-                anchorEl={popoverAnchorEl}
-                open={isPopoverOpen}
-                sx={{
-                    backgroundColor: Colors.SURFACE,
-                    marginLeft: "30px",
-                    padding: 0
-                }}
-            >
-                <ClickAwayListener onClickAway={handlePopoverClose}>
-                    <Menu>
-                        <MenuItem key={'delete-btn'} item={{ label: 'Delete', id: "delete", onClick: () => node.delete(rpcClient) }} />
-                        <BreakpointMenu hasBreakpoint={hasBreakpoint} node={node} rpcClient={rpcClient} />
-                    </Menu>
-                </ClickAwayListener>
-            </Popover>
-
         </div >
     );
 }

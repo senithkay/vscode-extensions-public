@@ -34,7 +34,7 @@ export function DSSServiceDesignerView({ syntaxTree, documentUri }: ServiceDesig
     const [formData, setFormData] = React.useState<any>(null);
     const [mode, setMode] = React.useState<"create" | "edit">("create");
     const [selectedResource, setSelectedResource] = React.useState(null);
-    const [selectedOperation , setSelectedOperation] = React.useState(null);
+    const [selectedOperation, setSelectedOperation] = React.useState(null);
     const [showResources, setShowResources] = React.useState<boolean>(true);
 
     const getResources = (st: any): Resource[] => {
@@ -192,7 +192,12 @@ export function DSSServiceDesignerView({ syntaxTree, documentUri }: ServiceDesig
 
     const openDiagram = (resource: Resource) => {
         const resourceIndex = resourceServiceModel.resources.findIndex((res) => res === resource);
-        rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.ResourceView, documentUri: documentUri, identifier: resourceIndex.toString() } })
+        const href = syntaxTree.data.resources[resourceIndex]?.callQuery?.href;
+        if (!href) {
+            rpcClient.getMiDiagramRpcClient().showErrorMessage({ message: "Cannot find the query for selected resource" });
+            return;
+        }
+        rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.DataServiceView, documentUri: documentUri, identifier: href } })
     }
 
     const handleResourceAdd = () => {
@@ -286,7 +291,7 @@ export function DSSServiceDesignerView({ syntaxTree, documentUri }: ServiceDesig
                             checked={!showResources}
                             checkedColor="var(--vscode-button-background)"
                             enableTransition={true}
-                            onChange={() => {setShowResources(!showResources);} }
+                            onChange={() => { setShowResources(!showResources); }}
                             sx={{
                                 "margin": "auto",
                                 fontFamily: "var(--font-family)",

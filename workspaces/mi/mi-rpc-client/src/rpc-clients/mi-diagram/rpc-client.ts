@@ -10,6 +10,7 @@
  */
 import {
     AIUserInput,
+    AddDependencyToPomRequest,
     ApiDirectoryResponse,
     ApplyEditRequest,
     ApplyEditResponse,
@@ -27,6 +28,8 @@ import {
     CreateClassMediatorResponse,
     CreateConnectionRequest,
     CreateConnectionResponse,
+    CreateDataServiceRequest,
+    CreateDataServiceResponse,
     CreateDataSourceResponse,
     CreateEndpointRequest,
     CreateEndpointResponse,
@@ -44,12 +47,6 @@ import {
     CreateProxyServiceResponse,
     CreateRegistryResourceRequest,
     CreateRegistryResourceResponse,
-    UpdateRegistryMetadataRequest,
-    UpdateRegistryMetadataResponse,
-    updateRegistryMetadata,
-    GetRegistryMetadataRequest,
-    GetRegistryMetadataResponse,
-    getMetadataOfRegistryResource,
     CreateSequenceRequest,
     CreateSequenceResponse,
     CreateTaskRequest,
@@ -60,8 +57,6 @@ import {
     DeleteArtifactRequest,
     DownloadConnectorRequest,
     DownloadConnectorResponse,
-    CreateDataServiceRequest,
-    CreateDataServiceResponse,
     ESBConfigsResponse,
     EditAPIRequest,
     EditAPIResponse,
@@ -107,6 +102,10 @@ import {
     GetProjectUuidResponse,
     GetRecipientEPRequest,
     GetRecipientEPResponse,
+    GetRegistryMetadataRequest,
+    GetRegistryMetadataResponse,
+    GetSelectiveArtifactsRequest,
+    GetSelectiveArtifactsResponse,
     GetSelectiveWorkspaceContextResponse,
     GetTaskRequest,
     GetTaskResponse,
@@ -130,14 +129,14 @@ import {
     RegistryArtifactNamesResponse,
     RetrieveAddressEndpointRequest,
     RetrieveAddressEndpointResponse,
+    RetrieveDataServiceRequest,
+    RetrieveDataServiceResponse,
     RetrieveDefaultEndpointRequest,
     RetrieveDefaultEndpointResponse,
     RetrieveHttpEndpointRequest,
     RetrieveHttpEndpointResponse,
     RetrieveMessageProcessorRequest,
     RetrieveMessageProcessorResponse,
-    RetrieveDataServiceRequest,
-    RetrieveDataServiceResponse,
     RetrieveTemplateRequest,
     RetrieveTemplateResponse,
     RetrieveWsdlEndpointRequest,
@@ -164,6 +163,8 @@ import {
     UpdateMockServiceResponse,
     UpdateRecipientEPRequest,
     UpdateRecipientEPResponse,
+    UpdateRegistryMetadataRequest,
+    UpdateRegistryMetadataResponse,
     UpdateTemplateEPRequest,
     UpdateTemplateEPResponse,
     UpdateTestCaseRequest,
@@ -174,6 +175,7 @@ import {
     UpdateWsdlEndpointResponse,
     WriteContentToFileRequest,
     WriteContentToFileResponse,
+    addDependencyToPom,
     applyEdit,
     askFileDirPath,
     askProjectDirPath,
@@ -187,6 +189,7 @@ import {
     createAPI,
     createClassMediator,
     createConnection,
+    createDataService,
     createDataSource,
     createEndpoint,
     createInboundEndpoint,
@@ -199,7 +202,6 @@ import {
     createSequence,
     createTask,
     createTemplate,
-    createDataService,
     deleteArtifact,
     downloadConnector,
     editAPI,
@@ -222,6 +224,7 @@ import {
     getConnectorConnections,
     getConnectorForm,
     getConnectors,
+    getDataService,
     getDataSource,
     getDefaultEndpoint,
     getDefinition,
@@ -236,14 +239,15 @@ import {
     getLoadBalanceEndpoint,
     getLocalEntry,
     getMessageProcessor,
-    getDataService,
     getMessageStore,
+    getMetadataOfRegistryResource,
     getOpenAPISpec,
     getProjectRoot,
     getProjectUuid,
     getRecipientEndpoint,
     getSTRequest,
     getSTResponse,
+    getSelectiveArtifacts,
     getSelectiveWorkspaceContext,
     getSequenceDirectory,
     getSyntaxTree,
@@ -277,6 +281,7 @@ import {
     updateLoadBalanceEndpoint,
     updateMockService,
     updateRecipientEndpoint,
+    updateRegistryMetadata,
     updateSwaggerFromAPI,
     updateTemplateEndpoint,
     updateTestCase,
@@ -594,6 +599,10 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
         return this._messenger.sendRequest(getSelectiveWorkspaceContext, HOST_EXTENSION);
     }
 
+    getSelectiveArtifacts(params: GetSelectiveArtifactsRequest): Promise<GetSelectiveArtifactsResponse> {
+        return this._messenger.sendRequest(getSelectiveArtifacts, HOST_EXTENSION, params);
+    }
+
     getBackendRootUrl(): Promise<GetBackendRootUrlResponse> {
         return this._messenger.sendRequest(getBackendRootUrl, HOST_EXTENSION);
     }
@@ -728,5 +737,9 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     getAllMockServices(): Promise<GetAllMockServicesResponse> {
         return this._messenger.sendRequest(getAllMockServices, HOST_EXTENSION);
+    }
+
+    addDependencyToPom(params: AddDependencyToPomRequest): Promise<void> {
+        return this._messenger.sendRequest(addDependencyToPom, HOST_EXTENSION, params);
     }
 }
