@@ -11,7 +11,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { ReferenceNodeModel } from "./ReferenceNodeModel";
-import { Colors, NODE_DIMENSIONS } from "../../../resources/constants";
+import { Colors, MEDIATORS, NODE_DIMENSIONS } from "../../../resources/constants";
 import { STNode } from "@wso2-enterprise/mi-syntax-tree/src";
 import { Button, ClickAwayListener, Menu, MenuItem, Popover, Tooltip } from "@wso2-enterprise/ui-toolkit";
 import { MoreVertIcon } from "../../../resources";
@@ -19,7 +19,7 @@ import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import SidePanelContext from "../../sidePanel/SidePanelContexProvider";
 import { getMediatorIconsFromFont } from "../../../resources/icons/mediatorIcons/icons";
 import { EVENT_TYPE, GetDefinitionResponse, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
-import { Header, Description, Name } from "../BaseNodeModel";
+import { Header, Description, Name, Content } from "../BaseNodeModel";
 import { getNodeDescription } from "../../../utils/node";
 
 namespace S {
@@ -81,17 +81,6 @@ namespace S {
         margin-bottom: -3px;
     `;
 
-    interface TagProps {
-        selectable: boolean;
-    };
-
-    export const NodeText = styled(Name) <TagProps>`        
-        &:hover {
-            text-decoration: ${(props: TagProps) => props.selectable ? "underline" : "none"};
-            color: ${(props: TagProps) => props.selectable ? Colors.SECONDARY : Colors.ON_SURFACE};
-        }
-    `;
-
     export const TooltipContent = styled.div`
         max-width: 80vw;
         white-space: pre-wrap;
@@ -113,10 +102,15 @@ export function ReferenceNodeWidget(props: ReferenceNodeWidgetProps) {
     const hasDiagnotics = node.hasDiagnotics();
     const tooltip = hasDiagnotics ? node.getDiagnostics().map(diagnostic => diagnostic.message).join("\n") : undefined;
     const [definition, setDefinition] = useState<GetDefinitionResponse>(undefined);
-    const description = getNodeDescription(node.stNode);
+    const [canOpenView, setCanOpenView] = useState(false);
+    const description = getNodeDescription(node.mediatorName, node.stNode);
 
     useEffect(() => {
-        getDefinition();
+        if (node.mediatorName === MEDIATORS.SEQUENCE) {
+            getDefinition();
+        } else if (node.mediatorName === MEDIATORS.DATAMAPPER) {
+            setCanOpenView(true);
+        }
     }, []);
 
     const getDefinition = async () => {
@@ -155,7 +149,10 @@ export function ReferenceNodeWidget(props: ReferenceNodeWidgetProps) {
                 },
                 position: definitionPosition
             });
-            if (definition) setDefinition(definition);
+            if (definition) {
+                setDefinition(definition);
+                setCanOpenView(true);
+            }
         }
     }
 
@@ -169,17 +166,15 @@ export function ReferenceNodeWidget(props: ReferenceNodeWidgetProps) {
         setIsPopoverOpen(false);
     }
 
-    const handleOpenSequence = async (e?: any) => {
+    const handleOpenView = async (e?: any) => {
         if (e) e.stopPropagation();
-        // go to the diagram view of the selected mediator
-        if (definition && definition.uri) {
-            rpcClient.getMiVisualizerRpcClient().openView({
-                type: EVENT_TYPE.OPEN_VIEW,
-                location: {
-                    view: MACHINE_VIEW.SequenceView,
-                    documentUri: definition.uri
-                }
-            });
+
+        if (node.mediatorName === MEDIATORS.SEQUENCE) {
+            if (definition) {
+                node.openSequenceDiagram(rpcClient, definition.uri);
+            }
+        } else if (node.mediatorName === MEDIATORS.DATAMAPPER) {
+            node.openDataMapperView(rpcClient);
         }
     }
 
@@ -204,21 +199,23 @@ export function ReferenceNodeWidget(props: ReferenceNodeWidgetProps) {
                 >
                     <S.TopPortWidget port={node.getPort("in")!} engine={engine} />
                     <div style={{ display: "flex", flexDirection: "row", width: NODE_DIMENSIONS.DEFAULT.WIDTH }}>
-                        <S.IconContainer>{getMediatorIconsFromFont(node.stNode.tag)}</S.IconContainer>
+                        <S.IconContainer>{getMediatorIconsFromFont(node.mediatorName)}</S.IconContainer>
                         <div>
                             {isHovered && (
                                 <S.StyledButton appearance="icon" onClick={handleOnClickMenu}>
                                     <MoreVertIcon />
                                 </S.StyledButton>
                             )}
-                            <Header showBorder={description !== undefined}>
-                                <S.NodeText onClick={handleOpenSequence} selectable={definition !== undefined}>{node.referenceName}</S.NodeText>
-                            </Header>
-                            <S.Body>
-                                <Tooltip content={(node.stNode as any).description} position={'bottom'} >
-                                    <Description>{description}</Description>
-                                </Tooltip>
-                            </S.Body>
+                            <Content>
+                                <Header showBorder={description !== undefined}>
+                                    <Name>{node.mediatorName}</Name>
+                                </Header>
+                                <S.Body>
+                                    <Tooltip content={description} position={'bottom'} >
+                                        <Description onClick={handleOpenView} selectable={canOpenView}>{description}</Description>
+                                    </Tooltip>
+                                </S.Body>
+                            </Content>
                         </div>
                     </div>
                     <S.BottomPortWidget port={node.getPort("out")!} engine={engine} />
@@ -235,7 +232,7 @@ export function ReferenceNodeWidget(props: ReferenceNodeWidgetProps) {
             >
                 <ClickAwayListener onClickAway={handlePopoverClose}>
                     <Menu>
-                        <MenuItem key={'share-btn'} item={{ label: 'Open Sequence', id: "open-sequence", onClick: handleOpenSequence }} />
+                        <MenuItem key={'share-btn'} item={{ label: node.openViewName || 'Open View', id: "open-view", onClick: handleOpenView }} />
                         <MenuItem key={'delete-btn'} item={{ label: 'Delete', id: "delete", onClick: () => node.delete(rpcClient) }} />
                     </Menu>
                 </ClickAwayListener>
