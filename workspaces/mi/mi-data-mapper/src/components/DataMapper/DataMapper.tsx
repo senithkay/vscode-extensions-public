@@ -123,7 +123,7 @@ export function MIDataMapper(props: MIDataMapperProps) {
             const nodeInitVisitor = new NodeInitVisitor(context);
 
             if (lastView.subMappingInfo !== undefined) {
-                const { subMappingInfo, targetFieldFQN } = lastView;
+                const { subMappingInfo, sourceFieldFQN, targetFieldFQN } = lastView;
                 const { index, mapFnIndex, mappingName } = subMappingInfo;
                 let focusedST = getFocusedSubMapping(index, fnST);
                 context.focusedST = focusedST;
@@ -141,7 +141,8 @@ export function MIDataMapper(props: MIDataMapperProps) {
                         ? nodeInitVisitor.getRootInputNode()
                         : nodeInitVisitor.getInputNode();
                     const intermediateNodes = nodeInitVisitor.getIntermediateNodes();
-                    const subMappingExpr = getFocusedSubMappingExpr(varDecl.getInitializer(), mapFnIndex);
+                    const varDeclInitializer = varDecl.getInitializer();
+                    const subMappingExpr = getFocusedSubMappingExpr(varDeclInitializer, mapFnIndex, sourceFieldFQN);
                     const outputNode = getOutputNode(context, subMappingExpr, subMappingType, true);
 
                     const subMappingNode = getSubMappingNode(context);

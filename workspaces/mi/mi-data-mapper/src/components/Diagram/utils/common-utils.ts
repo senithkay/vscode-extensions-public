@@ -660,25 +660,56 @@ export function isMapFnAtPropAssignment(focusedST: Node) {
         && isMapFunction(focusedST.getInitializer() as CallExpression);
 }
 
-export function getFocusedSubMappingExpr(initializer: Expression, mapFnIndex?: number) {
+export function getFocusedSubMappingExpr(initializer: Expression, mapFnIndex?: number, sourceFieldFQN?: string) {
     if (mapFnIndex === undefined) return initializer;
+
+    let targetNode = initializer;
 
     if (Node.isCallExpression(initializer)) {
         // Get the map function contains the mapping
-        const firstArg = initializer.getArguments()[0];
+        targetNode = initializer.getArguments()[0] as Expression;
+    } else if (Node.isObjectLiteralExpression(initializer) && sourceFieldFQN) {
+        targetNode = getTargetNodeFromProperties(initializer, sourceFieldFQN);
+    }
+    // TODO: Handle other node types
 
-        // Constraint: In focused views, return statements are only allowed at map functions
-        const returnStmts = firstArg.getDescendantsOfKind(ts.SyntaxKind.ReturnStatement);
+    // Constraint: In focused views, return statements are only allowed at map functions
+    const returnStmts = targetNode.getDescendantsOfKind(ts.SyntaxKind.ReturnStatement);
 
-        if (returnStmts.length >= mapFnIndex) {
-            const returnStmt = returnStmts[mapFnIndex];
-            if (returnStmt) {
-                return returnStmt.getExpression();
-            }
+    if (returnStmts.length >= mapFnIndex) {
+        const returnStmt = returnStmts[mapFnIndex];
+        if (returnStmt) {
+            return returnStmt.getExpression();
         }
     }
 
-    return initializer;
+    return targetNode;
+
+    function getTargetNodeFromProperties(initializer: Expression, sourceFieldFQN: string): Expression | undefined {
+        const properties = sourceFieldFQN.match(/(?:[^\s".']|"(?:\\"|[^"])*"|'(?:\\'|[^'])*')+/g) || [];
+    
+        if (!properties) return initializer;
+    
+        let currentExpr: Expression | undefined = initializer;
+    
+        for (let property of properties) {
+            if (!isNaN(Number(property))) continue;
+    
+            if (Node.isObjectLiteralExpression(currentExpr)) {
+                const propAssignment = findPropAssignment(currentExpr, property);
+                currentExpr = propAssignment.getInitializer();
+            }
+        }
+    
+        return currentExpr;
+    }
+    
+    function findPropAssignment(currentExpr: ObjectLiteralExpression, property: string): PropertyAssignment | undefined {
+        return currentExpr.getProperties().find((val) =>
+            Node.isPropertyAssignment(val)
+            && val.getName() === property
+        ) as PropertyAssignment;
+    }
 }
 
 export function isMapFnAtRootReturn(functionST: FunctionDeclaration, focusedST: Node ) {
