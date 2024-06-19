@@ -230,6 +230,13 @@ export const ENDPOINTS = {
     WSDL: "wsdl",
 }
 
+export const DATA_SERVICE_NODES = {
+    INPUT: "Input Mapping",
+    QUERY: "Query",
+    TRANSFORMATION: "Transformation",
+    OUTPUT: "Output Mapping",
+}
+
 export enum NodeTypes {
     START_NODE = "start-node",
     END_NODE = "end-node",
@@ -243,6 +250,7 @@ export enum NodeTypes {
     EMPTY_NODE = "empty-node",
     CONNECTOR_NODE = "connector-node",
     DATAMAPPER_NODE = "datamapper-node",
+    DATA_SERVICE_NODE = "data-service-node",
 }
 
 export const NODE_LINK = "node-link";

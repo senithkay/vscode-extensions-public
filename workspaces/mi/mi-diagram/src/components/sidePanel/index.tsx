@@ -4,11 +4,12 @@ import styled from '@emotion/styled';
 import { Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 import SidePanelContext, { SidePanelPage } from './SidePanelContexProvider';
 import { HomePage } from './mediators';
-import { getAllMediators } from './mediators/Values';
+import { getAllDataServiceForms, getAllMediators } from './mediators/Values';
 import AddConnector from './Pages/AddConnector';
 import { FirstCharToUpperCase } from '../../utils/commons';
 import ExpressionEditor from './expressionEditor/ExpressionEditor';
 import { ExpressionFieldValue } from '../..';
+import { DATA_SERVICE_NODES } from '../../resources/constants';
 
 const SidePanelContainer = styled.div`
     padding: 20px;
@@ -117,6 +118,16 @@ const SidePanelList = (props: SidePanelListProps) => {
                     nodePosition={sidePanelContext.nodeRange}
                     documentUri={props.documentUri} />;
                 mediatorsPage = { content: form, title: `Edit ${FirstCharToUpperCase(sidePanelContext.formValues.title)}` };
+            } else if (Object.values(DATA_SERVICE_NODES).includes(sidePanelContext.operationName)) {
+                const allForms = getAllDataServiceForms({
+                    nodePosition: props.nodePosition,
+                    documentUri: props.documentUri,
+                });
+
+                const form = allForms.find(form => form.operationName.toLowerCase() === sidePanelContext.operationName?.toLowerCase());
+                if (form) {
+                    mediatorsPage = { content: form.form, title: `Edit ${form.title}` };
+                }
             } else {
 
                 const allMediators = getAllMediators({
@@ -137,7 +148,7 @@ const SidePanelList = (props: SidePanelListProps) => {
 
                 if (form && Object.keys(form).length > 0) {
                     const val = form[Object.keys(form)[0]][0];
-                    mediatorsPage = { content: val.form, title: `Edit ${FirstCharToUpperCase(sidePanelContext.operationName)}` };
+                    mediatorsPage = { content: val.form, title: `Edit ${val.title}` };
                 }
             }
         } else {

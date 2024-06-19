@@ -30,7 +30,7 @@ import { getNamedEndpointXml } from "./endpoints/named";
 import { getRecipientListEndpointMustacheTemplate } from "./endpoints/recipientList";
 import { getTemplateEndpointMustacheTemplate } from "./endpoints/template";
 import { getWSDLEndpointMustacheTemplate } from "./endpoints/wsdl";
-import { MEDIATORS, ENDPOINTS, SERVICE } from "../../../resources/constants";
+import { MEDIATORS, ENDPOINTS, SERVICE, DATA_SERVICE_NODES } from "../../../resources/constants";
 import { getFilterFormDataFromSTNode, getFilterMustacheTemplate, getFilterXml } from "./filter/filter";
 import { getSequenceMustacheTemplate, getSequenceDataFromSTNode, getSequenceXml } from "./core/sequence";
 import { getStoreFormDataFromSTNode, getStoreMustacheTemplate, getStoreXml } from "./core/store";
@@ -71,6 +71,8 @@ import { getThrottleFormDataFromSTNode, getThrottleXml } from "./filter/throttle
 import { getRewriteFormDataFromSTNode, getRewriteMustacheTemplate, getRewriteXml } from "./other/rewrite";
 import { getDBLookupFormDataFromSTNode, getDBLookupMustacheTemplate, getDblookupXml } from "./data/dblookup";
 import { getDBReportFormDataFromSTNode, getDBReportMustacheTemplate, getDbReportXml } from "./data/dbreport";
+import { getDSInputMappingsFromSTNode, getDSOutputMappingsFromSTNode, getDSQueryFromSTNode, getDSTransformationFromSTNode } from "./dataservice/ds";
+import { Query } from "@wso2-enterprise/mi-syntax-tree/src";
 
 export function getMustacheTemplate(name: string) {
     switch (name) {
@@ -328,11 +330,11 @@ export function getNewSubSequenceXml(name: string, st: STNode) {
         case MEDIATORS.CLONE:
             return getNewCloneTargetXml();
         case MEDIATORS.SWITCH:
-            return getNewSwitchCaseXml(st as Switch);    
+            return getNewSwitchCaseXml(st as Switch);
     }
 }
 
-export function getDataFromXML(name: string, node: STNode) {
+export function getDataFromST(name: string, node: STNode) {
     const template = getMustacheTemplate(name);
     const formData = reverseMustache(template, node);
 
@@ -421,7 +423,7 @@ export function getDataFromXML(name: string, node: STNode) {
         case MEDIATORS.BAM:
             return getBamFormDataFromSTNode(formData, node as Bam);
         case MEDIATORS.OAUTH:
-            return getOauthFormDataFromSTNode(formData,node as OauthService);
+            return getOauthFormDataFromSTNode(formData, node as OauthService);
         case MEDIATORS.BUILDER:
             return getBuilderFormDataFromSTNode(formData, node as Builder);
         case MEDIATORS.PUBLISHEVENT:
@@ -442,6 +444,17 @@ export function getDataFromXML(name: string, node: STNode) {
         // Endpoint Forms
         case ENDPOINTS.HTTP:
             return getHTTPEndpointFormDataFromSTNode(formData, node as NamedEndpoint);
+
+        // Data Service
+        case DATA_SERVICE_NODES.INPUT:
+            return getDSInputMappingsFromSTNode(formData, node as Query);
+        case DATA_SERVICE_NODES.QUERY:
+            return getDSQueryFromSTNode(formData, node as Query);
+        case DATA_SERVICE_NODES.TRANSFORMATION:
+            return getDSTransformationFromSTNode(formData, node as Query);
+        case DATA_SERVICE_NODES.OUTPUT:
+            return getDSOutputMappingsFromSTNode(formData, node as Query);
+
         default:
             return formData;
     }
