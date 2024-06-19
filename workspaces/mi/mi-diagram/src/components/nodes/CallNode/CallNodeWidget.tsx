@@ -20,7 +20,7 @@ import SidePanelContext from "../../sidePanel/SidePanelContexProvider";
 import { Range } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { getMediatorIconsFromFont } from "../../../resources/icons/mediatorIcons/icons";
 import { getNodeDescription } from "../../../utils/node";
-import { Header, Description, Name } from "../BaseNodeModel";
+import { Header, Description, Name, Content } from "../BaseNodeModel";
 import { FirstCharToUpperCase } from "../../../utils/commons";
 import { BreakpointMenu } from "../../BreakpointMenu/BreakpointMenu";
 
@@ -132,7 +132,7 @@ export function CallNodeWidget(props: CallNodeWidgetProps) {
     const tooltip = hasDiagnotics ? node.getDiagnostics().map(diagnostic => diagnostic.message).join("\n") : undefined;
     const endpointHasDiagnotics = node.endpointHasDiagnostics();
     const endpointTooltip = endpointHasDiagnotics ? node.getEndpointDiagnostics().map(diagnostic => diagnostic.message).join("\n") : undefined;
-    const nodeDescription = getNodeDescription(node.stNode);
+    const nodeDescription = getNodeDescription(node.mediatorName, node.stNode);
     const hasBreakpoint = node.hasBreakpoint();
     const isActiveBreakpoint = node.isActiveBreakpoint();
 
@@ -223,16 +223,16 @@ export function CallNodeWidget(props: CallNodeWidgetProps) {
                                     <MoreVertIcon />
                                 </S.StyledButton>
                             )}
-                            <Header showBorder={nodeDescription !== undefined}>
-                                <Name>{FirstCharToUpperCase(node.stNode.tag)}</Name>
-                            </Header>
-                            <S.Body>
-                                <Tooltip content={nodeDescription} position={'bottom'} >
-                                    <Description style={{
-                                        fontSize: "var(--type-ramp-minus1-font-size)"
-                                    }}>{nodeDescription}</Description>
-                                </Tooltip>
-                            </S.Body>
+                            <Content>
+                                <Header showBorder={nodeDescription !== undefined}>
+                                    <Name>{node.mediatorName}</Name>
+                                </Header>
+                                <S.Body>
+                                    <Tooltip content={nodeDescription} position={'bottom'} >
+                                        <Description>{nodeDescription}</Description>
+                                    </Tooltip>
+                                </S.Body>
+                            </Content>
                         </div>
                     </div>
                     <S.BottomPortWidget port={node.getPort("out")!} engine={engine} />
@@ -289,7 +289,7 @@ export function CallNodeWidget(props: CallNodeWidgetProps) {
             </S.CircleContainer>
 
             {node.endpoint ? (
-                <S.EndpointTextWrapper>{getNodeDescription(node.endpoint)}</S.EndpointTextWrapper>
+                <S.EndpointTextWrapper>{getNodeDescription(node.mediatorName, node.endpoint)}</S.EndpointTextWrapper>
             ) : (
                 <S.EndpointContainer>
                     {/* <S.StyledButton appearance="icon" onClick={handlePlusNode}>

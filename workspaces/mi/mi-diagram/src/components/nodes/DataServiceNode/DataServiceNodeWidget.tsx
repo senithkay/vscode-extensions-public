@@ -17,7 +17,7 @@ import { Button, Tooltip } from "@wso2-enterprise/ui-toolkit";
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import SidePanelContext from "../../sidePanel/SidePanelContexProvider";
 import { getNodeDescription } from "../../../utils/node";
-import { Header, Description, Name } from "../BaseNodeModel";
+import { Header, Description, Name, Content } from "../BaseNodeModel";
 import { getMediatorIconsFromFont } from "../../../resources/icons/mediatorIcons/icons";
 
 namespace S {
@@ -98,7 +98,7 @@ export function DataServiceNodeWidget(props: CallNodeWidgetProps) {
     const tooltip = hasDiagnotics ? node.getDiagnostics().map(diagnostic => diagnostic.message).join("\n") : undefined;
     const hasBreakpoint = node.hasBreakpoint();
     const isActiveBreakpoint = node.isActiveBreakpoint();
-    const description = getNodeDescription(node.stNode);
+    const description = getNodeDescription(node.mediatorName, node.stNode);
 
     const TooltipEl = useMemo(() => {
         return () => (
@@ -126,16 +126,23 @@ export function DataServiceNodeWidget(props: CallNodeWidgetProps) {
                     <S.TopPortWidget port={node.getPort("in")!} engine={engine} />
                     <div style={{ display: "flex", flexDirection: "row" }}>
                         {/* <S.IconContainer>{getMediatorIconsFromFont(node.stNode.tag)}</S.IconContainer> */}
-                        <div>
+                        <Content style={{
+                            width: "100%",
+                            left: "0",
+                        }}>
                             <Header showBorder={description !== undefined}>
-                                <Name>{node.mediatorName}</Name>
+                                <Name style={{
+                                    textAlign: "center",
+                                    maxWidth: "100%",
+                                    width: "100%",
+                                }}>{node.mediatorName}</Name>
                             </Header>
                             <S.Body>
                                 <Tooltip content={description} position={'bottom'} >
                                     <Description>{description}</Description>
                                 </Tooltip>
                             </S.Body>
-                        </div>
+                        </Content>
                     </div>
                     <S.BottomPortWidget port={node.getPort("out")!} engine={engine} />
                 </S.Node>
