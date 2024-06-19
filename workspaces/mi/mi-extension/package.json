@@ -186,6 +186,13 @@
         "icon": "$(wand)"
       },
       {
+        "command": "MI.Open-runtime-service-view",
+        "title": "Open Runtime Services Panel",
+        "category": "MI",
+        "icon": "$(server)",
+        "when": "MI.isRunning== 'true'"
+      },
+      {
         "command": "MI.project-explorer.add",
         "title": "Add Construct",
         "icon": "$(add)",
@@ -463,6 +470,12 @@
           "title": "Open AI Panel"
         },
         {
+          "command": "MI.Open-runtime-service-view",
+          "group": "navigation@1",
+          "when": "MI.projectType == 'miProject' && (isVisualizerActive || resourceLangId == SynapseXml) && MI.isRunning== 'true'",
+          "title": "Open Runtime Services Panel"
+        },
+        {
           "command": "MI.show.graphical-view",
           "when": "MI.status == 'projectLoaded' && resourceLangId == SynapseXml",
           "group": "navigation@3"
@@ -693,6 +706,8 @@
     "@babel/core": "^7.24.4",
     "@types/json-schema": "7.0.15",
     "json-schema": "0.4.0",
+    "portfinder": "^1.0.32",
+    "cors-anywhere": "^0.4.4",
     "@apidevtools/json-schema-ref-parser": "11.6.1"
   }
 }

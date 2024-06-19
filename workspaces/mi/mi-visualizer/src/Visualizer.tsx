@@ -9,7 +9,7 @@
 
 import React, { useEffect } from "react";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
-import { MachineStateValue, AIMachineStateValue } from "@wso2-enterprise/mi-core";
+import { MachineStateValue, AIMachineStateValue, SwaggerData } from "@wso2-enterprise/mi-core";
 import MainPanel from "./MainPanel";
 import { VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 import styled from "@emotion/styled";
@@ -35,7 +35,7 @@ const ProgressRing = styled(VSCodeProgressRing)`
     padding: 4px;
 `;
 
-export function Visualizer({ mode }: { mode: string }) {
+export function Visualizer({ mode, swaggerData }: { mode: string, swaggerData?: SwaggerData }) {
     const { rpcClient } = useVisualizerContext();
     const [state, setState] = React.useState<MachineStateValue | AIMachineStateValue>('initialize');
 
@@ -63,7 +63,7 @@ export function Visualizer({ mode }: { mode: string }) {
                     case "runtime-services":
                         return <RuntimeServicesComponent />
                     case "swagger":
-                        return <SwaggerComponent/>
+                        return <SwaggerComponent data={swaggerData}  />
                 }
             })()}
         </ErrorBoundary>
@@ -104,6 +104,13 @@ const RuntimeServicesComponent = () => {
     return <RuntimeServicePanel />;
 }
 
-const SwaggerComponent = () => {
-    return <SwaggerPanel />;
-}
+const SwaggerComponent = React.memo(({ data }: { data: SwaggerData })  => {
+    if (!data) {
+        return (
+            <LoaderWrapper>
+                <ProgressRing />
+            </LoaderWrapper>
+        );
+    }
+    return <SwaggerPanel swaggerData={data}/>;
+});

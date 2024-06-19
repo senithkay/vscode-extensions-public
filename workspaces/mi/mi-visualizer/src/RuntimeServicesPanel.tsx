@@ -9,11 +9,13 @@
 
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import React, { Fragment, useEffect, useState } from 'react';
-import { RuntimeServicesResponse } from '@wso2-enterprise/mi-core';
+import { RuntimeServicesResponse, SwaggerData } from '@wso2-enterprise/mi-core';
 import styled from '@emotion/styled';
 import { View, ViewContent, ViewHeader } from './components/View';
 import { VSCodeButton } from '@vscode/webview-ui-toolkit/react';
-import { ButtonWrapper, ProgressRing } from '@wso2-enterprise/ui-toolkit';
+import { ButtonWrapper, Codicon, ProgressRing } from '@wso2-enterprise/ui-toolkit';
+import { set } from 'lodash';
+import { SwaggerPanel } from './SwaggerPanel';
 
 const EntryContainer = styled.div`
     display: flex;
@@ -35,9 +37,22 @@ const LoaderWrapper = styled.div`
     width: 100vw;
 `;
 
+const NavigationContainer = styled.div`
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    flex-start: left;
+`;
+
+export interface SwaggerDetails {
+    isSwaggerTriggered: boolean;
+    swaggerData?: SwaggerData;
+}
+
 export function RuntimeServicePanel() {
     const { rpcClient } = useVisualizerContext();
     const [services, setAvailableServices] = useState<RuntimeServicesResponse>();
+    const [isSwaggerEnabled, setSwaggerEnabled] = useState<SwaggerDetails>({ isSwaggerTriggered: false });
 
     useEffect(() => {
         if (rpcClient) {
@@ -49,10 +64,14 @@ export function RuntimeServicePanel() {
         }
     }, [rpcClient]);
 
+    rpcClient.onSwaggerSpecReceived((data: SwaggerData) => {
+        setSwaggerEnabled({
+            isSwaggerTriggered: true,
+            swaggerData: data
+        });
+    });
+
     const onTryit = async (name: any) => {
-        // Find the filePath for the given service name
-        // Call the LS and get the OAPI spec
-        // Open the swagger view
         const api_resource = await rpcClient.getMiDiagramRpcClient().getAvailableResources({
             documentIdentifier: undefined,
             resourceType: "api"
@@ -60,25 +79,20 @@ export function RuntimeServicePanel() {
 
         const resource = api_resource.resources.find((resource: any) => resource.name === name);
         const aboslutePath = resource?.absolutePath;
-        console.log(resource);
 
-        if(aboslutePath) {
+        if (aboslutePath) {
             const swaggerResponse = await rpcClient.getMiDiagramRpcClient().getOpenAPISpec({
                 apiName: name,
                 apiPath: aboslutePath
             });
-
-            console.log(swaggerResponse);
-            
-            
-
         }
-
     };
+
+    // TODO: Refactor service rendering
+    // TODO: Support Data services
 
     const apiServices = () => {
         if (services?.api?.count > 0) {
-            const resourceMethods = "";
             return (
                 <div>
                     <h3>Deployed APIs</h3>
@@ -93,7 +107,7 @@ export function RuntimeServicePanel() {
                                     {entry.url}
                                 </div>
                                 <VSCodeButton appearance="secondary" onClick={() => onTryit(entry.name)} title={"Try service"} style={{ marginRight: 8 }}>
-                                    <ButtonWrapper style={{ minWidth: "50px" }}>{"Try it"}</ButtonWrapper>
+                                    <ButtonWrapper>{"Try it"}</ButtonWrapper>
                                 </VSCodeButton>
                             </EntryContainer>
                         </>
@@ -121,7 +135,7 @@ export function RuntimeServicePanel() {
                                     {entry.wsdl2_0}
                                 </div>
                                 <VSCodeButton appearance="secondary" onClick={onTryit} title={"Try service"} disabled={false} style={{ marginRight: 8 }}>
-                                    <ButtonWrapper style={{ minWidth: "50px" }}>{"Try it"}</ButtonWrapper>
+                                    <ButtonWrapper>{"Try it"}</ButtonWrapper>
                                 </VSCodeButton>
                             </EntryContainer>
                         </>
@@ -131,26 +145,48 @@ export function RuntimeServicePanel() {
         }
     }
 
+    const handleBackButtonClick = () => {
+        setSwaggerEnabled({
+            isSwaggerTriggered: false
+        });
+    }
 
 
     return (
         <View>
-            <ViewHeader title={"Available Runtime Services"} ></ViewHeader>
-            <ViewContent padding={true}>
-                {services ?
-                    (
-                        <Fragment>
-                            {apiServices()}
-                            {proxyServices()}
-                        </Fragment>
-                    ) :
-                    (
-                        <LoaderWrapper>
-                            <ProgressRing />
-                        </LoaderWrapper>
-                    )
+            <>
+                {isSwaggerEnabled.isSwaggerTriggered && isSwaggerEnabled.swaggerData ?
+                    <>
+                        <NavigationContainer id="nav-bar-main">
+                            <VSCodeButton appearance="icon" title="Go Back" onClick={handleBackButtonClick}>
+                                <Codicon name="arrow-left" />
+                            </VSCodeButton>
+                            <ViewHeader title={"Swagger View"} ></ViewHeader>
+                        </NavigationContainer>
+
+                        <SwaggerPanel swaggerData={isSwaggerEnabled.swaggerData} />
+                    </>
+                    :
+                    <>
+                        <ViewHeader title={"Available Runtime Services"} ></ViewHeader>
+                        <ViewContent padding={true}>
+                            {services ?
+                                (
+                                    <Fragment>
+                                        {apiServices()}
+                                        {proxyServices()}
+                                    </Fragment>
+                                ) :
+                                (
+                                    <LoaderWrapper>
+                                        <ProgressRing />
+                                    </LoaderWrapper>
+                                )
+                            }
+                        </ViewContent>
+                    </>
                 }
-            </ViewContent>
+            </>
         </View>
     );
 }

@@ -271,6 +271,7 @@ export class MiDebugAdapter extends LoggingDebugSession {
                                 if (args?.noDebug) {
                                     checkServerReadiness().then(() => {
                                         openRuntimeServicesWebview();
+                                        vscode.commands.executeCommand('setContext', 'MI.isRunning', 'true');
                                         response.success = true;
                                         this.sendResponse(response);
                                     }).catch(error => {
@@ -280,6 +281,7 @@ export class MiDebugAdapter extends LoggingDebugSession {
                                 } else {
                                     this.debuggerHandler?.initializeDebugger().then(() => {
                                         openRuntimeServicesWebview();
+                                        vscode.commands.executeCommand('setContext', 'MI.isRunning', 'true');
                                         response.success = true;
                                         this.sendResponse(response);
                                     }).catch(error => {
@@ -357,6 +359,7 @@ export class MiDebugAdapter extends LoggingDebugSession {
                     this.sendError(response, 3, completeError);
                 }
             }
+            vscode.commands.executeCommand('setContext', 'MI.isRunning', 'false');
         } else {
             this.sendError(response, 3, `Error while disconnecting: Task Run was not found`);
         }

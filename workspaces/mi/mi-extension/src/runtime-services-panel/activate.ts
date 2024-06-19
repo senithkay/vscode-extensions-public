@@ -9,10 +9,11 @@
 
 import * as vscode from 'vscode';
 import { RuntimeServicesWebview } from './webview';
+import { COMMANDS } from '../constants';
 
-export function activateVisualizer(context: vscode.ExtensionContext) {
+export function activateRuntimeService(context: vscode.ExtensionContext) {
     context.subscriptions.push(
-        vscode.commands.registerCommand("Open-runtime-service-view", () => {
+        vscode.commands.registerCommand(COMMANDS.OPEN_RUNTIME_VIEW, () => {
             openRuntimeServicesWebview();
         })
     );

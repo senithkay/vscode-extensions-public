@@ -17,6 +17,7 @@ import { RPCLayer } from './RPCLayer';
 
 import { activateDebugger } from './debugger/activate';
 import { activateMigrationSupport } from './migration';
+import { activateRuntimeService } from './runtime-services-panel/activate';
 
 export async function activate(context: vscode.ExtensionContext) {
 	extension.context = context;
@@ -27,6 +28,7 @@ export async function activate(context: vscode.ExtensionContext) {
 	activateMigrationSupport(context);
 	// activateActivityPanel(context);
 	// activateAiPrompt(context);
+	activateRuntimeService(context);
 	activateVisualizer(context);
 	activateAiPanel(context);
 	StateMachine.initialize();

@@ -13,24 +13,30 @@ import { Uri, ViewColumn } from 'vscode';
 import { getComposerJSFiles } from '../util';
 import { RPCLayer } from '../RPCLayer';
 import { extension } from '../MIExtensionContext';
+import { SwaggerData } from '@wso2-enterprise/mi-core';
 
 export class SwaggerWebview {
     public static currentPanel: SwaggerWebview | undefined;
-    public static readonly viewType = 'micro-integrator.runtime-services-panel';
+    public static readonly viewType = 'micro-integrator.swagger-panel';
     private _panel: vscode.WebviewPanel | undefined;
     private _disposables: vscode.Disposable[] = [];
+    private _port: number;;
+    private _spec: any;
 
-    constructor() {
+    constructor(data: SwaggerData) {
+        this._spec = data.generatedSwagger;
+        this._port = data.port;
         this._panel = SwaggerWebview.createWebview();
         this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
         this._panel.webview.html = this.getWebviewContent(this._panel.webview);
         RPCLayer.create(this._panel);
     }
 
+
     private static createWebview(): vscode.WebviewPanel {
         const panel = vscode.window.createWebviewPanel(
             SwaggerWebview.viewType,
-            "Runtime Services",
+            "Swagger View",
             ViewColumn.Beside,
             {
                 enableScripts: true,
@@ -46,6 +52,11 @@ export class SwaggerWebview {
     }
 
     private getWebviewContent(webview: vscode.Webview) {
+        const swaggerSpec: SwaggerData = {
+            generatedSwagger: this._spec,
+            port: this._port
+        };
+
         // The JS file from the React build output
         const scriptUri = getComposerJSFiles(extension.context, 'Visualizer', webview).map(jsFile =>
             '<script charset="UTF-8" src="' + jsFile + '"></script>').join('\n');
@@ -80,7 +91,7 @@ export class SwaggerWebview {
             <script>
             function render() {
                 visualizerWebview.renderWebview(
-                    document.getElementById("root"), "swagger"
+                    document.getElementById("root"), "swagger", ${JSON.stringify(swaggerSpec)}
                 );
             }
             render();

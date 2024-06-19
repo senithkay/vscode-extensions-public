@@ -9,18 +9,11 @@
 
 import * as vscode from 'vscode';
 import { SwaggerWebview } from './webview';
+import { SwaggerData } from '@wso2-enterprise/mi-core';
 
-export function activateVisualizer(context: vscode.ExtensionContext) {
-    context.subscriptions.push(
-        vscode.commands.registerCommand("Open-runtime-service-view", () => {
-            openSwaggerWebview();
-        })
-    );
-}
-
-export function openSwaggerWebview() {
+export async function openSwaggerWebview(swaggerData: SwaggerData) {
     if (!SwaggerWebview.currentPanel) {
-        SwaggerWebview.currentPanel = new SwaggerWebview();
+        SwaggerWebview.currentPanel = new SwaggerWebview(swaggerData);
     } else {
         SwaggerWebview.currentPanel!.getWebview()?.reveal();
     }
