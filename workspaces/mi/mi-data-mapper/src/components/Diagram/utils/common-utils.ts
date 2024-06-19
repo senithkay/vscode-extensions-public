@@ -663,15 +663,21 @@ export function isMapFnAtPropAssignment(focusedST: Node) {
 export function getFocusedSubMappingExpr(initializer: Expression, mapFnIndex?: number) {
     if (mapFnIndex === undefined) return initializer;
 
-    // Constraint: In focused views, return statements are only allowed at map functions
-    const returnStmts = initializer.getDescendantsOfKind(ts.SyntaxKind.ReturnStatement);
+    if (Node.isCallExpression(initializer)) {
+        // Get the map function contains the mapping
+        const firstArg = initializer.getArguments()[0];
 
-    if (returnStmts.length >= mapFnIndex) {
-        const returnStmt = returnStmts[mapFnIndex];
-        if (returnStmt) {
-            return returnStmt.getExpression();
+        // Constraint: In focused views, return statements are only allowed at map functions
+        const returnStmts = firstArg.getDescendantsOfKind(ts.SyntaxKind.ReturnStatement);
+
+        if (returnStmts.length >= mapFnIndex) {
+            const returnStmt = returnStmts[mapFnIndex];
+            if (returnStmt) {
+                return returnStmt.getExpression();
+            }
         }
     }
+
     return initializer;
 }
 
