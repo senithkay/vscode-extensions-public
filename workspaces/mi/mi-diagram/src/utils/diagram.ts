@@ -30,6 +30,7 @@ import { PlusNodeFactory } from "../components/nodes/PlusNode/PlusNodeFactory";
 import { ConnectorNodeFactory } from "../components/nodes/ConnectorNode/ConnectorNodeFactory";
 import { DataMapperNodeFactory } from "../components/nodes/DataMapperNode/DataMapperNodeFactory";
 import { DataMapperNodeModel } from "../components/nodes/DataMapperNode/DataMapperNodeModel";
+import { DataServiceNodeFactory } from "../components/nodes/DataServiceNode/DataServiceNodeFactory";
 
 export function generateEngine(): DiagramEngine {
     const engine = createEngine({
@@ -47,6 +48,7 @@ export function generateEngine(): DiagramEngine {
     engine.getNodeFactories().registerFactory(new MediatorNodeFactory());
     engine.getNodeFactories().registerFactory(new ReferenceNodeFactory());
     engine.getNodeFactories().registerFactory(new ConnectorNodeFactory());
+    engine.getNodeFactories().registerFactory(new DataServiceNodeFactory());
     engine.getNodeFactories().registerFactory(new StartNodeFactory());
     engine.getNodeFactories().registerFactory(new EndNodeFactory());
     engine.getNodeFactories().registerFactory(new ConditionNodeFactory());
