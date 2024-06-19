@@ -161,10 +161,6 @@
       {
         "view": "testing",
         "contents": "[Add new test suite](command:MI.test.add.suite)"
-      },
-      {
-        "view": "testing",
-        "contents": "[Generate Unit Tests](command:MI.test.gen.ai-test)"
       }
     ],
     "commands": [
