@@ -54,6 +54,7 @@ import {
     GetProjectRootRequest,
     GetRecipientEPRequest,
     GetRegistryMetadataRequest,
+    GetSelectiveArtifactsRequest,
     GetTaskRequest,
     GetTemplateEPRequest,
     GetTextAtRangeRequest,
@@ -158,6 +159,7 @@ import {
     getProjectUuid,
     getRecipientEndpoint,
     getSTRequest,
+    getSelectiveArtifacts,
     getSelectiveWorkspaceContext,
     getSequenceDirectory,
     getSyntaxTree,
@@ -279,6 +281,7 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getAvailableResources, (args: GetAvailableResourcesRequest) => rpcManger.getAvailableResources(args));
     messenger.onRequest(createClassMediator, (args: CreateClassMediatorRequest) => rpcManger.createClassMediator(args));
     messenger.onRequest(getSelectiveWorkspaceContext, () => rpcManger.getSelectiveWorkspaceContext());
+    messenger.onRequest(getSelectiveArtifacts, (args: GetSelectiveArtifactsRequest) => rpcManger.getSelectiveArtifacts(args));
     messenger.onRequest(getBackendRootUrl, () => rpcManger.getBackendRootUrl());
     messenger.onRequest(getAvailableRegistryResources, (args: ListRegistryArtifactsRequest) => rpcManger.getAvailableRegistryResources(args));
     messenger.onRequest(updateRegistryMetadata, (args: UpdateRegistryMetadataRequest) => rpcManger.updateRegistryMetadata(args));

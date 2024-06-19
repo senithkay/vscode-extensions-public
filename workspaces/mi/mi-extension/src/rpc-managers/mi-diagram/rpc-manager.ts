@@ -111,6 +111,8 @@ import {
     GetRecipientEPResponse,
     GetRegistryMetadataRequest,
     GetRegistryMetadataResponse,
+    GetSelectiveArtifactsRequest,
+    GetSelectiveArtifactsResponse,
     GetSelectiveWorkspaceContextResponse,
     GetTaskRequest,
     GetTaskResponse,
@@ -2822,6 +2824,9 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                         case 'registry':
                             fileType = 'registry';
                             break;
+                            case 'unit':
+                                fileType = 'unit-test';
+                                break;
                         default:
                             fileType = '';
                     }
@@ -2838,12 +2843,14 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 }
 
                 //write the content to a file, if file exists, overwrite else create new file
-                const fullPath = path.join(directoryPath ?? '', 'src', 'main', 'wso2mi', 'artifacts', fileType, path.sep, `${name}.xml`);
-                console.log('Full path:', fullPath);
+                var fullPath = '';
+                if ( fileType ==='unit-test') {
+                    fullPath = path.join(directoryPath ?? '', 'src', 'main', 'test', path.sep, `${name}.xml`);
+                } else {
+                    fullPath = path.join(directoryPath ?? '', 'src', 'main', 'wso2mi', 'artifacts', fileType, path.sep, `${name}.xml`);
+                }
                 try {
-                    console.log('Writing content to file:', fullPath);
                     content[i] = content[i].trimStart();
-                    console.log('Content:', content[i]);
                     await replaceFullContentToFile(fullPath, content[i]);
 
                 } catch (error) {
@@ -4072,6 +4079,20 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             }
 
             resolve();
+        });
+    }
+
+    async getSelectiveArtifacts(params: GetSelectiveArtifactsRequest): Promise<GetSelectiveArtifactsResponse> {
+        return new Promise(async (resolve) => {
+            const filePath = params.path;
+            const artifactsContent: string[] = [];
+
+            if (fs.existsSync(filePath)) {
+                const currentFile = fs.readFileSync(filePath, "utf8");
+                artifactsContent.push(currentFile);
+            }
+        
+        return resolve({ artifacts: artifactsContent });
         });
     }
 }

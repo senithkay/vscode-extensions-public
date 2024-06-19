@@ -124,6 +124,10 @@ export async function activateTestExplorer(extensionContext: ExtensionContext, l
         console.log('Update Test Case');
     });
 
+    commands.registerCommand(COMMANDS.GEN_AI_TESTS, () => {
+        openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.AITestGen });
+        });
+
     activateMockServiceTreeView(extensionContext);
 }
 

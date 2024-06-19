@@ -104,6 +104,8 @@ import {
     GetRecipientEPResponse,
     GetRegistryMetadataRequest,
     GetRegistryMetadataResponse,
+    GetSelectiveArtifactsRequest,
+    GetSelectiveArtifactsResponse,
     GetSelectiveWorkspaceContextResponse,
     GetTaskRequest,
     GetTaskResponse,
@@ -243,6 +245,7 @@ import {
     getRecipientEndpoint,
     getSTRequest,
     getSTResponse,
+    getSelectiveArtifacts,
     getSelectiveWorkspaceContext,
     getSequenceDirectory,
     getSyntaxTree,
@@ -592,6 +595,10 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     getSelectiveWorkspaceContext(): Promise<GetSelectiveWorkspaceContextResponse> {
         return this._messenger.sendRequest(getSelectiveWorkspaceContext, HOST_EXTENSION);
+    }
+
+    getSelectiveArtifacts(params: GetSelectiveArtifactsRequest): Promise<GetSelectiveArtifactsResponse> {
+        return this._messenger.sendRequest(getSelectiveArtifacts, HOST_EXTENSION, params);
     }
 
     getBackendRootUrl(): Promise<GetBackendRootUrlResponse> {

@@ -62,6 +62,7 @@ export enum MACHINE_VIEW {
     ImportProject = "Import Project",
     TestSuite = "Test Suite",
     TestCase = "Test Cases",
+    AITestGen = "AI Test Generation",
     MockService = "Mock Service",
 }
 
