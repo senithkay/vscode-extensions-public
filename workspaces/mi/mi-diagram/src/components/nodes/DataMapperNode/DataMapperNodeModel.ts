@@ -11,7 +11,7 @@ import { STNode } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { NodeTypes } from "../../../resources/constants";
 import { BaseNodeModel } from "../BaseNodeModel";
 import { RpcClient } from '@wso2-enterprise/mi-rpc-client';
-import { getDataFromXML } from "../../../utils/template-engine/mustach-templates/templateUtils";
+import { getDataFromST } from "../../../utils/template-engine/mustach-templates/templateUtils";
 import SidePanelContext from "../../sidePanel/SidePanelContexProvider";
 import { EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
 import { MediatorNodeModel } from "../MediatorNode/MediatorNodeModel";
@@ -22,7 +22,7 @@ export class DataMapperNodeModel extends MediatorNodeModel {
     }
 
     async openDataMapperView(rpcClient: RpcClient, sidePanelContext: SidePanelContext, operationName: string = this.mediatorName, stNode: STNode = this.stNode) {
-        const formData = getDataFromXML(
+        const formData = getDataFromST(
             operationName,
             stNode
         );
@@ -71,7 +71,7 @@ export class DataMapperNodeModel extends MediatorNodeModel {
             rpcClient.getMiDiagramRpcClient().highlightCode({
                 range: nodeRange,
             });
-            const formData = getDataFromXML(
+            const formData = getDataFromST(
                 operationName,
                 stNode
             );

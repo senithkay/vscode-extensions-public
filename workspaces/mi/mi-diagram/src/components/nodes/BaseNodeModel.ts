@@ -14,7 +14,7 @@ import { NodePortModel } from "../NodePort/NodePortModel";
 import { Colors, NodeTypes } from "../../resources/constants";
 import { RpcClient } from '@wso2-enterprise/mi-rpc-client';
 import { Diagnostic } from "vscode-languageserver-types";
-import { getDataFromXML } from "../../utils/template-engine/mustach-templates/templateUtils";
+import { getDataFromST } from "../../utils/template-engine/mustach-templates/templateUtils";
 import SidePanelContext from "../sidePanel/SidePanelContexProvider";
 import styled, { StyledComponent } from "@emotion/styled";
 
@@ -97,7 +97,7 @@ export class BaseNodeModel extends NodeModel {
                 range: nodeRange,
             });
 
-            const formData = getDataFromXML(
+            const formData = getDataFromST(
                 operationName,
                 stNode
             );
@@ -106,7 +106,7 @@ export class BaseNodeModel extends NodeModel {
 
             sidePanelContext.setSidePanelState({
                 isOpen: true,
-                operationName: operationName.toLowerCase(),
+                operationName,
                 nodeRange: nodeRange,
                 isEditing: true,
                 formValues: formData,
@@ -190,6 +190,7 @@ export const Description: StyledComponent<any, any, any>  = styled.div`
 `;
 
 export const Name: StyledComponent<any, any, any>  = styled(Description)`
+    text-align: center;
     font-size: var(--type-ramp-base-font-size);
     font-weight: var(--font-weight);
 `;
