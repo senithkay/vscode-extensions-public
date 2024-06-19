@@ -111,6 +111,8 @@ export function MIDataMapper(props: MIDataMapperProps) {
         resetFocusedPort();
     }, [resetSearchStore, resetFocusedPort]);
 
+    const inputNode = nodes.find(node => isInputNode(node));
+
     useEffect(() => {
         async function generateNodes() {
             const lastView = views[views.length - 1];
@@ -203,6 +205,7 @@ export function MIDataMapper(props: MIDataMapperProps) {
                     hasEditDisabled={false}
                     onClose={undefined}
                     applyModifications={applyModifications}
+                    inputNode={inputNode}
                 />
             )}
             {nodes.length > 0 && (
@@ -218,7 +221,7 @@ export function MIDataMapper(props: MIDataMapperProps) {
             {nodes.length > 0 && (
                 <SubMappingConfigForm
                     functionST={fnST}
-                    inputNode={nodes.find(node => isInputNode(node))}
+                    inputNode={inputNode}
                     addView={addView}
                     updateView={editView}
                     applyModifications={applyModifications}

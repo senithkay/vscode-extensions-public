@@ -17,6 +17,7 @@ import { View } from "../Views/DataMapperView";
 import ExpressionBar from "./ExpressionBar";
 import FilterBar from "./FilterBar";
 import { isFocusedOnMapFunction } from "./utils";
+import { DataMapperNodeModel } from "../../../components/Diagram/Node/commons/DataMapperNode";
 
 export interface DataMapperHeaderProps {
     views: View[];
@@ -24,10 +25,11 @@ export interface DataMapperHeaderProps {
     hasEditDisabled: boolean;
     onClose?: () => void;
     applyModifications: () => Promise<void>;
+    inputNode: DataMapperNodeModel;
 }
 
 export function DataMapperHeader(props: DataMapperHeaderProps) {
-    const { views, switchView, hasEditDisabled, onClose, applyModifications } = props;
+    const { views, switchView, hasEditDisabled, onClose, applyModifications, inputNode } = props;
 
     const isFocusedOnMapFn = isFocusedOnMapFunction(views);
 
@@ -56,7 +58,7 @@ export function DataMapperHeader(props: DataMapperHeaderProps) {
             </ExpressionContainer>
             {isFocusedOnMapFn && (
                 <ArrayFilterContainer>
-                    <FilterBar applyModifications={applyModifications} />
+                    <FilterBar applyModifications={applyModifications} inputNode={inputNode}/>
                 </ArrayFilterContainer>
             )}
         </HeaderContainer>
@@ -87,7 +89,7 @@ const ExpressionContainer = styled.div`
 
 const ArrayFilterContainer = styled.div`
     width: 100%;
-    height: 40px;
+    min-height: 40px;
     display: flex;
     border-bottom: 1px solid var(--vscode-menu-separatorBackground);
 `;
