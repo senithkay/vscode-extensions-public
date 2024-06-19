@@ -191,6 +191,7 @@ export const Body = styled.div<{}>`
 interface DescriptionProps {
     selectable?: boolean;
 };
+
 export const Description: StyledComponent<any, any, any> = styled.div<DescriptionProps>`
     color: ${Colors.ON_SURFACE};
     max-width: 90px;
