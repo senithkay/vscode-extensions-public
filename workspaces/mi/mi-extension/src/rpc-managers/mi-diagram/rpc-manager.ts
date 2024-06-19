@@ -3865,7 +3865,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             const openFileButton = 'Open File';
             window.showInformationMessage(`Test suite ${!filePath ? "created" : "updated"} successfully`, openFileButton).then(selection => {
                 if (selection === openFileButton) {
-                    workspace.openTextDocument(filePath).then(doc => {
+                    workspace.openTextDocument(filePath!).then(doc => {
                         window.showTextDocument(doc);
                     });
                 }
@@ -3915,7 +3915,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             const openFileButton = 'Open File';
             window.showInformationMessage(`Test case ${!filePath ? "created" : "updated"} successfully`, openFileButton).then(selection => {
                 if (selection === openFileButton) {
-                    workspace.openTextDocument(filePath).then(doc => {
+                    workspace.openTextDocument(filePath!).then(doc => {
                         window.showTextDocument(doc);
                     });
                 }
@@ -3986,7 +3986,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             const openFileButton = 'Open File';
             window.showInformationMessage(`Mock service ${!filePath ? "created" : "updated"} successfully`, openFileButton).then(selection => {
                 if (selection === openFileButton) {
-                    workspace.openTextDocument(filePath).then(doc => {
+                    workspace.openTextDocument(filePath!).then(doc => {
                         window.showTextDocument(doc);
                     });
                 }
