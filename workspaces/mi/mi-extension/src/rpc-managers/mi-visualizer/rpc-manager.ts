@@ -49,6 +49,7 @@ import { openPopupView } from "../../stateMachinePopup";
 import { log, outputChannel } from "../../util/logger";
 import axios from "axios";
 import * as https from "https";
+import { DebuggerConfig } from "../../debugger/config";
 
 export class MiVisualizerRpcManager implements MIVisualizerAPI {
     async getWorkspaces(): Promise<WorkspacesResponse> {
@@ -263,7 +264,10 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
                 dataServices: undefined
             };
 
-            const response = await fetch('https://localhost:9164/management/login', {
+            const managementPort = DebuggerConfig.getManagementPort();
+            const host = DebuggerConfig.getHost();
+
+            const response = await fetch(`https://${host}:${managementPort}/management/login`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -277,7 +281,7 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
                 const authToken = responseBody.AccessToken;
                 console.log('Token:', authToken);
 
-                const apiResponse = await fetch('https://localhost:9164/management/apis', {
+                const apiResponse = await fetch(`https://${host}:${managementPort}/management/apis`, {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
@@ -293,7 +297,7 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
 
 
                 // get the proxy details
-                const proxyResponse = await fetch('https://localhost:9164/management/proxy-services', {
+                const proxyResponse = await fetch(`https://${host}:${managementPort}/management/proxy-services`, {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
@@ -308,7 +312,7 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
                 }
 
                 // get the data services details
-                const dataServicesResponse = await fetch('https://localhost:9164/management/data-services', {
+                const dataServicesResponse = await fetch(`https://${host}:${managementPort}/management/data-services`, {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
