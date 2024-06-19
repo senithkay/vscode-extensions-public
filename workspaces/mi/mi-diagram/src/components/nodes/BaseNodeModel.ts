@@ -17,6 +17,7 @@ import { Diagnostic } from "vscode-languageserver-types";
 import { getDataFromST } from "../../utils/template-engine/mustach-templates/templateUtils";
 import SidePanelContext from "../sidePanel/SidePanelContexProvider";
 import styled, { StyledComponent } from "@emotion/styled";
+import { Button } from "@wso2-enterprise/ui-toolkit";
 
 export class BaseNodeModel extends NodeModel {
     readonly stNode: STNode;
@@ -182,6 +183,11 @@ export const Header: StyledComponent<any, any, any> = styled.div<{ showBorder: b
     text-align: center;
 `;
 
+export const Body = styled.div<{}>`
+    display: flex;
+    max-width: 100%;
+`;
+
 interface DescriptionProps {
     selectable?: boolean;
 };
@@ -204,8 +210,18 @@ export const Description: StyledComponent<any, any, any> = styled.div<Descriptio
     }
 `;
 
-export const Name: StyledComponent<any, any, any>  = styled(Description)`
+export const Name: StyledComponent<any, any, any> = styled(Description)`
     text-align: left;
     font-size: var(--type-ramp-base-font-size);
     font-weight: var(--font-weight);
+`;
+
+export const OptionsMenu = styled(Button)`
+    background-color: ${Colors.SURFACE};
+    border-radius: 5px;
+    position: absolute;
+    right: 6px;
+    right: 6px;
+    top: 50%;
+    transform: translateY(-50%);
 `;

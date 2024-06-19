@@ -18,8 +18,7 @@ import { MoreVertIcon } from "../../../resources";
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import SidePanelContext from "../../sidePanel/SidePanelContexProvider";
 import { getNodeDescription } from "../../../utils/node";
-import { Header, Description, Name, Content } from "../BaseNodeModel";
-import { FirstCharToUpperCase } from "../../../utils/commons";
+import { Header, Description, Name, Content, OptionsMenu, Body } from "../BaseNodeModel";
 import { getMediatorIconsFromFont } from "../../../resources/icons/mediatorIcons/icons";
 import { BreakpointMenu } from "../../BreakpointMenu/BreakpointMenu";
 
@@ -46,11 +45,6 @@ namespace S {
         cursor: pointer;
     `;
 
-    export const Body = styled.div<{}>`
-        display: flex;
-        max-width: 100%;
-    `;
-
     export const IconContainer = styled.div`
         padding: 0 5px;
         display: flex;
@@ -62,14 +56,6 @@ namespace S {
             fill: ${Colors.ON_SURFACE};
             stroke: ${Colors.ON_SURFACE};
         }
-    `;
-
-    export const StyledButton = styled(Button)`
-        background-color: ${Colors.SURFACE};
-        border-radius: 5px;
-        position: absolute;
-        right: 6px;
-        top: ${((NODE_DIMENSIONS.DEFAULT.HEIGHT) / 2) - 12}px;
     `;
 
     export const TopPortWidget = styled(PortWidget)`
@@ -142,19 +128,19 @@ export function MediatorNodeWidget(props: CallNodeWidgetProps) {
                         <S.IconContainer>{getMediatorIconsFromFont(node.stNode.tag)}</S.IconContainer>
                         <div>
                             {isHovered && (
-                                <S.StyledButton appearance="icon" onClick={handleOnClickMenu}>
+                                <OptionsMenu appearance="icon" onClick={handleOnClickMenu}>
                                     <MoreVertIcon />
-                                </S.StyledButton>
+                                </OptionsMenu>
                             )}
                             <Content>
                                 <Header showBorder={description !== undefined}>
                                     <Name>{node.mediatorName}</Name>
                                 </Header>
-                                <S.Body>
+                                <Body>
                                     <Tooltip content={description} position={'bottom'} >
                                         <Description>{description}</Description>
                                     </Tooltip>
-                                </S.Body>
+                                </Body>
                             </Content>
                         </div>
                     </div>

@@ -17,7 +17,7 @@ import { Button, Tooltip } from "@wso2-enterprise/ui-toolkit";
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import SidePanelContext from "../../sidePanel/SidePanelContexProvider";
 import { getNodeDescription } from "../../../utils/node";
-import { Header, Description, Name, Content } from "../BaseNodeModel";
+import { Header, Description, Name, Content, Body } from "../BaseNodeModel";
 import { getMediatorIconsFromFont } from "../../../resources/icons/mediatorIcons/icons";
 
 namespace S {
@@ -41,11 +41,6 @@ namespace S {
         background-color: ${(props: NodeStyleProp) => props?.isActiveBreakpoint ? Colors.DEBUGGER_BREAKPOINT_BACKGROUND : Colors.SURFACE_BRIGHT};
         color: ${Colors.ON_SURFACE};
         cursor: pointer;
-    `;
-
-    export const Body = styled.div<{}>`
-        display: flex;
-        max-width: 100%;
     `;
 
     export const IconContainer = styled.div`
@@ -137,11 +132,11 @@ export function DataServiceNodeWidget(props: CallNodeWidgetProps) {
                                     width: "100%",
                                 }}>{node.mediatorName}</Name>
                             </Header>
-                            <S.Body>
+                            <Body>
                                 <Tooltip content={description} position={'bottom'} >
                                     <Description>{description}</Description>
                                 </Tooltip>
-                            </S.Body>
+                            </Body>
                         </Content>
                     </div>
                     <S.BottomPortWidget port={node.getPort("out")!} engine={engine} />
