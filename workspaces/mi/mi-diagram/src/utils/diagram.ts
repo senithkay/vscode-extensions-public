@@ -28,9 +28,10 @@ import { ReferenceNodeFactory } from "../components/nodes/ReferenceNode/Referenc
 import { GroupNodeFactory } from "../components/nodes/GroupNode/GroupNodeFactory";
 import { PlusNodeFactory } from "../components/nodes/PlusNode/PlusNodeFactory";
 import { ConnectorNodeFactory } from "../components/nodes/ConnectorNode/ConnectorNodeFactory";
-import { DataMapperNodeFactory } from "../components/nodes/DataMapperNode/DataMapperNodeFactory";
-import { DataMapperNodeModel } from "../components/nodes/DataMapperNode/DataMapperNodeModel";
 import { DataServiceNodeFactory } from "../components/nodes/DataServiceNode/DataServiceNodeFactory";
+import { DataServiceNodeModel } from "../components/nodes/DataServiceNode/DataServiceNodeModel";
+import { GroupNodeModel } from "../components/nodes/GroupNode/GroupNodeModel";
+import { PlusNodeModel } from "../components/nodes/PlusNode/PlusNodeModel";
 
 export function generateEngine(): DiagramEngine {
     const engine = createEngine({
@@ -52,7 +53,6 @@ export function generateEngine(): DiagramEngine {
     engine.getNodeFactories().registerFactory(new StartNodeFactory());
     engine.getNodeFactories().registerFactory(new EndNodeFactory());
     engine.getNodeFactories().registerFactory(new ConditionNodeFactory());
-    engine.getNodeFactories().registerFactory(new DataMapperNodeFactory());
     engine.getNodeFactories().registerFactory(new CallNodeFactory());
     engine.getNodeFactories().registerFactory(new EmptyNodeFactory());
     engine.getNodeFactories().registerFactory(new PlusNodeFactory());
@@ -71,7 +71,7 @@ export function createPortsLink(sourcePort: NodePortModel, targetPort: NodePortM
 }
 
 // create link between nodes
-export type AllNodeModel = StartNodeModel | EndNodeModel | MediatorNodeModel | ConditionNodeModel | CallNodeModel | EmptyNodeModel | DataMapperNodeModel;
+export type AllNodeModel = MediatorNodeModel | StartNodeModel | ConditionNodeModel | EndNodeModel | CallNodeModel | EmptyNodeModel | GroupNodeModel | PlusNodeModel | DataServiceNodeModel;
 export type SourceNodeModel = Exclude<AllNodeModel, EndNodeModel>;
 export type TargetNodeModel = Exclude<AllNodeModel, StartNodeModel>;
 export function createNodesLink(sourceNode: SourceNodeModel, targetNode: TargetNodeModel, options?: NodeLinkModelOptions) {
