@@ -70,7 +70,8 @@ import {
     ProxyTarget,
     Target,
     DbMediator,
-    Rewrite
+    Rewrite,
+    Query
 } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { NodeLinkModel } from "../components/NodeLink/NodeLinkModel";
 import { MediatorNodeModel } from "../components/nodes/MediatorNode/MediatorNodeModel";
@@ -80,7 +81,7 @@ import { NodeModel } from "@projectstorm/react-diagrams";
 import { ConditionNodeModel } from "../components/nodes/ConditionNode/ConditionNodeModel";
 import { EndNodeModel } from "../components/nodes/EndNode/EndNodeModel";
 import { CallNodeModel } from "../components/nodes/CallNode/CallNodeModel";
-import { ADD_NEW_SEQUENCE_TAG, ENDPOINTS, MEDIATORS, NODE_DIMENSIONS, NODE_GAP, NodeTypes } from "../resources/constants";
+import { ADD_NEW_SEQUENCE_TAG, DATA_SERVICE_NODES, ENDPOINTS, MEDIATORS, NODE_DIMENSIONS, NODE_GAP, NodeTypes } from "../resources/constants";
 import { SourceNodeModel, TargetNodeModel, createNodesLink } from "../utils/diagram";
 import { EmptyNodeModel } from "../components/nodes/EmptyNode/EmptyNodeModel";
 import { Diagnostic } from "vscode-languageserver-types";
@@ -89,6 +90,7 @@ import { PlusNodeModel } from "../components/nodes/PlusNode/PlusNodeModel";
 import { ConnectorNodeModel } from "../components/nodes/ConnectorNode/ConnectorNodeModel";
 import { DataMapperNodeModel } from "../components/nodes/DataMapperNode/DataMapperNodeModel";
 import { BreakpointPosition, GetBreakpointsResponse } from "@wso2-enterprise/mi-core";
+import { DataServiceNodeModel } from "../components/nodes/DataServiceNode/DataServiceNodeModel";
 
 interface BranchData {
     name: string;
@@ -106,10 +108,10 @@ enum DiagramType {
     SEQUENCE
 }
 
-const RESTRICTED_NODE_TYPES = ["target"]
+const RESTRICTED_NODE_TYPES = ["target", "query-inputMapping", "query-outputMapping", "query-transformation", "query-query"];
 
 export type AnyNode = MediatorNodeModel | StartNodeModel | ConditionNodeModel | EndNodeModel | CallNodeModel | EmptyNodeModel |
-    GroupNodeModel | PlusNodeModel | DataMapperNodeModel;
+    GroupNodeModel | PlusNodeModel | DataMapperNodeModel | DataServiceNodeModel;
 
 export class NodeFactoryVisitor implements Visitor {
     nodes: AnyNode[] = [];
@@ -186,6 +188,9 @@ export class NodeFactoryVisitor implements Visitor {
             case NodeTypes.DATAMAPPER_NODE:
                 diagramNode = new DataMapperNodeModel(node, name, this.documentUri, this.parents[this.parents.length - 1], this.previousSTNodes);
                 break;
+            case NodeTypes.DATA_SERVICE_NODE:
+                diagramNode = new DataServiceNodeModel(node, name, this.documentUri);
+                break;    
             default:
                 type = NodeTypes.MEDIATOR_NODE;
                 diagramNode = new MediatorNodeModel(NodeTypes.MEDIATOR_NODE, node, name, this.documentUri, this.parents[this.parents.length - 1], this.previousSTNodes);
@@ -949,6 +954,45 @@ export class NodeFactoryVisitor implements Visitor {
 
     endVisitRewrite(node: Rewrite): void {
         this.skipChildrenVisit = false;
+    }
+
+    // query
+    beginVisitQuery(node: Query): void {
+        const startNode = structuredClone(node);
+        startNode.tag = "start";
+        this.createNodeAndLinks({ node: startNode, type: NodeTypes.START_NODE, data: StartNodeType.IN_SEQUENCE });
+        this.parents.push(node);
+
+        const inputMapping = structuredClone(node);
+        inputMapping.tag = "query-inputMapping";
+        inputMapping.viewState.y += NODE_DIMENSIONS.START.EDITABLE.HEIGHT + NODE_GAP.Y;
+        inputMapping.viewState.x += (NODE_DIMENSIONS.START.EDITABLE.WIDTH - NODE_DIMENSIONS.REFERENCE.WIDTH) / 2;
+        this.createNodeAndLinks({ node: inputMapping, type: NodeTypes.DATA_SERVICE_NODE, name: DATA_SERVICE_NODES.INPUT });
+
+        const query = structuredClone(node);
+        query.tag = "query-query";
+        query.viewState.y = inputMapping.viewState.y + NODE_DIMENSIONS.DEFAULT.HEIGHT + NODE_GAP.Y;
+        query.viewState.x += (NODE_DIMENSIONS.START.EDITABLE.WIDTH - NODE_DIMENSIONS.REFERENCE.WIDTH) / 2;
+        this.createNodeAndLinks({ node: query, type: NodeTypes.DATA_SERVICE_NODE, name: DATA_SERVICE_NODES.QUERY });
+
+        const transformation = structuredClone(node);
+        transformation.tag = "query-transformation";
+        transformation.viewState.y = query.viewState.y + NODE_DIMENSIONS.DEFAULT.HEIGHT + NODE_GAP.Y;
+        transformation.viewState.x += (NODE_DIMENSIONS.START.EDITABLE.WIDTH - NODE_DIMENSIONS.REFERENCE.WIDTH) / 2;
+        this.createNodeAndLinks({ node: transformation, type: NodeTypes.DATA_SERVICE_NODE, name: DATA_SERVICE_NODES.TRANSFORMATION });
+
+        const outputMappings = structuredClone(node);
+        outputMappings.tag = "query-outputMapping";
+        outputMappings.viewState.y = transformation.viewState.y + NODE_DIMENSIONS.DEFAULT.HEIGHT + NODE_GAP.Y;
+        outputMappings.viewState.x += (NODE_DIMENSIONS.START.EDITABLE.WIDTH - NODE_DIMENSIONS.REFERENCE.WIDTH) / 2;
+        this.createNodeAndLinks({ node: outputMappings, type: NodeTypes.DATA_SERVICE_NODE, name: DATA_SERVICE_NODES.OUTPUT });
+
+        const endnode = structuredClone(node);
+        endnode.tag = "end";
+        endnode.viewState.y = outputMappings.viewState.y + NODE_DIMENSIONS.DEFAULT.HEIGHT + NODE_GAP.Y;
+        endnode.viewState.x += (NODE_DIMENSIONS.START.EDITABLE.WIDTH - NODE_DIMENSIONS.START.DISABLED.WIDTH) / 2;
+        this.createNodeAndLinks({ node: endnode, type: NodeTypes.END_NODE, data: StartNodeType.IN_SEQUENCE });
+        this.parents.push(endnode);
     }
 
     skipChildren(): boolean {

@@ -30,6 +30,7 @@ export enum MACHINE_VIEW {
     SequenceView = "Sequence View",
     SequenceTemplateView = "Sequence Template View",
     ProxyView = "Proxy View",
+    DataServiceView = "DataService View",
     ServiceDesigner = "Service Designer",
     DataMapperView = "Data Mapper View",
     APIForm = "API Form",
