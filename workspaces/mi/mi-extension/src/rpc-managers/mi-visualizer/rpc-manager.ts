@@ -279,7 +279,6 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
             if (response.ok) {
                 const responseBody = await response.json();
                 const authToken = responseBody.AccessToken;
-                console.log('Token:', authToken);
 
                 const apiResponse = await fetch(`https://${host}:${managementPort}/management/apis`, {
                     method: 'GET',
