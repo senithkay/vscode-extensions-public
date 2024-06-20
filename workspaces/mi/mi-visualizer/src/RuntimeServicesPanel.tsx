@@ -106,7 +106,7 @@ export function RuntimeServicePanel() {
                                 <div style={{ flex: 9 }}>
                                     {entry.url}
                                 </div>
-                                <VSCodeButton appearance="secondary" onClick={() => onTryit(entry.name)} title={"Try service"} style={{ marginRight: 8 }}>
+                                <VSCodeButton appearance="primary" onClick={() => onTryit(entry.name)} title={"Try service"} style={{ marginRight: 8 }}>
                                     <ButtonWrapper>{"Try it"}</ButtonWrapper>
                                 </VSCodeButton>
                             </EntryContainer>
@@ -134,7 +134,7 @@ export function RuntimeServicePanel() {
                                 <div style={{ flex: '1 1 40%', marginRight: '10px' }}>
                                     {entry.wsdl2_0}
                                 </div>
-                                <VSCodeButton appearance="secondary" onClick={onTryit} title={"Try service"} disabled={false} style={{ marginRight: 8 }}>
+                                <VSCodeButton appearance="primary" onClick={onTryit} title={"Try service"} style={{ marginRight: 8 }}>
                                     <ButtonWrapper>{"Try it"}</ButtonWrapper>
                                 </VSCodeButton>
                             </EntryContainer>
