@@ -55,7 +55,7 @@ const PayloadForm = (props: AddMediatorProps) => {
             payloadKey: sidePanelContext?.formValues?.payloadKey || "",
             payload: sidePanelContext?.formValues?.payload || "{\"Sample\":\"Payload\"}",
             args: {
-                paramValues: sidePanelContext?.formValues?.args ? getParamManagerFromValues(sidePanelContext?.formValues?.args) : [],
+                paramValues: sidePanelContext?.formValues?.args ? getParamManagerFromValues(sidePanelContext?.formValues?.args, -1, 0) : [],
                 paramFields: [
                     {
                         "type": "ExprField",

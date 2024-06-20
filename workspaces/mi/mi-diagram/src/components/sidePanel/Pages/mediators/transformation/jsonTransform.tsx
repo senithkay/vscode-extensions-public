@@ -50,7 +50,7 @@ const JSONTransformForm = (props: AddMediatorProps) => {
         reset({
             schema: sidePanelContext?.formValues?.schema || "",
             jsonTransformProperties: {
-                paramValues: sidePanelContext?.formValues?.jsonTransformProperties ? getParamManagerFromValues(sidePanelContext?.formValues?.jsonTransformProperties) : [],
+                paramValues: sidePanelContext?.formValues?.jsonTransformProperties ? getParamManagerFromValues(sidePanelContext?.formValues?.jsonTransformProperties, 0, 1) : [],
                 paramFields: [
                     {
                         "type": "TextField",

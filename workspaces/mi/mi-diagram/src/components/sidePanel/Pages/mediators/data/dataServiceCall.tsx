@@ -54,7 +54,7 @@ const DataServiceCallForm = (props: AddMediatorProps) => {
             sourceType: sidePanelContext?.formValues?.sourceType || "INLINE",
             operationType: sidePanelContext?.formValues?.operationType || "SINGLE",
             operations: {
-                paramValues: sidePanelContext?.formValues?.operations ? getParamManagerFromValues(sidePanelContext?.formValues?.operations) : [],
+                paramValues: sidePanelContext?.formValues?.operations ? getParamManagerFromValues(sidePanelContext?.formValues?.operations, 0, 1) : [],
                 paramFields: [
                     {
                         "type": "TextField",
@@ -69,7 +69,7 @@ const DataServiceCallForm = (props: AddMediatorProps) => {
                         "isRequired": false, 
                         "paramManager": {
                             paramConfigs: {
-                                paramValues: sidePanelContext?.formValues?.DSSProperties ? getParamManagerFromValues(sidePanelContext?.formValues?.DSSProperties) : [],
+                                paramValues: sidePanelContext?.formValues?.DSSProperties ? getParamManagerFromValues(sidePanelContext?.formValues?.DSSProperties, -1, -1) : [],
                                 paramFields: [
                                     {
                                         "type": "TextField",

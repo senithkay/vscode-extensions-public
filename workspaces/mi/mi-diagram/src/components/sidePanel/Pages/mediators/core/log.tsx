@@ -52,7 +52,7 @@ const LogForm = (props: AddMediatorProps) => {
             level: sidePanelContext?.formValues?.level || "SIMPLE",
             separator: sidePanelContext?.formValues?.separator || "",
             properties: {
-                paramValues: sidePanelContext?.formValues?.properties ? getParamManagerFromValues(sidePanelContext?.formValues?.properties) : [],
+                paramValues: sidePanelContext?.formValues?.properties ? getParamManagerFromValues(sidePanelContext?.formValues?.properties, 0, 1) : [],
                 paramFields: [
                     {
                         "type": "TextField",
