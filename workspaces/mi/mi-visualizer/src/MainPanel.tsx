@@ -44,6 +44,7 @@ import { TestCaseForm } from './views/Forms/Tests/TestCaseForm';
 import { MockServiceForm } from './views/Forms/Tests/MockServices/MockServiceForm';
 import { DataServiceWizard } from './views/Forms/DataServiceForm/MainPanelForms';
 import { AITestGenForm } from './views/Forms/Tests/AITestGenForm';
+import { DataServiceView } from './views/Diagram/DataService';
 
 const MainContainer = styled.div`
     display: flex;
@@ -200,6 +201,18 @@ const MainPanel = () => {
                     );
                     await rpcClient.getMiDiagramRpcClient().initUndoRedoManager({ path: machineView.documentUri });
                     break;
+                case MACHINE_VIEW.DataServiceView:
+                    setViewComponent(
+                        <DataServiceView
+                            key={getUniqueKey(machineView.stNode, machineView.documentUri)}
+                            model={machineView.stNode as any}
+                            href={machineView.identifier}
+                            documentUri={machineView.documentUri}
+                            diagnostics={machineView.diagnostics}
+                        />
+                    );
+                    await rpcClient.getMiDiagramRpcClient().initUndoRedoManager({ path: machineView.documentUri });
+                    break;
                 case MACHINE_VIEW.ServiceDesigner:
                     setViewComponent(<ServiceDesignerView syntaxTree={machineView.stNode} documentUri={machineView.documentUri} />);
                     break;
@@ -210,7 +223,7 @@ const MainPanel = () => {
                         </ErrorBoundary >
                     );
                     const { filePath, fileContent } = machineView.dataMapperProps;
-                    await rpcClient.getMiDataMapperRpcClient().initDMUndoRedoManager({filePath, fileContent});
+                    await rpcClient.getMiDataMapperRpcClient().initDMUndoRedoManager({ filePath, fileContent });
                     break;
                 case MACHINE_VIEW.APIForm:
                     setViewComponent(<APIWizard apiData={(machineView.customProps as APIWizardProps)?.apiData} path={machineView.documentUri} />);

@@ -71,6 +71,7 @@ import {
     ProxyTarget,
     DbMediator,
     Rewrite,
+    Query
 } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { ADD_NEW_SEQUENCE_TAG, NODE_DIMENSIONS, NODE_GAP, NodeTypes } from "../resources/constants";
 import { Diagnostic } from "vscode-languageserver-types";
@@ -484,6 +485,12 @@ export class SizingVisitor implements Visitor {
     endVisitConnector = (node: any): void => {
         this.calculateBasicMediator(node, NODE_DIMENSIONS.CONNECTOR.WIDTH, NODE_DIMENSIONS.CONNECTOR.HEIGHT);
         this.skipChildrenVisit = false;
+    }
+
+    // query
+    endVisitQuery(node: Query): void {
+        this.calculateBasicMediator(node, NODE_DIMENSIONS.START.EDITABLE.WIDTH, NODE_DIMENSIONS.START.EDITABLE.HEIGHT);
+        node.viewState.fh = 500;
     }
 
     skipChildren(): boolean {

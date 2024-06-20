@@ -22,7 +22,6 @@
         "inputType": "comboOrKey",
         "required": true,
         "keyType": "dataSource",
-        "required": true,
         "helpTip": ""
       }
     },
