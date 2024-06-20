@@ -12,13 +12,7 @@ import SwaggerUI from "swagger-ui-react";
 import { parse } from "yaml";
 import { View } from "./components/View";
 import "swagger-ui-react/swagger-ui.css"
-import { SwaggerData } from "@wso2-enterprise/mi-core";
-
-
-declare const vscode: vscode;
-interface vscode {
-    postMessage(message: any): void;
-}
+import { SwaggerData, vscode } from "@wso2-enterprise/mi-core";
 
 interface Request {
     url: string,
@@ -47,34 +41,50 @@ export function SwaggerPanel(props: SwaggerPanelProps) {
     const proxy = `http://localhost:${port}/`;
 
     const openapiSpec = parse(generatedSwagger);
+    let response: Response;
 
-    const requestInterceptor = (request: any) => {
-        request.url = `${proxy}${request.url}`;
-        return request;
-    };
+    async function requestInterceptor(req: any) {
+        const request: Request = {
+            url: req.url,
+            method: req.method,
+            headers: req.headers,
+            body: req.body,
+        }
 
-    // TODO: Check on res.ok and res.parseError
+        vscode.postMessage({
+            command: 'swaggerRequest',
+            req: request
+        });
+
+        const res = await new Promise(resolve => {
+            window.addEventListener('message', event => {
+                const message = event.data;
+                switch (message.command) {
+                    case 'swaggerResponse':
+                        if (!message.res) {
+                            resolve(false);
+                        }
+                        response = message.res;
+                        resolve(response);
+                }
+            })
+        });
+        if (res) {
+            req.url = proxy;
+        }
+        return req;
+    }
+
     function responseInterceptor(res: any) {
         res.ok = true;
+        res.status = response.status;
+        res.statusText = response.statusText;
+        res.text = response.text;
+        res.data = response.data;
+        res.body = response.body;
+        res.obj = response.obj;
+        res.headers = response.headers;
         delete res.parseError
-
-        const unwantedHeaders = [
-            'sec-ch-ua',
-            'sec-ch-ua-mobile',
-            'sec-ch-ua-platform',
-            'sec-fetch-dest',
-            'sec-fetch-mode',
-            'sec-fetch-site',
-            'x-forwarded-for',
-            'x-forwarded-port',
-            'x-forwarded-proto'
-        ];
-
-        unwantedHeaders.forEach(header => {
-            if (res.headers[header]) {
-                delete res.headers[header];
-            }
-        });
 
         return res;
     }
