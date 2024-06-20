@@ -52,7 +52,7 @@ const XSLTForm = (props: AddMediatorProps) => {
             sourceXPath: sidePanelContext?.formValues?.sourceXPath || {"isExpression":true,"value":""},
             xsltSchemaKey: sidePanelContext?.formValues?.xsltSchemaKey || "",
             properties: {
-                paramValues: sidePanelContext?.formValues?.properties ? getParamManagerFromValues(sidePanelContext?.formValues?.properties) : [],
+                paramValues: sidePanelContext?.formValues?.properties ? getParamManagerFromValues(sidePanelContext?.formValues?.properties, 0, 1) : [],
                 paramFields: [
                     {
                         "type": "TextField",
@@ -73,7 +73,7 @@ const XSLTForm = (props: AddMediatorProps) => {
                 ]
             },
             resources: {
-                paramValues: sidePanelContext?.formValues?.resources ? getParamManagerFromValues(sidePanelContext?.formValues?.resources) : [],
+                paramValues: sidePanelContext?.formValues?.resources ? getParamManagerFromValues(sidePanelContext?.formValues?.resources, 0, 1) : [],
                 paramFields: [
                     {
                         "type": "TextField",
@@ -90,7 +90,7 @@ const XSLTForm = (props: AddMediatorProps) => {
                 ]
             },
             features: {
-                paramValues: sidePanelContext?.formValues?.features ? getParamManagerFromValues(sidePanelContext?.formValues?.features) : [],
+                paramValues: sidePanelContext?.formValues?.features ? getParamManagerFromValues(sidePanelContext?.formValues?.features, 0, 1) : [],
                 paramFields: [
                     {
                         "type": "TextField",

@@ -50,7 +50,7 @@ const ClassForm = (props: AddMediatorProps) => {
         reset({
             className: sidePanelContext?.formValues?.className || "",
             properties: {
-                paramValues: sidePanelContext?.formValues?.properties ? getParamManagerFromValues(sidePanelContext?.formValues?.properties) : [],
+                paramValues: sidePanelContext?.formValues?.properties ? getParamManagerFromValues(sidePanelContext?.formValues?.properties, 0, 1) : [],
                 paramFields: [
                     {
                         "type": "TextField",

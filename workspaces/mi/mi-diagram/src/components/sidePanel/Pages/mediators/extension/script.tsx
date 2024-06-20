@@ -9,7 +9,7 @@
 // AUTO-GENERATED FILE. DO NOT MODIFY.
 
 import React, { useEffect, useRef } from 'react';
-import { AutoComplete, Button, ComponentCard, ProgressIndicator, TextField, TextArea, Typography } from '@wso2-enterprise/ui-toolkit';
+import { AutoComplete, Button, ComponentCard, ProgressIndicator, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
 import { AddMediatorProps, getParamManagerValues, getParamManagerFromValues } from '../common';
@@ -55,7 +55,7 @@ const ScriptForm = (props: AddMediatorProps) => {
             scriptKey: sidePanelContext?.formValues?.scriptKey || "",
             mediateFunction: sidePanelContext?.formValues?.mediateFunction || "",
             scriptKeys: {
-                paramValues: sidePanelContext?.formValues?.scriptKeys ? getParamManagerFromValues(sidePanelContext?.formValues?.scriptKeys) : [],
+                paramValues: sidePanelContext?.formValues?.scriptKeys ? getParamManagerFromValues(sidePanelContext?.formValues?.scriptKeys, 0, 1) : [],
                 paramFields: [
                     {
                         "type": "TextField",

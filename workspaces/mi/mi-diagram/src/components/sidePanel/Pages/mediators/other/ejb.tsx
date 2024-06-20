@@ -56,7 +56,7 @@ const EJBForm = (props: AddMediatorProps) => {
             target: sidePanelContext?.formValues?.target || "",
             jndiName: sidePanelContext?.formValues?.jndiName || "",
             methodArguments: {
-                paramValues: sidePanelContext?.formValues?.methodArguments ? getParamManagerFromValues(sidePanelContext?.formValues?.methodArguments) : [],
+                paramValues: sidePanelContext?.formValues?.methodArguments ? getParamManagerFromValues(sidePanelContext?.formValues?.methodArguments, 0, 2) : [],
                 paramFields: [
                     {
                         "type": "TextField",
