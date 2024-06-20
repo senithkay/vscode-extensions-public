@@ -8,6 +8,7 @@
  */
 
 import { cloneDeep } from "lodash";
+import { SWAGGER_PATH_TEMPLATE } from "../constants";
 
 export interface Swagger {
     openapi: string;
@@ -45,11 +46,7 @@ interface ResourceInfoResponse {
  * @param levels - Number of levels to compare
  * @returns - Equal or not upto the specified levels
  */
-const recursiveComparison = (obj1: Record<string, any>, obj2: Record<string, any>, levels?: number): boolean => {
-    if (levels && levels === 0) {
-        return true;
-    };
-
+const recursiveComparison = (obj1: Record<string, any>, obj2: Record<string, any>): boolean => {
     if (Object.keys(obj1).length !== Object.keys(obj2).length) {
         return false;
     }
@@ -62,11 +59,7 @@ const recursiveComparison = (obj1: Record<string, any>, obj2: Record<string, any
         }
 
         if (typeof obj1[field] === "object") {
-            if (levels) {
-                isEqual = recursiveComparison(obj1[field], obj2[field], levels - 1);
-            } else {
-                isEqual = recursiveComparison(obj1[field], obj2[field]);
-            }
+            isEqual = recursiveComparison(obj1[field], obj2[field]);
 
             if (!isEqual) {
                 break;
@@ -82,15 +75,94 @@ const recursiveComparison = (obj1: Record<string, any>, obj2: Record<string, any
     return isEqual;
 };
 
+/**
+ * Checks if two swagger paths are equal
+ * @param path1 - Object 1
+ * @param path2 - Object 2
+ * @param comparisonTemplate - Template with comparison instructions
+ * @returns - Equal or not
+ */
+const isEqualPaths = (
+    path1: Record<string, any>,
+    path2: Record<string, any>,
+    comparisonTemplate: Record<string, any>
+): boolean => {
+    if (!comparisonTemplate?.body) {
+        return true;
+    }
+
+    if (Object.keys(path1).length !== Object.keys(path2).length) {
+        return false;
+    }
+
+    let isEqual = true;
+    const keys = Object.keys(comparisonTemplate.body);
+    if (comparisonTemplate.type === "array") {
+        if (comparisonTemplate.primaryKey?.length) {
+            const primaryKey = comparisonTemplate.primaryKey;
+            for (const key in path2) {
+                const obj = path2[key];
+                const index = path1.findIndex((object: Record<string, any>) => {
+                    return primaryKey.every((pk: string) => object[pk] === obj[pk]);
+                });
+
+                if (index > -1) {
+                    isEqual = isEqualPaths(path1[index], obj, comparisonTemplate.body["*"]);
+                } else {
+                    isEqual = false;
+                }
+
+                if (!isEqual) {
+                    break;
+                }
+            }
+        }
+    } else {
+        if (keys.length === 1 && keys[0] === "*") {
+            for (const key in path2) {
+                if (path1[key]) {
+                    isEqual = isEqualPaths(path1[key], path2[key], comparisonTemplate.body["*"]);
+                } else {
+                    isEqual = false;
+                }
+
+                if (!isEqual) {
+                    break;
+                }
+            }
+        } else {
+            for (const key in comparisonTemplate.body) {
+                if (path2[key] && path1[key]) {
+                    isEqual = isEqualPaths(path1[key], path2[key], comparisonTemplate.body[key]);
+                } else if ((!path2[key] && path1[key]) || (path2[key] && !path1[key])) {
+                    isEqual = false;
+                } else {
+                    isEqual = true;
+                }
+
+                if (!isEqual) {
+                    break;
+                }
+            }
+        }
+    }
+
+    return isEqual;
+};
+
 export const isEqualSwaggers = (props: SwaggerUtilProps): boolean => {
     const { existingSwagger, generatedSwagger } = props;
 
     let isEqual = true;
     for (const field in existingSwagger) {
         if (field === "paths") {
-            isEqual = recursiveComparison(existingSwagger[field], generatedSwagger[field], 2);
+            isEqual = isEqualPaths(existingSwagger[field], generatedSwagger[field], SWAGGER_PATH_TEMPLATE);
         } else {
             isEqual = recursiveComparison(existingSwagger[field], generatedSwagger[field]);
+        }
+
+        if (!isEqual) {
+            break;
         }
     }
 
@@ -101,18 +173,46 @@ export const isEqualSwaggers = (props: SwaggerUtilProps): boolean => {
  * Merges swagger resources and methods.
  * @param oldObj - Existing resources object
  * @param newObj - Generated resources object
+ * @param mergeTemplate - Template with merging instructionss
  * @returns - Merged resources object
  */
-const mergePaths = (oldObj: Record<string, any>, newObj: Record<string, any>): Record<string, any> => {
-    const result = cloneDeep(newObj);
+const recursivePathMerge = (
+    oldObj: Record<string, any>,
+    newObj: Record<string, any>,
+    mergeTemplate: Record<string, any>
+): Record<string, any> => {
+    if (!mergeTemplate?.body) {
+        return newObj;
+    }
 
-    for (const resource in newObj) {
-        // If resource already exists
-        if (oldObj[resource]) {
-            for (const method in newObj[resource]) {
-                // If method already exists
-                if (oldObj[resource][method]) {
-                    result[resource][method] = oldObj[resource][method];
+    const result = cloneDeep(newObj);
+    const keys = Object.keys(mergeTemplate.body);
+
+    if (mergeTemplate.type === "array") {
+        if (mergeTemplate.primaryKey?.length) {
+            const primaryKey = mergeTemplate.primaryKey;
+            for (const key in newObj) {
+                const obj = newObj[key];
+                const index = oldObj.findIndex((object: Record<string, any>) => {
+                    return primaryKey.every((pk: string) => object[pk] === obj[pk]);
+                });
+
+                if (index > -1) {
+                    result[key] = recursivePathMerge(oldObj[index], obj, mergeTemplate.body["*"]);
+                }
+            }
+        }
+    } else {
+        if (keys.length === 1 && keys[0] === "*") {
+            for (const key in newObj) {
+                if (oldObj[key]) {
+                    result[key] = recursivePathMerge(oldObj[key], newObj[key], mergeTemplate.body["*"]);
+                }
+            }
+        } else {
+            for (const key in mergeTemplate.body) {
+                if (newObj[key] && oldObj[key]) {
+                    result[key] = recursivePathMerge(oldObj[key], newObj[key], mergeTemplate.body[key]);
                 }
             }
         }
@@ -126,7 +226,7 @@ export const mergeSwaggers = (props: SwaggerUtilProps): Swagger => {
 
     return {
         ...generatedSwagger,
-        paths: mergePaths(existingSwagger.paths, generatedSwagger.paths)
+        paths: recursivePathMerge(existingSwagger.paths, generatedSwagger.paths, SWAGGER_PATH_TEMPLATE),
     };
 };
 
@@ -141,18 +241,14 @@ export const getResourceInfo = (props: SwaggerUtilProps): ResourceInfoResponse =
         if (!generatedSwagger.paths[resource]) {
             added.push({
                 path: resource,
-                methods: Object
-                    .keys(existingSwagger.paths[resource])
-                    .map(method => method.toUpperCase())
+                methods: Object.keys(existingSwagger.paths[resource]).map((method) => method.toUpperCase()),
             });
         } else {
             for (const method in existingSwagger.paths[resource]) {
                 if (generatedSwagger.paths[resource][method]) {
                     updated.push({
                         path: resource,
-                        methods: Object
-                            .keys(existingSwagger.paths[resource])
-                            .map(method => method.toUpperCase())
+                        methods: Object.keys(existingSwagger.paths[resource]).map((method) => method.toUpperCase()),
                     });
                 }
             }
@@ -164,9 +260,7 @@ export const getResourceInfo = (props: SwaggerUtilProps): ResourceInfoResponse =
         if (!existingSwagger.paths[resource]) {
             removed.push({
                 path: resource,
-                methods: Object
-                    .keys(generatedSwagger.paths[resource])
-                    .map(method => method.toUpperCase())
+                methods: Object.keys(generatedSwagger.paths[resource]).map((method) => method.toUpperCase()),
             });
         }
     }
