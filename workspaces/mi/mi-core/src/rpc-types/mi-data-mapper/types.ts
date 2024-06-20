@@ -93,3 +93,13 @@ export interface UpdateDMUndoRedoMangerRequest {
     filePath: string;
     fileContent: string;
 }
+
+export interface GetOperatorsRequest {
+    req: string;
+}
+
+export interface GetOperatorsResponse {
+    res: string;
+}
+
+

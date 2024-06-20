@@ -23,7 +23,9 @@ import {
     ConvertRegPathToAbsPathRequest,
     ConvertRegPathToAbsPathResponse,
     UpdateDMCRequest,
-    UpdateDMUndoRedoMangerRequest
+    UpdateDMUndoRedoMangerRequest,
+    GetOperatorsRequest,
+    GetOperatorsResponse
 } from "@wso2-enterprise/mi-core";
 import { fetchIOTypes, fetchSubMappingTypes } from "../../util/dataMapper";
 import { Project } from "ts-morph";
@@ -307,5 +309,10 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
 
     async updateDMUndoRedoManager(params: UpdateDMUndoRedoMangerRequest): Promise<void> {
         undoRedoManager.updateContent(params.filePath, params.fileContent);
+    }
+
+    async getOperators(params: GetOperatorsRequest): Promise<GetOperatorsResponse> {
+        // ADD YOUR IMPLEMENTATION HERE
+        throw new Error('Not implemented');
     }
 }

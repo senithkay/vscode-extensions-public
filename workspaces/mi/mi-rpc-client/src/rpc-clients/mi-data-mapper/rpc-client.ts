@@ -36,7 +36,10 @@ import {
     dmUndo,
     dmRedo,
     addToDMUndoStack,
-    updateDMUndoRedoManager
+    updateDMUndoRedoManager,
+    getOperators,
+    GetOperatorsRequest,
+    GetOperatorsResponse
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -98,5 +101,9 @@ export class MiDataMapperRpcClient implements MIDataMapperAPI {
 
     updateDMUndoRedoManager(params: UpdateDMUndoRedoMangerRequest): void {
         return this._messenger.sendNotification(updateDMUndoRedoManager, HOST_EXTENSION, params);
+    }
+
+    getOperators(params: GetOperatorsRequest): Promise<GetOperatorsResponse> {
+        return this._messenger.sendRequest(getOperators, HOST_EXTENSION, params);
     }
 }

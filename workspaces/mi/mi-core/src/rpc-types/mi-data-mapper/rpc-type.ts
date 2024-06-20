@@ -8,13 +8,13 @@
  * 
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
-import {
+import { 
     DMTypeRequest, 
-    IOTypeResponse,
+    IOTypeResponse, 
     SubMappingTypesResponse,
-    UpdateFileContentRequest, 
+    UpdateFileContentRequest,
     GenerateDMInputRequest, 
-    GenerateDMInputResponse, 
+    GenerateDMInputResponse,
     BrowseSchemaRequest, 
     BrowseSchemaResponse,
     LoadDMConfigsRequest,
@@ -22,7 +22,9 @@ import {
     ConvertRegPathToAbsPathRequest,
     ConvertRegPathToAbsPathResponse,
     UpdateDMCRequest,
-    UpdateDMUndoRedoMangerRequest
+    UpdateDMUndoRedoMangerRequest,
+    GetOperatorsRequest,
+    GetOperatorsResponse
 } from "./types";
 import { RequestType, NotificationType } from "vscode-messenger-common";
 
@@ -40,3 +42,4 @@ export const dmUndo: RequestType<void, string> = { method: `${_preFix}/dmUndo` }
 export const dmRedo: RequestType<void, string> = { method: `${_preFix}/dmRedo` };
 export const addToDMUndoStack: NotificationType<string> = { method: `${_preFix}/addToDMUndoStack` };
 export const updateDMUndoRedoManager: NotificationType<UpdateDMUndoRedoMangerRequest> = { method: `${_preFix}/updateDMUndoRedoManager` };
+export const getOperators: RequestType<GetOperatorsRequest, GetOperatorsResponse> = { method: `${_preFix}/getOperators` };
