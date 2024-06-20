@@ -45,6 +45,16 @@ namespace S {
         cursor: pointer;
     `;
 
+    export const CircleContainer = styled.div`
+        position: absolute;
+        top: 5px;
+        left: ${NODE_DIMENSIONS.CALL.WIDTH}px;
+        color: ${Colors.ON_SURFACE};
+        cursor: pointer;
+        font-family: var(--font-family);
+        font-size: var(--type-ramp-base-font-size);
+    `;
+
     export const IconContainer = styled.div`
         padding: 0 4px;
         display: flex;
@@ -91,6 +101,8 @@ export function ConnectorNodeWidget(props: ConnectorNodeWidgetProps) {
     const [isPopoverOpen, setIsPopoverOpen] = useState(false);
     const [popoverAnchorEl, setPopoverAnchorEl] = useState(null);
     const [iconPath, setIconPath] = useState(null);
+    const [isHoveredConnector, setIsHoveredConnector] = React.useState(false);
+    const [isConnectorSelected, setIsConnectorSelected] = React.useState(false);
     const sidePanelContext = React.useContext(SidePanelContext);
     const { rpcClient } = useVisualizerContext();
     const hasDiagnotics = node.hasDiagnotics();
@@ -160,7 +172,7 @@ export function ConnectorNodeWidget(props: ConnectorNodeWidgetProps) {
                     uiSchemaPath: connectorData.uiSchemaPath,
                     parameters: (node.stNode as Connector).parameters ?? [],
                     connectorName: connectorData.name,
-                    operationName: node.stNode.tag.split(".")[1]
+                    operationName: (node).stNode.tag.split(".")[1]
                 },
                 iconPath: iconPath,
                 parentNode: node.mediatorName
@@ -198,11 +210,11 @@ export function ConnectorNodeWidget(props: ConnectorNodeWidgetProps) {
                             )}
                             <Content>
                                 <Header showBorder={true}>
-                                    <Name>{FirstCharToUpperCase(node.stNode.tag.split(".")[0])}</Name>
+                                    <Name>{FirstCharToUpperCase((node.stNode as Connector).method)}</Name>
                                 </Header>
                                 <Body>
                                     <Tooltip content={description} position={'bottom'} >
-                                        <Description>{FirstCharToUpperCase(description)}</Description>
+                                        <Description>{FirstCharToUpperCase((node.stNode as Connector).connectorName)}</Description>
                                     </Tooltip>
                                 </Body>
                             </Content>
@@ -211,6 +223,55 @@ export function ConnectorNodeWidget(props: ConnectorNodeWidgetProps) {
                     <S.BottomPortWidget port={node.getPort("out")!} engine={engine} />
                 </S.Node>
             </Tooltip>
+            <S.CircleContainer
+                onMouseEnter={() => setIsHoveredConnector(true)}
+                onMouseLeave={() => setIsHoveredConnector(false)}
+                onClick={(e) => handleOnClick(e)}
+            >
+                <Tooltip content={!isPopoverOpen && tooltip ? <TooltipEl /> : ""} position={'bottom'} >
+                    <svg width="110" height="50" viewBox="0 0 103 40">
+                        <circle
+                            cx="80"
+                            cy="20"
+                            r="22"
+                            fill={Colors.SURFACE_BRIGHT}
+                            stroke={(isHoveredConnector || isConnectorSelected) ? Colors.SECONDARY : Colors.OUTLINE_VARIANT}
+                            strokeWidth={2}
+                        />
+
+                        {iconPath && <g transform="translate(66,5)">
+                            <foreignObject width="25" height="25">
+                                <img src={iconPath} alt="Icon" />
+                            </foreignObject>
+                        </g>}
+
+                        <line
+                            x1="0"
+                            y1="20"
+                            x2="57"
+                            y2="20"
+                            style={{
+                                stroke: Colors.PRIMARY,
+                                strokeWidth: 2,
+                                markerEnd: `url(#${node.getID()}-arrow-head)`,
+                            }}
+                        />
+                        <defs>
+                            <marker
+                                markerWidth="4"
+                                markerHeight="4"
+                                refX="3"
+                                refY="2"
+                                viewBox="0 0 4 4"
+                                orient="auto"
+                                id={`${node.getID()}-arrow-head`}
+                            >
+                                <polygon points="0,4 0,0 4,2" fill={Colors.PRIMARY}></polygon>
+                            </marker>
+                        </defs>
+                    </svg>
+                </Tooltip>
+            </S.CircleContainer>
             <Popover
                 anchorEl={popoverAnchorEl}
                 open={isPopoverOpen}
