@@ -11,7 +11,7 @@ import styled from "@emotion/styled";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { EVENT_TYPE, MACHINE_VIEW, ProjectStructureArtifactResponse, GetSelectiveArtifactsResponse } from "@wso2-enterprise/mi-core";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
-import { Button, ComponentCard, ContainerProps, ContextMenu, Dropdown, FormActions, FormGroup, FormView, Item, ProgressIndicator, TextField, Typography } from "@wso2-enterprise/ui-toolkit";
+import { Button, ComponentCard, ContainerProps, ContextMenu, Dropdown, FormActions, FormGroup, FormView, Item, ProgressIndicator, TextField, Typography, Icon } from "@wso2-enterprise/ui-toolkit";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
@@ -500,6 +500,7 @@ export function TestSuiteForm(props: TestSuiteFormProps) {
                     appearance="primary"
                     onClick={handleSubmit(handleCreateUnitTests)}
                 >
+                    <Icon name="wand-magic-sparkles-solid" sx="marginRight:5px" />&nbsp;
                     Generate Unit Tests with AI
                 </Button>
                 <Button appearance="secondary" onClick={openOverview}>
