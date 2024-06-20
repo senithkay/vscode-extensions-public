@@ -17,6 +17,7 @@ import { Diagnostic } from "vscode-languageserver-types";
 import { getDataFromST } from "../../utils/template-engine/mustach-templates/templateUtils";
 import SidePanelContext from "../sidePanel/SidePanelContexProvider";
 import styled, { StyledComponent } from "@emotion/styled";
+import { Button } from "@wso2-enterprise/ui-toolkit";
 
 export class BaseNodeModel extends NodeModel {
     readonly stNode: STNode;
@@ -131,10 +132,10 @@ export class BaseNodeModel extends NodeModel {
                 column: this.stNode.range.startTagRange.start?.character
             }
         };
-    
+
         await rpcClient.getMiDebuggerRpcClient().addBreakpointToSource(request);
     }
-    
+
     async removeBreakpoint(rpcClient: any) {
         const request = {
             filePath: this.documentUri,
@@ -143,7 +144,7 @@ export class BaseNodeModel extends NodeModel {
                 column: this.stNode.range.startTagRange.start?.character
             }
         };
-    
+
         await rpcClient.getMiDebuggerRpcClient().removeBreakpointFromSource(request);
     }
 
@@ -162,11 +163,18 @@ export class BaseNodeModel extends NodeModel {
     isActiveBreakpoint(): boolean {
         return this.stNode.isActiveBreakpoint;
     }
-    
+
 }
 
+export const Content = styled.div`
+    display: grid;
+    position: absolute;
+    left: 40px;
+    top: 47%;
+    transform: translateY(-50%);
+`;
 
-export const Header: StyledComponent<any, any, any>  = styled.div<{ showBorder: boolean }>`
+export const Header: StyledComponent<any, any, any> = styled.div<{ showBorder: boolean }>`
     color: ${Colors.ON_SURFACE};
     display: flex;
     width: 100%;
@@ -175,7 +183,16 @@ export const Header: StyledComponent<any, any, any>  = styled.div<{ showBorder: 
     text-align: center;
 `;
 
-export const Description: StyledComponent<any, any, any>  = styled.div`
+export const Body = styled.div<{}>`
+    display: flex;
+    max-width: 100%;
+`;
+
+interface DescriptionProps {
+    selectable?: boolean;
+};
+
+export const Description: StyledComponent<any, any, any> = styled.div<DescriptionProps>`
     color: ${Colors.ON_SURFACE};
     max-width: 90px;
     width: 90px;
@@ -187,10 +204,25 @@ export const Description: StyledComponent<any, any, any>  = styled.div`
     text-align: left;
     font-family: var(--font-family);
     font-size: var(--type-ramp-minus1-font-size);
+
+    &:hover {
+        text-decoration: ${(props: DescriptionProps) => props.selectable ? "underline" : "none"};
+        color: ${(props: DescriptionProps) => props.selectable ? Colors.SECONDARY : Colors.ON_SURFACE};
+    }
 `;
 
-export const Name: StyledComponent<any, any, any>  = styled(Description)`
-    text-align: center;
+export const Name: StyledComponent<any, any, any> = styled(Description)`
+    text-align: left;
     font-size: var(--type-ramp-base-font-size);
     font-weight: var(--font-weight);
+`;
+
+export const OptionsMenu = styled(Button)`
+    background-color: ${Colors.SURFACE};
+    border-radius: 5px;
+    position: absolute;
+    right: 6px;
+    right: 6px;
+    top: 50%;
+    transform: translateY(-50%);
 `;

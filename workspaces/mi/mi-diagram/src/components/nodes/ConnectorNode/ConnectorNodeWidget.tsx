@@ -13,12 +13,14 @@ import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { ConnectorNodeModel } from "./ConnectorNodeModel";
 import { Colors, NODE_DIMENSIONS } from "../../../resources/constants";
 import { STNode } from "@wso2-enterprise/mi-syntax-tree/src";
-import { Button, ClickAwayListener, Menu, MenuItem, Popover, Tooltip } from "@wso2-enterprise/ui-toolkit";
+import { ClickAwayListener, Menu, MenuItem, Popover, Tooltip } from "@wso2-enterprise/ui-toolkit";
 import { MoreVertIcon } from "../../../resources";
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import SidePanelContext from "../../sidePanel/SidePanelContexProvider";
 import { Connector } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { BreakpointMenu } from "../../BreakpointMenu/BreakpointMenu";
+import { Body, Content, Description, Header, Name, OptionsMenu } from "../BaseNodeModel";
+import { FirstCharToUpperCase } from "../../../utils/commons";
 
 namespace S {
     export type NodeStyleProp = {
@@ -43,14 +45,6 @@ namespace S {
         cursor: pointer;
     `;
 
-    export const Header = styled.div<{}>`
-        display: flex;
-        flex-direction: row;
-        justify-content: flex-start;
-        align-items: center;
-        width: 100%;
-    `;
-
     export const IconContainer = styled.div`
         padding: 0 4px;
         display: flex;
@@ -62,13 +56,6 @@ namespace S {
             fill: ${Colors.ON_SURFACE};
             stroke: ${Colors.ON_SURFACE};
         }
-    `;
-
-    export const StyledButton = styled(Button)`
-        background-color: ${Colors.SURFACE};
-        border-radius: 5px;
-        position: absolute;
-        right: 6px;
     `;
 
     export const TopPortWidget = styled(PortWidget)`
@@ -110,6 +97,7 @@ export function ConnectorNodeWidget(props: ConnectorNodeWidgetProps) {
     const hasBreakpoint = node.hasBreakpoint();
     const isActiveBreakpoint = node.isActiveBreakpoint();
     const tooltip = hasDiagnotics ? node.getDiagnostics().map(diagnostic => diagnostic.message).join("\n") : undefined;
+    const description = node.stNode.tag.split(".")[1];
 
     const TooltipEl = useMemo(() => {
         return () => (
@@ -128,9 +116,9 @@ export function ConnectorNodeWidget(props: ConnectorNodeWidgetProps) {
 
             const iconPath = await rpcClient.getMiDiagramRpcClient().getIconPathUri({ path: connectorData.iconPath, name: "icon-small" });
             setIconPath(iconPath.uri);
-    
+
         }
-    
+
         fetchData();
     }, [node]);
 
@@ -160,7 +148,7 @@ export function ConnectorNodeWidget(props: ConnectorNodeWidgetProps) {
             });
 
             const formJSON = await rpcClient.getMiDiagramRpcClient().getConnectorForm({ uiSchemaPath: connectorData.uiSchemaPath, operation: node.stNode.tag.split(".")[1] });
-    
+
             sidePanelContext.setSidePanelState({
                 isOpen: true,
                 operationName: "connector",
@@ -196,19 +184,30 @@ export function ConnectorNodeWidget(props: ConnectorNodeWidgetProps) {
                         <div style={{ position: "absolute", left: -5, width: 15, height: 15, borderRadius: "50%", backgroundColor: "red" }}></div>
                     )}
                     <S.TopPortWidget port={node.getPort("in")!} engine={engine} />
-                    <S.Header>
+                    <div style={{ display: "flex", flexDirection: "row", width: NODE_DIMENSIONS.DEFAULT.WIDTH }}>
                         {iconPath && (
                             <S.IconContainer>
-                                <img src={iconPath} alt="Icon"/>
+                                <img src={iconPath} alt="Icon" />
                             </S.IconContainer>
                         )}
-                        <S.NodeText>{node.stNode.tag}</S.NodeText>
-                        {isHovered && (
-                            <S.StyledButton appearance="icon" onClick={handleOnClickMenu}>
-                                <MoreVertIcon />
-                            </S.StyledButton>
-                        )}
-                    </S.Header>
+                        <div>
+                            {isHovered && (
+                                <OptionsMenu appearance="icon" onClick={handleOnClickMenu}>
+                                    <MoreVertIcon />
+                                </OptionsMenu>
+                            )}
+                            <Content>
+                                <Header showBorder={true}>
+                                    <Name>{FirstCharToUpperCase(node.stNode.tag.split(".")[0])}</Name>
+                                </Header>
+                                <Body>
+                                    <Tooltip content={description} position={'bottom'} >
+                                        <Description>{FirstCharToUpperCase(description)}</Description>
+                                    </Tooltip>
+                                </Body>
+                            </Content>
+                        </div>
+                    </div>
                     <S.BottomPortWidget port={node.getPort("out")!} engine={engine} />
                 </S.Node>
             </Tooltip>

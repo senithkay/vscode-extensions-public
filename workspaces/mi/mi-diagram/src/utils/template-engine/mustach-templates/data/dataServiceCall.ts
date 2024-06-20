@@ -81,3 +81,7 @@ export function getDataServiceCallFormDataFromSTNode(data: { [key: string]: any 
 
     return data;
 }
+
+export function getDSCallDescription(node: DataServiceCall) {
+    return node.serviceName;
+}
