@@ -158,7 +158,7 @@ const getParamManagerKeyOrValue = (elements: any[], tableKey: string, postFix?: 
 }
 
 const getParamManagerConfig = (elements: any[], tableKey: string, tableValue: string, name: string) => {
-    let paramValues = `sidePanelContext?.formValues?.${name} ? getParamManagerFromValues(sidePanelContext?.formValues?.${name}) : [],`;
+    let paramValues = `sidePanelContext?.formValues?.${name} ? getParamManagerFromValues(sidePanelContext?.formValues?.${name}, ${getIndexByKeyName(tableKey, elements)}, ${getIndexByKeyName(tableValue, elements)}) : [],`;
     let paramFields = '';
 
     const tableKeys: string[] = [];
