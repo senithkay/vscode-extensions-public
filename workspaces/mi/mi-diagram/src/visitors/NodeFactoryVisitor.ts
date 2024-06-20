@@ -989,6 +989,8 @@ export class NodeFactoryVisitor implements Visitor {
         endnode.viewState.x += (NODE_DIMENSIONS.START.EDITABLE.WIDTH - NODE_DIMENSIONS.START.DISABLED.WIDTH) / 2;
         this.createNodeAndLinks({ node: endnode, type: NodeTypes.END_NODE, data: StartNodeType.IN_SEQUENCE });
         this.parents.push(endnode);
+
+        this.skipChildrenVisit = true;
     }
 
     skipChildren(): boolean {
