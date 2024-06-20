@@ -47,27 +47,27 @@
         "title": "Sign In",
         "category": "Choreo",
         "icon": "${sign-in}",
-        "enablement": "isLoggedIn == false"
+        "enablement": "!isLoggedIn"
       },
       {
         "command": "wso2.choreo.sign.in.with.authCode",
         "title": "Sign In with Auth Code",
         "category": "Choreo",
-        "enablement": "isLoggedIn == false"
+        "enablement": "!isLoggedIn"
       },
       {
         "command": "wso2.choreo.sign.out",
         "title": "Sign Out",
         "category": "Choreo",
         "icon": "${sign-out}",
-        "enablement": "isLoggedIn == true"
+        "enablement": "isLoggedIn"
       },
       {
         "command": "wso2.choreo.create.component",
         "title": "Create Component",
         "category": "Choreo",
         "icon": "$(add)",
-        "enablement": "isValidWorkspace == true"
+        "enablement": "isValidWorkspace"
       },
       {
         "command": "wso2.choreo.component.open.external",
@@ -98,35 +98,35 @@
         "title": "Select Project",
         "category": "Choreo",
         "icon": "$(link)",
-        "enablement": "isValidWorkspace == true"
+        "enablement": "isValidWorkspace"
       },
       {
         "command": "wso2.choreo.project.manage",
         "title": "Manage Project",
         "category": "Choreo",
         "icon": "$(settings-gear)",
-        "enablement": "isValidWorkspace == true && isLoadingContextDirs == false"
+        "enablement": "isValidWorkspace && !isLoadingContextDirs"
       },
       {
         "command": "wso2.choreo.project.refresh",
         "title": "Refresh Workspace",
         "category": "Choreo",
         "icon": "$(refresh)",
-        "enablement": "isLoggedIn == true && isValidWorkspace == true && isLoadingContextDirs == false"
+        "enablement": "isValidWorkspace && !isLoadingContextDirs"
       },
       {
         "command": "wso2.choreo.project.create.workspace",
         "title": "Create Project Workspace",
         "category": "Choreo",
         "icon": "$(new-file)",
-        "enablement": "isLoggedIn == true && isValidWorkspace == true"
+        "enablement": "isValidWorkspace"
       },
       {
         "command": "wso2.choreo.manage.account",
         "title": "Manage Account",
         "category": "Choreo",
         "icon": "$(account)",
-        "enablement": "isLoggedIn == true"
+        "enablement": "isLoggedIn"
       }
     ],
     "viewsContainers": {
@@ -236,7 +236,7 @@
           {
             "id": "createComponent",
             "title": "Create components",
-            "description": "Choreo simplifies the deployment and management of your source code in the cloud through components. \nVarious types of components are supported, including Services, Manual Triggers, Cron Jobs, Web Applications, and more.\n[Create Component](command:wso2.choreo.create.component)\n Once created, you will be able to easily access your components from the [Choreo activity panel](command:choreo.activity.project.focus).",
+            "description": "A Choreo component is a self-contained unit associated with your source code, designed to be built and deployed in the Choreo cloud platform.\nVarious types of components are supported, including Services, Manual Triggers, Cron Jobs, Web Applications, and more.\n[Create Component](command:wso2.choreo.create.component)\n Once created, you will be able to easily access your components from the [Choreo activity panel](command:choreo.activity.project.focus).",
             "media": {
               "markdown": "resources/walkthrough/comp-create.md"
             }

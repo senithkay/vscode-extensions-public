@@ -1,34 +1,34 @@
-remove @emotion/styled
-update packages
-update eslint with prettier and https://github.com/tailwindlabs/prettier-plugin-tailwindcss
-add copyrights
+## Code refactor
+- Remove @emotion/styled and update packages
+- Update eslint with prettier and https://github.com/tailwindlabs/prettier-plugin-tailwindcss
+- Add copyrights to all files
+- Remove cellview and choreo client dependencies
+- Cleanup everything
 
-add deployment track selector
+## Functionality
+- Add deployment track selector
+- endpoint.yaml auto completion & code snippet
+- Add delete project command
 
-endpoint.yaml auto completion & code snippet
+## UI improvements
+- Need to show the step that the build is currently in, instead of just showing ‘in-progress’
+- User will not understand about what to do with API-Key in the testing view if they decide to manually test it using a different REST client
+- Show CLI download progress within webview instead of notification
+- It's not very clear what user has to do after build is complete
+- Rearrange the context buttons in the activity header. Options should be manage billing, manage, project and logout
 
-add view more button
+## API improvements
+- Have component/build create endpoints return created data
+- Add pagination for build list
+- Improve loading times for component/build list
 
-clone project/component command
+## Bugs
+- Fix first time user flow in cli and vscode (org creation flow) - Critical
+- RPC initialization not persisted in mac os - Critical
 
-delete project command
+## Context.yaml changes
+- sync workspace file automatically
+- hamburger icon in component details page, replace it with small delete button
 
-API improvements
-have component/build create endpoints return created data
-pagination for build list
-improve loading times for component/build list
-
-remove cellview and choreo client dependencies
-cleanup everything
-improve docs
-
-Fix first time user flow in cli and vscode (org creation flow)
-
-
-// New context yaml
-
-sync workspace file automatically
-
-tree view for component list
-
-hamburger icon in component details page, replace it with small delete button
+## Other
+- Revisit app insights implementation

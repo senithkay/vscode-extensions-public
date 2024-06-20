@@ -9,6 +9,7 @@
 import * as vscode from 'vscode';
 import TelemetryReporter from '@vscode/extension-telemetry';
 
+// TODO: replace with connection string
 const key = '8f98bf03-9ba8-47ba-a18d-62449b92ca42';
 
 // telemetry reporter

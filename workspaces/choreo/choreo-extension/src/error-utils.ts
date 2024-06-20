@@ -79,7 +79,7 @@ export function handlerError(err: any) {
                 break;
             case ErrorCode.EpYamlNotFound:
                 w.showErrorMessage(
-                    ".choreo/endpoints.yaml file not found. Try again after committing your endpoints.yaml to your remote repo",
+                    ".choreo/endpoints.yaml file is required in your remote repository. Try again after committing & pushing your endpoints.yaml file",
                     "View Documentation"
                 ).then((res) => {
                     if (res === "View Documentation") {

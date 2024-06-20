@@ -9,7 +9,7 @@
 import * as vscode from 'vscode';
 import { ProjectActivityView } from './ProjectActivityView';
 
-export function activateActivityBarWebViews(context: vscode.ExtensionContext) {
+export function activateActivityWebViews(context: vscode.ExtensionContext) {
     const projectActivityViewProvider = new ProjectActivityView(context.extensionUri);
 
 	context.subscriptions.push(

@@ -35,7 +35,7 @@ const getBuildConfigViewList = (component: ComponentKind): IRightPanelSectionIte
     ) {
         // do nothing
     } else if (componentBuildPack === ChoreoBuildPackNames.Docker) {
-        buildConfigs.push({ label: "Docker Context", value: component.spec?.build?.docker?.dockerContextPath });
+        buildConfigs.push({ label: "Docker Context", value: component.spec?.build?.docker?.dockerContextPath || "." });
         buildConfigs.push({ label: "Dockerfile path", value: component.spec?.build?.docker?.dockerFilePath });
         if (getTypeForDisplayType(component.spec.type) === "web-app") {
             buildConfigs.push({ label: "Port", value: component.spec?.build?.docker?.port });

@@ -19,7 +19,7 @@ import { GitExtension } from "./git";
 import { activateURIHandlers } from "./uri-handlers";
 import { getLogger, initLogger } from "./logger/logger";
 import { activateTelemetry } from "./telemetry/telemetry";
-import { activateActivityBarWebViews } from "./views/webviews/ActivityBar/activate";
+import { activateActivityWebViews } from "./views/webviews/ActivityBar/activate";
 import { activateCmds } from "./cmds";
 import { initRPCServer } from "./choreo-rpc/activate";
 import { contextStore } from "./stores/context-store";
@@ -50,20 +50,29 @@ export async function activate(context: vscode.ExtensionContext) {
         vscode.commands.executeCommand("setContext", "isLoadingContextDirs", state.loading);
     });
     workspace.onDidChangeWorkspaceFolders(() =>
-        vscode.commands.executeCommand("setContext", "isValidWorkspace", !!workspace.workspaceFolders?.length)
+        vscode.commands.executeCommand(
+            "setContext",
+            "isValidWorkspace",
+            workspace.workspaceFile || !!workspace.workspaceFolders?.length
+        )
     );
-    vscode.commands.executeCommand("setContext", "isValidWorkspace", !!workspace.workspaceFolders?.length);
+    vscode.commands.executeCommand(
+        "setContext",
+        "isValidWorkspace",
+        workspace.workspaceFile || !!workspace.workspaceFolders?.length
+    );
+
+    const rpcClient = new ChoreoRPCClient();
+    ext.clients = { rpcClient: rpcClient };
 
     initRPCServer()
         .then(async () => {
-            const rpcClient = new ChoreoRPCClient();
-            ext.clients = { rpcClient: rpcClient };
             await ext.clients.rpcClient.init();
 
             authStore.getState().initAuth();
 
             activateCmds(context);
-            activateActivityBarWebViews(context); // activity web views
+            activateActivityWebViews(context); // activity web views
             activateURIHandlers();
             // setupGithubAuthStatusCheck(); // TODO: remove
             // registerYamlLanguageServer();   // TODO: Re-enable after fixing project manager dependencies

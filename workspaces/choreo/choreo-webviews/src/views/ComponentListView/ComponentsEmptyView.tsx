@@ -28,7 +28,7 @@ export const ComponentsEmptyView: FC<Props> = ({ items, loading, selected }) => 
                 >
                     Create Component
                 </Button>
-                {items.length > 0 && (
+                {items.length > 1 && (
                     <>
                         <p>Multiple projects detected within the current workspace</p>
                         <Button
