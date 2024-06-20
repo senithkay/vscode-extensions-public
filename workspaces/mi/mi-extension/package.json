@@ -358,6 +358,11 @@
         "when": "false"
       },
       {
+        "command": "MI.project-explorer.delete",
+        "title": "Delete",
+        "icon": "$(delete)"
+      },
+      {
         "command": "project-explorer.view",
         "title": "View"
       },
@@ -585,6 +590,11 @@
           "command": "MI.project-explorer.open-dss-service-designer",
           "when": "viewItem == data-service",
           "group": "inline"
+        },
+        {
+          "command": "MI.project-explorer.delete",
+          "when": "view == MI.project-explorer && viewItem == api || viewItem == resource || viewItem == endpoint || viewItem == sequence || viewItem == proxy-service || viewItem == inboundEndpoint || viewItem == messageStore || viewItem == message-processor || viewItem == task || viewItem == localEntry || viewItem == template  || viewItem == dataSource || viewItem == dataService || viewItem == data-mapper || viewItem == registry-with-metadata",
+          "key": "delete"
         }
       ],
       "testing/item/context": [

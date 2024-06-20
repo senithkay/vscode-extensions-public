@@ -63,6 +63,7 @@ export const COMMANDS = {
     EDIT_REGISTRY_RESOURCE_METADATA_COMMAND: 'MI.project-explorer.edit-reg-metadata',
     ADD_CLASS_MEDIATOR_COMMAND: 'MI.project-explorer.add-class-mediator',
     EDIT_CLASS_MEDIATOR_COMMAND: 'MI.project-explorer.edit-class-mediator',
+    DELETE_PROJECT_EXPLORER_ITEM: 'MI.project-explorer.delete',
     CHANGE_SERVER_PATH: 'MI.change.server',
     BUILD_PROJECT: 'MI.build-project',
     CREATE_DOCKER_IMAGE: 'MI.create-docker-image',
