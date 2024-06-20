@@ -13,7 +13,7 @@ import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { ConnectorNodeModel } from "./ConnectorNodeModel";
 import { Colors, NODE_DIMENSIONS } from "../../../resources/constants";
 import { STNode } from "@wso2-enterprise/mi-syntax-tree/src";
-import { ClickAwayListener, Menu, MenuItem, Popover, Tooltip } from "@wso2-enterprise/ui-toolkit";
+import { ClickAwayListener, Icon, Menu, MenuItem, Popover, Tooltip } from "@wso2-enterprise/ui-toolkit";
 import { MoreVertIcon } from "../../../resources";
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import SidePanelContext from "../../sidePanel/SidePanelContexProvider";
@@ -199,7 +199,7 @@ export function ConnectorNodeWidget(props: ConnectorNodeWidgetProps) {
                     <div style={{ display: "flex", flexDirection: "row", width: NODE_DIMENSIONS.DEFAULT.WIDTH }}>
                         {iconPath && (
                             <S.IconContainer>
-                                <img src={iconPath} alt="Icon" />
+                                <Icon name="connector" sx={{ height: 25, width: 25, fontSize: 25, color: "#D32F2F" }} />
                             </S.IconContainer>
                         )}
                         <div>
