@@ -12,6 +12,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { createRoot } from "react-dom/client";
 import { VisualizerContextProvider } from "./Context";
 import { Visualizer } from "./Visualizer";
+import { SwaggerData } from "@wso2-enterprise/mi-core";
 
 const queryClient = new QueryClient({
     defaultOptions: {
@@ -24,12 +25,12 @@ const queryClient = new QueryClient({
     },
   });
 
-export function renderWebview(target: HTMLElement, mode: string) {
+export function renderWebview(target: HTMLElement, mode: string, swaggerData?: SwaggerData) {
     const root = createRoot(target);
     root.render(
         <VisualizerContextProvider>
             <QueryClientProvider client={queryClient}>
-                <Visualizer mode={mode} />
+                <Visualizer mode={mode} swaggerData={swaggerData} />
             </QueryClientProvider>
         </VisualizerContextProvider>
     );

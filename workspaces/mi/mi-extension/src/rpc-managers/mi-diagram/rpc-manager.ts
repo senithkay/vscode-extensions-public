@@ -153,6 +153,7 @@ import {
     RetrieveWsdlEndpointResponse,
     SequenceDirectoryResponse,
     ShowErrorMessageRequest,
+    SwaggerFromAPIResponse,
     SwaggerTypeRequest,
     TemplatesResponse,
     UndoRedoParams,
@@ -184,6 +185,8 @@ import {
     UpdateWsdlEndpointResponse,
     WriteContentToFileRequest,
     WriteContentToFileResponse,
+    onSwaggerSpecReceived,
+    SwaggerData,
     getSTRequest,
     getSTResponse
 } from "@wso2-enterprise/mi-core";
@@ -222,6 +225,9 @@ import { dockerfileContent, rootPomXmlContent } from "../../util/templates";
 import { replaceFullContentToFile } from "../../util/workspace";
 import { VisualizerWebview } from "../../visualizer/webview";
 import path = require("path");
+import { openSwaggerWebview } from "../../swagger/activate";
+import { RPCLayer } from "../../RPCLayer";
+import { getPortPromise } from "portfinder";
 
 const { XMLParser, XMLBuilder } = require("fast-xml-parser");
 
@@ -3690,6 +3696,22 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     viewColumn: ViewColumn.Active
                 });
             }
+
+            const response = await langClient.swaggerFromAPI({ apiPath: params.apiPath });
+            const generatedSwagger = response.swagger;
+            const port = await getPortPromise({ port: 1000, stopPort: 3000 });
+            const cors_proxy = require('cors-anywhere');
+            cors_proxy.createServer({
+                originWhitelist: [], // Allow all origins
+                requireHeader: ['origin', 'x-requested-with']
+            }).listen(port, '0.0.0.0');
+
+            const swaggerData: SwaggerData = {
+                generatedSwagger: generatedSwagger,
+                port: port
+            };
+
+            await openSwaggerWebview(swaggerData);
         });
     }
 
@@ -4122,6 +4144,23 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         
         return resolve({ artifacts: artifactsContent });
         });
+    }
+
+    async getOpenAPISpec(params: SwaggerTypeRequest): Promise<SwaggerFromAPIResponse> {
+        const langClient = StateMachine.context().langClient!;
+        const response = await langClient.swaggerFromAPI({ apiPath: params.apiPath });
+        const generatedSwagger = response.swagger;
+
+        const port = await getPortPromise({ port: 1000, stopPort: 3000 });
+        const cors_proxy = require('cors-anywhere');
+        cors_proxy.createServer({
+            originWhitelist: [], // Allow all origins
+            requireHeader: ['origin', 'x-requested-with']
+        }).listen(port, '0.0.0.0');
+
+        RPCLayer._messenger.sendNotification(onSwaggerSpecReceived, { type: 'webview', webviewType: 'micro-integrator.runtime-services-panel' }, { generatedSwagger: generatedSwagger, port: port });
+
+        return { generatedSwagger: generatedSwagger }; // TODO: refactor rpc function with void
     }
 }
 

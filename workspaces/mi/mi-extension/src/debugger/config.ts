@@ -15,6 +15,7 @@ export class DebuggerConfig {
     private static eventPort: number = vscode.workspace.getConfiguration().get<number>('MI.debugger.eventPort', 9006);
     private static baseServerPort: number = vscode.workspace.getConfiguration().get<number>('MI.serverPort', 8290);
     private static serverReadinessPort: number = 9201;
+    private static managementPort: number = 9164;
     private static host: string = 'localhost';
     private static internalOffset = 10;
 
@@ -44,6 +45,13 @@ export class DebuggerConfig {
             return this.serverReadinessPort + this.portOffset - this.internalOffset;
         }
         return this.serverReadinessPort;
+    }
+
+    public static getManagementPort(): number {
+        if (this.portOffset !== undefined) {
+            return this.managementPort + this.portOffset - this.internalOffset;
+        }
+        return this.managementPort;
     }
 
     public static getHost(): string {
