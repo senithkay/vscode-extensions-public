@@ -483,12 +483,28 @@ export class MiDebugAdapter extends LoggingDebugSession {
             return val;
         });
 
-        const ref = this.variableHandles.create(localScope);
+        // get the value MessageEnvelop from localScope
+        const msgScope = localScope?.find((scope: any) => scope.name === 'Message Envelope');
+        // remove the MessageEnvelop from localScope
+        const index = localScope?.indexOf(msgScope);
+        if (index !== undefined) {
+            localScope?.splice(index, 1);
+        }
+
+        const serverInternalRef = this.variableHandles.create(localScope);
+
+        let derivedScopes = [
+            new Scope("Server Internals", serverInternalRef, true),
+        ];
+
+        if (msgScope !== undefined) {
+            const msgRef = this.variableHandles.create(msgScope);
+            derivedScopes.push(new Scope("Message", msgRef, false));
+
+        }
 
         response.body = {
-            scopes: [
-                new Scope("Local", ref, false) // TODO: Check for the correct scope name
-            ]
+            scopes: derivedScopes
         };
 
         this.sendResponse(response);
