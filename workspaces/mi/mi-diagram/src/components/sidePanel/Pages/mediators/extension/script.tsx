@@ -20,6 +20,7 @@ import { Controller, useForm } from 'react-hook-form';
 import { Keylookup } from '../../../../Form';
 import { ParamManager, ParamValue } from '../../../../Form/ParamManager/ParamManager';
 import { sidepanelGoBack } from '../../..';
+import { CodeTextArea } from '../../../../Form/CodeTextArea';
 
 const cardStyle = { 
     display: "block",
@@ -146,7 +147,7 @@ const ScriptForm = (props: AddMediatorProps) => {
                         name="scriptBody"
                         control={control}
                         render={({ field }) => (
-                            <TextArea {...field} label="Script Body" placeholder="" />
+                            <CodeTextArea {...field} label="Script Body" placeholder="" resize="vertical" growRange={{ start: 5, offset: 10 }} />
                         )}
                     />
                     {errors.scriptBody && <Error>{errors.scriptBody.message.toString()}</Error>}

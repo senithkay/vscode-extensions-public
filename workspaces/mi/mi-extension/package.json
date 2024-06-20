@@ -632,7 +632,7 @@
         "description": "design-view",
         "default": {
           "fontPath": "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
-          "fontCharacter": "\\f127"
+          "fontCharacter": "\\f128"
         }
       }
     }
