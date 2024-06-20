@@ -16,5 +16,9 @@ export function getDatamapperMustacheTemplate() {
 }
 
 export function getDataMapperDescription(node: Datamapper) {
-    return node.config;
+    const description = node.config;
+    if (description) {
+        const match = description.match(/\/([^\/]+)\.dmc$/);
+        return match ? match[1] : null;
+    }
 }

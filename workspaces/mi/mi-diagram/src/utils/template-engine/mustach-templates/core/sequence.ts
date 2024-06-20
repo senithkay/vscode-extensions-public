@@ -28,5 +28,9 @@ export function getSequenceDataFromSTNode(data: { [key: string]: any }) {
 }
 
 export function getSequenceDescription(data: { [key: string]: any }) {
-    return data.staticReferenceKey || data.dynamicReferenceKey || data.key;
+    const description = data.staticReferenceKey || data.dynamicReferenceKey || data.key;
+    if (description) {
+        const match = description.match(/\/([^\/]+)\.xml$/);
+        return match ? match[1] : null;
+    }
 }
