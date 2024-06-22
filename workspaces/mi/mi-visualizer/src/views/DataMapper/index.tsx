@@ -38,12 +38,12 @@ export function DataMapper(props: DataMapperProps) {
     console.log("hihi");
     console.log(filePath);
 
-    useEffect(() => {
-        rpcClient.getMiDataMapperRpcClient().getOperators({ req: "REQ" }).then((res) => {
-            console.log(res);
-            setOperators([res.res]);
-        });
-      }, []); 
+    // useEffect(() => {
+    //     rpcClient.getMiDataMapperRpcClient().getOperators({ req: "REQ" }).then((res) => {
+    //         console.log(res);
+    //         setOperators([res.res]);
+    //     });
+    //   }, []); 
     
 
     const updateFileContent = async (newContent: string) => {
@@ -67,29 +67,9 @@ export function DataMapper(props: DataMapperProps) {
         }
     }, [isIOTypeError, isFileUpdateError]);
 
-    // return (
-    //     <>
-    //         {isFetchingIOTypes || isFetchingOperators
-    //             ? <ProgressIndicator />
-    //             : (
-    //                 <DataMapperView
-    //                     filePath={filePath}
-    //                     fileContent={fileContent}
-    //                     functionName={functionName}
-    //                     inputTrees={dmIOTypes.inputTrees}
-    //                     outputTree={dmIOTypes.outputTree}
-    //                     updateFileContent={updateFileContent}
-    //                     configName={props.configName}
-    //                     operators={dmOperators}
-    //                 />
-    //             )
-    //         }
-    //     </>
-    // );
-
     return (
         <>
-            {isFetchingIOTypes
+            {isFetchingIOTypes || isFetchingOperators
                 ? <ProgressIndicator />
                 : (
                     <DataMapperView
@@ -100,10 +80,30 @@ export function DataMapper(props: DataMapperProps) {
                         outputTree={dmIOTypes.outputTree}
                         updateFileContent={updateFileContent}
                         configName={props.configName}
-                        operators={operators}
+                        operators={[dmOperators.res]}
                     />
                 )
             }
         </>
     );
+
+    // return (
+    //     <>
+    //         {isFetchingIOTypes
+    //             ? <ProgressIndicator />
+    //             : (
+    //                 <DataMapperView
+    //                     filePath={filePath}
+    //                     fileContent={fileContent}
+    //                     functionName={functionName}
+    //                     inputTrees={dmIOTypes.inputTrees}
+    //                     outputTree={dmIOTypes.outputTree}
+    //                     updateFileContent={updateFileContent}
+    //                     configName={props.configName}
+    //                     operators={operators}
+    //                 />
+    //             )
+    //         }
+    //     </>
+    // );
 };
