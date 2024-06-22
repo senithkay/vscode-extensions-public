@@ -90,10 +90,10 @@ function getTestSuiteMustacheTemplate() {
 
 function getTestCaseMustacheTemplate() {
     return `<test-case name="{{name}}">
-            <input>
-                <request-path>{{{input.requestPath}}}</request-path>
-                <request-method>{{input.requestMethod}}</request-method>
-                <request-protocol>{{input.requestProtocol}}</request-protocol>{{#input.payload}}
+            <input>{{#input.requestPath}}
+                <request-path>{{{input.requestPath}}}</request-path>{{/input.requestPath}}{{#input.requestMethod}}
+                <request-method>{{input.requestMethod}}</request-method>{{/input.requestMethod}}{{#input.requestProtocol}}
+                <request-protocol>{{input.requestProtocol}}</request-protocol>{{/input.requestProtocol}}{{#input.payload}}
                 <payload><![CDATA[{{{input.payload}}}]]></payload>{{/input.payload}}
             </input>
             <assertions>
@@ -105,7 +105,8 @@ function getTestCaseMustacheTemplate() {
                 </{{type}}>
                 {{/assertions}}    
             </assertions>
-        </test-case>`;
+        </test-case>
+    `;
 }
 
 function getMockServiceMustacheTemplate() {

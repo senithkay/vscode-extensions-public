@@ -17,10 +17,15 @@ import { TagRange } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 import * as yup from "yup";
 import { getTestCaseXML } from "../../../utils/template-engine/mustache-templates/TestSuite";
 
+export enum TestSuiteType {
+    API = "API",
+    SEQUENCE = "Sequence"
+}
 interface TestCaseFormProps {
     filePath?: string;
     range?: TagRange;
     testCase?: TestCaseEntry;
+    testSuiteType: TestSuiteType;
     availableTestCases?: string[];
     onGoBack?: () => void;
     onSubmit?: (values: any) => void;
@@ -30,15 +35,15 @@ export interface TestCaseEntry {
     name: string;
     assertions?: string[][];
     input: TestCaseInput;
-    inputProperties?: string[][];
     range?: TagRange;
 }
 
 export interface TestCaseInput {
-    requestPath: string;
-    requestMethod: string;
-    requestProtocol: string;
+    requestPath?: string;
+    requestMethod?: string;
+    requestProtocol?: string;
     payload?: string;
+    properties?: string[][];
 }
 
 const cardStyle = {
@@ -57,18 +62,20 @@ export function TestCaseForm(props: TestCaseFormProps) {
     const requestProtocols = ['HTTP', 'HTTPS'];
     const isUpdate = !!props.testCase;
     const availableTestCases = props.availableTestCases || [];
+    const testSuiteType = props.testSuiteType;
+    const isSequence = testSuiteType?.toLowerCase() === TestSuiteType.SEQUENCE.toLowerCase();
 
     // Schema
     const schema = yup.object({
         name: yup.string().required("Test case name is required").matches(/^[a-zA-Z0-9_-]*$/, "Invalid characters in test case name")
             .notOneOf(availableTestCases, "Test case name already exists"),
         input: yup.object({
-            requestPath: yup.string().required("Resource path is required"),
-            requestMethod: yup.string().oneOf(requestMethods).required("Resource method is required"),
-            requestProtocol: yup.string().oneOf(requestProtocols).required("Resource type is required"),
+            requestPath: !isSequence ? yup.string().required("Resource path is required") : yup.string(),
+            requestMethod: !isSequence ? yup.string().oneOf(requestMethods).required("Resource method is required") : yup.string(),
+            requestProtocol: !isSequence ? yup.string().oneOf(requestProtocols).required("Resource protocol is required") : yup.string(),
             payload: yup.string(),
+            properties: yup.mixed(),
         }),
-        inputProperties: yup.mixed(),
         assertions: yup.mixed(),
     });
 
@@ -143,12 +150,13 @@ export function TestCaseForm(props: TestCaseFormProps) {
                         return assertion;
                     });
                 }
+                props.testCase.input.properties = {
+                    paramValues: props.testCase.input.properties ? getParamManagerFromValues(props.testCase.input.properties) : [],
+                    paramFields: inputPropertiesFields
+                } as any;
+
                 reset({
                     ...props.testCase,
-                    inputProperties: {
-                        paramValues: props.testCase.inputProperties ? getParamManagerFromValues(props.testCase.inputProperties) : [],
-                        paramFields: inputPropertiesFields
-                    },
                     assertions: {
                         paramValues: props.testCase.assertions ? getParamManagerFromValues(props.testCase.assertions, 0) : [],
                         paramFields: assertionsFields
@@ -160,13 +168,13 @@ export function TestCaseForm(props: TestCaseFormProps) {
 
             reset({
                 input: {
-                    requestPath: "/",
-                    requestMethod: "GET",
-                    requestProtocol: "HTTP",
-                },
-                inputProperties: {
-                    paramValues: [],
-                    paramFields: inputPropertiesFields
+                    requestPath: !isSequence ? "/" : undefined,
+                    requestMethod: !isSequence ? "GET" : undefined,
+                    requestProtocol: !isSequence ? "HTTP" : undefined,
+                    properties: {
+                        paramValues: [],
+                        paramFields: inputPropertiesFields
+                    },
                 },
                 assertions: {
                     paramValues: [],
@@ -190,7 +198,7 @@ export function TestCaseForm(props: TestCaseFormProps) {
     };
 
     const submitForm = async (values: any) => {
-        values.inputProperties = getParamManagerValues(values.inputProperties);
+        values.input.properties.properties = getParamManagerValues(values.input.properties);
         values.assertions = getParamManagerValues(values.assertions);
 
         if (props.onSubmit) {
@@ -205,7 +213,7 @@ export function TestCaseForm(props: TestCaseFormProps) {
     }
 
     if (!isLoaded) {
-        return <ProgressIndicator/>;
+        return <ProgressIndicator />;
     }
 
     return (
@@ -218,26 +226,30 @@ export function TestCaseForm(props: TestCaseFormProps) {
                 errorMsg={errors.name?.message.toString()}
                 {...register("name")}
             />
-            <TextField
-                id="requestPath"
-                label="Resource path"
-                placeholder="/"
-                required
-                errorMsg={errors.input?.requestPath?.message.toString()}
-                {...register("input.requestPath")}
-            />
-            <Dropdown
-                id="requestMethod"
-                label="Resource method"
-                items={requestMethods.map((method) => ({ value: method, content: method }))}
-                errorMsg={errors.input?.requestMethod?.message.toString()}
-                {...register('input.requestMethod')} />
-            <Dropdown
-                id="requestProtocol"
-                label="Resource Protocol"
-                items={requestProtocols.map((method) => ({ value: method, content: method }))}
-                errorMsg={errors.input?.requestProtocol?.message.toString()}
-                {...register('input.requestProtocol')} />
+            {!isSequence &&
+                <>
+                    <TextField
+                        id="requestPath"
+                        label="Resource path"
+                        placeholder="/"
+                        required
+                        errorMsg={errors.input?.requestPath?.message.toString()}
+                        {...register("input.requestPath")}
+                    />
+                    <Dropdown
+                        id="requestMethod"
+                        label="Resource method"
+                        items={requestMethods.map((method) => ({ value: method, content: method }))}
+                        errorMsg={errors.input?.requestMethod?.message.toString()}
+                        {...register('input.requestMethod')} />
+                    <Dropdown
+                        id="requestProtocol"
+                        label="Resource Protocol"
+                        items={requestProtocols.map((method) => ({ value: method, content: method }))}
+                        errorMsg={errors.input?.requestProtocol?.message.toString()}
+                        {...register('input.requestProtocol')} />
+                </>
+            }
             <TextArea
                 id="payload"
                 label="Input Payload"
@@ -251,7 +263,7 @@ export function TestCaseForm(props: TestCaseFormProps) {
                 <Typography variant="body3">Editing of the properties of an input</Typography>
 
                 <Controller
-                    name="inputProperties"
+                    name="input.properties"
                     control={control}
                     render={({ field: { onChange, value } }) => (
                         <ParamManager

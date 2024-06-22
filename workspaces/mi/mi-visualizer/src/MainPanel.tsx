@@ -311,6 +311,7 @@ const MainPanel = () => {
                         range={machineView.customProps?.range}
                         availableTestCases={machineView.customProps?.availableTestCases}
                         testCase={machineView.customProps?.testCase}
+                        testSuiteType={machineView.customProps?.testSuiteType}
                     />);
                     break;
                 case MACHINE_VIEW.AITestGen:
