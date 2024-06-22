@@ -334,15 +334,17 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
 
     async getOperators(params: GetOperatorsRequest): Promise<GetOperatorsResponse> {
         console.log(params);
-        console.log("bfuef");
+        
         return new Promise(async (resolve, reject) => {
             try {
                 // resolve({ operators: this.getFunctionNames(params.filePath) });
-                resolve({ res: "hello" });
+                const operatorsFilePath = path.join(path.dirname(params.filePath), "operators.ts");
+                console.log(operatorsFilePath);
+                resolve({ operators: this.getFunctionNames(operatorsFilePath) });
 
             } catch (error) {
                 console.error(error);
-                reject({ res: "ERROR" });
+                reject({ operators: ["ERROR"] });
             }
         });
     }

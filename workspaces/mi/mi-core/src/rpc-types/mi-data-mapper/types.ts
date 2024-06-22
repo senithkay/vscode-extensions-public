@@ -95,11 +95,14 @@ export interface UpdateDMUndoRedoMangerRequest {
 }
 
 export interface GetOperatorsRequest {
-    req: string;
+    
+    filePath:string;
+    
 }
 
 export interface GetOperatorsResponse {
-    res: string;
+    
+    operators:string[];
 }
 
 

@@ -41,7 +41,7 @@ export const useOperators = (filePath: string) => {
         try {
             const res = await rpcClient
                 .getMiDataMapperRpcClient()
-                .getOperators({ req:"REQ Hook" });
+                .getOperators({ filePath });
             return res;
         } catch (error) {
             console.error(error);
