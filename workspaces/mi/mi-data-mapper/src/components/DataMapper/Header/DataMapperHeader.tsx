@@ -22,10 +22,11 @@ export interface DataMapperHeaderProps {
     hasEditDisabled: boolean;
     onClose?: () => void;
     applyModifications: () => Promise<void>;
+    operators: any;
 }
 
 export function DataMapperHeader(props: DataMapperHeaderProps) {
-    const { views, switchView, hasEditDisabled, onClose, applyModifications } = props;
+    const { views, switchView, hasEditDisabled, onClose, applyModifications, operators } = props;
 
     return (
         <HeaderContainer>
@@ -48,7 +49,9 @@ export function DataMapperHeader(props: DataMapperHeaderProps) {
                 )}
             </HeaderContent>
             <ExpressionContainer>
-                <ExpressionBar applyModifications={applyModifications} />
+                <ExpressionBar
+                    applyModifications={applyModifications}
+                    operators={operators} />
             </ExpressionContainer>
         </HeaderContainer>
     );

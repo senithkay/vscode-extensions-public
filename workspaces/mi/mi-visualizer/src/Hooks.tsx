@@ -33,3 +33,30 @@ export const useIOTypes = (filePath: string, functionName: string, interfacesSou
 
     return {dmIOTypes, isFetchingIOTypes, isIOTypeError, refetch};
 };
+
+
+export const useOperators = (filePath: string) => {
+    const { rpcClient } = useVisualizerContext();
+    const getOperators = async () => {
+        try {
+            const res = await rpcClient
+                .getMiDataMapperRpcClient()
+                .getOperators({ req:"REQ Hook" });
+            return res;
+        } catch (error) {
+            console.error(error);
+            throw error;
+        }
+    }
+
+    const {
+        data: dmOperators,
+        isFetching: isFetchingOperators,
+        isError: isOperatorsError,
+        refetch
+    } = useQuery(['getIOTypes', { filePath }], () => getOperators(), {});
+
+    return {dmOperators, isFetchingOperators, isOperatorsError, refetch};
+};
+
+

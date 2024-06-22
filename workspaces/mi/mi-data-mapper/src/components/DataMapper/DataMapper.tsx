@@ -45,6 +45,7 @@ export interface MIDataMapperProps {
     filePath: string;
     configName: string;
     applyModifications: () => Promise<void>;
+    operators:any;
 };
 
 enum ActionType {
@@ -77,7 +78,7 @@ function viewsReducer(state: ViewState, action: ViewAction) {
 }
 
 export function MIDataMapper(props: MIDataMapperProps) {
-    const { fnST, inputTrees, outputTree, fileContent, filePath, configName, applyModifications } = props;
+    const { fnST, inputTrees, outputTree, fileContent, filePath, configName, applyModifications,operators } = props;
 
     const initialView = [{
         targetFieldFQN: "",
@@ -202,6 +203,7 @@ export function MIDataMapper(props: MIDataMapperProps) {
                     hasEditDisabled={false}
                     onClose={undefined}
                     applyModifications={applyModifications}
+                    operators={operators}
                 />
             )}
             {nodes.length > 0 && (

@@ -3130,6 +3130,9 @@ importers:
       tslint-react-hooks: 2.2.2_t7b5rvrgqeu75u2a5tstpdiwve
       typescript: 5.3.3
 
+  ../../workspaces/mi/mi-data-mapper-operators:
+    specifiers: {}
+
   ../../workspaces/mi/mi-diagram:
     specifiers:
       '@emotion/css': ^11.10.5
@@ -3250,6 +3253,7 @@ importers:
       '@vscode/vsce': ~2.21.0
       '@wso2-enterprise/font-wso2-vscode': workspace:*
       '@wso2-enterprise/mi-core': workspace:*
+      '@wso2-enterprise/mi-data-mapper-operators': workspace:*
       '@wso2-enterprise/mi-rpc-client': workspace:*
       '@wso2-enterprise/mi-syntax-tree': workspace:*
       '@wso2-enterprise/mi-visualizer': workspace:*
@@ -3273,6 +3277,7 @@ importers:
       rimraf: ~5.0.5
       tmp: ~0.2.3
       to-json-schema: 0.2.4
+      todo-lib-from-chamodabey: ^2.0.0
       toml: ^3.0.0
       tree-kill: ~1.2.2
       ts-loader: ^9.4.4
@@ -3343,12 +3348,14 @@ importers:
       '@typescript-eslint/eslint-plugin': 6.21.0_qvx5l6wcv2c6baydm2v34ogvwy
       '@typescript-eslint/parser': 6.21.0_xdgzedli73k7lw4xlyzszm74om
       '@vscode/test-electron': 2.3.9
+      '@wso2-enterprise/mi-data-mapper-operators': link:../mi-data-mapper-operators
       '@wso2-enterprise/mi-visualizer': link:../mi-visualizer
       await-notify: 1.0.1
       eslint: 8.56.0
       glob: 10.3.10
       mocha: 10.2.0
       rimraf: 5.0.5
+      todo-lib-from-chamodabey: 2.0.0
       ts-loader: 9.5.1_jkke4aekx6qisbjiah2hkrbtyy
       ts-morph: 22.0.0
       typescript: 5.3.3
@@ -46255,6 +46262,10 @@ packages:
 
   /tocbot/4.25.0:
     resolution: {integrity: sha512-kE5wyCQJ40hqUaRVkyQ4z5+4juzYsv/eK+aqD97N62YH0TxFhzJvo22RUQQZdO3YnXAk42ZOfOpjVdy+Z0YokA==}
+    dev: true
+
+  /todo-lib-from-chamodabey/2.0.0:
+    resolution: {integrity: sha512-Mb9gsdXkZ2D0bj873Uun6QeRmvTGYrHh8rXyUo1HaHLU+oEFojaiAITtTyVw7yLqqkC96vVp4r5sCzDyYR0jbw==}
     dev: true
 
   /toidentifier/1.0.1:

@@ -46,6 +46,7 @@ export interface DataMapperViewProps {
     outputTree: DMType;
     updateFileContent: (fileContent: string) => Promise<void>;
     configName: string;
+    operators:any;
 }
 
 export function DataMapperView(props: DataMapperViewProps) {
@@ -56,8 +57,12 @@ export function DataMapperView(props: DataMapperViewProps) {
         inputTrees,
         outputTree,
         updateFileContent,
-        configName
+        configName,
+        operators
     } = props;
+
+    console.log(operators);
+
     const { rpcClient } = useVisualizerContext();
 
     const { functionST, sourceFile } = useMemo(() => {
@@ -122,6 +127,7 @@ export function DataMapperView(props: DataMapperViewProps) {
                     applyModifications={applyModifications}
                     filePath={filePath}
                     configName={configName}
+                    operators={operators}
                 />
             </QueryClientProvider>
         </ErrorBoundary>

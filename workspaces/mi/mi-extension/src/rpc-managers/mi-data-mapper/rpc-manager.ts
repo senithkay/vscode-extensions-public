@@ -40,6 +40,7 @@ import path = require("path");
 import { extension } from "../../MIExtensionContext";
 import { MiDiagramRpcManager } from "../mi-diagram/rpc-manager";
 import { UndoRedoManager } from "../../undoRedoManager";
+import * as ts from 'typescript';
 
 const undoRedoManager = new UndoRedoManager();
 
@@ -95,7 +96,27 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
         };
         return '';
     }
+    getFunctionNames(filePath: string): string[] {
+        const sourceFile = ts.createSourceFile(
+            filePath,
+            fs.readFileSync(filePath).toString(),
+            ts.ScriptTarget.Latest,
+            true
+        );
 
+        const functionNames: string[] = [];
+
+        function visit(node: ts.Node) {
+            if (ts.isFunctionDeclaration(node) && node.name) {
+                functionNames.push(node.name.getText());
+            }
+            ts.forEachChild(node, visit);
+        }
+
+        visit(sourceFile);
+
+        return functionNames;
+    }
     async browseSchema(params: BrowseSchemaRequest): Promise<BrowseSchemaResponse> {
         return new Promise(async (resolve) => {
             const { documentUri, overwriteSchema, resourceName, sourcePath, ioType, schemaType, configName } = params;
@@ -214,7 +235,7 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
                 const workspaceFolder = workspace.getWorkspaceFolder(Uri.file(filePath));
                 let miDiagramRpcManager: MiDiagramRpcManager = new MiDiagramRpcManager();
 
-               
+
 
                 if (workspaceFolder) {
                     const dataMapperConfigFolder = path.join(
@@ -312,7 +333,17 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
     }
 
     async getOperators(params: GetOperatorsRequest): Promise<GetOperatorsResponse> {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
+        console.log(params);
+        console.log("bfuef");
+        return new Promise(async (resolve, reject) => {
+            try {
+                // resolve({ operators: this.getFunctionNames(params.filePath) });
+                resolve({ res: "hello" });
+
+            } catch (error) {
+                console.error(error);
+                reject({ res: "ERROR" });
+            }
+        });
     }
 }

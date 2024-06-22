@@ -13,7 +13,7 @@ import { DataMapperView } from "@wso2-enterprise/mi-data-mapper";
 import { ProgressIndicator } from "@wso2-enterprise/ui-toolkit";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 
-import { useIOTypes } from "../../Hooks";
+import { useIOTypes, useOperators } from "../../Hooks";
 
 interface DataMapperProps {
     filePath: string;
@@ -29,7 +29,22 @@ export function DataMapper(props: DataMapperProps) {
 
     const [isFileUpdateError, setIsFileUpdateError] = useState(false);
 
+    const [operators, setOperators]=useState<string[]>(["abc"]);
+
     const { dmIOTypes, isFetchingIOTypes, isIOTypeError } = useIOTypes(filePath, functionName, interfacesSource);
+
+    const { dmOperators, isFetchingOperators, isOperatorsError } = useOperators(filePath)
+    
+    console.log("hihi");
+    console.log(filePath);
+
+    useEffect(() => {
+        rpcClient.getMiDataMapperRpcClient().getOperators({ req: "REQ" }).then((res) => {
+            console.log(res);
+            setOperators([res.res]);
+        });
+      }, []); 
+    
 
     const updateFileContent = async (newContent: string) => {
         try {
@@ -52,6 +67,26 @@ export function DataMapper(props: DataMapperProps) {
         }
     }, [isIOTypeError, isFileUpdateError]);
 
+    // return (
+    //     <>
+    //         {isFetchingIOTypes || isFetchingOperators
+    //             ? <ProgressIndicator />
+    //             : (
+    //                 <DataMapperView
+    //                     filePath={filePath}
+    //                     fileContent={fileContent}
+    //                     functionName={functionName}
+    //                     inputTrees={dmIOTypes.inputTrees}
+    //                     outputTree={dmIOTypes.outputTree}
+    //                     updateFileContent={updateFileContent}
+    //                     configName={props.configName}
+    //                     operators={dmOperators}
+    //                 />
+    //             )
+    //         }
+    //     </>
+    // );
+
     return (
         <>
             {isFetchingIOTypes
@@ -64,7 +99,8 @@ export function DataMapper(props: DataMapperProps) {
                         inputTrees={dmIOTypes.inputTrees}
                         outputTree={dmIOTypes.outputTree}
                         updateFileContent={updateFileContent}
-                        configName= {props.configName}
+                        configName={props.configName}
+                        operators={operators}
                     />
                 )
             }

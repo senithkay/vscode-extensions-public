@@ -18,7 +18,7 @@ import { DataMapperNodeModel } from '../../../components/Diagram/Node/commons/Da
 import { getFnDeclStructure, operators } from '../Operators/operators';
 import { getDefaultValue } from '../../../components/Diagram/utils/common-utils';
 
-const functionNames = Object.keys(operators);
+// const functionNames = Object.keys(operators);
 
 const useStyles = () => ({
     exprBarContainer: css({
@@ -37,6 +37,7 @@ const useStyles = () => ({
 
 export interface ExpressionBarProps {
     applyModifications: () => Promise<void>
+    operators:any;
 }
 
 export default function ExpressionBar(props: ExpressionBarProps) {
@@ -52,6 +53,8 @@ export default function ExpressionBar(props: ExpressionBarProps) {
         focusedPort: state.focusedPort,
         inputPort: state.inputPort
     }));
+
+    const functionNames=props.operators;
 
     useEffect(() => {
         // Keep the text field focused when an input port is selected
