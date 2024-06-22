@@ -100,6 +100,13 @@ export function TestCaseForm(props: TestCaseFormProps) {
                     "isRequired": true
                 },
                 {
+                    "type": "Dropdown",
+                    "label": "Property Scope",
+                    "defaultValue": "default",
+                    "isRequired": true,
+                    "values": ["default", "transport", "axis2", "axis2-client"]
+                },
+                {
                     "type": "TextField",
                     "label": "Property Value",
                     "defaultValue": "",

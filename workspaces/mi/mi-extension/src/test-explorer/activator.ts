@@ -114,8 +114,8 @@ export async function activateTestExplorer(extensionContext: ExtensionContext, l
                 requestMethod: unitTestST?.input?.requestMethod?.textNode,
                 requestProtocol: unitTestST?.input?.requestProtocol?.textNode,
                 payload: unitTestST?.input?.payload?.textNode,
+                // properties: unitTestST?.input?.properties?.map((property) => { return [property.name, property.value.textNode] }),
             },
-            // inputProperties: unitTestST?.input?.properties?.map((property) => { return [property.name, property.value.textNode] }),
         };
 
         const data = await getTestCaseNamesAndTestSuiteType(Uri.parse(fileUri));

@@ -21,6 +21,15 @@ function modityTestCaseData(data: TestCaseEntry) {
     if (data.input.payload && data.input.payload.startsWith("<![CDATA[")) {
         data.input.payload = data.input.payload.substring(9, data.input.payload.length - 3);
     }
+    if ((data?.input?.properties as any)?.properties) {
+        (data.input.properties as any).properties = (data.input.properties as any).properties.map((property: any) => {
+            return {
+                name: property[0],
+                scope: property[1],
+                value: property[2]
+            }
+        });
+    }
     const assertions = data.assertions.map((assertion: string[]) => {
         // replace spaces and join camel case
         let type = assertion[0].replace(/\s/g, '').replace(/(^\w{1})|(\s+\w{1})/g, letter => letter.toUpperCase());
@@ -94,7 +103,12 @@ function getTestCaseMustacheTemplate() {
                 <request-path>{{{input.requestPath}}}</request-path>{{/input.requestPath}}{{#input.requestMethod}}
                 <request-method>{{input.requestMethod}}</request-method>{{/input.requestMethod}}{{#input.requestProtocol}}
                 <request-protocol>{{input.requestProtocol}}</request-protocol>{{/input.requestProtocol}}{{#input.payload}}
-                <payload><![CDATA[{{{input.payload}}}]]></payload>{{/input.payload}}
+                <payload><![CDATA[{{{input.payload}}}]]></payload>{{/input.payload}}{{#input.properties}}
+                <properties>
+                    {{#properties}}
+                    <property name="{{name}}" scope="{{scope}}" value="{{value}}" />
+                    {{/properties}}
+                </properties>{{/input.properties}}
             </input>
             <assertions>
                 {{#assertions}}
