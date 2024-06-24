@@ -83,23 +83,4 @@ export function DataMapper(props: DataMapperProps) {
         </>
     );
 
-    // return (
-    //     <>
-    //         {isFetchingIOTypes
-    //             ? <ProgressIndicator />
-    //             : (
-    //                 <DataMapperView
-    //                     filePath={filePath}
-    //                     fileContent={fileContent}
-    //                     functionName={functionName}
-    //                     inputTrees={dmIOTypes.inputTrees}
-    //                     outputTree={dmIOTypes.outputTree}
-    //                     updateFileContent={updateFileContent}
-    //                     configName={props.configName}
-    //                     operators={operators}
-    //                 />
-    //             )
-    //         }
-    //     </>
-    // );
 };
