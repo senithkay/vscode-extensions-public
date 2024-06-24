@@ -146,26 +146,6 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.DataMapperView, documentUri: entry });
 	});
 
-	commands.registerCommand(COMMANDS.DELETE_REGISTERY_RESOURCE_COMMAND, async (entry: ProjectExplorerEntry) => {
-		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.Overview });
-		if (entry.info && entry.info?.path) {
-			const filePath = entry.info.path;
-			const fileName = path.basename(filePath);
-			window.showInformationMessage("Do you want to delete : " + fileName, { modal: true }, "Yes", "No")
-				.then(async answer => {
-					if (answer === "Yes") {
-						const res = await deleteRegistryResource(filePath);
-						if (res.status === true) {
-							window.showInformationMessage(res.info);
-							projectExplorerDataProvider.refresh(lsClient);
-						} else {
-							window.showErrorMessage(res.info);
-						}
-					}
-				});
-		}
-	});
-
 	commands.registerCommand(COMMANDS.ADD_MESSAGE_STORE_COMMAND, (entry: ProjectExplorerEntry) => {
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.MessageStoreForm, documentUri: entry.info?.path });
 		console.log('Add Message Store');
@@ -435,6 +415,33 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 
 					break;
 				}
+			case 'registry-with-metadata':
+			case 'registry-without-metadata': {
+				let filePath = "";
+				if (item instanceof ProjectExplorerEntry) {
+					if (item.info && item.info?.path) {
+						filePath = item.info.path;
+					}
+				} else if (item.id) {
+					filePath = item.id;
+				}
+				if (filePath !== "") {
+					const fileName = path.basename(filePath);
+					window.showInformationMessage("Do you want to delete : " + fileName, { modal: true }, "Yes", "No")
+						.then(async answer => {
+							if (answer === "Yes") {
+								const res = await deleteRegistryResource(filePath);
+								if (res.status === true) {
+									window.showInformationMessage(res.info);
+									projectExplorerDataProvider.refresh(lsClient);
+								} else {
+									window.showErrorMessage(res.info);
+								}
+							}
+						});
+				}
+				break;
+			}
 		}
 		projectExplorerDataProvider.refresh(lsClient);
 	});
