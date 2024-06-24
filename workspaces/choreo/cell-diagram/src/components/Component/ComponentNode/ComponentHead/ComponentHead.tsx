@@ -35,10 +35,11 @@ interface ServiceHeadProps {
     isSelected: boolean;
     isFocused: boolean;
     menuItems: MoreVertMenuItem[];
+    onFocusOut?: () => void;
 }
 
 export function ComponentHeadWidget(props: ServiceHeadProps) {
-    const { engine, node, isSelected, isFocused, menuItems } = props;
+    const { engine, node, isSelected, isFocused, menuItems, onFocusOut } = props;
 
     const { zoomLevel } = useContext(DiagramContext);
 
@@ -89,6 +90,7 @@ export function ComponentHeadWidget(props: ServiceHeadProps) {
                     component={node.component}
                     menuItems={menuItems}
                     hasComponentKind={node.component.buildPack && node.component.buildPack.toLowerCase() !== "other"}
+                    onClose={onFocusOut}
                 />
             )}
         </ComponentHead>
