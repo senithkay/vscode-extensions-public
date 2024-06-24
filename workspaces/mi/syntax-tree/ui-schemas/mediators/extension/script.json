@@ -41,7 +41,7 @@
       "value": {
         "name": "scriptBody",
         "displayName": "Script Body",
-        "inputType": "textArea",
+        "inputType": "codeTextArea",
         "required": false,
         "helpTip": "",
         "enableCondition": [

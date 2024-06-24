@@ -181,6 +181,44 @@ export interface NotificationRequest {
     type?: NotificationType;
 }
 
+export interface RuntimeServiceDetails {
+    count: number;
+    list: unknown;
+}
+
+export interface Request {
+    url: string;
+    headers: string;
+    method: string;
+    body?: string;
+}
+
+export interface Response {
+    status: number;
+    statusText: string;
+    data?: string;
+    text?: string;
+    body?: string;
+    obj?: string;
+    headers?: Record<string, string>;
+  }
+
+export interface SwaggerProxyRequest {
+    command: string;
+    request: Request;
+}
+
+export interface SwaggerProxyResponse {
+    isResponse: boolean;
+    response?: Response;
+}
+
+export interface RuntimeServicesResponse {
+    api: RuntimeServiceDetails | undefined;
+    proxy: RuntimeServiceDetails | undefined;
+    dataServices: RuntimeServiceDetails | undefined;
+}
+
 export interface NotificationResponse {
     selection: string | undefined;
 }

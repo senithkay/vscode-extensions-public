@@ -53,7 +53,7 @@ const RuleForm = (props: AddMediatorProps) => {
             targetValue: sidePanelContext?.formValues?.targetValue || "",
             targetAction: sidePanelContext?.formValues?.targetAction || "Replace",
             targetNamespaces: {
-                paramValues: sidePanelContext?.formValues?.targetNamespaces ? getParamManagerFromValues(sidePanelContext?.formValues?.targetNamespaces) : [],
+                paramValues: sidePanelContext?.formValues?.targetNamespaces ? getParamManagerFromValues(sidePanelContext?.formValues?.targetNamespaces, 0, 1) : [],
                 paramFields: [
                     {
                         "type": "TextField",
@@ -79,7 +79,7 @@ const RuleForm = (props: AddMediatorProps) => {
             inputWrapperName: sidePanelContext?.formValues?.inputWrapperName || "",
             inputNamespace: sidePanelContext?.formValues?.inputNamespace || "",
             factsConfiguration: {
-                paramValues: sidePanelContext?.formValues?.factsConfiguration ? getParamManagerFromValues(sidePanelContext?.formValues?.factsConfiguration) : [],
+                paramValues: sidePanelContext?.formValues?.factsConfiguration ? getParamManagerFromValues(sidePanelContext?.formValues?.factsConfiguration, 0, 2) : [],
                 paramFields: [
                     {
                         "type": "Dropdown",
@@ -127,7 +127,7 @@ const RuleForm = (props: AddMediatorProps) => {
             outputWrapperName: sidePanelContext?.formValues?.outputWrapperName || "",
             outputNamespace: sidePanelContext?.formValues?.outputNamespace || "",
             resultsConfiguration: {
-                paramValues: sidePanelContext?.formValues?.resultsConfiguration ? getParamManagerFromValues(sidePanelContext?.formValues?.resultsConfiguration) : [],
+                paramValues: sidePanelContext?.formValues?.resultsConfiguration ? getParamManagerFromValues(sidePanelContext?.formValues?.resultsConfiguration, 0, 2) : [],
                 paramFields: [
                     {
                         "type": "Dropdown",

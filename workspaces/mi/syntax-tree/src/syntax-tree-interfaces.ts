@@ -1778,7 +1778,7 @@ export interface Ntlm extends STNode {
     description: string;
 }
 
-export type DiagramService = APIResource | NamedSequence | Proxy | Template;
+export type DiagramService = APIResource | NamedSequence | Proxy | Template | Query;
 
 export interface Connector extends STNode {
     connectorName: string;
@@ -1881,4 +1881,44 @@ export interface MockResourceHeaders extends STNode {
 export interface MockResourceHeader {
     name: string;
     value: string;
+}
+
+export interface Query extends STNode {
+    id: string;
+    params: QueryParameter[];
+    result: QueryResult;
+    returnGeneratedKeys: boolean;
+    sql: STNode;
+    useConfig: string;
+}
+
+export interface QueryParameter extends STNode {
+    name: string;
+    sqlType: string;
+    paramType: string;
+    optional: boolean;
+    ordinal: number;
+}
+
+export interface QueryResult extends STNode {
+    attributes: QueryAttribute[];
+    callQueries: QueryCallQuery;
+    defaultNamespace: string;
+    element: string;
+    elements: QueryAttribute[];
+    rowName: string;
+    xsltPath: string;
+}
+
+export interface QueryAttribute extends STNode {
+    column: string;
+    name: string;
+    requiredRoles: string;
+    xsdType: string;
+    optional: boolean;
+}
+
+export interface QueryCallQuery extends STNode {
+    href: string;
+    requiredRoles: string;
 }

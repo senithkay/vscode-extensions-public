@@ -46,10 +46,10 @@ export const ActionButtons = (props: ActionButtonsProps) => {
 
     return (
         <ButtonContainer id={id} className={className} sx={sx}>
-            <VSCodeButton appearance="secondary" onClick={sOnClick} title={sTooltip} disabled={sDisabled} style={{marginRight: 8}}>
+            <VSCodeButton appearance="secondary" onClick={sOnClick} title={sTooltip} disabled={(sDisabled ? true : undefined)} style={{marginRight: 8}}>
                 <ButtonWrapper style={{minWidth: "50px"}}>{sText}</ButtonWrapper>
             </VSCodeButton>
-            <VSCodeButton appearance="primary" onClick={pOnClick} title={pTooltip} disabled={pDisabled}>
+            <VSCodeButton appearance="primary" onClick={pOnClick} title={pTooltip} disabled={(pDisabled ? true : undefined)}>
                 <ButtonWrapper style={{minWidth: "50px"}}>{pText}</ButtonWrapper>
             </VSCodeButton>
         </ButtonContainer>

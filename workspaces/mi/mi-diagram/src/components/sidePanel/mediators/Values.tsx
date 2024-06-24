@@ -8,7 +8,7 @@
  */
 
 import React from "react"
-import { ENDPOINTS, MEDIATORS } from "../../../resources/constants"
+import { DATA_SERVICE_NODES, ENDPOINTS, MEDIATORS } from "../../../resources/constants"
 import AddressEndpointForm from "../Pages/endpoint/anonymous/address";
 import DefaultEndpointForm from "../Pages/endpoint/anonymous/defaultEndpoint";
 import FailoverEndpointForm from "../Pages/endpoint/anonymous/failover";
@@ -70,6 +70,10 @@ import RewriteForm from "../Pages/mediators/other/rewrite";
 import DBLookupForm from "../Pages/mediators/data/dblookup";
 import DBReportForm from "../Pages/mediators/data/dbreport";
 import DataServiceCallForm from "../Pages/mediators/data/dataServiceCall";
+import TransformationForm from "../Pages/dataService/transformation";
+import QueryForm from "../Pages/dataService/query";
+import InputMappingsForm from "../Pages/dataService/input-mapping";
+import OutputMappingsForm from "../Pages/dataService/output-mapping";
 
 export interface GetMediatorsProps {
     nodePosition: any;
@@ -537,4 +541,29 @@ export function getAllMediators(props: GetMediatorsProps) {
         }
     }
     return { ...allMediators };
+}
+
+export function getAllDataServiceForms(props: GetMediatorsProps) {
+    return [
+        {
+            title: "Input Mapping",
+            operationName: DATA_SERVICE_NODES.INPUT,
+            form: <InputMappingsForm nodePosition={props.nodePosition} documentUri={props.documentUri}></InputMappingsForm>,
+        },
+        {
+            title: "Query",
+            operationName: DATA_SERVICE_NODES.QUERY,
+            form: <QueryForm nodePosition={props.nodePosition} documentUri={props.documentUri}></QueryForm>,
+        },
+        {
+            title: "Transformation",
+            operationName: DATA_SERVICE_NODES.TRANSFORMATION,
+            form: <TransformationForm nodePosition={props.nodePosition} documentUri={props.documentUri}></TransformationForm>,
+        },
+        {
+            title: "Output Mapping",
+            operationName: DATA_SERVICE_NODES.OUTPUT,
+            form: <OutputMappingsForm nodePosition={props.nodePosition} documentUri={props.documentUri}></OutputMappingsForm>,
+        }
+    ]
 }

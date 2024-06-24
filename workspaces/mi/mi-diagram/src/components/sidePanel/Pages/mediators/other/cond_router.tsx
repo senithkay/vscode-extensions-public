@@ -50,7 +50,7 @@ const ConditionalRouterForm = (props: AddMediatorProps) => {
         reset({
             continueAfterRoute: sidePanelContext?.formValues?.continueAfterRoute || "",
             conditionalRouteBranches: {
-                paramValues: sidePanelContext?.formValues?.conditionalRouteBranches ? getParamManagerFromValues(sidePanelContext?.formValues?.conditionalRouteBranches) : [],
+                paramValues: sidePanelContext?.formValues?.conditionalRouteBranches ? getParamManagerFromValues(sidePanelContext?.formValues?.conditionalRouteBranches, 0, 1) : [],
                 paramFields: [
                     {
                         "type": "Checkbox",

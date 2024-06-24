@@ -9,17 +9,18 @@
 
 import styled from "@emotion/styled";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { EVENT_TYPE, MACHINE_VIEW, ProjectStructureArtifactResponse } from "@wso2-enterprise/mi-core";
+import { EVENT_TYPE, MACHINE_VIEW, ProjectStructureArtifactResponse, GetSelectiveArtifactsResponse } from "@wso2-enterprise/mi-core";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
-import { Button, ComponentCard, ContainerProps, ContextMenu, Dropdown, FormActions, FormGroup, FormView, Item, ProgressIndicator, TextField, Typography } from "@wso2-enterprise/ui-toolkit";
+import { Button, ComponentCard, ContainerProps, ContextMenu, Dropdown, FormActions, FormGroup, FormView, Item, ProgressIndicator, TextField, Typography, Icon } from "@wso2-enterprise/ui-toolkit";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
-import { TestCaseEntry, TestCaseForm } from "./TestCaseForm";
+import { TestCaseEntry, TestCaseForm, TestSuiteType } from "./TestCaseForm";
 import { UnitTest, TestCase, STNode } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import path from "path";
 import { getTestSuiteXML } from "../../../utils/template-engine/mustache-templates/TestSuite";
 import { SelectMockService } from "./MockServices/SelectMockService";
+import { MI_UNIT_TEST_GENERATION_BACKEND_URL } from "../../../constants";
 
 interface TestSuiteFormProps {
     stNode?: UnitTest;
@@ -28,6 +29,12 @@ interface TestSuiteFormProps {
 
 interface MockServiceEntry {
     name: string;
+}
+
+interface UnitTestApiResponse {
+    event: string;
+    error: string | null;
+    tests: string;
 }
 
 const cardStyle = {
@@ -63,6 +70,7 @@ export function TestSuiteForm(props: TestSuiteFormProps) {
 
     const [isLoaded, setIsLoaded] = useState(false);
     const [artifacts, setArtifacts] = useState([]);
+    const [filteredArtifacts, setFilteredArtifacts] = useState([]);
     const [showAddTestCase, setShowAddTestCase] = useState(false);
     const [showAddMockService, setShowAddMockService] = useState(false);
 
@@ -104,11 +112,87 @@ export function TestSuiteForm(props: TestSuiteFormProps) {
         formState: { errors },
         register,
         watch,
-        reset
+        reset,
+        getValues,
+        setValue
     } = useForm({
         resolver: yupResolver(schema),
         mode: "onChange",
     });
+
+    const handleCreateUnitTests = async (values: any) => {
+        setIsLoaded(false);
+
+        try {
+
+            let token;
+            try {
+                token = await rpcClient.getMiDiagramRpcClient().getUserAccessToken();
+            } catch (error) {
+                console.error('User not signed in', error);
+            }
+
+            if (!token) {
+                openSignInView();
+            }
+            const backendRootUri = (await rpcClient.getMiDiagramRpcClient().getBackendRootUrl()).url;
+            const url = backendRootUri + MI_UNIT_TEST_GENERATION_BACKEND_URL;
+            const artifact = isWindows ? path.win32.join(projectUri, values.artifact) : path.join(projectUri, values.artifact);
+
+            var context: GetSelectiveArtifactsResponse[] = [];
+            await rpcClient?.getMiDiagramRpcClient()?.getSelectiveArtifacts({ path: artifact }).then((response: GetSelectiveArtifactsResponse) => {
+                context.push(response);
+            });
+
+            let response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token.token}`
+                },
+                body: JSON.stringify({ context: context[0].artifacts, testFileName: values.name, num_suggestions: 1, type: "generate_unit_tests" }),
+            });
+
+            if (response.status === 401) {
+                // Retrieve a new token
+                await rpcClient.getMiDiagramRpcClient().refreshAccessToken();
+                const token = await rpcClient.getMiDiagramRpcClient().getUserAccessToken();
+
+                // Make the request again with the new token
+                response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token.token}`
+                    },
+                    body: JSON.stringify({ context: context[0].artifacts, testFileName: values.name, num_suggestions: 1, type: "generate_unit_tests" }),
+                });
+            }
+            if (!response.ok) {
+                throw new Error('Failed to create unit tests');
+            }
+            const data = await response.json() as UnitTestApiResponse;
+            if (data.event === "test_generation_success") {
+                // Extract xml from the response
+                const xml = data.tests.match(/```xml\n([\s\S]*?)\n```/gs);
+                if (xml) {
+                    // Remove the Markdown code block delimiters
+                    const cleanedXml = xml.map(xml => xml.replace(/```xml\n|```/g, ''));
+                    rpcClient.getMiDiagramRpcClient().updateTestSuite({ path: props.filePath, content: cleanedXml[0], name: values.name, artifact }).then(() => {
+                        openOverview();
+                    });
+                } else {
+                    console.error('No XMLs found in the response');
+                }
+            } else {
+                throw new Error("Failed to generate suggestions: " + data.error);
+            }
+            setIsLoaded(true);
+
+        } catch (error) {
+            console.error('Error while generating unit tests:', error);
+        }
+    };
 
 
     useEffect(() => {
@@ -165,7 +249,21 @@ export function TestSuiteForm(props: TestSuiteFormProps) {
             }
             setIsLoaded(true);
         })();
-    }, []);
+    }, [filePath, syntaxTree]);
+
+    useEffect(() => {
+        if (!artifacts || artifacts.length === 0) {
+            return;
+        }
+
+        const filteredArtifacts = artifacts.filter(artifact => artifact.type === getValues("artifactType")).map((artifact) => { return { id: artifact.name, value: artifact.path, content: artifact.name } });
+        setFilteredArtifacts(filteredArtifacts);
+
+        if (!filteredArtifacts || filteredArtifacts.length === 0) {
+            return;
+        }
+        setValue("artifact", filteredArtifacts[0].value);
+    }, [artifacts, watch("artifactType")]);
 
     const handleBackButtonClick = () => {
         rpcClient.getMiVisualizerRpcClient().goBack();
@@ -173,6 +271,9 @@ export function TestSuiteForm(props: TestSuiteFormProps) {
 
     const openOverview = () => {
         rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Overview } });
+    };
+    const openSignInView = () => {
+        rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.LoggedOut } });
     };
 
     const openAddTestCase = () => {
@@ -307,7 +408,7 @@ export function TestSuiteForm(props: TestSuiteFormProps) {
     };
 
     if (!isLoaded) {
-        return <ProgressIndicator/>;
+        return <ProgressIndicator />;
     }
 
     if (showAddTestCase) {
@@ -324,7 +425,7 @@ export function TestSuiteForm(props: TestSuiteFormProps) {
             setShowAddTestCase(false);
         };
         const availableTestCases = testCases.map((testCase) => testCase.name);
-        return <TestCaseForm onGoBack={goBack} onSubmit={onSubmit} testCase={currentTestCase} availableTestCases={availableTestCases} />
+        return <TestCaseForm onGoBack={goBack} onSubmit={onSubmit} testCase={currentTestCase} availableTestCases={availableTestCases} testSuiteType={getValues('artifactType') as TestSuiteType} />
     }
 
     if (showAddMockService) {
@@ -368,7 +469,7 @@ export function TestSuiteForm(props: TestSuiteFormProps) {
                 id="artifact"
                 errorMsg={errors.artifact?.message.toString()}
                 isRequired
-                items={artifacts.filter(artifact => artifact.type === watch("artifactType")).map((artifact) => { return { id: artifact.name, value: artifact.path, content: artifact.name } })}
+                items={filteredArtifacts}
                 sx={{ zIndex: 99 }}
                 {...register("artifact")}
             ></Dropdown>
@@ -424,6 +525,13 @@ export function TestSuiteForm(props: TestSuiteFormProps) {
                     onClick={handleSubmit(submitForm)}
                 >
                     {isUpdate ? "Update" : "Create"}
+                </Button>
+                <Button
+                    appearance="primary"
+                    onClick={handleSubmit(handleCreateUnitTests)}
+                >
+                    <Icon name="wand-magic-sparkles-solid" sx="marginRight:5px" />&nbsp;
+                    Generate Unit Tests with AI
                 </Button>
                 <Button appearance="secondary" onClick={openOverview}>
                     Cancel

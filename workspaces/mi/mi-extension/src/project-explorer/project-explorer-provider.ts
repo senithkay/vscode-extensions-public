@@ -144,9 +144,9 @@ function generateTreeData(project: vscode.WorkspaceFolder, data: ProjectStructur
 
 		projectRoot.contextValue = 'project';
 		generateTreeDataOfArtifacts(project, data, projectRoot);
-		generateTreeDataOfRegistry(project, data, projectRoot);
 		generateTreeDataOfClassMediator(project, data, projectRoot);
 		generateTreeDataOfDataMappings(project, data, projectRoot);
+		generateTreeDataOfRegistry(project, data, projectRoot);
 		return projectRoot;
 	}
 }
@@ -164,7 +164,7 @@ function generateTreeDataOfDataMappings(project: vscode.WorkspaceFolder, data: P
 				{ name: 'datamapper', path: dataMapperResources.path, type: 'datamapper' },
 				'arrow-both'
 			);
-			parentEntry.contextValue = 'data-mapper';
+			parentEntry.contextValue = 'data-mappers';
 			parentEntry.id = 'data-mapper';
 			parentEntry.children = parentEntry.children ?? [];
 			for (const folder of dataMapperResources.folders) {
@@ -398,6 +398,7 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 					"command": COMMANDS.SHOW_RESOURCE_VIEW,
 					"arguments": [vscode.Uri.file(entry.path), i, false]
 				};
+				resourceEntry.contextValue = 'resource';
 				apiEntry.children.push(resourceEntry);
 			}
 			explorerEntry = apiEntry;
@@ -615,6 +616,8 @@ function genRegistryProjectStructureEntry(data: RegistryResourcesFolder): Projec
 				const registryPath = entry.path.substring(lastIndex);
 				if (checkExistanceOfRegistryResource(registryPath)) {
 					explorerEntry.contextValue = "registry-with-metadata";
+				} else {
+					explorerEntry.contextValue = "registry-without-metadata";
 				}
 			}
 		}
@@ -634,6 +637,8 @@ function genRegistryProjectStructureEntry(data: RegistryResourcesFolder): Projec
 					const registryPath = entry.path.substring(lastIndex);
 					if (checkExistanceOfRegistryResource(registryPath)) {
 						explorerEntry.contextValue = "registry-with-metadata";
+					} else {
+						explorerEntry.contextValue = "registry-without-metadata";
 					}
 				}
 			}

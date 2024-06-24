@@ -128,6 +128,8 @@ import {
     GetTemplateEPRequest,
     GetTemplateEPResponse,
     GetSelectiveWorkspaceContextResponse,
+    GetSelectiveArtifactsRequest,
+    GetSelectiveArtifactsResponse,
     GetBackendRootUrlResponse,
     RegistryArtifactNamesResponse,
     ListRegistryArtifactsRequest, RangeFormatRequest,
@@ -172,6 +174,7 @@ import {
     UpdateMockServiceResponse,
     GetAllMockServicesResponse,
     AddDependencyToPomRequest,
+    SwaggerFromAPIResponse,
 } from "./types";
 import { RequestType, NotificationType } from "vscode-messenger-common";
 
@@ -251,6 +254,7 @@ export const createRegistryResource: RequestType<CreateRegistryResourceRequest, 
 export const getAvailableResources: RequestType<GetAvailableResourcesRequest, GetAvailableResourcesResponse> = { method: `${_preFix}/getAvailableResources` };
 export const createClassMediator: RequestType<CreateClassMediatorRequest, CreateClassMediatorResponse> = { method: `${_preFix}/createClassMediator` };
 export const getSelectiveWorkspaceContext: RequestType<void, GetSelectiveWorkspaceContextResponse> = { method: `${_preFix}/getSelectiveWorkspaceContext` };
+export const getSelectiveArtifacts: RequestType<GetSelectiveArtifactsRequest, GetSelectiveArtifactsResponse> = { method: `${_preFix}/getSelectiveArtifacts` };
 export const getBackendRootUrl: RequestType<void, GetBackendRootUrlResponse> = { method: `${_preFix}/getBackendRootUrl` };
 export const getAvailableRegistryResources: RequestType<ListRegistryArtifactsRequest, RegistryArtifactNamesResponse> = { method: `${_preFix}/getAvailableRegistryResources` };
 export const updateRegistryMetadata: RequestType<UpdateRegistryMetadataRequest, UpdateRegistryMetadataResponse> = { method: `${_preFix}/updateRegistryMetadata` };
@@ -275,6 +279,7 @@ export const buildProject: NotificationType<void> = { method: `${_preFix}/buildP
 export const exportProject: NotificationType<ExportProjectRequest> = { method: `${_preFix}/exportProject` };
 export const checkOldProject: RequestType<void, boolean> = { method: `${_preFix}/checkOldProject` };
 export const refreshAccessToken: NotificationType<void> = { method: `${_preFix}/refreshAccessToken` };
+export const getOpenAPISpec: RequestType<SwaggerTypeRequest, SwaggerFromAPIResponse> = { method: `${_preFix}/getOpenAPISpec` };
 export const editOpenAPISpec: NotificationType<SwaggerTypeRequest> = { method: `${_preFix}/editOpenAPISpec` };
 export const compareSwaggerAndAPI: RequestType<SwaggerTypeRequest, CompareSwaggerAndAPIResponse> = { method: `${_preFix}/compareSwaggerAndAPI` };
 export const updateSwaggerFromAPI: NotificationType<SwaggerTypeRequest> = { method: `${_preFix}/updateSwaggerFromAPI` };

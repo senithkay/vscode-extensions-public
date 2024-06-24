@@ -109,12 +109,6 @@ export function getDbReportXml(data: { [key: string]: any }) {
                     valueLiteral: parameter[1] == "LITERAL" ? parameter[2] : undefined,
                     valueExpression: parameter[1] == "EXPRESSION" ? parameter[3]?.value : undefined
                 }
-            }),
-            results: statement[2].map((result: any) => {
-                return {
-                    propertyName: result[0],
-                    columnId: result[1]
-                }
             })
         }
     });
@@ -268,13 +262,6 @@ export function getDBReportFormDataFromSTNode(data: { [key: string]: any }, node
                 ];
                 return param;
             }) ?? [],
-            statement?.result?.map((result: any) => {
-                let res = [
-                    result.name,
-                    result.column
-                ];
-                return res;
-            }) ?? []
         ]
     });
     return data;

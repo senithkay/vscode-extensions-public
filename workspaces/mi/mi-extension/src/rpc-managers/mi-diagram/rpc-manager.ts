@@ -111,6 +111,8 @@ import {
     GetRecipientEPResponse,
     GetRegistryMetadataRequest,
     GetRegistryMetadataResponse,
+    GetSelectiveArtifactsRequest,
+    GetSelectiveArtifactsResponse,
     GetSelectiveWorkspaceContextResponse,
     GetTaskRequest,
     GetTaskResponse,
@@ -151,6 +153,7 @@ import {
     RetrieveWsdlEndpointResponse,
     SequenceDirectoryResponse,
     ShowErrorMessageRequest,
+    SwaggerFromAPIResponse,
     SwaggerTypeRequest,
     TemplatesResponse,
     UndoRedoParams,
@@ -182,6 +185,8 @@ import {
     UpdateWsdlEndpointResponse,
     WriteContentToFileRequest,
     WriteContentToFileResponse,
+    onSwaggerSpecReceived,
+    SwaggerData,
     getSTRequest,
     getSTResponse
 } from "@wso2-enterprise/mi-core";
@@ -220,6 +225,9 @@ import { dockerfileContent, rootPomXmlContent } from "../../util/templates";
 import { replaceFullContentToFile } from "../../util/workspace";
 import { VisualizerWebview } from "../../visualizer/webview";
 import path = require("path");
+import { openSwaggerWebview } from "../../swagger/activate";
+import { RPCLayer } from "../../RPCLayer";
+import { getPortPromise } from "portfinder";
 
 const { XMLParser, XMLBuilder } = require("fast-xml-parser");
 
@@ -2822,6 +2830,9 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                         case 'registry':
                             fileType = 'registry';
                             break;
+                            case 'unit':
+                                fileType = 'unit-test';
+                                break;
                         default:
                             fileType = '';
                     }
@@ -2838,12 +2849,14 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 }
 
                 //write the content to a file, if file exists, overwrite else create new file
-                const fullPath = path.join(directoryPath ?? '', 'src', 'main', 'wso2mi', 'artifacts', fileType, path.sep, `${name}.xml`);
-                console.log('Full path:', fullPath);
+                var fullPath = '';
+                if ( fileType ==='unit-test') {
+                    fullPath = path.join(directoryPath ?? '', 'src', 'main', 'test', path.sep, `${name}.xml`);
+                } else {
+                    fullPath = path.join(directoryPath ?? '', 'src', 'main', 'wso2mi', 'artifacts', fileType, path.sep, `${name}.xml`);
+                }
                 try {
-                    console.log('Writing content to file:', fullPath);
                     content[i] = content[i].trimStart();
-                    console.log('Content:', content[i]);
                     await replaceFullContentToFile(fullPath, content[i]);
 
                 } catch (error) {
@@ -3683,6 +3696,22 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     viewColumn: ViewColumn.Active
                 });
             }
+
+            const response = await langClient.swaggerFromAPI({ apiPath: params.apiPath });
+            const generatedSwagger = response.swagger;
+            const port = await getPortPromise({ port: 1000, stopPort: 3000 });
+            const cors_proxy = require('cors-anywhere');
+            cors_proxy.createServer({
+                originWhitelist: [], // Allow all origins
+                requireHeader: ['origin', 'x-requested-with']
+            }).listen(port, 'localhost');
+
+            const swaggerData: SwaggerData = {
+                generatedSwagger: generatedSwagger,
+                port: port
+            };
+
+            await openSwaggerWebview(swaggerData);
         });
     }
 
@@ -3862,6 +3891,15 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
             fs.writeFileSync(filePath, content);
 
+            const openFileButton = 'Open File';
+            window.showInformationMessage(`Test suite ${!filePath ? "created" : "updated"} successfully`, openFileButton).then(selection => {
+                if (selection === openFileButton) {
+                    workspace.openTextDocument(filePath!).then(doc => {
+                        window.showTextDocument(doc);
+                    });
+                }
+            });
+
             resolve({ path: filePath });
         });
     }
@@ -3902,6 +3940,16 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             await workspace.applyEdit(workspaceEdit);
 
             await this.rangeFormat({ uri: filePath, range: this.getFormatRange(range, params.content) });
+
+            const openFileButton = 'Open File';
+            window.showInformationMessage(`Test case ${!filePath ? "created" : "updated"} successfully`, openFileButton).then(selection => {
+                if (selection === openFileButton) {
+                    workspace.openTextDocument(filePath!).then(doc => {
+                        window.showTextDocument(doc);
+                    });
+                }
+            });
+
             resolve({});
         });
     }
@@ -3963,6 +4011,15 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             }
 
             fs.writeFileSync(filePath, content);
+
+            const openFileButton = 'Open File';
+            window.showInformationMessage(`Mock service ${!filePath ? "created" : "updated"} successfully`, openFileButton).then(selection => {
+                if (selection === openFileButton) {
+                    workspace.openTextDocument(filePath!).then(doc => {
+                        window.showTextDocument(doc);
+                    });
+                }
+            });
 
             resolve({ path: filePath });
         });
@@ -4073,6 +4130,36 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
             resolve();
         });
+    }
+
+    async getSelectiveArtifacts(params: GetSelectiveArtifactsRequest): Promise<GetSelectiveArtifactsResponse> {
+        return new Promise(async (resolve) => {
+            const filePath = params.path;
+            const artifactsContent: string[] = [];
+
+            if (fs.existsSync(filePath)) {
+                const currentFile = fs.readFileSync(filePath, "utf8");
+                artifactsContent.push(currentFile);
+            }
+        
+        return resolve({ artifacts: artifactsContent });
+        });
+    }
+
+    async getOpenAPISpec(params: SwaggerTypeRequest): Promise<SwaggerFromAPIResponse> {
+        const langClient = StateMachine.context().langClient!;
+        const response = await langClient.swaggerFromAPI({ apiPath: params.apiPath });
+        const generatedSwagger = response.swagger;
+        const port = await getPortPromise({ port: 1000, stopPort: 3000 });
+        const cors_proxy = require('cors-anywhere');
+        cors_proxy.createServer({
+            originWhitelist: [], // Allow all origins
+            requireHeader: ['origin', 'x-requested-with']
+        }).listen(port, 'localhost');
+
+        RPCLayer._messenger.sendNotification(onSwaggerSpecReceived, { type: 'webview', webviewType: 'micro-integrator.runtime-services-panel' }, { generatedSwagger: generatedSwagger, port: port });
+
+        return { generatedSwagger: generatedSwagger }; // TODO: refactor rpc function with void
     }
 }
 

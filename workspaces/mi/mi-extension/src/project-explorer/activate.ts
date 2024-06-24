@@ -11,11 +11,13 @@ import { ProjectExplorerEntry, ProjectExplorerEntryProvider } from './project-ex
 import { StateMachine, openView } from '../stateMachine';
 import { EVENT_TYPE, MACHINE_VIEW, VisualizerLocation } from '@wso2-enterprise/mi-core';
 import { COMMANDS } from '../constants';
-import { ExtensionContext, Uri, ViewColumn, commands, window, workspace } from 'vscode';
+import { ExtensionContext, TreeItem, Uri, ViewColumn, commands, window, workspace } from 'vscode';
 import path = require("path");
 import { deleteRegistryResource } from '../util/fileOperations';
 import { extension } from '../MIExtensionContext';
 import { ExtendedLanguageClient } from '../lang-client/ExtendedLanguageClient';
+import { APIResource } from '../../../syntax-tree/lib/src';
+import { MiDiagramRpcManager } from '../rpc-managers/mi-diagram/rpc-manager';
 
 export async function activateProjectExplorer(context: ExtensionContext, lsClient: ExtendedLanguageClient) {
 
@@ -142,26 +144,6 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 
 	commands.registerCommand(COMMANDS.SHOW_DATA_MAPPER, async (entry: string) => {
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.DataMapperView, documentUri: entry });
-	});
-
-	commands.registerCommand(COMMANDS.DELETE_REGISTERY_RESOURCE_COMMAND, async (entry: ProjectExplorerEntry) => {
-		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.Overview });
-		if (entry.info && entry.info?.path) {
-			const filePath = entry.info.path;
-			const fileName = path.basename(filePath);
-			window.showInformationMessage("Do you want to delete : " + fileName, { modal: true }, "Yes", "No")
-				.then(async answer => {
-					if (answer === "Yes") {
-						const res = await deleteRegistryResource(filePath);
-						if (res.status === true) {
-							window.showInformationMessage(res.info);
-							projectExplorerDataProvider.refresh(lsClient);
-						} else {
-							window.showErrorMessage(res.info);
-						}
-					}
-				});
-		}
 	});
 
 	commands.registerCommand(COMMANDS.ADD_MESSAGE_STORE_COMMAND, (entry: ProjectExplorerEntry) => {
@@ -342,6 +324,126 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 	commands.registerCommand(COMMANDS.OPEN_DSS_SERVICE_DESIGNER, async (entry: ProjectExplorerEntry) => {
 		revealWebviewPanel(false);
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.DSSServiceDesigner, documentUri: entry.info?.path });
+	});
+
+	// delete
+	commands.registerCommand(COMMANDS.DELETE_PROJECT_EXPLORER_ITEM, async (item: TreeItem) => {
+		switch (item.contextValue) {
+			case 'api':
+			case 'endpoint':
+			case 'sequence':
+			case 'proxy-service':
+			case 'inboundEndpoint':
+			case 'messageStore':
+			case 'message-processor':
+			case 'task':
+			case 'localEntry':
+			case 'template':
+			case 'dataSource':
+			case 'dataService':
+			case 'data-mapper':
+				{
+					const fileUri = item.command?.arguments?.[0] || (item as any)?.info?.path;
+					if (!fileUri) {
+						window.showErrorMessage('Resource not found.');
+						return;
+					}
+					const confirmation = await window.showWarningMessage(
+						`Are you sure you want to delete ${item.contextValue} - ${item.label}?`,
+						{ modal: true },
+						'Yes'
+					);
+
+					if (confirmation === 'Yes') {
+						try {
+							await workspace.fs.delete(Uri.parse(fileUri), { recursive: true, useTrash: true });
+							window.showInformationMessage(`${item.label} has been deleted.`);
+						} catch (error) {
+							window.showErrorMessage(`Failed to delete ${item.label}: ${error}`);
+						}
+					}
+					break;
+				}
+
+			case 'resource':
+				{
+					const resourceId = item.command?.arguments?.[1];
+					if (resourceId === undefined) {
+						window.showErrorMessage('Resource ID not found.');
+						return;
+					}
+					const langClient = StateMachine.context().langClient;
+					const fileUri = item.command?.arguments?.[0];
+					if (!langClient) {
+						window.showErrorMessage('Language client not found.');
+						return;
+					}
+					if (!fileUri) {
+						window.showErrorMessage('Resource not found.');
+						return;
+					}
+					const syntaxTree = await langClient.getSyntaxTree({ documentIdentifier: { uri: fileUri.fsPath } });
+					const resource: APIResource = syntaxTree?.syntaxTree?.api?.resource[resourceId];
+
+					if (!resource) {
+						window.showErrorMessage(`Resource ${resourceId} not found.`);
+					}
+					const name = resource.uriTemplate || resource.urlMapping || "resource";
+					const range = resource.range;
+					const confirmation = await window.showWarningMessage(
+						`Are you sure you want to delete resource - ${name}?`,
+						{ modal: true },
+						'Yes'
+					);
+
+					if (confirmation === 'Yes') {
+						try {
+							const rpcManager = new MiDiagramRpcManager()
+							await rpcManager.applyEdit({
+								text: "",
+								documentUri: fileUri.fsPath,
+								range: {
+									start: range.startTagRange.start,
+									end: range.endTagRange.end,
+								},
+							});
+							window.showInformationMessage(`Resource ${name} has been deleted.`);
+						} catch (error) {
+							window.showErrorMessage(`Failed to delete resource ${name}: ${error}`);
+						}
+					}
+
+					break;
+				}
+			case 'registry-with-metadata':
+			case 'registry-without-metadata': {
+				let filePath = "";
+				if (item instanceof ProjectExplorerEntry) {
+					if (item.info && item.info?.path) {
+						filePath = item.info.path;
+					}
+				} else if (item.id) {
+					filePath = item.id;
+				}
+				if (filePath !== "") {
+					const fileName = path.basename(filePath);
+					window.showInformationMessage("Do you want to delete : " + fileName, { modal: true }, "Yes", "No")
+						.then(async answer => {
+							if (answer === "Yes") {
+								const res = await deleteRegistryResource(filePath);
+								if (res.status === true) {
+									window.showInformationMessage(res.info);
+									projectExplorerDataProvider.refresh(lsClient);
+								} else {
+									window.showErrorMessage(res.info);
+								}
+							}
+						});
+				}
+				break;
+			}
+		}
+		projectExplorerDataProvider.refresh(lsClient);
 	});
 }
 

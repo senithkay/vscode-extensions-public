@@ -104,6 +104,8 @@ import {
     GetRecipientEPResponse,
     GetRegistryMetadataRequest,
     GetRegistryMetadataResponse,
+    GetSelectiveArtifactsRequest,
+    GetSelectiveArtifactsResponse,
     GetSelectiveWorkspaceContextResponse,
     GetTaskRequest,
     GetTaskResponse,
@@ -142,6 +144,7 @@ import {
     SequenceDirectoryResponse,
     ShowErrorMessageRequest,
     SwaggerTypeRequest,
+    SwaggerFromAPIResponse,
     TemplatesResponse,
     UndoRedoParams,
     UpdateAPIFromSwaggerRequest,
@@ -238,11 +241,13 @@ import {
     getMessageProcessor,
     getMessageStore,
     getMetadataOfRegistryResource,
+    getOpenAPISpec,
     getProjectRoot,
     getProjectUuid,
     getRecipientEndpoint,
     getSTRequest,
     getSTResponse,
+    getSelectiveArtifacts,
     getSelectiveWorkspaceContext,
     getSequenceDirectory,
     getSyntaxTree,
@@ -594,6 +599,10 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
         return this._messenger.sendRequest(getSelectiveWorkspaceContext, HOST_EXTENSION);
     }
 
+    getSelectiveArtifacts(params: GetSelectiveArtifactsRequest): Promise<GetSelectiveArtifactsResponse> {
+        return this._messenger.sendRequest(getSelectiveArtifacts, HOST_EXTENSION, params);
+    }
+
     getBackendRootUrl(): Promise<GetBackendRootUrlResponse> {
         return this._messenger.sendRequest(getBackendRootUrl, HOST_EXTENSION);
     }
@@ -696,6 +705,10 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     compareSwaggerAndAPI(params: SwaggerTypeRequest): Promise<CompareSwaggerAndAPIResponse> {
         return this._messenger.sendRequest(compareSwaggerAndAPI, HOST_EXTENSION, params);
+    }
+
+    getOpenAPISpec(params: SwaggerTypeRequest): Promise<SwaggerFromAPIResponse> {
+        return this._messenger.sendRequest(getOpenAPISpec, HOST_EXTENSION, params);
     }
 
     updateSwaggerFromAPI(params: SwaggerTypeRequest): Promise<void> {

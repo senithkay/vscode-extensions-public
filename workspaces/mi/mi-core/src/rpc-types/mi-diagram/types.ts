@@ -1188,6 +1188,13 @@ export interface GetSelectiveWorkspaceContextResponse {
     context: string[];
 }
 
+export interface GetSelectiveArtifactsRequest {
+    path: string;
+}
+
+export interface GetSelectiveArtifactsResponse {
+    artifacts: string[];
+}
 export interface GetProjectUuidResponse {
     uuid: string;
 }
@@ -1275,6 +1282,7 @@ export interface BrowseFileRequest {
 type ResourceType =
     | "sequence"
     | "endpoint"
+    | "api"
     | "messageStore"
     | "messageProcessor"
     | "task"
@@ -1505,6 +1513,10 @@ export interface SwaggerTypeRequest {
     apiPath: string;
     generatedSwagger?: string;
     existingSwagger?: string;
+}
+
+export interface SwaggerFromAPIResponse {
+    generatedSwagger: any;
 }
 
 export interface SwaggerFromAPIRequest {

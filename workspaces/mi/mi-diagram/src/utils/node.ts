@@ -14,6 +14,8 @@ import { getFilterDescription } from "./template-engine/mustach-templates/filter
 import { getPropertyDescription } from "./template-engine/mustach-templates/core/property";
 import { getSwitchDescription } from "./template-engine/mustach-templates/filter/switch";
 import { getSequenceDescription } from "./template-engine/mustach-templates/core/sequence";
+import { getDataMapperDescription } from "./template-engine/mustach-templates/transformation/datamapper";
+import { getDSCallDescription } from "./template-engine/mustach-templates/data/dataServiceCall";
 
 export function getNodeIdFromModel(model: STNode, prefix?: string) {
     if (model.viewState?.id) {
@@ -29,12 +31,12 @@ export function getNodeIdFromModel(model: STNode, prefix?: string) {
     return null;
 }
 
-export function getNodeDescription(stNode: any): string {
+export function getNodeDescription(name: string, stNode: any): string {
     if (stNode.description) {
         return stNode.description;
     }
 
-    switch (stNode.tag.toLowerCase()) {
+    switch (name) {
         case "endpoint": {
             if (stNode.key) {
                 return stNode.key;
@@ -44,20 +46,26 @@ export function getNodeDescription(stNode: any): string {
             }
             return;
         }
-        case (MEDIATORS.FILTER.toLowerCase()): {
+        case (MEDIATORS.FILTER): {
             return getFilterDescription(stNode);
         }
-        case (MEDIATORS.LOG.toLowerCase()): {
+        case (MEDIATORS.LOG): {
             return getLogDescription(stNode);
         }
-        case (MEDIATORS.PROPERTY.toLowerCase()): {
+        case (MEDIATORS.PROPERTY): {
             return getPropertyDescription(stNode);
         }
-        case (MEDIATORS.SEQUENCE.toLowerCase()): {
+        case (MEDIATORS.SEQUENCE): {
             return getSequenceDescription(stNode);
         }
-        case (MEDIATORS.SWITCH.toLowerCase()): {
+        case (MEDIATORS.SWITCH): {
             return getSwitchDescription(stNode);
+        }
+        case (MEDIATORS.DATAMAPPER): {
+            return getDataMapperDescription(stNode);
+        }
+        case (MEDIATORS.DATASERVICECALL): {
+            return getDSCallDescription(stNode);
         }
         default:
             return;

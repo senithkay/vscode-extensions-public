@@ -30,6 +30,7 @@ export enum MACHINE_VIEW {
     SequenceView = "Sequence View",
     SequenceTemplateView = "Sequence Template View",
     ProxyView = "Proxy View",
+    DataServiceView = "DataService View",
     ServiceDesigner = "Service Designer",
     DataMapperView = "Data Mapper View",
     APIForm = "API Form",
@@ -62,7 +63,9 @@ export enum MACHINE_VIEW {
     ImportProject = "Import Project",
     TestSuite = "Test Suite",
     TestCase = "Test Cases",
+    AITestGen = "AI Test Generation",
     MockService = "Mock Service",
+    LoggedOut = "Logged Out",
 }
 
 export enum AI_MACHINE_VIEW {
@@ -168,6 +171,11 @@ export interface ParentPopupData {
     recentIdentifier: string;
 }
 
+export interface SwaggerData {
+    generatedSwagger: any;
+    port: number;
+}
+
 export interface ConnectorStatus {
     connector: string;
     isSuccess: boolean;
@@ -188,6 +196,7 @@ export const getPopupVisualizerState: RequestType<void, PopupVisualizerLocation>
 export const sendAIStateEvent: RequestType<AI_EVENT_TYPE, void> = { method: 'sendAIStateEvent' };
 export const onFileContentUpdate: NotificationType<void> = { method: `onFileContentUpdate` };
 export const webviewReady: NotificationType<void> = { method: `webviewReady` };
+export const onSwaggerSpecReceived: NotificationType<SwaggerData> = { method: `onSwaggerSpecReceived` };
 export const onParentPopupSubmitted: NotificationType<ParentPopupData> = { method: `onParentPopupSubmitted` };
 export const onConnectorStatusUpdate: NotificationType<ConnectorStatus> = { method: `onConnectorStatusUpdate` }; 
 export const onDocumentSave: NotificationType<Document> = { method: `onDocumentSave` };
