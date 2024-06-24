@@ -241,7 +241,7 @@ async function getTestCaseNamesAndTestSuiteType(uri: Uri) {
     const templates = artifacts?.templates?.map((template: ProjectStructureArtifactResponse) => { return { name: template.name, path: template.path.split(projectUri)[1], type: "Template" } });
     const allArtifacts = [...apis, ...sequences, ...templates];
 
-    const testSuiteType = allArtifacts.find(artifact => artifact.path === testArtifact)?.type;
+    const testSuiteType = allArtifacts.find(artifact => path.relative(artifact.path, testArtifact) === "")?.type;
 
     if (!testSuiteType) {
         window.showErrorMessage('Cannot find the test suite');
