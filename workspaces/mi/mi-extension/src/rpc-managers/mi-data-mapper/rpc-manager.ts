@@ -248,8 +248,8 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
                         fs.writeFileSync(tsFilePath, dmContent);
                     }
 
-                    const operatorsSrcFilePath = path.join(extension.context.extensionUri.fsPath, "resources", "data-mapper-operators", "operators.ts");
-                    const operatorsDstFilePath = path.join(dataMapperConfigFolder, "operators.ts");
+                    const operatorsSrcFilePath = path.join(extension.context.extensionUri.fsPath, "resources", "data-mapper-utils", "dm-utils.ts");
+                    const operatorsDstFilePath = path.join(dataMapperConfigFolder, "dm-utils.ts");
                     fs.copyFileSync(operatorsSrcFilePath, operatorsDstFilePath, fs.constants.COPYFILE_FICLONE);
 
                     const dmcFilePath = path.join(dataMapperConfigFolder, `${dmName}.dmc`);
@@ -337,7 +337,7 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
         
         return new Promise(async (resolve, reject) => {
             try {
-                const operatorsFilePath = path.join(path.dirname(params.filePath), "operators.ts");
+                const operatorsFilePath = path.join(path.dirname(params.filePath), "dm-utils.ts");
                 // console.log(operatorsFilePath);
                 resolve({ operators: this.getFunctionNames(operatorsFilePath) });
 
