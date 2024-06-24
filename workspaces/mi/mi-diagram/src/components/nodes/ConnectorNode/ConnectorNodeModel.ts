@@ -12,12 +12,8 @@ import { NodeTypes } from "../../../resources/constants";
 import { BaseNodeModel } from "../BaseNodeModel";
 
 export class ConnectorNodeModel extends BaseNodeModel {
-    readonly endpoint: Endpoint;
 
-    constructor(stNode: STNode, connectorName:string, documentUri: string, parentNode?: STNode, prevNodes: STNode[] = [], endpoint?: Endpoint) {
+    constructor(stNode: STNode, connectorName:string, documentUri: string, parentNode?: STNode, prevNodes: STNode[] = []) {
         super(NodeTypes.CONNECTOR_NODE, connectorName, documentUri, stNode, parentNode, prevNodes);
-        if (endpoint) {
-            this.endpoint = endpoint;
-        }
     }
 }

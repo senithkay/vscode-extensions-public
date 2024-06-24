@@ -51,7 +51,7 @@ const CallTemplateForm = (props: AddMediatorProps) => {
         reset({
             targetTemplate: sidePanelContext?.formValues?.targetTemplate || "",
             parameterNameTable: {
-                paramValues: sidePanelContext?.formValues?.parameterNameTable ? getParamManagerFromValues(sidePanelContext?.formValues?.parameterNameTable) : [],
+                paramValues: sidePanelContext?.formValues?.parameterNameTable ? getParamManagerFromValues(sidePanelContext?.formValues?.parameterNameTable, 0, 1) : [],
                 paramFields: [
                     {
                         "type": "TextField",

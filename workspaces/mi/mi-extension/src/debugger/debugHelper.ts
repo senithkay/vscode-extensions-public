@@ -135,7 +135,7 @@ export async function executeCopyTask(task: vscode.Task) {
 
 export async function executeBuildTask(task: vscode.Task, serverPath: string, shouldCopyTarget: boolean = true) {
     return new Promise<void>(async (resolve, reject) => {
-        deleteCapp(serverPath).then(async () => {
+        deleteCappAndLibs(serverPath).then(async () => {
             await vscode.tasks.executeTask(task);
             if (shouldCopyTarget) {
                 let disposable = vscode.tasks.onDidEndTaskProcess(async e => {
@@ -145,6 +145,22 @@ export async function executeBuildTask(task: vscode.Task, serverPath: string, sh
                             // Check if the target directory exists in the workspace
                             const workspaceFolders = vscode.workspace.workspaceFolders;
                             if (workspaceFolders && workspaceFolders.length > 0) {
+                                // copy all the jars present in deployement/libs
+                                const workspaceLibs = vscode.Uri.joinPath(workspaceFolders[0].uri, "deployment", "libs");
+                                if (fs.existsSync(workspaceLibs.fsPath)) {
+                                    try {
+                                        const jars = await getDeploymentLibJars(workspaceLibs);
+                                        if (jars.length > 0) {
+                                            const targetLibs = path.join(serverPath, 'lib');
+                                            jars.forEach(jar => {
+                                                const destinationJar = path.join(targetLibs, path.basename(jar.fsPath));
+                                                fs.copyFileSync(jar.fsPath, destinationJar);
+                                            });
+                                        }
+                                    } catch (err) {
+                                        reject(err);
+                                    }
+                                }
                                 const targetDirectory = vscode.Uri.joinPath(workspaceFolders[0].uri, "target");
                                 if (fs.existsSync(targetDirectory.fsPath)) {
                                     try {
@@ -277,6 +293,48 @@ export async function deleteCapp(serverPath: string): Promise<void> {
             reject(err);
         }
     });
+}
+
+async function deleteFilesInDirectory(dirPath: string, fileExtension: string) {
+    try {
+        if (!fs.existsSync(dirPath)) {
+            reject(INCORRECT_SERVER_PATH_MSG);
+        } else {
+            const files = await fs.promises.readdir(dirPath);
+
+            for (const file of files) {
+                if (file.endsWith(fileExtension)) {
+                    const filePath = path.join(dirPath, file);
+                    await fs.promises.unlink(filePath);
+                }
+            }
+        }
+    } catch (err) {
+        logDebug(`Failed to delete files in directory ${dirPath}: ${err}`, ERROR_LOG);
+        throw err;
+    }
+}
+
+export async function deleteCappAndLibs(serverPath: string): Promise<void> {
+    return new Promise<void>(async (resolve, reject) => {
+        const cappPath = path.join(serverPath, 'repository', 'deployment', 'server', 'carbonapps');
+        const libPath = path.join(serverPath, 'lib');
+
+        try {
+            await deleteFilesInDirectory(cappPath, '.car');
+            await deleteFilesInDirectory(libPath, '.jar');
+            resolve();
+        } catch (err) {
+            reject(err);
+        }
+    });
+}
+
+async function getDeploymentLibJars(libDirectory) {
+    const jars = await vscode.workspace.findFiles(
+        new vscode.RelativePattern(libDirectory.fsPath, '*.jar')
+    );
+    return jars;
 }
 
 // Check and return if the current visible view is one of the diagram view which can hit a breakpoint event

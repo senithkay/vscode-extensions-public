@@ -1,3 +1,12 @@
+/**
+ * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
+
 import * as path from 'path';
 
 export const SAMPLE_ICONS_GITHUB_URL = "https://raw.githubusercontent.com/wso2/integration-studio/main/SamplesForVSCode/icons/";
@@ -64,6 +73,7 @@ export const COMMANDS = {
     EDIT_REGISTRY_RESOURCE_METADATA_COMMAND: 'MI.project-explorer.edit-reg-metadata',
     ADD_CLASS_MEDIATOR_COMMAND: 'MI.project-explorer.add-class-mediator',
     EDIT_CLASS_MEDIATOR_COMMAND: 'MI.project-explorer.edit-class-mediator',
+    DELETE_PROJECT_EXPLORER_ITEM: 'MI.project-explorer.delete',
     CHANGE_SERVER_PATH: 'MI.change.server',
     BUILD_PROJECT: 'MI.build-project',
     CREATE_DOCKER_IMAGE: 'MI.create-docker-image',
@@ -72,12 +82,14 @@ export const COMMANDS = {
     SHOW_DATA_SOURCE: 'MI.show.data-source',
     SHOW_DATA_MAPPER: 'MI.show.data-mapper',
     ADD_TEST_SUITE: 'MI.test.add.suite',
+    GEN_AI_TESTS: 'MI.test.gen.ai-test',
     UPDATE_TEST_SUITE: 'MI.test.update.suite',
     ADD_TEST_CASE: 'MI.test.add.case',
     UPDATE_TEST_CASE: 'MI.test.update.case',
     ADD_MOCK_SERVICE: 'MI.test.add.mock-service',
     REFRESH_MOCK_SERVICES: 'MI.test.refresh.mock-services',
     UPDATE_MOCK_SERVICE: 'MI.test.update.mock-service',
+    OPEN_RUNTIME_VIEW: 'MI.Open-runtime-service-view',
     REVEAL_TEST_PANE: 'MI.mock-services.focus',
 };
 
@@ -85,6 +97,5 @@ export const DEFAULT_PROJECT_VERSION = "1.0.0";
 
 export const REFRESH_ENABLED_DOCUMENTS = ["SynapseXml", "typescript"];
 
-export const SWAGGER_LANG_ID = "yaml";
-export const SWAGGER_REL_DIR = path.join('src', 'main', 'wso2mi', 'resources', 'api-definitions');
+export * from "./swagger";
 

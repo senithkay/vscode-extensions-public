@@ -13,12 +13,14 @@ import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { ConnectorNodeModel } from "./ConnectorNodeModel";
 import { Colors, NODE_DIMENSIONS } from "../../../resources/constants";
 import { STNode } from "@wso2-enterprise/mi-syntax-tree/src";
-import { Button, ClickAwayListener, Menu, MenuItem, Popover, Tooltip } from "@wso2-enterprise/ui-toolkit";
+import { ClickAwayListener, Icon, Menu, MenuItem, Popover, Tooltip } from "@wso2-enterprise/ui-toolkit";
 import { MoreVertIcon } from "../../../resources";
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import SidePanelContext from "../../sidePanel/SidePanelContexProvider";
 import { Connector } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { BreakpointMenu } from "../../BreakpointMenu/BreakpointMenu";
+import { Body, Content, Description, Header, Name, OptionsMenu } from "../BaseNodeModel";
+import { FirstCharToUpperCase } from "../../../utils/commons";
 
 namespace S {
     export type NodeStyleProp = {
@@ -43,12 +45,14 @@ namespace S {
         cursor: pointer;
     `;
 
-    export const Header = styled.div<{}>`
-        display: flex;
-        flex-direction: row;
-        justify-content: flex-start;
-        align-items: center;
-        width: 100%;
+    export const CircleContainer = styled.div`
+        position: absolute;
+        top: 5px;
+        left: ${NODE_DIMENSIONS.CALL.WIDTH}px;
+        color: ${Colors.ON_SURFACE};
+        cursor: pointer;
+        font-family: var(--font-family);
+        font-size: var(--type-ramp-base-font-size);
     `;
 
     export const IconContainer = styled.div`
@@ -62,13 +66,6 @@ namespace S {
             fill: ${Colors.ON_SURFACE};
             stroke: ${Colors.ON_SURFACE};
         }
-    `;
-
-    export const StyledButton = styled(Button)`
-        background-color: ${Colors.SURFACE};
-        border-radius: 5px;
-        position: absolute;
-        right: 6px;
     `;
 
     export const TopPortWidget = styled(PortWidget)`
@@ -104,12 +101,15 @@ export function ConnectorNodeWidget(props: ConnectorNodeWidgetProps) {
     const [isPopoverOpen, setIsPopoverOpen] = useState(false);
     const [popoverAnchorEl, setPopoverAnchorEl] = useState(null);
     const [iconPath, setIconPath] = useState(null);
+    const [isHoveredConnector, setIsHoveredConnector] = React.useState(false);
+    const [isConnectorSelected, setIsConnectorSelected] = React.useState(false);
     const sidePanelContext = React.useContext(SidePanelContext);
     const { rpcClient } = useVisualizerContext();
     const hasDiagnotics = node.hasDiagnotics();
     const hasBreakpoint = node.hasBreakpoint();
     const isActiveBreakpoint = node.isActiveBreakpoint();
     const tooltip = hasDiagnotics ? node.getDiagnostics().map(diagnostic => diagnostic.message).join("\n") : undefined;
+    const description = node.stNode.tag.split(".")[1];
 
     const TooltipEl = useMemo(() => {
         return () => (
@@ -128,9 +128,9 @@ export function ConnectorNodeWidget(props: ConnectorNodeWidgetProps) {
 
             const iconPath = await rpcClient.getMiDiagramRpcClient().getIconPathUri({ path: connectorData.iconPath, name: "icon-small" });
             setIconPath(iconPath.uri);
-    
+
         }
-    
+
         fetchData();
     }, [node]);
 
@@ -160,7 +160,7 @@ export function ConnectorNodeWidget(props: ConnectorNodeWidgetProps) {
             });
 
             const formJSON = await rpcClient.getMiDiagramRpcClient().getConnectorForm({ uiSchemaPath: connectorData.uiSchemaPath, operation: node.stNode.tag.split(".")[1] });
-    
+
             sidePanelContext.setSidePanelState({
                 isOpen: true,
                 operationName: "connector",
@@ -172,7 +172,7 @@ export function ConnectorNodeWidget(props: ConnectorNodeWidgetProps) {
                     uiSchemaPath: connectorData.uiSchemaPath,
                     parameters: (node.stNode as Connector).parameters ?? [],
                     connectorName: connectorData.name,
-                    operationName: node.stNode.tag.split(".")[1]
+                    operationName: (node).stNode.tag.split(".")[1]
                 },
                 iconPath: iconPath,
                 parentNode: node.mediatorName
@@ -196,22 +196,82 @@ export function ConnectorNodeWidget(props: ConnectorNodeWidgetProps) {
                         <div style={{ position: "absolute", left: -5, width: 15, height: 15, borderRadius: "50%", backgroundColor: "red" }}></div>
                     )}
                     <S.TopPortWidget port={node.getPort("in")!} engine={engine} />
-                    <S.Header>
+                    <div style={{ display: "flex", flexDirection: "row", width: NODE_DIMENSIONS.DEFAULT.WIDTH }}>
                         {iconPath && (
                             <S.IconContainer>
-                                <img src={iconPath} alt="Icon"/>
+                                <Icon name="connector" sx={{ height: 25, width: 25, fontSize: 25, color: "#D32F2F" }} />
                             </S.IconContainer>
                         )}
-                        <S.NodeText>{node.stNode.tag}</S.NodeText>
-                        {isHovered && (
-                            <S.StyledButton appearance="icon" onClick={handleOnClickMenu}>
-                                <MoreVertIcon />
-                            </S.StyledButton>
-                        )}
-                    </S.Header>
+                        <div>
+                            {isHovered && (
+                                <OptionsMenu appearance="icon" onClick={handleOnClickMenu}>
+                                    <MoreVertIcon />
+                                </OptionsMenu>
+                            )}
+                            <Content>
+                                <Header showBorder={true}>
+                                    <Name>{FirstCharToUpperCase((node.stNode as Connector).method)}</Name>
+                                </Header>
+                                <Body>
+                                    <Tooltip content={description} position={'bottom'} >
+                                        <Description>{FirstCharToUpperCase((node.stNode as Connector).connectorName)}</Description>
+                                    </Tooltip>
+                                </Body>
+                            </Content>
+                        </div>
+                    </div>
                     <S.BottomPortWidget port={node.getPort("out")!} engine={engine} />
                 </S.Node>
             </Tooltip>
+            <S.CircleContainer
+                onMouseEnter={() => setIsHoveredConnector(true)}
+                onMouseLeave={() => setIsHoveredConnector(false)}
+                onClick={(e) => handleOnClick(e)}
+            >
+                <Tooltip content={!isPopoverOpen && tooltip ? <TooltipEl /> : ""} position={'bottom'} >
+                    <svg width="110" height="50" viewBox="0 0 103 40">
+                        <circle
+                            cx="80"
+                            cy="20"
+                            r="22"
+                            fill={Colors.SURFACE_BRIGHT}
+                            stroke={(isHoveredConnector || isConnectorSelected) ? Colors.SECONDARY : Colors.OUTLINE_VARIANT}
+                            strokeWidth={2}
+                        />
+
+                        {iconPath && <g transform="translate(66,5)">
+                            <foreignObject width="25" height="25">
+                                <img src={iconPath} alt="Icon" />
+                            </foreignObject>
+                        </g>}
+
+                        <line
+                            x1="0"
+                            y1="20"
+                            x2="57"
+                            y2="20"
+                            style={{
+                                stroke: Colors.PRIMARY,
+                                strokeWidth: 2,
+                                markerEnd: `url(#${node.getID()}-arrow-head)`,
+                            }}
+                        />
+                        <defs>
+                            <marker
+                                markerWidth="4"
+                                markerHeight="4"
+                                refX="3"
+                                refY="2"
+                                viewBox="0 0 4 4"
+                                orient="auto"
+                                id={`${node.getID()}-arrow-head`}
+                            >
+                                <polygon points="0,4 0,0 4,2" fill={Colors.PRIMARY}></polygon>
+                            </marker>
+                        </defs>
+                    </svg>
+                </Tooltip>
+            </S.CircleContainer>
             <Popover
                 anchorEl={popoverAnchorEl}
                 open={isPopoverOpen}

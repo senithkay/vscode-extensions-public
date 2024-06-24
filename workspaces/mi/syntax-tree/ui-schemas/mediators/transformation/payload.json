@@ -76,7 +76,7 @@
             "value": {
               "name": "payload",
               "displayName": "Payload",
-              "inputType": "textArea",
+              "inputType": "codeTextArea",
               "defaultValue": "{\"Sample\":\"Payload\"}",
               "required": false,
               "helpTip": "",

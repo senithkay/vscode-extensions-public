@@ -127,6 +127,8 @@ import {
     GetTemplateEPRequest,
     GetTemplateEPResponse,
     GetSelectiveWorkspaceContextResponse,
+    GetSelectiveArtifactsRequest,
+    GetSelectiveArtifactsResponse,
     GetBackendRootUrlResponse,
     RegistryArtifactNamesResponse,
     ListRegistryArtifactsRequest, RangeFormatRequest,
@@ -170,6 +172,8 @@ import {
     UpdateMockServiceRequest,
     UpdateMockServiceResponse,
     GetAllMockServicesResponse,
+    AddDependencyToPomRequest,
+    SwaggerFromAPIResponse,
 } from "./types";
 
 export interface MiDiagramAPI {
@@ -248,6 +252,7 @@ export interface MiDiagramAPI {
     getAvailableResources: (params: GetAvailableResourcesRequest) => Promise<GetAvailableResourcesResponse>;
     createClassMediator: (params: CreateClassMediatorRequest) => Promise<CreateClassMediatorResponse>;
     getSelectiveWorkspaceContext: () => Promise<GetSelectiveWorkspaceContextResponse>;
+    getSelectiveArtifacts: (params: GetSelectiveArtifactsRequest) => Promise<GetSelectiveArtifactsResponse>;
     getBackendRootUrl: () => Promise<GetBackendRootUrlResponse>;
     getAvailableRegistryResources: (params: ListRegistryArtifactsRequest) => Promise<RegistryArtifactNamesResponse>;
     updateRegistryMetadata: (params: UpdateRegistryMetadataRequest) => Promise<UpdateRegistryMetadataResponse>;
@@ -272,6 +277,7 @@ export interface MiDiagramAPI {
     exportProject: (params: ExportProjectRequest) => void;
     checkOldProject: () => Promise<boolean>;
     refreshAccessToken: () => Promise<void>;
+    getOpenAPISpec: (params: SwaggerTypeRequest) => Promise<SwaggerFromAPIResponse>;
     editOpenAPISpec: (params: SwaggerTypeRequest) => Promise<void>;
     compareSwaggerAndAPI: (params: SwaggerTypeRequest) => Promise<CompareSwaggerAndAPIResponse>;
     updateSwaggerFromAPI: (params: SwaggerTypeRequest) => Promise<void>;
@@ -281,4 +287,5 @@ export interface MiDiagramAPI {
     updateMockService: (params: UpdateMockServiceRequest) => Promise<UpdateMockServiceResponse>;
     getAllTestSuites: () => Promise<GetAllTestSuitsResponse>;
     getAllMockServices: () => Promise<GetAllMockServicesResponse>;
+    addDependencyToPom: (params: AddDependencyToPomRequest) => Promise<void>;
 }

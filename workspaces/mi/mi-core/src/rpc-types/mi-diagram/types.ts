@@ -1188,6 +1188,13 @@ export interface GetSelectiveWorkspaceContextResponse {
     context: string[];
 }
 
+export interface GetSelectiveArtifactsRequest {
+    path: string;
+}
+
+export interface GetSelectiveArtifactsResponse {
+    artifacts: string[];
+}
 export interface GetProjectUuidResponse {
     uuid: string;
 }
@@ -1275,6 +1282,7 @@ export interface BrowseFileRequest {
 type ResourceType =
     | "sequence"
     | "endpoint"
+    | "api"
     | "messageStore"
     | "messageProcessor"
     | "task"
@@ -1507,6 +1515,10 @@ export interface SwaggerTypeRequest {
     existingSwagger?: string;
 }
 
+export interface SwaggerFromAPIResponse {
+    generatedSwagger: any;
+}
+
 export interface SwaggerFromAPIRequest {
     apiPath: string;
     swaggerPath?: string;
@@ -1572,4 +1584,11 @@ export interface GetAllMockServicesResponse {
         name: string;
         path: string;
     }[];
+}
+
+export interface AddDependencyToPomRequest {
+    groupId: string;
+    artifactId: string;
+    version: string;
+    file: string
 }

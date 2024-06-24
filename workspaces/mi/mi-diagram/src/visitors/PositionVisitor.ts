@@ -69,6 +69,7 @@ import {
     ProxyTarget,
     DbMediator,
     Rewrite,
+    Query
 } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { ADD_NEW_SEQUENCE_TAG, NODE_DIMENSIONS, NODE_GAP, NodeTypes } from "../resources/constants";
 
@@ -419,5 +420,10 @@ export class PositionVisitor implements Visitor {
     }
     endVisitConnector(node: Connector): void {
         this.skipChildrenVisit = false;
+    }
+
+    // query
+    beginVisitQuery = (node: Query): void => {
+        this.setBasicMediatorPosition(node);
     }
 }

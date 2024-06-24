@@ -51,8 +51,8 @@ export type SubMappingConfigFormProps = {
 
 export function SubMappingConfigForm(props: SubMappingConfigFormProps) {
     const { functionST, inputNode, addView, updateView, applyModifications } = props;
-    const { focusedST, views } = inputNode.context;
-    const lastView = views[views.length - 1];
+    const { focusedST, views } = inputNode?.context ?? {};
+    const lastView = views && views[views.length - 1];
 
     const {
         subMappingConfig: { isSMConfigPanelOpen, nextSubMappingIndex, suggestedNextSubMappingName },
@@ -103,15 +103,15 @@ export function SubMappingConfigForm(props: SubMappingConfigFormProps) {
         let updatedName: string;
         let updatedType: string;
 
-        const varDecl = (focusedST as VariableStatement).getDeclarations()[0];
+        const varDecl = focusedST && (focusedST as VariableStatement).getDeclarations()[0];
         const typeNode = varDecl.getTypeNode();
 
-        if (mappingName !== prevMappingName) {
+        if (mappingName !== prevMappingName && varDecl) {
             varDecl.rename(mappingName);
             updatedName = mappingName;
         }
 
-        if (mappingType !== prevMappingType && mappingType !== "object") {
+        if (mappingType !== prevMappingType && mappingType !== "object" && varDecl) {
             const typeKind = isArray ? TypeKind.Array : mappingType ? mappingType as TypeKind : TypeKind.Object;
             const typeDesc = mappingType && (isArray ? `${mappingType}[]` : mappingType);
             const defaultValue = getDefaultValue(typeKind);

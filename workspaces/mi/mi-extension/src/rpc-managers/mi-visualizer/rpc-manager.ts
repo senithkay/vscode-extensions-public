@@ -26,6 +26,7 @@ import {
     ProjectStructureResponse,
     RetrieveContextRequest,
     RetrieveContextResponse,
+    RuntimeServicesResponse,
     SampleDownloadRequest,
     UpdateContextRequest,
     VisualizerLocation,
@@ -46,6 +47,9 @@ import { openAIWebview } from "../../ai-panel/aiMachine";
 import { extension } from "../../MIExtensionContext";
 import { openPopupView } from "../../stateMachinePopup";
 import { log, outputChannel } from "../../util/logger";
+import axios from "axios";
+import * as https from "https";
+import { DebuggerConfig } from "../../debugger/config";
 
 export class MiVisualizerRpcManager implements MIVisualizerAPI {
     async getWorkspaces(): Promise<WorkspacesResponse> {
@@ -241,6 +245,90 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
             }
 
             resolve({ selection });
+        });
+    }
+
+    async getAvailableRuntimeServices(): Promise<RuntimeServicesResponse> {
+        return new Promise(async (resolve) => {
+            const username = 'admin';
+            const password = 'admin';
+            const token = Buffer.from(`${username}:${password}`, 'utf8').toString('base64');
+            const authHeader = `Basic ${token}`;
+            // Create an HTTPS agent that ignores SSL certificate verification
+            // MI has ignored the verification for management api, check on this
+            const agent = new https.Agent({ rejectUnauthorized: false });
+
+            const runtimeServicesResponse: RuntimeServicesResponse = {
+                api: undefined,
+                proxy: undefined,
+                dataServices: undefined
+            };
+
+            const managementPort = DebuggerConfig.getManagementPort();
+            const host = DebuggerConfig.getHost();
+
+            const response = await fetch(`https://${host}:${managementPort}/management/login`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Basic ${token}`,
+                },
+                agent: agent // Pass the custom agent
+            });
+
+            if (response.ok) {
+                const responseBody = await response.json();
+                const authToken = responseBody.AccessToken;
+
+                const apiResponse = await fetch(`https://${host}:${managementPort}/management/apis`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    agent: agent // Pass the custom agent
+                });
+
+                if (apiResponse.ok) {
+                    const apiResponseData = await apiResponse.json();
+                    runtimeServicesResponse.api = apiResponseData;
+                }
+
+
+                // get the proxy details
+                const proxyResponse = await fetch(`https://${host}:${managementPort}/management/proxy-services`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    agent: agent // Pass the custom agent
+                });
+
+                if (proxyResponse.ok) {
+                    const proxyResponseData = await proxyResponse.json();
+                    runtimeServicesResponse.proxy = proxyResponseData;
+                }
+
+                // get the data services details
+                const dataServicesResponse = await fetch(`https://${host}:${managementPort}/management/data-services`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    agent: agent // Pass the custom agent
+                });
+
+                if (dataServicesResponse.ok) {
+                    const dataServicesResponseData = await dataServicesResponse.json();
+                    runtimeServicesResponse.dataServices = dataServicesResponseData;
+                }
+
+                resolve(runtimeServicesResponse);
+            } else {
+                throw new Error(`Error while checking token usage: ${response.statusText}`);
+            }
         });
     }
 }

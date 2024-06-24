@@ -331,7 +331,7 @@ const stateMachine = createMachine<MachineContext>({
                         resolve(true);
                     });
                 } else {
-                    VisualizerWebview.currentPanel!.getWebview()?.reveal(extension.webviewReveal ? ViewColumn.Beside : ViewColumn.Active);
+                    VisualizerWebview.currentPanel!.getWebview()?.reveal(ViewColumn.Active);
                     resolve(true);
                 }
             });
@@ -445,9 +445,6 @@ const stateMachine = createMachine<MachineContext>({
         },
         updateAIView: () => {
             return new Promise(async (resolve, reject) => {
-                if (AiPanelWebview.currentPanel) {
-                    openAIWebview();
-                }
                 resolve(true);
             });
         },

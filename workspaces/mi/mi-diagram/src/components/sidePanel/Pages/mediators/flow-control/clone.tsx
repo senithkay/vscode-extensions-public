@@ -52,7 +52,7 @@ const CloneForm = (props: AddMediatorProps) => {
             sequentialMediation: sidePanelContext?.formValues?.sequentialMediation || false,
             continueParent: sidePanelContext?.formValues?.continueParent || false,
             targets: {
-                paramValues: sidePanelContext?.formValues?.targets ? getParamManagerFromValues(sidePanelContext?.formValues?.targets) : [],
+                paramValues: sidePanelContext?.formValues?.targets ? getParamManagerFromValues(sidePanelContext?.formValues?.targets, 0, 2) : [],
                 paramFields: [
                     {
                         "type": "Dropdown",
