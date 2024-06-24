@@ -17,6 +17,7 @@ export * from "./vscode";
 export * from "./interfaces/ballerina";
 export * from "./interfaces/common";
 export * from "./interfaces/component";
+export * from "./interfaces/constants";
 
 // ------ RPC interfaces -------->
 export * from "./rpc-types/connector-wizard";
