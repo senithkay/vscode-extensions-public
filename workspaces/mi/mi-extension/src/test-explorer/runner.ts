@@ -17,7 +17,7 @@ import { discoverTests, gatherTestItems } from "./discover";
 import { testController } from "./activator";
 import path = require("path");
 import { getProjectRoot } from "./helper";
-import { getServerPath } from "../debugger/debugHelper";
+import { deleteCappAndLibs, getServerPath } from "../debugger/debugHelper";
 import { TestRunnerConfig } from "./config";
 import { ChildProcess } from "child_process";
 import treeKill = require("tree-kill");
@@ -69,9 +69,17 @@ export function runHandler(request: TestRunRequest, cancellation: CancellationTo
             }
 
             try {
+                // delete cars
+                const serverPath = await getServerPath();
+                if (!serverPath) {
+                    window.showErrorMessage("MI server path not found");
+                    throw new Error("Server path not found");
+                }
+                await deleteCappAndLibs(serverPath);
+
                 // execute test
                 run.appendOutput(`Starting MI test server\r\n`);
-                const { cp } = await startTestServer(run);
+                const { cp } = await startTestServer(run, serverPath);
                 stopTestServer = () => {
                     treeKill(cp.pid!, 'SIGKILL');
                 }
@@ -191,15 +199,9 @@ export function runHandler(request: TestRunRequest, cancellation: CancellationTo
  * Start test server.
  * @returns server output
  */
-async function startTestServer(runner: TestRun): Promise<{ cp: ChildProcess }> {
+async function startTestServer(runner: TestRun, serverPath: string): Promise<{ cp: ChildProcess }> {
     return new Promise<{ cp: ChildProcess }>(async (resolve, reject) => {
         try {
-            const serverPath = await getServerPath();
-
-            if (!serverPath) {
-                window.showErrorMessage("Server path not found");
-                throw new Error("Server path not found");
-            }
             const scriptFile = process.platform === "win32" ? "micro-integrator.bat" : "micro-integrator.sh";
             const server = path.join(serverPath, "bin", scriptFile);
 
