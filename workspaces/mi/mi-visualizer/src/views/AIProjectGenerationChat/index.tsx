@@ -498,6 +498,9 @@ export function AIProjectGenerationChat() {
             });
             console.error('Network error:', error);
         }
+        // Remove the user uploaded file after sending it to the backend
+        handleRemoveFile();
+        
         const reader = response.body?.getReader();
         const decoder = new TextDecoder();
         let result = '';
