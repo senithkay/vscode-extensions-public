@@ -1282,6 +1282,7 @@ export interface BrowseFileRequest {
 type ResourceType =
     | "sequence"
     | "endpoint"
+    | "api"
     | "messageStore"
     | "messageProcessor"
     | "task"
@@ -1512,6 +1513,10 @@ export interface SwaggerTypeRequest {
     apiPath: string;
     generatedSwagger?: string;
     existingSwagger?: string;
+}
+
+export interface SwaggerFromAPIResponse {
+    generatedSwagger: any;
 }
 
 export interface SwaggerFromAPIRequest {

@@ -181,6 +181,17 @@ export interface NotificationRequest {
     type?: NotificationType;
 }
 
+export interface RuntimeServiceDetails {
+    count: number;
+    list: unknown;
+}
+
+export interface RuntimeServicesResponse {
+    api: RuntimeServiceDetails | undefined;
+    proxy: RuntimeServiceDetails | undefined;
+    dataServices: RuntimeServiceDetails | undefined;
+}
+
 export interface NotificationResponse {
     selection: string | undefined;
 }

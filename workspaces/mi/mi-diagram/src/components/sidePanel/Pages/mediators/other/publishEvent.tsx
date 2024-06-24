@@ -55,7 +55,7 @@ const PublishEventForm = (props: AddMediatorProps) => {
             async: sidePanelContext?.formValues?.async || "",
             asyncTimeout: sidePanelContext?.formValues?.asyncTimeout || "",
             metaAttributes: {
-                paramValues: sidePanelContext?.formValues?.metaAttributes ? getParamManagerFromValues(sidePanelContext?.formValues?.metaAttributes) : [],
+                paramValues: sidePanelContext?.formValues?.metaAttributes ? getParamManagerFromValues(sidePanelContext?.formValues?.metaAttributes, 0, 3) : [],
                 paramFields: [
                     {
                         "type": "TextField",
@@ -122,7 +122,7 @@ const PublishEventForm = (props: AddMediatorProps) => {
                 ]
             },
             correlationAttributes: {
-                paramValues: sidePanelContext?.formValues?.correlationAttributes ? getParamManagerFromValues(sidePanelContext?.formValues?.correlationAttributes) : [],
+                paramValues: sidePanelContext?.formValues?.correlationAttributes ? getParamManagerFromValues(sidePanelContext?.formValues?.correlationAttributes, 0, 3) : [],
                 paramFields: [
                     {
                         "type": "TextField",
@@ -189,7 +189,7 @@ const PublishEventForm = (props: AddMediatorProps) => {
                 ]
             },
             payloadAttributes: {
-                paramValues: sidePanelContext?.formValues?.payloadAttributes ? getParamManagerFromValues(sidePanelContext?.formValues?.payloadAttributes) : [],
+                paramValues: sidePanelContext?.formValues?.payloadAttributes ? getParamManagerFromValues(sidePanelContext?.formValues?.payloadAttributes, 0, 3) : [],
                 paramFields: [
                     {
                         "type": "TextField",
@@ -256,7 +256,7 @@ const PublishEventForm = (props: AddMediatorProps) => {
                 ]
             },
             arbitaryAttributes: {
-                paramValues: sidePanelContext?.formValues?.arbitaryAttributes ? getParamManagerFromValues(sidePanelContext?.formValues?.arbitaryAttributes) : [],
+                paramValues: sidePanelContext?.formValues?.arbitaryAttributes ? getParamManagerFromValues(sidePanelContext?.formValues?.arbitaryAttributes, 0, 3) : [],
                 paramFields: [
                     {
                         "type": "TextField",

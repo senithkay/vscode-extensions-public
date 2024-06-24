@@ -186,6 +186,13 @@
         "icon": "$(wand)"
       },
       {
+        "command": "MI.Open-runtime-service-view",
+        "title": "Open Runtime Services Panel",
+        "category": "MI",
+        "icon": "$(server)",
+        "when": "MI.isRunning== 'true'"
+      },
+      {
         "command": "MI.project-explorer.add",
         "title": "Add Construct",
         "icon": "$(add)",
@@ -347,6 +354,11 @@
         "when": "false"
       },
       {
+        "command": "MI.project-explorer.delete",
+        "title": "Delete",
+        "icon": "$(delete)"
+      },
+      {
         "command": "project-explorer.view",
         "title": "View"
       },
@@ -463,6 +475,12 @@
           "title": "Open AI Panel"
         },
         {
+          "command": "MI.Open-runtime-service-view",
+          "group": "navigation@1",
+          "when": "MI.projectType == 'miProject' && (isVisualizerActive || resourceLangId == SynapseXml) && MI.isRunning== 'true'",
+          "title": "Open Runtime Services Panel"
+        },
+        {
           "command": "MI.show.graphical-view",
           "when": "MI.status == 'projectLoaded' && resourceLangId == SynapseXml",
           "group": "navigation@3"
@@ -568,6 +586,11 @@
           "command": "MI.project-explorer.open-dss-service-designer",
           "when": "viewItem == data-service",
           "group": "inline"
+        },
+        {
+          "command": "MI.project-explorer.delete",
+          "when": "view == MI.project-explorer && viewItem == api || viewItem == resource || viewItem == endpoint || viewItem == sequence || viewItem == proxy-service || viewItem == inboundEndpoint || viewItem == messageStore || viewItem == message-processor || viewItem == task || viewItem == localEntry || viewItem == template  || viewItem == dataSource || viewItem == dataService || viewItem == data-mapper || viewItem == registry-with-metadata",
+          "key": "delete"
         }
       ],
       "testing/item/context": [
@@ -605,7 +628,7 @@
         "description": "design-view",
         "default": {
           "fontPath": "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
-          "fontCharacter": "\\f127"
+          "fontCharacter": "\\f128"
         }
       }
     }
@@ -693,6 +716,8 @@
     "@babel/core": "^7.24.4",
     "@types/json-schema": "7.0.15",
     "json-schema": "0.4.0",
+    "portfinder": "^1.0.32",
+    "cors-anywhere": "^0.4.4",
     "@apidevtools/json-schema-ref-parser": "11.6.1"
   }
 }

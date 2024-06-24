@@ -7,8 +7,18 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
+import { Datamapper } from "@wso2-enterprise/mi-syntax-tree/src";
+
 export function getDatamapperMustacheTemplate() {
     return `
     <datamapper{{#configurationLocalPath}} config="{{{configurationLocalPath}}}"{{/configurationLocalPath}}{{#inputSchemaLocalPath}} inputSchema="{{{inputSchemaLocalPath}}}"{{/inputSchemaLocalPath}}{{#inputType}} inputType="{{inputType}}"{{/inputType}}{{#outputSchemaLocalPath}} outputSchema="{{{outputSchemaLocalPath}}}"{{/outputSchemaLocalPath}}{{#outputType}} outputType="{{outputType}}"{{/outputType}} {{#description}} description="{{description}}"{{/description}}/>
     `;
+}
+
+export function getDataMapperDescription(node: Datamapper) {
+    const description = node.config;
+    if (description) {
+        const match = description.match(/\/([^\/]+)\.dmc$/);
+        return match ? match[1] : null;
+    }
 }

@@ -94,7 +94,11 @@ const schema = yup.object({
         patch: yup.boolean(),
         head: yup.boolean(),
         options: yup.boolean(),
-    }),
+    }).test(
+        'selection',
+        'Select atleast one method',
+        (methods) => Object.values(methods).some((value) => value === true)
+    ),
     inSequenceType: yup.string().oneOf(["inline", "named"]).required("In Sequence Type is required"),
     inSequence: yup.string().when("inSequenceType", {
         is: "named",
@@ -139,7 +143,7 @@ export type Method = "get" | "post" | "put" | "delete" | "patch" | "head" | "opt
 
 // Initial values
 const initialValues: ResourceType = {
-    urlStyle: "none",
+    urlStyle: "uri-template",
     uriTemplate: "/",
     urlMapping: "/",
     protocol: {
@@ -224,17 +228,6 @@ export const ResourceForm = ({ isOpen, documentUri, onCancel, onSave, formData }
             <SidePanelBody style={{ overflowY: "scroll" }}>
                 <SidePanelBodyWrapper>
                     <h3>{`${formData ? "Edit" : "Add"} API Resource`}</h3>
-                    <RadioButtonGroup
-                        id="urlStyle"
-                        label="URL Style"
-                        options={[
-                            { id: "uri-template", content: "URI_TEMPLATE", value: "uri-template" },
-                            { id: "url-mapping", content: "URL_MAPPING", value: "url-mapping" },
-                            { id: "none", content: "NONE", value: "none" },
-                        ]}
-                        orientation="horizontal"
-                        {...register("urlStyle")}
-                    />
                     {urlStyle === "uri-template" && (
                         <TextField
                             id="url-style-uri-template"
@@ -253,6 +246,17 @@ export const ResourceForm = ({ isOpen, documentUri, onCancel, onSave, formData }
                             errorMsg={errors.urlMapping?.message}
                         />
                     )}
+                    <RadioButtonGroup
+                        id="urlStyle"
+                        label="URL Style"
+                        options={[
+                            { id: "uri-template", content: "URI_TEMPLATE", value: "uri-template" },
+                            { id: "url-mapping", content: "URL_MAPPING", value: "url-mapping" },
+                            { id: "none", content: "NONE", value: "none" },
+                        ]}
+                        orientation="horizontal"
+                        {...register("urlStyle")}
+                    />
                     <CheckBoxContainer>
                         <label>Methods</label>
                         <CheckBoxGroup columns={2}>

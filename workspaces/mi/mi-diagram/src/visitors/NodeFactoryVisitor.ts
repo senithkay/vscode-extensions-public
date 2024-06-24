@@ -70,7 +70,8 @@ import {
     ProxyTarget,
     Target,
     DbMediator,
-    Rewrite
+    Rewrite,
+    Query
 } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { NodeLinkModel } from "../components/NodeLink/NodeLinkModel";
 import { MediatorNodeModel } from "../components/nodes/MediatorNode/MediatorNodeModel";
@@ -80,15 +81,15 @@ import { NodeModel } from "@projectstorm/react-diagrams";
 import { ConditionNodeModel } from "../components/nodes/ConditionNode/ConditionNodeModel";
 import { EndNodeModel } from "../components/nodes/EndNode/EndNodeModel";
 import { CallNodeModel } from "../components/nodes/CallNode/CallNodeModel";
-import { ADD_NEW_SEQUENCE_TAG, ENDPOINTS, MEDIATORS, NODE_DIMENSIONS, NODE_GAP, NodeTypes } from "../resources/constants";
-import { SourceNodeModel, TargetNodeModel, createNodesLink } from "../utils/diagram";
+import { ADD_NEW_SEQUENCE_TAG, DATA_SERVICE_NODES, ENDPOINTS, MEDIATORS, NODE_DIMENSIONS, NODE_GAP, NodeTypes, OPEN_DATA_MAPPER_VIEW, OPEN_DSS_SERVICE_DESIGNER, OPEN_SEQUENCE_VIEW } from "../resources/constants";
+import { AllNodeModel, SourceNodeModel, TargetNodeModel, createNodesLink } from "../utils/diagram";
 import { EmptyNodeModel } from "../components/nodes/EmptyNode/EmptyNodeModel";
 import { Diagnostic } from "vscode-languageserver-types";
 import { ReferenceNodeModel } from "../components/nodes/ReferenceNode/ReferenceNodeModel";
 import { PlusNodeModel } from "../components/nodes/PlusNode/PlusNodeModel";
 import { ConnectorNodeModel } from "../components/nodes/ConnectorNode/ConnectorNodeModel";
-import { DataMapperNodeModel } from "../components/nodes/DataMapperNode/DataMapperNodeModel";
 import { BreakpointPosition, GetBreakpointsResponse } from "@wso2-enterprise/mi-core";
+import { DataServiceNodeModel } from "../components/nodes/DataServiceNode/DataServiceNodeModel";
 
 interface BranchData {
     name: string;
@@ -106,13 +107,10 @@ enum DiagramType {
     SEQUENCE
 }
 
-const RESTRICTED_NODE_TYPES = ["target"]
-
-export type AnyNode = MediatorNodeModel | StartNodeModel | ConditionNodeModel | EndNodeModel | CallNodeModel | EmptyNodeModel |
-    GroupNodeModel | PlusNodeModel | DataMapperNodeModel;
+const RESTRICTED_NODE_TYPES = ["target", "query-inputMapping", "query-outputMapping", "query-transformation", "query-query"];
 
 export class NodeFactoryVisitor implements Visitor {
-    nodes: AnyNode[] = [];
+    nodes: AllNodeModel[] = [];
     links: NodeLinkModel[] = [];
     private parents: STNode[] = [];
     private skipChildrenVisit = false;
@@ -151,10 +149,10 @@ export class NodeFactoryVisitor implements Visitor {
         }
 
         // create node
-        let diagramNode: AnyNode;
+        let diagramNode: AllNodeModel;
         switch (type) {
             case NodeTypes.REFERENCE_NODE:
-                diagramNode = new ReferenceNodeModel(node, name, data[0], this.documentUri, this.parents[this.parents.length - 1], this.previousSTNodes);
+                diagramNode = new ReferenceNodeModel(node, name, data.referenceName, this.documentUri, this.parents[this.parents.length - 1], this.previousSTNodes, data.openViewName);
                 break;
             case NodeTypes.GROUP_NODE:
                 diagramNode = new GroupNodeModel(node, name, this.documentUri, this.parents[this.parents.length - 1], this.previousSTNodes);
@@ -183,8 +181,8 @@ export class NodeFactoryVisitor implements Visitor {
             case NodeTypes.CONNECTOR_NODE:
                 diagramNode = new ConnectorNodeModel(node, name, this.documentUri, this.parents[this.parents.length - 1], this.previousSTNodes);
                 break;
-            case NodeTypes.DATAMAPPER_NODE:
-                diagramNode = new DataMapperNodeModel(node, name, this.documentUri, this.parents[this.parents.length - 1], this.previousSTNodes);
+            case NodeTypes.DATA_SERVICE_NODE:
+                diagramNode = new DataServiceNodeModel(node, name, this.documentUri);
                 break;
             default:
                 type = NodeTypes.MEDIATOR_NODE;
@@ -271,7 +269,7 @@ export class NodeFactoryVisitor implements Visitor {
                 } else if (sequence.sequenceAttribute) {
                     sequence.viewState.y += NODE_DIMENSIONS.START.DISABLED.HEIGHT + NODE_GAP.Y;
                     sequence.viewState.x += (sequence.viewState.w / 2) - (NODE_DIMENSIONS.DEFAULT.WIDTH / 2);
-                    this.createNodeAndLinks({ node: sequence, type: NodeTypes.REFERENCE_NODE, data: [sequence.sequenceAttribute] });
+                    this.createNodeAndLinks({ node: sequence, type: NodeTypes.REFERENCE_NODE, data: { referenceName: sequence.sequenceAttribute, openViewName: OPEN_SEQUENCE_VIEW } });
 
                 } else if (sequence.tag === "endpoint") {
                     sequence.viewState.y += NODE_DIMENSIONS.START.DISABLED.HEIGHT + NODE_GAP.Y;
@@ -450,7 +448,7 @@ export class NodeFactoryVisitor implements Visitor {
             sequneceReferenceNode.viewState.y += NODE_DIMENSIONS.START.EDITABLE.HEIGHT + NODE_GAP.Y;
             sequneceReferenceNode.viewState.x += (NODE_DIMENSIONS.START.EDITABLE.WIDTH - NODE_DIMENSIONS.REFERENCE.WIDTH) / 2;
             sequneceReferenceNode.viewState.canAddAfter = false;
-            this.createNodeAndLinks({ node: sequneceReferenceNode, name: MEDIATORS.SEQUENCE, type: NodeTypes.REFERENCE_NODE, data: [node.inSequenceAttribute] });
+            this.createNodeAndLinks({ node: sequneceReferenceNode, name: MEDIATORS.SEQUENCE, type: NodeTypes.REFERENCE_NODE, data: { referenceName: node.inSequenceAttribute, openViewName: OPEN_SEQUENCE_VIEW } });
 
             const endNode = structuredClone(node);
             endNode.viewState.id = "inSequenceEnd";
@@ -469,7 +467,7 @@ export class NodeFactoryVisitor implements Visitor {
             const sequneceReferenceNode = structuredClone(node);
             sequneceReferenceNode.viewState.y += NODE_DIMENSIONS.START.EDITABLE.HEIGHT + NODE_GAP.Y;
             sequneceReferenceNode.viewState.x += (NODE_DIMENSIONS.START.EDITABLE.WIDTH - NODE_DIMENSIONS.REFERENCE.WIDTH) / 2;
-            this.createNodeAndLinks({ node: sequneceReferenceNode, name: MEDIATORS.SEQUENCE, type: NodeTypes.REFERENCE_NODE, data: [node.inSequenceAttribute] });
+            this.createNodeAndLinks({ node: sequneceReferenceNode, name: MEDIATORS.SEQUENCE, type: NodeTypes.REFERENCE_NODE, data: { referenceName: node.inSequenceAttribute, openViewName: OPEN_SEQUENCE_VIEW } });
 
             const endNode = structuredClone(node);
             endNode.viewState.y = sequneceReferenceNode.viewState.y + NODE_DIMENSIONS.REFERENCE.HEIGHT + NODE_GAP.Y;
@@ -491,7 +489,7 @@ export class NodeFactoryVisitor implements Visitor {
                 sequneceReferenceNode.viewState.id = "inSequenceNode";
                 sequneceReferenceNode.viewState.y += NODE_DIMENSIONS.START.EDITABLE.HEIGHT + NODE_GAP.Y;
                 sequneceReferenceNode.viewState.x += (NODE_DIMENSIONS.START.EDITABLE.WIDTH - NODE_DIMENSIONS.REFERENCE.WIDTH) / 2;
-                this.createNodeAndLinks({ node: sequneceReferenceNode, name: MEDIATORS.SEQUENCE, type: NodeTypes.REFERENCE_NODE, data: [proxyTargetNode.inSequenceAttribute] });
+                this.createNodeAndLinks({ node: sequneceReferenceNode, name: MEDIATORS.SEQUENCE, type: NodeTypes.REFERENCE_NODE, data: { referenceName: proxyTargetNode.inSequenceAttribute, openViewName: OPEN_SEQUENCE_VIEW } });
 
                 const endNode = structuredClone(proxyTargetNode);
                 endNode.viewState.id = "inSequenceEnd";
@@ -510,7 +508,7 @@ export class NodeFactoryVisitor implements Visitor {
                 const sequneceReferenceNode = structuredClone(proxyTargetNode);
                 sequneceReferenceNode.viewState.y += NODE_DIMENSIONS.START.EDITABLE.HEIGHT + NODE_GAP.Y;
                 sequneceReferenceNode.viewState.x += (NODE_DIMENSIONS.START.EDITABLE.WIDTH - NODE_DIMENSIONS.REFERENCE.WIDTH) / 2;
-                this.createNodeAndLinks({ node: sequneceReferenceNode, name: MEDIATORS.SEQUENCE, type: NodeTypes.REFERENCE_NODE, data: [proxyTargetNode.inSequenceAttribute] });
+                this.createNodeAndLinks({ node: sequneceReferenceNode, name: MEDIATORS.SEQUENCE, type: NodeTypes.REFERENCE_NODE, data: { referenceName: proxyTargetNode.inSequenceAttribute, openViewName: OPEN_SEQUENCE_VIEW } });
 
                 const endNode = structuredClone(proxyTargetNode);
                 endNode.viewState.y = sequneceReferenceNode.viewState.y + NODE_DIMENSIONS.REFERENCE.HEIGHT + NODE_GAP.Y;
@@ -531,7 +529,7 @@ export class NodeFactoryVisitor implements Visitor {
     beginVisitSequence = (node: Sequence): void => {
         const isSequnce = this.parents.length == 0;
         if (!isSequnce) {
-            this.createNodeAndLinks({ node, name: MEDIATORS.SEQUENCE, type: NodeTypes.REFERENCE_NODE, data: [(node as any).key ?? node.tag] });
+            this.createNodeAndLinks({ node, name: MEDIATORS.SEQUENCE, type: NodeTypes.REFERENCE_NODE, data: { referenceName: (node as any).key ?? node.tag, openViewName: OPEN_SEQUENCE_VIEW } });
             this.skipChildrenVisit = true;
         } else {
             const addPosition = {
@@ -625,7 +623,10 @@ export class NodeFactoryVisitor implements Visitor {
         this.skipChildrenVisit = false;
     }
 
-    beginVisitDataServiceCall = (node: DataServiceCall): void => this.createNodeAndLinks({ node, name: MEDIATORS.DATASERVICECALL });
+    beginVisitDataServiceCall = (node: DataServiceCall): void => {
+        this.createNodeAndLinks({ node, name: MEDIATORS.DATASERVICECALL, type: NodeTypes.REFERENCE_NODE, data: { referenceName: node.serviceName, openViewName: OPEN_DSS_SERVICE_DESIGNER } });
+    }
+
     beginVisitEnqueue = (node: Enqueue): void => this.createNodeAndLinks({ node, name: MEDIATORS.ENQUEUE });
     beginVisitTransaction = (node: Transaction): void => this.createNodeAndLinks({ node, name: MEDIATORS.TRANSACTION });
     beginVisitEvent = (node: Event): void => this.createNodeAndLinks({ node, name: MEDIATORS.EVENT });
@@ -853,7 +854,7 @@ export class NodeFactoryVisitor implements Visitor {
 
     //Transformation Mediators
     beginVisitDatamapper(node: Datamapper): void {
-        this.createNodeAndLinks({ node, name: MEDIATORS.DATAMAPPER, type: NodeTypes.DATAMAPPER_NODE });
+        this.createNodeAndLinks({ node, name: MEDIATORS.DATAMAPPER, type: NodeTypes.REFERENCE_NODE, data: { referenceNode: node.config, openViewName: OPEN_DATA_MAPPER_VIEW } });
         this.skipChildrenVisit = true;
     }
 
@@ -949,6 +950,47 @@ export class NodeFactoryVisitor implements Visitor {
 
     endVisitRewrite(node: Rewrite): void {
         this.skipChildrenVisit = false;
+    }
+
+    // query
+    beginVisitQuery(node: Query): void {
+        const startNode = structuredClone(node);
+        startNode.tag = "start";
+        this.createNodeAndLinks({ node: startNode, type: NodeTypes.START_NODE, data: StartNodeType.IN_SEQUENCE });
+        this.parents.push(node);
+
+        const inputMapping = structuredClone(node);
+        inputMapping.tag = "query-inputMapping";
+        inputMapping.viewState.y += NODE_DIMENSIONS.START.EDITABLE.HEIGHT + NODE_GAP.Y;
+        inputMapping.viewState.x += (NODE_DIMENSIONS.START.EDITABLE.WIDTH - NODE_DIMENSIONS.REFERENCE.WIDTH) / 2;
+        this.createNodeAndLinks({ node: inputMapping, type: NodeTypes.DATA_SERVICE_NODE, name: DATA_SERVICE_NODES.INPUT });
+
+        const query = structuredClone(node);
+        query.tag = "query-query";
+        query.viewState.y = inputMapping.viewState.y + NODE_DIMENSIONS.DEFAULT.HEIGHT + NODE_GAP.Y;
+        query.viewState.x += (NODE_DIMENSIONS.START.EDITABLE.WIDTH - NODE_DIMENSIONS.REFERENCE.WIDTH) / 2;
+        this.createNodeAndLinks({ node: query, type: NodeTypes.DATA_SERVICE_NODE, name: DATA_SERVICE_NODES.QUERY });
+
+        const transformation = structuredClone(node);
+        transformation.tag = "query-transformation";
+        transformation.viewState.y = query.viewState.y + NODE_DIMENSIONS.DEFAULT.HEIGHT + NODE_GAP.Y;
+        transformation.viewState.x += (NODE_DIMENSIONS.START.EDITABLE.WIDTH - NODE_DIMENSIONS.REFERENCE.WIDTH) / 2;
+        this.createNodeAndLinks({ node: transformation, type: NodeTypes.DATA_SERVICE_NODE, name: DATA_SERVICE_NODES.TRANSFORMATION });
+
+        const outputMappings = structuredClone(node);
+        outputMappings.tag = "query-outputMapping";
+        outputMappings.viewState.y = transformation.viewState.y + NODE_DIMENSIONS.DEFAULT.HEIGHT + NODE_GAP.Y;
+        outputMappings.viewState.x += (NODE_DIMENSIONS.START.EDITABLE.WIDTH - NODE_DIMENSIONS.REFERENCE.WIDTH) / 2;
+        this.createNodeAndLinks({ node: outputMappings, type: NodeTypes.DATA_SERVICE_NODE, name: DATA_SERVICE_NODES.OUTPUT });
+
+        const endnode = structuredClone(node);
+        endnode.tag = "end";
+        endnode.viewState.y = outputMappings.viewState.y + NODE_DIMENSIONS.DEFAULT.HEIGHT + NODE_GAP.Y;
+        endnode.viewState.x += (NODE_DIMENSIONS.START.EDITABLE.WIDTH - NODE_DIMENSIONS.START.DISABLED.WIDTH) / 2;
+        this.createNodeAndLinks({ node: endnode, type: NodeTypes.END_NODE, data: StartNodeType.IN_SEQUENCE });
+        this.parents.push(endnode);
+
+        this.skipChildrenVisit = true;
     }
 
     skipChildren(): boolean {

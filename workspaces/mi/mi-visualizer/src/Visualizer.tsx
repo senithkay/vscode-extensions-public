@@ -9,7 +9,7 @@
 
 import React, { useEffect } from "react";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
-import { MachineStateValue, AIMachineStateValue } from "@wso2-enterprise/mi-core";
+import { MachineStateValue, AIMachineStateValue, SwaggerData } from "@wso2-enterprise/mi-core";
 import MainPanel from "./MainPanel";
 import { VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 import styled from "@emotion/styled";
@@ -17,6 +17,8 @@ import AIPanel from "./AIPanel";
 import { ErrorBoundary } from "@wso2-enterprise/ui-toolkit";
 import { WelcomePanel } from "./WelcomePanel";
 import { DisabledView } from "./views/Disabled";
+import { RuntimeServicePanel } from "./RuntimeServicesPanel";
+import { SwaggerPanel } from "./SwaggerPanel";
 
 const LoaderWrapper = styled.div`
     display: flex;
@@ -33,7 +35,7 @@ const ProgressRing = styled(VSCodeProgressRing)`
     padding: 4px;
 `;
 
-export function Visualizer({ mode }: { mode: string }) {
+export function Visualizer({ mode, swaggerData }: { mode: string, swaggerData?: SwaggerData }) {
     const { rpcClient } = useVisualizerContext();
     const [state, setState] = React.useState<MachineStateValue | AIMachineStateValue>('initialize');
 
@@ -58,6 +60,10 @@ export function Visualizer({ mode }: { mode: string }) {
                         return <VisualizerComponent state={state as MachineStateValue} />
                     case "ai":
                         return <AiVisualizerComponent state={state as AIMachineStateValue} />
+                    case "runtime-services":
+                        return <RuntimeServicesComponent />
+                    case "swagger":
+                        return <SwaggerComponent data={swaggerData}  />
                 }
             })()}
         </ErrorBoundary>
@@ -92,4 +98,19 @@ const AiVisualizerComponent = React.memo(({ state }: { state: AIMachineStateValu
                 </LoaderWrapper>
             );
     }
+});
+
+const RuntimeServicesComponent = () => {
+    return <RuntimeServicePanel />;
+}
+
+const SwaggerComponent = React.memo(({ data }: { data: SwaggerData })  => {
+    if (!data) {
+        return (
+            <LoaderWrapper>
+                <ProgressRing />
+            </LoaderWrapper>
+        );
+    }
+    return <SwaggerPanel swaggerData={data}/>;
 });

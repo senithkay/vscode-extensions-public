@@ -15,7 +15,7 @@ import { Button, ComponentCard, ContainerProps, ContextMenu, Dropdown, FormActio
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
-import { TestCaseEntry, TestCaseForm } from "./TestCaseForm";
+import { TestCaseEntry, TestCaseForm, TestSuiteType } from "./TestCaseForm";
 import { UnitTest, TestCase, STNode } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import path from "path";
 import { getTestSuiteXML } from "../../../utils/template-engine/mustache-templates/TestSuite";
@@ -70,6 +70,7 @@ export function TestSuiteForm(props: TestSuiteFormProps) {
 
     const [isLoaded, setIsLoaded] = useState(false);
     const [artifacts, setArtifacts] = useState([]);
+    const [filteredArtifacts, setFilteredArtifacts] = useState([]);
     const [showAddTestCase, setShowAddTestCase] = useState(false);
     const [showAddMockService, setShowAddMockService] = useState(false);
 
@@ -111,7 +112,9 @@ export function TestSuiteForm(props: TestSuiteFormProps) {
         formState: { errors },
         register,
         watch,
-        reset
+        reset,
+        getValues,
+        setValue
     } = useForm({
         resolver: yupResolver(schema),
         mode: "onChange",
@@ -246,7 +249,21 @@ export function TestSuiteForm(props: TestSuiteFormProps) {
             }
             setIsLoaded(true);
         })();
-    }, []);
+    }, [filePath, syntaxTree]);
+
+    useEffect(() => {
+        if (!artifacts || artifacts.length === 0) {
+            return;
+        }
+
+        const filteredArtifacts = artifacts.filter(artifact => artifact.type === getValues("artifactType")).map((artifact) => { return { id: artifact.name, value: artifact.path, content: artifact.name } });
+        setFilteredArtifacts(filteredArtifacts);
+
+        if (!filteredArtifacts || filteredArtifacts.length === 0) {
+            return;
+        }
+        setValue("artifact", filteredArtifacts[0].value);
+    }, [artifacts, watch("artifactType")]);
 
     const handleBackButtonClick = () => {
         rpcClient.getMiVisualizerRpcClient().goBack();
@@ -391,7 +408,7 @@ export function TestSuiteForm(props: TestSuiteFormProps) {
     };
 
     if (!isLoaded) {
-        return <ProgressIndicator/>;
+        return <ProgressIndicator />;
     }
 
     if (showAddTestCase) {
@@ -408,7 +425,7 @@ export function TestSuiteForm(props: TestSuiteFormProps) {
             setShowAddTestCase(false);
         };
         const availableTestCases = testCases.map((testCase) => testCase.name);
-        return <TestCaseForm onGoBack={goBack} onSubmit={onSubmit} testCase={currentTestCase} availableTestCases={availableTestCases} />
+        return <TestCaseForm onGoBack={goBack} onSubmit={onSubmit} testCase={currentTestCase} availableTestCases={availableTestCases} testSuiteType={getValues('artifactType') as TestSuiteType} />
     }
 
     if (showAddMockService) {
@@ -452,7 +469,7 @@ export function TestSuiteForm(props: TestSuiteFormProps) {
                 id="artifact"
                 errorMsg={errors.artifact?.message.toString()}
                 isRequired
-                items={artifacts.filter(artifact => artifact.type === watch("artifactType")).map((artifact) => { return { id: artifact.name, value: artifact.path, content: artifact.name } })}
+                items={filteredArtifacts}
                 sx={{ zIndex: 99 }}
                 {...register("artifact")}
             ></Dropdown>

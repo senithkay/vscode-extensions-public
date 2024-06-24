@@ -173,6 +173,7 @@ import {
     UpdateMockServiceResponse,
     GetAllMockServicesResponse,
     AddDependencyToPomRequest,
+    SwaggerFromAPIResponse,
 } from "./types";
 
 export interface MiDiagramAPI {
@@ -276,6 +277,7 @@ export interface MiDiagramAPI {
     exportProject: (params: ExportProjectRequest) => void;
     checkOldProject: () => Promise<boolean>;
     refreshAccessToken: () => Promise<void>;
+    getOpenAPISpec: (params: SwaggerTypeRequest) => Promise<SwaggerFromAPIResponse>;
     editOpenAPISpec: (params: SwaggerTypeRequest) => Promise<void>;
     compareSwaggerAndAPI: (params: SwaggerTypeRequest) => Promise<CompareSwaggerAndAPIResponse>;
     updateSwaggerFromAPI: (params: SwaggerTypeRequest) => Promise<void>;

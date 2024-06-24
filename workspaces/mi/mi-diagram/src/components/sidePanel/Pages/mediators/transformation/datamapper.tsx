@@ -8,7 +8,7 @@
 */
 
 import React, { useEffect, useState } from 'react';
-import { AutoComplete, Button, ComponentCard, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
+import { AutoComplete, Button, ComponentCard, TextField, Typography, FormGroup } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
 import { AddMediatorProps } from '../common';
@@ -16,6 +16,7 @@ import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
 import { MEDIATORS } from '../../../../../resources/constants';
 import { VSCodeRadio, VSCodeRadioGroup } from "@vscode/webview-ui-toolkit/react";
+import { EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
 
 const cardStyle = {
     display: "block",
@@ -68,7 +69,12 @@ const DataMapperForm = (props: AddMediatorProps) => {
         dmConfigs.push(...response.dmConfigs);
     });
 
-    const onClick = async () => {
+    if (formValues.inputType === undefined && formValues.outputType === undefined && createOption === 'new') {
+        formValues.inputType = 'JSON';
+        formValues.outputType = 'JSON';
+    }
+
+    const submitFormValues = async () => {
         const newErrors = {} as any;
         Object.keys(formValidators).forEach((key) => {
             const error = formValidators[key]();
@@ -142,50 +148,74 @@ const DataMapperForm = (props: AddMediatorProps) => {
         }
     }
 
+    const openDataMapperView = () => {
+
+        const request = {
+            sourcePath: props.documentUri,
+            regPath: formValues.configurationLocalPath
+        }
+        if (configName === "") {
+            return;
+        }
+        const dmCreateRequest = {
+            dmLocation: "",
+            filePath: props.documentUri,
+            dmName: configName
+        };
+        rpcClient.getMiDataMapperRpcClient().createDMFiles(dmCreateRequest).then(response => {
+            rpcClient.getMiDataMapperRpcClient().convertRegPathToAbsPath(request).then(response => {
+                // open data mapper view
+                rpcClient.getVisualizerState().then((state) => {
+                    rpcClient.getMiVisualizerRpcClient().openView({
+                        type: EVENT_TYPE.OPEN_VIEW,
+                        location: {
+                            ...state,
+                            documentUri: response.absPath,
+                            view: MACHINE_VIEW.DataMapperView,
+                            dataMapperProps: {
+                                filePath: response.absPath,
+                                configName: configName
+                            }
+                        }
+                    });
+                });
+            });
+        });
+    }
+    
+    const createMapping = () => {
+        submitFormValues();
+        openDataMapperView();
+    }
+
     return (
         <>
             <Typography sx={{ padding: "10px 15px", borderBottom: "1px solid var(--vscode-editorWidget-border)" }} variant="body3">Transforms one data format to another, or changes the data structure in the message.</Typography>
             <div style={{ padding: "10px" }}>
 
                 <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                    <h3>Properties</h3>
-
-                    <Field>
-                        <TextField
-                            label="Description"
-                            size={50}
-                            placeholder=""
-                            value={formValues["description"]}
-                            onTextChange={(e: any) => {
-                                setFormValues({ ...formValues, "description": e });
-                                formValidators["description"](e);
-                            }}
-                            required={false}
-                        />
-                        {errors["description"] && <Error>{errors["description"]}</Error>}
-                    </Field>
 
                     <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                        <h3>Configuration</h3>
+                        <h3>Mapping</h3>
 
                         <VSCodeRadioGroup>
-                            <VSCodeRadio value="new" checked={createOption === "new"} onChange={onOptionChange}>Create new config</VSCodeRadio>
-                            <VSCodeRadio value="existing" checked={createOption === "existing"} onChange={onOptionChange}>Use Existing</VSCodeRadio>
+                            <VSCodeRadio value="new" checked={createOption === "new"} onChange={onOptionChange}>New Mapping</VSCodeRadio>
+                            <VSCodeRadio value="existing" checked={createOption === "existing"} onChange={onOptionChange}>Existing Mapping</VSCodeRadio>
                         </VSCodeRadioGroup>
 
                         <Field>
                             {createOption === "new" && <TextField
-                                label="Configuration"
+                                label="Name"
                                 size={50}
                                 placeholder=""
                                 value={configName}
                                 onTextChange={(e: any) => {
                                     setConfigName(e);
                                 }}
-                                required={false}
+                                required={true}
                             />}
                             {createOption === "existing" && <AutoComplete items={dmConfigs}
-                                label="Configuration"
+                                label="Name"
                                 value={configName}
                                 onValueChange={(e: any) => {
                                     setConfigName(e);
@@ -223,14 +253,24 @@ const DataMapperForm = (props: AddMediatorProps) => {
                             {errors["configurationLocalPath"] && <Error>{errors["configurationLocalPath"]}</Error>}
                         </Field>
 
-                        <Field>
-                            <label>Input Type</label>
-                            <AutoComplete identifier='input-type' items={["JSON", "XML", "CSV"]} value={formValues['inputType']} onValueChange={(e: any) => {
-                                setFormValues({ ...formValues, "inputType": e });
-                                formValidators["inputType"](e);
-                            }} />
-                            {errors["inputType"] && <Error>{errors["inputType"]}</Error>}
-                        </Field>
+                        <FormGroup title="Advanced" isCollapsed={true}>
+                            <Field>
+                                <label>Input Type</label>
+                                <AutoComplete identifier='input-type' items={["JSON", "XML", "CSV"]} value={formValues['inputType']} onValueChange={(e: any) => {
+                                    setFormValues({ ...formValues, "inputType": e });
+                                    formValidators["inputType"](e);
+                                }} />
+                                {errors["inputType"] && <Error>{errors["inputType"]}</Error>}
+                            </Field>
+                            <Field>
+                                <label>Output Type</label>
+                                <AutoComplete identifier='output-type' items={["JSON", "XML", "CSV"]} value={formValues['outputType']} onValueChange={(e: any) => {
+                                    setFormValues({ ...formValues, "outputType": e });
+                                    formValidators["outputType"](e);
+                                }} />
+                                {errors["outputType"] && <Error>{errors["outputType"]}</Error>}
+                            </Field>
+                        </FormGroup>
 
                         <Field>
                             <div>
@@ -248,15 +288,6 @@ const DataMapperForm = (props: AddMediatorProps) => {
                         </Field>
 
                         <Field>
-                            <label>Output Type</label>
-                            <AutoComplete identifier='output-type' items={["JSON", "XML", "CSV"]} value={formValues['outputType']} onValueChange={(e: any) => {
-                                setFormValues({ ...formValues, "outputType": e });
-                                formValidators["outputType"](e);
-                            }} />
-                            {errors["outputType"] && <Error>{errors["outputType"]}</Error>}
-                        </Field>
-
-                        <Field>
                             <TextField
                                 label="OutputSchema Local Path"
                                 size={50}
@@ -268,16 +299,37 @@ const DataMapperForm = (props: AddMediatorProps) => {
                             />
                         </Field>
                     </ComponentCard>
+
+                    <Field>
+                        <TextField
+                            label="Description"
+                            size={50}
+                            placeholder=""
+                            value={formValues["description"]}
+                            onTextChange={(e: any) => {
+                                setFormValues({ ...formValues, "description": e });
+                                formValidators["description"](e);
+                            }}
+                            required={false}
+                        />
+                        {errors["description"] && <Error>{errors["description"]}</Error>}
+                    </Field>
+                    
                 </ComponentCard>
 
-
                 <div style={{ display: "flex", textAlign: "right", justifyContent: "flex-end", marginTop: "10px" }}>
-                    <Button
+                    {createOption === "new" &&  <Button
                         appearance="primary"
-                        onClick={onClick}
+                        onClick={createMapping}
+                    >
+                        Create Mapping
+                    </Button>}
+                    {createOption === "existing" && <Button
+                        appearance="primary"
+                        onClick={submitFormValues}
                     >
                         Submit
-                    </Button>
+                    </Button>}
                 </div>
 
             </div>

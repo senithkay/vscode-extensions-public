@@ -145,12 +145,12 @@ const isExpression = (elements: any[], index: number) => {
     return elements[index].value.inputType.includes('Expression');
 }
 
-const getParamManagerKeyOrValue = (elements: any[], tableKey: string, postFix?:string) => {
+const getParamManagerKeyOrValue = (elements: any[], tableKey: string, postFix?: string) => {
     const key = getIndexByKeyName(tableKey, elements);
     if (key === -1) {
         return "index";
     }
-    if(key !== -1 && elements[key].type === 'table') {
+    if (key !== -1 && elements[key].type === 'table') {
         return `generateSpaceSeperatedStringFromParamValues(property[${key}]${postFix ?? ''} as ParamConfig)`;
     }
 
@@ -158,7 +158,7 @@ const getParamManagerKeyOrValue = (elements: any[], tableKey: string, postFix?:s
 }
 
 const getParamManagerConfig = (elements: any[], tableKey: string, tableValue: string, name: string) => {
-    let paramValues = `sidePanelContext?.formValues?.${name} ? getParamManagerFromValues(sidePanelContext?.formValues?.${name}) : [],`;
+    let paramValues = `sidePanelContext?.formValues?.${name} ? getParamManagerFromValues(sidePanelContext?.formValues?.${name}, ${getIndexByKeyName(tableKey, elements)}, ${getIndexByKeyName(tableValue, elements)}) : [],`;
     let paramFields = '';
 
     const tableKeys: string[] = [];
@@ -301,6 +301,11 @@ const generateForm = (jsonData: any): string => {
                     fields +=
                         fixIndentation(`
                         <TextArea {...field} label="${displayName}" placeholder="${helpTip}" />`, indentation);
+                } else if (inputType === 'codeTextArea') {
+
+                    fields +=
+                        fixIndentation(`
+                        <CodeTextArea {...field} label="${displayName}" placeholder="${helpTip}" resize="vertical" growRange={{ start: 5, offset: 10 }} />`, indentation);
                 } else if (inputType === 'stringOrExpression' || inputType === 'expression') {
                     defaultValue = { isExpression: inputType === "expression", value: defaultValue || '' };
                     fields +=
@@ -489,6 +494,7 @@ import { ParamManager, ParamConfig, ParamValue } from '../../../../Form/ParamMan
 import { generateSpaceSeperatedStringFromParamValues } from '../../../../../utils/commons';
 import { handleOpenExprEditor, sidepanelAddPage, sidepanelGoBack } from '../../..';
 import ExpressionEditor from '../../../expressionEditor/ExpressionEditor';
+import { CodeTextArea } from '../../../../Form/CodeTextArea';
 
 const cardStyle = { 
     display: "block", 

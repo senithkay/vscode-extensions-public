@@ -12,7 +12,7 @@ import { TestController, tests, TestRunProfileKind, Uri, TestItem, ExtensionCont
 import { runHandler } from "./runner";
 import { createTestsForAllFiles, testFileMatchPattern } from "./discover";
 import { getProjectName, getProjectRoot, startWatchingWorkspace } from "./helper";
-import { EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
+import { EVENT_TYPE, MACHINE_VIEW, ProjectStructureArtifactResponse } from "@wso2-enterprise/mi-core";
 import { COMMANDS } from "../constants";
 import { StateMachine, openView } from '../stateMachine';
 import { activateMockServiceTreeView } from "./mock-services/activator";
@@ -56,17 +56,24 @@ export async function activateTestExplorer(extensionContext: ExtensionContext, l
     });
 
     commands.registerCommand(COMMANDS.ADD_TEST_CASE, async (entry: TestItem) => {
-        if (!langClient || !entry?.id) {
+        if (!langClient) {
+            window.showErrorMessage('Language client is not initialized');
+            return;
+        }
+        const id = entry?.id;
+        if (!id || id.split('.xml/').length < 1) {
+            window.showErrorMessage('Test suite id is not available');
             return;
         }
         const fileUri = Uri.parse(entry.id);
-        const testCaseNames: string[] = [];
-        const testCases: TestCase[] = await getTestCases(fileUri);
-        testCases.forEach((testCase) => {
-            testCaseNames.push(testCase.name);
-        });
 
-        openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.TestCase, documentUri: fileUri.fsPath, customProps: { availableTestCases: testCaseNames } });
+        const data = await getTestCaseNamesAndTestSuiteType(fileUri);
+        if (!data) {
+            return;
+        }
+        const { availableTestCases, testSuiteType } = data;
+
+        openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.TestCase, documentUri: fileUri.fsPath, customProps: { availableTestCases, testSuiteType } });
         console.log('Add Test Case');
     });
 
@@ -82,7 +89,6 @@ export async function activateTestExplorer(extensionContext: ExtensionContext, l
         }
         const fileUri = `${id.split('.xml/')[0]}.xml`;
         const testCaseName = id.split('.xml/')[1];
-        const testCaseNames: string[] = [];
         const st = await langClient.getSyntaxTree({
             documentIdentifier: {
                 uri: fileUri
@@ -94,14 +100,6 @@ export async function activateTestExplorer(extensionContext: ExtensionContext, l
         }
         const unitTestsST: UnitTest = st?.syntaxTree["unit-test"];
         const unitTestST = unitTestsST?.testCases?.testCases.find((testCase) => testCase.name === testCaseName);
-
-        if (unitTestsST && unitTestsST.testCases) {
-            unitTestsST.testCases.testCases.forEach((testCase) => {
-                if (testCase.name !== unitTestST?.name) {
-                    testCaseNames.push(testCase.name);
-                }
-            });
-        }
 
         if (!unitTestST) {
             window.showErrorMessage('Syntax tree for test case is not found');
@@ -116,17 +114,24 @@ export async function activateTestExplorer(extensionContext: ExtensionContext, l
                 requestMethod: unitTestST?.input?.requestMethod?.textNode,
                 requestProtocol: unitTestST?.input?.requestProtocol?.textNode,
                 payload: unitTestST?.input?.payload?.textNode,
+                // properties: unitTestST?.input?.properties?.map((property) => { return [property.name, property.value.textNode] }),
             },
-            // inputProperties: unitTestST?.input?.properties?.map((property) => { return [property.name, property.value.textNode] }),
         };
 
-        openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.TestCase, documentUri: entry.uri?.fsPath, customProps: { testCase, availableTestCases: testCaseNames, range: unitTestST?.range } });
+        const data = await getTestCaseNamesAndTestSuiteType(Uri.parse(fileUri));
+        if (!data) {
+            return;
+        }
+        const { availableTestCases, testSuiteType } = data;
+        const availableTestCasesFiltered = availableTestCases.filter((testCase) => testCase !== unitTestST.name);
+
+        openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.TestCase, documentUri: entry.uri?.fsPath, customProps: { testCase, availableTestCases: availableTestCasesFiltered, testSuiteType, range: unitTestST?.range } });
         console.log('Update Test Case');
     });
 
     commands.registerCommand(COMMANDS.GEN_AI_TESTS, () => {
         openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.AITestGen });
-        });
+    });
 
     activateMockServiceTreeView(extensionContext);
 }
@@ -207,6 +212,50 @@ export async function createTests(uri: Uri) {
         parent ? parent.children.add(node) : testController.items.add(node);
         ancestors.push(node);
     }
+}
+
+async function getTestCaseNamesAndTestSuiteType(uri: Uri) {
+    const projectUri = StateMachine.context().projectUri;
+
+    if (!projectUri) {
+        window.showErrorMessage('Project URI is not available');
+        return;
+    }
+    const st = await langClient.getSyntaxTree({
+        documentIdentifier: {
+            uri: uri.fsPath
+        },
+    });
+    if (!st) {
+        window.showErrorMessage('Syntax tree is not available');
+        return;
+    }
+    const unitTestST: UnitTest = st?.syntaxTree["unit-test"];
+    const testArtifact = unitTestST?.unitTestArtifacts?.testArtifact?.artifact?.textNode;
+
+    const projectStructure = await langClient.getProjectStructure(projectUri);
+
+    const artifacts = projectStructure.directoryMap.src?.main?.wso2mi?.artifacts;
+    const apis = artifacts?.apis?.map((api: ProjectStructureArtifactResponse) => { return { name: api.name, path: api.path.split(projectUri)[1], type: "Api" } });
+    const sequences = artifacts?.sequences?.map((sequence: ProjectStructureArtifactResponse) => { return { name: sequence.name, path: sequence.path.split(projectUri)[1], type: "Sequence" } });
+    const templates = artifacts?.templates?.map((template: ProjectStructureArtifactResponse) => { return { name: template.name, path: template.path.split(projectUri)[1], type: "Template" } });
+    const allArtifacts = [...apis, ...sequences, ...templates];
+
+    const testSuiteType = allArtifacts.find(artifact => artifact.path === testArtifact)?.type;
+
+    if (!testSuiteType) {
+        window.showErrorMessage('Cannot find the test suite');
+        return;
+    }
+
+    const availableTestCases: string[] = [];
+    if (unitTestST && unitTestST.testCases) {
+        unitTestST.testCases.testCases.forEach((testCase) => {
+            availableTestCases.push(testCase.name);
+        });
+    }
+
+    return { availableTestCases, testSuiteType };
 }
 
 async function getTestCases(uri: Uri) {

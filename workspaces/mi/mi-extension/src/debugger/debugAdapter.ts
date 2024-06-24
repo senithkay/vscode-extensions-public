@@ -10,7 +10,7 @@
 import { Breakpoint, BreakpointEvent, Handles, InitializedEvent, LoggingDebugSession, Scope, StoppedEvent, TerminatedEvent, Thread } from 'vscode-debugadapter';
 import { DebugProtocol } from 'vscode-debugprotocol';
 import * as vscode from 'vscode';
-import { executeBuildTask, executeTasks, getServerPath, isADiagramView, readPortOffset, removeTempDebugBatchFile } from './debugHelper';
+import { checkServerReadiness, executeBuildTask, executeTasks, getServerPath, isADiagramView, readPortOffset, removeTempDebugBatchFile } from './debugHelper';
 import { Subject } from 'await-notify';
 import { Debugger } from './debugger';
 import { StateMachine, navigate, openView } from '../stateMachine';
@@ -22,6 +22,7 @@ import { INCORRECT_SERVER_PATH_MSG } from './constants';
 import { extension } from '../MIExtensionContext';
 import { EVENT_TYPE } from '@wso2-enterprise/mi-core';
 import { DebuggerConfig } from './config';
+import { openRuntimeServicesWebview } from '../runtime-services-panel/activate';
 
 export class MiDebugAdapter extends LoggingDebugSession {
     private _configurationDone = new Subject();
@@ -268,10 +269,19 @@ export class MiDebugAdapter extends LoggingDebugSession {
                         executeTasks(serverPath, isDebugAllowed)
                             .then(async () => {
                                 if (args?.noDebug) {
-                                    response.success = true;
-                                    this.sendResponse(response);
+                                    checkServerReadiness().then(() => {
+                                        openRuntimeServicesWebview();
+                                        vscode.commands.executeCommand('setContext', 'MI.isRunning', 'true');
+                                        response.success = true;
+                                        this.sendResponse(response);
+                                    }).catch(error => {
+                                        vscode.window.showErrorMessage(error);
+                                        this.sendError(response, 1, error);
+                                    });
                                 } else {
                                     this.debuggerHandler?.initializeDebugger().then(() => {
+                                        openRuntimeServicesWebview();
+                                        vscode.commands.executeCommand('setContext', 'MI.isRunning', 'true');
                                         response.success = true;
                                         this.sendResponse(response);
                                     }).catch(error => {
@@ -349,6 +359,7 @@ export class MiDebugAdapter extends LoggingDebugSession {
                     this.sendError(response, 3, completeError);
                 }
             }
+            vscode.commands.executeCommand('setContext', 'MI.isRunning', 'false');
         } else {
             this.sendError(response, 3, `Error while disconnecting: Task Run was not found`);
         }
@@ -472,12 +483,28 @@ export class MiDebugAdapter extends LoggingDebugSession {
             return val;
         });
 
-        const ref = this.variableHandles.create(localScope);
+        // get the value MessageEnvelop from localScope
+        const msgScope = localScope?.find((scope: any) => scope.name === 'Message Envelope');
+        // remove the MessageEnvelop from localScope
+        const index = localScope?.indexOf(msgScope);
+        if (index !== undefined) {
+            localScope?.splice(index, 1);
+        }
+
+        const serverInternalRef = this.variableHandles.create(localScope);
+
+        let derivedScopes = [
+            new Scope("Server Internals", serverInternalRef, true),
+        ];
+
+        if (msgScope !== undefined) {
+            const msgRef = this.variableHandles.create(msgScope);
+            derivedScopes.push(new Scope("Message", msgRef, false));
+
+        }
 
         response.body = {
-            scopes: [
-                new Scope("Local", ref, false) // TODO: Check for the correct scope name
-            ]
+            scopes: derivedScopes
         };
 
         this.sendResponse(response);
