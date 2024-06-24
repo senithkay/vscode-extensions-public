@@ -645,7 +645,7 @@
       "projectFolder": "workspaces/mi/mi-data-mapper"
     },
     {
-      "packageName": "@wso2-enterprise/mi-data-mapper-operators",
+      "packageName": "@wso2-enterprise/mi-data-mapper-utils",
       "projectFolder": "workspaces/mi/mi-data-mapper-operators"
     },
     {
