@@ -8,7 +8,7 @@
  */
 import React from 'react';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
-import CircularProgress from '@material-ui/core/CircularProgress';
+import CircularProgress from '@mui/material/CircularProgress';
 import styled from '@emotion/styled';
 
 import { OverlayLayerModel } from './OverlayLayerModel';
