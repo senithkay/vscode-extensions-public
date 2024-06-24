@@ -301,7 +301,7 @@ async function runTests(testNames: string, projectRoot: string, runner: TestRun)
 export function runCommand(command, pathToRun?: string, onData?: (data: string) => void, onError?: (data: string) => void, onClose?: (code: number) => void): ChildProcess {
     try {
         if (pathToRun) {
-            command = `cd ${pathToRun} && ${command}`
+            command = `cd "${pathToRun}" && ${command}`
         }
         const cp = child_process.spawn(command, [], { shell: true });
 
