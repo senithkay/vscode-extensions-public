@@ -12,7 +12,7 @@ import { authStore } from "../stores/auth-store";
 import { getLogger } from "../logger/logger";
 import { CommandIds } from "@wso2-enterprise/choreo-core";
 import * as vscode from "vscode";
-import { ErrorCode } from "src/choreo-rpc/constants";
+import { ErrorCode } from "../choreo-rpc/constants";
 import { ResponseError } from "vscode-jsonrpc";
 
 export function signInWithAuthCodeCommand(context: ExtensionContext) {
