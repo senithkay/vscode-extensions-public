@@ -28,6 +28,8 @@ import {
     RetrieveContextResponse,
     RuntimeServicesResponse,
     SampleDownloadRequest,
+    SwaggerProxyRequest,
+    SwaggerProxyResponse,
     UpdateContextRequest,
     VisualizerLocation,
     WorkspaceFolder,
@@ -50,6 +52,7 @@ import { log, outputChannel } from "../../util/logger";
 import axios from "axios";
 import * as https from "https";
 import { DebuggerConfig } from "../../debugger/config";
+import { SwaggerServer } from "../../swagger/server";
 
 export class MiVisualizerRpcManager implements MIVisualizerAPI {
     async getWorkspaces(): Promise<WorkspacesResponse> {
@@ -328,6 +331,27 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
                 resolve(runtimeServicesResponse);
             } else {
                 throw new Error(`Error while checking token usage: ${response.statusText}`);
+            }
+        });
+    }
+
+    async sendSwaggerProxyRequest(params: SwaggerProxyRequest): Promise<SwaggerProxyResponse> {
+        return new Promise(async (resolve) => {
+            if (params.command !== 'swaggerRequest') {
+                resolve({ isResponse: false });
+            } else {
+                const swaggerServer: SwaggerServer = new SwaggerServer();
+                await swaggerServer.sendRequest(params.request as any, false).then((response) => {
+                    if (typeof response === 'boolean') {
+                        resolve({ isResponse: true, response: undefined});
+                    } else {
+                        const responseData: SwaggerProxyResponse = {
+                            isResponse: true,
+                            response: response
+                        };
+                        resolve(responseData);
+                    }
+                });
             }
         });
     }

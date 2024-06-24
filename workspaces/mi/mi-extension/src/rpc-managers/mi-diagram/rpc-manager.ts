@@ -228,9 +228,6 @@ import path = require("path");
 import { openSwaggerWebview } from "../../swagger/activate";
 import { RPCLayer } from "../../RPCLayer";
 import { getPortPromise } from "portfinder";
-import { SwaggerServer } from "../../swagger/server";
-import { RuntimeServicesWebview } from "../../runtime-services-panel/webview";
-import { SwaggerWebview } from "../../swagger/webview";
 
 const { XMLParser, XMLBuilder } = require("fast-xml-parser");
 
@@ -3702,7 +3699,6 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
             const response = await langClient.swaggerFromAPI({ apiPath: params.apiPath });
             const generatedSwagger = response.swagger;
-            const swaggerServer: SwaggerServer = new SwaggerServer();
             const port = await getPortPromise({ port: 1000, stopPort: 3000 });
             const cors_proxy = require('cors-anywhere');
             cors_proxy.createServer({
@@ -3716,21 +3712,6 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             };
 
             await openSwaggerWebview(swaggerData);
-
-            const swaggerPanel = SwaggerWebview.currentPanel?.getWebview();
-            swaggerPanel?.webview.onDidReceiveMessage(
-                async message => {
-                    if (message.command !== 'swaggerRequest') {
-                        return;
-                    }
-                    await swaggerServer.sendRequest(message.req, false).then((response) => {
-                        swaggerPanel!.webview.postMessage({
-                            command: 'swaggerResponse',
-                            res: response
-                        });
-                    });
-                }
-            );
         });
     }
 
@@ -4169,29 +4150,12 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         const langClient = StateMachine.context().langClient!;
         const response = await langClient.swaggerFromAPI({ apiPath: params.apiPath });
         const generatedSwagger = response.swagger;
-        const swaggerServer: SwaggerServer = new SwaggerServer();
         const port = await getPortPromise({ port: 1000, stopPort: 3000 });
         const cors_proxy = require('cors-anywhere');
         cors_proxy.createServer({
             originWhitelist: [], // Allow all origins
             requireHeader: ['origin', 'x-requested-with']
         }).listen(port, 'localhost');
-
-        // Swagger Request
-        const runtimePanel = RuntimeServicesWebview.currentPanel?.getWebview();
-        runtimePanel?.webview.onDidReceiveMessage(
-            async message => {
-                if (message.command !== 'swaggerRequest') {
-                    return;
-                }
-                await swaggerServer.sendRequest(message.req, false).then((response) => {
-                    runtimePanel!.webview.postMessage({
-                        command: 'swaggerResponse',
-                        res: response
-                    });
-                });
-            }
-        );
 
         RPCLayer._messenger.sendNotification(onSwaggerSpecReceived, { type: 'webview', webviewType: 'micro-integrator.runtime-services-panel' }, { generatedSwagger: generatedSwagger, port: port });
 
