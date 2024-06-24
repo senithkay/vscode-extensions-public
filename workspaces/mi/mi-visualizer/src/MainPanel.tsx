@@ -43,7 +43,6 @@ import { TestSuiteForm } from './views/Forms/Tests/TestSuiteForm';
 import { TestCaseForm } from './views/Forms/Tests/TestCaseForm';
 import { MockServiceForm } from './views/Forms/Tests/MockServices/MockServiceForm';
 import { DataServiceWizard } from './views/Forms/DataServiceForm/MainPanelForms';
-import { AITestGenForm } from './views/Forms/Tests/AITestGenForm';
 import { DataServiceView } from './views/Diagram/DataService';
 import { SignInToCopilotMessage } from './views/LoggedOutWindow';
 
