@@ -86,8 +86,10 @@ export default function ExpressionBar(props: ExpressionBarProps) {
         let disabled = true;
     
         if (focusedPort) {
+
             const focusedNode = focusedPort.typeWithValue.value;
-    
+            if(focusedNode.wasForgotten) return;
+            
             if (Node.isPropertyAssignment(focusedNode)) {
                 value = focusedNode.getInitializer()?.getText();
             } else {
