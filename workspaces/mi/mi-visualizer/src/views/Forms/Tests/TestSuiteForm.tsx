@@ -121,7 +121,17 @@ export function TestSuiteForm(props: TestSuiteFormProps) {
         setIsLoaded(false);
 
         try {
-            const token = await rpcClient.getMiDiagramRpcClient().getUserAccessToken();
+
+            let token;
+            try {
+                token = await rpcClient.getMiDiagramRpcClient().getUserAccessToken();
+            } catch (error) {
+                console.error('User not signed in', error);
+            }
+
+            if (!token) {
+                openSignInView();                
+            }
             const backendRootUri = (await rpcClient.getMiDiagramRpcClient().getBackendRootUrl()).url;
             const url = backendRootUri + MI_UNIT_TEST_GENERATION_BACKEND_URL;
             const artifact = isWindows ? path.win32.join(projectUri, values.artifact) : path.join(projectUri, values.artifact);
@@ -244,6 +254,9 @@ export function TestSuiteForm(props: TestSuiteFormProps) {
 
     const openOverview = () => {
         rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Overview } });
+    };
+    const openSignInView = () => {
+        rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.LoggedOut } });
     };
 
     const openAddTestCase = () => {

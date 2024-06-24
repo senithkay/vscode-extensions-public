@@ -64,6 +64,7 @@ export enum MACHINE_VIEW {
     TestCase = "Test Cases",
     AITestGen = "AI Test Generation",
     MockService = "Mock Service",
+    LoggedOut = "Logged Out",
 }
 
 export enum AI_MACHINE_VIEW {
