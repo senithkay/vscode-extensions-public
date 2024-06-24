@@ -1437,7 +1437,6 @@ importers:
       '@types/node': ^18.11.19
       '@types/react': ^17.0.37
       '@types/react-dom': 17.0.14
-      '@wso2-enterprise/ui-toolkit': workspace:*
       babel-loader: ^8.2.5
       copyfiles: ^2.4.1
       css-loader: ^6.7.1
@@ -1467,7 +1466,6 @@ importers:
       '@projectstorm/react-diagrams-routing': 6.7.4_uwld7monh2diny7vior76oigoq
       '@types/lodash': 4.14.202
       '@types/node': 18.19.14
-      '@wso2-enterprise/ui-toolkit': link:../../common-libs/ui-toolkit
       dagre: 0.8.5
       gsap: 3.12.5
       lodash: 4.17.21
@@ -7445,7 +7443,7 @@ packages:
         optional: true
     dependencies:
       '@babel/runtime': 7.23.9
-      '@mui/utils': 5.15.8_7nbm7nfx3p2z47ghw7mvcj2mjy
+      '@mui/utils': 5.15.20_7nbm7nfx3p2z47ghw7mvcj2mjy
       '@types/react': 17.0.75
       prop-types: 15.8.1
       react: 17.0.2
@@ -7512,6 +7510,24 @@ packages:
         optional: true
     dependencies:
       '@types/react': 17.0.75
+    dev: false
+
+  /@mui/utils/5.15.20_7nbm7nfx3p2z47ghw7mvcj2mjy:
+    resolution: {integrity: sha512-mAbYx0sovrnpAu1zHc3MDIhPqL8RPVC5W5xcO1b7PiSCJPtckIZmBkp8hefamAvUiAV8gpfMOM6Zb+eSisbI2A==}
+    engines: {node: '>=12.0.0'}
+    peerDependencies:
+      '@types/react': ^17.0.0 || ^18.0.0
+      react: ^17.0.0 || ^18.0.0
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+    dependencies:
+      '@babel/runtime': 7.23.9
+      '@types/prop-types': 15.7.11
+      '@types/react': 17.0.75
+      prop-types: 15.8.1
+      react: 17.0.2
+      react-is: 18.2.0
     dev: false
 
   /@mui/utils/5.15.8_7nbm7nfx3p2z47ghw7mvcj2mjy:
