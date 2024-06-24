@@ -2,14 +2,15 @@ import React, { FC } from "react";
 import { CommandIds, ComponentsDetailsWebviewProps } from "@wso2-enterprise/choreo-core";
 import { getComponentTypeText, getTypeForDisplayType } from "../utils";
 import { ChoreoWebViewAPI } from "../../../utilities/WebViewRpc";
-import { ContextMenu } from "../../../components/ContextMenu";
 import { HeaderSection as HeaderSectionView } from "../../../components/HeaderSection";
+import { Button } from "../../../components/Button";
+import { Codicon } from "../../../components/Codicon";
+import { useMutation } from "@tanstack/react-query";
 
 export const HeaderSection: FC<ComponentsDetailsWebviewProps> = ({
     component,
     organization,
     project,
-    directoryPath,
 }) => {
     const openInConsole = () =>
         ChoreoWebViewAPI.getInstance().triggerCmd(CommandIds.OpenComponentInConsole, {
@@ -19,6 +20,15 @@ export const HeaderSection: FC<ComponentsDetailsWebviewProps> = ({
         });
 
     const openGitPage = () => ChoreoWebViewAPI.getInstance().openExternal(component.spec.source?.github?.repository);
+
+    const { mutate: onDeleteComponent, isLoading: deletingComponent } = useMutation({
+        mutationFn: () =>
+            ChoreoWebViewAPI.getInstance().triggerCmd(CommandIds.DeleteComponent, {
+                component,
+                project,
+                organization,
+            }),
+    });
 
     return (
         <HeaderSectionView
@@ -32,16 +42,15 @@ export const HeaderSection: FC<ComponentsDetailsWebviewProps> = ({
                 { label: "Open in Console", onClick: () => openInConsole() },
                 { label: "Open Git Repository", onClick: () => openGitPage() },
             ]}
-            menu={
-                <ContextMenu
-                    webviewSection="componentListItem"
-                    params={{
-                        component: component,
-                        project: project,
-                        organization: organization,
-                        componentPath: directoryPath,
-                    }}
-                />
+            secondaryIcon={
+                <Button
+                    appearance="icon"
+                    onClick={() => onDeleteComponent()}
+                    disabled={deletingComponent}
+                    className="text-vsc-errorForeground"
+                >
+                    <Codicon name="trash" />
+                </Button>
             }
         />
     );

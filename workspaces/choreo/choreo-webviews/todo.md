@@ -22,13 +22,8 @@
 - Add pagination for build list
 - Improve loading times for component/build list
 
-## Bugs
-- Fix first time user flow in cli and vscode (org creation flow) - Critical
-- RPC initialization not persisted in mac os - Critical
-
 ## Context.yaml changes
 - sync workspace file automatically
-- hamburger icon in component details page, replace it with small delete button
 
 ## Other
 - Revisit app insights implementation

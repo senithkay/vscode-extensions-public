@@ -11,10 +11,13 @@
  *  associated services.
  */
 
-import { ProgressLocation, ProviderResult, Uri, commands, window } from "vscode";
+import { ProgressLocation, ProviderResult, Uri, window } from "vscode";
 import { ext } from "./extensionVariables";
 import { getLogger } from "./logger/logger";
 import { authStore } from "./stores/auth-store";
+import { contextStore } from "./stores/context-store";
+import { ResponseError } from "vscode-jsonrpc";
+import { ErrorCode } from "./choreo-rpc/constants";
 
 export function activateURIHandlers() {
     window.registerUriHandler({
@@ -36,13 +39,19 @@ export function activateURIHandlers() {
                         },
                         async () => {
                             try {
-                                const userInfo = await ext.clients.rpcClient.signInWithAuthCode(authCode);
+                                const selected = contextStore.getState().state?.selected;
+                                const userInfo = await ext.clients.rpcClient.signInWithAuthCode(
+                                    authCode,
+                                    selected?.org?.id ? selected?.org?.id?.toString() : undefined
+                                );
                                 if (userInfo) {
                                     authStore.getState().loginSuccess(userInfo);
                                 }
                             } catch (error: any) {
+                                if (!(error instanceof ResponseError) || error.code !== ErrorCode.NoOrgsAvailable) {
+                                    window.showErrorMessage(`Sign in failed. Please check the logs for more details.`);
+                                }
                                 getLogger().error(`Choreo sign in Failed: ${error.message}`);
-                                window.showErrorMessage(`Sign in failed. Please check the logs for more details.`);
                             }
                         }
                     );

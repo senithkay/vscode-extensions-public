@@ -91,7 +91,19 @@ export function handlerError(err: any) {
                 });
                 break;
             case ErrorCode.InvalidSubPath:
-                w.showErrorMessage("Failed to create component. Please try again after synching your local repo directory changes with your remote directory.");
+                w.showErrorMessage(
+                    "Failed to create component. Please try again after synching your local repo directory changes with your remote directory."
+                );
+                break;
+            case ErrorCode.NoOrgsAvailable:
+                w.showErrorMessage(
+                    `No organizations attached to the user. Please create an organization in Choreo and try logging in again`,
+                    "Open Choreo Console"
+                ).then((res) => {
+                    if (res === "Open Choreo Console") {
+                        commands.executeCommand("vscode.open", choreoEnvConfig.getConsoleUrl());
+                    }
+                });
                 break;
             default:
                 getLogger().error("Unknown error", err);

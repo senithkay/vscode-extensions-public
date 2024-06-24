@@ -12,6 +12,8 @@ import { authStore } from "../stores/auth-store";
 import { getLogger } from "../logger/logger";
 import { CommandIds } from "@wso2-enterprise/choreo-core";
 import * as vscode from "vscode";
+import { ErrorCode } from "src/choreo-rpc/constants";
+import { ResponseError } from "vscode-jsonrpc";
 
 export function signInWithAuthCodeCommand(context: ExtensionContext) {
     context.subscriptions.push(
@@ -36,14 +38,10 @@ export function signInWithAuthCodeCommand(context: ExtensionContext) {
                     window.showErrorMessage("Auth Code is required to login");
                 }
             } catch (error: any) {
-                getLogger().error(
-                    "Error while signing in using Auth Code." +
-                        error?.message +
-                        (error?.cause ? "\nCause: " + error.cause.message : "")
-                );
-                if (error instanceof Error) {
-                    window.showErrorMessage(error.message);
+                if (!(error instanceof ResponseError) || error.code !== ErrorCode.NoOrgsAvailable) {
+                    window.showErrorMessage(`Sign in failed. Please check the logs for more details.`);
                 }
+                getLogger().error(`Choreo sign in Failed: ${error.message}`);
             }
         })
     );

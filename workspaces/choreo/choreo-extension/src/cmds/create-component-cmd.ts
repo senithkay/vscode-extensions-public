@@ -181,6 +181,36 @@ export const submitCreateComponentHandler = async ({
                 name: createdComponent.metadata.name,
                 uri: Uri.parse(createParams.componentDir),
             });
+        } else {
+            // show n
+        }
+
+        if (workspace.workspaceFile) {
+            if (
+                workspace.workspaceFile.scheme !== "untitled" &&
+                path.basename(workspace.workspaceFile.path) === `${project?.handler}.code-workspace`
+            ) {
+                // Automatically update the workspace if user is within a project workspace
+                workspace.updateWorkspaceFolders(workspace.workspaceFolders?.length!, null, {
+                    name: createdComponent.metadata.name,
+                    uri: Uri.parse(createParams.componentDir),
+                });
+            } else {
+                // Else manfully ask and update the workspace
+                window
+                    .showInformationMessage(
+                        `Do you want update your workspace with the directory of ${createdComponent.metadata.name}`,
+                        "Continue"
+                    )
+                    .then((resp) => {
+                        if (resp === "Continue") {
+                            workspace.updateWorkspaceFolders(workspace.workspaceFolders?.length!, null, {
+                                name: createdComponent.metadata.name,
+                                uri: Uri.parse(createParams.componentDir),
+                            });
+                        }
+                    });
+            }
         }
 
         contextStore.getState().refreshState();
