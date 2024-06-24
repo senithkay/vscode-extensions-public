@@ -133,14 +133,14 @@ export function TestSuiteForm(props: TestSuiteFormProps) {
             }
 
             if (!token) {
-                openSignInView();                
+                openSignInView();
             }
             const backendRootUri = (await rpcClient.getMiDiagramRpcClient().getBackendRootUrl()).url;
             const url = backendRootUri + MI_UNIT_TEST_GENERATION_BACKEND_URL;
             const artifact = isWindows ? path.win32.join(projectUri, values.artifact) : path.join(projectUri, values.artifact);
 
             var context: GetSelectiveArtifactsResponse[] = [];
-            await rpcClient?.getMiDiagramRpcClient()?.getSelectiveArtifacts({path:artifact}).then((response: GetSelectiveArtifactsResponse) => {
+            await rpcClient?.getMiDiagramRpcClient()?.getSelectiveArtifacts({ path: artifact }).then((response: GetSelectiveArtifactsResponse) => {
                 context.push(response);
             });
 
@@ -157,7 +157,7 @@ export function TestSuiteForm(props: TestSuiteFormProps) {
                 // Retrieve a new token
                 await rpcClient.getMiDiagramRpcClient().refreshAccessToken();
                 const token = await rpcClient.getMiDiagramRpcClient().getUserAccessToken();
-            
+
                 // Make the request again with the new token
                 response = await fetch(url, {
                     method: 'POST',
@@ -173,22 +173,22 @@ export function TestSuiteForm(props: TestSuiteFormProps) {
             }
             const data = await response.json() as UnitTestApiResponse;
             if (data.event === "test_generation_success") {
-            // Extract xml from the response
-            const xml = data.tests.match(/```xml\n([\s\S]*?)\n```/gs);
-            if (xml) {
-                // Remove the Markdown code block delimiters
-                const cleanedXml = xml.map(xml => xml.replace(/```xml\n|```/g, ''));
-                rpcClient.getMiDiagramRpcClient().updateTestSuite({ path: props.filePath, content: cleanedXml[0], name: values.name, artifact }).then(() => {
-                    openOverview();
-                });
+                // Extract xml from the response
+                const xml = data.tests.match(/```xml\n([\s\S]*?)\n```/gs);
+                if (xml) {
+                    // Remove the Markdown code block delimiters
+                    const cleanedXml = xml.map(xml => xml.replace(/```xml\n|```/g, ''));
+                    rpcClient.getMiDiagramRpcClient().updateTestSuite({ path: props.filePath, content: cleanedXml[0], name: values.name, artifact }).then(() => {
+                        openOverview();
+                    });
+                } else {
+                    console.error('No XMLs found in the response');
+                }
             } else {
-                console.error('No XMLs found in the response');
-            }
-        } else {
                 throw new Error("Failed to generate suggestions: " + data.error);
             }
-        setIsLoaded(true);
-    
+            setIsLoaded(true);
+
         } catch (error) {
             console.error('Error while generating unit tests:', error);
         }
