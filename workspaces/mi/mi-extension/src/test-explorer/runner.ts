@@ -11,7 +11,7 @@
  * Test explorer run and debug related funtions.
  */
 
-import { Uri, CancellationToken, TestItem, TestMessage, TestRunProfileKind, TestRunRequest, window, MarkdownString } from "vscode";
+import { Uri, CancellationToken, TestItem, TestMessage, TestRunProfileKind, TestRunRequest, window, MarkdownString, TestRun } from "vscode";
 
 import { discoverTests, gatherTestItems } from "./discover";
 import { testController } from "./activator";
@@ -71,16 +71,16 @@ export function runHandler(request: TestRunRequest, cancellation: CancellationTo
             try {
                 // execute test
                 run.appendOutput(`Starting MI test server\r\n`);
-                const { cp } = await startTestServer();
+                const { cp } = await startTestServer(run);
                 stopTestServer = () => {
                     treeKill(cp.pid!, 'SIGKILL');
                 }
 
-                run.appendOutput("MI test server started\r\n");
+                run.appendOutput("\x1b[32m================== MI test server started ==================\x1b[0m\r\n");
                 run.appendOutput(`Running tests ${testNames}\r\n`);
 
                 // run tests
-                await runTests(testNames, projectRoot);
+                await runTests(testNames, projectRoot, run);
                 const EndTime = Date.now();
                 const timeElapsed = (EndTime - startTime) / queue.length;
 
@@ -166,7 +166,7 @@ export function runHandler(request: TestRunRequest, cancellation: CancellationTo
                 window.showErrorMessage(`Error: ${error}`);
                 run.appendOutput(`${error.toString().replace('\n', '\r\n')}\r\n`);
             }
-            run.appendOutput(`Tests Completed\r\n`);
+            run.appendOutput(`Test running finished\r\n`);
             run.end();
             if (stopTestServer!) {
                 stopTestServer();
@@ -191,7 +191,7 @@ export function runHandler(request: TestRunRequest, cancellation: CancellationTo
  * Start test server.
  * @returns server output
  */
-async function startTestServer(): Promise<{ cp: ChildProcess }> {
+async function startTestServer(runner: TestRun): Promise<{ cp: ChildProcess }> {
     return new Promise<{ cp: ChildProcess }>(async (resolve, reject) => {
         try {
             const serverPath = await getServerPath();
@@ -207,8 +207,22 @@ async function startTestServer(): Promise<{ cp: ChildProcess }> {
 
             const cp = runCommand(serverCommand, undefined, onData, onError, undefined);
 
+            let serverStarted = false;
+            let foundError = false;
             function onData(data: string) {
+                if (!serverStarted) {
+                    data.split('\n').forEach((line) => {
+                        if (line.includes("] ERROR ")) {
+                            foundError = true;
+                        } else if (line.includes("]  INFO ")) {
+                            foundError = false;
+                        }
+
+                        printToOutput(runner, line, foundError);
+                    });
+                }
                 if (data.includes("Micro Integrator started in")) {
+                    serverStarted = true;
                     resolve({ cp });
                 }
                 if (data.includes("Address already in use")) {
@@ -216,6 +230,7 @@ async function startTestServer(): Promise<{ cp: ChildProcess }> {
                 }
             }
             function onError(data: string) {
+                printToOutput(runner, data, true);
                 window.showErrorMessage(data);
                 reject(data);
             }
@@ -226,23 +241,49 @@ async function startTestServer(): Promise<{ cp: ChildProcess }> {
     });
 }
 
-async function runTests(testNames: string, projectRoot: string): Promise<void> {
+function printToOutput(runner: TestRun, line: string, isError: boolean = false) {
+    if (isError) {
+        runner.appendOutput(`\x1b[31m${line}\x1b[0m\r\n`); // Print in red color
+    } else {
+        runner.appendOutput(`${line}\r\n`);
+    }
+}
+
+async function runTests(testNames: string, projectRoot: string, runner: TestRun): Promise<void> {
     return new Promise<void>(async (resolve, reject) => {
         const mvnCmd = process.platform === "win32" ? "mvn.cmd" : "mvn";
         const testRunCmd = `${mvnCmd} test -DtestServerType=remote -DtestServerHost=${TestRunnerConfig.getHost()} -DtestServerPort=${TestRunnerConfig.getServerPort()} -P test`;
 
+        let foundError = false;
+        let finished = false;
         const onData = (data: string) => {
+            data.split('\n').forEach((line) => {
+                if (line.includes("] ERROR ")) {
+                    foundError = true;
+                } else if (line.includes("]  INFO ")) {
+                    foundError = false;
+                }
+
+                printToOutput(runner, line, foundError);
+            });
             if (data.includes("Finished at:")) {
+                finished = true;
                 resolve();
             }
         }
         const onError = (data: string) => {
+            printToOutput(runner, data, true);
             window.showErrorMessage(data);
             reject(data);
         }
+        const onClose = (code: number) => {
+            if (code !== 0 && !finished) {
+                reject("Test execution failed");
+            }
+        }
 
         try {
-            runCommand(testRunCmd, projectRoot, onData, onError);
+            runCommand(testRunCmd, projectRoot, onData, onError, onClose);
         } catch (error) {
             throw error;
         }
