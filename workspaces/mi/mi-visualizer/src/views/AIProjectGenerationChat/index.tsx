@@ -873,15 +873,14 @@ export function AIProjectGenerationChat() {
                 </>
                 ))}
                 {uploadedFile && uploadedFile.fileName && (
-                    <FlexRow >
+                    <FlexRow style={{ alignItems: 'center' }}>
                         <span>{uploadedFile.fileName}</span>
-                        <VSCodeButton
-                            appearance="secondary"
+                        <Button
+                            appearance="icon"
                             onClick={handleRemoveFile}
-                            style={{ marginLeft: '10px', backgroundColor: '#1C1C1C' }}
                         >
                             <span className="codicon codicon-close"></span>
-                        </VSCodeButton>
+                        </Button>
                     </FlexRow>
                 )}
                 <FlexRow>
