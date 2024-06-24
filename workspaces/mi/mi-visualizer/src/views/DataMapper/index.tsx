@@ -29,14 +29,10 @@ export function DataMapper(props: DataMapperProps) {
 
     const [isFileUpdateError, setIsFileUpdateError] = useState(false);
 
-    const [operators, setOperators]=useState<string[]>(["abc"]);
-
     const { dmIOTypes, isFetchingIOTypes, isIOTypeError } = useIOTypes(filePath, functionName, interfacesSource);
 
     const { dmOperators, isFetchingOperators, isOperatorsError } = useOperators(filePath)
     
-    console.log("hihi");
-    console.log(filePath);
 
     // useEffect(() => {
     //     rpcClient.getMiDataMapperRpcClient().getOperators({ req: "REQ" }).then((res) => {
