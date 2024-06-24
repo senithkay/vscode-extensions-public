@@ -86,10 +86,12 @@ export default function ExpressionBar(props: ExpressionBarProps) {
         if (focusedPort) {
             const focusedNode = focusedPort.typeWithValue.value;
     
-            if (Node.isPropertyAssignment(focusedNode)) {
-                value = focusedNode.getInitializer()?.getText();
-            } else {
-                value = focusedNode ? focusedNode.getText() : "";
+            if (focusedNode && !focusedNode.wasForgotten()) {
+                if (Node.isPropertyAssignment(focusedNode)) {
+                    value = focusedNode.getInitializer()?.getText();
+                } else {
+                    value = focusedNode ? focusedNode.getText() : "";
+                }
             }
 
             if (textFieldRef.current) {
@@ -154,6 +156,14 @@ export default function ExpressionBar(props: ExpressionBarProps) {
     };
 
     const applyChanges = async () => {
+        if (focusedPort) {
+            applyChangesOnFocusedPort();
+        } else if (focusedFilter) {
+            applyChangesOnFocusedFilter();
+        }
+    };
+
+    const applyChangesOnFocusedPort = async () => {
         const focusedFieldValue = focusedPort?.typeWithValue.value;
 
         if (focusedFieldValue) {
@@ -201,6 +211,13 @@ export default function ExpressionBar(props: ExpressionBarProps) {
                 focusedPort?.typeWithValue, objLitExpr, expressionRef.current, fnBody, applyModifications
             );
         }
+    };
+
+    const applyChangesOnFocusedFilter = async () => {
+        const replaceWith = expressionRef.current;
+        focusedFilter.replaceWithText(replaceWith);
+
+        await applyModifications();
     };
 
     const addClosingBracketIfNeeded = (text: string) => {

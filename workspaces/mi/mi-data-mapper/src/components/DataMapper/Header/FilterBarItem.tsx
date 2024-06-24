@@ -65,7 +65,9 @@ export default function FilterBarItem(props: FilterBarItemProps) {
 
     const filterExpr = getFilterExpression(filterNode);
 
-    const isFocused = focusedFilter && isPositionsEquals(getPosition(filterExpr), getPosition(focusedFilter));
+    const isFocused = focusedFilter
+        && !focusedFilter.wasForgotten
+        && isPositionsEquals(getPosition(filterExpr), getPosition(focusedFilter));
     const diagnostics = filterExpr && getDiagnostics(filterExpr);
     const isEmptyExpr = filterExpr.getText() === "";
     const hasDiagnostics = diagnostics && diagnostics.length > 0;
