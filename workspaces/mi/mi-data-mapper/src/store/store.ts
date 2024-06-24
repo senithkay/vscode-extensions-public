@@ -6,8 +6,10 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { InputOutputPortModel } from 'src/components/Diagram/Port';
-import { create } from 'zustand';
+import { create } from "zustand";
+import { Node } from "ts-morph"; 
+
+import { InputOutputPortModel } from "../components/Diagram/Port";
 
 interface SubMappingConfig {
     isSMConfigPanelOpen: boolean;
@@ -45,10 +47,12 @@ export interface DataMapperSubMappingConfigPanelState {
 
 export interface DataMapperExpressionBarState {
     focusedPort: InputOutputPortModel;
+    focusedFilter: Node;
     inputPort: InputOutputPortModel;
     setFocusedPort: (port: InputOutputPortModel) => void;
+    setFocusedFilter: (port: Node) => void;
     setInputPort: (port: InputOutputPortModel) => void;
-    resetFocusedPort: () => void;
+    resetFocus: () => void;
     resetInputPort: () => void;
 }
 
@@ -90,9 +94,11 @@ export const useDMSubMappingConfigPanelStore = create<DataMapperSubMappingConfig
 
 export const useDMExpressionBarStore = create<DataMapperExpressionBarState>((set) => ({
     focusedPort: undefined,
+    focusedFilter: undefined,
     setFocusedPort: (focusedPort: InputOutputPortModel) => set({ focusedPort }),
+    setFocusedFilter: (focusedFilter: Node) => set({ focusedFilter }),
     inputPort: undefined,
     setInputPort: (inputPort: InputOutputPortModel) => set({ inputPort }),
-    resetFocusedPort: () => set({ focusedPort: undefined }),
+    resetFocus: () => set({ focusedPort: undefined, focusedFilter: undefined }),
     resetInputPort: () => set({ inputPort: undefined })
 }));

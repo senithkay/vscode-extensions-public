@@ -10,6 +10,8 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+import { CallExpression, Node, SyntaxKind } from "ts-morph";
+
 import { View } from "../Views/DataMapperView";
 import { INPUT_FIELD_FILTER_LABEL, OUTPUT_FIELD_FILTER_LABEL, SearchTerm, SearchType } from "./HeaderSearchBox";
 
@@ -49,4 +51,21 @@ export function isFocusedOnMapFunction(views: View[]): boolean {
 
     return noOfViews > 1
         && (!focusedView.subMappingInfo || !focusedView.subMappingInfo.focusedOnSubMappingRoot);
+}
+
+export function getFilterExpression(callExpr: CallExpression): Node | undefined {
+    const firstArg = callExpr.getArguments()[0];
+    let filterExpr: Node;
+
+    if (firstArg && Node.isArrowFunction(firstArg)) {
+        const arrowFnBody = firstArg.getBody();
+        filterExpr = arrowFnBody;
+
+        if (Node.isBlock(arrowFnBody)) {
+            const returnStmt = arrowFnBody.getStatementByKind(SyntaxKind.ReturnStatement);
+            filterExpr = returnStmt ? returnStmt.getExpression() : filterExpr;
+        }
+    }
+
+    return filterExpr;
 }

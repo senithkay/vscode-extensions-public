@@ -48,8 +48,9 @@ export default function ExpressionBar(props: ExpressionBarProps) {
     const textFieldRef = useRef<HTMLInputElement>(null);
     const expressionRef = useRef("");
 
-    const { focusedPort, inputPort } = useDMExpressionBarStore(state => ({
+    const { focusedPort, focusedFilter, inputPort } = useDMExpressionBarStore(state => ({
         focusedPort: state.focusedPort,
+        focusedFilter: state.focusedFilter,
         inputPort: state.inputPort
     }));
 
@@ -96,13 +97,21 @@ export default function ExpressionBar(props: ExpressionBarProps) {
             }
     
             disabled = focusedPort.isDisabled();
+        } else if (focusedFilter) {
+            value = focusedFilter.getText();
+
+            if (textFieldRef.current) {
+                textFieldRef.current.focus();
+            }
+
+            disabled = false;
         } else if (textFieldRef.current) {
             textFieldRef.current.blur();
         }
     
         expressionRef.current = value;
         return disabled;
-    }, [focusedPort]);
+    }, [focusedPort, focusedFilter]);
 
     const onChangeTextField = (text: string) => {
         expressionRef.current = text;

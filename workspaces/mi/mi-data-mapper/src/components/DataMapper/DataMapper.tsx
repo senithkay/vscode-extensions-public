@@ -91,25 +91,25 @@ export function MIDataMapper(props: MIDataMapperProps) {
 
     const { rpcClient } = useVisualizerContext();
     const { resetSearchStore } = useDMSearchStore();
-    const { resetFocusedPort } = useDMExpressionBarStore();
+    const { resetFocus: resetExprBarFocus } = useDMExpressionBarStore();
 
     const addView = useCallback((view: View) => {
         dispatch({ type: ActionType.ADD_VIEW, payload: {view} });
         resetSearchStore();
-        resetFocusedPort();
-    }, [resetSearchStore, resetFocusedPort]);
+        resetExprBarFocus();
+    }, [resetSearchStore, resetExprBarFocus]);
 
     const switchView = useCallback((navigateIndex: number) => {
         dispatch({ type: ActionType.SWITCH_VIEW, payload: {index: navigateIndex} });
         resetSearchStore();
-        resetFocusedPort();
-    }, [resetSearchStore, resetFocusedPort]);
+        resetExprBarFocus();
+    }, [resetSearchStore, resetExprBarFocus]);
 
     const editView = useCallback((newData: View) => {
         dispatch({ type: ActionType.EDIT_VIEW, payload: { view: newData} });
         resetSearchStore();
-        resetFocusedPort();
-    }, [resetSearchStore, resetFocusedPort]);
+        resetExprBarFocus();
+    }, [resetSearchStore, resetExprBarFocus]);
 
     const inputNode = nodes.find(node => isInputNode(node));
 

@@ -13,7 +13,9 @@ import { Codicon, LinkButton } from '@wso2-enterprise/ui-toolkit';
 
 import { FocusedInputNode } from '../../../components/Diagram/Node';
 import { DataMapperNodeModel } from 'src/components/Diagram/Node/commons/DataMapperNode';
-import { ArrowFunction, Node, SyntaxKind } from 'ts-morph';
+import { Node, SyntaxKind } from 'ts-morph';
+import FilterBarItem from './FilterBarItem';
+import { useDMExpressionBarStore } from '../../../store/store';
 
 const useStyles = () => ({
     exprBarContainer: css({
@@ -27,22 +29,7 @@ const useStyles = () => ({
     }),
     addFilterButton: css({
         lineHeight: 2
-    }),
-    filterItem: css({
-        color: "var(--vscode-foreground)",
-        padding: "4px 16px",
-        margin: "2px 2px",
-        borderRadius: "1rem",
-        border: "1px solid var(--vscode-menu-separatorBackground)",
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-        cursor: "pointer",
-        transition: "background-color 0.3s",
-        '&:hover': {
-            backgroundColor: "var(--vscode-button-secondaryHoverBackground)"
-        }
-    }),
+    })
 });
 
 const linkButtonStyles = {
@@ -62,6 +49,9 @@ export default function FilterBar(props: FilterBarProps) {
     const { inputNode } = props;
     const classes = useStyles();
 
+
+    const resetExprBarFocus = useDMExpressionBarStore(state => state.resetFocus);
+
     const filterElements = useMemo(() => {
         if (!(inputNode instanceof FocusedInputNode)) return [];
 
@@ -71,40 +61,24 @@ export default function FilterBar(props: FilterBarProps) {
         const filterCalls = callExpressions.filter(call => {
             const expression = call.getExpression();
             return Node.isPropertyAccessExpression(expression) && expression.getName() === "filter";
-        });
-        
-        // Extract the arrow functions body from these filter calls
-        const filterExprs = filterCalls
-            .map(call => call.getArguments()[0])
-            .filter(arg => Node.isArrowFunction(arg))
-            .map(arrowFn => (arrowFn as ArrowFunction).getBody());
-        
+        });        
 
-        return filterExprs.reverse().map((filter, index) => {
-            let filterText = filter.getText();
-            
-            if (Node.isBlock(filter)) {
-                const returnStmt = filter.getStatementByKind(SyntaxKind.ReturnStatement);
-                filterText = returnStmt ? returnStmt.getExpression().getText() : filterText;
-            }
-
-            return (
-                <div
-                    key={index}
-                    className={classes.filterItem}
-                >
-                    {`Filter ${index + 1}`}: {filterText}
-                </div>
-            );
-        });
+        return filterCalls.reverse().map((filter, index) => <FilterBarItem index={index + 1} filterNode={filter} />);
     }, [inputNode]);
 
     const onClickAddFilter = () => {
         console.log("Adding new filter");
     }
 
+    const onClickFilterBar = () => {
+        resetExprBarFocus();
+    }
+
     return (
-        <div className={classes.exprBarContainer}>
+        <div
+            className={classes.exprBarContainer}
+            onClick={onClickFilterBar}
+        >
             {filterElements}
             <LinkButton
                 sx={linkButtonStyles}
