@@ -173,17 +173,25 @@ export const submitCreateComponentHandler = async ({
         }
 
         if (workspace.workspaceFile) {
+            const workspaceContent: WorkspaceConfig = JSON.parse(readFileSync(workspace.workspaceFile.fsPath, "utf8"));
+            workspaceContent.folders = [
+                ...workspaceContent.folders,
+                {
+                    name: createdComponent.metadata.name,
+                    path: path.normalize(
+                        path.relative(path.dirname(workspace.workspaceFile.fsPath), createParams.componentDir)
+                    ),
+                },
+            ];
+
             if (
                 workspace.workspaceFile.scheme !== "untitled" &&
                 path.basename(workspace.workspaceFile.path) === `${project?.handler}.code-workspace`
             ) {
                 // Automatically update the workspace if user is within a project workspace
-                workspace.updateWorkspaceFolders(workspace.workspaceFolders?.length!, null, {
-                    name: createdComponent.metadata.name,
-                    uri: Uri.parse(
-                        path.normalize(path.relative(workspace.workspaceFile.fsPath, createParams.componentDir))
-                    ),
-                });
+                writeFileSync(workspace.workspaceFile!.fsPath, JSON.stringify(workspaceContent, null, 4));
+                await new Promise((resolve) => setTimeout(resolve, 1000));
+                contextStore.getState().refreshState();
             } else {
                 // Else manfully ask and update the workspace
                 window
@@ -191,22 +199,17 @@ export const submitCreateComponentHandler = async ({
                         `Do you want update your workspace with the directory of ${createdComponent.metadata.name}`,
                         "Continue"
                     )
-                    .then((resp) => {
+                    .then(async (resp) => {
                         if (resp === "Continue") {
-                            workspace.updateWorkspaceFolders(workspace.workspaceFolders?.length!, null, {
-                                name: createdComponent.metadata.name,
-                                uri: Uri.parse(
-                                    path.normalize(
-                                        path.relative(workspace.workspaceFile?.fsPath!, createParams.componentDir)
-                                    )
-                                ),
-                            });
+                            writeFileSync(workspace.workspaceFile!.fsPath, JSON.stringify(workspaceContent, null, 4));
+                            await new Promise((resolve) => setTimeout(resolve, 1000));
+                            contextStore.getState().refreshState();
                         }
                     });
             }
+        } else {
+            contextStore.getState().refreshState();
         }
-
-        contextStore.getState().refreshState();
     }
 
     return createdComponent;
