@@ -90,6 +90,7 @@ export function ComponentWidget(props: ComponentWidgetProps) {
                 isSelected={node.getID() === selectedNodeId || node.isNodeSelected(selectedLink, node.getID())}
                 isFocused={node.getID() === focusedNodeId || isHovered}
                 menuItems={componentMenu}
+                onFocusOut={handleMouseLeave}
             />
             <Tooltip title={displayName} placement="bottom" enterNextDelay={500} arrow>
                 <ComponentName disabled={isDisabled}>{displayName}</ComponentName>
