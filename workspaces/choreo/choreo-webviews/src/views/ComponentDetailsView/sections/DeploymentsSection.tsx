@@ -251,7 +251,7 @@ const EnvItem: FC<{
                                         />
                                     </GridColumnItem>
                                 )}
-                                {deploymentStatus?.deploymentStatusV2 === "ACTIVE" && (
+                                {["ACTIVE","IN_PROGRESS"].includes(deploymentStatus?.deploymentStatusV2) && (
                                     <>
                                         {deploymentStatus?.invokeUrl && (
                                             <EndpointItem
