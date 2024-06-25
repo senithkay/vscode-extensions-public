@@ -47,7 +47,6 @@ export const HeaderSection: FC<ComponentsDetailsWebviewProps> = ({
                     appearance="icon"
                     onClick={() => onDeleteComponent()}
                     disabled={deletingComponent}
-                    className="text-vsc-errorForeground"
                     title="Delete Component"
                 >
                     <Codicon name="trash" />
