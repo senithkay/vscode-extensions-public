@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
+import React, { forwardRef, Fragment, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { TextField } from '../TextField/TextField';
 import styled from '@emotion/styled';
 import { Transition } from '@headlessui/react';
@@ -19,6 +19,7 @@ import { Codicon } from '../Codicon/Codicon';
 export type ItemType = {
     label: string;
     description: string;
+    args?: string[];
 };
 
 type ExpressionEditorProps = {
@@ -43,6 +44,15 @@ type DropdownItemProps = {
     item: ItemType;
     firstItem?: boolean;
     onClick: () => void;
+};
+
+type SyntaxProps = {
+    item: ItemType;
+    currentArgIndex: number;
+};
+
+type SyntaxElProps = SyntaxProps & {
+    onClose: () => void;
 };
 
 // Styles
@@ -91,6 +101,22 @@ const Divider = styled.div`
 const DropdownFooter = styled.div`
     display: flex;
     padding: 4px 0;
+`;
+
+const SyntaxBody = styled.div`
+    display: flex;
+    align-items: center;
+    padding-inline: 16px;
+    margin: 0;
+`;
+
+const SelectedArg = styled(Typography)`
+    background-color: var(--vscode-list-activeSelectionBackground);
+    color: var(--vscode-list-activeSelectionForeground);
+    font-weight: 600;
+    padding-inline: 4px;
+    margin-inline: 2px;
+    border-radius: 4px;
 `;
 
 const ANIMATION = {
@@ -171,7 +197,7 @@ const Dropdown = forwardRef<HTMLDivElement, DropdownProps>((props, ref) => {
                 {items.map((item, index) => {
                     return (
                         <DropdownItem
-                            key={index}
+                            key={`dropdown-item-${index}`}
                             {...(index === 0 && { firstItem: true })}
                             item={item}
                             onClick={() => onItemSelect(item)}
@@ -194,14 +220,70 @@ const Dropdown = forwardRef<HTMLDivElement, DropdownProps>((props, ref) => {
 });
 Dropdown.displayName = 'Dropdown';
 
+const SyntaxEl = (props: SyntaxElProps) => {
+    const { item, currentArgIndex, onClose } = props;
+
+    return (
+        <>
+            {item && (
+                <DropdownContainer>
+                    <Codicon
+                        sx={{
+                            position: 'absolute',
+                            top: '0',
+                            right: '0',
+                            width: '16px',
+                            margin: '-4px',
+                            borderRadius: '50%',
+                            backgroundColor: 'var(--vscode-activityBar-background)',
+                            zIndex: '5'
+                        }}
+                        iconSx={{ color: 'var(--vscode-activityBar-foreground)' }}
+                        name="close"
+                        onClick={onClose}
+                    />
+                    <SyntaxBody>
+                        <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                            {`${item.label}(`}
+                        </Typography>
+                        {item.args?.map((arg, index) => {
+                            const lastArg = index === item.args.length - 1;
+                            if (index === currentArgIndex) {
+                                return (
+                                    <Fragment key={`arg-${index}`}>
+                                        <SelectedArg>{arg}</SelectedArg>
+                                        {!lastArg && (
+                                            <Typography variant="body2">
+                                                {`, `}
+                                            </Typography>
+                                        )}
+                                    </Fragment>
+                                );
+                            }
+                            return (
+                                <Typography key={`arg-${index}`} variant="body2">
+                                    {`${arg}${lastArg ? '' : ', '}`}
+                                </Typography>
+                            );
+                        })}
+                        <Typography variant="body2">{`)`}</Typography>
+                    </SyntaxBody>
+                </DropdownContainer>
+            )}
+        </>
+    );
+};
+
 export const ExpressionEditor = (props: ExpressionEditorProps) => {
     const { items, maxItems = 10, value, input, sx, onChange, ...rest } = props;
     const inputRef = useRef<HTMLInputElement>(null);
     const listBoxRef = useRef<HTMLDivElement>(null);
     const [filteredItems, setFilteredItems] = useState<ItemType[]>([]);
+    const [selectedItem, setSelectedItem] = useState<ItemType | undefined>();
+    const [syntax, setSyntax] = useState<SyntaxProps | undefined>();
     const [valuePrefix, setValuePrefix] = useState<string>('');
     const suggestionRegex = {
-        prefix: /[+-/*=,(]\s*(\w*)$/,
+        prefix: /[+-/*=]\s*(\w*)$/,
         suffix: /^(\w*)/
     };
 
@@ -210,7 +292,27 @@ export const ExpressionEditor = (props: ExpressionEditorProps) => {
         return filtered.sort((a, b) => a.label.length - b.label.length).slice(0, maxItems);
     };
 
+    const checkCursorInFunction = (text: string, newCursorPosition?: number) => {
+        let cursorPosition;
+        if (newCursorPosition) {
+            cursorPosition = newCursorPosition;
+        } else {
+            cursorPosition = (inputRef.current.shadowRoot.getElementById('control') as HTMLInputElement).selectionStart;
+        }
+        const openBrackets = text.substring(0, cursorPosition).match(/\(/g);
+        const closeBrackets = text.substring(0, cursorPosition).match(/\)/g);
+        const isCursorInFunction = !!(openBrackets && openBrackets.length > (closeBrackets?.length ?? 0));
+
+        let currentFnContent;
+        if (isCursorInFunction) {
+            const openBracketIndex = text.substring(0, cursorPosition).lastIndexOf('(');
+            currentFnContent = text.substring(openBracketIndex + 1, cursorPosition);
+        }
+        return { isCursorInFunction, currentFnContent };
+    };
+
     const getSuggestions = (text: string) => {
+        setSyntax(undefined);
         const cursorPosition = (inputRef.current.shadowRoot.getElementById('control') as HTMLInputElement)
             .selectionStart;
         const prefixMatches = text.substring(0, cursorPosition).match(suggestionRegex.prefix);
@@ -226,6 +328,23 @@ export const ExpressionEditor = (props: ExpressionEditorProps) => {
         }
     };
 
+    const updateSyntax = (currentFnContent: string, newSelectedItem?: ItemType) => {
+        if (newSelectedItem) {
+            setSelectedItem(newSelectedItem);
+        }
+        const item = newSelectedItem ?? selectedItem;
+        if (item?.args) {
+            const inputArgsCount = currentFnContent.trim().split(',').length;
+            if (inputArgsCount <= item.args.length) {
+                return setSyntax({ item: item, currentArgIndex: inputArgsCount - 1 });
+            }
+            const isMultiArgFn = item.args[item.args.length - 1].match(/^\[\w+,\s*\.{3}]$/);
+            if (isMultiArgFn) {
+                return setSyntax({ item: item, currentArgIndex: item.args.length - 1 });
+            }
+        }
+    };
+
     const setCursor = (position: number) => {
         inputRef.current.focus();
         (inputRef.current.shadowRoot.getElementById('control') as HTMLInputElement).setSelectionRange(
@@ -234,13 +353,20 @@ export const ExpressionEditor = (props: ExpressionEditorProps) => {
         );
     };
 
-    const handleChange = (text: string) => {
+    const handleChange = (text: string, cursorPosition?: number, selectedItem?: ItemType) => {
         if (text.trim().startsWith('=')) {
             const matches = text.match(/^(\s*=\s*)(.*)$/);
             if (matches[1] !== valuePrefix) {
                 setValuePrefix(matches[1]);
             }
-            getSuggestions(text);
+            // Check whether the cursor is inside a function
+            const { isCursorInFunction, currentFnContent } = checkCursorInFunction(text, cursorPosition);
+            if (isCursorInFunction) {
+                setFilteredItems([]);
+                updateSyntax(currentFnContent, selectedItem);
+            } else {
+                getSuggestions(text);
+            }
             onChange(matches[2]);
         } else {
             if (valuePrefix) {
@@ -258,13 +384,21 @@ export const ExpressionEditor = (props: ExpressionEditorProps) => {
         const prefixMatches = rawValue.substring(0, cursorPosition).match(suggestionRegex.prefix);
         const suffixMatches = rawValue.substring(cursorPosition).match(suggestionRegex.suffix);
         const prefix = rawValue.substring(0, cursorPosition - prefixMatches[1].length);
-        const suffix = rawValue.substring(cursorPosition + suffixMatches[1].length);
-        handleChange(prefix + item.label + suffix + '(');
-        setCursor(cursorPosition + item.label.length);
+        let suffix = rawValue.substring(cursorPosition + suffixMatches[1].length);
+        if (suffix.startsWith('(')) {
+            suffix = suffix.substring(1);
+        }
+        const newCursorPosition = prefix.length + item.label.length + 1;
+        handleChange(prefix + item.label + '(' + suffix, newCursorPosition, item);
+        setCursor(newCursorPosition);
     };
 
     const handleDropdownClose = () => {
         setFilteredItems([]);
+    };
+
+    const handleFunctionSyntaxClose = () => {
+        setSyntax(undefined);
     };
 
     const handleOnInput = (input: string) => {
@@ -371,14 +505,23 @@ export const ExpressionEditor = (props: ExpressionEditorProps) => {
                 {...rest}
             />
             {inputRef && (
-                <Transition show={filteredItems.length > 0} {...ANIMATION}>
-                    <Dropdown
-                        ref={listBoxRef}
-                        items={filteredItems}
-                        onItemSelect={handleItemSelect}
-                        onClose={handleDropdownClose}
-                    />
-                </Transition>
+                <>
+                    <Transition show={filteredItems.length > 0} {...ANIMATION}>
+                        <Dropdown
+                            ref={listBoxRef}
+                            items={filteredItems}
+                            onItemSelect={handleItemSelect}
+                            onClose={handleDropdownClose}
+                        />
+                    </Transition>
+                    <Transition show={!!syntax?.item} {...ANIMATION}>
+                        <SyntaxEl
+                            item={syntax?.item}
+                            currentArgIndex={syntax?.currentArgIndex ?? 0}
+                            onClose={handleFunctionSyntaxClose}
+                        />
+                    </Transition>
+                </>
             )}
         </Container>
     );

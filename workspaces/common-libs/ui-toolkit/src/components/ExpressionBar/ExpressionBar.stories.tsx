@@ -20,8 +20,8 @@ const Template: ComponentStory<typeof ExpressionBar> = (args: ExpressionBarProps
 export const Default = Template.bind();
 Default.args = {
     functionNames: [
-        { label: 'fn1', description: 'Description of fn1' },
-        { label: 'fn2', description: 'Description of fn2' },
+        { label: 'fn1', description: 'Description of fn1', args: ['value1', 'value2'] },
+        { label: 'fn2', description: 'Description of fn2', args: ['arg1', '[arg2, ...]'] },
         { label: 'fn3', description: 'Description of fn3' }
     ],
     autoFocus: true
