@@ -29,12 +29,13 @@
 ## Other
 - Revisit app insights implementation
 
-
+# Need to discuss
 workspace file name should be orghandle.projecthandle.code-workspace
+cannot have workspace without any folders
 
 wso2.choreo.project.manage command should check for isLoadingContextDirs while running, not in package.json
 
+# Important before release
 !important do new dev CLI release and update cli version
 ! update readme before release!
 
-cannot have workspace without any folders
