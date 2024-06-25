@@ -52,7 +52,7 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({
             type: initialValues?.type ?? "",
             buildPackLang: initialValues?.buildPackLang ?? "",
             langVersion: "",
-            subPath: initialValues?.subPath ?? "",
+            subPath: initialValues?.subPath || "",
             repoUrl: "",
             branch: "",
             dockerFile: "",

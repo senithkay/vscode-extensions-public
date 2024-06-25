@@ -45,7 +45,7 @@ export const PathSelect: FC<Props> = (props) => {
                     subPath: paths[0],
                     parentPath: basePath,
                 });
-                onSelect(subPath);
+                onSelect(subPath || "");
             }
         },
     });
