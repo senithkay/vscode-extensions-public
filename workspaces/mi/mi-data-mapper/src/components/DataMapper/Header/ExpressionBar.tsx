@@ -128,14 +128,14 @@ export default function ExpressionBar(props: ExpressionBarProps) {
         updatedText = isFunctionName ? `${text}(` : addClosingBracketIfNeeded(text);
         expressionRef.current = updatedText;
 
-        const focusedNode = focusedPort.getNode() as DataMapperNodeModel;
-        const fnST = focusedNode.context.functionST;
-        const sourceFile = fnST.getSourceFile();
+        // const focusedNode = focusedPort.getNode() as DataMapperNodeModel;
+        // const fnST = focusedNode.context.functionST;
+        // const sourceFile = fnST.getSourceFile();
 
-        const isFunctionPresent = sourceFile.getFunctions().find(fn => fn.getName() === text);
-        if (isFunction && !isFunctionPresent) {
-            sourceFile.addFunction(getFnDeclStructure(fnName));
-        }
+        // const isFunctionPresent = sourceFile.getFunctions().find(fn => fn.getName() === text);
+        // if (isFunction && !isFunctionPresent) {
+        //     sourceFile.addFunction(getFnDeclStructure(fnName));
+        // }
         
         await applyChanges();
     };

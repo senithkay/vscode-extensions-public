@@ -65,7 +65,7 @@ export async function updateDMC(dmName:string, sourcePath: string): Promise<stri
             outputTSInterfaces =  outputTSInterfaces.replace('interface ' + outputSchema.title, 'interface Output' + outputSchema.title);
             outputSchema.title = `Output${outputSchema.title}`;
         }
-    
+        tsContent += `import * as dmUtils from "./dm-utils.ts";\n`;
         tsContent += `${inputTSInterfaces}\n${outputTSInterfaces}\nfunction mapFunction(input: ${inputSchema.title}${isInputArray ? "[]" : ""}): ${outputSchema.title}${isOutputArray ? "[]" : ""} {\n`;
         tsContent += `\treturn ${isOutputArray ? "[]" : "{}"}\n}\n\n`;
         tsContent += `// WARNING: Do not edit/remove below function\nfunction map_S_${getTitleSegment(inputSchemaTitle)}_S_${getTitleSegment(outputSchemaTitle)}() {\n\treturn mapFunction(input${inputSchemaTitle.replace(":", "_")});\n}\n`;
