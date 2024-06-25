@@ -220,7 +220,7 @@ export function TestSuiteForm(props: TestSuiteFormProps) {
 
                 if (syntaxTree.unitTestArtifacts.testArtifact.artifact) {
                     artifactPath = syntaxTree.unitTestArtifacts.testArtifact.artifact.content;
-                    artifactType = allArtifacts.find(artifact => artifact.path === artifactPath)?.type;
+                    artifactType = allArtifacts.find(artifact => path.relative(artifact.path, artifactPath) === "")?.type;
                 }
 
                 // get test cases
