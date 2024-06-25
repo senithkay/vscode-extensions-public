@@ -1885,40 +1885,71 @@ export interface MockResourceHeader {
 
 export interface Query extends STNode {
     id: string;
-    params: QueryParameter[];
-    result: QueryResult;
-    returnGeneratedKeys: boolean;
-    sql: STNode;
-    useConfig: string;
+    params?: QueryParameter[];
+    result?: QueryResult;
+    returnGeneratedKeys?: boolean;
+    returnUpdatedRowCount?: boolean;
+    sql?: STNode;
+    properties?: any;
+    useConfig?: string;
+    keyColumns?: string;
 }
 
 export interface QueryParameter extends STNode {
     name: string;
-    sqlType: string;
-    paramType: string;
-    optional: boolean;
-    ordinal: number;
+    sqlType?: string;
+    paramType?: string;
+    optional?: boolean;
+    ordinal?: number;
+    query?: string;
+    type?: string;
+    defaultValue?: string;
+    paramElements?: any[];
 }
 
 export interface QueryResult extends STNode {
-    attributes: QueryAttribute[];
-    callQueries: QueryCallQuery;
-    defaultNamespace: string;
-    element: string;
-    elements: QueryAttribute[];
-    rowName: string;
-    xsltPath: string;
+    attributes?: ResultAttribute[];
+    callQueries?: ResultQuery[];
+    defaultNamespace?: string;
+    element?: string;
+    elements?: ResultElement[];
+    rowName?: string;
+    xsltPath?: string;
+    outputType?: string;
+    useColumnNumbers?: boolean;
+    escapeNonPrintableChar?: boolean;
+    rdfBaseURI?: string;
 }
 
-export interface QueryAttribute extends STNode {
-    column: string;
+export interface ResultAttribute extends STNode {
     name: string;
-    requiredRoles: string;
+    column?: string;
+    queryParam?: string;
+    arrayName?: string;
     xsdType: string;
-    optional: boolean;
+    optional?: boolean;
+    exportName?: string;
+    exportType?: string;
+    requiredRoles: string;
 }
 
-export interface QueryCallQuery extends STNode {
+export interface ResultElement extends STNode {
+    name: string;
+    namespace?: string;
+    column?: string;
+    queryParam?: string;
+    arrayName?: string;
+    xsdType: string;
+    optional?: boolean;
+    exportName?: string;
+    exportType?: string;
+    requiredRoles: string;
+    elements?: ResultElement[];
+    inlineXml?: string;
+}
+
+export interface ResultQuery extends STNode {
     href: string;
     requiredRoles: string;
+    withParam?: any[];
 }

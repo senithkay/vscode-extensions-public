@@ -48,5 +48,6 @@ export const DSS_TEMPLATES = {
     ADD_OPERATION: "add-dss-operation",
     EDIT_OPERATION: "edit-dss-operation",
     EDIT_DESCRIPTION: "edit-dss-description",
+    ADD_QUERY: "add-dss-query",
 } as const;
 

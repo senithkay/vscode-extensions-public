@@ -12,6 +12,7 @@ import { DSS_TEMPLATES } from "../constants";
 import { getXML } from "./template-engine/mustache-templates/templateUtils";
 import { ResourceFormData, ResourceType } from "../views/Forms/DataServiceForm/SidePanelForms/ResourceForm";
 import { OperationFormData, OperationType } from "../views/Forms/DataServiceForm/SidePanelForms/OperationForm";
+import { v4 as uuidv4 } from 'uuid';
 
 export const generateResourceData = (model: DSSResource): ResourceType => {
 
@@ -36,15 +37,19 @@ export const generateOperationData = (model: DSSOperation): OperationType => {
 };
 
 export const onResourceCreate = (data: ResourceFormData, range: Range, documentUri: string, rpcClient: RpcClient) => {
+
+    const queryName = uuidv4();
+
     const formValues = {
         path: data.resourcePath,
         method: data.resourceMethod,
         description: data.description === "" ? undefined : data.description,
         enableStreaming: data.enableStreaming ? undefined : !data.enableStreaming,
-        returnRequestStatus: data.returnRequestStatus ? data.returnRequestStatus : undefined
+        returnRequestStatus: data.returnRequestStatus ? data.returnRequestStatus : undefined,
+        query: queryName
     };
 
-    const xml = getXML(DSS_TEMPLATES.ADD_RESOURCE, formValues);
+    let xml = getXML(DSS_TEMPLATES.ADD_QUERY, {name: queryName});
     rpcClient.getMiDiagramRpcClient().applyEdit({
         text: xml,
         documentUri: documentUri,
@@ -58,17 +63,37 @@ export const onResourceCreate = (data: ResourceFormData, range: Range, documentU
                 character: range.end.character,
             }
         }
-    });
+    }).then(async () => {
+        xml = getXML(DSS_TEMPLATES.ADD_RESOURCE, formValues);
+        await rpcClient.getMiDiagramRpcClient().applyEdit({
+            text: xml,
+            documentUri: documentUri,
+            range: {
+                start: {
+                    line: range.end.line + 3,
+                    character: range.end.character,
+                },
+                end: {
+                    line: range.end.line + 3,
+                    character: range.end.character,
+                }
+            }
+        });
+    })
 };
 
 export const onOperationCreate = (data: OperationFormData, range: Range, documentUri: string, rpcClient: RpcClient) => {
+
+    const queryName = uuidv4();
+
     const formValues = {
         name: data.operationName,
         description: data.description === "" ? undefined : data.description,
-        enableStreaming: data.enableStreaming ? undefined : !data.enableStreaming
+        enableStreaming: data.enableStreaming ? undefined : !data.enableStreaming,
+        query: queryName
     };
 
-    const xml = getXML(DSS_TEMPLATES.ADD_OPERATION, formValues);
+    let xml = getXML(DSS_TEMPLATES.ADD_QUERY, {name: queryName});
     rpcClient.getMiDiagramRpcClient().applyEdit({
         text: xml,
         documentUri: documentUri,
@@ -82,7 +107,23 @@ export const onOperationCreate = (data: OperationFormData, range: Range, documen
                 character: range.end.character,
             }
         }
-    });
+    }).then(async () => {
+        xml = getXML(DSS_TEMPLATES.ADD_OPERATION, formValues);
+        await rpcClient.getMiDiagramRpcClient().applyEdit({
+            text: xml,
+            documentUri: documentUri,
+            range: {
+                start: {
+                    line: range.end.line + 3,
+                    character: range.end.character,
+                },
+                end: {
+                    line: range.end.line + 3,
+                    character: range.end.character,
+                }
+            }
+        });
+    })
 };
 
 export const onResourceEdit = (data: ResourceFormData, selectedResource: any, documentUri: string, rpcClient: RpcClient) => {
