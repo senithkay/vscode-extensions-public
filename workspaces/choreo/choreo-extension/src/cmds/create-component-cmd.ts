@@ -172,19 +172,6 @@ export const submitCreateComponentHandler = async ({
             console.error("Failed to get git details of ", createParams.componentDir);
         }
 
-        if (
-            workspace.workspaceFile &&
-            workspace.workspaceFile.scheme !== "untitled" &&
-            path.basename(workspace.workspaceFile.path) === `${project?.handler}.code-workspace`
-        ) {
-            workspace.updateWorkspaceFolders(workspace.workspaceFolders?.length!, null, {
-                name: createdComponent.metadata.name,
-                uri: Uri.parse(createParams.componentDir),
-            });
-        } else {
-            // show n
-        }
-
         if (workspace.workspaceFile) {
             if (
                 workspace.workspaceFile.scheme !== "untitled" &&
@@ -193,7 +180,9 @@ export const submitCreateComponentHandler = async ({
                 // Automatically update the workspace if user is within a project workspace
                 workspace.updateWorkspaceFolders(workspace.workspaceFolders?.length!, null, {
                     name: createdComponent.metadata.name,
-                    uri: Uri.parse(createParams.componentDir),
+                    uri: Uri.parse(
+                        path.normalize(path.relative(workspace.workspaceFile.fsPath, createParams.componentDir))
+                    ),
                 });
             } else {
                 // Else manfully ask and update the workspace
@@ -206,7 +195,11 @@ export const submitCreateComponentHandler = async ({
                         if (resp === "Continue") {
                             workspace.updateWorkspaceFolders(workspace.workspaceFolders?.length!, null, {
                                 name: createdComponent.metadata.name,
-                                uri: Uri.parse(createParams.componentDir),
+                                uri: Uri.parse(
+                                    path.normalize(
+                                        path.relative(workspace.workspaceFile?.fsPath!, createParams.componentDir)
+                                    )
+                                ),
                             });
                         }
                     });
