@@ -79,8 +79,8 @@ export const isSubpath = (parent: string, sub: string): boolean =>{
 
 
 export const getSubPath = (subPath: string, parentPath: string): string | null => {
-    const normalizedParent = path.normalize(parentPath).toLowerCase();
-    const normalizedSub = path.normalize(subPath).toLowerCase();
+    const normalizedParent = path.normalize(parentPath);
+    const normalizedSub = path.normalize(subPath);
     if (normalizedParent === normalizedSub) {
         return ".";
     }

@@ -375,7 +375,7 @@ const EnvItemSkeleton: FC = () => {
 const GridColumnItem: FC<{ label: string; children?: ReactNode }> = ({ label, children }) => (
     <div className="flex flex-col hover:bg-vsc-editorHoverWidget-background duration-200">
         <div className="text-[9px] md:text-xs opacity-75 font-light">{label}</div>
-        <div className="w-full capitalize line-clamp-1">{children}</div>
+        <div className="w-full line-clamp-1">{children}</div>
     </div>
 );
 

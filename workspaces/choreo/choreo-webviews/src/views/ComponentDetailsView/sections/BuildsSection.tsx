@@ -166,7 +166,12 @@ export const BuildsSection: FC<Props> = (props) => {
                 </Button>
                 {!isLoadingBuilds && (
                     <Button
-                        disabled={isLoadingCommits || commits.length === 0 || isTriggeringBuild}
+                        disabled={
+                            isLoadingCommits ||
+                            commits.length === 0 ||
+                            isTriggeringBuild ||
+                            (builds[0] && !builds[0].status?.conclusion)
+                        }
                         onClick={() => selectCommitForBuild()}
                     >
                         {isTriggeringBuild ? "Triggering Build" : "Build Component"}
