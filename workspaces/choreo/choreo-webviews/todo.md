@@ -16,6 +16,7 @@
 - Show CLI download progress within webview instead of notification
 - It's not very clear what user has to do after build is complete
 - Rearrange the context buttons in the activity header. Options should be manage billing, manage, project and logout
+- Detect build pack automatically for MI and Ballerina
 
 ## API improvements
 - Have component/build create endpoints return created data
@@ -27,3 +28,13 @@
 
 ## Other
 - Revisit app insights implementation
+
+
+workspace file name should be orghandle.projecthandle.code-workspace
+
+wso2.choreo.project.manage command should check for isLoadingContextDirs while running, not in package.json
+
+!important do new dev CLI release and update cli version
+! update readme before release!
+
+cannot have workspace without any folders

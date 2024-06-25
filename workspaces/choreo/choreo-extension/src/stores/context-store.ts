@@ -259,12 +259,10 @@ const mapComponentList = async (
 
     for (const componentItem of components) {
         if (selected?.contextDirs) {
-            console.log('selected?.contextDirs', selected?.contextDirs)
             for (const item of selected?.contextDirs) {
                 const projectDirPath = path.dirname(path.dirname(item.contextFileFsPath));
                 const subPathDir = path.join(projectDirPath, componentItem.spec.source.github?.path ?? "");
                 const isSubPath = isSubpath(item.dirFsPath, subPathDir);
-                console.log('isSubPath', isSubPath)
                 if (
                     isSubPath &&
                     existsSync(subPathDir) &&

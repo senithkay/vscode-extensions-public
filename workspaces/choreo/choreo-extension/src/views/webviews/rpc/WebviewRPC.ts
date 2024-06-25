@@ -658,7 +658,7 @@ export class WebViewViewRPC {
         try{
             registerWebviewRPCHandlers(this._messenger, view);
         } catch(err){
-            console.log('ewewr', err)
+            console.log('registerWebviewRPCHandlers error:', err)
         }
     }
 
