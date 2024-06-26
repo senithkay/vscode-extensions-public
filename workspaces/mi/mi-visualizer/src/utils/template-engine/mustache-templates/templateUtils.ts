@@ -23,7 +23,8 @@ import {
     getAddResourceTemplate,
     getEditOperationTemplate,
     getEditResourceTemplate,
-    getEditDescriptionTemplate
+    getEditDescriptionTemplate,
+    getAddQuery
 } from "./core/DSS";
 
 export function getXML(name: string, data: { [key: string]: any }) {
@@ -52,6 +53,8 @@ export function getXML(name: string, data: { [key: string]: any }) {
             return Mustache.render(getEditOperationTemplate(), data);
         case DSS_TEMPLATES.EDIT_DESCRIPTION:
             return Mustache.render(getEditDescriptionTemplate(), data);
+        case DSS_TEMPLATES.ADD_QUERY:
+            return Mustache.render(getAddQuery(), data);
         default:
             return "";
     }
