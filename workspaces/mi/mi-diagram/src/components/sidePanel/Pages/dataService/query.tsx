@@ -93,7 +93,7 @@ const QueryForm = (props: AddMediatorProps) => {
         updatedQuery.keyColumns = values.keyColumns;
         updatedQuery.hashasQueryProperties = queryProperties.length > 0;
 
-        let xml = getXML(DATA_SERVICE.EDIT_QUERY, updatedQuery);
+        let xml = getXML(DATA_SERVICE.EDIT_QUERY, updatedQuery).replace(/^\s*[\r\n]/gm, '');
         const range = sidePanelContext?.formValues?.queryObject.range;
         await rpcClient.getMiDiagramRpcClient().applyEdit({
             text: xml, documentUri: props.documentUri,

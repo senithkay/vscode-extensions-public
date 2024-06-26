@@ -2087,7 +2087,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
     async createDataService(params: CreateDataServiceRequest): Promise<CreateDataServiceResponse> {
         return new Promise(async (resolve) => {
             let filePath;
-            if (params.directory.endsWith('.xml')) {
+            if (params.directory.endsWith('.dbs')) {
                 filePath = params.directory;
                 const data = await fs.readFileSync(filePath);
                 const resourcePattern = /<resource[\s\S]*?<\/resource>/g;
@@ -2128,7 +2128,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 const xmlData = getDataServiceXmlWrapper({ ...getDataServiceParams, writeType: "create" });
                 const sanitizedXmlData = xmlData.replace(/^\s*[\r\n]/gm, '');
 
-                filePath = path.join(directory, `${dataServiceName}.xml`);
+                filePath = path.join(directory, `${dataServiceName}.dbs`);
                 if (filePath.includes('dataServices')) {
                     filePath = filePath.replace('dataServices', 'data-services');
                 }
