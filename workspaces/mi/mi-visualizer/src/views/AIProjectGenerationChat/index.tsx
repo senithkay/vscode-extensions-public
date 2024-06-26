@@ -499,6 +499,10 @@ export function AIProjectGenerationChat() {
             });
             console.error('Network error:', error);
         }
+
+        // Remove the user uploaded file after sending it to the backend
+        removeAllFiles();
+
         const reader = response.body?.getReader();
         const decoder = new TextDecoder();
         let result = '';
@@ -735,6 +739,11 @@ export function AIProjectGenerationChat() {
         setUploadedFiles(prevFiles => prevFiles.filter((file, i) => i !== index));
     };
 
+    const removeAllFiles = () => {
+        setUploadedFiles([]);
+        setFileUploadStatus({ type: '', text: '' });
+    }
+
     return (
         <AIChatView>
             <Header>
@@ -849,12 +858,11 @@ export function AIProjectGenerationChat() {
                 </>
                 ))}
                 {uploadedFiles.map((file, index) => (
-                    <FlexRow key={index}>
+                    <FlexRow style={{ alignItems: 'center' }} key={index}>
                         <span>{file.fileName}</span>
                         <VSCodeButton
-                            appearance="secondary"
+                            appearance="icon"
                             onClick={() => handleRemoveFile(index)}
-                            style={{ marginLeft: '10px', backgroundColor: '#1C1C1C' }}
                         >
                             <span className="codicon codicon-close"></span>
                         </VSCodeButton>
