@@ -20,6 +20,7 @@ import { MoreVertIcon } from "../../../resources";
 import { FirstCharToUpperCase } from "../../../utils/commons";
 import { Description, Name } from "../BaseNodeModel";
 import { getNodeDescription } from "../../../utils/node";
+import { BreakpointMenu } from "../../BreakpointMenu/BreakpointMenu";
 
 namespace S {
     export const Node = styled.div<{}>`
@@ -81,7 +82,7 @@ export function ConditionNodeWidget(props: CallNodeWidgetProps) {
     const [isPopoverOpen, setIsPopoverOpen] = React.useState(false);
     const [popoverAnchorEl, setPopoverAnchorEl] = React.useState(null);
     const sidePanelContext = React.useContext(SidePanelContext);
-    const description = getNodeDescription(node.stNode);
+    const description = getNodeDescription(node.mediatorName, node.stNode);
     const hasBreakpoint = node.hasBreakpoint();
     const isActiveBreakpoint = node.isActiveBreakpoint();
 
@@ -94,32 +95,6 @@ export function ConditionNodeWidget(props: CallNodeWidgetProps) {
     const handlePopoverClose = () => {
         setIsPopoverOpen(false);
     }
-
-    const handleAddBreakpoint = async () => {
-        const file = node.documentUri;
-        const line = node.stNode.range.startTagRange.start.line;
-        const request = {
-            filePath: file,
-            breakpoint: {
-                line: line
-            }
-        }
-
-        await rpcClient.getMiDebuggerRpcClient().addBreakpointToSource(request);
-    };
-
-    const removeBreakpoint = async () => {
-        const file = node.documentUri;
-        const line = node.stNode.range.startTagRange.start.line;
-        const request = {
-            filePath: file,
-            breakpoint: {
-                line: line
-            }
-        }
-
-        await rpcClient.getMiDebuggerRpcClient().removeBreakpointFromSource(request);
-    };
 
     const TooltipEl = useMemo(() => {
         return () => (
@@ -194,10 +169,7 @@ export function ConditionNodeWidget(props: CallNodeWidgetProps) {
                 <ClickAwayListener onClickAway={handlePopoverClose}>
                     <Menu>
                         <MenuItem key={'delete-btn'} item={{ label: 'Delete', id: "delete", onClick: () => node.delete(rpcClient) }} />
-                        {hasBreakpoint ?
-                            <MenuItem key={'remove-breakpoint-btn'} item={{ label: 'Remove Breakpoint', id: "removeBreakpoint", onClick: removeBreakpoint }} /> :
-                            <MenuItem key={'breakpoint-btn'} item={{ label: 'Add Breakpoint', id: "addBreakpoint", onClick: handleAddBreakpoint }} />
-                        }
+                        <BreakpointMenu hasBreakpoint={hasBreakpoint} node={node} rpcClient={rpcClient} />
                     </Menu>
                 </ClickAwayListener>
             </Popover>

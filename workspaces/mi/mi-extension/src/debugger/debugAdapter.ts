@@ -10,7 +10,7 @@
 import { Breakpoint, BreakpointEvent, Handles, InitializedEvent, LoggingDebugSession, Scope, StoppedEvent, TerminatedEvent, Thread } from 'vscode-debugadapter';
 import { DebugProtocol } from 'vscode-debugprotocol';
 import * as vscode from 'vscode';
-import { executeBuildTask, executeTasks, getServerPath, isADiagramView, readPortOffset, removeTempDebugBatchFile } from './debugHelper';
+import { checkServerReadiness, executeBuildTask, executeTasks, getServerPath, isADiagramView, readPortOffset, removeTempDebugBatchFile } from './debugHelper';
 import { Subject } from 'await-notify';
 import { Debugger } from './debugger';
 import { StateMachine, navigate, openView } from '../stateMachine';
@@ -22,6 +22,7 @@ import { INCORRECT_SERVER_PATH_MSG } from './constants';
 import { extension } from '../MIExtensionContext';
 import { EVENT_TYPE } from '@wso2-enterprise/mi-core';
 import { DebuggerConfig } from './config';
+import { openRuntimeServicesWebview } from '../runtime-services-panel/activate';
 
 export class MiDebugAdapter extends LoggingDebugSession {
     private _configurationDone = new Subject();
@@ -209,13 +210,22 @@ export class MiDebugAdapter extends LoggingDebugSession {
             //convert all the breakpoints lines to debugger lines
             breakpoints.forEach(bp => {
                 bp.line = this.convertClientLineToDebugger(bp.line);
+                // only set bp.column if its present in the bp
+                if (bp.column) {
+                    bp.column = this.convertClientColumnToDebugger(bp.column);
+                }
+
             });
             // set runtime breakpoints
             const runtimeBreakpoints = await this.debuggerHandler?.createRuntimeBreakpoints(path, breakpoints);
             // create debug breakpoints from runtime breakpoints
             if (runtimeBreakpoints) {
                 const vscodeBreakpoints = runtimeBreakpoints.map(async runtimeBp => {
-                    const bp = new Breakpoint(runtimeBp?.verified, this.convertDebuggerLineToClient(runtimeBp?.line), 0) as DebugProtocol.Breakpoint;
+                    const bp = new Breakpoint(
+                        runtimeBp?.verified,
+                        this.convertDebuggerLineToClient(runtimeBp?.line),
+                        runtimeBp?.column ? this.convertDebuggerColumnToClient(runtimeBp?.column) : undefined,
+                    ) as DebugProtocol.Breakpoint;
                     bp.source = source;
                     bp.id = runtimeBp?.id;
                     return bp;
@@ -259,10 +269,19 @@ export class MiDebugAdapter extends LoggingDebugSession {
                         executeTasks(serverPath, isDebugAllowed)
                             .then(async () => {
                                 if (args?.noDebug) {
-                                    response.success = true;
-                                    this.sendResponse(response);
+                                    checkServerReadiness().then(() => {
+                                        openRuntimeServicesWebview();
+                                        vscode.commands.executeCommand('setContext', 'MI.isRunning', 'true');
+                                        response.success = true;
+                                        this.sendResponse(response);
+                                    }).catch(error => {
+                                        vscode.window.showErrorMessage(error);
+                                        this.sendError(response, 1, error);
+                                    });
                                 } else {
                                     this.debuggerHandler?.initializeDebugger().then(() => {
+                                        openRuntimeServicesWebview();
+                                        vscode.commands.executeCommand('setContext', 'MI.isRunning', 'true');
                                         response.success = true;
                                         this.sendResponse(response);
                                     }).catch(error => {
@@ -340,6 +359,7 @@ export class MiDebugAdapter extends LoggingDebugSession {
                     this.sendError(response, 3, completeError);
                 }
             }
+            vscode.commands.executeCommand('setContext', 'MI.isRunning', 'false');
         } else {
             this.sendError(response, 3, `Error while disconnecting: Task Run was not found`);
         }
@@ -405,6 +425,7 @@ export class MiDebugAdapter extends LoggingDebugSession {
         const currentBreakpoint = this.debuggerHandler?.getCurrentBreakpoint();
 
         const line = currentBreakpoint?.line ? this.convertDebuggerLineToClient(currentBreakpoint.line) : 0;
+        const column = currentBreakpoint?.column ? this.convertDebuggerColumnToClient(currentBreakpoint.column) : 0;
 
         const miStackFrame: DebugProtocol.StackFrame = {
             id: 1,
@@ -414,7 +435,7 @@ export class MiDebugAdapter extends LoggingDebugSession {
                 presentationHint: "normal",
             },
             line: line,
-            column: 0
+            column: column
         };
 
         stackFrames.push(miStackFrame);
@@ -462,12 +483,28 @@ export class MiDebugAdapter extends LoggingDebugSession {
             return val;
         });
 
-        const ref = this.variableHandles.create(localScope);
+        // get the value MessageEnvelop from localScope
+        const msgScope = localScope?.find((scope: any) => scope.name === 'Message Envelope');
+        // remove the MessageEnvelop from localScope
+        const index = localScope?.indexOf(msgScope);
+        if (index !== undefined) {
+            localScope?.splice(index, 1);
+        }
+
+        const serverInternalRef = this.variableHandles.create(localScope);
+
+        let derivedScopes = [
+            new Scope("Server Internals", serverInternalRef, true),
+        ];
+
+        if (msgScope !== undefined) {
+            const msgRef = this.variableHandles.create(msgScope);
+            derivedScopes.push(new Scope("Message", msgRef, false));
+
+        }
 
         response.body = {
-            scopes: [
-                new Scope("Local", ref, false) // TODO: Check for the correct scope name
-            ]
+            scopes: derivedScopes
         };
 
         this.sendResponse(response);

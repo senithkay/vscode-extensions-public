@@ -28,6 +28,19 @@ export const TreeContainer = styled.div`
     width: ${IO_NODE_DEFAULT_WIDTH}px;
 `;
 
+export const SubMappingContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    background: var(--vscode-sideBar-background);
+    border: 1px solid var(--vscode-welcomePage-tileBorder);
+    font-style: normal;
+    font-weight: 600;
+    font-size: 13px;
+    line-height: 24px;
+    width: ${IO_NODE_DEFAULT_WIDTH}px;
+`;
+
 export const TreeHeader = styled.div((
     { isSelected, isDisabled }: { isSelected?: boolean, isDisabled?: boolean }
 ) => ({
@@ -58,3 +71,26 @@ export const TreeBody = styled.div`
     cursor: pointer;
     color: var(--vscode-foreground);
 `;
+
+export const ObjectFieldAdder = styled.div`
+    height: 40px;
+    width: 100%;
+    padding: 8px;
+    background: repeating-linear-gradient(
+        -45deg,
+        var(--vscode-button-secondaryBackground),
+        var(--vscode-button-secondaryBackground) 3px,
+        var(--vscode-button-secondaryHoverBackground) 3px,
+        var(--vscode-button-secondaryHoverBackground) 6px
+    );
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    display: flex;
+    &:hover {
+        background-color: var(--vscode-list-hoverBackground);
+    };
+    &:active {
+        opacity: 0.6;
+    }
+`

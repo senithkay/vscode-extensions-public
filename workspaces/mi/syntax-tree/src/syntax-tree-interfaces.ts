@@ -884,7 +884,7 @@ export interface NamedEndpoint extends Endpoint, STNode {
 export interface ProxyPublishWSDL extends STNode {
     definitions: TDefinitions;
     description: DescriptionType;
-    inlineWsdl:string;
+    inlineWsdl: string;
     resource: Resource[];
     uri: string;
     key: string;
@@ -911,7 +911,7 @@ export interface ServiceParameter {
     value: string;
 }
 
-export interface ServicePolicy  {
+export interface ServicePolicy {
     value: string;
 }
 
@@ -1083,6 +1083,20 @@ export interface APIResource extends STNode {
     faultSequenceAttribute: string;
     uriTemplate: string;
     urlMapping: string;
+}
+
+export interface DSSResource extends STNode {
+    path: string;
+    method: string;
+    description: string;
+    enableStreaming: boolean;
+    returnRequestStatus: boolean;
+}
+
+export interface DSSOperation extends STNode {
+    name: string;
+    description: string;
+    enableStreaming: boolean;
 }
 
 export interface DataServiceCallOperationsOperation extends STNode {
@@ -1764,7 +1778,7 @@ export interface Ntlm extends STNode {
     description: string;
 }
 
-export type DiagramService = APIResource | NamedSequence | Proxy | Template;
+export type DiagramService = APIResource | NamedSequence | Proxy | Template | Query;
 
 export interface Connector extends STNode {
     connectorName: string;
@@ -1776,4 +1790,166 @@ export interface ConnectorParameter extends STNode {
     name: string;
     value: string;
     isExpression: boolean;
+}
+
+export interface UnitTest extends STNode {
+    unitTestArtifacts: UnitTestArtifacts;
+    testCases: TestCases;
+    mockServices: MockServices;
+}
+
+export interface UnitTestArtifacts {
+    testArtifact: TestArtifact;
+    supportiveArtifacts: STNode;
+    registryResources: STNode;
+    connectorResources: STNode;
+}
+
+export interface TestArtifact extends STNode {
+    artifact: Artifact;
+}
+
+export interface Artifact extends STNode {
+    content: string;
+}
+
+export interface TestCases extends STNode {
+    testCases: TestCase[];
+}
+
+export interface TestCase extends STNode {
+    name: string;
+    assertions: Assertions;
+    input: TestCaseInput;
+}
+
+export interface Assertions extends STNode {
+    assertions: Assertion[];
+}
+
+export interface TestCaseInput extends STNode {
+    requestPath: STNode;
+    requestMethod: STNode;
+    requestProtocol: STNode;
+    payload: STNode;
+}
+
+export interface Assertion extends STNode {
+    expected: STNode;
+    actual: STNode;
+    message: STNode;
+
+}
+
+export interface MockServices extends STNode {
+    services: STNode[];
+}
+
+export interface MockService extends STNode {
+    context: STNode;
+    port: STNode;
+    serviceName: STNode;
+    resources: MockServiceResources;
+}
+
+export interface MockServiceResources extends STNode {
+    resources: MockServiceResource[];
+}
+
+export interface MockServiceResource extends STNode {
+    method: STNode;
+    request: MockRequest;
+    response: MockResponse;
+    subContext: STNode;
+}
+
+export interface MockRequest extends STNode {
+    headers: MockResourceHeaders;
+    payload: STNode;
+}
+
+export interface MockResponse extends STNode {
+    headers: MockResourceHeaders;
+    statusCode: STNode;
+    payload: STNode;
+}
+
+export interface MockResourceHeaders extends STNode {
+    headers: MockResourceHeader[];
+}
+
+export interface MockResourceHeader {
+    name: string;
+    value: string;
+}
+
+export interface Query extends STNode {
+    id: string;
+    params?: QueryParameter[];
+    result?: QueryResult;
+    returnGeneratedKeys?: boolean;
+    returnUpdatedRowCount?: boolean;
+    sql?: STNode;
+    properties?: any;
+    useConfig?: string;
+    keyColumns?: string;
+}
+
+export interface QueryParameter extends STNode {
+    name: string;
+    sqlType?: string;
+    paramType?: string;
+    optional?: boolean;
+    ordinal?: number;
+    query?: string;
+    type?: string;
+    defaultValue?: string;
+    paramElements?: any[];
+}
+
+export interface QueryResult extends STNode {
+    attributes?: ResultAttribute[];
+    callQueries?: ResultQuery[];
+    defaultNamespace?: string;
+    element?: string;
+    elements?: ResultElement[];
+    rowName?: string;
+    xsltPath?: string;
+    outputType?: string;
+    useColumnNumbers?: boolean;
+    escapeNonPrintableChar?: boolean;
+    rdfBaseURI?: string;
+}
+
+export interface ResultAttribute extends STNode {
+    name: string;
+    column?: string;
+    queryParam?: string;
+    arrayName?: string;
+    xsdType: string;
+    optional?: boolean;
+    exportName?: string;
+    exportType?: string;
+    requiredRoles: string;
+}
+
+export interface ResultElement extends STNode {
+    name: string;
+    namespace?: string;
+    column?: string;
+    queryParam?: string;
+    arrayName?: string;
+    xsdType: string;
+    optional?: boolean;
+    exportName?: string;
+    exportType?: string;
+    requiredRoles: string;
+    elements?: ResultElement[];
+    inlineXml?: string;
+}
+
+export interface ResultQuery extends STNode {
+    href: string;
+    requiredRoles: string;
+    withParam?: any[];
 }

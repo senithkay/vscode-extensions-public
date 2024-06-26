@@ -129,6 +129,12 @@
           "id": "MI.project-explorer",
           "name": "Project Explorer"
         }
+      ],
+      "test": [
+        {
+          "id": "MI.mock-services",
+          "name": "Mock Services"
+        }
       ]
     },
     "viewsWelcome": [
@@ -151,6 +157,10 @@
         "view": "MI.project-explorer",
         "contents": "Some errors occured while activating the extension. Please check the output channel for more information.",
         "when": "MI.status == 'disabled'"
+      },
+      {
+        "view": "testing",
+        "contents": "[Add new test suite](command:MI.test.add.suite)"
       }
     ],
     "commands": [
@@ -174,6 +184,13 @@
         "title": "Open AI Panel",
         "category": "MI",
         "icon": "$(wand)"
+      },
+      {
+        "command": "MI.Open-runtime-service-view",
+        "title": "Open Runtime Services Panel",
+        "category": "MI",
+        "icon": "$(server)",
+        "when": "MI.isRunning== 'true'"
       },
       {
         "command": "MI.project-explorer.add",
@@ -221,7 +238,7 @@
         "when": "false"
       },
       {
-        "command": "MI.project-explorer.open-service-designer-beside",
+        "command": "MI.show.graphical-view",
         "title": "Open Graphical View",
         "icon": "$(distro-design-view)"
       },
@@ -282,13 +299,6 @@
         "category": "MI"
       },
       {
-        "command": "MI.project-explorer.delete-reg-resource",
-        "title": "Delete Registry Resource",
-        "icon": "$(notebook-delete-cell)",
-        "group": "navigation",
-        "category": "MI"
-      },
-      {
         "command": "MI.project-explorer.edit-reg-metadata",
         "title": "Edit Registry Metadata",
         "icon": "$(notebook-edit)",
@@ -324,6 +334,24 @@
         "category": "MI"
       },
       {
+        "command": "MI.project-explorer.add-data-service",
+        "title": "Add Data Service",
+        "icon": "$(add)",
+        "group": "navigation",
+        "category": "MI"
+      },
+      {
+        "command": "MI.project-explorer.open-dss-service-designer",
+        "title": "Open Service Designer",
+        "icon": "$(distro-design-view)",
+        "when": "false"
+      },
+      {
+        "command": "MI.project-explorer.delete",
+        "title": "Delete",
+        "icon": "$(delete)"
+      },
+      {
         "command": "project-explorer.view",
         "title": "View"
       },
@@ -348,6 +376,42 @@
         "title": "Build and Run",
         "icon": "$(play)",
         "category": "MI"
+      },
+      {
+        "command": "MI.test.add.suite",
+        "title": "Add test suite",
+        "icon": "$(add)",
+        "category": "MI"
+      },
+      {
+        "command": "MI.test.update.suite",
+        "title": "Update test suite",
+        "icon": "$(distro-design-view)",
+        "category": "MI"
+      },
+      {
+        "command": "MI.test.add.case",
+        "title": "Add test case",
+        "icon": "$(add)",
+        "category": "MI"
+      },
+      {
+        "command": "MI.test.update.case",
+        "title": "Update test case",
+        "icon": "$(distro-design-view)",
+        "category": "MI"
+      },
+      {
+        "command": "MI.test.add.mock-service",
+        "title": "Add mock service",
+        "icon": "$(add)",
+        "category": "MI"
+      },
+      {
+        "command": "MI.test.refresh.mock-services",
+        "title": "Refresh",
+        "icon": "$(refresh)",
+        "category": "MI"
       }
     ],
     "menus": {
@@ -357,7 +421,7 @@
           "when": "false"
         },
         {
-          "command": "MI.project-explorer.open-service-designer-beside",
+          "command": "MI.show.graphical-view",
           "when": "false"
         }
       ],
@@ -370,6 +434,21 @@
         {
           "command": "MI.project-explorer.add",
           "when": "view == MI.project-explorer && projectOpened",
+          "group": "navigation"
+        },
+        {
+          "command": "MI.test.add.suite",
+          "when": "view == workbench.view.testing",
+          "group": "navigation"
+        },
+        {
+          "command": "MI.test.add.mock-service",
+          "when": "view == MI.mock-services && projectOpened",
+          "group": "navigation"
+        },
+        {
+          "command": "MI.test.refresh.mock-services",
+          "when": "view == MI.mock-services && projectOpened",
           "group": "navigation"
         }
       ],
@@ -389,7 +468,13 @@
           "title": "Open AI Panel"
         },
         {
-          "command": "MI.project-explorer.open-service-designer-beside",
+          "command": "MI.Open-runtime-service-view",
+          "group": "navigation@1",
+          "when": "MI.projectType == 'miProject' && (isVisualizerActive || resourceLangId == SynapseXml) && MI.isRunning== 'true'",
+          "title": "Open Runtime Services Panel"
+        },
+        {
+          "command": "MI.show.graphical-view",
           "when": "MI.status == 'projectLoaded' && resourceLangId == SynapseXml",
           "group": "navigation@3"
         },
@@ -441,11 +526,6 @@
           "group": "inline"
         },
         {
-          "command": "MI.project-explorer.delete-reg-resource",
-          "when": "view == MI.project-explorer && (viewItem == registry-folder || viewItem == registry-file)",
-          "group": "inline"
-        },
-        {
           "command": "MI.project-explorer.edit-reg-metadata",
           "when": "view == MI.project-explorer && (viewItem == registry-with-metadata)",
           "group": "inline"
@@ -484,6 +564,50 @@
           "command": "MI.project-explorer.add-template",
           "when": "view == MI.project-explorer && viewItem == templates",
           "group": "inline"
+        },
+        {
+          "command": "MI.project-explorer.add-data-service",
+          "when": "view == MI.project-explorer && viewItem == dataServices",
+          "group": "inline"
+        },
+        {
+          "command": "MI.project-explorer.open-dss-service-designer",
+          "when": "viewItem == data-service",
+          "group": "inline"
+        },
+        {
+          "command": "MI.project-explorer.delete",
+          "when": "view == MI.project-explorer && viewItem == api || viewItem == resource || viewItem == endpoint || viewItem == sequence || viewItem == proxy-service || viewItem == inboundEndpoint || viewItem == messageStore || viewItem == message-processor || viewItem == task || viewItem == localEntry || viewItem == template  || viewItem == dataSource || viewItem == dataService || viewItem == data-mapper || viewItem == registry-with-metadata || viewItem == registry-without-metadata",
+          "key": "delete"
+        }
+      ],
+      "testing/item/context": [
+        {
+          "command": "MI.test.add.suite",
+          "group": "inline",
+          "when": "testId in test.dirs"
+        },
+        {
+          "command": "MI.test.update.suite",
+          "group": "inline",
+          "when": "testId in test.suites"
+        },
+        {
+          "command": "MI.test.add.case",
+          "group": "inline",
+          "when": "testId in test.suites"
+        },
+        {
+          "command": "MI.test.update.case",
+          "group": "inline",
+          "when": "testId in test.cases"
+        }
+      ],
+      "testing/message/context": [
+        {
+          "command": "MI.test.add.mock-service",
+          "group": "inline",
+          "when": "messageId in test.canAddMockService"
         }
       ]
     },
@@ -492,7 +616,7 @@
         "description": "design-view",
         "default": {
           "fontPath": "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
-          "fontCharacter": "\\f127"
+          "fontCharacter": "\\f128"
         }
       }
     }
@@ -534,7 +658,8 @@
     "@wso2-enterprise/mi-visualizer": "workspace:*",
     "@wso2-enterprise/mi-rpc-client": "workspace:*",
     "ts-morph": "^22.0.0",
-    "await-notify": "^1.0.1"
+    "await-notify": "^1.0.1",
+    "yaml": "~2.4.3"
   },
   "dependencies": {
     "copyfiles": "^2.4.1",
@@ -564,7 +689,7 @@
     "unzipper": "~0.10.14",
     "vscode-debugadapter": "^1.51.0",
     "vscode-debugprotocol": "^1.51.0",
-    "tree-kill": "^1.2.2",
+    "tree-kill": "~1.2.2",
     "node-loader": "~2.0.0",
     "to-json-schema": "0.2.4",
     "xml2js": "0.6.2",
@@ -579,6 +704,8 @@
     "@babel/core": "^7.24.4",
     "@types/json-schema": "7.0.15",
     "json-schema": "0.4.0",
+    "portfinder": "^1.0.32",
+    "cors-anywhere": "^0.4.4",
     "@apidevtools/json-schema-ref-parser": "11.6.1"
   }
 }

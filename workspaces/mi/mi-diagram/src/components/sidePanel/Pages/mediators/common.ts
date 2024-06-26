@@ -61,7 +61,7 @@ export const getParamManagerValues = (paramManager: ParamConfig): any[] => {
     }));
 }
 
-export const getParamManagerFromValues = (values: any[]): any => {
+export const getParamManagerFromValues = (values: any[], keyIndex?: number, valueIndex: number = 1): any => {
 
     const getParamValues = (value: any): any => {
         return value.map((v: any) => {
@@ -80,7 +80,11 @@ export const getParamManagerFromValues = (values: any[]): any => {
 
         if (typeof value === 'object' && value !== null) {
             const paramValues = getParamValues(value);
-            return { id: index, key: index, value: typeof value[1] === 'object' ? value[1].value : value[1], icon: 'query', paramValues };
+            return {
+                id: index, key: keyIndex != undefined && keyIndex >= 0 ? typeof value[keyIndex] === 'object' ? value[keyIndex].value : value[keyIndex] : index,
+                value: typeof value[valueIndex] === 'object' ? value[valueIndex].value : value[valueIndex],
+                icon: 'query', paramValues
+            };
         } else {
             return { value };
         }

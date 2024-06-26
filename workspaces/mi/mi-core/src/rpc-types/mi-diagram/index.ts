@@ -87,6 +87,10 @@ import {
     GetProjectUuidResponse,
     CreateClassMediatorRequest,
     CreateClassMediatorResponse,
+    CreateDataServiceRequest,
+    CreateDataServiceResponse,
+    RetrieveDataServiceRequest,
+    RetrieveDataServiceResponse,
     UpdateHttpEndpointRequest,
     UpdateHttpEndpointResponse,
     RetrieveHttpEndpointRequest,
@@ -123,6 +127,8 @@ import {
     GetTemplateEPRequest,
     GetTemplateEPResponse,
     GetSelectiveWorkspaceContextResponse,
+    GetSelectiveArtifactsRequest,
+    GetSelectiveArtifactsResponse,
     GetBackendRootUrlResponse,
     RegistryArtifactNamesResponse,
     ListRegistryArtifactsRequest, RangeFormatRequest,
@@ -155,6 +161,19 @@ import {
     ExportProjectRequest,
     EditAPIRequest,
     EditAPIResponse,
+    SwaggerTypeRequest,
+    UpdateAPIFromSwaggerRequest,
+    CompareSwaggerAndAPIResponse,
+    UpdateTestSuiteRequest,
+    UpdateTestCaseRequest,
+    UpdateTestCaseResponse,
+    UpdateTestSuiteResponse,
+    GetAllTestSuitsResponse,
+    UpdateMockServiceRequest,
+    UpdateMockServiceResponse,
+    GetAllMockServicesResponse,
+    AddDependencyToPomRequest,
+    SwaggerFromAPIResponse,
 } from "./types";
 
 export interface MiDiagramAPI {
@@ -203,6 +222,8 @@ export interface MiDiagramAPI {
     getWsdlEndpoint: (params: RetrieveWsdlEndpointRequest) => Promise<RetrieveWsdlEndpointResponse>;
     updateDefaultEndpoint: (params: UpdateDefaultEndpointRequest) => Promise<UpdateDefaultEndpointResponse>;
     getDefaultEndpoint: (params: RetrieveDefaultEndpointRequest) => Promise<RetrieveDefaultEndpointResponse>;
+    createDataService: (params: CreateDataServiceRequest) => Promise<CreateDataServiceResponse>;
+    getDataService: (params: RetrieveDataServiceRequest) => Promise<RetrieveDataServiceResponse>;
     closeWebView: () => void;
     openDiagram: (params: OpenDiagramRequest) => void;
     openFile: (params: OpenDiagramRequest) => void;
@@ -231,6 +252,7 @@ export interface MiDiagramAPI {
     getAvailableResources: (params: GetAvailableResourcesRequest) => Promise<GetAvailableResourcesResponse>;
     createClassMediator: (params: CreateClassMediatorRequest) => Promise<CreateClassMediatorResponse>;
     getSelectiveWorkspaceContext: () => Promise<GetSelectiveWorkspaceContextResponse>;
+    getSelectiveArtifacts: (params: GetSelectiveArtifactsRequest) => Promise<GetSelectiveArtifactsResponse>;
     getBackendRootUrl: () => Promise<GetBackendRootUrlResponse>;
     getAvailableRegistryResources: (params: ListRegistryArtifactsRequest) => Promise<RegistryArtifactNamesResponse>;
     updateRegistryMetadata: (params: UpdateRegistryMetadataRequest) => Promise<UpdateRegistryMetadataResponse>;
@@ -255,4 +277,15 @@ export interface MiDiagramAPI {
     exportProject: (params: ExportProjectRequest) => void;
     checkOldProject: () => Promise<boolean>;
     refreshAccessToken: () => Promise<void>;
+    getOpenAPISpec: (params: SwaggerTypeRequest) => Promise<SwaggerFromAPIResponse>;
+    editOpenAPISpec: (params: SwaggerTypeRequest) => Promise<void>;
+    compareSwaggerAndAPI: (params: SwaggerTypeRequest) => Promise<CompareSwaggerAndAPIResponse>;
+    updateSwaggerFromAPI: (params: SwaggerTypeRequest) => Promise<void>;
+    updateAPIFromSwagger: (params: UpdateAPIFromSwaggerRequest) => Promise<void>;
+    updateTestSuite: (params: UpdateTestSuiteRequest) => Promise<UpdateTestSuiteResponse>;
+    updateTestCase: (params: UpdateTestCaseRequest) => Promise<UpdateTestCaseResponse>;
+    updateMockService: (params: UpdateMockServiceRequest) => Promise<UpdateMockServiceResponse>;
+    getAllTestSuites: () => Promise<GetAllTestSuitsResponse>;
+    getAllMockServices: () => Promise<GetAllMockServicesResponse>;
+    addDependencyToPom: (params: AddDependencyToPomRequest) => Promise<void>;
 }

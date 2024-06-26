@@ -88,6 +88,10 @@ import {
     GetProjectUuidResponse,
     CreateClassMediatorRequest,
     CreateClassMediatorResponse,
+    CreateDataServiceRequest,
+    CreateDataServiceResponse,
+    RetrieveDataServiceRequest,
+    RetrieveDataServiceResponse,
     UpdateHttpEndpointRequest,
     UpdateHttpEndpointResponse,
     RetrieveHttpEndpointRequest,
@@ -124,6 +128,8 @@ import {
     GetTemplateEPRequest,
     GetTemplateEPResponse,
     GetSelectiveWorkspaceContextResponse,
+    GetSelectiveArtifactsRequest,
+    GetSelectiveArtifactsResponse,
     GetBackendRootUrlResponse,
     RegistryArtifactNamesResponse,
     ListRegistryArtifactsRequest, RangeFormatRequest,
@@ -156,6 +162,19 @@ import {
     ExportProjectRequest,
     EditAPIRequest,
     EditAPIResponse,
+    SwaggerTypeRequest,
+    UpdateAPIFromSwaggerRequest,
+    CompareSwaggerAndAPIResponse,
+    UpdateTestSuiteRequest,
+    UpdateTestCaseRequest,
+    UpdateTestCaseResponse,
+    UpdateTestSuiteResponse,
+    GetAllTestSuitsResponse,
+    UpdateMockServiceRequest,
+    UpdateMockServiceResponse,
+    GetAllMockServicesResponse,
+    AddDependencyToPomRequest,
+    SwaggerFromAPIResponse,
 } from "./types";
 import { RequestType, NotificationType } from "vscode-messenger-common";
 
@@ -205,6 +224,8 @@ export const updateWsdlEndpoint: RequestType<UpdateWsdlEndpointRequest, UpdateWs
 export const getWsdlEndpoint: RequestType<RetrieveWsdlEndpointRequest, RetrieveWsdlEndpointResponse> = { method: `${_preFix}/getWsdlEndpoint` };
 export const updateDefaultEndpoint: RequestType<UpdateDefaultEndpointRequest, UpdateDefaultEndpointResponse> = { method: `${_preFix}/updateDefaultEndpoint` };
 export const getDefaultEndpoint: RequestType<RetrieveDefaultEndpointRequest, RetrieveDefaultEndpointResponse> = { method: `${_preFix}/getDefaultEndpoint` };
+export const createDataService: RequestType<CreateDataServiceRequest, CreateDataServiceResponse> = { method: `${_preFix}/createDataService` };
+export const getDataService: RequestType<RetrieveDataServiceRequest, RetrieveDataServiceResponse> = { method: `${_preFix}/getDataService` };
 export const closeWebView: NotificationType<void> = { method: `${_preFix}/closeWebView` };
 export const openDiagram: NotificationType<OpenDiagramRequest> = { method: `${_preFix}/openDiagram` };
 export const openFile: NotificationType<OpenDiagramRequest> = { method: `${_preFix}/openFile` };
@@ -230,13 +251,14 @@ export const getTextAtRange: RequestType<GetTextAtRangeRequest, GetTextAtRangeRe
 export const getDiagnostics: RequestType<GetDiagnosticsReqeust, GetDiagnosticsResponse> = { method: `${_preFix}/getDiagnostics` };
 export const browseFile: RequestType<BrowseFileRequest, BrowseFileResponse> = { method: `${_preFix}/browseFile` };
 export const createRegistryResource: RequestType<CreateRegistryResourceRequest, CreateRegistryResourceResponse> = { method: `${_preFix}/createRegistryResource` };
-export const updateRegistryMetadata: RequestType<UpdateRegistryMetadataRequest, UpdateRegistryMetadataResponse> = { method: `${_preFix}/updateRegistryMetadata` };
-export const getMetadataOfRegistryResource: RequestType<GetRegistryMetadataRequest, GetRegistryMetadataResponse> = { method: `${_preFix}/getMetadataOfRegistryResource` };
 export const getAvailableResources: RequestType<GetAvailableResourcesRequest, GetAvailableResourcesResponse> = { method: `${_preFix}/getAvailableResources` };
 export const createClassMediator: RequestType<CreateClassMediatorRequest, CreateClassMediatorResponse> = { method: `${_preFix}/createClassMediator` };
 export const getSelectiveWorkspaceContext: RequestType<void, GetSelectiveWorkspaceContextResponse> = { method: `${_preFix}/getSelectiveWorkspaceContext` };
+export const getSelectiveArtifacts: RequestType<GetSelectiveArtifactsRequest, GetSelectiveArtifactsResponse> = { method: `${_preFix}/getSelectiveArtifacts` };
 export const getBackendRootUrl: RequestType<void, GetBackendRootUrlResponse> = { method: `${_preFix}/getBackendRootUrl` };
 export const getAvailableRegistryResources: RequestType<ListRegistryArtifactsRequest, RegistryArtifactNamesResponse> = { method: `${_preFix}/getAvailableRegistryResources` };
+export const updateRegistryMetadata: RequestType<UpdateRegistryMetadataRequest, UpdateRegistryMetadataResponse> = { method: `${_preFix}/updateRegistryMetadata` };
+export const getMetadataOfRegistryResource: RequestType<GetRegistryMetadataRequest, GetRegistryMetadataResponse> = { method: `${_preFix}/getMetadataOfRegistryResource` };
 export const rangeFormat: RequestType<RangeFormatRequest, ApplyEditResponse> = { method: `${_preFix}/rangeFormat` };
 export const downloadConnector: RequestType<DownloadConnectorRequest, DownloadConnectorResponse> = { method: `${_preFix}/downloadConnector` };
 export const getAvailableConnectors: RequestType<GetAvailableConnectorRequest, GetAvailableConnectorResponse> = { method: `${_preFix}/getAvailableConnectors` };
@@ -257,3 +279,14 @@ export const buildProject: NotificationType<void> = { method: `${_preFix}/buildP
 export const exportProject: NotificationType<ExportProjectRequest> = { method: `${_preFix}/exportProject` };
 export const checkOldProject: RequestType<void, boolean> = { method: `${_preFix}/checkOldProject` };
 export const refreshAccessToken: NotificationType<void> = { method: `${_preFix}/refreshAccessToken` };
+export const getOpenAPISpec: RequestType<SwaggerTypeRequest, SwaggerFromAPIResponse> = { method: `${_preFix}/getOpenAPISpec` };
+export const editOpenAPISpec: NotificationType<SwaggerTypeRequest> = { method: `${_preFix}/editOpenAPISpec` };
+export const compareSwaggerAndAPI: RequestType<SwaggerTypeRequest, CompareSwaggerAndAPIResponse> = { method: `${_preFix}/compareSwaggerAndAPI` };
+export const updateSwaggerFromAPI: NotificationType<SwaggerTypeRequest> = { method: `${_preFix}/updateSwaggerFromAPI` };
+export const updateAPIFromSwagger: NotificationType<UpdateAPIFromSwaggerRequest> = { method: `${_preFix}/updateAPIFromSwagger` };
+export const updateTestSuite: RequestType<UpdateTestSuiteRequest, UpdateTestSuiteResponse> = { method: `${_preFix}/updateTestSuite` };
+export const updateTestCase: RequestType<UpdateTestCaseRequest, UpdateTestCaseResponse> = { method: `${_preFix}/updateTestCase` };
+export const updateMockService: RequestType<UpdateMockServiceRequest, UpdateMockServiceResponse> = { method: `${_preFix}/updateMockService` };
+export const getAllTestSuites: RequestType<void, GetAllTestSuitsResponse> = { method: `${_preFix}/getAllTestSuites` };
+export const getAllMockServices: RequestType<void, GetAllMockServicesResponse> = { method: `${_preFix}/getAllMockServices` };
+export const addDependencyToPom: NotificationType<AddDependencyToPomRequest> = { method: `${_preFix}/addDependencyToPom` };

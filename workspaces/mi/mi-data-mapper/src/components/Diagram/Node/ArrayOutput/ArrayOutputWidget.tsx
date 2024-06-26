@@ -20,9 +20,10 @@ import { DataMapperPortWidget, PortState, InputOutputPortModel } from '../../Por
 import { TreeBody, TreeContainer, TreeHeader } from '../commons/Tree/Tree';
 import { ArrayOutputFieldWidget } from "./ArrayOuptutFieldWidget";
 import { useIONodesStyles } from '../../../styles';
-import { useDMCollapsedFieldsStore, useDMSidePanelStore } from "../../../../store/store";
+import { useDMCollapsedFieldsStore, useDMIOConfigPanelStore, useDMSubMappingConfigPanelStore } from "../../../../store/store";
 import { getDiagnostics } from "../../utils/diagnostics-utils";
 import { isConnectedViaLink } from "../../utils/common-utils";
+import { OutputSearchHighlight } from "../commons/Search";
 
 export interface ArrayOutputWidgetProps {
 	id: string;
@@ -31,6 +32,7 @@ export interface ArrayOutputWidgetProps {
 	engine: DiagramEngine;
 	getPort: (portId: string) => InputOutputPortModel;
 	context: IDataMapperContext;
+	valueLabel?: string;
 	deleteField?: (node: Node) => Promise<void>;
 }
 
@@ -42,15 +44,28 @@ export function ArrayOutputWidget(props: ArrayOutputWidgetProps) {
 		engine,
 		context,
 		typeName,
+		valueLabel,
 		deleteField
 	} = props;
+	const { views } = context;
+	const focusedView = views[views.length - 1];
+	const focuesOnSubMappingRoot = focusedView.subMappingInfo && focusedView.subMappingInfo.focusedOnSubMappingRoot;
+
 	const classes = useIONodesStyles();
 
 	const [ portState, setPortState ] = useState<PortState>(PortState.Unselected);
 	const collapsedFieldsStore = useDMCollapsedFieldsStore();
-	const setSidePanelOpen = useDMSidePanelStore(state => state.setSidePanelOpen);
-	const setSidePanelIOType = useDMSidePanelStore(state => state.setSidePanelIOType);
-	const setIsSchemaOverridden = useDMSidePanelStore(state => state.setIsSchemaOverridden);
+
+	const { setIsIOConfigPanelOpen, setIOConfigPanelType, setIsSchemaOverridden } = useDMIOConfigPanelStore(state => ({
+		setIsIOConfigPanelOpen: state.setIsIOConfigPanelOpen,
+		setIOConfigPanelType: state.setIOConfigPanelType,
+		setIsSchemaOverridden: state.setIsSchemaOverridden
+	}));
+
+	const {subMappingConfig, setSubMappingConfig} = useDMSubMappingConfigPanelStore(state => ({
+		subMappingConfig: state.subMappingConfig,
+		setSubMappingConfig: state.setSubMappingConfig
+	}));
 
 	const body = dmTypeWithValue && dmTypeWithValue.value;
 	const wasBodyForgotten = body && body.wasForgotten();
@@ -96,14 +111,31 @@ export function ArrayOutputWidget(props: ArrayOutputWidgetProps) {
 	};
 
 	const onRightClick = (event: React.MouseEvent) => {
-        event.preventDefault(); 
-        setSidePanelIOType("Output");
-        setIsSchemaOverridden(true);
-        setSidePanelOpen(true);
+		event.preventDefault(); 
+		if (focuesOnSubMappingRoot) {
+			onSubMappingEditBtnClick();
+		} else {
+			setIOConfigPanelType("Output");
+			setIsSchemaOverridden(true);
+			setIsIOConfigPanelOpen(true);
+		}
     };
+
+	const onSubMappingEditBtnClick = () => {
+		setSubMappingConfig({
+			...subMappingConfig,
+			isSMConfigPanelOpen: true
+		});
+	};
 
 	const label = (
 		<span style={{ marginRight: "auto" }}>
+			{valueLabel && (
+				<span className={classes.valueLabel}>
+					<OutputSearchHighlight>{valueLabel}</OutputSearchHighlight>
+					{typeName && ":"}
+				</span>
+			)}
 			<span className={classnames(classes.outputTypeLabel, isDisabled ? classes.labelDisabled : "")}>
 				{typeName || ''}
 			</span>
@@ -139,6 +171,19 @@ export function ArrayOutputWidget(props: ArrayOutputWidgetProps) {
 						</Button>
 						{label}
 					</span>
+					{focuesOnSubMappingRoot && (
+						<Button
+							appearance="icon"
+							data-testid={"edit-sub-mapping-btn"}
+							tooltip="Edit name and type of the sub mapping "
+							onClick={onSubMappingEditBtnClick}
+						>
+							<Codicon
+								name="settings-gear"
+								iconSx={{ color: "var(--vscode-input-placeholderForeground)" }}
+							/>
+						</Button>
+					)}
 				</TreeHeader>
 				{expanded && dmTypeWithValue && isBodyArrayLitExpr && (
 					<TreeBody>

@@ -14,6 +14,7 @@ import { COMMANDS } from '../constants';
 import { window } from 'vscode';
 import path = require('path');
 import { findJavaFiles, getAvailableRegistryResources } from '../util/fileOperations';
+import { ExtendedLanguageClient } from '../lang-client/ExtendedLanguageClient';
 
 let registryDetails: ListRegistryArtifactsResponse;
 export class ProjectExplorerEntry extends vscode.TreeItem {
@@ -40,13 +41,13 @@ export class ProjectExplorerEntryProvider implements vscode.TreeDataProvider<Pro
 	readonly onDidChangeTreeData: vscode.Event<ProjectExplorerEntry | undefined | null | void>
 		= this._onDidChangeTreeData.event;
 
-	refresh() {
+	refresh(langClient: ExtendedLanguageClient) {
 		return window.withProgress({
 			location: { viewId: 'MI.project-explorer' },
 			title: 'Loading project structure'
 		}, async () => {
 			try {
-				this._data = await getProjectStructureData(this.context);
+				this._data = await getProjectStructureData(this.context, langClient);
 				this._onDidChangeTreeData.fire();
 			} catch (err) {
 				console.error(err);
@@ -103,9 +104,8 @@ export class ProjectExplorerEntryProvider implements vscode.TreeDataProvider<Pro
 	}
 }
 
-async function getProjectStructureData(context: vscode.ExtensionContext): Promise<ProjectExplorerEntry[]> {
+async function getProjectStructureData(context: vscode.ExtensionContext, langClient: ExtendedLanguageClient): Promise<ProjectExplorerEntry[]> {
 	if (vscode.workspace.workspaceFolders && vscode.workspace.workspaceFolders.length > 0) {
-		const langClient = (await MILanguageClient.getInstance(context)).languageClient;
 		const data: ProjectExplorerEntry[] = [];
 		if (!!langClient) {
 			const workspaceFolders = vscode.workspace.workspaceFolders;
@@ -144,9 +144,9 @@ function generateTreeData(project: vscode.WorkspaceFolder, data: ProjectStructur
 
 		projectRoot.contextValue = 'project';
 		generateTreeDataOfArtifacts(project, data, projectRoot);
-		generateTreeDataOfRegistry(project, data, projectRoot);
 		generateTreeDataOfClassMediator(project, data, projectRoot);
 		generateTreeDataOfDataMappings(project, data, projectRoot);
+		generateTreeDataOfRegistry(project, data, projectRoot);
 		return projectRoot;
 	}
 }
@@ -164,7 +164,7 @@ function generateTreeDataOfDataMappings(project: vscode.WorkspaceFolder, data: P
 				{ name: 'datamapper', path: dataMapperResources.path, type: 'datamapper' },
 				'arrow-both'
 			);
-			parentEntry.contextValue = 'data-mapper';
+			parentEntry.contextValue = 'data-mappers';
 			parentEntry.id = 'data-mapper';
 			parentEntry.children = parentEntry.children ?? [];
 			for (const folder of dataMapperResources.folders) {
@@ -398,6 +398,7 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 					"command": COMMANDS.SHOW_RESOURCE_VIEW,
 					"arguments": [vscode.Uri.file(entry.path), i, false]
 				};
+				resourceEntry.contextValue = 'resource';
 				apiEntry.children.push(resourceEntry);
 			}
 			explorerEntry = apiEntry;
@@ -492,7 +493,7 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 				"arguments": [vscode.Uri.file(entry.path), undefined, false]
 			};
 		}
-		// TODO: Will introduce back when both data services and data sources are supported
+		// TODO: Will introduce back when both datasource and dataservice functionalities are completely supported
 		// else if (entry.type === "DATA_SOURCE") {
 		// 	explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, 'code');
 		// 	explorerEntry.contextValue = 'dataSource';
@@ -501,7 +502,15 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 		// 		"command": COMMANDS.SHOW_DATA_SOURCE,
 		// 		"arguments": [vscode.Uri.file(entry.path), undefined, false]
 		// 	};
-		// } 
+		// } else if (entry.type === "DATA_SERVICE") {
+		// 	explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, 'code');
+		// 	explorerEntry.contextValue = 'data-service';
+		// 	explorerEntry.command = {
+		// 		"title": "Show Data Service",
+		// 		"command": COMMANDS.SHOW_DATA_SERVICE,
+		// 		"arguments": [vscode.Uri.parse(entry.path), undefined, false]
+		// 	};
+		// }
 		else {
 			if (entry.name) {
 				explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, 'code');
@@ -607,6 +616,8 @@ function genRegistryProjectStructureEntry(data: RegistryResourcesFolder): Projec
 				const registryPath = entry.path.substring(lastIndex);
 				if (checkExistanceOfRegistryResource(registryPath)) {
 					explorerEntry.contextValue = "registry-with-metadata";
+				} else {
+					explorerEntry.contextValue = "registry-without-metadata";
 				}
 			}
 		}
@@ -626,6 +637,8 @@ function genRegistryProjectStructureEntry(data: RegistryResourcesFolder): Projec
 					const registryPath = entry.path.substring(lastIndex);
 					if (checkExistanceOfRegistryResource(registryPath)) {
 						explorerEntry.contextValue = "registry-with-metadata";
+					} else {
+						explorerEntry.contextValue = "registry-without-metadata";
 					}
 				}
 			}

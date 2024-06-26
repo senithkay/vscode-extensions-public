@@ -8,7 +8,7 @@
  */
 import { DMType } from "../../interfaces/mi-data-mapper";
 
-export interface IOTypeRequest {
+export interface DMTypeRequest {
     filePath: string;
     functionName: string;
 }
@@ -16,6 +16,10 @@ export interface IOTypeRequest {
 export interface IOTypeResponse {
     inputTrees: DMType[];
     outputTree: DMType | undefined;
+}
+
+export interface SubMappingTypesResponse {
+    variableTypes: Record<string, DMType | undefined>;
 }
 
 export interface UpdateFileContentRequest {
@@ -83,4 +87,9 @@ export interface SchemaGenRequest {
 
 export interface SchemaGenResponse {
     schema: string;
+}
+
+export interface UpdateDMUndoRedoMangerRequest {
+    filePath: string;
+    fileContent: string;
 }

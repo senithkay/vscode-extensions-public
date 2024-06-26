@@ -8,7 +8,7 @@
  */
 
 import React, { useEffect } from "react";
-import { EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
+import { Document, EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { Resource, Service, ServiceDesigner } from "@wso2-enterprise/service-designer";
 import { Item } from "@wso2-enterprise/ui-toolkit";
@@ -33,6 +33,7 @@ export function ServiceDesignerView({ syntaxTree, documentUri }: ServiceDesigner
     const [formData, setFormData] = React.useState<ResourceType>(null);
     const [mode, setMode] = React.useState<"create" | "edit">("create");
     const [selectedResource, setSelectedResource] = React.useState<APIResource>(null);
+    const [swaggerUpdated, setSwaggerUpdated] = React.useState<boolean>(false);
 
     const getResources = (st: any): Resource[] => {
         const resources = st.resource as APIResource[];
@@ -81,6 +82,14 @@ export function ServiceDesignerView({ syntaxTree, documentUri }: ServiceDesigner
         });
     };
 
+    if (rpcClient) {
+        rpcClient.onDocumentSave((document: Document) => {
+            if (document.uri.includes(`${serviceData.apiName}.yaml`)) {
+                setSwaggerUpdated(!swaggerUpdated);
+            }
+        });
+    }
+
     useEffect(() => {
         const st = syntaxTree;
 
@@ -128,7 +137,51 @@ export function ServiceDesignerView({ syntaxTree, documentUri }: ServiceDesigner
             }
         }
         setServiceModel(model);
-    }, [syntaxTree, documentUri]);
+
+        // If swagger file exists, compare it with the API data
+        rpcClient.getMiDiagramRpcClient().compareSwaggerAndAPI({
+            apiName: serviceData.apiName,
+            apiPath: documentUri
+        }).then(response => {
+            if (response.swaggerExists && !response.isEqual) {
+                rpcClient.getMiVisualizerRpcClient().showNotification({
+                    message: "The OpenAPI definition is different from the Synapse API.",
+                    type: "warning",
+                    options: ["Update Swagger", "Update API", "Ignore"]
+                }).then(option => {
+                    switch (option.selection) {
+                        case "Update Swagger":
+                            rpcClient.getMiDiagramRpcClient().updateSwaggerFromAPI({
+                                apiName: serviceData.apiName,
+                                apiPath: documentUri,
+                                existingSwagger: response.existingSwagger,
+                                generatedSwagger: response.generatedSwagger
+                            });
+                            break;
+                        case "Update API":
+                            rpcClient.getMiDiagramRpcClient().updateAPIFromSwagger({
+                                apiName: serviceData.apiName,
+                                apiPath: documentUri,
+                                existingSwagger: response.existingSwagger,
+                                generatedSwagger: response.generatedSwagger,
+                                resources: resources.map(r => ({
+                                    path: r.path,
+                                    methods: r.methods,
+                                    position: r.position
+                                })),
+                                insertPosition: {
+                                    line: st.range.endTagRange.start.line,
+                                    character: st.range.endTagRange.start.character
+                                }
+                            });
+                            break;
+                        default:
+                            break;
+                    }
+                })
+            }
+        })
+    }, [syntaxTree, documentUri, swaggerUpdated]);
 
     const highlightCode = (resource: Resource, force?: boolean) => {
         rpcClient.getMiDiagramRpcClient().highlightCode({
@@ -222,11 +275,21 @@ export function ServiceDesignerView({ syntaxTree, documentUri }: ServiceDesigner
         });
     };
 
+    const editOpenAPISpec = () => {
+        rpcClient.getMiDiagramRpcClient().editOpenAPISpec({
+            apiName: serviceData.apiName,
+            apiPath: documentUri
+        });
+    };
+
     return (
         <>
             {serviceModel && (
                 <View>
                     <ViewHeader title="Service Designer" codicon="globe" onEdit={handleServiceEdit}>
+                        <VSCodeButton appearance="secondary" title="Edit OpenAPI Definition" onClick={editOpenAPISpec}>
+                            <Codicon name="edit" sx={{ marginRight: 5 }} /> OpenAPI Spec
+                        </VSCodeButton>
                         <VSCodeButton appearance="primary" title="Edit Service" onClick={handleResourceAdd}>
                             <Codicon name="add" sx={{ marginRight: 5 }} /> Resource
                         </VSCodeButton>

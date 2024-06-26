@@ -8,7 +8,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
+import { Range, TagRange } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 import { Diagnostic, Position, TextDocumentIdentifier } from "vscode-languageserver-types";
 
 interface Record {
@@ -954,6 +954,185 @@ export interface RetrieveTemplateResponse {
     parameters: any;
 }
 
+export interface CreateDataServiceRequest {
+    directory: string;
+    dataServiceName: string;
+    dataServiceNamespace: string;
+    serviceGroup: string;
+    selectedTransports: string;
+    publishSwagger?: string;
+    jndiName?: string;
+    enableBoxcarring: boolean | null;
+    enableBatchRequests: boolean | null;
+    serviceStatus: string | null;
+    disableLegacyBoxcarringMode: boolean | null;
+    enableStreaming: boolean | null;
+    description?: string;
+    datasources: Datasource[];
+    authProviderClass?: string;
+    authProperties: Property[];
+    queries?: Query[];
+    operations?: Operation[];
+    resources?: Resource[];
+}
+
+export interface CreateDataServiceResponse {
+    path: string;
+}
+
+export interface RetrieveDataServiceRequest {
+    path: string;
+}
+
+export interface RetrieveDataServiceResponse {
+    dataServiceName: string;
+    dataServiceNamespace: string;
+    serviceGroup: string;
+    selectedTransports: string;
+    publishSwagger?: string;
+    jndiName?: string;
+    enableBoxcarring: boolean | null;
+    enableBatchRequests: boolean | null;
+    serviceStatus: boolean | null;
+    disableLegacyBoxcarringMode: boolean | null;
+    enableStreaming: boolean | null;
+    description?: string;
+    datasources: Datasource[];
+    authProviderClass?: string;
+    authProperties: Property[];
+    http: boolean | null;
+    https: boolean | null;
+    jms: boolean | null;
+    local: boolean | null;
+}
+
+export interface Datasource {
+    dataSourceName: string;
+    enableOData: boolean | null;
+    dynamicUserAuthClass?: string;
+    datasourceProperties: Property[];
+    datasourceConfigurations: Configuration[];
+}
+
+export interface Property {
+    key: string;
+    value: string;
+}
+
+export interface Configuration {
+    carbonUsername: string;
+    username: string;
+    password: string;
+}
+
+export interface Query {
+    queryName: string;
+    datasource: string;
+    sqlQuery?: string;
+    expression?: string;
+    returnGeneratedKeys: boolean | null;
+    keyColumns?: string;
+    returnUpdatedRowCount: boolean | null;
+    queryProperties: Property[];
+    hasQueryProperties: boolean | null;
+    queryParams: QueryParam[];
+    result?: Result;
+}
+
+export interface QueryParam {
+    paramName: string;
+    paramType: string;
+    sqlType: string;
+    defaultValue?: string;
+    type: string;
+    ordinal?: string;
+    optional: boolean;
+    validators: Validator[];
+}
+
+export interface Validator {
+    validationType: string;
+    minimum?: string;
+    maximum?: string;
+    pattern?: string;
+}
+
+export interface Result {
+    useColumnNumbers: boolean | null;
+    escapeNonPrintableChar: boolean | null;
+    defaultNamespace?: string;
+    xsltPath?: string;
+    rdfBaseURI?: string;
+    element?: string;
+    rowName?: string
+    outputType?: string;
+    jsonPayload?: string;
+    elements: ElementResult[];
+    complexElements: ComplexElementResult[];
+    attributes: AttributeResult[];
+    queries: QueryResult[];
+}
+
+export interface ElementResult {
+    elementName: string;
+    elementNamespace?: string;
+    datasourceColumn?: string;
+    queryParam?: string;
+    arrayName?: string;
+    xsdType: string;
+    optional: boolean;
+    exportName?: string;
+    exportType?: string;
+    requiredRoles: string;
+}
+
+export interface ComplexElementResult {
+    elementName: string;
+    elementNamespace?: string;
+    arrayName?: string;
+    childElements?: string;
+    requiredRoles: string;
+}
+
+export interface AttributeResult {
+    attributeName: string;
+    datasourceColumn?: string;
+    queryParam?: string;
+    xsdType: string;
+    optional: boolean;
+    exportName?: string;
+    exportType?: string;
+    requiredRoles: string;
+}
+
+export interface QueryResult {
+    query: string;
+    requiredRoles: string;
+    queryParams: any[];
+    hasQueryParams: boolean | null;
+}
+
+export interface Operation {
+    operationName: string;
+    returnRequestStatus: boolean | null;
+    disableStreaming: boolean | null;
+    operationDescription?: string;
+    query: string;
+    queryParams: Property[];
+    hasQueryParams: boolean | null;
+}
+
+export interface Resource {
+    method: string;
+    path: string;
+    returnRequestStatus: boolean | null;
+    disableStreaming: boolean | null;
+    resourceDescription?: string;
+    query: string;
+    queryParams: Property[];
+    hasQueryParams: boolean | null;
+}
+
 export interface ProjectRootResponse {
     path: string;
 }
@@ -1009,6 +1188,13 @@ export interface GetSelectiveWorkspaceContextResponse {
     context: string[];
 }
 
+export interface GetSelectiveArtifactsRequest {
+    path: string;
+}
+
+export interface GetSelectiveArtifactsResponse {
+    artifacts: string[];
+}
 export interface GetProjectUuidResponse {
     uuid: string;
 }
@@ -1093,10 +1279,40 @@ export interface BrowseFileRequest {
     openLabel?: string;
 }
 
+type ResourceType =
+    | "sequence"
+    | "endpoint"
+    | "api"
+    | "messageStore"
+    | "messageProcessor"
+    | "task"
+    | "sequenceTemplate"
+    | "endpointTemplate"
+    | "proxyService"
+    | "dataService"
+    | "dataSource"
+    | "localEntry"
+    | "dataMapper"
+    | "js"
+    | "json"
+    | "smooksConfig"
+    | "swagger"
+    | "wsdl"
+    | "ws_policy"
+    | "xsd"
+    | "xsl"
+    | "xslt"
+    | "yaml"
+    | "registry";
+
+export interface MultipleResourceType {
+    type: ResourceType;
+    needRegistry?: boolean;
+}
+
 export interface GetAvailableResourcesRequest {
     documentIdentifier: string | undefined;
-    resourceType: "sequence" | "endpoint" | "messageStore" | "messageProcessor" | "task" | "sequenceTemplate" | "endpointTemplate" | "proxyService" |
-    "dataService" | "dataSource" | "localEntry" | "dataMapper" | "js" | "json" | "smooksConfig" | "swagger" | "wsdl" | "ws_policy" | "xsd" | "xsl" | "xslt" | "yaml" | "registry";
+    resourceType: ResourceType | MultipleResourceType[];
 }
 
 export interface GetAvailableResourcesResponse {
@@ -1290,4 +1506,89 @@ export type GenerateAPIRequest = GenerateAPIBase & (
 export interface GenerateAPIResponse {
     apiXml: string;
     endpointXml?: string;
+}
+
+export interface SwaggerTypeRequest {
+    apiName: string;
+    apiPath: string;
+    generatedSwagger?: string;
+    existingSwagger?: string;
+}
+
+export interface SwaggerFromAPIResponse {
+    generatedSwagger: any;
+}
+
+export interface SwaggerFromAPIRequest {
+    apiPath: string;
+    swaggerPath?: string;
+    isJsonIn?: boolean;
+    isJsonOut?: boolean;
+}
+
+export interface CompareSwaggerAndAPIResponse {
+    swaggerExists: boolean;
+    isEqual?: boolean;
+    generatedSwagger?: string;
+    existingSwagger?: string;
+}
+
+export interface UpdateAPIFromSwaggerRequest extends SwaggerTypeRequest {
+    resources: any[];
+    insertPosition: Position;
+}
+
+export interface UpdateTestSuiteRequest {
+    path?: string;
+    content: string;
+    artifact?: string;
+    name?: string;
+}
+
+export interface UpdateTestSuiteResponse {
+    path: string;
+}
+
+export interface UpdateTestCaseRequest {
+    path: string;
+    content: string;
+    range?: TagRange
+}
+
+export interface UpdateTestCaseResponse {
+}
+
+export interface UpdateMockServiceRequest {
+    path?: string;
+    content: string;
+    name?: string;
+}
+
+export interface UpdateMockServiceResponse {
+    path: string;
+}
+
+export interface GetAllTestSuitsResponse {
+    testSuites: {
+        name: string;
+        path: string;
+        testCases: {
+            name: string;
+            range: Range;
+        }[];
+    }[];
+}
+
+export interface GetAllMockServicesResponse {
+    mockServices: {
+        name: string;
+        path: string;
+    }[];
+}
+
+export interface AddDependencyToPomRequest {
+    groupId: string;
+    artifactId: string;
+    version: string;
+    file: string
 }

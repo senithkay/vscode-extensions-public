@@ -8,7 +8,7 @@
  */
 import { Point } from "@projectstorm/geometry";
 import { DMType, TypeKind } from "@wso2-enterprise/mi-core";
-import { Node, ReturnStatement } from "ts-morph";
+import { Expression, Node } from "ts-morph";
 
 import { useDMCollapsedFieldsStore, useDMSearchStore } from "../../../../store/store";
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
@@ -18,7 +18,16 @@ import { DataMapperNodeModel } from "../commons/DataMapperNode";
 import { getFilteredMappings, getSearchFilteredOutput, hasNoOutputMatchFound } from "../../utils/search-utils";
 import { enrichAndProcessType } from "../../utils/type-utils";
 import { OBJECT_OUTPUT_TARGET_PORT_PREFIX } from "../../utils/constants";
-import { findInputNode, getDefaultValue, getInputPort, getOutputPort, getTypeName, getTypeOfValue } from "../../utils/common-utils";
+import {
+    findInputNode,
+    getDefaultValue,
+    getInputPort,
+    getOutputPort,
+    getTypeName,
+    getTypeOfValue,
+    isMapFnAtPropAssignment,
+    isMapFnAtRootReturn
+} from "../../utils/common-utils";
 import { InputOutputPortModel } from "../../Port";
 import { DataMapperLinkModel } from "../../Link";
 import { ExpressionLabelModel } from "../../Label";
@@ -38,11 +47,13 @@ export class ObjectOutputNode extends DataMapperNodeModel {
     public hasNoMatchingFields: boolean;
     public x: number;
     public y: number;
+    public isMapFn: boolean;
 
     constructor(
         public context: IDataMapperContext,
-        public value: ReturnStatement | undefined,
-        public originalType: DMType
+        public value: Expression | undefined,
+        public originalType: DMType,
+        public isSubMapping: boolean = false
     ) {
         super(
             NODE_ID,
@@ -56,16 +67,23 @@ export class ObjectOutputNode extends DataMapperNodeModel {
 
         if (this.dmType) {
             this.rootName = this.dmType?.fieldName;
+            const { focusedST, functionST, views } = this.context;
+            const focusedView = views[views.length - 1];
+
+            const isMapFnAtPropAsmt = isMapFnAtPropAssignment(focusedST);
+            const isMapFnAtRootRtn = views.length > 1 && isMapFnAtRootReturn(functionST, focusedST);
+            this.isMapFn = isMapFnAtPropAsmt || isMapFnAtRootRtn;
 
             const collapsedFields = useDMCollapsedFieldsStore.getState().collapsedFields;
-            const [valueEnrichedType, type] = enrichAndProcessType(this.dmType, this.value && this.value.getExpression());
+            const [valueEnrichedType, type] = enrichAndProcessType(this.dmType, this.value);
             this.dmType = type;
             this.typeName = getTypeName(valueEnrichedType.type);
 
             this.hasNoMatchingFields = hasNoOutputMatchFound(this.originalType, valueEnrichedType);
     
             const parentPort = this.addPortsForHeader(
-                this.dmType, this.rootName, "IN", OBJECT_OUTPUT_TARGET_PORT_PREFIX, collapsedFields, valueEnrichedType
+                this.dmType, this.rootName, "IN", OBJECT_OUTPUT_TARGET_PORT_PREFIX,
+                collapsedFields, valueEnrichedType, this.isMapFn
             );
     
             if (valueEnrichedType.type.kind === TypeKind.Interface) {
@@ -75,9 +93,15 @@ export class ObjectOutputNode extends DataMapperNodeModel {
                     this.dmTypeWithValue.childrenTypes.forEach(field => {
                         this.addPortsForOutputField(
                             field, "IN", this.rootName, undefined, OBJECT_OUTPUT_TARGET_PORT_PREFIX,
-                            parentPort, collapsedFields, parentPort.collapsed
+                            parentPort, collapsedFields, parentPort.collapsed, this.isMapFn
                         );
                     });
+                }
+
+                if (this.isSubMapping && focusedView.subMappingInfo.focusedOnSubMappingRoot) {
+                    this.addOutputFieldAdderPort(
+                        this.rootName, parentPort, collapsedFields, parentPort.collapsed, this.isMapFn
+                    );
                 }
             }
         }
@@ -88,7 +112,7 @@ export class ObjectOutputNode extends DataMapperNodeModel {
             return;
         }
         const searchValue = useDMSearchStore.getState().outputSearch;
-        const mappings = this.genMappings(this.value.getExpression());
+        const mappings = this.genMappings(this.value);
         this.mappings = getFilteredMappings(mappings, searchValue);
         this.createLinks(this.mappings);
     }
@@ -123,7 +147,8 @@ export class ObjectOutputNode extends DataMapperNodeModel {
                         && !mappedField?.fieldName
                         && mappedField.kind !== TypeKind.Array
                         && mappedField.kind !== TypeKind.Interface
-                    ) || !Node.isObjectLiteralExpression(this.value.getExpression())
+                    ) || !Node.isObjectLiteralExpression(this.value)
+                    || Node.isVariableStatement(this.context.focusedST)
                 );
 
                 lm.setTargetPort(mappedOutPort);
@@ -165,20 +190,24 @@ export class ObjectOutputNode extends DataMapperNodeModel {
 
     async deleteField(field: Node, keepDefaultVal?: boolean) {
         const typeOfValue = getTypeOfValue(this.dmTypeWithValue, getPosition(field));
+        const defaultValue = getDefaultValue(typeOfValue.kind);
 
         if (keepDefaultVal && !Node.isPropertyAssignment(field)) {
-            const replaceWith = getDefaultValue(typeOfValue.kind);
-            field.replaceWithText(replaceWith);
+            field.replaceWithText(defaultValue);
         } else {
-            const linkDeleteVisitor = new LinkDeletingVisitor(field, this.value.getExpression());
-            traversNode(this.value.getExpression(), linkDeleteVisitor);
+            const linkDeleteVisitor = new LinkDeletingVisitor(field, this.value);
+            traversNode(this.value, linkDeleteVisitor);
             const targetNodes = linkDeleteVisitor.getNodesToDelete();
 
             targetNodes.forEach(node => {
                 const parentNode = node.getParent();
 
                 if (Node.isPropertyAssignment(node)) {
-                    node.remove();
+                    if (Node.isVariableStatement(this.context.focusedST)) {
+                        node.getInitializer().replaceWithText(defaultValue);
+                    } else {
+                        node.remove();
+                    }
                 } else if (parentNode && Node.isArrayLiteralExpression(parentNode)) {
                     const elementIndex = parentNode.getElements().find(e => e === node);
                     parentNode.removeElement(elementIndex);

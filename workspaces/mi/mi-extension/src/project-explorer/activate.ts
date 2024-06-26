@@ -11,19 +11,20 @@ import { ProjectExplorerEntry, ProjectExplorerEntryProvider } from './project-ex
 import { StateMachine, openView } from '../stateMachine';
 import { EVENT_TYPE, MACHINE_VIEW, VisualizerLocation } from '@wso2-enterprise/mi-core';
 import { COMMANDS } from '../constants';
-import { ExtensionContext, Uri, ViewColumn, commands, window, workspace } from 'vscode';
-import { VisualizerWebview } from '../visualizer/webview';
+import { ExtensionContext, TreeItem, Uri, ViewColumn, commands, window, workspace } from 'vscode';
 import path = require("path");
 import { deleteRegistryResource } from '../util/fileOperations';
-import { RpcClient } from '@wso2-enterprise/mi-rpc-client';
 import { extension } from '../MIExtensionContext';
+import { ExtendedLanguageClient } from '../lang-client/ExtendedLanguageClient';
+import { APIResource } from '../../../syntax-tree/lib/src';
+import { MiDiagramRpcManager } from '../rpc-managers/mi-diagram/rpc-manager';
 
-export async function activateProjectExplorer(context: ExtensionContext) {
+export async function activateProjectExplorer(context: ExtensionContext, lsClient: ExtendedLanguageClient) {
 
 	const projectExplorerDataProvider = new ProjectExplorerEntryProvider(context);
-	await projectExplorerDataProvider.refresh();
+	await projectExplorerDataProvider.refresh(lsClient);
 	const projectTree = window.createTreeView('MI.project-explorer', { treeDataProvider: projectExplorerDataProvider });
-	commands.registerCommand(COMMANDS.REFRESH_COMMAND, () => { return projectExplorerDataProvider.refresh(); });
+	commands.registerCommand(COMMANDS.REFRESH_COMMAND, () => { return projectExplorerDataProvider.refresh(lsClient); });
 	commands.registerCommand(COMMANDS.ADD_COMMAND, () => {
 		window.showQuickPick([
 			{ label: 'New Project', description: 'Create new project' },
@@ -37,6 +38,9 @@ export async function activateProjectExplorer(context: ExtensionContext) {
 			{ label: 'Task', description: 'Add new task' },
 			{ label: 'Proxy Service', description: 'Add new proxy service' },
 			{ label: 'Template', description: 'Add new template' },
+			// TODO: Will introduce back when both datasource and dataservice functionalities are completely supported
+			// { label: 'Data Service', description: 'Add new data service' },
+			// { label: 'Data Source', description: 'Add new data source' }
 		], {
 			placeHolder: 'Select the construct to add'
 		}).then(selection => {
@@ -63,6 +67,12 @@ export async function activateProjectExplorer(context: ExtensionContext) {
 			} else if (selection?.label === 'Message Store') {
 				commands.executeCommand(COMMANDS.ADD_MESSAGE_STORE_COMMAND);
 			}
+			// TODO: Will introduce back when both datasource and dataservice functionalities are completely supported
+			// else if (selection?.label === 'Data Service') {
+			// 	commands.executeCommand(COMMANDS.ADD_DATA_SERVICE_COMMAND);
+			// } else if (selection?.label === 'Data Source') {
+			// 	commands.executeCommand(COMMANDS.ADD_DATA_SOURCE_COMMAND);
+			// }
 		});
 
 	});
@@ -94,6 +104,11 @@ export async function activateProjectExplorer(context: ExtensionContext) {
 	commands.registerCommand(COMMANDS.ADD_CLASS_MEDIATOR_COMMAND, async (entry: ProjectExplorerEntry) => {
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.ClassMediatorForm, documentUri: entry.info?.path });
 		console.log('Add Class Mediator');
+	});
+
+	commands.registerCommand(COMMANDS.ADD_DATA_SERVICE_COMMAND, (entry: ProjectExplorerEntry) => {
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.DataServiceForm, documentUri: entry.info?.path });
+		console.log('Add Data Service');
 	});
 
 	commands.registerCommand(COMMANDS.ADD_MESSAGE_PROCESSOR_COMMAND, (entry: ProjectExplorerEntry) => {
@@ -129,26 +144,6 @@ export async function activateProjectExplorer(context: ExtensionContext) {
 
 	commands.registerCommand(COMMANDS.SHOW_DATA_MAPPER, async (entry: string) => {
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.DataMapperView, documentUri: entry });
-	});
-
-	commands.registerCommand(COMMANDS.DELETE_REGISTERY_RESOURCE_COMMAND, async (entry: ProjectExplorerEntry) => {
-		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.Overview });
-		if (entry.info && entry.info?.path) {
-			const filePath = entry.info.path;
-			const fileName = path.basename(filePath);
-			window.showInformationMessage("Do you want to delete : " + fileName, { modal: true }, "Yes", "No")
-				.then(async answer => {
-					if (answer === "Yes") {
-						const res = await deleteRegistryResource(filePath);
-						if (res.status === true) {
-							window.showInformationMessage(res.info);
-							projectExplorerDataProvider.refresh();
-						} else {
-							window.showErrorMessage(res.info);
-						}
-					}
-				});
-		}
 	});
 
 	commands.registerCommand(COMMANDS.ADD_MESSAGE_STORE_COMMAND, (entry: ProjectExplorerEntry) => {
@@ -314,6 +309,10 @@ export async function activateProjectExplorer(context: ExtensionContext) {
 		revealWebviewPanel(beside);
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.TemplateEndPointForm, documentUri: documentUri?.fsPath });
 	});
+	commands.registerCommand(COMMANDS.SHOW_DATA_SERVICE, (documentUri: Uri, resourceIndex: string, beside: boolean = true) => {
+		revealWebviewPanel(beside);
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.DataServiceForm, documentUri: documentUri?.fsPath });
+	});
 	commands.registerCommand(COMMANDS.OPEN_PROJECT_OVERVIEW, async (entry: ProjectExplorerEntry) => {
 		revealWebviewPanel(false);
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.Overview });
@@ -321,6 +320,130 @@ export async function activateProjectExplorer(context: ExtensionContext) {
 	commands.registerCommand(COMMANDS.OPEN_SERVICE_DESIGNER, async (entry: ProjectExplorerEntry) => {
 		revealWebviewPanel(false);
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.ServiceDesigner, documentUri: entry.info?.path });
+	});
+	commands.registerCommand(COMMANDS.OPEN_DSS_SERVICE_DESIGNER, async (entry: ProjectExplorerEntry) => {
+		revealWebviewPanel(false);
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.DSSServiceDesigner, documentUri: entry.info?.path });
+	});
+
+	// delete
+	commands.registerCommand(COMMANDS.DELETE_PROJECT_EXPLORER_ITEM, async (item: TreeItem) => {
+		switch (item.contextValue) {
+			case 'api':
+			case 'endpoint':
+			case 'sequence':
+			case 'proxy-service':
+			case 'inboundEndpoint':
+			case 'messageStore':
+			case 'message-processor':
+			case 'task':
+			case 'localEntry':
+			case 'template':
+			case 'dataSource':
+			case 'dataService':
+			case 'data-mapper':
+				{
+					const fileUri = item.command?.arguments?.[0] || (item as any)?.info?.path;
+					if (!fileUri) {
+						window.showErrorMessage('Resource not found.');
+						return;
+					}
+					const confirmation = await window.showWarningMessage(
+						`Are you sure you want to delete ${item.contextValue} - ${item.label}?`,
+						{ modal: true },
+						'Yes'
+					);
+
+					if (confirmation === 'Yes') {
+						try {
+							await workspace.fs.delete(Uri.parse(fileUri), { recursive: true, useTrash: true });
+							window.showInformationMessage(`${item.label} has been deleted.`);
+						} catch (error) {
+							window.showErrorMessage(`Failed to delete ${item.label}: ${error}`);
+						}
+					}
+					break;
+				}
+
+			case 'resource':
+				{
+					const resourceId = item.command?.arguments?.[1];
+					if (resourceId === undefined) {
+						window.showErrorMessage('Resource ID not found.');
+						return;
+					}
+					const langClient = StateMachine.context().langClient;
+					const fileUri = item.command?.arguments?.[0];
+					if (!langClient) {
+						window.showErrorMessage('Language client not found.');
+						return;
+					}
+					if (!fileUri) {
+						window.showErrorMessage('Resource not found.');
+						return;
+					}
+					const syntaxTree = await langClient.getSyntaxTree({ documentIdentifier: { uri: fileUri.fsPath } });
+					const resource: APIResource = syntaxTree?.syntaxTree?.api?.resource[resourceId];
+
+					if (!resource) {
+						window.showErrorMessage(`Resource ${resourceId} not found.`);
+					}
+					const name = resource.uriTemplate || resource.urlMapping || "resource";
+					const range = resource.range;
+					const confirmation = await window.showWarningMessage(
+						`Are you sure you want to delete resource - ${name}?`,
+						{ modal: true },
+						'Yes'
+					);
+
+					if (confirmation === 'Yes') {
+						try {
+							const rpcManager = new MiDiagramRpcManager()
+							await rpcManager.applyEdit({
+								text: "",
+								documentUri: fileUri.fsPath,
+								range: {
+									start: range.startTagRange.start,
+									end: range.endTagRange.end,
+								},
+							});
+							window.showInformationMessage(`Resource ${name} has been deleted.`);
+						} catch (error) {
+							window.showErrorMessage(`Failed to delete resource ${name}: ${error}`);
+						}
+					}
+
+					break;
+				}
+			case 'registry-with-metadata':
+			case 'registry-without-metadata': {
+				let filePath = "";
+				if (item instanceof ProjectExplorerEntry) {
+					if (item.info && item.info?.path) {
+						filePath = item.info.path;
+					}
+				} else if (item.id) {
+					filePath = item.id;
+				}
+				if (filePath !== "") {
+					const fileName = path.basename(filePath);
+					window.showInformationMessage("Do you want to delete : " + fileName, { modal: true }, "Yes", "No")
+						.then(async answer => {
+							if (answer === "Yes") {
+								const res = await deleteRegistryResource(filePath);
+								if (res.status === true) {
+									window.showInformationMessage(res.info);
+									projectExplorerDataProvider.refresh(lsClient);
+								} else {
+									window.showErrorMessage(res.info);
+								}
+							}
+						});
+				}
+				break;
+			}
+		}
+		projectExplorerDataProvider.refresh(lsClient);
 	});
 }
 

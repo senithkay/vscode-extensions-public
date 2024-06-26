@@ -9,11 +9,13 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
-    IOTypeRequest,
+    DMTypeRequest,
     IOTypeResponse,
+    SubMappingTypesResponse,
     MIDataMapperAPI,
     UpdateFileContentRequest,
     getIOTypes,
+    getSubMappingTypes,
     updateFileContent,
     GenerateDMInputRequest,
     GenerateDMInputResponse,
@@ -29,6 +31,12 @@ import {
     createDMFiles,
     UpdateDMCRequest,
     updateDMCFileContent,
+    UpdateDMUndoRedoMangerRequest,
+    initDMUndoRedoManager,
+    dmUndo,
+    dmRedo,
+    addToDMUndoStack,
+    updateDMUndoRedoManager
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -40,8 +48,12 @@ export class MiDataMapperRpcClient implements MIDataMapperAPI {
         this._messenger = messenger;
     }
 
-    getIOTypes(params: IOTypeRequest): Promise<IOTypeResponse> {
+    getIOTypes(params: DMTypeRequest): Promise<IOTypeResponse> {
         return this._messenger.sendRequest(getIOTypes, HOST_EXTENSION, params);
+    }
+
+    getSubMappingTypes(params: DMTypeRequest): Promise<SubMappingTypesResponse> {
+        return this._messenger.sendRequest(getSubMappingTypes, HOST_EXTENSION, params);
     }
 
     updateFileContent(params: UpdateFileContentRequest): void {
@@ -66,5 +78,25 @@ export class MiDataMapperRpcClient implements MIDataMapperAPI {
 
     updateDMCFileContent(params: UpdateDMCRequest): void {
         return this._messenger.sendNotification(updateDMCFileContent, HOST_EXTENSION, params);
+    }
+
+    initDMUndoRedoManager(params: UpdateDMUndoRedoMangerRequest): void {
+        return this._messenger.sendNotification(initDMUndoRedoManager, HOST_EXTENSION, params);
+    }
+
+    dmUndo(): Promise<string> {
+        return this._messenger.sendRequest(dmUndo, HOST_EXTENSION);
+    }
+
+    dmRedo(): Promise<string> {
+        return this._messenger.sendRequest(dmRedo, HOST_EXTENSION);
+    }
+
+    addToDMUndoStack(source: string): void {
+        return this._messenger.sendNotification(addToDMUndoStack, HOST_EXTENSION, source);
+    }
+
+    updateDMUndoRedoManager(params: UpdateDMUndoRedoMangerRequest): void {
+        return this._messenger.sendNotification(updateDMUndoRedoManager, HOST_EXTENSION, params);
     }
 }

@@ -23,6 +23,9 @@ import {
     RetrieveContextResponse,
     NotificationRequest,
     NotificationResponse,
+    RuntimeServicesResponse,
+    SwaggerProxyRequest,
+    SwaggerProxyResponse,
 } from "./types";
 import { GettingStartedData, SampleDownloadRequest } from "./types";
 export interface MIVisualizerAPI {
@@ -45,4 +48,6 @@ export interface MIVisualizerAPI {
     updateContext: (params: UpdateContextRequest) => Promise<void>;
     retrieveContext: (params: RetrieveContextRequest) => Promise<RetrieveContextResponse>;
     showNotification: (params: NotificationRequest) => Promise<NotificationResponse>;
+    getAvailableRuntimeServices:() => Promise<RuntimeServicesResponse>;
+    sendSwaggerProxyRequest: (params: SwaggerProxyRequest) => Promise<SwaggerProxyResponse>;
 }

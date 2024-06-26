@@ -52,7 +52,7 @@ const ValidateForm = (props: AddMediatorProps) => {
             source: sidePanelContext?.formValues?.source || {"isExpression":true,"value":""},
             enableSchemaCaching: sidePanelContext?.formValues?.enableSchemaCaching || "true",
             schemas: {
-                paramValues: sidePanelContext?.formValues?.schemas ? getParamManagerFromValues(sidePanelContext?.formValues?.schemas) : [],
+                paramValues: sidePanelContext?.formValues?.schemas ? getParamManagerFromValues(sidePanelContext?.formValues?.schemas, -1, 0) : [],
                 paramFields: [
                     {
                         "type": "KeyLookup",
@@ -64,7 +64,7 @@ const ValidateForm = (props: AddMediatorProps) => {
                 ]
             },
             features: {
-                paramValues: sidePanelContext?.formValues?.features ? getParamManagerFromValues(sidePanelContext?.formValues?.features) : [],
+                paramValues: sidePanelContext?.formValues?.features ? getParamManagerFromValues(sidePanelContext?.formValues?.features, 0, 1) : [],
                 paramFields: [
                     {
                         "type": "TextField",
@@ -81,7 +81,7 @@ const ValidateForm = (props: AddMediatorProps) => {
                 ]
             },
             resources: {
-                paramValues: sidePanelContext?.formValues?.resources ? getParamManagerFromValues(sidePanelContext?.formValues?.resources) : [],
+                paramValues: sidePanelContext?.formValues?.resources ? getParamManagerFromValues(sidePanelContext?.formValues?.resources, 0, 1) : [],
                 paramFields: [
                     {
                         "type": "TextField",

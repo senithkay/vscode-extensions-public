@@ -9,8 +9,9 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
-    IOTypeRequest,
+    DMTypeRequest,
     getIOTypes,
+    getSubMappingTypes,
     updateFileContent,
     UpdateFileContentRequest,
     GenerateDMInputRequest,
@@ -22,18 +23,30 @@ import {
     convertRegPathToAbsPath,
     UpdateDMCRequest,
     createDMFiles,
-    updateDMCFileContent
+    updateDMCFileContent,
+    initDMUndoRedoManager,
+    dmUndo,
+    dmRedo,
+    addToDMUndoStack,
+    updateDMUndoRedoManager,
+    UpdateDMUndoRedoMangerRequest
 } from "@wso2-enterprise/mi-core";
 import { Messenger } from "vscode-messenger";
 import { MiDataMapperRpcManager } from "./rpc-manager";
 
 export function registerMiDataMapperRpcHandlers(messenger: Messenger) {
     const rpcManger = new MiDataMapperRpcManager();
-    messenger.onRequest(getIOTypes, (args: IOTypeRequest) => rpcManger.getIOTypes(args));
+    messenger.onRequest(getIOTypes, (args: DMTypeRequest) => rpcManger.getIOTypes(args));
+    messenger.onRequest(getSubMappingTypes, (args: DMTypeRequest) => rpcManger.getSubMappingTypes(args));
     messenger.onNotification(updateFileContent, (args: UpdateFileContentRequest) => rpcManger.updateFileContent(args));
     messenger.onRequest(browseSchema, (args: BrowseSchemaRequest) => rpcManger.browseSchema(args));
     messenger.onRequest(loadDMConfigs, (args: LoadDMConfigsRequest) => rpcManger.loadDMConfigs(args));
     messenger.onRequest(convertRegPathToAbsPath, (args: ConvertRegPathToAbsPathRequest) => rpcManger.convertRegPathToAbsPath(args));
     messenger.onRequest(createDMFiles, (args: GenerateDMInputRequest) => rpcManger.createDMFiles(args));
     messenger.onRequest(updateDMCFileContent, (args: UpdateDMCRequest) => rpcManger.updateDMCFileContent(args));
+    messenger.onNotification(initDMUndoRedoManager, (args: UpdateDMUndoRedoMangerRequest) => rpcManger.initDMUndoRedoManager(args));
+    messenger.onRequest(dmUndo, () => rpcManger.dmUndo());
+    messenger.onRequest(dmRedo, () => rpcManger.dmRedo());
+    messenger.onNotification(addToDMUndoStack, (args: string) => rpcManger.addToDMUndoStack(args));
+    messenger.onNotification(updateDMUndoRedoManager, (args: UpdateDMUndoRedoMangerRequest) => rpcManger.updateDMUndoRedoManager(args));
 }

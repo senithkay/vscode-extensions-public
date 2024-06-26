@@ -19,7 +19,7 @@ import {
 } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
-import { useDMSidePanelStore } from "../../../store/store";
+import { useDMIOConfigPanelStore } from "../../../store/store";
 
 const SidePanelBodyWrapper = styled.div`
     display: flex;
@@ -40,19 +40,21 @@ const cardStyle = {
 `;
 
 export type ImportDataWizardProps = {
-    isOpen: boolean;
-    onCancel: () => void;
     configName: string;
     documentUri: string;
-    ioType: string;
-    overwriteSchema: boolean;
 };
 
 
 export function ImportDataForm(props: ImportDataWizardProps) {
-    const { configName, documentUri, ioType, overwriteSchema } = props;
+    const { configName, documentUri } = props;
     const { rpcClient } = useVisualizerContext();
-    const setSidePanelOpen = useDMSidePanelStore(state => state.setSidePanelOpen);
+
+    const {isOpen, ioType, overwriteSchema, setSidePanelOpen } = useDMIOConfigPanelStore(state => ({
+        isOpen: state.isIOConfigPanelOpen,
+        ioType: state.ioConfigPanelType,
+        overwriteSchema: state.isSchemaOverridden,
+        setSidePanelOpen: state.setIsIOConfigPanelOpen
+    }));
     const [selectedResourceType, setSelectedResourceType] = React.useState<string>("JSON");
 
     const loadSchema = async () => {
@@ -75,17 +77,21 @@ export function ImportDataForm(props: ImportDataWizardProps) {
         }).catch(e => {
             console.error("Error while importing schema", e);
         });
-    }
+    };
+
+    const onClose = () => {
+        setSidePanelOpen(false);
+    };
 
     return (
         <SidePanel
-                isOpen={props.isOpen}
+                isOpen={isOpen}
                 alignment="right"
                 width={312}
                 overlay={false}
             >
                 <SidePanelTitleContainer>
-                    <Button sx={{ marginLeft: "auto" }} onClick={props.onCancel} appearance="icon">
+                    <Button sx={{ marginLeft: "auto" }} onClick={onClose} appearance="icon">
                         <Codicon name="close" />
                     </Button>
                 </SidePanelTitleContainer>

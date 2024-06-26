@@ -27,20 +27,21 @@ import {
 import { InputAccessNodeFindingVisitor } from "../../Visitors/InputAccessNodeFindingVisitor";
 import { NodePosition, getPosition, isPositionsEquals, traversNode } from "./st-utils";
 import { DataMapperNodeModel } from "../Node/commons/DataMapperNode";
-import { ArrayOutputNode, InputNode, ObjectOutputNode } from "../Node";
+import { ArrayOutputNode, InputNode, ObjectOutputNode, SubMappingNode } from "../Node";
 import { InputOutputPortModel } from "../Port";
 import { ArrayElement, DMTypeWithValue } from "../Mappings/DMTypeWithValue";
 import { useDMSearchStore } from "../../../store/store";
 import {
     ARRAY_OUTPUT_TARGET_PORT_PREFIX,
     FOCUSED_INPUT_SOURCE_PORT_PREFIX,
+    OBJECT_OUTPUT_FIELD_ADDER_TARGET_PORT_PREFIX,
     OBJECT_OUTPUT_TARGET_PORT_PREFIX,
-    PRIMITIVE_OUTPUT_TARGET_PORT_PREFIX
+    PRIMITIVE_OUTPUT_TARGET_PORT_PREFIX,
+    SUB_MAPPING_INPUT_SOURCE_PORT_PREFIX
 } from "./constants";
 import { FocusedInputNode } from "../Node/FocusedInput";
 import { PrimitiveOutputNode } from "../Node/PrimitiveOutput";
-import { View } from "../../../components/DataMapper/DataMapper";
-
+import { View } from "../../../components/DataMapper/Views/DataMapperView";
 
 export function getInputAccessNodes(node: Node): (Identifier | ElementAccessExpression | PropertyAccessExpression)[] {
     const ipnutAccessNodeVisitor: InputAccessNodeFindingVisitor = new InputAccessNodeFindingVisitor();
@@ -50,53 +51,87 @@ export function getInputAccessNodes(node: Node): (Identifier | ElementAccessExpr
 
 export function findInputNode(expr: Node, dmNode: DataMapperNodeModel) {
     const dmNodes = dmNode.getModel().getNodes();
-    const { functionST, views } = dmNode.context;
-    const isWithinSubMappingView = views.length > 1;
-    let paramNode: ParameterDeclaration;
 
     if (Node.isIdentifier(expr)) {
-        const paramType = dmNodes.find(node => {
+        const inputNode = dmNodes.find(node => {
             if (node instanceof InputNode) {
                 return node?.value && expr.getText() === node.value.getName();
             } else if (node instanceof FocusedInputNode) {
                 const innerParam = node.innerParam;
                 return expr.getText() === innerParam.getText();
+			} else if (node instanceof SubMappingNode) {
+				return node.subMappings.some(mapping => expr.getText().trim() === mapping.name);
 			}
         });
-        paramNode = paramType instanceof InputNode ? paramType?.value : (paramType as FocusedInputNode)?.innerParam;
+
+        return inputNode as InputNode | FocusedInputNode | SubMappingNode;
     } else if (isInputAccessExpr(expr)) {
+        const { functionST, views } = dmNode.context;
+        const isWithinSubMappingView = views.length > 1;
         const rootPropAccessExpr = getRootInputAccessExpr(expr as ElementAccessExpression | PropertyAccessExpression);
 
-        if (rootPropAccessExpr && Node.isIdentifier(rootPropAccessExpr)) {        
-            paramNode = functionST.getParameters().find(param => param.getName() === rootPropAccessExpr.getText());
+        if (rootPropAccessExpr && Node.isIdentifier(rootPropAccessExpr)) {     
+            let paramNode = functionST.getParameters().find(param => param.getName() === rootPropAccessExpr.getText());
+
+            if (!paramNode) {
+				// Check if value expression source matches with any of the sub-mapping names
+				const inputNode = dmNodes.find(node => {
+					if (node instanceof SubMappingNode) {
+						return node.subMappings.some(mapping => {
+							if (mapping.type.kind === TypeKind.Interface) {
+								return mapping.name === expr.getText().trim().split(".")[0]
+							}
+							return mapping.name === expr.getText().trim()
+						});
+					}
+				}) as SubMappingNode;
+
+                if (inputNode) {
+                    return inputNode;
+                }
+			}
 
             if (!paramNode && isWithinSubMappingView) {
                 const focusedInputNode = dmNodes.find(node => node instanceof FocusedInputNode) as FocusedInputNode;
                 paramNode = focusedInputNode && focusedInputNode.innerParam;
             }
-        }
-    }
 
-    if (paramNode) {
-        return findNodeByValueNode(paramNode, dmNode);
+            if (paramNode) {
+                return findNodeByValueNode(paramNode, dmNode);
+            }
+        }
     }
 }
 
-export function getInputPort(node: InputNode | FocusedInputNode, expr: Node): InputOutputPortModel {
-    let typeDesc = node.dmType;
+export function getInputPort(
+    node: InputNode | FocusedInputNode | SubMappingNode,
+    expr: Node
+): InputOutputPortModel {
+    let inputNodeDMType: DMType;
     let portIdBuffer;
     
     if (node instanceof InputNode) {
+        inputNodeDMType = node.dmType;
         portIdBuffer = node.value.getName();
     } else if (node instanceof FocusedInputNode) {
+        inputNodeDMType = node.dmType;
         portIdBuffer = FOCUSED_INPUT_SOURCE_PORT_PREFIX + "." + node.innerParam.getName();
+    } else if (node instanceof SubMappingNode) {
+        const varDecl = node.subMappings.find(mapping => {
+			if (mapping.type.kind === TypeKind.Interface) {
+				return mapping.name === expr.getText().trim().split(".")[0];
+			}
+			return mapping.name === expr.getText().trim()
+		});
+		inputNodeDMType = varDecl.type;
+		portIdBuffer = varDecl && SUB_MAPPING_INPUT_SOURCE_PORT_PREFIX + "." + varDecl.name;
     }
 
-    if (typeDesc && typeDesc.kind === TypeKind.Interface) {
+    if (inputNodeDMType && inputNodeDMType.kind === TypeKind.Interface) {
 
         if (isInputAccessExpr(expr)) {
             const fieldNames = getFieldNames(expr as ElementAccessExpression | PropertyAccessExpression);
-            let nextTypeNode = typeDesc;
+            let nextTypeNode = inputNodeDMType;
 
             for (let i = 1; i < fieldNames.length; i++) {
                 const fieldName = fieldNames[i];
@@ -223,7 +258,7 @@ export function getOutputPort(
 export function findNodeByValueNode(
     value: ParameterDeclaration,
     dmNode: DataMapperNodeModel
-): InputNode | FocusedInputNode {
+): InputNode | FocusedInputNode | SubMappingNode {
     let foundNode: InputNode | FocusedInputNode;
 
     if (value) {
@@ -291,7 +326,7 @@ export function getTypeName(field: DMType): string {
 	return typeName;
 }
 
-export function getViewLabel(targetPort: InputOutputPortModel, views: View[]): string {
+export function getMapFnViewLabel(targetPort: InputOutputPortModel, views: View[]): string {
     const { field, fieldFQN } = targetPort;
     let label = fieldFQN;
 
@@ -319,6 +354,17 @@ export function getViewLabel(targetPort: InputOutputPortModel, views: View[]): s
             return str.slice(0, lastIndex);
         }
         return str;
+    }
+
+    return label;
+}
+
+export function getSubMappingViewLabel(subMappingName: string, subMappingType: DMType): string {
+    let label = subMappingName;
+    if (subMappingType.kind === TypeKind.Array) {
+        const typeName = getTypeName(subMappingType);
+        const bracketsCount = (typeName.match(/\[\]/g) || []).length; // Count the number of pairs of brackets
+        label = label + `${"[]".repeat(bracketsCount)}`;
     }
 
     return label;
@@ -373,7 +419,8 @@ export function isEmptyValue(position: NodePosition): boolean {
 
 export function isDefaultValue(fieldType: DMType, value: string): boolean {
 	const defaultValue = getDefaultValue(fieldType.kind);
-	return defaultValue === value?.trim().replace(/(\r\n|\n|\r|\s)/g, "");
+    const targetValue =  value?.trim().replace(/(\r\n|\n|\r|\s)/g, "")
+	return targetValue === "null" ||  defaultValue === targetValue;
 }
 
 export function getFieldIndexes(targetPort: InputOutputPortModel): number[] {
@@ -391,11 +438,13 @@ export function getFieldIndexes(targetPort: InputOutputPortModel): number[] {
 	return fieldIndexes;
 }
 
-export function getFieldNameFromOutputPort(outputPort: InputOutputPortModel): string {
+export function getFieldNameFromOutputPort(outputPort: InputOutputPortModel, inputPort: InputOutputPortModel): string {
 	let fieldName = outputPort.field?.fieldName;
 	if (outputPort?.typeWithValue?.originalType) {
 		fieldName = outputPort.typeWithValue.originalType?.fieldName;
-	}
+	} else if (outputPort.portName === OBJECT_OUTPUT_FIELD_ADDER_TARGET_PORT_PREFIX) {
+        fieldName = inputPort.fieldFQN.split('.').pop();
+    }
 	return fieldName;
 }
 
@@ -529,7 +578,7 @@ export function getCallExprReturnStmt(mapFn: CallExpression): ReturnStatement {
 }
 
 export function getTnfFnReturnStatement(tnfFn: FunctionDeclaration): ReturnStatement {
-    return tnfFn.getStatementByKind(SyntaxKind.ReturnStatement)
+    return tnfFn.getStatementByKind(SyntaxKind.ReturnStatement);
 }
 
 export function representsTnfFnReturnStmt(mapFnParentNode: Node, returnStmt: ReturnStatement): boolean {
@@ -549,6 +598,7 @@ export function getMapFnIndex(views: View[], prevFieldFQN: string): number {
         if (view.targetFieldFQN === prevFieldFQN) {
             // Find the relative index of the map function comes under the return statements of another map functions
             // The index is relative to the map function which is declared within a property assignment
+            // Applicable when map functions are chained using the root of the inputs
             mapFnWithFieldIndex = index;
             return true;
         }
@@ -558,7 +608,7 @@ export function getMapFnIndex(views: View[], prevFieldFQN: string): number {
         return views.length - mapFnWithFieldIndex;
     }
 
-    // The root of the map function is the transform functino return statement
+    // The root of the map function is the transform function return statement
     return views.length - 1;
 }
 
@@ -571,9 +621,80 @@ export function isInputAccessExpr(node: Node): boolean {
     return Node.isPropertyAccessExpression(node);
 }
 
+export function isFunctionCall(node: Node): boolean {
+    // Check if the node is a function call
+    // ie: `sum(a, b)` or `trim("  hello  ")`
+    if (Node.isCallExpression(node)) {
+        const expr = node.getExpression();
+        return Node.isIdentifier(expr);
+    }
+    return false;
+}
+
 export function isQuotedString(str: string): boolean {
     return str.startsWith('"') && str.endsWith('"')
         || str.startsWith("'") && str.endsWith("'");
+}
+
+export function genVariableName(originalName: string, existingNames: string[]): string {
+	let modifiedName: string = originalName;
+	let index = 0;
+	while (existingNames.includes(modifiedName)) {
+		index++;
+		modifiedName = originalName + index;
+	}
+	return modifiedName;
+}
+
+export function isMapFnAtPropAssignment(focusedST: Node) {
+    return  Node.isPropertyAssignment(focusedST)
+        && Node.isCallExpression(focusedST.getInitializer())
+        && isMapFunction(focusedST.getInitializer() as CallExpression);
+}
+
+export function getFocusedSubMappingExpr(initializer: Expression, mapFnIndex?: number) {
+    if (mapFnIndex === undefined) return initializer;
+
+    // Constraint: In focused views, return statements are only allowed at map functions
+    const returnStmts = initializer.getDescendantsOfKind(ts.SyntaxKind.ReturnStatement);
+
+    if (returnStmts.length >= mapFnIndex) {
+        const returnStmt = returnStmts[mapFnIndex];
+        if (returnStmt) {
+            return returnStmt.getExpression();
+        }
+    }
+    return initializer;
+}
+
+export function isMapFnAtRootReturn(functionST: FunctionDeclaration, focusedST: Node ) {
+    const tnfFnRootReturn = getTnfFnReturnStatement(functionST);
+    return Node.isFunctionDeclaration(focusedST)
+        && Node.isCallExpression(tnfFnRootReturn)
+        && isMapFunction(tnfFnRootReturn);
+}
+
+export function getInnermostArrowFnBody(callExpr: CallExpression): Node {
+    const arrowFn = callExpr.getArguments()[0];
+
+    if (!Node.isArrowFunction(arrowFn)) {
+        return callExpr;
+    };
+
+    const arrowFnBody = arrowFn.getBody();
+
+    if (Node.isBlock(arrowFnBody)) {
+        const returnStmt = arrowFnBody.getStatementByKind(SyntaxKind.ReturnStatement)
+        if (returnStmt) {
+            const returnExpr = returnStmt.getExpression();
+            if (returnExpr && Node.isCallExpression(returnExpr)) {
+                return getInnermostArrowFnBody(returnExpr);
+            }
+            return returnExpr;
+        }
+    }
+
+    return callExpr;
 }
 
 function getRootInputAccessExpr(node: ElementAccessExpression | PropertyAccessExpression): Node {

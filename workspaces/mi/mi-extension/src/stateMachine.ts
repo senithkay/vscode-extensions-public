@@ -5,6 +5,7 @@ import { Uri, ViewColumn } from 'vscode';
 import { MILanguageClient } from './lang-client/activator';
 import { extension } from './MIExtensionContext';
 import {
+    DM_FUNCTION_NAME,
     EVENT_TYPE,
     HistoryEntry,
     MACHINE_VIEW,
@@ -24,11 +25,12 @@ import { activateProjectExplorer } from './project-explorer/activate';
 import { StateMachineAI } from './ai-panel/aiMachine';
 import { getSources } from './util/dataMapper';
 import { StateMachinePopup } from './stateMachinePopup';
-import { STNode } from '../../syntax-tree/lib/src';
+import { MockService, STNode, UnitTest } from '../../syntax-tree/lib/src';
 import { log } from './util/logger';
 import { deriveConfigName } from './util/dataMapper';
 import { fileURLToPath } from 'url';
 import path = require('path');
+import { activateTestExplorer } from './test-explorer/activator';
 
 interface MachineContext extends VisualizerLocation {
     langClient: ExtendedLanguageClient | null;
@@ -117,21 +119,13 @@ const stateMachine = createMachine<MachineContext>({
         },
         projectDetected: {
             invoke: {
-                src: 'activateProjectExplorer',
-                onDone: {
-                    target: 'projectExplorerActivated'
-                }
-            }
-        },
-        oldProjectDetected: {
-            invoke: {
                 src: 'openWebPanel',
                 onDone: {
                     target: 'lsInit'
                 }
             }
         },
-        projectExplorerActivated: {
+        oldProjectDetected: {
             invoke: {
                 src: 'openWebPanel',
                 onDone: {
@@ -168,8 +162,16 @@ const stateMachine = createMachine<MachineContext>({
             }
         },
         ready: {
-            initial: 'viewLoading',
+            initial: 'activateOtherFeatures',
             states: {
+                activateOtherFeatures: {
+                    invoke: {
+                        src: 'activateOtherFeatures',
+                        onDone: {
+                            target: 'viewLoading'
+                        }
+                    }
+                },
                 viewLoading: {
                     invoke: {
                         src: 'openWebPanel',
@@ -320,12 +322,6 @@ const stateMachine = createMachine<MachineContext>({
                 }
             });
         },
-        activateProjectExplorer: (context, event) => {
-            return new Promise(async (resolve, reject) => {
-                await activateProjectExplorer(extension.context);
-                resolve(true);
-            });
-        },
         openWebPanel: (context, event) => {
             // Get context values from the project storage so that we can restore the earlier state when user reopens vscode
             return new Promise((resolve, reject) => {
@@ -335,7 +331,7 @@ const stateMachine = createMachine<MachineContext>({
                         resolve(true);
                     });
                 } else {
-                    VisualizerWebview.currentPanel!.getWebview()?.reveal(extension.webviewReveal ? ViewColumn.Beside : ViewColumn.Active);
+                    VisualizerWebview.currentPanel!.getWebview()?.reveal(ViewColumn.Active);
                     resolve(true);
                 }
             });
@@ -350,14 +346,14 @@ const stateMachine = createMachine<MachineContext>({
                 if (context.view === MACHINE_VIEW.DataMapperView) {
                     if (context.documentUri) {
                         const filePath = context.documentUri;
-                        const functionName = "mapFunction";
+                        const functionName = DM_FUNCTION_NAME;
 
-                        const [fnSource, interfacesSource] = getSources(filePath);
+                        const [fnSource, interfacesSrc] = getSources(filePath);
                         viewLocation.dataMapperProps = {
                             filePath: filePath,
                             functionName: functionName,
                             fileContent: fnSource,
-                            interfacesSource: interfacesSource,
+                            interfacesSource: interfacesSrc,
                             configName: deriveConfigName(filePath)
                         };
                         viewLocation.view = MACHINE_VIEW.DataMapperView;
@@ -400,6 +396,15 @@ const stateMachine = createMachine<MachineContext>({
                                         viewLocation.stNode = node.template;
                                         break;
                                     }
+                                case !!node["unit-test"]:
+                                    if (viewLocation.view !== MACHINE_VIEW.TestCase) {
+                                        viewLocation.view = MACHINE_VIEW.TestSuite;
+                                    }
+                                    viewLocation.stNode = node["unit-test"] as UnitTest;
+                                    break;
+                                case !!node["mock-service"]:
+                                    viewLocation.stNode = node["mock-service"] as MockService;
+                                    break;
                                 default:
                                     // Handle default case
                                     viewLocation.stNode = node as any as STNode;
@@ -440,9 +445,13 @@ const stateMachine = createMachine<MachineContext>({
         },
         updateAIView: () => {
             return new Promise(async (resolve, reject) => {
-                if (AiPanelWebview.currentPanel) {
-                    openAIWebview();
-                }
+                resolve(true);
+            });
+        },
+        activateOtherFeatures: (context, event) => {
+            return new Promise(async (resolve, reject) => {
+                await activateProjectExplorer(extension.context, context.langClient!); 
+                await activateTestExplorer(extension.context, context.langClient!);
                 resolve(true);
             });
         },
@@ -478,7 +487,6 @@ export function openView(type: EVENT_TYPE, viewLocation?: VisualizerLocation) {
         viewLocation!.projectUri = vscode.workspace.workspaceFolders![0].uri.fsPath;
     }
     updateProjectExplorer(viewLocation);
-    const value = StateMachine.state();
     stateService.send({ type: type, viewLocation: viewLocation });
 }
 
@@ -501,7 +509,12 @@ export function navigate(entry?: HistoryEntry) {
 function updateProjectExplorer(location: VisualizerLocation | undefined) {
     if (location && location.documentUri) {
         const projectRoot = vscode.workspace.getWorkspaceFolder(vscode.Uri.file(location.documentUri));
-        if (projectRoot && !extension.preserveActivity) {
+
+        const relativePath = vscode.workspace.asRelativePath(location.documentUri);
+        const isTestFile = relativePath.startsWith(`src${path.sep}test${path.sep}`);
+        if (isTestFile) {
+            vscode.commands.executeCommand(COMMANDS.REVEAL_TEST_PANE);
+        } else if (projectRoot && !extension.preserveActivity) {
             location.projectUri = projectRoot.uri.fsPath;
             if (!StateMachine.context().isOldProject) {
                 vscode.commands.executeCommand(COMMANDS.REVEAL_ITEM_COMMAND, location);

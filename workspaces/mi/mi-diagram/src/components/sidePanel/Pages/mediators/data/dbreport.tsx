@@ -6,7 +6,6 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
 */
-// AUTO-GENERATED FILE. DO NOT MODIFY.
 
 import React, { useEffect, useRef } from 'react';
 import { AutoComplete, Button, ComponentCard, ProgressIndicator, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
@@ -151,33 +150,6 @@ const DBReportForm = (props: AddMediatorProps) => {
                             addParamText: "New Parameters"
                         },
                     },
-                    {
-                        "type": "ParamManager",
-                        "label": "Results",
-                        "defaultValue": "",
-                        "isRequired": false, 
-                        "paramManager": {
-                            paramConfigs: {
-                                paramValues: sidePanelContext?.formValues?.results ? getParamManagerFromValues(sidePanelContext?.formValues?.results) : [],
-                                paramFields: [
-                                    {
-                                        "type": "TextField",
-                                        "label": "Property Name",
-                                        "defaultValue": "",
-                                        "isRequired": false
-                                    },
-                                    {
-                                        "type": "TextField",
-                                        "label": "Column ID",
-                                        "defaultValue": "",
-                                        "isRequired": false
-                                    },
-                                ]
-                            },
-                            openInDrawer: true,
-                            addParamText: "New Results"
-                        },
-                    },
                 ]
             },
             propertyAutocommit: sidePanelContext?.formValues?.propertyAutocommit || "DEFAULT",
@@ -218,6 +190,7 @@ const DBReportForm = (props: AddMediatorProps) => {
                 documentUri: props.documentUri, range: props.nodePosition, text: xml
             });
         }
+        rpcClient.getMiDiagramRpcClient().addDependencyToPom({ groupId: "org.postgresql", artifactId: "postgresql", version: "42.7.3", file: props.documentUri });
         sidePanelContext.setSidePanelState({
             ...sidePanelContext,
             isOpen: false,
@@ -504,15 +477,6 @@ const DBReportForm = (props: AddMediatorProps) => {
                                                 const property: ParamValue[] = param.paramValues;
                                                 param.key = property[0].value;
                                                 param.value = property[2].value;
-                                                param.icon = 'query';
-                                                return param;
-                                            });
-            
-
-                                            (property[2].value as ParamConfig).paramValues = (property[2].value as ParamConfig).paramValues.map((param: any, index: number) => {
-                                                const property: ParamValue[] = param.paramValues;
-                                                param.key = property[0].value;
-                                                param.value = property[1].value;
                                                 param.icon = 'query';
                                                 return param;
                                             });

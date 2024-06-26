@@ -11,6 +11,7 @@
 import {
     AIUserInput,
     AI_EVENT_TYPE,
+    AddDependencyToPomRequest,
     ApiDirectoryResponse,
     ApplyEditRequest,
     ApplyEditResponse,
@@ -18,6 +19,8 @@ import {
     BrowseFileResponse,
     CommandsRequest,
     CommandsResponse,
+    CompareSwaggerAndAPIResponse,
+    Configuration,
     Connector,
     ConnectorRequest,
     ConnectorResponse,
@@ -28,6 +31,8 @@ import {
     CreateClassMediatorResponse,
     CreateConnectionRequest,
     CreateConnectionResponse,
+    CreateDataServiceRequest,
+    CreateDataServiceResponse,
     CreateDataSourceResponse,
     CreateEndpointRequest,
     CreateEndpointResponse,
@@ -45,10 +50,6 @@ import {
     CreateProxyServiceResponse,
     CreateRegistryResourceRequest,
     CreateRegistryResourceResponse,
-    UpdateRegistryMetadataRequest,
-    UpdateRegistryMetadataResponse,
-    GetRegistryMetadataRequest,
-    GetRegistryMetadataResponse,
     CreateSequenceRequest,
     CreateSequenceResponse,
     CreateTaskRequest,
@@ -56,6 +57,7 @@ import {
     CreateTemplateRequest,
     CreateTemplateResponse,
     DataSourceTemplate,
+    Datasource,
     DeleteArtifactRequest,
     DownloadConnectorRequest,
     DownloadConnectorResponse,
@@ -71,8 +73,10 @@ import {
     GenerateAPIResponse,
     GetAllArtifactsRequest,
     GetAllArtifactsResponse,
+    GetAllMockServicesResponse,
     GetAllRegistryPathsRequest,
     GetAllRegistryPathsResponse,
+    GetAllTestSuitsResponse,
     GetAvailableConnectorRequest,
     GetAvailableConnectorResponse,
     GetAvailableResourcesRequest,
@@ -105,6 +109,10 @@ import {
     GetProjectUuidResponse,
     GetRecipientEPRequest,
     GetRecipientEPResponse,
+    GetRegistryMetadataRequest,
+    GetRegistryMetadataResponse,
+    GetSelectiveArtifactsRequest,
+    GetSelectiveArtifactsResponse,
     GetSelectiveWorkspaceContextResponse,
     GetTaskRequest,
     GetTaskResponse,
@@ -126,10 +134,13 @@ import {
     POPUP_EVENT_TYPE,
     ProjectDirResponse,
     ProjectRootResponse,
+    Property,
     RangeFormatRequest,
     RegistryArtifactNamesResponse,
     RetrieveAddressEndpointRequest,
     RetrieveAddressEndpointResponse,
+    RetrieveDataServiceRequest,
+    RetrieveDataServiceResponse,
     RetrieveDefaultEndpointRequest,
     RetrieveDefaultEndpointResponse,
     RetrieveHttpEndpointRequest,
@@ -142,8 +153,11 @@ import {
     RetrieveWsdlEndpointResponse,
     SequenceDirectoryResponse,
     ShowErrorMessageRequest,
+    SwaggerFromAPIResponse,
+    SwaggerTypeRequest,
     TemplatesResponse,
     UndoRedoParams,
+    UpdateAPIFromSwaggerRequest,
     UpdateAddressEndpointRequest,
     UpdateAddressEndpointResponse,
     UpdateConnectorRequest,
@@ -155,14 +169,24 @@ import {
     UpdateHttpEndpointResponse,
     UpdateLoadBalanceEPRequest,
     UpdateLoadBalanceEPResponse,
+    UpdateMockServiceRequest,
+    UpdateMockServiceResponse,
     UpdateRecipientEPRequest,
     UpdateRecipientEPResponse,
+    UpdateRegistryMetadataRequest,
+    UpdateRegistryMetadataResponse,
     UpdateTemplateEPRequest,
     UpdateTemplateEPResponse,
+    UpdateTestCaseRequest,
+    UpdateTestCaseResponse,
+    UpdateTestSuiteRequest,
+    UpdateTestSuiteResponse,
     UpdateWsdlEndpointRequest,
     UpdateWsdlEndpointResponse,
     WriteContentToFileRequest,
     WriteContentToFileResponse,
+    onSwaggerSpecReceived,
+    SwaggerData,
     getSTRequest,
     getSTResponse
 } from "@wso2-enterprise/mi-core";
@@ -170,6 +194,7 @@ import axios from 'axios';
 import { error } from "console";
 import * as fs from "fs";
 import { copy } from 'fs-extra';
+import { isEqual } from "lodash";
 import fetch from 'node-fetch';
 import * as os from 'os';
 import { Transform } from 'stream';
@@ -177,25 +202,32 @@ import * as tmp from 'tmp';
 import { v4 as uuidv4 } from 'uuid';
 import * as vscode from 'vscode';
 import { Position, Range, Selection, TextEdit, Uri, ViewColumn, WorkspaceEdit, commands, window, workspace } from "vscode";
+import { parse, stringify } from "yaml";
+import { UnitTest } from "../../../../syntax-tree/lib/src";
 import { extension } from '../../MIExtensionContext';
 import { StateMachineAI } from '../../ai-panel/aiMachine';
 import { COMMANDS, DEFAULT_PROJECT_VERSION, MI_COPILOT_BACKEND_URL } from "../../constants";
 import { StateMachine, navigate, openView } from "../../stateMachine";
 import { openPopupView } from "../../stateMachinePopup";
+import { testFileMatchPattern } from "../../test-explorer/discover";
+import { mockSerivesFilesMatchPattern } from "../../test-explorer/mock-services/activator";
 import { UndoRedoManager } from "../../undoRedoManager";
-import { createFolderStructure, getAddressEndpointXmlWrapper, getDefaultEndpointXmlWrapper, getFailoverXmlWrapper, getHttpEndpointXmlWrapper, getInboundEndpointXmlWrapper, getLoadBalanceXmlWrapper, getMessageProcessorXmlWrapper, getMessageStoreXmlWrapper, getProxyServiceXmlWrapper, getRegistryResourceContent, getTaskXmlWrapper, getTemplateEndpointXmlWrapper, getTemplateXmlWrapper, getWsdlEndpointXmlWrapper } from "../../util";
-import { addNewEntryToArtifactXML, addSynapseDependency, changeRootPomPackaging, createMetadataFilesForRegistryCollection, detectMediaType, getAvailableRegistryResources, getMediatypeAndFileExtension, getRegistryResourceMetadata, updateRegistryResourceMetadata } from "../../util/fileOperations";
+import { copyDockerResources, createFolderStructure, getAPIResourceXmlWrapper, getAddressEndpointXmlWrapper, getDataServiceXmlWrapper, getDefaultEndpointXmlWrapper, getFailoverXmlWrapper, getHttpEndpointXmlWrapper, getInboundEndpointXmlWrapper, getLoadBalanceXmlWrapper, getMessageProcessorXmlWrapper, getMessageStoreXmlWrapper, getProxyServiceXmlWrapper, getRegistryResourceContent, getTaskXmlWrapper, getTemplateEndpointXmlWrapper, getTemplateXmlWrapper, getWsdlEndpointXmlWrapper } from "../../util";
+import { addNewEntryToArtifactXML, addSynapseDependency, changeRootPomPackaging, createMetadataFilesForRegistryCollection, deleteRegistryResource, detectMediaType, getAvailableRegistryResources, getMediatypeAndFileExtension, getRegistryResourceMetadata, updateRegistryResourceMetadata } from "../../util/fileOperations";
+import { log } from "../../util/logger";
 import { importProject } from "../../util/migrationUtils";
+import { getResourceInfo, isEqualSwaggers, mergeSwaggers } from "../../util/swagger";
 import { getDataSourceXml } from "../../util/template-engine/mustach-templates/DataSource";
 import { getClassMediatorContent } from "../../util/template-engine/mustach-templates/classMediator";
 import { generateXmlData, writeXmlDataToFile } from "../../util/template-engine/mustach-templates/createLocalEntry";
 import { getRecipientEPXml } from "../../util/template-engine/mustach-templates/recipientEndpoint";
-import { rootPomXmlContent } from "../../util/templates";
+import { dockerfileContent, rootPomXmlContent } from "../../util/templates";
 import { replaceFullContentToFile } from "../../util/workspace";
 import { VisualizerWebview } from "../../visualizer/webview";
 import path = require("path");
-import { deleteRegistryResource } from "../../util/fileOperations"
-import { log } from "../../util/logger";
+import { openSwaggerWebview } from "../../swagger/activate";
+import { RPCLayer } from "../../RPCLayer";
+import { getPortPromise } from "portfinder";
 
 const { XMLParser, XMLBuilder } = require("fast-xml-parser");
 
@@ -352,7 +384,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
             const sanitizedXmlData = (xmlData || response.apiXml).replace(/^\s*[\r\n]/gm, '');
             const filePath = path.join(artifactDir, 'apis', `${name}.xml`);
-            fs.writeFileSync(filePath, sanitizedXmlData);
+            await replaceFullContentToFile(filePath, sanitizedXmlData);
             await this.rangeFormat({
                 uri: filePath,
                 range: {
@@ -365,7 +397,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             if (response.endpointXml) {
                 const sanitizedEndpointXml = response.endpointXml.replace(/^\s*[\r\n]/gm, '');
                 const endpointFilePath = path.join(artifactDir, 'endpoints', `${name}_SOAP_ENDPOINT.xml`);
-                fs.writeFileSync(endpointFilePath, sanitizedEndpointXml);
+                await replaceFullContentToFile(endpointFilePath, sanitizedEndpointXml);
                 await this.rangeFormat({
                     uri: endpointFilePath,
                     range: {
@@ -378,16 +410,14 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             // Save swagger file
             if (saveSwaggerDef && swaggerDefPath) {
                 const workspacePath = workspace.workspaceFolders![0].uri.fsPath;
-                const ext = path.extname(swaggerDefPath);
                 const swaggerRegPath = path.join(
                     workspacePath,
                     'src',
                     'main',
                     'wso2mi',
-                    'resources',
-                    'registry',
-                    'gov',
-                    'swaggerFiles',
+                    'artifacts',
+                    'apis',
+                    'api-definitions',
                     getSwaggerName(swaggerDefPath)
                 );
                 if (!fs.existsSync(path.dirname(swaggerRegPath))) {
@@ -526,7 +556,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             }
 
             const filePath = path.join(directory, `${name}.xml`);
-            fs.writeFileSync(filePath, xmlData);
+            await replaceFullContentToFile(filePath, xmlData);
             commands.executeCommand(COMMANDS.REFRESH_COMMAND);
             resolve({ path: filePath });
         });
@@ -547,7 +577,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     filePath = path.join(directory, `${templateParams.name}.xml`);
                 }
 
-                fs.writeFileSync(filePath, sanitizedXmlData);
+                await replaceFullContentToFile(filePath, sanitizedXmlData);
                 await this.rangeFormat({
                     uri: filePath,
                     range: {
@@ -621,7 +651,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     filePath = path.join(directory, `${templateParams.name}.xml`);
                 }
 
-                fs.writeFileSync(filePath, sanitizedXmlData);
+                await replaceFullContentToFile(filePath, sanitizedXmlData);
                 await this.rangeFormat({
                     uri: filePath,
                     range: {
@@ -685,7 +715,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     filePath = path.join(directory, `${templateParams.name}.xml`);
                 }
 
-                fs.writeFileSync(filePath, sanitizedXmlData);
+                await replaceFullContentToFile(filePath, sanitizedXmlData);
                 await this.rangeFormat({
                     uri: filePath,
                     range: {
@@ -747,7 +777,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     filePath = path.join(directory, `${templateParams.name}.xml`);
                 }
 
-                fs.writeFileSync(filePath, sanitizedXmlData);
+                await replaceFullContentToFile(filePath, sanitizedXmlData);
                 await this.rangeFormat({
                     uri: filePath,
                     range: {
@@ -891,7 +921,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 filePath = path.join(filePath, `${params.name}.xml`);
             }
 
-            fs.writeFileSync(filePath, sanitizedXmlData);
+            await replaceFullContentToFile(filePath, sanitizedXmlData);
             await this.rangeFormat({
                 uri: filePath,
                 range: {
@@ -1090,7 +1120,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
             const xmlData = getInboundEndpointXmlWrapper(templateParams);
 
-            fs.writeFileSync(filePath, xmlData);
+            await replaceFullContentToFile(filePath, xmlData);
             commands.executeCommand(COMMANDS.REFRESH_COMMAND);
             resolve({ path: filePath });
         });
@@ -1280,7 +1310,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 resolve({ filePath: "", fileContent: xmlData });
             } else {
                 const filePath = path.join(directory, `${name}.xml`);
-                fs.writeFileSync(filePath, xmlData);
+                await replaceFullContentToFile(filePath, xmlData);
                 commands.executeCommand(COMMANDS.REFRESH_COMMAND);
                 resolve({ filePath: filePath, fileContent: "" });
             }
@@ -1303,7 +1333,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             const sanitizedXmlData = xmlData.replace(/^\s*[\r\n]/gm, '');
 
             const filePath = path.join(directory, `${proxyServiceName}.xml`);
-            fs.writeFileSync(filePath, sanitizedXmlData);
+            await replaceFullContentToFile(filePath, sanitizedXmlData);
             await this.rangeFormat({
                 uri: filePath,
                 range: {
@@ -1336,7 +1366,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 filePath = path.join(directory, `${templateParams.name}.xml`);
             }
 
-            fs.writeFileSync(filePath, xmlData);
+            await replaceFullContentToFile(filePath, xmlData);
             commands.executeCommand(COMMANDS.REFRESH_COMMAND);
             resolve({ path: filePath });
         });
@@ -1450,7 +1480,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 } else {
                     filePath = path.join(directory, `${templateName}.xml`);
                 }
-                fs.writeFileSync(filePath, sanitizedXmlData);
+                await replaceFullContentToFile(filePath, sanitizedXmlData);
                 await this.rangeFormat({
                     uri: filePath,
                     range: {
@@ -1473,10 +1503,6 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         };
         const parser = new XMLParser(options);
 
-        interface Parameter {
-            name: string;
-            value: string;
-        }
 
         return new Promise(async (resolve) => {
             const filePath = params.path;
@@ -1549,6 +1575,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         });
     }
 
+    // XXXX
     async updateHttpEndpoint(params: UpdateHttpEndpointRequest): Promise<UpdateHttpEndpointResponse> {
         return new Promise(async (resolve) => {
             const { directory, ...getHttpEndpointParams } = params;
@@ -1567,8 +1594,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 } else {
                     filePath = path.join(directory, `${fileName}.xml`);
                 }
-
-                fs.writeFileSync(filePath, sanitizedXmlData);
+                await replaceFullContentToFile(filePath, sanitizedXmlData);
                 await this.rangeFormat({
                     uri: filePath,
                     range: {
@@ -1746,7 +1772,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     filePath = path.join(directory, `${fileName}.xml`);
                 }
 
-                fs.writeFileSync(filePath, sanitizedXmlData);
+                await replaceFullContentToFile(filePath, sanitizedXmlData);
                 await this.rangeFormat({
                     uri: filePath,
                     range: {
@@ -1856,7 +1882,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     filePath = path.join(directory, `${fileName}.xml`);
                 }
 
-                fs.writeFileSync(filePath, sanitizedXmlData);
+                await replaceFullContentToFile(filePath, sanitizedXmlData);
                 await this.rangeFormat({
                     uri: filePath,
                     range: {
@@ -1968,7 +1994,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     filePath = path.join(directory, `${fileName}.xml`);
                 }
 
-                fs.writeFileSync(filePath, sanitizedXmlData);
+                await replaceFullContentToFile(filePath, sanitizedXmlData);
                 await this.rangeFormat({
                     uri: filePath,
                     range: {
@@ -2053,6 +2079,180 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 response.requireProperties = response.properties.length > 0;
                 response.requireTemplateParameters = response.templateParameters.length > 0;
 
+                resolve(response);
+            }
+        });
+    }
+
+    async createDataService(params: CreateDataServiceRequest): Promise<CreateDataServiceResponse> {
+        return new Promise(async (resolve) => {
+            let filePath;
+            if (params.directory.endsWith('.xml')) {
+                filePath = params.directory;
+                const data = await fs.readFileSync(filePath);
+                const resourcePattern = /<resource[\s\S]*?<\/resource>/g;
+                const operationPattern = /<operation[\s\S]*?<\/operation>/g;
+                const queryPattern = /<query[\s\S]*?<\/query>/g;
+                const resources: any[] = [];
+                const operations: any[] = [];
+                const queries: any[] = [];
+                let match;
+
+                while ((match = resourcePattern.exec(data.toString())) !== null) {
+                    resources.push(match[0]);
+                }
+                while ((match = operationPattern.exec(data.toString())) !== null) {
+                    operations.push(match[0]);
+                }
+                while ((match = queryPattern.exec(data.toString())) !== null) {
+                    queries.push(match[0]);
+                }
+
+                params.resources = resources;
+                params.operations = operations;
+                params.queries = queries;
+                await this.updateDataService(params);
+            } else {
+                const {
+                    directory, dataServiceName, dataServiceNamespace, serviceGroup, selectedTransports, publishSwagger, jndiName,
+                    enableBoxcarring, enableBatchRequests, serviceStatus, disableLegacyBoxcarringMode, enableStreaming,
+                    description, datasources, authProviderClass, authProperties, queries, operations, resources
+                } = params;
+
+                const getDataServiceParams = {
+                    dataServiceName, dataServiceNamespace, serviceGroup, selectedTransports, publishSwagger, jndiName,
+                    enableBoxcarring, enableBatchRequests, serviceStatus, disableLegacyBoxcarringMode, enableStreaming,
+                    description, datasources, authProviderClass, authProperties, queries, operations, resources
+                };
+
+                const xmlData = getDataServiceXmlWrapper({ ...getDataServiceParams, writeType: "create" });
+                const sanitizedXmlData = xmlData.replace(/^\s*[\r\n]/gm, '');
+
+                filePath = path.join(directory, `${dataServiceName}.xml`);
+                if (filePath.includes('dataServices')) {
+                    filePath = filePath.replace('dataServices', 'data-services');
+                }
+
+                await replaceFullContentToFile(filePath, sanitizedXmlData);
+                await this.rangeFormat({
+                    uri: filePath,
+                    range: {
+                        start: { line: 0, character: 0 },
+                        end: { line: sanitizedXmlData.split('\n').length + 1, character: 0 }
+                    }
+                });
+            }
+
+            commands.executeCommand(COMMANDS.REFRESH_COMMAND);
+            resolve({ path: filePath });
+        });
+    }
+
+    async updateDataService(params: CreateDataServiceRequest): Promise<CreateDataServiceResponse> {
+        return new Promise(async (resolve) => {
+            const {
+                directory, dataServiceName, dataServiceNamespace, serviceGroup, selectedTransports, publishSwagger, jndiName,
+                enableBoxcarring, enableBatchRequests, serviceStatus, disableLegacyBoxcarringMode, enableStreaming,
+                description, datasources, authProviderClass, authProperties, queries, operations, resources
+            } = params;
+
+            const getDataServiceParams = {
+                dataServiceName, dataServiceNamespace, serviceGroup, selectedTransports, publishSwagger, jndiName,
+                enableBoxcarring, enableBatchRequests, serviceStatus, disableLegacyBoxcarringMode, enableStreaming,
+                description, datasources, authProviderClass, authProperties, queries, operations, resources
+            };
+
+            let filePath = params.directory;
+            if (filePath.includes('dataServices')) {
+                filePath = filePath.replace('dataServices', 'data-services');
+            }
+
+            const xmlData = getDataServiceXmlWrapper({ ...getDataServiceParams, writeType: "edit" });
+            const sanitizedXmlData = xmlData.replace(/^\s*[\r\n]/gm, '');
+
+            await replaceFullContentToFile(filePath, sanitizedXmlData);
+            await this.rangeFormat({
+                uri: filePath,
+                range: {
+                    start: { line: 0, character: 0 },
+                    end: { line: sanitizedXmlData.split('\n').length + 1, character: 0 }
+                }
+            });
+
+            resolve({ path: filePath });
+        });
+    }
+
+    async getDataService(params: RetrieveDataServiceRequest): Promise<RetrieveDataServiceResponse> {
+
+        const dataServiceSyntaxTree = await this.getSyntaxTree({ documentUri: params.path });
+        const dataServiceParams = dataServiceSyntaxTree.syntaxTree.data;
+
+        return new Promise(async (resolve) => {
+            const filePath = params.path;
+
+            if (fs.existsSync(filePath)) {
+                let response: RetrieveDataServiceResponse = {
+                    dataServiceName: dataServiceParams.name,
+                    dataServiceNamespace: dataServiceParams.serviceNamespace,
+                    serviceGroup: dataServiceParams.serviceGroup,
+                    selectedTransports: dataServiceParams.transports,
+                    publishSwagger: dataServiceParams.publishSwagger != undefined ? dataServiceParams.publishSwagger : false,
+                    jndiName: dataServiceParams.txManagerJNDIName != undefined ? dataServiceParams.txManagerJNDIName : '',
+                    enableBoxcarring: dataServiceParams.enableBoxcarring != undefined ? dataServiceParams.enableBoxcarring : false,
+                    enableBatchRequests: dataServiceParams.enableBatchRequests != undefined ? dataServiceParams.enableBatchRequests : false,
+                    serviceStatus: dataServiceParams.serviceStatus != undefined ? dataServiceParams.serviceStatus === "active" ? true : false : false,
+                    disableLegacyBoxcarringMode: dataServiceParams.disableLegacyBoxcarringMode != undefined ? dataServiceParams.disableLegacyBoxcarringMode : false,
+                    enableStreaming: dataServiceParams.disableStreaming != undefined ? !dataServiceParams.disableStreaming : true,
+                    description: dataServiceParams.description != undefined ? dataServiceParams.description.textNode : '',
+                    datasources: [] as Datasource[],
+                    authProviderClass: dataServiceParams.authorizationProvider != undefined ? dataServiceParams.authorizationProvider.clazz : '',
+                    http: dataServiceParams.transports.split(' ').includes('http'),
+                    https: dataServiceParams.transports.split(' ').includes('https'),
+                    jms: dataServiceParams.transports.split(' ').includes('jms'),
+                    local: dataServiceParams.transports.split(' ').includes('local'),
+                    authProperties: [] as Property[],
+                };
+
+                if (dataServiceParams.configs != undefined) {
+                    let datasources: any[];
+                    datasources = dataServiceParams.configs;
+                    datasources.forEach((datasource) => {
+                        let datasourceObject: Datasource = {
+                            dataSourceName: datasource.id,
+                            enableOData: datasource.enableOData != undefined ? datasource.enableOData : false,
+                            dynamicUserAuthClass: '',
+                            datasourceProperties: [] as Property[],
+                            datasourceConfigurations: [] as Configuration[]
+                        }
+                        let params = datasource.property;
+                        params.forEach((element) => {
+                            if (element.name === 'dynamicUserAuthMapping') {
+                                let configs = element.configuration;
+                                configs.forEach((config) => {
+                                    let entries = config.entry;
+                                    entries.forEach((entry) => {
+                                        datasourceObject.datasourceConfigurations.push({ carbonUsername: entry.request, username: entry.username.textNode, password: entry.password.textNode });
+                                    });
+                                });
+                            } else {
+                                if (element.name === 'dynamicUserAuthClass') {
+                                    datasourceObject.dynamicUserAuthClass = element.textNode;
+                                } else {
+                                    datasourceObject.datasourceProperties.push({ key: element.name, value: element.textNode });
+                                }
+                            }
+                        });
+                        response.datasources.push(datasourceObject);
+                    });
+                }
+
+                if (dataServiceParams.authorizationProvider != undefined) {
+                    const params = dataServiceParams.authorizationProvider.property;
+                    params.forEach(element => {
+                        response.authProperties.push({ key: element.name, value: element.value });
+                    });
+                }
                 resolve(response);
             }
         });
@@ -2154,7 +2354,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 filePath = filePath.replace('messageProcessors', 'message-processors');
             }
 
-            fs.writeFileSync(filePath, sanitizedXmlData);
+            await replaceFullContentToFile(filePath, sanitizedXmlData);
             await this.rangeFormat({
                 uri: filePath,
                 range: {
@@ -2431,10 +2631,18 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                             'test': ''
                         },
                     },
+                    'deployment': {
+                        'docker': {
+                            'Dockerfile': dockerfileContent(),
+                            'resources': ''
+                        },
+                        'libs': '',
+                    },
                 },
             };
 
             createFolderStructure(directory, folderStructure);
+            copyDockerResources(extension.context.asAbsolutePath(path.join('resources', 'docker-resources')), path.join(directory, name));
 
             window.showInformationMessage(`Successfully created ${name} project`);
             const projectOpened = StateMachine.context().projectOpened;
@@ -2490,7 +2698,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
                 const ESBConfigs: string[] = [];
 
-                for (const esbConfig of resp.directoryMap.esbConfigs) {
+                for (const esbConfig of (resp.directoryMap as any).esbConfigs) {
                     const config = esbConfig.name;
                     ESBConfigs.push(config);
                 }
@@ -2622,6 +2830,9 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                         case 'registry':
                             fileType = 'registry';
                             break;
+                        case 'unit':
+                            fileType = 'unit-test';
+                            break;
                         default:
                             fileType = '';
                     }
@@ -2638,12 +2849,14 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 }
 
                 //write the content to a file, if file exists, overwrite else create new file
-                const fullPath = path.join(directoryPath ?? '', 'src', 'main', 'wso2mi', 'artifacts', fileType, path.sep, `${name}.xml`);
-                console.log('Full path:', fullPath);
+                var fullPath = '';
+                if (fileType === 'unit-test') {
+                    fullPath = path.join(directoryPath ?? '', 'src', 'main', 'test', path.sep, `${name}.xml`);
+                } else {
+                    fullPath = path.join(directoryPath ?? '', 'src', 'main', 'wso2mi', 'artifacts', fileType, path.sep, `${name}.xml`);
+                }
                 try {
-                    console.log('Writing content to file:', fullPath);
                     content[i] = content[i].trimStart();
-                    console.log('Content:', content[i]);
                     await replaceFullContentToFile(fullPath, content[i]);
 
                 } catch (error) {
@@ -2941,7 +3154,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 if (!fs.existsSync(registryPath)) {
                     fs.mkdirSync(registryPath, { recursive: true });
                 }
-                fs.writeFileSync(destPath, fileContent ? fileContent : "");
+                await replaceFullContentToFile(destPath, fileContent ? fileContent : "");
                 //add the new entry to artifact.xml
                 transformedPath = path.join(transformedPath, params.registryPath);
                 transformedPath = transformedPath.split(path.sep).join("/");
@@ -2973,7 +3186,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             const fullPath = path.join(params.projectDirectory, packagePath);
             fs.mkdirSync(fullPath, { recursive: true });
             const filePath = path.join(fullPath, `${params.className}.java`);
-            fs.writeFileSync(filePath, content);
+            await replaceFullContentToFile(filePath, content);
             const fileUri = Uri.file(params.projectDirectory);
             const workspaceFolder = workspace.getWorkspaceFolder(fileUri)?.uri.fsPath ?? workspace.getWorkspaceFolder[0].uri.fsPath;
             changeRootPomPackaging(workspaceFolder, "jar");
@@ -3089,7 +3302,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 filePath = filePath.replace('dataSources', 'data-sources');
             }
 
-            fs.writeFileSync(filePath, sanitizedXmlData);
+            await replaceFullContentToFile(filePath, sanitizedXmlData);
             await this.rangeFormat({
                 uri: filePath,
                 range: {
@@ -3219,7 +3432,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 fs.mkdirSync(localEntryPath);
             }
 
-            fs.writeFileSync(filePath, xmlData);
+            await replaceFullContentToFile(filePath, xmlData);
             resolve({ name: connectionName });
         });
     }
@@ -3378,7 +3591,12 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
     async buildProject(): Promise<void> {
         return new Promise(async (resolve) => {
-            await commands.executeCommand(COMMANDS.BUILD_PROJECT, false);
+            const selection = await window.showQuickPick(["Build CAPP", "Create Docker Image"]);
+            if (selection === "Build CAPP") {
+                await commands.executeCommand(COMMANDS.BUILD_PROJECT, false);
+            } else if (selection === "Create Docker Image") {
+                await commands.executeCommand(COMMANDS.CREATE_DOCKER_IMAGE);
+            }
             resolve();
         });
     }
@@ -3437,6 +3655,511 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 resolve(oldProjectState);
             }
         });
+    }
+
+    async editOpenAPISpec(params: SwaggerTypeRequest): Promise<void> {
+        return new Promise(async () => {
+            const { apiName, apiPath } = params;
+            const workspacePath = workspace.workspaceFolders![0].uri.fsPath;
+            const openAPISpecPath = path.join(
+                workspacePath,
+                'src',
+                'main',
+                'wso2mi',
+                'resources',
+                'api-definitions',
+                `${apiName}.yaml`
+            );
+
+            // Create directory if not exists
+            if (!fs.existsSync(path.dirname(openAPISpecPath))) {
+                fs.mkdirSync(path.dirname(openAPISpecPath), { recursive: true });
+            };
+
+            const langClient = StateMachine.context().langClient!;
+            const { swagger } = await langClient.swaggerFromAPI({ apiPath });
+            if (!fs.existsSync(openAPISpecPath)) {
+                // Create the file if not exists
+                await replaceFullContentToFile(openAPISpecPath, swagger);
+            };
+
+            // Open the file in the editor
+            const openedEditor = window.visibleTextEditors.find(
+                editor => editor.document.uri.fsPath === openAPISpecPath
+            );
+            if (openedEditor) {
+                window.showTextDocument(openedEditor.document, {
+                    viewColumn: openedEditor.viewColumn
+                });
+            } else {
+                commands.executeCommand('vscode.open', Uri.file(openAPISpecPath), {
+                    viewColumn: ViewColumn.Active
+                });
+            }
+
+            const response = await langClient.swaggerFromAPI({ apiPath: params.apiPath });
+            const generatedSwagger = response.swagger;
+            const port = await getPortPromise({ port: 1000, stopPort: 3000 });
+            const cors_proxy = require('cors-anywhere');
+            cors_proxy.createServer({
+                originWhitelist: [], // Allow all origins
+                requireHeader: ['origin', 'x-requested-with']
+            }).listen(port, 'localhost');
+
+            const swaggerData: SwaggerData = {
+                generatedSwagger: generatedSwagger,
+                port: port
+            };
+
+            await openSwaggerWebview(swaggerData);
+        });
+    }
+
+    async compareSwaggerAndAPI(params: SwaggerTypeRequest): Promise<CompareSwaggerAndAPIResponse> {
+        return new Promise(async (resolve) => {
+            const { apiPath, apiName } = params;
+            const workspacePath = workspace.workspaceFolders![0].uri.fsPath;
+            const swaggerPath = path.join(
+                workspacePath,
+                'src',
+                'main',
+                'wso2mi',
+                'resources',
+                'api-definitions',
+                `${apiName}.yaml`
+            );
+
+            if (!fs.existsSync(swaggerPath)) {
+                return resolve({ swaggerExists: false });
+            }
+
+            const langClient = StateMachine.context().langClient!;
+            const { swagger: generatedSwagger } = await langClient.swaggerFromAPI({ apiPath });
+            const swaggerContent = fs.readFileSync(swaggerPath, 'utf-8');
+            const isEqualSwagger = isEqualSwaggers({
+                existingSwagger: parse(swaggerContent),
+                generatedSwagger: parse(generatedSwagger!)
+            });
+            return resolve({
+                swaggerExists: true,
+                isEqual: isEqualSwagger,
+                generatedSwagger,
+                existingSwagger: swaggerContent
+            });
+        });
+    }
+
+    async updateSwaggerFromAPI(params: SwaggerTypeRequest): Promise<void> {
+        return new Promise(async () => {
+            const { apiName, apiPath } = params;
+            const workspacePath = workspace.workspaceFolders![0].uri.fsPath;
+            const swaggerPath = path.join(
+                workspacePath,
+                'src',
+                'main',
+                'wso2mi',
+                'resources',
+                'api-definitions',
+                `${apiName}.yaml`
+            );
+
+            let generatedSwagger = params.generatedSwagger;
+            let existingSwagger = params.existingSwagger;
+            if (!generatedSwagger || !existingSwagger) {
+                const langClient = StateMachine.context().langClient!;
+                const response = await langClient.swaggerFromAPI({ apiPath });
+                generatedSwagger = response.swagger;
+                existingSwagger = fs.readFileSync(swaggerPath, 'utf-8');
+            }
+
+            const mergedContent = mergeSwaggers({
+                existingSwagger: parse(existingSwagger),
+                generatedSwagger: parse(generatedSwagger!)
+            });
+            const yamlContent = stringify(mergedContent);
+            await replaceFullContentToFile(swaggerPath, yamlContent);
+        });
+    }
+
+    async updateAPIFromSwagger(params: UpdateAPIFromSwaggerRequest): Promise<void> {
+        return new Promise(async () => {
+            const { apiName, apiPath, resources, insertPosition } = params;
+            const workspacePath = workspace.workspaceFolders![0].uri.fsPath;
+            const swaggerPath = path.join(
+                workspacePath,
+                'src',
+                'main',
+                'wso2mi',
+                'resources',
+                'api-definitions',
+                `${apiName}.yaml`
+            );
+
+            let generatedSwagger = params.generatedSwagger;
+            let existingSwagger = params.existingSwagger;
+            if (!generatedSwagger || !existingSwagger) {
+                const langClient = StateMachine.context().langClient!;
+                const response = await langClient.swaggerFromAPI({ apiPath });
+                generatedSwagger = response.swagger;
+                existingSwagger = fs.readFileSync(swaggerPath, 'utf-8');
+            }
+
+            // Add new resources
+            const { added, removed, updated } = getResourceInfo({
+                existingSwagger: parse(existingSwagger),
+                generatedSwagger: parse(generatedSwagger!),
+            });
+            const resourceXml = added.reduce((acc, resource) => {
+                return acc + "\n" + getAPIResourceXmlWrapper({
+                    methods: resource.methods,
+                    uriTemplate: resource.path
+                });
+            }, "").trim();
+            await this.applyEdit({
+                text: resourceXml,
+                documentUri: apiPath,
+                range: {
+                    start: {
+                        line: insertPosition.line,
+                        character: insertPosition.character,
+                    },
+                    end: {
+                        line: insertPosition.line,
+                        character: insertPosition.character,
+                    }
+                }
+            });
+
+            // Delete resources
+            const deleteResources = removed.map(resource => resources.find(
+                r => r.path === resource.path && isEqual(r.methods, resource.methods)
+            ));
+            for (const resource of deleteResources) {
+                await this.applyEdit({
+                    text: "",
+                    documentUri: apiPath,
+                    range: {
+                        start: {
+                            line: resource.position.startLine,
+                            character: resource.position.startColumn
+                        },
+                        end: {
+                            line: resource.position.endLine,
+                            character: resource.position.endColumn
+                        }
+                    }
+                });
+            }
+        });
+    }
+
+    async updateTestSuite(params: UpdateTestSuiteRequest): Promise<UpdateTestSuiteResponse> {
+        return new Promise(async (resolve) => {
+            const { content, name, artifact } = params;
+            let filePath = params.path;
+            const fileName = filePath ? path.parse(filePath).name : "";
+
+            if (!content) {
+                throw new Error('Content is required');
+            }
+
+            if (!filePath) {
+                if (!artifact) {
+                    throw new Error('Artifact is required');
+                }
+                if (!name) {
+                    throw new Error('Name is required');
+                }
+                const projeectRoot = workspace.getWorkspaceFolder(Uri.file(artifact))?.uri.fsPath;
+                const testDir = path.join(projeectRoot!, 'src', 'test', "wso2mi");
+                filePath = path.join(testDir, `${name}.xml`);
+
+                if (fs.existsSync(filePath)) {
+                    throw new Error('Test suite already exists');
+                }
+
+                if (!fs.existsSync(testDir)) {
+                    fs.mkdirSync(testDir, { recursive: true });
+                }
+            } else if (name != fileName && params.path) {
+                filePath = filePath.replace(`${fileName}.xml`, `${name}.xml`);
+                if (fs.existsSync(filePath)) {
+                    throw new Error('Test suite already exists');
+                }
+                fs.renameSync(params.path, filePath);
+            }
+
+            await replaceFullContentToFile(filePath, content);
+
+            const openFileButton = 'Open File';
+            window.showInformationMessage(`Test suite ${!filePath ? "created" : "updated"} successfully`, openFileButton).then(selection => {
+                if (selection === openFileButton) {
+                    workspace.openTextDocument(filePath!).then(doc => {
+                        window.showTextDocument(doc);
+                    });
+                }
+            });
+
+            resolve({ path: filePath });
+        });
+    }
+
+    async updateTestCase(params: UpdateTestCaseRequest): Promise<UpdateTestCaseResponse> {
+        return new Promise(async (resolve) => {
+            const filePath = params.path;
+            if (!filePath) {
+                throw new Error('File path is required');
+            }
+            if (!fs.existsSync(filePath)) {
+                throw new Error('Test case does not exist');
+            }
+
+            let range;
+            if (!params.range) {
+                const langClient = StateMachine.context().langClient!;
+                const st = await langClient.getSyntaxTree({
+                    documentIdentifier: {
+                        uri: filePath
+                    },
+                });
+                const stNode: UnitTest = st?.syntaxTree?.["unit-test"];
+                if (!stNode) {
+                    throw new Error('Invalid test case file');
+                }
+                const endTag = stNode.testCases.range.endTagRange.start
+
+                range = new Range(endTag.line, endTag.character, endTag.line, endTag.character);
+            } else {
+                const startTag = params.range.startTagRange.start;
+                const endTag = params.range.endTagRange.end;
+                range = new Range(startTag.line, startTag.character, endTag.line, endTag.character);
+            }
+
+            const workspaceEdit = new WorkspaceEdit();
+            workspaceEdit.replace(Uri.file(filePath), range, params.content);
+            await workspace.applyEdit(workspaceEdit);
+
+            await this.rangeFormat({ uri: filePath, range: this.getFormatRange(range, params.content) });
+
+            const openFileButton = 'Open File';
+            window.showInformationMessage(`Test case ${!filePath ? "created" : "updated"} successfully`, openFileButton).then(selection => {
+                if (selection === openFileButton) {
+                    workspace.openTextDocument(filePath!).then(doc => {
+                        window.showTextDocument(doc);
+                    });
+                }
+            });
+
+            resolve({});
+        });
+    }
+
+    async getAllTestSuites(): Promise<GetAllTestSuitsResponse> {
+        return new Promise(async (resolve) => {
+            const suites: any[] = [];
+            if (workspace.workspaceFolders) {
+                const workspaceFolder = workspace.workspaceFolders[0];
+                const pattern = new vscode.RelativePattern(workspaceFolder, testFileMatchPattern);
+                const files = await workspace.findFiles(pattern);
+                for (const fileX of files) {
+                    const file = fileX.fsPath;
+                    const fileName = path.parse(file).name;
+
+                    suites.push({
+                        name: fileName,
+                        path: file,
+                        testCases: []
+                    });
+                }
+            }
+
+            return resolve({ testSuites: suites });
+        });
+    }
+
+    async updateMockService(params: UpdateMockServiceRequest): Promise<UpdateMockServiceResponse> {
+        return new Promise(async (resolve) => {
+            const { content, name } = params;
+            let filePath = params.path;
+            const fileName = filePath ? path.parse(filePath).name : "";
+
+            if (!content) {
+                throw new Error('Content is required');
+            }
+
+            if (!filePath) {
+                if (!name) {
+                    throw new Error('Name is required');
+                }
+                const projeectRoot = workspace.workspaceFolders![0].uri.fsPath;
+                const testDir = path.join(projeectRoot!, 'src', 'test', 'resources', 'mock-services');
+                filePath = path.join(testDir, `${name}.xml`);
+
+                if (fs.existsSync(filePath)) {
+                    throw new Error('Mock service already exists');
+                }
+
+                if (!fs.existsSync(testDir)) {
+                    fs.mkdirSync(testDir, { recursive: true });
+                }
+            } else if (name != fileName && params.path) {
+                filePath = filePath.replace(`${fileName}.xml`, `${name}.xml`);
+                if (fs.existsSync(filePath)) {
+                    throw new Error('Mock service already exists');
+                }
+                fs.renameSync(params.path, filePath);
+            }
+
+            await replaceFullContentToFile(filePath, content);
+
+            const openFileButton = 'Open File';
+            window.showInformationMessage(`Mock service ${!filePath ? "created" : "updated"} successfully`, openFileButton).then(selection => {
+                if (selection === openFileButton) {
+                    workspace.openTextDocument(filePath!).then(doc => {
+                        window.showTextDocument(doc);
+                    });
+                }
+            });
+
+            resolve({ path: filePath });
+        });
+    }
+
+    async getAllMockServices(): Promise<GetAllMockServicesResponse> {
+        return new Promise(async (resolve) => {
+            const services: any[] = [];
+            if (workspace.workspaceFolders) {
+                const workspaceFolder = workspace.workspaceFolders[0];
+                const pattern = new vscode.RelativePattern(workspaceFolder, mockSerivesFilesMatchPattern);
+                const files = await workspace.findFiles(pattern);
+                for (const fileX of files) {
+                    const file = fileX.fsPath;
+                    const fileName = path.parse(file).name;
+
+                    services.push({
+                        name: fileName,
+                        path: file,
+                    });
+                }
+            }
+
+            return resolve({ mockServices: services });
+        });
+    }
+
+    async addDependencyToPom(params: AddDependencyToPomRequest): Promise<void> {
+        const showErrorMessage = () => {
+            window.showErrorMessage('Failed to add the dependency to the POM file');
+        }
+
+        return new Promise(async (resolve) => {
+            const { groupId, artifactId, version, file } = params;
+            const workspaceFolder = workspace.getWorkspaceFolder(Uri.file(file));
+
+            if (!workspaceFolder) {
+                showErrorMessage();
+                throw new Error('Cannot find workspace folder');
+            }
+
+            const pomPath = path.join(workspaceFolder.uri.fsPath, 'pom.xml');
+            const pomContent = fs.readFileSync(pomPath, 'utf-8');
+            const options = {
+                ignoreAttributes: false,
+                attributeNamePrefix: "@_"
+            };
+            const parser = new XMLParser(options);
+            const pom = parser.parse(pomContent);
+
+            if (!pom) {
+                showErrorMessage();
+                throw new Error('Failed to parse POM XML');
+            }
+
+            let dependencies = Array.isArray(pom.project?.dependencies?.dependency) ? pom.project.dependencies.dependency : [pom.project?.dependencies?.dependency].filter(Boolean);
+            let dependencyExists = dependencies.some(dep =>
+                dep.groupId === groupId &&
+                dep.artifactId === artifactId &&
+                dep.version === version
+            );
+
+            if (!dependencyExists) {
+                const newDependency = {
+                    groupId: groupId,
+                    artifactId: artifactId,
+                    version: version
+                };
+
+                const isUpdate = dependencies.length > 0;
+                const tagToFind = !isUpdate ? '</pluginRepositories>' : '</dependencies>';
+                const index = pomContent.lastIndexOf(tagToFind);
+
+                if (!isUpdate) {
+                    dependencies.push(newDependency);
+
+                    dependencies = {
+                        dependencies: dependencies.map(dep => { return { dependency: dep } })
+                    }
+                } else {
+                    dependencies = {
+                        dependency: newDependency
+                    }
+                }
+
+                if (index !== -1) {
+                    let insertIndex = index + (isUpdate ? 0 : tagToFind.length);
+                    const lineString = pomContent.substring(0, insertIndex).split('\n').pop();
+                    const spacesCount = lineString?.match(/^\s*/)?.[0].length ?? 0;
+                    const indentation = ' '.repeat(spacesCount * (isUpdate ? 2 : 1));
+
+                    if (isUpdate) {
+                        insertIndex -= spacesCount;
+                    }
+
+                    const builder = new XMLBuilder({ format: true, oneListGroup: "true" });
+                    let text = builder.build(dependencies);
+                    const lines = text.split('\n');
+                    text = lines.map((line, index) => (index === lines.length - 1) ? line : indentation + line).join('\n');
+                    text = isUpdate ? text : `\n${text}`;
+
+                    await replaceFullContentToFile(pomPath, pomContent.slice(0, insertIndex) + text + pomContent.slice(insertIndex + (isUpdate ? 0 : 1)));
+                } else {
+                    showErrorMessage();
+                    throw new Error(`Failed to find ${tagToFind} tag`);
+                }
+            }
+
+            resolve();
+        });
+    }
+
+    async getSelectiveArtifacts(params: GetSelectiveArtifactsRequest): Promise<GetSelectiveArtifactsResponse> {
+        return new Promise(async (resolve) => {
+            const filePath = params.path;
+            const artifactsContent: string[] = [];
+
+            if (fs.existsSync(filePath)) {
+                const currentFile = fs.readFileSync(filePath, "utf8");
+                artifactsContent.push(currentFile);
+            }
+
+            return resolve({ artifacts: artifactsContent });
+        });
+    }
+
+    async getOpenAPISpec(params: SwaggerTypeRequest): Promise<SwaggerFromAPIResponse> {
+        const langClient = StateMachine.context().langClient!;
+        const response = await langClient.swaggerFromAPI({ apiPath: params.apiPath });
+        const generatedSwagger = response.swagger;
+        const port = await getPortPromise({ port: 1000, stopPort: 3000 });
+        const cors_proxy = require('cors-anywhere');
+        cors_proxy.createServer({
+            originWhitelist: [], // Allow all origins
+            requireHeader: ['origin', 'x-requested-with']
+        }).listen(port, 'localhost');
+
+        RPCLayer._messenger.sendNotification(onSwaggerSpecReceived, { type: 'webview', webviewType: 'micro-integrator.runtime-services-panel' }, { generatedSwagger: generatedSwagger, port: port });
+
+        return { generatedSwagger: generatedSwagger }; // TODO: refactor rpc function with void
     }
 }
 

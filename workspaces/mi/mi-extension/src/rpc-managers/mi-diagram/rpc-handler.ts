@@ -10,6 +10,7 @@
  */
 import {
     AIUserInput,
+    AddDependencyToPomRequest,
     ApplyEditRequest,
     BrowseFileRequest,
     CommandsRequest,
@@ -17,6 +18,7 @@ import {
     CreateAPIRequest,
     CreateClassMediatorRequest,
     CreateConnectionRequest,
+    CreateDataServiceRequest,
     CreateEndpointRequest,
     CreateInboundEndpointRequest,
     CreateLocalEntryRequest,
@@ -51,6 +53,8 @@ import {
     GetMessageStoreRequest,
     GetProjectRootRequest,
     GetRecipientEPRequest,
+    GetRegistryMetadataRequest,
+    GetSelectiveArtifactsRequest,
     GetTaskRequest,
     GetTemplateEPRequest,
     GetTextAtRangeRequest,
@@ -61,23 +65,31 @@ import {
     OpenDiagramRequest,
     RangeFormatRequest,
     RetrieveAddressEndpointRequest,
+    RetrieveDataServiceRequest,
     RetrieveDefaultEndpointRequest,
     RetrieveHttpEndpointRequest,
     RetrieveMessageProcessorRequest,
     RetrieveTemplateRequest,
     RetrieveWsdlEndpointRequest,
     ShowErrorMessageRequest,
+    SwaggerTypeRequest,
     UndoRedoParams,
+    UpdateAPIFromSwaggerRequest,
     UpdateAddressEndpointRequest,
     UpdateConnectorRequest,
     UpdateDefaultEndpointRequest,
     UpdateFailoverEPRequest,
     UpdateHttpEndpointRequest,
     UpdateLoadBalanceEPRequest,
+    UpdateMockServiceRequest,
     UpdateRecipientEPRequest,
+    UpdateRegistryMetadataRequest,
     UpdateTemplateEPRequest,
+    UpdateTestCaseRequest,
+    UpdateTestSuiteRequest,
     UpdateWsdlEndpointRequest,
     WriteContentToFileRequest,
+    addDependencyToPom,
     applyEdit,
     askFileDirPath,
     askProjectDirPath,
@@ -87,9 +99,11 @@ import {
     checkOldProject,
     closeWebView,
     closeWebViewNotification,
+    compareSwaggerAndAPI,
     createAPI,
     createClassMediator,
     createConnection,
+    createDataService,
     createDataSource,
     createEndpoint,
     createInboundEndpoint,
@@ -105,13 +119,16 @@ import {
     deleteArtifact,
     downloadConnector,
     editAPI,
+    editOpenAPISpec,
     executeCommand,
     exportProject,
     getAIResponse,
     getAPIDirectory,
     getAddressEndpoint,
     getAllArtifacts,
+    getAllMockServices,
     getAllRegistryPaths,
+    getAllTestSuites,
     getAvailableConnectors,
     getAvailableRegistryResources,
     getAvailableResources,
@@ -121,6 +138,7 @@ import {
     getConnectorConnections,
     getConnectorForm,
     getConnectors,
+    getDataService,
     getDataSource,
     getDefaultEndpoint,
     getDefinition,
@@ -136,10 +154,13 @@ import {
     getLocalEntry,
     getMessageProcessor,
     getMessageStore,
+    getMetadataOfRegistryResource,
+    getOpenAPISpec,
     getProjectRoot,
     getProjectUuid,
     getRecipientEndpoint,
     getSTRequest,
+    getSelectiveArtifacts,
     getSelectiveWorkspaceContext,
     getSequenceDirectory,
     getSyntaxTree,
@@ -164,20 +185,22 @@ import {
     refreshAccessToken,
     showErrorMessage,
     undo,
+    updateAPIFromSwagger,
     updateAddressEndpoint,
     updateConnectors,
     updateDefaultEndpoint,
     updateFailoverEndpoint,
     updateHttpEndpoint,
     updateLoadBalanceEndpoint,
+    updateMockService,
     updateRecipientEndpoint,
-    updateTemplateEndpoint,
-    updateWsdlEndpoint,
-    writeContentToFile,
-    GetRegistryMetadataRequest,
-    getMetadataOfRegistryResource,
     updateRegistryMetadata,
-    UpdateRegistryMetadataRequest,
+    updateSwaggerFromAPI,
+    updateTemplateEndpoint,
+    updateTestCase,
+    updateTestSuite,
+    updateWsdlEndpoint,
+    writeContentToFile
 } from "@wso2-enterprise/mi-core";
 import { Messenger } from "vscode-messenger";
 import { MiDiagramRpcManager } from "./rpc-manager";
@@ -229,6 +252,8 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getWsdlEndpoint, (args: RetrieveWsdlEndpointRequest) => rpcManger.getWsdlEndpoint(args));
     messenger.onRequest(updateDefaultEndpoint, (args: UpdateDefaultEndpointRequest) => rpcManger.updateDefaultEndpoint(args));
     messenger.onRequest(getDefaultEndpoint, (args: RetrieveDefaultEndpointRequest) => rpcManger.getDefaultEndpoint(args));
+    messenger.onRequest(createDataService, (args: CreateDataServiceRequest) => rpcManger.createDataService(args));
+    messenger.onRequest(getDataService, (args: RetrieveDataServiceRequest) => rpcManger.getDataService(args));
     messenger.onNotification(closeWebView, () => rpcManger.closeWebView());
     messenger.onNotification(openDiagram, (args: OpenDiagramRequest) => rpcManger.openDiagram(args));
     messenger.onNotification(openFile, (args: OpenDiagramRequest) => rpcManger.openFile(args));
@@ -257,10 +282,11 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getAvailableResources, (args: GetAvailableResourcesRequest) => rpcManger.getAvailableResources(args));
     messenger.onRequest(createClassMediator, (args: CreateClassMediatorRequest) => rpcManger.createClassMediator(args));
     messenger.onRequest(getSelectiveWorkspaceContext, () => rpcManger.getSelectiveWorkspaceContext());
+    messenger.onRequest(getSelectiveArtifacts, (args: GetSelectiveArtifactsRequest) => rpcManger.getSelectiveArtifacts(args));
     messenger.onRequest(getBackendRootUrl, () => rpcManger.getBackendRootUrl());
     messenger.onRequest(getAvailableRegistryResources, (args: ListRegistryArtifactsRequest) => rpcManger.getAvailableRegistryResources(args));
-    messenger.onRequest(getMetadataOfRegistryResource, (args: GetRegistryMetadataRequest) => rpcManger.getMetadataOfRegistryResource(args));
     messenger.onRequest(updateRegistryMetadata, (args: UpdateRegistryMetadataRequest) => rpcManger.updateRegistryMetadata(args));
+    messenger.onRequest(getMetadataOfRegistryResource, (args: GetRegistryMetadataRequest) => rpcManger.getMetadataOfRegistryResource(args));
     messenger.onRequest(rangeFormat, (args: RangeFormatRequest) => rpcManger.rangeFormat(args));
     messenger.onRequest(downloadConnector, (args: DownloadConnectorRequest) => rpcManger.downloadConnector(args));
     messenger.onRequest(getAvailableConnectors, (args: GetAvailableConnectorRequest) => rpcManger.getAvailableConnectors(args));
@@ -281,4 +307,15 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onNotification(exportProject, (args: ExportProjectRequest) => rpcManger.exportProject(args));
     messenger.onRequest(checkOldProject, () => rpcManger.checkOldProject());
     messenger.onNotification(refreshAccessToken, () => rpcManger.refreshAccessToken());
+    messenger.onRequest(getOpenAPISpec, (args: SwaggerTypeRequest) => rpcManger.getOpenAPISpec(args));
+    messenger.onNotification(editOpenAPISpec, (args: SwaggerTypeRequest) => rpcManger.editOpenAPISpec(args));
+    messenger.onRequest(compareSwaggerAndAPI, (args: SwaggerTypeRequest) => rpcManger.compareSwaggerAndAPI(args));
+    messenger.onNotification(updateSwaggerFromAPI, (args: SwaggerTypeRequest) => rpcManger.updateSwaggerFromAPI(args));
+    messenger.onNotification(updateAPIFromSwagger, (args: UpdateAPIFromSwaggerRequest) => rpcManger.updateAPIFromSwagger(args));
+    messenger.onRequest(updateTestSuite, (args: UpdateTestSuiteRequest) => rpcManger.updateTestSuite(args));
+    messenger.onRequest(updateTestCase, (args: UpdateTestCaseRequest) => rpcManger.updateTestCase(args));
+    messenger.onRequest(updateMockService, (args: UpdateMockServiceRequest) => rpcManger.updateMockService(args));
+    messenger.onRequest(getAllTestSuites, () => rpcManger.getAllTestSuites());
+    messenger.onRequest(getAllMockServices, () => rpcManger.getAllMockServices());
+    messenger.onNotification(addDependencyToPom, (args: AddDependencyToPomRequest) => rpcManger.addDependencyToPom(args));
 }

@@ -13,12 +13,14 @@ import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { GroupNodeModel } from "./GroupNodeModel";
 import { Colors, NODE_DIMENSIONS, NODE_GAP } from "../../../resources/constants";
 import { STNode } from "@wso2-enterprise/mi-syntax-tree/src";
-import { Button, ClickAwayListener, Menu, MenuItem, Popover, Tooltip } from "@wso2-enterprise/ui-toolkit";
+import { ClickAwayListener, Menu, MenuItem, Popover, Tooltip } from "@wso2-enterprise/ui-toolkit";
 import { MoreVertIcon } from "../../../resources";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import SidePanelContext from "../../sidePanel/SidePanelContexProvider";
 import { getMediatorIconsFromFont } from "../../../resources/icons/mediatorIcons/icons";
-import { FirstCharToUpperCase } from "../../../utils/commons";
+import { BreakpointMenu } from "../../BreakpointMenu/BreakpointMenu";
+import { Body, Content, Description, Header, Name, OptionsMenu } from "../BaseNodeModel";
+import { getNodeDescription } from "../../../utils/node";
 
 namespace S {
     export type NodeStyleProp = {
@@ -68,13 +70,6 @@ namespace S {
             fill: ${Colors.ON_SURFACE};
             stroke: ${Colors.ON_SURFACE};
         }
-    `;
-
-    export const StyledButton = styled(Button)`
-        background-color: ${Colors.SURFACE};
-        border-radius: 5px;
-        position: absolute;
-        right: 6px;
     `;
 
     export const TopPortWidget = styled(PortWidget)`
@@ -140,6 +135,8 @@ export function GroupNodeWidget(props: CallNodeWidgetProps) {
     const hasDiagnotics = node.hasDiagnotics();
     const hasBreakpoint = node.hasBreakpoint();
     const isActiveBreakpoint = node.isActiveBreakpoint();
+    const description = getNodeDescription(node.mediatorName, node.stNode);
+
     const tooltip = hasDiagnotics
         ? node
             .getDiagnostics()
@@ -155,32 +152,6 @@ export function GroupNodeWidget(props: CallNodeWidgetProps) {
 
     const handlePopoverClose = () => {
         setIsPopoverOpen(false);
-    };
-
-    const handleAddBreakpoint = async () => {
-        const file = node.documentUri;
-        const line = node.stNode.range.startTagRange.start.line;
-        const request = {
-            filePath: file,
-            breakpoint: {
-                line: line
-            }
-        }
-
-        await rpcClient.getMiDebuggerRpcClient().addBreakpointToSource(request);
-    };
-
-    const removeBreakpoint = async () => {
-        const file = node.documentUri;
-        const line = node.stNode.range.startTagRange.start.line;
-        const request = {
-            filePath: file,
-            breakpoint: {
-                line: line
-            }
-        }
-
-        await rpcClient.getMiDebuggerRpcClient().removeBreakpointFromSource(request);
     };
 
     const TooltipEl = useMemo(() => {
@@ -207,15 +178,26 @@ export function GroupNodeWidget(props: CallNodeWidgetProps) {
                         <div style={{ position: "absolute", left: -5, width: 15, height: 15, borderRadius: "50%", backgroundColor: "red" }}></div>
                     )}
                     <S.TopPortWidget port={node.getPort("in")!} engine={engine} />
-                    <S.Header>
+                    <div style={{ display: "flex", flexDirection: "row", width: NODE_DIMENSIONS.DEFAULT.WIDTH }}>
                         <S.IconContainer>{getMediatorIconsFromFont(node.stNode.tag)}</S.IconContainer>
-                        <S.NodeText>{FirstCharToUpperCase(node.stNode.tag)}</S.NodeText>
-                        {isHovered && (
-                            <S.StyledButton appearance="icon" onClick={handleOnClickMenu}>
-                                <MoreVertIcon />
-                            </S.StyledButton>
-                        )}
-                    </S.Header>
+                        <div>
+                            {isHovered && (
+                                <OptionsMenu appearance="icon" onClick={handleOnClickMenu}>
+                                    <MoreVertIcon />
+                                </OptionsMenu>
+                            )}
+                            <Content>
+                                <Header showBorder={description !== undefined}>
+                                    <Name>{node.mediatorName}</Name>
+                                </Header>
+                                <Body>
+                                    <Tooltip content={description} position={'bottom'} >
+                                        <Description>{description}</Description>
+                                    </Tooltip>
+                                </Body>
+                            </Content>
+                        </div>
+                    </div>
                     <S.EmptyEl />
                 </S.Node>
             </Tooltip>
@@ -237,10 +219,7 @@ export function GroupNodeWidget(props: CallNodeWidgetProps) {
                             key={"delete-btn"}
                             item={{ label: "Delete", id: "delete", onClick: () => node.delete(rpcClient) }}
                         />
-                        {hasBreakpoint ?
-                            <MenuItem key={'remove-breakpoint-btn'} item={{ label: 'Remove Breakpoint', id: "removeBreakpoint", onClick: removeBreakpoint }} /> :
-                            <MenuItem key={'breakpoint-btn'} item={{ label: 'Add Breakpoint', id: "addBreakpoint", onClick: handleAddBreakpoint }} />
-                        }
+                        <BreakpointMenu hasBreakpoint={hasBreakpoint} node={node} rpcClient={rpcClient} />
                     </Menu>
                 </ClickAwayListener>
             </Popover>

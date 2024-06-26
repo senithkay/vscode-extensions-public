@@ -3,6 +3,7 @@ import { EVENT_TYPE, POPUP_EVENT_TYPE, PopupMachineStateValue, MACHINE_VIEW, Mac
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { Overview } from './views/Overview';
 import { ServiceDesignerView } from './views/ServiceDesigner';
+import { DSSServiceDesignerView } from './views/Forms/DataServiceForm/ServiceDesigner';
 import { APIWizard, APIWizardProps } from './views/Forms/APIform';
 import { EndpointWizard } from './views/Forms/EndpointForm';
 import { SequenceWizard } from './views/Forms/SequenceForm';
@@ -28,7 +29,7 @@ import { WsdlEndpointWizard } from "./views/Forms/WSDLEndpointForm/index";
 import { DefaultEndpointWizard } from "./views/Forms/DefaultEndpointForm";
 import { LoadBalanceWizard } from './views/Forms/LoadBalanceEPform';
 import { FailoverWizard } from './views/Forms/FailoverEndpointForm';
-import { APIResource, NamedSequence, Proxy, Template } from '@wso2-enterprise/mi-syntax-tree/lib/src';
+import { APIResource, NamedSequence, Proxy, Template, MockService, UnitTest } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 import { ProxyView, ResourceView, SequenceView } from './views/Diagram';
 import { RecipientWizard } from './views/Forms/RecipientEndpointForm';
 import { TemplateEndpointWizard } from './views/Forms/TemplateEndpointForm';
@@ -38,7 +39,12 @@ import { ErrorBoundary, FormView } from '@wso2-enterprise/ui-toolkit';
 import PopupPanel from './PopupPanel';
 import { AddArtifactView } from './views/AddArtifact';
 import { SequenceTemplateView } from './views/Diagram/SequenceTemplate';
-import { set } from 'lodash';
+import { TestSuiteForm } from './views/Forms/Tests/TestSuiteForm';
+import { TestCaseForm } from './views/Forms/Tests/TestCaseForm';
+import { MockServiceForm } from './views/Forms/Tests/MockServices/MockServiceForm';
+import { DataServiceWizard } from './views/Forms/DataServiceForm/MainPanelForms';
+import { DataServiceView } from './views/Diagram/DataService';
+import { SignInToCopilotMessage } from './views/LoggedOutWindow';
 
 const MainContainer = styled.div`
     display: flex;
@@ -195,6 +201,18 @@ const MainPanel = () => {
                     );
                     await rpcClient.getMiDiagramRpcClient().initUndoRedoManager({ path: machineView.documentUri });
                     break;
+                case MACHINE_VIEW.DataServiceView:
+                    setViewComponent(
+                        <DataServiceView
+                            key={getUniqueKey(machineView.stNode, machineView.documentUri)}
+                            model={machineView.stNode as any}
+                            href={machineView.identifier}
+                            documentUri={machineView.documentUri}
+                            diagnostics={machineView.diagnostics}
+                        />
+                    );
+                    await rpcClient.getMiDiagramRpcClient().initUndoRedoManager({ path: machineView.documentUri });
+                    break;
                 case MACHINE_VIEW.ServiceDesigner:
                     setViewComponent(<ServiceDesignerView syntaxTree={machineView.stNode} documentUri={machineView.documentUri} />);
                     break;
@@ -204,6 +222,8 @@ const MainPanel = () => {
                             <DataMapper {...machineView.dataMapperProps} />
                         </ErrorBoundary >
                     );
+                    const { filePath, fileContent } = machineView.dataMapperProps;
+                    await rpcClient.getMiDataMapperRpcClient().initDMUndoRedoManager({ filePath, fileContent });
                     break;
                 case MACHINE_VIEW.APIForm:
                     setViewComponent(<APIWizard apiData={(machineView.customProps as APIWizardProps)?.apiData} path={machineView.documentUri} />);
@@ -260,6 +280,9 @@ const MainPanel = () => {
                 case MACHINE_VIEW.DefaultEndpointForm:
                     setViewComponent(<DefaultEndpointWizard path={machineView.documentUri} type={machineView.customProps.type} />);
                     break;
+                case MACHINE_VIEW.DataServiceForm:
+                    setViewComponent(<DataServiceWizard path={machineView.documentUri} />);
+                    break;
                 case MACHINE_VIEW.ProjectCreationForm:
                     setViewComponent(<ProjectWizard cancelView={MACHINE_VIEW.Overview} />);
                     shouldShowNavigator = false;
@@ -278,6 +301,27 @@ const MainPanel = () => {
                     break;
                 case MACHINE_VIEW.DataSourceForm:
                     setViewComponent(<DataSourceWizard path={machineView.documentUri} />);
+                    break;
+                case MACHINE_VIEW.TestSuite:
+                    setViewComponent(<TestSuiteForm filePath={machineView.documentUri} stNode={machineView.stNode as UnitTest} />);
+                    break;
+                case MACHINE_VIEW.LoggedOut:
+                    setViewComponent(<SignInToCopilotMessage />);
+                    break;
+                case MACHINE_VIEW.TestCase:
+                    setViewComponent(<TestCaseForm
+                        filePath={machineView.documentUri}
+                        range={machineView.customProps?.range}
+                        availableTestCases={machineView.customProps?.availableTestCases}
+                        testCase={machineView.customProps?.testCase}
+                        testSuiteType={machineView.customProps?.testSuiteType}
+                    />);
+                    break;
+                case MACHINE_VIEW.MockService:
+                    setViewComponent(<MockServiceForm filePath={machineView.documentUri} stNode={machineView.stNode as MockService} />);
+                    break;
+                case MACHINE_VIEW.DSSServiceDesigner:
+                    setViewComponent(<DSSServiceDesignerView syntaxTree={machineView.stNode} documentUri={machineView.documentUri} />);
                     break;
                 default:
                     setViewComponent(null);

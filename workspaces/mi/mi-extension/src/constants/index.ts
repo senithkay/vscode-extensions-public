@@ -1,3 +1,14 @@
+/**
+ * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
+
+import * as path from 'path';
+
 export const SAMPLE_ICONS_GITHUB_URL = "https://raw.githubusercontent.com/wso2/integration-studio/main/SamplesForVSCode/icons/";
 export const MI_COPILOT_BACKEND_URL = "https://e95488c8-8511-4882-967f-ec3ae2a0f86f-dev.e1-us-east-azure.choreoapis.dev/miaideployments/micopilot/mi-copilot-backend-be2/v1.0";
 export const USER_CHECK_BACKEND_URL = '/user/usage';
@@ -10,7 +21,7 @@ export const COMMANDS = {
     OPEN_AI_PANEL: "MI.openAiPanel",
     CLEAR_AI_PROMPT: "MI.clearAIPrompt",
     OPEN_WELCOME: "MI.openWelcome",
-    SHOW_DIAGRAM: "MI.show.diagram",
+    SHOW_GRAPHICAL_VIEW: "MI.show.graphical-view",
     SHOW_RESOURCE_VIEW: "MI.show.resource-view",
     SHOW_SEQUENCE_VIEW: "MI.show.sequence-view",
     SHOW_SEQUENCE_TEMPLATE_VIEW: "MI.show.sequence_template-view",
@@ -33,6 +44,8 @@ export const COMMANDS = {
     SHOW_FAILOVER_ENDPOINT: "MI.show.failover-endpoint",
     SHOW_TEMPLATE_ENDPOINT: "MI.show.template-endpoint",
     SHOW_RECIPIENT_ENDPOINT: "MI.show.recipient-endpoint",
+    SHOW_DATA_SERVICE: "MI.show.data-service",
+    OPEN_DSS_SERVICE_DESIGNER: "MI.project-explorer.open-dss-service-designer",
     ADD_MEDIATOR: "MI.addMediator",
     REFRESH_COMMAND: 'MI.project-explorer.refresh',
     ADD_COMMAND: 'MI.project-explorer.add',
@@ -46,27 +59,41 @@ export const COMMANDS = {
     ADD_MESSAGE_PROCESSOR_COMMAND: 'MI.project-explorer.add-message-processor',
     ADD_MESSAGE_STORE_COMMAND: 'MI.project-explorer.add-message-store',
     ADD_TEMPLATE_COMMAND: 'MI.project-explorer.add-template',
+    ADD_DATA_SERVICE_COMMAND: 'MI.project-explorer.add-data-service',
     CREATE_PROJECT_COMMAND: 'MI.project-explorer.create-project',
     IMPORT_PROJECT_COMMAND: 'MI.project-explorer.import-project',
     REVEAL_ITEM_COMMAND: 'MI.project-explorer.revealItem',
     FOCUS_PROJECT_EXPLORER: 'MI.project-explorer.focus',
     OPEN_SERVICE_DESIGNER: 'MI.project-explorer.open-service-designer',
-    OPEN_SERVICE_DESIGNER_BESIDE: 'MI.project-explorer.open-service-designer-beside',
     OPEN_PROJECT_OVERVIEW: 'MI.project-explorer.open-project-overview',
     ADD_REGISTERY_RESOURCE_COMMAND: 'MI.project-explorer.add-registry-resource',
-    DELETE_REGISTERY_RESOURCE_COMMAND: 'MI.project-explorer.delete-reg-resource',
     EDIT_REGISTERY_RESOURCE_COMMAND: 'MI.project-explorer.edit-reg-resource',
     EDIT_REGISTRY_RESOURCE_METADATA_COMMAND: 'MI.project-explorer.edit-reg-metadata',
     ADD_CLASS_MEDIATOR_COMMAND: 'MI.project-explorer.add-class-mediator',
     EDIT_CLASS_MEDIATOR_COMMAND: 'MI.project-explorer.edit-class-mediator',
+    DELETE_PROJECT_EXPLORER_ITEM: 'MI.project-explorer.delete',
     CHANGE_SERVER_PATH: 'MI.change.server',
     BUILD_PROJECT: 'MI.build-project',
+    CREATE_DOCKER_IMAGE: 'MI.create-docker-image',
     BUILD_AND_RUN_PROJECT: 'MI.build-and-run',
     ADD_DATA_SOURCE_COMMAND: 'MI.project-explorer.add-data-source',
     SHOW_DATA_SOURCE: 'MI.show.data-source',
     SHOW_DATA_MAPPER: 'MI.show.data-mapper',
+    ADD_TEST_SUITE: 'MI.test.add.suite',
+    GEN_AI_TESTS: 'MI.test.gen.ai-test',
+    UPDATE_TEST_SUITE: 'MI.test.update.suite',
+    ADD_TEST_CASE: 'MI.test.add.case',
+    UPDATE_TEST_CASE: 'MI.test.update.case',
+    ADD_MOCK_SERVICE: 'MI.test.add.mock-service',
+    REFRESH_MOCK_SERVICES: 'MI.test.refresh.mock-services',
+    UPDATE_MOCK_SERVICE: 'MI.test.update.mock-service',
+    OPEN_RUNTIME_VIEW: 'MI.Open-runtime-service-view',
+    REVEAL_TEST_PANE: 'MI.mock-services.focus',
 };
 
 export const DEFAULT_PROJECT_VERSION = "1.0.0";
 
 export const REFRESH_ENABLED_DOCUMENTS = ["SynapseXml", "typescript"];
+
+export * from "./swagger";
+

@@ -10,7 +10,7 @@
  */
 
 import { Messenger } from "vscode-messenger-webview";
-import { MachineStateValue, stateChanged, vscode, getVisualizerState, getAIVisualizerState, VisualizerLocation, AIVisualizerLocation, webviewReady, onFileContentUpdate, AI_EVENT_TYPE, sendAIStateEvent, AIMachineStateValue, aiStateChanged, themeChanged, ColorThemeKind, PopupMachineStateValue, popupStateChanged, PopupVisualizerLocation, getPopupVisualizerState, onParentPopupSubmitted, ParentPopupData, ConnectorStatus, onConnectorStatusUpdate  } from "@wso2-enterprise/mi-core";
+import { MachineStateValue, stateChanged, vscode, getVisualizerState, getAIVisualizerState, VisualizerLocation, AIVisualizerLocation, webviewReady, onFileContentUpdate, AI_EVENT_TYPE, sendAIStateEvent, AIMachineStateValue, aiStateChanged, themeChanged, ColorThemeKind, PopupMachineStateValue, popupStateChanged, PopupVisualizerLocation, getPopupVisualizerState, onParentPopupSubmitted, ParentPopupData, ConnectorStatus, onConnectorStatusUpdate, onDocumentSave, Document, SwaggerData, onSwaggerSpecReceived  } from "@wso2-enterprise/mi-core";
 import { MiDiagramRpcClient } from "./rpc-clients/mi-diagram/rpc-client";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { MiVisualizerRpcClient } from "./rpc-clients/mi-visualizer/rpc-client";
@@ -86,6 +86,10 @@ export class RpcClient {
     onFileContentUpdate(callback: () => void): void {
         this.messenger.onNotification(onFileContentUpdate, callback);
     }
+
+    onSwaggerSpecReceived(callback: (data: SwaggerData) => void) {
+        this.messenger.onNotification(onSwaggerSpecReceived, callback);
+    }
     
     webviewReady(): void {
         this.messenger.sendNotification(webviewReady, HOST_EXTENSION);
@@ -98,4 +102,9 @@ export class RpcClient {
     onConnectorStatusUpdate(callback: (status: ConnectorStatus) => void) {
         this.messenger.onNotification(onConnectorStatusUpdate, callback);
     }
+
+    onDocumentSave(callback: (document: Document) => void) {
+        this.messenger.onNotification(onDocumentSave, callback);
+    }
 }
+

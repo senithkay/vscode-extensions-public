@@ -8,7 +8,7 @@
  */
 
 import Mustache from "mustache";
-import { ARTIFACT_TEMPLATES } from "../../../constants";
+import { ARTIFACT_TEMPLATES, DSS_TEMPLATES } from "../../../constants";
 import {
     getAddAPIResourceTemplate,
     getEditAPIResourceTemplate,
@@ -18,6 +18,14 @@ import {
     getHandlersTemplate,
     getAddAPITemplate
 } from "./core/api";
+import {
+    getAddOperationTemplate,
+    getAddResourceTemplate,
+    getEditOperationTemplate,
+    getEditResourceTemplate,
+    getEditDescriptionTemplate,
+    getAddQuery
+} from "./core/DSS";
 
 export function getXML(name: string, data: { [key: string]: any }) {
     switch (name) {
@@ -35,6 +43,18 @@ export function getXML(name: string, data: { [key: string]: any }) {
             return Mustache.render(getEditProxyTemplate(data.tag), data);    
         case ARTIFACT_TEMPLATES.EDIT_HANDLERS:
             return Mustache.render(getHandlersTemplate(), data);
+        case DSS_TEMPLATES.ADD_RESOURCE:
+            return Mustache.render(getAddResourceTemplate(), data);
+        case DSS_TEMPLATES.EDIT_RESOURCE:
+            return Mustache.render(getEditResourceTemplate(), data);
+        case DSS_TEMPLATES.ADD_OPERATION:
+            return Mustache.render(getAddOperationTemplate(), data);
+        case DSS_TEMPLATES.EDIT_OPERATION:
+            return Mustache.render(getEditOperationTemplate(), data);
+        case DSS_TEMPLATES.EDIT_DESCRIPTION:
+            return Mustache.render(getEditDescriptionTemplate(), data);
+        case DSS_TEMPLATES.ADD_QUERY:
+            return Mustache.render(getAddQuery(), data);
         default:
             return "";
     }

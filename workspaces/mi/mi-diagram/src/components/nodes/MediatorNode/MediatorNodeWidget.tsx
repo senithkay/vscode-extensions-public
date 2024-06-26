@@ -18,9 +18,9 @@ import { MoreVertIcon } from "../../../resources";
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import SidePanelContext from "../../sidePanel/SidePanelContexProvider";
 import { getNodeDescription } from "../../../utils/node";
-import { Header, Description, Name } from "../BaseNodeModel";
-import { FirstCharToUpperCase } from "../../../utils/commons";
+import { Header, Description, Name, Content, OptionsMenu, Body } from "../BaseNodeModel";
 import { getMediatorIconsFromFont } from "../../../resources/icons/mediatorIcons/icons";
+import { BreakpointMenu } from "../../BreakpointMenu/BreakpointMenu";
 
 namespace S {
     export type NodeStyleProp = {
@@ -45,11 +45,6 @@ namespace S {
         cursor: pointer;
     `;
 
-    export const Body = styled.div<{}>`
-        display: flex;
-        max-width: 100%;
-    `;
-
     export const IconContainer = styled.div`
         padding: 0 5px;
         display: flex;
@@ -61,14 +56,6 @@ namespace S {
             fill: ${Colors.ON_SURFACE};
             stroke: ${Colors.ON_SURFACE};
         }
-    `;
-
-    export const StyledButton = styled(Button)`
-        background-color: ${Colors.SURFACE};
-        border-radius: 5px;
-        position: absolute;
-        right: 6px;
-        top: ${((NODE_DIMENSIONS.DEFAULT.HEIGHT) / 2) - 12}px;
     `;
 
     export const TopPortWidget = styled(PortWidget)`
@@ -101,38 +88,12 @@ export function MediatorNodeWidget(props: CallNodeWidgetProps) {
     const tooltip = hasDiagnotics ? node.getDiagnostics().map(diagnostic => diagnostic.message).join("\n") : undefined;
     const hasBreakpoint = node.hasBreakpoint();
     const isActiveBreakpoint = node.isActiveBreakpoint();
-    const description = getNodeDescription(node.stNode);
+    const description = getNodeDescription(node.mediatorName, node.stNode);
 
     const handleOnClickMenu = (event: any) => {
         setIsPopoverOpen(!isPopoverOpen);
         setPopoverAnchorEl(event.currentTarget);
         event.stopPropagation();
-    };
-
-    const handleAddBreakpoint = async () => {
-        const file = node.documentUri;
-        const line = node.stNode.range.startTagRange.start.line;
-        const request = {
-            filePath: file,
-            breakpoint: {
-                line: line
-            }
-        }
-
-        await rpcClient.getMiDebuggerRpcClient().addBreakpointToSource(request);
-    };
-
-    const removeBreakpoint = async () => {
-        const file = node.documentUri;
-        const line = node.stNode.range.startTagRange.start.line;
-        const request = {
-            filePath: file,
-            breakpoint: {
-                line: line
-            }
-        }
-
-        await rpcClient.getMiDebuggerRpcClient().removeBreakpointFromSource(request);
     };
 
     const handlePopoverClose = () => {
@@ -167,18 +128,20 @@ export function MediatorNodeWidget(props: CallNodeWidgetProps) {
                         <S.IconContainer>{getMediatorIconsFromFont(node.stNode.tag)}</S.IconContainer>
                         <div>
                             {isHovered && (
-                                <S.StyledButton appearance="icon" onClick={handleOnClickMenu}>
+                                <OptionsMenu appearance="icon" onClick={handleOnClickMenu}>
                                     <MoreVertIcon />
-                                </S.StyledButton>
+                                </OptionsMenu>
                             )}
-                            <Header showBorder={description !== undefined}>
-                                <Name>{FirstCharToUpperCase(node.stNode.tag)}</Name>
-                            </Header>
-                            <S.Body>
-                                <Tooltip content={description} position={'bottom'} >
-                                    <Description>{description}</Description>
-                                </Tooltip>
-                            </S.Body>
+                            <Content>
+                                <Header showBorder={description !== undefined}>
+                                    <Name>{node.mediatorName}</Name>
+                                </Header>
+                                <Body>
+                                    <Tooltip content={description} position={'bottom'} >
+                                        <Description>{description}</Description>
+                                    </Tooltip>
+                                </Body>
+                            </Content>
                         </div>
                     </div>
                     <S.BottomPortWidget port={node.getPort("out")!} engine={engine} />
@@ -196,10 +159,7 @@ export function MediatorNodeWidget(props: CallNodeWidgetProps) {
                 <ClickAwayListener onClickAway={handlePopoverClose}>
                     <Menu>
                         <MenuItem key={'delete-btn'} item={{ label: 'Delete', id: "delete", onClick: () => node.delete(rpcClient) }} />
-                        {hasBreakpoint ?
-                            <MenuItem key={'remove-breakpoint-btn'} item={{ label: 'Remove Breakpoint', id: "removeBreakpoint", onClick: removeBreakpoint }} /> :
-                            <MenuItem key={'breakpoint-btn'} item={{ label: 'Add Breakpoint', id: "addBreakpoint", onClick: handleAddBreakpoint }} />
-                        }
+                        <BreakpointMenu hasBreakpoint={hasBreakpoint} node={node} rpcClient={rpcClient} />
                     </Menu>
                 </ClickAwayListener>
             </Popover>

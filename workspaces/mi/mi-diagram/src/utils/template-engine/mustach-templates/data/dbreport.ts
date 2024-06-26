@@ -12,58 +12,72 @@ import Mustache from "mustache";
 
 export function getDBReportMustacheTemplate() {
     return `
-    <dbreport {{#description}}description="{{description}}"{{/description}} >
+    <dbreport {{#description}}description="{{{description}}}"{{/description}} >
         <connection>
             <pool>
                 {{#isDbConnection}}
-                {{#isRegistryBasedDriverConfig}}<driver key="{{registryBasedConnectionDBDriver}}" />{{/isRegistryBasedDriverConfig}}
-                {{^isRegistryBasedDriverConfig}}
-                <driver>{{connectionDBDriver}}</driver>
+                {{#isRegistryBasedDriverConfig}}
+                {{#registryBasedConnectionDBDriver}}<driver key="{{{registryBasedConnectionDBDriver}}}" />{{/registryBasedConnectionDBDriver}}
                 {{/isRegistryBasedDriverConfig}}
-                {{#isRegistryBasedURLConfig}}<url key="{{registryBasedURLConfigKey}}" />{{/isRegistryBasedURLConfig}}
-                {{^isRegistryBasedURLConfig}}
-                <url>{{connectionURL}}</url>
+                {{^isRegistryBasedDriverConfig}}
+                {{#connectionDBDriver}}<driver>{{{connectionDBDriver}}}</driver>{{/connectionDBDriver}}
+                {{/isRegistryBasedDriverConfig}}
+                {{#isRegistryBasedURLConfig}}
+                {{#registryBasedURLConfigKey}}<url key="{{{registryBasedURLConfigKey}}}" />{{/registryBasedURLConfigKey}}
                 {{/isRegistryBasedURLConfig}}
-                {{#isRegistryBasedUserConfig}}<user key="{{registryBasedUserConfigKey}}" />{{/isRegistryBasedUserConfig}}
-                {{^isRegistryBasedUserConfig}}
-                <user>{{connectionUsername}}</user>
+                {{^isRegistryBasedURLConfig}}
+                {{#connectionURL}}<url>{{{connectionURL}}}</url>{{/connectionURL}}
+                {{/isRegistryBasedURLConfig}}
+                {{#isRegistryBasedUserConfig}}
+                {{#registryBasedUserConfigKey}}<user key="{{{registryBasedUserConfigKey}}}" />{{/registryBasedUserConfigKey}}
                 {{/isRegistryBasedUserConfig}}
-                {{#isRegistryBasedPassConfig}}<password key="{{registryBasedPassConfigKey}}" />{{/isRegistryBasedPassConfig}}
+                {{^isRegistryBasedUserConfig}}
+                {{#connectionUsername}}<user>{{{connectionUsername}}}</user>{{/connectionUsername}}
+                {{/isRegistryBasedUserConfig}}
+                {{#isRegistryBasedPassConfig}}
+                {{#registryBasedPassConfigKey}}<password key="{{{registryBasedPassConfigKey}}}" />{{/registryBasedPassConfigKey}}
+                {{/isRegistryBasedPassConfig}}
                 {{^isRegistryBasedPassConfig}}
-                <password>{{connectionPassword}}</password>
+                {{#connectionPassword}}<password>{{{connectionPassword}}}</password>{{/connectionPassword}}
                 {{/isRegistryBasedPassConfig}}
                 {{/isDbConnection}}
                 {{^isDbConnection}}
-                <dsName>{{connectionDSName}}</dsName>
-                <icClass>{{connectionDSInitialContext}}</icClass>
+                {{#connectionDSName}}<dsName>{{{connectionDSName}}}</dsName>{{/connectionDSName}}
+                {{#connectionDSInitialContext}}<icClass>{{{connectionDSInitialContext}}}</icClass>{{/connectionDSInitialContext}}
                 {{^isCarbonDs}}
-                {{#isRegistryBasedURLConfig}}<url key="{{registryBasedURLConfigKey}}" />{{/isRegistryBasedURLConfig}}
-                {{^isRegistryBasedURLConfig}}
-                <url>{{connectionURL}}</url>
+                {{#isRegistryBasedURLConfig}}
+                {{#registryBasedURLConfigKey}}<url>{{{registryBasedURLConfigKey}}}</url>{{/registryBasedURLConfigKey}}
                 {{/isRegistryBasedURLConfig}}
-                {{#isRegistryBasedUserConfig}}<user key="{{registryBasedUserConfigKey}}" />{{/isRegistryBasedUserConfig}}
-                {{^isRegistryBasedUserConfig}}
-                <user>{{connectionUsername}}</user>
+                {{^isRegistryBasedURLConfig}}
+                {{#connectionURL}}<url>{{{connectionURL}}}</url>{{/connectionURL}}
+                {{/isRegistryBasedURLConfig}}
+                {{#isRegistryBasedUserConfig}}
+                {{#registryBasedUserConfigKey}}<user>{{{registryBasedUserConfigKey}}}</user>{{/registryBasedUserConfigKey}}
                 {{/isRegistryBasedUserConfig}}
-                {{#isRegistryBasedPassConfig}}<password key="{{registryBasedPassConfigKey}}" />{{/isRegistryBasedPassConfig}}
+                {{^isRegistryBasedUserConfig}}
+                {{#connectionUsername}}<user>{{{connectionUsername}}}</user>{{/connectionUsername}}
+                {{/isRegistryBasedUserConfig}}
+                {{#isRegistryBasedPassConfig}}
+                {{#registryBasedPassConfigKey}}<password>{{{registryBasedPassConfigKey}}}</password>{{/registryBasedPassConfigKey}}
+                {{/isRegistryBasedPassConfig}}
                 {{^isRegistryBasedPassConfig}}
-                <password>{{connectionPassword}}</password>
+                {{#connectionPassword}}<password>{{{connectionPassword}}}</password>{{/connectionPassword}}
                 {{/isRegistryBasedPassConfig}}
                 {{/isCarbonDs}}
                 {{/isDbConnection}}
                 {{#properties}}
-                <property name="{{propertyName}}" value="{{propertyValue}}" />
+                <property name="{{{propertyName}}}" value="{{{propertyValue}}}" />
                 {{/properties}}
             </pool>
         </connection>
         {{#sqlStatements}}
         <statement>
-            <sql><![CDATA[{{queryString}}]]></sql>
+            <sql><![CDATA[{{{queryString}}}]]></sql>
             {{#parameters}}
-            <parameter {{#valueExpression}}expression="{{valueExpression}}"{{/valueExpression}} {{#valueLiteral}}value="{{valueLiteral}}"{{/valueLiteral}} type="{{dataType}}"/>
+            <parameter {{#valueExpression}}expression="{{{valueExpression}}}"{{/valueExpression}} {{#valueLiteral}}value="{{{valueLiteral}}}"{{/valueLiteral}} type="{{{dataType}}}"/>
             {{/parameters}}
             {{#results}}
-            <result column="{{columnId}}" name="{{propertyName}}"/>
+            <result column="{{{columnId}}}" name="{{{propertyName}}}"/>
             {{/results}}
         </statement>
         {{/sqlStatements}}
@@ -94,12 +108,6 @@ export function getDbReportXml(data: { [key: string]: any }) {
                     dataType: parameter[0],
                     valueLiteral: parameter[1] == "LITERAL" ? parameter[2] : undefined,
                     valueExpression: parameter[1] == "EXPRESSION" ? parameter[3]?.value : undefined
-                }
-            }),
-            results: statement[2].map((result: any) => {
-                return {
-                    propertyName: result[0],
-                    columnId: result[1]
                 }
             })
         }
@@ -230,12 +238,12 @@ export function getDBReportFormDataFromSTNode(data: { [key: string]: any }, node
             data.isRegistryBasedPassConfig = false;
             data.connectionPassword = password?.textNode;
         }
-        data.connectionDSName = pool.dsName;
-        data.connectionDSInitialContext = pool.icClass;
+        data.connectionDSName = pool.dsName?.textNode;
+        data.connectionDSInitialContext = pool.icClass?.textNode;
         if (data.connectionDBDriver) {
-            data.isDbConnection = true;
+            data.connectionType = "DB_CONNECTION";
         } else {
-            data.isDbConnection = false;
+            data.connectionType = "DATA_SOURCE";
         }
         getPropertiesFromPool(pool.property, data);
     }
@@ -250,17 +258,10 @@ export function getDBReportFormDataFromSTNode(data: { [key: string]: any }, node
                     parameter.type,
                     parameter.value ? "LITERAL" : "EXPRESSION",
                     parameter.value,
-                    { isExpression: true, value: parameter.expression }
+                    { isExpression: true, value: parameter?.expression }
                 ];
                 return param;
             }) ?? [],
-            statement?.result?.map((result: any) => {
-                let res = [
-                    result.name,
-                    result.column
-                ];
-                return res;
-            }) ?? []
         ]
     });
     return data;

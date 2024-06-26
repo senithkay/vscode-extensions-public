@@ -17,7 +17,7 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { MI_ARTIFACT_EDIT_BACKEND_URL, MI_ARTIFACT_GENERATION_BACKEND_URL, MI_SUGGESTIVE_QUESTIONS_BACKEND_URL } from "../../constants";
 import { Collapse } from 'react-collapse';
 import { AI_MACHINE_VIEW } from '@wso2-enterprise/mi-core';
-import { VSCodeButton, VSCodeTextField } from '@vscode/webview-ui-toolkit/react';
+import { VSCodeButton, VSCodeTextArea, VSCodeTextField } from '@vscode/webview-ui-toolkit/react';
 import styled from "@emotion/styled";
 
 import {
@@ -137,7 +137,7 @@ var backendRootUri = "";
 let controller = new AbortController();
 let signal = controller.signal;
 
-var remainingTokenPercentage: string|number;
+var remainingTokenPercentage: string | number;
 var remaingTokenLessThanOne: boolean = false;
 
 var timeToReset: number;
@@ -178,22 +178,22 @@ export function AIProjectGenerationChat() {
             const storedChatArray = localStorage.getItem(localStorageFile);
             const storedQuestion = localStorage.getItem(localStorageQuestionFile);
             const storedCodeBlocks = localStorage.getItem(`codeBlocks-AIGenerationChat-${projectUuid}`);
-            rpcClient.getAIVisualizerState().then((machineView:any) => {
+            rpcClient.getAIVisualizerState().then((machineView: any) => {
                 timeToReset = machineView.userTokens.time_to_reset;
                 timeToReset = timeToReset / (60 * 60 * 24);
                 const maxTokens = machineView.userTokens.max_usage;
-                if(maxTokens == -1){
+                if (maxTokens == -1) {
                     remainingTokenPercentage = "Unlimited";
-                }else{
+                } else {
                     const remainingTokens = machineView.userTokens.remaining_tokens;
                     remainingTokenPercentage = (remainingTokens / maxTokens) * 100;
-                    if(remainingTokenPercentage < 1 && remainingTokenPercentage > 0){
+                    if (remainingTokenPercentage < 1 && remainingTokenPercentage > 0) {
                         remaingTokenLessThanOne = true;
-                    }else{
+                    } else {
                         remaingTokenLessThanOne = false;
                     }
                     remainingTokenPercentage = Math.round(remainingTokenPercentage);
-                    if (remainingTokenPercentage<0){
+                    if (remainingTokenPercentage < 0) {
                         remainingTokenPercentage = 0;
                     }
                 }
@@ -373,7 +373,7 @@ export function AIProjectGenerationChat() {
     }
 
     async function handleSend(isQuestion: boolean = false, isInitialPrompt: boolean = false) {
-        if(userInput === "" && !isQuestion && !isInitialPrompt) {
+        if (userInput === "" && !isQuestion && !isInitialPrompt) {
             return;
         }
         console.log(chatArray);
@@ -435,61 +435,61 @@ export function AIProjectGenerationChat() {
         console.log(context[0].context);
         const token = await rpcClient.getMiDiagramRpcClient().getUserAccessToken();
         const stringifiedUploadedFiles = uploadedFiles.map(file => JSON.stringify(file));
-        try{
-                var response = await fetch(backendRootUri + backendUrl, {
+        try {
+            var response = await fetch(backendRootUri + backendUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token.token}`,
+                },
+                body: JSON.stringify({ messages: chatArray, context: context[0].context, uploadedFiles: stringifiedUploadedFiles }),
+                signal: signal,
+            })
+            if (!response.ok && response.status != 401) {
+                setIsLoading(false);
+                setMessages(prevMessages => {
+                    const newMessages = [...prevMessages];
+                    const statusText = getStatusText(response.status);
+                    let error = `Failed to fetch response. Status: ${statusText}`;
+                    console.log("Response status: ", response.status);
+                    if (response.status == 429) {
+                        response.json().then(body => {
+                            console.log(body.detail);
+                            error += body.detail;
+                            console.log("Error: ", error);
+                        });
+                    }
+                    newMessages[newMessages.length - 1].content += error;
+                    newMessages[newMessages.length - 1].type = 'Error';
+                    return newMessages;
+                });
+                throw new Error('Failed to fetch response');
+            }
+            if (response.status == 401) {
+                await rpcClient.getMiDiagramRpcClient().refreshAccessToken();
+                const token = await rpcClient.getMiDiagramRpcClient().getUserAccessToken();
+                response = await fetch(backendRootUri + backendUrl, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token.token}`,
                     },
-                    body: JSON.stringify({ messages: chatArray, context: context[0].context, uploadedFiles: stringifiedUploadedFiles}),
+                    body: JSON.stringify({ messages: chatArray, context: context[0].context }),
                     signal: signal,
                 })
-                if (!response.ok && response.status != 401) {
+                if (!response.ok) {
                     setIsLoading(false);
                     setMessages(prevMessages => {
                         const newMessages = [...prevMessages];
                         const statusText = getStatusText(response.status);
-                        let error = `Failed to fetch response. Status: ${statusText}`;
-                        console.log("Response status: ", response.status);
-                        if (response.status == 429) {
-                            response.json().then(body => {
-                                console.log(body.detail);
-                                error += body.detail;
-                                console.log("Error: ", error);
-                            });
-                        }
-                        newMessages[newMessages.length - 1].content += error;
+                        newMessages[newMessages.length - 1].content += `Failed to fetch response. Status: ${response.status} - ${statusText}`;
                         newMessages[newMessages.length - 1].type = 'Error';
                         return newMessages;
                     });
                     throw new Error('Failed to fetch response');
                 }
-                if(response.status == 401){
-                    await rpcClient.getMiDiagramRpcClient().refreshAccessToken();
-                    const token = await rpcClient.getMiDiagramRpcClient().getUserAccessToken();
-                    response = await fetch(backendRootUri + backendUrl, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${token.token}`,
-                        },
-                        body: JSON.stringify({ messages: chatArray, context: context[0].context }),
-                        signal: signal,
-                    })
-                    if(!response.ok){
-                        setIsLoading(false);
-                        setMessages(prevMessages => {
-                            const newMessages = [...prevMessages];
-                            const statusText = getStatusText(response.status);
-                            newMessages[newMessages.length - 1].content += `Failed to fetch response. Status: ${response.status} - ${statusText}`;
-                            newMessages[newMessages.length - 1].type = 'Error';
-                            return newMessages;
-                        });
-                        throw new Error('Failed to fetch response');
-                    }
-                }
-        }catch (error) {
+            }
+        } catch (error) {
             setIsLoading(false);
             setMessages(prevMessages => {
                 const newMessages = [...prevMessages];
@@ -526,16 +526,16 @@ export function AIProjectGenerationChat() {
                     const maxTokens = tokenUsage.max_usage;
                     if (maxTokens == -1) {
                         remainingTokenPercentage = "Unlimited";
-                    }else{
+                    } else {
                         const remainingTokens = tokenUsage.remaining_tokens;
                         remainingTokenPercentage = (remainingTokens / maxTokens) * 100;
-                        if(remainingTokenPercentage < 1 && remainingTokenPercentage > 0){
+                        if (remainingTokenPercentage < 1 && remainingTokenPercentage > 0) {
                             remaingTokenLessThanOne = true;
-                        }else{
+                        } else {
                             remaingTokenLessThanOne = false;
                         }
                         remainingTokenPercentage = Math.round(remainingTokenPercentage);
-                        if (remainingTokenPercentage<0){
+                        if (remainingTokenPercentage < 0) {
                             remainingTokenPercentage = 0;
                         }
                     }
@@ -592,15 +592,15 @@ export function AIProjectGenerationChat() {
 
     };
 
-    
+
     async function handleStop() {
         // Abort the fetch
         controller.abort();
-    
+
         // Create a new AbortController for future fetches
         controller = new AbortController();
         signal = controller.signal;
-    
+
         setIsLoading(false);
         setIsCodeLoading(false);
     }
@@ -640,6 +640,27 @@ export function AIProjectGenerationChat() {
 
     }
 
+    function splitHalfGeneratedCode(content: string) {
+        const segments = [];
+        const regex = /```([\s\S]*?)$/g;
+        let match;
+        let lastIndex = 0;
+
+        while ((match = regex.exec(content)) !== null) {
+            if (match.index > lastIndex) {
+                segments.push({ isCode: false, loading: false, text: content.slice(lastIndex, match.index) });
+            }
+            segments.push({ isCode: true, loading: true, text: match[0] });
+            lastIndex = regex.lastIndex;
+        }
+
+        if (lastIndex < content.length) {
+            segments.push({ isCode: false, loading: false, text: content });
+        }
+
+        return segments;
+    }
+
     function splitContent(content: string) {
         const segments = [];
         let match;
@@ -648,13 +669,14 @@ export function AIProjectGenerationChat() {
 
         while ((match = regex.exec(content)) !== null) {
             if (match.index > start) {
-                segments.push({ isCode: false, text: content.slice(start, match.index) });
+                const segment = content.slice(start, match.index);
+                segments.push(...splitHalfGeneratedCode(segment));
             }
-            segments.push({ isCode: true, text: match[1] });
+            segments.push({ isCode: true, loading: false, text: match[1] });
             start = regex.lastIndex;
         }
         if (start < content.length) {
-            segments.push({ isCode: false, text: content.slice(start) });
+            segments.push(...splitHalfGeneratedCode(content.slice(start)));
         }
         return segments;
     }
@@ -686,7 +708,7 @@ export function AIProjectGenerationChat() {
                 { role: "User", content: questionText, type: "user_message" },
             ]);
 
-            handleSend(true,false);
+            handleSend(true, false);
         }
     }
 
@@ -711,8 +733,9 @@ export function AIProjectGenerationChat() {
     const otherMessages = messages.filter(message => message.type !== "question");
 
     const handleTextKeydown = (event: any) => {
-        if (event.key === "Enter" && userInput !== "") {
-            handleSend(false,false);
+        if (event.key === "Enter" && !event.shiftKey && userInput !== "") {
+            event.preventDefault();
+            handleSend(false, false);
             setUserInput("");
         }
     };
@@ -747,18 +770,18 @@ export function AIProjectGenerationChat() {
     return (
         <AIChatView>
             <Header>
-            <Badge>
+                <Badge>
                     Remaining Free Usage: {
                         remainingTokenPercentage === 'Unlimited' ? remainingTokenPercentage :
-                        (remaingTokenLessThanOne ? '<1%' : `${remainingTokenPercentage}%`)
+                            (remaingTokenLessThanOne ? '<1%' : `${remainingTokenPercentage}%`)
                     }
-                    <br/>  
+                    <br />
                     <ResetsInBadge>
-                        {remainingTokenPercentage !== "Unlimited" && 
-                        `Resets in: ${timeToReset < 1 ? "< 1 day" : `${Math.round(timeToReset)} days`}`}
+                        {remainingTokenPercentage !== "Unlimited" &&
+                            `Resets in: ${timeToReset < 1 ? "< 1 day" : `${Math.round(timeToReset)} days`}`}
                     </ResetsInBadge>
-            </Badge>
-            <HeaderButtons>
+                </Badge>
+                <HeaderButtons>
                     <Button
                         appearance="icon"
                         onClick={() => handleClearChat()}
@@ -775,7 +798,7 @@ export function AIProjectGenerationChat() {
                     >
                         <Codicon name="sign-out" />&nbsp;&nbsp;Logout
                     </Button>
-            </HeaderButtons>
+                </HeaderButtons>
             </Header>
             <main style={{ flex: 1, overflowY: "auto" }}>
                 {Array.isArray(otherMessages) && otherMessages.length === 0 && (<Welcome>
@@ -794,9 +817,9 @@ export function AIProjectGenerationChat() {
                     <ChatMessage>
                         {message.type !== "question" && message.type !== "label" && <RoleContainer>
                             {message.role === "User" ? <Codicon name="account" /> : <><Codicon name="hubot" /></>}
-                            {message.role === "User" ? 
-                                <h3 style={{ margin: 0 }}>{message.role}</h3> 
-                                : 
+                            {message.role === "User" ?
+                                <h3 style={{ margin: 0 }}>{message.role}</h3>
+                                :
                                 <>
                                     <h3 style={{ margin: 0 }}>{message.role}</h3>
                                     <PreviewContainer>Preview</PreviewContainer>
@@ -809,6 +832,7 @@ export function AIProjectGenerationChat() {
                                 <CodeSegment
                                     key={i}
                                     segmentText={segment.text}
+                                    loading={segment.loading}
                                     handleAddSelectiveCodetoWorkspace={handleAddSelectiveCodetoWorkspace}
                                 />
                             ) : (
@@ -860,50 +884,56 @@ export function AIProjectGenerationChat() {
                 {uploadedFiles.map((file, index) => (
                     <FlexRow style={{ alignItems: 'center' }} key={index}>
                         <span>{file.fileName}</span>
-                        <VSCodeButton
+                        <Button
                             appearance="icon"
                             onClick={() => handleRemoveFile(index)}
                         >
                             <span className="codicon codicon-close"></span>
-                        </VSCodeButton>
+                        </Button>
                     </FlexRow>
                 ))}
                 <FlexRow>
-                    <Button
+                    <VSCodeButton
                         appearance="secondary"
                         onClick={() => document.getElementById('fileInput').click()}
-                        tooltip="Upload File"
-                    >
-                        <span className="codicon codicon-new-file"></span>
-                    </Button>
+                        style={{ width: "35px", marginBottom: "4px" }}>
+                        <span className={`codicon codicon-new-file`}></span>
+                    </VSCodeButton>
                     <input
                         id="fileInput"
                         type="file"
                         style={{ display: "none" }}
                         onChange={(e: any) => handleFileAttach(e)}
                     />
-                <VSCodeTextField
+                    <VSCodeTextArea
                         value={userInput}
-                        onInput={(e: any) => setUserInput(e.target.value)}
+                        onInput={(e: any) => {
+                            setUserInput(e.target.value);
+                            // Dynamically adjust the number of rows based on the input length
+                            const lines = e.target.value.split('\n').length;
+                            const maxLines = 8;
+                            e.target.rows = lines < maxLines ? lines : maxLines;
+                        }}
                         onKeyDown={(event: any) => handleTextKeydown(event)}
-                        placeholder="Type a command to test"
+                        placeholder="Type a command"
                         innerHTML="true"
-                        style={{ width: "calc(100% - 35px)" }}
+                        style={{ width: "calc(100% - 35px)", overflowY: 'auto' }} // Add overflowY for scrolling
+                        rows={1} // Start with a single row
                         {...(isLoading ? { disabled: true } : {})}
                     >
-                    </VSCodeTextField>
+                    </VSCodeTextArea>
                     <VSCodeButton
                         appearance="secondary"
-                        onClick={() => isLoading ? handleStop() : handleSend(false,false)}
-                        style={{ width: "35px" }}>
+                        onClick={() => isLoading ? handleStop() : handleSend(false, false)}
+                        style={{ width: "35px", marginBottom: "4px" }}>
                         <span className={`codicon ${isLoading ? 'codicon-debug-stop' : 'codicon-send'}`}></span>
                     </VSCodeButton>
                 </FlexRow>
                 {fileUploadStatus.text && (
-            <div style={{ color: fileUploadStatus.type === 'error' ? 'red' : 'green' }}>
-                {fileUploadStatus.text}
-            </div>
-        )}
+                    <div style={{ color: fileUploadStatus.type === 'error' ? 'red' : 'green' }}>
+                        {fileUploadStatus.text}
+                    </div>
+                )}
             </Footer>
         </AIChatView>
     );
@@ -911,6 +941,7 @@ export function AIProjectGenerationChat() {
 
 interface CodeSegmentProps {
     segmentText: string;
+    loading: boolean;
     handleAddSelectiveCodetoWorkspace: (codeSegment: string) => void;
 }
 
@@ -931,11 +962,14 @@ const EntryContainer = styled.div<EntryContainerProps>(({ isOpen }) => ({
     },
 }));
 
-const CodeSegment: React.FC<CodeSegmentProps> = ({ segmentText, handleAddSelectiveCodetoWorkspace }) => {
+const CodeSegment: React.FC<CodeSegmentProps> = ({ segmentText, loading, handleAddSelectiveCodetoWorkspace }) => {
     const [isOpen, setIsOpen] = useState(false);
 
     const match = segmentText.match(/(name|key)="([^"]+)"/);
-    const name = match ? match[2] + ".xml" : "Unknown File";
+    let name = match ? match[2] + "" : "Unknown File";
+    if (loading) {
+        name = "Generating " + name + "...";
+    }
 
     return (
         <div>
@@ -947,14 +981,16 @@ const CodeSegment: React.FC<CodeSegmentProps> = ({ segmentText, handleAddSelecti
                     {name}
                 </div>
                 <div style={{ marginLeft: 'auto' }}>
-                    <Button
-                        appearance="icon"
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            handleAddSelectiveCodetoWorkspace(segmentText);
-                        }}>
-                        <Codicon name="add" />&nbsp;&nbsp;Add to Project
-                    </Button>
+                    {!loading &&
+                        <Button
+                            appearance="icon"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                handleAddSelectiveCodetoWorkspace(segmentText);
+                            }}>
+                            <Codicon name="add" />&nbsp;&nbsp;Add to Project
+                        </Button>
+                    }
                 </div>
             </EntryContainer>
             <Collapse isOpened={isOpen}>

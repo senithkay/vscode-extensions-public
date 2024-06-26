@@ -6,6 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
+import { DataMapperNodeModel } from "../Node/commons/DataMapperNode";
 import {
     GAP_BETWEEN_FIELDS,
     GAP_BETWEEN_NODE_HEADER_AND_BODY,
@@ -44,4 +45,13 @@ export function calculateControlPointOffset(screenWidth: number) {
     const interpolationFactor = (clampedWidth - minWidth) / (maxWidth - minWidth);
     const interpolatedOffset = minOffset + interpolationFactor * (maxOffset - minOffset);
     return interpolatedOffset;
+}
+
+export function isSameView(newNode: DataMapperNodeModel, existingNode?: DataMapperNodeModel) {
+    if (!existingNode || !existingNode?.context || !newNode?.context) return;
+
+    const prevFocusedView = existingNode.context.views[existingNode.context.views.length - 1];
+    const newFocusedView = newNode.context.views[newNode.context.views.length - 1];
+
+    return prevFocusedView.label === newFocusedView.label;
 }

@@ -36,17 +36,39 @@ export interface ProjectStructureRequest {
 
 export interface ProjectStructureResponse {
     directoryMap: {
-        esbConfigs: EsbDirectoryMap[];
-        dataServiceConfigs: ProjectStructureEntry[],
-        dataSourceConfigs: ProjectStructureEntry[],
-        mediatorProjects: ProjectStructureEntry[],
-        registryResources: ProjectStructureEntry[],
-        javaLibraryProjects: ProjectStructureEntry[],
-        compositeExporters: ProjectStructureEntry[],
-        connectorExporters: ProjectStructureEntry[],
-        dockerExporters: ProjectStructureEntry[],
-        kubernetesExporters: ProjectStructureEntry[]
+        src: {
+            main: {
+                test: ProjectDirectoryMap,
+                wso2mi: {
+                    artifacts: {
+                        apis: ProjectStructureArtifactResponse[],
+                        dataServices: ProjectStructureArtifactResponse[],
+                        dataSources: ProjectStructureArtifactResponse[],
+                        endpoints: ProjectStructureArtifactResponse[],
+                        inboundEndpoints: ProjectStructureArtifactResponse[],
+                        localEntries: ProjectStructureArtifactResponse[],
+                        messageProcessors: ProjectStructureArtifactResponse[],
+                        messageStores: ProjectStructureArtifactResponse[],
+                        proxyServices: ProjectStructureArtifactResponse[],
+                        sequences: ProjectStructureArtifactResponse[],
+                        tasks: ProjectStructureArtifactResponse[],
+                        templates: ProjectStructureArtifactResponse[],
+                    },
+                    resources: {
+                        connectors: ProjectStructureArtifactResponse[],
+                        metadata: ProjectStructureArtifactResponse[],
+                        registry: ProjectStructureArtifactResponse[],
+                    },
+                }
+            }
+        }
     };
+}
+
+export interface ProjectStructureArtifactResponse {
+    name: string;
+    path: string;
+    type: string;
 }
 
 export interface ProjectDirectoryMap {
@@ -157,6 +179,44 @@ export interface NotificationRequest {
     message: string;
     options?: string[];
     type?: NotificationType;
+}
+
+export interface RuntimeServiceDetails {
+    count: number;
+    list: unknown;
+}
+
+export interface Request {
+    url: string;
+    headers: string;
+    method: string;
+    body?: string;
+}
+
+export interface Response {
+    status: number;
+    statusText: string;
+    data?: string;
+    text?: string;
+    body?: string;
+    obj?: string;
+    headers?: Record<string, string>;
+  }
+
+export interface SwaggerProxyRequest {
+    command: string;
+    request: Request;
+}
+
+export interface SwaggerProxyResponse {
+    isResponse: boolean;
+    response?: Response;
+}
+
+export interface RuntimeServicesResponse {
+    api: RuntimeServiceDetails | undefined;
+    proxy: RuntimeServiceDetails | undefined;
+    dataServices: RuntimeServiceDetails | undefined;
 }
 
 export interface NotificationResponse {

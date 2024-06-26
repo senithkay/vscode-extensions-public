@@ -24,6 +24,9 @@ import {
     RetrieveContextResponse,
     NotificationRequest,
     NotificationResponse,
+    RuntimeServicesResponse,
+    SwaggerProxyRequest,
+    SwaggerProxyResponse,
 } from "./types";
 import { GettingStartedData, SampleDownloadRequest } from "./types";
 import { RequestType, NotificationType } from "vscode-messenger-common";
@@ -48,3 +51,5 @@ export const log: NotificationType<LogRequest> = { method: `${_preFix}/log` };
 export const updateContext: RequestType<UpdateContextRequest, void> = { method: `${_preFix}/updateContext` };
 export const retrieveContext: RequestType<RetrieveContextRequest, RetrieveContextResponse> = { method: `${_preFix}/retrieveContext` };
 export const showNotification: RequestType<NotificationRequest, NotificationResponse> = { method: `${_preFix}/showNotification` };
+export const getAvailableRuntimeServices: RequestType<void, RuntimeServicesResponse> = { method: `${_preFix}/getAvailableRuntimeServices` };
+export const sendSwaggerProxyRequest: RequestType<SwaggerProxyRequest, SwaggerProxyResponse> = { method: `${_preFix}/sendSwaggerProxyRequest` };

@@ -41,13 +41,23 @@ const EditorContent = styled.div`
 `;
 
 const DrawerContent = styled.div`
-    padding: 16px;
-    width: 390px;
+    padding: 16px 10px 0 20px;
+    width: 410px;
 `;
+
+const isRequiredFieldsFilled = (p: Param[]) => {
+    return p.every(param => {
+        if (param.isRequired) {
+            return (param.value !== '' && param.value !== undefined && param.value !== null);
+        }
+        return true;
+    });
+}
 
 export function ParamEditor(props: ParamProps) {
     const { parameters, paramFields, openInDrawer, onChange, onSave, onCancel } = props;
     const [isDrawerCancelInProgress, setIsDrawerCancelInProgress] = useState(false);
+    const [isSaveEnabled, setIsSaveEnabled] = useState(isRequiredFieldsFilled(parameters.parameters));
 
     const getParamComponent = (p: Param) => {
         const handleTypeResolverChange = (newParam: Param) => {
@@ -67,6 +77,7 @@ export function ParamEditor(props: ParamProps) {
                 }
                 return param;
             });
+            setIsSaveEnabled(isRequiredFieldsFilled(paramEnabled));
             onChange({ ...parameters, parameters: paramEnabled });
         }
         return <TypeResolver param={p} onChange={handleTypeResolverChange} />;
@@ -97,7 +108,7 @@ export function ParamEditor(props: ParamProps) {
                         {parameters?.parameters.map(param => getParamComponent({ ...param, label: getParamFieldLabelFromParamId(paramFields, param.id) }))}
                     </EditorContent>
                     <ActionButtons
-                        primaryButton={{ text: "Save", onClick: handleOnSave }}
+                        primaryButton={{ text: "Save", onClick: handleOnSave, disabled: !isSaveEnabled }}
                         secondaryButton={{ text: "Cancel", onClick: handleOnCancel }}
                         sx={{ justifyContent: "flex-end" }}
                     />
@@ -112,7 +123,7 @@ export function ParamEditor(props: ParamProps) {
                             })
                         )}
                         <ActionButtons
-                            primaryButton={{ text: "Save", onClick: handleOnSave }}
+                            primaryButton={{ text: "Save", onClick: handleOnSave, disabled: !isSaveEnabled }}
                             secondaryButton={{ text: "Cancel", onClick: handleOnCancel }}
                             sx={{ justifyContent: "flex-end" }}
                         />

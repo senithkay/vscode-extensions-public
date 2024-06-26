@@ -10,6 +10,7 @@
  */
 import {
     AIUserInput,
+    AddDependencyToPomRequest,
     ApiDirectoryResponse,
     ApplyEditRequest,
     ApplyEditResponse,
@@ -17,6 +18,7 @@ import {
     BrowseFileResponse,
     CommandsRequest,
     CommandsResponse,
+    CompareSwaggerAndAPIResponse,
     ConnectorRequest,
     ConnectorResponse,
     ConnectorsResponse,
@@ -26,6 +28,8 @@ import {
     CreateClassMediatorResponse,
     CreateConnectionRequest,
     CreateConnectionResponse,
+    CreateDataServiceRequest,
+    CreateDataServiceResponse,
     CreateDataSourceResponse,
     CreateEndpointRequest,
     CreateEndpointResponse,
@@ -43,12 +47,6 @@ import {
     CreateProxyServiceResponse,
     CreateRegistryResourceRequest,
     CreateRegistryResourceResponse,
-    UpdateRegistryMetadataRequest,
-    UpdateRegistryMetadataResponse,
-    updateRegistryMetadata,
-    GetRegistryMetadataRequest,
-    GetRegistryMetadataResponse,
-    getMetadataOfRegistryResource,
     CreateSequenceRequest,
     CreateSequenceResponse,
     CreateTaskRequest,
@@ -68,8 +66,10 @@ import {
     FileDirResponse,
     GetAllArtifactsRequest,
     GetAllArtifactsResponse,
+    GetAllMockServicesResponse,
     GetAllRegistryPathsRequest,
     GetAllRegistryPathsResponse,
+    GetAllTestSuitsResponse,
     GetAvailableConnectorRequest,
     GetAvailableConnectorResponse,
     GetAvailableResourcesRequest,
@@ -102,6 +102,10 @@ import {
     GetProjectUuidResponse,
     GetRecipientEPRequest,
     GetRecipientEPResponse,
+    GetRegistryMetadataRequest,
+    GetRegistryMetadataResponse,
+    GetSelectiveArtifactsRequest,
+    GetSelectiveArtifactsResponse,
     GetSelectiveWorkspaceContextResponse,
     GetTaskRequest,
     GetTaskResponse,
@@ -125,6 +129,8 @@ import {
     RegistryArtifactNamesResponse,
     RetrieveAddressEndpointRequest,
     RetrieveAddressEndpointResponse,
+    RetrieveDataServiceRequest,
+    RetrieveDataServiceResponse,
     RetrieveDefaultEndpointRequest,
     RetrieveDefaultEndpointResponse,
     RetrieveHttpEndpointRequest,
@@ -137,8 +143,11 @@ import {
     RetrieveWsdlEndpointResponse,
     SequenceDirectoryResponse,
     ShowErrorMessageRequest,
+    SwaggerTypeRequest,
+    SwaggerFromAPIResponse,
     TemplatesResponse,
     UndoRedoParams,
+    UpdateAPIFromSwaggerRequest,
     UpdateAddressEndpointRequest,
     UpdateAddressEndpointResponse,
     UpdateConnectorRequest,
@@ -150,14 +159,23 @@ import {
     UpdateHttpEndpointResponse,
     UpdateLoadBalanceEPRequest,
     UpdateLoadBalanceEPResponse,
+    UpdateMockServiceRequest,
+    UpdateMockServiceResponse,
     UpdateRecipientEPRequest,
     UpdateRecipientEPResponse,
+    UpdateRegistryMetadataRequest,
+    UpdateRegistryMetadataResponse,
     UpdateTemplateEPRequest,
     UpdateTemplateEPResponse,
+    UpdateTestCaseRequest,
+    UpdateTestCaseResponse,
+    UpdateTestSuiteRequest,
+    UpdateTestSuiteResponse,
     UpdateWsdlEndpointRequest,
     UpdateWsdlEndpointResponse,
     WriteContentToFileRequest,
     WriteContentToFileResponse,
+    addDependencyToPom,
     applyEdit,
     askFileDirPath,
     askProjectDirPath,
@@ -167,9 +185,11 @@ import {
     checkOldProject,
     closeWebView,
     closeWebViewNotification,
+    compareSwaggerAndAPI,
     createAPI,
     createClassMediator,
     createConnection,
+    createDataService,
     createDataSource,
     createEndpoint,
     createInboundEndpoint,
@@ -185,13 +205,16 @@ import {
     deleteArtifact,
     downloadConnector,
     editAPI,
+    editOpenAPISpec,
     executeCommand,
     exportProject,
     getAIResponse,
     getAPIDirectory,
     getAddressEndpoint,
     getAllArtifacts,
+    getAllMockServices,
     getAllRegistryPaths,
+    getAllTestSuites,
     getAvailableConnectors,
     getAvailableRegistryResources,
     getAvailableResources,
@@ -201,6 +224,7 @@ import {
     getConnectorConnections,
     getConnectorForm,
     getConnectors,
+    getDataService,
     getDataSource,
     getDefaultEndpoint,
     getDefinition,
@@ -216,11 +240,14 @@ import {
     getLocalEntry,
     getMessageProcessor,
     getMessageStore,
+    getMetadataOfRegistryResource,
+    getOpenAPISpec,
     getProjectRoot,
     getProjectUuid,
     getRecipientEndpoint,
     getSTRequest,
     getSTResponse,
+    getSelectiveArtifacts,
     getSelectiveWorkspaceContext,
     getSequenceDirectory,
     getSyntaxTree,
@@ -245,14 +272,20 @@ import {
     refreshAccessToken,
     showErrorMessage,
     undo,
+    updateAPIFromSwagger,
     updateAddressEndpoint,
     updateConnectors,
     updateDefaultEndpoint,
     updateFailoverEndpoint,
     updateHttpEndpoint,
     updateLoadBalanceEndpoint,
+    updateMockService,
     updateRecipientEndpoint,
+    updateRegistryMetadata,
+    updateSwaggerFromAPI,
     updateTemplateEndpoint,
+    updateTestCase,
+    updateTestSuite,
     updateWsdlEndpoint,
     writeContentToFile
 } from "@wso2-enterprise/mi-core";
@@ -446,6 +479,14 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
         return this._messenger.sendRequest(getDefaultEndpoint, HOST_EXTENSION, params);
     }
 
+    createDataService(params: CreateDataServiceRequest): Promise<CreateDataServiceResponse> {
+        return this._messenger.sendRequest(createDataService, HOST_EXTENSION, params);
+    }
+
+    getDataService(params: RetrieveDataServiceRequest): Promise<RetrieveDataServiceResponse> {
+        return this._messenger.sendRequest(getDataService, HOST_EXTENSION, params);
+    }
+
     closeWebView(): void {
         return this._messenger.sendNotification(closeWebView, HOST_EXTENSION);
     }
@@ -558,6 +599,10 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
         return this._messenger.sendRequest(getSelectiveWorkspaceContext, HOST_EXTENSION);
     }
 
+    getSelectiveArtifacts(params: GetSelectiveArtifactsRequest): Promise<GetSelectiveArtifactsResponse> {
+        return this._messenger.sendRequest(getSelectiveArtifacts, HOST_EXTENSION, params);
+    }
+
     getBackendRootUrl(): Promise<GetBackendRootUrlResponse> {
         return this._messenger.sendRequest(getBackendRootUrl, HOST_EXTENSION);
     }
@@ -652,5 +697,49 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     checkOldProject(): Promise<boolean> {
         return this._messenger.sendRequest(checkOldProject, HOST_EXTENSION);
+    }
+
+    editOpenAPISpec(params: SwaggerTypeRequest): Promise<void> {
+        return this._messenger.sendRequest(editOpenAPISpec, HOST_EXTENSION, params);
+    }
+
+    compareSwaggerAndAPI(params: SwaggerTypeRequest): Promise<CompareSwaggerAndAPIResponse> {
+        return this._messenger.sendRequest(compareSwaggerAndAPI, HOST_EXTENSION, params);
+    }
+
+    getOpenAPISpec(params: SwaggerTypeRequest): Promise<SwaggerFromAPIResponse> {
+        return this._messenger.sendRequest(getOpenAPISpec, HOST_EXTENSION, params);
+    }
+
+    updateSwaggerFromAPI(params: SwaggerTypeRequest): Promise<void> {
+        return this._messenger.sendRequest(updateSwaggerFromAPI, HOST_EXTENSION, params);
+    }
+
+    updateAPIFromSwagger(params: UpdateAPIFromSwaggerRequest): Promise<void> {
+        return this._messenger.sendRequest(updateAPIFromSwagger, HOST_EXTENSION, params);
+    }
+
+    updateTestSuite(params: UpdateTestSuiteRequest): Promise<UpdateTestSuiteResponse> {
+        return this._messenger.sendRequest(updateTestSuite, HOST_EXTENSION, params);
+    }
+
+    updateTestCase(params: UpdateTestCaseRequest): Promise<UpdateTestCaseResponse> {
+        return this._messenger.sendRequest(updateTestCase, HOST_EXTENSION, params);
+    }
+
+    updateMockService(params: UpdateMockServiceRequest): Promise<UpdateMockServiceResponse> {
+        return this._messenger.sendRequest(updateMockService, HOST_EXTENSION, params);
+    }
+
+    getAllTestSuites(): Promise<GetAllTestSuitsResponse> {
+        return this._messenger.sendRequest(getAllTestSuites, HOST_EXTENSION);
+    }
+
+    getAllMockServices(): Promise<GetAllMockServicesResponse> {
+        return this._messenger.sendRequest(getAllMockServices, HOST_EXTENSION);
+    }
+
+    addDependencyToPom(params: AddDependencyToPomRequest): Promise<void> {
+        return this._messenger.sendRequest(addDependencyToPom, HOST_EXTENSION, params);
     }
 }

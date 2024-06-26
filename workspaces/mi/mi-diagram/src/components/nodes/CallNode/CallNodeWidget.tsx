@@ -13,15 +13,15 @@ import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { CallNodeModel } from "./CallNodeModel";
 import { Colors, NODE_DIMENSIONS } from "../../../resources/constants";
 import { STNode } from "@wso2-enterprise/mi-syntax-tree/src";
-import { Button, Menu, MenuItem, Popover, Tooltip, ClickAwayListener } from "@wso2-enterprise/ui-toolkit";
+import { Menu, MenuItem, Popover, Tooltip, ClickAwayListener } from "@wso2-enterprise/ui-toolkit";
 import { MoreVertIcon } from "../../../resources";
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import SidePanelContext from "../../sidePanel/SidePanelContexProvider";
 import { Range } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { getMediatorIconsFromFont } from "../../../resources/icons/mediatorIcons/icons";
 import { getNodeDescription } from "../../../utils/node";
-import { Header, Description, Name } from "../BaseNodeModel";
-import { FirstCharToUpperCase } from "../../../utils/commons";
+import { Header, Description, Name, Content, OptionsMenu, Body } from "../BaseNodeModel";
+import { BreakpointMenu } from "../../BreakpointMenu/BreakpointMenu";
 
 namespace S {
     export type NodeStyleProp = {
@@ -48,11 +48,6 @@ namespace S {
         font-size: var(--type-ramp-base-font-size);
     `;
 
-    export const Body = styled.div<{}>`
-        display: flex;
-        max-width: 100%;
-    `;
-
     export const CircleContainer = styled.div`
         position: absolute;
         top: 5px;
@@ -74,13 +69,6 @@ namespace S {
             fill: ${Colors.ON_SURFACE};
             stroke: ${Colors.ON_SURFACE};
         }
-    `;
-
-    export const StyledButton = styled(Button)`
-        background-color: ${Colors.SURFACE};
-        border-radius: 5px;
-        position: absolute;
-        right: 6px;
     `;
 
     export const TopPortWidget = styled(PortWidget)`
@@ -131,7 +119,7 @@ export function CallNodeWidget(props: CallNodeWidgetProps) {
     const tooltip = hasDiagnotics ? node.getDiagnostics().map(diagnostic => diagnostic.message).join("\n") : undefined;
     const endpointHasDiagnotics = node.endpointHasDiagnostics();
     const endpointTooltip = endpointHasDiagnotics ? node.getEndpointDiagnostics().map(diagnostic => diagnostic.message).join("\n") : undefined;
-    const nodeDescription = getNodeDescription(node.stNode);
+    const nodeDescription = getNodeDescription(node.mediatorName, node.stNode);
     const hasBreakpoint = node.hasBreakpoint();
     const isActiveBreakpoint = node.isActiveBreakpoint();
 
@@ -198,32 +186,6 @@ export function CallNodeWidget(props: CallNodeWidgetProps) {
         setIsPopoverOpen(false);
     }
 
-    const handleAddBreakpoint = async () => {
-        const file = node.documentUri;
-        const line = node.stNode.range.startTagRange.start.line;
-        const request = {
-            filePath: file,
-            breakpoint: {
-                line: line
-            }
-        }
-
-        await rpcClient.getMiDebuggerRpcClient().addBreakpointToSource(request);
-    };
-
-    const removeBreakpoint = async () => {
-        const file = node.documentUri;
-        const line = node.stNode.range.startTagRange.start.line;
-        const request = {
-            filePath: file,
-            breakpoint: {
-                line: line
-            }
-        }
-
-        await rpcClient.getMiDebuggerRpcClient().removeBreakpointFromSource(request);
-    };
-
     return (
         <div>
             <Tooltip content={!isPopoverOpen && tooltip ? <TooltipEl /> : ""} position={'bottom'} containerPosition={'absolute'}>
@@ -244,20 +206,20 @@ export function CallNodeWidget(props: CallNodeWidgetProps) {
                         <S.IconContainer>{getMediatorIconsFromFont(node.stNode.tag)}</S.IconContainer>
                         <div>
                             {isHovered && (
-                                <S.StyledButton appearance="icon" onClick={handleOnClickMenu}>
+                                <OptionsMenu appearance="icon" onClick={handleOnClickMenu}>
                                     <MoreVertIcon />
-                                </S.StyledButton>
+                                </OptionsMenu>
                             )}
-                            <Header showBorder={nodeDescription !== undefined}>
-                                <Name>{FirstCharToUpperCase(node.stNode.tag)}</Name>
-                            </Header>
-                            <S.Body>
-                                <Tooltip content={nodeDescription} position={'bottom'} >
-                                    <Description style={{
-                                        fontSize: "var(--type-ramp-minus1-font-size)"
-                                    }}>{nodeDescription}</Description>
-                                </Tooltip>
-                            </S.Body>
+                            <Content>
+                                <Header showBorder={nodeDescription !== undefined}>
+                                    <Name>{node.mediatorName}</Name>
+                                </Header>
+                                <Body>
+                                    <Tooltip content={nodeDescription} position={'bottom'} >
+                                        <Description>{nodeDescription}</Description>
+                                    </Tooltip>
+                                </Body>
+                            </Content>
                         </div>
                     </div>
                     <S.BottomPortWidget port={node.getPort("out")!} engine={engine} />
@@ -314,12 +276,12 @@ export function CallNodeWidget(props: CallNodeWidgetProps) {
             </S.CircleContainer>
 
             {node.endpoint ? (
-                <S.EndpointTextWrapper>{getNodeDescription(node.endpoint)}</S.EndpointTextWrapper>
+                <S.EndpointTextWrapper>{getNodeDescription(node.mediatorName, node.endpoint)}</S.EndpointTextWrapper>
             ) : (
                 <S.EndpointContainer>
-                    {/* <S.StyledButton appearance="icon" onClick={handlePlusNode}>
+                    {/* <MediatorIcon appearance="icon" onClick={handlePlusNode}>
                         <PlusIcon />
-                    </S.StyledButton> */}
+                    </MediatorIcon> */}
                 </S.EndpointContainer>
             )}
             <Popover
@@ -335,10 +297,7 @@ export function CallNodeWidget(props: CallNodeWidgetProps) {
                     <Menu>
                         <MenuItem key={'delete-btn'} item={{ label: 'Delete', id: "delete", onClick: () => node.delete(rpcClient) }} />
                         <MenuItem key={'delete-endpoint-btn'} item={{ label: 'Delete Endpoint', id: "delete-endpoint", onClick: handleOnDeleteEndpointClick }} />
-                        {hasBreakpoint ?
-                            <MenuItem key={'remove-breakpoint-btn'} item={{ label: 'Remove Breakpoint', id: "removeBreakpoint", onClick: removeBreakpoint }} /> :
-                            <MenuItem key={'breakpoint-btn'} item={{ label: 'Add Breakpoint', id: "addBreakpoint", onClick: handleAddBreakpoint }} />
-                        }
+                        <BreakpointMenu hasBreakpoint={hasBreakpoint} node={node} rpcClient={rpcClient} />
                     </Menu>
                 </ClickAwayListener>
             </Popover>

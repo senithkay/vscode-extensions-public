@@ -12,12 +12,13 @@ import {
 	DiagramModel,
     DiagramModelGenerics
 } from "@projectstorm/react-diagrams";
+
 import { DataMapperNodeModel } from '../Diagram/Node/commons/DataMapperNode';
-import { getIONodeHeight } from '../Diagram/utils/diagram-utils';
+import { getIONodeHeight, isSameView } from '../Diagram/utils/diagram-utils';
 import { OverlayLayerModel } from '../Diagram/OverlayLayer/OverlayLayerModel';
 import { ErrorNodeKind } from '../DataMapper/Error/DataMapperError';
 import { useDMCollapsedFieldsStore, useDMSearchStore } from '../../store/store';
-import { ArrayOutputNode, InputNode, ObjectOutputNode } from '../Diagram/Node';
+import { ArrayOutputNode, InputNode, ObjectOutputNode, SubMappingNode } from '../Diagram/Node';
 import { GAP_BETWEEN_INPUT_NODES, IO_NODE_DEFAULT_WIDTH, OFFSETS, VISUALIZER_PADDING } from '../Diagram/utils/constants';
 import { LinkConnectorNode } from '../Diagram/Node/LinkConnector';
 import { InputDataImportNodeModel, OutputDataImportNodeModel } from '../Diagram/Node/DataImport/DataImportNode';
@@ -31,28 +32,30 @@ export const useRepositionedNodes = (nodes: DataMapperNodeModel[], zoomLevel: nu
     let prevBottomY = 0;
 
     nodesClone.forEach(node => {
-        const nodeHeight = node.height === 0 ? 800 : node.height;
-        const exisitingNode = diagramModel.getNodes().find(n => (n as DataMapperNodeModel).id === node.id);
+        const prevNodes = diagramModel.getNodes() as DataMapperNodeModel[];
+        const exisitingNode = prevNodes.find(prevNode => prevNode.id === node.id);
+        const sameView = isSameView(node, exisitingNode);;
         if (node instanceof ObjectOutputNode
             || node instanceof ArrayOutputNode
             || node instanceof PrimitiveOutputNode
             || node instanceof OutputDataImportNodeModel
         ) {
             const x = (window.innerWidth - VISUALIZER_PADDING) * (100 / zoomLevel) - IO_NODE_DEFAULT_WIDTH;
-            const y = exisitingNode && exisitingNode.getY() !== 0 ? exisitingNode.getY() : 0;
+            const y = exisitingNode && sameView && exisitingNode.getY() !== 0 ? exisitingNode.getY() : 0;
             node.setPosition(x, y);
         }
         if (node instanceof InputNode
             || node instanceof FocusedInputNode
             || node instanceof InputDataImportNodeModel
+            || node instanceof SubMappingNode
         ) {
             const x = OFFSETS.SOURCE_NODE.X;
             const computedY = prevBottomY + (prevBottomY ? GAP_BETWEEN_INPUT_NODES : 0);
-            let y = exisitingNode && exisitingNode.getY() !== 0 ? exisitingNode.getY() : computedY;
+            let y = exisitingNode && sameView && exisitingNode.getY() !== 0 ? exisitingNode.getY() : computedY;
 
             node.setPosition(x, y);
 
-            if (node instanceof InputNode) {
+            if (node instanceof InputNode || node instanceof FocusedInputNode) {
                 const nodeHeight = getIONodeHeight(node.numberOfFields);
                 prevBottomY = computedY + nodeHeight;
             }
@@ -77,8 +80,9 @@ export const useDiagramModel = (
     const offSetY = diagramModel.getOffsetY();
     const noOfNodes = nodes.length;
     const context = nodes.find(node => node.context)?.context;
-	const focusedSrc = context ? context.focusedST.getText() : undefined;
-    const noOfViews = context ? context.views.length : 0;
+    const { focusedST, views } = context ?? {};
+	const focusedSrc = focusedST ? focusedST.getText() : undefined;
+    const lastView = views ? views[views.length - 1] : undefined;
     const collapsedFields = useDMCollapsedFieldsStore(state => state.collapsedFields); // Subscribe to collapsedFields
     const { inputSearch, outputSearch } = useDMSearchStore();
 
@@ -128,7 +132,7 @@ export const useDiagramModel = (
         isFetching,
         isError,
         refetch,
-    } = useQuery(['genModel', {noOfNodes, focusedSrc, noOfViews, inputSearch, outputSearch, collapsedFields, newZoomLevel: zoomLevel}], () => genModel(), {});
+    } = useQuery(['genModel', {noOfNodes, focusedSrc, lastView, inputSearch, outputSearch, collapsedFields, newZoomLevel: zoomLevel}], () => genModel(), {});
 
     return { updatedModel, isFetching, isError, refetch };
 };

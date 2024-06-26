@@ -171,7 +171,7 @@ export const MEDIATORS = {
     CALLTEMPLATE: "CallTemplate",
     CLONE: "Clone",
     DATAMAPPER: "DataMapper",
-    DATASERVICECALL: "DataServiceCall",
+    DATASERVICECALL: "Call Data Service",
     DROP: "Drop",
     ENRICH: "Enrich",
     ENTITLEMENT: "EntitlementService",
@@ -191,7 +191,7 @@ export const MEDIATORS = {
     REWRITE: "Rewrite",
     RULE: "Rule",
     SEND: "Send",
-    SEQUENCE: "Sequence",
+    SEQUENCE: "Call Sequence",
     SMOOKS: "Smooks",
     STORE: "Store",
     SWITCH: "Switch",
@@ -230,6 +230,13 @@ export const ENDPOINTS = {
     WSDL: "wsdl",
 }
 
+export const DATA_SERVICE_NODES = {
+    INPUT: "Input Mapping",
+    QUERY: "Query",
+    TRANSFORMATION: "Transformation",
+    OUTPUT: "Output Mapping",
+}
+
 export enum NodeTypes {
     START_NODE = "start-node",
     END_NODE = "end-node",
@@ -242,7 +249,7 @@ export enum NodeTypes {
     PLUS_NODE = "plus-node",
     EMPTY_NODE = "empty-node",
     CONNECTOR_NODE = "connector-node",
-    DATAMAPPER_NODE = "datamapper-node",
+    DATA_SERVICE_NODE = "data-service-node",
 }
 
 export const NODE_LINK = "node-link";
@@ -262,3 +269,13 @@ export const SERVICE = {
 }
 
 export const ADD_NEW_SEQUENCE_TAG = "addNewSequence";
+export const OPEN_SEQUENCE_VIEW = "Open Sequence View";
+export const OPEN_DATA_MAPPER_VIEW = "Open Data Mapping";
+export const OPEN_DSS_SERVICE_DESIGNER = "Open Service Designer";
+
+export const DATA_SERVICE = {
+    EDIT_QUERY: "edit-query",
+    EDIT_RESOURCE_PARAMS: "edit-resource-params",
+    EDIT_RESOURCE: "edit-resource",
+    EDIT_SELF_CLOSE_RESOURCE: "edit-self-close-resource",
+}
