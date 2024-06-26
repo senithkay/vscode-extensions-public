@@ -565,11 +565,11 @@
       "projectFolder": "workspaces/ballerina/low-code-editor-commons",
       "versionPolicyName": "ballerina-extension"
     },
-    {
-      "packageName": "@wso2-enterprise/ballerina-low-code-edtior-ui-components",
-      "projectFolder": "workspaces/ballerina/low-code-ui-components",
-      "versionPolicyName": "ballerina-extension"
-    },
+    // {
+    //   "packageName": "@wso2-enterprise/ballerina-low-code-edtior-ui-components",
+    //   "projectFolder": "workspaces/ballerina/low-code-ui-components",
+    //   "versionPolicyName": "ballerina-extension"
+    // },
     // {
     //   "packageName": "notebook-renderer",
     //   "projectFolder": "workspaces/ballerina/notebook-renderer",

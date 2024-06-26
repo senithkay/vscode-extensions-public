@@ -66,8 +66,6 @@ import {
     TRAP_OPERATORS
 } from "./utils/operators";
 
-// import { StatementEditorHint } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
-
 export function ToolbarOperators() {
     const statementEditorToolbarClasses = useStatementEditorToolbarStyles();
     const inputEditorCtx = useContext(InputEditorContext);
