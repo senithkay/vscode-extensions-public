@@ -9,7 +9,7 @@
 
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import React, { Fragment, useEffect, useState } from 'react';
-import { RuntimeServicesResponse, SwaggerData } from '@wso2-enterprise/mi-core';
+import { RuntimeServicesResponse, SwaggerData, MiServerRunStatus } from '@wso2-enterprise/mi-core';
 import styled from '@emotion/styled';
 import { View, ViewContent, ViewHeader } from './components/View';
 import { VSCodeButton } from '@vscode/webview-ui-toolkit/react';
@@ -53,13 +53,13 @@ export function RuntimeServicePanel() {
     const { rpcClient } = useVisualizerContext();
     const [services, setAvailableServices] = useState<RuntimeServicesResponse>();
     const [isSwaggerEnabled, setSwaggerEnabled] = useState<SwaggerDetails>({ isSwaggerTriggered: false });
+    const [serverRunStatus, setServerRunStatus] = useState<MiServerRunStatus>('Running' as MiServerRunStatus);
 
     useEffect(() => {
         if (rpcClient) {
 
             rpcClient.getMiVisualizerRpcClient().getAvailableRuntimeServices().then((services) => {
                 setAvailableServices(services);
-                console.log(services);
             });
         }
     }, [rpcClient]);
@@ -69,6 +69,10 @@ export function RuntimeServicePanel() {
             isSwaggerTriggered: true,
             swaggerData: data
         });
+    });
+
+    rpcClient.onMiServerRunStateChanged((newState: MiServerRunStatus) => {
+        setServerRunStatus(newState);
     });
 
     const onTryit = async (name: any) => {
@@ -96,7 +100,6 @@ export function RuntimeServicePanel() {
             return (
                 <div>
                     <h3>Deployed APIs</h3>
-
                     {Object.entries(services.api.list).map(([_, entry]) => (
                         <>
                             <EntryContainer>
@@ -151,7 +154,6 @@ export function RuntimeServicePanel() {
         });
     }
 
-
     return (
         <View>
             <>
@@ -161,14 +163,18 @@ export function RuntimeServicePanel() {
                             <VSCodeButton appearance="icon" title="Go Back" onClick={handleBackButtonClick}>
                                 <Codicon name="arrow-left" />
                             </VSCodeButton>
-                            <ViewHeader title={"Swagger View"} ></ViewHeader>
                         </NavigationContainer>
-
+                        <ViewHeader title={"Swagger View"} >
+                            <div>Server Status: {serverRunStatus}</div>
+                        </ViewHeader>
                         <SwaggerPanel swaggerData={isSwaggerEnabled.swaggerData} />
                     </>
                     :
                     <>
-                        <ViewHeader title={"Available Runtime Services"} ></ViewHeader>
+                        <ViewHeader title={"Available Runtime Services"} codicon='server' >
+                            <div>Server Status: {serverRunStatus}</div>
+                        </ViewHeader>
+
                         <ViewContent padding={true}>
                             {services ?
                                 (
