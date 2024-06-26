@@ -113,11 +113,11 @@ export function DataServiceWizard(props: DataServiceWizardProps) {
     const [ datasource, setDatasource ] = useState(undefined);
     const [ datasources, setDatasources ] = useState([]);
     const [ authProperties, setAuthProperties ] = useState([]);
-    const [ isNewDataService, setIsNewDataService ] = useState(!props.path.endsWith(".xml"));
+    const [ isNewDataService, setIsNewDataService ] = useState(!props.path.endsWith(".dbs"));
 
     useEffect(() => {
         (async () => {
-            if (props.path.endsWith(".xml")) {
+            if (props.path.endsWith(".dbs")) {
                 if (props.path.includes('/dataServices')) {
                     props.path = props.path.replace('/dataServices', '/data-services');
                 }
