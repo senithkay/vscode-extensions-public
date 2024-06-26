@@ -2902,19 +2902,21 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         var resourceFolders = ['apis', 'endpoints', 'inbound-endpoints', 'local-entries', 'message-processors', 'message-stores', 'proxy-services', 'sequences', 'tasks', 'templates'];
         for (const folder of resourceFolders) {
             const folderPath = path.join(rootPath, folder);
-            const files = await fs.promises.readdir(folderPath);
+            // Check if the folder exists before reading its contents
+            if (fs.existsSync(folderPath)) {
+                const files = await fs.promises.readdir(folderPath);
 
-            for (const file of files) {
-                const filePath = path.join(folderPath, file);
-                const stats = await fs.promises.stat(filePath);
+                for (const file of files) {
+                    const filePath = path.join(folderPath, file);
+                    const stats = await fs.promises.stat(filePath);
 
-                if (stats.isFile()) {
-                    const content = await fs.promises.readFile(filePath, 'utf-8');
-                    fileContents.push(content);
+                    if (stats.isFile()) {
+                        const content = await fs.promises.readFile(filePath, 'utf-8');
+                        fileContents.push(content);
+                    }
                 }
             }
         }
-
         return { context: fileContents };
     }
 
@@ -3215,22 +3217,24 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         var resourceFolders = ['apis', 'endpoints', 'inbound-endpoints', 'local-entries', 'message-processors', 'message-stores', 'proxy-services', 'sequences', 'tasks', 'templates'];
         for (const folder of resourceFolders) {
             const folderPath = path.join(rootPath, folder);
-            const files = await fs.promises.readdir(folderPath);
+            // Check if the folder exists before reading its contents
+            if (fs.existsSync(folderPath)) {
+                const files = await fs.promises.readdir(folderPath);
 
-            for (const file of files) {
-                const filePath = path.join(folderPath, file);
-                if (filePath === currentFile) {
-                    continue;
-                }
-                const stats = await fs.promises.stat(filePath);
-
-                if (stats.isFile()) {
-                    const content = await fs.promises.readFile(filePath, 'utf-8');
-                    fileContents.push(content);
+                for (const file of files) {
+                    const filePath = path.join(folderPath, file);
+                    if (filePath === currentFile) {
+                        continue;
+                    }
+                    const stats = await fs.promises.stat(filePath);
+    
+                    if (stats.isFile()) {
+                        const content = await fs.promises.readFile(filePath, 'utf-8');
+                        fileContents.push(content);
+                    }
                 }
             }
         }
-
 
         return { context: fileContents };
     }
