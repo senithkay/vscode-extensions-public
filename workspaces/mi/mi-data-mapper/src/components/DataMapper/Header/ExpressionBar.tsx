@@ -58,7 +58,7 @@ export default function ExpressionBar(props: ExpressionBarProps) {
         // Keep the text field focused when an input port is selected
         if (textFieldRef.current) {
             const inputElement = textFieldRef.current.shadowRoot.querySelector('input');
-            if (focusedPort) {
+            if (focusedPort || focusedFilter) {
                 inputElement.focus();
             } else {
                 inputElement.blur();

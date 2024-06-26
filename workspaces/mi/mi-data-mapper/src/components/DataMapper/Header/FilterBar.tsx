@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 
 import { css } from '@emotion/css';
 import { Codicon, LinkButton } from '@wso2-enterprise/ui-toolkit';
@@ -46,13 +46,14 @@ export interface FilterBarProps {
 }
 
 export default function FilterBar(props: FilterBarProps) {
-    const { inputNode } = props;
+    const { inputNode, applyModifications } = props;
     const classes = useStyles();
 
+    const [hasAddedNewFilter, setHasAddedNewFilter] = useState(false);
 
     const resetExprBarFocus = useDMExpressionBarStore(state => state.resetFocus);
 
-    const filterElements = useMemo(() => {
+    const [filterBarItems, inputNodeLabel] = useMemo(() => {
         if (!(inputNode instanceof FocusedInputNode)) return [];
 
         const callExpressions = inputNode.value.getDescendantsOfKind(SyntaxKind.CallExpression);
@@ -63,11 +64,38 @@ export default function FilterBar(props: FilterBarProps) {
             return Node.isPropertyAccessExpression(expression) && expression.getName() === "filter";
         });        
 
-        return filterCalls.reverse().map((filter, index) => <FilterBarItem index={index + 1} filterNode={filter} />);
+        const filterBarItems = filterCalls
+            .reverse()
+            .map((filter, index) => (
+                <FilterBarItem
+                    key={`filterBarItem${index}`}
+                    index={index + 1}
+                    filterNode={filter}
+                    justAdded={index === filterCalls.length - 1 && hasAddedNewFilter}
+                />
+            ));
+
+        setHasAddedNewFilter(false);
+
+        return [filterBarItems, inputNode.nodeLabel];
     }, [inputNode]);
 
-    const onClickAddFilter = () => {
-        console.log("Adding new filter");
+    const onClickAddFilter = async () => {
+        const newFilter = `\n.filter(${inputNodeLabel} => ${inputNodeLabel} !== null)`;
+
+        const callExpr = (inputNode as FocusedInputNode).value;
+        const callExprExpr = callExpr.getExpression();
+
+        let targetExpr: Node;
+        if (Node.isPropertyAccessExpression(callExprExpr)) {
+            targetExpr = callExprExpr.getExpression();
+        }
+
+        const updatedExpression = targetExpr.getText() + newFilter;
+        targetExpr.replaceWithText(updatedExpression);
+        await applyModifications();
+
+        setHasAddedNewFilter(true);
     }
 
     const onClickFilterBar = () => {
@@ -79,7 +107,7 @@ export default function FilterBar(props: FilterBarProps) {
             className={classes.exprBarContainer}
             onClick={onClickFilterBar}
         >
-            {filterElements}
+            {filterBarItems}
             <LinkButton
                 sx={linkButtonStyles}
                 onClick={onClickAddFilter}

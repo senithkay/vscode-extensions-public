@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { css } from '@emotion/css';
 import { CallExpression } from 'ts-morph';
@@ -50,11 +50,14 @@ const diagnosticsTooltipStyles = {
 export interface FilterBarItemProps {
     index: number;
     filterNode: CallExpression;
+    justAdded: boolean;
 };
 
 export default function FilterBarItem(props: FilterBarItemProps) {
-    const { index, filterNode } = props;
+    const { index, filterNode, justAdded } = props;
     const classes = useStyles();
+
+    const [isFocused, setIsFocused] = useState(justAdded);
 
     const { focusedPort, focusedFilter, setExprBarFocusedFilter, resetExprBarFocus } = useDMExpressionBarStore(state => ({
         focusedPort: state.focusedPort,
@@ -63,17 +66,27 @@ export default function FilterBarItem(props: FilterBarItemProps) {
         resetExprBarFocus: state.resetFocus
     }));
 
-    const filterExpr = getFilterExpression(filterNode);
-
-    const isFocused = focusedFilter
-        && !focusedFilter.wasForgotten
-        && isPositionsEquals(getPosition(filterExpr), getPosition(focusedFilter));
+    const filterExpr = filterNode && !filterNode.wasForgotten() && getFilterExpression(filterNode);
     const diagnostics = filterExpr && getDiagnostics(filterExpr);
-    const isEmptyExpr = filterExpr.getText() === "";
+    const isEmptyExpr = filterExpr && filterExpr.getText() === "";
     const hasDiagnostics = diagnostics && diagnostics.length > 0;
     const diagnosticMsg = hasDiagnostics
         ? diagnostics[0].getMessageText()
         : isEmptyExpr ? "Expression expected." : "";
+
+    useEffect(() => {
+        const focused = focusedFilter
+            && filterExpr
+            && !focusedFilter.wasForgotten()
+            && isPositionsEquals(getPosition(filterExpr), getPosition(focusedFilter));
+        setIsFocused(focused);
+    }, [focusedFilter])
+
+    useEffect(() => {
+        if (justAdded && filterExpr) {
+            setExprBarFocusedFilter(filterExpr);
+        }
+    }, [justAdded])
 
     const onClick = (event: React.MouseEvent<HTMLDivElement>) => {
         event.stopPropagation();
@@ -81,6 +94,13 @@ export default function FilterBarItem(props: FilterBarItemProps) {
             resetExprBarFocus();
         }
         setExprBarFocusedFilter(filterExpr);
+    };
+
+    const trimText = (text: string, maxLength: number = 50) => {
+        if (text.length > maxLength) {
+            return text.substring(0, maxLength) + '...';
+        }
+        return text;
     };
     
     return (
@@ -100,7 +120,7 @@ export default function FilterBarItem(props: FilterBarItemProps) {
                         )}
                         onClick={onClick}
                     >
-                        {`Filter ${index + 1}`}: {filterExpr.getText()}
+                        {`Filter ${index}`}: {trimText(filterExpr.getText())}
                     </div>
                 </Tooltip>
             ) : <></>}
