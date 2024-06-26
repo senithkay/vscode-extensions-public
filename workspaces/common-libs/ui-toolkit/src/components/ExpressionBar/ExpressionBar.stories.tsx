@@ -14,14 +14,14 @@ import { ExpressionBar, ExpressionBarProps } from './ExpressionBar';
 const Template: ComponentStory<typeof ExpressionBar> = (args: ExpressionBarProps) => {
     const [value, setValue] = useState('=');
 
-    return <ExpressionBar {...args} value={value} onChange={setValue} />;
+    return <ExpressionBar {...args} value={value} onChange={(text: string) => setValue(text)} />;
 };
 
 export const Default = Template.bind();
 Default.args = {
-    functionNames: [
+    items: [
         { label: 'fn1', description: 'Description of fn1', args: ['value1', 'value2'] },
-        { label: 'fn2', description: 'Description of fn2', args: ['arg1', '[arg2, ...]'] },
+        { label: 'fn2', description: 'Description of fn2', args: ['arg1', '...args'] },
         { label: 'fn3', description: 'Description of fn3' }
     ],
     autoFocus: true
