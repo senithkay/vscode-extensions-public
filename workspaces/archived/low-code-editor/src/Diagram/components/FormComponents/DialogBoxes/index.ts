@@ -1,7 +1,7 @@
-import { DeleteConfirmDialog } from "./DeleteConfirmDialog/";
+import { DeleteConfirmDialog } from "./DeleteConfirmDialog";
 import { PlusElements } from "./PlusHolder";
 import { TopLevelOptionRenderer } from "./TopLevelPlus";
-import { UnsupportedConfirmButtons } from "./UnsupportedConfirmButtons/";
+import { UnsupportedConfirmButtons } from "./UnsupportedConfirmButtons";
 
 export { DeleteConfirmDialog as Delete };
 export { UnsupportedConfirmButtons as Unsupported };

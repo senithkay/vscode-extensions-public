@@ -5,7 +5,7 @@ import { NodePosition } from "@wso2-enterprise/syntax-tree";
 import debounce from "lodash.debounce";
 import * as monaco from 'monaco-editor'
 
-import grammar from "./../../ballerina.monarch.json";
+import grammar from "../../ballerina.monarch.json";
 // import { MonacoServices } from 'monaco-languageclient';
 
 

@@ -8,7 +8,7 @@
  */
 import { BallerinaConnectorInfo, STSymbolInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
-import { getFormattedModuleName } from "../../Diagram/components/Portals/utils";
+import { getFormattedModuleName } from "../components/Portals/utils";
 
 export function getAllModuleVariables(symbolInfo: STSymbolInfo): string[] {
     const moduleVariableCollection: string[] = [];

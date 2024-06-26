@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { SequenceView } from "../"
+import { SequenceView } from ".."
 
 function App() {
   const [count, setCount] = useState(0)

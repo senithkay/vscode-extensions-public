@@ -5,11 +5,11 @@ import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 import classNames from "classnames";
 
-import { useStyles } from "./../style";
+import { useStyles } from "../style";
 
 export interface ButtonProps {
     children?: string;
-    onClick?: () => void,
+    onClick?: (() => void) | ((e: any) => Promise<void>);
     text?: string;
     variant?: string;
     className?: string;
@@ -19,23 +19,25 @@ export interface ButtonProps {
     startIcon?: JSX.Element;
     fullWidth?: boolean;
     disabled?: boolean;
+    size?: "medium" | "large" | "small";
     type?: "button" | "reset" | "submit";
-    component?: "span" | "button";
-    testId?: string;
+    rootClassName?: string;
+    dataTestId?: string;
 }
 
-export function GreyButton(props: ButtonProps) {
+export function PrimaryButtonSquare(props: ButtonProps) {
     const classes = useStyles();
-    const {text, startIcon, onClick, fullWidth, disabled, className, type, component, testId} = props;
+    const { text, startIcon, onClick, fullWidth, disabled, className, type, size = 'medium', rootClassName, dataTestId } = props;
     return (
         <Button
-            data-testid={testId}
+            data-testid={dataTestId}
             onClick={onClick}
             variant="contained"
             classes={{
-                root: classNames(classes.greyBtn, classes.square),
-                disabled: classes.greyBtnDisabled
+                root: classNames(classes.primaryBtn, classes.square, rootClassName),
+                disabled: classes.disabled
             }}
+            size={size}
             role="button"
             startIcon={startIcon}
             disableRipple={true}
@@ -44,7 +46,6 @@ export function GreyButton(props: ButtonProps) {
             disabled={disabled}
             className={className}
             type={type}
-            component={component}
         >
             {text ? (<Typography variant="h5" className={startIcon ? classes.iconBtnText : classes.btnText}>{text}</Typography>) : null}
         </Button>

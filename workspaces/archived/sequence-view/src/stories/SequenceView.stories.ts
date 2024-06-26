@@ -1,7 +1,7 @@
 import { Meta } from '@storybook/react';
 import type { StoryObj } from '@storybook/react';
 
-import { SequenceView } from '../../';
+import { SequenceView } from '../..';
 
 const meta: Meta = {
     title: 'Example/SequenceView',

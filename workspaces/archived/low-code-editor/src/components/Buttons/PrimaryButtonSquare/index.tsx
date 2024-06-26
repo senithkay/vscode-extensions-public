@@ -5,11 +5,11 @@ import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 import classNames from "classnames";
 
-import { useStyles } from "./../style";
+import { useStyles } from "../style";
 
 export interface ButtonProps {
     children?: string;
-    onClick?: (() => void) | ((e: any) => Promise<void>);
+    onClick?: (() => void) | ((e: any) => Promise<void>) | ((e: any) => void);
     text?: string;
     variant?: string;
     className?: string;
@@ -17,24 +17,28 @@ export interface ButtonProps {
     disableRipple?: boolean;
     disableFocusRipple?: boolean;
     startIcon?: JSX.Element;
+    endIcon?: JSX.Element;
     fullWidth?: boolean;
     disabled?: boolean;
     size?: "medium" | "large" | "small";
     type?: "button" | "reset" | "submit";
     rootClassName?: string;
-    dataTestId?: string;
+    testId?: string;
+    id?: string;
 }
 
 export function PrimaryButtonSquare(props: ButtonProps) {
     const classes = useStyles();
-    const { text, startIcon, onClick, fullWidth, disabled, className, type, size = 'medium', rootClassName, dataTestId } = props;
+    const { text, startIcon, endIcon, onClick, fullWidth, disabled, className,
+            type, size = 'medium', rootClassName, testId: testId, id } = props;
     return (
         <Button
-            data-testid={dataTestId}
+            id={id}
+            data-testid={testId}
             onClick={onClick}
             variant="contained"
             classes={{
-                root: classNames(classes.primaryBtn, classes.square, rootClassName),
+                root: classNames(classes.primaryBtn, classes.square, size === "small" && classes.squareSmall, rootClassName),
                 disabled: classes.disabled
             }}
             size={size}
@@ -46,8 +50,9 @@ export function PrimaryButtonSquare(props: ButtonProps) {
             disabled={disabled}
             className={className}
             type={type}
+            endIcon={endIcon}
         >
-            {text ? (<Typography variant="h5" className={startIcon ? classes.iconBtnText : classes.btnText}>{text}</Typography>) : null}
+            {text ? (<Typography variant="h5" className={classNames(startIcon ? classes.iconBtnText : classes.btnText, size === "small" && classes.squareSmallText)}>{text}</Typography>) : null}
         </Button>
     );
 }
