@@ -72,6 +72,7 @@ export default function FilterBar(props: FilterBarProps) {
                     index={index + 1}
                     filterNode={filter}
                     justAdded={index === filterCalls.length - 1 && hasAddedNewFilter}
+                    applyModifications={applyModifications}
                 />
             ));
 

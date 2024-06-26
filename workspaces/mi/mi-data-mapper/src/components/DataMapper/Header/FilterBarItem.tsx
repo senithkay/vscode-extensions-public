@@ -9,14 +9,14 @@
 import React, { useEffect, useState } from 'react';
 
 import { css } from '@emotion/css';
-import { CallExpression } from 'ts-morph';
+import { CallExpression, Node } from 'ts-morph';
 import classNames from 'classnames';
 
 import { useDMExpressionBarStore } from '../../../store/store';
 import { getPosition, isPositionsEquals } from '../../../components/Diagram/utils/st-utils';
 import { getDiagnostics } from '../../../components/Diagram/utils/diagnostics-utils';
 import { getFilterExpression } from './utils';
-import { Tooltip } from '@wso2-enterprise/ui-toolkit';
+import { Button, Codicon, Tooltip } from '@wso2-enterprise/ui-toolkit';
 
 const useStyles = () => ({
     filterItem: css({
@@ -47,17 +47,24 @@ const diagnosticsTooltipStyles = {
     fontSize: "12px"
 };
 
+const deleteButtonStyles = {
+    color: "var(--vscode-errorForeground)",
+    marginLeft: "5px"
+};
+
 export interface FilterBarItemProps {
     index: number;
     filterNode: CallExpression;
     justAdded: boolean;
+    applyModifications: () => Promise<void>;
 };
 
 export default function FilterBarItem(props: FilterBarItemProps) {
-    const { index, filterNode, justAdded } = props;
+    const { index, filterNode, justAdded, applyModifications } = props;
     const classes = useStyles();
 
     const [isFocused, setIsFocused] = useState(justAdded);
+    const [isHovered, setIsHovered] = useState(false);
 
     const { focusedPort, focusedFilter, setExprBarFocusedFilter, resetExprBarFocus } = useDMExpressionBarStore(state => ({
         focusedPort: state.focusedPort,
@@ -73,6 +80,7 @@ export default function FilterBarItem(props: FilterBarItemProps) {
     const diagnosticMsg = hasDiagnostics
         ? diagnostics[0].getMessageText()
         : isEmptyExpr ? "Expression expected." : "";
+    const showDeleteBtn = isFocused || isHovered;
 
     useEffect(() => {
         const focused = focusedFilter
@@ -96,11 +104,34 @@ export default function FilterBarItem(props: FilterBarItemProps) {
         setExprBarFocusedFilter(filterExpr);
     };
 
+    const onDelete = async (event: React.MouseEvent<HTMLDivElement>) => {
+        event.stopPropagation();
+        const prevExpr = filterNode.getExpression();
+    
+        let exprAfterDelete: Node;
+        if (Node.isPropertyAccessExpression(prevExpr)) {
+            exprAfterDelete = prevExpr.getExpression();
+        }
+
+        const srcAfterDelete = exprAfterDelete.getText();
+        filterNode.replaceWithText(srcAfterDelete);
+        await applyModifications();
+        resetExprBarFocus();
+    };
+
     const trimText = (text: string, maxLength: number = 50) => {
         if (text.length > maxLength) {
             return text.substring(0, maxLength) + '...';
         }
         return text;
+    };
+
+    const handleMouseEnter = () => {
+        setIsHovered(true);
+    };
+
+    const handleMouseLeave = () => {
+        setIsHovered(false);
     };
     
     return (
@@ -119,8 +150,20 @@ export default function FilterBarItem(props: FilterBarItemProps) {
                             (hasDiagnostics || isEmptyExpr) && !isFocused ? classes.filterItemError : ""
                         )}
                         onClick={onClick}
+                        onMouseEnter={handleMouseEnter}
+                        onMouseLeave={handleMouseLeave}
                     >
                         {`Filter ${index}`}: {trimText(filterExpr.getText())}
+                        {showDeleteBtn && (
+                            <Button
+                                appearance="icon"
+                                onClick={onDelete}
+                                data-testid={`filter-delete-${index}`}
+                                tooltip='Delete filter'
+                            >
+                                <Codicon name="trash" iconSx={deleteButtonStyles} />
+                            </Button>
+                        )}
                     </div>
                 </Tooltip>
             ) : <></>}
