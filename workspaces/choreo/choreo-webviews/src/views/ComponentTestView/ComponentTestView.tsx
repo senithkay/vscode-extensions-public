@@ -18,15 +18,6 @@ import { HeaderSection } from "../../components/HeaderSection";
 const MAX_RESPONSE_SIZE = 4 * 1024 * 1024;
 const INTERNAL_KEY_HEADER_NAME = "API-Key";
 
-interface SwaggerViewerProps {
-    token: string;
-    apiEndpoint: string;
-    apiRevisionId: string;
-    headerName?: string;
-    testSessionId?: string;
-    isTestInternalEndpoint?: boolean;
-}
-
 interface SwaggerSecuritySchemasValue {
     type: string;
     name: string;
@@ -51,7 +42,6 @@ export const ComponentTestView: FC<TestWebviewProps> = ({
     component,
     org,
     project,
-    allDeploymentTracks = [],
     deploymentTrack,
     endpoints,
 }) => {
@@ -175,11 +165,10 @@ export const ComponentTestView: FC<TestWebviewProps> = ({
 
     const headerLabels: { label: string; value: string }[] = [
         { label: "Component", value: component.metadata.displayName },
+        { label: "Deployment Track", value: deploymentTrack.branch },
+        { label: "Project", value: project.name },
+        { label: "Organization", value: org.name },
     ];
-    if (allDeploymentTracks.length > 1) {
-        headerLabels.push({ label: "Deployment Track", value: deploymentTrack.branch });
-    }
-    headerLabels.push({ label: "Project", value: project.name }, { label: "Organization", value: org.name });
 
     return (
         <div className="flex flex-row justify-center p-1 md:p-3 lg:p-4 xl:p-6">

@@ -159,7 +159,7 @@ export const submitCreateComponentHandler = async ({
         showComponentDetailsView(org, project, createdComponent, createParams?.componentDir);
 
         const compCache = dataCacheStore.getState().getComponents(org.handle, project.handler);
-        dataCacheStore.getState().setComponents(org.handle, project.handler, [...compCache, createdComponent]);
+        dataCacheStore.getState().setComponents(org.handle, project.handler, [createdComponent, ...compCache]);
 
         // update the context file if needed
         try {

@@ -37,15 +37,15 @@ Follow these steps to create and manage Choreo components directly from VS Code:
 
    ![Component details](./docs/choreo-extension/images/v2/component-details-view.png)
 
-> **Tip:** A `.choreo/context.yaml` file will be generated at the root of the Git repository directory to associate the directory with your Choreo project. If it's not available, regenerate it using the `Select Project` command.
+> **Tip:** A `.choreo/context.yaml` file will be generated at the root of the Git repository directory to associate the directory with your Choreo project. View [documentation](https://docs.choreo.dev/choreo/docs/develop-components/develop-components-using-vs-code/#understand-the-project-context) for more information.
 
-5. The component details view allows various actions such as:
-   - Trigger builds for selected commits
-   - View lists of builds and their statuses
-   - Diagnose build failures using build logs
-   - Deploy builds in available environments
-   - Access runtime logs to monitor deployed components
-   - Test deployed components
+5. The component details view will allow you to manage your component by performing various actions such as the following:
+   - Triggering builds for selected commits.
+   - Viewing lists of builds and statuses.
+   - Diagnosing build failures with build logs.
+   - Deploying builds in available environments.
+   - Accessing runtime logs and deployed component URLs.
+   - Invoking deployed service endpoints.
 
 ## Discover Additional Features
 

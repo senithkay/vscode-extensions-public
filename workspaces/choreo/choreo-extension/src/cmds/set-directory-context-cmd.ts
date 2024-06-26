@@ -13,7 +13,7 @@ import { readFileSync, existsSync, writeFileSync, mkdirSync, unlinkSync, readdir
 import { selectOrg, resolveWorkspaceDirectory, getUserInfoForCmd, selectProjectWithCreateNew } from "./cmd-utils";
 import { getGitRoot, getGitRemotes } from "../git/util";
 import * as yaml from "js-yaml";
-import { contextStore } from "../stores/context-store";
+import { contextStore, waitForContextStoreToLoad } from "../stores/context-store";
 import { dirname } from "path";
 import * as os from "os";
 
@@ -74,6 +74,8 @@ export function setDirectoryContextCommand(context: ExtensionContext) {
                         selectedOrg,
                         projectList
                     );
+
+                    await waitForContextStoreToLoad();
 
                     contextStore.getState().onSetNewContext(selectedOrg, selectedProject, {
                         contextFileFsPath: contextFilePath,

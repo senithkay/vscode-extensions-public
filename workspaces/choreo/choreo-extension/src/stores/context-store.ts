@@ -8,7 +8,7 @@ import {
     Organization,
     Project,
 } from "@wso2-enterprise/choreo-core";
-import { Uri, window, workspace } from "vscode";
+import { ProgressLocation, Uri, window, workspace } from "vscode";
 import * as path from "path";
 import * as yaml from "js-yaml";
 import { existsSync, readFileSync } from "fs";
@@ -282,3 +282,22 @@ const mapComponentList = async (
     return comps;
 };
 
+export const waitForContextStoreToLoad = async (): Promise<void> => {
+    const isLoading = contextStore.getState().state.loading;
+    if (!isLoading) {
+        return;
+    }
+
+    const listenToLoad = (): Promise<void> => {
+        return new Promise((resolve) => {
+            contextStore.subscribe(({ state }) => {
+                if (!state.loading) {
+                    resolve();
+                }
+            });
+        });
+    };
+    return window.withProgress({ title: `Loading project directory...`, location: ProgressLocation.Notification }, () =>
+        listenToLoad()
+    );
+};

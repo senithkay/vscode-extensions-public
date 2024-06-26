@@ -2,12 +2,13 @@ import React, { FC, ReactNode } from "react";
 import { Button } from "../Button";
 import { Divider } from "../Divider";
 import { Codicon } from "../Codicon";
+import { VSCodeLink } from "@vscode/webview-ui-toolkit/react";
 
 interface Props {
     title: string;
     secondaryTitle?: string;
     secondaryIcon?: ReactNode;
-    tags?: { label: string; value: string }[];
+    tags?: { label: string; value: string; onClick?: () => void; onClickTitle?: string }[];
     buttons?: { onClick: () => any; label: string }[];
 }
 
@@ -22,11 +23,29 @@ export const HeaderSection: FC<Props> = ({ title, secondaryTitle, tags = [], but
                 <span className="mt-1">{secondaryIcon}</span>
             </div>
             {tags.length > 0 && (
-                <div className="flex flex-wrap gap-1 xl:gap-2">
-                    {tags.map((item) => (
-                        <div key={item.label}>
-                            <span className="font-extralight">{item.label}:</span> {item.value}
-                        </div>
+                <div className="flex flex-wrap gap-1 lg:gap-2">
+                    {tags.map((item, index) => (
+                        <>
+                            <div key={item.label}>
+                                <span className="font-thin">{item.label}:</span>
+                                {item.onClick ? (
+                                    <VSCodeLink
+                                        onClick={item.onClick}
+                                        className="text-vsc-foreground"
+                                        title={item.onClickTitle}
+                                    >
+                                        {item.value}
+                                    </VSCodeLink>
+                                ) : (
+                                    item.value
+                                )}
+                            </div>
+                            {index !== tags.length - 1 && (
+                                <div key={`separator-${item.label}`} className="font-thin hidden md:block opacity-50">
+                                    |
+                                </div>
+                            )}
+                        </>
                     ))}
                 </div>
             )}

@@ -8,8 +8,7 @@
  */
 import { ExtensionContext, window, commands, QuickPickItem, QuickPickItemKind, workspace, Uri, env } from "vscode";
 import { CommandIds } from "@wso2-enterprise/choreo-core";
-import { getUserInfoForCmd } from "./cmd-utils";
-import { contextStore } from "../stores/context-store";
+import { contextStore, waitForContextStoreToLoad } from "../stores/context-store";
 import { authStore } from "../stores/auth-store";
 import { choreoEnvConfig } from "../config";
 import { removeContext } from "./set-directory-context-cmd";
@@ -94,10 +93,12 @@ export function manageProjectContextCommand(context: ExtensionContext) {
                     ) {
                         commands.executeCommand(CommandIds.SetDirectoryContext);
                     } else if ((selection as any)?.item) {
+                        await waitForContextStoreToLoad();
                         contextStore.getState().changeContext((selection as any)?.item);
                     } else if (selection?.label === "Open project in a workspace") {
                         commands.executeCommand(CommandIds.CreateProjectWorkspace);
                     } else if (selection?.label === "Unlink workspace") {
+                        await waitForContextStoreToLoad();
                         removeContext(
                             selected?.project!,
                             selected?.org!,

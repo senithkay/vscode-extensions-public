@@ -151,6 +151,8 @@ export const BuildsSection: FC<Props> = (props) => {
         },
     });
 
+    const buildInProgress = builds[0] && !builds[0].status?.conclusion;
+
     return (
         <div>
             <div className="flex items-center gap-1 mb-3">
@@ -166,15 +168,14 @@ export const BuildsSection: FC<Props> = (props) => {
                 </Button>
                 {!isLoadingBuilds && (
                     <Button
-                        disabled={
-                            isLoadingCommits ||
-                            commits.length === 0 ||
-                            isTriggeringBuild ||
-                            (builds[0] && !builds[0].status?.conclusion)
-                        }
+                        disabled={isLoadingCommits || commits.length === 0 || isTriggeringBuild || buildInProgress}
                         onClick={() => selectCommitForBuild()}
                     >
-                        {isTriggeringBuild ? "Triggering Build" : "Build Component"}
+                        {isTriggeringBuild
+                            ? "Triggering Build"
+                            : buildInProgress
+                            ? "Building Component"
+                            : "Build Component"}
                     </Button>
                 )}
             </div>

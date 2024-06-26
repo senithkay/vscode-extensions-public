@@ -1,18 +1,21 @@
 import React, { FC, useEffect, useState } from "react";
-import { ComponentsDetailsWebviewProps, DeploymentTrack } from "@wso2-enterprise/choreo-core";
+import {
+    ComponentsDetailsWebviewProps,
+    DeploymentTrack,
+    WebviewQuickPickItemKind,
+} from "@wso2-enterprise/choreo-core";
 import { EndpointsSection } from "./sections/EndpointsSection";
 import { BuildConfigsSection } from "./sections/BuildConfigsSection";
 import { HeaderSection } from "./sections/HeaderSection";
 import { BuildsSection } from "./sections/BuildsSection";
 import { DeploymentsSection } from "./sections/DeploymentsSection";
 import { Divider } from "../../components/Divider";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
 
 export const ComponentDetailsView: FC<ComponentsDetailsWebviewProps> = (props) => {
     const { component, project, organization, directoryPath } = props;
 
-    // TODO: show a dropdown for deployment track
     const [deploymentTrack, setDeploymentTrack] = useState<DeploymentTrack>();
 
     const { data: deploymentTracks = [] } = useQuery({
@@ -35,6 +38,25 @@ export const ComponentDetailsView: FC<ComponentsDetailsWebviewProps> = (props) =
         }
     }, [deploymentTrack, deploymentTracks]);
 
+    const { mutate: switchDeploymentTrack } = useMutation({
+        mutationFn: async () => {
+            const pickedItem = await ChoreoWebViewAPI.getInstance().showQuickPicks({
+                title: "Select Deployment Track",
+                items: [
+                    { kind: WebviewQuickPickItemKind.Separator, label: "Selected" },
+                    { label: deploymentTrack.branch, picked: true, detail: deploymentTrack.description },
+                    { kind: WebviewQuickPickItemKind.Separator, label: "Available Tracks" },
+                    ...deploymentTracks
+                        .filter((item) => item.branch !== deploymentTrack.branch)
+                        .map((item) => ({ label: item.branch, detail: item.description, item })),
+                ],
+            });
+            if (pickedItem?.item) {
+                setDeploymentTrack(pickedItem.item);
+            }
+        },
+    });
+
     const { data: envs = [], isLoading: loadingEnvs } = useQuery({
         queryKey: ["get-project-envs", { organization: organization.handle, project: project.handler }],
         queryFn: () =>
@@ -49,7 +71,12 @@ export const ComponentDetailsView: FC<ComponentsDetailsWebviewProps> = (props) =
         <div className="flex flex-row justify-center p-1 md:p-3 lg:p-4 xl:p-6">
             <div className="container">
                 <div className="mx-auto max-w-6xl flex flex-col p-4">
-                    <HeaderSection {...props} />
+                    <HeaderSection
+                        {...props}
+                        deploymentTrack={deploymentTrack}
+                        allDeploymentTracks={deploymentTracks}
+                        onChangeDeploymentTrack={switchDeploymentTrack}
+                    />
                     <div className="grid grid-cols-1 lg:grid-cols-4 gap-3 lg:gap-0">
                         <Divider className="mt-4 block lg:hidden" />
                         <div className="relative flex flex-col gap-6 col-span-1 lg:col-span-3 lg:p-4 pt-6 lg:border-r-1 border-vsc-editorIndentGuide-background">
