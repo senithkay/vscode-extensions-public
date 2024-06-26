@@ -49,6 +49,7 @@ export * from './components/Accordion/Accordion';
 export * from './components/SyntaxHighlighter/SyntaxHighlighter';
 export * from './components/Drawer/Drawer';
 export * from './components/Alert/Alert';
+export * from './components/ExpressionBar/ExpressionBar';
 
 export * from './components/SampleForm/Header/Header';
 export * from './components/SampleForm/HorizontalIcons/HorizontalIcons';

@@ -25,6 +25,8 @@ import {
     RetrieveContextResponse,
     RuntimeServicesResponse,
     SampleDownloadRequest,
+    SwaggerProxyRequest,
+    SwaggerProxyResponse,
     UpdateContextRequest,
     WorkspacesResponse,
     addToHistory,
@@ -45,6 +47,7 @@ import {
     focusOutput,
     goToSource,
     retrieveContext,
+    sendSwaggerProxyRequest,
     showNotification,
     updateContext,
     getAvailableRuntimeServices
@@ -137,5 +140,9 @@ export class MiVisualizerRpcClient implements MIVisualizerAPI {
 
     getAvailableRuntimeServices(): Promise<RuntimeServicesResponse> {
         return this._messenger.sendRequest(getAvailableRuntimeServices, HOST_EXTENSION);
+    }
+
+    sendSwaggerProxyRequest(params: SwaggerProxyRequest): Promise<SwaggerProxyResponse> {
+        return this._messenger.sendRequest(sendSwaggerProxyRequest, HOST_EXTENSION, params);
     }
 }

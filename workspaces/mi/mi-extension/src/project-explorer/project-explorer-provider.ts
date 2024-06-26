@@ -616,6 +616,8 @@ function genRegistryProjectStructureEntry(data: RegistryResourcesFolder): Projec
 				const registryPath = entry.path.substring(lastIndex);
 				if (checkExistanceOfRegistryResource(registryPath)) {
 					explorerEntry.contextValue = "registry-with-metadata";
+				} else {
+					explorerEntry.contextValue = "registry-without-metadata";
 				}
 			}
 		}
@@ -635,6 +637,8 @@ function genRegistryProjectStructureEntry(data: RegistryResourcesFolder): Projec
 					const registryPath = entry.path.substring(lastIndex);
 					if (checkExistanceOfRegistryResource(registryPath)) {
 						explorerEntry.contextValue = "registry-with-metadata";
+					} else {
+						explorerEntry.contextValue = "registry-without-metadata";
 					}
 				}
 			}

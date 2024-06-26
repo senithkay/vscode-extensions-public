@@ -272,3 +272,10 @@ export const ADD_NEW_SEQUENCE_TAG = "addNewSequence";
 export const OPEN_SEQUENCE_VIEW = "Open Sequence View";
 export const OPEN_DATA_MAPPER_VIEW = "Open Data Mapping";
 export const OPEN_DSS_SERVICE_DESIGNER = "Open Service Designer";
+
+export const DATA_SERVICE = {
+    EDIT_QUERY: "edit-query",
+    EDIT_RESOURCE_PARAMS: "edit-resource-params",
+    EDIT_RESOURCE: "edit-resource",
+    EDIT_SELF_CLOSE_RESOURCE: "edit-self-close-resource",
+}

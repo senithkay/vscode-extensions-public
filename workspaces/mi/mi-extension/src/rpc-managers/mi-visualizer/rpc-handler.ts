@@ -17,6 +17,7 @@ import {
     ProjectStructureRequest,
     RetrieveContextRequest,
     SampleDownloadRequest,
+    SwaggerProxyRequest,
     UpdateContextRequest,
     addToHistory,
     toggleDisplayOverview,
@@ -37,6 +38,7 @@ import {
     focusOutput,
     updateContext,
     retrieveContext,
+    sendSwaggerProxyRequest,
     showNotification,
     reloadWindow
 } from "@wso2-enterprise/mi-core";
@@ -65,4 +67,5 @@ export function registerMiVisualizerRpcHandlers(messenger: Messenger) {
     messenger.onRequest(retrieveContext, (args: RetrieveContextRequest) => rpcManger.retrieveContext(args));
     messenger.onRequest(showNotification, (args: NotificationRequest) => rpcManger.showNotification(args));
     messenger.onRequest(getAvailableRuntimeServices, () => rpcManger.getAvailableRuntimeServices());
+    messenger.onRequest(sendSwaggerProxyRequest, (args: SwaggerProxyRequest) => rpcManger.sendSwaggerProxyRequest(args));
 }

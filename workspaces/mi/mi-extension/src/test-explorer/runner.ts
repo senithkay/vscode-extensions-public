@@ -17,7 +17,7 @@ import { discoverTests, gatherTestItems } from "./discover";
 import { testController } from "./activator";
 import path = require("path");
 import { getProjectRoot } from "./helper";
-import { getServerPath } from "../debugger/debugHelper";
+import { deleteCappAndLibs, getServerPath } from "../debugger/debugHelper";
 import { TestRunnerConfig } from "./config";
 import { ChildProcess } from "child_process";
 import treeKill = require("tree-kill");
@@ -69,9 +69,21 @@ export function runHandler(request: TestRunRequest, cancellation: CancellationTo
             }
 
             try {
+                // delete cars
+                const serverPath = await getServerPath();
+                if (!serverPath) {
+                    window.showErrorMessage("MI server path not found");
+                    throw new Error("Server path not found");
+                }
+                await deleteCappAndLibs(serverPath);
+
+                const printer = (line: string, isError: boolean) => {
+                    printToOutput(run, line, isError);
+                }
+
                 // execute test
                 run.appendOutput(`Starting MI test server\r\n`);
-                const { cp } = await startTestServer(run);
+                const { cp } = await startTestServer(serverPath, printer);
                 stopTestServer = () => {
                     treeKill(cp.pid!, 'SIGKILL');
                 }
@@ -80,7 +92,7 @@ export function runHandler(request: TestRunRequest, cancellation: CancellationTo
                 run.appendOutput(`Running tests ${testNames}\r\n`);
 
                 // run tests
-                await runTests(testNames, projectRoot, run);
+                await runTests(testNames, projectRoot, printer);
                 const EndTime = Date.now();
                 const timeElapsed = (EndTime - startTime) / queue.length;
 
@@ -164,7 +176,9 @@ export function runHandler(request: TestRunRequest, cancellation: CancellationTo
             } catch (error: any) {
                 // exception.
                 window.showErrorMessage(`Error: ${error}`);
-                run.appendOutput(`${error.toString().replace('\n', '\r\n')}\r\n`);
+                error.split('\n').forEach((line) => {
+                    printToOutput(run, line, true);
+                });
             }
             run.appendOutput(`Test running finished\r\n`);
             run.end();
@@ -191,36 +205,25 @@ export function runHandler(request: TestRunRequest, cancellation: CancellationTo
  * Start test server.
  * @returns server output
  */
-async function startTestServer(runner: TestRun): Promise<{ cp: ChildProcess }> {
+async function startTestServer(serverPath: string, printToOutput?: (line: string, isError: boolean) => void): Promise<{ cp: ChildProcess }> {
     return new Promise<{ cp: ChildProcess }>(async (resolve, reject) => {
         try {
-            const serverPath = await getServerPath();
-
-            if (!serverPath) {
-                window.showErrorMessage("Server path not found");
-                throw new Error("Server path not found");
-            }
             const scriptFile = process.platform === "win32" ? "micro-integrator.bat" : "micro-integrator.sh";
             const server = path.join(serverPath, "bin", scriptFile);
 
             const serverCommand = `${server} -DsynapseTest`;
 
-            const cp = runCommand(serverCommand, undefined, onData, onError, undefined);
-
             let serverStarted = false;
-            let foundError = false;
-            function onData(data: string) {
-                if (!serverStarted) {
-                    data.split('\n').forEach((line) => {
-                        if (line.includes("] ERROR ")) {
-                            foundError = true;
-                        } else if (line.includes("]  INFO ")) {
-                            foundError = false;
-                        }
 
-                        printToOutput(runner, line, foundError);
-                    });
+            const printer = (line: string, isError: boolean) => {
+                if (!serverStarted && printToOutput) {
+                    printToOutput(line, isError);
                 }
+            }
+
+            const cp = runCommand(serverCommand, undefined, onData, onError, undefined, printer);
+
+            function onData(data: string) {
                 if (data.includes("Micro Integrator started in")) {
                     serverStarted = true;
                     resolve({ cp });
@@ -230,7 +233,6 @@ async function startTestServer(runner: TestRun): Promise<{ cp: ChildProcess }> {
                 }
             }
             function onError(data: string) {
-                printToOutput(runner, data, true);
                 window.showErrorMessage(data);
                 reject(data);
             }
@@ -249,30 +251,19 @@ function printToOutput(runner: TestRun, line: string, isError: boolean = false) 
     }
 }
 
-async function runTests(testNames: string, projectRoot: string, runner: TestRun): Promise<void> {
+async function runTests(testNames: string, projectRoot: string, printToOutput?: (line: string, isError: boolean) => void): Promise<void> {
     return new Promise<void>(async (resolve, reject) => {
         const mvnCmd = process.platform === "win32" ? "mvn.cmd" : "mvn";
         const testRunCmd = `${mvnCmd} test -DtestServerType=remote -DtestServerHost=${TestRunnerConfig.getHost()} -DtestServerPort=${TestRunnerConfig.getServerPort()} -P test`;
 
-        let foundError = false;
         let finished = false;
         const onData = (data: string) => {
-            data.split('\n').forEach((line) => {
-                if (line.includes("] ERROR ")) {
-                    foundError = true;
-                } else if (line.includes("]  INFO ")) {
-                    foundError = false;
-                }
-
-                printToOutput(runner, line, foundError);
-            });
             if (data.includes("Finished at:")) {
                 finished = true;
                 resolve();
             }
         }
         const onError = (data: string) => {
-            printToOutput(runner, data, true);
             window.showErrorMessage(data);
             reject(data);
         }
@@ -283,7 +274,7 @@ async function runTests(testNames: string, projectRoot: string, runner: TestRun)
         }
 
         try {
-            runCommand(testRunCmd, projectRoot, onData, onError, onClose);
+            runCommand(testRunCmd, projectRoot, onData, onError, onClose, printToOutput);
         } catch (error) {
             throw error;
         }
@@ -296,21 +287,51 @@ async function runTests(testNames: string, projectRoot: string, runner: TestRun)
  * @param pathToRun Path to execute the command.
  * @param returnData Indicates whether to return the stdout
  */
-export function runCommand(command, pathToRun?: string, onData?: (data: string) => void, onError?: (data: string) => void, onClose?: (code: number) => void): ChildProcess {
+export function runCommand(command, pathToRun?: string,
+    onData?: (data: string) => void,
+    onError?: (data: string) => void,
+    onClose?: (code: number) => void,
+    printToOutput?: (line: string, isError: boolean) => void): ChildProcess {
     try {
         if (pathToRun) {
-            command = `cd ${pathToRun} && ${command}`
+            command = `cd "${pathToRun}" && ${command}`
         }
         const cp = child_process.spawn(command, [], { shell: true });
 
         if (typeof onData === 'function') {
             cp.stdout.setEncoding('utf8');
-            cp.stdout.on('data', onData);
+
+            let foundError = false;
+            cp.stdout.on('data', (data) => {
+                data.split('\n').forEach((line) => {
+                    if (line.includes("] ERROR " || line.includes("[error]"))) {
+                        foundError = true;
+                    } else if (line.includes("]  INFO ") || line.includes("[INFO]")) {
+                        foundError = false;
+                    }
+
+                    if (printToOutput) {
+                        printToOutput(line, foundError);
+                    }
+                    onData(line);
+                });
+            });
         }
 
         if (typeof onError === 'function') {
+            cp.stderr.setEncoding('utf8');
             cp.stderr.on('data', onError);
-            cp.on('error', onError);
+
+            cp.on('error', (data: string) => {
+                data.split('\n').forEach((line) => {
+                    if (printToOutput) {
+                        printToOutput(line, true);
+                    }
+                });
+                if (onError) {
+                    onError(data);
+                }
+            });
         }
 
         if (typeof onClose === 'function') {

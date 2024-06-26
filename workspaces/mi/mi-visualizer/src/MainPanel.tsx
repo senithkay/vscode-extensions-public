@@ -44,8 +44,8 @@ import { TestSuiteForm } from './views/Forms/Tests/TestSuiteForm';
 import { TestCaseForm } from './views/Forms/Tests/TestCaseForm';
 import { MockServiceForm } from './views/Forms/Tests/MockServices/MockServiceForm';
 import { DataServiceWizard } from './views/Forms/DataServiceForm/MainPanelForms';
-import { AITestGenForm } from './views/Forms/Tests/AITestGenForm';
 import { DataServiceView } from './views/Diagram/DataService';
+import { SignInToCopilotMessage } from './views/LoggedOutWindow';
 
 const MainContainer = styled.div`
     display: flex;
@@ -309,6 +309,9 @@ const MainPanel = () => {
                 case MACHINE_VIEW.TestSuite:
                     setViewComponent(<TestSuiteForm filePath={machineView.documentUri} stNode={machineView.stNode as UnitTest} />);
                     break;
+                case MACHINE_VIEW.LoggedOut:
+                    setViewComponent(<SignInToCopilotMessage />);
+                    break;
                 case MACHINE_VIEW.TestCase:
                     setViewComponent(<TestCaseForm
                         filePath={machineView.documentUri}
@@ -317,9 +320,6 @@ const MainPanel = () => {
                         testCase={machineView.customProps?.testCase}
                         testSuiteType={machineView.customProps?.testSuiteType}
                     />);
-                    break;
-                case MACHINE_VIEW.AITestGen:
-                    setViewComponent(<AITestGenForm filePath={machineView.documentUri} />);
                     break;
                 case MACHINE_VIEW.MockService:
                     setViewComponent(<MockServiceForm filePath={machineView.documentUri} stNode={machineView.stNode as MockService} />);

@@ -228,9 +228,6 @@ import path = require("path");
 import { openSwaggerWebview } from "../../swagger/activate";
 import { RPCLayer } from "../../RPCLayer";
 import { getPortPromise } from "portfinder";
-import { SwaggerServer } from "../../swagger/server";
-import { RuntimeServicesWebview } from "../../runtime-services-panel/webview";
-import { SwaggerWebview } from "../../swagger/webview";
 
 const { XMLParser, XMLBuilder } = require("fast-xml-parser");
 
@@ -387,7 +384,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
             const sanitizedXmlData = (xmlData || response.apiXml).replace(/^\s*[\r\n]/gm, '');
             const filePath = path.join(artifactDir, 'apis', `${name}.xml`);
-            fs.writeFileSync(filePath, sanitizedXmlData);
+            await replaceFullContentToFile(filePath, sanitizedXmlData);
             await this.rangeFormat({
                 uri: filePath,
                 range: {
@@ -400,7 +397,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             if (response.endpointXml) {
                 const sanitizedEndpointXml = response.endpointXml.replace(/^\s*[\r\n]/gm, '');
                 const endpointFilePath = path.join(artifactDir, 'endpoints', `${name}_SOAP_ENDPOINT.xml`);
-                fs.writeFileSync(endpointFilePath, sanitizedEndpointXml);
+                await replaceFullContentToFile(endpointFilePath, sanitizedEndpointXml);
                 await this.rangeFormat({
                     uri: endpointFilePath,
                     range: {
@@ -559,7 +556,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             }
 
             const filePath = path.join(directory, `${name}.xml`);
-            fs.writeFileSync(filePath, xmlData);
+            await replaceFullContentToFile(filePath, xmlData);
             commands.executeCommand(COMMANDS.REFRESH_COMMAND);
             resolve({ path: filePath });
         });
@@ -580,7 +577,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     filePath = path.join(directory, `${templateParams.name}.xml`);
                 }
 
-                fs.writeFileSync(filePath, sanitizedXmlData);
+                await replaceFullContentToFile(filePath, sanitizedXmlData);
                 await this.rangeFormat({
                     uri: filePath,
                     range: {
@@ -654,7 +651,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     filePath = path.join(directory, `${templateParams.name}.xml`);
                 }
 
-                fs.writeFileSync(filePath, sanitizedXmlData);
+                await replaceFullContentToFile(filePath, sanitizedXmlData);
                 await this.rangeFormat({
                     uri: filePath,
                     range: {
@@ -718,7 +715,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     filePath = path.join(directory, `${templateParams.name}.xml`);
                 }
 
-                fs.writeFileSync(filePath, sanitizedXmlData);
+                await replaceFullContentToFile(filePath, sanitizedXmlData);
                 await this.rangeFormat({
                     uri: filePath,
                     range: {
@@ -780,7 +777,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     filePath = path.join(directory, `${templateParams.name}.xml`);
                 }
 
-                fs.writeFileSync(filePath, sanitizedXmlData);
+                await replaceFullContentToFile(filePath, sanitizedXmlData);
                 await this.rangeFormat({
                     uri: filePath,
                     range: {
@@ -924,7 +921,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 filePath = path.join(filePath, `${params.name}.xml`);
             }
 
-            fs.writeFileSync(filePath, sanitizedXmlData);
+            await replaceFullContentToFile(filePath, sanitizedXmlData);
             await this.rangeFormat({
                 uri: filePath,
                 range: {
@@ -1123,7 +1120,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
             const xmlData = getInboundEndpointXmlWrapper(templateParams);
 
-            fs.writeFileSync(filePath, xmlData);
+            await replaceFullContentToFile(filePath, xmlData);
             commands.executeCommand(COMMANDS.REFRESH_COMMAND);
             resolve({ path: filePath });
         });
@@ -1313,7 +1310,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 resolve({ filePath: "", fileContent: xmlData });
             } else {
                 const filePath = path.join(directory, `${name}.xml`);
-                fs.writeFileSync(filePath, xmlData);
+                await replaceFullContentToFile(filePath, xmlData);
                 commands.executeCommand(COMMANDS.REFRESH_COMMAND);
                 resolve({ filePath: filePath, fileContent: "" });
             }
@@ -1336,7 +1333,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             const sanitizedXmlData = xmlData.replace(/^\s*[\r\n]/gm, '');
 
             const filePath = path.join(directory, `${proxyServiceName}.xml`);
-            fs.writeFileSync(filePath, sanitizedXmlData);
+            await replaceFullContentToFile(filePath, sanitizedXmlData);
             await this.rangeFormat({
                 uri: filePath,
                 range: {
@@ -1369,7 +1366,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 filePath = path.join(directory, `${templateParams.name}.xml`);
             }
 
-            fs.writeFileSync(filePath, xmlData);
+            await replaceFullContentToFile(filePath, xmlData);
             commands.executeCommand(COMMANDS.REFRESH_COMMAND);
             resolve({ path: filePath });
         });
@@ -1483,7 +1480,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 } else {
                     filePath = path.join(directory, `${templateName}.xml`);
                 }
-                fs.writeFileSync(filePath, sanitizedXmlData);
+                await replaceFullContentToFile(filePath, sanitizedXmlData);
                 await this.rangeFormat({
                     uri: filePath,
                     range: {
@@ -1578,6 +1575,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         });
     }
 
+    // XXXX
     async updateHttpEndpoint(params: UpdateHttpEndpointRequest): Promise<UpdateHttpEndpointResponse> {
         return new Promise(async (resolve) => {
             const { directory, ...getHttpEndpointParams } = params;
@@ -1596,8 +1594,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 } else {
                     filePath = path.join(directory, `${fileName}.xml`);
                 }
-
-                fs.writeFileSync(filePath, sanitizedXmlData);
+                await replaceFullContentToFile(filePath, sanitizedXmlData);
                 await this.rangeFormat({
                     uri: filePath,
                     range: {
@@ -1775,7 +1772,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     filePath = path.join(directory, `${fileName}.xml`);
                 }
 
-                fs.writeFileSync(filePath, sanitizedXmlData);
+                await replaceFullContentToFile(filePath, sanitizedXmlData);
                 await this.rangeFormat({
                     uri: filePath,
                     range: {
@@ -1885,7 +1882,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     filePath = path.join(directory, `${fileName}.xml`);
                 }
 
-                fs.writeFileSync(filePath, sanitizedXmlData);
+                await replaceFullContentToFile(filePath, sanitizedXmlData);
                 await this.rangeFormat({
                     uri: filePath,
                     range: {
@@ -1997,7 +1994,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     filePath = path.join(directory, `${fileName}.xml`);
                 }
 
-                fs.writeFileSync(filePath, sanitizedXmlData);
+                await replaceFullContentToFile(filePath, sanitizedXmlData);
                 await this.rangeFormat({
                     uri: filePath,
                     range: {
@@ -2136,7 +2133,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     filePath = filePath.replace('dataServices', 'data-services');
                 }
 
-                fs.writeFileSync(filePath, sanitizedXmlData);
+                await replaceFullContentToFile(filePath, sanitizedXmlData);
                 await this.rangeFormat({
                     uri: filePath,
                     range: {
@@ -2173,7 +2170,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             const xmlData = getDataServiceXmlWrapper({ ...getDataServiceParams, writeType: "edit" });
             const sanitizedXmlData = xmlData.replace(/^\s*[\r\n]/gm, '');
 
-            fs.writeFileSync(filePath, sanitizedXmlData);
+            await replaceFullContentToFile(filePath, sanitizedXmlData);
             await this.rangeFormat({
                 uri: filePath,
                 range: {
@@ -2357,7 +2354,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 filePath = filePath.replace('messageProcessors', 'message-processors');
             }
 
-            fs.writeFileSync(filePath, sanitizedXmlData);
+            await replaceFullContentToFile(filePath, sanitizedXmlData);
             await this.rangeFormat({
                 uri: filePath,
                 range: {
@@ -2833,9 +2830,9 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                         case 'registry':
                             fileType = 'registry';
                             break;
-                            case 'unit':
-                                fileType = 'unit-test';
-                                break;
+                        case 'unit':
+                            fileType = 'unit-test';
+                            break;
                         default:
                             fileType = '';
                     }
@@ -2853,7 +2850,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
                 //write the content to a file, if file exists, overwrite else create new file
                 var fullPath = '';
-                if ( fileType ==='unit-test') {
+                if (fileType === 'unit-test') {
                     fullPath = path.join(directoryPath ?? '', 'src', 'main', 'test', path.sep, `${name}.xml`);
                 } else {
                     fullPath = path.join(directoryPath ?? '', 'src', 'main', 'wso2mi', 'artifacts', fileType, path.sep, `${name}.xml`);
@@ -3157,7 +3154,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 if (!fs.existsSync(registryPath)) {
                     fs.mkdirSync(registryPath, { recursive: true });
                 }
-                fs.writeFileSync(destPath, fileContent ? fileContent : "");
+                await replaceFullContentToFile(destPath, fileContent ? fileContent : "");
                 //add the new entry to artifact.xml
                 transformedPath = path.join(transformedPath, params.registryPath);
                 transformedPath = transformedPath.split(path.sep).join("/");
@@ -3189,7 +3186,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             const fullPath = path.join(params.projectDirectory, packagePath);
             fs.mkdirSync(fullPath, { recursive: true });
             const filePath = path.join(fullPath, `${params.className}.java`);
-            fs.writeFileSync(filePath, content);
+            await replaceFullContentToFile(filePath, content);
             const fileUri = Uri.file(params.projectDirectory);
             const workspaceFolder = workspace.getWorkspaceFolder(fileUri)?.uri.fsPath ?? workspace.getWorkspaceFolder[0].uri.fsPath;
             changeRootPomPackaging(workspaceFolder, "jar");
@@ -3305,7 +3302,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 filePath = filePath.replace('dataSources', 'data-sources');
             }
 
-            fs.writeFileSync(filePath, sanitizedXmlData);
+            await replaceFullContentToFile(filePath, sanitizedXmlData);
             await this.rangeFormat({
                 uri: filePath,
                 range: {
@@ -3435,7 +3432,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 fs.mkdirSync(localEntryPath);
             }
 
-            fs.writeFileSync(filePath, xmlData);
+            await replaceFullContentToFile(filePath, xmlData);
             resolve({ name: connectionName });
         });
     }
@@ -3683,7 +3680,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             const { swagger } = await langClient.swaggerFromAPI({ apiPath });
             if (!fs.existsSync(openAPISpecPath)) {
                 // Create the file if not exists
-                fs.writeFileSync(openAPISpecPath, swagger);
+                await replaceFullContentToFile(openAPISpecPath, swagger);
             };
 
             // Open the file in the editor
@@ -3702,7 +3699,6 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
             const response = await langClient.swaggerFromAPI({ apiPath: params.apiPath });
             const generatedSwagger = response.swagger;
-            const swaggerServer: SwaggerServer = new SwaggerServer();
             const port = await getPortPromise({ port: 1000, stopPort: 3000 });
             const cors_proxy = require('cors-anywhere');
             cors_proxy.createServer({
@@ -3716,21 +3712,6 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             };
 
             await openSwaggerWebview(swaggerData);
-
-            const swaggerPanel = SwaggerWebview.currentPanel?.getWebview();
-            swaggerPanel?.webview.onDidReceiveMessage(
-                async message => {
-                    if (message.command !== 'swaggerRequest') {
-                        return;
-                    }
-                    await swaggerServer.sendRequest(message.req, false).then((response) => {
-                        swaggerPanel!.webview.postMessage({
-                            command: 'swaggerResponse',
-                            res: response
-                        });
-                    });
-                }
-            );
         });
     }
 
@@ -3796,7 +3777,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 generatedSwagger: parse(generatedSwagger!)
             });
             const yamlContent = stringify(mergedContent);
-            fs.writeFileSync(swaggerPath, yamlContent);
+            await replaceFullContentToFile(swaggerPath, yamlContent);
         });
     }
 
@@ -3908,7 +3889,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 fs.renameSync(params.path, filePath);
             }
 
-            fs.writeFileSync(filePath, content);
+            await replaceFullContentToFile(filePath, content);
 
             const openFileButton = 'Open File';
             window.showInformationMessage(`Test suite ${!filePath ? "created" : "updated"} successfully`, openFileButton).then(selection => {
@@ -4029,7 +4010,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 fs.renameSync(params.path, filePath);
             }
 
-            fs.writeFileSync(filePath, content);
+            await replaceFullContentToFile(filePath, content);
 
             const openFileButton = 'Open File';
             window.showInformationMessage(`Mock service ${!filePath ? "created" : "updated"} successfully`, openFileButton).then(selection => {
@@ -4140,7 +4121,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     text = lines.map((line, index) => (index === lines.length - 1) ? line : indentation + line).join('\n');
                     text = isUpdate ? text : `\n${text}`;
 
-                    fs.writeFileSync(pomPath, pomContent.slice(0, insertIndex) + text + pomContent.slice(insertIndex + (isUpdate ? 0 : 1)));
+                    await replaceFullContentToFile(pomPath, pomContent.slice(0, insertIndex) + text + pomContent.slice(insertIndex + (isUpdate ? 0 : 1)));
                 } else {
                     showErrorMessage();
                     throw new Error(`Failed to find ${tagToFind} tag`);
@@ -4160,8 +4141,8 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 const currentFile = fs.readFileSync(filePath, "utf8");
                 artifactsContent.push(currentFile);
             }
-        
-        return resolve({ artifacts: artifactsContent });
+
+            return resolve({ artifacts: artifactsContent });
         });
     }
 
@@ -4169,29 +4150,12 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         const langClient = StateMachine.context().langClient!;
         const response = await langClient.swaggerFromAPI({ apiPath: params.apiPath });
         const generatedSwagger = response.swagger;
-        const swaggerServer: SwaggerServer = new SwaggerServer();
         const port = await getPortPromise({ port: 1000, stopPort: 3000 });
         const cors_proxy = require('cors-anywhere');
         cors_proxy.createServer({
             originWhitelist: [], // Allow all origins
             requireHeader: ['origin', 'x-requested-with']
         }).listen(port, 'localhost');
-
-        // Swagger Request
-        const runtimePanel = RuntimeServicesWebview.currentPanel?.getWebview();
-        runtimePanel?.webview.onDidReceiveMessage(
-            async message => {
-                if (message.command !== 'swaggerRequest') {
-                    return;
-                }
-                await swaggerServer.sendRequest(message.req, false).then((response) => {
-                    runtimePanel!.webview.postMessage({
-                        command: 'swaggerResponse',
-                        res: response
-                    });
-                });
-            }
-        );
 
         RPCLayer._messenger.sendNotification(onSwaggerSpecReceived, { type: 'webview', webviewType: 'micro-integrator.runtime-services-panel' }, { generatedSwagger: generatedSwagger, port: port });
 
