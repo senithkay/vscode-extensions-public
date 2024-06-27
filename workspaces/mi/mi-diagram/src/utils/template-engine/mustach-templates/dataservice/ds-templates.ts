@@ -12,7 +12,7 @@ import Mustache from "mustache";
 export function getDssQueryTemplate() {
     return `
         <query id="{{queryName}}" useConfig="{{datasource}}" {{#returnGeneratedKeys}}returnGeneratedKeys="{{returnGeneratedKeys}}"{{/returnGeneratedKeys}} {{#keyColumns}}keyColumns="{{keyColumns}}"{{/keyColumns}} {{#returnUpdatedRowCount}}returnUpdatedRowCount="{{returnUpdatedRowCount}}"{{/returnUpdatedRowCount}}>
-        {{#sqlQuery}}<sql>{{{sqlQuery}}}</sql>{{/sqlQuery}}{{^sqlQuery}}<sql />{{/sqlQuery}}
+        <sql>{{{sqlQuery}}}</sql>
         {{#queryParams}}
         {{#hasValidators}}<param name="{{paramName}}" paramType="{{paramType}}" sqlType="{{sqlType}}" {{#defaultValue}}defaultValue="{{defaultValue}}"{{/defaultValue}} type="{{type}}" {{#ordinal}}ordinal="{{ordinal}}"{{/ordinal}}>
           {{#validators}}
@@ -59,7 +59,7 @@ export function getDssResourceQueryParamsTemplate() {
 }
 
 export function getDssResourceSelfClosingTemplate() {
-    return `<call-query href="{{query}}" />}`;
+    return `<call-query href="{{query}}" />`;
 }
 
 export function getDssResourceTemplate() {
@@ -110,6 +110,11 @@ export function getDssQueryXml(data: { [key: string]: any }) {
         }
         data.returnGeneratedKeys = data.returnGeneratedKeys ? data.returnGeneratedKeys : null;
         data.returnUpdatedRowCount = data.returnUpdatedRowCount ? data.returnUpdatedRowCount : null;
+        assignNullToEmptyStrings(data.result);
+        if (data.result.outputType === null || data.result.outputType !== 'json') {
+            delete data.result["jsonPayload"];
+        }
+        data.result = Object.values(data.result).every(value => value === null) ? null : data.result;
 
     const output = Mustache.render(getDssQueryTemplate(), data)?.trim();
     return output;
