@@ -11,7 +11,7 @@ import React from "react";
 import SwaggerUI from "swagger-ui-react";
 import { parse } from "yaml";
 import { View } from "./components/View";
-import "swagger-ui-react/swagger-ui.css"
+import '@wso2-enterprise/ui-toolkit/src/styles/swagger/main.scss';
 import { SwaggerData, Request, Response } from "@wso2-enterprise/mi-core";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 
@@ -67,7 +67,7 @@ export function SwaggerPanel(props: SwaggerPanelProps) {
     // TODO: Support SwaggerUI for darkThemes
     return (
         <View>
-            <div style={{ overflow: 'scroll', background: 'white', height: '100%' }}>
+            <div style={{ overflow: 'scroll', padding:'20px', height: '100%' }}>
                 <SwaggerUI requestInterceptor={requestInterceptor}
                     responseInterceptor={responseInterceptor} spec={openapiSpec} showMutatedRequest={false} />
             </div>

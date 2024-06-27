@@ -291,7 +291,7 @@ export function RuntimeServicePanel() {
             <>
                 {isSwaggerEnabled.isSwaggerTriggered && isSwaggerEnabled.swaggerData ?
                     <>
-                        <NavigationContainer id="nav-bar-main">
+                        <NavigationContainer id="nav-bar-main" style={{paddingLeft: '20px'}}>
                             <VSCodeButton appearance="icon" title="Go Back" onClick={handleBackButtonClick}>
                                 <Codicon name="arrow-left" />
                             </VSCodeButton>
