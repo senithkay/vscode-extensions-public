@@ -192,7 +192,14 @@ export function DSSServiceDesignerView({ syntaxTree, documentUri }: ServiceDesig
 
     const openDiagram = (resource: Resource) => {
         const resourceIndex = resourceServiceModel.resources.findIndex((res) => res === resource);
-        const href = syntaxTree.data.resources[resourceIndex]?.callQuery?.href;
+        let href;
+        if (resourceIndex < 0) {
+            const operationIndex = operationServiceModel.resources.findIndex((res) => res === resource);
+            href = syntaxTree.data.operations[operationIndex]?.callQuery?.href;
+        } else {
+            href = syntaxTree.data.resources[resourceIndex]?.callQuery?.href;
+        }
+
         if (!href) {
             rpcClient.getMiDiagramRpcClient().showErrorMessage({ message: "Cannot find the query for selected resource" });
             return;

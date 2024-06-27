@@ -9,15 +9,15 @@
 
 import React, { useEffect, useRef } from 'react';
 import { Button, ComponentCard, ProgressIndicator, Typography } from '@wso2-enterprise/ui-toolkit';
-import styled from '@emotion/styled';
 import SidePanelContext from '../../SidePanelContexProvider';
-import { AddMediatorProps, getParamManagerValues, getParamManagerFromValues } from '../mediators/common';
+import { AddMediatorProps, getParamManagerValues } from '../mediators/common';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../utils/template-engine/mustach-templates/templateUtils';
-import { MEDIATORS } from '../../../../resources/constants';
 import { Controller, useForm } from 'react-hook-form';
-import { ParamManager, ParamValue } from '../../../Form/ParamManager/ParamManager';
+import { ParamConfig, ParamManager, ParamValue } from '../../../Form/ParamManager/ParamManager';
 import { sidepanelGoBack } from '../..';
+import { DATA_SERVICE } from "../../../../resources/constants";
+import { getParamManagerFromValues } from "../../../../utils/template-engine/mustach-templates/dataservice/ds"
 
 const cardStyle = { 
     display: "block",
@@ -27,111 +27,193 @@ const cardStyle = {
     cursor: "auto"
 };
 
-const Error = styled.span`
-   color: var(--vscode-errorForeground);
-   font-size: 12px;
-`;
-
-const Field = styled.div`
-   margin-bottom: 12px;
-`;
-
 const InputMappingsForm = (props: AddMediatorProps) => {
     const { rpcClient } = useVisualizerContext();
     const sidePanelContext = React.useContext(SidePanelContext);
     const [ isLoading, setIsLoading ] = React.useState(true);
     const handleOnCancelExprEditorRef = useRef(() => { });
 
-    const { control, formState: { errors, dirtyFields }, handleSubmit, watch, reset } = useForm();
+    const { control, handleSubmit, reset } = useForm();
 
     useEffect(() => {
-        reset({
-            inputMappings: {
-                paramValues: sidePanelContext?.formValues?.inputMappings ? getParamManagerFromValues(sidePanelContext?.formValues?.inputMappings, 0) : [],
-                paramFields: [
-                    {
-                        "type": "TextField",
-                        "label": "Mapping Name",
-                        "defaultValue": "",
-                        "isRequired": false
-                    },
-                    {
-                        "type": "TextField",
-                        "label": "Query Parameter",
-                        "defaultValue": "",
-                        "isRequired": false
-                    },
-                    {
-                        "type": "Dropdown",
-                        "label": "Parameter Type",
-                        "defaultValue": "Scalar",
-                        "isRequired": false,
-                        "values": [
-                            "Scalar",
-                            "Array"
-                        ]
-                    },
-                    {
-                        "type": "Dropdown",
-                        "label": "SQL Type",
-                        "defaultValue": "String",
-                        "isRequired": false,
-                        "values": [
-                            "String",
-                            "Integer",
-                            "Real",
-                            "Double",
-                            "Numeric",
-                            "TINYINT",
-                            "SMALLINT",
-                            "BIGINT",
-                            "DATE",
-                            "TIME",
-                            "TIMESTAMP",
-                            "BIT",
-                            "ORACLE REF CURSOR",
-                            "BINARY",
-                            "BLOB",
-                            "CLOB",
-                            "STRUCT",
-                            "ARRAY",
-                            "UUID",
-                            "VARINT",
-                            "INETADDRESS",
-                            "QUERY_STRING"
-                        ]
-                    },
-                    {
-                        "type": "TextField",
-                        "label": "Default Value",
-                        "defaultValue": "",
-                        "isRequired": false
-                    },
-                    {
-                        "type": "Dropdown",
-                        "label": "IN/OUT Type",
-                        "defaultValue": "IN",
-                        "isRequired": false,
-                        "values": [
-                            "IN",
-                            "OUT",
-                            "INOUT"
-                        ]
-                    },
-                    {
-                        "type": "TextField",
-                        "label": "Ordinal",
-                        "defaultValue": "",
-                        "isRequired": false
-                    },
-                    {
-                        "defaultValue": "",
-                        "isRequired": false
-                    },
-                ]
-            },
-        });
-        setIsLoading(false);
+        (async () => {
+            const queryParams: any[] = [];
+            let isInResource = false;
+            const st = await rpcClient.getMiDiagramRpcClient().getSyntaxTree({documentUri: props.documentUri});
+            st.syntaxTree.data.resources.forEach((resource: any) => {
+                if (resource.callQuery.href === sidePanelContext?.formValues?.queryObject.queryName) {
+                    if (resource.callQuery.withParam !== undefined) {
+                        resource.callQuery.withParam.forEach((param: any) => {
+                            queryParams.push({name: param.name, queryParam: param.queryParam});
+                        });
+                    }
+                    isInResource = true;
+                }
+            });
+            if (!isInResource) {
+                st.syntaxTree.data.operations.forEach((operation: any) => {
+                    if (operation.callQuery.href === sidePanelContext?.formValues?.queryObject.queryName) {
+                        if (operation.callQuery.withParam !== undefined) {
+                            operation.callQuery.withParam.forEach((param: any) => {
+                                queryParams.push({name: param.name, queryParam: param.queryParam});
+                            });
+                        }
+                        isInResource = true;
+                    }
+                });
+            }
+            sidePanelContext?.formValues?.inputMappings.forEach((element: any) => {
+                const matchingParam = queryParams.find(queryParam => queryParam.name === element[0]);
+                if (matchingParam) {
+                    element[1] = matchingParam.queryParam;
+                }
+            });
+            reset({
+                inputMappings: {
+                    paramValues: sidePanelContext?.formValues?.inputMappings ? getParamManagerFromValues(sidePanelContext?.formValues?.inputMappings, 0) : [],
+                    paramFields: [
+                        {
+                            "type": "TextField",
+                            "label": "Mapping Name",
+                            "defaultValue": "",
+                            "isRequired": false
+                        },
+                        {
+                            "type": "TextField",
+                            "label": "Query Parameter",
+                            "defaultValue": "",
+                            "isRequired": false
+                        },
+                        {
+                            "type": "Dropdown",
+                            "label": "Parameter Type",
+                            "defaultValue": "SCALAR",
+                            "isRequired": false,
+                            "values": [
+                                "SCALAR",
+                                "ARRAY"
+                            ]
+                        },
+                        {
+                            "type": "Dropdown",
+                            "label": "SQL Type",
+                            "defaultValue": "STRING",
+                            "isRequired": false,
+                            "values": [
+                                "STRING",
+                                "INTEGER",
+                                "REAL",
+                                "DOUBLE",
+                                "NUMERIC",
+                                "TINYINT",
+                                "SMALLINT",
+                                "BIGINT",
+                                "DATE",
+                                "TIME",
+                                "TIMESTAMP",
+                                "BIT",
+                                "ORACLE REF CURSOR",
+                                "BINARY",
+                                "BLOB",
+                                "CLOB",
+                                "STRUCT",
+                                "ARRAY",
+                                "UUID",
+                                "VARINT",
+                                "INETADDRESS",
+                                "QUERY_STRING"
+                            ]
+                        },
+                        {
+                            "type": "TextField",
+                            "label": "Default Value",
+                            "defaultValue": "",
+                            "isRequired": false
+                        },
+                        {
+                            "type": "Dropdown",
+                            "label": "IN/OUT Type",
+                            "defaultValue": "IN",
+                            "isRequired": false,
+                            "values": [
+                                "IN",
+                                "OUT",
+                                "INOUT"
+                            ]
+                        },
+                        {
+                            "type": "TextField",
+                            "label": "Ordinal",
+                            "defaultValue": "",
+                            "isRequired": false
+                        },
+                        {
+                            "type": "ParamManager",
+                            "label": "Validators",
+                            "defaultValue": "",
+                            "isRequired": false,
+                            "paramManager": {
+                                paramConfigs: {
+                                    paramValues: sidePanelContext?.formValues?.paramElements ? getParamManagerFromValues(sidePanelContext?.formValues?.paramElements, 0) : [],
+                                    paramFields: [
+                                        {
+                                            "type": "Dropdown",
+                                            "label": "Validator Type",
+                                            "defaultValue": "Long Range Validator",
+                                            "isRequired": false,
+                                            "values": [
+                                                "Long Range Validator",
+                                                "Double Range Validator",
+                                                "Length Validator",
+                                                "Pattern Validator"
+                                            ]
+                                        },
+                                        {
+                                            "type": "TextField",
+                                            "label": "Minimum Value",
+                                            "defaultValue": "",
+                                            "isRequired": false,
+                                            "enableCondition": [
+                                                "NOT",
+                                                {
+                                                    "0": "Pattern Validator"
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "type": "TextField",
+                                            "label": "Maximum Value",
+                                            "defaultValue": "",
+                                            "isRequired": false,
+                                            "enableCondition": [
+                                                "NOT",
+                                                {
+                                                    "0": "Pattern Validator"
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "type": "TextField",
+                                            "label": "Pattern",
+                                            "defaultValue": "",
+                                            "isRequired": false,
+                                            "enableCondition": [
+                                                {
+                                                    "0": "Pattern Validator"
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                },
+                                openInDrawer: true,
+                                addParamText: "Add Validator"
+                            }
+                        }
+                    ]
+                },
+            });
+            setIsLoading(false);
+        })();
     }, [sidePanelContext.formValues]);
 
     useEffect(() => {
@@ -140,21 +222,89 @@ const InputMappingsForm = (props: AddMediatorProps) => {
         };
     }, [sidePanelContext.pageStack]);
 
+    const getValidatorValue = (property: any) => {
+        return property[0].value === 'Pattern Validator' ? "pattern: " + property[3].value :
+            "min: " + property[1].value + "; max: " + property[2].value;
+    }
+
     const onClick = async (values: any) => {
         
         values["inputMappings"] = getParamManagerValues(values.inputMappings);
-        // const xml = getXML(MEDIATORS.INPUTMAPPINGS, values, dirtyFields, sidePanelContext.formValues);
-        // if (Array.isArray(xml)) {
-        //     for (let i = 0; i < xml.length; i++) {
-        //         await rpcClient.getMiDiagramRpcClient().applyEdit({
-        //             documentUri: props.documentUri, range: xml[i].range, text: xml[i].text
-        //         });
-        //     }
-        // } else {
-        //     rpcClient.getMiDiagramRpcClient().applyEdit({
-        //         documentUri: props.documentUri, range: props.nodePosition, text: xml
-        //     });
-        // }
+
+        const queryParams: any[] = [];
+        const queryParameters: any = values["inputMappings"].map((param: any) => {
+            queryParams.push({ key: param[0], value: param[1] });
+            const validators = param[7].map((paramElement: any) => {
+                let paramEle;
+                if (paramElement[0] !== "Pattern Validator") {
+                    paramEle = {
+                        validationType: paramElement[0],
+                        minimum: paramElement[1],
+                        maximum: paramElement[2]
+                    };
+                } else {
+                    paramEle = {
+                        validationType: paramElement[0],
+                        pattern: paramElement[3]
+                    };
+                }
+                return paramEle;
+            }) ?? [];
+            return {
+                paramName: param[0],
+                paramType: param[2],
+                sqlType: param[3],
+                defaultValue: param[4],
+                type: param[5],
+                ordinal: param[6],
+                validators: validators,
+                hasValidators: validators.length > 0
+            };
+        });
+        const updatedQuery = sidePanelContext?.formValues?.queryObject;
+        updatedQuery.queryParams = queryParameters;
+
+        const resourceQuery = {
+            query: sidePanelContext?.formValues?.queryObject.queryName,
+            queryParams: queryParams,
+            hasQueryParams: queryParams.length > 0
+        };
+
+        let xml = getXML(DATA_SERVICE.EDIT_QUERY, updatedQuery).replace(/^\s*[\r\n]/gm, '');
+        const range = sidePanelContext?.formValues?.queryObject.range;
+        await rpcClient.getMiDiagramRpcClient().applyEdit({
+              text: xml, documentUri: props.documentUri,
+            range: {start: range.startTagRange.start, end: range.endTagRange.end}
+        });
+
+        const st = await rpcClient.getMiDiagramRpcClient().getSyntaxTree({documentUri: props.documentUri});
+        let isInResource = false;
+        let resourceData: any = {};
+        st.syntaxTree.data.resources.forEach((resource: any) => {
+            if (resource.callQuery.href === sidePanelContext?.formValues?.queryObject.queryName) {
+                resourceData.resourceRange = resource.callQuery.range;
+                resourceData.selfClosed = resource.callQuery.selfClosed;
+                isInResource = true;
+            }
+        });
+        if (!isInResource) {
+            st.syntaxTree.data.operations.forEach((operation: any) => {
+                if (operation.callQuery.href === sidePanelContext?.formValues?.queryObject.queryName) {
+                    resourceData.resourceRange = operation.callQuery.range;
+                    resourceData.selfClosed = operation.callQuery.selfClosed;
+                }
+            });
+        }
+
+        if (Object.keys(resourceData).length !== 0) {
+            xml = getXML(DATA_SERVICE.EDIT_RESOURCE_PARAMS, resourceQuery);
+            const end = resourceData.selfClosed ? resourceData.resourceRange.startTagRange.end : resourceData.resourceRange.endTagRange.end;
+            await rpcClient.getMiDiagramRpcClient().applyEdit({
+                text: xml, documentUri: props.documentUri,
+                range: {start: resourceData.resourceRange.startTagRange.start, end: end}
+            });
+        }
+
         sidePanelContext.setSidePanelState({
             ...sidePanelContext,
             isOpen: false,
@@ -185,11 +335,18 @@ const InputMappingsForm = (props: AddMediatorProps) => {
                                 paramConfigs={value}
                                 readonly={false}
                                 onChange= {(values) => {
-                                    values.paramValues = values.paramValues.map((param: any, index: number) => {
+                                    values.paramValues = values.paramValues.map((param: any) => {
                                         const property: ParamValue[] = param.paramValues;
                                         param.key = property[0].value;
                                         param.value = property[1].value;
-                                        param.icon = 'query';
+
+                                        (property[7].value as ParamConfig).paramValues = (property[7].value as ParamConfig).paramValues.map((param: any) => {
+                                            const property: ParamValue[] = param.paramValues;
+                                            param.key = property[0].value;
+                                            param.value = getValidatorValue(property);
+                                            return param;
+                                        });
+
                                         return param;
                                     });
                                     onChange(values);

@@ -83,6 +83,8 @@ export type AIMachineStateValue = 'Initialize' | 'loggedOut' | 'Ready' | 'Waitin
 
 export type PopupMachineStateValue = 'initialize' | 'ready' | { open: 'active' } | { ready: 'reopen' } | { ready: 'notify' } | 'disabled';
 
+export type MiServerRunStatus = 'Running' | 'Stopped';
+
 export enum AI_EVENT_TYPE {
     LOGIN = "LOGIN",
     SIGN_IN_SUCCESS = "SIGN_IN_SUCCESS",
@@ -97,6 +99,7 @@ export enum AI_EVENT_TYPE {
 
 export enum EVENT_TYPE {
     OPEN_VIEW = "OPEN_VIEW",
+    REPLACE_VIEW = "REPLACE_VIEW",
     CLEAR_PROMPT = "CLEAR_PROMPT",
     FILE_EDIT = "FILE_EDIT",
     EDIT_DONE = "EDIT_DONE",
@@ -148,6 +151,7 @@ export interface VisualizerLocation {
     displayOverview?: boolean;
     customProps?: any;
     dataMapperProps?: DataMapperProps;
+    type?: string;
 }
 
 export interface PopupVisualizerLocation extends VisualizerLocation {
@@ -197,6 +201,7 @@ export const sendAIStateEvent: RequestType<AI_EVENT_TYPE, void> = { method: 'sen
 export const onFileContentUpdate: NotificationType<void> = { method: `onFileContentUpdate` };
 export const webviewReady: NotificationType<void> = { method: `webviewReady` };
 export const onSwaggerSpecReceived: NotificationType<SwaggerData> = { method: `onSwaggerSpecReceived` };
+export const miServerRunStateChanged: NotificationType<MiServerRunStatus> = { method: `miServerRunStateChanged` };
 export const onParentPopupSubmitted: NotificationType<ParentPopupData> = { method: `onParentPopupSubmitted` };
 export const onConnectorStatusUpdate: NotificationType<ConnectorStatus> = { method: `onConnectorStatusUpdate` }; 
 export const onDocumentSave: NotificationType<Document> = { method: `onDocumentSave` };

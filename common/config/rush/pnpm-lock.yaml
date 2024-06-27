@@ -3425,6 +3425,7 @@ importers:
       '@types/react-split-pane': ~0.1.67
       '@types/react-syntax-highlighter': ~15.5.11
       '@types/swagger-ui-react': ^4.18.3
+      '@types/uuid': ~9.0.1
       '@types/vscode-webview': ^1.57.4
       '@uiw/react-codemirror': ~4.21.22
       '@vscode/webview-ui-toolkit': ^1.2.0
@@ -3448,11 +3449,13 @@ importers:
       react-markdown: ~9.0.1
       react-split-pane: ~0.1.92
       react-syntax-highlighter: ~15.5.0
+      sass-loader: ^13.2.0
       source-map-loader: ^4.0.1
       style-loader: ^1.3.0
       swagger-ui-react: 5.17.4
       ts-loader: ^9.5.0
       typescript: ^5.2.2
+      uuid: ~9.0.1
       vscode-languageserver-types: ~3.17.5
       webpack: ~5.88.2
       webpack-cli: ~5.1.4
@@ -3473,6 +3476,7 @@ importers:
       '@types/react-split-pane': 0.1.67_biqbaboplfbrettd7655fr4n2y
       '@types/react-syntax-highlighter': 15.5.11
       '@types/swagger-ui-react': 4.18.3
+      '@types/uuid': 9.0.8
       '@types/vscode-webview': 1.57.5
       '@uiw/react-codemirror': 4.21.24_4ndsyykedba3u2psgexaldpule
       '@vscode/webview-ui-toolkit': 1.4.0_react@18.2.0
@@ -3495,6 +3499,7 @@ importers:
       react-split-pane: 0.1.92_biqbaboplfbrettd7655fr4n2y
       react-syntax-highlighter: 15.5.0_react@18.2.0
       swagger-ui-react: 5.17.4_jczjbtsmbzi7zofs22bstoer6y
+      uuid: 9.0.1
       yup: 1.4.0
     devDependencies:
       '@babel/plugin-syntax-flow': 7.22.5
@@ -3511,6 +3516,7 @@ importers:
       '@types/react-dom': 18.2.19
       copyfiles: 2.4.1
       css-loader: 5.2.7_webpack@5.88.2
+      sass-loader: 13.3.3_webpack@5.88.2
       source-map-loader: 4.0.2_webpack@5.88.2
       style-loader: 1.3.0_webpack@5.88.2
       ts-loader: 9.5.1_agrs654gu7r7hszw6atq2y3ksu
@@ -21839,7 +21845,6 @@ packages:
 
   /@types/uuid/9.0.8:
     resolution: {integrity: sha512-jg+97EGIcY9AGHJJRaaPVgetKDsrTgbRjQ5Msgjh/DQKEFl0DtyRr/VCOyD1T2R1MNeWPK/u7JoGhlDZnKBAfA==}
-    dev: true
 
   /@types/vscode-notebook-renderer/1.72.3:
     resolution: {integrity: sha512-MfmEI3A2McbUV2WaijoTgLOAs9chwHN4WmqOedl3jdtlbzJBWIQ9ZFmQdzPa3lYr5j8DJhRg3KB5AIM/BBfg9Q==}
@@ -44544,6 +44549,29 @@ packages:
       neo-async: 2.6.2
       node-sass: 8.0.0
       webpack: 5.90.1_webpack-cli@5.1.4
+    dev: true
+
+  /sass-loader/13.3.3_webpack@5.88.2:
+    resolution: {integrity: sha512-mt5YN2F1MOZr3d/wBRcZxeFgwgkH44wVc2zohO2YF6JiOMkiXe4BYRZpSu2sO1g71mo/j16txzUhsKZlqjVGzA==}
+    engines: {node: '>= 14.15.0'}
+    peerDependencies:
+      fibers: '>= 3.1.0'
+      node-sass: ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0 || ^9.0.0
+      sass: ^1.3.0
+      sass-embedded: '*'
+      webpack: ^5.0.0
+    peerDependenciesMeta:
+      fibers:
+        optional: true
+      node-sass:
+        optional: true
+      sass:
+        optional: true
+      sass-embedded:
+        optional: true
+    dependencies:
+      neo-async: 2.6.2
+      webpack: 5.88.2_webpack-cli@5.1.4
     dev: true
 
   /sass/1.70.0:

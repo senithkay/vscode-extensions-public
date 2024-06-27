@@ -30,7 +30,7 @@ import { getNamedEndpointXml } from "./endpoints/named";
 import { getRecipientListEndpointMustacheTemplate } from "./endpoints/recipientList";
 import { getTemplateEndpointMustacheTemplate } from "./endpoints/template";
 import { getWSDLEndpointMustacheTemplate } from "./endpoints/wsdl";
-import { MEDIATORS, ENDPOINTS, SERVICE, DATA_SERVICE_NODES } from "../../../resources/constants";
+import { MEDIATORS, ENDPOINTS, SERVICE, DATA_SERVICE_NODES, DATA_SERVICE } from "../../../resources/constants";
 import { getFilterFormDataFromSTNode, getFilterMustacheTemplate, getFilterXml } from "./filter/filter";
 import { getSequenceMustacheTemplate, getSequenceDataFromSTNode, getSequenceXml } from "./core/sequence";
 import { getStoreFormDataFromSTNode, getStoreMustacheTemplate, getStoreXml } from "./core/store";
@@ -73,6 +73,7 @@ import { getDBLookupFormDataFromSTNode, getDBLookupMustacheTemplate, getDblookup
 import { getDBReportFormDataFromSTNode, getDBReportMustacheTemplate, getDbReportXml } from "./data/dbreport";
 import { getDSInputMappingsFromSTNode, getDSOutputMappingsFromSTNode, getDSQueryFromSTNode, getDSTransformationFromSTNode } from "./dataservice/ds";
 import { Query } from "@wso2-enterprise/mi-syntax-tree/src";
+import { getDssQueryXml, getDssResourceQueryParamsXml, getDssResourceSelfClosingXml, getDssResourceXml } from "./dataservice/ds-templates";
 
 export function getMustacheTemplate(name: string) {
     switch (name) {
@@ -319,6 +320,16 @@ export function getXML(name: string, data: { [key: string]: any }, dirtyFields?:
         // Endpoint Forms
         case ENDPOINTS.HTTP:
             return getHTTPEndpointXml(data);
+
+        // Data Service Forms
+        case DATA_SERVICE.EDIT_QUERY:
+            return getDssQueryXml(data);
+        case DATA_SERVICE.EDIT_RESOURCE_PARAMS:
+            return getDssResourceQueryParamsXml(data);
+        case DATA_SERVICE.EDIT_RESOURCE:
+            return getDssResourceXml(data);
+        case DATA_SERVICE.EDIT_SELF_CLOSE_RESOURCE:
+            return getDssResourceSelfClosingXml(data);
 
         default:
             return Mustache.render(getMustacheTemplate(name), data).trim();
