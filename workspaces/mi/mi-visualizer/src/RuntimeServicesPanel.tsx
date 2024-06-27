@@ -26,9 +26,18 @@ const ProxyContent = styled.div`
         background-color: var(--vscode-list-hoverBackground);
     };
     display: grid;
-    grid-template-columns: 2fr 3fr 3fr 0.75fr;
+    grid-template-columns: 2fr 3fr 3fr;
     overflow: hidden;
     gap: 10px;
+`;
+
+const ServerStatus = styled.div`
+    align-items: center;
+    padding: 10px;
+    background-color: var(--vscode-editorHoverWidget-background);
+    &:hover {
+        background-color: var(--vscode-list-hoverBackground);
+    };
 `;
 
 const ApiContent = styled.div`
@@ -100,7 +109,7 @@ const HeaderTitle = styled.div`
 const ProxyContentHeader = styled.div`
     padding: 10px;
     display: grid;
-    grid-template-columns: 2fr 3fr 3fr 0.75fr;
+    grid-template-columns: 2fr 3fr 3fr;
     overflow: hidden;
 `;
 
@@ -159,7 +168,6 @@ export function RuntimeServicePanel() {
         }
     };
 
-    // TODO: Refactor service rendering
     // TODO: Support Data services
 
     const apiServices = () => {
@@ -248,12 +256,6 @@ export function RuntimeServicePanel() {
                                         {entry.wsdl2_0}
                                     </Details>
                                 </Tooltip>
-                                <VSCodeButton
-                                    appearance="primary"
-                                    onClick={onTryit} title={"Try service"} style={{ width: 'max-content', justifySelf: 'flex-end' }}
-                                >
-                                    <ButtonWrapper>{"Try it"}</ButtonWrapper>
-                                </VSCodeButton>
                             </ProxyContent>
                         </>
                     ))}
@@ -261,6 +263,22 @@ export function RuntimeServicePanel() {
             )
         }
     }
+
+    const renderRuntimeServices = () => {
+        if (services?.api?.count === 0 && services?.proxy?.count === 0) {
+            return (
+                <div>No Runtime Services Available</div>
+            )
+        } else {
+            return (
+                <>
+                    {apiServices()}
+                    {proxyServices()}
+                </>
+            )
+        }
+    }
+
 
     const handleBackButtonClick = () => {
         setSwaggerEnabled({
@@ -279,22 +297,21 @@ export function RuntimeServicePanel() {
                             </VSCodeButton>
                         </NavigationContainer>
                         <ViewHeader title={"Swagger View"} >
-                            <div>Server Status: {serverRunStatus}</div>
+                            <ServerStatus>Server Status: {serverRunStatus}</ServerStatus>
                         </ViewHeader>
                         <SwaggerPanel swaggerData={isSwaggerEnabled.swaggerData} />
                     </>
                     :
                     <>
                         <ViewHeader title={"Available Runtime Services"} codicon='server' >
-                            <div>Server Status: {serverRunStatus}</div>
+                            <ServerStatus>Server Status: {serverRunStatus}</ServerStatus>
                         </ViewHeader>
 
                         <ViewContent padding={true}>
                             {services ?
                                 (
                                     <Fragment>
-                                        {apiServices()}
-                                        {proxyServices()}
+                                        {renderRuntimeServices()}
                                     </Fragment>
                                 ) :
                                 (
