@@ -28,7 +28,7 @@ import {
     GetOperatorsResponse,
     DMOperator
 } from "@wso2-enterprise/mi-core";
-import { fetchIOTypes, fetchSubMappingTypes } from "../../util/dataMapper";
+import { fetchIOTypes, fetchSubMappingTypes,fetchOperators } from "../../util/dataMapper";
 import { Project } from "ts-morph";
 import { navigate } from "../../stateMachine";
 import { generateSchema } from "../../util/schemaBuilder";
@@ -176,21 +176,20 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
                     const isInbuilt = details.kindModifiers.includes('declare');
                     const isImported = details.sourceDisplay != undefined;
 
-                    // Extract parameter details if it's a function or method
                     if (details.kind === 'function' || details.kind === 'method') {
-                        const parameters: any = [];
-                        let paramName: any = null;
+                        const parameters: string[] = [];
+                        let paramName: string = '';
 
                         details.displayParts.forEach(part => {
-                            if (part.kind === 'parameterName') {
-                                paramName = part.text;
-                            } else if (paramName && part.kind === 'punctuation' && part.text === ':') {
-                                // Skipping the colon
-                            } else if (paramName && part.kind !== 'punctuation' && part.kind !== 'space') {
-                                parameters.push({ name: paramName, datatype: part.text });
-                                paramName = null;  // Reset for the next parameter
+                            if (part.kind === 'parameterName' || part.text === '...') {
+                                paramName += part.text;
+                            } else if (paramName && part.text === ':') {
+                                parameters.push(paramName);
+                                paramName = '';
                             }
                         });
+
+                        
 
                         console.log(entry.name, details,parameters,{isInbuilt,isImported});
 
@@ -416,7 +415,7 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
 
     async getOperators(params: GetOperatorsRequest): Promise<GetOperatorsResponse> {
         // console.log(params);
-        this.getCompletions(params.filePath);
+        fetchOperators(params.filePath);
 
         return new Promise(async (resolve, reject) => {
             try {

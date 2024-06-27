@@ -67,6 +67,81 @@ export function deriveConfigName(filePath: string) {
     return fileName.split(".")[0];
 }
 
+export function fetchOperators(filePath:string){
+    
+        const resolvedPath = path.resolve(filePath);
+        const project = new Project();
+        const sourceFile = project.addSourceFileAtPath(resolvedPath);
+
+        console.log("getComp");
+
+        const completionOptions = {
+            includeExternalModuleExports: true,
+            includeInsertTextCompletions: true,
+            // triggerCharacter: '.',
+            includeCompletionsForModuleExports: true,
+            includeCompletionsWithInsertText: true,
+            includeCompletionsWithSnippetText: true,
+            includeAutomaticOptionalChainCompletions: true,
+            includeCompletionsWithClassMemberSnippets: true,
+        };
+
+        const languageService = project.getLanguageService().compilerObject;
+
+        //     // const position = fileContent.lastIndexOf('.') + '.'.length;
+
+
+        const completions = languageService.getCompletionsAtPosition(resolvedPath, 0, completionOptions);
+
+        console.log("Completions");
+
+        if (completions) {
+
+            // const operatorsList:
+
+            completions.entries.forEach(entry => {
+
+                const details = languageService.getCompletionEntryDetails(
+                    resolvedPath,
+                    0,
+                    entry.name,
+                    {},
+                    entry.source,
+                    {
+                        importModuleSpecifierPreference: 'relative',
+                    },
+                    entry.data
+                );
+
+                // console.log(entry.name, details);
+
+                if (details) {
+                    const isInbuilt = details.kindModifiers.includes('declare');
+                    const isImported = details.sourceDisplay != undefined;
+
+                    if (details.kind === 'function' || details.kind === 'method') {
+                        const parameters: string[] = [];
+                        let paramName: string = '';
+
+                        details.displayParts.forEach(part => {
+                            if (part.kind === 'parameterName' || part.text === '...') {
+                                paramName += part.text;
+                            } else if (paramName && part.text === ':') {
+                                parameters.push(paramName);
+                                paramName = '';
+                            }
+                        });
+
+                        
+
+                        console.log(entry.name, details,parameters,{isInbuilt,isImported});
+
+                    }
+                }
+            });
+        }
+}
+
 function getDMFunction(filePath: string, functionName: string) {
     try {
         const resolvedPath = path.resolve(filePath);
