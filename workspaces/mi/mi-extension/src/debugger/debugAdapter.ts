@@ -20,9 +20,10 @@ import { ViewColumn } from 'vscode';
 import { COMMANDS } from '../constants';
 import { INCORRECT_SERVER_PATH_MSG } from './constants';
 import { extension } from '../MIExtensionContext';
-import { EVENT_TYPE } from '@wso2-enterprise/mi-core';
+import { EVENT_TYPE, miServerRunStateChanged } from '@wso2-enterprise/mi-core';
 import { DebuggerConfig } from './config';
 import { openRuntimeServicesWebview } from '../runtime-services-panel/activate';
+import { RPCLayer } from '../RPCLayer';
 
 export class MiDebugAdapter extends LoggingDebugSession {
     private _configurationDone = new Subject();
@@ -272,6 +273,9 @@ export class MiDebugAdapter extends LoggingDebugSession {
                                     checkServerReadiness().then(() => {
                                         openRuntimeServicesWebview();
                                         vscode.commands.executeCommand('setContext', 'MI.isRunning', 'true');
+                                        extension.context.workspaceState.update("isMiRunning", 'true');
+                                        RPCLayer._messenger.sendNotification(miServerRunStateChanged, { type: 'webview', webviewType: 'micro-integrator.runtime-services-panel' }, 'Running');
+
                                         response.success = true;
                                         this.sendResponse(response);
                                     }).catch(error => {
@@ -360,6 +364,8 @@ export class MiDebugAdapter extends LoggingDebugSession {
                 }
             }
             vscode.commands.executeCommand('setContext', 'MI.isRunning', 'false');
+            RPCLayer._messenger.sendNotification(miServerRunStateChanged, { type: 'webview', webviewType: 'micro-integrator.runtime-services-panel' }, 'Stopped');
+
         } else {
             this.sendError(response, 3, `Error while disconnecting: Task Run was not found`);
         }

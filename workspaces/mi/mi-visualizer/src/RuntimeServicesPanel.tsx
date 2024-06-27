@@ -9,16 +9,14 @@
 
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import React, { Fragment, useEffect, useState } from 'react';
-import { RuntimeServicesResponse, SwaggerData } from '@wso2-enterprise/mi-core';
+import { RuntimeServicesResponse, SwaggerData, MiServerRunStatus } from '@wso2-enterprise/mi-core';
 import styled from '@emotion/styled';
 import { View, ViewContent, ViewHeader } from './components/View';
 import { VSCodeButton } from '@vscode/webview-ui-toolkit/react';
-import { ButtonWrapper, Codicon, ProgressRing } from '@wso2-enterprise/ui-toolkit';
-import { set } from 'lodash';
+import { ButtonWrapper, Codicon, ProgressRing, Tooltip } from '@wso2-enterprise/ui-toolkit';
 import { SwaggerPanel } from './SwaggerPanel';
 
-const EntryContainer = styled.div`
-    display: flex;
+const ProxyContent = styled.div`
     align-items: center;
     margin-bottom: 10px;
     padding: 10px;
@@ -26,7 +24,41 @@ const EntryContainer = styled.div`
     background-color: var(--vscode-editorHoverWidget-background);
     &:hover {
         background-color: var(--vscode-list-hoverBackground);
-    }
+    };
+    display: grid;
+    grid-template-columns: 2fr 3fr 3fr;
+    overflow: hidden;
+    gap: 10px;
+`;
+
+const ServerStatus = styled.div`
+    align-items: center;
+    padding: 10px;
+    background-color: var(--vscode-editorHoverWidget-background);
+    &:hover {
+        background-color: var(--vscode-list-hoverBackground);
+    };
+`;
+
+const ApiContent = styled.div`
+    align-items: center;
+    margin-bottom: 10px;
+    padding: 10px;
+    cursor: pointer;
+    background-color: var(--vscode-editorHoverWidget-background);
+    &:hover {
+        background-color: var(--vscode-list-hoverBackground);
+    };
+    display: grid;
+    grid-template-columns: 1fr 3fr 0.75fr;
+    overflow: hidden;
+    gap: 10px;
+`;
+
+const Details = styled.div`
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 `;
 
 const LoaderWrapper = styled.div`
@@ -44,6 +76,50 @@ const NavigationContainer = styled.div`
     flex-start: left;
 `;
 
+const ServiceCard = styled.div`
+    border: 0.5px solid var(--vscode-editor-foreground);
+    border-radius: 2px;
+    cursor: pointer;
+    margin-bottom: 15px;
+    padding: 10px;
+`;
+
+const ServerHeader = styled.div`
+    display: flex;
+    margin-top: 5px;
+    margin-bottom: 20px;
+`;
+
+const ServiceIcon = styled.div`
+    width: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-right: 10px;
+`;
+
+const ServiceTitle = styled.h3`
+    margin: 0;
+`;
+
+const HeaderTitle = styled.div`
+    display: flex;
+`;
+
+const ProxyContentHeader = styled.div`
+    padding: 10px;
+    display: grid;
+    grid-template-columns: 2fr 3fr 3fr;
+    overflow: hidden;
+`;
+
+const APIContentHeader = styled.div`
+    padding: 10px;
+    display: grid;
+    grid-template-columns: 1fr 3fr 0.75fr;
+    overflow: hidden;
+`;
+
 export interface SwaggerDetails {
     isSwaggerTriggered: boolean;
     swaggerData?: SwaggerData;
@@ -53,13 +129,13 @@ export function RuntimeServicePanel() {
     const { rpcClient } = useVisualizerContext();
     const [services, setAvailableServices] = useState<RuntimeServicesResponse>();
     const [isSwaggerEnabled, setSwaggerEnabled] = useState<SwaggerDetails>({ isSwaggerTriggered: false });
+    const [serverRunStatus, setServerRunStatus] = useState<MiServerRunStatus>('Running' as MiServerRunStatus);
 
     useEffect(() => {
         if (rpcClient) {
 
             rpcClient.getMiVisualizerRpcClient().getAvailableRuntimeServices().then((services) => {
                 setAvailableServices(services);
-                console.log(services);
             });
         }
     }, [rpcClient]);
@@ -69,6 +145,10 @@ export function RuntimeServicePanel() {
             isSwaggerTriggered: true,
             swaggerData: data
         });
+    });
+
+    rpcClient.onMiServerRunStateChanged((newState: MiServerRunStatus) => {
+        setServerRunStatus(newState);
     });
 
     const onTryit = async (name: any) => {
@@ -88,31 +168,49 @@ export function RuntimeServicePanel() {
         }
     };
 
-    // TODO: Refactor service rendering
     // TODO: Support Data services
 
     const apiServices = () => {
         if (services?.api?.count > 0) {
             return (
-                <div>
-                    <h3>Deployed APIs</h3>
-
+                <ServiceCard>
+                    <ServerHeader>
+                        <ServiceIcon>
+                            <Codicon name={'globe'} />
+                        </ServiceIcon>
+                        <ServiceTitle>Deployed APIs</ServiceTitle>
+                    </ServerHeader>
+                    <APIContentHeader>
+                        <HeaderTitle>
+                            API Name
+                        </HeaderTitle>
+                        <HeaderTitle>
+                            URL
+                        </HeaderTitle>
+                    </APIContentHeader>
+                    <hr style={{
+                        borderColor: "var(--vscode-panel-border)", marginBottom: '15px'
+                    }} />
                     {Object.entries(services.api.list).map(([_, entry]) => (
                         <>
-                            <EntryContainer>
-                                <div style={{ flex: 2, fontWeight: 'bold' }}>
+                            <ApiContent>
+                                <Details style={{ fontWeight: 'bold' }}>
                                     {entry.name}
-                                </div>
-                                <div style={{ flex: 9 }}>
+                                </Details>
+                                <Details>
                                     {entry.url}
-                                </div>
-                                <VSCodeButton appearance="primary" onClick={() => onTryit(entry.name)} title={"Try service"} style={{ marginRight: 8 }}>
+                                </Details>
+                                <VSCodeButton
+                                    appearance="primary"
+                                    onClick={() => onTryit(entry.name)} title={"Try service"} style={{ width: 'max-content', justifySelf: 'flex-end' }}
+                                >
                                     <ButtonWrapper>{"Try it"}</ButtonWrapper>
                                 </VSCodeButton>
-                            </EntryContainer>
+                            </ApiContent>
+
                         </>
                     ))}
-                </div>
+                </ServiceCard>
             )
         }
     }
@@ -120,37 +218,73 @@ export function RuntimeServicePanel() {
     const proxyServices = () => {
         if (services?.proxy?.count > 0) {
             return (
-                <div>
-                    <h3>Deployed Proxy Services</h3>
+                <ServiceCard>
+                    <ServerHeader>
+                        <ServiceIcon>
+                            <Codicon name={'arrow-swap'} />
+                        </ServiceIcon>
+                        <ServiceTitle>Deployed Proxy Services</ServiceTitle>
+                    </ServerHeader>
+                    <ProxyContentHeader>
+                        <HeaderTitle>
+                            Proxy Name
+                        </HeaderTitle>
+                        <HeaderTitle>
+                            WSDL 1.1
+                        </HeaderTitle>
+                        <HeaderTitle>
+                            WSDL 2.0
+                        </HeaderTitle>
+                    </ProxyContentHeader>
+                    <hr style={{
+                        borderColor: "var(--vscode-panel-border)", marginBottom: '15px'
+                    }} />
                     {Object.entries(services.proxy.list).map(([_, entry]) => (
                         <>
-                            <EntryContainer style={{ overflow: 'scroll' }}>
-                                <div style={{ flex: 1, fontWeight: 'bold', marginRight: '10px' }}>
+                            <ProxyContent>
+                                <Details style={{ fontWeight: 'bold' }}>
                                     {entry.name}
-                                </div>
-                                <div style={{ flex: '1 1 40%', marginRight: '10px' }}>
-                                    {entry.wsdl1_1}
-                                </div>
-                                <div style={{ flex: '1 1 40%', marginRight: '10px' }}>
-                                    {entry.wsdl2_0}
-                                </div>
-                                <VSCodeButton appearance="primary" onClick={onTryit} title={"Try service"} style={{ marginRight: 8 }}>
-                                    <ButtonWrapper>{"Try it"}</ButtonWrapper>
-                                </VSCodeButton>
-                            </EntryContainer>
+                                </Details>
+                                <Tooltip content={entry.wsdl1_1} position="bottom" containerSx={{ display: 'grid' }}>
+                                    <Details>
+                                        {entry.wsdl1_1}
+                                    </Details>
+                                </Tooltip>
+                                <Tooltip content={entry.wsdl2_0} position="bottom" containerSx={{ display: 'grid' }}>
+
+                                    <Details>
+                                        {entry.wsdl2_0}
+                                    </Details>
+                                </Tooltip>
+                            </ProxyContent>
                         </>
                     ))}
-                </div>
+                </ServiceCard>
             )
         }
     }
+
+    const renderRuntimeServices = () => {
+        if (services?.api?.count === 0 && services?.proxy?.count === 0) {
+            return (
+                <div>No Runtime Services Available</div>
+            )
+        } else {
+            return (
+                <>
+                    {apiServices()}
+                    {proxyServices()}
+                </>
+            )
+        }
+    }
+
 
     const handleBackButtonClick = () => {
         setSwaggerEnabled({
             isSwaggerTriggered: false
         });
     }
-
 
     return (
         <View>
@@ -161,20 +295,23 @@ export function RuntimeServicePanel() {
                             <VSCodeButton appearance="icon" title="Go Back" onClick={handleBackButtonClick}>
                                 <Codicon name="arrow-left" />
                             </VSCodeButton>
-                            <ViewHeader title={"Swagger View"} ></ViewHeader>
                         </NavigationContainer>
-
+                        <ViewHeader title={"Swagger View"} >
+                            <ServerStatus>Server Status: {serverRunStatus}</ServerStatus>
+                        </ViewHeader>
                         <SwaggerPanel swaggerData={isSwaggerEnabled.swaggerData} />
                     </>
                     :
                     <>
-                        <ViewHeader title={"Available Runtime Services"} ></ViewHeader>
+                        <ViewHeader title={"Available Runtime Services"} codicon='server' >
+                            <ServerStatus>Server Status: {serverRunStatus}</ServerStatus>
+                        </ViewHeader>
+
                         <ViewContent padding={true}>
                             {services ?
                                 (
                                     <Fragment>
-                                        {apiServices()}
-                                        {proxyServices()}
+                                        {renderRuntimeServices()}
                                     </Fragment>
                                 ) :
                                 (
