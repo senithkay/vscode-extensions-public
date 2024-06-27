@@ -77,6 +77,7 @@ export const ComponentTestView: FC<TestWebviewProps> = ({
                 orgId: org.id.toString(),
                 orgUuid: org.uuid,
             }),
+        cacheTime: 0
     });
 
     const { data: swaggerSpec, isLoading: isLoadingSwagger } = useQuery({

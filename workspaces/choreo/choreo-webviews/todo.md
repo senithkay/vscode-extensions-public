@@ -32,3 +32,5 @@
 workspace file name should be orghandle.projecthandle.code-workspace
 cannot have workspace without any folders
 
+update readme & changelog before release!
+

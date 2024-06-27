@@ -43,7 +43,7 @@ export const ComponentListItem: FC<Props> = ({ item, isListLoading, opened, org,
                     Path: {item.workspaceName}/{item.componentRelativePath}
                 </p>
             </div>
-            <div className="pt-1 pr-[6px]">
+            <div className="pt-1 pr-3">
                 <ContextMenu
                     webviewSection="componentListItem"
                     params={{

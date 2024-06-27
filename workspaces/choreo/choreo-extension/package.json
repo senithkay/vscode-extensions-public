@@ -1,7 +1,7 @@
 {
   "name": "choreo",
   "displayName": "Choreo",
-  "description": "An extension for Signing in to Choreo and managing your projects",
+  "description": "An extension for managing your Choreo projects and components",
   "version": "2.0.0",
   "cliVersion": "v1.1.42406251600",
   "publisher": "wso2",

@@ -1,8 +1,8 @@
 import React, { FC, ReactNode } from "react";
 import { Button } from "../Button";
 import { Divider } from "../Divider";
-import { Codicon } from "../Codicon";
 import { VSCodeLink } from "@vscode/webview-ui-toolkit/react";
+import { useAutoAnimate } from "@formkit/auto-animate/react";
 
 interface Props {
     title: string;
@@ -13,6 +13,8 @@ interface Props {
 }
 
 export const HeaderSection: FC<Props> = ({ title, secondaryTitle, tags = [], buttons = [], secondaryIcon }) => {
+    const [tagsRef] = useAutoAnimate();
+
     return (
         <div className="flex flex-col gap-2">
             <div className="flex gap-2">
@@ -23,11 +25,11 @@ export const HeaderSection: FC<Props> = ({ title, secondaryTitle, tags = [], but
                 <span className="mt-1">{secondaryIcon}</span>
             </div>
             {tags.length > 0 && (
-                <div className="flex flex-wrap gap-1 lg:gap-2">
+                <div className="flex flex-wrap gap-1 lg:gap-2" ref={tagsRef}>
                     {tags.map((item, index) => (
                         <>
                             <div key={item.label}>
-                                <span className="font-thin">{item.label}:</span>
+                                <span className="font-thin">{item.label}:</span>{" "}
                                 {item.onClick ? (
                                     <VSCodeLink
                                         onClick={item.onClick}

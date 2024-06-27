@@ -16,8 +16,6 @@ import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
 export const ComponentDetailsView: FC<ComponentsDetailsWebviewProps> = (props) => {
     const { component, project, organization, directoryPath } = props;
 
-    const [deploymentTrack, setDeploymentTrack] = useState<DeploymentTrack>();
-
     const { data: deploymentTracks = [] } = useQuery({
         queryKey: [
             "get-deployment-tracks",
@@ -31,6 +29,8 @@ export const ComponentDetailsView: FC<ComponentsDetailsWebviewProps> = (props) =
                 projectId: project.id,
             }),
     });
+
+    const [deploymentTrack, setDeploymentTrack] = useState<DeploymentTrack | undefined>(deploymentTracks?.find((item) => item.latest));
 
     useEffect(() => {
         if (!deploymentTrack || !deploymentTracks?.find((item) => item.id === deploymentTrack.id)) {
