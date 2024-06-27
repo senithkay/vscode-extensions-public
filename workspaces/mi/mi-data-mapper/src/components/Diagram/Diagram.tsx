@@ -78,6 +78,7 @@ function initDiagramEngine() {
 	engine.getNodeFactories().registerFactory(new Nodes.PrimitiveOutputNodeFactory());
 	engine.getNodeFactories().registerFactory(new Nodes.LinkConnectorNodeFactory());
 	engine.getNodeFactories().registerFactory(new Nodes.ArrayFnConnectorNodeFactory());
+	engine.getNodeFactories().registerFactory(new Nodes.ArrayFilterNodeFactory());
 	engine.getNodeFactories().registerFactory(new Nodes.DataImportNodeFactory());
 	engine.getNodeFactories().registerFactory(new Nodes.SubMappingNodeFactory());
 	engine.getNodeFactories().registerFactory(new Nodes.UnsupportedIONodeFactory());
@@ -88,7 +89,7 @@ function initDiagramEngine() {
 	engine.getLabelFactories().registerFactory(new Labels.ExpressionLabelFactory());
 
 	engine.getLinkFactories().registerFactory(new Links.DataMapperLinkFactory());
-	engine.getLinkFactories().registerFactory(new Links.RightAngleLinkFactory());
+	engine.getLinkFactories().registerFactory(new Links.ArrowLinkFactory());
 
 	engine.getActionEventBus().registerAction(new IONodesScrollCanvasAction());
 

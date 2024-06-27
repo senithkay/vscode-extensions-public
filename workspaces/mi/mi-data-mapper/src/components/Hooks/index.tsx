@@ -53,8 +53,10 @@ export const useRepositionedNodes = (nodes: DataMapperNodeModel[], zoomLevel: nu
             const computedY = prevBottomY + (prevBottomY ? GAP_BETWEEN_INPUT_NODES : 0);
             let y = exisitingNode && sameView && exisitingNode.getY() !== 0 ? exisitingNode.getY() : computedY;
 
+            if (node instanceof FocusedInputNode) {
+                y += 150;
+            }
             node.setPosition(x, y);
-
             if (node instanceof InputNode || node instanceof FocusedInputNode) {
                 const nodeHeight = getIONodeHeight(node.numberOfFields);
                 prevBottomY = computedY + nodeHeight;

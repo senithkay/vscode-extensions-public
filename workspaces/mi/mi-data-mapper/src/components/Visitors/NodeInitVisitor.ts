@@ -38,23 +38,27 @@ import { ArrayFnConnectorNode } from "../Diagram/Node/ArrayFnConnector";
 import { getPosition, isPositionsEquals } from "../Diagram/utils/st-utils";
 import { getDMType, getDMTypeForRootChaninedMapFunction, getDMTypeOfSubMappingItem } from "../Diagram/utils/type-utils";
 import { UnsupportedExprNodeKind, UnsupportedIONode } from "../Diagram/Node/UnsupportedIO";
-import { OFFSETS } from "../Diagram/utils/constants";
+import { ARRAY_FILTER_NODE_PREFIX, OFFSETS } from "../Diagram/utils/constants";
 import { FocusedInputNode } from "../Diagram/Node/FocusedInput";
 import {
     createInputNodeForDmFunction,
     createLinkConnectorNode,
     createOutputNodeForDmFunction,
+    getArrayFilterNode,
     getOutputNode,
     getSubMappingNode,
     isDataImportNode,
     isObjectOrArrayLiteralExpression
 } from "../Diagram/utils/node-utils";
 import { SourceNodeType } from "../DataMapper/Views/DataMapperView";
+import { ArrayFilterNode } from "../Diagram/Node/ArrayFilter";
+import { DefaultPortModel } from "@projectstorm/react-diagrams";
 
 export class NodeInitVisitor implements Visitor {
     private inputNode: DataMapperNodeModel | InputDataImportNodeModel;
     private outputNode: DataMapperNodeModel | OutputDataImportNodeModel;
     private intermediateNodes: DataMapperNodeModel[] = [];
+    private arrayFilterNode: DataMapperNodeModel;
     private mapIdentifiers: Node[] = [];
     private isWithinArrayFn = 0;
     private isWithinVariableStmt = 0;
@@ -116,8 +120,8 @@ export class NodeInitVisitor implements Visitor {
                 : getDMType(sourceFieldFQN, this.context.inputTrees[0]);
 
             const focusedInputNode = new FocusedInputNode(this.context, callExpr, inputType);
-
             focusedInputNode.setPosition(OFFSETS.SOURCE_NODE.X, 0);
+
             this.inputNode = focusedInputNode;
         } else {
             const initializer = node.getInitializer();
@@ -359,9 +363,18 @@ export class NodeInitVisitor implements Visitor {
             const subMappingNode = getSubMappingNode(this.context);
             // Insert subMappingNode in the middle
             nodes.splice(1, 0, subMappingNode);
+
+            // Add array filter node in focused views
+            if (this.inputNode instanceof FocusedInputNode) {
+                this.arrayFilterNode = getArrayFilterNode(this.inputNode);
+            }
         }
 
         nodes.push(...this.intermediateNodes);
+
+        if (this.arrayFilterNode) {
+            nodes.unshift(this.arrayFilterNode);
+        }
 
         return nodes;
     }

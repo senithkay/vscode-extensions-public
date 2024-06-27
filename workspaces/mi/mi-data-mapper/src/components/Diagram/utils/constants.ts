@@ -12,6 +12,7 @@ export const PRIMITIVE_OUTPUT_TARGET_PORT_PREFIX = "primitiveOutput";
 export const FOCUSED_INPUT_SOURCE_PORT_PREFIX = "focusedInput";
 export const SUB_MAPPING_INPUT_SOURCE_PORT_PREFIX = "subMappingInput";
 export const OBJECT_OUTPUT_FIELD_ADDER_TARGET_PORT_PREFIX = "objectOutputFieldAdder";
+export const ARRAY_FILTER_NODE_PREFIX = "arrayFilter";
 
 export const defaultModelOptions = { zoom: 90 };
 export const VISUALIZER_PADDING = 0;
@@ -24,7 +25,7 @@ export const GAP_BETWEEN_FIELDS = 1;
 
 export const OFFSETS = {
     SOURCE_NODE: {
-        X: 0,
+        X: 1,
         Y: 0,
     },
     TARGET_NODE: {
