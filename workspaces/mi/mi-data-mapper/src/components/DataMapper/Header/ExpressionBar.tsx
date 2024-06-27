@@ -37,7 +37,7 @@ const useStyles = () => ({
 
 export interface ExpressionBarProps {
     applyModifications: () => Promise<void>
-    operators:any;
+    operators: any;
 }
 
 export default function ExpressionBar(props: ExpressionBarProps) {
@@ -54,7 +54,7 @@ export default function ExpressionBar(props: ExpressionBarProps) {
         inputPort: state.inputPort
     }));
 
-    const functionNames=props.operators;
+    const functionNames = props.operators;
 
     useEffect(() => {
         // Keep the text field focused when an input port is selected
@@ -84,12 +84,12 @@ export default function ExpressionBar(props: ExpressionBarProps) {
     const disabled = useMemo(() => {
         let value = "";
         let disabled = true;
-    
+
         if (focusedPort) {
 
             const focusedNode = focusedPort.typeWithValue.value;
             if(focusedNode==null || focusedNode.wasForgotten) return;
-            
+
             if (Node.isPropertyAssignment(focusedNode)) {
                 value = focusedNode.getInitializer()?.getText();
             } else {
@@ -99,12 +99,57 @@ export default function ExpressionBar(props: ExpressionBarProps) {
             if (textFieldRef.current) {
                 textFieldRef.current.focus();
             }
-    
+
             disabled = focusedPort.isDisabled();
+
+
+            // -----
+
+            // console.log("focusedPort changed");
+            // const dmnmFocusedNode = focusedPort.getNode() as DataMapperNodeModel;
+
+            // const fnST = dmnmFocusedNode.context.functionST;
+            // const sourceFile = fnST.getSourceFile();
+            // const project = sourceFile.getProject();
+           
+
+            // const languageService = project.getLanguageService().compilerObject;
+
+            // // const project = new Project({
+            // //     useInMemoryFileSystem: true,
+            // //     compilerOptions: { target: 2 }
+            // // });
+
+            // const completionOptions = {
+            //     includeExternalModuleExports: true,
+            //     includeInsertTextCompletions: true,
+            //     // triggerCharacter: '.',
+            //     includeCompletionsForModuleExports: true,
+            //     includeCompletionsWithInsertText: true,
+            //     includeCompletionsWithSnippetText: true,
+            //     includeAutomaticOptionalChainCompletions: true,
+            //     includeCompletionsWithClassMemberSnippets: true,
+            // };
+
+            // const position = fileContent.lastIndexOf('.') + '.'.length;
+
+
+            // const completions = languageService.getCompletionsAtPosition(sourceFile.getFilePath(), 0, completionOptions);
+
+            // console.log("Completions");
+
+            // if (completions) {
+            //     completions.entries.forEach(entry => {
+            //         console.log(entry.name,entry);
+            //     });
+            // }
+
+            // ----
+
         } else if (textFieldRef.current) {
             textFieldRef.current.blur();
         }
-    
+
         expressionRef.current = value;
         return disabled;
     }, [focusedPort]);
@@ -136,7 +181,7 @@ export default function ExpressionBar(props: ExpressionBarProps) {
         // if (isFunction && !isFunctionPresent) {
         //     sourceFile.addFunction(getFnDeclStructure(fnName));
         // }
-        
+
         await applyChanges();
     };
 
@@ -213,7 +258,7 @@ export default function ExpressionBar(props: ExpressionBarProps) {
             const openBrackets = (updatedText.match(/\(/g) || []).length;
             const closeBrackets = (updatedText.match(/\)/g) || []).length;
             if (openBrackets > closeBrackets) {
-                updatedText+= ')';
+                updatedText += ')';
             }
         }
 

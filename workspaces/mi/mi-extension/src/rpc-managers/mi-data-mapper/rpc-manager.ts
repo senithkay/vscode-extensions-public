@@ -25,7 +25,8 @@ import {
     UpdateDMCRequest,
     UpdateDMUndoRedoMangerRequest,
     GetOperatorsRequest,
-    GetOperatorsResponse
+    GetOperatorsResponse,
+    DMOperator
 } from "@wso2-enterprise/mi-core";
 import { fetchIOTypes, fetchSubMappingTypes } from "../../util/dataMapper";
 import { Project } from "ts-morph";
@@ -116,6 +117,87 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
         visit(sourceFile);
 
         return functionNames;
+    }
+    getCompletions(filePath: string) {
+
+        // project.createSourceFile(filePath,
+        //     fs.readFileSync(filePath).toString());
+
+        const resolvedPath = path.resolve(filePath);
+        const project = new Project();
+        const sourceFile = project.addSourceFileAtPath(resolvedPath);
+
+
+        // const operatorsFilePath = path.join(path.dirname(filePath), "dm-utils.ts");
+
+        // project.createSourceFile(operatorsFilePath,
+        //     fs.readFileSync(operatorsFilePath).toString())
+
+        console.log("getComp");
+
+        const completionOptions = {
+            includeExternalModuleExports: true,
+            includeInsertTextCompletions: true,
+            // triggerCharacter: '.',
+            includeCompletionsForModuleExports: true,
+            includeCompletionsWithInsertText: true,
+            includeCompletionsWithSnippetText: true,
+            includeAutomaticOptionalChainCompletions: true,
+            includeCompletionsWithClassMemberSnippets: true,
+        };
+
+        const languageService = project.getLanguageService().compilerObject;
+
+        //     // const position = fileContent.lastIndexOf('.') + '.'.length;
+
+
+        const completions = languageService.getCompletionsAtPosition(resolvedPath, 0, completionOptions);
+
+        console.log("Completions");
+
+        if (completions) {
+            completions.entries.forEach(entry => {
+
+                const details = languageService.getCompletionEntryDetails(
+                    resolvedPath,
+                    0,
+                    entry.name,
+                    {},
+                    entry.source,
+                    {
+                        importModuleSpecifierPreference: 'relative',
+                    },
+                    entry.data
+                );
+
+                // console.log(entry.name, details);
+
+                if (details) {
+                    const isInbuilt = details.kindModifiers.includes('declare');
+                    const isImported = details.sourceDisplay != undefined;
+
+                    // Extract parameter details if it's a function or method
+                    if (details.kind === 'function' || details.kind === 'method') {
+                        const parameters: any = [];
+                        let paramName: any = null;
+
+                        details.displayParts.forEach(part => {
+                            if (part.kind === 'parameterName') {
+                                paramName = part.text;
+                            } else if (paramName && part.kind === 'punctuation' && part.text === ':') {
+                                // Skipping the colon
+                            } else if (paramName && part.kind !== 'punctuation' && part.kind !== 'space') {
+                                parameters.push({ name: paramName, datatype: part.text });
+                                paramName = null;  // Reset for the next parameter
+                            }
+                        });
+
+                        console.log(entry.name, details,parameters,{isInbuilt,isImported});
+
+                    }
+                }
+            });
+        }
     }
     async browseSchema(params: BrowseSchemaRequest): Promise<BrowseSchemaResponse> {
         return new Promise(async (resolve) => {
@@ -334,18 +416,21 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
 
     async getOperators(params: GetOperatorsRequest): Promise<GetOperatorsResponse> {
         // console.log(params);
-        
+        this.getCompletions(params.filePath);
+
         return new Promise(async (resolve, reject) => {
             try {
                 const operatorsFilePath = path.join(path.dirname(params.filePath), "dm-utils.ts");
                 // console.log(operatorsFilePath);
                 // resolve({ operators: this.getFunctionNames(operatorsFilePath) });
-                resolve({ operators: [{name:"func1"}] });
+                resolve({ operators: [{ name: "func1" }] });
 
             } catch (error) {
                 console.error(error);
-                reject({ operators: [{name:"ERROR"}] });
+                reject({ operators: [{ name: "ERROR" }] });
             }
         });
     }
+
+
 }
