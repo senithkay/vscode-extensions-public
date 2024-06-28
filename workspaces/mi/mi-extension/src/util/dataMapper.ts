@@ -115,7 +115,7 @@ export function fetchOperators(filePath:string):DMOperator[]{
                     entry.data
                 );
 
-                // console.log(entry.name, details);
+                // console.log(entry.name, entry,details);
 
                 if (details) {
                     const isInbuilt = details.kindModifiers.includes('declare');

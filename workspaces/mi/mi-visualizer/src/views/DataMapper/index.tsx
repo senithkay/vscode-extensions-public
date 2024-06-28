@@ -31,10 +31,16 @@ export function DataMapper(props: DataMapperProps) {
 
     const { dmIOTypes, isFetchingIOTypes, isIOTypeError } = useIOTypes(filePath, functionName, interfacesSource);
 
-    const { dmOperators, isFetchingOperators, isOperatorsError } = useOperators(filePath,fileContent);
-    
-    if(!isFetchingOperators)
-    console.log(dmOperators.operators.map(op=>op.label));
+    const { dmOperators, isFetchingOperators, isOperatorsError } = useOperators(filePath, fileContent);
+
+    if (!isFetchingOperators) {
+        let oplist = '';
+        dmOperators.operators.forEach(op => {
+            oplist += op.label + ', ';
+        });
+        console.log(oplist);
+    }
+    // console.log(dmOperators.operators.map(op=>op.label));
 
     // useEffect(() => {
     //     rpcClient.getMiDataMapperRpcClient().getOperators({ req: "REQ" }).then((res) => {
@@ -42,7 +48,7 @@ export function DataMapper(props: DataMapperProps) {
     //         setOperators([res.res]);
     //     });
     //   }, []); 
-    
+
 
     const updateFileContent = async (newContent: string) => {
         try {
@@ -78,7 +84,7 @@ export function DataMapper(props: DataMapperProps) {
                         outputTree={dmIOTypes.outputTree}
                         updateFileContent={updateFileContent}
                         configName={props.configName}
-                        operators={dmOperators.operators.map(op=>op.label)}
+                        operators={dmOperators.operators.map(op => (op.action ?? "")+ op.label)}
                     />
                 )
             }
