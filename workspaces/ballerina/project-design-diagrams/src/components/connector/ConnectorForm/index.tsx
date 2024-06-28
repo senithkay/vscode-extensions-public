@@ -8,7 +8,7 @@
  */
 
 import React, { useContext, useEffect, useState } from "react";
-import { CMEntryPoint as EntryPoint, CMService as Service } from "@wso2-enterprise/ballerina-languageclient";
+import { CMEntryPoint as EntryPoint, CMService as Service } from "@wso2-enterprise/ballerina-core";
 import { Connector } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import PullingModuleLoader from "./PullingModuleLoader";
 import { Colors } from "../../../resources";

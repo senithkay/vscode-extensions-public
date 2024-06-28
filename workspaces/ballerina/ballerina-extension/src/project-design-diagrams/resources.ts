@@ -8,7 +8,7 @@
  */
 
 import { decimal } from "vscode-languageclient";
-import { CMEntryPoint as EntryPoint, CMService as Service, CMLocation as Location } from "@wso2-enterprise/ballerina-languageclient";
+import { CMEntryPoint as EntryPoint, CMService as Service, CMLocation as Location } from "@wso2-enterprise/ballerina-core";
 import { Connector } from "@wso2-enterprise/ballerina-low-code-edtior-commons/src/types";
 
 export enum ServiceTypes {

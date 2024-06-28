@@ -8,7 +8,7 @@
  */
 import { extensions } from "vscode";
 import { Project } from "@wso2-enterprise/choreo-core";
-import { ComponentModel } from "@wso2-enterprise/ballerina-languageclient";
+import { ComponentModel } from "@wso2-enterprise/ballerina-core";
 import { AxiosResponse } from "axios";
 
 export interface IChoreoExtensionAPI {

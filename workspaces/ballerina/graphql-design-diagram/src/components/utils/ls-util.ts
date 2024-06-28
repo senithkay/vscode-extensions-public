@@ -8,7 +8,7 @@
  */
 
 
-import { IBallerinaLangClient } from "@wso2-enterprise/ballerina-languageclient";
+import { IBallerinaLangClient } from "@wso2-enterprise/ballerina-core";
 import {
     DiagramEditorLangClientInterface,
     GraphqlDesignServiceRequest, GraphqlDesignServiceResponse

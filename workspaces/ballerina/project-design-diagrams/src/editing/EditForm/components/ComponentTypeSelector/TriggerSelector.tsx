@@ -53,7 +53,7 @@ export function TriggerSelector(props: TriggerSelectorProps) {
     }
 
     const refetchTrigger = (id: string) => {
-        editLayerAPI.fetchTrigger({ triggerId: id}).then((response) => {
+        editLayerAPI.fetchTrigger({ id: id}).then((response) => {
             setServices(response.serviceTypes);
         });
     }

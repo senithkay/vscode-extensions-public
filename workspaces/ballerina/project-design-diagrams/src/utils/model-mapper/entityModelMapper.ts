@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { ComponentModel, CMEntity as Entity } from '@wso2-enterprise/ballerina-languageclient';
+import { ComponentModel, CMEntity as Entity } from '@wso2-enterprise/ballerina-core';
 import { DiagramModel } from '@projectstorm/react-diagrams';
 import { EntityLinkModel, EntityModel, EntityPortModel } from '../../components/entity-relationship';
 

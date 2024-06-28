@@ -12,7 +12,7 @@ import { CodeAction, CodeActionParams, DocumentSymbol, DocumentSymbolParams, Exe
 import {
     GetSyntaxTreeParams, GetSyntaxTreeResponse,
     BallerinaConnectorsResponse, BallerinaConnectorRequest, BallerinaConnectorResponse, BallerinaRecordRequest,
-    BallerinaRecordResponse, BallerinaSTModifyRequest, BallerinaSTModifyResponse, TriggerModifyRequest,
+    BallerinaRecordResponse, STModifyRequest, BallerinaSTModifyResponse, TriggerModifyRequest,
     BallerinaProjectParams,
     CompletionParams,
     CompletionResponse,
@@ -22,8 +22,9 @@ import {
     GetComponentModelResponse,
     GetPersistERModelRequest,
     GetPersistERModelResponse,
-    BallerinaFunctionSTRequest
-} from "@wso2-enterprise/ballerina-languageclient";
+    BallerinaFunctionSTRequest,
+    Completion
+} from "@wso2-enterprise/ballerina-core";
 import {
     BallerinaConnectorsRequest,
     BallerinaTriggerRequest,
@@ -551,9 +552,9 @@ export class ExtendedLangClient extends LanguageClient {
         this.timeConsumption.diagnostics.push(new Date().getTime() - start);
         return response;
     }
-    async getCompletion(params: CompletionParams): Promise<CompletionResponse[]> {
+    async getCompletion(params: CompletionParams): Promise<Completion[]> {
         const start = new Date().getTime();
-        const resoponse: CompletionResponse[] = await this.sendRequest("textDocument/completion", params);
+        const resoponse: Completion[] = await this.sendRequest("textDocument/completion", params);
         this.timeConsumption.completion.push(new Date().getTime() - start);
         return resoponse;
     }
@@ -601,18 +602,18 @@ export class ExtendedLangClient extends LanguageClient {
         return isSupported ? this.sendRequest<BallerinaRecordResponse>(EXTENDED_APIS.CONNECTOR_RECORD, params) :
             Promise.resolve(NOT_SUPPORTED);
     }
-    async astModify(params: BallerinaSTModifyRequest): Promise<BallerinaSTModifyResponse | NOT_SUPPORTED_TYPE> {
+    async astModify(params: STModifyRequest): Promise<BallerinaSTModifyResponse | NOT_SUPPORTED_TYPE> {
         const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.DOCUMENT_AST_MODIFY);
         return isSupported ? this.sendRequest<BallerinaSTModifyResponse>(EXTENDED_APIS.DOCUMENT_AST_MODIFY, params) :
             Promise.resolve(NOT_SUPPORTED);
     }
-    async stModify(params: BallerinaSTModifyRequest): Promise<BallerinaSTModifyResponse | NOT_SUPPORTED_TYPE> {
+    async stModify(params: STModifyRequest): Promise<BallerinaSTModifyResponse | NOT_SUPPORTED_TYPE> {
         const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.DOCUMENT_ST_MODIFY);
         return isSupported ? this.sendRequest<BallerinaSTModifyResponse>(EXTENDED_APIS.DOCUMENT_ST_MODIFY, params) :
             Promise.resolve(NOT_SUPPORTED);
     }
 
-    async getSTForFunction(params: BallerinaSTModifyRequest): Promise<BallerinaSTModifyResponse | NOT_SUPPORTED_TYPE> {
+    async getSTForFunction(params: STModifyRequest): Promise<BallerinaSTModifyResponse | NOT_SUPPORTED_TYPE> {
         const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.DOCUMENT_ST_FUNCTION);
         return isSupported ? this.sendRequest<BallerinaSTModifyResponse>(EXTENDED_APIS.DOCUMENT_ST_FUNCTION, params) :
             Promise.resolve(NOT_SUPPORTED);

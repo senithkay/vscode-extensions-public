@@ -8,7 +8,7 @@
  */
 
 import { TextEditor, Uri, ViewColumn, WebviewPanel, commands, window, workspace } from "vscode";
-import { GetPersistERModelResponse } from "@wso2-enterprise/ballerina-languageclient";
+import { GetPersistERModelResponse } from "@wso2-enterprise/ballerina-core";
 import { debounce } from "lodash";
 import { basename, dirname, join } from "path";
 import { existsSync } from "fs";

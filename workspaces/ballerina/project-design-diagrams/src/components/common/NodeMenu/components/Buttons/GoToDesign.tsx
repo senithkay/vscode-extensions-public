@@ -8,7 +8,7 @@
  */
 
 import React from 'react';
-import { CMRemoteFunction as RemoteFunction, CMResourceFunction as ResourceFunction, CMService as Service } from '@wso2-enterprise/ballerina-languageclient';
+import { CMRemoteFunction as RemoteFunction, CMResourceFunction as ResourceFunction, CMService as Service } from '@wso2-enterprise/ballerina-core';
 import { NodePosition } from '@wso2-enterprise/syntax-tree';
 import EditIcon from '@mui/icons-material/Edit';
 import { ListItemIcon, ListItemText, MenuItem } from '@mui/material';

@@ -13,7 +13,7 @@ import { join, normalize } from "path";
 import toml from "toml";
 import _ from "lodash";
 import { Project } from "@wso2-enterprise/choreo-core";
-import { ComponentModel, CMLocation as Location, GetComponentModelResponse, CMService as Service } from "@wso2-enterprise/ballerina-languageclient";
+import { ComponentModel, CMLocation as Location, GetComponentModelResponse, CMService as Service } from "@wso2-enterprise/ballerina-core";
 import { STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { ExtendedLangClient } from "../../../../core";
 import { ERROR_MESSAGE, TomlPackageData } from "../../../../project-design-diagrams/resources";

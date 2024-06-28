@@ -8,7 +8,7 @@
  */
 
 import React from 'react';
-import { CMResourceFunction as ResourceFunction } from '@wso2-enterprise/ballerina-languageclient';
+import { CMResourceFunction as ResourceFunction } from '@wso2-enterprise/ballerina-core';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { ServiceNodeModel } from '../ServiceNodeModel';
 import { ServicePortWidget } from '../../ServicePort/ServicePortWidget';

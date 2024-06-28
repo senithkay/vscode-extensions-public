@@ -12,7 +12,7 @@ import {
     Disposable, DocumentSelector, languages, Position, TextDocument,
 } from "vscode";
 import { CompletionItemKind as MonacoCompletionItemKind } from "monaco-languageclient";
-import { GetSyntaxTreeResponse } from "@wso2-enterprise/ballerina-languageclient";
+import { GetSyntaxTreeResponse } from "@wso2-enterprise/ballerina-core";
 import { BallerinaExtension, ExtendedLangClient, LANGUAGE, NotebookFileSourceResponse, NOT_SUPPORTED } from "../core";
 import { filterCompletions, getInsertText, getLabel, translateCompletionItemKind } from "./utils";
 import { NOTEBOOK_TYPE } from "./constants";

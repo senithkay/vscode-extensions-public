@@ -11,7 +11,7 @@ import { existsSync, readFile, unlinkSync, writeFileSync } from "fs";
 import * as path from "path";
 import child_process from "child_process";
 import { compile } from "handlebars";
-import { BallerinaTriggerResponse, Parameter, ServiceType } from "@wso2-enterprise/ballerina-languageclient";
+import { BallerinaTriggerResponse, Parameter, ServiceType } from "@wso2-enterprise/ballerina-core";
 import { BallerinaComponentTypes, TriggerDetails } from "@wso2-enterprise/choreo-core";
 import { ExtendedLangClient } from "../../../../core";
 import { CommandResponse, DEFAULT_SERVICE_TEMPLATE_SUFFIX, GRAPHQL_SERVICE_TEMPLATE_SUFFIX } from "../../../../project-design-diagrams/resources";

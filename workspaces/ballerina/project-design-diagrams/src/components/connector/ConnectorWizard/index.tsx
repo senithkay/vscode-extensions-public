@@ -9,7 +9,7 @@
 
 import React, { useContext, useState } from "react";
 import ReactDOM from "react-dom";
-import { CMEntryPoint as EntryPoint, CMService as Service } from "@wso2-enterprise/ballerina-languageclient";
+import { CMEntryPoint as EntryPoint, CMService as Service } from "@wso2-enterprise/ballerina-core";
 import Drawer from "@mui/material/Drawer";
 import IconButton from "@mui/material/IconButton";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";

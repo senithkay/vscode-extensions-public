@@ -47,7 +47,7 @@ import {
 	LibrarySearchResponse
 } from '@wso2-enterprise/ballerina-core';
 import { getSentryConfig, SentryConfig } from './sentry';
-import { BallerinaConnectorsResponse, GetSyntaxTreeResponse } from '@wso2-enterprise/ballerina-languageclient';
+import { BallerinaConnectorsResponse, GetSyntaxTreeResponse } from '@wso2-enterprise/ballerina-core';
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 import { PALETTE_COMMANDS } from '../project';
 import { openView } from '../stateMachine';
@@ -692,7 +692,7 @@ export async function refreshDiagramForEditorChange(change: Change) {
 		}).then(stResponse => {
 			const response = stResponse as GetSyntaxTreeResponse;
 			if (response.parseSuccess && response.syntaxTree) {
-				diagramElement = getChangedElement(response.syntaxTree, change);
+				diagramElement = getChangedElement(response.syntaxTree as any, change);
 			}
 		});
 	}

@@ -8,7 +8,7 @@
  */
 
 import React, { createContext, ReactNode, useState } from 'react';
-import { CMEntryPoint as EntryPoint, CMLocation as Location, CMService as Service } from '@wso2-enterprise/ballerina-languageclient';
+import { CMEntryPoint as EntryPoint, CMLocation as Location, CMService as Service } from '@wso2-enterprise/ballerina-core';
 import { EntryNodeModel, ServiceNodeModel } from '../../service-interaction';
 import { ConsoleView, Views } from '../../../resources';
 import { ProjectDesignDiagramAPI } from '@wso2-enterprise/ballerina-core';

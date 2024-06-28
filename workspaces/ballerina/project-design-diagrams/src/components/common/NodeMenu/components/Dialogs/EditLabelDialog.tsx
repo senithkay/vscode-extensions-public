@@ -8,7 +8,7 @@
  */
 
 import React, { useContext, useState } from 'react';
-import { CMLocation as Location, CMAnnotation as Annotation } from '@wso2-enterprise/ballerina-languageclient';
+import { CMLocation as Location, CMAnnotation as Annotation } from '@wso2-enterprise/ballerina-core';
 import { v4 as uuid } from 'uuid';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';

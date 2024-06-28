@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { CMLocation as Location } from '@wso2-enterprise/ballerina-languageclient';
+import { CMLocation as Location } from '@wso2-enterprise/ballerina-core';
 import { SharedLinkModel } from '../../common/shared-link/shared-link';
 import { Level } from '../../../resources';
 

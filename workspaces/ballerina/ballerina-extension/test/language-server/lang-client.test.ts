@@ -22,6 +22,7 @@ import { commands, Uri } from "vscode";
 import { runSemanticTokensTestCases } from './semantic-tokens.test';
 import { readFileSync } from 'fs';
 import { BallerinaConnectorResponse, BallerinaConnectorsResponse, BallerinaSTModifyResponse, BallerinaTriggerResponse, BallerinaTriggersResponse, CompletionResponse, PublishDiagnosticsParams } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
+import { Completion } from '@wso2-enterprise/ballerina-core';
 
 const PROJECT_ROOT = join(__dirname, '..', '..', '..', 'test', 'data');
 
@@ -852,7 +853,7 @@ suite("Language Server Tests", function () {
                     triggerKind: 1
                 }
             }).then(async (res) => {
-                const response = res as CompletionResponse[];
+                const response = res as Completion[];
                 expect(response).length.to.greaterThan(100);
                 assert.strictEqual(response[0].detail, "Snippet", "Invalid completion");
                 done();

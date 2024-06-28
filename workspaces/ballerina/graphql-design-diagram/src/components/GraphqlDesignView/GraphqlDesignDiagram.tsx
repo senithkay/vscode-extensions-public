@@ -9,7 +9,7 @@
 // tslint:disable: no-implicit-dependencies jsx-no-multiline-js jsx-wrap-multiline
 import React, { useEffect, useState } from "react";
 
-import { IBallerinaLangClient } from "@wso2-enterprise/ballerina-languageclient";
+import { IBallerinaLangClient } from "@wso2-enterprise/ballerina-core";
 import {
     GraphqlDesignServiceRequest, GraphqlDesignServiceResponse
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
