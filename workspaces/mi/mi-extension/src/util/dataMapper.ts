@@ -142,7 +142,7 @@ export function fetchOperators(filePath:string):DMOperator[]{
                             operators.push({
                             label:entry.name,
                             args:params,
-                            description:details.documentation?.[0].text,
+                            description:details.documentation?.[0]?.text,
                             src:entry.source,
                             action:details.codeActions?.[0].changes[0].textChanges[0].newText
                             });
