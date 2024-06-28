@@ -8,7 +8,7 @@
  */
 import { Block, FunctionDeclaration, Node, Project, SourceFile, Type } from 'ts-morph';
 import * as path from 'path';
-import { DMType, TypeKind } from '@wso2-enterprise/mi-core';
+import { DMType, TypeKind ,DMOperator} from '@wso2-enterprise/mi-core';
 
 export function fetchIOTypes(filePath: string, functionName: string) {
     const inputTypes: DMType[] = [];
@@ -67,7 +67,9 @@ export function deriveConfigName(filePath: string) {
     return fileName.split(".")[0];
 }
 
-export function fetchOperators(filePath:string){
+export function fetchOperators(filePath:string):DMOperator[]{
+
+        const operators:DMOperator[]=[]; 
     
         const resolvedPath = path.resolve(filePath);
         const project = new Project();
@@ -120,26 +122,38 @@ export function fetchOperators(filePath:string){
                     const isImported = details.sourceDisplay != undefined;
 
                     if (details.kind === 'function' || details.kind === 'method') {
-                        const parameters: string[] = [];
-                        let paramName: string = '';
+                        const params: string[] = [];
+                        let param: string = '';
 
                         details.displayParts.forEach(part => {
                             if (part.kind === 'parameterName' || part.text === '...') {
-                                paramName += part.text;
-                            } else if (paramName && part.text === ':') {
-                                parameters.push(paramName);
-                                paramName = '';
+                                param += part.text;
+                            } else if (param && part.text === ':') {
+                                params.push(param);
+                                param = '';
                             }
                         });
 
                         
 
-                        console.log(entry.name, details,parameters,{isInbuilt,isImported});
+                        console.log(entry.name, details,params,{isInbuilt,isImported});
+
+                        if(isImported){
+                            operators.push({
+                            label:entry.name,
+                            args:params,
+                            description:details.documentation?.[0].text,
+                            src:entry.source,
+                            action:details.codeActions?.[0].changes[0].textChanges[0].newText
+                            });
+                        }
 
                     }
                 }
             });
         }
+
+        return operators;
 }
 
 function getDMFunction(filePath: string, functionName: string) {

@@ -34,7 +34,7 @@ export function DataMapper(props: DataMapperProps) {
     const { dmOperators, isFetchingOperators, isOperatorsError } = useOperators(filePath)
     
     if(!isFetchingOperators)
-    console.log(dmOperators.operators.map(op=>op.name));
+    console.log(dmOperators.operators.map(op=>op.label));
 
     // useEffect(() => {
     //     rpcClient.getMiDataMapperRpcClient().getOperators({ req: "REQ" }).then((res) => {
@@ -78,7 +78,7 @@ export function DataMapper(props: DataMapperProps) {
                         outputTree={dmIOTypes.outputTree}
                         updateFileContent={updateFileContent}
                         configName={props.configName}
-                        operators={dmOperators.operators.map(op=>op.name)}
+                        operators={dmOperators.operators.map(op=>op.label)}
                     />
                 )
             }

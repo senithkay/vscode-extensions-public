@@ -28,7 +28,9 @@ export enum TypeKind {
 }
 
 export interface DMOperator{
-    name: string;
-    src?: string;
-    params?: string[];
+    label: string;
+    args?: string[];
+    description?:string | undefined;
+    src?: string | undefined;
+    action: string | undefined;
 }
