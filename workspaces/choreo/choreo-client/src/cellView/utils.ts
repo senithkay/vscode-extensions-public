@@ -16,7 +16,7 @@ import {
     ComponentModel,
     ComponentType,
     Project as ProjectModel
-} from "@wso2-enterprise/ballerina-languageclient";
+} from "@wso2-enterprise/ballerina-core";
 import { existsSync, readFileSync } from "fs";
 import {
     Component,

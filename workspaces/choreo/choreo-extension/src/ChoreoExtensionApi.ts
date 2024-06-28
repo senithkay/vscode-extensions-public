@@ -28,7 +28,7 @@ import {
     CMResourceFunction,
     CMService,
     ComponentModel
-} from "@wso2-enterprise/ballerina-languageclient";
+} from "@wso2-enterprise/ballerina-core";
 import { existsSync, readFileSync } from 'fs';
 import { ProjectRegistry } from './registry/project-registry';
 

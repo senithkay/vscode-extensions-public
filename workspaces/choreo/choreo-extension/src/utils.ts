@@ -11,7 +11,7 @@
  *  associated services.
  */
 
-import { CMResourceFunction, ComponentModel, CMService as Service } from "@wso2-enterprise/ballerina-languageclient";
+import { CMResourceFunction, ComponentModel, CMService as Service } from "@wso2-enterprise/ballerina-core";
 import { ApiVersion, Component, ComponentYamlContent, ComponentYamlSchema } from "@wso2-enterprise/choreo-core";
 import { existsSync, readFileSync } from "fs";
 import * as yaml from "js-yaml";
