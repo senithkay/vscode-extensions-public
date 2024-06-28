@@ -1,0 +1,6 @@
+<filter description="Filter Description" regex="a?b+$" source="Expresion Value" xmlns:Pref="URI">
+    <then>
+    </then>
+    <else>
+    </else>
+</filter>
