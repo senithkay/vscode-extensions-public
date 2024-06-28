@@ -84,28 +84,27 @@ export default function ExpressionBar(props: ExpressionBarProps) {
     const disabled = useMemo(() => {
         let value = "";
         let disabled = true;
-
+    
         if (focusedPort) {
-
             const focusedNode = focusedPort.typeWithValue.value;
-            if(focusedNode==null || focusedNode.wasForgotten) return;
-
-            if (Node.isPropertyAssignment(focusedNode)) {
-                value = focusedNode.getInitializer()?.getText();
-            } else {
-                value = focusedNode ? focusedNode.getText() : "";
+    
+            if (focusedNode && !focusedNode.wasForgotten()) {
+                if (Node.isPropertyAssignment(focusedNode)) {
+                    value = focusedNode.getInitializer()?.getText();
+                } else {
+                    value = focusedNode ? focusedNode.getText() : "";
+                }
             }
 
             if (textFieldRef.current) {
                 textFieldRef.current.focus();
             }
-
+    
             disabled = focusedPort.isDisabled();
-
         } else if (textFieldRef.current) {
             textFieldRef.current.blur();
         }
-
+    
         expressionRef.current = value;
         return disabled;
     }, [focusedPort]);
