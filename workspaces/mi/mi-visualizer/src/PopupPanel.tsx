@@ -74,7 +74,7 @@ const PopupPanel = (props: { formState: PopupMachineStateValue }) => {
                     setViewComponent(<TemplateEndpointWizard isPopup={true} path={`${machineSate.documentUri}${endpointPath}`} />);
                     break;
                 case MACHINE_VIEW.DssDataSourceForm:
-                    setViewComponent(<DataServiceDataSourceWizard isPopup={true} path={machineSate.documentUri} />);
+                    setViewComponent(<DataServiceDataSourceWizard isPopup={true} path={machineSate.documentUri} datasource={machineSate.customProps.datasource} />);
                     break;
                 default:
                     setViewComponent(null);
