@@ -35,7 +35,8 @@ export const useIOTypes = (filePath: string, functionName: string, interfacesSou
 };
 
 
-export const useOperators = (filePath: string) => {
+export const useOperators = (filePath: string,fileContent:string) => {
+    
     const { rpcClient } = useVisualizerContext();
     const getOperators = async () => {
         try {
@@ -54,7 +55,7 @@ export const useOperators = (filePath: string) => {
         isFetching: isFetchingOperators,
         isError: isOperatorsError,
         refetch
-    } = useQuery(['getIOTypes', { filePath }], () => getOperators(), {});
+    } = useQuery(['getOperators', { filePath,fileContent }], () => getOperators(), {});
 
     return {dmOperators, isFetchingOperators, isOperatorsError, refetch};
 };

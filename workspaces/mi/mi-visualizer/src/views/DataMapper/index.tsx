@@ -31,7 +31,7 @@ export function DataMapper(props: DataMapperProps) {
 
     const { dmIOTypes, isFetchingIOTypes, isIOTypeError } = useIOTypes(filePath, functionName, interfacesSource);
 
-    const { dmOperators, isFetchingOperators, isOperatorsError } = useOperators(filePath)
+    const { dmOperators, isFetchingOperators, isOperatorsError } = useOperators(filePath,fileContent);
     
     if(!isFetchingOperators)
     console.log(dmOperators.operators.map(op=>op.label));
