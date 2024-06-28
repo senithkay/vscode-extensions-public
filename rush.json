@@ -410,11 +410,11 @@
     //   "reviewCategory": "tools",
     //   "tags": [ "tools" ]
     // }
-    {
-      "packageName": "@wso2-enterprise/ballerina-languageclient",
-      "projectFolder": "workspaces/ballerina/ballerina-languageclient",
-      "versionPolicyName": "ballerina-extension"
-    },
+    // {
+    //   "packageName": "@wso2-enterprise/ballerina-languageclient",
+    //   "projectFolder": "workspaces/ballerina/ballerina-languageclient",
+    //   "versionPolicyName": "ballerina-extension"
+    // },
     // {
     //   "packageName": "@ballerina/ballerina-by-examples",
     //   "projectFolder": "workspaces/ballerina/bbe",
