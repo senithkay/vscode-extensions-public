@@ -148,7 +148,7 @@ export class ProjectDesignDiagramRpcManager implements ProjectDesignDiagramAPI {
 
     async fetchTrigger(params: BallerinaTriggerRequest): Promise<BallerinaTriggerResponse> {
         return new Promise(async (resolve) => {
-            const trigger = await this._langClient.getTrigger({ id: params.triggerId }) as BallerinaTriggerResponse;
+            const trigger = await this._langClient.getTrigger({ id: params.id }) as BallerinaTriggerResponse;
             resolve(trigger);
         });
     }

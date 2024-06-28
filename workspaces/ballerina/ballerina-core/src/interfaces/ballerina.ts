@@ -77,7 +77,7 @@ export interface GetSyntaxTreeParams {
 }
 
 export interface GetSyntaxTreeResponse {
-    syntaxTree: STNode;
+    syntaxTree: any;
     parseSuccess: boolean;
 }
 
