@@ -45,6 +45,7 @@ import { MockServiceForm } from './views/Forms/Tests/MockServices/MockServiceFor
 import { DataServiceWizard } from './views/Forms/DataServiceForm/MainPanelForms';
 import { DataServiceView } from './views/Diagram/DataService';
 import { SignInToCopilotMessage } from './views/LoggedOutWindow';
+import { DataServiceDataSourceWizard } from "./views/Forms/DataServiceForm/MainPanelForms/DataSourceForm/DatasourceForm";
 
 const MainContainer = styled.div`
     display: flex;
@@ -282,6 +283,9 @@ const MainPanel = () => {
                     break;
                 case MACHINE_VIEW.DataServiceForm:
                     setViewComponent(<DataServiceWizard path={machineView.documentUri} />);
+                    break;
+                case MACHINE_VIEW.DssDataSourceForm:
+                    setViewComponent(<DataServiceDataSourceWizard path={machineView.documentUri} />);
                     break;
                 case MACHINE_VIEW.ProjectCreationForm:
                     setViewComponent(<ProjectWizard cancelView={MACHINE_VIEW.Overview} />);

@@ -56,6 +56,8 @@ import {
     CreateTaskResponse,
     CreateTemplateRequest,
     CreateTemplateResponse,
+    CreateDssDataSourceRequest,
+    CreateDssDataSourceResponse,
     DataSourceTemplate,
     Datasource,
     DeleteArtifactRequest,
@@ -212,7 +214,7 @@ import { openPopupView } from "../../stateMachinePopup";
 import { testFileMatchPattern } from "../../test-explorer/discover";
 import { mockSerivesFilesMatchPattern } from "../../test-explorer/mock-services/activator";
 import { UndoRedoManager } from "../../undoRedoManager";
-import { copyDockerResources, createFolderStructure, getAPIResourceXmlWrapper, getAddressEndpointXmlWrapper, getDataServiceXmlWrapper, getDefaultEndpointXmlWrapper, getFailoverXmlWrapper, getHttpEndpointXmlWrapper, getInboundEndpointXmlWrapper, getLoadBalanceXmlWrapper, getMessageProcessorXmlWrapper, getMessageStoreXmlWrapper, getProxyServiceXmlWrapper, getRegistryResourceContent, getTaskXmlWrapper, getTemplateEndpointXmlWrapper, getTemplateXmlWrapper, getWsdlEndpointXmlWrapper } from "../../util";
+import { copyDockerResources, createFolderStructure, getAPIResourceXmlWrapper, getAddressEndpointXmlWrapper, getDataServiceXmlWrapper, getDefaultEndpointXmlWrapper, getFailoverXmlWrapper, getHttpEndpointXmlWrapper, getInboundEndpointXmlWrapper, getLoadBalanceXmlWrapper, getMessageProcessorXmlWrapper, getMessageStoreXmlWrapper, getProxyServiceXmlWrapper, getRegistryResourceContent, getTaskXmlWrapper, getTemplateEndpointXmlWrapper, getTemplateXmlWrapper, getWsdlEndpointXmlWrapper, getDssDataSourceXmlWrapper } from "../../util";
 import { addNewEntryToArtifactXML, addSynapseDependency, changeRootPomPackaging, createMetadataFilesForRegistryCollection, deleteRegistryResource, detectMediaType, getAvailableRegistryResources, getMediatypeAndFileExtension, getRegistryResourceMetadata, updateRegistryResourceMetadata } from "../../util/fileOperations";
 import { log } from "../../util/logger";
 import { importProject } from "../../util/migrationUtils";
@@ -2151,7 +2153,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
     async updateDataService(params: CreateDataServiceRequest): Promise<CreateDataServiceResponse> {
         return new Promise(async (resolve) => {
             const {
-                directory, dataServiceName, dataServiceNamespace, serviceGroup, selectedTransports, publishSwagger, jndiName,
+                dataServiceName, dataServiceNamespace, serviceGroup, selectedTransports, publishSwagger, jndiName,
                 enableBoxcarring, enableBatchRequests, serviceStatus, disableLegacyBoxcarringMode, enableStreaming,
                 description, datasources, authProviderClass, authProperties, queries, operations, resources
             } = params;
@@ -2179,6 +2181,58 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 }
             });
 
+            resolve({ path: filePath });
+        });
+    }
+
+    async createDssDataSource(params: CreateDssDataSourceRequest): Promise<CreateDssDataSourceResponse> {
+        return new Promise(async (resolve) => {
+            const {
+                directory, type, dataSourceName, enableOData, dynamicUserAuthClass, datasourceProperties,
+                datasourceConfigurations, dynamicUserAuthMapping
+            } = params;
+
+            const getDssDataSourceParams = {
+                dataSourceName, enableOData, dynamicUserAuthClass, datasourceProperties,
+                datasourceConfigurations, dynamicUserAuthMapping
+            };
+
+            const dataServiceSyntaxTree = await this.getSyntaxTree({ documentUri: params.directory });
+            const dataServiceParams = dataServiceSyntaxTree.syntaxTree.data;
+
+            let startRange, endRange;
+
+            if (type === 'create') {
+                startRange = dataServiceParams.range.endTagRange.start;
+                endRange = dataServiceParams.range.endTagRange.start;
+            } else {
+                let datasource;
+                dataServiceParams.configs.forEach((element) => {
+                    if (element.id === dataSourceName) {
+                        datasource = element;
+                    }
+                });
+                startRange = datasource.range.startTagRange.start;
+                endRange = datasource.range.endTagRange.end;
+            }
+
+            let filePath = directory;
+            if (filePath.includes('dataServices')) {
+                filePath = filePath.replace('dataServices', 'data-services');
+            }
+
+            const xmlData = getDssDataSourceXmlWrapper(getDssDataSourceParams);
+            const sanitizedXmlData = xmlData.replace(/^\s*[\r\n]/gm, '');
+
+            await this.applyEdit({
+                documentUri: filePath,
+                range: {
+                    start: startRange,
+                    end: endRange
+                },
+                text: sanitizedXmlData
+            });
+            openPopupView(POPUP_EVENT_TYPE.CLOSE_VIEW, { view: null, recentIdentifier: getDssDataSourceParams.dataSourceName });
             resolve({ path: filePath });
         });
     }
