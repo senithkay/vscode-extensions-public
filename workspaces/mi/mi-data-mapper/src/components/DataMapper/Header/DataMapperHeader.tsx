@@ -15,7 +15,6 @@ import HeaderSearchBox from "./HeaderSearchBox";
 import HeaderBreadcrumb from "./HeaderBreadcrumb";
 import { View } from "../Views/DataMapperView";
 import ExpressionBar from "./ExpressionBar";
-import FilterBar from "./FilterBar";
 import { isFocusedOnMapFunction } from "./utils";
 import { DataMapperNodeModel } from "../../../components/Diagram/Node/commons/DataMapperNode";
 
@@ -56,11 +55,6 @@ export function DataMapperHeader(props: DataMapperHeaderProps) {
             <ExpressionContainer>
                 <ExpressionBar applyModifications={applyModifications} />
             </ExpressionContainer>
-            {isFocusedOnMapFn && (
-                <ArrayFilterContainer>
-                    <FilterBar applyModifications={applyModifications} inputNode={inputNode}/>
-                </ArrayFilterContainer>
-            )}
         </HeaderContainer>
     );
 }

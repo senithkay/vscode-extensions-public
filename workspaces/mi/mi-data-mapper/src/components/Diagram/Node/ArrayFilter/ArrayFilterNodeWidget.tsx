@@ -6,31 +6,57 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import React from "react";
+import React, { useMemo } from "react";
 
 import styled from "@emotion/styled";
 import { css } from "@emotion/css";
+import { Button, Codicon, Typography } from "@wso2-enterprise/ui-toolkit";
 import { PortModel, PortModelGenerics } from "@projectstorm/react-diagrams";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
+import { Node, CallExpression } from "ts-morph";
 
-import { ArrayFilterNode } from "./ArrayFilterNode";
-import { SharedContainer, TreeContainer } from "../commons/Tree/Tree";
-import { IO_NODE_DEFAULT_WIDTH } from "../../utils/constants";
+import { SharedContainer } from "../commons/Tree/Tree";
+import { ARRAY_FILTER_NODE_HEADER_HEIGHT, IO_NODE_DEFAULT_WIDTH } from "../../utils/constants";
+import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
+import ArrayFilterItem from "./ArrayFilterItem";
+import { useDMArrayFilterStore } from "../../../../store/store";
 
 export const useStyles = () => ({
-    queryInputInputPortWrap: css({
+    arrayFilterPortWrap: css({
         width: IO_NODE_DEFAULT_WIDTH,
         position: 'absolute',
         bottom: 0,
         left: 0,
         display: 'flex',
         justifyContent: 'center'
-    })
+    }),
+    addFilterButton: css({
+        "& > vscode-button": {
+            display: "flex",
+            justifyContent: "space-between",
+            width: `${IO_NODE_DEFAULT_WIDTH}px`,
+            height: "30px",
+            border: "1px solid var(--vscode-welcomePage-tileBorder)",
+            color: "var(--button-primary-foreground)",
+            backgroundColor: "var(--vscode-button-secondaryBackground)",
+            borderRadius: "0px",
+            textTransform: "none",
+            "&:hover": {
+                backgroundColor: "var(--vscode-button-secondaryHoverBackground)"
+            },
+        },
+        "& > vscode-button > *": {
+            margin: "0px 6px"
+        }
+    }),
+    addFilterText: css({
+        fontSize: "12px",
+    }),
 });
 
 const ArrayFilterHeader = styled.div`
     background: var(--vscode-sideBarSectionHeader-background);
-    height: 40px;
+    height: ${ARRAY_FILTER_NODE_HEADER_HEIGHT}px;
     width: 100%;
     line-height: 35px;
     display: flex;
@@ -47,30 +73,94 @@ const HeaderText = styled.span`
     color: var(--vscode-inputOption-activeForeground)
 `;
 
+const ContentSeparator = styled.div`
+    width: 100%;
+    height: 2px;
+    background-color: var(--vscode-titleBar-border);
+`;
+
+const FilterContainer = styled.div`
+    width: 100%;
+    padding: 5px;
+`;
+
 export interface ArrayFilterWidgetProps {
-    node: ArrayFilterNode;
-    title: string;
+    filterExpressions: CallExpression[];
+    focusedInputCallExpr: CallExpression;
+    context: IDataMapperContext;
+    label: string;
     engine: DiagramEngine;
     port: PortModel<PortModelGenerics>;
 }
 
 export function ArrayFilterNodeWidget(props: ArrayFilterWidgetProps) {
-    const { node, engine, port } = props;
-    const { context: { applyModifications }} = node;
+    const { filterExpressions, focusedInputCallExpr, context, label, engine, port } = props;
+
+    const { applyModifications } = context;
     const classes = useStyles();
+
+    const { addedNewFilter, setAddedNewFilter }  = useDMArrayFilterStore.getState();
+
+    const filterItems = useMemo(() => {
+        const filterBarItems = filterExpressions.map((filter, index) => (
+            <ArrayFilterItem
+                key={`arrayFilterItem${index}`}
+                index={index + 1}
+                filterNode={filter}
+                justAdded={index === filterExpressions.length - 1 && addedNewFilter}
+                applyModifications={applyModifications}
+            />
+        ));
+
+        setAddedNewFilter(false);
+
+        return filterBarItems;
+    }, []);
+
+    const onClickAddFilter = async () => {
+        const newFilter = `\n.filter(${label} => ${label} !== null)`;
+        const callExprExpr = focusedInputCallExpr.getExpression();
+
+        let targetExpr: Node;
+        if (Node.isPropertyAccessExpression(callExprExpr)) {
+            targetExpr = callExprExpr.getExpression();
+        }
+
+        const updatedExpression = targetExpr.getText() + newFilter;
+        targetExpr.replaceWithText(updatedExpression);
+        setAddedNewFilter(true);
+        await applyModifications();
+    }
 
     return (
         <>
-            <TreeContainer data-testid={'array-filter-node'}>
-                <SharedContainer data-testid={"sub-mapping-node"}>
-                    <ArrayFilterHeader>
-                        <HeaderText>Filters</HeaderText>
-                    </ArrayFilterHeader>
-                </SharedContainer>
-                <div className={classes.queryInputInputPortWrap}>
+            <SharedContainer data-testid={"array-filter-node"}>
+                <ArrayFilterHeader>
+                    <HeaderText>{`Filters for ${label}`}</HeaderText>
+                </ArrayFilterHeader>
+                {filterItems.length > 0 && (
+                    <>
+                        <ContentSeparator />
+                        <FilterContainer>
+                            {filterItems}
+                        </FilterContainer>
+                    </>
+                )}
+                <ContentSeparator />
+                <Button
+                    className={classes.addFilterButton}
+                    appearance='icon'
+                    aria-label="add"
+                    onClick={onClickAddFilter}
+                    data-testid={"add-another-sub-mapping-btn"}
+                >
+                    <Codicon name="add" iconSx={{ color: "var(--button-primary-foreground)", fontSize: "12px" }} />
+                    <p className={classes.addFilterText}>Add Filter</p>
+                </Button>
+                <div className={classes.arrayFilterPortWrap}>
                     <PortWidget port={port} engine={engine} />
                 </div>
-            </TreeContainer>
+            </SharedContainer>
         </>
     );
 }

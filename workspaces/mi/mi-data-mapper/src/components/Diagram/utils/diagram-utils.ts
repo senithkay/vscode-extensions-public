@@ -6,8 +6,11 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
+import { ArrayFilterNode } from "../Node";
 import { DataMapperNodeModel } from "../Node/commons/DataMapperNode";
 import {
+    ARRAY_FILTER_NODE_ELEMENT_HEIGHT,
+    ARRAY_FILTER_NODE_HEADER_HEIGHT,
     GAP_BETWEEN_FIELDS,
     GAP_BETWEEN_NODE_HEADER_AND_BODY,
     IO_NODE_FIELD_HEIGHT,
@@ -35,6 +38,14 @@ export function getIONodeHeight(noOfFields: number) {
 		+ GAP_BETWEEN_NODE_HEADER_AND_BODY;
 }
 
+export function getArrayFilterNodeHeight(noOfFilters: number) {
+	return noOfFilters * ARRAY_FILTER_NODE_ELEMENT_HEIGHT
+		+ ARRAY_FILTER_NODE_HEADER_HEIGHT
+		+ noOfFilters * GAP_BETWEEN_FIELDS
+		+ GAP_BETWEEN_NODE_HEADER_AND_BODY
+        + 25;
+}
+
 export function calculateControlPointOffset(screenWidth: number) {
     const minWidth = 850;
     const maxWidth = 1500;
@@ -54,4 +65,20 @@ export function isSameView(newNode: DataMapperNodeModel, existingNode?: DataMapp
     const newFocusedView = newNode.context.views[newNode.context.views.length - 1];
 
     return prevFocusedView.label === newFocusedView.label;
+}
+
+export function hasSameFilters(newNodes: DataMapperNodeModel[], existingNodes?: DataMapperNodeModel[]) {
+    if (!existingNodes) return;
+
+    const newArrayFilterNode = newNodes.find(node => node instanceof ArrayFilterNode);
+    const existingArrayFilterNode = existingNodes.find(node => node instanceof ArrayFilterNode);
+
+    if (!newArrayFilterNode && !existingArrayFilterNode) return true;
+
+    if (newArrayFilterNode && existingArrayFilterNode) {
+        return (newArrayFilterNode as ArrayFilterNode).noOfFilters
+            === (existingArrayFilterNode as ArrayFilterNode).noOfFilters;
+    }
+
+    return true;
 }

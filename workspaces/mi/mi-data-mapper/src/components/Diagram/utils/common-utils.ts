@@ -742,6 +742,18 @@ export function getInnermostArrowFnBody(callExpr: CallExpression): Node {
     return callExpr;
 }
 
+export function getFilterExpressions(callExpr: CallExpression): CallExpression[] {
+    const callExpressions = callExpr.getDescendantsOfKind(SyntaxKind.CallExpression);
+
+    // Filter to get only those that are calling 'filter'
+    const filterCalls = callExpressions.filter(call => {
+        const expression = call.getExpression();
+        return Node.isPropertyAccessExpression(expression) && expression.getName() === "filter";
+    });
+
+    return filterCalls.reverse();
+}
+
 function getRootInputAccessExpr(node: ElementAccessExpression | PropertyAccessExpression): Node {
     let expr = node.getExpression();
     while (expr && isInputAccessExpr(expr)) {

@@ -9,17 +9,20 @@
 import React, { useEffect, useState } from 'react';
 
 import { css } from '@emotion/css';
+import { Button, Codicon, Tooltip } from '@wso2-enterprise/ui-toolkit';
 import { CallExpression, Node } from 'ts-morph';
 import classNames from 'classnames';
 
-import { useDMExpressionBarStore } from '../../../store/store';
-import { getPosition, isPositionsEquals } from '../../../components/Diagram/utils/st-utils';
-import { getDiagnostics } from '../../../components/Diagram/utils/diagnostics-utils';
-import { getFilterExpression } from './utils';
-import { Button, Codicon, Tooltip } from '@wso2-enterprise/ui-toolkit';
+import { ARRAY_FILTER_NODE_ELEMENT_HEIGHT } from '../../utils/constants';
+import { useDMExpressionBarStore } from '../../../../store/store';
+import { getFilterExpression } from '../../../../components/DataMapper/Header/utils';
+import { getDiagnostics } from '../../utils/diagnostics-utils';
+import { getPosition, isPositionsEquals } from '../../utils/st-utils';
+
 
 const useStyles = () => ({
     filterItem: css({
+        height: ARRAY_FILTER_NODE_ELEMENT_HEIGHT,
         color: "var(--vscode-foreground)",
         padding: "4px 16px",
         margin: "2px 2px",
@@ -59,7 +62,7 @@ export interface FilterBarItemProps {
     applyModifications: () => Promise<void>;
 };
 
-export default function FilterBarItem(props: FilterBarItemProps) {
+export default function ArrayFilterItem(props: FilterBarItemProps) {
     const { index, filterNode, justAdded, applyModifications } = props;
     const classes = useStyles();
 

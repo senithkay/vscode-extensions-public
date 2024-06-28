@@ -22,8 +22,10 @@ export class ArrayFilterNodeFactory extends AbstractReactFactory<ArrayFilterNode
     generateReactWidget(event: { model: ArrayFilterNode; }): JSX.Element {
         return (
             <ArrayFilterNodeWidget
-                node={event.model}
-                title={`TODO: ADD TITLE`}
+                filterExpressions={event.model.filterExpressions}
+                focusedInputCallExpr={event.model.focusedInputNode.value}
+                context={event.model.context}
+                label={event.model.focusedInputNode.nodeLabel}
                 engine={this.engine}
                 port={event.model.getPort(ARRAY_FILTER_NODE_TYPE)}
             />

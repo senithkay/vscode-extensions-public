@@ -56,6 +56,11 @@ export interface DataMapperExpressionBarState {
     resetInputPort: () => void;
 }
 
+export interface DataMapperArrayFiltersState {
+    addedNewFilter: boolean;
+    setAddedNewFilter: (addedNewFilter: boolean) => void;
+}
+
 export const useDMSearchStore = create<DataMapperSearchState>((set) => ({
     inputSearch: "",
     outputSearch: "",
@@ -101,4 +106,9 @@ export const useDMExpressionBarStore = create<DataMapperExpressionBarState>((set
     setInputPort: (inputPort: InputOutputPortModel) => set({ inputPort }),
     resetFocus: () => set({ focusedPort: undefined, focusedFilter: undefined }),
     resetInputPort: () => set({ inputPort: undefined })
+}));
+
+export const useDMArrayFilterStore = create<DataMapperArrayFiltersState>((set) => ({
+    addedNewFilter: false,
+    setAddedNewFilter: (addedNewFilter: boolean)  => set({ addedNewFilter }),
 }));

@@ -12,6 +12,8 @@ import { DataMapperNodeModel } from "../commons/DataMapperNode";
 import { ArrowLinkModel } from "../../Link";
 import { DefaultPortModel } from "@projectstorm/react-diagrams";
 import { FocusedInputNode } from "../FocusedInput";
+import { getFilterExpressions } from "../../utils/common-utils";
+import { CallExpression } from "ts-morph";
 
 export const ARRAY_FILTER_NODE_TYPE = "datamapper-node-array-filter";
 const NODE_ID = "array-filter-node";
@@ -22,6 +24,8 @@ export class ArrayFilterNode extends DataMapperNodeModel {
     public y: number;
     public sourcePort: DefaultPortModel;
     public targetPort: DefaultPortModel;
+    public filterExpressions: CallExpression[];
+    public noOfFilters: number;
 
     constructor(
         public focusedInputNode: FocusedInputNode
@@ -32,6 +36,8 @@ export class ArrayFilterNode extends DataMapperNodeModel {
             context,
             ARRAY_FILTER_NODE_TYPE
         );
+        this.filterExpressions = getFilterExpressions(focusedInputNode.value);
+        this.noOfFilters = this.filterExpressions.length;
     }
 
     initPorts() {
