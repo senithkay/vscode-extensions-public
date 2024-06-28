@@ -75,7 +75,6 @@ export function fetchOperators(filePath:string):DMOperator[]{
         const project = new Project();
         const sourceFile = project.addSourceFileAtPath(resolvedPath);
 
-        console.log("getComp");
 
         const completionOptions = {
             includeExternalModuleExports: true,
@@ -90,17 +89,11 @@ export function fetchOperators(filePath:string):DMOperator[]{
 
         const languageService = project.getLanguageService().compilerObject;
 
-        //     // const position = fileContent.lastIndexOf('.') + '.'.length;
-
-
         const completions = languageService.getCompletionsAtPosition(resolvedPath, 0, completionOptions);
 
-        console.log("Completions");
 
         if (completions) {
-
-            // const operatorsList:
-
+         
             completions.entries.forEach(entry => {
 
                 const details = languageService.getCompletionEntryDetails(
@@ -115,7 +108,6 @@ export function fetchOperators(filePath:string):DMOperator[]{
                     entry.data
                 );
 
-                // console.log(entry.name, entry,details);
 
                 if (details) {
                     const isInbuilt = details.kindModifiers.includes('declare');
@@ -134,10 +126,7 @@ export function fetchOperators(filePath:string):DMOperator[]{
                             }
                         });
 
-                        
-
-                        console.log(entry.name, details,params,{isInbuilt,isImported});
-
+                   
                         if(isImported){
                             operators.push({
                             label:entry.name,

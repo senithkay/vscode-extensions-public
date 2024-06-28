@@ -33,23 +33,6 @@ export function DataMapper(props: DataMapperProps) {
 
     const { dmOperators, isFetchingOperators, isOperatorsError } = useOperators(filePath, fileContent);
 
-    if (!isFetchingOperators) {
-        let oplist = '';
-        dmOperators.operators.forEach(op => {
-            oplist += op.label + ', ';
-        });
-        console.log(oplist);
-    }
-    // console.log(dmOperators.operators.map(op=>op.label));
-
-    // useEffect(() => {
-    //     rpcClient.getMiDataMapperRpcClient().getOperators({ req: "REQ" }).then((res) => {
-    //         console.log(res);
-    //         setOperators([res.res]);
-    //     });
-    //   }, []); 
-
-
     const updateFileContent = async (newContent: string) => {
         try {
             rpcClient.getMiDataMapperRpcClient().addToDMUndoStack(newContent);
@@ -90,8 +73,5 @@ export function DataMapper(props: DataMapperProps) {
             }
         </>
     );
-
-    // operators={dmOperators.operators.map(op => op.name)}
-
 
 };
