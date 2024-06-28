@@ -21,7 +21,6 @@
         "setGITOut": "if [ $CI = 'true' ]; then echo \"built-$(basename \"$PWD\")=true\" >> $GITHUB_OUTPUT; fi"
     },
     "dependencies": {
-        "@wso2-enterprise/ballerina-languageclient": "workspace:*",
         "@wso2-enterprise/syntax-tree": "workspace:*",
         "@wso2-enterprise/ballerina-low-code-edtior-commons": "workspace:*",
         "@wso2-enterprise/ballerina-core": "workspace:*",
