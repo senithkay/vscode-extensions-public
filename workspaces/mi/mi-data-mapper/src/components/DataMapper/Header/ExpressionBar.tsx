@@ -102,50 +102,6 @@ export default function ExpressionBar(props: ExpressionBarProps) {
 
             disabled = focusedPort.isDisabled();
 
-
-            // -----
-
-            // console.log("focusedPort changed");
-            // const dmnmFocusedNode = focusedPort.getNode() as DataMapperNodeModel;
-
-            // const fnST = dmnmFocusedNode.context.functionST;
-            // const sourceFile = fnST.getSourceFile();
-            // const project = sourceFile.getProject();
-           
-
-            // const languageService = project.getLanguageService().compilerObject;
-
-            // // const project = new Project({
-            // //     useInMemoryFileSystem: true,
-            // //     compilerOptions: { target: 2 }
-            // // });
-
-            // const completionOptions = {
-            //     includeExternalModuleExports: true,
-            //     includeInsertTextCompletions: true,
-            //     // triggerCharacter: '.',
-            //     includeCompletionsForModuleExports: true,
-            //     includeCompletionsWithInsertText: true,
-            //     includeCompletionsWithSnippetText: true,
-            //     includeAutomaticOptionalChainCompletions: true,
-            //     includeCompletionsWithClassMemberSnippets: true,
-            // };
-
-            // const position = fileContent.lastIndexOf('.') + '.'.length;
-
-
-            // const completions = languageService.getCompletionsAtPosition(sourceFile.getFilePath(), 0, completionOptions);
-
-            // console.log("Completions");
-
-            // if (completions) {
-            //     completions.entries.forEach(entry => {
-            //         console.log(entry.name,entry);
-            //     });
-            // }
-
-            // ----
-
         } else if (textFieldRef.current) {
             textFieldRef.current.blur();
         }
@@ -196,6 +152,8 @@ export default function ExpressionBar(props: ExpressionBarProps) {
 
     const applyChanges = async () => {
         const focusedFieldValue = focusedPort?.typeWithValue.value;
+
+        
 
         if (focusedFieldValue) {
             let targetExpr: Node;
