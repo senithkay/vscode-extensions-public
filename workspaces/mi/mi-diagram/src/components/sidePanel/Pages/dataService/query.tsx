@@ -12,7 +12,7 @@ import { AutoComplete, Button, ComponentCard, ProgressIndicator, TextField, Text
 import { VSCodeCheckbox } from '@vscode/webview-ui-toolkit/react';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../SidePanelContexProvider';
-import { AddMediatorProps } from '../mediators/common';
+import { AddMediatorProps, openPopup } from '../mediators/common';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../utils/template-engine/mustach-templates/templateUtils';
 import { Controller, useForm } from 'react-hook-form';
@@ -53,7 +53,7 @@ const QueryForm = (props: AddMediatorProps) => {
             datasource: sidePanelContext?.formValues?.datasource || "",
             sqlQuery: sidePanelContext?.formValues?.sqlQuery || "",
             queryTimeout: sidePanelContext?.formValues?.queryTimeout || "",
-            fetchDirection: sidePanelContext?.formValues?.fetchDirection || "Forward",
+            fetchDirection: sidePanelContext?.formValues?.fetchDirection || "forward",
             fetchSize: sidePanelContext?.formValues?.fetchSize || "",
             maxFieldSize: sidePanelContext?.formValues?.maxFieldSize || "",
             maxRows: sidePanelContext?.formValues?.maxRows || "",
@@ -180,6 +180,9 @@ const QueryForm = (props: AddMediatorProps) => {
                                 filterType='dssDataSource'
                                 label="Datasource"
                                 allowItemCreate={false}
+                                onCreateButtonClick={(fetchItems: any, handleValueChange: any) => {
+                                    openPopup(rpcClient, "datasource", fetchItems, handleValueChange, props.documentUri);
+                                }}
                                 onValueChange={field.onChange}
                             />
                         )}

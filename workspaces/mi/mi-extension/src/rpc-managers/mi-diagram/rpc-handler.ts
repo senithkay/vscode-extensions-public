@@ -24,6 +24,7 @@ import {
     CreateLocalEntryRequest,
     CreateMessageProcessorRequest,
     CreateMessageStoreRequest,
+    CreateDssDataSourceRequest,
     CreateProjectRequest,
     CreateProxyServiceRequest,
     CreateRegistryResourceRequest,
@@ -109,6 +110,7 @@ import {
     createInboundEndpoint,
     createLocalEntry,
     createMessageProcessor,
+    createDssDataSource,
     createMessageStore,
     createProject,
     createProxyService,
@@ -253,6 +255,7 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(updateDefaultEndpoint, (args: UpdateDefaultEndpointRequest) => rpcManger.updateDefaultEndpoint(args));
     messenger.onRequest(getDefaultEndpoint, (args: RetrieveDefaultEndpointRequest) => rpcManger.getDefaultEndpoint(args));
     messenger.onRequest(createDataService, (args: CreateDataServiceRequest) => rpcManger.createDataService(args));
+    messenger.onRequest(createDssDataSource, (args: CreateDssDataSourceRequest) => rpcManger.createDssDataSource(args));
     messenger.onRequest(getDataService, (args: RetrieveDataServiceRequest) => rpcManger.getDataService(args));
     messenger.onNotification(closeWebView, () => rpcManger.closeWebView());
     messenger.onNotification(openDiagram, (args: OpenDiagramRequest) => rpcManger.openDiagram(args));

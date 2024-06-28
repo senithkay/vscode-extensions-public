@@ -89,6 +89,8 @@ import {
     CreateClassMediatorResponse,
     CreateDataServiceRequest,
     CreateDataServiceResponse,
+    CreateDssDataSourceRequest,
+    CreateDssDataSourceResponse,
     RetrieveDataServiceRequest,
     RetrieveDataServiceResponse,
     UpdateHttpEndpointRequest,
@@ -223,6 +225,7 @@ export interface MiDiagramAPI {
     updateDefaultEndpoint: (params: UpdateDefaultEndpointRequest) => Promise<UpdateDefaultEndpointResponse>;
     getDefaultEndpoint: (params: RetrieveDefaultEndpointRequest) => Promise<RetrieveDefaultEndpointResponse>;
     createDataService: (params: CreateDataServiceRequest) => Promise<CreateDataServiceResponse>;
+    createDssDataSource: (params: CreateDssDataSourceRequest) => Promise<CreateDssDataSourceResponse>;
     getDataService: (params: RetrieveDataServiceRequest) => Promise<RetrieveDataServiceResponse>;
     closeWebView: () => void;
     openDiagram: (params: OpenDiagramRequest) => void;
