@@ -11,7 +11,7 @@ import React from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { StartNodeModel } from "./StartNodeModel";
-import { Colors, NODE_HEIGHT, NODE_WIDTH } from "../../../resources/constants";
+import { Colors, NODE_BORDER_WIDTH, NODE_HEIGHT, NODE_PADDING, NODE_WIDTH } from "../../../resources/constants";
 import { Node } from "../../../utils/types";
 
 export namespace NodeStyles {
@@ -24,10 +24,10 @@ export namespace NodeStyles {
         flex-direction: column;
         justify-content: space-between;
         align-items: center;
-        min-width: ${NODE_WIDTH/3}px;
-        min-height: ${NODE_HEIGHT/1.5}px;
-        padding: 0 8px;
-        border: 1.5px solid
+        min-width: ${NODE_WIDTH / 3}px;
+        min-height: ${NODE_HEIGHT / 1.5}px;
+        padding: 0 ${NODE_PADDING}px;
+        border: ${NODE_BORDER_WIDTH}px solid
             ${(props: NodeStyleProp) =>
                 props.selected ? Colors.PRIMARY : props.hovered ? Colors.PRIMARY : Colors.OUTLINE_VARIANT};
         border-radius: 40px;

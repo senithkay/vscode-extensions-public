@@ -66,7 +66,7 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
                 id={link.getID()}
                 d={link.getSVGPath()}
                 fill={"none"}
-                stroke={link.showAddButton && isHovered ? Colors.SECONDARY : Colors.PRIMARY}
+                stroke={link.showAddButton && isHovered ? Colors.PRIMARY : Colors.ON_SURFACE}
                 strokeWidth={1.5}
                 strokeDasharray={link.brokenLine ? "5,5" : "0"}
                 markerEnd={link.showArrowToNode() ? `url(#${link.getID()}-arrow-head)` : ""}
@@ -87,7 +87,7 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
                                 alignItems: "center",
                                 borderRadius: "20px",
                                 border: `1.5px solid ${
-                                    link.showAddButton && isHovered ? Colors.SECONDARY : Colors.PRIMARY
+                                    link.showAddButton && isHovered ? Colors.PRIMARY : Colors.ON_SURFACE
                                 }`,
                                 backgroundColor: `${Colors.SURFACE_BRIGHT}`,
                                 padding: "2px 10px",
@@ -97,7 +97,7 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
                         >
                             <span
                                 style={{
-                                    color: link.showAddButton && isHovered ? Colors.SECONDARY : Colors.PRIMARY,
+                                    color: link.showAddButton && isHovered ? Colors.PRIMARY : Colors.ON_SURFACE,
                                     fontSize: "14px",
                                 }}
                             >
@@ -130,7 +130,7 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
                                 d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"
                             />
                             <path
-                                fill={Colors.ON_SURFACE}
+                                fill={Colors.PRIMARY}
                                 d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2m0 18a8 8 0 1 1 8-8a8 8 0 0 1-8 8m4-9h-3V8a1 1 0 0 0-2 0v3H8a1 1 0 0 0 0 2h3v3a1 1 0 0 0 2 0v-3h3a1 1 0 0 0 0-2"
                             />
                         </svg>
@@ -149,7 +149,7 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
                 >
                     <polygon
                         points="0,4 0,0 4,2"
-                        fill={link.showAddButton && isHovered ? Colors.SECONDARY : Colors.PRIMARY}
+                        fill={link.showAddButton && isHovered ? Colors.PRIMARY : Colors.ON_SURFACE}
                     ></polygon>
                 </marker>
             </defs>

@@ -11,7 +11,7 @@ import React from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { BaseNodeModel } from "./BaseNodeModel";
-import { Colors, NODE_HEIGHT, NODE_WIDTH } from "../../../resources/constants";
+import { Colors, NODE_BORDER_WIDTH, NODE_HEIGHT, NODE_PADDING, NODE_WIDTH } from "../../../resources/constants";
 import { Button } from "@wso2-enterprise/ui-toolkit";
 import { CodeIcon, MoreVertIcon } from "../../../resources";
 import { Node } from "../../../utils/types";
@@ -29,8 +29,8 @@ export namespace NodeStyles {
         align-items: center;
         min-width: ${NODE_WIDTH}px;
         min-height: ${NODE_HEIGHT}px;
-        padding: 0 8px;
-        border: 1.5px solid
+        padding: 0 ${NODE_PADDING}px;
+        border: ${NODE_BORDER_WIDTH}px solid
             ${(props: NodeStyleProp) =>
                 props.selected ? Colors.PRIMARY : props.hovered ? Colors.PRIMARY : Colors.OUTLINE_VARIANT};
         border-radius: 10px;

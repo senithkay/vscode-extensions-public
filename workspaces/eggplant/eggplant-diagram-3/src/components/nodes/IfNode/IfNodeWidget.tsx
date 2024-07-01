@@ -11,7 +11,7 @@ import React from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { IfNodeModel } from "./IfNodeModel";
-import { Colors, NODE_HEIGHT, NODE_WIDTH } from "../../../resources/constants";
+import { Colors, IF_NODE_WIDTH, NODE_BORDER_WIDTH, NODE_HEIGHT, NODE_WIDTH } from "../../../resources/constants";
 import { Button } from "@wso2-enterprise/ui-toolkit";
 import { CodeIcon, MoreVertIcon } from "../../../resources";
 import { Node } from "../../../utils/types";
@@ -27,14 +27,6 @@ export namespace NodeStyles {
         flex-direction: column;
         justify-content: space-between;
         align-items: center;
-        min-width: ${NODE_WIDTH}px;
-        min-height: ${NODE_HEIGHT}px;
-        padding: 0 8px;
-        /* border: 1.5px solid
-            ${(props: NodeStyleProp) =>
-            props.selected ? Colors.PRIMARY : props.hovered ? Colors.PRIMARY : Colors.OUTLINE_VARIANT}; */
-        /* border-radius: 10px; */
-        /* background-color: ${Colors.SURFACE_DIM}; */
         color: ${Colors.ON_SURFACE};
         /* cursor: pointer; */
     `;
@@ -136,17 +128,17 @@ export function IfNodeWidget(props: IfNodeWidgetProps) {
             <NodeStyles.Row>
                 <NodeStyles.Column>
                     <NodeStyles.TopPortWidget port={model.getPort("in")!} engine={engine} />
-                    <svg width="65" height="65" viewBox="0 0 70 70">
+                    <svg width={IF_NODE_WIDTH} height={IF_NODE_WIDTH} viewBox="0 0 70 70">
                         <rect
-                            x="12"
-                            y="2"
-                            width="50"
-                            height="50"
+                            x="12.5"
+                            y="4"
+                            width={NODE_HEIGHT}
+                            height={NODE_HEIGHT}
                             rx="5"
                             ry="5"
                             fill={Colors.SURFACE_BRIGHT}
-                            stroke={Colors.OUTLINE_VARIANT}
-                            strokeWidth={2}
+                            stroke={isHovered ? Colors.PRIMARY : Colors.OUTLINE_VARIANT}
+                            strokeWidth={NODE_BORDER_WIDTH}
                             transform="rotate(45 28 28)"
                         />
                         <svg x="20" y="15" width="30" height="30" viewBox="0 0 24 24">
