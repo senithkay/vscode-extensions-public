@@ -59,5 +59,3 @@ export const useOperators = (filePath: string,fileContent:string) => {
 
     return {dmOperators, isFetchingOperators, isOperatorsError, refetch};
 };
-
-

@@ -61,8 +61,6 @@ export function DataMapperView(props: DataMapperViewProps) {
         operators
     } = props;
 
-    console.log(operators);
-
     const { rpcClient } = useVisualizerContext();
 
     const { functionST, sourceFile } = useMemo(() => {

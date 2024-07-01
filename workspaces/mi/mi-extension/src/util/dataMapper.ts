@@ -8,7 +8,7 @@
  */
 import { Block, FunctionDeclaration, Node, Project, SourceFile, Type } from 'ts-morph';
 import * as path from 'path';
-import { DMType, TypeKind ,DMOperator} from '@wso2-enterprise/mi-core';
+import { DMType, TypeKind, DMOperator } from '@wso2-enterprise/mi-core';
 
 export function fetchIOTypes(filePath: string, functionName: string) {
     const inputTypes: DMType[] = [];
@@ -67,82 +67,82 @@ export function deriveConfigName(filePath: string) {
     return fileName.split(".")[0];
 }
 
-export function fetchOperators(filePath:string):DMOperator[]{
+export function fetchOperators(filePath: string): DMOperator[] {
 
-        const operators:DMOperator[]=[]; 
-    
-        const resolvedPath = path.resolve(filePath);
-        const project = new Project();
-        const sourceFile = project.addSourceFileAtPath(resolvedPath);
+    const operators: DMOperator[] = [];
 
-
-        const completionOptions = {
-            includeExternalModuleExports: true,
-            includeInsertTextCompletions: true,
-            // triggerCharacter: '.',
-            includeCompletionsForModuleExports: true,
-            includeCompletionsWithInsertText: true,
-            includeCompletionsWithSnippetText: true,
-            includeAutomaticOptionalChainCompletions: true,
-            includeCompletionsWithClassMemberSnippets: true,
-        };
-
-        const languageService = project.getLanguageService().compilerObject;
-
-        const completions = languageService.getCompletionsAtPosition(resolvedPath, 0, completionOptions);
+    const resolvedPath = path.resolve(filePath);
+    const project = new Project();
+    const sourceFile = project.addSourceFileAtPath(resolvedPath);
 
 
-        if (completions) {
-         
-            completions.entries.forEach(entry => {
+    const completionOptions = {
+        includeExternalModuleExports: true,
+        includeInsertTextCompletions: true,
+        // triggerCharacter: '.',
+        includeCompletionsForModuleExports: true,
+        includeCompletionsWithInsertText: true,
+        includeCompletionsWithSnippetText: true,
+        includeAutomaticOptionalChainCompletions: true,
+        includeCompletionsWithClassMemberSnippets: true,
+    };
 
-                const details = languageService.getCompletionEntryDetails(
-                    resolvedPath,
-                    0,
-                    entry.name,
-                    {},
-                    entry.source,
-                    {
-                        importModuleSpecifierPreference: 'relative',
-                    },
-                    entry.data
-                );
+    const languageService = project.getLanguageService().compilerObject;
+
+    const completions = languageService.getCompletionsAtPosition(resolvedPath, 0, completionOptions);
 
 
-                if (details) {
-                    const isInbuilt = details.kindModifiers.includes('declare');
-                    const isImported = details.sourceDisplay != undefined;
+    if (completions) {
 
-                    if (details.kind === 'function' || details.kind === 'method') {
-                        const params: string[] = [];
-                        let param: string = '';
+        completions.entries.forEach(entry => {
 
-                        details.displayParts.forEach(part => {
-                            if (part.kind === 'parameterName' || part.text === '...') {
-                                param += part.text;
-                            } else if (param && part.text === ':') {
-                                params.push(param);
-                                param = '';
-                            }
-                        });
+            const details = languageService.getCompletionEntryDetails(
+                resolvedPath,
+                0,
+                entry.name,
+                {},
+                entry.source,
+                {
+                    importModuleSpecifierPreference: 'relative',
+                },
+                entry.data
+            );
 
-                   
-                        if(isImported){
-                            operators.push({
-                            label:entry.name,
-                            args:params,
-                            description:details.documentation?.[0]?.text,
-                            src:entry.source,
-                            action:details.codeActions?.[0].changes[0].textChanges[0].newText
-                            });
+
+            if (details) {
+                const isInbuilt = details.kindModifiers.includes('declare');
+                const isImported = details.sourceDisplay != undefined;
+
+                if (details.kind === 'function' || details.kind === 'method') {
+                    const params: string[] = [];
+                    let param: string = '';
+
+                    details.displayParts.forEach(part => {
+                        if (part.kind === 'parameterName' || part.text === '...') {
+                            param += part.text;
+                        } else if (param && part.text === ':') {
+                            params.push(param);
+                            param = '';
                         }
+                    });
 
+
+                    if (isImported) {
+                        operators.push({
+                            label: entry.name,
+                            args: params,
+                            description: details.documentation?.[0]?.text,
+                            src: entry.source,
+                            action: details.codeActions?.[0].changes[0].textChanges[0].newText
+                        });
                     }
-                }
-            });
-        }
 
-        return operators;
+                }
+            }
+        });
+    }
+
+    return operators;
 }
 
 function getDMFunction(filePath: string, functionName: string) {

@@ -237,8 +237,6 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
                 const workspaceFolder = workspace.getWorkspaceFolder(Uri.file(filePath));
                 let miDiagramRpcManager: MiDiagramRpcManager = new MiDiagramRpcManager();
 
-
-
                 if (workspaceFolder) {
                     const dataMapperConfigFolder = path.join(
                         workspaceFolder.uri.fsPath, 'src', 'main', 'wso2mi', 'resources', 'registry', 'gov', 'datamapper', dmName);
@@ -345,6 +343,5 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
             }
         });
     }
-
 
 }

@@ -8,14 +8,14 @@
  * 
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
-import { 
-    DMTypeRequest, 
-    IOTypeResponse, 
+import {
+    DMTypeRequest,
+    IOTypeResponse,
     SubMappingTypesResponse,
     UpdateFileContentRequest,
-    GenerateDMInputRequest, 
+    GenerateDMInputRequest,
     GenerateDMInputResponse,
-    BrowseSchemaRequest, 
+    BrowseSchemaRequest,
     BrowseSchemaResponse,
     LoadDMConfigsRequest,
     LoadDMConfigsResponse,

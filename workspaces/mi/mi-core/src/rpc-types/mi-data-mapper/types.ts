@@ -95,13 +95,9 @@ export interface UpdateDMUndoRedoMangerRequest {
 }
 
 export interface GetOperatorsRequest {
-    
-    filePath:string;
-    
+    filePath: string;
 }
 
 export interface GetOperatorsResponse {
-    operators:DMOperator[];
+    operators: DMOperator[];
 }
-
-
