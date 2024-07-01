@@ -16,7 +16,7 @@ import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { Node, CallExpression } from "ts-morph";
 
 import { SharedContainer } from "../commons/Tree/Tree";
-import { ARRAY_FILTER_NODE_HEADER_HEIGHT, IO_NODE_DEFAULT_WIDTH } from "../../utils/constants";
+import { ADD_ARRAY_FILTER_BUTTON_HEIGHT, ARRAY_FILTER_SEPARATOR_HEIGHT, ARRAY_FILTER_NODE_HEADER_HEIGHT, IO_NODE_DEFAULT_WIDTH } from "../../utils/constants";
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import ArrayFilterItem from "./ArrayFilterItem";
 import { useDMArrayFilterStore } from "../../../../store/store";
@@ -35,7 +35,7 @@ export const useStyles = () => ({
             display: "flex",
             justifyContent: "space-between",
             width: `${IO_NODE_DEFAULT_WIDTH}px`,
-            height: "30px",
+            height: `${ADD_ARRAY_FILTER_BUTTON_HEIGHT}px`,
             border: "1px solid var(--vscode-welcomePage-tileBorder)",
             color: "var(--button-primary-foreground)",
             backgroundColor: "var(--vscode-button-secondaryBackground)",
@@ -75,7 +75,7 @@ const HeaderText = styled.span`
 
 const ContentSeparator = styled.div`
     width: 100%;
-    height: 2px;
+    height: ${ARRAY_FILTER_SEPARATOR_HEIGHT}px;
     background-color: var(--vscode-titleBar-border);
 `;
 
@@ -99,7 +99,8 @@ export function ArrayFilterNodeWidget(props: ArrayFilterWidgetProps) {
     const { applyModifications } = context;
     const classes = useStyles();
 
-    const { addedNewFilter, setAddedNewFilter }  = useDMArrayFilterStore.getState();
+    const isCollapsed = useDMArrayFilterStore(state => state.isCollapsed);
+    const { addedNewFilter, setAddedNewFilter, setIsCollapsed }  = useDMArrayFilterStore.getState();
 
     const filterItems = useMemo(() => {
         const filterBarItems = filterExpressions.map((filter, index) => (
@@ -132,13 +133,25 @@ export function ArrayFilterNodeWidget(props: ArrayFilterWidgetProps) {
         await applyModifications();
     }
 
+    const handleExpand = () => {
+        setIsCollapsed(!isCollapsed);
+    };
+
     return (
         <>
             <SharedContainer data-testid={"array-filter-node"}>
                 <ArrayFilterHeader>
                     <HeaderText>{`Filters for ${label}`}</HeaderText>
+                    <Button
+                        appearance="icon"
+                        tooltip={isCollapsed ? "Expand" : "Collapse"}
+                        onClick={handleExpand}
+                        data-testid={`array-filters-expand-btn`}
+                    >
+						{isCollapsed ? <Codicon name="chevron-down" /> : <Codicon name="chevron-right" />}
+                    </Button>
                 </ArrayFilterHeader>
-                {filterItems.length > 0 && (
+                {filterItems.length > 0 && !isCollapsed && (
                     <>
                         <ContentSeparator />
                         <FilterContainer>

@@ -58,7 +58,9 @@ export interface DataMapperExpressionBarState {
 
 export interface DataMapperArrayFiltersState {
     addedNewFilter: boolean;
+    isCollapsed: boolean;
     setAddedNewFilter: (addedNewFilter: boolean) => void;
+    setIsCollapsed: (isCollapsed: boolean) => void;
 }
 
 export const useDMSearchStore = create<DataMapperSearchState>((set) => ({
@@ -111,4 +113,6 @@ export const useDMExpressionBarStore = create<DataMapperExpressionBarState>((set
 export const useDMArrayFilterStore = create<DataMapperArrayFiltersState>((set) => ({
     addedNewFilter: false,
     setAddedNewFilter: (addedNewFilter: boolean)  => set({ addedNewFilter }),
+    isCollapsed: false,
+    setIsCollapsed: (isCollapsed: boolean)  => set({ isCollapsed }),
 }));

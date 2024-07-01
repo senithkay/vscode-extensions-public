@@ -30,7 +30,7 @@ import { DataMapperNodeModel } from "../Node/commons/DataMapperNode";
 import { ArrayOutputNode, InputNode, ObjectOutputNode, SubMappingNode } from "../Node";
 import { InputOutputPortModel } from "../Port";
 import { ArrayElement, DMTypeWithValue } from "../Mappings/DMTypeWithValue";
-import { useDMSearchStore } from "../../../store/store";
+import { useDMArrayFilterStore, useDMSearchStore } from "../../../store/store";
 import {
     ARRAY_OUTPUT_TARGET_PORT_PREFIX,
     FOCUSED_INPUT_SOURCE_PORT_PREFIX,
@@ -743,6 +743,12 @@ export function getInnermostArrowFnBody(callExpr: CallExpression): Node {
 }
 
 export function getFilterExpressions(callExpr: CallExpression): CallExpression[] {
+    const isFiltersCollapsed = useDMArrayFilterStore.getState().isCollapsed;
+
+    if (isFiltersCollapsed) {
+        return [];
+    }
+
     const callExpressions = callExpr.getDescendantsOfKind(SyntaxKind.CallExpression);
 
     // Filter to get only those that are calling 'filter'

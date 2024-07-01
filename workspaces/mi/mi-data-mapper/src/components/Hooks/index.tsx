@@ -26,16 +26,22 @@ import { ArrayFnConnectorNode } from '../Diagram/Node/ArrayFnConnector';
 import { FocusedInputNode } from '../Diagram/Node/FocusedInput';
 import { PrimitiveOutputNode } from '../Diagram/Node/PrimitiveOutput';
 
-export const useRepositionedNodes = (nodes: DataMapperNodeModel[], zoomLevel: number, diagramModel: DiagramModel) => {
+export const useRepositionedNodes = (
+    nodes: DataMapperNodeModel[],
+    zoomLevel: number,
+    diagramModel: DiagramModel,
+    filtersCollapsedChanged: boolean
+) => {
     const nodesClone = [...nodes];
     const prevNodes = diagramModel.getNodes() as DataMapperNodeModel[];
-    const filtersUnchanged = hasSameFilters(nodesClone, prevNodes);
+    const filtersUnchanged = hasSameFilters(nodesClone, prevNodes) && !filtersCollapsedChanged;
 
     let prevBottomY = 0;
 
     nodesClone.forEach(node => {
         const exisitingNode = prevNodes.find(prevNode => prevNode.id === node.id);
         const sameView = isSameView(node, exisitingNode);
+
         if (node instanceof ObjectOutputNode
             || node instanceof ArrayOutputNode
             || node instanceof PrimitiveOutputNode
@@ -58,10 +64,11 @@ export const useRepositionedNodes = (nodes: DataMapperNodeModel[], zoomLevel: nu
                 const nodeHeight = getIONodeHeight(node.numberOfFields);
                 prevBottomY = computedY + nodeHeight;
             } else if (node instanceof ArrayFilterNode) {
-                const nodeHeight = getArrayFilterNodeHeight(node.noOfFilters);
+                const nodeHeight = getArrayFilterNodeHeight(node);
                 prevBottomY = computedY + (nodeHeight * (100/zoomLevel)) + GAP_BETWEEN_FILTER_NODE_AND_INPUT_NODE;
             }
-        } else if (node instanceof FocusedInputNode) {
+        }
+        if (node instanceof FocusedInputNode) {
             const x = OFFSETS.SOURCE_NODE.X;
             const computedY = prevBottomY + (prevBottomY ? GAP_BETWEEN_INPUT_NODES : 0);
             let y = exisitingNode && sameView && filtersUnchanged && exisitingNode.getY() !== 0 ? exisitingNode.getY() : computedY;

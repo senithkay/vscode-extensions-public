@@ -7,13 +7,13 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { Point } from "@projectstorm/geometry";
+import { DefaultPortModel } from "@projectstorm/react-diagrams";
+import { CallExpression } from "ts-morph";
 
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
 import { ArrowLinkModel } from "../../Link";
-import { DefaultPortModel } from "@projectstorm/react-diagrams";
 import { FocusedInputNode } from "../FocusedInput";
 import { getFilterExpressions } from "../../utils/common-utils";
-import { CallExpression } from "ts-morph";
 
 export const ARRAY_FILTER_NODE_TYPE = "datamapper-node-array-filter";
 const NODE_ID = "array-filter-node";

@@ -89,11 +89,10 @@ export class FocusedInputNode extends DataMapperNodeModel {
     setPosition(x: number, y: number): void;
     setPosition(x: unknown, y?: unknown): void {
         if (typeof x === 'number' && typeof y === 'number') {
-            if (!this.x || !this.y) {
+            if (!this.x){
                 this.x = x;
-                this.y = y;
-                super.setPosition(x, y);
             }
+            super.setPosition(this.x, y);
         }
     }
 }
