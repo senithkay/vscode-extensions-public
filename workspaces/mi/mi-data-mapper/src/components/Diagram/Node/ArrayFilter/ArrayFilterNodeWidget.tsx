@@ -142,14 +142,17 @@ export function ArrayFilterNodeWidget(props: ArrayFilterWidgetProps) {
             <SharedContainer data-testid={"array-filter-node"}>
                 <ArrayFilterHeader>
                     <HeaderText>{`Filters for ${label}`}</HeaderText>
-                    <Button
-                        appearance="icon"
-                        tooltip={isCollapsed ? "Expand" : "Collapse"}
-                        onClick={handleExpand}
-                        data-testid={`array-filters-expand-btn`}
-                    >
-						{isCollapsed ? <Codicon name="chevron-down" /> : <Codicon name="chevron-right" />}
-                    </Button>
+                    {filterItems.length > 0 && (
+                        <Button
+                            appearance="icon"
+                            tooltip={isCollapsed ? "Expand" : "Collapse"}
+                            onClick={handleExpand}
+                            data-testid={`array-filters-expand-btn`}
+                            sx={{ marginRight: "10px" }}
+                        >
+                            {isCollapsed ? <Codicon name="chevron-right" /> : <Codicon name="chevron-down" />}
+                        </Button>
+                    )}
                 </ArrayFilterHeader>
                 {filterItems.length > 0 && !isCollapsed && (
                     <>

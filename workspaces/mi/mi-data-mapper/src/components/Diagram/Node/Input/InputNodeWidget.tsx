@@ -120,7 +120,7 @@ export function InputNodeWidget(props: InputNodeWidgetProps) {
                             onClick={handleExpand}
                             data-testid={`${id}-expand-icon-record-source-node`}
                         >
-                            {expanded ? <Codicon name="chevron-right" /> : <Codicon name="chevron-down" />}
+                            {expanded ? <Codicon name="chevron-down" /> : <Codicon name="chevron-right" />}
                         </Button>
                     )}
                     {label}
