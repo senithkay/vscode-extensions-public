@@ -18,17 +18,17 @@ import { DataMapperContext } from "../../utils/DataMapperContext/DataMapperConte
 import DataMapperDiagram from "../Diagram/Diagram";
 import { DataMapperNodeModel } from "../Diagram/Node/commons/DataMapperNode";
 import { NodeInitVisitor } from "../Visitors/NodeInitVisitor";
-import { getFocusedST, getFocusedSubMapping, traversNode } from "../Diagram/utils/st-utils";
+import { getFocusedST, traversNode } from "../Diagram/utils/st-utils";
 import { ImportDataForm } from "./SidePanel/ImportDataForm";
 import { DataMapperHeader } from "./Header/DataMapperHeader";
 import { useDMExpressionBarStore, useDMSearchStore } from "../../store/store";
-import { getFocusedSubMappingExpr, getTypeName } from "../Diagram/utils/common-utils";
-import { getDMType, getSubMappingTypes, getTypeForVariable } from "../Diagram/utils/type-utils";
-import { getOutputNode, getSubMappingNode } from "../Diagram/utils/node-utils";
+import { getTypeName } from "../Diagram/utils/common-utils";
+import { getSubMappingTypes } from "../Diagram/utils/type-utils";
 import { SubMappingConfigForm } from "./SidePanel/SubMappingConfigForm";
 import { isInputNode } from "../Diagram/Actions/utils";
 import { SourceNodeType, View } from "./Views/DataMapperView";
 import { KeyboardNavigationManager } from "../../utils/keyboard-navigation-manager";
+import { buildNodeListForSubMappings, initializeSubMappingContext } from "../Diagram/utils/sub-mapping-utils";
 
 const classes = {
     root: css({
@@ -114,68 +114,60 @@ export function MIDataMapper(props: MIDataMapperProps) {
     const inputNode = nodes.find(node => isInputNode(node));
 
     useEffect(() => {
-        async function generateNodes() {
-            const lastView = views[views.length - 1];
-            const subMappingTypes = await getSubMappingTypes(rpcClient, filePath, fnST.getName());
-
-            const context = new DataMapperContext(
-                fnST, fnST, inputTrees, outputTree, views, subMappingTypes, addView, goToSource, applyModifications
-            );
-
-            const nodeInitVisitor = new NodeInitVisitor(context);
-
-            if (lastView.subMappingInfo !== undefined) {
-                const { subMappingInfo, sourceFieldFQN, targetFieldFQN } = lastView;
-                const { index, mapFnIndex, mappingName } = subMappingInfo;
-                let focusedST = getFocusedSubMapping(index, fnST);
-                context.focusedST = focusedST;
-
-                const varDecl = focusedST.getDeclarations()[0];
-                let subMappingType = getTypeForVariable(subMappingTypes, varDecl, mapFnIndex);
-                if (targetFieldFQN && targetFieldFQN !== mappingName) {
-                    subMappingType = getDMType(targetFieldFQN, subMappingType, mapFnIndex + 1);
-                }
-
-                if (subMappingType) {
-                    traversNode(focusedST, nodeInitVisitor);
-
-                    const inputNode = mapFnIndex === undefined
-                        ? nodeInitVisitor.getRootInputNode()
-                        : nodeInitVisitor.getInputNode();
-                    const intermediateNodes = nodeInitVisitor.getIntermediateNodes();
-                    const varDeclInitializer = varDecl.getInitializer();
-                    const subMappingExpr = getFocusedSubMappingExpr(varDeclInitializer, mapFnIndex, sourceFieldFQN);
-                    const outputNode = getOutputNode(context, subMappingExpr, subMappingType, true);
-
-                    const subMappingNode = getSubMappingNode(context);
-
-                    setNodes([inputNode, subMappingNode, outputNode, ...intermediateNodes]);
-                }
-            } else {
-                let focusedST: FunctionDeclaration | PropertyAssignment | ReturnStatement = fnST;
-
-                if (views.length > 1) {
-                    focusedST = getFocusedST(lastView, fnST);
-                }
-
-                context.focusedST = focusedST;
-
-                traversNode(focusedST, nodeInitVisitor);
-                setNodes(nodeInitVisitor.getNodes());
-            }
-        }
         generateNodes();
         updateDMCFileContent();
+        setupKeyboardShortcuts();
+    
+        return () => {
+            KeyboardNavigationManager.getClient().resetMouseTrapInstance();
+        };
+    }, [fileContent, views]);
 
+    const generateNodes = async () => {
+        const lastView = views[views.length - 1];
+        const subMappingTypes = await getSubMappingTypes(rpcClient, filePath, fnST.getName());
+        const context = new DataMapperContext(
+            fnST, fnST, inputTrees, outputTree, views, subMappingTypes, addView, goToSource, applyModifications
+        );
+        const nodeInitVisitor = new NodeInitVisitor(context);
+    
+        if (lastView.subMappingInfo !== undefined) {
+            await handleSubMapping(lastView, context, nodeInitVisitor, subMappingTypes);
+        } else {
+            handleDefaultMapping(lastView, context, nodeInitVisitor);
+        }
+    };
+
+    const setupKeyboardShortcuts = () => {
         const mouseTrapClient = KeyboardNavigationManager.getClient();
-
         mouseTrapClient.bindNewKey(['command+z', 'ctrl+z'], () => handleVersionChange('dmUndo'));
         mouseTrapClient.bindNewKey(['command+shift+z', 'ctrl+y'], async () => handleVersionChange('dmRedo'));
+    };
 
-        return () => {
-            mouseTrapClient.resetMouseTrapInstance();
+    const handleSubMapping = async (
+        lastView: View,
+        context: DataMapperContext,
+        nodeInitVisitor: NodeInitVisitor,
+        subMappingTypes: Record<string, DMType>
+    ) => {
+        const subMappingDetails = initializeSubMappingContext(lastView, context, subMappingTypes, fnST);
+        const nodeList = buildNodeListForSubMappings(context, nodeInitVisitor, subMappingDetails);
+        setNodes(nodeList);
+    };
+    
+    const handleDefaultMapping = (
+        lastView: View,
+        context: DataMapperContext,
+        nodeInitVisitor: NodeInitVisitor
+    ) => {
+        let focusedST: FunctionDeclaration | PropertyAssignment | ReturnStatement = fnST;
+        if (views.length > 1) {
+            focusedST = getFocusedST(lastView, fnST);
         }
-    }, [fileContent, views]);
+        context.focusedST = focusedST;
+        traversNode(focusedST, nodeInitVisitor);
+        setNodes(nodeInitVisitor.getNodes());
+    };
 
     const goToSource = (range: Range) => {
         rpcClient.getMiVisualizerRpcClient().goToSource({ filePath, position: range });

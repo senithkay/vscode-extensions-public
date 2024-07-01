@@ -113,10 +113,9 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 
 	const filtersCollapsed = useDMArrayFilterStore(state => state.isCollapsed);
 
-	// Track changes in filtersCollapsed to update hasCollapsedValueChanged
-    useEffect(() => {
-        setFiltersCollapsedChanged(prev => !prev); // Toggle the state to trigger repositioning
-    }, [filtersCollapsed]);
+	useEffect(() => {
+		setFiltersCollapsedChanged(prev => !prev); // Toggle the state to trigger repositioning
+	}, [filtersCollapsed]);
 
 	const zoomLevel = calculateZoomLevel(screenWidth);
 
