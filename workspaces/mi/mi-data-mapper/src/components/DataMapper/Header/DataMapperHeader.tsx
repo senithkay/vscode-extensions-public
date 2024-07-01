@@ -52,7 +52,8 @@ export function DataMapperHeader(props: DataMapperHeaderProps) {
             <ExpressionContainer>
                 <ExpressionBar
                     applyModifications={applyModifications}
-                    operators={operators} />
+                    operators={operators}
+                />
             </ExpressionContainer>
         </HeaderContainer>
     );
