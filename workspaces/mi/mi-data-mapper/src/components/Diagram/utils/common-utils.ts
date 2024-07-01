@@ -743,12 +743,6 @@ export function getInnermostArrowFnBody(callExpr: CallExpression): Node {
 }
 
 export function getFilterExpressions(callExpr: CallExpression): CallExpression[] {
-    const isFiltersCollapsed = useDMArrayFilterStore.getState().isCollapsed;
-
-    if (isFiltersCollapsed) {
-        return [];
-    }
-
     const callExpressions = callExpr.getDescendantsOfKind(SyntaxKind.CallExpression);
 
     // Filter to get only those that are calling 'filter'
