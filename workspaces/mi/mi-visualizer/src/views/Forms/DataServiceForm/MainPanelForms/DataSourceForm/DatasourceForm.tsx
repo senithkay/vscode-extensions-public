@@ -537,17 +537,15 @@ export function DataServiceDataSourceWizard(props: DataServiceDataSourceWizardPr
                     setDatasourceConfigurations(currentDatasource.dsConfigurations);
                     setIsEditDatasource(true);
                 }
+            } else {
+                if (props.datasource !== undefined) {
+                    reset(props.datasource);
+                    setDatasourceConfigurations(props.datasource.dsConfigurations);
+                    setIsEditDatasource(true);
+                }
             }
         })();
-    }, [props.path]);
-
-    useEffect(() => {
-        if (props.datasource !== undefined) {
-            reset(props.datasource);
-            setDatasourceConfigurations(props.datasource.dsConfigurations);
-            setIsEditDatasource(true);
-        }
-    }, [props.datasource]);
+    }, [props.path, props.datasource]);
 
     useEffect(() => {
         if (isInitialLoading) {
