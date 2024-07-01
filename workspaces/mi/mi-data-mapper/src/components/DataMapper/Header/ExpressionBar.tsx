@@ -53,7 +53,7 @@ export default function ExpressionBar(props: ExpressionBarProps) {
         inputPort: state.inputPort
     }));
 
-    const functionNames = operators.map(op => (op.action ?? "")+ op.label);
+    const functionNames = operators.map(op => (op.action ?? "") + op.label);
 
     useEffect(() => {
         // Keep the text field focused when an input port is selected
