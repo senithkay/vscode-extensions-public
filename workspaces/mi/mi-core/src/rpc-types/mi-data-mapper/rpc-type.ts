@@ -8,8 +8,8 @@
  * 
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
-import {
-    DMTypeRequest,
+import { 
+    DMTypeRequest, 
     IOTypeResponse,
     SubMappingTypesResponse,
     UpdateFileContentRequest,
