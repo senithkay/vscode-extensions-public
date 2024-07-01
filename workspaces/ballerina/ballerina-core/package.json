@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@wso2-enterprise/syntax-tree": "workspace:*",
+    "vscode-languageserver-protocol": "^3.17.5",
     "vscode-languageserver-types": "^3.17.5",
     "vscode-messenger-common": "^0.4.5",
     "@types/vscode-webview": "^1.57.3",
