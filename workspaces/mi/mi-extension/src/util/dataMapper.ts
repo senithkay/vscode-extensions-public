@@ -113,7 +113,7 @@ function getCompletions(filePath: string) {
     return { completions, languageService };
 }
 
-function getCompletionEntryDetails(languageService: ts.LanguageService, entry: ts.CompletionEntry, filePath: string)  {
+function getCompletionEntryDetails(languageService: ts.LanguageService, entry: ts.CompletionEntry, filePath: string) {
     const details = languageService.getCompletionEntryDetails(
         filePath,
         0,
@@ -130,7 +130,7 @@ function getCompletionEntryDetails(languageService: ts.LanguageService, entry: t
 }
 
 function getImportedFuntionDetails(entry: ts.CompletionEntry, details: ts.CompletionEntryDetails) {
-    
+
     if (details.sourceDisplay != undefined) {
 
         if (details.kind === 'function' || details.kind === 'method') {

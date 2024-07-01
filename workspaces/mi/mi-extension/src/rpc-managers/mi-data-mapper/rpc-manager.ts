@@ -28,7 +28,7 @@ import {
     GetOperatorsResponse,
     DMOperator
 } from "@wso2-enterprise/mi-core";
-import { fetchIOTypes, fetchSubMappingTypes,fetchOperators } from "../../util/dataMapper";
+import { fetchIOTypes, fetchSubMappingTypes, fetchOperators } from "../../util/dataMapper";
 import { Project } from "ts-morph";
 import { navigate } from "../../stateMachine";
 import { generateSchema } from "../../util/schemaBuilder";
@@ -97,28 +97,7 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
         };
         return '';
     }
-    getFunctionNames(filePath: string): string[] {
-        const sourceFile = ts.createSourceFile(
-            filePath,
-            fs.readFileSync(filePath).toString(),
-            ts.ScriptTarget.Latest,
-            true
-        );
 
-        const functionNames: string[] = [];
-
-        function visit(node: ts.Node) {
-            if (ts.isFunctionDeclaration(node) && node.name) {
-                functionNames.push(node.name.getText());
-            }
-            ts.forEachChild(node, visit);
-        }
-
-        visit(sourceFile);
-
-        return functionNames;
-    }
-    
     async browseSchema(params: BrowseSchemaRequest): Promise<BrowseSchemaResponse> {
         return new Promise(async (resolve) => {
             const { documentUri, overwriteSchema, resourceName, sourcePath, ioType, schemaType, configName } = params;
@@ -333,7 +312,7 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
     }
 
     async getOperators(params: GetOperatorsRequest): Promise<GetOperatorsResponse> {
-        
+
         return new Promise(async (resolve, reject) => {
             try {
                 resolve({ operators: fetchOperators(params.filePath) });
