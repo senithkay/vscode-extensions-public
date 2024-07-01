@@ -2347,6 +2347,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             }
             const content = document.getText();
             undoRedo.addModification(content);
+            document.save();
 
             resolve({ status: true });
         });
