@@ -75,16 +75,12 @@ export function fetchOperators(filePath: string): DMOperator[] {
     const project = new Project();
     const sourceFile = project.addSourceFileAtPath(resolvedPath);
 
-
     const completionOptions = {
         includeExternalModuleExports: true,
         includeInsertTextCompletions: true,
-        // triggerCharacter: '.',
         includeCompletionsForModuleExports: true,
         includeCompletionsWithInsertText: true,
-        includeCompletionsWithSnippetText: true,
-        includeAutomaticOptionalChainCompletions: true,
-        includeCompletionsWithClassMemberSnippets: true,
+        includeAutomaticOptionalChainCompletions: true
     };
 
     const languageService = project.getLanguageService().compilerObject;
