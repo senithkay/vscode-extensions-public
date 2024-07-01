@@ -93,6 +93,14 @@ export const LOADING_OVERLAY = "loading-overlay";
 export const NODE_WIDTH = 280;
 export const NODE_HEIGHT = 50;
 
+export const NODE_BORDER_WIDTH = 1.5;
+
+export const NODE_PADDING = 8;
+
 // position
-export const NODE_GAP_Y = 120;
-export const NODE_GAP_X = 100;
+export const NODE_GAP_Y = 60;
+export const NODE_GAP_X = 60;
+
+// custom nodes
+export const IF_NODE_WIDTH = 65;
+export const EMPTY_NODE_WIDTH = 16;

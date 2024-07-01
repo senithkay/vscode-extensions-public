@@ -25,6 +25,7 @@ export class IfNodeModel extends NodeModel {
             locked: true,
         });
         this.node = node;
+        this.setPosition(node.viewState.x, node.viewState.y);
         this.addInPort("in");
         this.addOutPort("out");
     }

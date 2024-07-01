@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { Node } from "../utils/types";
+import { Branch, Node } from "../utils/types";
 
 export interface BaseVisitor {
     skipChildren(): boolean;
@@ -21,8 +21,8 @@ export interface BaseVisitor {
     beginVisitIf?(node: Node, parent?: Node): void;
     endVisitIf?(node: Node, parent?: Node): void;
     
-    beginVisitBlock?(node: Node, parent?: Node): void;
-    endVisitBlock?(node: Node, parent?: Node): void;
+    beginVisitBlock?(node: Branch, parent?: Node): void;
+    endVisitBlock?(node: Branch, parent?: Node): void;
 
     beginVisitReturn?(node: Node, parent?: Node): void;
     endVisitReturn?(node: Node, parent?: Node): void;

@@ -12,12 +12,13 @@ import { BaseNodeModel } from "../components/nodes/BaseNode";
 import { EmptyNodeModel } from "../components/nodes/EmptyNode";
 import { IfNodeModel } from "../components/nodes/IfNode/IfNodeModel";
 import { StartNodeModel } from "../components/nodes/StartNode/StartNodeModel";
+import { EMPTY_NODE_WIDTH } from "../resources/constants";
 import { createNodesLink } from "../utils/diagram";
-import { Node, NodeModel } from "../utils/types";
+import { Branch, Node, NodeModel } from "../utils/types";
 import { BaseVisitor } from "./BaseVisitor";
 
 export class NodeFactoryVisitor implements BaseVisitor {
-    nodes: (NodeModel)[] = [];
+    nodes: NodeModel[] = [];
     links: NodeLinkModel[] = [];
     private skipChildrenVisit = false;
     private lastNodeModel: NodeModel | undefined; // last visited flow node
@@ -56,7 +57,7 @@ export class NodeFactoryVisitor implements BaseVisitor {
         return nodeModel;
     }
 
-    getNodes(): (NodeModel)[] {
+    getNodes(): NodeModel[] {
         return this.nodes;
     }
 
@@ -107,6 +108,11 @@ export class NodeFactoryVisitor implements BaseVisitor {
 
         // create branches OUT links
         const endIfEmptyNode = this.createEmptyNode(`${node.id}-endif`);
+        endIfEmptyNode.setPosition(
+            node.viewState.x + node.viewState.w / 2 - EMPTY_NODE_WIDTH / 2,
+            node.viewState.y + node.viewState.ch - EMPTY_NODE_WIDTH / 2
+        ); // TODO: move this logic to PositionVisitor
+
         let endIfLinkCount = 0;
         node.branches?.forEach((branch) => {
             if (!branch.children || branch.children.length === 0) {
@@ -159,7 +165,7 @@ export class NodeFactoryVisitor implements BaseVisitor {
         this.lastNodeModel = endIfEmptyNode;
     }
 
-    endVisitBlock(node: Node, parent?: Node): void {
+    endVisitBlock(node: Branch, parent?: Node): void {
         this.lastNodeModel = undefined;
     }
 

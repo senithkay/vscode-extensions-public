@@ -27,6 +27,8 @@ import { OverlayLayerModel } from "./OverlayLayer";
 import { DiagramContextProvider, DiagramContextState } from "./DiagramContext";
 import { EmptyNodeModel } from "./nodes/EmptyNode";
 import { ComponentList, ComponentPanel } from "./ComponentPanel";
+import { SizingVisitor } from "../visitors/SizingVisitor";
+import { PositionVisitor } from "../visitors/PositionVisitor";
 
 export interface DiagramProps {
     model: Flow;
@@ -43,12 +45,16 @@ export function Diagram(props: DiagramProps) {
     useEffect(() => {
         if (diagramEngine) {
             const { nodes, links } = getDiagramData();
-            console.log(">>> diagram data", { model, nodes });
+            console.log(">>> diagram data", { model, nodes, links });
             drawDiagram(nodes, links);
         }
     }, [model]);
 
     const getDiagramData = () => {
+        const sizingVisitor = new SizingVisitor();
+        traverseFlow(model, sizingVisitor);
+        const positionVisitor = new PositionVisitor();
+        traverseFlow(model, positionVisitor);
         // run node visitor
         const nodeVisitor = new NodeFactoryVisitor();
         traverseFlow(model, nodeVisitor);
@@ -81,8 +87,8 @@ export function Diagram(props: DiagramProps) {
         registerListeners(diagramEngine);
 
         setTimeout(() => {
-            const dagreEngine = genDagreEngine();
-            dagreEngine.redistribute(newDiagramModel);
+            // const dagreEngine = genDagreEngine();
+            // dagreEngine.redistribute(newDiagramModel);
             diagramEngine.setModel(newDiagramModel);
             // remove loader overlay layer
             const overlayLayer = diagramEngine
@@ -105,7 +111,7 @@ export function Diagram(props: DiagramProps) {
             diagramEngine.repaintCanvas();
             // update the diagram model state
             setDiagramModel(newDiagramModel);
-        }, 1000);
+        }, 500);
     };
 
     const handleCloseComponentPanel = () => {
