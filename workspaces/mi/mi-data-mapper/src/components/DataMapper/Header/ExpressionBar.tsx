@@ -40,7 +40,7 @@ export interface ExpressionBarProps {
 }
 
 export default function ExpressionBar(props: ExpressionBarProps) {
-    const { applyModifications,operators } = props;
+    const { applyModifications, operators } = props;
     const classes = useStyles();
 
     const [, setForceUpdate] = useState(false);
