@@ -30,6 +30,7 @@ export async function replaceFullContentToFile(documentUri: string, content: str
 
     edit.replace(Uri.file(documentUri), fullRange, content);
     await workspace.applyEdit(edit);
+    document.save();
     if (isNewFile) {
         openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.Overview, documentUri });
         commands.executeCommand(COMMANDS.REFRESH_COMMAND);

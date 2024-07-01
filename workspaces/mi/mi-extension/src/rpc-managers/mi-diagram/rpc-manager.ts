@@ -2136,9 +2136,6 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 }
 
                 await replaceFullContentToFile(filePath, sanitizedXmlData);
-                const document = await workspace.openTextDocument(Uri.file(filePath));
-                document.save();
-
                 await this.rangeFormat({
                     uri: filePath,
                     range: {
@@ -2176,9 +2173,6 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             const sanitizedXmlData = xmlData.replace(/^\s*[\r\n]/gm, '');
 
             await replaceFullContentToFile(filePath, sanitizedXmlData);
-            const document = await workspace.openTextDocument(Uri.file(filePath));
-            document.save();
-
             await this.rangeFormat({
                 uri: filePath,
                 range: {
