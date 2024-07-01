@@ -133,7 +133,7 @@ function getImportedFuntionDetails(entry: ts.CompletionEntry, details: ts.Comple
 
     if (details.sourceDisplay != undefined) {
 
-        if (details.kind === 'function' || details.kind === 'method') {
+        if (details.kind === ts.ScriptElementKind.functionElement || details.kind === ts.ScriptElementKind.memberFunctionElement) {
             const params: string[] = [];
             let param: string = '';
 
