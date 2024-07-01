@@ -14,8 +14,8 @@
  * @param numbers - The numbers to sum.
  * @returns The sum of the numbers.
  */
-export function sum(...numbers: number[]): number {
-    return numbers.reduce((acc, curr) => acc + curr, 0);
+export function sum(number1: number, ...number2: number[]): number {
+    return [number1, ...number2].reduce((acc, curr) => acc + curr, 0);
 }
 
 /**
@@ -23,8 +23,8 @@ export function sum(...numbers: number[]): number {
  * @param numbers - The numbers to find the maximum from.
  * @returns The maximum number.
  */
-export function max(...numbers: number[]): number {
-    return Math.max(...numbers);
+export function max(number1: number, ...number2: number[]): number {
+    return Math.max(number1, ...number2);
 }
 
 /**
@@ -32,8 +32,8 @@ export function max(...numbers: number[]): number {
  * @param numbers - The numbers to find the minimum from.
  * @returns The minimum number.
  */
-export function min(...numbers: number[]): number {
-    return Math.min(...numbers);
+export function min(number1: number, ...number2: number[]): number {
+    return Math.min(number1, ...number2);
 }
 
 /**
@@ -41,7 +41,8 @@ export function min(...numbers: number[]): number {
  * @param numbers - The numbers to average.
  * @returns The average of the numbers.
  */
-export function average(...numbers: number[]): number {
+export function average(number1: number, ...number2: number[]): number {
+    const numbers=[number1, ...number2];
     return numbers.reduce((acc, curr) => acc + curr, 0) / numbers.length;
 }
 
@@ -117,8 +118,8 @@ export function booleanToString(bool: boolean): string {
  * @param strings - The strings to concatenate.
  * @returns The concatenated string.
  */
-export function concat(...strings: string[]): string {
-    return strings.join('');
+export function concat(string1: string, ...string2: string[]): string {
+    return [string1, ...string2].join('');
 }
 
 /**
