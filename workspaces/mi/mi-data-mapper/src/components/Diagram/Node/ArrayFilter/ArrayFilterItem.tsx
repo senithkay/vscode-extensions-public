@@ -122,7 +122,7 @@ export default function ArrayFilterItem(props: FilterBarItemProps) {
         resetExprBarFocus();
     };
 
-    const trimText = (text: string, maxLength: number = 50) => {
+    const trimText = (text: string, maxLength: number = 30) => {
         if (text.length > maxLength) {
             return text.substring(0, maxLength) + '...';
         }
