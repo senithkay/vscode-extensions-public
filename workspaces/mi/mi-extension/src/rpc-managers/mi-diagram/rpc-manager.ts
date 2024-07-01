@@ -2683,8 +2683,11 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                                     },
                                 },
                             },
-                            'test': ''
                         },
+                        'test': {
+                            'wso2mi': {
+                            },
+                        }
                     },
                     'deployment': {
                         'docker': {
