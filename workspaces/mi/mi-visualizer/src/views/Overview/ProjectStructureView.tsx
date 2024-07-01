@@ -103,23 +103,22 @@ const artifactTypeMap: Record<string, ArtifactType> = {
         description: (entry: any) => `Type: ${entry.subType}`,
         path: (entry: any) => entry.path,
     },
-    // TODO: Will introduce back when both datasource and dataservice functionalities are completely supported
-    // dataServices: {
-    //     title: "Data Services",
-    //     command: "MI.project-explorer.open-dss-service-designer",
-    //     view: MACHINE_VIEW.DSSServiceDesigner,
-    //     icon: "file-code",
-    //     description: (entry: any) => "Data Service",
-    //     path: (entry: any) => entry.path,
-    // },
-    // dataSources: {
-    //     title: "Data Sources",
-    //     command: "MI.project-explorer.add-data-source",
-    //     view: MACHINE_VIEW.DataSourceForm,
-    //     icon: "file-code",
-    //     description: (entry: any) => "Data Source",
-    //     path: (entry: any) => entry.path,
-    // }
+    dataServices: {
+        title: "Data Services",
+        command: "MI.project-explorer.open-dss-service-designer",
+        view: MACHINE_VIEW.DSSServiceDesigner,
+        icon: "file-code",
+        description: (entry: any) => "Data Service",
+        path: (entry: any) => entry.path,
+    },
+    dataSources: {
+        title: "Data Sources",
+        command: "MI.project-explorer.add-data-source",
+        view: MACHINE_VIEW.DataSourceForm,
+        icon: "file-code",
+        description: (entry: any) => "Data Source",
+        path: (entry: any) => entry.path,
+    }
     // Add more artifact types as needed
 };
 
