@@ -13,7 +13,7 @@ import * as path from 'path';
 import axios from "axios";
 import { expect } from "chai";
 import { BallerinaProject } from "src/core";
-import { runCommand, BALLERINA_COMMANDS } from '../features/project/cmds/cmd-runner';
+import { runCommand, BALLERINA_COMMANDS } from '../../src/features/project/cmds/cmd-runner';
 import { getBallerinaHome, killPort } from '../test-util';
 import { wait } from "../../ui-test/util";
 import { PROJECT_RUN_TIME } from "../../ui-test/constants";
