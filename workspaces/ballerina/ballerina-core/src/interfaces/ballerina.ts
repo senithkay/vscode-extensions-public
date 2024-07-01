@@ -12,7 +12,7 @@ import { ModulePart, STNode } from "@wso2-enterprise/syntax-tree";
 import { DocumentIdentifier, LinePosition, LineRange, Position, Range } from "./common";
 import { Uri } from "vscode";
 import { DefinitionParams, InitializeParams, InitializeResult, Location, LocationLink } from "vscode-languageserver-protocol";
-import { CodeAction, DocumentSymbol, SymbolInformation } from "vscode-languageserver-types";
+import { CodeAction, Diagnostic, DocumentSymbol, SymbolInformation } from "vscode-languageserver-types";
 import { BallerinaTriggerRequest, BallerinaTriggerResponse, BallerinaTriggersResponse } from "../rpc-types/project-design-diagram/interfaces";
 import { ExecutorPositionsResponse, BallerinaProjectComponents } from "../rpc-types/lang-server/interfaces";
 import { JsonToRecordRequest, JsonToRecordResponse, XMLToRecordRequest, XMLToRecordResponse } from "../rpc-types/record-creator/interfaces";
@@ -767,4 +767,84 @@ export interface DiagramEditorLangClientInterface extends BaseLangClientInterfac
     codeAction: (params: any) => Thenable<CodeAction[]>;
     getBallerinaProjectComponents: (params: any) => Promise<BallerinaProjectComponents>;
     getGraphqlModel: (params: GraphqlDesignServiceRequest) => Thenable<GraphqlDesignServiceResponse>;
+}
+
+export interface PublishDiagnosticsParams {
+    uri: string;
+    diagnostics: Diagnostic[];
+}
+
+export interface FormFieldReturnType {
+    hasError: boolean;
+    hasReturn: boolean;
+    returnType: string;
+    importTypeInfo?: NonPrimitiveBal[];
+}
+export interface FormField {
+    typeName: string;
+    name?: string;
+    displayName?: string;
+    memberType?: FormField;
+    inclusionType?: FormField;
+    paramType?: FormField;
+    selectedDataType?: string;
+    description?: string;
+    defaultValue?: any;
+    value?: any;
+    optional?: boolean;
+    defaultable?: boolean;
+    fields?: FormField[];
+    members?: FormField[];
+    references?: FormField[];
+    restType?: FormField;
+    constraintType?: FormField;
+    rowType?: FormField;
+    keys?: string[];
+    isReturn?: boolean;
+    isTypeDef?: boolean;
+    isReference?: boolean;
+    isStream?: boolean;
+    isErrorUnion?: boolean;
+    typeInfo?: NonPrimitiveBal;
+    hide?: boolean;
+    aiSuggestion?: string;
+    noCodeGen?: boolean;
+    requestName?: string; // only for http form used when there's a request object in the request
+    tooltip?: string;
+    tooltipActionLink?: string;
+    tooltipActionText?: string;
+    isErrorType?: boolean;
+    isRestParam?: boolean; // TODO: unified rest params
+    hasRestType?: boolean;
+    isRestType?: boolean;
+    customAutoComplete?: string[];
+    validationRegex?: any;
+    leftTypeParam?: any;
+    rightTypeParam?: any;
+    initialDiagnostics?: DiagramDiagnostic[];
+    documentation?: string;
+    displayAnnotation?: any;
+    position?: NodePosition;
+    selected?: boolean;
+}
+export interface FormFieldReturnType {
+    hasError: boolean;
+    hasReturn: boolean;
+    returnType: string;
+    importTypeInfo?: NonPrimitiveBal[];
+}
+export interface CurrentFile {
+    content: string;
+    path: string;
+    size: number;
+}
+
+export interface BallerinaConstruct {
+    id?: string;
+    name: string;
+    displayName?: string;
+    moduleName?: string;
+    package: Package;
+    displayAnnotation?: DisplayAnnotation;
+    icon?: string;
 }

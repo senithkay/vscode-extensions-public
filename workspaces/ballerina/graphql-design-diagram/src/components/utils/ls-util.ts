@@ -7,12 +7,11 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-
-import { IBallerinaLangClient } from "@wso2-enterprise/ballerina-core";
 import {
     DiagramEditorLangClientInterface,
-    GraphqlDesignServiceRequest, GraphqlDesignServiceResponse
-} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+    GraphqlDesignServiceRequest, GraphqlDesignServiceResponse,
+    IBallerinaLangClient
+} from "@wso2-enterprise/ballerina-core";
 import { STNode } from "@wso2-enterprise/syntax-tree";
 import { URI } from "vscode-uri";
 

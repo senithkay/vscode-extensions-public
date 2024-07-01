@@ -8,7 +8,7 @@
  */
 
 import React, { useState } from "react";
-import { BallerinaConstruct } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { BallerinaConstruct } from "@wso2-enterprise/ballerina-core";
 import { DefaultConnectorIcon } from "../icons";
 
 export interface ModuleIconProps {

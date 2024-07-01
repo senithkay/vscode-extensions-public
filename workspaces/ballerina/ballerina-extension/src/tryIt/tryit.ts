@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { GetSyntaxTreeResponse } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { GetSyntaxTreeResponse } from "@wso2-enterprise/ballerina-core";
 import { BallerinaExtension, CodeServerContext, ExtendedLangClient } from "src/core";
 import { PALETTE_COMMANDS } from "../project";
 import { commands, Uri, window } from "vscode";

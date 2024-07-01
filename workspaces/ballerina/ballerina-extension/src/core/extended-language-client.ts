@@ -23,24 +23,24 @@ import {
     GetPersistERModelRequest,
     GetPersistERModelResponse,
     BallerinaFunctionSTRequest,
-    Completion
-} from "@wso2-enterprise/ballerina-core";
-import {
+    Completion,
     BallerinaConnectorsRequest,
     BallerinaTriggerRequest,
     BallerinaTriggerResponse,
     BallerinaTriggersRequest,
     BallerinaTriggersResponse,
-    FormField,
+    Field,
     PublishDiagnosticsParams,
-    DidOpenParams, DidCloseParams, DidChangeParams
-} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+    DidOpenParams, DidCloseParams, DidChangeParams,
+    TypesFromExpressionResponse
+} from "@wso2-enterprise/ballerina-core";
 import { BallerinaExtension } from "./index";
 import { debug } from "../utils";
 import { CMP_LS_CLIENT_COMPLETIONS, CMP_LS_CLIENT_DIAGNOSTICS, getMessageObject, sendTelemetryEvent, TM_EVENT_LANG_CLIENT } from "../telemetry";
 import { CancellationToken, DefinitionParams, Location, LocationLink, TextDocumentPositionParams } from 'vscode-languageserver-protocol';
 import { getChoreoExtAPI } from "../choreo-features/activate";
 import { Flow, SequenceModelRequest, SequenceModelDiagnostic } from "@wso2-enterprise/ballerina-core";
+import { TypesFromSymbolResponse } from "@wso2-enterprise/ballerina-core";
 
 export const CONNECTOR_LIST_CACHE = "CONNECTOR_LIST_CACHE";
 export const HTTP_CONNECTOR_LIST_CACHE = "HTTP_CONNECTOR_LIST_CACHE";
@@ -449,13 +449,13 @@ export interface TypeFromExpressionRequest {
 }
 
 export interface ResolvedTypeForExpression {
-    type: FormField;
+    type: Field;
     requestedRange: ExpressionRange;
 }
 
-export interface TypesFromExpressionResponse {
-    types: ResolvedTypeForExpression[];
-}
+// export interface TypesFromExpressionResponse {
+//     types: ResolvedTypeForExpression[];
+// }
 
 export interface TypeFromSymbolRequest {
     documentIdentifier: {
@@ -473,13 +473,13 @@ export interface TypesFromFnDefinitionRequest {
 }
 
 export interface ResolvedTypeForSymbol {
-    type: FormField;
+    type: Field;
     requestedPosition: LinePosition;
 }
 
-export interface TypesFromSymbolResponse {
-    types: ResolvedTypeForSymbol[];
-}
+// export interface TypesFromSymbolResponse {
+//     types: ResolvedTypeForSymbol[];
+// }
 
 interface NOT_SUPPORTED_TYPE {
 

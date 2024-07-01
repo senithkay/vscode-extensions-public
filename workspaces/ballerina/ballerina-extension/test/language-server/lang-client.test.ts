@@ -21,8 +21,7 @@ import { getBallerinaCmd, isWindows } from "../test-util";
 import { commands, Uri } from "vscode";
 import { runSemanticTokensTestCases } from './semantic-tokens.test';
 import { readFileSync } from 'fs';
-import { BallerinaConnectorResponse, BallerinaConnectorsResponse, BallerinaSTModifyResponse, BallerinaTriggerResponse, BallerinaTriggersResponse, CompletionResponse, PublishDiagnosticsParams } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
-import { Completion } from '@wso2-enterprise/ballerina-core';
+import { Completion, BallerinaConnectorResponse, BallerinaConnectorsResponse, BallerinaSTModifyResponse, BallerinaTriggerResponse, BallerinaTriggersResponse, CompletionResponse, PublishDiagnosticsParams } from '@wso2-enterprise/ballerina-core';
 
 const PROJECT_ROOT = join(__dirname, '..', '..', '..', 'test', 'data');
 

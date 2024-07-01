@@ -18,7 +18,7 @@ import {
     CMP_EXECUTOR_CODELENS, sendTelemetryEvent, TM_EVENT_SOURCE_DEBUG_CODELENS, TM_EVENT_TEST_DEBUG_CODELENS
 } from '../telemetry';
 import { constructDebugConfig } from '../debugger';
-import { GetSyntaxTreeResponse } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
+import { GetSyntaxTreeResponse } from '@wso2-enterprise/ballerina-core';
 import { traversNode } from '@wso2-enterprise/syntax-tree';
 import { CodeLensProviderVisitor } from './codelense-provider-visitor';
 

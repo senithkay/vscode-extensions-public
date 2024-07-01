@@ -10,7 +10,7 @@
 import React from "react";
 
 import { Grid } from "@material-ui/core";
-import { BallerinaConstruct } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { BallerinaConstruct } from "@wso2-enterprise/ballerina-core";
 
 import useStyles from "./style";
 import ModuleIcon from '../ModuleIcon';

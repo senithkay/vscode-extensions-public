@@ -7,9 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { Connector } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { getFormattedModuleName } from "@wso2-enterprise/ballerina-low-code-edtior-commons/src/utils/Diagram/modification-util";
-import { CMService as Service, BallerinaSTModifyResponse } from "@wso2-enterprise/ballerina-core";
+import { CMService as Service, BallerinaSTModifyResponse, Connector, getFormattedModuleName } from "@wso2-enterprise/ballerina-core";
 import { FunctionDefinition, ModulePart, ServiceDeclaration } from "@wso2-enterprise/syntax-tree";
 
 export function getMissingImports(source: string, imports: Set<string>) {

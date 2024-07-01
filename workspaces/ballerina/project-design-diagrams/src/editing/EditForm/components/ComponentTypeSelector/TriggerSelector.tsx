@@ -16,7 +16,7 @@ import ListItem from '@mui/material/ListItem';
 import Checkbox from '@mui/material/Checkbox';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
-import { ServiceType, Trigger } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
+import { ServiceType, Trigger } from '@wso2-enterprise/ballerina-core';
 import { TriggerDetails } from '@wso2-enterprise/choreo-core';
 import { InputComponent, SelectLabel } from '../../resources/styles';
 import { DefaultSelectBoxStyles, DefaultTextProps } from '../../resources/constants';

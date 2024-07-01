@@ -15,7 +15,7 @@ import React, { ReactNode, SyntheticEvent, useRef, useState } from "react";
 import { Box, CircularProgress, FormControl, Grid, Typography } from "@material-ui/core";
 import { CloseRounded } from "@material-ui/icons";
 import { Button, IconButton } from "@mui/material";
-import { BallerinaConstruct, BallerinaModuleResponse } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { BallerinaConstruct, BallerinaModuleResponse } from "@wso2-enterprise/ballerina-core";
 
 import FilterByMenu from "./FilterByMenu";
 import ModuleCard from "./ModuleCard";

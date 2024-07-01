@@ -560,11 +560,11 @@
       "projectFolder": "workspaces/ballerina/data-mapper-view",
       "versionPolicyName": "ballerina-extension"
     },
-    {
-      "packageName": "@wso2-enterprise/ballerina-low-code-edtior-commons",
-      "projectFolder": "workspaces/ballerina/low-code-editor-commons",
-      "versionPolicyName": "ballerina-extension"
-    },
+    // {
+    //   "packageName": "@wso2-enterprise/ballerina-low-code-edtior-commons",
+    //   "projectFolder": "workspaces/ballerina/low-code-editor-commons",
+    //   "versionPolicyName": "ballerina-extension"
+    // },
     // {
     //   "packageName": "@wso2-enterprise/ballerina-low-code-edtior-ui-components",
     //   "projectFolder": "workspaces/ballerina/low-code-ui-components",
