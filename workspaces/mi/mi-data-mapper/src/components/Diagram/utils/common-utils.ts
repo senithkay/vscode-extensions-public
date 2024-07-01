@@ -744,11 +744,22 @@ export function getInnermostArrowFnBody(callExpr: CallExpression): Node {
 
 export function getFilterExpressions(callExpr: CallExpression): CallExpression[] {
     const callExpressions = callExpr.getDescendantsOfKind(SyntaxKind.CallExpression);
+    let skipFiltersWithinMap = false;
 
     // Filter to get only those that are calling 'filter'
     const filterCalls = callExpressions.filter(call => {
         const expression = call.getExpression();
-        return Node.isPropertyAccessExpression(expression) && expression.getName() === "filter";
+
+        if (Node.isPropertyAccessExpression(expression) && !skipFiltersWithinMap) {
+            const exprName = expression.getName();
+
+            if (exprName === "map") {
+                skipFiltersWithinMap = true;
+            }
+
+            return exprName === "filter";
+        }
+        
     });
 
     return filterCalls.reverse();
