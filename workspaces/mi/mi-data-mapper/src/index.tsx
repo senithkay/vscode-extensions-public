@@ -12,7 +12,7 @@ import React, { useMemo } from "react";
 /** @jsx jsx */
 import { Global, css } from '@emotion/react';
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { DMType } from "@wso2-enterprise/mi-core";
+import { DMType, DMOperator } from "@wso2-enterprise/mi-core";
 import { Project, SyntaxKind } from "ts-morph";
 
 import { MIDataMapper } from "./components/DataMapper/DataMapper";
@@ -46,7 +46,7 @@ export interface DataMapperViewProps {
     outputTree: DMType;
     updateFileContent: (fileContent: string) => Promise<void>;
     configName: string;
-    operators:any;
+    operators: DMOperator[];
 }
 
 export function DataMapperView(props: DataMapperViewProps) {
@@ -76,7 +76,7 @@ export function DataMapperView(props: DataMapperViewProps) {
 
         // Check if the return statement is empty
         const returnStatement = fnST?.getDescendantsOfKind(SyntaxKind.ReturnStatement)[0];
-        const isEmptyReturnStatement = 
+        const isEmptyReturnStatement =
             // If return type is an object
             returnStatement?.getExpressionIfKind(SyntaxKind.ObjectLiteralExpression)?.getProperties().length === 0
             // If return type is an array

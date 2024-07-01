@@ -9,6 +9,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 
 import { AutoComplete, Icon, TextField } from '@wso2-enterprise/ui-toolkit';
+import { DMOperator } from "@wso2-enterprise/mi-core";
 import { css } from '@emotion/css';
 import { Block, Node, ObjectLiteralExpression, ReturnStatement } from 'ts-morph';
 
@@ -17,8 +18,6 @@ import { createSourceForUserInput } from '../../../components/Diagram/utils/modi
 import { DataMapperNodeModel } from '../../../components/Diagram/Node/commons/DataMapperNode';
 import { getFnDeclStructure, operators } from '../Operators/operators';
 import { getDefaultValue } from '../../../components/Diagram/utils/common-utils';
-
-// const functionNames = Object.keys(operators);
 
 const useStyles = () => ({
     exprBarContainer: css({
@@ -37,11 +36,11 @@ const useStyles = () => ({
 
 export interface ExpressionBarProps {
     applyModifications: () => Promise<void>
-    operators: any;
+    operators: DMOperator[];
 }
 
 export default function ExpressionBar(props: ExpressionBarProps) {
-    const { applyModifications } = props;
+    const { applyModifications,operators } = props;
     const classes = useStyles();
 
     const [, setForceUpdate] = useState(false);
@@ -54,7 +53,7 @@ export default function ExpressionBar(props: ExpressionBarProps) {
         inputPort: state.inputPort
     }));
 
-    const functionNames = props.operators;
+    const functionNames = operators.map(op => (op.action ?? "")+ op.label);
 
     useEffect(() => {
         // Keep the text field focused when an input port is selected

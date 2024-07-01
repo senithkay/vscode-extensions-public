@@ -67,7 +67,7 @@ export function DataMapper(props: DataMapperProps) {
                         outputTree={dmIOTypes.outputTree}
                         updateFileContent={updateFileContent}
                         configName={props.configName}
-                        operators={dmOperators.operators.map(op => (op.action ?? "")+ op.label)}
+                        operators={dmOperators.operators}
                     />
                 )
             }

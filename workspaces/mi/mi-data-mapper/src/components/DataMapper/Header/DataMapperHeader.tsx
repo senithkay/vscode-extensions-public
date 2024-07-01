@@ -15,6 +15,7 @@ import HeaderSearchBox from "./HeaderSearchBox";
 import HeaderBreadcrumb from "./HeaderBreadcrumb";
 import { View } from "../Views/DataMapperView";
 import ExpressionBar from "./ExpressionBar";
+import { DMOperator } from "@wso2-enterprise/mi-core";
 
 export interface DataMapperHeaderProps {
     views: View[];
@@ -22,7 +23,7 @@ export interface DataMapperHeaderProps {
     hasEditDisabled: boolean;
     onClose?: () => void;
     applyModifications: () => Promise<void>;
-    operators: any;
+    operators: DMOperator[];
 }
 
 export function DataMapperHeader(props: DataMapperHeaderProps) {
