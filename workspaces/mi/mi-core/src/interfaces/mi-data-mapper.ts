@@ -30,7 +30,7 @@ export enum TypeKind {
 export interface DMOperator {
     label: string;
     args?: string[];
-    description?: string | undefined;
-    src?: string | undefined;
-    action: string | undefined;
+    description?: string;
+    src?: string;
+    action?: string;
 }
