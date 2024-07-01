@@ -14,7 +14,7 @@ import styled from "@emotion/styled";
 import HeaderSearchBox from "./HeaderSearchBox";
 import HeaderBreadcrumb from "./HeaderBreadcrumb";
 import { View } from "../Views/DataMapperView";
-import ExpressionBar from "./ExpressionBar";
+import ExpressionBarWrapper from "./ExpressionBar";
 
 export interface DataMapperHeaderProps {
     views: View[];
@@ -48,14 +48,14 @@ export function DataMapperHeader(props: DataMapperHeaderProps) {
                 )}
             </HeaderContent>
             <ExpressionContainer>
-                <ExpressionBar applyModifications={applyModifications} />
+                <ExpressionBarWrapper applyModifications={applyModifications} />
             </ExpressionContainer>
         </HeaderContainer>
     );
 }
 
 const HeaderContainer = styled.div`
-    height: 66px;
+    height: 72px;
     width: 100%;
     display: flex;
     flex-direction: column;
