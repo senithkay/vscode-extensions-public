@@ -99,5 +99,6 @@ export interface GetOperatorsRequest {
 }
 
 export interface GetOperatorsResponse {
-    operators: DMOperator[];
+    operators:DMOperator[];
 }
+
