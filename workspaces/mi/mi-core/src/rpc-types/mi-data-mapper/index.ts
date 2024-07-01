@@ -36,5 +36,5 @@ export interface MIDataMapperAPI {
     dmRedo: () => Promise<string | undefined>;
     addToDMUndoStack: (source: string) => void;
     updateDMUndoRedoManager: (params: UpdateDMUndoRedoMangerRequest) => void;
-    getOperators: (params: GetOperatorsRequest)=> Promise<GetOperatorsResponse>;
+    getOperators: (params: GetOperatorsRequest) => Promise<GetOperatorsResponse>;
 }
