@@ -53,6 +53,7 @@ export type Branch = {
     kind: string;
     label: string;
     children: Node[];
+    viewState?: ViewState;
 };
 
 export type LineRange = {
@@ -78,10 +79,14 @@ export type NodePropertyKey = "method" | "path" | "condition" | "client" | "targ
 export type NodeProperties = { [P in NodePropertyKey]?: Expression; };
 
 export type ViewState = {
+    // element view state
     x: number;
     y: number;
     w: number;
     h: number;
+    // container view state
+    cw?: number;
+    ch?: number;
     startNodeId?: string;
 };
 
