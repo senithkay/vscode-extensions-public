@@ -11,11 +11,11 @@ import { HistoryEntry, SyntaxTreeResponse } from "@wso2-enterprise/ballerina-cor
 import { NodePosition, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 import { StateMachine } from "../stateMachine";
 import { Uri } from "vscode";
-import { UIDGenerationVisitor } from "../history/uid-generation-visitor";
-import { FindNodeByUidVisitor } from "../history/find-node-by-uid";
-import { FindConstructByNameVisitor } from "../history/find-construct-by-name-visitor";
-import { FindConstructByIndexVisitor } from "../history/find-construct-by-index-visitor";
-import { getConstructBodyString } from "../history/util";
+import { UIDGenerationVisitor } from "./history/uid-generation-visitor";
+import { FindNodeByUidVisitor } from "./history/find-node-by-uid";
+import { FindConstructByNameVisitor } from "./history/find-construct-by-name-visitor";
+import { FindConstructByIndexVisitor } from "./history/find-construct-by-index-visitor";
+import { getConstructBodyString } from "./history/util";
 
 export async function getView(documentUri: string, position: NodePosition): Promise<HistoryEntry> {
 

@@ -20,7 +20,7 @@ import {
 import { join, sep } from 'path';
 import { exec, spawnSync } from 'child_process';
 import { LanguageClientOptions, State as LS_STATE, RevealOutputChannelOn, ServerOptions } from "vscode-languageclient/node";
-import { getServerOptions } from '../server/server';
+import { getServerOptions } from '../utils/server/server';
 import { BallerinaProject, ExtendedLangClient } from './extended-language-client';
 import { debug, log, getOutputChannel, outputChannel, isWindows, isSupportedVersion, VERSION } from '../utils';
 import { AssertionError } from "assert";
@@ -36,10 +36,10 @@ import {
     TM_EVENT_ERROR_INVALID_BAL_HOME_CONFIGURED, TM_EVENT_EXTENSION_INIT, TM_EVENT_EXTENSION_INI_FAILED,
     TM_EVENT_ERROR_OLD_BAL_HOME_DETECTED,
     getMessageObject
-} from "../telemetry";
-import { BALLERINA_COMMANDS, runCommand } from "../project";
-import { gitStatusBarItem } from "../editor-support/git-status";
-import { checkIsPersistModelFile } from "../persist-layer-diagram/activator";
+} from "../features/telemetry";
+import { BALLERINA_COMMANDS, runCommand } from "../features/project";
+import { gitStatusBarItem } from "../features/editor-support/git-status";
+import { checkIsPersistModelFile } from "../views/persist-layer-diagram/activator";
 
 const SWAN_LAKE_REGEX = /(s|S)wan( |-)(l|L)ake/g;
 

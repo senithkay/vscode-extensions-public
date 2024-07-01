@@ -26,7 +26,7 @@ import {
     TM_EVENT_OPEN_REPO_NEW_FOLDER,
     TM_EVENT_OPEN_REPO_SAME_FOLDER,
     sendTelemetryEvent
-} from "../telemetry";
+} from "../features/telemetry";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 import { existsSync } from "fs";
 interface ProgressMessage {

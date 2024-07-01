@@ -16,7 +16,7 @@ import { BallerinaConnectorInfo, GetSyntaxTreeResponse, CMService as Service, Ba
     Connector, FormField, FormFieldReturnType, PrimitiveBalType,
     getFormattedModuleName, keywords
  } from "@wso2-enterprise/ballerina-core";
-import { AddConnectorArgs } from "../../../../project-design-diagrams/resources";
+import { AddConnectorArgs } from "../../../../views/project-design-diagrams/resources";
 import { runBackgroundTerminalCommand } from "../../../../utils/runCommand";
 import { genClientName, getMainFunction, getMissingImports, getServiceDeclaration } from "./shared-utils";
 import { getInitFunction, updateSourceFile, updateSyntaxTree } from "../shared-utils";

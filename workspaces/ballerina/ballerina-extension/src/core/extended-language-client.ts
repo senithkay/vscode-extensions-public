@@ -36,9 +36,9 @@ import {
 } from "@wso2-enterprise/ballerina-core";
 import { BallerinaExtension } from "./index";
 import { debug } from "../utils";
-import { CMP_LS_CLIENT_COMPLETIONS, CMP_LS_CLIENT_DIAGNOSTICS, getMessageObject, sendTelemetryEvent, TM_EVENT_LANG_CLIENT } from "../telemetry";
+import { CMP_LS_CLIENT_COMPLETIONS, CMP_LS_CLIENT_DIAGNOSTICS, getMessageObject, sendTelemetryEvent, TM_EVENT_LANG_CLIENT } from "../features/telemetry";
 import { CancellationToken, DefinitionParams, Location, LocationLink, TextDocumentPositionParams } from 'vscode-languageserver-protocol';
-import { getChoreoExtAPI } from "../choreo-features/activate";
+import { getChoreoExtAPI } from "../features/choreo-features/activate";
 import { Flow, SequenceModelRequest, SequenceModelDiagnostic } from "@wso2-enterprise/ballerina-core";
 import { TypesFromSymbolResponse } from "@wso2-enterprise/ballerina-core";
 

@@ -16,7 +16,7 @@ import {
     NotebookVariable, OpenAPIConverterResponse, PackageConfigSchemaResponse, PartialSTResponse,
     PerformanceAnalyzerResponse, SymbolInfoResponse, SyntaxTreeNodeResponse
 } from "../../src/core/extended-language-client";
-import { getServerOptions } from "../../src/server/server";
+import { getServerOptions } from "../utils/server/server";
 import { getBallerinaCmd, isWindows } from "../test-util";
 import { commands, Uri } from "vscode";
 import { runSemanticTokensTestCases } from './semantic-tokens.test';
