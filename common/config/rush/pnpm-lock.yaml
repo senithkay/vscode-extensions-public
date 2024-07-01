@@ -198,6 +198,7 @@ importers:
       mousetrap: ^1.6.5
       react: ^17.0.2
       typescript: ^5.2.2
+      vscode-languageserver-protocol: ^3.17.5
       vscode-languageserver-types: ^3.17.5
       vscode-messenger-common: ^0.4.5
     dependencies:
@@ -207,6 +208,7 @@ importers:
       handlebars: 4.7.8
       mousetrap: 1.6.5
       react: 17.0.2
+      vscode-languageserver-protocol: 3.17.5
       vscode-languageserver-types: 3.17.5
       vscode-messenger-common: 0.4.5
     devDependencies:
