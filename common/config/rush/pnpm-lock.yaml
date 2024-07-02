@@ -602,6 +602,7 @@ importers:
       '@wso2-enterprise/service-designer-view': workspace:*
       '@wso2-enterprise/syntax-tree': workspace:*
       '@wso2-enterprise/ui-toolkit': workspace:*
+      buffer: ^6.0.3
       copyfiles: ^2.4.1
       css-loader: ^5.2.7
       eslint: ^8.52.0
@@ -645,6 +646,7 @@ importers:
       '@types/webpack': 4.41.38
       '@typescript-eslint/eslint-plugin': 6.21.0_qvx5l6wcv2c6baydm2v34ogvwy
       '@typescript-eslint/parser': 6.21.0_xdgzedli73k7lw4xlyzszm74om
+      buffer: 6.0.3
       copyfiles: 2.4.1
       css-loader: 5.2.7_webpack@5.90.1
       eslint: 8.56.0
@@ -22100,7 +22102,6 @@ packages:
     dependencies:
       base64-js: 1.5.1
       ieee754: 1.2.1
-    dev: false
 
   /buffers/0.1.1:
     resolution: {integrity: sha512-9q/rDEGSb/Qsvv2qvzIzdluL5k7AaJOTrw23z9reQthrbF7is4CtlT0DXyO1oei2DCp4uojjzQ7igaSHp1kAEQ==}

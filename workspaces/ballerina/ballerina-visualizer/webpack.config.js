@@ -82,6 +82,9 @@ module.exports = {
     },
   },
   plugins: [
+    new webpack.ProvidePlugin({
+      Buffer: ['buffer', 'Buffer'],
+    }),
     new webpack.optimize.LimitChunkCountPlugin({
       maxChunks: 1
     }),
