@@ -8,14 +8,12 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React from "react";
-
 import styled from "@emotion/styled";
-
+import { DMOperator } from "@wso2-enterprise/mi-core";
 import HeaderSearchBox from "./HeaderSearchBox";
 import HeaderBreadcrumb from "./HeaderBreadcrumb";
+import ExpressionBarWrapper from "./ExpressionBar";
 import { View } from "../Views/DataMapperView";
-import ExpressionBar from "./ExpressionBar";
-import { DMOperator } from "@wso2-enterprise/mi-core";
 
 export interface DataMapperHeaderProps {
     views: View[];
@@ -50,17 +48,14 @@ export function DataMapperHeader(props: DataMapperHeaderProps) {
                 )}
             </HeaderContent>
             <ExpressionContainer>
-                <ExpressionBar
-                    applyModifications={applyModifications}
-                    operators={operators}
-                />
+                <ExpressionBarWrapper applyModifications={applyModifications} />
             </ExpressionContainer>
         </HeaderContainer>
     );
 }
 
 const HeaderContainer = styled.div`
-    height: 66px;
+    height: 72px;
     width: 100%;
     display: flex;
     flex-direction: column;

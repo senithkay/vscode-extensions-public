@@ -57,6 +57,8 @@ import {
     DeleteArtifactRequest,
     DownloadConnectorRequest,
     DownloadConnectorResponse,
+    CreateDssDataSourceRequest,
+    CreateDssDataSourceResponse,
     ESBConfigsResponse,
     EditAPIRequest,
     EditAPIResponse,
@@ -202,6 +204,7 @@ import {
     createSequence,
     createTask,
     createTemplate,
+    createDssDataSource,
     deleteArtifact,
     downloadConnector,
     editAPI,
@@ -485,6 +488,10 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     getDataService(params: RetrieveDataServiceRequest): Promise<RetrieveDataServiceResponse> {
         return this._messenger.sendRequest(getDataService, HOST_EXTENSION, params);
+    }
+
+    createDssDataSource(params: CreateDssDataSourceRequest): Promise<CreateDssDataSourceResponse> {
+        return this._messenger.sendRequest(createDssDataSource, HOST_EXTENSION, params);
     }
 
     closeWebView(): void {

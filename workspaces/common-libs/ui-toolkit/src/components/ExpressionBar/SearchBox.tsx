@@ -14,27 +14,17 @@ import { Transition } from '@headlessui/react';
 import { css } from '@emotion/css';
 import { Typography } from '../Typography/Typography';
 import { Codicon } from '../Codicon/Codicon';
+import { ExpressionBarProps, ItemType } from './ExpressionBar';
+import { debounce } from 'lodash';
+import { createPortal } from 'react-dom';
+import { addClosingBracketIfNeeded, getExpressionInfo, filterItems, setCursor } from './utils';
 
 // Types
-export type ItemType = {
-    label: string;
-    description: string;
-    args?: string[];
-};
-
-type ExpressionEditorProps = {
-    autoFocus?: boolean;
-    items: ItemType[];
-    maxItems?: number;
-    value: string;
+type StyleBase = {
     sx?: React.CSSProperties;
-    input?: string;
-    onChange: (value: string) => void;
-    onFocus?: () => void;
-    onBlur?: () => void;
 };
 
-type DropdownProps = {
+type DropdownProps = StyleBase & {
     items: ItemType[];
     onItemSelect: (item: ItemType) => void;
     onClose: () => void;
@@ -51,9 +41,10 @@ type SyntaxProps = {
     currentArgIndex: number;
 };
 
-type SyntaxElProps = SyntaxProps & {
-    onClose: () => void;
-};
+type SyntaxElProps = StyleBase &
+    SyntaxProps & {
+        onClose: () => void;
+    };
 
 // Styles
 const Container = styled.div`
@@ -62,14 +53,14 @@ const Container = styled.div`
     display: flex;
 `;
 
-const DropdownContainer = styled.div`
+const DropdownContainer = styled.div<StyleBase>`
     position: absolute;
     width: 350px;
-    top: 100%;
-    left: 0;
-    padding: 8px 0;
+    padding-top: 8px;
     border-radius: 8px;
+    background-color: var(--vscode-dropdown-background);
     box-shadow: 0 3px 8px rgb(0 0 0 / 0.2);
+    ${(props: StyleBase) => props.sx}
 `;
 
 const DropdownItemContainer = styled.div`
@@ -100,7 +91,31 @@ const Divider = styled.div`
 
 const DropdownFooter = styled.div`
     display: flex;
-    padding: 4px 0;
+    padding: 8px 4px;
+    gap: 4px;
+`;
+
+const DropdownFooterSection = styled.div`
+    display: flex;
+    align-items: center;
+`;
+
+const DropdownFooterText = styled.p`
+    margin: 0;
+    font-size: 12px;
+`;
+
+const DropdownFooterKey = styled.p`
+    margin: 0;
+    font-size: 10px;
+    font-weight: 800;
+`;
+
+const KeyContainer = styled.div`
+    padding: 2px;
+    margin-inline: 4px;
+    border-radius: 2px;
+    border: 1px solid var(--vscode-editorWidget-border);
 `;
 
 const SyntaxBody = styled.div`
@@ -160,7 +175,7 @@ const DropdownItem = (props: DropdownItemProps) => {
             onMouseEnter={handleMouseEnter}
             onClick={onClick}
         >
-            <Typography variant="body2" sx={{ fontWeight: 600 }}>
+            <Typography variant="body3" sx={{ fontWeight: 600 }}>
                 {item.label}
             </Typography>
             <Typography id="description" variant="body3">
@@ -171,13 +186,13 @@ const DropdownItem = (props: DropdownItemProps) => {
 };
 
 const Dropdown = forwardRef<HTMLDivElement, DropdownProps>((props, ref) => {
-    const { items, onItemSelect, onClose } = props;
+    const { items, onItemSelect, onClose, sx } = props;
     const listBoxRef = useRef<HTMLDivElement>(null);
 
     useImperativeHandle(ref, () => listBoxRef.current);
 
     return (
-        <DropdownContainer>
+        <DropdownContainer sx={sx}>
             <Codicon
                 sx={{
                     position: 'absolute',
@@ -207,13 +222,42 @@ const Dropdown = forwardRef<HTMLDivElement, DropdownProps>((props, ref) => {
             </div>
             <Divider />
             <DropdownFooter>
-                <Codicon name="arrow-small-up" />
-                <Typography variant="body2">,</Typography>
-                <Codicon name="arrow-small-down" />
-                <Typography variant="body2">to navigate.</Typography>
-                <Typography variant="body2" sx={{ marginLeft: '4px' }}>
-                    ENTER to select.
-                </Typography>
+                <DropdownFooterSection>
+                    <KeyContainer>
+                        <Codicon
+                            name="arrow-small-up"
+                            sx={{ display: 'flex', height: '12px', width: '12px' }}
+                            iconSx={{
+                                fontSize: '12px',
+                                fontWeight: '600'
+                            }}
+                        />
+                    </KeyContainer>
+                    <DropdownFooterText>,</DropdownFooterText>
+                    <KeyContainer>
+                        <Codicon
+                            name="arrow-small-down"
+                            sx={{ display: 'flex', height: '12px', width: '12px' }}
+                            iconSx={{
+                                fontSize: '12px',
+                                fontWeight: '600'
+                            }}
+                        />
+                    </KeyContainer>
+                    <DropdownFooterText>to navigate.</DropdownFooterText>
+                </DropdownFooterSection>
+                <DropdownFooterSection>
+                    <KeyContainer>
+                        <DropdownFooterKey>TAB</DropdownFooterKey>
+                    </KeyContainer>
+                    <DropdownFooterText>to select.</DropdownFooterText>
+                </DropdownFooterSection>
+                <DropdownFooterSection>
+                    <KeyContainer>
+                        <DropdownFooterKey>ENTER</DropdownFooterKey>
+                    </KeyContainer>
+                    <DropdownFooterText>to save.</DropdownFooterText>
+                </DropdownFooterSection>
             </DropdownFooter>
         </DropdownContainer>
     );
@@ -221,12 +265,12 @@ const Dropdown = forwardRef<HTMLDivElement, DropdownProps>((props, ref) => {
 Dropdown.displayName = 'Dropdown';
 
 const SyntaxEl = (props: SyntaxElProps) => {
-    const { item, currentArgIndex, onClose } = props;
+    const { item, currentArgIndex, onClose, sx } = props;
 
     return (
         <>
             {item && (
-                <DropdownContainer>
+                <DropdownContainer sx={sx}>
                     <Codicon
                         sx={{
                             position: 'absolute',
@@ -243,7 +287,7 @@ const SyntaxEl = (props: SyntaxElProps) => {
                         onClick={onClose}
                     />
                     <SyntaxBody>
-                        <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                        <Typography variant="body3" sx={{ fontWeight: 600 }}>
                             {`${item.label}(`}
                         </Typography>
                         {item.args?.map((arg, index) => {
@@ -252,21 +296,17 @@ const SyntaxEl = (props: SyntaxElProps) => {
                                 return (
                                     <Fragment key={`arg-${index}`}>
                                         <SelectedArg>{arg}</SelectedArg>
-                                        {!lastArg && (
-                                            <Typography variant="body2">
-                                                {`, `}
-                                            </Typography>
-                                        )}
+                                        {!lastArg && <Typography variant="body3">{`, `}</Typography>}
                                     </Fragment>
                                 );
                             }
                             return (
-                                <Typography key={`arg-${index}`} variant="body2">
+                                <Typography key={`arg-${index}`} variant="body3">
                                     {`${arg}${lastArg ? '' : ', '}`}
                                 </Typography>
                             );
                         })}
-                        <Typography variant="body2">{`)`}</Typography>
+                        <Typography variant="body3">{`)`}</Typography>
                     </SyntaxBody>
                 </DropdownContainer>
             )}
@@ -274,54 +314,52 @@ const SyntaxEl = (props: SyntaxElProps) => {
     );
 };
 
-export const ExpressionEditor = (props: ExpressionEditorProps) => {
-    const { items, maxItems = 10, value, input, sx, onChange, ...rest } = props;
+export const ExpressionEditor = forwardRef<HTMLInputElement, ExpressionBarProps>((props, ref) => {
+    const { items, maxItems = 10, value, sx, onChange, onSave, onItemSelect, ...rest } = props;
+    const elementRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
     const listBoxRef = useRef<HTMLDivElement>(null);
+    const [dropdownPosition, setDropdownPosition] = useState<{ top: number; left: number }>();
     const [filteredItems, setFilteredItems] = useState<ItemType[]>([]);
     const [selectedItem, setSelectedItem] = useState<ItemType | undefined>();
     const [syntax, setSyntax] = useState<SyntaxProps | undefined>();
-    const [valuePrefix, setValuePrefix] = useState<string>('');
-    const suggestionRegex = {
+    const SUGGESTION_REGEX = {
         prefix: /[+-/*=]\s*(\w*)$/,
         suffix: /^(\w*)/
     };
 
-    const filterItems = (items: ItemType[], text: string) => {
-        const filtered = items.filter((item: ItemType) => item.label.toLowerCase().includes(text.toLowerCase()));
-        return filtered.sort((a, b) => a.label.length - b.label.length).slice(0, maxItems);
-    };
+    useImperativeHandle(ref, () => inputRef.current);
 
-    const checkCursorInFunction = (text: string, newCursorPosition?: number) => {
-        let cursorPosition;
-        if (newCursorPosition) {
-            cursorPosition = newCursorPosition;
-        } else {
-            cursorPosition = (inputRef.current.shadowRoot.getElementById('control') as HTMLInputElement).selectionStart;
+    const handleResize = debounce(() => {
+        if (elementRef.current) {
+            const rect = elementRef.current.getBoundingClientRect();
+            setDropdownPosition({
+                top: rect.top + rect.height,
+                left: rect.left
+            });
         }
-        const openBrackets = text.substring(0, cursorPosition).match(/\(/g);
-        const closeBrackets = text.substring(0, cursorPosition).match(/\)/g);
-        const isCursorInFunction = !!(openBrackets && openBrackets.length > (closeBrackets?.length ?? 0));
+    }, 200);
 
-        let currentFnContent;
-        if (isCursorInFunction) {
-            const openBracketIndex = text.substring(0, cursorPosition).lastIndexOf('(');
-            currentFnContent = text.substring(openBracketIndex + 1, cursorPosition);
-        }
-        return { isCursorInFunction, currentFnContent };
-    };
+    useEffect(() => {
+        handleResize();
+        window.addEventListener('resize', handleResize);
+        return () => {
+            window.removeEventListener('resize', handleResize);
+        };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [elementRef]);
 
     const getSuggestions = (text: string) => {
         setSyntax(undefined);
         const cursorPosition = (inputRef.current.shadowRoot.getElementById('control') as HTMLInputElement)
             .selectionStart;
-        const prefixMatches = text.substring(0, cursorPosition).match(suggestionRegex.prefix);
+        const prefixMatches = text.substring(0, cursorPosition).match(SUGGESTION_REGEX.prefix);
         if (prefixMatches) {
-            const suffixMatches = text.substring(cursorPosition).match(suggestionRegex.suffix);
+            const suffixMatches = text.substring(cursorPosition).match(SUGGESTION_REGEX.suffix);
             if (suffixMatches) {
-                setFilteredItems(filterItems(items, prefixMatches[1] + suffixMatches[1]));
+                setFilteredItems(filterItems(items, prefixMatches[1] + suffixMatches[1], maxItems));
             } else {
-                setFilteredItems(filterItems(items, prefixMatches[1]));
+                setFilteredItems(filterItems(items, prefixMatches[1], maxItems));
             }
         } else {
             setFilteredItems([]);
@@ -333,64 +371,52 @@ export const ExpressionEditor = (props: ExpressionEditorProps) => {
             setSelectedItem(newSelectedItem);
         }
         const item = newSelectedItem ?? selectedItem;
+        const inputArgsCount = currentFnContent.trim().split(',').length;
         if (item?.args) {
-            const inputArgsCount = currentFnContent.trim().split(',').length;
             if (inputArgsCount <= item.args.length) {
-                return setSyntax({ item: item, currentArgIndex: inputArgsCount - 1 });
+                setSyntax({ item: item, currentArgIndex: inputArgsCount - 1 });
+                return;
             }
-            const isMultiArgFn = item.args[item.args.length - 1].match(/^\[\w+,\s*\.{3}]$/);
+            // Multiple arguments (ex: ...numbers)
+            const isMultiArgFn = item.args[item.args.length - 1].match(/^\.{3}\w+$/);
             if (isMultiArgFn) {
-                return setSyntax({ item: item, currentArgIndex: item.args.length - 1 });
+                setSyntax({ item: item, currentArgIndex: item.args.length - 1 });
+                return;
             }
         }
     };
 
-    const setCursor = (position: number) => {
-        inputRef.current.focus();
-        (inputRef.current.shadowRoot.getElementById('control') as HTMLInputElement).setSelectionRange(
-            position,
-            position
-        );
-    };
-
     const handleChange = (text: string, cursorPosition?: number, selectedItem?: ItemType) => {
         if (text.trim().startsWith('=')) {
-            const matches = text.match(/^(\s*=\s*)(.*)$/);
-            if (matches[1] !== valuePrefix) {
-                setValuePrefix(matches[1]);
-            }
             // Check whether the cursor is inside a function
-            const { isCursorInFunction, currentFnContent } = checkCursorInFunction(text, cursorPosition);
+            const { isCursorInFunction, currentFnContent } = getExpressionInfo(text, cursorPosition);
             if (isCursorInFunction) {
                 setFilteredItems([]);
                 updateSyntax(currentFnContent, selectedItem);
             } else {
                 getSuggestions(text);
             }
-            onChange(matches[2]);
         } else {
-            if (valuePrefix) {
-                setValuePrefix('');
-            }
-            onChange(text);
             setFilteredItems([]);
         }
+        onChange(text);
     };
 
     const handleItemSelect = (item: ItemType) => {
-        const rawValue = valuePrefix + value;
         const cursorPosition = (inputRef.current.shadowRoot.getElementById('control') as HTMLInputElement)
             .selectionStart;
-        const prefixMatches = rawValue.substring(0, cursorPosition).match(suggestionRegex.prefix);
-        const suffixMatches = rawValue.substring(cursorPosition).match(suggestionRegex.suffix);
-        const prefix = rawValue.substring(0, cursorPosition - prefixMatches[1].length);
-        let suffix = rawValue.substring(cursorPosition + suffixMatches[1].length);
+        const prefixMatches = value.substring(0, cursorPosition).match(SUGGESTION_REGEX.prefix);
+        const suffixMatches = value.substring(cursorPosition).match(SUGGESTION_REGEX.suffix);
+        const prefix = value.substring(0, cursorPosition - prefixMatches[1].length);
+        let suffix = value.substring(cursorPosition + suffixMatches[1].length);
         if (suffix.startsWith('(')) {
             suffix = suffix.substring(1);
         }
         const newCursorPosition = prefix.length + item.label.length + 1;
-        handleChange(prefix + item.label + '(' + suffix, newCursorPosition, item);
-        setCursor(newCursorPosition);
+        const newTextValue = prefix + item.label + '(' + suffix;
+        onItemSelect && onItemSelect(item, newTextValue);
+        handleChange(newTextValue, newCursorPosition, item);
+        setCursor(inputRef, newCursorPosition);
     };
 
     const handleDropdownClose = () => {
@@ -400,21 +426,6 @@ export const ExpressionEditor = (props: ExpressionEditorProps) => {
     const handleFunctionSyntaxClose = () => {
         setSyntax(undefined);
     };
-
-    const handleOnInput = (input: string) => {
-        const rawValue = valuePrefix + value;
-        const cursorPosition = (inputRef.current.shadowRoot.getElementById('control') as HTMLInputElement)
-            .selectionStart;
-        const newValue = rawValue.substring(0, cursorPosition) + input + rawValue.substring(cursorPosition);
-        handleChange(newValue);
-    };
-
-    useEffect(() => {
-        if (input) {
-            handleOnInput(input);
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [input]);
 
     useEffect(() => {
         const handleFocus = () => {
@@ -438,92 +449,112 @@ export const ExpressionEditor = (props: ExpressionEditorProps) => {
     }, [inputRef]);
 
     const handleInputKeyDown = (e: React.KeyboardEvent) => {
-        if (e.key === 'Escape') {
-            e.preventDefault();
-            handleDropdownClose();
-        } else if (e.key === 'ArrowDown') {
-            e.preventDefault();
+        if (listBoxRef.current) {
             const hoveredEl = listBoxRef.current.querySelector('.hovered');
-            if (hoveredEl) {
-                hoveredEl.classList.remove('hovered');
-                const nextEl = hoveredEl.nextElementSibling as HTMLElement;
-                if (nextEl) {
-                    nextEl.classList.add('hovered');
-                } else {
-                    const firstEl = listBoxRef.current.firstElementChild as HTMLElement;
-                    if (firstEl) {
-                        firstEl.classList.add('hovered');
+            switch (e.key) {
+                case 'Escape':
+                    e.preventDefault();
+                    handleDropdownClose();
+                    break;
+                case 'ArrowDown':
+                    e.preventDefault();
+                    if (hoveredEl) {
+                        hoveredEl.classList.remove('hovered');
+                        const nextEl = hoveredEl.nextElementSibling as HTMLElement;
+                        if (nextEl) {
+                            nextEl.classList.add('hovered');
+                        } else {
+                            const firstEl = listBoxRef.current.firstElementChild as HTMLElement;
+                            if (firstEl) {
+                                firstEl.classList.add('hovered');
+                            }
+                        }
+                    } else {
+                        const firstEl = listBoxRef.current.firstElementChild as HTMLElement;
+                        if (firstEl) {
+                            firstEl.classList.add('hovered');
+                        }
                     }
-                }
-            } else {
-                const firstEl = listBoxRef.current.firstElementChild as HTMLElement;
-                if (firstEl) {
-                    firstEl.classList.add('hovered');
-                }
-            }
-        } else if (e.key === 'ArrowUp') {
-            e.preventDefault();
-            const hoveredEl = listBoxRef.current.querySelector('.hovered');
-            if (hoveredEl) {
-                hoveredEl.classList.remove('hovered');
-                const prevEl = hoveredEl.previousElementSibling as HTMLElement;
-                if (prevEl) {
-                    prevEl.classList.add('hovered');
-                } else {
-                    const lastEl = listBoxRef.current.lastElementChild as HTMLElement;
-                    if (lastEl) {
-                        lastEl.classList.add('hovered');
+                    break;
+                case 'ArrowUp':
+                    e.preventDefault();
+                    if (hoveredEl) {
+                        hoveredEl.classList.remove('hovered');
+                        const prevEl = hoveredEl.previousElementSibling as HTMLElement;
+                        if (prevEl) {
+                            prevEl.classList.add('hovered');
+                        } else {
+                            const lastEl = listBoxRef.current.lastElementChild as HTMLElement;
+                            if (lastEl) {
+                                lastEl.classList.add('hovered');
+                            }
+                        }
+                    } else {
+                        const lastEl = listBoxRef.current.lastElementChild as HTMLElement;
+                        if (lastEl) {
+                            lastEl.classList.add('hovered');
+                        }
                     }
-                }
-            } else {
-                const lastEl = listBoxRef.current.lastElementChild as HTMLElement;
-                if (lastEl) {
-                    lastEl.classList.add('hovered');
-                }
+                    break;
+                case 'Tab':
+                    e.preventDefault();
+                    if (hoveredEl) {
+                        const item = filteredItems.find(
+                            (item: ItemType) => item.label === hoveredEl.firstChild.textContent
+                        );
+                        if (item) {
+                            handleItemSelect(item);
+                        }
+                    }
+                    break;
             }
-        } else if (e.key === 'Enter') {
+        }
+
+        if (e.key === 'Enter') {
             e.preventDefault();
-            const hoveredEl = listBoxRef.current.querySelector('.hovered');
-            if (hoveredEl) {
-                const item = filteredItems.find((item: ItemType) => item.label === hoveredEl.firstChild.textContent);
-                if (item) {
-                    handleItemSelect(item);
-                }
-            }
+            const { updatedText: valueWithClosingBracket, cursorPosition } = addClosingBracketIfNeeded(inputRef, value);
+            handleChange(valueWithClosingBracket, cursorPosition);
+            onSave && onSave(valueWithClosingBracket);
+            setFilteredItems([]);
+            setSyntax(undefined);
         }
     };
 
     return (
-        <Container>
+        <Container ref={elementRef}>
             <TextField
                 ref={inputRef}
-                value={valuePrefix + value}
+                value={value}
                 onTextChange={handleChange}
                 onKeyDown={handleInputKeyDown}
-                placeholder='Prefix "=" to use functions.'
                 sx={{ width: '100%', ...sx }}
                 {...rest}
             />
-            {inputRef && (
-                <>
-                    <Transition show={filteredItems.length > 0} {...ANIMATION}>
-                        <Dropdown
-                            ref={listBoxRef}
-                            items={filteredItems}
-                            onItemSelect={handleItemSelect}
-                            onClose={handleDropdownClose}
-                        />
-                    </Transition>
-                    <Transition show={!!syntax?.item} {...ANIMATION}>
-                        <SyntaxEl
-                            item={syntax?.item}
-                            currentArgIndex={syntax?.currentArgIndex ?? 0}
-                            onClose={handleFunctionSyntaxClose}
-                        />
-                    </Transition>
-                </>
-            )}
+            {inputRef &&
+                createPortal(
+                    <>
+                        <Transition show={filteredItems.length > 0} {...ANIMATION}>
+                            <Dropdown
+                                ref={listBoxRef}
+                                items={filteredItems}
+                                onItemSelect={handleItemSelect}
+                                onClose={handleDropdownClose}
+                                sx={{ ...dropdownPosition }}
+                            />
+                        </Transition>
+                        <Transition show={!!syntax?.item} {...ANIMATION}>
+                            <SyntaxEl
+                                item={syntax?.item}
+                                currentArgIndex={syntax?.currentArgIndex ?? 0}
+                                onClose={handleFunctionSyntaxClose}
+                                sx={{ ...dropdownPosition }}
+                            />
+                        </Transition>
+                    </>,
+                    document.body
+                )}
         </Container>
     );
-};
+});
+ExpressionEditor.displayName = 'ExpressionEditor';
 

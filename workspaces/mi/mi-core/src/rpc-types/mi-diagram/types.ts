@@ -1006,6 +1006,21 @@ export interface RetrieveDataServiceResponse {
     local: boolean | null;
 }
 
+export interface CreateDssDataSourceRequest {
+    directory: string;
+    type: string;
+    dataSourceName: string;
+    enableOData: boolean | null;
+    dynamicUserAuthClass?: string;
+    datasourceProperties: Property[];
+    datasourceConfigurations: Configuration[];
+    dynamicUserAuthMapping?: boolean | null;
+}
+
+export interface CreateDssDataSourceResponse {
+    path: string;
+}
+
 export interface Datasource {
     dataSourceName: string;
     enableOData: boolean | null;

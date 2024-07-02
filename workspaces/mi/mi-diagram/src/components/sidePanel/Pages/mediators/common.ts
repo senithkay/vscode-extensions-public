@@ -35,14 +35,19 @@ export function filterFormValues(formValues: { [key: string]: any }, keysToInclu
     return formValues;
 }
 
-export const openPopup = (rpcClient: RpcClient, view: string, fetchItems: any, setValue: any) => {
+export const openPopup = (rpcClient: RpcClient, view: string, fetchItems: any, setValue: any, documentUri?: string) => {
     let form;
     switch (view) {
         case "endpoint":
             form = MACHINE_VIEW.EndPointForm;
             break;
     }
-    rpcClient.getMiVisualizerRpcClient().openView({ type: POPUP_EVENT_TYPE.OPEN_VIEW, location: { view: form }, isPopup: true });
+
+    if (view === "datasource") {
+        rpcClient.getMiVisualizerRpcClient().openView({ type: POPUP_EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.DssDataSourceForm, documentUri: documentUri }, isPopup: true });
+    } else {
+        rpcClient.getMiVisualizerRpcClient().openView({ type: POPUP_EVENT_TYPE.OPEN_VIEW, location: { view: form }, isPopup: true });
+    }
 
     rpcClient.onParentPopupSubmitted((data: ParentPopupData) => {
         if (data.recentIdentifier) {

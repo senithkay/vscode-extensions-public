@@ -41,3 +41,23 @@ export function getInputOutputSearchTerms(searchTerm: string): [SearchTerm, Sear
         } : {...searchTermItem, searchType: SearchType.OUTPUT}
     ];
 }
+
+export function extractExpression(text: string) {
+    const expressionRegex = /=\s*(.*)$/;
+    const expressionMatches = text.match(expressionRegex);
+    if (expressionMatches) {
+        return expressionMatches[1].trim();
+    }
+    return text;
+
+}
+
+export function enrichExpression(text: string) {
+    const functionRegex = /\w+\(.*/;
+    const isFunction = text.match(functionRegex);
+    if (isFunction) {
+        return "= " + text;
+    }
+    return text;
+}
+
