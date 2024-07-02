@@ -187,9 +187,7 @@ const EnvItem: FC<{
         },
     });
 
-    const activePublicEndpoints = endpoints?.filter(
-        (item) => item.visibility === "Public" && item.state === "Active"
-    )
+    const activePublicEndpoints = endpoints?.filter((item) => item.visibility === "Public" && item.state === "Active");
 
     return (
         <>
@@ -251,7 +249,7 @@ const EnvItem: FC<{
                                         />
                                     </GridColumnItem>
                                 )}
-                                {["ACTIVE","IN_PROGRESS"].includes(deploymentStatus?.deploymentStatusV2) && (
+                                {["ACTIVE", "IN_PROGRESS"].includes(deploymentStatus?.deploymentStatusV2) && (
                                     <>
                                         {deploymentStatus?.invokeUrl && (
                                             <EndpointItem
@@ -314,7 +312,7 @@ const EnvItem: FC<{
                                                             env,
                                                             deploymentTrack,
                                                             allDeploymentTracks,
-                                                            endpoints: activePublicEndpoints
+                                                            endpoints: activePublicEndpoints,
                                                         })
                                                     }
                                                 >
@@ -322,13 +320,16 @@ const EnvItem: FC<{
                                                 </VSCodeLink>
                                             </GridColumnItem>
                                         )}
-
-                                        <GridColumnItem label="Observability">
-                                            <VSCodeLink className="text-vsc-foreground" onClick={() => selectLogType()}>
-                                                View Runtime Logs
-                                            </VSCodeLink>
-                                        </GridColumnItem>
                                     </>
+                                )}
+                                {["ACTIVE", "IN_PROGRESS", "ERROR", "SUSPENDED"].includes(
+                                    deploymentStatus?.deploymentStatusV2
+                                ) && (
+                                    <GridColumnItem label="Observability">
+                                        <VSCodeLink className="text-vsc-foreground" onClick={() => selectLogType()}>
+                                            View Runtime Logs
+                                        </VSCodeLink>
+                                    </GridColumnItem>
                                 )}
                             </>
                         )}

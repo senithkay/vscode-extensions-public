@@ -3,7 +3,7 @@
   "displayName": "Choreo",
   "description": "An extension for managing your Choreo projects and components",
   "version": "2.0.0",
-  "cliVersion": "v1.1.42406251600",
+  "cliVersion": "v1.1.42407021200",
   "publisher": "wso2",
   "bugs": {
     "url": "https://github.com/wso2/choreo-vscode/issues"
@@ -120,13 +120,6 @@
         "category": "Choreo",
         "icon": "$(new-file)",
         "enablement": "isValidWorkspace"
-      },
-      {
-        "command": "wso2.choreo.manage.account",
-        "title": "Manage Account",
-        "category": "Choreo",
-        "icon": "$(account)",
-        "enablement": "isLoggedIn"
       }
     ],
     "viewsContainers": {
@@ -161,11 +154,13 @@
         },
         {
           "command": "wso2.choreo.project.manage",
-          "when": "view == choreo.activity.project && isLoggedIn == true"
+          "when": "view == choreo.activity.project && isLoggedIn == true",
+          "group": "project"
         },
         {
-          "command": "wso2.choreo.manage.account",
-          "when": "view == choreo.activity.project && isLoggedIn == true"
+          "command": "wso2.choreo.sign.out",
+          "when": "view == choreo.activity.project && isLoggedIn == true",
+          "group": "sign-out"
         }
       ],
       "webview/context": [
