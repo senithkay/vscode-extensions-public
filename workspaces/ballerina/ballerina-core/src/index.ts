@@ -25,7 +25,7 @@ export * from "./interfaces/performance";
 
 // ------ LS Utils -------->
 // export * from "./ls-utils/WSConnection";
-// export * from "./ls-utils/BalleriaLanguageClient";
+export * from "./ls-utils/LangClient";
 
 // ------ RPC interfaces -------->
 export * from "./rpc-types/connector-wizard";
