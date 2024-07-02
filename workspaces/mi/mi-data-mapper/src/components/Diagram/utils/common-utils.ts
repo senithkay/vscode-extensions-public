@@ -631,6 +631,16 @@ export function isFunctionCall(node: Node): boolean {
     return false;
 }
 
+export function isMethodCall(node: Node): boolean {
+    // Check if the node is a method call
+    // ie: `object.method(arg1, arg2)`
+    if (Node.isCallExpression(node)) {
+        const expr = node.getExpression();
+        return Node.isPropertyAccessExpression(expr);
+    }
+    return false;
+}
+
 export function isQuotedString(str: string): boolean {
     return str.startsWith('"') && str.endsWith('"')
         || str.startsWith("'") && str.endsWith("'");
