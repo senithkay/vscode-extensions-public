@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<api context="/HelloWorld" name="HelloWorld" xmlns="http://ws.apache.org/ns/synapse">
+    <resource methods="GET" uri-template="/aa">   
+        <inSequence>
+			<filter regex="a?b+$" source="Expresion Value" xmlns:Pref="URI">
+				<then>
+				</then>
+				<else>
+				</else>
+			</filter>
+		</inSequence>                         
+        <outSequence>
+		</outSequence>   
+        <faultSequence>
+		</faultSequence>
+    </resource>
+</api>
