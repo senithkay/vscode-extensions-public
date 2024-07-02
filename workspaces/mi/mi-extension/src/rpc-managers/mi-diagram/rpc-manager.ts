@@ -2261,10 +2261,10 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     description: dataServiceParams.description != undefined ? dataServiceParams.description.textNode : '',
                     datasources: [] as Datasource[],
                     authProviderClass: dataServiceParams.authorizationProvider != undefined ? dataServiceParams.authorizationProvider.clazz : '',
-                    http: dataServiceParams.transports.split(' ').includes('http'),
-                    https: dataServiceParams.transports.split(' ').includes('https'),
-                    jms: dataServiceParams.transports.split(' ').includes('jms'),
-                    local: dataServiceParams.transports.split(' ').includes('local'),
+                    http: dataServiceParams.transports != undefined ? dataServiceParams.transports.split(' ').includes('http') : false,
+                    https: dataServiceParams.transports != undefined ? dataServiceParams.transports.split(' ').includes('https') : false,
+                    jms: dataServiceParams.transports != undefined ? dataServiceParams.transports.split(' ').includes('jms') : false,
+                    local:  dataServiceParams.transports != undefined ? dataServiceParams.transports.split(' ').includes('local') : false,
                     authProperties: [] as Property[],
                 };
 
