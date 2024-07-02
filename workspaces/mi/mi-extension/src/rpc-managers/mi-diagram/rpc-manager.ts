@@ -2670,9 +2670,8 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                                     'sequences': '',
                                     'tasks': '',
                                     'templates': '',
-                                    //TODO: will add again once the feature is implemented
-                                    // 'data-services': '',
-                                    // 'data-sources': '',
+                                    'data-services': '',
+                                    'data-sources': '',
                                 },
                                 'resources': {
                                     'connectors': '',
