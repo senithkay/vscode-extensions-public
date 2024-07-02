@@ -21,23 +21,42 @@ interface IBallerinaLangClient {
 
 }
 
-export class BalleriaLanguageClient implements IBallerinaLangClient {
+export class BallerinaLanguageClient implements IBallerinaLangClient {
 
     private _id: number = 1;
     private _name: string = "ballerina";
+    private _lsConnection: LSConnection;
     private _clientConnection: ProtocolConnection;
 
     private _ready: any = null;
+    private _initializedError: any = null;
+    private _onReady: Promise<void>;
     private _diagnostics?: PublishDiagnosticsParams;
+    private _diagnosticsReceived: Promise<void>;
+    private _diagnosticsReady: any = null;
+    private _diagnosticsError: any = null;
 
     // constructor
     public constructor(connection: LSConnection) {
+        this._lsConnection = connection;
         this._id = 1;
         this._clientConnection = connection.getProtocolConnection();
         this._clientConnection.trace(Trace.Verbose, new BLCTracer());
         this._clientConnection.listen();
+        this._onReady = new Promise((resolve, reject) => {
+            this._ready = resolve;
+            this._initializedError = reject;
+        });
+        this._diagnosticsReceived = new Promise((resolve, reject) => {
+            this._diagnosticsReady = resolve;
+            this._diagnosticsError = reject;
+        });
         // Send the initializzation request
         this.initialize();
+    }
+
+    public onReady(): Promise<void> {
+        return this._onReady;
     }
 
     private initialize() {

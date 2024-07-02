@@ -1,4 +1,4 @@
-// import { BalleriaLanguageClient, WSConnection } from "@wso2-enterprise/ballerina-core";
+import { BallerinaLanguageClient, WSConnection } from "@wso2-enterprise/ballerina-core";
 // tslint:disable-next-line: no-implicit-dependencies
 import { Uri } from "monaco-editor";
 
@@ -7,9 +7,9 @@ import devproject from "./data/devproject.json";
 export const MOCK_SERVER_URL = "http://localhost:3000"
 export const LANG_SERVER_URL = "ws://localhost:9095"
 
-// export const langClientPromise = WSConnection.initialize(LANG_SERVER_URL).then((wsConnection: WSConnection) => {
-//   return new BalleriaLanguageClient(wsConnection);
-// });
+export const langClientPromise = WSConnection.initialize(LANG_SERVER_URL).then((wsConnection: WSConnection) => {
+  return new BallerinaLanguageClient(wsConnection);
+});
 
 export async function getFileContent(filePath: string): Promise<string> {
   return fetch(MOCK_SERVER_URL + "/file/" + encodeURIComponent(filePath))
@@ -48,7 +48,7 @@ export function getComponentDataPath(componentName: string, fileName: string) {
 
 export async function fetchSyntaxTree(filePath: string) {
   const text = await getFileContent(filePath);
-  const langClient = await {} as any;
+  const langClient = await langClientPromise;
   const uri =  Uri.file(filePath).toString();
 
   await langClient.didOpen({

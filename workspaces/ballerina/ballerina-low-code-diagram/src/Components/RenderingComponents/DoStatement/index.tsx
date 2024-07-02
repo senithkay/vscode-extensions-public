@@ -9,7 +9,7 @@
 
 import React, { useContext } from "react";
 
-import { DoStatement, STNode } from "@wso2-enterprise/syntax-tree";
+import { DoStatement as DoState, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { DefaultConfig } from "../../..";
 import { Context } from "../../../Context/diagram";
@@ -39,8 +39,8 @@ export function DoStatement(props: DoStatementProps) {
     const { insertComponentStart, diagramRedraw } = diagramContext.actions;
     const x: number = viewState.doHeadVS.cx;
     const y: number = viewState.doHeadVS.cy - (viewState.doHeadVS.h / 2) - (DO_STATEMENT_SHADOW_OFFSET / 2);
-    const doBodyChildren = getSTComponents((model as DoStatement).blockStatement.statements);
-    const onFailBodyChildren = getSTComponents((model as DoStatement).onFailClause.blockStatement.statements);
+    const doBodyChildren = getSTComponents((model as DoState).blockStatement.statements);
+    const onFailBodyChildren = getSTComponents((model as DoState).onFailClause.blockStatement.statements);
 
     const rectProps = {
         x: viewState.bBox.cx - (viewState.bBox.lw),
@@ -78,7 +78,7 @@ export function DoStatement(props: DoStatementProps) {
         plusButtons.push(
             <PlusButton
                 viewState={plusView}
-                model={(model as DoStatement).blockStatement}
+                model={(model as DoState).blockStatement}
                 initPlus={false}
             />
         );
@@ -89,7 +89,7 @@ export function DoStatement(props: DoStatementProps) {
         plusButtons.push(
             <PlusButton
                 viewState={plusView}
-                model={(model as DoStatement).onFailClause.blockStatement}
+                model={(model as DoState).onFailClause.blockStatement}
                 initPlus={false}
             />
         );

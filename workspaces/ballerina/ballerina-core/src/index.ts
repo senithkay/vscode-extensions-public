@@ -24,8 +24,8 @@ export * from "./interfaces/store";
 export * from "./interfaces/performance";
 
 // ------ LS Utils -------->
-// export * from "./ls-utils/WSConnection";
-export * from "./ls-utils/LangClient";
+export * from "./ls-utils/WSConnection";
+export * from "./ls-utils/BallerinaLanguageClient";
 
 // ------ RPC interfaces -------->
 export * from "./rpc-types/connector-wizard";

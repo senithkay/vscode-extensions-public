@@ -1,7 +1,6 @@
 import {
-    InitializeParams, DidOpenTextDocumentParams, ClientCapabilities
+    InitializeParams, ClientCapabilities
 } from 'vscode-languageserver-protocol';
-import * as fs from 'fs';
 import { URI } from "vscode-uri";
 
 
@@ -269,18 +268,6 @@ export function initializeRequest(processId: number): InitializeParams {
         // We always initilize with empty workspace
         rootUri: null,
         workspaceFolders: null
-    };
-}
-
-export function didOpenTextDocumentParams(path: string): DidOpenTextDocumentParams {
-    const data: string = fs.readFileSync(path, 'utf8')
-    return {
-        textDocument: {
-            uri: file(path),
-            languageId: 'ballerina',
-            version: 1,
-            text: data
-        }
     };
 }
 

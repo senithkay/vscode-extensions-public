@@ -1,7 +1,17 @@
-const { spawn, execSync } = require("child_process");
+const {
+    spawn,
+    execSync
+} = require("child_process");
 var glob = require('glob');
-const { cp, writeFile, existsSync, writeFileSync } = require("fs");
+const {
+    cp,
+    writeFile,
+    existsSync,
+    writeFileSync
+} = require("fs");
 const path = require("path");
+const express = require('express');
+const fs = require('fs');
 
 function setupDevBalProject() {
     const projectRoot = path.join(__dirname, "..");
@@ -20,7 +30,9 @@ function setupDevBalProject() {
         const projectName = path.parse(devProjectFolder).name;
         const cwd = path.resolve(path.parse(devProjectFolder).dir);
         console.log(cwd)
-        const balNewOutput = execSync("bal new " + projectName, { cwd }).toString().trim();
+        const balNewOutput = execSync("bal new " + projectName, {
+            cwd
+        }).toString().trim();
         if (balNewOutput.startsWith("Created new")) {
             console.log("Initialized new Ballerina Project at " + devProjectFolder)
         } else {
@@ -41,7 +53,7 @@ function setupDevBalProject() {
     "projectRoot": "${projectRoot}/",
     "sourceRoot": "${sourceRoot}/"
 }
-`    ,
+`,
             (err) => err ? console.log("dev project json make error: " + err) : console.log("dev project json make successful")
         )
     });
@@ -65,18 +77,27 @@ function startLS() {
 }
 
 function startVSCodeMockServer() {
-    const vs = spawn('node', ['../low-code-integration-tests/tools/vscode-mock-server.js']);
-
-    vs.stdout.on('data', (data) => {
-        console.log(`vs-mock-server:stdout: ${data}`);
+    const app = express();
+    app.use((req, res, next) => {
+        res.setHeader('Access-Control-Allow-Origin', 'http://localhost:6006');
+        res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+        res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+        next();
     });
+    app.get('/file/*', (req, res) => {
+        const filePath = decodeURIComponent(req.params[0]);
 
-    vs.stderr.on('data', (data) => {
-        console.error(`vs-mock-server:stderr: ${data}`);
+        fs.readFile(filePath, 'utf8', (err, data) => {
+            if (err) {
+                res.status(404).send('File not found');
+            } else {
+                res.send(data);
+            }
+        });
     });
-
-    vs.on('close', (code) => {
-        console.log(`vs-mock-server:process exited with code ${code}`);
+    const PORT = 3000;
+    app.listen(PORT, () => {
+        console.log(`Mock server running at http://localhost:${PORT}`);
     });
 }
 
@@ -100,6 +121,6 @@ function startStoryBook() {
 
 setupDevBalProject();
 startLS();
-// startVSCodeMockServer();
+startVSCodeMockServer();
 
 setTimeout(() => startStoryBook(), 4000);

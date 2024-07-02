@@ -31,8 +31,8 @@
     },
     "include": [
         "src",
-        "src/custom.d.ts"
-, "../low-code-editor/src/Diagram/components/FormComponents/RenderingComponents/WorkerDeclaration"    ],
+        "src/custom.d.ts"   
+    ],
     "exclude": [
         "node_modules",
         "lib"
