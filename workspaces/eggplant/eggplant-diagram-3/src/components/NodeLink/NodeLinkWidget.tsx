@@ -74,11 +74,12 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
             {link.label && (
                 <foreignObject x={addButtonPosition.x - 50} y={addButtonPosition.y - 10} width="100" height="100">
                     <div
-                        style={{
-                            display: "flex",
-                            justifyContent: "center",
-                            alignItems: "center",
-                        }}
+                        css={css`
+                            display: ${isHovered ? "none" : "flex"};
+                            justify-content: center;
+                            align-items: center;
+                            animation: ${fadeInZoomIn} 0.2s ease-out forwards;
+                        `}
                     >
                         <div
                             style={{
@@ -107,7 +108,7 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
                     </div>
                 </foreignObject>
             )}
-            {link.showAddButton && isHovered && (
+            {link.showAddButton && (
                 <foreignObject
                     x={addButtonPosition.x - 10}
                     y={addButtonPosition.y - 10}
@@ -117,7 +118,7 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
                 >
                     <div
                         css={css`
-                            display: flex;
+                            display: ${isHovered ? "flex" : "none"};
                             justify-content: center;
                             align-items: center;
                             cursor: pointer;
