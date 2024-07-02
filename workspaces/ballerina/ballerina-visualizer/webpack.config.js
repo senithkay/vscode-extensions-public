@@ -5,10 +5,6 @@ module.exports = {
   entry: "./src/index.tsx",
   target: "web",
   devtool: "source-map",
-  stats: {
-    errorDetails: true,
-    errors: true
-  },
   output: {
     path: path.resolve(__dirname, "build"),
     filename: "Visualizer.js",
