@@ -19,6 +19,13 @@ export * from "./interfaces/common";
 export * from "./interfaces/component";
 export * from "./interfaces/constants";
 export * from "./interfaces/config-spec";
+export * from "./interfaces/event";
+export * from "./interfaces/store";
+export * from "./interfaces/performance";
+
+// ------ LS Utils -------->
+// export * from "./ls-utils/WSConnection";
+// export * from "./ls-utils/BalleriaLanguageClient";
 
 // ------ RPC interfaces -------->
 export * from "./rpc-types/connector-wizard";

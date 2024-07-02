@@ -10,12 +10,12 @@
 
 import { ModulePart, STNode } from "@wso2-enterprise/syntax-tree";
 import { DocumentIdentifier, LinePosition, LineRange, Position, Range } from "./common";
-import { Uri } from "vscode";
 import { DefinitionParams, InitializeParams, InitializeResult, Location, LocationLink } from "vscode-languageserver-protocol";
 import { CodeAction, Diagnostic, DocumentSymbol, SymbolInformation } from "vscode-languageserver-types";
 import { BallerinaTriggerRequest, BallerinaTriggerResponse, BallerinaTriggersResponse } from "../rpc-types/project-design-diagram/interfaces";
 import { ExecutorPositionsResponse, BallerinaProjectComponents } from "../rpc-types/lang-server/interfaces";
 import { JsonToRecordRequest, JsonToRecordResponse, XMLToRecordRequest, XMLToRecordResponse } from "../rpc-types/record-creator/interfaces";
+import { DiagramDiagnostic, FunctionDefinitionInfo, NonPrimitiveBal } from "./config-spec";
 
 export enum DIAGNOSTIC_SEVERITY {
     INTERNAL = "INTERNAL",
@@ -168,24 +168,6 @@ export interface TypeField {
     selected?: boolean;
     originalTypeName?: string;
     resolvedUnionType?: TypeField | TypeField[];
-}
-
-
-export interface PathParam {
-    name: string;
-    typeName: string;
-    isRestType: boolean;
-}
-
-export interface FunctionDefinitionInfo {
-    name: string;
-    documentation: string;
-    parameters: TypeField[];
-    pathParams?: PathParam[];
-    returnType?: TypeField;
-    qualifiers?: string[];
-    isRemote?: boolean;
-    displayAnnotation?: any;
 }
 
 export interface BallerinaConnectorInfo extends Connector {
@@ -578,22 +560,6 @@ export interface SymbolInfoResponse {
     documentation: SymbolDocumentation
 }
 
-export interface DiagramDiagnostic {
-    message: string;
-    diagnosticInfo: {
-        code: string;
-        severity: string;
-    };
-    range: NodePosition;
-}
-
-export interface NonPrimitiveBal {
-    orgName: string;
-    moduleName: string;
-    name: string;
-    version?: string;
-}
-
 export interface ExpressionRange {
     startLine: LinePosition;
     endLine: LinePosition;
@@ -672,36 +638,6 @@ export interface Package {
     modules?: any[];
 }
 
-export interface ComponentViewInfo {
-    filePath: string;
-    position: NodePosition;
-    fileName?: string;
-    moduleName?: string;
-    uid?: string;
-    name?: string;
-}
-
-export interface FileListEntry {
-    fileName: string;
-    uri: Uri;
-}
-
-export interface STSymbolInfo {
-    moduleEndpoints: Map<string, STNode>;
-    localEndpoints: Map<string, STNode>;
-    actions: Map<string, STNode>;
-    variables: Map<string, STNode[]>;
-    configurables: Map<string, STNode>;
-    callStatement: Map<string, STNode[]>;
-    variableNameReferences: Map<string, STNode[]>;
-    assignmentStatement: Map<string, STNode[]>;
-    recordTypeDescriptions: Map<string, STNode>;
-    listeners: Map<string, STNode>;
-    moduleVariables: Map<string, STNode>;
-    constants: Map<string, STNode>;
-    enums: Map<string, STNode>;
-}
-
 export interface BallerinaConnectorResponse extends BallerinaConnectorInfo {
     error?: string;
 }
@@ -772,66 +708,6 @@ export interface DiagramEditorLangClientInterface extends BaseLangClientInterfac
 export interface PublishDiagnosticsParams {
     uri: string;
     diagnostics: Diagnostic[];
-}
-
-export interface FormFieldReturnType {
-    hasError: boolean;
-    hasReturn: boolean;
-    returnType: string;
-    importTypeInfo?: NonPrimitiveBal[];
-}
-export interface FormField {
-    typeName: string;
-    name?: string;
-    displayName?: string;
-    memberType?: FormField;
-    inclusionType?: FormField;
-    paramType?: FormField;
-    selectedDataType?: string;
-    description?: string;
-    defaultValue?: any;
-    value?: any;
-    optional?: boolean;
-    defaultable?: boolean;
-    fields?: FormField[];
-    members?: FormField[];
-    references?: FormField[];
-    restType?: FormField;
-    constraintType?: FormField;
-    rowType?: FormField;
-    keys?: string[];
-    isReturn?: boolean;
-    isTypeDef?: boolean;
-    isReference?: boolean;
-    isStream?: boolean;
-    isErrorUnion?: boolean;
-    typeInfo?: NonPrimitiveBal;
-    hide?: boolean;
-    aiSuggestion?: string;
-    noCodeGen?: boolean;
-    requestName?: string; // only for http form used when there's a request object in the request
-    tooltip?: string;
-    tooltipActionLink?: string;
-    tooltipActionText?: string;
-    isErrorType?: boolean;
-    isRestParam?: boolean; // TODO: unified rest params
-    hasRestType?: boolean;
-    isRestType?: boolean;
-    customAutoComplete?: string[];
-    validationRegex?: any;
-    leftTypeParam?: any;
-    rightTypeParam?: any;
-    initialDiagnostics?: DiagramDiagnostic[];
-    documentation?: string;
-    displayAnnotation?: any;
-    position?: NodePosition;
-    selected?: boolean;
-}
-export interface FormFieldReturnType {
-    hasError: boolean;
-    hasReturn: boolean;
-    returnType: string;
-    importTypeInfo?: NonPrimitiveBal[];
 }
 export interface CurrentFile {
     content: string;

@@ -64,7 +64,8 @@ export function getProfileArguments(args: readonly string[]) {
 	}
 
 	if (!hasArg('user-data-dir', args)) {
-		out.push(`--user-data-dir=${path.join(defaultCachePath, 'user-data')}`);
+		out.push(`--user-data-dir=${path.join('/tmp', 'vscode-user-data')}`);
+		// out.push(`--user-data-dir=${path.join(defaultCachePath, 'user-data')}`);
 	}
 
 	return out;

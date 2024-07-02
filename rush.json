@@ -510,11 +510,11 @@
     //   "projectFolder": "workspaces/ballerina/service-designer",
     //   "versionPolicyName": "ballerina-extension"
     // },
-    // {
-    //   "packageName": "@wso2-enterprise/ballerina-low-code-diagram",
-    //   "projectFolder": "workspaces/ballerina/low-code-diagram",
-    //   "versionPolicyName": "ballerina-extension"
-    // },
+    {
+      "packageName": "@wso2-enterprise/ballerina-low-code-diagram",
+      "projectFolder": "workspaces/ballerina/ballerina-low-code-diagram",
+      "versionPolicyName": "ballerina-extension"
+    },
     {
       "packageName": "@wso2-enterprise/sequence-diagram",
       "projectFolder": "workspaces/ballerina/sequence-diagram",
