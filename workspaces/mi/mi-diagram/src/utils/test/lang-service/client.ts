@@ -15,11 +15,13 @@ const { spawn } = require('child_process');
 const { StreamMessageReader, StreamMessageWriter, createMessageConnection } = require('vscode-jsonrpc');
 
 const extensionRoot = path.join(__dirname, "..", "..", "..", "..", "..", "mi-extension");
-export class LanguageClient implements IMILangClient{
+export class LanguageClient implements IMILangClient {
     connection: any;
+    lsProcess: any;
 
     constructor() {
         this.connection = null;
+        this.lsProcess = null;
     }
 
     async start() {
@@ -40,22 +42,18 @@ export class LanguageClient implements IMILangClient{
         }
 
         // Start the language server
-        const lsProcess = spawn(executable, [...args, main]);
+        this.lsProcess = spawn(executable, [...args, main]);
 
-        const reader = new StreamMessageReader(lsProcess.stdout);
-        const writer = new StreamMessageWriter(lsProcess.stdin);
+        const reader = new StreamMessageReader(this.lsProcess.stdout);
+        const writer = new StreamMessageWriter(this.lsProcess.stdin);
 
         this.connection = createMessageConnection(reader, writer);
 
         this.connection.listen();
         await this.initialize();
 
-        lsProcess.stderr.on('data', (data: any) => {
+        this.lsProcess.stderr.on('data', (data: any) => {
             console.error(`Language Server Error: ${data}`);
-        });
-
-        lsProcess.on('close', (code: any) => {
-            console.log(`Language Server exited with code ${code}`);
         });
     }
 
@@ -154,6 +152,7 @@ export class LanguageClient implements IMILangClient{
 
     stop() {
         if (this.connection) {
+            this.lsProcess.kill();
             this.connection.dispose();
         }
     }

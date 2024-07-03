@@ -21,8 +21,8 @@ describe('Language Server Tests', () => {
         langClient = client;
     }, 100000); 
 
-    afterAll(() => {
-        langClient.stop();
+    afterAll(async () => {
+        await langClient.stop();
     });
 
     test('Get Syntax Tree', async (done) => {
