@@ -113,9 +113,6 @@ export class NodeFactoryVisitor implements BaseVisitor {
             node.viewState.y + node.viewState.ch - EMPTY_NODE_WIDTH / 2
         ); // TODO: move this logic to PositionVisitor
 
-        // const endIfEmptyNode = this.nodes.find((n) => n.getID() === `${node.id}-endif`);
-        // console.log(">>> endIfEmptyNode", {endIfEmptyNode, nodes: this.nodes, id: `${node.id}-endif`});
-
         let endIfLinkCount = 0;
         node.branches?.forEach((branch) => {
             if (!branch.children || branch.children.length === 0) {
@@ -179,11 +176,9 @@ export class NodeFactoryVisitor implements BaseVisitor {
         this.lastNodeModel = undefined;
     }
 
-    beginVisitEmpty(node: Node, parent?: Node): void {
-        // let branchEmptyNode = this.createEmptyNode(node.id, true);
-        // branchEmptyNode.setPosition(node.viewState.x, node.viewState.y);
-        this.createBaseNode(node);
-    }
+    // beginVisitEmpty(node: Node, parent?: Node): void {
+    //     this.createBaseNode(node);
+    // }
 
     skipChildren(): boolean {
         return this.skipChildrenVisit;

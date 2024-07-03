@@ -90,7 +90,6 @@ export class SizingVisitor implements BaseVisitor {
             height += NODE_GAP_Y;
         }
 
-        // console.log(">>> if size", { node, width, height });
         this.setNodeSize(node, IF_NODE_WIDTH, IF_NODE_WIDTH, width, height);
     }
 
@@ -110,7 +109,6 @@ export class SizingVisitor implements BaseVisitor {
                 }
             });
         }
-        // console.log(">>> block size", { node, width, height });
         this.setNodeSize(node, width, height);
     }
 
