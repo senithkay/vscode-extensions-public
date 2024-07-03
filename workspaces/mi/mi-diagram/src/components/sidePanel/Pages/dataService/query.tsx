@@ -94,7 +94,23 @@ const QueryForm = (props: AddMediatorProps) => {
         updatedQuery.keyColumns = values.keyColumns;
         updatedQuery.hashasQueryProperties = queryProperties.length > 0;
 
-        let xml = getXML(DATA_SERVICE.EDIT_QUERY, updatedQuery).replace(/^\s*[\r\n]/gm, '');
+        let queryType = "";
+        const existingDataService = await rpcClient.getMiDiagramRpcClient().getDataService({ path: props.documentUri });
+        existingDataService.datasources.forEach((ds) => {
+            if (ds.dataSourceName === values.datasource) {
+                const propertyKeys: string[]  = [];
+                ds.datasourceProperties.forEach((attr:any) => {
+                    propertyKeys.push(attr.key);
+                });
+                if (propertyKeys.includes("mongoDB_servers")) {
+                    queryType = "expression";
+                } else {
+                    queryType = "sql";
+                }
+            }
+        });
+
+        let xml = getXML(DATA_SERVICE.EDIT_QUERY, {...updatedQuery, queryType}).replace(/^\s*[\r\n]/gm, '');
         const range = sidePanelContext?.formValues?.queryObject.range;
         await rpcClient.getMiDiagramRpcClient().applyEdit({
             text: xml, documentUri: props.documentUri,
@@ -195,7 +211,7 @@ const QueryForm = (props: AddMediatorProps) => {
                         name="sqlQuery"
                         control={control}
                         render={({ field }) => (
-                            <TextArea {...field} label="SQL Query" placeholder="" />
+                            <TextArea {...field} label="Query / Expression" placeholder="" />
                         )}
                     />
                     {errors.sqlQuery && <Error>{errors.sqlQuery.message.toString()}</Error>}
