@@ -17,7 +17,7 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { MI_ARTIFACT_EDIT_BACKEND_URL, MI_ARTIFACT_GENERATION_BACKEND_URL, MI_SUGGESTIVE_QUESTIONS_BACKEND_URL } from "../../constants";
 import { Collapse } from 'react-collapse';
 import { AI_MACHINE_VIEW } from '@wso2-enterprise/mi-core';
-import { VSCodeButton, VSCodeTextField } from '@vscode/webview-ui-toolkit/react';
+import { VSCodeButton, VSCodeTextArea, VSCodeTextField } from '@vscode/webview-ui-toolkit/react';
 import styled from "@emotion/styled";
 
 import {
@@ -498,6 +498,10 @@ export function AIProjectGenerationChat() {
             });
             console.error('Network error:', error);
         }
+
+        // Remove the user uploaded file after sending it to the backend
+        handleRemoveFile();
+
         const reader = response.body?.getReader();
         const decoder = new TextDecoder();
         let result = '';
@@ -728,7 +732,8 @@ export function AIProjectGenerationChat() {
     const otherMessages = messages.filter(message => message.type !== "question");
 
     const handleTextKeydown = (event: any) => {
-        if (event.key === "Enter" && userInput !== "") {
+        if (event.key === "Enter" && !event.shiftKey && userInput !== "") {
+            event.preventDefault();
             handleSend(false, false);
             setUserInput("");
         }
@@ -872,45 +877,50 @@ export function AIProjectGenerationChat() {
                 </>
                 ))}
                 {uploadedFile && uploadedFile.fileName && (
-                    <FlexRow >
+                    <FlexRow style={{ alignItems: 'center' }}>
                         <span>{uploadedFile.fileName}</span>
-                        <VSCodeButton
-                            appearance="secondary"
+                        <Button
+                            appearance="icon"
                             onClick={handleRemoveFile}
-                            style={{ marginLeft: '10px', backgroundColor: '#1C1C1C' }}
                         >
                             <span className="codicon codicon-close"></span>
-                        </VSCodeButton>
+                        </Button>
                     </FlexRow>
                 )}
                 <FlexRow>
-                    <Button
+                    <VSCodeButton
                         appearance="secondary"
                         onClick={() => document.getElementById('fileInput').click()}
-                        tooltip="Upload File"
-                    >
-                        <span className="codicon codicon-new-file"></span>
-                    </Button>
+                        style={{ width: "35px", marginBottom: "4px" }}>
+                        <span className={`codicon codicon-new-file`}></span>
+                    </VSCodeButton>
                     <input
                         id="fileInput"
                         type="file"
                         style={{ display: "none" }}
                         onChange={(e: any) => handleFileAttach(e)}
                     />
-                    <VSCodeTextField
+                    <VSCodeTextArea
                         value={userInput}
-                        onInput={(e: any) => setUserInput(e.target.value)}
+                        onInput={(e: any) => {
+                            setUserInput(e.target.value);
+                            // Dynamically adjust the number of rows based on the input length
+                            const lines = e.target.value.split('\n').length;
+                            const maxLines = 8;
+                            e.target.rows = lines < maxLines ? lines : maxLines;
+                        }}
                         onKeyDown={(event: any) => handleTextKeydown(event)}
-                        placeholder="Type a command to test"
+                        placeholder="Type a command"
                         innerHTML="true"
-                        style={{ width: "calc(100% - 35px)" }}
+                        style={{ width: "calc(100% - 35px)", overflowY: 'auto' }} // Add overflowY for scrolling
+                        rows={1} // Start with a single row
                         {...(isLoading ? { disabled: true } : {})}
                     >
-                    </VSCodeTextField>
+                    </VSCodeTextArea>
                     <VSCodeButton
                         appearance="secondary"
                         onClick={() => isLoading ? handleStop() : handleSend(false, false)}
-                        style={{ width: "35px" }}>
+                        style={{ width: "35px", marginBottom: "4px" }}>
                         <span className={`codicon ${isLoading ? 'codicon-debug-stop' : 'codicon-send'}`}></span>
                     </VSCodeButton>
                 </FlexRow>

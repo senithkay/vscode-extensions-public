@@ -12,9 +12,11 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { parseString } from 'xml2js';
 import { v4 as uuidv4 } from 'uuid';
-import { rootPomXmlContent } from './templates';
-import { createFolderStructure } from '.';
+import { dockerfileContent, rootPomXmlContent } from './templates';
+import { createFolderStructure, copyDockerResources } from '.';
 import { commands, Uri, window } from 'vscode';
+import { extension } from '../MIExtensionContext';
+import { XMLParser, XMLBuilder } from "fast-xml-parser";
 
 enum Nature {
     MULTIMODULE,
@@ -61,17 +63,29 @@ export function importProject(params: ImportProjectRequest): ImportProjectRespon
                             'connectors': '',
                         },
                     },
-                    'test': {
-                        'wso2mi': '',
-                    }
                 },
+                'test': {
+                    'wso2mi': '',
+                    'resources': {
+                        "mock-services": '',
+                    }
+                }
+            },
+            'deployment': {
+                'docker': {
+                    'Dockerfile': dockerfileContent(),
+                    'resources': ''
+                },
+                'libs': '',
             },
         };
 
-        const destinationFolderPath = path.join(source,".backup");
+        const destinationFolderPath = path.join(source, ".backup");
         moveFiles(source, destinationFolderPath);
 
         createFolderStructure(directory, folderStructure);
+        copyDockerResources(extension.context.asAbsolutePath(path.join('resources', 'docker-resources')), directory);
+
         console.log("Created project structure for project: " + projectName)
         migrateConfigs(path.join(source, ".backup"), directory);
 
@@ -177,7 +191,7 @@ function copyConfigsToNewProjectStructure(nature: Nature, source: string, target
         case Nature.ESB:
             processArtifactsFolder(source, target);
             processMetaDataFolder(source, target);
-            // processTestsFolder(source, target)
+            processTestsFolder(source, target)
             break;
         case Nature.DATASOURCE:
             processDataSourcesFolder(source, target);
@@ -300,44 +314,153 @@ function processRegistryResources(source: string, target: string) {
             }
             const sourceFile = path.join(source, fileName);
             const targetFile = path.join(targetAbsolutePath, fileName);
-            fs.mkdir(targetAbsolutePath, { recursive: true }, err => {
-                if (err) {
-                    console.error(`Failed to create folder structure ${targetAbsolutePath}`, err);
-                } else {
-                    copyFile(sourceFile, targetFile);
-                }
-            });
+            try {
+                fs.mkdirSync(targetAbsolutePath, { recursive: true });
+                copyFile(sourceFile, targetFile);
+            } catch (err) {
+                console.error(`Failed to create folder structure ${targetAbsolutePath}`, err);
+            }
         });
-
     });
 }
 
 function processTestsFolder(source: string, target: string) {
     const oldTestPath = path.join(source, 'test');
-    const newTestPath = path.join(target, 'src', 'main', 'test', 'wso2mi');
+    const newTestPath = path.join(target, 'src', 'test', 'wso2mi');
+    copy(oldTestPath, newTestPath);
+    const oldResPath = path.join(oldTestPath, 'resources', 'mock-services');
+    const newResPath = path.join(target, 'src', 'test', 'resources', 'mock-services');
+    copy(oldResPath, newResPath);
+    fixTestFilePaths(target);
+}
 
-    copy(oldTestPath, newTestPath)
+function fixTestFilePaths(source: string) {
+    const testPath = path.join(source, 'src', 'test', 'wso2mi');
+    const items = fs.readdirSync(testPath, { withFileTypes: true });
+    const options = {
+        ignoreAttributes: false,
+        attributeNamePrefix: "@",
+        parseTagValue: true,
+        format: true,
+    };
+    const parser = new XMLParser(options);
+    items.forEach(item => {
+        if (!item.isDirectory()) {
+            const filePath = path.join(testPath, item.name);
+            const fileContent = fs.readFileSync(filePath, 'utf-8');
+            const jsonData = parser.parse(fileContent);
+            if (jsonData['unit-test']['artifacts']) {
+                let artifacts = jsonData['unit-test']['artifacts'];
+                let testArtifact = artifacts['test-artifact']['artifact'];
+                if (testArtifact) {
+                    artifacts['test-artifact']['artifact'] = updateArtifactPath(testArtifact);
+                }
+                let supportArtifact = artifacts['supportive-artifacts'];
+                if (supportArtifact) {
+                    let supportArtifactArr = supportArtifact["artifact"];
+                    if (supportArtifactArr && Array.isArray(supportArtifactArr)) {
+                        supportArtifactArr.forEach((supportArtifact, index) => {
+                            supportArtifactArr[index] = updateArtifactPath(supportArtifact);
+                        });
+                    } else if (supportArtifactArr) {
+                        supportArtifact["artifact"] = updateArtifactPath(supportArtifactArr);
+                    }
+                }
+                let registryResources = artifacts['registry-resources'];
+                if (registryResources) {
+                    const registryResourcesArr = registryResources["registry-resource"];
+                    if (registryResourcesArr && Array.isArray(registryResourcesArr)) {
+                        registryResourcesArr.forEach(registryResource => {
+                            updateRegistryArtifactPath(registryResource);
+                        });
+                    } else if (registryResourcesArr) {
+                        updateRegistryArtifactPath(registryResourcesArr);
+                    }
+                }
+                let connectorResources = artifacts['connector-resources'];
+                if (connectorResources) {
+                    let connectorResourcesArr = connectorResources["connector-resource"];
+                    if (connectorResourcesArr && Array.isArray(connectorResourcesArr)) {
+                        connectorResourcesArr.forEach((connectorResource, index) => {
+                            connectorResourcesArr[index] = updateConnectorPath(connectorResource);
+                        });
+                    } else if (connectorResourcesArr) {
+                        connectorResources["connector-resource"] = updateConnectorPath(connectorResourcesArr);
+                    }
+                }
+            }
+            let mockServices = jsonData["unit-test"]["mock-services"]
+            if (mockServices) {
+                let mockServicesArr = mockServices["mock-service"];
+                if (mockServicesArr && Array.isArray(mockServicesArr)) {
+                    mockServicesArr.forEach((mockService, index) => {
+                        mockServicesArr[index] = updateMockServicePath(mockService);
+                    });
+                } else if (mockServicesArr) {
+                    mockServices["mock-service"] = updateMockServicePath(mockServicesArr);
+                }
+            }
+            const builder = new XMLBuilder(options);
+            const updatedXmlString = builder.build(jsonData);
+            fs.writeFileSync(filePath, updatedXmlString);
+        }
+    });
+}
+
+function updateArtifactPath(artifact: any): string {
+    let index = artifact.lastIndexOf("/src/main/synapse-config/");
+    index += "/src/main/synapse-config/".length;
+    artifact = artifact.substring(index);
+    if (artifact.startsWith("api")) {
+        artifact = artifact.substring("api".length);
+        artifact = "apis" + artifact;
+    }
+    return `src/main/wso2mi/artifacts/${artifact}`;
+}
+
+function updateConnectorPath(connector: any): string {
+    let index = connector.lastIndexOf("/");
+    connector = connector.substring(index + 1);
+    return `src/main/wso2mi/resources/connectors/${connector}`;
+}
+
+function updateMockServicePath(mockService: any): string {
+    let index = mockService.lastIndexOf("/test/resources/mock-services/");
+    index += "/test/resources/mock-services/".length;
+    mockService = mockService.substring(index);
+    return `src/test/resources/mock-services/${mockService}`;
+}
+
+function updateRegistryArtifactPath(registryResource: any) {
+    let registryResourcePath = registryResource['registry-path'];
+    const newRegPath = "src/main/wso2mi/resources/registry/";
+    if (registryResourcePath.startsWith("/_system/governance")) {
+        registryResourcePath = registryResourcePath.substring("/_system/governance".length);
+        registryResourcePath = newRegPath + "gov" + registryResourcePath + "/" + registryResource['file-name'];
+    } else if (registryResourcePath.startsWith("/_system/config")) {
+        registryResourcePath = registryResourcePath.substring("/_system/config".length);
+        registryResourcePath = newRegPath + "conf" + registryResourcePath + "/" + registryResource['file-name'];
+    }
+    registryResource['artifact'] = registryResourcePath;
 }
 
 function copy(source: string, target: string) {
-    fs.readdir(source, (err, files) => {
-        if (err) {
-            console.error(`Failed to list contents of the folder: ${source}`, err);
-            return;
+    const files = fs.readdirSync(source);
+    files.forEach(file => {
+        const sourceItemPath = path.join(source, file);
+        const destinationItemPath = path.join(target, file);
+        if (!fs.statSync(sourceItemPath).isDirectory()) {
+            copyFile(sourceItemPath, destinationItemPath);
         }
-
-        files.forEach(file => {
-            copyFile(path.join(source, file), path.join(target, file))
-        });
     });
 }
 
 function copyFile(sourcePath: string, targetPath: string) {
-    fs.copyFile(sourcePath, targetPath, err => {
-        if (err) {
-            console.error(`Failed to copy file from ${sourcePath} to ${targetPath}`, err);
-        }
-    });
+    try {
+        fs.copyFileSync(sourcePath, targetPath);
+    } catch (err) {
+        console.error(`Failed to copy file from ${sourcePath} to ${targetPath}`, err);
+    }
 }
 
 function moveFiles(sourcePath: string, destinationPath: string) {

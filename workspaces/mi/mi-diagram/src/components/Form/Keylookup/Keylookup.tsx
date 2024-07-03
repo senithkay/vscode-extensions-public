@@ -41,7 +41,8 @@ export type FilterType =
     | "yaml"
     | "registry"
     | "mockService"
-    | "dssQuery";
+    | "dssQuery"
+    | "dssDataSource"
 
 // Interfaces
 interface IKeylookupBase {
@@ -212,6 +213,21 @@ export const Keylookup = (props: IKeylookup) => {
                 });
             }
             setItems(queryNames);
+            return;
+        }
+
+        if (filterType === "dssDataSource") {
+            const machineView = await rpcClient.getVisualizerState();
+            const dsSyntaxTree = await rpcClient.getMiDiagramRpcClient().getSyntaxTree({ documentUri: machineView.documentUri });
+            const dataServiceConfigs = dsSyntaxTree.syntaxTree.data.configs;
+            const configNames: string[] = [];
+
+            if (dataServiceConfigs != undefined) {
+                dataServiceConfigs.forEach((config: any) => {
+                    configNames.push(config.id);
+                });
+            }
+            setItems(configNames);
             return;
         }
 

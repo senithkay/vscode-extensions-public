@@ -11,31 +11,16 @@ import React from "react";
 import SwaggerUI from "swagger-ui-react";
 import { parse } from "yaml";
 import { View } from "./components/View";
-import "swagger-ui-react/swagger-ui.css"
-import { SwaggerData, vscode } from "@wso2-enterprise/mi-core";
-
-interface Request {
-    url: string,
-    headers: string,
-    method: string,
-    body?: string,
-}
-
-interface Response {
-    status: number,
-    statusText: string,
-    data?: string,
-    text?: string,
-    body?: string,
-    obj?: string,
-    headers?: Record<string, string>,
-}
+import '@wso2-enterprise/ui-toolkit/src/styles/swagger/main.scss';
+import { SwaggerData, Request, Response } from "@wso2-enterprise/mi-core";
+import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 
 interface SwaggerPanelProps {
     swaggerData?: SwaggerData
 }
 
 export function SwaggerPanel(props: SwaggerPanelProps) {
+    const { rpcClient } = useVisualizerContext();
     const { generatedSwagger, port } = props?.swaggerData;
 
     const proxy = `http://localhost:${port}/`;
@@ -51,28 +36,19 @@ export function SwaggerPanel(props: SwaggerPanelProps) {
             body: req.body,
         }
 
-        vscode.postMessage({
-            command: 'swaggerRequest',
-            req: request
-        });
-
-        const res = await new Promise(resolve => {
-            window.addEventListener('message', event => {
-                const message = event.data;
-                switch (message.command) {
-                    case 'swaggerResponse':
-                        if (!message.res) {
-                            resolve(false);
-                        }
-                        response = message.res;
-                        resolve(response);
+        const proxyResponse = await rpcClient.getMiVisualizerRpcClient()
+            .sendSwaggerProxyRequest({ command: 'swaggerRequest', request: request }).then((swaggerReponse) => {
+                if (swaggerReponse?.isResponse && swaggerReponse?.response !== undefined) {
+                    response = swaggerReponse.response;
+                    req.url = proxy;
+                    return req;
                 }
-            })
-        });
-        if (res) {
+            });
+
+        if (proxyResponse) {
             req.url = proxy;
+            return req;
         }
-        return req;
     }
 
     function responseInterceptor(res: any) {
@@ -85,14 +61,13 @@ export function SwaggerPanel(props: SwaggerPanelProps) {
         res.obj = response.obj;
         res.headers = response.headers;
         delete res.parseError
-
         return res;
     }
 
     // TODO: Support SwaggerUI for darkThemes
     return (
         <View>
-            <div style={{ overflow: 'scroll', background: 'white', height: '100%' }}>
+            <div style={{ overflow: 'scroll', padding:'20px', height: '100%' }}>
                 <SwaggerUI requestInterceptor={requestInterceptor}
                     responseInterceptor={responseInterceptor} spec={openapiSpec} showMutatedRequest={false} />
             </div>

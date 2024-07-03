@@ -38,10 +38,10 @@ export const DataMapperPortWidget: React.FC<DataMapperPortWidgetProps> = (props:
 
 	const isDisabled = disable || (port instanceof InputOutputPortModel && port.isDisabled());
 
-	const { setExprBarFocusedPort, setExprBarInputPort, resetExprBarFocusedPort } = useDMExpressionBarStore(state => ({
+	const { setExprBarFocusedPort, setExprBarInputPort, resetExprBarFocus } = useDMExpressionBarStore(state => ({
 		setExprBarFocusedPort: state.setFocusedPort,
 		setExprBarInputPort: state.setInputPort,
-		resetExprBarFocusedPort: state.resetFocusedPort
+		resetExprBarFocus: state.resetFocus
 	}));
 
 	const hasLinks = Object.entries(port.links).length > 0;
@@ -72,13 +72,13 @@ export const DataMapperPortWidget: React.FC<DataMapperPortWidgetProps> = (props:
 						setPortState(PortState.PortSelected);
 						if (handlePortState) {
 							handlePortState(PortState.PortSelected);
-							resetExprBarFocusedPort();
+							resetExprBarFocus();
 						}
 					} else if (event.function === "link-selected") {
 						setPortState(PortState.LinkSelected);
 						if (handlePortState) {
 							handlePortState(PortState.LinkSelected);
-							resetExprBarFocusedPort();
+							resetExprBarFocus();
 						}
 					} else if (event.function === "link-unselected"
 						|| event.function === "mappingStartedFromSelectedAgain") {
@@ -86,7 +86,7 @@ export const DataMapperPortWidget: React.FC<DataMapperPortWidgetProps> = (props:
 						if (handlePortState) {
 							handlePortState(PortState.Unselected);
 						}
-						resetExprBarFocusedPort();
+						resetExprBarFocus();
 					} else if (event.function === "expressionBarFocused") {
 						addExprBarFocusedPort();
 					} else if (event.function === "addToExpression") {

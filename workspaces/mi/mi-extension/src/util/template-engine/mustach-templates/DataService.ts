@@ -157,29 +157,29 @@ export interface Resource {
 
 export function getDataServiceCreateMustacheTemplate() {
     return `
-<data name="{{dataServiceName}}" serviceNamespace="{{dataServiceNamespace}}" serviceGroup="{{serviceGroup}}" transports="{{selectedTransports}}" {{#publishSwagger}}publishSwagger="{{publishSwagger}}"{{/publishSwagger}} {{#jndiName}}txManagerJNDIName="{{jndiName}}"{{/jndiName}} {{#enableBoxcarring}}enableBoxcarring="{{enableBoxcarring}}"{{/enableBoxcarring}} {{#enableBatchRequests}}enableBatchRequests="{{enableBatchRequests}}"{{/enableBatchRequests}} {{#serviceStatus}}serviceStatus="active"{{/serviceStatus}} {{#disableLegacyBoxcarringMode}}disableLegacyBoxcarringMode="{{disableLegacyBoxcarringMode}}"{{/disableLegacyBoxcarringMode}} {{#enableStreaming}}disableStreaming="true"{{/enableStreaming}}>
+<data name="{{dataServiceName}}" serviceNamespace="{{dataServiceNamespace}}" serviceGroup="{{{serviceGroup}}}" transports="{{selectedTransports}}" {{#publishSwagger}}publishSwagger="{{{publishSwagger}}}"{{/publishSwagger}} {{#jndiName}}txManagerJNDIName="{{jndiName}}"{{/jndiName}} {{#enableBoxcarring}}enableBoxcarring="{{enableBoxcarring}}"{{/enableBoxcarring}} {{#enableBatchRequests}}enableBatchRequests="{{enableBatchRequests}}"{{/enableBatchRequests}} {{#serviceStatus}}serviceStatus="active"{{/serviceStatus}} {{#disableLegacyBoxcarringMode}}disableLegacyBoxcarringMode="{{disableLegacyBoxcarringMode}}"{{/disableLegacyBoxcarringMode}} {{#enableStreaming}}disableStreaming="true"{{/enableStreaming}}>
   {{#description}}<description>{{description}}</description>{{/description}}{{^description}}<description/>{{/description}}
   {{#datasources}}
   <config id="{{dataSourceName}}" {{#enableOData}}enableOData="{{enableOData}}"{{/enableOData}}>
     {{#datasourceProperties}}
-    <property name="{{key}}">{{value}}</property>
+    <property name="{{key}}">{{{value}}}</property>
     {{/datasourceProperties}}
-    {{#dynamicUserAuthClass}}<property name="dynamicUserAuthClass">{{dynamicUserAuthClass}}</property>{{/dynamicUserAuthClass}}
+    {{#dynamicUserAuthClass}}<property name="dynamicUserAuthClass">{{{dynamicUserAuthClass}}}</property>{{/dynamicUserAuthClass}}
     {{#dynamicUserAuthMapping}}<property name="dynamicUserAuthMapping">
       <configuration>
         {{#datasourceConfigurations}}
-        <entry request="{{carbonUsername}}">
-          <username>{{username}}</username>
-          <password>{{password}}</password>
+        <entry request="{{{carbonUsername}}}">
+          <username>{{{username}}}</username>
+          <password>{{{password}}}</password>
         </entry>
         {{/datasourceConfigurations}}
       </configuration>
     </property>{{/dynamicUserAuthMapping}}
   </config>
   {{/datasources}}
-  {{#authProviderClass}}<authorization_provider class="{{authProviderClass}}">
+  {{#authProviderClass}}<authorization_provider class="{{{authProviderClass}}}">
     {{#authProperties}}
-    <property name="{{key}}">{{value}}</property>
+    <property name="{{key}}">{{{value}}}</property>
     {{/authProperties}}
   </authorization_provider>{{/authProviderClass}}
 </data>`;
@@ -187,20 +187,20 @@ export function getDataServiceCreateMustacheTemplate() {
 
 export function getDataServiceEditMustacheTemplate() {
     return `
-<data name="{{dataServiceName}}" serviceNamespace="{{dataServiceNamespace}}" serviceGroup="{{serviceGroup}}" transports="{{selectedTransports}}" {{#publishSwagger}}publishSwagger="{{publishSwagger}}"{{/publishSwagger}} {{#jndiName}}txManagerJNDIName="{{jndiName}}"{{/jndiName}} {{#enableBoxcarring}}enableBoxcarring="{{enableBoxcarring}}"{{/enableBoxcarring}} {{#enableBatchRequests}}enableBatchRequests="{{enableBatchRequests}}"{{/enableBatchRequests}} {{#serviceStatus}}serviceStatus="active"{{/serviceStatus}} {{#disableLegacyBoxcarringMode}}disableLegacyBoxcarringMode="{{disableLegacyBoxcarringMode}}"{{/disableLegacyBoxcarringMode}} {{#enableStreaming}}disableStreaming="true"{{/enableStreaming}}>
+<data name="{{dataServiceName}}" serviceNamespace="{{dataServiceNamespace}}" serviceGroup="{{{serviceGroup}}}" transports="{{selectedTransports}}" {{#publishSwagger}}publishSwagger="{{{publishSwagger}}}"{{/publishSwagger}} {{#jndiName}}txManagerJNDIName="{{jndiName}}"{{/jndiName}} {{#enableBoxcarring}}enableBoxcarring="{{enableBoxcarring}}"{{/enableBoxcarring}} {{#enableBatchRequests}}enableBatchRequests="{{enableBatchRequests}}"{{/enableBatchRequests}} {{#serviceStatus}}serviceStatus="active"{{/serviceStatus}} {{#disableLegacyBoxcarringMode}}disableLegacyBoxcarringMode="{{disableLegacyBoxcarringMode}}"{{/disableLegacyBoxcarringMode}} {{#enableStreaming}}disableStreaming="true"{{/enableStreaming}}>
   {{#description}}<description>{{description}}</description>{{/description}}{{^description}}<description/>{{/description}}
   {{#datasources}}
   <config id="{{dataSourceName}}" {{#enableOData}}enableOData="{{enableOData}}"{{/enableOData}}>
     {{#datasourceProperties}}
-    <property name="{{key}}">{{value}}</property>
+    <property name="{{key}}">{{{value}}}</property>
     {{/datasourceProperties}}
-    {{#dynamicUserAuthClass}}<property name="dynamicUserAuthClass">{{dynamicUserAuthClass}}</property>{{/dynamicUserAuthClass}}
+    {{#dynamicUserAuthClass}}<property name="dynamicUserAuthClass">{{{dynamicUserAuthClass}}}</property>{{/dynamicUserAuthClass}}
     {{#dynamicUserAuthMapping}}<property name="dynamicUserAuthMapping">
       <configuration>
         {{#datasourceConfigurations}}
-        <entry request="{{carbonUsername}}">
-          <username>{{username}}</username>
-          <password>{{password}}</password>
+        <entry request="{{{carbonUsername}}}">
+          <username>{{{username}}}</username>
+          <password>{{{password}}}</password>
         </entry>
         {{/datasourceConfigurations}}
       </configuration>
@@ -216,12 +216,46 @@ export function getDataServiceEditMustacheTemplate() {
   {{#operations}}
   {{{.}}}
   {{/operations}}
-  {{#authProviderClass}}<authorization_provider class="{{authProviderClass}}">
+  {{#authProviderClass}}<authorization_provider class="{{{authProviderClass}}}">
     {{#authProperties}}
-    <property name="{{key}}">{{value}}</property>
+    <property name="{{key}}">{{{value}}}</property>
     {{/authProperties}}
   </authorization_provider>{{/authProviderClass}}
 </data>`;
+}
+
+export function getDataSourceMustacheTemplate() {
+    return `
+    <config id="{{dataSourceName}}" {{#enableOData}}enableOData="{{enableOData}}"{{/enableOData}}>
+    {{#datasourceProperties}}
+    <property name="{{key}}">{{{value}}}</property>
+    {{/datasourceProperties}}
+    {{#dynamicUserAuthClass}}<property name="dynamicUserAuthClass">{{{dynamicUserAuthClass}}}</property>{{/dynamicUserAuthClass}}
+    {{#dynamicUserAuthMapping}}<property name="dynamicUserAuthMapping">
+      <configuration>
+        {{#datasourceConfigurations}}
+        <entry request="{{{carbonUsername}}}">
+          <username>{{{username}}}</username>
+          <password>{{{password}}}</password>
+        </entry>
+        {{/datasourceConfigurations}}
+      </configuration>
+    </property>{{/dynamicUserAuthMapping}}
+  </config>`;
+}
+
+export function getDataSourceXml(data: Datasource) {
+
+    data.enableOData = data.enableOData ? data.enableOData : null;
+    if (data.datasourceConfigurations != null && data.datasourceConfigurations.length > 0) {
+        data.dynamicUserAuthMapping = true;
+    } else {
+        data.dynamicUserAuthMapping = null;
+    }
+
+    assignNullToEmptyStrings(data);
+
+    return render(getDataSourceMustacheTemplate(), data);
 }
 
 export function getDataServiceXml(data: DataServiceArgs) {
@@ -257,14 +291,10 @@ export function getDataServiceXml(data: DataServiceArgs) {
 
     assignNullToEmptyStrings(data);
 
-    const modifiedData = {
-        ...data
-    };
-
     if (data.writeType === 'edit') {
-        return render(getDataServiceEditMustacheTemplate(), modifiedData);
+        return render(getDataServiceEditMustacheTemplate(), data);
     } else {
-        return render(getDataServiceCreateMustacheTemplate(), modifiedData);
+        return render(getDataServiceCreateMustacheTemplate(), data);
     }
 }
 

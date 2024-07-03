@@ -15,17 +15,9 @@ import SidePanelContext from '../../SidePanelContexProvider';
 import { AddMediatorProps } from '../mediators/common';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../utils/template-engine/mustach-templates/templateUtils';
-import { MEDIATORS } from '../../../../resources/constants';
 import { Controller, useForm } from 'react-hook-form';
 import { sidepanelGoBack } from '../..';
-
-const cardStyle = { 
-    display: "block",
-    margin: "15px 0",
-    padding: "0 15px 15px 15px",
-    width: "auto",
-    cursor: "auto"
-};
+import { DATA_SERVICE } from "../../../../resources/constants";
 
 const Error = styled.span`
    color: var(--vscode-errorForeground);
@@ -42,7 +34,7 @@ const TransformationForm = (props: AddMediatorProps) => {
     const [ isLoading, setIsLoading ] = React.useState(true);
     const handleOnCancelExprEditorRef = useRef(() => { });
 
-    const { control, formState: { errors, dirtyFields }, handleSubmit, watch, reset } = useForm();
+    const { control, formState: { errors }, handleSubmit, watch, reset } = useForm();
 
     useEffect(() => {
         reset({
@@ -65,19 +57,32 @@ const TransformationForm = (props: AddMediatorProps) => {
     }, [sidePanelContext.pageStack]);
 
     const onClick = async (values: any) => {
-        
-        // const xml = getXML(MEDIATORS.TRANSFORMATION, values, dirtyFields, sidePanelContext.formValues);
-        // if (Array.isArray(xml)) {
-        //     for (let i = 0; i < xml.length; i++) {
-        //         await rpcClient.getMiDiagramRpcClient().applyEdit({
-        //             documentUri: props.documentUri, range: xml[i].range, text: xml[i].text
-        //         });
-        //     }
-        // } else {
-        //     rpcClient.getMiDiagramRpcClient().applyEdit({
-        //         documentUri: props.documentUri, range: props.nodePosition, text: xml
-        //     });
-        // }
+
+        const existingResult = sidePanelContext?.formValues.queryObject.result;
+        const updatedResult: any = {
+            outputType: values.outputType,
+            useColumnNumbers: values.useColumnNumbers,
+            escapeNonPrintableChar: values.escapeNonPrintableCharacters,
+            defaultNamespace: values.rowNamespace,
+            xsltPath: values.xsltPath,
+            rdfBaseURI: values.rdfBaseUri,
+            element: values.groupedElement,
+            rowName: values.rowName,
+            elements: existingResult?.elements ?? [],
+            attributes: existingResult?.attributes ?? [],
+            queries: existingResult?.queries ?? [],
+            complexElements: existingResult?.complexElements ?? []
+        }
+        const updatedQuery = sidePanelContext?.formValues.queryObject;
+        updatedQuery.result = updatedResult;
+
+        let xml = getXML(DATA_SERVICE.EDIT_QUERY, updatedQuery);
+        const range = sidePanelContext?.formValues?.queryObject.range;
+        await rpcClient.getMiDiagramRpcClient().applyEdit({
+            text: xml, documentUri: props.documentUri,
+            range: {start: range.startTagRange.start, end: range.endTagRange.end}
+        });
+
         sidePanelContext.setSidePanelState({
             ...sidePanelContext,
             isOpen: false,

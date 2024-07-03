@@ -90,6 +90,8 @@ import {
     CreateClassMediatorResponse,
     CreateDataServiceRequest,
     CreateDataServiceResponse,
+    CreateDssDataSourceRequest,
+    CreateDssDataSourceResponse,
     RetrieveDataServiceRequest,
     RetrieveDataServiceResponse,
     UpdateHttpEndpointRequest,
@@ -225,6 +227,7 @@ export const getWsdlEndpoint: RequestType<RetrieveWsdlEndpointRequest, RetrieveW
 export const updateDefaultEndpoint: RequestType<UpdateDefaultEndpointRequest, UpdateDefaultEndpointResponse> = { method: `${_preFix}/updateDefaultEndpoint` };
 export const getDefaultEndpoint: RequestType<RetrieveDefaultEndpointRequest, RetrieveDefaultEndpointResponse> = { method: `${_preFix}/getDefaultEndpoint` };
 export const createDataService: RequestType<CreateDataServiceRequest, CreateDataServiceResponse> = { method: `${_preFix}/createDataService` };
+export const createDssDataSource: RequestType<CreateDssDataSourceRequest, CreateDssDataSourceResponse> = { method: `${_preFix}/createDssDataSource` };
 export const getDataService: RequestType<RetrieveDataServiceRequest, RetrieveDataServiceResponse> = { method: `${_preFix}/getDataService` };
 export const closeWebView: NotificationType<void> = { method: `${_preFix}/closeWebView` };
 export const openDiagram: NotificationType<OpenDiagramRequest> = { method: `${_preFix}/openDiagram` };

@@ -16,7 +16,7 @@ import { useDMSearchStore, useDMSubMappingConfigPanelStore } from "../../../../s
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { InputOutputPortModel } from '../../Port';
 import { SUB_MAPPING_INPUT_SOURCE_PORT_PREFIX } from "../../utils/constants";
-import { SubMappingContainer } from '../commons/Tree/Tree';
+import { SharedContainer } from '../commons/Tree/Tree';
 import { DMSubMapping } from "./index";
 import { useIONodesStyles } from '../../../styles';
 import { SubMappingItemWidget } from './SubMappingItemWidget';
@@ -71,7 +71,6 @@ export function SubMappingTreeWidget(props: SubMappingTreeWidgetProps) {
         );
     }).filter(mapping => !!mapping);
 
-
     const onClickAddSubMapping = () => {
         setSubMappingConfig({
             isSMConfigPanelOpen: true,
@@ -83,12 +82,12 @@ export function SubMappingTreeWidget(props: SubMappingTreeWidgetProps) {
     return (
         <>
             {subMappingItems.length > 0 ? (
-                <SubMappingContainer data-testid={"sub-mapping-node"}>
+                <SharedContainer data-testid={"sub-mapping-node"}>
                     <SubMappingsHeader>
                         <HeaderText>Sub Mappings</HeaderText>
                     </SubMappingsHeader>
                     {subMappingItems}
-                </SubMappingContainer>
+                </SharedContainer>
             ) : !isFocusedView && !searchValue && (
                 <Button
                     className={classes.addSubMappingButton}

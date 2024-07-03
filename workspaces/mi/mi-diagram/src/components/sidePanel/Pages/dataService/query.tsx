@@ -15,12 +15,13 @@ import SidePanelContext from '../../SidePanelContexProvider';
 import { AddMediatorProps, openPopup } from '../mediators/common';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../utils/template-engine/mustach-templates/templateUtils';
-import { MEDIATORS } from '../../../../resources/constants';
 import { Controller, useForm } from 'react-hook-form';
 import { Keylookup } from '../../../Form';
 import { sidepanelGoBack } from '../..';
+import { DATA_SERVICE } from "../../../../resources/constants";
+import { EVENT_TYPE, MACHINE_VIEW } from '@wso2-enterprise/mi-core';
 
-const cardStyle = { 
+const cardStyle = {
     display: "block",
     margin: "15px 0",
     padding: "0 15px 15px 15px",
@@ -40,26 +41,30 @@ const Field = styled.div`
 const QueryForm = (props: AddMediatorProps) => {
     const { rpcClient } = useVisualizerContext();
     const sidePanelContext = React.useContext(SidePanelContext);
-    const [ isLoading, setIsLoading ] = React.useState(true);
+    const [isLoading, setIsLoading] = React.useState(true);
     const handleOnCancelExprEditorRef = useRef(() => { });
+    const initialQueryName = sidePanelContext?.formValues?.queryObject?.queryName || "";
 
-    const { control, formState: { errors, dirtyFields }, handleSubmit, watch, reset } = useForm();
+    const { control, formState: { errors }, handleSubmit, watch, reset } = useForm();
 
     useEffect(() => {
         reset({
             queryId: sidePanelContext?.formValues?.queryId || "",
             datasource: sidePanelContext?.formValues?.datasource || "",
             sqlQuery: sidePanelContext?.formValues?.sqlQuery || "",
-            timeout: sidePanelContext?.formValues?.timeout || "",
-            fetchDirection: sidePanelContext?.formValues?.fetchDirection || "Forward",
+            queryTimeout: sidePanelContext?.formValues?.queryTimeout || "",
+            fetchDirection: sidePanelContext?.formValues?.fetchDirection || "forward",
             fetchSize: sidePanelContext?.formValues?.fetchSize || "",
             maxFieldSize: sidePanelContext?.formValues?.maxFieldSize || "",
             maxRows: sidePanelContext?.formValues?.maxRows || "",
-            forceStoredProcedure: sidePanelContext?.formValues?.forceStoredProcedure || false,
+            returnGeneratedKeys: sidePanelContext?.formValues?.returnGeneratedKeys || false,
+            keyColumns: sidePanelContext?.formValues?.keyColumns || "",
+            returnUpdatedRowCount: sidePanelContext?.formValues?.returnUpdatedRowCount || false,
+            forceStoredProc: sidePanelContext?.formValues?.forceStoredProc || false,
             forceJdbcBatchRequests: sidePanelContext?.formValues?.forceJdbcBatchRequests || false,
         });
         setIsLoading(false);
-    }, [sidePanelContext.formValues]);
+    }, []);
 
     useEffect(() => {
         handleOnCancelExprEditorRef.current = () => {
@@ -68,19 +73,65 @@ const QueryForm = (props: AddMediatorProps) => {
     }, [sidePanelContext.pageStack]);
 
     const onClick = async (values: any) => {
-        
-        // const xml = getXML(MEDIATORS.QUERY, values, dirtyFields, sidePanelContext.formValues);
-        // if (Array.isArray(xml)) {
-        //     for (let i = 0; i < xml.length; i++) {
-        //         await rpcClient.getMiDiagramRpcClient().applyEdit({
-        //             documentUri: props.documentUri, range: xml[i].range, text: xml[i].text
-        //         });
-        //     }
-        // } else {
-        //     rpcClient.getMiDiagramRpcClient().applyEdit({
-        //         documentUri: props.documentUri, range: props.nodePosition, text: xml
-        //     });
-        // }
+
+        let queryProperties: any = {};
+        queryProperties.queryTimeout = values.queryTimeout;
+        queryProperties.fetchDirection = values.fetchDirection;
+        queryProperties.fetchSize = values.fetchSize;
+        queryProperties.maxFieldSize = values.maxFieldSize;
+        queryProperties.maxRows = values.maxRows;
+        queryProperties.forceStoredProc = values.forceStoredProc;
+        queryProperties.forceJDBCBatchRequests = values.forceJdbcBatchRequests;
+        queryProperties = Object.entries(queryProperties)
+            .filter(([_, value]) => value !== "").map(([key, value]) => ({ key, value }));
+        const updatedQuery = sidePanelContext?.formValues?.queryObject;
+        updatedQuery.queryName = values.queryId;
+        updatedQuery.datasource = values.datasource;
+        updatedQuery.sqlQuery = values.sqlQuery;
+        updatedQuery.queryProperties = queryProperties;
+        updatedQuery.returnGeneratedKeys = values.returnGeneratedKeys;
+        updatedQuery.returnUpdatedRowCount = values.returnUpdatedRowCount;
+        updatedQuery.keyColumns = values.keyColumns;
+        updatedQuery.hashasQueryProperties = queryProperties.length > 0;
+
+        let xml = getXML(DATA_SERVICE.EDIT_QUERY, updatedQuery).replace(/^\s*[\r\n]/gm, '');
+        const range = sidePanelContext?.formValues?.queryObject.range;
+        await rpcClient.getMiDiagramRpcClient().applyEdit({
+            text: xml, documentUri: props.documentUri,
+            range: { start: range.startTagRange.start, end: range.endTagRange.end }
+        });
+
+        let isInResource = false;
+        const st = await rpcClient.getMiDiagramRpcClient().getSyntaxTree({ documentUri: props.documentUri });
+        let resourceData: any = {};
+        st.syntaxTree.data.resources.forEach((resource: any) => {
+            if (resource.callQuery.href === initialQueryName) {
+                resourceData.resourceRange = resource.callQuery.range;
+                resourceData.selfClosed = resource.callQuery.selfClosed;
+                isInResource = true;
+            }
+        });
+        if (!isInResource) {
+            st.syntaxTree.data.operations.forEach((operation: any) => {
+                if (operation.callQuery.href === initialQueryName) {
+                    resourceData.resourceRange = operation.callQuery.range;
+                    resourceData.selfClosed = operation.callQuery.selfClosed;
+                }
+            });
+        }
+
+        if (Object.keys(resourceData).length !== 0) {
+            if (resourceData.selfClosed) {
+                xml = getXML(DATA_SERVICE.EDIT_SELF_CLOSE_RESOURCE, { query: values.queryId });
+            } else {
+                xml = getXML(DATA_SERVICE.EDIT_RESOURCE, { query: values.queryId });
+            }
+            await rpcClient.getMiDiagramRpcClient().applyEdit({
+                text: xml, documentUri: props.documentUri,
+                range: { start: resourceData.resourceRange.startTagRange.start, end: resourceData.resourceRange.startTagRange.end }
+            });
+        }
+
         sidePanelContext.setSidePanelState({
             ...sidePanelContext,
             isOpen: false,
@@ -89,10 +140,19 @@ const QueryForm = (props: AddMediatorProps) => {
             nodeRange: undefined,
             operationName: undefined
         });
+
+        rpcClient.getMiVisualizerRpcClient().openView({
+            location: {
+                view: MACHINE_VIEW.DataServiceView,
+                documentUri: props.documentUri,
+                identifier: values.queryId
+            },
+            type: EVENT_TYPE.REPLACE_VIEW
+        });
     };
 
     if (isLoading) {
-        return <ProgressIndicator/>;
+        return <ProgressIndicator />;
     }
     return (
         <>
@@ -117,11 +177,11 @@ const QueryForm = (props: AddMediatorProps) => {
                         render={({ field }) => (
                             <Keylookup
                                 value={field.value}
-                                filterType='dataSource'
+                                filterType='dssDataSource'
                                 label="Datasource"
                                 allowItemCreate={false}
                                 onCreateButtonClick={(fetchItems: any, handleValueChange: any) => {
-                                    openPopup(rpcClient, "dataSource", fetchItems, handleValueChange);
+                                    openPopup(rpcClient, "datasource", fetchItems, handleValueChange, props.documentUri);
                                 }}
                                 onValueChange={field.onChange}
                             />
@@ -146,13 +206,13 @@ const QueryForm = (props: AddMediatorProps) => {
 
                     <Field>
                         <Controller
-                            name="timeout"
+                            name="queryTimeout"
                             control={control}
                             render={({ field }) => (
                                 <TextField {...field} label="Timeout in seconds" size={50} placeholder="" />
                             )}
                         />
-                        {errors.timeout && <Error>{errors.timeout.message.toString()}</Error>}
+                        {errors.queryTimeout && <Error>{errors.queryTimeout.message.toString()}</Error>}
                     </Field>
 
                     <Field>
@@ -160,7 +220,7 @@ const QueryForm = (props: AddMediatorProps) => {
                             name="fetchDirection"
                             control={control}
                             render={({ field }) => (
-                                <AutoComplete label="Fetch Direction" name="fetchDirection" items={["Forward", "Reverse"]} value={field.value} onValueChange={(e: any) => {
+                                <AutoComplete label="Fetch Direction" name="fetchDirection" items={["forward", "reverse"]} value={field.value} onValueChange={(e: any) => {
                                     field.onChange(e);
                                 }} />
                             )}
@@ -203,13 +263,48 @@ const QueryForm = (props: AddMediatorProps) => {
 
                     <Field>
                         <Controller
-                            name="forceStoredProcedure"
+                            name="returnGeneratedKeys"
                             control={control}
                             render={({ field }) => (
-                                <VSCodeCheckbox {...field} type="checkbox" checked={field.value} onChange={(e: any) => {field.onChange(e.target.checked)}}>Force Stored Procedure</VSCodeCheckbox>
+                                <VSCodeCheckbox {...field} type="checkbox" checked={field.value} onChange={(e: any) => { field.onChange(e.target.checked) }}>Return Generated Keys</VSCodeCheckbox>
                             )}
                         />
-                        {errors.forceStoredProcedure && <Error>{errors.forceStoredProcedure.message.toString()}</Error>}
+                        {errors.returnGeneratedKeys && <Error>{errors.returnGeneratedKeys.message.toString()}</Error>}
+                    </Field>
+
+                    {watch("returnGeneratedKeys") &&
+                        <Field>
+                            <Controller
+                                name="keyColumns"
+                                control={control}
+                                render={({ field }) => (
+                                    <TextField {...field} label="Key Columns" size={50} placeholder="" />
+                                )}
+                            />
+                            {errors.keyColumns && <Error>{errors.keyColumns.message.toString()}</Error>}
+                        </Field>
+                    }
+
+                    <Field>
+                        <Controller
+                            name="returnUpdatedRowCount"
+                            control={control}
+                            render={({ field }) => (
+                                <VSCodeCheckbox {...field} type="checkbox" checked={field.value} onChange={(e: any) => { field.onChange(e.target.checked) }}>Return Updated Row Count</VSCodeCheckbox>
+                            )}
+                        />
+                        {errors.returnUpdatedRowCount && <Error>{errors.returnUpdatedRowCount.message.toString()}</Error>}
+                    </Field>
+
+                    <Field>
+                        <Controller
+                            name="forceStoredProc"
+                            control={control}
+                            render={({ field }) => (
+                                <VSCodeCheckbox {...field} type="checkbox" checked={field.value} onChange={(e: any) => { field.onChange(e.target.checked) }}>Force Stored Procedure</VSCodeCheckbox>
+                            )}
+                        />
+                        {errors.forceStoredProc && <Error>{errors.forceStoredProc.message.toString()}</Error>}
                     </Field>
 
                     <Field>
@@ -217,7 +312,7 @@ const QueryForm = (props: AddMediatorProps) => {
                             name="forceJdbcBatchRequests"
                             control={control}
                             render={({ field }) => (
-                                <VSCodeCheckbox {...field} type="checkbox" checked={field.value} onChange={(e: any) => {field.onChange(e.target.checked)}}>Force JDBC Batch Requests</VSCodeCheckbox>
+                                <VSCodeCheckbox {...field} type="checkbox" checked={field.value} onChange={(e: any) => { field.onChange(e.target.checked) }}>Force JDBC Batch Requests</VSCodeCheckbox>
                             )}
                         />
                         {errors.forceJdbcBatchRequests && <Error>{errors.forceJdbcBatchRequests.message.toString()}</Error>}
@@ -231,7 +326,7 @@ const QueryForm = (props: AddMediatorProps) => {
                         appearance="primary"
                         onClick={handleSubmit(onClick)}
                     >
-                    Submit
+                        Submit
                     </Button>
                 </div>
 

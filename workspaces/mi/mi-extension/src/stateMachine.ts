@@ -238,6 +238,23 @@ const stateMachine = createMachine<MachineContext>({
                                 dataMapperProps: (context, event) => event.viewLocation.dataMapperProps,
                                 stNode: (context, event) => undefined,
                                 diagnostics: (context, event) => undefined,
+                                type: (context, event) => event.type
+                            })
+                        },
+                        REPLACE_VIEW: {
+                            target: "viewLoading",
+                            actions: assign({
+                                view: (context, event) => event.viewLocation.view,
+                                identifier: (context, event) => event.viewLocation.identifier,
+                                documentUri: (context, event) => event.viewLocation.documentUri,
+                                projectUri: (context, event) => event.viewLocation.projectUri,
+                                position: (context, event) => event.viewLocation.position,
+                                projectOpened: (context, event) => true,
+                                customProps: (context, event) => event.viewLocation.customProps,
+                                dataMapperProps: (context, event) => event.viewLocation.dataMapperProps,
+                                stNode: (context, event) => undefined,
+                                diagnostics: (context, event) => undefined,
+                                type: (context, event) => event.type
                             })
                         },
                         NAVIGATE: {
@@ -428,6 +445,9 @@ const stateMachine = createMachine<MachineContext>({
         },
         updateStack: (context, event) => {
             return new Promise(async (resolve, reject) => {
+                if (event.data.type === EVENT_TYPE.REPLACE_VIEW) {
+                    history.pop();
+                }
                 if (!context.view?.includes("Form")) {
                     history.push({
                         location: {
@@ -450,7 +470,7 @@ const stateMachine = createMachine<MachineContext>({
         },
         activateOtherFeatures: (context, event) => {
             return new Promise(async (resolve, reject) => {
-                await activateProjectExplorer(extension.context, context.langClient!); 
+                await activateProjectExplorer(extension.context, context.langClient!);
                 await activateTestExplorer(extension.context, context.langClient!);
                 resolve(true);
             });
