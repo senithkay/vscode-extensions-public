@@ -13,7 +13,7 @@
 
 import React, { useEffect } from "react";
 import styled from "@emotion/styled";
-import { Project} from "@wso2-enterprise/ballerina-languageclient";
+import { Project} from "@wso2-enterprise/ballerina-core";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 
 const WizardContainer = styled.div`

@@ -124,7 +124,7 @@ export function ServiceDesignerView(props: ServiceDesignerProps) {
     };
 
     return (
-        <ContextProvider commonRpcClient={commonRpcClient} applyModifications={applyModifications} serviceEndPosition={model.closeBraceToken.position}>
+        <ContextProvider commonRpcClient={commonRpcClient} applyModifications={applyModifications} serviceEndPosition={model?.closeBraceToken.position}>
             <div data-testid="service-design-view">
                 <ServiceDesigner
                     model={serviceConfig}

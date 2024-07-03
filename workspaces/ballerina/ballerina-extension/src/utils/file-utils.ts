@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { window, Uri, workspace, ProgressLocation, ConfigurationTarget, MessageItem, Progress, commands, StatusBarAlignment, languages, Range, TextEditorRevealType, Selection } from "vscode";
-import { GetSyntaxTreeResponse } from "@wso2-enterprise/ballerina-languageclient";
+import { GetSyntaxTreeResponse } from "@wso2-enterprise/ballerina-core";
 import axios from "axios";
 import { createHash } from "crypto";
 import * as fs from 'fs';
@@ -26,7 +26,7 @@ import {
     TM_EVENT_OPEN_REPO_NEW_FOLDER,
     TM_EVENT_OPEN_REPO_SAME_FOLDER,
     sendTelemetryEvent
-} from "../telemetry";
+} from "../features/telemetry";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 import { existsSync } from "fs";
 interface ProgressMessage {

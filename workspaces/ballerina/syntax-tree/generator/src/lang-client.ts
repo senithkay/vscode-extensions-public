@@ -1,4 +1,4 @@
-import { StdioConnection, BalleriaLanguageClient } from "@wso2-enterprise/ballerina-languageclient";
+import { StdioConnection, BalleriaLanguageClient } from "@wso2-enterprise/ballerina-core";
 import { readFileSync } from 'fs';
 import URI from "vscode-uri";
 

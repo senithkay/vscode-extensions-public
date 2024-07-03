@@ -14,7 +14,7 @@
     "gen-models": "pnpm run build && node lib/generate"
   },
   "dependencies": {
-    "@wso2-enterprise/ballerina-languageclient": "workspace:*",
+    "@wso2-enterprise/ballerina-core": "workspace:*",
     "dts-generator": "^3.0.0",
     "gitly": "^2.2.2",
     "glob": "^7.1.3",

@@ -1,18 +1,21 @@
-import { LangClientInterface, MachineStateValue, VisualizerLocation, EventType, MachineViews, webviewReady, STByRangeRequest, SyntaxTreeResponse } from '@wso2-enterprise/eggplant-core';
-import { createMachine, assign, interpret } from 'xstate';
+/**
+ * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
+
+import { MachineStateValue, VisualizerLocation, EventType, MachineViews } from '@wso2-enterprise/eggplant-core';
+import { createMachine, interpret } from 'xstate';
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
-import { Uri, window } from 'vscode';
-import { registerNewLSMethods } from './utils/lang-client';
-import { activateLibraryBrowser } from './library-browser/activate';
-import { PALETTE_COMMANDS } from './eggplantExtentionContext';
-import { VisualizerWebview } from './visualizer/webview';
-import { RPCLayer } from './RPCLayer';
-import { STKindChecker } from '@wso2-enterprise/syntax-tree';
+import { activateProjectExplorer } from './project-explorer/activate';
+import { extension } from './eggplantExtentionContext';
 
 interface Context extends VisualizerLocation {
-    langClient: LangClientInterface | null;
     errorCode: string | null;
 }
 
@@ -22,212 +25,34 @@ const stateMachine = createMachine<Context>({
     initial: 'initialize',
     predictableActionArguments: true,
     context: { // Add this
-        langClient: null,
         errorCode: null,
     },
     states: {
         initialize: {
             invoke: {
-                id: 'checkProject',
                 src: checkIfEggplantProject,
                 onDone: {
-                    target: 'projectDetected'
-                },
-                onError: {
-                    target: 'newProject'
-                }
-            }
-        },
-        projectDetected: {
-            entry: "openEggplantPerspective",
-            invoke: {
-                src: 'openWebView',
-                onDone: {
-                    target: 'LSInit'
-                },
-                onError: {
-                    target: 'initialize'
-                }
-            }
-        },
-        LSInit: {
-            invoke: {
-                src: 'waitForLS',
-                onDone: {
                     target: 'ready',
-                    actions: assign({
-                        langClient: (context, event) => event.data
-                    })
+                    cond: (context, event) => event.data,
                 },
                 onError: {
-                    target: 'disabled',
-                    actions: assign({
-                        errorCode: (context, event) => event.data
-                    })
+                    target: 'disabled'
                 }
             }
         },
         ready: {
-            initial: 'viewInit',
-            states: {
-                viewInit: {
-                    invoke: {
-                        src: 'openWebView',
-                        onDone: {
-                            target: "webViewLoaded"
-                        },
-                    }
-                },
-                webViewLoaded: {
-                    invoke: {
-                        src: 'findView', // NOTE: We only find the view and indentifer from this state as we already have the position and the file URL
-                        onDone: {
-                            target: "viewReady",
-                            actions: assign({
-                                view: (context, event) => event.data.view,
-                                identifier: (context, event) => event.data.identifier
-                            })
-                        }
-                    }
-                },
-                viewReady: {
-                    on: {
-                        OPEN_VIEW: {
-                            target: "viewInit",
-                            actions: assign({
-                                view: (context, event) => event.viewLocation.view,
-                                documentUri: (context, event) => event.viewLocation.documentUri ? event.viewLocation.documentUri : context.documentUri,
-                                position: (context, event) => event.viewLocation.position,
-                                identifier: (context, event) => event.viewLocation.identifier
-                            })
-                        }
-                    }
-                },
-            }
+            entry: "activateExplorer"
         },
         disabled: {
             // define what should happen when the project is not detected
         },
-        newProject: {
-            initial: 'welcome',
-            states: {
-                welcome: {
-                    invoke: {
-                        src: 'openWebView'
-                    },
-                    on: {
-                        GET_STARTED: {
-                            target: "create",
-                        }
-                    }
-                },
-                create: {
-                    invoke: {
-                        src: 'openWebView'
-                    },
-                    on: {
-                        CANCEL_CREATION: {
-                            target: "welcome"
-                        },
-                        GET_STARTED: {
-                            target: "create",
-                        }
-                    }
-                }
-            }
-        }
     }
 }, {
     actions: {
-        openEggplantPerspective: (context, event) => {
-            vscode.commands.executeCommand('workbench.view.extension.eggplant');
+        activateExplorer: (context, event) => {
+            activateProjectExplorer(extension.context);
         }
     },
-    services: {
-        openWebView: (context, event) => {
-            return new Promise((resolve, reject) => {
-                if (!VisualizerWebview.currentPanel) {
-                    VisualizerWebview.currentPanel = new VisualizerWebview();
-                    RPCLayer._messenger.onNotification(webviewReady, () => {
-                        resolve(true);
-                    });
-                } else {
-                    VisualizerWebview.currentPanel!.getWebview()?.reveal();
-                    resolve(true);
-                }
-            });
-        },
-        waitForLS: (context, event) => {
-            // replace this with actual promise that waits for LS to be ready
-            return new Promise((resolve, reject) => {
-                const ballerinaExt = vscode.extensions.getExtension('wso2.ballerina');
-                if (!ballerinaExt) {
-                    reject('BE_NOT_FOUND');
-                } else {
-                    // Activate Ballerina extension if not activated
-                    if (!ballerinaExt.isActive) {
-                        ballerinaExt.activate().then(() => {
-                            resolve(registerNewLSMethods(ballerinaExt.exports.langClient));
-                            activateLibraryBrowser();
-                        }, error => {
-                            reject('BE_ACTIVATION_FAILED');
-                        });
-                    } else {
-                        resolve(registerNewLSMethods(ballerinaExt.exports.langClient));
-                        activateLibraryBrowser();
-                    }
-                }
-            });
-        },
-        findView(context, event): Promise<VisualizerLocation> {
-            return new Promise(async (resolve, reject) => {
-                if (!context.view) {
-                    if (!context.position || ("groupId" in context.position)) {
-                        resolve({ view: "Overview" });
-                        return;
-                    }
-                    const req: STByRangeRequest = {
-                        documentIdentifier: { uri: Uri.file(context.documentUri).toString() },
-                        lineRange: {
-                            start: {
-                                line: context.position.startLine,
-                                character: context.position.startColumn
-                            },
-                            end: {
-                                line: context.position.endLine,
-                                character: context.position.endColumn
-                            }
-                        }
-                    };
-
-                    const node = await StateMachine.langClient().getSTByRange(req) as SyntaxTreeResponse;
-
-                    if (node.parseSuccess) {
-                        if (STKindChecker.isServiceDeclaration(node.syntaxTree)) {
-                            resolve({
-                                view: "ServiceDesigner",
-                                identifier: node.syntaxTree.absoluteResourcePath.map((path) => path.value).join('')
-                            });
-                        } else if (STKindChecker.isFunctionDefinition(node.syntaxTree) || STKindChecker.isResourceAccessorDefinition(node.syntaxTree)) {
-                            resolve({ view: "EggplantDiagram", documentUri: context.documentUri, position: context.position });
-                        } else {
-                            resolve({ view: "Overview", documentUri: context.documentUri });
-                        }
-                    }
-                    return;
-                }
-                else {
-                    resolve({
-                        view: context.view,
-                        documentUri: context.documentUri,
-                        position: context.position,
-                        identifier: context.identifier
-                    });
-                    return;
-                }
-            });
-        }
-    }
 });
 
 
@@ -239,7 +64,6 @@ export const StateMachine = {
     initialize: () => stateService.start(),
     service: () => { return stateService; },
     context: () => { return stateService.getSnapshot().context; },
-    langClient: () => { return stateService.getSnapshot().context.langClient; },
     state: () => { return stateService.getSnapshot().value as MachineStateValue; },
     sendEvent: (eventType: EventType) => { stateService.send({ type: eventType }); },
 };
@@ -248,12 +72,19 @@ export function openView(type: "OPEN_VIEW" | "FILE_EDIT" | "EDIT_DONE", viewLoca
     stateService.send({ type: type, viewLocation: viewLocation });
 }
 
-async function checkIfEggplantProject() {
+async function checkIfEggplantProject(): Promise<boolean> {
     let isEggplant = false;
     try {
-        const files = await vscode.workspace.findFiles('**/Ballerina.toml', '**/node_modules/**', 1);
-        if (files.length > 0) {
-            const data = await fs.promises.readFile(files[0].fsPath, 'utf8');
+        const workspaceFolders = vscode.workspace.workspaceFolders;
+        if (!workspaceFolders || workspaceFolders.length === 0) {
+            throw new Error("No workspace folders found");
+        }
+        // Assume we are only interested in the root workspace folder
+        const rootFolder = workspaceFolders[0].uri.fsPath;
+        const ballerinaTomlPath = path.join(rootFolder, 'Ballerina.toml');
+
+        if (fs.existsSync(ballerinaTomlPath)) {
+            const data = await fs.promises.readFile(ballerinaTomlPath, 'utf8');
             isEggplant = data.includes('eggplant');
         }
     } catch (err) {
@@ -265,16 +96,3 @@ async function checkIfEggplantProject() {
     return isEggplant;
 }
 
-type ViewFlow = {
-    [key in MachineViews]: MachineViews[];
-};
-
-const viewFlow: ViewFlow = {
-    Overview: [],
-    ServiceDesigner: ["Overview"],
-    EggplantDiagram: ["Overview"],
-};
-
-export function getPreviousView(currentView: MachineViews): MachineViews[] {
-    return viewFlow[currentView] || [];
-}

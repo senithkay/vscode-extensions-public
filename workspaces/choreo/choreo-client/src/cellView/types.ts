@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { Project } from "@wso2-enterprise/ballerina-languageclient";
+import { Project } from "@wso2-enterprise/ballerina-core";
 import { Organization } from "@wso2-enterprise/choreo-core";
 
 export interface IChoreoCellViewClient {

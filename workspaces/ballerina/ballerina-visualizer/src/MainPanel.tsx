@@ -10,7 +10,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { KeyboardNavigationManager, MachineStateValue, MachineViews, STModification, VisualizerLocation } from '@wso2-enterprise/ballerina-core';
 import { useVisualizerContext } from '@wso2-enterprise/ballerina-rpc-client';
-/** @jsx jsx */
 import { Global, css } from '@emotion/react';
 import styled from "@emotion/styled";
 

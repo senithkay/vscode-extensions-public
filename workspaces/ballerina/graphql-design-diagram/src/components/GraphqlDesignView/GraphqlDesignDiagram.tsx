@@ -9,11 +9,9 @@
 // tslint:disable: no-implicit-dependencies jsx-no-multiline-js jsx-wrap-multiline
 import React, { useEffect, useState } from "react";
 
-import { IBallerinaLangClient } from "@wso2-enterprise/ballerina-languageclient";
 import {
-    GraphqlDesignServiceRequest, GraphqlDesignServiceResponse
-} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { TextPreLoader } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
+    GraphqlDesignServiceResponse, IBallerinaLangClient
+} from "@wso2-enterprise/ballerina-core";
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { Container } from "../Canvas/CanvasWidgetContainer";
@@ -115,7 +113,7 @@ export function GraphqlDesignDiagram(props: GraphqlDesignDiagramProps) {
             {modelData?.isIncompleteModel && <GraphqlUnsupportedOverlay />}
             {!modelData?.designModel &&
                 <Container className="dotted-background">
-                    <TextPreLoader position="absolute" text="Fetching data..." />
+                    <p>Fetching data...</p>
                 </Container>
             }
         </>

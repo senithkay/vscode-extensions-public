@@ -9,17 +9,17 @@
 
 import React, { useContext, useState } from "react";
 import ReactDOM from "react-dom";
-import { CMEntryPoint as EntryPoint, CMService as Service } from "@wso2-enterprise/ballerina-languageclient";
 import Drawer from "@mui/material/Drawer";
 import IconButton from "@mui/material/IconButton";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import CloseIcon from "@mui/icons-material/Close";
 import { Header, Container, TitleText } from "../../../editing/EditForm/resources/styles";
 import {
+    CMEntryPoint as EntryPoint, CMService as Service,
     BallerinaConstruct,
     BallerinaModuleResponse,
     Connector,
-} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+} from "@wso2-enterprise/ballerina-core";
 import { BallerinaModuleType, Marketplace, SearchQueryParams } from "../Marketplace";
 import { DiagramContext } from "../../common";
 import ConnectorForm from "../ConnectorForm";

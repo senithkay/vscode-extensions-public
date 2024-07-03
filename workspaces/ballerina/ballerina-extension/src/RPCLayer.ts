@@ -11,7 +11,7 @@ import { WebviewView, WebviewPanel } from 'vscode';
 import { Messenger } from 'vscode-messenger';
 import { StateMachine } from './stateMachine';
 import { stateChanged, getVisualizerLocation, VisualizerLocation } from '@wso2-enterprise/ballerina-core';
-import { VisualizerWebview } from './visualizer/webview';
+import { VisualizerWebview } from './views/visualizer/webview';
 import { registerVisualizerRpcHandlers } from './rpc-managers/visualizer/rpc-handler';
 import { registerLangServerRpcHandlers } from './rpc-managers/lang-server/rpc-handler';
 import { registerLibraryBrowserRpcHandlers } from './rpc-managers/library-browser/rpc-handler';

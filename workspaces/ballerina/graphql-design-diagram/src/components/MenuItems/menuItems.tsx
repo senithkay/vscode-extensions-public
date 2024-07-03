@@ -13,7 +13,7 @@ import React from "react";
 import {
     DesignViewIcon,
     GraphqlMutationIcon, GraphqlQueryIcon, GraphqlSubscriptionIcon, LabelDeleteIcon, LabelEditIcon
-} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+} from "@wso2-enterprise/ballerina-core";
 import { NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import { Codicon, Icon, Item } from "@wso2-enterprise/ui-toolkit";
 

@@ -11,15 +11,15 @@
 import { Uri } from "vscode";
 import { randomUUID } from "crypto";
 import { FunctionBodyBlock, ModulePart, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
-import { Connector, FormField, FormFieldReturnType, PrimitiveBalType } from "@wso2-enterprise/ballerina-low-code-edtior-commons/src/types";
-import { getFormattedModuleName, keywords } from "@wso2-enterprise/ballerina-low-code-edtior-commons/src/utils/Diagram/modification-util";
 import { ExtendedLangClient } from "../../../../core";
-import { BallerinaConnectorInfo, GetSyntaxTreeResponse, CMService as Service } from "@wso2-enterprise/ballerina-languageclient";
-import { AddConnectorArgs } from "../../../../project-design-diagrams/resources";
+import { BallerinaConnectorInfo, GetSyntaxTreeResponse, CMService as Service, BallerinaSTModifyResponse,
+    Connector, FormField, FormFieldReturnType, PrimitiveBalType,
+    getFormattedModuleName, keywords
+ } from "@wso2-enterprise/ballerina-core";
+import { AddConnectorArgs } from "../../../../views/project-design-diagrams/resources";
 import { runBackgroundTerminalCommand } from "../../../../utils/runCommand";
 import { genClientName, getMainFunction, getMissingImports, getServiceDeclaration } from "./shared-utils";
 import { getInitFunction, updateSourceFile, updateSyntaxTree } from "../shared-utils";
-import { BallerinaSTModifyResponse } from "@wso2-enterprise/ballerina-core";
 
 const EXPR_PLACEHOLDER = "()";
 

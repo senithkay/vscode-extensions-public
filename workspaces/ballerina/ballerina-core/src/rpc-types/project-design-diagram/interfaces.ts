@@ -87,7 +87,7 @@ export interface BallerinaTriggersResponse extends BallerinaModuleResponse {
 }
 
 export interface BallerinaTriggerRequest {
-    triggerId: string
+    id: string
 }
 
 export interface BallerinaTriggerResponse extends BallerinaTriggerInfo {

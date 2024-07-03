@@ -1,4 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+
+import { STNode } from "@wso2-enterprise/syntax-tree";
+
 /**
 * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
 *
@@ -7,31 +10,6 @@
 * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
 * You may not alter or remove any copyright or other notice from copies of this content.
 */
-export enum PrimitiveBalType {
-    String = "string",
-    Record = "record",
-    Union = "union",
-    Enum = "enum",
-    Int = "int",
-    Float = "float",
-    Boolean = "boolean",
-    Array = "array",
-    Json = "json",
-    Xml = "xml",
-    Nil = "nil",
-    Var = "var",
-    Error = "error",
-    Decimal = "decimal"
-}
-
-export enum OtherBalType {
-    Map = "map",
-    Object = "object",
-    Stream = "stream",
-    Table = "table",
-    Null = "()"
-}
-
 export declare enum BallerinaComponentTypes {
     REST_API = "restAPI",
     GRAPHQL = "graphql",
@@ -40,8 +18,6 @@ export declare enum BallerinaComponentTypes {
     GRPC_API = "grpcAPI",
     WEBSOCKET_API = "websocketAPI"
 }
-
-export const AnydataType = "anydata";
 
 export interface DocumentIdentifier {
     uri: string;
@@ -69,4 +45,8 @@ export interface Position {
 
 export interface NOT_SUPPORTED_TYPE {
 
+}
+export interface FunctionDef {
+    syntaxTree: STNode;
+    defFilePath: string;
 }

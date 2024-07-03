@@ -10,7 +10,7 @@
 import React, { useEffect, useRef } from "react";
 
 import { DiagramEngine, PortModel } from "@projectstorm/react-diagrams";
-import { GraphqlQueryIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { GraphqlQueryIcon } from "@wso2-enterprise/ballerina-core";
 
 import { GraphqlBasePortWidget } from "../../Port/GraphqlBasePortWidget";
 import { HeaderName, NodeHeader } from "../../resources/styles/styles";

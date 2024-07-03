@@ -26,19 +26,23 @@
                 }
             ]
         },
+        "viewsWelcome": [
+            {
+                "view": "Eggplant.project-explorer",
+                "contents": "Welcome to Eggplant Integrator. You can open a folder containing a Eggplant project or create a new project.\n[Open Eggplant Project](command:Eggplant.openProject)\n[Create New Project](command:Eggplant.openWelcome)\nTo learn more about how to use Eggplant in VS Code [read our docs](https://ei.docs.wso2.com)."
+              }
+        ],
         "views": {
             "eggplant": [
                 {
-                    "type": "webview",
-                    "id": "eggplant.activity.overview",
+                    "id": "Eggplant.project-explorer",
                     "name": "Overview"
                 }
             ]
         },
-        "defaultViewContainer": "activitybar:eggplant",
         "commands": [
             {
-                "command": "eggplant.show.visualizer",
+                "command": "Eggplant.show.visualizer",
                 "title": "Open Low Code"
             }
         ]
@@ -63,7 +67,8 @@
         "@wso2-enterprise/syntax-tree": "workspace:*",
         "@wso2-enterprise/eggplant-visualizer": "workspace:*",
         "@wso2-enterprise/eggplant-core": "workspace:*",
-        "@wso2-enterprise/eggplant-diagram-2": "workspace:*",
+        "@wso2-enterprise/eggplant-diagram": "workspace:*",
+        "@wso2-enterprise/ballerina-core": "workspace:*",
         "vscode-messenger": "^0.4.5",
         "vscode-messenger-common": "^0.4.5",
         "xstate": "^4.38.3",

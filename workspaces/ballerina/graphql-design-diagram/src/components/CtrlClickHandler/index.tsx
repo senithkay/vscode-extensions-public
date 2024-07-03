@@ -8,7 +8,7 @@
  */
 import React from "react";
 
-import { CtrlClickWrapper } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { CtrlClickWrapper } from "@wso2-enterprise/ballerina-core";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
 import { useGraphQlContext } from "../DiagramContext/GraphqlDiagramContext";

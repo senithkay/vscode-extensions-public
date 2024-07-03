@@ -8,7 +8,7 @@
  */
 
 import React, { useContext, useEffect, useState } from 'react';
-import { CMRemoteFunction as RemoteFunction, CMResourceFunction as ResourceFunction } from '@wso2-enterprise/ballerina-languageclient';
+import { CMRemoteFunction as RemoteFunction, CMResourceFunction as ResourceFunction } from '@wso2-enterprise/ballerina-core';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import Popover from '@mui/material/Popover';
 import { DiagramContext } from '../../common';

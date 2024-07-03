@@ -10,10 +10,10 @@
 import { Uri, WorkspaceFolder, window, workspace } from "vscode";
 import { existsSync, rmSync } from "fs";
 import * as path from "path";
-import { CMLocation as Location, CMAnnotation as Annotation, STModification } from "@wso2-enterprise/ballerina-languageclient";
+import { CMLocation as Location, CMAnnotation as Annotation, STModification } from "@wso2-enterprise/ballerina-core";
 import { AssignmentStatement, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 import { ExtendedLangClient } from "../../../../core";
-import { DeleteLinkArgs, SUCCESSFUL_LINK_DELETION, UNSUPPORTED_LINK_DELETION } from "../../../../project-design-diagrams/resources";
+import { DeleteLinkArgs, SUCCESSFUL_LINK_DELETION, UNSUPPORTED_LINK_DELETION } from "../../../../views/project-design-diagrams/resources";
 import { getInitFunction, go2source, updateSyntaxTree, updateSourceFile, visitor as STNodeFindingVisitor } from "../shared-utils";
 import { StateMachine } from "../../../../stateMachine";
 import { BallerinaSTModifyResponse } from "@wso2-enterprise/ballerina-core";

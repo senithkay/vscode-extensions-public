@@ -20,10 +20,8 @@
     "storybook": "node tools/setup-storybook.js"
   },
   "dependencies": {
-    "@wso2-enterprise/ballerina-languageclient": "workspace:*",
+    "@wso2-enterprise/ballerina-core": "workspace:*",
     "@wso2-enterprise/syntax-tree": "workspace:*",
-    "@wso2-enterprise/ballerina-low-code-edtior-commons": "workspace:*",
-    "@wso2-enterprise/ballerina-low-code-edtior-ui-components": "workspace:*",
     "@wso2-enterprise/ui-toolkit": "workspace:*",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",

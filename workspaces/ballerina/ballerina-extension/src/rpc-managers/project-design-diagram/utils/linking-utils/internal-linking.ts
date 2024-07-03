@@ -10,11 +10,10 @@
 import { ExtendedLangClient } from "src/core";
 import { Uri } from "vscode";
 import { camelCase } from "lodash";
-import { CMService as Service } from "@wso2-enterprise/ballerina-languageclient";
-import { AddLinkArgs, ServiceTypes } from "../../../../project-design-diagrams/resources";
+import { CMService as Service, BallerinaSTModifyResponse } from "@wso2-enterprise/ballerina-core";
+import { AddLinkArgs, ServiceTypes } from "../../../../views/project-design-diagrams/resources";
 import { getInitFunction, updateSourceFile, updateSyntaxTree } from "../shared-utils";
 import { genClientName, getMainFunction, getMissingImports, getServiceDeclaration } from "./shared-utils";
-import { BallerinaSTModifyResponse } from "@wso2-enterprise/ballerina-core";
 import { FunctionBodyBlock } from "@wso2-enterprise/syntax-tree";
 
 let clientName: string;
