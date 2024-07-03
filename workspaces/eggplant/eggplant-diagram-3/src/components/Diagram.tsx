@@ -55,7 +55,7 @@ export function Diagram(props: DiagramProps) {
         traverseFlow(model, sizingVisitor);
         const positionVisitor = new PositionVisitor();
         traverseFlow(model, positionVisitor);
-        // run node visitor
+        // create diagram nodes and links
         const nodeVisitor = new NodeFactoryVisitor();
         traverseFlow(model, nodeVisitor);
 

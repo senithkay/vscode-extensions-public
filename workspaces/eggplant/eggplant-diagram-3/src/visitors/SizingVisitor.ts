@@ -7,7 +7,6 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { has } from "lodash";
 import {
     IF_NODE_WIDTH,
     NODE_BORDER_WIDTH,
@@ -49,8 +48,8 @@ export class SizingVisitor implements BaseVisitor {
     }
 
     private createBaseNode(node: Node): void {
-        const width = NODE_WIDTH + (NODE_BORDER_WIDTH * 2) + (NODE_PADDING * 2);
-        const height = NODE_HEIGHT + (NODE_BORDER_WIDTH * 2);
+        const width = NODE_WIDTH + NODE_BORDER_WIDTH * 2 + NODE_PADDING * 2;
+        const height = NODE_HEIGHT + NODE_BORDER_WIDTH * 2;
         this.setNodeSize(node, width, height);
     }
 
@@ -58,8 +57,8 @@ export class SizingVisitor implements BaseVisitor {
 
     endVisitEventHttpApi(node: Node, parent?: Node): void {
         // consider this as a start node
-        const width = Math.round(NODE_WIDTH / 3) + (NODE_BORDER_WIDTH * 2) + (NODE_PADDING * 2);
-        const height = Math.round(NODE_HEIGHT / 1.5) + (NODE_BORDER_WIDTH * 2);
+        const width = Math.round(NODE_WIDTH / 3) + NODE_BORDER_WIDTH * 2 + NODE_PADDING * 2;
+        const height = Math.round(NODE_HEIGHT / 1.5) + NODE_BORDER_WIDTH * 2;
         this.setNodeSize(node, width, height);
     }
 
@@ -74,16 +73,18 @@ export class SizingVisitor implements BaseVisitor {
                         width += NODE_GAP_X;
                     }
                     width += child.viewState.cw;
-                    height = Math.max(height, child.viewState.ch);
+                    height = Math.max(height, Math.max(child.viewState.ch, NODE_GAP_Y));
                 }
             });
         }
         // add if node width and height
         height += IF_NODE_WIDTH + NODE_GAP_Y;
 
-        // if early return not present, add empty node end of the if block
-        const thenBranchHasEarlyReturn = node.branches.find((branch) => branch.label === "Then")?.children.at(-1)?.kind == "RETURN";
-        const elseBranchHasEarlyReturn = node.branches.find((branch) => branch.label === "Else")?.children.at(-1)?.kind == "RETURN";
+        // if early return not present in both branches, add empty node end of the if block
+        const thenBranchHasEarlyReturn =
+            node.branches.find((branch) => branch.label === "Then")?.children.at(-1)?.kind == "RETURN";
+        const elseBranchHasEarlyReturn =
+            node.branches.find((branch) => branch.label === "Else")?.children.at(-1)?.kind == "RETURN";
         if (!(thenBranchHasEarlyReturn && elseBranchHasEarlyReturn)) {
             // add empty node
             height += NODE_GAP_Y;

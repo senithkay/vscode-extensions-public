@@ -26,4 +26,7 @@ export interface BaseVisitor {
 
     beginVisitReturn?(node: Node, parent?: Node): void;
     endVisitReturn?(node: Node, parent?: Node): void;
+
+    beginVisitEmpty?(node: Node, parent?: Node): void;
+    endVisitEmpty?(node: Node, parent?: Node): void;
 }

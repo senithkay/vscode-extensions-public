@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { NODE_GAP_X, NODE_GAP_Y } from "../resources/constants";
+import { EMPTY_NODE_WIDTH, NODE_GAP_X, NODE_GAP_Y, NODE_WIDTH } from "../resources/constants";
 import { Branch, Node } from "../utils/types";
 import { BaseVisitor } from "./BaseVisitor";
 
@@ -36,14 +36,6 @@ export class PositionVisitor implements BaseVisitor {
         const center = parent ? parent.viewState.x + (parent.viewState.cw / 2) : this.topX;
         node.viewState.x = center - node.viewState.w / 2;
 
-        // const thenBranch = node.branches.find((branch) => branch.label === "Then");
-        // thenBranch.viewState.y = this.lastY;
-        // thenBranch.viewState.x = center - thenBranch.viewState.cw - NODE_GAP_X / 2;
-
-        // const elseBranch = node.branches.find((branch) => branch.label === "Else");
-        // elseBranch.viewState.y = this.lastY;
-        // elseBranch.viewState.x = center + NODE_GAP_X / 2;
-
         const thenBranch = node.branches.find((branch) => branch.label === "Then");
         thenBranch.viewState.y = this.lastY;
         thenBranch.viewState.x = center - thenBranch.viewState.cw - NODE_GAP_X / 2;
@@ -51,16 +43,23 @@ export class PositionVisitor implements BaseVisitor {
         const elseBranch = node.branches.find((branch) => branch.label === "Else");
         elseBranch.viewState.y = this.lastY;
         elseBranch.viewState.x = center + NODE_GAP_X / 2;
+
+        // const hasEmptyThenBranch = thenBranch.children.length === 1 && thenBranch.children.find((child) => child.kind === "EMPTY");
+        // if (hasEmptyThenBranch) {
+        //     const emptyThenBranchNode = thenBranch.children.find((child) => child.kind === "EMPTY")
+        //     emptyThenBranchNode.viewState.y = thenBranch.viewState.y;
+        //     emptyThenBranchNode.viewState.x = thenBranch.viewState.x - NODE_WIDTH / 2 - EMPTY_NODE_WIDTH / 2;
+        // }
+        // const hasEmptyElseBranch = elseBranch.children.length === 1 && elseBranch.children.find((child) => child.kind === "EMPTY");
+        // if (hasEmptyElseBranch) {
+        //     const emptyElseBranchNode = elseBranch.children.find((child) => child.kind === "EMPTY")
+        //     emptyElseBranchNode.viewState.y = elseBranch.viewState.y;
+        //     emptyElseBranchNode.viewState.x = elseBranch.viewState.x + NODE_WIDTH / 2 - EMPTY_NODE_WIDTH / 2;
+        // }
     }
 
     endVisitIf(node: Node, parent?: Node): void {
-        // if early return not present, add empty node end of the if block
-        const thenBranchHasEarlyReturn = node.branches.find((branch) => branch.label === "Then")?.children.at(-1)?.kind == "RETURN";
-        const elseBranchHasEarlyReturn = node.branches.find((branch) => branch.label === "Else")?.children.at(-1)?.kind == "RETURN";
-        if (!(thenBranchHasEarlyReturn && elseBranchHasEarlyReturn)) {
-            // add empty node
-            this.lastY += NODE_GAP_Y;
-        }
+        this.lastY = node.viewState.y + node.viewState.ch + NODE_GAP_Y;
     }
 
     beginVisitBlock(node: Branch, parent?: Node): void {

@@ -12,7 +12,7 @@ import { BaseNodeModel } from "../components/nodes/BaseNode";
 import { EmptyNodeModel } from "../components/nodes/EmptyNode";
 import { IfNodeModel } from "../components/nodes/IfNode/IfNodeModel";
 import { StartNodeModel } from "../components/nodes/StartNode/StartNodeModel";
-import { EMPTY_NODE_WIDTH } from "../resources/constants";
+import { EMPTY_NODE_WIDTH, NODE_WIDTH } from "../resources/constants";
 import { createNodesLink } from "../utils/diagram";
 import { Branch, Node, NodeModel } from "../utils/types";
 import { BaseVisitor } from "./BaseVisitor";
@@ -113,11 +113,19 @@ export class NodeFactoryVisitor implements BaseVisitor {
             node.viewState.y + node.viewState.ch - EMPTY_NODE_WIDTH / 2
         ); // TODO: move this logic to PositionVisitor
 
+        // const endIfEmptyNode = this.nodes.find((n) => n.getID() === `${node.id}-endif`);
+        // console.log(">>> endIfEmptyNode", {endIfEmptyNode, nodes: this.nodes, id: `${node.id}-endif`});
+
         let endIfLinkCount = 0;
         node.branches?.forEach((branch) => {
             if (!branch.children || branch.children.length === 0) {
                 // empty branch
-                let branchEmptyNode = this.createEmptyNode(`${node.id}-${branch.label}-branch`, false);
+                let branchEmptyNode = this.createEmptyNode(`${node.id}-${branch.label}-branch`, true);
+                const emptyNodeGap = branch.label === "Then" ? -NODE_WIDTH / 2 : NODE_WIDTH / 2;
+                branchEmptyNode.setPosition(
+                    branch.viewState.x + emptyNodeGap - EMPTY_NODE_WIDTH / 2,
+                    branch.viewState.y + branch.viewState.ch - EMPTY_NODE_WIDTH / 2
+                );
                 const linkIn = createNodesLink(ifNodeModel, branchEmptyNode, { label: branch.label, brokenLine: true });
                 const linkOut = createNodesLink(branchEmptyNode, endIfEmptyNode, {
                     brokenLine: true,
@@ -129,6 +137,8 @@ export class NodeFactoryVisitor implements BaseVisitor {
                 }
                 return;
             }
+
+            console.log(">>> branch", {node, branch});
 
             // get last child node model
             // if last child is RETURN, don't create link
@@ -167,6 +177,12 @@ export class NodeFactoryVisitor implements BaseVisitor {
 
     endVisitBlock(node: Branch, parent?: Node): void {
         this.lastNodeModel = undefined;
+    }
+
+    beginVisitEmpty(node: Node, parent?: Node): void {
+        // let branchEmptyNode = this.createEmptyNode(node.id, true);
+        // branchEmptyNode.setPosition(node.viewState.x, node.viewState.y);
+        this.createBaseNode(node);
     }
 
     skipChildren(): boolean {
