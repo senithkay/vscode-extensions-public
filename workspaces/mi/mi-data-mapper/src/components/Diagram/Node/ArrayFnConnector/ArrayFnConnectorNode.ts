@@ -33,6 +33,7 @@ import { SubMappingNode } from "../SubMapping";
 
 export const ARRAY_FUNCTION_CONNECTOR_NODE_TYPE = "array-function-connector-node";
 const NODE_ID = "array-function-connector-node";
+type SourceExprType = ElementAccessExpression | PropertyAccessExpression | Identifier;
 
 export class ArrayFnConnectorNode extends DataMapperNodeModel {
 
@@ -83,15 +84,7 @@ export class ArrayFnConnectorNode extends DataMapperNodeModel {
     private findSourcePort(): void {
         let fieldId: string;
         let paramName: string;
-        let sourceExpr: ElementAccessExpression | PropertyAccessExpression | Identifier;
-        const exprWithMethod = this.value.getExpression();
-
-        if (isInputAccessExpr(exprWithMethod)) {
-            const innerExpr = (exprWithMethod as ElementAccessExpression).getExpression();
-            if (isInputAccessExpr(innerExpr) || Node.isIdentifier(innerExpr)) {
-                sourceExpr = innerExpr as ElementAccessExpression | PropertyAccessExpression | Identifier;
-            }
-        }
+        const sourceExpr = this.extractSourceExprFromChain(this.value);
 
         if (isInputAccessExpr(sourceExpr)) {
             const fieldNames = getFieldNames(sourceExpr as ElementAccessExpression | PropertyAccessExpression);
@@ -303,5 +296,27 @@ export class ArrayFnConnectorNode extends DataMapperNodeModel {
         }
 
         await this.context.applyModifications();
+    }
+
+    private extractSourceExprFromChain(callExpression: CallExpression): SourceExprType {
+        let currentExpr: Node = callExpression;
+    
+        // Traverse up the expression chain until we find the first call expression
+        while (Node.isCallExpression(currentExpr) && currentExpr.getExpression()) {
+            currentExpr = currentExpr.getExpression();
+            if (isInputAccessExpr(currentExpr)) {
+                currentExpr = (currentExpr as ElementAccessExpression).getExpression();
+            }
+        }
+    
+        // Check if the resulting expression is a valid source expression type
+        if (Node.isPropertyAccessExpression(currentExpr)
+            || Node.isElementAccessExpression(currentExpr)
+            || Node.isIdentifier(currentExpr)
+        ) {
+            return currentExpr as SourceExprType;
+        }
+    
+        return undefined;
     }
 }
