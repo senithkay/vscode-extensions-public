@@ -213,7 +213,7 @@ export const newDataSource: DataSourceFields = {
     },
     csv: {
         type: "",
-        csv_hasheader: "",
+        csv_hasheader: "false",
         csv_datasource: "",
         csv_columnseperator: "",
         csv_startingrow: "",
@@ -419,7 +419,7 @@ export function restructureDatasource(initialDatasource: any) {
             enableSSL: ""
         },
         csv: {
-            csv_hasheader: "",
+            csv_hasheader: "false",
             csv_datasource: "",
             csv_columnseperator: "",
             csv_startingrow: "",
