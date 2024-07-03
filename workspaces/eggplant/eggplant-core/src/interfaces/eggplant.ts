@@ -41,6 +41,7 @@ export type Node = {
 };
 
 export type NodeKind =
+    | "EMPTY" // Placeholder nodes for diagram rendering
     | "EVENT_HTTP_API"
     | "BLOCK"
     | "IF"
@@ -87,6 +88,7 @@ export type ViewState = {
     // container view state
     cw?: number;
     ch?: number;
+    // flow start node
     startNodeId?: string;
 };
 
