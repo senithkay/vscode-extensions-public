@@ -7,13 +7,12 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import path from "path";
-
-const { spawn } = require('child_process');
-const { StreamMessageReader, StreamMessageWriter, createMessageConnection } = require('vscode-jsonrpc');
 import * as fs from 'fs';
+import path from "path";
 import { readFileSync } from "fs";
 import { GetSyntaxTreeParams, GetSyntaxTreeResponse, IMILangClient } from ".";
+const { spawn } = require('child_process');
+const { StreamMessageReader, StreamMessageWriter, createMessageConnection } = require('vscode-jsonrpc');
 
 const extensionRoot = path.join(__dirname, "..", "..", "..", "..", "..", "mi-extension");
 export class LanguageClient implements IMILangClient{
