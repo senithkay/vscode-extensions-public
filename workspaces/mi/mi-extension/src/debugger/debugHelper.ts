@@ -12,7 +12,7 @@ import * as vscode from 'vscode';
 import * as childprocess from 'child_process';
 import { COMMANDS } from '../constants';
 import { extension } from '../MIExtensionContext';
-import { getBuildTask, getRunTask } from './tasks';
+import { getBuildCommand, getRunCommand, getStopCommand } from './tasks';
 import * as fs from 'fs';
 import * as path from 'path';
 import { INCORRECT_SERVER_PATH_MSG, SELECTED_SERVER_PATH } from './constants';
@@ -24,7 +24,11 @@ import { StateMachine } from '../stateMachine';
 import { ERROR_LOG, INFO_LOG, logDebug } from '../util/logger';
 import * as toml from 'toml';
 import { DebuggerConfig } from './config';
-import { glob } from 'glob';
+import { ChildProcess } from 'child_process';
+import treeKill = require('tree-kill');
+import { Debugger } from './debugger';
+import { serverLog, showServerOutputChannel } from '../util/serverLogger';
+const child_process = require('child_process');
 
 export async function isPortActivelyListening(port: number, timeout: number): Promise<boolean> {
     return new Promise<boolean>((resolve) => {
@@ -133,59 +137,66 @@ export async function executeCopyTask(task: vscode.Task) {
     });
 }
 
-export async function executeBuildTask(task: vscode.Task, serverPath: string, shouldCopyTarget: boolean = true) {
+export async function executeBuildTask(serverPath: string, shouldCopyTarget: boolean = true) {
     return new Promise<void>(async (resolve, reject) => {
         deleteCappAndLibs(serverPath).then(async () => {
-            await vscode.tasks.executeTask(task);
+            const projectUri = vscode.workspace.workspaceFolders![0].uri.fsPath;
+
+            const buildCommand = getBuildCommand();
+            const buildProcess = child_process.spawn(buildCommand, [], { shell: true, cwd: projectUri });
+            showServerOutputChannel();
+
+            buildProcess.stdout.on('data', (data) => {
+                serverLog(data.toString());
+            });
+
             if (shouldCopyTarget) {
-                let disposable = vscode.tasks.onDidEndTaskProcess(async e => {
-                    if (e.execution.task.name === 'build') {
-                        disposable.dispose();
-                        if (e.exitCode === 0) {
-                            // Check if the target directory exists in the workspace
-                            const workspaceFolders = vscode.workspace.workspaceFolders;
-                            if (workspaceFolders && workspaceFolders.length > 0) {
-                                // copy all the jars present in deployement/libs
-                                const workspaceLibs = vscode.Uri.joinPath(workspaceFolders[0].uri, "deployment", "libs");
-                                if (fs.existsSync(workspaceLibs.fsPath)) {
-                                    try {
-                                        const jars = await getDeploymentLibJars(workspaceLibs);
-                                        if (jars.length > 0) {
-                                            const targetLibs = path.join(serverPath, 'lib');
-                                            jars.forEach(jar => {
-                                                const destinationJar = path.join(targetLibs, path.basename(jar.fsPath));
-                                                fs.copyFileSync(jar.fsPath, destinationJar);
-                                            });
-                                        }
-                                    } catch (err) {
-                                        reject(err);
+
+                buildProcess.on('exit', async (code) => {
+                    if (shouldCopyTarget && code === 0) {
+                        // Check if the target directory exists in the workspace
+                        const workspaceFolders = vscode.workspace.workspaceFolders;
+                        if (workspaceFolders && workspaceFolders.length > 0) {
+                            // copy all the jars present in deployement/libs
+                            const workspaceLibs = vscode.Uri.joinPath(workspaceFolders[0].uri, "deployment", "libs");
+                            if (fs.existsSync(workspaceLibs.fsPath)) {
+                                try {
+                                    const jars = await getDeploymentLibJars(workspaceLibs);
+                                    if (jars.length > 0) {
+                                        const targetLibs = path.join(serverPath, 'lib');
+                                        jars.forEach(jar => {
+                                            const destinationJar = path.join(targetLibs, path.basename(jar.fsPath));
+                                            fs.copyFileSync(jar.fsPath, destinationJar);
+                                        });
                                     }
-                                }
-                                const targetDirectory = vscode.Uri.joinPath(workspaceFolders[0].uri, "target");
-                                if (fs.existsSync(targetDirectory.fsPath)) {
-                                    try {
-                                        const sourceFiles = await getCarFiles(targetDirectory);
-                                        if (sourceFiles.length === 0) {
-                                            const errorMessage = "No .car files were found in the target directory. Built without copying to the server's carbonapps directory.";
-                                            logDebug(errorMessage, ERROR_LOG);
-                                            reject(errorMessage);
-                                        } else {
-                                            const targetPath = path.join(serverPath, 'repository', 'deployment', 'server', 'carbonapps');
-                                            sourceFiles.forEach(sourceFile => {
-                                                const destinationFile = path.join(targetPath, path.basename(sourceFile.fsPath));
-                                                fs.copyFileSync(sourceFile.fsPath, destinationFile);
-                                            });
-                                            logDebug('Build and copy tasks executed successfully', INFO_LOG);
-                                            resolve();
-                                        }
-                                    } catch (err) {
-                                        reject(err);
-                                    }
+                                } catch (err) {
+                                    reject(err);
                                 }
                             }
-                        } else {
-                            reject(`Task '${task.name}' failed.`);
+                            const targetDirectory = vscode.Uri.joinPath(workspaceFolders[0].uri, "target");
+                            if (fs.existsSync(targetDirectory.fsPath)) {
+                                try {
+                                    const sourceFiles = await getCarFiles(targetDirectory);
+                                    if (sourceFiles.length === 0) {
+                                        const errorMessage = "No .car files were found in the target directory. Built without copying to the server's carbonapps directory.";
+                                        logDebug(errorMessage, ERROR_LOG);
+                                        reject(errorMessage);
+                                    } else {
+                                        const targetPath = path.join(serverPath, 'repository', 'deployment', 'server', 'carbonapps');
+                                        sourceFiles.forEach(sourceFile => {
+                                            const destinationFile = path.join(targetPath, path.basename(sourceFile.fsPath));
+                                            fs.copyFileSync(sourceFile.fsPath, destinationFile);
+                                        });
+                                        logDebug('Build and copy tasks executed successfully', INFO_LOG);
+                                        resolve();
+                                    }
+                                } catch (err) {
+                                    reject(err);
+                                }
+                            }
                         }
+                    } else {
+                        reject(`Build process failed`);
                     }
                 });
             }
@@ -203,19 +214,79 @@ async function getCarFiles(targetDirectory) {
     return carFiles;
 }
 
+let serverProcess: ChildProcess;
+const debugConsole = vscode.debug.activeDebugConsole;
+
+// Start the server
+export async function startServer(serverPath: string, isDebug: boolean): Promise<void> {
+    return new Promise<void>(async (resolve, reject) => {
+        const runCommand = await getRunCommand(serverPath, isDebug);
+        if (runCommand === undefined) {
+            reject('Error getting run command');
+        } else {
+            serverProcess = child_process.spawn(runCommand, [], { shell: true });
+            showServerOutputChannel();
+
+            if (serverProcess.stdout) {
+                serverProcess.stdout.on('data', (data) => {
+                    serverLog(data.toString());
+                });
+            }
+
+            if (serverProcess.stderr) {
+                serverProcess.stderr.on('data', (data) => {
+                    serverLog(data.toString());
+                });
+            }
+
+            serverProcess.on('error', (error) => {
+                serverLog(error.message);
+                reject(error);
+            });
+
+            resolve();
+        }
+    });
+}
+
+// Stop the server
+export async function stopServer(serverPath: string, isWindows?: boolean): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+        if (serverProcess) {
+            if (isWindows) {
+                treeKill(serverProcess.pid!, 'SIGKILL');
+                resolve();
+            } else {
+                const stopCommand = getStopCommand(serverPath);
+                if (stopCommand === undefined) {
+                    reject('Error getting stop command');
+                } else {
+                    const stopProcess = child_process.spawn(stopCommand, [], { shell: true });
+                    showServerOutputChannel();
+
+                    serverProcess.on('exit', (code) => {
+                        treeKill(serverProcess.pid!, 'SIGKILL');
+                        if (code !== 0) {
+                            reject(`Server process exited with code ${code}`);
+                        } else {
+                            resolve();
+                        }
+                    });
+                }
+            }
+        } else {
+            resolve();
+        }
+    });
+}
+
 export async function executeTasks(serverPath: string, isDebug: boolean): Promise<void> {
-    const buildTask = getBuildTask();
     const maxTimeout = 10000;
     return new Promise<void>(async (resolve, reject) => {
-        executeBuildTask(buildTask, serverPath).then(async () => {
+        executeBuildTask(serverPath).then(async () => {
             const isServerRunning = await checkServerLiveness();
             if (!isServerRunning) {
-                const runTask = await getRunTask(serverPath, isDebug);
-                if (runTask) {
-                    runTask.presentationOptions = {
-                        panel: vscode.TaskPanelKind.Shared
-                    };
-                    await vscode.tasks.executeTask(runTask);
+                startServer(serverPath, isDebug).then(() => {
                     if (isDebug) {
                         // check if server command port is active
                         isPortActivelyListening(DebuggerConfig.getCommandPort(), maxTimeout).then((isListening) => {
@@ -230,9 +301,9 @@ export async function executeTasks(serverPath: string, isDebug: boolean): Promis
                     } else {
                         resolve();
                     }
-                } else {
-                    reject('Error creating run task');
-                }
+                }).catch((error) => {
+                    reject(error);
+                });
             } else {
                 // Server could be running in the background without debug mode, but we need to rerun to support this mode
                 if (isDebug) {
