@@ -11,9 +11,10 @@ import {
     sendTelemetryEvent, sendTelemetryException, TM_EVENT_PASTE_AS_RECORD, CMP_XML_TO_RECORD,
 } from "../../telemetry";
 import { commands, window, env } from "vscode";
-import { ballerinaExtInstance, DIAGNOSTIC_SEVERITY, XMLToRecordResponse } from "../../../core";
+import { ballerinaExtInstance, DIAGNOSTIC_SEVERITY } from "../../../core";
 import { PALETTE_COMMANDS, MESSAGES } from "./cmd-runner";
 import { isSupportedSLVersion } from "../../../utils";
+import { XMLToRecordResponse } from "@wso2-enterprise/ballerina-core";
 
 const MSG_NOT_SUPPORT = "Paste XML as a Ballerina record feature is not supported";
 

@@ -12,7 +12,7 @@ import {
     NotebookCell, NotebookCellOutput, NotebookCellOutputItem, NotebookController,
     NotebookDocument, NotebookDocumentContentChange, notebooks, window, workspace
 } from 'vscode';
-import { BallerinaExtension, ExtendedLangClient, NotebookCellMetaInfo, NoteBookCellOutputResponse, NOT_SUPPORTED } from '../../core';
+import { BallerinaExtension, ExtendedLangClient, NOT_SUPPORTED } from '../../core';
 import {
     CMP_NOTEBOOK, sendTelemetryEvent, sendTelemetryException, TM_EVENT_RUN_NOTEBOOK, TM_EVENT_RUN_NOTEBOOK_BAL_CMD,
     TM_EVENT_RUN_NOTEBOOK_CODE_SNIPPET
@@ -20,6 +20,7 @@ import {
 import { isWindows } from '../../utils';
 import { CUSTOM_DESIGNED_MIME_TYPES, NOTEBOOK_TYPE } from './constants';
 import { VariableViewProvider } from './variableView';
+import { NoteBookCellOutputResponse, NotebookCellMetaInfo } from '@wso2-enterprise/ballerina-core';
 
 const definedVariables = new Set();
 

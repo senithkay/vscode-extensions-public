@@ -10,9 +10,10 @@
 import { debug } from "../../utils/logger";
 import toml from "toml";
 import { CompletionItem, CompletionItemKind, Position, TextDocument, Uri } from "vscode";
-import { BallerinaExtension, BallerinaProject, PackageConfigSchemaResponse } from "../../core";
+import { BallerinaExtension } from "../../core";
 import { findPropertyValues, getConfigValue, getCurrentBallerinaProjectFromContext } from "./configGenerator";
 import { ConfigProperty, Constants, Property } from "./model";
+import { BallerinaProject, PackageConfigSchemaResponse } from "@wso2-enterprise/ballerina-core";
 
 
 export const typeOfComment = 'Type of';

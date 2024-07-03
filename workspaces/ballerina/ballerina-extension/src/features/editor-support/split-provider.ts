@@ -7,13 +7,13 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { BallerinaExtension, SyntaxTreeNodeResponse } from "../../core";
+import { BallerinaExtension } from "../../core";
 import { Disposable, Position, Range, TextDocumentChangeEvent, TextDocumentContentChangeEvent, window, workspace } from "vscode";
 import { CMP_STRING_SPLIT, sendTelemetryEvent, TM_EVENT_STRING_SPLIT } from "../telemetry";
 import { isWindows } from "../../utils";
 import { traversNode } from "@wso2-enterprise/syntax-tree";
 import { SplitProviderVisitor } from "./split-provider-visitor";
-import { GetSyntaxTreeResponse } from "@wso2-enterprise/ballerina-core";
+import { GetSyntaxTreeResponse, SyntaxTreeNodeResponse } from "@wso2-enterprise/ballerina-core";
 
 export const newLine: string = isWindows() ? '\r\n' : '\n';
 const STRING_LITERAL: string = 'STRING_LITERAL';

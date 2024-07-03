@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { PerformanceAnalyzerResponse, Range } from "../../core";
+import { PerformanceAnalyzerResponse, Range } from "@wso2-enterprise/ballerina-core";
 import { CODELENSE_TYPE } from "./codelens-provider";
 
 export enum ANALYZETYPE {

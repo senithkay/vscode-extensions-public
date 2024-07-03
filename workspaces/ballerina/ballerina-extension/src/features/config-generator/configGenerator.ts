@@ -10,10 +10,11 @@
 import { window, Uri, commands, workspace } from "vscode";
 import { existsSync, openSync, readFileSync, writeFile } from "fs";
 import { BAL_TOML, CONFIG_FILE, PALETTE_COMMANDS } from "../project";
-import { BallerinaExtension, BallerinaProject, PackageConfigSchemaResponse } from "../../core";
+import { BallerinaExtension } from "../../core";
 import { getCurrentBallerinaProject } from "../../utils/project-utils";
 import { generateExistingValues, parseTomlToConfig, typeOfComment } from "./utils";
 import { ConfigProperty, ConfigTypes, Constants, Property } from "./model";
+import { BallerinaProject, PackageConfigSchemaResponse } from "@wso2-enterprise/ballerina-core";
 
 const DEBUG_RUN_COMMAND_ID = 'workbench.action.debug.run';
 

@@ -20,7 +20,7 @@ import { activate as activateProjectFeatures } from './features/project';
 import { activate as activateEditorSupport } from './features/editor-support';
 import { activate as activateTesting } from './features/testing/activator';
 import { StaticFeature, DocumentSelector, ServerCapabilities, InitializeParams, FeatureState } from 'vscode-languageclient';
-import { ExtendedClientCapabilities, ExtendedLangClient } from './core/extended-language-client';
+import { ExtendedLangClient } from './core/extended-language-client';
 import { activate as activatePerformanceForecaster } from './views/forecaster';
 import { activate as activateTryIt } from './views/tryIt/tryit';
 import { activate as activateNotebook } from './views/notebook';
@@ -31,6 +31,7 @@ import { activateUriHandlers } from './utils/uri-handlers';
 import { StateMachine } from './stateMachine';
 import { activateSubscriptions } from './views/visualizer/activate';
 import { extension } from './BalExtensionContext';
+import { ExtendedClientCapabilities } from '@wso2-enterprise/ballerina-core';
 
 let langClient: ExtendedLangClient;
 export let isPluginStartup = true;

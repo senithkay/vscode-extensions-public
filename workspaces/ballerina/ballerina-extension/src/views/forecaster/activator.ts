@@ -11,7 +11,7 @@ import { ANALYZETYPE, DataLabel, PerfContext, PerformanceAnalyzerAdvancedRespons
 import { commands, ExtensionContext, languages, Uri, ViewColumn, window } from "vscode";
 import {
     BallerinaExtension, ExtendedLangClient, LANGUAGE,
-    PerformanceAnalyzerResponse, WEBVIEW_TYPE
+    WEBVIEW_TYPE
 } from "../../core";
 import { ExecutorCodeLensProvider } from "./codelens-provider";
 import { debug } from "../../utils";
@@ -20,6 +20,7 @@ import { MESSAGE_TYPE, showMessage } from "../../utils/showMessage";
 import { PALETTE_COMMANDS } from "../../features/project";
 import { CMP_PERF_ANALYZER, sendTelemetryEvent, TM_EVENT_OPEN_PERF_GRAPH, TM_EVENT_PERF_REQUEST } from "../../features/telemetry";
 import { getChoreoExtAPI } from "../../features/choreo-features/activate";
+import { PerformanceAnalyzerResponse } from "@wso2-enterprise/ballerina-core";
 
 export const SHOW_GRAPH_COMMAND = "ballerina.forecast.performance.showGraph";
 

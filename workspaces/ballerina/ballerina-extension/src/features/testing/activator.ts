@@ -15,10 +15,11 @@ import {
   Position, Range,
   TestController, TestItem, TestItemCollection, TestRunProfileKind, tests, TextDocument, Uri, workspace
 } from 'vscode';
-import { BallerinaExtension, BallerinaProject, ExecutorPosition, ExecutorPositionsResponse, ExtendedLangClient, } from "../../core";
+import { BallerinaExtension, ExtendedLangClient, } from "../../core";
 import path from 'path';
 import { runHandler } from './runner';
 import { startWatchingWorkspace } from './discover';
+import { ExecutorPositionsResponse, ExecutorPosition, BallerinaProject } from '@wso2-enterprise/ballerina-core';
 
 enum EXEC_POSITION_TYPE {
   SOURCE = 'source',

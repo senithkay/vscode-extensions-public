@@ -32,7 +32,25 @@ import {
     Field,
     PublishDiagnosticsParams,
     DidOpenParams, DidCloseParams, DidChangeParams,
-    TypesFromExpressionResponse
+    TypesFromExpressionResponse,
+    NOT_SUPPORTED_TYPE,
+    PerformanceAnalyzerRequest,
+    PerformanceAnalyzerResponse,
+    SymbolInfoRequest,
+    SymbolInfoResponse,
+    TypeFromExpressionRequest,
+    TypeFromSymbolRequest,
+    TypesFromFnDefinitionRequest,
+    SyntaxTreeNodeResponse,
+    APITimeConsumption,
+    OpenAPIConverterRequest,
+    OpenAPIConverterResponse,
+    BallerinaProject,
+    ExecutorPosition,
+    NoteBookCellOutputResponse,
+    NotebookFileSourceResponse,
+    NotebookVariable,
+    PackageConfigSchemaResponse
 } from "@wso2-enterprise/ballerina-core";
 import { BallerinaExtension } from "./index";
 import { debug } from "../utils";
@@ -118,57 +136,41 @@ export enum DIAGNOSTIC_SEVERITY {
     ERROR = "ERROR"
 }
 
-export interface ExtendedClientCapabilities extends ClientCapabilities {
-    experimental: { introspection: boolean, showTextDocument: boolean };
-}
-
-export interface BallerinaSyntaxTree {
+interface BallerinaSyntaxTree {
     kind: string;
     topLevelNodes: any[];
 }
 
-export interface BallerinaExample {
+interface BallerinaExample {
     title: string;
     url: string;
 }
 
-export interface BallerinaExampleCategory {
+interface BallerinaExampleCategory {
     title: string;
     column: number;
     samples: Array<BallerinaExample>;
 }
 
-export interface BallerinaExampleListRequest {
+interface BallerinaExampleListRequest {
     filter?: string;
 }
 
-export interface BallerinaExampleListResponse {
+interface BallerinaExampleListResponse {
     samples: Array<BallerinaExampleCategory>;
 }
 
-export interface BallerinaProject {
-    kind?: string;
-    path?: string;
-    version?: string;
-    author?: string;
-    packageName?: string;
-}
-
-export interface BallerinaProjectComponents {
+interface BallerinaProjectComponents {
     packages?: any[];
 }
 
-export interface GetBallerinaProjectParams {
+interface GetBallerinaProjectParams {
     documentIdentifier: DocumentIdentifier;
 }
 
-export interface SyntaxTreeNodeRequestParams {
+interface SyntaxTreeNodeRequestParams {
     documentIdentifier: DocumentIdentifier;
     range: Range;
-}
-
-export interface SyntaxTreeNodeResponse {
-    kind: string;
 }
 
 export type SequenceDiagramModelRequest = SequenceModelRequest;
@@ -178,7 +180,7 @@ export type SequenceDiagramModelResponse = {
     modelDiagnostic?: SequenceModelDiagnostic
 };
 
-export interface JsonToRecordRequest {
+interface JsonToRecordRequest {
     jsonString: string;
     recordName?: string;
     isRecordTypeDesc?: boolean;
@@ -186,68 +188,37 @@ export interface JsonToRecordRequest {
     forceFormatRecordFields?: boolean;
 }
 
-export interface JsonToRecordResponse {
+interface JsonToRecordResponse {
     codeBlock: string;
     diagnostics?: JsonToRecordMapperDiagnostic[];
 }
 
-export interface JsonToRecordMapperDiagnostic {
+interface JsonToRecordMapperDiagnostic {
     message: string;
     severity?: DIAGNOSTIC_SEVERITY;
 }
 
-export interface XMLToRecordRequest {
+interface XMLToRecordRequest {
     xmlValue: string;
     isRecordTypeDesc?: boolean;
     isClosed?: boolean;
     forceFormatRecordFields?: boolean;
 }
 
-export interface XMLToRecordResponse {
+interface XMLToRecordResponse {
     codeBlock: string;
     diagnostics?: XMLToRecordConverterDiagnostic[];
 }
 
-export interface XMLToRecordConverterDiagnostic {
+interface XMLToRecordConverterDiagnostic {
     message: string;
     severity?: DIAGNOSTIC_SEVERITY;
 }
 
-export interface NoteBookCellOutputRequest {
+interface NoteBookCellOutputRequest {
     source: string;
 }
-
-export interface NoteBookCellOutputValue {
-    value: string;
-    mimeType: string;
-    type: string;
-}
-
-export interface NotebookCellMetaInfo {
-    definedVars: string[];
-    moduleDclns: string[];
-}
-
-export interface NoteBookCellOutputResponse {
-    shellValue?: NoteBookCellOutputValue;
-    errors: string[];
-    diagnostics: string[];
-    metaInfo?: NotebookCellMetaInfo;
-    consoleOut: string;
-}
-
-export interface NotebookFileSourceResponse {
-    content: string;
-    filePath: string;
-}
-
-export interface NotebookVariable {
-    name: string;
-    type: string;
-    value: string;
-}
-
-export interface NotebookDeleteDclnRequest {
+interface NotebookDeleteDclnRequest {
     varToDelete: string;
 }
 
@@ -269,86 +240,74 @@ interface BallerinaServerCapability {
     [key: string]: boolean | string;
 }
 
-export interface GetBallerinaPackagesParams {
+interface GetBallerinaPackagesParams {
     documentIdentifiers: DocumentIdentifier[];
 }
 
-export interface DocumentIdentifier {
+interface DocumentIdentifier {
     uri: string;
 }
 
-export interface LineRange {
+interface LineRange {
     startLine: LinePosition;
     endLine: LinePosition;
 }
 
-export interface LinePosition {
+interface LinePosition {
     line: number;
     offset: number;
 }
 
-export interface Range {
+interface Range {
     start: Position;
     end: Position;
 }
 
-export interface Position {
+interface Position {
     line: number;
     character: number;
 }
 
-export interface GraphqlDesignServiceRequest {
+interface GraphqlDesignServiceRequest {
     filePath: string;
     startLine: LinePosition;
     endLine: LinePosition;
 }
-export interface GraphqlDesignServiceResponse {
+interface GraphqlDesignServiceResponse {
     graphqlDesignModel: any;
     isIncompleteModel: boolean;
     errorMsg: string;
 }
 
-export interface BallerinaServiceListRequest {
+interface BallerinaServiceListRequest {
     documentIdentifier: DocumentIdentifier;
 }
 
-export interface BallerinaServiceListResponse {
+interface BallerinaServiceListResponse {
     services: string[];
 }
 
-export interface BallerinaSynResponse {
+interface BallerinaSynResponse {
     syn?: String;
 }
 
-export interface GetSynRequest {
+interface GetSynRequest {
     Params: string;
 }
 
-export interface ExecutorPositionsResponse {
+interface ExecutorPositionsResponse {
     executorPositions?: ExecutorPosition[];
 }
 
-export interface ExecutorPosition {
-    kind: string;
-    range: LineRange;
-    name: string;
-    filePath: string;
-}
-
-export interface PartialSTRequestParams {
+interface PartialSTRequestParams {
     codeSnippet: string;
     stModification?: PartialSTModification;
 }
 
-export interface PartialSTResponse {
+interface PartialSTResponse {
     syntaxTree: any;
 }
-
-export interface PackageConfigSchemaResponse {
-    configSchema: any;
-}
-
-export interface PartialSTModification {
+interface PartialSTModification {
     startLine: number;
     startColumn: number;
     endLine: number;
@@ -356,134 +315,23 @@ export interface PartialSTModification {
     newCodeSnippet: string;
 }
 
-export interface PerformanceAnalyzerGraphRequest {
-    documentIdentifier: DocumentIdentifier;
-    range: Range;
-    choreoAPI: String;
-    choreoCookie: String;
-    choreoToken: String;
+
+
+
+
+enum VSCODE_APIS {
+    DID_OPEN = 'textDocument/didOpen',
+    DID_CLOSE = 'textDocument/didClose',
+    DID_CHANGE = 'textDocument/didChange',
+    DEFINITION = 'textDocument/definition',
+    COMPLETION = 'textDocument/completion',
+    RENAME = 'textDocument/rename',
+    DOC_SYMBOL = 'textDocument/documentSymbol',
+    CODE_ACTION = 'textDocument/codeAction',
+    EXECUTE_CMD = 'workspace/executeCommand',
+    PUBLISH_DIAGNOSTICS = 'textDocument/publishDiagnostics'
 }
 
-export interface PerformanceAnalyzerRequest {
-    documentIdentifier: DocumentIdentifier;
-    isWorkerSupported: boolean;
-}
-
-export interface PerformanceAnalyzerResponse {
-    resourcePos: Range;
-    endpoints: any;
-    actionInvocations: any;
-    type: string;
-    message: string;
-    name: string;
-}
-
-export interface OpenAPIConverterRequest {
-    documentFilePath: string;
-}
-
-export interface OpenAPIConverterResponse {
-    content: OASpec[];
-    error?: string;
-}
-
-export interface OASpec {
-    file: string;
-    serviceName: string;
-    spec: any;
-    diagnostics: OADiagnostic[];
-}
-
-export interface OADiagnostic {
-    message: string;
-    serverity: string;
-    location?: LineRange;
-}
-
-export interface APITimeConsumption {
-    diagnostics: number[];
-    completion: number[];
-}
-
-export interface SymbolInfoRequest {
-    textDocumentIdentifier: {
-        uri: string;
-    };
-    position: {
-        line: number;
-        character: number;
-    };
-}
-
-export interface ParameterInfo {
-    name: string;
-    description: string;
-    kind: string;
-    type: string;
-}
-
-export interface SymbolDocumentation {
-    description: string;
-    parameters?: ParameterInfo[];
-    returnValueDescription?: string;
-    deprecatedDocumentation?: string;
-    deprecatedParams?: ParameterInfo[];
-}
-
-export interface SymbolInfoResponse {
-    symbolKind: string;
-    documentation: SymbolDocumentation;
-}
-
-export interface ExpressionRange {
-    startLine: LinePosition;
-    endLine: LinePosition;
-    filePath?: string;
-}
-
-export interface TypeFromExpressionRequest {
-    documentIdentifier: {
-        uri: string;
-    };
-    expressionRanges: ExpressionRange[];
-}
-
-export interface ResolvedTypeForExpression {
-    type: Field;
-    requestedRange: ExpressionRange;
-}
-
-// export interface TypesFromExpressionResponse {
-//     types: ResolvedTypeForExpression[];
-// }
-
-export interface TypeFromSymbolRequest {
-    documentIdentifier: {
-        uri: string;
-    };
-    positions: LinePosition[];
-}
-
-export interface TypesFromFnDefinitionRequest {
-    documentIdentifier: {
-        uri: string;
-    };
-    fnPosition: LinePosition;
-    returnTypeDescPosition: LinePosition;
-}
-
-export interface ResolvedTypeForSymbol {
-    type: Field;
-    requestedPosition: LinePosition;
-}
-
-// export interface TypesFromSymbolResponse {
-//     types: ResolvedTypeForSymbol[];
-// }
-
-interface NOT_SUPPORTED_TYPE {
-
-}
 
 export class ExtendedLangClient extends LanguageClient {
     private ballerinaExtendedServices: Set<String> | undefined;
@@ -501,47 +349,69 @@ export class ExtendedLangClient extends LanguageClient {
         this.timeConsumption = { diagnostics: [], completion: [] };
     }
 
+    // <------------ VS CODE RELATED APIS START --------------->
     didOpen(params: DidOpenParams): void {
         debug(`didOpen at ${new Date()} - ${new Date().getTime()}`);
-        this.sendNotification("textDocument/didOpen", params);
+        this.sendNotification(VSCODE_APIS.DID_OPEN, params);
     }
-    registerPublishDiagnostics(): void {
-        this.onNotification("textDocument/publishDiagnostics", (notification: any) => {
-        });
-    }
+
     didClose(params: DidCloseParams): void {
         debug(`didClose at ${new Date()} - ${new Date().getTime()}`);
-        this.sendNotification("textDocument/didClose", params);
+        this.sendNotification(VSCODE_APIS.DID_CLOSE, params);
     }
+
     didChange(params: DidChangeParams): void {
         debug(`didChange at ${new Date()} - ${new Date().getTime()}`);
-        this.sendNotification("textDocument/didChange", params);
+        this.sendNotification(VSCODE_APIS.DID_CHANGE, params);
     }
-    async definition(params: DefinitionParams): Promise<Location | Location[] | LocationLink[]> {
-        return this.sendRequest<Location | Location[] | LocationLink[]>("textDocument/definition", params);
-    }
-    async getResourcesWithEndpoints(params: PerformanceAnalyzerRequest, skipLogin?: boolean): Promise<PerformanceAnalyzerResponse[] | NOT_SUPPORTED_TYPE> {
-        return getChoreoExtAPI().then(async (extApi) => {
-            if (!skipLogin && (!this.ballerinaExtInstance?.enabledPerformanceForecasting() || !extApi || !await extApi.waitForLogin() ||
-                this.ballerinaExtInstance.getPerformanceForecastContext().temporaryDisabled)) {
-                return Promise.resolve([{
-                    type: 'error', message: "error",
-                    endpoints: null, actionInvocations: null,
-                    resourcePos: { start: { line: 0, character: 0 }, end: { line: 0, character: 0 } },
-                    name: ""
-                }]);
-            }
-            const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.PERF_ANALYZER_RESOURCES_ENDPOINTS);
-            return isSupported ? this.sendRequest(EXTENDED_APIS.PERF_ANALYZER_RESOURCES_ENDPOINTS, params) :
-                Promise.resolve(NOT_SUPPORTED);
+
+    registerPublishDiagnostics(): void {
+        this.onNotification(VSCODE_APIS.PUBLISH_DIAGNOSTICS, (notification: any) => {
         });
     }
+
+    async definition(params: DefinitionParams): Promise<Location | Location[] | LocationLink[]> {
+        return this.sendRequest<Location | Location[] | LocationLink[]>(VSCODE_APIS.DEFINITION, params);
+    }
+
+    async getCompletion(params: CompletionParams): Promise<Completion[]> {
+        const start = new Date().getTime();
+        const response: Completion[] = await this.sendRequest(VSCODE_APIS.COMPLETION, params);
+        this.timeConsumption.completion.push(new Date().getTime() - start);
+        return response;
+    }
+
+    async rename(params: RenameParams): Promise<WorkspaceEdit | null> {
+        return this.sendRequest(VSCODE_APIS.RENAME, params);
+    }
+
+    async getDocumentSymbol(params: DocumentSymbolParams): Promise<DocumentSymbol[] | SymbolInformation[] | null> {
+        return this.sendRequest(VSCODE_APIS.DOC_SYMBOL, params);
+    }
+
+    async codeAction(params: CodeActionParams): Promise<CodeAction[]> {
+        return this.sendRequest(VSCODE_APIS.CODE_ACTION, params);
+    }
+
+    async executeCommand(params: ExecuteCommandParams): Promise<any> {
+        return this.sendRequest(VSCODE_APIS.EXECUTE_CMD, params);
+    }
+    // <------------ VS CODE RELATED APIS END --------------->
+
+    // <------------ EXTENDED APIS START --------------->
+
+    async initBalServices(params: BallerinaInitializeParams): Promise<BallerinaInitializeResult> {
+        return this.sendRequest("initBalServices", params);
+    }
+
     async getPackageComponentModels(params: GetComponentModelRequest): Promise<GetComponentModelResponse> {
         return this.sendRequest(EXTENDED_APIS.COMPONENT_MODEL_ENDPOINT, params);
     }
+
     async getPersistERModel(params: GetPersistERModelRequest): Promise<GetPersistERModelResponse> {
         return this.sendRequest(EXTENDED_APIS.PERSIST_MODEL_ENDPOINT, params);
     }
+
     async getDiagnostics(params: BallerinaProjectParams): Promise<PublishDiagnosticsParams[] | NOT_SUPPORTED_TYPE> {
         const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.DOCUMENT_DIAGNOSTICS);
         if (!isSupported) {
@@ -552,16 +422,12 @@ export class ExtendedLangClient extends LanguageClient {
         this.timeConsumption.diagnostics.push(new Date().getTime() - start);
         return response;
     }
-    async getCompletion(params: CompletionParams): Promise<Completion[]> {
-        const start = new Date().getTime();
-        const resoponse: Completion[] = await this.sendRequest("textDocument/completion", params);
-        this.timeConsumption.completion.push(new Date().getTime() - start);
-        return resoponse;
-    }
+
     async getType(params: ExpressionTypeRequest): Promise<ExpressionTypeResponse | NOT_SUPPORTED_TYPE> {
         const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.SYMBOL_TYPE);
         return isSupported ? this.sendRequest(EXTENDED_APIS.SYMBOL_TYPE, params) : Promise.resolve(NOT_SUPPORTED);
     }
+
     async getConnectors(params: BallerinaConnectorsRequest, reset?: boolean): Promise<BallerinaConnectorsResponse | NOT_SUPPORTED_TYPE> {
         const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.CONNECTOR_CONNECTORS);
         if (!isSupported) {
@@ -580,33 +446,39 @@ export class ExtendedLangClient extends LanguageClient {
         }
         return this.sendRequest<BallerinaConnectorsResponse>(EXTENDED_APIS.CONNECTOR_CONNECTORS, params);
     }
+
     async getTriggers(params: BallerinaTriggersRequest): Promise<BallerinaTriggersResponse | NOT_SUPPORTED_TYPE> {
         // const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.TRIGGER_TRIGGERS);
         const isSupported = true;
         return isSupported ? this.sendRequest<BallerinaTriggersResponse>(EXTENDED_APIS.TRIGGER_TRIGGERS, params) :
             Promise.resolve(NOT_SUPPORTED);
     }
+
     async getConnector(params: BallerinaConnectorRequest): Promise<BallerinaConnectorResponse | NOT_SUPPORTED_TYPE> {
         const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.CONNECTOR_CONNECTOR);
         return isSupported ? this.sendRequest<BallerinaConnectorResponse>(EXTENDED_APIS.CONNECTOR_CONNECTOR, params) :
             Promise.resolve(NOT_SUPPORTED);
     }
+
     async getTrigger(params: BallerinaTriggerRequest): Promise<BallerinaTriggerResponse | NOT_SUPPORTED_TYPE> {
         // const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.TRIGGER_TRIGGER);
         const isSupported = true;
         return isSupported ? this.sendRequest<BallerinaTriggerResponse>(EXTENDED_APIS.TRIGGER_TRIGGER, params) :
             Promise.resolve(NOT_SUPPORTED);
     }
+
     async getRecord(params: BallerinaRecordRequest): Promise<BallerinaRecordResponse | NOT_SUPPORTED_TYPE> {
         const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.CONNECTOR_RECORD);
         return isSupported ? this.sendRequest<BallerinaRecordResponse>(EXTENDED_APIS.CONNECTOR_RECORD, params) :
             Promise.resolve(NOT_SUPPORTED);
     }
+
     async astModify(params: STModifyRequest): Promise<BallerinaSTModifyResponse | NOT_SUPPORTED_TYPE> {
         const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.DOCUMENT_AST_MODIFY);
         return isSupported ? this.sendRequest<BallerinaSTModifyResponse>(EXTENDED_APIS.DOCUMENT_AST_MODIFY, params) :
             Promise.resolve(NOT_SUPPORTED);
     }
+
     async stModify(params: STModifyRequest): Promise<BallerinaSTModifyResponse | NOT_SUPPORTED_TYPE> {
         const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.DOCUMENT_ST_MODIFY);
         return isSupported ? this.sendRequest<BallerinaSTModifyResponse>(EXTENDED_APIS.DOCUMENT_ST_MODIFY, params) :
@@ -666,35 +538,6 @@ export class ExtendedLangClient extends LanguageClient {
 
     async getGraphqlModel(params: GraphqlDesignServiceRequest): Promise<GraphqlDesignServiceResponse | null> {
         return this.sendRequest<GraphqlDesignServiceResponse>(EXTENDED_APIS.GRAPHQL_DESIGN_MODEL, params);
-    }
-
-    async rename(params: RenameParams): Promise<WorkspaceEdit | null> {
-        return this.sendRequest("textDocument/rename", params);
-    }
-
-    public getDocumentSymbol(params: DocumentSymbolParams): Thenable<DocumentSymbol[] | SymbolInformation[] | null> {
-        return this.sendRequest("textDocument/documentSymbol", params);
-    }
-
-    public close(): void {
-    }
-
-    public updateStatusBar() {
-        if (!this.ballerinaExtInstance || !this.ballerinaExtInstance.getCodeServerContext().statusBarItem) {
-            return;
-        }
-        this.ballerinaExtInstance.getCodeServerContext().statusBarItem?.updateGitStatus();
-    }
-
-    getDidOpenParams(): DidOpenParams {
-        return {
-            textDocument: {
-                uri: "file://",
-                languageId: "ballerina",
-                text: '',
-                version: 1
-            }
-        };
     }
 
     async getSyntaxTree(req: GetSyntaxTreeParams): Promise<GetSyntaxTreeResponse | NOT_SUPPORTED_TYPE> {
@@ -807,14 +650,14 @@ export class ExtendedLangClient extends LanguageClient {
             Promise.resolve(NOT_SUPPORTED);
     }
 
-    getSTForModulePart(params: PartialSTRequestParams): Promise<PartialSTResponse | NOT_SUPPORTED_TYPE> {
+    async getSTForModulePart(params: PartialSTRequestParams): Promise<PartialSTResponse | NOT_SUPPORTED_TYPE> {
         // const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.PARTIAL_PARSE_MODULE_PART);
         const isSupported = true;
         return isSupported ? this.sendRequest(EXTENDED_APIS.PARTIAL_PARSE_MODULE_PART, params) :
             Promise.resolve(NOT_SUPPORTED);
     }
 
-    getSTForResource(params: PartialSTRequestParams): Promise<PartialSTResponse | NOT_SUPPORTED_TYPE> {
+    async getSTForResource(params: PartialSTRequestParams): Promise<PartialSTResponse | NOT_SUPPORTED_TYPE> {
         // const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.PARTIAL_PARSE_MODULE_PART);
         const isSupported = true;
         return isSupported ? this.sendRequest(EXTENDED_APIS.PARTIAL_PARSE_RESOURCE, params) :
@@ -837,10 +680,6 @@ export class ExtendedLangClient extends LanguageClient {
             Promise.resolve(NOT_SUPPORTED);
     }
 
-    initBalServices(params: BallerinaInitializeParams): Promise<BallerinaInitializeResult> {
-        return this.sendRequest("initBalServices", params);
-    }
-
     async convertToOpenAPI(params: OpenAPIConverterRequest): Promise<OpenAPIConverterResponse | NOT_SUPPORTED_TYPE> {
         // const isSupported: boolean = await this.isExtendedServiceSupported(EXTENDED_APIS.BALLERINA_TO_OPENAPI);
         const isSupported = true;
@@ -848,12 +687,26 @@ export class ExtendedLangClient extends LanguageClient {
             Promise.resolve(NOT_SUPPORTED);
     }
 
-    codeAction(params: CodeActionParams): Promise<CodeAction[]> {
-        return this.sendRequest("textDocument/codeAction", params);
-    }
+    // <------------ EXTENDED APIS END --------------->
 
-    executeCommand(params: ExecuteCommandParams): Promise<any> {
-        return this.sendRequest("workspace/executeCommand", params);
+
+    // <------------ OTHER UTILS START --------------->
+
+    async getResourcesWithEndpoints(params: PerformanceAnalyzerRequest, skipLogin?: boolean): Promise<PerformanceAnalyzerResponse[] | NOT_SUPPORTED_TYPE> {
+        return getChoreoExtAPI().then(async (extApi) => {
+            if (!skipLogin && (!this.ballerinaExtInstance?.enabledPerformanceForecasting() || !extApi || !await extApi.waitForLogin() ||
+                this.ballerinaExtInstance.getPerformanceForecastContext().temporaryDisabled)) {
+                return Promise.resolve([{
+                    type: 'error', message: "error",
+                    endpoints: null, actionInvocations: null,
+                    resourcePos: { start: { line: 0, character: 0 }, end: { line: 0, character: 0 } },
+                    name: ""
+                }]);
+            }
+            const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.PERF_ANALYZER_RESOURCES_ENDPOINTS);
+            return isSupported ? this.sendRequest(EXTENDED_APIS.PERF_ANALYZER_RESOURCES_ENDPOINTS, params) :
+                Promise.resolve(NOT_SUPPORTED);
+        });
     }
 
     async registerExtendedAPICapabilities(): Promise<Set<String>> {
@@ -923,7 +776,7 @@ export class ExtendedLangClient extends LanguageClient {
         return Promise.resolve((await this.registerExtendedAPICapabilities()).has(serviceName));
     }
 
-    pushLSClientTelemetries() {
+    public pushLSClientTelemetries() {
         if (this.timeConsumption.completion.length > 0) {
             const completionValues = calculateTelemetryValues(this.timeConsumption.completion, 'completion');
             sendTelemetryEvent(this.ballerinaExtInstance!, TM_EVENT_LANG_CLIENT, CMP_LS_CLIENT_COMPLETIONS,
@@ -938,6 +791,28 @@ export class ExtendedLangClient extends LanguageClient {
                 getMessageObject(process.env.HOSTNAME), diagnosticValues);
         }
     }
+
+    public close(): void {
+    }
+
+    public updateStatusBar() {
+        if (!this.ballerinaExtInstance || !this.ballerinaExtInstance.getCodeServerContext().statusBarItem) {
+            return;
+        }
+        this.ballerinaExtInstance.getCodeServerContext().statusBarItem?.updateGitStatus();
+    }
+
+    public getDidOpenParams(): DidOpenParams {
+        return {
+            textDocument: {
+                uri: "file://",
+                languageId: "ballerina",
+                text: '',
+                version: 1
+            }
+        };
+    }
+
 }
 
 function calculateTelemetryValues(array: number[], name: string): any {

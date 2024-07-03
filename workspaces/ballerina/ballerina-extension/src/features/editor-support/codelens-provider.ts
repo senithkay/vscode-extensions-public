@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { BallerinaExtension, ExecutorPosition, ExecutorPositionsResponse, ExtendedLangClient, LANGUAGE } from '../../core';
+import { BallerinaExtension, ExtendedLangClient, LANGUAGE } from '../../core';
 import {
     CancellationToken, CodeLens, CodeLensProvider, commands, debug, DebugConfiguration, Event, EventEmitter,
     ExtensionContext,
@@ -18,7 +18,7 @@ import {
     CMP_EXECUTOR_CODELENS, sendTelemetryEvent, TM_EVENT_SOURCE_DEBUG_CODELENS, TM_EVENT_TEST_DEBUG_CODELENS
 } from '../telemetry';
 import { constructDebugConfig } from '../debugger';
-import { GetSyntaxTreeResponse } from '@wso2-enterprise/ballerina-core';
+import { ExecutorPosition, ExecutorPositionsResponse, GetSyntaxTreeResponse } from '@wso2-enterprise/ballerina-core';
 import { traversNode } from '@wso2-enterprise/syntax-tree';
 import { CodeLensProviderVisitor } from './codelense-provider-visitor';
 

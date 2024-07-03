@@ -10,12 +10,13 @@
 import { ViewColumn, window, WebviewPanel, commands } from "vscode";
 import { WebViewRPCHandler, getCommonWebViewOptions, debug } from '../../../utils';
 import { render } from './render';
-import { ballerinaExtInstance, CodeServerContext, ExtendedLangClient, OASpec } from "../../../core";
+import { ballerinaExtInstance, CodeServerContext, ExtendedLangClient } from "../../../core";
 import { SwaggerServer } from "../server";
 import { CMP_TRYIT_VIEW, sendTelemetryEvent, TM_EVENT_SWAGGER_RUN } from "../../../features/telemetry";
 import { getPortPromise } from "portfinder";
 import { loader } from "./loader";
 import { getChoreoExtAPI } from '../../../features/choreo-features/activate';
+import { OASpec } from "@wso2-enterprise/ballerina-core";
 
 const cachedResponses = new Map<any, JSON>();
 

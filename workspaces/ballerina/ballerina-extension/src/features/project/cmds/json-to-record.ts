@@ -11,8 +11,9 @@ import {
     sendTelemetryEvent, sendTelemetryException, TM_EVENT_PASTE_AS_RECORD, CMP_JSON_TO_RECORD,
 } from "../../telemetry";
 import { commands, window, env } from "vscode";
-import { ballerinaExtInstance, JsonToRecordResponse, DIAGNOSTIC_SEVERITY } from "../../../core";
+import { ballerinaExtInstance, DIAGNOSTIC_SEVERITY } from "../../../core";
 import { PALETTE_COMMANDS, MESSAGES } from "./cmd-runner";
+import { JsonToRecordResponse } from "@wso2-enterprise/ballerina-core";
 
 const MSG_NOT_SUPPORT = "Paste JSON as a Ballerina record feature is not supported";
 

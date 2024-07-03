@@ -10,7 +10,7 @@
 
 import { ModulePart, STNode } from "@wso2-enterprise/syntax-tree";
 import { DocumentIdentifier, LinePosition, LineRange, Position, Range } from "./common";
-import { DefinitionParams, InitializeParams, InitializeResult, Location, LocationLink } from "vscode-languageserver-protocol";
+import { ClientCapabilities, DefinitionParams, InitializeParams, InitializeResult, Location, LocationLink } from "vscode-languageserver-protocol";
 import { CodeAction, Diagnostic, DocumentSymbol, SymbolInformation } from "vscode-languageserver-types";
 import { BallerinaTriggerRequest, BallerinaTriggerResponse, BallerinaTriggersResponse } from "../rpc-types/project-design-diagram/interfaces";
 import { ExecutorPositionsResponse, BallerinaProjectComponents } from "../rpc-types/lang-server/interfaces";
@@ -59,9 +59,11 @@ export interface BallerinaExampleListResponse {
 }
 
 export interface BallerinaProject {
+    kind?: string;
     path?: string;
     version?: string;
     author?: string;
+    packageName?: string;
 }
 
 export interface GetBallerinaProjectParams {
@@ -526,6 +528,7 @@ export interface ExecutorPosition {
     kind: string;
     range: LineRange;
     name: string;
+    filePath: string;
 }
 
 export interface SymbolInfoRequest {
@@ -724,3 +727,80 @@ export interface BallerinaConstruct {
     displayAnnotation?: DisplayAnnotation;
     icon?: string;
 }
+
+export interface APITimeConsumption {
+    diagnostics: number[];
+    completion: number[];
+}
+
+export interface OADiagnostic {
+    message: string;
+    serverity: string;
+    location?: LineRange;
+}
+
+export interface OASpec {
+    file: string;
+    serviceName: string;
+    spec: any;
+    diagnostics: OADiagnostic[];
+}
+
+export interface OpenAPIConverterResponse {
+    content: OASpec[];
+    error?: string;
+}
+export interface OpenAPIConverterRequest {
+    documentFilePath: string;
+}
+
+export interface PerformanceAnalyzerGraphRequest {
+    documentIdentifier: DocumentIdentifier;
+    range: Range;
+    choreoAPI: string;
+    choreoCookie: string;
+    choreoToken: string;
+}
+
+export interface SyntaxTreeNodeResponse {
+    kind: string;
+}
+
+export interface NoteBookCellOutputResponse {
+    shellValue?: NoteBookCellOutputValue;
+    errors: string[];
+    diagnostics: string[];
+    metaInfo?: NotebookCellMetaInfo;
+    consoleOut: string;
+}
+
+export interface NoteBookCellOutputValue {
+    value: string;
+    mimeType: string;
+    type: string;
+}
+
+export interface NotebookCellMetaInfo {
+    definedVars: string[];
+    moduleDclns: string[];
+}
+
+export interface NotebookFileSourceResponse {
+    content: string;
+    filePath: string;
+}
+
+export interface NotebookVariable {
+    name: string;
+    type: string;
+    value: string;
+}
+
+export interface PackageConfigSchemaResponse {
+    configSchema: any;
+}
+
+export interface ExtendedClientCapabilities extends ClientCapabilities {
+    experimental: { introspection: boolean, showTextDocument: boolean };
+}
+
