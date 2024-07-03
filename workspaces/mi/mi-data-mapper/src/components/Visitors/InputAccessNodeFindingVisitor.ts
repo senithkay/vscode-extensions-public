@@ -8,7 +8,7 @@
  */
 import { CallExpression, ElementAccessExpression, Identifier, Node, PropertyAccessExpression } from "ts-morph";
 import { Visitor } from "../../ts/base-visitor";
-import { isFunctionCall, isInputAccessExpr, isMapFunction } from "../Diagram/utils/common-utils";
+import { isFunctionCall, isInputAccessExpr, isMapFunction, isMethodCall } from "../Diagram/utils/common-utils";
 
 export class InputAccessNodeFindingVisitor implements Visitor {
     private inputNodes: (PropertyAccessExpression | ElementAccessExpression | Identifier)[];
@@ -63,7 +63,7 @@ export class InputAccessNodeFindingVisitor implements Visitor {
         } else if (parent && Node.isCallExpression(parent)) {
             const expr = node.getExpression();
 
-            if (isFunctionCall(parent)) {
+            if (isFunctionCall(parent) || isMethodCall(parent)) {
                 const args = parent.getArguments();
                 if (args.includes(node)) {
                     this.inputNodes.push(node);
