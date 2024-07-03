@@ -8,12 +8,6 @@
  */
 
 import { RefObject } from 'react';
-import { ItemType } from './ExpressionBar';
-
-export const filterItems = (items: ItemType[], text: string, maxItems: number) => {
-    const filtered = items.filter((item: ItemType) => item.label.toLowerCase().includes(text.toLowerCase()));
-    return filtered.sort((a, b) => a.label.length - b.label.length).slice(0, maxItems);
-};
 
 export const getExpressionInfo = (text: string, cursorPosition: number) => {
     const openBrackets = text.substring(0, cursorPosition).match(/\(/g);

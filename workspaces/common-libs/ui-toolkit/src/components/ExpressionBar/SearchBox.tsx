@@ -17,7 +17,7 @@ import { Codicon } from '../Codicon/Codicon';
 import { ExpressionBarProps, ItemType } from './ExpressionBar';
 import { debounce } from 'lodash';
 import { createPortal } from 'react-dom';
-import { addClosingBracketIfNeeded, getExpressionInfo, filterItems, setCursor } from './utils';
+import { addClosingBracketIfNeeded, getExpressionInfo, setCursor } from './utils';
 
 // Types
 type StyleBase = {
@@ -315,7 +315,7 @@ const SyntaxEl = (props: SyntaxElProps) => {
 };
 
 export const ExpressionEditor = forwardRef<HTMLInputElement, ExpressionBarProps>((props, ref) => {
-    const { items, maxItems = 10, value, sx, onChange, onSave, onItemSelect, ...rest } = props;
+    const { maxItems = 10, value, sx, onChange, onSave, onItemSelect, getCompletions, ...rest } = props;
     const elementRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
     const listBoxRef = useRef<HTMLDivElement>(null);
@@ -349,22 +349,13 @@ export const ExpressionEditor = forwardRef<HTMLInputElement, ExpressionBarProps>
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [elementRef]);
 
-    const getSuggestions = (text: string) => {
-        setSyntax(undefined);
-        const cursorPosition = (inputRef.current.shadowRoot.getElementById('control') as HTMLInputElement)
-            .selectionStart;
-        const prefixMatches = text.substring(0, cursorPosition).match(SUGGESTION_REGEX.prefix);
-        if (prefixMatches) {
-            const suffixMatches = text.substring(cursorPosition).match(SUGGESTION_REGEX.suffix);
-            if (suffixMatches) {
-                setFilteredItems(filterItems(items, prefixMatches[1] + suffixMatches[1], maxItems));
-            } else {
-                setFilteredItems(filterItems(items, prefixMatches[1], maxItems));
-            }
-        } else {
-            setFilteredItems([]);
+    const getSuggestions = debounce(async () => {
+        if (inputRef.current) {
+            setSyntax(undefined);
+            const completionItems = await getCompletions();
+            setFilteredItems(completionItems?.slice(0, maxItems) ?? []);
         }
-    };
+    });
 
     const updateSyntax = (currentFnContent: string, newSelectedItem?: ItemType) => {
         if (newSelectedItem) {
@@ -386,7 +377,8 @@ export const ExpressionEditor = forwardRef<HTMLInputElement, ExpressionBarProps>
         }
     };
 
-    const handleChange = (text: string, cursorPosition?: number, selectedItem?: ItemType) => {
+    const handleChange = async (text: string, cursorPosition?: number, selectedItem?: ItemType) => {
+        onChange(text);
         if (text.trim().startsWith('=')) {
             // Check whether the cursor is inside a function
             const { isCursorInFunction, currentFnContent } = getExpressionInfo(text, cursorPosition);
@@ -394,12 +386,11 @@ export const ExpressionEditor = forwardRef<HTMLInputElement, ExpressionBarProps>
                 setFilteredItems([]);
                 updateSyntax(currentFnContent, selectedItem);
             } else {
-                getSuggestions(text);
+                await getSuggestions();
             }
         } else {
             setFilteredItems([]);
         }
-        onChange(text);
     };
 
     const handleItemSelect = (item: ItemType) => {
@@ -428,9 +419,9 @@ export const ExpressionEditor = forwardRef<HTMLInputElement, ExpressionBarProps>
     };
 
     useEffect(() => {
-        const handleFocus = () => {
+        const handleFocus = async () => {
             if (value.trim().startsWith('=')) {
-                getSuggestions(value);
+                await getSuggestions();
             }
         };
 

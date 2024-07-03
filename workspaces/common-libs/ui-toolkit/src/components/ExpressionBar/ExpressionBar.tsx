@@ -22,7 +22,6 @@ export type ItemType = {
 export type ExpressionBarBaseProps = {
     autoFocus?: boolean;
     disabled?: boolean;
-    items: ItemType[];
     maxItems?: number;
     value: string;
     placeholder?: string;
@@ -32,6 +31,7 @@ export type ExpressionBarBaseProps = {
     onBlur?: () => void;
     onItemSelect?: (item: ItemType, text: string) => void;
     onSave?: (value: string) => void;
+    getCompletions: () => Promise<ItemType[]>;
 };
 
 export type ExpressionBarProps = ExpressionBarBaseProps & {
