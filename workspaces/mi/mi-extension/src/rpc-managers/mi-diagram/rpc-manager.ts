@@ -2264,7 +2264,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     http: dataServiceParams.transports != undefined ? dataServiceParams.transports.split(' ').includes('http') : false,
                     https: dataServiceParams.transports != undefined ? dataServiceParams.transports.split(' ').includes('https') : false,
                     jms: dataServiceParams.transports != undefined ? dataServiceParams.transports.split(' ').includes('jms') : false,
-                    local:  dataServiceParams.transports != undefined ? dataServiceParams.transports.split(' ').includes('local') : false,
+                    local: dataServiceParams.transports != undefined ? dataServiceParams.transports.split(' ').includes('local') : false,
                     authProperties: [] as Property[],
                 };
 
@@ -2347,7 +2347,6 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             }
             const content = document.getText();
             undoRedo.addModification(content);
-            document.save();
 
             resolve({ status: true });
         });
