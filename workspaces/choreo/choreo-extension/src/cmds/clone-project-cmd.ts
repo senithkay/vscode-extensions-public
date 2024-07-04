@@ -16,7 +16,7 @@ import { initGit } from "../git/main";
 import { createDirectory } from "../utils";
 import { dataCacheStore } from "../stores/data-cache-store";
 import { authStore } from "../stores/auth-store";
-import { updateContextFile } from "./set-directory-context-cmd";
+import { updateContextFile } from "./create-directory-context-cmd";
 import { createWorkspaceFile } from "./create-project-workspace-cmd";
 import { join } from "path";
 

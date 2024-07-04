@@ -28,16 +28,24 @@ export function deleteComponentCommand(context: ExtensionContext) {
                         let selectedProject = params?.project;
 
                         const selected = contextStore.getState().state.selected;
-                        if (selected) {
-                            selectedOrg = selected.org!;
-                            selectedProject = selected.project!;
-                        } else {
-                            selectedOrg = await selectOrg(userInfo, "Select organization");
-                            selectedProject = await selectProject(
-                                selectedOrg,
-                                `Loading projects from '${selectedOrg.name}'`,
-                                `Select project from '${selectedOrg.name}' to delete`
-                            );
+
+                        if (!selectedOrg) {
+                            if (selected) {
+                                selectedOrg = selected.org!;
+                            } else {
+                                selectedOrg = await selectOrg(userInfo, "Select organization");
+                            }
+                        }
+                        if (!selectedProject) {
+                            if (selected) {
+                                selectedProject = selected.project!;
+                            } else {
+                                selectedProject = await selectProject(
+                                    selectedOrg,
+                                    `Loading projects from '${selectedOrg.name}'`,
+                                    `Select project from '${selectedOrg.name}'`
+                                );
+                            }
                         }
 
                         const selectedComponent =

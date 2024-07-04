@@ -10,13 +10,12 @@ import { ExtensionContext, window, commands, QuickPickItem, QuickPickItemKind, w
 import { CommandIds } from "@wso2-enterprise/choreo-core";
 import { contextStore, waitForContextStoreToLoad } from "../stores/context-store";
 import { authStore } from "../stores/auth-store";
-import { choreoEnvConfig } from "../config";
-import { removeContext } from "./set-directory-context-cmd";
+import { removeContext } from "./create-directory-context-cmd";
 
 export function manageProjectContextCommand(context: ExtensionContext) {
     context.subscriptions.push(
         commands.registerCommand(
-            CommandIds.ManageProjectContext,
+            CommandIds.ManageDirectoryContext,
             async (params: { onlyShowSwitchProject?: boolean }) => {
                 try {
                     let userInfo = authStore.getState().state.userInfo;
@@ -33,12 +32,6 @@ export function manageProjectContextCommand(context: ExtensionContext) {
                             { label: selected?.project?.name!, detail: selected?.org?.name, picked: true }
                         );
 
-                        if (!params?.onlyShowSwitchProject) {
-                            quickPickOptions.push({
-                                label: "Open in console",
-                                detail: `Open ${selected?.project?.name} in Choreo console`,
-                            });
-                        }
                     }
 
                     const contextItems = contextStore.getState().getValidItems();
@@ -64,12 +57,6 @@ export function manageProjectContextCommand(context: ExtensionContext) {
 
                     if (!params?.onlyShowSwitchProject) {
                         if (selected) {
-                            if (!workspace.workspaceFile) {
-                                quickPickOptions.push({
-                                    label: "Open project in a workspace",
-                                    detail: `Create a multi-repo workspace file for ${selected?.project?.name} and open it`,
-                                });
-                            }
                             quickPickOptions.push({
                                 label: "Unlink workspace",
                                 detail: `Remove the association between ${selected?.project?.name} and currently opened workspace`,
@@ -81,22 +68,14 @@ export function manageProjectContextCommand(context: ExtensionContext) {
                         title: "Manage Project",
                     });
 
-                    if (selection?.label === "Open in console") {
-                        const url = `${choreoEnvConfig.getConsoleUrl()}/organizations/${
-                            selected?.org?.handle
-                        }/projects/${selected?.project?.id}/home`;
-                        const consoleUrl = Uri.parse(url);
-                        env.openExternal(consoleUrl);
-                    } else if (
+                     if (
                         selection?.label === "Link with a different project" ||
                         selection?.label === "Link with a project"
                     ) {
-                        commands.executeCommand(CommandIds.SetDirectoryContext);
+                        commands.executeCommand(CommandIds.CreateDirectoryContext);
                     } else if ((selection as any)?.item) {
                         await waitForContextStoreToLoad();
                         contextStore.getState().changeContext((selection as any)?.item);
-                    } else if (selection?.label === "Open project in a workspace") {
-                        commands.executeCommand(CommandIds.CreateProjectWorkspace);
                     } else if (selection?.label === "Unlink workspace") {
                         await waitForContextStoreToLoad();
                         removeContext(

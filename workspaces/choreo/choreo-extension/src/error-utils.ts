@@ -40,7 +40,7 @@ export function handlerError(err: any) {
                 break;
             case ErrorCode.RefreshTokenError:
                 authStore.getState().logout();
-                w.showErrorMessage("Error refreshing token. Please sign in again.");
+                w.showErrorMessage("Failed to refresh user session. Please sign in again.");
                 break;
             case ErrorCode.ComponentNotFound:
                 w.showErrorMessage("Component not found");

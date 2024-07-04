@@ -24,16 +24,20 @@ import { isSubpath } from "../utils";
 
 interface ContextStore {
     state: ContextStoreState;
+    resetState: () => void;
     getValidItems: () => ContextItemEnriched[];
     refreshState: () => Promise<void>;
     changeContext: (selected: ContextItemEnriched) => Promise<void>;
     onSetNewContext: (org: Organization, project: Project, contextDir: ContextItemDir) => void;
 }
 
+const initialState: ContextStoreState = { items: {}, components: [], loading: false };
+
 export const contextStore = createStore(
     persist<ContextStore>(
         (set, get) => ({
-            state: { items: {}, components: [], loading: false },
+            state: initialState,
+            resetState: () => set(() => ({ state: initialState })),
             refreshState: async () => {
                 try {
                     if (authStore.getState().state?.userInfo) {
@@ -98,8 +102,10 @@ const getAllContexts = async (previousItems: { [key: string]: ContextItemEnriche
 
     const setContextObj = (contextFilePath: string, dirPath?: string, workspace?: string) => {
         let parsedData: ContextItem[] = yaml.load(readFileSync(contextFilePath, "utf8")) as any;
-        if (!Array.isArray(parsedData) && (parsedData as any).org && (parsedData as any).project) {
+        if (!Array.isArray(parsedData) && (parsedData as any)?.org && (parsedData as any)?.project) {
             parsedData = [{ org: (parsedData as any).org, project: (parsedData as any).project }];
+        } else if (parsedData === undefined) {
+            parsedData = [];
         }
         // loop through the item and create a map
         for (const contextItem of parsedData) {

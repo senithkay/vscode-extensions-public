@@ -27,9 +27,9 @@ import { showComponentDetailsView } from "../views/webviews/ComponentDetailsView
 import { contextStore } from "../stores/context-store";
 import { dataCacheStore } from "../stores/data-cache-store";
 import * as os from "os";
-import { updateContextFile } from "./set-directory-context-cmd";
 import { authStore } from "../stores/auth-store";
 import { getGitRoot } from "../git/util";
+import { updateContextFile } from "./create-directory-context-cmd";
 
 let componentWizard: ComponentFormView;
 

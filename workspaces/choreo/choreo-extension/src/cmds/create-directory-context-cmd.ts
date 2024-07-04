@@ -17,9 +17,9 @@ import { contextStore, waitForContextStoreToLoad } from "../stores/context-store
 import { dirname } from "path";
 import * as os from "os";
 
-export function setDirectoryContextCommand(context: ExtensionContext) {
+export function createDirectoryContextCommand(context: ExtensionContext) {
     context.subscriptions.push(
-        commands.registerCommand(CommandIds.SetDirectoryContext, async () => {
+        commands.registerCommand(CommandIds.CreateDirectoryContext, async () => {
             try {
                 const userInfo = await getUserInfoForCmd("link a directory with a Choreo project");
                 if (userInfo) {
@@ -85,8 +85,8 @@ export function setDirectoryContextCommand(context: ExtensionContext) {
                     });
                 }
             } catch (err: any) {
-                console.error("Failed to link project", err);
-                window.showErrorMessage(`Failed to link project. ${err?.message}`);
+                console.error("Failed to link directory with Choreo project", err);
+                window.showErrorMessage(`Failed to link directory with Choreo project. ${err?.message}`);
             }
         })
     );

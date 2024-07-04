@@ -7,7 +7,6 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { commands, ExtensionContext } from "vscode";
-import { setDirectoryContextCommand } from './set-directory-context-cmd';
 import { manageProjectContextCommand } from './manage-dir-context-cmd';
 import { createNewComponentCommand } from './create-component-cmd';
 import { refreshContextCommand } from './refresh-directory-context-cmd';
@@ -19,10 +18,11 @@ import { openComponentInConsoleCommand } from './open-component-in-console-cmd';
 import { viewComponentCommand } from './view-component-cmd';
 import { cloneRepoCommand } from './clone-project-cmd';
 import { createProjectWorkspaceCommand } from './create-project-workspace-cmd';
+import { openProjectInConsoleCommand } from './open-project-in-console-cmd';
+import { createDirectoryContextCommand } from './create-directory-context-cmd';
 
 export function activateCmds(context: ExtensionContext) {
     createNewComponentCommand(context);
-    setDirectoryContextCommand(context);
     refreshContextCommand(context);
     deleteComponentCommand(context);
     signInCommand(context);
@@ -33,4 +33,6 @@ export function activateCmds(context: ExtensionContext) {
     cloneRepoCommand(context);
     createProjectWorkspaceCommand(context);
     manageProjectContextCommand(context);
+    openProjectInConsoleCommand(context);
+    createDirectoryContextCommand(context);
 }

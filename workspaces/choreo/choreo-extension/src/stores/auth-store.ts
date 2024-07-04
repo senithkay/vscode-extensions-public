@@ -8,6 +8,7 @@ import { contextStore } from "./context-store";
 
 interface AuthStore {
     state: AuthState;
+    resetState: () => void;
     loginStart: () => void;
     loginSuccess: (userInfo: UserInfo) => void;
     logout: () => void;
@@ -16,10 +17,13 @@ interface AuthStore {
     initAuth: () => Promise<void>;
 }
 
+const initialState: AuthState = { userInfo: null };
+
 export const authStore = createStore(
     persist<AuthStore>(
         (set, get) => ({
-            state: { userInfo: null },
+            state: initialState,
+            resetState: () => set(() => ({ state: initialState })),
             loginStart: () => set(({ state }) => ({ state: { ...state } })),
             loginSuccess: (userInfo) => {
                 dataCacheStore.getState().setOrgs(userInfo.organizations);
@@ -28,7 +32,8 @@ export const authStore = createStore(
             },
             logout: () => {
                 ext.clients.rpcClient.signOut();
-                set(({ state }) => ({ state: { ...state, userInfo: null } }));
+                get().resetState();
+                contextStore.getState().resetState();
             },
             getOrgById: (orgId) =>
                 get().state.userInfo?.organizations.find((org) => org.id.toString() === orgId.toString()),

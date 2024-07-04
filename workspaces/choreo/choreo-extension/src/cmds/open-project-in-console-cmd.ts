@@ -7,18 +7,18 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { ExtensionContext, commands, env, Uri, window } from "vscode";
-import { CommandIds, ComponentKind, Organization, Project } from "@wso2-enterprise/choreo-core";
-import { selectOrg, selectProject, selectComponent, getUserInfoForCmd } from "./cmd-utils";
+import { CommandIds, Organization, Project } from "@wso2-enterprise/choreo-core";
+import { selectOrg, selectProject, getUserInfoForCmd } from "./cmd-utils";
 import { choreoEnvConfig } from "../config";
 import { contextStore } from "../stores/context-store";
 
-export function openComponentInConsoleCommand(context: ExtensionContext) {
+export function openProjectInConsoleCommand(context: ExtensionContext) {
     context.subscriptions.push(
         commands.registerCommand(
-            CommandIds.OpenComponentInConsole,
-            async (params: { organization: Organization; project: Project; component: ComponentKind }) => {
+            CommandIds.OpenProjectInConsole,
+            async (params: { organization: Organization; project: Project }) => {
                 try {
-                    const userInfo = await getUserInfoForCmd("open a component in Choreo console");
+                    const userInfo = await getUserInfoForCmd("open a project in Choreo console");
                     if (userInfo) {
                         let selectedOrg = params?.organization;
                         let selectedProject = params?.project;
@@ -44,18 +44,9 @@ export function openComponentInConsoleCommand(context: ExtensionContext) {
                             }
                         }
 
-                        const selectedComponent =
-                            params?.component ??
-                            (await selectComponent(
-                                selectedOrg,
-                                selectedProject,
-                                `Loading components from '${selectedProject.name}'`,
-                                `Select component from '${selectedProject.name}' to open in Console`
-                            ));
-
-                        const url = `${choreoEnvConfig.getConsoleUrl()}/organizations/${selectedOrg?.handle}/projects/${
-                            selectedProject.id
-                        }/components/${selectedComponent.metadata.handler}`;
+                        const url = `${choreoEnvConfig.getConsoleUrl()}/organizations/${
+                            selected?.org?.handle
+                        }/projects/${selected?.project?.id}/home`;
                         const consoleUrl = Uri.parse(url);
                         env.openExternal(consoleUrl);
                     }

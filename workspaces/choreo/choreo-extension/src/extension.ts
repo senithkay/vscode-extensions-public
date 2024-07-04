@@ -48,19 +48,17 @@ export async function activate(context: vscode.ExtensionContext) {
     });
     contextStore.subscribe(({ state }) => {
         vscode.commands.executeCommand("setContext", "isLoadingContextDirs", state.loading);
+        vscode.commands.executeCommand("setContext", "hasSelectedProject", !!state.selected);
     });
-    workspace.onDidChangeWorkspaceFolders(() =>
-        vscode.commands.executeCommand(
-            "setContext",
-            "isValidWorkspace",
-            workspace.workspaceFile || !!workspace.workspaceFolders?.length
-        )
-    );
-    vscode.commands.executeCommand(
-        "setContext",
-        "isValidWorkspace",
-        workspace.workspaceFile || !!workspace.workspaceFolders?.length
-    );
+    workspace.onDidChangeWorkspaceFolders(() => {
+        const isValidWorkspace = workspace.workspaceFile || !!workspace.workspaceFolders?.length;
+        vscode.commands.executeCommand("setContext", "isValidWorkspace", isValidWorkspace);
+        vscode.commands.executeCommand("setContext", "notUsingWorkspaceFile", !workspace.workspaceFile);
+    });
+
+    const isValidWorkspace = workspace.workspaceFile || !!workspace.workspaceFolders?.length;
+    vscode.commands.executeCommand("setContext", "isValidWorkspace", isValidWorkspace);
+    vscode.commands.executeCommand("setContext", "notUsingWorkspaceFile", !workspace.workspaceFile);
 
     const rpcClient = new ChoreoRPCClient();
     ext.clients = { rpcClient: rpcClient };

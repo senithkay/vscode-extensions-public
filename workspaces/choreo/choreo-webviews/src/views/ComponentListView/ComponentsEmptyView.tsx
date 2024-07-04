@@ -34,7 +34,7 @@ export const ComponentsEmptyView: FC<Props> = ({ items, loading, selected }) => 
                         <Button
                             className="w-full max-w-80 self-center sm:self-start"
                             onClick={() =>
-                                ChoreoWebViewAPI.getInstance().triggerCmd(CommandIds.ManageProjectContext, {
+                                ChoreoWebViewAPI.getInstance().triggerCmd(CommandIds.ManageDirectoryContext, {
                                     onlyShowSwitchProject: true,
                                 })
                             }
