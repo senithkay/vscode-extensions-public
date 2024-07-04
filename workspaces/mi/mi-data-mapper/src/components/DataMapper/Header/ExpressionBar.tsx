@@ -48,8 +48,9 @@ export default function ExpressionBar(props: ExpressionBarProps) {
     const textFieldRef = useRef<HTMLInputElement>(null);
     const expressionRef = useRef("");
 
-    const { focusedPort, inputPort } = useDMExpressionBarStore(state => ({
+    const { focusedPort, focusedFilter, inputPort } = useDMExpressionBarStore(state => ({
         focusedPort: state.focusedPort,
+        focusedFilter: state.focusedFilter,
         inputPort: state.inputPort
     }));
 
@@ -59,7 +60,7 @@ export default function ExpressionBar(props: ExpressionBarProps) {
         // Keep the text field focused when an input port is selected
         if (textFieldRef.current) {
             const inputElement = textFieldRef.current.shadowRoot.querySelector('input');
-            if (focusedPort) {
+            if (focusedPort || focusedFilter) {
                 inputElement.focus();
             } else {
                 inputElement.blur();
@@ -100,13 +101,21 @@ export default function ExpressionBar(props: ExpressionBarProps) {
             }
     
             disabled = focusedPort.isDisabled();
+        } else if (focusedFilter) {
+            value = focusedFilter.getText();
+
+            if (textFieldRef.current) {
+                textFieldRef.current.focus();
+            }
+
+            disabled = false;
         } else if (textFieldRef.current) {
             textFieldRef.current.blur();
         }
     
         expressionRef.current = value;
         return disabled;
-    }, [focusedPort]);
+    }, [focusedPort, focusedFilter]);
 
     const onChangeTextField = (text: string) => {
         expressionRef.current = text;
@@ -140,6 +149,14 @@ export default function ExpressionBar(props: ExpressionBarProps) {
     };
 
     const applyChanges = async () => {
+        if (focusedPort) {
+            applyChangesOnFocusedPort();
+        } else if (focusedFilter) {
+            applyChangesOnFocusedFilter();
+        }
+    };
+
+    const applyChangesOnFocusedPort = async () => {
         const focusedFieldValue = focusedPort?.typeWithValue.value;
 
         
@@ -191,6 +208,13 @@ export default function ExpressionBar(props: ExpressionBarProps) {
         }
     };
 
+    const applyChangesOnFocusedFilter = async () => {
+        const replaceWith = expressionRef.current;
+        focusedFilter.replaceWithText(replaceWith);
+
+        await applyModifications();
+    };
+
     const addClosingBracketIfNeeded = (text: string) => {
         let updatedText = text;
 
@@ -223,7 +247,7 @@ export default function ExpressionBar(props: ExpressionBarProps) {
                         sx={{ margin: "5px 9px" }}
                     />
                     <AutoComplete
-                        sx={{ fontFamily: 'monospace', fontSize: '12px' }}
+                        sx={{ fontFamily: 'monospace', fontSize: '12px', height: 'auto' }}
                         identifier='expression-bar-autocomplete'
                         items={functionNames}
                         allowItemCreate={true}

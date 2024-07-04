@@ -15,6 +15,8 @@ import HeaderSearchBox from "./HeaderSearchBox";
 import HeaderBreadcrumb from "./HeaderBreadcrumb";
 import { View } from "../Views/DataMapperView";
 import ExpressionBar from "./ExpressionBar";
+import { isFocusedOnMapFunction } from "./utils";
+import { DataMapperNodeModel } from "../../../components/Diagram/Node/commons/DataMapperNode";
 import { DMOperator } from "@wso2-enterprise/mi-core";
 
 export interface DataMapperHeaderProps {
@@ -23,11 +25,14 @@ export interface DataMapperHeaderProps {
     hasEditDisabled: boolean;
     onClose?: () => void;
     applyModifications: () => Promise<void>;
+    inputNode: DataMapperNodeModel;
     operators: DMOperator[];
 }
 
 export function DataMapperHeader(props: DataMapperHeaderProps) {
-    const { views, switchView, hasEditDisabled, onClose, applyModifications, operators } = props;
+    const { views, switchView, hasEditDisabled, onClose, applyModifications, inputNode, operators } = props;
+
+    const isFocusedOnMapFn = isFocusedOnMapFunction(views);
 
     return (
         <HeaderContainer>
@@ -43,9 +48,9 @@ export function DataMapperHeader(props: DataMapperHeaderProps) {
                 </BreadCrumb>
                 {!hasEditDisabled && !onClose && (
                     <>
-                        <FilterBar>
+                        <IOFilterBar>
                             <HeaderSearchBox />
-                        </FilterBar>
+                        </IOFilterBar>
                     </>
                 )}
             </HeaderContent>
@@ -60,7 +65,8 @@ export function DataMapperHeader(props: DataMapperHeaderProps) {
 }
 
 const HeaderContainer = styled.div`
-    height: 66px;
+    height: auto;
+    min-height: 66px;
     width: 100%;
     display: flex;
     flex-direction: column;
@@ -76,7 +82,13 @@ const HeaderContent = styled.div`
 
 const ExpressionContainer = styled.div`
     width: 100%;
-    height: 100%;
+    display: flex;
+    border-bottom: 1px solid var(--vscode-menu-separatorBackground);
+`;
+
+const ArrayFilterContainer = styled.div`
+    width: 100%;
+    min-height: 40px;
     display: flex;
     border-bottom: 1px solid var(--vscode-menu-separatorBackground);
 `;
@@ -92,7 +104,7 @@ const BreadCrumb = styled.div`
     display: flex;
 `;
 
-const FilterBar = styled.div`
+const IOFilterBar = styled.div`
   flex: 3;
   display: flex;
   align-items: center;

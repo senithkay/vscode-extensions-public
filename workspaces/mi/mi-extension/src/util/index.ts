@@ -27,7 +27,7 @@ import { GetFailoverEPTemplatesArgs, getFailoverEPXml } from './template-engine/
 import { GetRecipientEPTemplatesArgs, getRecipientEPXml } from './template-engine/mustach-templates/recipientEndpoint';
 import { GetTemplateEPTemplatesArgs, getTemplateEPXml } from './template-engine/mustach-templates/templateEndpoint';
 import { APIResourceArgs, getAPIResourceXml } from './template-engine/mustach-templates/API';
-import { getDataServiceXml, DataServiceArgs } from './template-engine/mustach-templates/DataService';
+import { getDataServiceXml, getDataSourceXml, DataServiceArgs, Datasource } from './template-engine/mustach-templates/DataService';
 
 const isDevMode = process.env.WEB_VIEW_WATCH_MODE === "true";
 
@@ -129,4 +129,8 @@ export function getAPIResourceXmlWrapper(props: APIResourceArgs) {
 
 export function getDataServiceXmlWrapper(props: DataServiceArgs) {
 	return getDataServiceXml(props);
+}
+
+export function getDssDataSourceXmlWrapper(props: Datasource) {
+	return getDataSourceXml(props);
 }

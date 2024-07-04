@@ -224,6 +224,40 @@ export function getDataServiceEditMustacheTemplate() {
 </data>`;
 }
 
+export function getDataSourceMustacheTemplate() {
+    return `
+    <config id="{{dataSourceName}}" {{#enableOData}}enableOData="{{enableOData}}"{{/enableOData}}>
+    {{#datasourceProperties}}
+    <property name="{{key}}">{{{value}}}</property>
+    {{/datasourceProperties}}
+    {{#dynamicUserAuthClass}}<property name="dynamicUserAuthClass">{{{dynamicUserAuthClass}}}</property>{{/dynamicUserAuthClass}}
+    {{#dynamicUserAuthMapping}}<property name="dynamicUserAuthMapping">
+      <configuration>
+        {{#datasourceConfigurations}}
+        <entry request="{{{carbonUsername}}}">
+          <username>{{{username}}}</username>
+          <password>{{{password}}}</password>
+        </entry>
+        {{/datasourceConfigurations}}
+      </configuration>
+    </property>{{/dynamicUserAuthMapping}}
+  </config>`;
+}
+
+export function getDataSourceXml(data: Datasource) {
+
+    data.enableOData = data.enableOData ? data.enableOData : null;
+    if (data.datasourceConfigurations != null && data.datasourceConfigurations.length > 0) {
+        data.dynamicUserAuthMapping = true;
+    } else {
+        data.dynamicUserAuthMapping = null;
+    }
+
+    assignNullToEmptyStrings(data);
+
+    return render(getDataSourceMustacheTemplate(), data);
+}
+
 export function getDataServiceXml(data: DataServiceArgs) {
 
     data.description = data.description ? data.description : null;
@@ -257,14 +291,10 @@ export function getDataServiceXml(data: DataServiceArgs) {
 
     assignNullToEmptyStrings(data);
 
-    const modifiedData = {
-        ...data
-    };
-
     if (data.writeType === 'edit') {
-        return render(getDataServiceEditMustacheTemplate(), modifiedData);
+        return render(getDataServiceEditMustacheTemplate(), data);
     } else {
-        return render(getDataServiceCreateMustacheTemplate(), modifiedData);
+        return render(getDataServiceCreateMustacheTemplate(), data);
     }
 }
 

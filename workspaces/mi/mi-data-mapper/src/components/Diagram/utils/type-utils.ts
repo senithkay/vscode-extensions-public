@@ -58,19 +58,19 @@ export function getDMType(
         const propertyList = propertiesExpr.match(/(?:[^\s".']|"(?:\\"|[^"])*"|'(?:\\'|[^'])*')+/g) || [];
         return isPropeAccessExpr ? propertyList.slice(1) : propertyList;
     }
-    
+
     function findField(currentType: DMType, property: string): DMType | undefined {
         if (currentType.kind === TypeKind.Interface && currentType.fields) {
             return currentType.fields.find(field => field.fieldName === property);
-        } else if (currentType.kind === TypeKind.Array && currentType.memberType
-            && currentType.memberType.kind === TypeKind.Interface && currentType.memberType.fields) {
-            return currentType.memberType.fields.find(field => field.fieldName === property);
+        } else if (currentType.kind === TypeKind.Array && currentType.memberType) {
+            return findField(currentType.memberType, property);
         }
+        return currentType;
     }
 }
 
 export function getDMTypeForRootChaninedMapFunction(
-    outputType: DMType,
+    dmType: DMType,
     mapFnIndex: number
 ): DMType {
     /*
@@ -78,7 +78,7 @@ export function getDMTypeForRootChaninedMapFunction(
         The focused map function is a decsendant of the map function defined at the
         return statement of the transformation function
     */
-    let currentType = outputType;
+    let currentType = dmType;    
     if (currentType.kind === TypeKind.Array) {
         for (let i = 0; i < mapFnIndex; i++) {
             currentType = currentType.memberType;

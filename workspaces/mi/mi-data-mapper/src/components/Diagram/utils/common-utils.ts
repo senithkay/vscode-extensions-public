@@ -527,19 +527,27 @@ export function isNodeCallExpression(node: Node): boolean {
     return false;
 }
 
-export function isMapFunction(callExpr: CallExpression): boolean {
+export function isSpecificMethodCall(callExpr: CallExpression, methodName: string): boolean {
     const expr = callExpr.getExpression();
 
     if (isInputAccessExpr(expr)) {
         switch (expr.getKind()) {
             case SyntaxKind.ElementAccessExpression:
-                return (expr as ElementAccessExpression).getArgumentExpression().getText() === "map";
+                return (expr as ElementAccessExpression).getArgumentExpression().getText() === methodName;
             case SyntaxKind.PropertyAccessExpression:
-                return (expr as PropertyAccessExpression).getName() === "map";
+                return (expr as PropertyAccessExpression).getName() === methodName;
         }
     }
 
     return false;
+}
+
+export function isMapFunction(callExpr: CallExpression): boolean {
+    return isSpecificMethodCall(callExpr, "map");
+}
+
+export function isFilterFunction(callExpr: CallExpression): boolean {
+    return isSpecificMethodCall(callExpr, "filter");
 }
 
 export function getTypeOfValue(typeWithValue: DMTypeWithValue, targetPosition: NodePosition): DMType {
@@ -631,6 +639,16 @@ export function isFunctionCall(node: Node): boolean {
     return false;
 }
 
+export function isMethodCall(node: Node): boolean {
+    // Check if the node is a method call
+    // ie: `object.method(arg1, arg2)`
+    if (Node.isCallExpression(node)) {
+        const expr = node.getExpression();
+        return Node.isPropertyAccessExpression(expr);
+    }
+    return false;
+}
+
 export function isQuotedString(str: string): boolean {
     return str.startsWith('"') && str.endsWith('"')
         || str.startsWith("'") && str.endsWith("'");
@@ -650,21 +668,6 @@ export function isMapFnAtPropAssignment(focusedST: Node) {
     return  Node.isPropertyAssignment(focusedST)
         && Node.isCallExpression(focusedST.getInitializer())
         && isMapFunction(focusedST.getInitializer() as CallExpression);
-}
-
-export function getFocusedSubMappingExpr(initializer: Expression, mapFnIndex?: number) {
-    if (mapFnIndex === undefined) return initializer;
-
-    // Constraint: In focused views, return statements are only allowed at map functions
-    const returnStmts = initializer.getDescendantsOfKind(ts.SyntaxKind.ReturnStatement);
-
-    if (returnStmts.length >= mapFnIndex) {
-        const returnStmt = returnStmts[mapFnIndex];
-        if (returnStmt) {
-            return returnStmt.getExpression();
-        }
-    }
-    return initializer;
 }
 
 export function isMapFnAtRootReturn(functionST: FunctionDeclaration, focusedST: Node ) {
@@ -695,6 +698,29 @@ export function getInnermostArrowFnBody(callExpr: CallExpression): Node {
     }
 
     return callExpr;
+}
+
+export function getFilterExpressions(callExpr: CallExpression): CallExpression[] {
+    const callExpressions = callExpr.getDescendantsOfKind(SyntaxKind.CallExpression);
+    let skipFiltersWithinMap = false;
+
+    // Filter to get only those that are calling 'filter'
+    const filterCalls = callExpressions.filter(call => {
+        const expression = call.getExpression();
+
+        if (Node.isPropertyAccessExpression(expression) && !skipFiltersWithinMap) {
+            const exprName = expression.getName();
+
+            if (exprName === "map") {
+                skipFiltersWithinMap = true;
+            }
+
+            return exprName === "filter";
+        }
+        
+    });
+
+    return filterCalls.reverse();
 }
 
 function getRootInputAccessExpr(node: ElementAccessExpression | PropertyAccessExpression): Node {
