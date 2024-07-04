@@ -148,7 +148,7 @@ export function TestSuiteForm(props: TestSuiteFormProps) {
                 context.push(response);
             });
 
-            let response = await fetch(url + 's', {
+            let response = await fetch(url, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
