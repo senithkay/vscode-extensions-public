@@ -114,7 +114,7 @@ export function InputNodeTreeItemWidget(props: InputNodeTreeItemWidgetProps) {
                             onClick={handleExpand}
                             sx={{ marginLeft: treeDepth * 16 }}
                         >
-                            {expanded ? <Codicon name="chevron-right" /> : <Codicon name="chevron-down" />}
+                            {expanded ? <Codicon name="chevron-down" /> : <Codicon name="chevron-right" />}
                         </Button>}
                     {label}
                 </span>

@@ -12,13 +12,13 @@ import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { DataServiceNodeModel } from "./DataServiceNodeModel";
 import { Colors, NODE_DIMENSIONS } from "../../../resources/constants";
-import { STNode } from "@wso2-enterprise/mi-syntax-tree/src";
+import { Query, STNode } from "@wso2-enterprise/mi-syntax-tree/src";
 import { Button, Tooltip } from "@wso2-enterprise/ui-toolkit";
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import SidePanelContext from "../../sidePanel/SidePanelContexProvider";
 import { getNodeDescription } from "../../../utils/node";
 import { Header, Description, Name, Content, Body } from "../BaseNodeModel";
-import { getMediatorIconsFromFont } from "../../../resources/icons/mediatorIcons/icons";
+import { MACHINE_VIEW, POPUP_EVENT_TYPE } from "@wso2-enterprise/mi-core";
 
 namespace S {
     export type NodeStyleProp = {
@@ -32,8 +32,26 @@ namespace S {
         flex-direction: column;
         justify-content: space-between;
         align-items: center;
-        width: ${NODE_DIMENSIONS.DEFAULT.WIDTH - (NODE_DIMENSIONS.BORDER * 2)}px;
-        height: ${NODE_DIMENSIONS.DEFAULT.HEIGHT - (NODE_DIMENSIONS.BORDER * 2)}px;
+        width: ${NODE_DIMENSIONS.DATA_SERVICE.WIDTH - (NODE_DIMENSIONS.BORDER * 2)}px;
+        height: ${NODE_DIMENSIONS.DATA_SERVICE.HEIGHT - (NODE_DIMENSIONS.BORDER * 2)}px;
+        border: ${NODE_DIMENSIONS.BORDER}px solid
+            ${(props: NodeStyleProp) =>
+            props.hasError ? Colors.ERROR : props.selected ? Colors.SECONDARY : props.hovered ? Colors.SECONDARY : Colors.OUTLINE_VARIANT};
+        border-radius: 10px;
+        background-color: ${(props: NodeStyleProp) => props?.isActiveBreakpoint ? Colors.DEBUGGER_BREAKPOINT_BACKGROUND : Colors.SURFACE_BRIGHT};
+        color: ${Colors.ON_SURFACE};
+        cursor: pointer;
+    `;
+
+    export const DataSourceNode = styled(S.Node)`
+        position: absolute;
+        left: ${NODE_DIMENSIONS.DATA_SERVICE.WIDTH + NODE_DIMENSIONS.DATA_SERVICE.GAP}px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        align-items: center;
+        width: ${NODE_DIMENSIONS.DATA_SERVICE.WIDTH - (NODE_DIMENSIONS.BORDER * 2)}px;
+        height: ${NODE_DIMENSIONS.DATA_SERVICE.HEIGHT - (NODE_DIMENSIONS.BORDER * 2)}px;
         border: ${NODE_DIMENSIONS.BORDER}px solid
             ${(props: NodeStyleProp) =>
             props.hasError ? Colors.ERROR : props.selected ? Colors.SECONDARY : props.hovered ? Colors.SECONDARY : Colors.OUTLINE_VARIANT};
@@ -77,13 +95,13 @@ namespace S {
         white-space: pre-wrap;
     `;
 }
-interface CallNodeWidgetProps {
+interface DataServiceNodeWidgetProps {
     node: DataServiceNodeModel;
     engine: DiagramEngine;
     onClick?: (node: STNode) => void;
 }
 
-export function DataServiceNodeWidget(props: CallNodeWidgetProps) {
+export function DataServiceNodeWidget(props: DataServiceNodeWidgetProps) {
     const { node, engine } = props;
     const [isHovered, setIsHovered] = React.useState(false);
     const [isPopoverOpen, setIsPopoverOpen] = useState(false);
@@ -94,6 +112,36 @@ export function DataServiceNodeWidget(props: CallNodeWidgetProps) {
     const hasBreakpoint = node.hasBreakpoint();
     const isActiveBreakpoint = node.isActiveBreakpoint();
     const description = getNodeDescription(node.mediatorName, node.stNode);
+
+    // datasource node
+    const [isHoveredDataSource, setIsHoveredDataSource] = React.useState(false);
+
+    const onClickDataSource = (e: any) => {
+        e.stopPropagation();
+        e.preventDefault();
+        node.setSelected(false);
+
+        const config = (node.stNode as Query).useConfig;
+        if (!config || config === "") {
+            rpcClient.getMiVisualizerRpcClient().showNotification({
+                type: "error",
+                message: "Datasource configuration not found",
+            });
+            return;
+        }
+
+        rpcClient.getMiVisualizerRpcClient().openView({
+            isPopup: true,
+            type: POPUP_EVENT_TYPE.OPEN_VIEW,
+            location: {
+                view: MACHINE_VIEW.DssDataSourceForm,
+                documentUri: node.documentUri,
+                customProps: {
+                    datasource: config
+                }
+            }
+        });
+    };
 
     const TooltipEl = useMemo(() => {
         return () => (
@@ -107,7 +155,7 @@ export function DataServiceNodeWidget(props: CallNodeWidgetProps) {
         <div >
             <Tooltip content={!isPopoverOpen && tooltip ? <TooltipEl /> : ""} position={'bottom'} containerPosition={'absolute'}>
                 <S.Node
-                    selected={node.isSelected()}
+                    selected={node.isSelected() && !isHoveredDataSource}
                     hasError={hasDiagnotics}
                     hovered={isHovered || isActiveBreakpoint}
                     isActiveBreakpoint={isActiveBreakpoint}
@@ -142,6 +190,43 @@ export function DataServiceNodeWidget(props: CallNodeWidgetProps) {
                     <S.BottomPortWidget port={node.getPort("out")!} engine={engine} />
                 </S.Node>
             </Tooltip>
+
+            {node.mediatorName === 'Query' &&
+                <S.DataSourceNode
+                    selected={false}
+                    hasError={hasDiagnotics}
+                    hovered={isHoveredDataSource}
+                    onMouseEnter={() => setIsHoveredDataSource(true)}
+                    onMouseLeave={() => setIsHoveredDataSource(false)}
+                    onClick={onClickDataSource}
+                >
+                    <svg height="100" width="100" style={{ position: "absolute", left: -NODE_DIMENSIONS.DATA_SERVICE.GAP, top: NODE_DIMENSIONS.DATA_SERVICE.HEIGHT / 2 }}>
+                        <line x1="0" y1="0" x2={NODE_DIMENSIONS.DATA_SERVICE.GAP} y2="0" style={{
+                            stroke: Colors.PRIMARY,
+                            strokeWidth: 4,
+                        }} />
+                    </svg>
+                    <div style={{ display: "flex", flexDirection: "row" }}>
+                        {/* <S.IconContainer>{getMediatorIconsFromFont(node.stNode.tag)}</S.IconContainer> */}
+                        <Content style={{
+                            width: "100%",
+                            left: "0",
+                        }}>
+                            <Header showBorder={description !== undefined}>
+                                <Name style={{
+                                    textAlign: "center",
+                                    maxWidth: "100%",
+                                    width: "100%",
+                                }}>Datasource</Name>
+                            </Header>
+                            <Body>
+                                <Tooltip content={description} position={'bottom'} >
+                                    <Description>{description}</Description>
+                                </Tooltip>
+                            </Body>
+                        </Content>
+                    </div>
+                </S.DataSourceNode>}
         </div >
     );
 }

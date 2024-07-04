@@ -270,7 +270,7 @@ const InputMappingsForm = (props: AddMediatorProps) => {
             hasQueryParams: queryParams.length > 0
         };
 
-        let xml = getXML(DATA_SERVICE.EDIT_QUERY, updatedQuery);
+        let xml = getXML(DATA_SERVICE.EDIT_QUERY, updatedQuery).replace(/^\s*[\r\n]/gm, '');
         const range = sidePanelContext?.formValues?.queryObject.range;
         await rpcClient.getMiDiagramRpcClient().applyEdit({
               text: xml, documentUri: props.documentUri,
@@ -279,26 +279,29 @@ const InputMappingsForm = (props: AddMediatorProps) => {
 
         const st = await rpcClient.getMiDiagramRpcClient().getSyntaxTree({documentUri: props.documentUri});
         let isInResource = false;
-        let resourceRange: any;
+        let resourceData: any = {};
         st.syntaxTree.data.resources.forEach((resource: any) => {
             if (resource.callQuery.href === sidePanelContext?.formValues?.queryObject.queryName) {
-                resourceRange = resource.callQuery.range;
+                resourceData.resourceRange = resource.callQuery.range;
+                resourceData.selfClosed = resource.callQuery.selfClosed;
                 isInResource = true;
             }
         });
         if (!isInResource) {
             st.syntaxTree.data.operations.forEach((operation: any) => {
                 if (operation.callQuery.href === sidePanelContext?.formValues?.queryObject.queryName) {
-                    resourceRange = operation.callQuery.range;
+                    resourceData.resourceRange = operation.callQuery.range;
+                    resourceData.selfClosed = operation.callQuery.selfClosed;
                 }
             });
         }
 
-        if (resourceRange) {
+        if (Object.keys(resourceData).length !== 0) {
             xml = getXML(DATA_SERVICE.EDIT_RESOURCE_PARAMS, resourceQuery);
+            const end = resourceData.selfClosed ? resourceData.resourceRange.startTagRange.end : resourceData.resourceRange.endTagRange.end;
             await rpcClient.getMiDiagramRpcClient().applyEdit({
                 text: xml, documentUri: props.documentUri,
-                range: {start: resourceRange.startTagRange.start, end: resourceRange.endTagRange.end}
+                range: {start: resourceData.resourceRange.startTagRange.start, end: end}
             });
         }
 

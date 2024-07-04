@@ -12,7 +12,8 @@ import Mustache from "mustache";
 export function getDssQueryTemplate() {
     return `
         <query id="{{queryName}}" useConfig="{{datasource}}" {{#returnGeneratedKeys}}returnGeneratedKeys="{{returnGeneratedKeys}}"{{/returnGeneratedKeys}} {{#keyColumns}}keyColumns="{{keyColumns}}"{{/keyColumns}} {{#returnUpdatedRowCount}}returnUpdatedRowCount="{{returnUpdatedRowCount}}"{{/returnUpdatedRowCount}}>
-        {{#sqlQuery}}<sql>{{{sqlQuery}}}</sql>{{/sqlQuery}}{{^sqlQuery}}<sql />{{/sqlQuery}}
+        {{#sqlType}}{{#sqlQuery}}<sql>{{{sqlQuery}}}</sql>{{/sqlQuery}}{{/sqlType}}
+        {{#expressionType}}<expression>{{{sqlQuery}}}</expression>{{/expressionType}}
         {{#queryParams}}
         {{#hasValidators}}<param name="{{paramName}}" paramType="{{paramType}}" sqlType="{{sqlType}}" {{#defaultValue}}defaultValue="{{defaultValue}}"{{/defaultValue}} type="{{type}}" {{#ordinal}}ordinal="{{ordinal}}"{{/ordinal}}>
           {{#validators}}
@@ -59,7 +60,7 @@ export function getDssResourceQueryParamsTemplate() {
 }
 
 export function getDssResourceSelfClosingTemplate() {
-    return `<call-query href="{{query}}" />}`;
+    return `<call-query href="{{query}}" />`;
 }
 
 export function getDssResourceTemplate() {
@@ -68,50 +69,59 @@ export function getDssResourceTemplate() {
 
 export function getDssQueryXml(data: { [key: string]: any }) {
 
-        if (data.queryParams.length > 0) {
-            data.queryParams.forEach((param: any) => {
-                assignNullToEmptyStrings(param);
-                if (param.validators != null && param.validators.length > 0) {
-                    param.validators.forEach((validator: any) => {
-                        validator.validationType = validator.validationType === 'Long Range Validator' ? 'validateLongRange' :
-                            validator.validationType === 'Double Range Validator' ? 'validateDoubleRange' :
-                                validator.validationType === 'Length Validator' ? 'validateLength' : 'validatePattern';
-                        assignNullToEmptyStrings(validator);
-                    });
-                } else {
-                    param.validators = null;
-                }
-            });
+    if (data.queryParams.length > 0) {
+        data.queryParams.forEach((param: any) => {
+            assignNullToEmptyStrings(param);
+            if (param.validators != null && param.validators.length > 0) {
+                param.validators.forEach((validator: any) => {
+                    validator.validationType = validator.validationType === 'Long Range Validator' ? 'validateLongRange' :
+                        validator.validationType === 'Double Range Validator' ? 'validateDoubleRange' :
+                            validator.validationType === 'Length Validator' ? 'validateLength' : 'validatePattern';
+                    assignNullToEmptyStrings(validator);
+                });
+            } else {
+                param.validators = null;
+            }
+        });
+    }
+    if (data.result != undefined) {
+        if (data.result.queries.length > 0) {
+            data.result.queries.forEach((subQuery: any) => {
+                assignNullToEmptyStrings(subQuery);
+            })
         }
-        if (data.result != undefined) {
-            if (data.result.queries.length > 0) {
-                data.result.queries.forEach((subQuery: any) => {
-                    assignNullToEmptyStrings(subQuery);
-                })
-            }
-            if (data.result.attributes.length > 0) {
-                data.result.attributes.forEach((attribute: any) => {
-                    assignNullToEmptyStrings(attribute);
-                })
-            }
-            if (data.result.elements.length > 0) {
-                data.result.elements.forEach((element: any) => {
-                    assignNullToEmptyStrings(element);
-                })
-            }
-            if (data.result.complexElements.length > 0) {
-                data.result.complexElements.forEach((element: any) => {
-                    assignNullToEmptyStrings(element);
-                })
-            }
-            data.result.useColumnNumbers = data.result.useColumnNumbers ? data.result.useColumnNumbers : null;
-            data.result.escapeNonPrintableChar = data.result.escapeNonPrintableChar ? data.result.escapeNonPrintableChar : null;
-            data.result.outputType = data.result.outputType === 'XML' ? null : data.result.outputType.toLowercase();
+        if (data.result.attributes.length > 0) {
+            data.result.attributes.forEach((attribute: any) => {
+                assignNullToEmptyStrings(attribute);
+            })
         }
-        data.returnGeneratedKeys = data.returnGeneratedKeys ? data.returnGeneratedKeys : null;
-        data.returnUpdatedRowCount = data.returnUpdatedRowCount ? data.returnUpdatedRowCount : null;
+        if (data.result.elements.length > 0) {
+            data.result.elements.forEach((element: any) => {
+                assignNullToEmptyStrings(element);
+            })
+        }
+        if (data.result.complexElements.length > 0) {
+            data.result.complexElements.forEach((element: any) => {
+                assignNullToEmptyStrings(element);
+            })
+        }
+        data.result.useColumnNumbers = data.result.useColumnNumbers ? data.result.useColumnNumbers : null;
+        data.result.escapeNonPrintableChar = data.result.escapeNonPrintableChar ? data.result.escapeNonPrintableChar : null;
+        data.result.outputType = data.result.outputType === 'XML' ? null : data.result.outputType.toLowercase();
+    }
+    data.returnGeneratedKeys = data.returnGeneratedKeys ? data.returnGeneratedKeys : null;
+    data.returnUpdatedRowCount = data.returnUpdatedRowCount ? data.returnUpdatedRowCount : null;
+    assignNullToEmptyStrings(data.result);
+    if (data.result.outputType === null || data.result.outputType !== 'json') {
+        delete data.result["jsonPayload"];
+    }
+    data.result = Object.values(data.result).every(value => value === null) ? null : data.result;
 
-    const output = Mustache.render(getDssQueryTemplate(), data)?.trim();
+    const sqlType = data.queryType === "sql" ? true : false;
+    const expressionType = data.queryType === "expression" ? true : false;
+    data.sqlQuery = data.sqlQuery === "" ? null : data.sqlQuery;
+
+    const output = Mustache.render(getDssQueryTemplate(), {...data, sqlType, expressionType})?.trim();
     return output;
 }
 

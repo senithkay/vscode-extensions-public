@@ -158,6 +158,11 @@ export const NODE_DIMENSIONS = {
         WIDTH: 150,
         HEIGHT: 60,
     },
+    DATA_SERVICE: {
+        WIDTH: 150,
+        HEIGHT: 60,
+        GAP: 100
+    },
     BORDER: 1,
 };
 

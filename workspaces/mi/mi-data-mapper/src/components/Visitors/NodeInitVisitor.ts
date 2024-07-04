@@ -31,31 +31,36 @@ import {
     getCallExprReturnStmt,
     isConditionalExpression,
     isMapFunction,
-    getInnermostArrowFnBody
+    getInnermostArrowFnBody,
+    isFilterFunction
 } from "../Diagram/utils/common-utils";
 import { ArrayFnConnectorNode } from "../Diagram/Node/ArrayFnConnector";
 import { getPosition, isPositionsEquals } from "../Diagram/utils/st-utils";
 import { getDMType, getDMTypeForRootChaninedMapFunction, getDMTypeOfSubMappingItem } from "../Diagram/utils/type-utils";
 import { UnsupportedExprNodeKind, UnsupportedIONode } from "../Diagram/Node/UnsupportedIO";
-import { OFFSETS } from "../Diagram/utils/constants";
+import { ARRAY_FILTER_NODE_PREFIX, OFFSETS } from "../Diagram/utils/constants";
 import { FocusedInputNode } from "../Diagram/Node/FocusedInput";
 import {
     createInputNodeForDmFunction,
     createLinkConnectorNode,
     createOutputNodeForDmFunction,
+    getArrayFilterNode,
     getOutputNode,
     getSubMappingNode,
     isDataImportNode,
     isObjectOrArrayLiteralExpression
 } from "../Diagram/utils/node-utils";
 import { SourceNodeType } from "../DataMapper/Views/DataMapperView";
+import { ArrayFilterNode } from "../Diagram/Node/ArrayFilter";
+import { DefaultPortModel } from "@projectstorm/react-diagrams";
 
 export class NodeInitVisitor implements Visitor {
     private inputNode: DataMapperNodeModel | InputDataImportNodeModel;
     private outputNode: DataMapperNodeModel | OutputDataImportNodeModel;
     private intermediateNodes: DataMapperNodeModel[] = [];
+    private arrayFilterNode: DataMapperNodeModel;
     private mapIdentifiers: Node[] = [];
-    private isWithinMapFn = 0;
+    private isWithinArrayFn = 0;
     private isWithinVariableStmt = 0;
 
     constructor(private context: DataMapperContext) {}
@@ -115,14 +120,14 @@ export class NodeInitVisitor implements Visitor {
                 : getDMType(sourceFieldFQN, this.context.inputTrees[0]);
 
             const focusedInputNode = new FocusedInputNode(this.context, callExpr, inputType);
-
             focusedInputNode.setPosition(OFFSETS.SOURCE_NODE.X, 0);
+
             this.inputNode = focusedInputNode;
         } else {
             const initializer = node.getInitializer();
             if (initializer
                 && !isObjectOrArrayLiteralExpression(initializer)
-                && ( this.isWithinMapFn === 0 || (views.length > 2 && !!subMappingInfo))
+                && ( this.isWithinArrayFn === 0 || (views.length > 2 && !!subMappingInfo))
                 && this.isWithinVariableStmt === 0
             ) {
                 const inputAccessNodes = getInputAccessNodes(initializer);
@@ -167,7 +172,7 @@ export class NodeInitVisitor implements Visitor {
             const { sourceFieldFQN } = views[views.length - 1];
             const inputRoot = this.context.inputTrees[0];
             const noOfSourceFields = sourceFieldFQN.split('.').length;
-            const inputType = mapFnAtRootReturnOrDecsendent
+            const inputType = mapFnAtRootReturnOrDecsendent && inputRoot.kind === TypeKind.Array
                 ? getDMTypeForRootChaninedMapFunction(inputRoot, mapFnIndex)
                 // Use mapFnIndex when the input of the focused map function is root of the input tree
                 : getDMType(sourceFieldFQN, inputRoot, noOfSourceFields === 1 ? mapFnIndex : undefined);
@@ -179,7 +184,7 @@ export class NodeInitVisitor implements Visitor {
         }
 
         // Create link connector node for expressions within return statements
-        if (this.isWithinMapFn === 0
+        if (this.isWithinArrayFn === 0
             && this.isWithinVariableStmt === 0
             && !Node.isObjectLiteralExpression(returnExpr)
             && !Node.isArrayLiteralExpression(returnExpr)
@@ -220,6 +225,7 @@ export class NodeInitVisitor implements Visitor {
     beginVisitCallExpression(node: CallExpression, parent: Node): void {
         const { focusedST, views } = this.context;
         const isMapFn = isMapFunction(node);
+        const isFilterFn = isFilterFunction(node);
         const isFocusedSTWithinPropAssignment = parent
             && Node.isPropertyAssignment(parent)
             && isPositionsEquals(getPosition(parent), getPosition(focusedST));
@@ -229,10 +235,14 @@ export class NodeInitVisitor implements Visitor {
             && views.length > 1;
         const isParentFocusedST = isFocusedSTWithinPropAssignment || isFocusedSTWithinReturnStmt;
         
-        if (!isParentFocusedST && isMapFn && this.isWithinVariableStmt === 0) {
-            this.isWithinMapFn += 1;
-            const arrayFnConnectorNode = new ArrayFnConnectorNode(this.context, node, parent);
-            this.intermediateNodes.push(arrayFnConnectorNode);
+        if (!isParentFocusedST && this.isWithinVariableStmt === 0) {
+            if (isMapFn) {
+                this.isWithinArrayFn += 1;
+                const arrayFnConnectorNode = new ArrayFnConnectorNode(this.context, node, parent);
+                this.intermediateNodes.push(arrayFnConnectorNode);
+            } else if (isFilterFn) {
+                this.isWithinArrayFn += 1;
+            }
         }
     }
 
@@ -287,7 +297,7 @@ export class NodeInitVisitor implements Visitor {
                 const shouldCheckForLinkConnectorNodes = !(focusedOnSubMappingRoot
                     && isObjectOrArrayLiteralExpression(initializer));
                 
-                if (shouldCheckForLinkConnectorNodes && this.isWithinMapFn === 0) {
+                if (shouldCheckForLinkConnectorNodes && this.isWithinArrayFn === 0) {
                     let targetExpr = Node.isCallExpression(callExpr) ? getInnermostArrowFnBody(callExpr) : callExpr;
                     const inputAccessNodes = getInputAccessNodes(targetExpr);
                     const isObjectLiteralExpr = Node.isObjectLiteralExpression(targetExpr);
@@ -326,12 +336,13 @@ export class NodeInitVisitor implements Visitor {
     endVisitCallExpression(node: CallExpression, parent: Node): void {
         const { focusedST } = this.context;
         const isMapFn = isMapFunction(node);
+        const isFilterFn = isFilterFunction(node);
         const isParentFocusedST = parent
             && Node.isPropertyAssignment(parent)
             && isPositionsEquals(getPosition(parent), getPosition(focusedST));
         
-        if (!isParentFocusedST && isMapFn && this.isWithinVariableStmt === 0) {
-            this.isWithinMapFn -= 1;
+        if (!isParentFocusedST && this.isWithinVariableStmt === 0 && (isMapFn || isFilterFn)) {
+            this.isWithinArrayFn -= 1;
         }
     }
 
@@ -352,9 +363,18 @@ export class NodeInitVisitor implements Visitor {
             const subMappingNode = getSubMappingNode(this.context);
             // Insert subMappingNode in the middle
             nodes.splice(1, 0, subMappingNode);
+
+            // Add array filter node in focused views
+            if (this.inputNode instanceof FocusedInputNode) {
+                this.arrayFilterNode = getArrayFilterNode(this.inputNode);
+            }
         }
 
         nodes.push(...this.intermediateNodes);
+
+        if (this.arrayFilterNode) {
+            nodes.unshift(this.arrayFilterNode);
+        }
 
         return nodes;
     }

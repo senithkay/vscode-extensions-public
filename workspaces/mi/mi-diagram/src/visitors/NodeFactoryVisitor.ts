@@ -967,25 +967,25 @@ export class NodeFactoryVisitor implements Visitor {
 
         const query = structuredClone(node);
         query.tag = "query-query";
-        query.viewState.y = inputMapping.viewState.y + NODE_DIMENSIONS.DEFAULT.HEIGHT + NODE_GAP.Y;
+        query.viewState.y = inputMapping.viewState.y + NODE_DIMENSIONS.DATA_SERVICE.HEIGHT + NODE_GAP.Y;
         query.viewState.x += (NODE_DIMENSIONS.START.EDITABLE.WIDTH - NODE_DIMENSIONS.REFERENCE.WIDTH) / 2;
         this.createNodeAndLinks({ node: query, type: NodeTypes.DATA_SERVICE_NODE, name: DATA_SERVICE_NODES.QUERY });
 
         const transformation = structuredClone(node);
         transformation.tag = "query-transformation";
-        transformation.viewState.y = query.viewState.y + NODE_DIMENSIONS.DEFAULT.HEIGHT + NODE_GAP.Y;
+        transformation.viewState.y = query.viewState.y + NODE_DIMENSIONS.DATA_SERVICE.HEIGHT + NODE_GAP.Y;
         transformation.viewState.x += (NODE_DIMENSIONS.START.EDITABLE.WIDTH - NODE_DIMENSIONS.REFERENCE.WIDTH) / 2;
         this.createNodeAndLinks({ node: transformation, type: NodeTypes.DATA_SERVICE_NODE, name: DATA_SERVICE_NODES.TRANSFORMATION });
 
         const outputMappings = structuredClone(node);
         outputMappings.tag = "query-outputMapping";
-        outputMappings.viewState.y = transformation.viewState.y + NODE_DIMENSIONS.DEFAULT.HEIGHT + NODE_GAP.Y;
+        outputMappings.viewState.y = transformation.viewState.y + NODE_DIMENSIONS.DATA_SERVICE.HEIGHT + NODE_GAP.Y;
         outputMappings.viewState.x += (NODE_DIMENSIONS.START.EDITABLE.WIDTH - NODE_DIMENSIONS.REFERENCE.WIDTH) / 2;
         this.createNodeAndLinks({ node: outputMappings, type: NodeTypes.DATA_SERVICE_NODE, name: DATA_SERVICE_NODES.OUTPUT });
 
         const endnode = structuredClone(node);
         endnode.tag = "end";
-        endnode.viewState.y = outputMappings.viewState.y + NODE_DIMENSIONS.DEFAULT.HEIGHT + NODE_GAP.Y;
+        endnode.viewState.y = outputMappings.viewState.y + NODE_DIMENSIONS.DATA_SERVICE.HEIGHT + NODE_GAP.Y;
         endnode.viewState.x += (NODE_DIMENSIONS.START.EDITABLE.WIDTH - NODE_DIMENSIONS.START.DISABLED.WIDTH) / 2;
         this.createNodeAndLinks({ node: endnode, type: NodeTypes.END_NODE, data: StartNodeType.IN_SEQUENCE });
         this.parents.push(endnode);

@@ -37,11 +37,13 @@ export interface TooltipProps {
     content?: string | ReactNode;
     position?: PositionType;
     sx?: any;
+    containerSx?: any;
     containerPosition?: string;
 }
 
 export interface TooltipConatinerProps {
     position?: string;
+    containerSx?: string;
 }
 
 const TooltipContainer = styled.div<TooltipConatinerProps>`
@@ -49,6 +51,7 @@ const TooltipContainer = styled.div<TooltipConatinerProps>`
     display: inline-block;
     cursor: pointer;
     pointer-events: auto;
+    ${(props: TooltipConatinerProps) => props.containerSx}
 `;
 
 const TooltipContent = styled.div<TooltipProps>`
@@ -130,7 +133,7 @@ const getPositionOnOverflow = (
 }
 
 export const Tooltip: React.FC<PropsWithChildren<TooltipProps>> = (props: PropsWithChildren<TooltipProps>) => {
-    const { id, className, content, position, children, sx, containerPosition } = props;
+    const { id, className, content, position, children, sx, containerPosition, containerSx } = props;
 
     const tooltipEl = React.useRef<HTMLDivElement>(null);
 
@@ -180,6 +183,7 @@ export const Tooltip: React.FC<PropsWithChildren<TooltipProps>> = (props: PropsW
             position={containerPosition}
             onMouseMove={updatePosition}
             onMouseLeave={onMouseLeave}
+            containerSx={containerSx}
         >
             {children}
             {content !== undefined && content !== "" && createPortal(

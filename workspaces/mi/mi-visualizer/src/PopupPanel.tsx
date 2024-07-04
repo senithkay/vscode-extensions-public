@@ -20,6 +20,7 @@ import { LoadBalanceWizard } from './views/Forms/LoadBalanceEPform';
 import { FailoverWizard } from './views/Forms/FailoverEndpointForm';
 import { RecipientWizard } from './views/Forms/RecipientEndpointForm';
 import { TemplateEndpointWizard } from './views/Forms/TemplateEndpointForm';
+import { DataServiceDataSourceWizard } from "./views/Forms/DataServiceForm/MainPanelForms/DataSourceForm/DatasourceForm";
 import path from 'path';
 import { ConnectorStore } from './views/Forms/ConnectionForm';
 
@@ -75,6 +76,9 @@ const PopupPanel = (props: { formState: PopupMachineStateValue }) => {
                     break;
                 case MACHINE_VIEW.ConnectionForm:
                     setViewComponent(<ConnectorStore isPopup={true} path={machineSate.documentUri} />);
+                    break;
+                case MACHINE_VIEW.DssDataSourceForm:
+                    setViewComponent(<DataServiceDataSourceWizard isPopup={true} path={machineSate.documentUri} datasource={machineSate.customProps.datasource} />);
                     break;
                 default:
                     setViewComponent(null);

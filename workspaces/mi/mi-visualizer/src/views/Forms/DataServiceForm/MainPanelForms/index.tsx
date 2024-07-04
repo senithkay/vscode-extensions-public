@@ -13,7 +13,7 @@ import { EVENT_TYPE, MACHINE_VIEW, CreateDataServiceRequest, Datasource, Propert
 import { DataServiceAdvancedWizard } from "./AdvancedForm";
 import { DataServiceTransportWizard } from "./TransportForm";
 import { DataServiceDisplayTable } from "./DisplayTable";
-import { DataServiceDataSourceWizard, DataSourceFields } from "./DataSourceForm/DatasourceForm";
+import { DataServiceDataSourceWizard, restructureDatasource } from "./DataSourceForm/DatasourceForm";
 import * as yup from "yup";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -117,7 +117,7 @@ export function DataServiceWizard(props: DataServiceWizardProps) {
 
     useEffect(() => {
         (async () => {
-            if (props.path.endsWith(".xml")) {
+            if (props.path.endsWith(".dbs")) {
                 if (props.path.includes('/dataServices')) {
                     props.path = props.path.replace('/dataServices', '/data-services');
                 }
@@ -127,140 +127,7 @@ export function DataServiceWizard(props: DataServiceWizardProps) {
                 const existingDatasources: any[] = [];
                 setAuthProperties(existingDataService.authProperties);
                 existingDataService.datasources.forEach((ds) => {
-                    const currentDatasource: DataSourceFields = {
-                        dataSourceName: ds.dataSourceName,
-                        dataSourceType: "",
-                        enableOData: ds.enableOData,
-                        dynamicUserAuthClass: ds.dynamicUserAuthClass,
-                        rdbms: {
-                            databaseEngine: "MySQL",
-                            driverClassName: "",
-                            url: "",
-                            username: "",
-                            password: ""
-                        },
-                        mongodb: {
-                            mongoDB_servers: "",
-                            mongoDB_database: "",
-                            username: "",
-                            password: "",
-                            mongoDB_auth_source: "",
-                            mongoDB_authentication_type: "",
-                            mongoDB_write_concern: "",
-                            mongoDB_read_preference: "",
-                            mongoDB_ssl_enabled: "",
-                            mongoDB_connectTimeout: "",
-                            mongoDB_maxWaitTime: "",
-                            mongoDB_socketTimeout: "",
-                            mongoDB_connectionsPerHost: "",
-                            mongoDB_threadsAllowedToBlockForConnectionMultiplier: ""
-                        },
-                        cassandra: {
-                            cassandraServers: "",
-                            keyspace: "",
-                            port: "",
-                            clusterName: "",
-                            compression: "",
-                            username: "",
-                            password: "",
-                            loadBalancingPolicy: "",
-                            dataCenter: "",
-                            allowRemoteDCsForLocalConsistencyLevel: "",
-                            enableJMXReporting: "",
-                            enableMetrics: "",
-                            localCoreConnectionsPerHost: "",
-                            remoteCoreConnectionsPerHost: "",
-                            localMaxConnectionsPerHost: "",
-                            remoteMaxConnectionsPerHost: "",
-                            localNewConnectionThreshold: "",
-                            remoteNewConnectionThreshold: "",
-                            localMaxRequestsPerConnection: "",
-                            remoteMaxRequestsPerConnection: "",
-                            protocolVersion: "",
-                            consistencyLevel: "",
-                            fetchSize: "",
-                            serialConsistencyLevel: "",
-                            reconnectionPolicy: "",
-                            constantReconnectionPolicyDelay: "",
-                            exponentialReconnectionPolicyBaseDelay: "",
-                            exponentialReconnectionPolicyMaxDelay: "",
-                            retryPolicy: "",
-                            connectionTimeoutMillis: "",
-                            keepAlive: "",
-                            readTimeoutMillis: "",
-                            receiverBufferSize: "",
-                            sendBufferSize: "",
-                            reuseAddress: "",
-                            soLinger: "",
-                            tcpNoDelay: "",
-                            enableSSL: ""
-                        },
-                        csv: {
-                            csv_hasheader: "",
-                            csv_datasource: "",
-                            csv_columnseperator: "",
-                            csv_startingrow: "",
-                            csv_maxrowcount: "",
-                            csv_headerrow: ""
-                        },
-                        carbonDatasource: {
-                            carbon_datasource_name: ""
-                        },
-                        dsConfigurations: ds.datasourceConfigurations
-                    };
-                    const propertyKeys: string[]  = [];
-                    ds.datasourceProperties.forEach(attr => {
-                        propertyKeys.push(attr.key);
-                    });
-                    if (propertyKeys.includes("driverClassName")) {
-                        currentDatasource.dataSourceType = "RDBMS";
-                        ds.datasourceProperties.forEach(attr => {
-                            currentDatasource.rdbms[attr.key] = attr.value;
-                        });
-                        if (currentDatasource.rdbms.driverClassName.includes("mysql")) {
-                            currentDatasource.rdbms.databaseEngine = "MySQL";
-                        } else if (currentDatasource.rdbms.driverClassName.includes("derby")) {
-                            currentDatasource.rdbms.databaseEngine = "Apache Derby";
-                        } else if (currentDatasource.rdbms.driverClassName.includes("microsoft")) {
-                            currentDatasource.rdbms.databaseEngine = "Microsoft SQL Server";
-                        } else if (currentDatasource.rdbms.driverClassName.includes("oracle")) {
-                            currentDatasource.rdbms.databaseEngine = "Oracle";
-                        } else if (currentDatasource.rdbms.driverClassName.includes("ibm")) {
-                            currentDatasource.rdbms.databaseEngine = "IBM DB2";
-                        } else if (currentDatasource.rdbms.driverClassName.includes("hsql")) {
-                            currentDatasource.rdbms.databaseEngine = "HSQLDB";
-                        } else if (currentDatasource.rdbms.driverClassName.includes("informix")) {
-                            currentDatasource.rdbms.databaseEngine = "Informix";
-                        } else if (currentDatasource.rdbms.driverClassName.includes("postgre")) {
-                            currentDatasource.rdbms.databaseEngine = "PostgreSQL";
-                        } else if (currentDatasource.rdbms.driverClassName.includes("sybase")) {
-                            currentDatasource.rdbms.databaseEngine = "Sybase ASE";
-                        } else if (currentDatasource.rdbms.driverClassName.includes("h2")) {
-                            currentDatasource.rdbms.databaseEngine = "H2";
-                        } else {
-                            currentDatasource.rdbms.databaseEngine = "Generic";
-                        }
-                    } else if (propertyKeys.includes("csv_datasource")) {
-                        currentDatasource.dataSourceType = "CSV";
-                        ds.datasourceProperties.forEach(attr => {
-                            currentDatasource.csv[attr.key] = attr.value;
-                        });
-                    } else if (propertyKeys.includes("cassandraServers")) {
-                        currentDatasource.dataSourceType = "Cassandra";
-                        ds.datasourceProperties.forEach(attr => {
-                            currentDatasource.cassandra[attr.key] = attr.value;
-                        });
-                    } else if (propertyKeys.includes("mongoDB_servers")) {
-                        currentDatasource.dataSourceType = "MongoDB";
-                        ds.datasourceProperties.forEach(attr => {
-                            currentDatasource.mongodb[attr.key] = attr.value;
-                        });
-                    } else {
-                        ds.datasourceProperties.forEach(attr => {
-                            currentDatasource.dataSourceType = "Carbon Datasource";
-                            currentDatasource.carbonDatasource[attr.key] = attr.value;
-                        });
-                    }
+                    const currentDatasource = restructureDatasource(ds);
                     existingDatasources.push(currentDatasource);
                 });
                 setDatasources(existingDatasources);
@@ -360,12 +227,16 @@ export function DataServiceWizard(props: DataServiceWizardProps) {
     };
 
     const handleCancel = () => {
-        rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Overview } });
+        if (isNewDataService) {
+            rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Overview } });
+        } else {
+            rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.DSSServiceDesigner, documentUri: props.path } });
+        }
     };
 
     return (
         <>
-            {showDatasourceComponent && <DataServiceDataSourceWizard datasource={datasource} setShowComponent={setShowDatasourceComponent} datasources={datasources} setValue={setValue}/> }
+            {showDatasourceComponent && <DataServiceDataSourceWizard datasource={datasource} setShowComponent={setShowDatasourceComponent} datasources={datasources} setValue={setValue} /> }
             {!showDatasourceComponent &&
                 <>
                     <FormView title='Data Service Artifact' onClose={handleCancel}>
