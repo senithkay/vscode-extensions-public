@@ -8,14 +8,14 @@
  */
 
 import { useEffect, useState } from 'react';
-import { AutoComplete, Button, ComponentCard, FormActions, RequiredFormInput, TextField } from '@wso2-enterprise/ui-toolkit';
+import { AutoComplete, Button, ComponentCard, FormActions, FormView, RequiredFormInput, TextField } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { create } from 'xmlbuilder2';
 import { useForm, Controller } from 'react-hook-form';
 import { ExpressionField } from '@wso2-enterprise/mi-diagram/lib/components/Form/ExpressionField/ExpressionInput';
 import { ExpressionFieldValue } from '@wso2-enterprise/mi-diagram/lib/components/Form/ExpressionField/ExpressionInput';
-import { EVENT_TYPE, MACHINE_VIEW } from '@wso2-enterprise/mi-core';
+import { EVENT_TYPE, MACHINE_VIEW, POPUP_EVENT_TYPE } from '@wso2-enterprise/mi-core';
 import { ExpressionEditor } from '@wso2-enterprise/mi-diagram/lib/components/sidePanel/expressionEditor/ExpressionEditor';
 
 const cardStyle = {
@@ -35,11 +35,10 @@ const Field = styled.div`
     margin-bottom: 20px;
 `;
 
-interface AddConnectionProps {
-    documentUri: string;
-    onNewConnection: (connectionName: string) => void;
+export interface AddConnectionProps {
     allowedConnectionTypes: string[];
     connector: any;
+    isPopup?: boolean;
 }
 
 interface Element {
@@ -58,11 +57,8 @@ interface ExpressionValueWithSetter {
     setValue: (value: ExpressionFieldValue) => void;
 };
 
-const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g;
-const nameWithoutSpecialCharactorsRegex = /^[a-zA-Z0-9]+$/g;
-
-const AddConnection = (props: AddConnectionProps) => {
-    const { allowedConnectionTypes, documentUri, onNewConnection } = props;
+export function AddConnection(props: AddConnectionProps) {
+    const { allowedConnectionTypes } = props;
     const { rpcClient } = useVisualizerContext();
 
     const [errors, setErrors] = useState({} as any);
@@ -167,15 +163,23 @@ const AddConnection = (props: AddConnectionProps) => {
             const sep = visualizerState.pathSeparator;
             const localEntryPath = [projectUri, 'src', 'main', 'wso2mi', 'artifacts', 'local-entries'].join(sep);
 
-            const connectionName = await rpcClient.getMiDiagramRpcClient().createConnection({
+            await rpcClient.getMiDiagramRpcClient().createConnection({
                 connectionName: values['connectionName'],
                 keyValuesXML: modifiedXml,
                 directory: localEntryPath
             });
 
+            // Refresh Treeview
             rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.project-explorer.refresh"] });
 
-            onNewConnection(connectionName.name);
+            if (props.isPopup) {
+                rpcClient.getMiVisualizerRpcClient().openView({
+                    type: POPUP_EVENT_TYPE.CLOSE_VIEW,
+                    location: { view: null, recentIdentifier: values['connectionName'] }});
+            } else {
+                // Open Overview
+                rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Overview } });
+            }
         }
     };
 
@@ -380,12 +384,12 @@ const AddConnection = (props: AddConnectionProps) => {
         });
     };
 
-    const handleCancel = () => {
-        rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Overview } });
-    };
+    const handleOnClose = () => {
+        rpcClient.getMiVisualizerRpcClient().goBack();
+    }
 
     return (
-        <div>
+        <FormView title={`Add New Connection`} onClose={handleOnClose} hideClose={props.isPopup}>
             <Controller
                 name={"ConnectionType"}
                 control={control}
@@ -420,7 +424,7 @@ const AddConnection = (props: AddConnectionProps) => {
                         </Button>
                         <Button
                             appearance="secondary"
-                            onClick={handleCancel}
+                            onClick={handleOnClose}
                         >
                             Cancel
                         </Button>
@@ -428,7 +432,7 @@ const AddConnection = (props: AddConnectionProps) => {
                 </>
             )}
 
-        </div>
+        </FormView>
     );
 };
 
