@@ -8,6 +8,8 @@
  */
 
 import {
+    EMPTY_NODE_CONTAINER_WIDTH,
+    EMPTY_NODE_WIDTH,
     IF_NODE_WIDTH,
     NODE_BORDER_WIDTH,
     NODE_GAP_X,
@@ -16,7 +18,7 @@ import {
     NODE_PADDING,
     NODE_WIDTH,
 } from "../resources/constants";
-import { Branch, Node, ViewState } from "../utils/types";
+import { Branch, Node } from "../utils/types";
 import { BaseVisitor } from "./BaseVisitor";
 
 export class SizingVisitor implements BaseVisitor {
@@ -24,10 +26,6 @@ export class SizingVisitor implements BaseVisitor {
 
     constructor() {
         console.log("sizing visitor started");
-    }
-
-    private getDefaultViewState(): ViewState {
-        return { x: 0, y: 0, w: 0, h: 0 };
     }
 
     private setNodeSize(
@@ -38,7 +36,8 @@ export class SizingVisitor implements BaseVisitor {
         containerHeight?: number
     ): void {
         if (node.viewState == undefined) {
-            node.viewState = this.getDefaultViewState();
+            console.error("Node view state is not initialized", { node });
+            return;
         }
         node.viewState.w = width;
         node.viewState.h = height;
@@ -78,17 +77,7 @@ export class SizingVisitor implements BaseVisitor {
             });
         }
         // add if node width and height
-        height += IF_NODE_WIDTH + NODE_GAP_Y;
-
-        // if early return not present in both branches, add empty node end of the if block
-        const thenBranchHasEarlyReturn =
-            node.branches.find((branch) => branch.label === "Then")?.children.at(-1)?.kind == "RETURN";
-        const elseBranchHasEarlyReturn =
-            node.branches.find((branch) => branch.label === "Else")?.children.at(-1)?.kind == "RETURN";
-        if (!(thenBranchHasEarlyReturn && elseBranchHasEarlyReturn)) {
-            // add empty node
-            height += NODE_GAP_Y;
-        }
+        height += IF_NODE_WIDTH + NODE_GAP_Y + NODE_GAP_Y;
 
         this.setNodeSize(node, IF_NODE_WIDTH, IF_NODE_WIDTH, width, height);
     }
@@ -110,6 +99,10 @@ export class SizingVisitor implements BaseVisitor {
             });
         }
         this.setNodeSize(node, width, height);
+    }
+
+    endVisitEmpty(node: Node, parent?: Node): void {
+        this.setNodeSize(node, EMPTY_NODE_WIDTH, EMPTY_NODE_WIDTH, EMPTY_NODE_CONTAINER_WIDTH, NODE_HEIGHT);
     }
 
     skipChildren(): boolean {

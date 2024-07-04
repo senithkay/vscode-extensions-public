@@ -29,6 +29,7 @@ import { EmptyNodeModel } from "./nodes/EmptyNode";
 import { ComponentList, ComponentPanel } from "./ComponentPanel";
 import { SizingVisitor } from "../visitors/SizingVisitor";
 import { PositionVisitor } from "../visitors/PositionVisitor";
+import { InitVisitor } from "../visitors/InitVisitor";
 
 export interface DiagramProps {
     model: Flow;
@@ -44,13 +45,16 @@ export function Diagram(props: DiagramProps) {
 
     useEffect(() => {
         if (diagramEngine) {
+            console.log(">>> diagram data", { model });
             const { nodes, links } = getDiagramData();
-            console.log(">>> diagram data", { model, nodes, links });
+            console.log(">>> diagram data", { nodes, links });
             drawDiagram(nodes, links);
         }
     }, [model]);
 
     const getDiagramData = () => {
+        const initVisitor = new InitVisitor(model);
+        traverseFlow(model, initVisitor);
         const sizingVisitor = new SizingVisitor();
         traverseFlow(model, sizingVisitor);
         const positionVisitor = new PositionVisitor();

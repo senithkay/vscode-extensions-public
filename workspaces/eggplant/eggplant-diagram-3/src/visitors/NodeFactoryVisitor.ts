@@ -12,7 +12,7 @@ import { BaseNodeModel } from "../components/nodes/BaseNode";
 import { EmptyNodeModel } from "../components/nodes/EmptyNode";
 import { IfNodeModel } from "../components/nodes/IfNode/IfNodeModel";
 import { StartNodeModel } from "../components/nodes/StartNode/StartNodeModel";
-import { EMPTY_NODE_WIDTH, NODE_WIDTH } from "../resources/constants";
+import { EMPTY_NODE_WIDTH } from "../resources/constants";
 import { createNodesLink } from "../utils/diagram";
 import { Branch, Node, NodeModel } from "../utils/types";
 import { BaseVisitor } from "./BaseVisitor";
@@ -45,14 +45,16 @@ export class NodeFactoryVisitor implements BaseVisitor {
         this.lastNodeModel = nodeModel;
     }
 
-    private createBaseNode(node: Node): void {
+    private createBaseNode(node: Node): NodeModel {
         const nodeModel = new BaseNodeModel(node);
         this.nodes.push(nodeModel);
         this.updateNodeLinks(node, nodeModel);
+        return nodeModel;
     }
 
-    private createEmptyNode(id: string, visible = true): EmptyNodeModel {
+    private createEmptyNode(id: string, x: number, y: number, visible = true): EmptyNodeModel {
         const nodeModel = new EmptyNodeModel(id, visible);
+        nodeModel.setPosition(x, y);
         this.nodes.push(nodeModel);
         return nodeModel;
     }
@@ -65,7 +67,11 @@ export class NodeFactoryVisitor implements BaseVisitor {
         return this.links;
     }
 
-    beginVisitNode = (node: Node): void => node.id && this.createBaseNode(node); // only ui nodes have id
+    beginVisitNode = (node: Node): void => {
+        if (node.id) {
+            this.createBaseNode(node);
+        }
+    }; // only ui nodes have id
 
     beginVisitEventHttpApi(node: Node, parent?: Node): void {
         // consider this as a start node
@@ -107,21 +113,26 @@ export class NodeFactoryVisitor implements BaseVisitor {
         });
 
         // create branches OUT links
-        const endIfEmptyNode = this.createEmptyNode(`${node.id}-endif`);
-        endIfEmptyNode.setPosition(
+        const endIfEmptyNode = this.createEmptyNode(
+            `${node.id}-endif`,
             node.viewState.x + node.viewState.w / 2 - EMPTY_NODE_WIDTH / 2,
             node.viewState.y + node.viewState.ch - EMPTY_NODE_WIDTH / 2
-        ); // TODO: move this logic to PositionVisitor
+        ); // TODO: move position logic to position visitor
 
         let endIfLinkCount = 0;
         node.branches?.forEach((branch) => {
             if (!branch.children || branch.children.length === 0) {
+                console.error("Branch children not found", branch);
+                return;
+            }
+            if (branch.children && branch.children.length === 1 && branch.children.find((n) => n.kind === "EMPTY")) {
                 // empty branch
-                let branchEmptyNode = this.createEmptyNode(`${node.id}-${branch.label}-branch`, true);
-                const emptyNodeGap = branch.label === "Then" ? -NODE_WIDTH / 2 : NODE_WIDTH / 2;
-                branchEmptyNode.setPosition(
-                    branch.viewState.x + emptyNodeGap - EMPTY_NODE_WIDTH / 2,
-                    branch.viewState.y + branch.viewState.ch - EMPTY_NODE_WIDTH / 2
+                const branchEmptyNodeModel = branch.children.at(0);
+                let branchEmptyNode = this.createEmptyNode(
+                    branchEmptyNodeModel.id,
+                    branchEmptyNodeModel.viewState.x,
+                    branchEmptyNodeModel.viewState.y,
+                    true
                 );
                 const linkIn = createNodesLink(ifNodeModel, branchEmptyNode, { label: branch.label, brokenLine: true });
                 const linkOut = createNodesLink(branchEmptyNode, endIfEmptyNode, {
@@ -134,8 +145,6 @@ export class NodeFactoryVisitor implements BaseVisitor {
                 }
                 return;
             }
-
-            console.log(">>> branch", {node, branch});
 
             // get last child node model
             // if last child is RETURN, don't create link
@@ -176,9 +185,9 @@ export class NodeFactoryVisitor implements BaseVisitor {
         this.lastNodeModel = undefined;
     }
 
-    // beginVisitEmpty(node: Node, parent?: Node): void {
-    //     this.createBaseNode(node);
-    // }
+    beginVisitEmpty(node: Node, parent?: Node): void {
+        // skip node creation
+    }
 
     skipChildren(): boolean {
         return this.skipChildrenVisit;
