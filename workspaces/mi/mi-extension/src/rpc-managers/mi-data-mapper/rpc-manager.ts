@@ -9,6 +9,8 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
+    CreateDMProjectRequest,
+    CreateDMProjectResponse,
     DMTypeRequest,
     IOTypeResponse,
     SubMappingTypesResponse,
@@ -29,7 +31,7 @@ import {
     DMOperator
 } from "@wso2-enterprise/mi-core";
 import { fetchIOTypes, fetchSubMappingTypes, fetchOperators } from "../../util/dataMapper";
-import { Project } from "ts-morph";
+import { Project, ProjectOptions } from "ts-morph";
 import { navigate } from "../../stateMachine";
 import { generateSchema } from "../../util/schemaBuilder";
 import { JSONSchema3or4 } from "to-json-schema";
@@ -42,6 +44,8 @@ import { extension } from "../../MIExtensionContext";
 import { MiDiagramRpcManager } from "../mi-diagram/rpc-manager";
 import { UndoRedoManager } from "../../undoRedoManager";
 import * as ts from 'typescript';
+import { log } from "../../util/logger";
+import { DMProject } from "../../datamapper/DMProject";
 
 const undoRedoManager = new UndoRedoManager();
 
@@ -323,4 +327,16 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
         });
     }
 
+    async createDMProject(params: CreateDMProjectRequest): Promise<CreateDMProjectResponse> {
+        return new Promise((resolve, reject) => {
+            const { filePath, options } = params;
+            try {
+                const project = DMProject.getInstance(filePath, options).getProject();
+                resolve({ project: project });
+            } catch (error: any) {
+                log(error);
+                reject(error);
+            }         
+        });
+    }
 }

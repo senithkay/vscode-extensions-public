@@ -9,6 +9,8 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
+    CreateDMProjectRequest,
+    CreateDMProjectResponse,
     DMTypeRequest,
     IOTypeResponse,
     SubMappingTypesResponse,
@@ -29,6 +31,7 @@ import {
     ConvertRegPathToAbsPathResponse,
     convertRegPathToAbsPath,
     createDMFiles,
+    createDMProject,
     UpdateDMCRequest,
     updateDMCFileContent,
     UpdateDMUndoRedoMangerRequest,
@@ -105,5 +108,9 @@ export class MiDataMapperRpcClient implements MIDataMapperAPI {
 
     getOperators(params: GetOperatorsRequest): Promise<GetOperatorsResponse> {
         return this._messenger.sendRequest(getOperators, HOST_EXTENSION, params);
+    }
+
+    createDMProject(params: CreateDMProjectRequest): Promise<CreateDMProjectResponse> {
+        return this._messenger.sendRequest(createDMProject, HOST_EXTENSION, params);
     }
 }
