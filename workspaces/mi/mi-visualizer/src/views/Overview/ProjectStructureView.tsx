@@ -228,11 +228,9 @@ const ProjectStructureView = (props: { projectStructure: any, workspaceDir: stri
                                         ) : (
                                             (key === "localEntries") && Object.entries(entry).map(([key, value]) => {
                                                 if (Array.isArray(value)) {
-                                                    const connectionType = key.charAt(0).toUpperCase() + key.slice(1);
                                                     key = "connections"
                                                     return (
                                                         <div>
-                                                            <h3>{`${connectionType} ${artifactTypeMap[key].title}`}</h3>
                                                             {value.map(connectionEntry => (
                                                                 connectionEntry.type === "localEntry" && (
                                                                     <Entry
