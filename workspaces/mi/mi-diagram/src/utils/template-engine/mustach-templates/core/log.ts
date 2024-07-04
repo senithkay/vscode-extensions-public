@@ -48,7 +48,8 @@ export function getLogXml(data: { [key: string]: any }) {
 }
 
 export function getLogFormDataFromSTNode(data: { [key: string]: any }, node: Log) {
-  if (data.level) data.level = data.level.toString().toUpperCase();
+  if (node.category) data.category = node.category.toString().toUpperCase();
+  if (node.level) data.level = node.level.toString().toUpperCase();
   data.description = node.description;
   data.separator = node.separator;
   if (node.property) {
