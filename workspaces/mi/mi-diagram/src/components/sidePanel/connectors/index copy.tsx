@@ -17,7 +17,6 @@ import AddConnector from "../Pages/AddConnector";
 import { ConnectorStatus } from "@wso2-enterprise/mi-core";
 import { Mediators } from "../mediators/List";
 import { sidepanelAddPage } from "..";
-import { FirstCharToUpperCase } from "../../../utils/commons";
 
 const LoaderWrapper = styled.div`
     display: flex;
@@ -37,15 +36,7 @@ const ProgressRing = styled(VSCodeProgressRing)`
 `;
 
 const IconContainer = styled.div`
-    width: 35px;
-
-    & img {
-        width: 35px;
-    }
-`;
-
-const SmallIconContainer = styled.div`
-    width: 25px;
+    width: 40px;
 
     & img {
         width: 25px;
@@ -56,7 +47,6 @@ const ButtonGrid = styled.div`
     display: grid;
     grid-template-columns: 1fr;
     gap: 5px 5px;
-    margin-bottom: 5px;
 `;
 
 const OperationGrid = styled.div`
@@ -64,6 +54,12 @@ const OperationGrid = styled.div`
     grid-template-columns: 1fr 1fr;
     gap: 5px 5px;
     padding-top: 10px;
+`;
+
+const TitleWrapper = styled.div`
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
 `;
 
 const VersionTag = styled.div`
@@ -85,8 +81,13 @@ const CardLabel = styled.div`
     flex-direction: row;
     align-self: flex-start;
     width: 100%;
-    justify-content: space-between;
-    gap: 10px;
+`;
+
+const MessageWrapper = styled.div`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-top: 10px;
 `;
 
 const OldProjectMessage = styled.div`
@@ -221,7 +222,7 @@ export function ConnectorPage(props: ConnectorPageProps) {
     }
 
     const searchLocalConnectors = (searchValue: string) => {
-        return localConnectors?.filter(connector => {
+        return localConnectors.filter(connector => {
             const connectorNameMatches = connector.name.toLowerCase().includes(searchValue.toLowerCase());
 
             const actionNameMatches = connector.actions && connector.actions.some((action: any) =>
@@ -235,7 +236,7 @@ export function ConnectorPage(props: ConnectorPageProps) {
     const searchOperations = (searchValue: string) => {
         const connectorsAndActions: any[][] = [];
 
-        localConnectors?.forEach(connector => {
+        localConnectors.forEach(connector => {
             const matchingActions: any[] = [];
 
             const connectorNameMatches = connector.name.toLowerCase().includes(searchValue.toLowerCase());
@@ -376,7 +377,6 @@ export function ConnectorPage(props: ConnectorPageProps) {
 
         return (
             <>
-                <h4>Available Connectors</h4>
                 {isOldProject ? (
                     <OldProjectMessage>
                         <Codicon name="warning" />
@@ -396,39 +396,46 @@ export function ConnectorPage(props: ConnectorPageProps) {
                 ) : (
                     <>
                         <div>
-                            {(!displayeLocalConnectors || (displayeLocalConnectors.length === 0)) ? (
-                                <></>
+                            <h4>Local Connectors</h4>
+                            {(!displayeLocalConnectors) ? (
+                                <LoaderWrapper>
+                                    <ProgressRing />
+                                    Fetching connectors...
+                                </LoaderWrapper>
+                            ) : (displayeLocalConnectors.length === 0) ? (
+                                <MessageWrapper>
+                                    No local connectors found
+                                </MessageWrapper>
                             ) : (
                                 <ButtonGrid>
                                     {displayeLocalConnectors.map((connector: any) => (
-                                        <div style={{
-                                            '&:hover, &.active': {
-                                                ...(expandedConnectors.includes(connector) && {
-                                                    '.icon svg g': {
-                                                        fill: 'var(--vscode-editor-foreground)'
-                                                    },
-                                                    backgroundColor: 'var(--vscode-pickerGroup-border)'
-                                                })
-                                            },
-                                            backgroundColor: 'var(--vscode-editorWidget-background)',
-                                            border: '0px',
-                                            borderRadius: 2,
-                                            cursor: 'pointer',
-                                            display: 'flex',
-                                            justifyContent: 'left',
-                                            transition: '0.3s',
-                                            flexDirection: 'column',
-                                            marginBottom: '10px'
-                                        }}>
+                                        <>
                                             <ComponentCard
                                                 key={connector.name}
                                                 onClick={() => selectConnector(connector)}
                                                 sx={{
-                                                    border: '0px',
+                                                    '&:hover, &.active': {
+                                                        ...(expandedConnectors.includes(connector) && {
+                                                            '.icon svg g': {
+                                                                fill: 'var(--vscode-editor-foreground)'
+                                                            },
+                                                            backgroundColor: 'var(--vscode-pickerGroup-border)',
+                                                            border: '0.5px solid var(--vscode-focusBorder)'
+                                                        })
+                                                    },
+                                                    alignItems: 'center',
+                                                    backgroundColor: expandedConnectors.includes(connector) ?
+                                                        'var(--vscode-pickerGroup-border)' :
+                                                        'defaultColor',
+                                                    border: '0.5px solid var(--vscode-editor-foreground)',
                                                     borderRadius: 2,
-                                                    padding: '6px 10px',
-                                                    width: 'auto',
-                                                    height: '32px'
+                                                    cursor: 'pointer',
+                                                    display: 'flex',
+                                                    justifyContent: 'left',
+                                                    marginBottom: 10,
+                                                    padding: 10,
+                                                    transition: '0.3s',
+                                                    width: 'calc(100% - 25px)'
                                                 }}
                                             >
                                                 <CardContent>
@@ -444,13 +451,10 @@ export function ConnectorPage(props: ConnectorPageProps) {
                                                             overflow: 'hidden',
                                                             textOverflow: 'ellipsis',
                                                             whiteSpace: 'nowrap',
-                                                            textAlign: 'left',
-                                                            display: 'flex',
-                                                            flexDirection: 'column',
-                                                            justifyContent: 'center'
+                                                            textAlign: 'left'
                                                         }}>
                                                             <IconLabel>
-                                                                {FirstCharToUpperCase(connector.name)}
+                                                                {connector.name}
                                                             </IconLabel>
                                                             <VersionTag>
                                                                 {connector.version}
@@ -469,10 +473,24 @@ export function ConnectorPage(props: ConnectorPageProps) {
                                                     filteredConnector.name === connector.name
                                             )
                                                 || (expandedConnectors && expandedConnectors.includes(connector))) && (
-                                                    <div style={{
-                                                        padding: '10px',
-                                                    }}>
-                                                        <div style={{ width: '100%', textAlign: 'left' }}>Select Operation</div>
+                                                    <div
+                                                        key={connector.name}
+                                                        style={{
+                                                            alignItems: 'center',
+                                                            border: '0.5px solid var(--vscode-editor-foreground)',
+                                                            borderRadius: 2,
+                                                            cursor: 'pointer',
+                                                            display: 'flex',
+                                                            justifyContent: 'left',
+                                                            marginBottom: 10,
+                                                            padding: 10,
+                                                            transition: '0.3s',
+                                                            width: 'calc(100% - 25px)',
+                                                            flexDirection: 'column',
+                                                            backgroundColor: 'var(--vscode-editorWidget-background)'
+                                                        }}
+                                                    >
+                                                        <div style={{ width: '100%', textAlign: 'left' }}>Select Operations</div>
                                                         <OperationGrid>
                                                             {((filteredOperations.find(([filteredConnector]) => filteredConnector === connector)?.slice(1))
                                                                 || (connector.actions)).map((operation: any) => {
@@ -500,13 +518,12 @@ export function ConnectorPage(props: ConnectorPageProps) {
                                                                                 display: 'flex',
                                                                                 height: 20,
                                                                                 justifyContent: 'left',
-                                                                                marginBottom: 10,
                                                                                 padding: 10,
                                                                                 transition: '0.3s',
-                                                                                width: 'auto'
+                                                                                width: 160
                                                                             }}
                                                                         >
-                                                                            {/* <div style={{
+                                                                            <div style={{
                                                                                 width: '100%',
                                                                                 overflow: 'hidden',
                                                                                 textOverflow: 'ellipsis',
@@ -514,15 +531,6 @@ export function ConnectorPage(props: ConnectorPageProps) {
                                                                                 textAlign: 'left'
                                                                             }}>
                                                                                 <IconLabel>{operation.name}</IconLabel>
-                                                                            </div> */}
-                                                                            <SmallIconContainer>
-                                                                                <img
-                                                                                    src={connector.iconPathUri.uri}
-                                                                                    alt="Icon"
-                                                                                />
-                                                                            </SmallIconContainer>
-                                                                            <div >
-                                                                                <IconLabel>{FirstCharToUpperCase(operation.name)}</IconLabel>
                                                                             </div>
                                                                         </ComponentCard>
                                                                     );
@@ -531,12 +539,13 @@ export function ConnectorPage(props: ConnectorPageProps) {
                                                     </div>
                                                 )
                                             }
-                                        </div>
+                                        </>
                                     ))}
                                 </ButtonGrid>
                             )}
                         </div>
                         <div>
+                            <h4>Store Connectors</h4>
                             {!displayedStoreConnectors ? (
                                 <LoaderWrapper>
                                     <ProgressRing />
@@ -545,34 +554,33 @@ export function ConnectorPage(props: ConnectorPageProps) {
                             ) :
                                 <ButtonGrid>
                                     {(displayedStoreConnectors.sort((a: any, b: any) => a.rank - b.rank).map((connector: any) => (
-                                        <div style={{
-                                            '&:hover, &.active': {
-                                                ...(expandedConnectors.includes(connector) && {
-                                                    '.icon svg g': {
-                                                        fill: 'var(--vscode-editor-foreground)'
-                                                    },
-                                                    backgroundColor: 'var(--vscode-pickerGroup-border)'
-                                                })
-                                            },
-                                            backgroundColor: 'var(--vscode-editorWidget-background)',
-                                            border: '0px',
-                                            borderRadius: 2,
-                                            cursor: 'pointer',
-                                            display: 'flex',
-                                            justifyContent: 'left',
-                                            transition: '0.3s',
-                                            flexDirection: 'column',
-                                            marginBottom: '10px'
-                                        }}>
+                                        <>
                                             <ComponentCard
                                                 key={connector.name}
                                                 onClick={() => selectConnector(connector)}
                                                 sx={{
-                                                    border: '0px',
+                                                    '&:hover, &.active': {
+                                                        ...(expandedConnectors.includes(connector) && {
+                                                            '.icon svg g': {
+                                                                fill: 'var(--vscode-editor-foreground)'
+                                                            },
+                                                            backgroundColor: 'var(--vscode-pickerGroup-border)',
+                                                            border: '0.5px solid var(--vscode-focusBorder)'
+                                                        })
+                                                    },
+                                                    alignItems: 'center',
+                                                    backgroundColor: expandedConnectors.includes(connector) ?
+                                                        'var(--vscode-pickerGroup-border)' :
+                                                        'defaultColor',
+                                                    border: '0.5px solid var(--vscode-editor-foreground)',
                                                     borderRadius: 2,
-                                                    padding: '6px 10px',
-                                                    width: 'auto',
-                                                    height: '32px'
+                                                    cursor: 'pointer',
+                                                    display: 'flex',
+                                                    justifyContent: 'left',
+                                                    marginBottom: 10,
+                                                    padding: 10,
+                                                    transition: '0.3s',
+                                                    width: 'calc(100% - 25px)'
                                                 }}
                                             >
                                                 <CardContent>
@@ -592,13 +600,10 @@ export function ConnectorPage(props: ConnectorPageProps) {
                                                             overflow: 'hidden',
                                                             textOverflow: 'ellipsis',
                                                             whiteSpace: 'nowrap',
-                                                            textAlign: 'left',
-                                                            display: 'flex',
-                                                            flexDirection: 'column',
-                                                            justifyContent: 'center'
+                                                            textAlign: 'left'
                                                         }}>
                                                             <IconLabel>
-                                                                {FirstCharToUpperCase(connector.name)}
+                                                                {connector.name}
                                                             </IconLabel>
                                                             <VersionTag>
                                                                 {connector.version}
@@ -617,10 +622,24 @@ export function ConnectorPage(props: ConnectorPageProps) {
                                                     filteredConnector.name === connector.name
                                             )
                                                 || (expandedConnectors && expandedConnectors.includes(connector))) && (
-                                                    <div style={{
-                                                        padding: '10px',
-                                                    }}>
-                                                        <div style={{ width: '100%', textAlign: 'left' }}>Select Operation</div>
+                                                    <div
+                                                        key={connector.name}
+                                                        style={{
+                                                            alignItems: 'center',
+                                                            border: '0.5px solid var(--vscode-editor-foreground)',
+                                                            borderRadius: 2,
+                                                            cursor: 'pointer',
+                                                            display: 'flex',
+                                                            justifyContent: 'left',
+                                                            marginBottom: 10,
+                                                            padding: 10,
+                                                            transition: '0.3s',
+                                                            width: 'calc(100% - 25px)',
+                                                            flexDirection: 'column',
+                                                            backgroundColor: 'var(--vscode-editorWidget-background)'
+                                                        }}
+                                                    >
+                                                        <div style={{ width: '100%', textAlign: 'left' }}>Select Operations</div>
                                                         <OperationGrid>
                                                             {((filteredOperations.find(([filteredConnector]) => filteredConnector === connector)?.slice(1))
                                                                 || connector.operations).map((operation: any) => {
@@ -648,22 +667,11 @@ export function ConnectorPage(props: ConnectorPageProps) {
                                                                                 display: 'flex',
                                                                                 height: 20,
                                                                                 justifyContent: 'left',
-                                                                                marginBottom: 10,
                                                                                 padding: 10,
                                                                                 transition: '0.3s',
-                                                                                width: '160px'
+                                                                                width: 160
                                                                             }}
                                                                         >
-                                                                            <SmallIconContainer>
-                                                                                <img
-                                                                                    src={connector.icon_url}
-                                                                                    alt="Icon"
-                                                                                    onError={(e) => {
-                                                                                        const target = e.target as HTMLImageElement;
-                                                                                        target.src = 'https://mi-connectors.wso2.com/icons/wordpress.gif'
-                                                                                    }}
-                                                                                />
-                                                                            </SmallIconContainer>
                                                                             <div style={{
                                                                                 width: '100%',
                                                                                 overflow: 'hidden',
@@ -671,7 +679,7 @@ export function ConnectorPage(props: ConnectorPageProps) {
                                                                                 whiteSpace: 'nowrap',
                                                                                 textAlign: 'left'
                                                                             }}>
-                                                                                <IconLabel>{FirstCharToUpperCase(operation.name)}</IconLabel>
+                                                                                <IconLabel>{operation.name}</IconLabel>
                                                                             </div>
                                                                         </ComponentCard>
                                                                     );
@@ -680,7 +688,7 @@ export function ConnectorPage(props: ConnectorPageProps) {
                                                     </div>
                                                 )
                                             }
-                                        </div>
+                                        </>
                                     ))
                                     )}
                                 </ButtonGrid>

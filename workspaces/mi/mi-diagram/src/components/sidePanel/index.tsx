@@ -59,11 +59,11 @@ export const sidepanelAddPage = (sidePanelContext: SidePanelContext, content: an
     });
 }
 
-export const sidepanelGoBack = (sidePanelContext: SidePanelContext) => {
-    if (sidePanelContext.pageStack.length > 0) {
+export const sidepanelGoBack = (sidePanelContext: SidePanelContext, count: number = 1) => {
+    if (sidePanelContext.pageStack.length > 0 && sidePanelContext.pageStack.length > count) {
         const pageStack = sidePanelContext.pageStack;
-        pageStack[pageStack.length - 1] = {
-            ...pageStack[pageStack.length - 1],
+        pageStack[pageStack.length - count] = {
+            ...pageStack[pageStack.length - count],
             isOpen: false,
             title: undefined,
             icon: undefined,

@@ -11,6 +11,7 @@ import { TextField, Button, Codicon, Icon } from "@wso2-enterprise/ui-toolkit";
 import React, { useState } from "react";
 import { Mediators } from "./List";
 import styled from "@emotion/styled";
+import { ConnectionPage } from "../connections";
 import { ConnectorPage } from "../connectors";
 
 const Wrapper = styled.div`
@@ -54,6 +55,7 @@ export function HomePage(props: MediatorPageProps) {
     const [searchValue, setSearchValue] = useState<string>('');
     const [isAllMediators, setAllMediators] = useState<boolean>(true);
     const [isConnectors, setConnectors] = useState<boolean>(false);
+    const [isEndpoints, setEndpoints] = useState<boolean>(false);
 
     const handleSearch = (e: string) => {
         setSearchValue(e);
@@ -65,12 +67,20 @@ export function HomePage(props: MediatorPageProps) {
 
     const handleAllMediatorsClicked = () => {
         setConnectors(false);
+        setEndpoints(false);
         setAllMediators(true);
     }
 
     const handleConnectorsClicked = () => {
         setAllMediators(false);
+        setEndpoints(false);
         setConnectors(true);
+    }
+
+    const handleEndpointsClicked = () => {
+        setAllMediators(false);
+        setConnectors(false);
+        setEndpoints(true);
     }
 
     return (
@@ -92,12 +102,17 @@ export function HomePage(props: MediatorPageProps) {
                 <ButtonContainer style={{ marginBottom: "10px", width: "calc(100% - 15px)" }}>
                     <Button onClick={handleAllMediatorsClicked} appearance={isAllMediators ? 'primary' : 'secondary'} >
                         <Icon sx={{marginTop: 2, marginRight: 5}} name="module-icon"/>
-                        All Mediators
+                        Mediators
                     </Button>
 
                     <Button onClick={handleConnectorsClicked} appearance={isConnectors ? 'primary' : 'secondary'}>
-                        <Icon sx={{marginTop: 2, marginRight: 5}} name="caller"/>
+                        <Icon sx={{marginTop: 2, marginRight: 5}} name="connector"/>
                         Connectors
+                    </Button>
+
+                    <Button onClick={handleEndpointsClicked} appearance={isEndpoints ? 'primary' : 'secondary'}>
+                        <Icon sx={{marginTop: 2, marginRight: 5}} name="caller"/>
+                        Endpoints
                     </Button>
                 </ButtonContainer>
             </SearchPanel>
@@ -110,6 +125,11 @@ export function HomePage(props: MediatorPageProps) {
             {isConnectors && (
                 <ComponentList>
                     <ConnectorPage nodePosition={props.nodePosition} documentUri={props.documentUri} searchValue={searchValue} clearSearch={clearSearch} />
+                </ComponentList>
+            )}
+            {isEndpoints && (
+                <ComponentList>
+                    <ConnectionPage nodePosition={props.nodePosition} documentUri={props.documentUri} searchValue={searchValue} clearSearch={clearSearch} />
                 </ComponentList>
             )}
         </Wrapper>
