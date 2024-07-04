@@ -11,8 +11,7 @@ export function getAddResourceTemplate() {
     return `<resource method="{{method}}" path="{{{path}}}"{{#returnRequestStatus}} returnRequestStatus="true"{{/returnRequestStatus}}{{#enableStreaming}} disableStreaming="true"{{/enableStreaming}}>
 {{#description}}    <description>{{description}}</description>{{/description}}
 <call-query href="{{query}}" />
-</resource>
-`
+</resource>`
 }
 
 export function getEditResourceTemplate() {
@@ -23,8 +22,7 @@ export function getAddOperationTemplate() {
     return `<operation name="{{name}}"{{#enableStreaming}} disableStreaming="true"{{/enableStreaming}}>
 {{#description}}    <description>{{description}}</description>{{/description}}
 <call-query href="{{query}}" />
-</operation>   
-`
+</operation>`
 }
 
 export function getAddQuery() {

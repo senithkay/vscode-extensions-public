@@ -62,7 +62,7 @@ export function getDSInputMappingsFromSTNode(data: { [key: string]: any }, node:
 export function getDSQueryFromSTNode(data: { [key: string]: any }, node: Query) {
     data.queryId = node?.id;
     data.datasource = node?.useConfig ?? "";
-    data.sqlQuery = node?.sql.textNode ?? "";
+    data.sqlQuery = node.sql !== undefined ? node.sql.textNode : node.expression !== undefined ? node.expression.textNode : "",
     data.returnGeneratedKeys = node?.returnGeneratedKeys ?? false;
     data.keyColumns = node?.keyColumns ?? "";
     data.returnUpdatedRowCount = node?.returnUpdatedRowCount ?? false;
@@ -113,8 +113,8 @@ export function getDSOutputMappingsFromSTNode(data: { [key: string]: any }, node
                 "",
                 attr.exportName ?? "",
                 attr.exportType ?? "Scalar",
-                attr.requiredRoles.split(",").includes("admin"),
-                attr.requiredRoles.split(",").includes("Internal/everyone")
+                attr.requiredRoles ? attr.requiredRoles.split(",").includes("admin") : false,
+                attr.requiredRoles ? attr.requiredRoles.split(",").includes("Internal/everyone") : false
             ]
         });
 
@@ -138,8 +138,8 @@ export function getDSOutputMappingsFromSTNode(data: { [key: string]: any }, node
                 "",
                 element.exportName ?? "",
                 element.exportType ?? "Scalar",
-                element.requiredRoles.split(",").includes("admin"),
-                element.requiredRoles.split(",").includes("Internal/everyone")
+                element.requiredRoles ? element.requiredRoles.split(",").includes("admin") : false,
+                element.requiredRoles ? element.requiredRoles.split(",").includes("Internal/everyone"): false
             ]
         });
 
@@ -169,8 +169,8 @@ export function getDSOutputMappingsFromSTNode(data: { [key: string]: any }, node
                 "",
                 "",
                 "",
-                query.requiredRoles.split(",").includes("admin"),
-                query.requiredRoles.split(",").includes("Internal/everyone")
+                query.requiredRoles ? query.requiredRoles.split(",").includes("admin") : false,
+                query.requiredRoles ? query.requiredRoles.split(",").includes("Internal/everyone") : false
             ]
         });
 
@@ -194,8 +194,8 @@ export function getDSOutputMappingsFromSTNode(data: { [key: string]: any }, node
                 complexElement.inlineXml ?? "",
                 "",
                 "",
-                complexElement.requiredRoles.split(",").includes("admin"),
-                complexElement.requiredRoles.split(",").includes("Internal/everyone")
+                complexElement.requiredRoles ? complexElement.requiredRoles.split(",").includes("admin") : false,
+                complexElement.requiredRoles ? complexElement.requiredRoles.split(",").includes("Internal/everyone") : false
             ]
         });
 
@@ -354,7 +354,7 @@ function structureQuery(query: Query) {
         returnGeneratedKeys: query.returnGeneratedKeys ?? false,
         keyColumns: query.keyColumns ?? "",
         returnUpdatedRowCount: query.returnUpdatedRowCount ?? false,
-        sqlQuery: query.sql?.textNode ?? "",
+        sqlQuery: query.sql !== undefined ? query.sql.textNode : query.expression !== undefined ? query.expression.textNode : "",
         queryParams: queryParams,
         result: result,
         queryProperties: queryProperties ?? [],
