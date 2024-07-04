@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { NodeLinkModel } from "../components/NodeLink";
+import { NodeLinkModel, NodeLinkModelOptions } from "../components/NodeLink";
 import { BaseNodeModel } from "../components/nodes/BaseNode";
 import { EmptyNodeModel } from "../components/nodes/EmptyNode";
 import { IfNodeModel } from "../components/nodes/IfNode/IfNodeModel";
@@ -27,17 +27,17 @@ export class NodeFactoryVisitor implements BaseVisitor {
         console.log("node factory visitor started");
     }
 
-    private updateNodeLinks(node: Node, nodeModel: NodeModel): void {
+    private updateNodeLinks(node: Node, nodeModel: NodeModel, options?: NodeLinkModelOptions): void {
         if (node.viewState?.startNodeId) {
             // new sub flow start
             const startNode = this.nodes.find((n) => n.getID() === node.viewState.startNodeId);
-            const link = createNodesLink(startNode, nodeModel);
+            const link = createNodesLink(startNode, nodeModel, options);
             if (link) {
                 this.links.push(link);
             }
             this.lastNodeModel = undefined;
         } else if (this.lastNodeModel) {
-            const link = createNodesLink(this.lastNodeModel, nodeModel);
+            const link = createNodesLink(this.lastNodeModel, nodeModel, options);
             if (link) {
                 this.links.push(link);
             }
@@ -188,6 +188,11 @@ export class NodeFactoryVisitor implements BaseVisitor {
     }
 
     beginVisitEmpty(node: Node, parent?: Node): void {
+        // add empty node end of the block
+        if (node.id.endsWith("-last")) {
+            const lastNodeModel = this.createEmptyNode(node.id, node.viewState.x, node.viewState.y, false);
+            this.updateNodeLinks(node, lastNodeModel, { showArrow: true });
+        }
         // skip node creation
     }
 

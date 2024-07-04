@@ -66,17 +66,6 @@ export function Diagram(props: DiagramProps) {
         const nodes = nodeVisitor.getNodes();
         const links = nodeVisitor.getLinks();
 
-        // add plus link to last node
-        const lastNode = nodeVisitor.getLastNodeModel();
-        if (lastNode) {
-            const lastEmptyNode = new EmptyNodeModel("last-empty-node", false);
-            nodes.push(lastEmptyNode);
-            const link = createNodesLink(lastNode, lastEmptyNode, { showArrow: true });
-            if (link) {
-                links.push(link);
-            }
-        }
-
         return { nodes, links };
     };
 

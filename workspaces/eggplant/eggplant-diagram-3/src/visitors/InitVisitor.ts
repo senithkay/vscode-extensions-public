@@ -29,6 +29,28 @@ export class InitVisitor implements BaseVisitor {
         }
     }
 
+    endVisitNode(node: Node, parent?: Node): void {
+        // if this is last block in the flow, add empty node end of the block
+        if (!node.returning && this.flow.nodes.at(-1).id === node.id) {
+            console.log(">>> last node", node);
+            const emptyNode: Node = {
+                id: `${node.id}-last`,
+                kind: "EMPTY",
+                label: "",
+                nodeProperties: {},
+                returning: false,
+                fixed: false,
+                lineRange: {
+                    fileName: "",
+                    startLine: [],
+                    endLine: [],
+                },
+                viewState: this.getDefaultViewState(),
+            };
+            this.flow.nodes.push(emptyNode);
+        }
+    }
+
     beginVisitIf(node: Node, parent?: Node): void {
         if (node.viewState == undefined) {
             node.viewState = this.getDefaultViewState();
