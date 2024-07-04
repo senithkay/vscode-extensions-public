@@ -8,6 +8,7 @@
  */
 
 import { NodeLinkModel, NodeLinkModelOptions } from "../components/NodeLink";
+import { ApiCallNodeModel } from "../components/nodes/ApiCallNode";
 import { BaseNodeModel } from "../components/nodes/BaseNode";
 import { EmptyNodeModel } from "../components/nodes/EmptyNode";
 import { IfNodeModel } from "../components/nodes/IfNode/IfNodeModel";
@@ -47,6 +48,13 @@ export class NodeFactoryVisitor implements BaseVisitor {
 
     private createBaseNode(node: Node): NodeModel {
         const nodeModel = new BaseNodeModel(node);
+        this.nodes.push(nodeModel);
+        this.updateNodeLinks(node, nodeModel);
+        return nodeModel;
+    }
+
+    private createApiCallNode(node: Node): NodeModel {
+        const nodeModel = new ApiCallNodeModel(node);
         this.nodes.push(nodeModel);
         this.updateNodeLinks(node, nodeModel);
         return nodeModel;
@@ -185,6 +193,18 @@ export class NodeFactoryVisitor implements BaseVisitor {
 
     endVisitBlock(node: Branch, parent?: Node): void {
         this.lastNodeModel = undefined;
+    }
+
+    beginVisitHttpApiGetCall(node: Node, parent?: Node): void {
+        if (node.id) {
+            this.createApiCallNode(node);
+        }
+    }
+
+    beginVisitHttpApiPostCall(node: Node, parent?: Node): void {
+        if (node.id) {
+            this.createApiCallNode(node);
+        }
     }
 
     beginVisitEmpty(node: Node, parent?: Node): void {

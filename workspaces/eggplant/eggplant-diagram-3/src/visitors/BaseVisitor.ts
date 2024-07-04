@@ -24,6 +24,12 @@ export interface BaseVisitor {
     beginVisitBlock?(node: Branch, parent?: Node): void;
     endVisitBlock?(node: Branch, parent?: Node): void;
 
+    beginVisitHttpApiGetCall?(node: Node, parent?: Node): void;
+    endVisitHttpApiGetCall?(node: Node, parent?: Node): void;
+
+    beginVisitHttpApiPostCall?(node: Node, parent?: Node): void;
+    endVisitHttpApiPostCall?(node: Node, parent?: Node): void;
+
     beginVisitReturn?(node: Node, parent?: Node): void;
     endVisitReturn?(node: Node, parent?: Node): void;
 

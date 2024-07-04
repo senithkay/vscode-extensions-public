@@ -52,6 +52,13 @@ export class SizingVisitor implements BaseVisitor {
         this.setNodeSize(node, width, height);
     }
 
+    private createApiCallNode(node: Node): void {
+        const width = NODE_WIDTH + NODE_BORDER_WIDTH * 2 + NODE_PADDING * 2;
+        const containerWidth = width + NODE_GAP_X + NODE_HEIGHT;
+        const height = NODE_HEIGHT + NODE_BORDER_WIDTH * 2;
+        this.setNodeSize(node, width, height, containerWidth);
+    }
+
     endVisitNode = (node: Node): void => this.createBaseNode(node);
 
     endVisitEventHttpApi(node: Node, parent?: Node): void {
@@ -99,6 +106,14 @@ export class SizingVisitor implements BaseVisitor {
             });
         }
         this.setNodeSize(node, width, height);
+    }
+
+    endVisitHttpApiGetCall(node: Node, parent?: Node): void {
+        this.createApiCallNode(node);
+    }
+
+    endVisitHttpApiPostCall(node: Node, parent?: Node): void {
+        this.createApiCallNode(node);
     }
 
     endVisitEmpty(node: Node, parent?: Node): void {

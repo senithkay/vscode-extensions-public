@@ -17,6 +17,7 @@ import { NodeModel } from "./types";
 import { VerticalScrollCanvasAction } from "../actions/VerticalScrollCanvasAction";
 import { IfNodeFactory } from "../components/nodes/IfNode/IfNodeFactory";
 import { StartNodeFactory } from "../components/nodes/StartNode/StartNodeFactory";
+import { ApiCallNodeFactory } from "../components/nodes/ApiCallNode";
 
 export function generateEngine(): DiagramEngine {
     const engine = createEngine({
@@ -32,6 +33,7 @@ export function generateEngine(): DiagramEngine {
     engine.getNodeFactories().registerFactory(new EmptyNodeFactory());
     engine.getNodeFactories().registerFactory(new IfNodeFactory());
     engine.getNodeFactories().registerFactory(new StartNodeFactory());
+    engine.getNodeFactories().registerFactory(new ApiCallNodeFactory());
 
     engine.getLayerFactories().registerFactory(new OverlayLayerFactory());
 

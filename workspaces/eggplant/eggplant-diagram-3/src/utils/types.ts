@@ -7,12 +7,13 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
+import { ApiCallNodeModel } from "../components/nodes/ApiCallNode";
 import { BaseNodeModel } from "../components/nodes/BaseNode";
 import { EmptyNodeModel } from "../components/nodes/EmptyNode";
 import { IfNodeModel } from "../components/nodes/IfNode/IfNodeModel";
 import { StartNodeModel } from "../components/nodes/StartNode/StartNodeModel";
 
-export type NodeModel = BaseNodeModel | EmptyNodeModel | IfNodeModel | StartNodeModel;
+export type NodeModel = BaseNodeModel | EmptyNodeModel | IfNodeModel | StartNodeModel | ApiCallNodeModel;
 
 export type {
     Flow,

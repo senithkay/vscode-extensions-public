@@ -78,6 +78,7 @@ export enum NodeTypes {
     EMPTY_NODE = "empty-node",
     IF_NODE = "if-node",
     START_NODE = "start-node",
+    API_CALL_NODE = "api-call-node",
 }
 
 export const NODE_LINK = "node-link";

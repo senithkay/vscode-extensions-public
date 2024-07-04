@@ -136,7 +136,7 @@ export function IfNodeWidget(props: IfNodeWidgetProps) {
                             height={NODE_HEIGHT}
                             rx="5"
                             ry="5"
-                            fill={Colors.SURFACE_BRIGHT}
+                            fill={Colors.SURFACE_DIM}
                             stroke={isHovered ? Colors.PRIMARY : Colors.OUTLINE_VARIANT}
                             strokeWidth={NODE_BORDER_WIDTH}
                             transform="rotate(45 28 28)"
