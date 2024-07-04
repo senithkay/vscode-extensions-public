@@ -16,18 +16,50 @@ import * as yaml from "js-yaml";
 import { contextStore, waitForContextStoreToLoad } from "../stores/context-store";
 import { dirname } from "path";
 import * as os from "os";
+import { isSubpath } from "../utils";
 
 export function createDirectoryContextCommand(context: ExtensionContext) {
     context.subscriptions.push(
         commands.registerCommand(CommandIds.CreateDirectoryContext, async () => {
             try {
                 const userInfo = await getUserInfoForCmd("link a directory with a Choreo project");
+                let gitRoot: string | void = "";
                 if (userInfo) {
                     let directoryUrl: Uri;
                     if (!workspace.workspaceFile) {
                         // is within a standard directory
                         if (workspace.workspaceFolders?.length === 1) {
                             directoryUrl = workspace.workspaceFolders[0].uri;
+
+                            try {
+                                gitRoot = await getGitRoot(context, directoryUrl.fsPath);
+                            } catch (err) {
+                                // ignore error
+                            }
+
+                            if (!gitRoot) {
+                                // if user is not within a git repo, 
+                                // let user pick a sub directory
+                                const componentDir = await window.showOpenDialog({
+                                    canSelectFolders: true,
+                                    canSelectFiles: false,
+                                    canSelectMany: false,
+                                    title: "Select directory that needs to be linked with Choreo",
+                                    defaultUri: Uri.file(directoryUrl.fsPath),
+                                });
+
+                                if (componentDir === undefined || componentDir.length === 0) {
+                                    throw new Error("Directory is required to link with Choreo");
+                                }
+
+                                directoryUrl = componentDir[0];
+
+                                if (!isSubpath(workspace.workspaceFolders[0].uri.fsPath, componentDir[0].fsPath)) {
+                                    throw new Error(
+                                        "Selected directory is not a sub directory within the opened workspace"
+                                    );
+                                }
+                            }
                         } else {
                             const wd = await resolveWorkspaceDirectory();
                             directoryUrl = wd.uri;
@@ -49,7 +81,7 @@ export function createDirectoryContextCommand(context: ExtensionContext) {
                         directoryUrl = componentDir[0];
                     }
 
-                    const gitRoot = await getGitRoot(context, directoryUrl.fsPath);
+                    gitRoot = await getGitRoot(context, directoryUrl.fsPath);
                     if (!gitRoot) {
                         throw new Error("Selected directory is not within a git repository");
                     }

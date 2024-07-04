@@ -39,6 +39,21 @@ update readme & changelog before release!
 //
 WSO2 Choreo Blog
 Keep it simple, no word count is relevent
+need to highltight why we need to open repo.
+-- existing repo or a new repo
+benefits
+- endpoint creation
+
+
+
+
+video share it with Samudra Weerasinghe
+from file explorer
+switch to choreo activity
+trigger a new build
+open up runtime logs
+test it with the open api view
+- create two parts(trigger build & test/monitor)
 
 
 // Medium Blog
