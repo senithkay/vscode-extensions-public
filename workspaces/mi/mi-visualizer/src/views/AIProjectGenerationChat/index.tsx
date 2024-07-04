@@ -153,7 +153,7 @@ export function AIProjectGenerationChat() {
     const [isOpen, setIsOpen] = useState(false);
     const [isSuggestionLoading, setIsSuggestionLoading] = useState(false);
     const [isCodeLoading, setIsCodeLoading] = useState(false);
-    const [uploadedFile, setUploadedFile] = useState({ fileName: '', fileContent: '' });
+    const [uploadedFiles, setUploadedFiles] = useState([]);
     const [fileUploadStatus, setFileUploadStatus] = useState({ type: '', text: '' });
 
     async function fetchBackendUrl() {
@@ -434,6 +434,8 @@ export function AIProjectGenerationChat() {
         }
         console.log(context[0].context);
         const token = await rpcClient.getMiDiagramRpcClient().getUserAccessToken();
+        const stringifiedUploadedFiles = uploadedFiles.map(file => JSON.stringify(file));
+        const images = [];
         try {
             var response = await fetch(backendRootUri + backendUrl, {
                 method: 'POST',
@@ -441,7 +443,7 @@ export function AIProjectGenerationChat() {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token.token}`,
                 },
-                body: JSON.stringify({ messages: chatArray, context: context[0].context, uploadedFile: JSON.stringify(uploadedFile) }),
+                body: JSON.stringify({ messages: chatArray, context: context[0].context, files: stringifiedUploadedFiles, images:[] }),
                 signal: signal,
             })
             if (!response.ok && response.status != 401) {
@@ -500,7 +502,7 @@ export function AIProjectGenerationChat() {
         }
 
         // Remove the user uploaded file after sending it to the backend
-        handleRemoveFile();
+        removeAllFiles();
 
         const reader = response.body?.getReader();
         const decoder = new TextDecoder();
@@ -747,7 +749,7 @@ export function AIProjectGenerationChat() {
             const reader = new FileReader();
             reader.onload = (event: any) => {
                 const fileContents = event.target.result;
-                setUploadedFile({ fileName: file.name, fileContent: fileContents });
+                setUploadedFiles(prevFiles => [...prevFiles, { fileName: file.name, fileContent: fileContents }]);
                 setFileUploadStatus({ type: 'success', text: 'File uploaded successfully.' });
             };
             reader.readAsText(file);
@@ -757,10 +759,14 @@ export function AIProjectGenerationChat() {
         }
     };
 
-    const handleRemoveFile = () => {
-        setUploadedFile({ fileName: '', fileContent: '' });
-        setFileUploadStatus({ type: '', text: '' });
+    const handleRemoveFile = (index: number) => {
+        setUploadedFiles(prevFiles => prevFiles.filter((file, i) => i !== index));
     };
+
+    const removeAllFiles = () => {
+        setUploadedFiles([]);
+        setFileUploadStatus({ type: '', text: '' });
+    }
 
     return (
         <AIChatView>
@@ -876,17 +882,17 @@ export function AIProjectGenerationChat() {
                     </div>
                 </>
                 ))}
-                {uploadedFile && uploadedFile.fileName && (
-                    <FlexRow style={{ alignItems: 'center' }}>
-                        <span>{uploadedFile.fileName}</span>
+                {uploadedFiles.map((file, index) => (
+                    <FlexRow style={{ alignItems: 'center' }} key={index}>
+                        <span>{file.fileName}</span>
                         <Button
                             appearance="icon"
-                            onClick={handleRemoveFile}
+                            onClick={() => handleRemoveFile(index)}
                         >
                             <span className="codicon codicon-close"></span>
                         </Button>
                     </FlexRow>
-                )}
+                ))}
                 <FlexRow>
                     <VSCodeButton
                         appearance="secondary"
