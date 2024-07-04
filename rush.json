@@ -646,7 +646,7 @@
     },
     {
       "packageName": "@wso2-enterprise/mi-data-mapper-utils",
-      "projectFolder": "workspaces/mi/mi-data-mapper-operators"
+      "projectFolder": "workspaces/mi/mi-data-mapper-utils"
     },
     {
       "packageName": "api-chat",
