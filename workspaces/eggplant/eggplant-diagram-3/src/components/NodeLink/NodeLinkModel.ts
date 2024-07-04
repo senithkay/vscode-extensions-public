@@ -87,7 +87,7 @@ export class NodeLinkModel extends DefaultLinkModel {
         let source = this.getFirstPoint().getPosition();
         let target = this.getLastPoint().getPosition();
         // bending y position
-        let bendY = this.alignBottom ? target.y - this.linkBottomOffset : source.y + this.linkBottomOffset;
+        let bendY = this.alignBottom ? target.y : source.y + this.linkBottomOffset;
 
         // is lines are straight?
         let tolerance = 10;
@@ -107,12 +107,16 @@ export class NodeLinkModel extends DefaultLinkModel {
         path += `L ${source.x} ${bendY - curveOffset} `;
         if (isRight) {
             path += `A ${curveOffset},${curveOffset} 0 0 0 ${source.x + curveOffset},${bendY} `;
-            path += `L ${target.x - curveOffset} ${bendY} `;
-            path += `A ${curveOffset},${curveOffset} 0 0 1 ${target.x},${bendY + curveOffset} `;
+            if (!this.alignBottom) {
+                path += `L ${target.x - curveOffset} ${bendY} `;
+                path += `A ${curveOffset},${curveOffset} 0 0 1 ${target.x},${bendY + curveOffset} `;
+            }
         } else {
             path += `A ${curveOffset},${curveOffset} 0 0 1 ${source.x - curveOffset},${bendY} `;
-            path += `L ${target.x + curveOffset} ${bendY} `;
-            path += `A ${curveOffset},${curveOffset} 0 0 0 ${target.x},${bendY + curveOffset} `;
+            if (!this.alignBottom) {
+                path += `L ${target.x + curveOffset} ${bendY} `;
+                path += `A ${curveOffset},${curveOffset} 0 0 0 ${target.x},${bendY + curveOffset} `;
+            }
         }
         path += `L ${target.x} ${target.y}`;
         return path;
@@ -140,7 +144,7 @@ export class NodeLinkModel extends DefaultLinkModel {
         }
 
         // generate for 2 angle lines
-        const bendY = this.alignBottom ? target.y - this.linkBottomOffset : source.y + this.linkBottomOffset;
+        const bendY = this.alignBottom ? target.y : source.y + this.linkBottomOffset;
         return { x: (source.x + target.x) / 2, y: bendY - 2 };
     }
 

@@ -28,12 +28,12 @@ namespace S {
     export const Circle = styled.div<CircleStyleProp>`
         display: flex;
         flex-direction: column;
-        justify-content: space-between;
+        justify-content: center;
         align-items: center;
         width: ${(props: CircleStyleProp) => (props.show ? 8 : 0)}px;
         height: ${(props: CircleStyleProp) => (props.show ? 8 : 0)}px;
         border: 2px solid ${(props: CircleStyleProp) => (props.show ? Colors.ON_SURFACE : "transparent")};
-        fill: ${(props: CircleStyleProp) => (props.show ? Colors.ON_SURFACE : "transparent")};
+        background-color: ${(props: CircleStyleProp) => (props.show ? Colors.OUTLINE_VARIANT : "transparent")};
         border-radius: 50%;
     `;
 

@@ -132,7 +132,7 @@ export class NodeFactoryVisitor implements BaseVisitor {
                     branchEmptyNodeModel.id,
                     branchEmptyNodeModel.viewState.x,
                     branchEmptyNodeModel.viewState.y,
-                    true
+                    false
                 );
                 const linkIn = createNodesLink(ifNodeModel, branchEmptyNode, { label: branch.label, brokenLine: true });
                 const linkOut = createNodesLink(branchEmptyNode, endIfEmptyNode, {
@@ -164,7 +164,9 @@ export class NodeFactoryVisitor implements BaseVisitor {
                 console.error("Branch node model not found", branch);
                 return;
             }
-            const link = createNodesLink(lastChildNodeModel, endIfEmptyNode);
+            const link = createNodesLink(lastChildNodeModel, endIfEmptyNode, {
+                alignBottom: true,
+            });
             if (link) {
                 this.links.push(link);
                 endIfLinkCount++;
