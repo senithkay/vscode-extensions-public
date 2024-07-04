@@ -9,7 +9,6 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
-    CreateDMProjectRequest,
     DMTypeRequest,
     getIOTypes,
     getSubMappingTypes,
@@ -24,7 +23,6 @@ import {
     convertRegPathToAbsPath,
     UpdateDMCRequest,
     createDMFiles,
-    createDMProject,
     updateDMCFileContent,
     initDMUndoRedoManager,
     dmUndo,
@@ -54,5 +52,5 @@ export function registerMiDataMapperRpcHandlers(messenger: Messenger) {
     messenger.onNotification(addToDMUndoStack, (args: string) => rpcManger.addToDMUndoStack(args));
     messenger.onNotification(updateDMUndoRedoManager, (args: UpdateDMUndoRedoMangerRequest) => rpcManger.updateDMUndoRedoManager(args));
     messenger.onRequest(getOperators, (args: GetOperatorsRequest) => rpcManger.getOperators(args));
-    messenger.onRequest(createDMProject, (args: CreateDMProjectRequest) => rpcManger.createDMProject(args));
+
 }

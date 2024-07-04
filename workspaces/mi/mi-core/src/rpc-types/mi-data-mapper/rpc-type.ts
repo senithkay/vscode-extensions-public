@@ -24,9 +24,7 @@ import {
     UpdateDMCRequest,
     UpdateDMUndoRedoMangerRequest,
     GetOperatorsRequest,
-    GetOperatorsResponse,
-    CreateDMProjectRequest,
-    CreateDMProjectResponse
+    GetOperatorsResponse
 } from "./types";
 import { RequestType, NotificationType } from "vscode-messenger-common";
 
@@ -45,4 +43,3 @@ export const dmRedo: RequestType<void, string> = { method: `${_preFix}/dmRedo` }
 export const addToDMUndoStack: NotificationType<string> = { method: `${_preFix}/addToDMUndoStack` };
 export const updateDMUndoRedoManager: NotificationType<UpdateDMUndoRedoMangerRequest> = { method: `${_preFix}/updateDMUndoRedoManager` };
 export const getOperators: RequestType<GetOperatorsRequest, GetOperatorsResponse> = { method: `${_preFix}/getOperators` };
-export const createDMProject: RequestType<CreateDMProjectRequest, CreateDMProjectResponse> = { method: `${_preFix}/createDMProject` };

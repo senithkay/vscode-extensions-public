@@ -102,12 +102,3 @@ export interface GetOperatorsResponse {
     operators: DMOperator[];
 }
 
-export interface CreateDMProjectRequest {
-    filePath: string;
-    options?: Record<string, unknown>;
-}
-
-export interface CreateDMProjectResponse {
-    project: unknown;
-}
-
