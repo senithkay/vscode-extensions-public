@@ -52,12 +52,8 @@ export async function areXMLsEqual(xml1: string, xml2: string): Promise<boolean>
         const obj1 = await parseXML(xml1);
         const obj2 = await parseXML(xml2);
 
-        console.log('Parsed XML1:', obj1);
-        console.log('Parsed XML2:', obj2);
-
         // Accessing the child element in XML1
         const childValue = obj1.root.child;
-        console.log('Child value in XML1:', childValue);
 
         return deepEqual(obj1, obj2);
     } catch (error) {
@@ -86,14 +82,13 @@ export function normalizeXML(xml: string): string {
  * @param mediatorType The type of the mediator.
  * @param st The syntax tree of the mediator.
  */
-export async function testMediatorXML(mediatorType: string, st: any): Promise<boolean> {
+export async function isValidMediatorXML(mediatorType: string, st: any): Promise<boolean> {
     const mediatorST = st.syntaxTree.api.resource[0].inSequence.mediatorList[0];
     
     const mediatorData = getDataFromST(mediatorType, mediatorST);
-    console.log('Mediator Data:', mediatorData);
     const generatedXml = getXML(mediatorType, mediatorData);
 
-    await writeXMLFile(path.join(dataDirectory, 'expected-xml' , `${mediatorType}.xml`), generatedXml);
+    // await writeXMLFile(path.join(dataDirectory, 'expected-xml' , `${mediatorType}.xml`), generatedXml); // Uncomment to update expected XML files
     const outputFileContent = await readXMLFile(path.join(dataDirectory, 'expected-xml' , `${mediatorType}.xml`));
     return outputFileContent === generatedXml;
 }
@@ -103,9 +98,8 @@ export async function testMediatorXML(mediatorType: string, st: any): Promise<bo
  * @param st The syntax tree of the mediator.
  * @param expectedDescription The expected description of the mediator.
  */
-export async function testMediatorDescription(mediatorType: string, st: any, expectedDescription: string) {
+export async function isValidMediatorDescription(mediatorType: string, st: any, expectedDescription: string) {
     const mediatorST = st.syntaxTree.api.resource[0].inSequence.mediatorList[0];
     const description = getNodeDescription(mediatorType, mediatorST);
-    console.log('Description:', description);
     return description === expectedDescription;
 }
