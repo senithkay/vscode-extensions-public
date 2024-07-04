@@ -21,6 +21,7 @@ import { FailoverWizard } from './views/Forms/FailoverEndpointForm';
 import { RecipientWizard } from './views/Forms/RecipientEndpointForm';
 import { TemplateEndpointWizard } from './views/Forms/TemplateEndpointForm';
 import path from 'path';
+import { ConnectorStore } from './views/Forms/ConnectionForm';
 
 const ViewContainer = styled.div`
     
@@ -71,6 +72,9 @@ const PopupPanel = (props: { formState: PopupMachineStateValue }) => {
                     break;
                 case MACHINE_VIEW.TemplateEndPointForm:
                     setViewComponent(<TemplateEndpointWizard isPopup={true} path={`${machineSate.documentUri}${endpointPath}`} />);
+                    break;
+                case MACHINE_VIEW.ConnectionForm:
+                    setViewComponent(<ConnectorStore isPopup={true} path={machineSate.documentUri} />);
                     break;
                 default:
                     setViewComponent(null);

@@ -1378,6 +1378,7 @@ export interface GetAvailableConnectorResponse {
     version?: string;
     iconPath?: string;
     connectionUiSchema?: connectionUiSchemaRecord;
+    actions?: any[];
 }
 
 export interface UpdateConnectorRequest {

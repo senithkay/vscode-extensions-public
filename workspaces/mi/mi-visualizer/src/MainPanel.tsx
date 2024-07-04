@@ -39,7 +39,7 @@ import { ErrorBoundary, FormView } from '@wso2-enterprise/ui-toolkit';
 import PopupPanel from './PopupPanel';
 import { AddArtifactView } from './views/AddArtifact';
 import { SequenceTemplateView } from './views/Diagram/SequenceTemplate';
-import { ConnectionForm } from './views/Forms/ConnectionForm';
+import { ConnectorStore } from './views/Forms/ConnectionForm';
 import { TestSuiteForm } from './views/Forms/Tests/TestSuiteForm';
 import { TestCaseForm } from './views/Forms/Tests/TestCaseForm';
 import { MockServiceForm } from './views/Forms/Tests/MockServices/MockServiceForm';
@@ -304,7 +304,8 @@ const MainPanel = () => {
                     setViewComponent(<DataSourceWizard path={machineView.documentUri} />);
                     break;
                 case MACHINE_VIEW.ConnectionForm:
-                    setViewComponent(<ConnectionForm path={machineView.documentUri} />);
+                    setViewComponent(
+                        <ConnectorStore path={(machineView.customProps)?.path} />);
                     break;
                 case MACHINE_VIEW.TestSuite:
                     setViewComponent(<TestSuiteForm filePath={machineView.documentUri} stNode={machineView.stNode as UnitTest} />);
