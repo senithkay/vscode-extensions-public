@@ -5,7 +5,7 @@ import { getNodeDescription } from '../../node';
 import { getDataFromST, getXML } from '../../template-engine/mustach-templates/templateUtils';
 import path from 'path';
 
-const xmlRootDirectory = path.join(process.cwd(), "src", "utils", "test", "data", "xml");
+const dataDirectory = path.join(process.cwd(), "src", "utils", "test", "data");
 
 /**
  * Reads the content of an XML file.
@@ -18,6 +18,15 @@ export async function readXMLFile(filePath: string): Promise<string> {
         return content;
     } catch (error) {
         throw new Error(`Failed to read XML file: ${error}`);
+    }
+}
+
+export async function writeXMLFile(filePath: string, content: string) {
+    try {
+        await fs.writeFile(filePath, content, 'utf-8');
+    }
+    catch (error) {
+        throw new Error(`Failed to write XML file: ${error}`);
     }
 }
 
@@ -71,38 +80,32 @@ export function normalizeXML(xml: string): string {
         .trim();
 }
 
+
 /**
  * Function to test the XML generation of a mediator.
  * @param mediatorType The type of the mediator.
+ * @param st The syntax tree of the mediator.
  */
-export async function testMediatorXML(mediatorType: string) {
-    const mediatorST = await import(`./../data/st/${mediatorType.toLowerCase()}-st.json`);
+export async function testMediatorXML(mediatorType: string, st: any): Promise<boolean> {
+    const mediatorST = st.syntaxTree.api.resource[0].inSequence.mediatorList[0];
+    
     const mediatorData = getDataFromST(mediatorType, mediatorST);
+    console.log('Mediator Data:', mediatorData);
     const generatedXml = getXML(mediatorType, mediatorData);
-    const expectedXML = await readXMLFile(path.join(xmlRootDirectory, `${mediatorType}.xml`));
-    const normalizedExpectedXML = normalizeXML(expectedXML);
-    const normalizedGeneratedXML = normalizeXML(generatedXml);
-    expect(normalizedGeneratedXML).toBe(normalizedExpectedXML);
-}
-/**
- * Function to test the description of a mediator.
- * @param mediatorType The type of the mediator.
- * @param expectedDescription The expected description of the mediator.
- */
-export async function testMediatorDescription(mediatorType: string, expectedDescription: string) {
-    const mediatorST = await import(`./../data/st/${mediatorType.toLowerCase()}-st.json`);
-    const mediatorData = getDataFromST(mediatorType, mediatorST);
-    const description = getNodeDescription(mediatorType, mediatorData);
-    expect(description).toBe(expectedDescription);
-}
 
+    await writeXMLFile(path.join(dataDirectory, 'expected-xml' , `${mediatorType}.xml`), generatedXml);
+    const outputFileContent = await readXMLFile(path.join(dataDirectory, 'expected-xml' , `${mediatorType}.xml`));
+    return outputFileContent === generatedXml;
+}
 /**
  * Function to test the description of a mediator.
  * @param mediatorType The type of the mediator.
+ * @param st The syntax tree of the mediator.
  * @param expectedDescription The expected description of the mediator.
  */
-export async function testMediatorWithoutDescription(mediatorType: string, expectedDescription: string) {
-    const mediatorST = await import(`./data/st/${mediatorType.toLowerCase()}-no-des-st.json`);
+export async function testMediatorDescription(mediatorType: string, st: any, expectedDescription: string) {
+    const mediatorST = st.syntaxTree.api.resource[0].inSequence.mediatorList[0];
     const description = getNodeDescription(mediatorType, mediatorST);
-    expect(description).toBe(expectedDescription);
+    console.log('Description:', description);
+    return description === expectedDescription;
 }

@@ -3,7 +3,8 @@
 	xmlns="http://ws.apache.org/ns/synapse">
 	<resource methods="GET" uri-template="/">
 		<inSequence>
-		<log category="INFO" level="simple"  /></inSequence>
+			<script language="js"><![CDATA[Script Body]]></script>
+		</inSequence>
 		<faultSequence>
 		</faultSequence>
 	</resource>
