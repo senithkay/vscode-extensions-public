@@ -31,7 +31,7 @@ export function DataMapper(props: DataMapperProps) {
 
     const { dmIOTypes, isFetchingIOTypes, isIOTypeError } = useIOTypes(filePath, functionName, interfacesSource);
 
-    const { dmOperators, isFetchingOperators, isOperatorsError } = useOperators(filePath, fileContent);
+    const { dmOperators, isFetchingOperators, isOperatorsError } = useOperators(filePath);
 
     const updateFileContent = async (newContent: string) => {
         try {
@@ -51,8 +51,10 @@ export function DataMapper(props: DataMapperProps) {
             throw new Error("Error while fetching input/output types");
         } else if (isFileUpdateError) {
             throw new Error("Error while updating file content");
+        } else if (isOperatorsError) {
+            throw new Error("Error while fetching operators");
         }
-    }, [isIOTypeError, isFileUpdateError]);
+    }, [isIOTypeError, isFileUpdateError, isOperatorsError]);
 
     return (
         <>
