@@ -2,5 +2,6 @@
   "name": "@wso2-enterprise/mi-data-mapper-utils",
   "version": "1.0.0",
   "author": "WSO2",
-  "license": "ISC"
+  "license": "ISC",
+  "scripts":{"build":"","start":"","watch":"","test":""}
 }

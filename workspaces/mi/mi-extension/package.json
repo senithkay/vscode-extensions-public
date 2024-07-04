@@ -636,7 +636,7 @@
     "e2e-test": "pnpm run compile-tests && pnpm exec playwright test",
     "copyFonts": "copyfiles -f ./node_modules/@wso2-enterprise/font-wso2-vscode/dist/* ./resources/font-wso2-vscode/dist/",
     "copyLSLibs": "copyfiles -f language-server/org.eclipse.lemminx/target/*.jar ls",
-    "copyDMUtils": "copyfiles -f ../mi-data-mapper-utils/src/* ./resources/data-mapper-utils/",
+    "copyDMUtils": "copyfiles -f ./node_modules/@wso2-enterprise/mi-data-mapper-utils/src/* ./resources/data-mapper-utils/",
     "copyVSIX": "copyfiles *.vsix ./vsix",
     "copyVSIXToRoot": "copyfiles -f ./vsix/* ../../..",
     "postbuild": "pnpm run copyVSIX"
@@ -658,6 +658,7 @@
     "rimraf": "~5.0.5",
     "@wso2-enterprise/mi-visualizer": "workspace:*",
     "@wso2-enterprise/mi-rpc-client": "workspace:*",
+    "@wso2-enterprise/mi-data-mapper-utils": "workspace:*",
     "ts-morph": "^22.0.0",
     "await-notify": "^1.0.1",
     "yaml": "~2.4.3"

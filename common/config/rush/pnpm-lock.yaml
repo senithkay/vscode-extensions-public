@@ -3130,6 +3130,9 @@ importers:
       tslint-react-hooks: 2.2.2_t7b5rvrgqeu75u2a5tstpdiwve
       typescript: 5.3.3
 
+  ../../workspaces/mi/mi-data-mapper-utils:
+    specifiers: {}
+
   ../../workspaces/mi/mi-diagram:
     specifiers:
       '@emotion/css': ^11.10.5
@@ -3250,6 +3253,7 @@ importers:
       '@vscode/vsce': ~2.21.0
       '@wso2-enterprise/font-wso2-vscode': workspace:*
       '@wso2-enterprise/mi-core': workspace:*
+      '@wso2-enterprise/mi-data-mapper-utils': workspace:*
       '@wso2-enterprise/mi-rpc-client': workspace:*
       '@wso2-enterprise/mi-syntax-tree': workspace:*
       '@wso2-enterprise/mi-visualizer': workspace:*
@@ -3347,6 +3351,7 @@ importers:
       '@typescript-eslint/eslint-plugin': 6.21.0_qvx5l6wcv2c6baydm2v34ogvwy
       '@typescript-eslint/parser': 6.21.0_xdgzedli73k7lw4xlyzszm74om
       '@vscode/test-electron': 2.3.9
+      '@wso2-enterprise/mi-data-mapper-utils': link:../mi-data-mapper-utils
       '@wso2-enterprise/mi-visualizer': link:../mi-visualizer
       await-notify: 1.0.1
       eslint: 8.56.0
@@ -7287,17 +7292,6 @@ packages:
 
   /@codemirror/autocomplete/6.15.0:
     resolution: {integrity: sha512-G2Zm0mXznxz97JhaaOdoEG2cVupn4JjPaS4AcNvZzhOsnnG9YVN68VzfoUw6dYTsIxT6a/cmoFEN47KAWhXaOg==}
-    dependencies:
-      '@codemirror/language': 6.10.1
-      '@codemirror/state': 6.4.1
-      '@codemirror/view': 6.26.0
-      '@lezer/common': 1.2.1
-    dev: false
-
-  /@codemirror/autocomplete/6.15.0_@codemirror+state@6.4.1:
-    resolution: {integrity: sha512-G2Zm0mXznxz97JhaaOdoEG2cVupn4JjPaS4AcNvZzhOsnnG9YVN68VzfoUw6dYTsIxT6a/cmoFEN47KAWhXaOg==}
-    peerDependencies:
-      '@codemirror/state': ^6.0.0
     dependencies:
       '@codemirror/language': 6.10.1
       '@codemirror/state': 6.4.1
@@ -23128,7 +23122,7 @@ packages:
     peerDependencies:
       '@codemirror/lint': '>=6.0.0'
     dependencies:
-      '@codemirror/autocomplete': 6.15.0_@codemirror+state@6.4.1
+      '@codemirror/autocomplete': 6.15.0
       '@codemirror/commands': 6.3.3
       '@codemirror/language': 6.10.1
       '@codemirror/lint': 6.5.0
