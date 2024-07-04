@@ -33,7 +33,6 @@ export const authStore = createStore(
             logout: () => {
                 ext.clients.rpcClient.signOut();
                 get().resetState();
-                contextStore.getState().resetState();
             },
             getOrgById: (orgId) =>
                 get().state.userInfo?.organizations.find((org) => org.id.toString() === orgId.toString()),

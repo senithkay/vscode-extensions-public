@@ -45,6 +45,7 @@ export function activateURIHandlers() {
                                     selected?.org?.id ? selected?.org?.id?.toString() : undefined
                                 );
                                 if (userInfo) {
+                                    await new Promise((resolve) => setTimeout(resolve, 500));
                                     authStore.getState().loginSuccess(userInfo);
                                 }
                             } catch (error: any) {
