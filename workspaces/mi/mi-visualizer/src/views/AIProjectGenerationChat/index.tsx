@@ -9,7 +9,7 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import React, { useEffect, useState } from "react";
-import { VisualizerLocation, CreateProjectRequest, GetWorkspaceContextResponse, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
+import { VisualizerLocation, CreateProjectRequest, GetWorkspaceContextResponse, MACHINE_VIEW, EVENT_TYPE } from "@wso2-enterprise/mi-core";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { TextArea, Button, Switch, Icon, ProgressRing, Codicon } from "@wso2-enterprise/ui-toolkit";
 import ReactMarkdown from 'react-markdown';
@@ -346,7 +346,9 @@ export function AIProjectGenerationChat() {
                 body: JSON.stringify({ messages: chatArray, context: context[0].context, num_suggestions: 1, type: "artifact_gen" }),
                 signal: signal,
             });
-            if (!response.ok) {
+            if (response.status == 404) {
+                openUpdateExtensionView();
+            } else if (!response.ok) {
                 throw new Error("Failed to fetch initial questions");
             }
             const data = await response.json() as ApiResponse;
@@ -446,26 +448,6 @@ export function AIProjectGenerationChat() {
                 body: JSON.stringify({ messages: chatArray, context: context[0].context, files: stringifiedUploadedFiles, images:[] }),
                 signal: signal,
             })
-            if (!response.ok && response.status != 401) {
-                setIsLoading(false);
-                setMessages(prevMessages => {
-                    const newMessages = [...prevMessages];
-                    const statusText = getStatusText(response.status);
-                    let error = `Failed to fetch response. Status: ${statusText}`;
-                    console.log("Response status: ", response.status);
-                    if (response.status == 429) {
-                        response.json().then(body => {
-                            console.log(body.detail);
-                            error += body.detail;
-                            console.log("Error: ", error);
-                        });
-                    }
-                    newMessages[newMessages.length - 1].content += error;
-                    newMessages[newMessages.length - 1].type = 'Error';
-                    return newMessages;
-                });
-                throw new Error('Failed to fetch response');
-            }
             if (response.status == 401) {
                 await rpcClient.getMiDiagramRpcClient().refreshAccessToken();
                 const token = await rpcClient.getMiDiagramRpcClient().getUserAccessToken();
@@ -489,6 +471,27 @@ export function AIProjectGenerationChat() {
                     });
                     throw new Error('Failed to fetch response');
                 }
+            } else if (response.status == 404){
+                openUpdateExtensionView()
+            } else if (!response.ok) {
+                setIsLoading(false);
+                setMessages(prevMessages => {
+                    const newMessages = [...prevMessages];
+                    const statusText = getStatusText(response.status);
+                    let error = `Failed to fetch response. Status: ${statusText}`;
+                    console.log("Response status: ", response.status);
+                    if (response.status == 429) {
+                        response.json().then(body => {
+                            console.log(body.detail);
+                            error += body.detail;
+                            console.log("Error: ", error);
+                        });
+                    }
+                    newMessages[newMessages.length - 1].content += error;
+                    newMessages[newMessages.length - 1].type = 'Error';
+                    return newMessages;
+                });
+                throw new Error('Failed to fetch response');
             }
         } catch (error) {
             setIsLoading(false);
@@ -767,6 +770,9 @@ export function AIProjectGenerationChat() {
         setUploadedFiles([]);
         setFileUploadStatus({ type: '', text: '' });
     }
+    const openUpdateExtensionView = () => {
+        rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.UpdateExtension }});
+    };
 
     return (
         <AIChatView>
@@ -962,6 +968,7 @@ const EntryContainer = styled.div<EntryContainerProps>(({ isOpen }) => ({
         backgroundColor: 'var(--vscode-list-hoverBackground)',
     },
 }));
+
 
 const CodeSegment: React.FC<CodeSegmentProps> = ({ segmentText, loading, handleAddSelectiveCodetoWorkspace }) => {
     const [isOpen, setIsOpen] = useState(false);

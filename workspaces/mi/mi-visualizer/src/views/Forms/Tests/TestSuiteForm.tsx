@@ -120,6 +120,10 @@ export function TestSuiteForm(props: TestSuiteFormProps) {
         mode: "onChange",
     });
 
+    const openUpdateExtensionView = () => {
+        rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.UpdateExtension }});
+    };
+
     const handleCreateUnitTests = async (values: any) => {
         setIsLoaded(false);
 
@@ -144,13 +148,13 @@ export function TestSuiteForm(props: TestSuiteFormProps) {
                 context.push(response);
             });
 
-            let response = await fetch(url, {
+            let response = await fetch(url + 's', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token.token}`
                 },
-                body: JSON.stringify({ context: context[0].artifacts, testFileName: values.name, num_suggestions: 1, type: "generate_unit_tests" }),
+                body: JSON.stringify({ context: context[0].artifacts, test_file_name: values.name, num_suggestions: 1, type: "generate_unit_tests" }),
             });
 
             if (response.status === 401) {
@@ -167,6 +171,8 @@ export function TestSuiteForm(props: TestSuiteFormProps) {
                     },
                     body: JSON.stringify({ context: context[0].artifacts, testFileName: values.name, num_suggestions: 1, type: "generate_unit_tests" }),
                 });
+            } else if (response.status === 404) {
+                openUpdateExtensionView()
             }
             if (!response.ok) {
                 throw new Error('Failed to create unit tests');
