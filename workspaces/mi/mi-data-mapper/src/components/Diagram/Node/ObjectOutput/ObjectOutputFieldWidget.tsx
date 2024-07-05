@@ -240,7 +240,7 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
                                 onClick={handleExpand}
                                 data-testid={`${portIn?.getName()}-expand-icon-element`}
                             >
-                                {expanded ? <Codicon name="chevron-right" /> : <Codicon name="chevron-down" />}
+                                {expanded ? <Codicon name="chevron-down" /> : <Codicon name="chevron-right" />}
                             </Button>
                         )}
                         {label}

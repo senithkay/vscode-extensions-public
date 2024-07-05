@@ -33,7 +33,8 @@ export class CreateLinkState extends State<DiagramEngine> {
 				type: InputType.MOUSE_UP,
 				fire: (actionEvent: ActionEvent<MouseEvent>) => {
 					let element = this.engine.getActionEventBus().getModelForEvent(actionEvent);
-					const exprFocusedPort = useDMExpressionBarStore.getState().focusedPort;
+					const { focusedPort, focusedFilter } = useDMExpressionBarStore.getState();
+					const isExprBarFocused = focusedPort || focusedFilter;
 
 					if (!(element instanceof PortModel)) {
 						if (isOutputNode(element)) {
@@ -62,7 +63,7 @@ export class CreateLinkState extends State<DiagramEngine> {
 						}
 					}
 
-					if (exprFocusedPort && element instanceof InputOutputPortModel && element.portType === "OUT") {
+					if (isExprBarFocused && element instanceof InputOutputPortModel && element.portType === "OUT") {
 						element.fireEvent({}, "addToExpression");
 						this.clearState();
 						this.eject();

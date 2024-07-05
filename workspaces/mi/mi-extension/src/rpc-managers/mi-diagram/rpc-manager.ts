@@ -2261,10 +2261,10 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     description: dataServiceParams.description != undefined ? dataServiceParams.description.textNode : '',
                     datasources: [] as Datasource[],
                     authProviderClass: dataServiceParams.authorizationProvider != undefined ? dataServiceParams.authorizationProvider.clazz : '',
-                    http: dataServiceParams.transports.split(' ').includes('http'),
-                    https: dataServiceParams.transports.split(' ').includes('https'),
-                    jms: dataServiceParams.transports.split(' ').includes('jms'),
-                    local: dataServiceParams.transports.split(' ').includes('local'),
+                    http: dataServiceParams.transports != undefined ? dataServiceParams.transports.split(' ').includes('http') : false,
+                    https: dataServiceParams.transports != undefined ? dataServiceParams.transports.split(' ').includes('https') : false,
+                    jms: dataServiceParams.transports != undefined ? dataServiceParams.transports.split(' ').includes('jms') : false,
+                    local: dataServiceParams.transports != undefined ? dataServiceParams.transports.split(' ').includes('local') : false,
                     authProperties: [] as Property[],
                 };
 
@@ -2347,7 +2347,6 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             }
             const content = document.getText();
             undoRedo.addModification(content);
-            document.save();
 
             resolve({ status: true });
         });
@@ -2670,9 +2669,8 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                                     'sequences': '',
                                     'tasks': '',
                                     'templates': '',
-                                    //TODO: will add again once the feature is implemented
-                                    // 'data-services': '',
-                                    // 'data-sources': '',
+                                    'data-services': '',
+                                    'data-sources': '',
                                 },
                                 'resources': {
                                     'connectors': '',
@@ -2683,8 +2681,11 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                                     },
                                 },
                             },
-                            'test': ''
                         },
+                        'test': {
+                            'wso2mi': {
+                            },
+                        }
                     },
                     'deployment': {
                         'docker': {

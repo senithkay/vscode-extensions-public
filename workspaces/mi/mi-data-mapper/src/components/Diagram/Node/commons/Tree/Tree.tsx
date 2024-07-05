@@ -28,7 +28,7 @@ export const TreeContainer = styled.div`
     width: ${IO_NODE_DEFAULT_WIDTH}px;
 `;
 
-export const SubMappingContainer = styled.div`
+export const SharedContainer = styled.div`
     display: flex;
     flex-direction: column;
     align-items: flex-start;

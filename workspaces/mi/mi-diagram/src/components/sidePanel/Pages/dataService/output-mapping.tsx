@@ -193,7 +193,7 @@ const OutputMappingsForm = (props: AddMediatorProps) => {
                                 }
                             ],
                             {
-                                "2": "Column"
+                                "3": "Column"
                             }
                         ]
                     },
@@ -214,7 +214,7 @@ const OutputMappingsForm = (props: AddMediatorProps) => {
                                 }
                             ],
                             {
-                                "2": "Query Param"
+                                "3": "Query Param"
                             }
                         ]
                     },
@@ -374,7 +374,7 @@ const OutputMappingsForm = (props: AddMediatorProps) => {
         
         values["outputMappings"] = getParamManagerValues(values.outputMappings);
         const updatedResult = sidePanelContext?.formValues?.queryObject.result;
-        if (sidePanelContext?.formValues?.outputJson) {
+        if (!sidePanelContext?.formValues?.outputJson) {
             let elements: any[] = [];
             let attributes: any[] = [];
             let queries: any[] = [];

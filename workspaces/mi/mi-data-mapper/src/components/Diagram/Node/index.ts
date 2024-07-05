@@ -17,3 +17,4 @@ export * from "./ObjectOutput";
 export * from "./PrimitiveOutput";
 export * from "./SubMapping";
 export * from "./UnsupportedIO";
+export * from "./ArrayFilter";

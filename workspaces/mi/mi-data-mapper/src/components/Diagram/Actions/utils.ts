@@ -13,6 +13,7 @@ import {
     InputNode,
     ArrayOutputNode,
     SubMappingNode,
+    ArrayFilterNode,
 } from "../Node";
 import { IO_NODE_DEFAULT_WIDTH } from "../utils/constants";
 import { DataMapperNodeModel } from "../Node/commons/DataMapperNode";
@@ -22,7 +23,8 @@ import { PrimitiveOutputNode } from "../Node/PrimitiveOutput";
 export const INPUT_NODES = [
     InputNode,
     FocusedInputNode,
-    SubMappingNode
+    SubMappingNode,
+    ArrayFilterNode
 ];
 
 export const OUTPUT_NODES = [

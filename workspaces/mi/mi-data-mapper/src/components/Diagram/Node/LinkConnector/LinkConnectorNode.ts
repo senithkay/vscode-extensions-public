@@ -115,6 +115,8 @@ export class LinkConnectorNode extends DataMapperNodeModel {
                                     : undefined;
                             this.targetPort = node.getPort(
                                 `${targetPortPrefix}${typeName ? `.${typeName}` : ''}.IN`) as InputOutputPortModel;
+                        } else {
+                            this.targetPort = node.getPort(`${targetPortPrefix}.IN`) as InputOutputPortModel;
                         }
                         this.targetMappedPort = this.targetPort;
                     } else {

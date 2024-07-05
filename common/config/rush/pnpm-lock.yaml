@@ -3130,7 +3130,7 @@ importers:
       tslint-react-hooks: 2.2.2_t7b5rvrgqeu75u2a5tstpdiwve
       typescript: 5.3.3
 
-  ../../workspaces/mi/mi-data-mapper-operators:
+  ../../workspaces/mi/mi-data-mapper-utils:
     specifiers: {}
 
   ../../workspaces/mi/mi-diagram:
@@ -3351,7 +3351,7 @@ importers:
       '@typescript-eslint/eslint-plugin': 6.21.0_qvx5l6wcv2c6baydm2v34ogvwy
       '@typescript-eslint/parser': 6.21.0_xdgzedli73k7lw4xlyzszm74om
       '@vscode/test-electron': 2.3.9
-      '@wso2-enterprise/mi-data-mapper-utils': link:../mi-data-mapper-operators
+      '@wso2-enterprise/mi-data-mapper-utils': link:../mi-data-mapper-utils
       '@wso2-enterprise/mi-visualizer': link:../mi-visualizer
       await-notify: 1.0.1
       eslint: 8.56.0
@@ -7292,17 +7292,6 @@ packages:
 
   /@codemirror/autocomplete/6.15.0:
     resolution: {integrity: sha512-G2Zm0mXznxz97JhaaOdoEG2cVupn4JjPaS4AcNvZzhOsnnG9YVN68VzfoUw6dYTsIxT6a/cmoFEN47KAWhXaOg==}
-    dependencies:
-      '@codemirror/language': 6.10.1
-      '@codemirror/state': 6.4.1
-      '@codemirror/view': 6.26.0
-      '@lezer/common': 1.2.1
-    dev: false
-
-  /@codemirror/autocomplete/6.15.0_@codemirror+state@6.4.1:
-    resolution: {integrity: sha512-G2Zm0mXznxz97JhaaOdoEG2cVupn4JjPaS4AcNvZzhOsnnG9YVN68VzfoUw6dYTsIxT6a/cmoFEN47KAWhXaOg==}
-    peerDependencies:
-      '@codemirror/state': ^6.0.0
     dependencies:
       '@codemirror/language': 6.10.1
       '@codemirror/state': 6.4.1
@@ -23133,7 +23122,7 @@ packages:
     peerDependencies:
       '@codemirror/lint': '>=6.0.0'
     dependencies:
-      '@codemirror/autocomplete': 6.15.0_@codemirror+state@6.4.1
+      '@codemirror/autocomplete': 6.15.0
       '@codemirror/commands': 6.3.3
       '@codemirror/language': 6.10.1
       '@codemirror/lint': 6.5.0
@@ -23584,7 +23573,7 @@ packages:
       webpack-cli: 4.x.x
     dependencies:
       webpack: 5.90.1_webpack-cli@4.10.0
-      webpack-cli: 4.10.0_5nabick7x4u3vnr2pltk3mmvae
+      webpack-cli: 4.10.0_webpack@5.90.1
 
   /@webpack-cli/configtest/2.1.1_fsfaki5eyzmxu77y2afce3sch4:
     resolution: {integrity: sha512-wy0mglZpDSiSS0XHrVR+BAdId2+yxPSoJW8fsna3ZpYSlufjvxnP4YbKTCBZnNIcGN4r6ZPXV55X4mYExOfLmw==}
@@ -23613,7 +23602,7 @@ packages:
       webpack-cli: 4.x.x
     dependencies:
       envinfo: 7.11.1
-      webpack-cli: 4.10.0_5nabick7x4u3vnr2pltk3mmvae
+      webpack-cli: 4.10.0_webpack@5.90.1
 
   /@webpack-cli/info/2.0.2_fsfaki5eyzmxu77y2afce3sch4:
     resolution: {integrity: sha512-zLHQdI/Qs1UyT5UBdWNqsARasIA+AaF8t+4u2aS2nEpBQh2mWIVb8qAklq0eUENnC5mOItrIB4LiS9xMtph18A==}
@@ -23646,7 +23635,6 @@ packages:
         optional: true
     dependencies:
       webpack-cli: 4.10.0_webpack@5.90.1
-    dev: true
 
   /@webpack-cli/serve/1.7.0_zlkpompfwd3ohwjpgahvnmgqqy:
     resolution: {integrity: sha512-oxnCNGj88fL+xzV+dacXs44HcDwf1ovs3AuEzvP7mqXw7fQntqIhQ1BRmynh4qEKQSSSRSWVyXRjmTbZIX9V2Q==}
@@ -49234,7 +49222,6 @@ packages:
       rechoir: 0.7.1
       webpack: 5.90.1_webpack-cli@4.10.0
       webpack-merge: 5.10.0
-    dev: true
 
   /webpack-cli/5.1.4_55ctblq7vmnkc7msvxpxtdxasq:
     resolution: {integrity: sha512-pIDJHIEI9LR0yxHXQ+Qh95k2EvXpWzZ5l+d+jIo+RdSm9MiHfzazIxwwni/p7+x4eJZuvG1AJwgC4TNQ7NRgsg==}
@@ -50107,7 +50094,7 @@ packages:
       tapable: 2.2.1
       terser-webpack-plugin: 5.3.10_webpack@5.90.1
       watchpack: 2.4.0
-      webpack-cli: 4.10.0_5nabick7x4u3vnr2pltk3mmvae
+      webpack-cli: 4.10.0_webpack@5.90.1
       webpack-sources: 3.2.3
     transitivePeerDependencies:
       - '@swc/core'

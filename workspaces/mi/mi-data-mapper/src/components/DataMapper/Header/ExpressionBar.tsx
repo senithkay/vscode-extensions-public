@@ -65,8 +65,9 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
     const [textFieldValue, setTextFieldValue] = useState<string>("");
     const [placeholder, setPlaceholder] = useState<string>();
 
-    const { focusedPort, inputPort, resetInputPort } = useDMExpressionBarStore(state => ({
+    const { focusedPort, focusedFilter, inputPort, resetInputPort } = useDMExpressionBarStore(state => ({
         focusedPort: state.focusedPort,
+        focusedFilter: state.focusedFilter,
         inputPort: state.inputPort,
         resetInputPort: state.resetInputPort,
     }));
@@ -78,7 +79,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
             // Keep the text field focused when an input port is selected
             if (textFieldRef.current) {
                 const inputElement = textFieldRef.current.shadowRoot.querySelector('input');
-                if (focusedPort) {
+                if (focusedPort || focusedFilter) {
                     inputElement.focus();
                 } else {
                     inputElement.blur();
@@ -117,6 +118,14 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
             }
     
             disabled = focusedPort.isDisabled();
+        } else if (focusedFilter) {
+            value = focusedFilter.getText();
+
+            if (textFieldRef.current) {
+                textFieldRef.current.focus();
+            }
+
+            disabled = false;
         } else if (textFieldRef.current) {
             setPlaceholder('Click on an output port to use the Expression Editor.');
             textFieldRef.current.blur();
@@ -125,7 +134,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
         setTextFieldValue(enrichExpression(value));
         return disabled;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [textFieldRef.current, focusedPort]);
+    }, [textFieldRef.current, focusedPort, focusedFilter]);
 
     const onChangeTextField = async (text: string) => {
         setTextFieldValue(text);
@@ -150,6 +159,14 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
     }
 
     const applyChanges = async (value: string) => {
+        if (focusedPort) {
+            applyChangesOnFocusedPort();
+        } else if (focusedFilter) {
+            applyChangesOnFocusedFilter();
+        }
+    };
+
+    const applyChangesOnFocusedPort = async () => {
         const focusedFieldValue = focusedPort?.typeWithValue.value;
 
         
@@ -199,6 +216,13 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
                 focusedPort?.typeWithValue, objLitExpr, value, fnBody, applyModifications
             );
         }
+    };
+
+    const applyChangesOnFocusedFilter = async () => {
+        const replaceWith = expressionRef.current;
+        focusedFilter.replaceWithText(replaceWith);
+
+        await applyModifications();
     };
 
     return (

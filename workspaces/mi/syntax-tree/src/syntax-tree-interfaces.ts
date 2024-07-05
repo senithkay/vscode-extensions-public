@@ -1890,6 +1890,7 @@ export interface Query extends STNode {
     returnGeneratedKeys?: boolean;
     returnUpdatedRowCount?: boolean;
     sql?: STNode;
+    expression?: STNode;
     properties?: any;
     useConfig?: string;
     keyColumns?: string;
