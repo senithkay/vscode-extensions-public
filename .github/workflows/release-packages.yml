@@ -78,7 +78,7 @@ jobs:
           node-version: 16.x
           registry-url: "https://npm.pkg.github.com"
 
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v2
         with:
           version: 7.26.3
           
