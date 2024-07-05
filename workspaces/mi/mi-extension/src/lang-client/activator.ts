@@ -133,7 +133,7 @@ export class MILanguageClient {
             if (JAVA_HOME) {
                 let executable: string = path.join(JAVA_HOME, 'bin', 'java');
                 let schemaPath = this.context.asAbsolutePath(path.join("synapse-schemas", "synapse_config.xsd"));
-                let langServerCP = this.context.asAbsolutePath(path.join('ls', '*'));     // Folder path for jars           
+                let langServerCP = this.context.asAbsolutePath(path.join('ls', '*'));                
 
                 let schemaPathArg = '-DSCHEMA_PATH=' + schemaPath;
                 const args: string[] = [schemaPathArg, '-cp', langServerCP];

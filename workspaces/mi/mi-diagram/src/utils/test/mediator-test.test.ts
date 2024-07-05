@@ -274,68 +274,6 @@ export const mediatorTestCases : MediatorTestCase[] = [
     // Add more test cases as needed
 ];
 
-// describe.skip('Language Server Tests', () => {
-//     let langClient: LanguageClient;
-
-//     beforeAll(async () => {
-//         const client = new LanguageClient();
-//         await client.start();
-//         langClient = client;
-//     }, 100000); 
-
-//     afterAll(async () => {
-//         await langClient.stop();
-//     });
-
-//     test.skip('Test Foreach Mediator', async (done) => {
-//         try {
-//             const uri = path.join(dataRoot, "input-xml", "ForEach.xml");
-//             const syntaxTree = await langClient.getSyntaxTree({
-//                 documentIdentifier: {
-//                     uri
-//                 }
-//             });
-//             const res = await testMediatorXML('ForEach', syntaxTree);
-//             expect(res).toBeTruthy();
-//             done();
-//         } catch (error) {
-//             console.error('Error:', error);
-//         }
-//     }, 20000);
-
-//     test('Test Filter Mediator Default Description', async (done) => {
-//         try {
-//             const uri = path.join(dataRoot, "input-xml", "ForEach.xml");
-//             const syntaxTree = await langClient.getSyntaxTree({
-//                 documentIdentifier: {
-//                     uri
-//                 }
-//             });
-//             const res = await testMediatorDescription('ForEach', syntaxTree, undefined);
-//             expect(res).toBeTruthy();
-//             done();
-//         } catch (error) {
-//             console.error('Error:', error);
-//         }
-//     }, 20000);
-
-//     test('Test Filter Mediator Description', async (done) => {
-//         try {
-//             const uri = path.join(dataRoot, "input-xml", "ForEachWithDescription.xml");
-//             const syntaxTree = await langClient.getSyntaxTree({
-//                 documentIdentifier: {
-//                     uri
-//                 }
-//             });
-//             const res = await testMediatorDescription('ForEach', syntaxTree, "ForEach Description");
-//             expect(res).toBeTruthy();
-//             done();
-//         } catch (error) {
-//             console.error('Error:', error);
-//         }
-//     }, 20000);
-// });
-
 describe('Test MI Mediators', () => {
     let langClient: LanguageClient;
 
