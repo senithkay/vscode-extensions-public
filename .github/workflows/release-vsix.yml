@@ -81,10 +81,13 @@ jobs:
           unzip build.zip
           rm build.zip
 
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 7.26.3
+
       - name: Setup
         uses: gigara/rush-cache@v1
         with:
-          pnpm: 7.26.3
           node: 16.x
           rush-install: true
 
