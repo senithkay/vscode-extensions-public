@@ -117,6 +117,7 @@ export function ConnectorPage(props: ConnectorPageProps) {
     const [filteredStoreConnectors, setFilteredStoreConnectors] = useState<any[]>([]);
     const [filteredLocalConnectors, setFilteredLocalConnectors] = useState<any[]>([]);
     const [filteredOperations, setFilteredOperations] = useState<any[][]>([]);
+    const [debouncedValue, setDebouncedValue] = useState(props.searchValue);
     const [isOldProject, setIsOldProject] = useState(false);
     const connectionStatus = useRef(null);
 
@@ -166,16 +167,26 @@ export function ConnectorPage(props: ConnectorPageProps) {
     }, []);
 
     useEffect(() => {
+        const handler = setTimeout(() => {
+            setDebouncedValue(props.searchValue);
+        }, 400);
+    
+        return () => {
+            clearTimeout(handler);
+        };
+    }, [props.searchValue]);
+
+    useEffect(() => {
         let storeConnectorsFiltered = sidePanelContext.connectors;
         let localConnectorsFiltered = localConnectors;
         let operationsFiltered = [];
 
         setExpandedConnectors([]);
 
-        if (props.searchValue) {
-            storeConnectorsFiltered = searchStoreConnectors(props.searchValue);
-            localConnectorsFiltered = searchLocalConnectors(props.searchValue);
-            operationsFiltered = searchOperations(props.searchValue);
+        if (debouncedValue) {
+            storeConnectorsFiltered = searchStoreConnectors(debouncedValue);
+            localConnectorsFiltered = searchLocalConnectors(debouncedValue);
+            operationsFiltered = searchOperations(debouncedValue);
 
             setFilteredOperations(operationsFiltered);
         } else {
@@ -188,7 +199,7 @@ export function ConnectorPage(props: ConnectorPageProps) {
 
         setFilteredLocalConnectors(localConnectorsFiltered);
         setFilteredStoreConnectors(storeConnectorsFiltered);
-    }, [props.searchValue]);
+    }, [debouncedValue]);
 
     const waitForEvent = () => {
         return new Promise((resolve, reject) => {
@@ -212,8 +223,8 @@ export function ConnectorPage(props: ConnectorPageProps) {
             .filter(connector => {
                 const connectorNameMatches = connector.name.toLowerCase().includes(searchValue.toLowerCase());
 
-                const operationNameMatches = connector.operations && Object.keys(connector.operations).some((operation: any) =>
-                    operation.toLowerCase().includes(searchValue.toLowerCase())
+                const operationNameMatches = connector.operations && connector.operations.some((operation: any) =>
+                    operation.name.toLowerCase().includes(searchValue.toLowerCase())
                 );
 
                 return (connectorNameMatches || operationNameMatches) && !existsInLocalConnectors(connector);
@@ -258,8 +269,8 @@ export function ConnectorPage(props: ConnectorPageProps) {
             const connectorNameMatches = connector.name.toLowerCase().includes(searchValue.toLowerCase());
 
             if (!connectorNameMatches) {
-                Object.keys(connector.operations).forEach((operation: any) => {
-                    if (operation.toLowerCase().includes(searchValue.toLowerCase())) {
+                connector.operations.forEach((operation: any) => {
+                    if (operation.name.toLowerCase().includes(searchValue.toLowerCase())) {
                         matchingActions.push(operation);
                     }
                 });
@@ -341,7 +352,8 @@ export function ConnectorPage(props: ConnectorPageProps) {
                 nodePosition={sidePanelContext.nodeRange}
                 documentUri={props.documentUri}
                 connectorName={connector.name}
-                operationName={operation} />;
+                operationName={operation}
+                fromConnectorStore={true} />;
 
             sidepanelAddPage(sidePanelContext, connecterForm, `${sidePanelContext.isEditing ? "Edit" : "Add"} ${operation}`, iconPathUri.uri);
         } else {
@@ -506,15 +518,6 @@ export function ConnectorPage(props: ConnectorPageProps) {
                                                                                 width: 'auto'
                                                                             }}
                                                                         >
-                                                                            {/* <div style={{
-                                                                                width: '100%',
-                                                                                overflow: 'hidden',
-                                                                                textOverflow: 'ellipsis',
-                                                                                whiteSpace: 'nowrap',
-                                                                                textAlign: 'left'
-                                                                            }}>
-                                                                                <IconLabel>{operation.name}</IconLabel>
-                                                                            </div> */}
                                                                             <SmallIconContainer>
                                                                                 <img
                                                                                     src={connector.iconPathUri.uri}
