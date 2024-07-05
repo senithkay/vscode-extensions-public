@@ -15,7 +15,6 @@ import { ProgressLocation, ProviderResult, Uri, window } from "vscode";
 import { ext } from "./extensionVariables";
 import { getLogger } from "./logger/logger";
 import { authStore } from "./stores/auth-store";
-import { contextStore } from "./stores/context-store";
 import { ResponseError } from "vscode-jsonrpc";
 import { ErrorCode } from "./choreo-rpc/constants";
 
@@ -39,13 +38,8 @@ export function activateURIHandlers() {
                         },
                         async () => {
                             try {
-                                const selected = contextStore.getState().state?.selected;
-                                const userInfo = await ext.clients.rpcClient.signInWithAuthCode(
-                                    authCode,
-                                    selected?.org?.id ? selected?.org?.id?.toString() : undefined
-                                );
+                                const userInfo = await ext.clients.rpcClient.signInWithAuthCode(authCode);
                                 if (userInfo) {
-                                    await new Promise((resolve) => setTimeout(resolve, 500));
                                     authStore.getState().loginSuccess(userInfo);
                                 }
                             } catch (error: any) {
