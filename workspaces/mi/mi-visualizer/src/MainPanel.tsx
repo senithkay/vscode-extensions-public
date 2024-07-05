@@ -47,6 +47,7 @@ import { DataServiceWizard } from './views/Forms/DataServiceForm/MainPanelForms'
 import { DataServiceView } from './views/Diagram/DataService';
 import { SignInToCopilotMessage } from './views/LoggedOutWindow';
 import { DataServiceDataSourceWizard } from "./views/Forms/DataServiceForm/MainPanelForms/DataSourceForm/DatasourceForm";
+import AddConnection from './views/Forms/ConnectionForm/ConnectionFormGenerator';
 
 const MainContainer = styled.div`
     display: flex;
@@ -307,9 +308,16 @@ const MainPanel = () => {
                 case MACHINE_VIEW.DataSourceForm:
                     setViewComponent(<DataSourceWizard path={machineView.documentUri} />);
                     break;
+                case MACHINE_VIEW.ConnectorStore:
+                    setViewComponent(
+                        <ConnectorStore path={machineView.documentUri} />);
+                    break;
                 case MACHINE_VIEW.ConnectionForm:
                     setViewComponent(
-                        <ConnectorStore path={(machineView.customProps)?.path} />);
+                        <AddConnection 
+                            connectionName={machineView.customProps.connectionName}
+                            allowedConnectionTypes={machineView.customProps.allowedConnectionTypes}
+                            connector={machineView.customProps} />);
                     break;
                 case MACHINE_VIEW.TestSuite:
                     setViewComponent(<TestSuiteForm filePath={machineView.documentUri} stNode={machineView.stNode as UnitTest} />);

@@ -62,7 +62,7 @@ export enum MACHINE_VIEW {
     DataSourceForm = "Data Source Creation Form",
     Samples = "Samples",
     ImportProject = "Import Project",
-    ConnectorStore = "Connector Store",
+    ConnectorStore = "Connector Store Form",
     ConnectionForm = "Connection Creation Form",
     TestSuite = "Test Suite",
     TestCase = "Test Cases",

@@ -3492,7 +3492,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 fs.mkdirSync(localEntryPath);
             }
 
-            await replaceFullContentToFile(filePath, xmlData);
+            await replaceFullContentToFile(filePath, xmlData, true);
             resolve({ name: connectionName });
         });
     }

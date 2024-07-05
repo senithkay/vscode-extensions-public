@@ -17,6 +17,8 @@ import { ExpressionField } from '@wso2-enterprise/mi-diagram/lib/components/Form
 import { ExpressionFieldValue } from '@wso2-enterprise/mi-diagram/lib/components/Form/ExpressionField/ExpressionInput';
 import { EVENT_TYPE, MACHINE_VIEW, POPUP_EVENT_TYPE } from '@wso2-enterprise/mi-core';
 import { ExpressionEditor } from '@wso2-enterprise/mi-diagram/lib/components/sidePanel/expressionEditor/ExpressionEditor';
+import { TypeChip } from '../Commons';
+import { ParamConfig, ParamManager } from '@wso2-enterprise/mi-diagram';
 
 const cardStyle = {
     display: "block",
@@ -36,8 +38,11 @@ const Field = styled.div`
 `;
 
 export interface AddConnectionProps {
-    allowedConnectionTypes: string[];
-    connector: any;
+    allowedConnectionTypes?: string[];
+    connector?: any;
+    connectionName?: string;
+    changeConnector?: () => void;
+    fromSidePanel?: boolean;
     isPopup?: boolean;
 }
 
@@ -63,12 +68,13 @@ export function AddConnection(props: AddConnectionProps) {
 
     const [errors, setErrors] = useState({} as any);
     const [connectionType, setConnectionType] = useState(allowedConnectionTypes[0]);
+    const [connectionName, setConnectionName] = useState("");
     const [formData, setFormData] = useState({} as any);
     const [expressionEditorField, setExpressionEditorField] = useState<string | null>(null);
     const [currentExpressionValue, setCurrentExpressionValue] = useState<ExpressionValueWithSetter | null>(null);
 
     const formValidators: { [key: string]: (e?: any) => string | undefined } = {};
-    const { control, handleSubmit, watch, getValues } = useForm();
+    const { control, handleSubmit, watch, getValues, setValue, reset } = useForm();
 
     useEffect(() => {
         const fetchFormData = async () => {
@@ -84,6 +90,42 @@ export function AddConnection(props: AddConnectionProps) {
 
         fetchFormData();
     }, [connectionType]);
+
+    const paramConfigs: ParamConfig = {
+        paramValues: [],
+        paramFields: [
+            {
+                id: 0,
+                type: "TextField",
+                label: "Key",
+                defaultValue: "",
+                isRequired: true
+            },
+            {
+                id: 1,
+                type: "TextField",
+                label: "Value",
+                defaultValue: "",
+                isRequired: true
+            }]
+    };
+
+    const [params, setParams] = useState(paramConfigs);
+
+    const handleOnChange = (params: any) => {
+        const modifiedParams = {
+            ...params, paramValues: params.paramValues.map((param: any) => {
+                return {
+                    ...param,
+                    key: param.paramValues[0].value,
+                    value: param.paramValues[1].value,
+                    icon: "query"
+                }
+            })
+        };
+        setParams(modifiedParams);
+    };
+
 
     const validateField = (id: string, e: any, isRequired: boolean, validation?: "e-mail" | "nameWithoutSpecialCharactors" | "custom", regex?: string): string => {
         let value = e ?? getValues(id);
@@ -118,8 +160,7 @@ export function AddConnection(props: AddConnectionProps) {
         } else {
 
             const template = create();
-            const root = template.ele(`${formData.connectorName}.init`);
-            root.ele('connectionType').txt(connectionType);
+            const root = template.ele(`${formData.connectorName ?? props.connector.name}.init`);
 
             if (errors && Object.keys(errors).length > 0) {
                 console.error("Errors in saving connection form", errors);
@@ -169,17 +210,53 @@ export function AddConnection(props: AddConnectionProps) {
                 directory: localEntryPath
             });
 
-            // Refresh Treeview
-            rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ["MI.project-explorer.refresh"] });
-
             if (props.isPopup) {
                 rpcClient.getMiVisualizerRpcClient().openView({
                     type: POPUP_EVENT_TYPE.CLOSE_VIEW,
-                    location: { view: null, recentIdentifier: values['connectionName'] }});
+                    location: { view: null, recentIdentifier: values['connectionName'] },
+                    isPopup: true
+                });
             } else {
-                // Open Overview
+            // Open Overview
                 rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Overview } });
             }
+        }
+    };
+
+    const onAddInitConnection = async (values: any) => {
+
+        const name = connectionName ?? 'CONNECTION_1';
+        const template = create();
+        const root = template.ele(`${formData.connectorName ?? props.connector.name}.init`);
+
+        root.ele('name').txt(name);
+        root.ele('connectionType').txt('INIT')
+        params.paramValues.forEach(param => {
+            root.ele(param.key).txt(param.value);
+        })
+
+        const modifiedXml = template.end({ prettyPrint: true, headless: true });
+
+        const visualizerState = await rpcClient.getVisualizerState();
+        const projectUri = visualizerState.projectUri;
+        const sep = visualizerState.pathSeparator;
+        const localEntryPath = [projectUri, 'src', 'main', 'wso2mi', 'artifacts', 'local-entries'].join(sep);
+
+        await rpcClient.getMiDiagramRpcClient().createConnection({
+            connectionName: name,
+            keyValuesXML: modifiedXml,
+            directory: localEntryPath
+        });
+
+        if (props.isPopup) {
+            rpcClient.getMiVisualizerRpcClient().openView({
+                type: POPUP_EVENT_TYPE.CLOSE_VIEW,
+                location: { view: null, recentIdentifier: name },
+                isPopup: true
+            });
+        } else {
+            // Open Overview
+            rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Overview } });
         }
     };
 
@@ -197,7 +274,7 @@ export function AddConnection(props: AddConnectionProps) {
                             canChange={true}
                             required={element.required === 'true'}
                             openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => {
-                                setCurrentExpressionValue({value, setValue});
+                                setCurrentExpressionValue({ value, setValue });
                                 setExpressionEditorField(String(element.name));
                             }}
                         />
@@ -326,7 +403,7 @@ export function AddConnection(props: AddConnectionProps) {
                                     canChange={true}
                                     required={element.required === 'true'}
                                     openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => {
-                                        setCurrentExpressionValue({value, setValue});
+                                        setCurrentExpressionValue({ value, setValue });
                                         setExpressionEditorField(String(element.name));
                                     }}
                                 />
@@ -385,52 +462,93 @@ export function AddConnection(props: AddConnectionProps) {
     };
 
     const handleOnClose = () => {
-        rpcClient.getMiVisualizerRpcClient().goBack();
+        if (props.fromSidePanel) {
+            rpcClient.getMiVisualizerRpcClient().goBack();
+        } else {
+            props.changeConnector();
+        }
     }
 
     return (
         <FormView title={`Add New Connection`} onClose={handleOnClose} hideClose={props.isPopup}>
-            <Controller
-                name={"ConnectionType"}
-                control={control}
-                defaultValue={connectionType || ""}
-                render={() => (
-                    <Field>
-                        <label>{"ConnectionType"}</label> <RequiredFormInput />
-                        <AutoComplete
-                            identifier={"ConnectionType"}
-                            items={
-                                allowedConnectionTypes?.map((type: any) => (
-                                    type
-                                ))
-                            }
-                            value={connectionType}
-                            onValueChange={(e: any) => {
-                                setConnectionType(e);
-                            }}
-                            required={true} />
-                    </Field>
-                )}
-            />
-            {formData && formData.elements && formData.elements.length > 0 && (
+            {!props.fromSidePanel && <TypeChip
+                type={props.connector.name}
+                onClick={props.changeConnector}
+                showButton={!props.connectionName}
+            />}
+            {allowedConnectionTypes && allowedConnectionTypes.length === 0 ? (
                 <>
-                    {renderForm(formData.elements)}
-                    <FormActions>
+                    <TextField
+                        label='Connection Name'
+                        size={50}
+                        placeholder=""
+                        defaultValue={"CONNECTION_1"}
+                        value={connectionName}
+                        onTextChange={(e: any) => {
+                            setConnectionName(e);
+                        }}
+                        required={false}
+                    />
+                    <ParamManager
+                        paramConfigs={params}
+                        readonly={false}
+                        onChange={handleOnChange} />
+                    <div style={{ display: "flex", textAlign: "right", justifyContent: "flex-end", marginTop: "10px" }}>
                         <Button
                             appearance="primary"
-                            onClick={handleSubmit(onAddConnection)}
+                            onClick={onAddInitConnection}
                         >
-                            Add
+                            Submit
                         </Button>
-                        <Button
-                            appearance="secondary"
-                            onClick={handleOnClose}
-                        >
-                            Cancel
-                        </Button>
-                    </FormActions>
+                    </div>
+                </>
+            ) : (
+                <>
+                    <Controller
+                        name={"connectionType"}
+                        control={control}
+                        defaultValue={connectionType || ""}
+                        render={({ field }) => (
+                            <Field>
+                                <label>{"Connection Type"}</label> <RequiredFormInput />
+                                <AutoComplete
+                                    identifier={"connectionType"}
+                                    items={
+                                        allowedConnectionTypes?.map((type: any) => (
+                                            type
+                                        ))
+                                    }
+                                    value={connectionType}
+                                    onValueChange={(e: any) => {
+                                        field.onChange(e);
+                                        setConnectionType(e);
+                                    }}
+                                    required={true} />
+                            </Field>
+                        )}
+                    />
+                    {formData && formData.elements && formData.elements.length > 0 && (
+                        <>
+                            {renderForm(formData.elements)}
+                            <FormActions>
+                                <Button
+                                    appearance="primary"
+                                    onClick={handleSubmit(onAddConnection)}
+                                >
+                                    Add
+                                </Button>
+                                <Button
+                                    appearance="secondary"
+                                    onClick={handleOnClose}
+                                >
+                                    Cancel
+                                </Button>
+                            </FormActions>
+                        </>
+                    )}
                 </>
             )}
+
 
         </FormView>
     );

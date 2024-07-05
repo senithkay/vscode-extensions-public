@@ -170,7 +170,7 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 	});
 
 	commands.registerCommand(COMMANDS.ADD_CONNECTION_COMMAND, (entry: ProjectExplorerEntry) => {
-		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.ConnectionForm, documentUri: entry.info?.path });
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.ConnectorStore, documentUri: entry.info?.path });
 		console.log('Add Connection');
 	});
 

@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { ComponentCard, IconLabel, FormView } from "@wso2-enterprise/ui-toolkit";
+import { ComponentCard, IconLabel, FormView, TextField, Codicon } from "@wso2-enterprise/ui-toolkit";
 import { useEffect, useRef, useState } from "react";
 import styled from "@emotion/styled";
 import { VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
@@ -33,25 +33,26 @@ const ProgressRing = styled(VSCodeProgressRing)`
 `;
 
 const IconContainer = styled.div`
-    width: 50px;
+    width: 40px;
 
     & img {
-        width: 50px;
+        width: 40px;
     }
 `;
 
 const VersionTag = styled.div`
-    color: #808080;
-    font-size: 10px;
+    font-size: 13px;
     padding-left: 2px;
+    text-align: start;
 `;
 
 const CardContent = styled.div`
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     justify-content: space-between;
     align-items: center;
     width: 100%;
+    gap: 10px;
 `;
 
 const CardLabel = styled.div`
@@ -62,19 +63,32 @@ const CardLabel = styled.div`
 `;
 
 const SampleGrid = styled.div`
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(176px, 1fr));
     gap: 20px;
 `;
 
-const SubTitle = styled.div`
-    margin-bottom: 10px;
+const SearchStyle = {
+    width: 'auto',
+
+    '& > vscode-text-field': {
+        width: '100%',
+        height: '40px',
+        borderRadius: '5px',
+    },
+};
+
+const NameLabel = styled(IconLabel)`
+    text-align: start;
+    font-size: 1.2em;
 `;
 
 export interface ConnectionStoreProps {
     path: string;
     isPopup?: boolean;
 }
+
+const searchIcon = (<Codicon name="search" sx={{ cursor: "auto" }} />);
 
 export function ConnectorStore(props: ConnectionStoreProps) {
     const { rpcClient } = useVisualizerContext();
@@ -83,6 +97,9 @@ export function ConnectorStore(props: ConnectionStoreProps) {
     const [isGeneratingForm, setIsGeneratingForm] = useState(false);
     const [isDownloading, setIsDownloading] = useState(false);
     const [selectedConnector, setSelectedConnector] = useState<any>(undefined);
+    const [searchValue, setSearchValue] = useState<string>('');
+    const [filteredLocalConnectors, setFilteredLocalConnectors] = useState<any[]>([]);
+    const [filteredStoreConnectors, setFilteredStoreConnectors] = useState<any[]>([]);
     const connectionStatus = useRef(null);
 
     const fetchLocalConnectorData = async () => {
@@ -122,6 +139,13 @@ export function ConnectorStore(props: ConnectionStoreProps) {
         fetchStoreConnectors();
     }, []);
 
+    useEffect(() => {
+        if (localConnectors && storeConnectors) {
+            setFilteredLocalConnectors(searchConnectors(localConnectors));
+            setFilteredStoreConnectors(searchConnectors(storeConnectors));
+        }
+    }, [searchValue]);
+
     const waitForEvent = () => {
         return new Promise((resolve, reject) => {
             const checkInterval = setInterval(() => {
@@ -138,6 +162,11 @@ export function ConnectorStore(props: ConnectionStoreProps) {
             }, 10000);
         });
     };
+
+    const searchConnectors = (connectors: any[]) => {
+        return connectors?.filter(connector => connector.name.toLowerCase().includes(searchValue.toLowerCase()));
+    }
+
 
     const selectConnector = async (connector: any) => {
         setSelectedConnector(connector);
@@ -201,8 +230,161 @@ export function ConnectorStore(props: ConnectionStoreProps) {
         }
     };
 
+    const handleSearch = (e: string) => {
+        setSearchValue(e);
+    }
+
+    function capitalizeFirstChar(name: string) {
+        if (!name) return '';
+        return name.charAt(0).toUpperCase() + name.slice(1);
+    }
+
+    function existsInLocalConnectors(connector: any) {
+        return localConnectors?.some(localConnector =>
+            localConnector.name.toLowerCase() === connector.name.toLowerCase().replace(/\s/g, '') && localConnector.version === connector.version);
+    }
+
+    const changeConnector = () => {
+        setSelectedConnector(undefined);
+    }
+
     const handleOnClose = () => {
         rpcClient.getMiVisualizerRpcClient().goBack();
+    }
+
+    const ConnectorList = () => {
+        let displayedLocalConnectors = localConnectors;
+        let displayedStoreConnectors = storeConnectors;
+
+        if (searchValue) {
+            displayedLocalConnectors = filteredLocalConnectors;
+            displayedStoreConnectors = filteredStoreConnectors;
+        }
+
+        return (
+            <div>
+                {(displayedLocalConnectors === undefined || displayedStoreConnectors === undefined) ? (
+                    <LoaderWrapper>
+                        <ProgressRing />
+                        Loading connectors...
+                    </LoaderWrapper>
+                ) : storeConnectors.length === 0 ? (
+                    <LoaderWrapper>
+                        Error loading connectors. Please retry...
+                    </LoaderWrapper>
+                ) : (
+                    <SampleGrid>
+                        {displayedLocalConnectors.map((connector: any) => (
+                            <ComponentCard
+                                key={connector.name}
+                                onClick={() => selectConnector(connector)}
+                                sx={{
+                                    border: '1px solid var(--vscode-dropdown-border)',
+                                    backgroundColor: 'var(--vscode-dropdown-background)',
+                                    padding: '10px',
+                                    cursor: 'pointer',
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    alignItems: 'center',
+                                    justifyContent: 'left',
+                                    borderRadius: 1,
+                                    transition: '0.3s',
+                                    width: '176px',
+                                    height: '40px',
+                                    '&:hover': {
+                                        backgroundColor: 'var(--vscode-button-background)'
+                                    },
+                                    fontSize: '15px'
+                                }}
+                            >
+                                <CardContent>
+                                    <IconContainer>
+                                        <img
+                                            src={connector.iconPathUri.uri}
+                                            alt="Icon"
+                                        />
+                                    </IconContainer>
+                                    <CardLabel>
+                                        <div style={{
+                                            width: '140px',
+                                            overflow: 'hidden',
+                                            textOverflow: 'ellipsis',
+                                            whiteSpace: 'nowrap',
+                                            textAlign: 'center',
+                                            paddingBottom: '10px'
+                                        }}>
+                                            <NameLabel>
+                                                {capitalizeFirstChar(connector.name)}
+                                            </NameLabel>
+                                            <VersionTag>
+                                                {connector.version}
+                                            </VersionTag>
+                                        </div>
+                                    </CardLabel>
+                                </CardContent>
+                            </ComponentCard>
+                        ))}
+                        {displayedStoreConnectors.sort((a: any, b: any) => a.rank - b.rank).map((connector: any) => (
+                            displayedLocalConnectors.some(c => (c.name === connector.name) &&
+                                (c.version === connector.version)) ? null : (
+                                <ComponentCard
+                                    key={connector.name}
+                                    onClick={() => selectStoreConnector(connector)}
+                                    sx={{
+                                        border: '1px solid var(--vscode-dropdown-border)',
+                                        backgroundColor: 'var(--vscode-dropdown-background)',
+                                        padding: '10px',
+                                        cursor: 'pointer',
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        alignItems: 'center',
+                                        justifyContent: 'left',
+                                        borderRadius: 1,
+                                        transition: '0.3s',
+                                        width: '176px',
+                                        height: '40px',
+                                        '&:hover': {
+                                            backgroundColor: 'var(--vscode-button-background)'
+                                        },
+                                        fontSize: '15px'
+                                    }}
+                                >
+                                    <CardContent>
+                                        <IconContainer>
+                                            <img
+                                                src={connector.icon_url}
+                                                alt="Icon"
+                                                onError={(e) => {
+                                                    const target = e.target as HTMLImageElement;
+                                                    target.src = 'https://mi-connectors.wso2.com/icons/wordpress.gif'
+                                                }}
+                                            />
+                                        </IconContainer>
+                                        <CardLabel>
+                                            <div style={{
+                                                width: '140px',
+                                                overflow: 'hidden',
+                                                textOverflow: 'ellipsis',
+                                                whiteSpace: 'nowrap',
+                                                textAlign: 'center',
+                                                paddingBottom: '10px'
+                                            }}>
+                                                <NameLabel>
+                                                    {capitalizeFirstChar(connector.name)}
+                                                </NameLabel>
+                                                <VersionTag>
+                                                    {connector.version}
+                                                </VersionTag>
+                                            </div>
+                                        </CardLabel>
+                                    </CardContent>
+                                </ComponentCard>
+                            )
+                        ))}
+                    </SampleGrid>
+                )}
+            </div>
+        );
     }
 
     return (
@@ -211,9 +393,11 @@ export function ConnectorStore(props: ConnectionStoreProps) {
                 <AddConnection
                     allowedConnectionTypes={Object.keys(selectedConnector.connectionUiSchema)}
                     connector={selectedConnector}
-                    isPopup={true} />
+                    isPopup={true}
+                    changeConnector={changeConnector} />
             ) : (
                 <FormView title={`Add New Connection`} onClose={handleOnClose} hideClose={props.isPopup}>
+                    <span>Please select a connector to create a connection.</span>
                     {isGeneratingForm ? (
                         <LoaderWrapper>
                             <ProgressRing />
@@ -226,133 +410,23 @@ export function ConnectorStore(props: ConnectionStoreProps) {
                         </LoaderWrapper>
                     ) : (
                         <>
-                            <div>
-                                {(localConnectors === undefined || localConnectors.length === 0) ? (
-                                    <></>
-                                ) : (
-                                    <SampleGrid>
-                                        {localConnectors.map((connector: any) => (
-                                            <ComponentCard
-                                                key={connector.name}
-                                                onClick={() => selectConnector(connector)}
-                                                disabled={Object.keys(connector.connectionUiSchema) &&
-                                                    Object.keys(connector.connectionUiSchema).length === 0}
-                                                sx={{
-                                                    alignItems: 'center',
-                                                    border: '1px solid var(--vscode-editor-foreground)',
-                                                    borderRadius: 2,
-                                                    cursor: 'pointer',
-                                                    display: 'flex',
-                                                    justifyContent: 'left',
-                                                    marginBottom: 10,
-                                                    padding: 10,
-                                                    transition: '0.3s',
-                                                    width: '88px',
-                                                    height: '88px'
-                                                }}
-                                            >
-                                                <CardContent>
-                                                    <CardLabel>
-                                                        <div style={{
-                                                            width: '100%',
-                                                            overflow: 'hidden',
-                                                            textOverflow: 'ellipsis',
-                                                            whiteSpace: 'nowrap',
-                                                            textAlign: 'center',
-                                                            paddingBottom: '10px'
-                                                        }}>
-                                                            <IconLabel>
-                                                                {connector.name}
-                                                            </IconLabel>
-                                                            <VersionTag>
-                                                                {connector.version}
-                                                            </VersionTag>
-                                                        </div>
-                                                    </CardLabel>
-                                                    <IconContainer>
-                                                        <img
-                                                            src={connector.iconPathUri.uri}
-                                                            alt="Icon"
-                                                        />
-                                                    </IconContainer>
-                                                </CardContent>
-                                            </ComponentCard>
-                                        ))}
-                                    </SampleGrid>
-                                )}
-                            </div>
-                            <div>
-                                {(storeConnectors === undefined || localConnectors === undefined) ? (
-                                    <LoaderWrapper>
-                                        <ProgressRing />
-                                        Loading connectors...
-                                    </LoaderWrapper>
-                                ) : storeConnectors.length === 0 ? (
-                                    <LoaderWrapper>
-                                        Error loading connectors. Please retry...
-                                    </LoaderWrapper>
-                                ) : (
-                                    <SampleGrid>
-                                        {storeConnectors.sort((a: any, b: any) => a.rank - b.rank).map((connector: any) => (
-                                            localConnectors.some(c => c.name === connector.name) ? null : (
-                                                <ComponentCard
-                                                    key={connector.name}
-                                                    onClick={() => selectStoreConnector(connector)}
-                                                    sx={{
-                                                        alignItems: 'center',
-                                                        border: '1px solid var(--vscode-editor-foreground)',
-                                                        borderRadius: 2,
-                                                        cursor: 'pointer',
-                                                        display: 'flex',
-                                                        justifyContent: 'left',
-                                                        marginBottom: 10,
-                                                        padding: 10,
-                                                        transition: '0.3s',
-                                                        width: '88px',
-                                                        height: '88px'
-                                                    }}
-                                                >
-                                                    <CardContent>
-                                                        <CardLabel>
-
-                                                            <div style={{
-                                                                width: '100%',
-                                                                overflow: 'hidden',
-                                                                textOverflow: 'ellipsis',
-                                                                whiteSpace: 'nowrap',
-                                                                textAlign: 'center',
-                                                                paddingBottom: '10px'
-                                                            }}>
-                                                                <IconLabel>
-                                                                    {connector.name}
-                                                                </IconLabel>
-                                                                <VersionTag>
-                                                                    {connector.version}
-                                                                </VersionTag>
-                                                            </div>
-                                                        </CardLabel>
-                                                        <IconContainer>
-                                                            <img
-                                                                src={connector.icon_url}
-                                                                alt="Icon"
-                                                                onError={(e) => {
-                                                                    const target = e.target as HTMLImageElement;
-                                                                    target.src = 'https://mi-connectors.wso2.com/icons/wordpress.gif'
-                                                                }}
-                                                            />
-                                                        </IconContainer>
-                                                    </CardContent>
-                                                </ComponentCard>
-                                            )
-                                        ))}
-                                    </SampleGrid>
-                                )}
-                            </div>
+                            {/* Search bar */}
+                            <TextField
+                                sx={SearchStyle}
+                                placeholder="Search"
+                                value={searchValue}
+                                onTextChange={handleSearch}
+                                icon={{
+                                    iconComponent: searchIcon,
+                                    position: 'start',
+                                }}
+                                autoFocus={true}
+                            />
+                            <ConnectorList />
                         </>
                     )}
-                </FormView>
+                </FormView >
             )}
-
         </>
     );
 }

@@ -85,7 +85,7 @@ export function TypeChip(props: TypeChipProps) {
                 </Badge>
             </BadgeWrapper>
             {props.showButton && <Button
-                appearance="primary"
+                appearance="secondary"
                 onClick={() => props.onClick("")}
                 sx={{ display: "flex", gap: 10 }}
             >
