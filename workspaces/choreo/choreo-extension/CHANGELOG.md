@@ -3,7 +3,7 @@
 All notable changes to the [Choreo VSCode extension](https://marketplace.visualstudio.com/items?itemName=WSO2.choreo) will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-<!-- ## [2.0.0] - 2024-06-27
+## [2.0.0] - 2024-07-05
 
 ### Added
 - Work directly with existing local repository clones.
@@ -15,7 +15,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Changed
 - Redesigned user interface for a better user experience.
-- Enable direct component creation instead of scaffolding. -->
+- Enable direct component creation instead of scaffolding.
 
 ## [1.0.0] - 2023-04-21
 
