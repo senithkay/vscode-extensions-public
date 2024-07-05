@@ -69,18 +69,21 @@ export function HomePage(props: MediatorPageProps) {
         setConnectors(false);
         setEndpoints(false);
         setAllMediators(true);
+        clearSearch();
     }
 
     const handleConnectorsClicked = () => {
         setAllMediators(false);
         setEndpoints(false);
         setConnectors(true);
+        clearSearch();
     }
 
     const handleEndpointsClicked = () => {
         setAllMediators(false);
         setConnectors(false);
         setEndpoints(true);
+        clearSearch();
     }
 
     return (
@@ -99,20 +102,20 @@ export function HomePage(props: MediatorPageProps) {
                     autoFocus={true}
                 />
                 {/*  Categories */}
-                <ButtonContainer style={{ marginBottom: "10px", width: "calc(100% - 15px)" }}>
-                    <Button onClick={handleAllMediatorsClicked} appearance={isAllMediators ? 'primary' : 'secondary'} >
+                <ButtonContainer style={{ marginBottom: "10px", width: "calc(100% - 15px)", justifyContent: "space-evenly" }}>
+                    <Button buttonSx={{width: '128px'}} onClick={handleAllMediatorsClicked} appearance={isAllMediators ? 'primary' : 'secondary'} >
                         <Icon sx={{marginTop: 2, marginRight: 5}} name="module-icon"/>
                         Mediators
                     </Button>
 
-                    <Button onClick={handleConnectorsClicked} appearance={isConnectors ? 'primary' : 'secondary'}>
-                        <Icon sx={{marginTop: 2, marginRight: 5}} name="connector"/>
-                        Connectors
+                    <Button buttonSx={{width: '128px'}} onClick={handleEndpointsClicked} appearance={isEndpoints ? 'primary' : 'secondary'}>
+                        <Icon sx={{marginTop: 2, marginRight: 5}} name="caller"/>
+                        Externals
                     </Button>
 
-                    <Button onClick={handleEndpointsClicked} appearance={isEndpoints ? 'primary' : 'secondary'}>
-                        <Icon sx={{marginTop: 2, marginRight: 5}} name="caller"/>
-                        Endpoints
+                    <Button buttonSx={{width: '128px'}} onClick={handleConnectorsClicked} appearance={isConnectors ? 'primary' : 'secondary'}>
+                        <Icon sx={{marginTop: 2, marginRight: 5}} name="connector"/>
+                        Connectors
                     </Button>
                 </ButtonContainer>
             </SearchPanel>

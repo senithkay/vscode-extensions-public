@@ -42,7 +42,7 @@ const CardLabel = styled.div`
 const MessageWrapper = styled.div`
     display: flex;
     align-items: center;
-    padding-top: 10px;
+    padding: 10px 0;
 `;
 
 const OldProjectMessage = styled.div`
@@ -58,7 +58,6 @@ const ConnectionWrapper = styled.div`
     padding: 0px;
     display: flex;
     flex-direction: column;
-    gap: 5px;
 `;
 
 const IconContainer = styled.div`
@@ -98,10 +97,6 @@ interface Connection {
     name: string;
     connectionType: string;
     path: string;
-}
-
-interface Connections {
-    [key: string]: { connections: Connection[] };
 }
 
 interface ConnectionsData {
@@ -147,6 +142,7 @@ export function ConnectionPage(props: ConnectorPageProps) {
             ));
 
             setConnections(newConnectionInfo);
+            return(newConnectionInfo);
         }
     };
 
@@ -160,12 +156,11 @@ export function ConnectionPage(props: ConnectorPageProps) {
             const searchResults: ConnectionsData = {};
 
             Object.keys(connections).forEach((key) => {
-                // Assuming 'connections' is an array of connection objects and 'props.searchValue' is the value to filter by.
                 const matchingConnections = connections[key].connections?.filter((connection) => {
-                    // First filter: Connection Name match
+                    // Connection Name match
                     const nameMatch = connection.name.toLowerCase().includes(props.searchValue.toLowerCase());
 
-                    // Second filter: Operation matches
+                    // Operation matches
                     const operations = connections[key].connectorData?.actions || [];
                     const operationMatch = operations.some((operation: any) => {
                         const operationNameMatch = operation.name.toLowerCase().includes(props.searchValue.toLowerCase());
@@ -199,9 +194,7 @@ export function ConnectionPage(props: ConnectorPageProps) {
             const searchResults: any[][] = [];
 
             Object.keys(connections).forEach((key) => {
-                // Assuming 'connections' is an array of connection objects and 'props.searchValue' is the value to filter by.
                 connections[key].connections?.forEach((connection) => {
-                    // First filter: Connection Name match
                     const nameMatch = connection.name.toLowerCase().includes(props.searchValue.toLowerCase());
 
                     if (!nameMatch) {
@@ -269,31 +262,28 @@ export function ConnectionPage(props: ConnectorPageProps) {
             type: POPUP_EVENT_TYPE.OPEN_VIEW,
             location: {
                 documentUri: props.documentUri,
-                view: MACHINE_VIEW.ConnectionForm,
-                customProps: {
-                    path: props.documentUri
-                }
+                view: MACHINE_VIEW.ConnectorStore
             },
             isPopup: true
         });
 
-        rpcClient.onParentPopupSubmitted((data: ParentPopupData) => {
+        rpcClient.onParentPopupSubmitted(async (data: ParentPopupData) => {
             if (data.recentIdentifier) {
-                fetchConnections();
+                const newConnections = await fetchConnections();
+                const newConnection = getConnectionByName(data.recentIdentifier, newConnections);
+                setExpandedConnections([newConnection]);
             }
         });
+    }
 
-        // rpcClient.getMiVisualizerRpcClient().openView({
-        //     type: POPUP_EVENT_TYPE.OPEN_VIEW,
-        //     location: {
-        //         documentUri: props.documentUri,
-        //         view: MACHINE_VIEW.ConnectionForm,
-        //         customProps: {
-        //             allowedConnectionTypes: [],
-        //             connector: ""
-        //         }
-        //     }
-        // });
+    function getConnectionByName(connectionName: string, connections: ConnectionsData): Connection | undefined {
+        for (const key in connections) {
+            const foundConnection = (connections[key].connections).find(connection => connection.name === connectionName);
+            if (foundConnection) {
+                return foundConnection;
+            }
+        }
+        return undefined; 
     }
 
     const generateForm = async (connection: Connection, operation: string, connectorData: any) => {
@@ -306,7 +296,7 @@ export function ConnectionPage(props: ConnectorPageProps) {
         const connecterForm = <AddConnector formData={(formJSON as any).formJSON}
             nodePosition={sidePanelContext.nodeRange}
             documentUri={props.documentUri}
-            connectorName={connectorData.connectorName}
+            connectorName={connectorData.name}
             connectionName={connection.name}
             operationName={operation}
             connectionType={connection.connectionType} />;
@@ -360,7 +350,7 @@ export function ConnectionPage(props: ConnectorPageProps) {
                                                         justifyContent: 'left',
                                                         transition: '0.3s',
                                                         flexDirection: 'column',
-                                                        marginBottom: '10px'
+                                                        marginBottom: '15px'
                                                     }}>
                                                         <ComponentCard
                                                             key={connection.name}
@@ -418,10 +408,8 @@ export function ConnectionPage(props: ConnectorPageProps) {
                                                             <div style={{ padding: 10 }}>
                                                                 <div style={{ width: '100%', textAlign: 'left' }}>Select Operation</div>
                                                                 <OperationGrid>
-                                                                    {/* {filteredConnections[key].connectorData?.actions && */}
                                                                     {((filteredOperations.find(([filteredConnection]) => filteredConnection === connection)?.slice(1)[0])
                                                                         || filteredConnections[key].connectorData?.actions).map((operation: any) => {
-                                                                        // filteredConnections[key].connectorData?.actions.map((operation: any) => {
                                                                             const allowedTypes = operation.allowedConnectionTypes;
                                                                             if (operation.isHidden || ((allowedTypes?.length > 0) && !(allowedTypes?.includes(connection.connectionType)))) {
                                                                                 return null;
@@ -453,7 +441,7 @@ export function ConnectionPage(props: ConnectorPageProps) {
                                                                                         marginBottom: 10,
                                                                                         padding: 10,
                                                                                         transition: '0.3s',
-                                                                                        width: 'auto'
+                                                                                        width: '160px'
                                                                                     }}
                                                                                 >
                                                                                     <SmallIconContainer>
@@ -466,7 +454,11 @@ export function ConnectionPage(props: ConnectorPageProps) {
                                                                                             }}
                                                                                         />
                                                                                     </SmallIconContainer>
-                                                                                    <div >
+                                                                                    <div style={{
+                                                                                            width: '120px',
+                                                                                            overflow: 'hidden',
+                                                                                            textOverflow: 'ellipsis',
+                                                                                            whiteSpace: 'nowrap' }}>
                                                                                         <IconLabel>{FirstCharToUpperCase(operation.name)}</IconLabel>
                                                                                     </div>
                                                                                 </ComponentCard>

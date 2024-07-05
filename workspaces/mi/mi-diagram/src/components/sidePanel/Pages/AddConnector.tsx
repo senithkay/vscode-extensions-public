@@ -18,6 +18,7 @@ import { ParamConfig, ParamManager } from '../../Form/ParamManager/ParamManager'
 import { ExpressionField, ExpressionFieldValue } from '../../Form/ExpressionField/ExpressionInput';
 import { handleOpenExprEditor, sidepanelGoBack } from '..';
 import { useForm, Controller } from 'react-hook-form';
+import { MACHINE_VIEW, POPUP_EVENT_TYPE, ParentPopupData } from '@wso2-enterprise/mi-core';
 
 const cardStyle = {
     display: "block",
@@ -44,6 +45,7 @@ interface AddConnectorProps {
     operationName?: string;
     connectionName?: string;
     connectionType?: string;
+    fromConnectorStore?: boolean;
 }
 
 interface Element {
@@ -57,7 +59,7 @@ interface Element {
     allowedConnectionTypes?: string[];
 }
 
-const expressionFieldTypes = ['stringOrExpression', 'integerOrExpression','textAreaOrExpression'];
+const expressionFieldTypes = ['stringOrExpression', 'integerOrExpression', 'textAreaOrExpression'];
 
 const AddConnector = (props: AddConnectorProps) => {
     const { formData, nodePosition, documentUri } = props;
@@ -106,6 +108,23 @@ const AddConnector = (props: AddConnectorProps) => {
         setParams(modifiedParams);
     };
 
+    const fetchConnections = async () => {
+        const allowedTypes = findAllowedConnectionTypes(props.formData.elements);
+    
+        const connectorData = await rpcClient.getMiDiagramRpcClient().getConnectorConnections({
+            documentUri: props.documentUri,
+            connectorName: props.formData?.connectorName ?? props.connectorName.toLowerCase().replace(/\s/g, '')
+        });
+    
+        const filteredConnections = connectorData.connections.filter(
+            connection => allowedTypes?.includes(connection.connectionType));
+        const connectionNames = filteredConnections.map(connection => connection.name);
+    
+        setConnections(connectionNames);
+        setIsLoading(false);
+    };
+    
+
     useEffect(() => {
         handleOnCancelExprEditorRef.current = () => {
             sidepanelGoBack(sidePanelContext);
@@ -114,33 +133,7 @@ const AddConnector = (props: AddConnectorProps) => {
 
     useEffect(() => {
         if (props.formData && props.formData !== "") {
-            const findAllowedConnectionTypes = (elements: any): string[] | undefined => {
-                for (let element of elements) {
-                    if (element.type === 'attribute' && element.value.inputType === 'connection') {
-                        return element.value.allowedConnectionTypes;
-                    }
-                    if (element.type === 'attributeGroup') {
-                        return findAllowedConnectionTypes(element.value.elements);
-                    }
-                }
-            };
-
-            (async () => {
-                const allowedTypes = findAllowedConnectionTypes(props.formData.elements);
-
-                const connectorData = await rpcClient.getMiDiagramRpcClient().getConnectorConnections({
-                    documentUri: props.documentUri,
-                    connectorName: props.formData?.connectorName ?? props.connectorName.toLowerCase().replace(/\s/g, '')
-                });
-
-                const filteredConnections = connectorData.connections.filter(
-                    connection => allowedTypes?.includes(connection.connectionType));
-                const connectionNames = filteredConnections.map(connection => connection.name);
-
-                setConnections(connectionNames);
-
-                setIsLoading(false);
-            })();
+            fetchConnections();
         } else {
             setIsLoading(false);
         }
@@ -177,6 +170,17 @@ const AddConnector = (props: AddConnectorProps) => {
         }
     }, [sidePanelContext.formValues]);
 
+    const findAllowedConnectionTypes = (elements: any): string[] | undefined => {
+        for (let element of elements) {
+            if (element.type === 'attribute' && element.value.inputType === 'connection') {
+                return element.value.allowedConnectionTypes;
+            }
+            if (element.type === 'attributeGroup') {
+                return findAllowedConnectionTypes(element.value.elements);
+            }
+        }
+    };
+
     const validateField = (id: string, e: any, isRequired: boolean, validation?: "e-mail" | "nameWithoutSpecialCharactors" | "custom", regex?: string): string => {
         let value = e ?? getValues(getNameForController(id));
         if (typeof value === 'object') {
@@ -205,23 +209,53 @@ const AddConnector = (props: AddConnectorProps) => {
 
     function getInputType(formData: any, paramName: string): string {
         let inputType = null;
-    
+
         function traverseElements(elements: any) {
             for (let element of elements) {
                 if (element.type === 'attribute' && element.value.name === paramName) {
                     inputType = element.value.inputType;
                     return;
                 }
-    
+
                 if (element.type === 'attributeGroup') {
                     traverseElements(element.value.elements);
                 }
             }
         }
-    
+
         traverseElements(formData.elements);
-    
+
         return inputType;
+    }
+
+    const addNewConnection = async () => {
+
+        // Get Connector Data from LS
+        const connectorData = await rpcClient.getMiDiagramRpcClient().getAvailableConnectors({
+            documentUri: props.documentUri,
+            connectorName: props.connectorName.toLowerCase().replace(/\s/g, '')
+        });
+
+        rpcClient.getMiVisualizerRpcClient().openView({
+            type: POPUP_EVENT_TYPE.OPEN_VIEW,
+            location: {
+                documentUri: props.documentUri,
+                view: MACHINE_VIEW.ConnectionForm,
+                customProps: {
+                    allowedConnectionTypes: findAllowedConnectionTypes(props.formData.elements),
+                    connector: connectorData,
+                    fromSidePanel: true
+                }
+            },
+            isPopup: true
+        });
+
+        rpcClient.onParentPopupSubmitted(async (data: ParentPopupData) => {
+            if (data.recentIdentifier) {
+                await fetchConnections();
+                setValue('configKey', data.recentIdentifier);
+            }
+        });
     }
 
     const onClick = async (values: any) => {
@@ -469,7 +503,42 @@ const AddConnector = (props: AddConnectorProps) => {
                 setValue(element.name as string, props.connectionType ?? getValues(element.name as string) ?? element.allowedConnectionTypes[0]);
                 setValue('configKey', props.connectionName ?? getValues('configKey') ?? connections[0] ?? "");
 
-                return;
+                if (props.fromConnectorStore) {
+                    return (
+                        <Field>
+                            <Controller
+                                name="configKey"
+                                control={control}
+                                defaultValue={connections[0]}
+                                render={({ field }) => (
+                                    <>
+                                        <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", width: '100%', gap: '10px' }}>
+                                            <div style={{ display: "flex", alignItems: "center", gap: '10px' }}>
+                                                <label>{element.displayName}</label>
+                                                {element.required && <RequiredFormInput />}
+                                            </div>
+                                            <LinkButton onClick={() => addNewConnection()}>
+                                                Add new connection
+                                            </LinkButton>
+                                        </div>
+                                        <AutoComplete
+                                            name="configKey"
+                                            items={connections}
+                                            value={field.value}
+                                            onValueChange={(e: any) => {
+                                                field.onChange(e);
+                                            }}
+                                            required={element.required === 'true'}
+                                        />
+                                    </>
+                                )}
+                            />
+                        </Field>
+                    );
+                } else {
+                    return;
+                }
+
             default:
                 return null;
         }
@@ -524,7 +593,7 @@ const AddConnector = (props: AddConnectorProps) => {
                             </Button>
                         </div>
                     </>
-                ) : 
+                )   :
                     <>
                         {renderForm(props.formData.elements)}
                         <div style={{ display: "flex", textAlign: "right", justifyContent: "flex-end", marginTop: "10px" }}>
