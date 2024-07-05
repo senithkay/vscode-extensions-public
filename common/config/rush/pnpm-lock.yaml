@@ -3132,7 +3132,6 @@ importers:
 
   ../../workspaces/mi/mi-diagram:
     specifiers:
-      '@codingame/monaco-jsonrpc': 0.3.1
       '@emotion/css': ^11.10.5
       '@emotion/react': ~11.11.4
       '@emotion/styled': ~11.11.0
@@ -3161,7 +3160,6 @@ importers:
       '@types/node': ~20.11.19
       '@types/react': ~18.2.0
       '@types/react-dom': ~18.2.0
-      '@types/ws': ^8.2.1
       '@types/xml2js': ~0.4.14
       '@typescript-eslint/eslint-plugin': ~7.0.2
       '@vscode/webview-ui-toolkit': ~1.4.0
@@ -3175,7 +3173,6 @@ importers:
       eslint-plugin-unused-imports: ~3.1.0
       jest: ^26.6.3
       lodash: ~4.17.21
-      monaco-languageclient: 0.13.1-next.9
       mousetrap: ~1.6.5
       mustache: ~4.2.0
       path: ~0.12.7
@@ -3185,16 +3182,12 @@ importers:
       react-dom: ~18.2.0
       react-hook-form: ~7.51.2
       storybook: ^7.6.17
-      tree-kill: ^1.2.2
       ts-jest: ^26.5.6
       typescript: ^4.3.5
       vscode-jsonrpc: ^6.0.0
       vscode-languageclient: ^8.0.2
       vscode-languageserver-protocol: ^3.17.2
       vscode-languageserver-types: ~3.17.5
-      vscode-test: ^1.6.1
-      vscode-uri: ^3.0.8
-      ws: ^8.3.0
       xml2js: ~0.6.2
       xmlbuilder2: ~3.1.1
       yup: ~1.4.0
@@ -3234,7 +3227,6 @@ importers:
       xmlbuilder2: 3.1.1
       yup: 1.4.0
     devDependencies:
-      '@codingame/monaco-jsonrpc': 0.3.1
       '@storybook/addon-essentials': 7.6.17_jq2v3mgqnxhjqzsfthu2a3rfwm
       '@storybook/addon-interactions': 7.6.17
       '@storybook/addon-links': 7.6.17_react@18.2.0
@@ -3249,22 +3241,16 @@ importers:
       '@types/jest': 26.0.24
       '@types/react': 18.2.55
       '@types/react-dom': 18.2.19
-      '@types/ws': 8.5.10
       '@types/xml2js': 0.4.14
       '@typescript-eslint/eslint-plugin': 7.0.2_typescript@4.9.5
       deep-equal: 2.2.3
       jest: 26.6.3
-      monaco-languageclient: 0.13.1-next.9
       storybook: 7.6.17
-      tree-kill: 1.2.2
       ts-jest: 26.5.6_xuote2qreek47x2di7kesslrai
       typescript: 4.9.5
       vscode-jsonrpc: 6.0.0
       vscode-languageclient: 8.1.0
       vscode-languageserver-protocol: 3.17.5
-      vscode-test: 1.6.1
-      vscode-uri: 3.0.8
-      ws: 8.16.0
       xml2js: 0.6.2
 
   ../../workspaces/mi/mi-extension:
@@ -7397,13 +7383,6 @@ packages:
       style-mod: 4.1.2
       w3c-keyname: 2.2.8
     dev: false
-
-  /@codingame/monaco-jsonrpc/0.3.1:
-    resolution: {integrity: sha512-Zxilei5fGV89uGJcFKDQFfZfUbWdP8/NGympXQUX/XRle4CYUabfvEOdY0Diq0NruttlRH3RdWVZ7Nw6f4TClQ==}
-    deprecated: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
-    dependencies:
-      vscode-jsonrpc: 6.0.0
-    dev: true
 
   /@colors/colors/1.5.0:
     resolution: {integrity: sha512-ooWCrlZP11i8GImSjTHYHLkvFDP48nS4+204nGb1RiX/WXYHmJA2III9/e2DWVabCESdW7hBAEzHRqUn9OUVvQ==}
@@ -38703,6 +38682,7 @@ packages:
       vscode-languageclient: 7.0.0
       vscode-languageserver-textdocument: 1.0.11
       vscode-uri: 3.0.8
+    dev: false
 
   /monaco-page-objects/3.12.0_dbmrhxmxn56t5avuczxakltngy:
     resolution: {integrity: sha512-JiA24MmjeilFUumMtch9v/nzHWFt1TgMt9oRYmQJ7BwOFucFFxU+ksNmEwp5Je3b3tn1F+gDI3A1QwEhdOxXOg==}
@@ -47156,6 +47136,7 @@ packages:
   /tree-kill/1.2.2:
     resolution: {integrity: sha512-L0Orpi8qGpRG//Nd+H90vFB+3iHnue1zSSGmNOOCh1GLJ7rUKVwV2HvijphGQS2UmhUZewS9VgvxYIdgr+fG1A==}
     hasBin: true
+    dev: false
 
   /tree-sitter-json/0.20.2:
     resolution: {integrity: sha512-eUxrowp4F1QEGk/i7Sa+Xl8Crlfp7J0AXxX1QdJEQKQYMWhgMbCIgyQvpO3Q0P9oyTrNQxRLlRipDS44a8EtRw==}
@@ -49035,6 +49016,7 @@ packages:
       minimatch: 3.1.2
       semver: 7.6.0
       vscode-languageserver-protocol: 3.16.0
+    dev: false
 
   /vscode-languageclient/8.1.0:
     resolution: {integrity: sha512-GL4QdbYUF/XxQlAsvYWZRV3V34kOkpRlvV60/72ghHfsYFnS/v2MANZ9P6sHmxFcZKOse8O+L9G7Czg0NUWing==}
@@ -49049,6 +49031,7 @@ packages:
     dependencies:
       vscode-jsonrpc: 6.0.0
       vscode-languageserver-types: 3.16.0
+    dev: false
 
   /vscode-languageserver-protocol/3.17.3:
     resolution: {integrity: sha512-924/h0AqsMtA5yK22GgMtCYiMdCOtWTSGgUOkgEDX+wk2b0x4sAfLiO4NxBxqbiVtz7K7/1/RgVrVI0NClZwqA==}
@@ -49064,9 +49047,11 @@ packages:
 
   /vscode-languageserver-textdocument/1.0.11:
     resolution: {integrity: sha512-X+8T3GoiwTVlJbicx/sIAF+yuJAqz8VvwJyoMVhwEMoEKE/fkDmrqUgDMyBECcM2A2frVZIUj5HI/ErRXCfOeA==}
+    dev: false
 
   /vscode-languageserver-types/3.16.0:
     resolution: {integrity: sha512-k8luDIWJWyenLc5ToFQQMaSrqCHiLwyKPHKPQZ5zz21vM+vIVUSvsRpcbiECH4WR88K2XZqc4ScRcZ7nk/jbeA==}
+    dev: false
 
   /vscode-languageserver-types/3.17.3:
     resolution: {integrity: sha512-SYU4z1dL0PyIMd4Vj8YOqFvHu7Hz/enbWtpfnVbJHU4Nd1YNYx8u0ennumc6h48GQNeOLxmwySmnADouT/AuZA==}
@@ -49101,6 +49086,7 @@ packages:
       unzipper: 0.10.14
     transitivePeerDependencies:
       - supports-color
+    dev: false
 
   /vscode-uri/3.0.8:
     resolution: {integrity: sha512-AyFQ0EVmsOZOlAnxoFOGOq1SQDWAB7C6aqMGS23svWAllfOaxbuFvcT8D1i8z3Gyn8fraVeZNNmN6e9bxxXkKw==}
