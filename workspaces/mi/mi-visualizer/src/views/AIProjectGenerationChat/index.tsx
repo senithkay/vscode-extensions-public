@@ -315,6 +315,23 @@ export function AIProjectGenerationChat() {
         }
     }
 
+    function handleFetchError(response: Response) {
+        setIsLoading(false);
+        setMessages(prevMessages => {
+            const newMessages = [...prevMessages];
+            const statusText = getStatusText(response.status);
+            let error = `Failed to fetch response. Status: ${statusText}`;
+            if (response.status == 429) {
+                response.json().then(body => {
+                    error += body.detail;
+                });
+            }
+            newMessages[newMessages.length - 1].content += error;
+            newMessages[newMessages.length - 1].type = 'Error';
+            return newMessages;
+        });
+    }
+
     async function generateSuggestions() {
         try {
             setIsLoading(true);
@@ -337,20 +354,36 @@ export function AIProjectGenerationChat() {
             }
             console.log(JSON.stringify({ messages: chatArray, context: context[0].context }));
             const token = await rpcClient.getMiDiagramRpcClient().getUserAccessToken();
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token.token}`,
-                },
-                body: JSON.stringify({ messages: chatArray, context: context[0].context, num_suggestions: 1, type: "artifact_gen" }),
-                signal: signal,
-            });
-            if (response.status == 404) {
-                openUpdateExtensionView();
-            } else if (!response.ok) {
-                throw new Error("Failed to fetch initial questions");
-            }
+            let retryCount = 0;
+            const maxRetries = 2;
+
+            const fetchSuggestions = async (): Promise<Response> => {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token.token}`,
+                    },
+                    body: JSON.stringify({ messages: chatArray, context: context[0].context, num_suggestions: 1, type: "artifact_gen" }),
+                    signal: signal,
+                });
+
+                if (response.status == 404) {
+                    if (retryCount < maxRetries) {
+                        retryCount++;
+                        const delay = Math.pow(2, retryCount) * 1000; // Exponential backoff
+                        await new Promise(resolve => setTimeout(resolve, delay));
+                        return fetchSuggestions(); // Retry the request
+                    } else {
+                        openUpdateExtensionView();
+                        return;
+                    }
+                } else if (!response.ok) {
+                    throw new Error("Failed to fetch initial questions");
+                }
+                return response;
+            };
+            const response = await fetchSuggestions();
             const data = await response.json() as ApiResponse;
             if (data.event === "suggestion_generation_success") {
                 // Extract questions from the response
@@ -438,16 +471,20 @@ export function AIProjectGenerationChat() {
         const token = await rpcClient.getMiDiagramRpcClient().getUserAccessToken();
         const stringifiedUploadedFiles = uploadedFiles.map(file => JSON.stringify(file));
         const images = [];
-        try {
-            var response = await fetch(backendRootUri + backendUrl, {
+        let retryCount = 0;
+        const maxRetries = 2;
+
+        const fetchWithRetry = async (): Promise<Response> => {
+            let response = await fetch(backendRootUri + backendUrl, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token.token}`,
                 },
-                body: JSON.stringify({ messages: chatArray, context: context[0].context, files: stringifiedUploadedFiles, images:[] }),
+                body: JSON.stringify({ messages: chatArray, context: context[0].context, files: stringifiedUploadedFiles, images: [] }),
                 signal: signal,
-            })
+            });
+
             if (response.status == 401) {
                 await rpcClient.getMiDiagramRpcClient().refreshAccessToken();
                 const token = await rpcClient.getMiDiagramRpcClient().getUserAccessToken();
@@ -457,42 +494,119 @@ export function AIProjectGenerationChat() {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token.token}`,
                     },
-                    body: JSON.stringify({ messages: chatArray, context: context[0].context }),
+                    body: JSON.stringify({ messages: chatArray, context: context[0].context, files: stringifiedUploadedFiles, images: [] }),
                     signal: signal,
-                })
-                if (!response.ok) {
-                    setIsLoading(false);
-                    setMessages(prevMessages => {
-                        const newMessages = [...prevMessages];
-                        const statusText = getStatusText(response.status);
-                        newMessages[newMessages.length - 1].content += `Failed to fetch response. Status: ${response.status} - ${statusText}`;
-                        newMessages[newMessages.length - 1].type = 'Error';
-                        return newMessages;
-                    });
-                    throw new Error('Failed to fetch response');
-                }
-            } else if (response.status == 404){
-                openUpdateExtensionView()
-            } else if (!response.ok) {
-                setIsLoading(false);
-                setMessages(prevMessages => {
-                    const newMessages = [...prevMessages];
-                    const statusText = getStatusText(response.status);
-                    let error = `Failed to fetch response. Status: ${statusText}`;
-                    console.log("Response status: ", response.status);
-                    if (response.status == 429) {
-                        response.json().then(body => {
-                            console.log(body.detail);
-                            error += body.detail;
-                            console.log("Error: ", error);
-                        });
-                    }
-                    newMessages[newMessages.length - 1].content += error;
-                    newMessages[newMessages.length - 1].type = 'Error';
-                    return newMessages;
                 });
+                if (!response.ok) {
+                    handleFetchError(response);
+                    throw new Error('Failed to fetch response after refreshing token');
+                }
+            } else if (response.status == 404) {
+                if (retryCount < maxRetries) {
+                    retryCount++;
+                    const delay = Math.pow(2, retryCount) * 1000; // Exponential backoff
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                    return fetchWithRetry(); // Retry the request
+                } else {
+                    openUpdateExtensionView();
+                }
+            } else if (!response.ok) {
+                handleFetchError(response);
                 throw new Error('Failed to fetch response');
             }
+            return response;
+        };
+
+        try {
+            const response = await fetchWithRetry();
+
+            // Remove the user uploaded file after sending it to the backend
+            removeAllFiles();
+            
+            const reader = response.body?.getReader();
+            const decoder = new TextDecoder();
+            let result = '';
+            let codeBuffer = '';
+            let codeLoad = false;
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) {
+                    setIsLoading(false);
+                    break;
+                }
+
+                const chunk = decoder.decode(value, { stream: true });
+                result += chunk;
+
+                const lines = result.split('\n');
+                for (let i = 0; i < lines.length - 1; i++) {
+                    try {
+                        const json = JSON.parse(lines[i]);
+                        const tokenUsage = json.usage;
+                        const maxTokens = tokenUsage.max_usage;
+                        if (maxTokens == -1) {
+                            remainingTokenPercentage = "Unlimited";
+                        } else {
+                            const remainingTokens = tokenUsage.remaining_tokens;
+                            remainingTokenPercentage = (remainingTokens / maxTokens) * 100;
+                            if (remainingTokenPercentage < 1 && remainingTokenPercentage > 0) {
+                                remaingTokenLessThanOne = true;
+                            } else {
+                                remaingTokenLessThanOne = false;
+                            }
+                            remainingTokenPercentage = Math.round(remainingTokenPercentage);
+                            if (remainingTokenPercentage < 0) {
+                                remainingTokenPercentage = 0;
+                            }
+                        }
+                        if (json.content == null) {
+                            addChatEntry("assistant", assistant_response);
+                            const questions = json.questions
+                                .map((question: string, index: number) => {
+                                    return { type: "question", role: "Question", content: question, id: index };
+                                });
+
+                            setMessages(prevMessages => [
+                                ...prevMessages,
+                                ...questions,
+                            ]);
+                        } else {
+                            assistant_response += json.content;
+                            if (json.content.includes("``")) {
+                                setIsCodeLoading(prevIsCodeLoading => !prevIsCodeLoading);
+                            }
+
+                            setMessages(prevMessages => {
+                                const newMessages = [...prevMessages];
+                                newMessages[newMessages.length - 1].content += json.content;
+                                return newMessages;
+                            });
+
+                            const regex = /```[\s\S]*?```/g;
+                            let match;
+                            while ((match = regex.exec(assistant_response)) !== null) {
+                                if (!codeBlocks.includes(match[0])) {
+                                    codeBlocks.push(match[0]);
+                                }
+                            }
+                        }
+                    } catch (error) {
+                        setIsLoading(false);
+                        console.error('Error parsing JSON:', error);
+                    }
+                }
+                result = lines[lines.length - 1];
+
+            }
+            if (result) {
+                try {
+                    const json = JSON.parse(result);
+                } catch (error) {
+                    console.error('Error parsing JSON:', error);
+                }
+            }
+            localStorage.setItem(`codeBlocks-AIGenerationChat-${projectUuid}`, JSON.stringify(codeBlocks));
+
         } catch (error) {
             setIsLoading(false);
             setMessages(prevMessages => {
@@ -503,97 +617,6 @@ export function AIProjectGenerationChat() {
             });
             console.error('Network error:', error);
         }
-
-        // Remove the user uploaded file after sending it to the backend
-        removeAllFiles();
-
-        const reader = response.body?.getReader();
-        const decoder = new TextDecoder();
-        let result = '';
-        let codeBuffer = '';
-        let codeLoad = false;
-        while (true) {
-            const { done, value } = await reader.read();
-            if (done) {
-                setIsLoading(false);
-                break;
-            }
-
-            const chunk = decoder.decode(value, { stream: true });
-            result += chunk;
-
-            const lines = result.split('\n');
-            for (let i = 0; i < lines.length - 1; i++) {
-                try {
-                    const json = JSON.parse(lines[i]);
-                    const tokenUsage = json.usage;
-                    const maxTokens = tokenUsage.max_usage;
-                    if (maxTokens == -1) {
-                        remainingTokenPercentage = "Unlimited";
-                    } else {
-                        const remainingTokens = tokenUsage.remaining_tokens;
-                        remainingTokenPercentage = (remainingTokens / maxTokens) * 100;
-                        if (remainingTokenPercentage < 1 && remainingTokenPercentage > 0) {
-                            remaingTokenLessThanOne = true;
-                        } else {
-                            remaingTokenLessThanOne = false;
-                        }
-                        remainingTokenPercentage = Math.round(remainingTokenPercentage);
-                        if (remainingTokenPercentage < 0) {
-                            remainingTokenPercentage = 0;
-                        }
-                    }
-                    if (json.content == null) {
-                        addChatEntry("assistant", assistant_response);
-                        const questions = json.questions
-                            .map((question: string, index: number) => {
-                                return { type: "question", role: "Question", content: question, id: index };
-                            });
-
-                        setMessages(prevMessages => [
-                            ...prevMessages,
-                            ...questions,
-                        ]);
-                    } else {
-                        assistant_response += json.content;
-                        if (json.content.includes("``")) {
-                            setIsCodeLoading(prevIsCodeLoading => !prevIsCodeLoading);
-                        }
-
-                        setMessages(prevMessages => {
-                            const newMessages = [...prevMessages];
-                            newMessages[newMessages.length - 1].content += json.content;
-                            return newMessages;
-                        });
-
-                        const regex = /```[\s\S]*?```/g;
-                        let match;
-                        while ((match = regex.exec(assistant_response)) !== null) {
-                            if (!codeBlocks.includes(match[0])) {
-                                codeBlocks.push(match[0]);
-                            }
-                        }
-                    }
-                } catch (error) {
-                    setIsLoading(false);
-                    console.error('Error parsing JSON:', error);
-                }
-            }
-            result = lines[lines.length - 1];
-
-        }
-
-
-
-        if (result) {
-            try {
-                const json = JSON.parse(result);
-            } catch (error) {
-                console.error('Error parsing JSON:', error);
-            }
-        }
-        localStorage.setItem(`codeBlocks-AIGenerationChat-${projectUuid}`, JSON.stringify(codeBlocks));
-
     };
 
 
@@ -771,7 +794,7 @@ export function AIProjectGenerationChat() {
         setFileUploadStatus({ type: '', text: '' });
     }
     const openUpdateExtensionView = () => {
-        rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.UpdateExtension }});
+        rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.UpdateExtension } });
     };
 
     return (
