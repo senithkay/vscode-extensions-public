@@ -260,6 +260,7 @@ const CardWrapper = (props: CardWrapperProps) => {
         <CardContainer>
             {CARD_WRAPPER_DATA[props.cardsType].cards.map((card, index) => (
                 <Card
+                    isCodicon
                     key={index}
                     icon={card.icon}
                     title={card.title}

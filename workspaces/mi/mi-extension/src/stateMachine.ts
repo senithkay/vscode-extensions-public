@@ -633,11 +633,11 @@ function findViewIcon(view) {
         case MACHINE_VIEW.ServiceDesigner:
         case MACHINE_VIEW.ResourceView:
         case MACHINE_VIEW.APIForm:
-            icon = 'globe';
+            icon = 'APIResource';
             break;
         case MACHINE_VIEW.SequenceView:
         case MACHINE_VIEW.SequenceForm:
-            icon = 'list-ordered';
+            icon = 'Sequence';
             break;
         case MACHINE_VIEW.EndPointForm:
         case MACHINE_VIEW.HttpEndpointForm:
@@ -647,16 +647,16 @@ function findViewIcon(view) {
         case MACHINE_VIEW.FailoverEndPointForm:
         case MACHINE_VIEW.RecipientEndPointForm:
         case MACHINE_VIEW.LoadBalanceEndPointForm:
-            icon = 'plug';
+            icon = 'endpoint';
             break;
         case MACHINE_VIEW.InboundEPForm:
-            icon = 'fold-down';
+            icon = 'inbound-endpoint';
             break;
         case MACHINE_VIEW.MessageStoreForm:
-            icon = 'database';
+            icon = 'message-store';
             break;
         case MACHINE_VIEW.MessageProcessorForm:
-            icon = 'gear';
+            icon = 'message-processor';
             break;
         case MACHINE_VIEW.ProxyView:
         case MACHINE_VIEW.ProxyServiceForm:
@@ -666,11 +666,11 @@ function findViewIcon(view) {
             icon = 'tasklist';
             break;
         case MACHINE_VIEW.LocalEntryForm:
-            icon = 'settings';
+            icon = 'local-entry';
             break;
         case MACHINE_VIEW.TemplateEndPointForm:
         case MACHINE_VIEW.TemplateForm:
-            icon = 'file';
+            icon = 'template';
             break;
         case MACHINE_VIEW.RegistryResourceForm:
         case MACHINE_VIEW.RegistryMetadataForm:

@@ -8,7 +8,7 @@
  */
 
 import { EVENT_TYPE, MACHINE_VIEW } from '@wso2-enterprise/mi-core';
-import { Alert, Codicon, ContextMenu } from '@wso2-enterprise/ui-toolkit';
+import { Alert, Codicon, ContextMenu, Icon } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { Fragment } from 'react';
@@ -18,6 +18,7 @@ interface ArtifactType {
     command: string;
     view: MACHINE_VIEW;
     icon: string;
+    isCodicon?: boolean;
     description: (entry: any) => string;
     path: (entry: any) => string;
 }
@@ -27,7 +28,7 @@ const artifactTypeMap: Record<string, ArtifactType> = {
         title: "APIs",
         command: "MI.project-explorer.add-api",
         view: MACHINE_VIEW.ServiceDesigner,
-        icon: "globe",
+        icon: "APIResource",
         description: (entry: any) => `API Context: ${entry.context}`,
         path: (entry: any) => entry.path,
     },
@@ -35,7 +36,7 @@ const artifactTypeMap: Record<string, ArtifactType> = {
         title: "Endpoints",
         command: "MI.project-explorer.add-endpoint",
         view: MACHINE_VIEW.EndPointForm,
-        icon: "plug",
+        icon: "endpoint",
         description: (entry: any) => `Type: ${entry.subType}`,
         path: (entry: any) => entry.path,
     },
@@ -43,7 +44,7 @@ const artifactTypeMap: Record<string, ArtifactType> = {
         title: "Sequences",
         command: "MI.project-explorer.add-sequence",
         view: MACHINE_VIEW.SequenceView,
-        icon: "list-tree",
+        icon: "Sequence",
         description: (entry: any) => `Reusable sequence`,
         path: (entry: any) => entry.path,
     },
@@ -51,6 +52,7 @@ const artifactTypeMap: Record<string, ArtifactType> = {
         title: "Proxy Services",
         command: "MI.project-explorer.add-proxy-service",
         view: MACHINE_VIEW.ProxyView,
+        isCodicon: true,
         icon: "server",
         description: (entry: any) => "Proxy Service",
         path: (entry: any) => entry.path,
@@ -59,7 +61,7 @@ const artifactTypeMap: Record<string, ArtifactType> = {
         title: "Inbound Endpoints",
         command: "MI.project-explorer.add-inbound-endpoint",
         view: MACHINE_VIEW.InboundEPForm,
-        icon: "sign-in",
+        icon: "inbound-endpoint",
         description: (entry: any) => "Inbound Endpoint",
         path: (entry: any) => entry.path,
     },
@@ -67,7 +69,7 @@ const artifactTypeMap: Record<string, ArtifactType> = {
         title: "Message Stores",
         command: "MI.project-explorer.add-message-store",
         view: MACHINE_VIEW.MessageStoreForm,
-        icon: "database",
+        icon: "message-store",
         description: (entry: any) => "Message Store",
         path: (entry: any) => entry.path,
     },
@@ -75,7 +77,7 @@ const artifactTypeMap: Record<string, ArtifactType> = {
         title: "Message Processors",
         command: "MI.project-explorer.add-message-processor",
         view: MACHINE_VIEW.MessageProcessorForm,
-        icon: "gear",
+        icon: "message-processor",
         description: (entry: any) => "Message Processor",
         path: (entry: any) => entry.path,
     },
@@ -83,7 +85,7 @@ const artifactTypeMap: Record<string, ArtifactType> = {
         title: "Tasks",
         command: "MI.project-explorer.add-task",
         view: MACHINE_VIEW.TaskForm,
-        icon: "checklist",
+        icon: "task",
         description: (entry: any) => "Task",
         path: (entry: any) => entry.path,
     },
@@ -91,7 +93,7 @@ const artifactTypeMap: Record<string, ArtifactType> = {
         title: "Local Entries",
         command: "MI.project-explorer.add-local-entry",
         view: MACHINE_VIEW.LocalEntryForm,
-        icon: "note",
+        icon: "local-entry",
         description: (entry: any) => "Local Entry",
         path: (entry: any) => entry.path,
     },
@@ -99,7 +101,7 @@ const artifactTypeMap: Record<string, ArtifactType> = {
         title: "Templates",
         command: "MI.project-explorer.add-template",
         view: MACHINE_VIEW.TemplateForm,
-        icon: "file-code",
+        icon: "template",
         description: (entry: any) => `Type: ${entry.subType}`,
         path: (entry: any) => entry.path,
     },
@@ -107,6 +109,7 @@ const artifactTypeMap: Record<string, ArtifactType> = {
         title: "Data Services",
         command: "MI.project-explorer.open-dss-service-designer",
         view: MACHINE_VIEW.DSSServiceDesigner,
+        isCodicon: true,
         icon: "file-code",
         description: (entry: any) => "Data Service",
         path: (entry: any) => entry.path,
@@ -115,6 +118,7 @@ const artifactTypeMap: Record<string, ArtifactType> = {
         title: "Data Sources",
         command: "MI.project-explorer.add-data-source",
         view: MACHINE_VIEW.DataSourceForm,
+        isCodicon: true,
         icon: "file-code",
         description: (entry: any) => "Data Source",
         path: (entry: any) => entry.path,
@@ -196,6 +200,7 @@ const ProjectStructureView = (props: { projectStructure: any, workspaceDir: stri
                                         entry.path && (
                                             <Entry
                                                 key={entry.name}
+                                                isCodicon={artifactTypeMap[key].isCodicon}
                                                 icon={artifactTypeMap[key].icon}
                                                 name={entry.name}
                                                 description={artifactTypeMap[key].description(entry)}
@@ -226,6 +231,7 @@ const ProjectStructureView = (props: { projectStructure: any, workspaceDir: stri
 
 interface EntryProps {
     icon: string; // Changed to string to use codicon names
+    isCodicon?: boolean;
     name: string;
     description: string;
     // Context menu action callbacks
@@ -247,11 +253,11 @@ const EntryContainer = styled.div`
     }
 `;
 
-const Entry: React.FC<EntryProps> = ({ icon, name, description, onClick, goToView, goToSource, deleteArtifact }) => {
+const Entry: React.FC<EntryProps> = ({ icon, name, description, onClick, goToView, goToSource, deleteArtifact, isCodicon }) => {
     return (
         <EntryContainer onClick={onClick}>
             <div style={{ width: 'auto', display: 'flex', justifyContent: 'center', alignItems: 'center', marginRight: '10px' }}>
-                <Codicon name={icon} />
+                <Icon isCodicon={isCodicon}  name={icon} />
             </div>
             <div style={{ flex: 2, fontWeight: 'bold' }}>
                 {name}
