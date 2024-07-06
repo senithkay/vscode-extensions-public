@@ -73,6 +73,7 @@
       {
         "command": "wso2.choreo.component.open.external",
         "title": "Open Component in Console",
+        "shortTitle": "Open in Console",
         "category": "Choreo",
         "icon": "$(link-external)"
       },
