@@ -76,13 +76,14 @@ jobs:
           always-auth: true
           node-version: 16.x
           registry-url: "https://npm.pkg.github.com"
-
-      - uses: pnpm/action-setup@v2
+  
+      - name: Setup Rush
+        uses: gigara/setup-rush@v1
         with:
-          version: 7.26.3
-          
-      - run: |
-          node common/scripts/install-run-rush.js install
+          pnpm: 7.26.3
+          cache-rush: false
+          cache-pnpm: false
+          set-env: false
 
       - name: Get version
         id: version
