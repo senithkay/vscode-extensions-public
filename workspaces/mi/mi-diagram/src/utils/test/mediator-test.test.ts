@@ -109,7 +109,7 @@ export const mediatorTestCases : MediatorTestCase[] = [
     {
         type: "Property",
         expectedDescription: "Property Description",
-        expectedDefaultDescription: "TestClass"
+        expectedDefaultDescription: "Property Name"
     },
     {
         type: "Log",
