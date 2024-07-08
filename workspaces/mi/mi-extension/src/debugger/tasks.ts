@@ -108,10 +108,10 @@ export async function getRunCommand(serverPath: string, isDebug: boolean): Promi
                     return undefined;
                 }
         } else {
-            command = `${binPath} -Desb.debug=true`;
+            command = `"${binPath}" -Desb.debug=true`;
         }
     } else {
-        command = binPath;
+        command = `"${binPath}"`;
     }
     return command;
 }
@@ -136,8 +136,15 @@ export function getStopTask(serverPath: string): vscode.Task | undefined {
 }
 
 export function getStopCommand(serverPath: string): string | undefined {
-    const binPath = path.join(serverPath, 'bin', 'micro-integrator.sh');
-    const command = `${binPath} stop`;
+    let scriptFile;
+
+    if (process.platform === 'win32') {
+        scriptFile = 'micro-integrator.bat';
+    } else {
+        scriptFile = 'micro-integrator.sh';
+    }
+    const binPath = path.join(serverPath, 'bin', scriptFile);
+    const command = `"${binPath}" stop`;
 
     if (!fs.existsSync(binPath)) {
         logDebug(`${binPath} does not exist`, ERROR_LOG);

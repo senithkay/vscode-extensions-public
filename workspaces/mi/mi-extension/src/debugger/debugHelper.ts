@@ -224,7 +224,7 @@ export async function startServer(serverPath: string, isDebug: boolean): Promise
         if (runCommand === undefined) {
             reject('Error getting run command');
         } else {
-            serverProcess = child_process.spawn(runCommand, [], { shell: true });
+            serverProcess = child_process.spawn(`${runCommand}`, [], { shell: true });
             showServerOutputChannel();
 
             if (serverProcess.stdout) {
@@ -236,6 +236,7 @@ export async function startServer(serverPath: string, isDebug: boolean): Promise
             if (serverProcess.stderr) {
                 serverProcess.stderr.on('data', (data) => {
                     serverLog(data.toString());
+                    reject(data.toString());
                 });
             }
 
@@ -253,24 +254,37 @@ export async function startServer(serverPath: string, isDebug: boolean): Promise
 export async function stopServer(serverPath: string, isWindows?: boolean): Promise<void> {
     return new Promise<void>((resolve, reject) => {
         if (serverProcess) {
-            if (isWindows) {
-                treeKill(serverProcess.pid!, 'SIGKILL');
-                resolve();
-            } else {
-                const stopCommand = getStopCommand(serverPath);
-                if (stopCommand === undefined) {
-                    reject('Error getting stop command');
-                } else {
-                    const stopProcess = child_process.spawn(stopCommand, [], { shell: true });
-                    showServerOutputChannel();
+            const stopCommand = getStopCommand(serverPath);
 
-                    serverProcess.on('exit', (code) => {
-                        treeKill(serverProcess.pid!, 'SIGKILL');
-                        if (code !== 0) {
-                            reject(`Server process exited with code ${code}`);
-                        } else {
-                            resolve();
-                        }
+            if (stopCommand === undefined) {
+                reject(INCORRECT_SERVER_PATH_MSG);
+            } else {
+                const stopProcess = child_process.spawn(`${stopCommand}`, [], { shell: true });
+                showServerOutputChannel();
+
+                serverProcess.on('exit', (code) => {
+                    treeKill(serverProcess.pid!, 'SIGKILL');
+                    if (code !== 0) {
+                        reject(`Server process exited with code ${code}`);
+                    } else {
+                        resolve();
+                    }
+                });
+
+                stopProcess.on('error', (error) => {
+                    serverLog(error.message);
+                    reject(error);
+                });
+
+                if (stopProcess.stdout) {
+                    stopProcess.stdout.on('data', (data) => {
+                        serverLog(data.toString());
+                    });
+                }
+
+                if (stopProcess.stderr) {
+                    stopProcess.stderr.on('data', (data) => {
+                        serverLog(data.toString());
                     });
                 }
             }
