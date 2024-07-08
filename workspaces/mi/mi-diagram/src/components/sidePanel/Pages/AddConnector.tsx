@@ -289,7 +289,7 @@ const AddConnector = (props: AddConnectorProps) => {
             }
 
             const root = template.ele(`${connectorName}${operationName ? `.${operationName}` : ''}`);
-            root.att('configKey', props.connectionName);
+            root.att('configKey', props.connectionName ?? values['configKey']);
 
             // Fill the values
             Object.keys(values).forEach((key: string) => {
