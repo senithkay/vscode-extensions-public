@@ -9,7 +9,7 @@
 
 
 import { useEffect, useMemo, useState } from "react";
-import { Diagram } from "@wso2-enterprise/eggplant-diagram-2";
+import { Diagram } from "@wso2-enterprise/eggplant-diagram-3";
 import {
     Flow,
     UpdateNodeRequest,
@@ -63,8 +63,6 @@ const EggplantDiagram = () => {
             rpcClient.getEggplantDiagramRpcClient().updateNode(updateNodeRequest);
         }
     };
-
-
 
     const eggplantDiagram = useMemo(() => {
         return <Diagram model={flowModel} onNodeChange={OnNodeChange} />;

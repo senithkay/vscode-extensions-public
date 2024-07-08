@@ -1998,7 +1998,7 @@ importers:
       handlebars: 4.7.8
       typescript: 5.3.3
 
-  ../../workspaces/eggplant/eggplant-diagram-2:
+  ../../workspaces/eggplant/eggplant-diagram-3:
     specifiers:
       '@emotion/react': ^11.9.3
       '@emotion/styled': ^11.10.5
@@ -2057,7 +2057,7 @@ importers:
       '@vscode/test-electron': ^2.3.6
       '@vscode/vsce': ^2.22.0
       '@wso2-enterprise/eggplant-core': workspace:*
-      '@wso2-enterprise/eggplant-diagram-2': workspace:*
+      '@wso2-enterprise/eggplant-diagram-3': workspace:*
       '@wso2-enterprise/eggplant-visualizer': workspace:*
       '@wso2-enterprise/font-wso2-vscode': workspace:*
       '@wso2-enterprise/syntax-tree': workspace:*
@@ -2080,7 +2080,7 @@ importers:
       xstate: ^4.38.3
     dependencies:
       '@wso2-enterprise/eggplant-core': link:../eggplant-core
-      '@wso2-enterprise/eggplant-diagram-2': link:../eggplant-diagram-2
+      '@wso2-enterprise/eggplant-diagram-3': link:../eggplant-diagram-3
       '@wso2-enterprise/eggplant-visualizer': link:../eggplant-visualizer
       '@wso2-enterprise/font-wso2-vscode': link:../../common-libs/font-wso2-vscode
       '@wso2-enterprise/syntax-tree': link:../../ballerina/syntax-tree
@@ -2210,7 +2210,7 @@ importers:
       '@typescript-eslint/parser': ^6.9.1
       '@vscode/webview-ui-toolkit': ^1.2.0
       '@wso2-enterprise/eggplant-core': workspace:*
-      '@wso2-enterprise/eggplant-diagram-2': workspace:*
+      '@wso2-enterprise/eggplant-diagram-3': workspace:*
       '@wso2-enterprise/eggplant-overview': workspace:*
       '@wso2-enterprise/eggplant-rpc-client': workspace:*
       '@wso2-enterprise/service-designer-view': workspace:*
@@ -2240,7 +2240,7 @@ importers:
       '@types/vscode-webview': 1.57.5
       '@vscode/webview-ui-toolkit': 1.4.0_react@18.2.0
       '@wso2-enterprise/eggplant-core': link:../eggplant-core
-      '@wso2-enterprise/eggplant-diagram-2': link:../eggplant-diagram-2
+      '@wso2-enterprise/eggplant-diagram-3': link:../eggplant-diagram-3
       '@wso2-enterprise/eggplant-overview': link:../eggplant-overview
       '@wso2-enterprise/eggplant-rpc-client': link:../eggplant-rpc-client
       '@wso2-enterprise/service-designer-view': link:../../ballerina/service-designer-view
@@ -20101,6 +20101,7 @@ packages:
 
   /are-we-there-yet/1.1.7:
     resolution: {integrity: sha512-nxwy40TuMiUGqMyRHgCSWZ9FM4VAoRP4xUYSTv5ImRog+h9yISPbVH7H8fASCIzYn9wlEv4zvFL7uKDMCFQm3g==}
+    deprecated: This package is no longer supported.
     dependencies:
       delegates: 1.0.0
       readable-stream: 2.3.8
@@ -20109,6 +20110,7 @@ packages:
   /are-we-there-yet/2.0.0:
     resolution: {integrity: sha512-Ci/qENmwHnsYo9xKIcUJN5LeDKdJ6R1Z1j9V/J5wyq8nh/mYPEpIKJbBZXtZjG04HiK7zV/p6Vs9952MrMeUIw==}
     engines: {node: '>=10'}
+    deprecated: This package is no longer supported.
     dependencies:
       delegates: 1.0.0
       readable-stream: 3.6.2
@@ -20117,6 +20119,7 @@ packages:
   /are-we-there-yet/3.0.1:
     resolution: {integrity: sha512-QZW4EDmGwlYur0Yyf/b2uGucHQMa8aFUP7eu9ddR73vvhFyt4V0Vl3QHPcTNJ8l6qYOBdxgXdnBXQrHilfRQBg==}
     engines: {node: ^12.13.0 || ^14.15.0 || >=16.0.0}
+    deprecated: This package is no longer supported.
     dependencies:
       delegates: 1.0.0
       readable-stream: 3.6.2
@@ -23252,6 +23255,7 @@ packages:
 
   /copy-concurrently/1.0.5:
     resolution: {integrity: sha512-f2domd9fsVDFtaFcbaRZuYXwtdmnzqbADSwhSWYxYB/Q8zsdUUFMXVRwXGDMWmbEzAn1kdRrtI1T/KTFOL4X2A==}
+    deprecated: This package is no longer supported.
     dependencies:
       aproba: 1.2.0
       fs-write-stream-atomic: 1.0.10
@@ -27296,6 +27300,7 @@ packages:
 
   /fs-write-stream-atomic/1.0.10:
     resolution: {integrity: sha512-gehEzmPn2nAwr39eay+x3X34Ra+M2QlVUTLhkXPjWdeO8RF9kszk116avgBJM3ZyNHgHXBNx+VmPaFC36k0PzA==}
+    deprecated: This package is no longer supported.
     dependencies:
       graceful-fs: 4.2.11
       iferr: 0.1.5
@@ -27364,6 +27369,7 @@ packages:
 
   /gauge/2.7.4:
     resolution: {integrity: sha512-14x4kjc6lkD3ltw589k0NrPD6cCNTD6CWoVUNpB85+DrtONoZn+Rug6xZU5RvSC4+TZPxA5AnBibQYAvZn41Hg==}
+    deprecated: This package is no longer supported.
     dependencies:
       aproba: 1.2.0
       console-control-strings: 1.1.0
@@ -27378,6 +27384,7 @@ packages:
   /gauge/3.0.2:
     resolution: {integrity: sha512-+5J6MS/5XksCuXq++uFRsnUd7Ovu1XenbeuIuNRJxYWjgQbPuFhT14lAvsWfqfAmnwluf1OwMjz39HjfLPci0Q==}
     engines: {node: '>=10'}
+    deprecated: This package is no longer supported.
     dependencies:
       aproba: 2.0.0
       color-support: 1.1.3
@@ -27393,6 +27400,7 @@ packages:
   /gauge/4.0.4:
     resolution: {integrity: sha512-f9m+BEN5jkg6a0fZjleidjN51VE1X+mPFQ2DJ0uv1V39oCLCbsGe6yjbBnp7eK7z/+GAon99a3nHuqbuuthyPg==}
     engines: {node: ^12.13.0 || ^14.15.0 || >=16.0.0}
+    deprecated: This package is no longer supported.
     dependencies:
       aproba: 2.0.0
       color-support: 1.1.3
@@ -27642,6 +27650,7 @@ packages:
 
   /glob/7.1.7:
     resolution: {integrity: sha512-OvD9ENzPLbegENnYP5UUfJIirTg4+XwMWGaQfQTY0JenxNvvIKP3U3/tAQSPIu/lHxXYSZmpXlUHeqAIdKzBLQ==}
+    deprecated: Glob versions prior to v9 are no longer supported
     dependencies:
       fs.realpath: 1.0.0
       inflight: 1.0.6
@@ -33209,6 +33218,7 @@ packages:
 
   /move-concurrently/1.0.1:
     resolution: {integrity: sha512-hdrFxZOycD/g6A6SoI2bB5NA/5NEqD0569+S47WZhPvm46sD50ZHdYaFmnua5lndde9rCHGjmfK7Z8BuCt/PcQ==}
+    deprecated: This package is no longer supported.
     dependencies:
       aproba: 1.2.0
       copy-concurrently: 1.0.5
@@ -33726,6 +33736,7 @@ packages:
 
   /npmlog/5.0.1:
     resolution: {integrity: sha512-AqZtDUWOMKs1G/8lwylVjrdYgqA4d9nu8hc+0gzRxlDb1I10+FHBGMXs6aiQHFdCUUlqH99MUMuLfzWDNDtfxw==}
+    deprecated: This package is no longer supported.
     dependencies:
       are-we-there-yet: 2.0.0
       console-control-strings: 1.1.0
@@ -38463,6 +38474,7 @@ packages:
 
   /rimraf/2.6.3:
     resolution: {integrity: sha512-mwqeW5XsA2qAejG46gYdENaxXjx9onRNCfn7L0duuP4hCuTIi/QO7PDK07KJfp1d+izWPrzEJDcSqBa0OZQriA==}
+    deprecated: Rimraf versions prior to v4 are no longer supported
     hasBin: true
     dependencies:
       glob: 7.2.3
