@@ -20,7 +20,7 @@ import {
     JsonToRecordResponse, NoteBookCellOutputResponse, NotebookFileSourceResponse,
     NotebookVariable, OpenAPIConverterResponse, PackageConfigSchemaResponse, PartialSTResponse,
     PerformanceAnalyzerResponse, SymbolInfoResponse, SyntaxTreeNodeResponse,
-    Completion, BallerinaConnectorResponse, BallerinaConnectorsResponse, BallerinaSTModifyResponse, BallerinaTriggerResponse, BallerinaTriggersResponse, CompletionResponse, PublishDiagnosticsParams
+    Completion, BallerinaConnectorResponse, Connectors, BallerinaSTModifyResponse, BallerinaTriggerResponse, BallerinaTriggersResponse, CompletionResponse, PublishDiagnosticsParams
 } from '@wso2-enterprise/ballerina-core';
 import { ExtendedLangClient } from '../../src/core/extended-language-client';
 
@@ -868,7 +868,7 @@ suite("Language Server Tests", function () {
             query: "",
             limit: 2
         }).then(async (res) => {
-            const response = res as BallerinaConnectorsResponse;
+            const response = res as Connectors;
             expect(response).not.contains.keys("error");
             assert.strictEqual(response.central.length, 2, "Invalid triggers");
             done();

@@ -81,19 +81,6 @@ export interface CommandResponse {
     status: boolean;
 }
 
-export interface BallerinaTriggersResponse extends BallerinaModuleResponse {
-    central: Trigger[];
-    error?: string;
-}
-
-export interface BallerinaTriggerRequest {
-    id: string
-}
-
-export interface BallerinaTriggerResponse extends BallerinaTriggerInfo {
-    error?: string;
-}
-
 export interface DisplayLabelRequest {
     annotation: CMAnnotation;
 }

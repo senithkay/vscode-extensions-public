@@ -47,7 +47,7 @@ import {
 	LibrarySearchResponse
 } from '@wso2-enterprise/ballerina-core';
 import { getSentryConfig, SentryConfig } from './sentry';
-import { BallerinaConnectorsResponse, GetSyntaxTreeResponse } from '@wso2-enterprise/ballerina-core';
+import { Connectors, GetSyntaxTreeResponse } from '@wso2-enterprise/ballerina-core';
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 import { PALETTE_COMMANDS } from '../../features/project';
 import { openView } from '../../stateMachine';
@@ -133,7 +133,7 @@ export async function showDiagramEditor(startLine: number, startColumn: number, 
 
 	// Reset cached connector list
 	langClient.getConnectors({ query: "", limit: 18 }, true).then((response) => {
-		const connectorList = response as BallerinaConnectorsResponse;
+		const connectorList = response as Connectors;
 		if (connectorList.central === undefined) {
 			return;
 		}
@@ -144,7 +144,7 @@ export async function showDiagramEditor(startLine: number, startColumn: number, 
 
 	// Reset cached HTTP connector list
 	langClient.getConnectors({ query: "http", limit: 18 }, true).then((response) => {
-		const connectorList = response as BallerinaConnectorsResponse;
+		const connectorList = response as Connectors;
 		if (connectorList.central === undefined) {
 			return;
 		}

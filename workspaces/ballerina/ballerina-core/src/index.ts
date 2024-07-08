@@ -22,6 +22,7 @@ export * from "./interfaces/config-spec";
 export * from "./interfaces/event";
 export * from "./interfaces/store";
 export * from "./interfaces/performance";
+export * from "./interfaces/lang-client";
 
 // ------ LS Utils -------->
 export * from "./ls-utils/WSConnection";
@@ -33,7 +34,6 @@ export * from "./rpc-types/connector-wizard/rpc-type";
 export * from "./rpc-types/connector-wizard/interfaces";
 export * from "./rpc-types/record-creator";
 export * from "./rpc-types/record-creator/rpc-type";
-export * from "./rpc-types/record-creator/interfaces";
 export * from "./rpc-types/graphql-designer";
 export * from "./rpc-types/graphql-designer/rpc-type";
 export * from "./rpc-types/graphql-designer/interfaces";

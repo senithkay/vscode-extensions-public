@@ -9,20 +9,12 @@
  */
 
 import { DocumentIdentifier } from "../../interfaces/common";
+import { PerformanceAnalyzer } from "../../interfaces/lang-client";
 
 
 export interface PerfEndpointsRequest {
     documentIdentifier: DocumentIdentifier;
     isWorkerSupported: boolean;
-}
-
-export interface PerformanceAnalyzer {
-    resourcePos: Range;
-    endpoints: any;
-    actionInvocations: any;
-    type: string;
-    message: string;
-    name: string;
 }
 
 export interface PerfEndpointsResponse {

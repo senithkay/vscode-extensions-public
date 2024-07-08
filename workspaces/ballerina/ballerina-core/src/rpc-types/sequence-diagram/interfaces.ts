@@ -7,22 +7,6 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-export interface SequenceModelRequest {
-    filePath: string;
-    startLine: Line;
-    endLine: Line;
-}
-
-export type SequenceModelResponse = {
-    participants: Participant[];
-    location: Location;
-};
-
-export type SequenceModelDiagnostic = {
-    errorMsg: string;
-    isIncompleteModel: boolean;
-};
-
 export type Flow = SequenceModelResponse;
 
 export type Location = {
@@ -31,25 +15,6 @@ export type Location = {
     endLine: Line;
 };
 
-export type Line = {
-    line: number;
-    offset: number;
-};
-
-export enum ParticipantType {
-    FUNCTION = "FUNCTION",
-    WORKER = "WORKER",
-    ENDPOINT = "ENDPOINT",
-}
-
-export type Participant = {
-    id: string;
-    name: string;
-    kind: ParticipantType;
-    moduleName: string;
-    nodes: Node[];
-    location: Location;
-};
 
 export enum NodeKind {
     INTERACTION = "INTERACTION",

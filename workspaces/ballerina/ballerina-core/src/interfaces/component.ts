@@ -206,10 +206,3 @@ export declare enum ComponentDisplayType {
     ByocService = "byocService",
     MiApiService = "miApiService"
 }
-
-export interface GetComponentModelResponse {
-    componentModels: {
-        [key: string]: ComponentModel;
-    };
-    diagnostics: CMDiagnostics[];
-}

@@ -7,39 +7,4 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { DIAGNOSTIC_SEVERITY } from "../../interfaces/ballerina";
 
-
-export interface JsonToRecordRequest {
-    jsonString: string;
-    recordName: string;
-    isRecordTypeDesc: boolean;
-    isClosed: boolean;
-}
-
-export interface JsonToRecordResponse {
-    codeBlock: string;
-    diagnostics?: JsonToRecordMapperDiagnostic[];
-}
-
-export interface JsonToRecordMapperDiagnostic {
-    message: string;
-    severity?: DIAGNOSTIC_SEVERITY;
-}
-
-export interface XMLToRecordRequest {
-    xmlValue: string;
-    isRecordTypeDesc?: boolean;
-    isClosed?: boolean;
-    forceFormatRecordFields?: boolean;
-}
-
-export interface XMLToRecordResponse {
-    codeBlock: string;
-    diagnostics?: XMLToRecordConverterDiagnostic[];
-}
-
-export interface XMLToRecordConverterDiagnostic {
-    message: string;
-    severity?: DIAGNOSTIC_SEVERITY;
-}
