@@ -475,6 +475,8 @@ export function AddConnection(props: AddConnectionProps) {
                 type={props.connector.name}
                 onClick={props.changeConnector}
                 showButton={!props.connectionName}
+                title='Change connector'
+                id='Connector:'
             />}
             {allowedConnectionTypes && allowedConnectionTypes.length === 0 ? (
                 <>

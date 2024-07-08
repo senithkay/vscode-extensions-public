@@ -70,12 +70,13 @@ type TypeChipProps = {
     onClick: (type: string) => void, 
     showButton: boolean,
     title?: string, 
+    id?: string
 };
 export function TypeChip(props: TypeChipProps) {
     return (
         <ButtonWrapper>
             <BadgeWrapper>
-                <span>Type:</span>
+                <span>{props.id ?? "Type:"}</span>
                 <Badge color="#4d4d4d" sx={{
                     color: "#fff",
                     padding: 5,
