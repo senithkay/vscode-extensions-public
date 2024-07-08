@@ -110,7 +110,7 @@ export async function activateBallerina(): Promise<BallerinaExtension> {
         activateTelemetryListener(ballerinaExtInstance);
         activateTesting(ballerinaExtInstance);
         // // Enable Ballerina Notebook
-        // activateNotebook(ballerinaExtInstance);
+        activateNotebook(ballerinaExtInstance);
         // activateDesignDiagramView(ballerinaExtInstance);
         activateERDiagram(ballerinaExtInstance);
 
