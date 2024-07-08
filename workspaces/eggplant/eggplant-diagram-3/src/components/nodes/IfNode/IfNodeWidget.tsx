@@ -155,7 +155,7 @@ export function IfNodeWidget(props: IfNodeWidgetProps) {
                 <NodeStyles.Header>
                     <NodeStyles.Title>{model.node.label || model.node.kind}</NodeStyles.Title>
                     <NodeStyles.Description>
-                        Lorem ipsum dolor sit amet
+                        {model.node.nodeProperties.condition.value}
                     </NodeStyles.Description>
                 </NodeStyles.Header>
             </NodeStyles.Row>

@@ -100,6 +100,7 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
                                 style={{
                                     color: link.showAddButton && isHovered ? Colors.PRIMARY : Colors.ON_SURFACE,
                                     fontSize: "14px",
+                                    userSelect: "none",
                                 }}
                             >
                                 {link.label}

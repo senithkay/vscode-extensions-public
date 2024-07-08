@@ -128,11 +128,21 @@ export class NodeFactoryVisitor implements BaseVisitor {
         ); // TODO: move position logic to position visitor
 
         let endIfLinkCount = 0;
+        let allBranchesReturn = true;
         node.branches?.forEach((branch) => {
             if (!branch.children || branch.children.length === 0) {
                 console.error("Branch children not found", branch);
                 return;
             }
+
+            // get last child node model
+            const lastNode = branch.children.at(-1);
+            // check last node is a returning node
+            if (!lastNode.returning) {
+                allBranchesReturn = false;
+            }
+
+            // handle empty nodes in empty branches
             if (branch.children && branch.children.length === 1 && branch.children.find((n) => n.kind === "EMPTY")) {
                 // empty branch
                 const branchEmptyNodeModel = branch.children.at(0);
@@ -154,12 +164,6 @@ export class NodeFactoryVisitor implements BaseVisitor {
                 return;
             }
 
-            // get last child node model
-            // if last child is RETURN, don't create link
-            if (branch.children.at(-1).kind === "RETURN") {
-                return;
-            }
-            const lastNode = branch.children.at(-1);
             let lastChildNodeModel;
             if (branch.children.at(-1).kind === "IF") {
                 // if last child is IF, find endIf node
@@ -172,15 +176,19 @@ export class NodeFactoryVisitor implements BaseVisitor {
                 console.error("Branch node model not found", branch);
                 return;
             }
+
             const link = createNodesLink(lastChildNodeModel, endIfEmptyNode, {
                 alignBottom: true,
+                brokenLine: lastNode.returning,
+                showAddButton: !lastNode.returning,
             });
             if (link) {
                 this.links.push(link);
                 endIfLinkCount++;
             }
         });
-        if (endIfLinkCount === 0) {
+
+        if (endIfLinkCount === 0 || allBranchesReturn) {
             // remove endIf node if no links are created
             const index = this.nodes.findIndex((n) => n.getID() === endIfEmptyNode.getID());
             if (index !== -1) {

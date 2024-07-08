@@ -135,13 +135,8 @@ export function ApiCallNodeWidget(props: ApiCallNodeWidgetProps) {
     };
 
     return (
-        <NodeStyles.Node>
-            <NodeStyles.Box
-                selected={model.isSelected()}
-                hovered={isHovered}
-                onMouseEnter={() => setIsHovered(true)}
-                onMouseLeave={() => setIsHovered(false)}
-            >
+        <NodeStyles.Node onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
+            <NodeStyles.Box selected={model.isSelected()} hovered={isHovered}>
                 <NodeStyles.TopPortWidget port={model.getPort("in")!} engine={engine} />
                 <NodeStyles.Row>
                     <NodeStyles.Icon>
