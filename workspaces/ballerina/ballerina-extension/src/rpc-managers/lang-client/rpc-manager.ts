@@ -19,12 +19,14 @@ import {
     CompletionResponse,
     DefinitionPositionRequest,
     DefinitionResponse,
+    Diagnostics,
     DiagnosticsResponse,
     DidChangeRequest,
     DidCloseRequest,
     DidOpenRequest,
     ExecutorPositions,
     ExecutorPositionsRequest,
+    InsertorDelete,
     LangClientAPI,
     PartialST,
     PartialSTParams,
@@ -43,140 +45,258 @@ import {
     UpdateFileContentRequest,
     UpdateFileContentResponse
 } from "@wso2-enterprise/ballerina-core";
+import { writeFileSync } from 'fs';
+import { normalize } from "path";
+import { Position, Range, WorkspaceEdit, workspace } from "vscode";
+import { URI } from "vscode-uri";
+import { StateMachine, updateView } from "../../stateMachine";
+import { ballerinaExtInstance } from "../../core";
 
 export class LangClientRpcManager implements LangClientAPI {
+    
     async getSyntaxTree(): Promise<SyntaxTree> {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
-    }
-
-    async getST(params: SyntaxTreeParams): Promise<SyntaxTree> {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
-    }
-
-    async getSTByRange(params: BallerinaSTParams): Promise<SyntaxTree> {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
+        return new Promise(async (resolve) => {
+            const context = StateMachine.context();
+            const req: BallerinaSTParams = {
+                documentIdentifier: { uri: URI.file(context.documentUri).toString() },
+                lineRange: {
+                    start: {
+                        line: context.position.startLine,
+                        character: context.position.startColumn
+                    },
+                    end: {
+                        line: context.position.endLine,
+                        character: context.position.endColumn
+                    }
+                }
+            };
+            const node = await StateMachine.langClient().getSTByRange(req) as SyntaxTree;
+            if (node.parseSuccess) {
+                resolve(node);
+            } else {
+                resolve(undefined);
+            }
+        });
     }
 
     async getBallerinaProjectComponents(params: BallerinaPackagesParams): Promise<BallerinaProjectComponents> {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
-    }
+        return new Promise(async (resolve) => {
+            // Check if there is at least one workspace folder
+            if (workspace.workspaceFolders?.length) {
+                const workspaceUri = [];
+                workspace.workspaceFolders.forEach(folder => {
+                    workspaceUri.push(
+                        {
+                            uri: folder.uri.toString(),
+                        }
+                    );
+                });
 
-    async getBallerinaVersion(): Promise<BallerinaVersionResponse> {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
+                const components = await StateMachine.langClient().getBallerinaProjectComponents({
+                    documentIdentifiers: params?.documentIdentifiers || workspaceUri
+                });
+                resolve(components);
+            } else {
+                // Handle the case where there are no workspace folders
+                throw new Error("No workspace folders are open");
+            }
+        });
     }
 
     async getCompletion(params: CompletionRequest): Promise<CompletionResponse> {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
+        return new Promise(async (resolve) => {
+            const completions = await StateMachine.langClient().getCompletion(params);
+            resolve({ completions });
+        });
     }
 
     async getDiagnostics(params: SyntaxTreeParams): Promise<DiagnosticsResponse> {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
+        return new Promise(async (resolve) => {
+            const diagnostics = await StateMachine.langClient().getDiagnostics(params) as Diagnostics[];
+            resolve({ diagnostics: diagnostics });
+        });
     }
 
     async codeAction(params: CodeActionRequest): Promise<CodeActionResponse> {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
+        return new Promise(async (resolve) => {
+            const codeActions = await StateMachine.langClient().codeAction(params);
+            resolve({ codeActions });
+        });
     }
 
     async rename(params: RenameRequest): Promise<RenameResponse> {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
+        return new Promise(async (resolve) => {
+            const workspaceEdit = await StateMachine.langClient().rename(params);
+            resolve({ workspaceEdit });
+        });
     }
 
     async getDefinitionPosition(params: DefinitionPositionRequest): Promise<SyntaxTree> {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
+        return new Promise(async (resolve) => {
+            const definition = await StateMachine.langClient().getDefinitionPosition(params) as SyntaxTree;
+            resolve(definition);
+        });
+    }
+
+    async getST(params: SyntaxTreeParams): Promise<SyntaxTree> {
+        return new Promise(async (resolve) => {
+            const st = await StateMachine.langClient().getSyntaxTree(params) as SyntaxTree;
+            resolve(st);
+        });
+    }
+
+    async getSTByRange(params: BallerinaSTParams): Promise<SyntaxTree> {
+        return new Promise(async (resolve) => {
+            const st = await StateMachine.langClient().getSTByRange(params) as SyntaxTree;
+            resolve(st);
+        });
     }
 
     async stModify(params: STModifyParams): Promise<SyntaxTree> {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
+        return new Promise(async (resolve) => {
+            const st = await StateMachine.langClient().stModify({
+                astModifications: await InsertorDelete(params.astModifications),
+                documentIdentifier: params.documentIdentifier,
+            }) as SyntaxTree;
+            resolve(st);
+        });
     }
 
     async updateFileContent(params: UpdateFileContentRequest): Promise<UpdateFileContentResponse> {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
+        return new Promise(async (resolve) => {
+            const { fileUri, content, skipForceSave } = params;
+            const normalizedFilePath = normalize(fileUri);
+            const doc = workspace.textDocuments.find((doc) => normalize(doc.fileName) === normalizedFilePath);
+            if (doc) {
+                const edit = new WorkspaceEdit();
+                edit.replace(URI.file(normalizedFilePath), new Range(new Position(0, 0), doc.lineAt(doc.lineCount - 1).range.end), content);
+                await workspace.applyEdit(edit);
+                StateMachine.langClient().updateStatusBar();
+                if (skipForceSave) {
+                    // Skip saving document and keep in dirty mode
+                    resolve({ status: true });
+                }
+                const status = await doc.save();
+                resolve({ status });
+            } else {
+                StateMachine.langClient().didChange({
+                    contentChanges: [
+                        {
+                            text: content
+                        }
+                    ],
+                    textDocument: {
+                        uri: URI.file(normalizedFilePath).toString(),
+                        version: 1
+                    }
+                });
+                writeFileSync(normalizedFilePath, content);
+                StateMachine.langClient().updateStatusBar();
+                updateView();
+            }
+            resolve({ status: false });
+        });
     }
 
     async getTypeFromExpression(params: TypeFromExpressionParams): Promise<TypesFromExpressionResponse> {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
+        return new Promise(async (resolve) => {
+            const type = await StateMachine.langClient().getTypeFromExpression(params) as TypesFromExpressionResponse;
+            resolve(type);
+        });
     }
 
     async getTypeFromSymbol(params: TypeFromSymbolParams): Promise<TypesFromSymbolResponse> {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
+        return new Promise(async (resolve) => {
+            const type = await StateMachine.langClient().getTypeFromSymbol(params) as TypesFromSymbolResponse;
+            resolve(type);
+        });
     }
 
     async getTypesFromFnDefinition(params: TypesFromFnDefinitionParams): Promise<TypesFromSymbolResponse> {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
+        return new Promise(async (resolve) => {
+            const type = await StateMachine.langClient().getTypesFromFnDefinition(params) as TypesFromSymbolResponse;
+            resolve(type);
+        });
     }
 
     async definition(params: DefinitionPositionRequest): Promise<DefinitionResponse> {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
+        return new Promise(async (resolve) => {
+            const location = await StateMachine.langClient().definition(params);
+            resolve({ location });
+        });
     }
 
     async getSTForFunction(params: STModifyParams): Promise<SyntaxTree> {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
+        return new Promise(async (resolve) => {
+            const st = await StateMachine.langClient().getSTForFunction(params) as SyntaxTree;
+            resolve(st);
+        });
     }
 
     async getExecutorPositions(params: ExecutorPositionsRequest): Promise<ExecutorPositions> {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
+        return new Promise(async (resolve) => {
+            const position = await StateMachine.langClient().getExecutorPositions(params) as ExecutorPositions;
+            resolve(position);
+        });
     }
 
     async getSTForExpression(params: PartialSTParams): Promise<PartialST> {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
+        return new Promise(async (resolve) => {
+            const st = await StateMachine.langClient().getSTForExpression(params) as PartialST;
+            resolve(st);
+        });
     }
 
     async getSTForSingleStatement(params: PartialSTParams): Promise<PartialST> {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
+        return new Promise(async (resolve) => {
+            const st = await StateMachine.langClient().getSTForSingleStatement(params) as PartialST;
+            resolve(st);
+        });
     }
 
     async getSTForResource(params: PartialSTParams): Promise<PartialST> {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
+        return new Promise(async (resolve) => {
+            const st = await StateMachine.langClient().getSTForResource(params) as PartialST;
+            resolve(st);
+        });
     }
 
     async getSTForModuleMembers(params: PartialSTParams): Promise<PartialST> {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
+        return new Promise(async (resolve) => {
+            const st = await StateMachine.langClient().getSTForModuleMembers(params) as PartialST;
+            resolve(st);
+        });
     }
 
     async getSTForModulePart(params: PartialSTParams): Promise<PartialST> {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
+        return new Promise(async (resolve) => {
+            const st = await StateMachine.langClient().getSTForModulePart(params) as PartialST;
+            resolve(st);
+        });
     }
 
     async getSymbolDocumentation(params: SymbolInfoParams): Promise<SymbolInfo> {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
+        return new Promise(async (resolve) => {
+            const st = await StateMachine.langClient().getSymbolDocumentation(params) as SymbolInfo;
+            resolve(st);
+        });
     }
 
-    async didOpen(params: DidOpenRequest): Promise<> {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
+    didOpen(params: DidOpenRequest): void {
+        return StateMachine.langClient().didOpen(params);
     }
 
-    async didChange(params: DidChangeRequest): Promise<> {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
+    didChange(params: DidChangeRequest): void {
+        return StateMachine.langClient().didChange(params);
     }
 
-    async didClose(params: DidCloseRequest): Promise<> {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
+    didClose(params: DidCloseRequest): void {
+        return StateMachine.langClient().didClose(params);
+    }
+
+    async getBallerinaVersion(): Promise<BallerinaVersionResponse> {
+        return new Promise(async (resolve) => {
+            resolve({ version: ballerinaExtInstance.ballerinaVersion });
+        });
     }
 }

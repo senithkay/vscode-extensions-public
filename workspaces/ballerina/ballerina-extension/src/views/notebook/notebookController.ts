@@ -20,7 +20,7 @@ import {
 import { isWindows } from '../../utils';
 import { CUSTOM_DESIGNED_MIME_TYPES, NOTEBOOK_TYPE } from './constants';
 import { VariableViewProvider } from './variableView';
-import { NoteBookCellOutputResponse, NotebookCellMetaInfo } from '@wso2-enterprise/ballerina-core';
+import { NoteBookCellOutput, NotebookCellMetaInfo } from '@wso2-enterprise/ballerina-core';
 
 const definedVariables = new Set();
 
@@ -192,7 +192,7 @@ export class BallerinaNotebookController {
                 execution.end(false, Date.now());
                 return false;
             }
-            let output = response as NoteBookCellOutputResponse;
+            let output = response as NoteBookCellOutput;
 
             // log console output first
             // since console output will be logged until an exception happens so it comes first

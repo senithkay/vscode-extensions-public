@@ -20,7 +20,7 @@ export class GraphqlDesignerRpcManager implements GraphqlDiagramAPI {
         return new Promise(async (resolve) => {
             const res = await StateMachine.langClient().getGraphqlModel({ filePath: params.filePath,
                 startLine: params.startLine,
-                endLine: params.endLine});
+                endLine: params.endLine}) as GraphqlModelResponse;
             resolve(res);
         });
     }

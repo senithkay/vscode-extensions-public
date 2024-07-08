@@ -12,6 +12,7 @@ import { DocumentIdentifier, LinePosition, LineRange, Position, Range } from "./
 import { ClientCapabilities, Location } from "vscode-languageserver-protocol";
 import { DiagramDiagnostic, FunctionDefinitionInfo, NonPrimitiveBal } from "./config-spec";
 import { STModifyParams } from "./extended-lang-client";
+import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
 export enum DIAGNOSTIC_SEVERITY {
     INTERNAL = "INTERNAL",
@@ -61,12 +62,6 @@ export interface VisibleEndpoint {
     viewState?: any;
     isParameter?: boolean;
     isClassField?: boolean;
-}
-export interface NodePosition {
-    startLine?: number;
-    startColumn?: number;
-    endLine?: number;
-    endColumn?: number;
 }
 
 export interface TypeField {
@@ -548,4 +543,9 @@ export interface JsonToRecordMapperDiagnostic {
 export interface XMLToRecordConverterDiagnostic {
     message: string;
     severity?: DIAGNOSTIC_SEVERITY;
+}
+
+export interface CommandResponse {
+    error: boolean;
+    message: string;
 }

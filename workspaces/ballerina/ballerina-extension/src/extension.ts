@@ -9,7 +9,7 @@
 
 import { ExtensionContext, commands, window, Location, Uri, TextEditor } from 'vscode';
 import { ballerinaExtInstance, BallerinaExtension } from './core';
-import { activate as activateDiagram } from './views/diagram';
+// import { activate as activateDiagram } from './views/diagram';
 import { activate as activateBBE } from './views/bbe';
 import {
     activate as activateTelemetryListener, CMP_EXTENSION_CORE, sendTelemetryEvent,
@@ -21,8 +21,8 @@ import { activate as activateEditorSupport } from './features/editor-support';
 import { activate as activateTesting } from './features/testing/activator';
 import { StaticFeature, DocumentSelector, ServerCapabilities, InitializeParams, FeatureState } from 'vscode-languageclient';
 import { ExtendedLangClient } from './core/extended-language-client';
-import { activate as activatePerformanceForecaster } from './views/forecaster';
-import { activate as activateTryIt } from './views/tryIt/tryit';
+// import { activate as activatePerformanceForecaster } from './views/forecaster';
+// import { activate as activateTryIt } from './views/tryIt/tryit';
 import { activate as activateNotebook } from './views/notebook';
 import { activate as activateLibraryBrowser } from './features/library-browser';
 import { activate as activateERDiagram } from './views/persist-layer-diagram';
@@ -105,7 +105,7 @@ export async function activateBallerina(): Promise<BallerinaExtension> {
         // Enable performance forecaster
         // activatePerformanceForecaster(ballerinaExtInstance);
         // Enable try it views
-        activateTryIt(ballerinaExtInstance);
+        // activateTryIt(ballerinaExtInstance);
         // Enable Ballerina Telemetry listener
         activateTelemetryListener(ballerinaExtInstance);
         activateTesting(ballerinaExtInstance);

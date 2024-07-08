@@ -10,9 +10,9 @@
 import { LanguageClient, LanguageClientOptions, ServerOptions } from "vscode-languageclient/node";
 import { CodeAction, CodeActionParams, DocumentSymbol, DocumentSymbolParams, ExecuteCommandParams, RenameParams, SymbolInformation, WorkspaceEdit } from "monaco-languageclient";
 import {
-    SyntaxTree,
     Connectors,
-    STModifyParams, STModify,
+    STModifyParams, 
+    SyntaxTree,
     DiagnosticsParams,
     CompletionParams,
     Completion,
@@ -22,7 +22,6 @@ import {
     SymbolInfo,
     APITimeConsumption,
     BallerinaProject,
-    ExecutorPosition,
     NotebookVariable,
     DidOpenParams,
     DidCloseParams,
@@ -78,13 +77,13 @@ import {
     PerformanceAnalyzerParams,
     PerformanceAnalyzer,
     GraphqlDesignService,
-    PartialST
+    PartialST,
+    BallerinaServerCapability
 } from "@wso2-enterprise/ballerina-core";
 import { BallerinaExtension } from "./index";
 import { debug } from "../utils";
 import { CMP_LS_CLIENT_COMPLETIONS, CMP_LS_CLIENT_DIAGNOSTICS, getMessageObject, sendTelemetryEvent, TM_EVENT_LANG_CLIENT } from "../features/telemetry";
 import { CancellationToken, DefinitionParams, Location, LocationLink, TextDocumentPositionParams } from 'vscode-languageserver-protocol';
-import { getChoreoExtAPI } from "../features/choreo-features/activate";
 
 export const CONNECTOR_LIST_CACHE = "CONNECTOR_LIST_CACHE";
 export const HTTP_CONNECTOR_LIST_CACHE = "HTTP_CONNECTOR_LIST_CACHE";
@@ -265,7 +264,7 @@ export class ExtendedLangClient extends LanguageClient {
     }
 
     async getType(params: TypeParams): Promise<ExpressionType | NOT_SUPPORTED_TYPE> {
-        return this.sendRequest(EXTENDED_APIS.SYMBOL_TYPE, params) : Promise.resolve(NOT_SUPPORTED);
+        return this.sendRequest(EXTENDED_APIS.SYMBOL_TYPE, params);
     }
 
     async getConnectors(params: ConnectorsParams, reset?: boolean): Promise<Connectors | NOT_SUPPORTED_TYPE> {
@@ -311,52 +310,52 @@ export class ExtendedLangClient extends LanguageClient {
         return this.sendRequest<BallerinaRecord>(EXTENDED_APIS.CONNECTOR_RECORD, params);
     }
 
-    async astModify(params: STModifyParams): Promise<STModify | NOT_SUPPORTED_TYPE> {
+    async astModify(params: STModifyParams): Promise<SyntaxTree | NOT_SUPPORTED_TYPE> {
         const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.DOCUMENT_AST_MODIFY);
         if (!isSupported) {
             return Promise.resolve(NOT_SUPPORTED);
         }
-        return this.sendRequest<STModify>(EXTENDED_APIS.DOCUMENT_AST_MODIFY, params);
+        return this.sendRequest<SyntaxTree>(EXTENDED_APIS.DOCUMENT_AST_MODIFY, params);
     }
 
-    async stModify(params: STModifyParams): Promise<STModify | NOT_SUPPORTED_TYPE> {
+    async stModify(params: STModifyParams): Promise<SyntaxTree | NOT_SUPPORTED_TYPE> {
         const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.DOCUMENT_ST_MODIFY);
         if (!isSupported) {
             return Promise.resolve(NOT_SUPPORTED);
         }
-        return this.sendRequest<STModify>(EXTENDED_APIS.DOCUMENT_ST_MODIFY, params);
+        return this.sendRequest<SyntaxTree>(EXTENDED_APIS.DOCUMENT_ST_MODIFY, params);
     }
 
-    async getSTForFunction(params: STModifyParams): Promise<STModify | NOT_SUPPORTED_TYPE> {
+    async getSTForFunction(params: STModifyParams): Promise<SyntaxTree | NOT_SUPPORTED_TYPE> {
         const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.DOCUMENT_ST_FUNCTION);
         if (!isSupported) {
             return Promise.resolve(NOT_SUPPORTED);
         }
-        return this.sendRequest<STModify>(EXTENDED_APIS.DOCUMENT_ST_FUNCTION, params);
+        return this.sendRequest<SyntaxTree>(EXTENDED_APIS.DOCUMENT_ST_FUNCTION, params);
     }
 
-    async getDefinitionPosition(params: TextDocumentPositionParams): Promise<STModify | NOT_SUPPORTED_TYPE> {
+    async getDefinitionPosition(params: TextDocumentPositionParams): Promise<SyntaxTree | NOT_SUPPORTED_TYPE> {
         const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.DEFINITION_POSITION);
         if (!isSupported) {
             return Promise.resolve(NOT_SUPPORTED);
         }
-        return this.sendRequest<STModify>(EXTENDED_APIS.DEFINITION_POSITION, params);
+        return this.sendRequest<SyntaxTree>(EXTENDED_APIS.DEFINITION_POSITION, params);
     }
 
-    async getSTByRange(params: BallerinaSTParams): Promise<STModify | NOT_SUPPORTED_TYPE> {
+    async getSTByRange(params: BallerinaSTParams): Promise<SyntaxTree | NOT_SUPPORTED_TYPE> {
         const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.DOCUMENT_ST_BY_RANGE);
         if (!isSupported) {
             return Promise.resolve(NOT_SUPPORTED);
         }
-        return this.sendRequest<STModify>(EXTENDED_APIS.DOCUMENT_ST_BY_RANGE, params);
+        return this.sendRequest<SyntaxTree>(EXTENDED_APIS.DOCUMENT_ST_BY_RANGE, params);
     }
 
-    async triggerModify(params: TriggerModifyParams): Promise<STModify | NOT_SUPPORTED_TYPE> {
+    async triggerModify(params: TriggerModifyParams): Promise<SyntaxTree | NOT_SUPPORTED_TYPE> {
         const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.DOCUMENT_TRIGGER_MODIFY);
         if (!isSupported) {
             return Promise.resolve(NOT_SUPPORTED);
         }
-        return this.sendRequest<STModify>(EXTENDED_APIS.DOCUMENT_TRIGGER_MODIFY, params);
+        return this.sendRequest<SyntaxTree>(EXTENDED_APIS.DOCUMENT_TRIGGER_MODIFY, params);
     }
 
     async getSymbolDocumentation(params: SymbolInfoParams): Promise<SymbolInfo | NOT_SUPPORTED_TYPE> {
@@ -518,25 +517,6 @@ export class ExtendedLangClient extends LanguageClient {
 
 
     // <------------ OTHER UTILS START --------------->
-
-    async getResourcesWithEndpoints(params: PerformanceAnalyzerParams, skipLogin?: boolean): Promise<PerformanceAnalyzer[] | NOT_SUPPORTED_TYPE> {
-        return getChoreoExtAPI().then(async (extApi) => {
-            if (!skipLogin && (!this.ballerinaExtInstance?.enabledPerformanceForecasting() || !extApi || !await extApi.waitForLogin() ||
-                this.ballerinaExtInstance.getPerformanceForecastContext().temporaryDisabled)) {
-                return Promise.resolve([{
-                    type: 'error', message: "error",
-                    endpoints: null, actionInvocations: null,
-                    resourcePos: { start: { line: 0, character: 0 }, end: { line: 0, character: 0 } },
-                    name: ""
-                }]);
-            }
-            const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.PERF_ANALYZER_RESOURCES_ENDPOINTS);
-            if (!isSupported) {
-                return Promise.resolve(NOT_SUPPORTED);
-            }
-            return this.sendRequest(EXTENDED_APIS.PERF_ANALYZER_RESOURCES_ENDPOINTS, params);
-        });
-    }
 
     async registerExtendedAPICapabilities(): Promise<Set<String>> {
 

@@ -7,8 +7,8 @@
  * You may not alter or remove any copyright or other notice from copies of this content."
  */
 
-import React, { useEffect, useMemo, useState } from 'react';
-import { KeyboardNavigationManager, MachineStateValue, MachineViews, STModification, VisualizerLocation } from '@wso2-enterprise/ballerina-core';
+import React, { useEffect, useState } from 'react';
+import { KeyboardNavigationManager, MachineStateValue, STModification } from '@wso2-enterprise/ballerina-core';
 import { useVisualizerContext } from '@wso2-enterprise/ballerina-rpc-client';
 import { Global, css } from '@emotion/react';
 import styled from "@emotion/styled";
@@ -16,15 +16,11 @@ import styled from "@emotion/styled";
 import { NavigationBar } from "./components/NavigationBar"
 import { LoadingRing } from "./components/Loader";
 
-
-import { ArchitectureDiagram } from './views/ArchitectureDiagram';
 import { DataMapper } from './views/DataMapper';
 import { ERDiagram } from './views/ERDiagram';
 import { GraphQLDiagram } from './views/GraphQLDiagram';
 import { Overview } from './views/Overview';
-import { SequenceDiagram } from './views/SequenceDiagram';
 import { ServiceDesigner } from './views/ServiceDesigner';
-import { TypeDiagram } from './views/TypeDiagram';
 import { handleRedo, handleUndo } from './utils/utils';
 import { FunctionDefinition, ServiceDeclaration } from '@wso2-enterprise/syntax-tree';
 import { URI } from 'vscode-uri';
@@ -83,9 +79,6 @@ const MainPanel = () => {
                     case "Overview":
                         setViewComponent(<Overview visualizerLocation={value} />);
                         break;
-                    case "ArchitectureDiagram":
-                        setViewComponent(<ArchitectureDiagram />);
-                        break;
                     case "ServiceDesigner":
                         setViewComponent(
                             <ServiceDesigner
@@ -108,12 +101,6 @@ const MainPanel = () => {
                         break;
                     case "GraphQLDiagram":
                         setViewComponent(<GraphQLDiagram />);
-                        break;
-                    case "SequenceDiagram":
-                        setViewComponent(<SequenceDiagram />);
-                        break;
-                    case "TypeDiagram":
-                        setViewComponent(<TypeDiagram />);
                         break;
                     default:
                         setViewComponent(<LoadingRing />);

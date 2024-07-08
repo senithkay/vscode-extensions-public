@@ -189,13 +189,6 @@ export interface STModifyParams {
     astModifications: STModification[];
 }
 
-export interface STModify {
-    source: string;
-    defFilePath: string;
-    syntaxTree: ModulePart;
-    parseSuccess: boolean;
-}
-
 export interface BallerinaSTParams {
     lineRange: Range;
     documentIdentifier: DocumentIdentifier;
@@ -267,8 +260,10 @@ export interface SyntaxTreeParams {
 }
 
 export interface SyntaxTree {
-    syntaxTree: any;
+    syntaxTree: ModulePart | STNode;
     parseSuccess: boolean;
+    source?: string;
+    defFilePath?: string;
 }
 
 export interface BallerinaExampleListParams {
@@ -332,6 +327,7 @@ export interface JsonToRecordParams {
     recordName: string;
     isRecordTypeDesc: boolean;
     isClosed: boolean;
+    forceFormatRecordFields?: boolean;
 }
 
 export interface JsonToRecord {
@@ -412,6 +408,11 @@ export interface PerformanceAnalyzer {
     name: string;
 }
 
+export interface BallerinaServerCapability {
+    name: string;
+    [key: string]: boolean | string;
+}
+
 // <------------ EXTENDED LANG CLIENT INTERFACE --------->
 
 export interface BaseLangClientInterface {
@@ -451,7 +452,6 @@ export interface ExtendedLangClientInterface extends BaseLangClientInterface {
     getBallerinaProjectConfigSchema(params: BallerinaProjectParams): Promise<PackageConfigSchema | NOT_SUPPORTED_TYPE>;
     getSyntaxTreeNode(params: SyntaxTreeNodeParams): Promise<SyntaxTreeNode | NOT_SUPPORTED_TYPE>;
     getSequenceDiagramModel(params: SequenceDiagramModelParams): Promise<SequenceDiagramModel>;
-    pushLSClientTelemetries(): void;
     updateStatusBar(): void;
     getDidOpenParams(): DidOpenParams;
 }

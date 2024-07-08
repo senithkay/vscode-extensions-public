@@ -9,20 +9,20 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
-    TriggerRequest,
-    TriggerResponse,
+    Trigger,
+    TriggerParams,
     TriggerWizardAPI,
-    TriggersRequest,
-    TriggersResponse
+    Triggers,
+    TriggersParams
 } from "@wso2-enterprise/ballerina-core";
 
 export class TriggerWizardRpcManager implements TriggerWizardAPI {
-    async getTriggers(params: TriggersRequest): Promise<TriggersResponse> {
+    async getTriggers(params: TriggersParams): Promise<Triggers> {
         // ADD YOUR IMPLEMENTATION HERE
         throw new Error('Not implemented');
     }
 
-    async getTrigger(params: TriggerRequest): Promise<TriggerResponse> {
+    async getTrigger(params: TriggerParams): Promise<Trigger> {
         // ADD YOUR IMPLEMENTATION HERE
         throw new Error('Not implemented');
     }

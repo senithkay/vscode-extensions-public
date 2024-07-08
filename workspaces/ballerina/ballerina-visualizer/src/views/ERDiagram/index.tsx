@@ -8,7 +8,7 @@
  */
 
 import React, { useEffect } from "react";
-import { GetPersistERModelResponse, VisualizerLocation } from "@wso2-enterprise/ballerina-core";
+import { PersistERModel, VisualizerLocation } from "@wso2-enterprise/ballerina-core";
 import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { PersistDiagram } from "@wso2-enterprise/persist-layer-diagram";
 
@@ -30,7 +30,7 @@ export function ERDiagram() {
         if (!rpcClient) {
             return;
         }
-        const response: GetPersistERModelResponse = await persistDiagramRPCClient.getPersistERModel();
+        const response: PersistERModel = await persistDiagramRPCClient.getPersistERModel();
         return response;
     };
 

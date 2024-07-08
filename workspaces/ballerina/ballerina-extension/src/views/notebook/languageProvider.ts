@@ -12,7 +12,7 @@ import {
     Disposable, DocumentSelector, languages, Position, TextDocument,
 } from "vscode";
 import { CompletionItemKind as MonacoCompletionItemKind } from "monaco-languageclient";
-import { GetSyntaxTreeResponse, NotebookFileSourceResponse } from "@wso2-enterprise/ballerina-core";
+import { SyntaxTree, NotebookFileSource } from "@wso2-enterprise/ballerina-core";
 import { BallerinaExtension, ExtendedLangClient, LANGUAGE, NOT_SUPPORTED } from "../../core";
 import { filterCompletions, getInsertText, getLabel, translateCompletionItemKind } from "./utils";
 import { NOTEBOOK_TYPE } from "./constants";
@@ -43,7 +43,7 @@ export class NotebookCompletionItemProvider implements CompletionItemProvider {
         if (response === NOT_SUPPORTED) {
             return [];
         }
-        let { content, filePath } = response as NotebookFileSourceResponse;
+        let { content, filePath } = response as NotebookFileSource;
         performDidOpen(langClient, filePath, content);
         let endPositionOfMain = await this.getEndPositionOfMain(langClient, filePath);
         let textToWrite = content ? `${content.substring(0, content.length - 1)}${document.getText()}\n}` : document.getText();
@@ -86,7 +86,7 @@ export class NotebookCompletionItemProvider implements CompletionItemProvider {
                 uri: filePath
             }
         });
-        let syntaxTree = response as GetSyntaxTreeResponse;
+        let syntaxTree = response as any;
         if (syntaxTree && syntaxTree.syntaxTree && syntaxTree.syntaxTree.members) {
             var main = syntaxTree.syntaxTree.members.find((member: { kind: string; functionName: { value: string; }; }) =>
                 member.kind === 'FunctionDefinition' && member.functionName.value === 'main'

@@ -29,7 +29,7 @@ import { VisualizerRpcManager } from "./rpc-manager";
 export function registerVisualizerRpcHandlers(messenger: Messenger) {
     const rpcManger = new VisualizerRpcManager();
     messenger.onNotification(openView, (args: VisualizerLocation) => rpcManger.openView(args));
-    messenger.onNotification(getHistory, () => rpcManger.getHistory());
+    messenger.onRequest(getHistory, () => rpcManger.getHistory());
     messenger.onNotification(addToHistory, (args: HistoryEntry) => rpcManger.addToHistory(args));
     messenger.onNotification(goBack, () => rpcManger.goBack());
     messenger.onNotification(goHome, () => rpcManger.goHome());

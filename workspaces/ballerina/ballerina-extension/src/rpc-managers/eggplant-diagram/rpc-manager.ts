@@ -21,12 +21,12 @@ export class EggplantDiagramRpcManager implements EggplantDiagramAPI {
         throw new Error('Not implemented');
     }
 
-    async updateEggplantModel(params: Flow): Promise<> {
+    updateEggplantModel(params: Flow): void {
         // ADD YOUR IMPLEMENTATION HERE
         throw new Error('Not implemented');
     }
 
-    async updateNode(params: UpdateNodeRequest): Promise<> {
+    updateNode(params: UpdateNodeRequest): void {
         // ADD YOUR IMPLEMENTATION HERE
         throw new Error('Not implemented');
     }
