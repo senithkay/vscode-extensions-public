@@ -8,6 +8,7 @@
  */
 
 import { RefObject } from 'react';
+import { ITEM_TYPE_KIND, ItemTypeKind } from './ExpressionBar';
 
 export const getExpressionInfo = (text: string, cursorPosition: number) => {
     const openBrackets = text.substring(0, cursorPosition).match(/\(/g);
@@ -48,4 +49,8 @@ export const setCursor = (inputRef: RefObject<HTMLInputElement>, position: numbe
     inputRef.current.focus();
     (inputRef.current.shadowRoot.getElementById('control') as HTMLInputElement).setSelectionRange(position, position);
 };
+
+export const isFunction = (kind: ItemTypeKind) => kind === ITEM_TYPE_KIND.Function || kind === ITEM_TYPE_KIND.Method;
+
+export const isParameter = (kind: ItemTypeKind) => kind === ITEM_TYPE_KIND.Parameter;
 

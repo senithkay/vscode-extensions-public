@@ -17,7 +17,7 @@ import { Codicon } from '../Codicon/Codicon';
 import { ExpressionBarProps, ItemType } from './ExpressionBar';
 import { debounce } from 'lodash';
 import { createPortal } from 'react-dom';
-import { addClosingBracketIfNeeded, getExpressionInfo, setCursor } from './utils';
+import { addClosingBracketIfNeeded, getExpressionInfo, isFunction, isParameter, setCursor } from './utils';
 
 // Types
 type StyleBase = {
@@ -55,12 +55,22 @@ const Container = styled.div`
 
 const DropdownContainer = styled.div<StyleBase>`
     position: absolute;
+    ${(props: StyleBase) => props.sx}
+`;
+
+const DropdownBody = styled.div<StyleBase>`
     width: 350px;
+    margin-block: 2px;
     padding-top: 8px;
     border-radius: 8px;
     background-color: var(--vscode-dropdown-background);
     box-shadow: 0 3px 8px rgb(0 0 0 / 0.2);
     ${(props: StyleBase) => props.sx}
+`;
+
+const DropdownItemBody = styled.div`
+    max-height: 249px;
+    overflow-y: scroll;
 `;
 
 const DropdownItemContainer = styled.div`
@@ -178,9 +188,11 @@ const DropdownItem = (props: DropdownItemProps) => {
             <Typography variant="body3" sx={{ fontWeight: 600 }}>
                 {item.label}
             </Typography>
-            <Typography id="description" variant="body3">
-                {item.description}
-            </Typography>
+            {item.description && (
+                <Typography id="description" variant="body3">
+                    {item.description}
+                </Typography>
+            )}
         </DropdownItemContainer>
     );
 };
@@ -192,7 +204,7 @@ const Dropdown = forwardRef<HTMLDivElement, DropdownProps>((props, ref) => {
     useImperativeHandle(ref, () => listBoxRef.current);
 
     return (
-        <DropdownContainer sx={sx}>
+        <DropdownBody sx={sx}>
             <Codicon
                 sx={{
                     position: 'absolute',
@@ -208,7 +220,7 @@ const Dropdown = forwardRef<HTMLDivElement, DropdownProps>((props, ref) => {
                 name="close"
                 onClick={onClose}
             />
-            <div ref={listBoxRef}>
+            <DropdownItemBody ref={listBoxRef}>
                 {items.map((item, index) => {
                     return (
                         <DropdownItem
@@ -219,7 +231,7 @@ const Dropdown = forwardRef<HTMLDivElement, DropdownProps>((props, ref) => {
                         />
                     );
                 })}
-            </div>
+            </DropdownItemBody>
             <Divider />
             <DropdownFooter>
                 <DropdownFooterSection>
@@ -259,7 +271,7 @@ const Dropdown = forwardRef<HTMLDivElement, DropdownProps>((props, ref) => {
                     <DropdownFooterText>to save.</DropdownFooterText>
                 </DropdownFooterSection>
             </DropdownFooter>
-        </DropdownContainer>
+        </DropdownBody>
     );
 });
 Dropdown.displayName = 'Dropdown';
@@ -270,7 +282,7 @@ const SyntaxEl = (props: SyntaxElProps) => {
     return (
         <>
             {item && (
-                <DropdownContainer sx={sx}>
+                <DropdownBody sx={sx}>
                     <Codicon
                         sx={{
                             position: 'absolute',
@@ -308,14 +320,14 @@ const SyntaxEl = (props: SyntaxElProps) => {
                         })}
                         <Typography variant="body3">{`)`}</Typography>
                     </SyntaxBody>
-                </DropdownContainer>
+                </DropdownBody>
             )}
         </>
     );
 };
 
 export const ExpressionEditor = forwardRef<HTMLInputElement, ExpressionBarProps>((props, ref) => {
-    const { maxItems = 10, value, sx, onChange, onSave, onItemSelect, getCompletions, ...rest } = props;
+    const { value, sx, onChange, onSave, onItemSelect, getCompletions, ...rest } = props;
     const elementRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
     const listBoxRef = useRef<HTMLDivElement>(null);
@@ -324,7 +336,7 @@ export const ExpressionEditor = forwardRef<HTMLInputElement, ExpressionBarProps>
     const [selectedItem, setSelectedItem] = useState<ItemType | undefined>();
     const [syntax, setSyntax] = useState<SyntaxProps | undefined>();
     const SUGGESTION_REGEX = {
-        prefix: /[+-/*=]\s*(\w*)$/,
+        prefix: /(\w*)$/,
         suffix: /^(\w*)/
     };
 
@@ -351,9 +363,8 @@ export const ExpressionEditor = forwardRef<HTMLInputElement, ExpressionBarProps>
 
     const getSuggestions = debounce(async () => {
         if (inputRef.current) {
-            setSyntax(undefined);
             const completionItems = await getCompletions();
-            setFilteredItems(completionItems?.slice(0, maxItems) ?? []);
+            setFilteredItems(completionItems);
         }
     });
 
@@ -383,11 +394,9 @@ export const ExpressionEditor = forwardRef<HTMLInputElement, ExpressionBarProps>
             // Check whether the cursor is inside a function
             const { isCursorInFunction, currentFnContent } = getExpressionInfo(text, cursorPosition);
             if (isCursorInFunction) {
-                setFilteredItems([]);
                 updateSyntax(currentFnContent, selectedItem);
-            } else {
-                await getSuggestions();
             }
+            await getSuggestions();
         } else {
             setFilteredItems([]);
         }
@@ -400,14 +409,33 @@ export const ExpressionEditor = forwardRef<HTMLInputElement, ExpressionBarProps>
         const suffixMatches = value.substring(cursorPosition).match(SUGGESTION_REGEX.suffix);
         const prefix = value.substring(0, cursorPosition - prefixMatches[1].length);
         let suffix = value.substring(cursorPosition + suffixMatches[1].length);
-        if (suffix.startsWith('(')) {
-            suffix = suffix.substring(1);
+
+        let newCursorPosition: number;
+        let newTextValue: string;
+        if (isFunction(item.kind)) {
+            // If the item is a function
+            if (suffix.startsWith('(')) {
+                suffix = suffix.substring(1);
+            }
+            newCursorPosition = prefix.length + item.label.length + 1;
+            newTextValue = prefix + item.label + '(' + suffix;
+        } else if (isParameter(item.kind)) {
+            // If the item is a parameter
+            if (suffix.startsWith('.')) {
+                suffix = suffix.substring(1);
+            }
+            newCursorPosition = prefix.length + item.label.length + 1;
+            newTextValue = prefix + item.label + '.' + suffix;
+        } else {
+            newCursorPosition = prefix.length + item.value.length;
+            newTextValue = prefix + item.value + suffix;
         }
-        const newCursorPosition = prefix.length + item.label.length + 1;
-        const newTextValue = prefix + item.label + '(' + suffix;
-        onItemSelect && onItemSelect(item, newTextValue);
+
+
+
         handleChange(newTextValue, newCursorPosition, item);
         setCursor(inputRef, newCursorPosition);
+        onItemSelect && onItemSelect(item);
     };
 
     const handleDropdownClose = () => {
@@ -454,16 +482,19 @@ export const ExpressionEditor = forwardRef<HTMLInputElement, ExpressionBarProps>
                         const nextEl = hoveredEl.nextElementSibling as HTMLElement;
                         if (nextEl) {
                             nextEl.classList.add('hovered');
+                            nextEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                         } else {
                             const firstEl = listBoxRef.current.firstElementChild as HTMLElement;
                             if (firstEl) {
                                 firstEl.classList.add('hovered');
+                                firstEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                             }
                         }
                     } else {
                         const firstEl = listBoxRef.current.firstElementChild as HTMLElement;
                         if (firstEl) {
                             firstEl.classList.add('hovered');
+                            firstEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                         }
                     }
                     break;
@@ -474,16 +505,19 @@ export const ExpressionEditor = forwardRef<HTMLInputElement, ExpressionBarProps>
                         const prevEl = hoveredEl.previousElementSibling as HTMLElement;
                         if (prevEl) {
                             prevEl.classList.add('hovered');
+                            prevEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                         } else {
                             const lastEl = listBoxRef.current.lastElementChild as HTMLElement;
                             if (lastEl) {
                                 lastEl.classList.add('hovered');
+                                lastEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                             }
                         }
                     } else {
                         const lastEl = listBoxRef.current.lastElementChild as HTMLElement;
                         if (lastEl) {
                             lastEl.classList.add('hovered');
+                            lastEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                         }
                     }
                     break;
@@ -523,14 +557,13 @@ export const ExpressionEditor = forwardRef<HTMLInputElement, ExpressionBarProps>
             />
             {inputRef &&
                 createPortal(
-                    <>
+                    <DropdownContainer sx={{ ...dropdownPosition }}>
                         <Transition show={filteredItems.length > 0} {...ANIMATION}>
                             <Dropdown
                                 ref={listBoxRef}
                                 items={filteredItems}
                                 onItemSelect={handleItemSelect}
                                 onClose={handleDropdownClose}
-                                sx={{ ...dropdownPosition }}
                             />
                         </Transition>
                         <Transition show={!!syntax?.item} {...ANIMATION}>
@@ -538,14 +571,12 @@ export const ExpressionEditor = forwardRef<HTMLInputElement, ExpressionBarProps>
                                 item={syntax?.item}
                                 currentArgIndex={syntax?.currentArgIndex ?? 0}
                                 onClose={handleFunctionSyntaxClose}
-                                sx={{ ...dropdownPosition }}
                             />
                         </Transition>
-                    </>,
+                    </DropdownContainer>,
                     document.body
                 )}
         </Container>
     );
 });
 ExpressionEditor.displayName = 'ExpressionEditor';
-

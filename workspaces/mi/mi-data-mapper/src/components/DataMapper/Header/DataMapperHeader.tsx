@@ -9,26 +9,22 @@
 // tslint:disable: jsx-no-multiline-js
 import React from "react";
 import styled from "@emotion/styled";
-import { DMOperator } from "@wso2-enterprise/mi-core";
 import HeaderSearchBox from "./HeaderSearchBox";
 import HeaderBreadcrumb from "./HeaderBreadcrumb";
 import ExpressionBarWrapper from "./ExpressionBar";
 import { View } from "../Views/DataMapperView";
 
 export interface DataMapperHeaderProps {
+    filePath: string;
     views: View[];
     switchView: (index: number) => void;
     hasEditDisabled: boolean;
     onClose?: () => void;
     applyModifications: () => Promise<void>;
-    inputNode: DataMapperNodeModel;
-    operators: DMOperator[];
 }
 
 export function DataMapperHeader(props: DataMapperHeaderProps) {
-    const { views, switchView, hasEditDisabled, onClose, applyModifications, inputNode, operators } = props;
-
-    const isFocusedOnMapFn = isFocusedOnMapFunction(views);
+    const { filePath, views, switchView, hasEditDisabled, onClose, applyModifications } = props;
 
     return (
         <HeaderContainer>
@@ -51,7 +47,7 @@ export function DataMapperHeader(props: DataMapperHeaderProps) {
                 )}
             </HeaderContent>
             <ExpressionContainer>
-                <ExpressionBarWrapper applyModifications={applyModifications} />
+                <ExpressionBarWrapper filePath={filePath} applyModifications={applyModifications} />
             </ExpressionContainer>
         </HeaderContainer>
     );
@@ -74,13 +70,6 @@ const HeaderContent = styled.div`
 
 const ExpressionContainer = styled.div`
     width: 100%;
-    display: flex;
-    border-bottom: 1px solid var(--vscode-menu-separatorBackground);
-`;
-
-const ArrayFilterContainer = styled.div`
-    width: 100%;
-    min-height: 40px;
     display: flex;
     border-bottom: 1px solid var(--vscode-menu-separatorBackground);
 `;

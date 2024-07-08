@@ -68,7 +68,7 @@ export class InputOutputPortModel extends PortModel<PortModelGenerics & InputOut
 				const valueType = this.getValueType(lm);
 
 				if (valueType === ValueType.Default || (valueType === ValueType.NonEmpty && !targetPortHasLinks)) {
-					let sourceField = sourcePort && sourcePort instanceof InputOutputPortModel && sourcePort.fieldFQN;
+					const sourceField = sourcePort && sourcePort instanceof InputOutputPortModel && sourcePort.fieldFQN;
 					const sourceInputAccessExpr = buildInputAccessExpr(sourceField);
 					
 					if (targetPort) {

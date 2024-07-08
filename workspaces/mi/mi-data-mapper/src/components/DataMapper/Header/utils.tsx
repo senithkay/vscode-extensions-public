@@ -10,10 +10,11 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { CallExpression, Node, SyntaxKind } from "ts-morph";
+import { CallExpression, Node, SyntaxKind, ts } from "ts-morph";
 
 import { View } from "../Views/DataMapperView";
 import { INPUT_FIELD_FILTER_LABEL, OUTPUT_FIELD_FILTER_LABEL, SearchTerm, SearchType } from "./HeaderSearchBox";
+import { ItemType, ItemTypeKind } from "@wso2-enterprise/ui-toolkit";
 
 export function getInputOutputSearchTerms(searchTerm: string): [SearchTerm, SearchTerm] {
     const inputFilter = INPUT_FIELD_FILTER_LABEL;
@@ -52,7 +53,6 @@ export function extractExpression(text: string) {
         return expressionMatches[1].trim();
     }
     return text;
-
 }
 
 export function enrichExpression(text: string) {
@@ -89,3 +89,51 @@ export function getFilterExpression(callExpr: CallExpression): Node | undefined 
 
     return filterExpr;
 }
+
+export function filterOperators(entry: ts.CompletionEntry, details: ts.CompletionEntryDetails): ItemType {
+    let formattedItems: ItemType;
+
+    if (
+        details.kind === ts.ScriptElementKind.parameterElement ||
+        details.kind === ts.ScriptElementKind.memberVariableElement
+    ) {
+        formattedItems = {
+            label: entry.name,
+            description: details.documentation?.[0]?.text,
+            value: entry.name,
+            kind: details.kind as ItemTypeKind,
+        }
+    } else if (details.sourceDisplay !== undefined) {
+        if (
+            details.kind === ts.ScriptElementKind.functionElement ||
+            details.kind === ts.ScriptElementKind.memberFunctionElement
+        ) {
+            const params: string[] = [];
+            let param: string = '';
+
+            details.displayParts.forEach((part) => {
+                if (part.kind === 'parameterName' || part.text === '...') {
+                    param += part.text;
+                } else if (param && part.text === ':') {
+                    params.push(param);
+                    param = '';
+                }
+            });
+
+            const action = details.codeActions?.[0].changes[0].textChanges[0].newText;
+            const itemTag = action.substring(0, action.length - 1);
+
+            formattedItems = {
+                tag: itemTag,
+                label: entry.name,
+                description: details.documentation?.[0]?.text,
+                value: action + entry.name,
+                kind: details.kind as ItemTypeKind,
+                args: params
+            } 
+        }
+    }
+
+    return formattedItems;
+}
+

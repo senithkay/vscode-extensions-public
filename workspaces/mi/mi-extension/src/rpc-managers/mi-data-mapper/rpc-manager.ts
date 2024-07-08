@@ -26,7 +26,6 @@ import {
     UpdateDMUndoRedoMangerRequest,
     GetOperatorsRequest,
     GetOperatorsResponse,
-    DMOperator
 } from "@wso2-enterprise/mi-core";
 import { fetchIOTypes, fetchSubMappingTypes, fetchOperators } from "../../util/dataMapper";
 import { Project } from "ts-morph";
@@ -42,6 +41,7 @@ import { extension } from "../../MIExtensionContext";
 import { MiDiagramRpcManager } from "../mi-diagram/rpc-manager";
 import { UndoRedoManager } from "../../undoRedoManager";
 import * as ts from 'typescript';
+import { DMProject } from "../../datamapper/DMProject";
 
 const undoRedoManager = new UndoRedoManager();
 
@@ -78,8 +78,8 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
     }
 
     async updateFileContent(params: UpdateFileContentRequest): Promise<void> {
-        const project = new Project();
-        const sourceFile = project.addSourceFileAtPath(params.filePath);
+        const project = DMProject.getInstance(params.filePath).getProject();
+        const sourceFile = project.getSourceFileOrThrow(params.filePath);
         sourceFile.replaceWithText(params.fileContent);
         sourceFile.formatText();
         await sourceFile.save();
@@ -312,10 +312,10 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
     }
 
     async getOperators(params: GetOperatorsRequest): Promise<GetOperatorsResponse> {
-
         return new Promise(async (resolve, reject) => {
+            const { filePath, fileContent, cursorPosition } = params;
             try {
-                resolve({ operators: fetchOperators(params.filePath) });
+                resolve({ operators: fetchOperators(filePath, fileContent, cursorPosition) });
             } catch (error) {
                 console.error(error);
                 reject(error);
@@ -324,3 +324,4 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
     }
 
 }
+

@@ -219,7 +219,7 @@ export async function createSourceForUserInput(
 	objectLitExpr: ObjectLiteralExpression,
 	newValue: string,
 	fnBody: Block,
-	applyModifications: () => Promise<void>
+	applyModifications?: () => Promise<void>
 ) {
 
 	let source: string;
@@ -242,7 +242,7 @@ export async function createSourceForUserInput(
 			if (!parentFieldInitializer.getText()) {
 				const valueExprSource = constructValueExprSource(fieldName, newValue, parentFields.reverse(), 0);
 				parentField.setInitializer(valueExprSource);
-				await applyModifications();
+				applyModifications && (await applyModifications());
 				return valueExprSource;
 			}
 
@@ -252,7 +252,7 @@ export async function createSourceForUserInput(
 				if (propAssignment && !propAssignment.getInitializer().getText()) {
 					const valExprSource = constructValueExprSource(fieldName, newValue, parentFields, 1);
 					propAssignment.setInitializer(valExprSource);
-					await applyModifications();
+					applyModifications && (await applyModifications());
 					return valExprSource;
 				}
 				source = createSpecificField(parentFields.reverse());
@@ -268,7 +268,7 @@ export async function createSourceForUserInput(
 						if (propAssignment && !propAssignment.getInitializer().getText()) {
 							const valExprSource = constructValueExprSource(fieldName, newValue, parentFields, 1);
 							propAssignment.setInitializer(valExprSource);
-							await applyModifications();
+							applyModifications && (await applyModifications());
 							return valExprSource;
 						}
 						source = createSpecificField(parentFields.reverse());
@@ -288,7 +288,7 @@ export async function createSourceForUserInput(
 		if (propAssignment && !propAssignment.getInitializer().getText()) {
 			const valueExprSource = constructValueExprSource(field.originalType.fieldName, newValue, parentFields, 1);
 			propAssignment.setInitializer(valueExprSource);
-			await applyModifications();
+			applyModifications && (await applyModifications());
 			return valueExprSource;
 		}
 		source = createSpecificField(parentFields.reverse());
@@ -309,7 +309,7 @@ export async function createSourceForUserInput(
 		targetObjectLitExpr.replaceWithText(`{${source}}`);
 	}
 
-	await applyModifications();
+	applyModifications && (await applyModifications());
 	return source;
 
 	function createSpecificField(missingFields: string[]): string {

@@ -9,34 +9,15 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 
 import { ExpressionBar, ItemType } from '@wso2-enterprise/ui-toolkit';
-import { DMOperator } from "@wso2-enterprise/mi-core";
 import { css } from '@emotion/css';
-import { Block, FunctionDeclarationStructure, Node, ObjectLiteralExpression, ReturnStatement } from 'ts-morph';
+import { Block, Node, ObjectLiteralExpression, ReturnStatement, ts } from 'ts-morph';
 
 import { useDMExpressionBarStore } from '../../../store/store';
 import { createSourceForUserInput } from '../../../components/Diagram/utils/modification-utils';
 import { DataMapperNodeModel } from '../../../components/Diagram/Node/commons/DataMapperNode';
-import { getFnDeclStructure, operators } from '../Operators/operators';
 import { getDefaultValue } from '../../../components/Diagram/utils/common-utils';
-import { enrichExpression, extractExpression } from './utils';
-
-type DescriptionType = {
-    description: string;
-}
-
-const formatFunctionNames = (operators: Record<string, FunctionDeclarationStructure>): ItemType[] => {
-    const descriptionRegex = /^(?:#{4}[^#]*#{4})\s*([^@\n]+)/
-    return Object.keys(operators).map((name) => {
-        const descriptionMatch = (operators[name].docs![0] as DescriptionType).description.match(descriptionRegex)!;
-        return {
-            label: name,
-            description: descriptionMatch[1],
-            args: operators[name].parameters?.map(param => param.name)
-        };
-    });
-}
-
-const functionNames = formatFunctionNames(operators);
+import { enrichExpression, extractExpression, filterOperators } from './utils';
+import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 
 const useStyles = () => ({
     exprBarContainer: css({
@@ -54,12 +35,13 @@ const useStyles = () => ({
 });
 
 export interface ExpressionBarProps {
+    filePath: string;
     applyModifications: () => Promise<void>
-    operators: DMOperator[];
 }
 
 export default function ExpressionBarWrapper(props: ExpressionBarProps) {
-    const { applyModifications } = props;
+    const { filePath, applyModifications } = props;
+    const { rpcClient } = useVisualizerContext();
     const classes = useStyles();
     const textFieldRef = useRef<HTMLInputElement>(null);
     const [textFieldValue, setTextFieldValue] = useState<string>("");
@@ -72,7 +54,35 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
         resetInputPort: state.resetInputPort,
     }));
 
-    const functionNames = operators.map(op => (op.action ?? "") + op.label);
+    const getCompletions = async (): Promise<ItemType[]> => {
+        const focusedNode = ((focusedPort.typeWithValue.value ||
+            (focusedPort.getNode() as DataMapperNodeModel).context.functionST) as Node);
+        if (focusedNode && !focusedNode.wasForgotten()) {
+            const fileContent = focusedNode.getSourceFile().getText();
+            const cursorPosition = focusedNode.getEnd();
+            const response = await rpcClient.getMiDataMapperRpcClient().getOperators({
+                filePath,
+                fileContent,
+                cursorPosition
+            });
+
+            if (!response.operators) {
+                return [];
+            }
+
+            const operators = response.operators as { entry: ts.CompletionEntry, details: ts.CompletionEntryDetails }[];
+            
+            const filteredOperators: ItemType[] = [];
+            for (const operator of operators) {
+                const details = filterOperators(operator.entry, operator.details);
+                if (details) {
+                    filteredOperators.push(details);
+                }
+            }
+            
+            return filteredOperators;
+        }
+    }
 
     useEffect(() => {
         if (inputPort) {
@@ -138,6 +148,35 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
 
     const onChangeTextField = async (text: string) => {
         setTextFieldValue(text);
+        const focusedFieldValue = focusedPort?.typeWithValue.value;
+        if (focusedFieldValue && !focusedFieldValue.wasForgotten()) {
+            if (Node.isPropertyAssignment(focusedFieldValue)) {
+                const parent = focusedFieldValue.getParent();
+                const propName = focusedFieldValue.getName();
+                focusedFieldValue.remove();
+                const propertyAssignment = parent.addPropertyAssignment({
+                    name: propName,
+                    initializer: extractExpression(text)
+                });
+                focusedPort.typeWithValue.setValue(propertyAssignment);
+            }
+        } else {
+            const focusedNode = focusedPort.getNode() as DataMapperNodeModel;
+            const fnBody = focusedNode.context.functionST.getBody() as Block;
+
+            const returnExpr = (fnBody.getStatements().find((statement) =>
+                Node.isReturnStatement(statement)
+            ) as ReturnStatement)?.getExpression();
+
+            let objLitExpr: ObjectLiteralExpression;
+            if (returnExpr && Node.isObjectLiteralExpression(returnExpr)) {
+                objLitExpr = returnExpr;
+            }
+
+            await createSourceForUserInput(
+                focusedPort?.typeWithValue, objLitExpr, extractExpression(text), fnBody
+            );
+        }
     };
 
     const handleExpressionSave = async (value: string) => {
@@ -145,32 +184,26 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
         await applyChanges(extractExpression(value));
     }
 
-    const onItemSelect = async (item: ItemType, text: string) => {
-        const focusedNode = focusedPort.getNode() as DataMapperNodeModel;
-        const fnST = focusedNode.context.functionST;
-        const sourceFile = fnST.getSourceFile();
-    
-        const isFunctionPresent = sourceFile.getFunctions().find(fn => fn.getName() === item.label);
-        if (!isFunctionPresent) {
-            sourceFile.addFunction(getFnDeclStructure(item.label));
-        }
-        
-        await applyChanges(extractExpression(text));
+    const onItemSelect = async () => {
+        // TODO: Figure out how to apply changes when an item is selected
+        // await applyChanges();
     }
 
-    const applyChanges = async (value: string) => {
+    const applyChanges = async (value?: string) => {
         if (focusedPort) {
-            applyChangesOnFocusedPort();
+            applyChangesOnFocusedPort(value);
         } else if (focusedFilter) {
-            applyChangesOnFocusedFilter();
+            applyChangesOnFocusedFilter(value);
         }
     };
 
-    const applyChangesOnFocusedPort = async () => {
+    const applyChangesOnFocusedPort = async (value?: string) => {
+        if (value === undefined) {
+            await applyModifications();
+            return;
+        }
+
         const focusedFieldValue = focusedPort?.typeWithValue.value;
-
-        
-
         if (focusedFieldValue) {
             let targetExpr: Node;
 
@@ -218,10 +251,8 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
         }
     };
 
-    const applyChangesOnFocusedFilter = async () => {
-        const replaceWith = expressionRef.current;
-        focusedFilter.replaceWithText(replaceWith);
-
+    const applyChangesOnFocusedFilter = async (value: string) => {
+        focusedFilter.replaceWithText(extractExpression(value));
         await applyModifications();
     };
 
@@ -231,12 +262,12 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
                 id='expression-bar'
                 ref={textFieldRef}
                 disabled={disabled}
-                items={functionNames}
                 value={textFieldValue}
                 placeholder={placeholder}
                 onChange={onChangeTextField}
                 onItemSelect={onItemSelect}
                 onSave={handleExpressionSave}
+                getCompletions={getCompletions}
                 sx={{ display: 'flex', alignItems: 'center', fontFamily: 'monospace', fontSize: '12px' }}
             />
         </div>

@@ -13,23 +13,34 @@ import { Icon } from '../Icon/Icon';
 import { ExpressionEditor } from './SearchBox';
 
 // Types
+export const ITEM_TYPE_KIND = {
+    Function: 'function',
+    Method: 'method',
+    Parameter: 'parameter',
+    Property: 'property',
+} as const;
+
+export type ItemTypeKind = (typeof ITEM_TYPE_KIND)[keyof typeof ITEM_TYPE_KIND];
+
 export type ItemType = {
+    tag?: string;
     label: string;
+    value: string;
     description: string;
+    kind: ItemTypeKind;
     args?: string[];
 };
 
 export type ExpressionBarBaseProps = {
     autoFocus?: boolean;
     disabled?: boolean;
-    maxItems?: number;
     value: string;
     placeholder?: string;
     sx?: React.CSSProperties;
     onChange: (value: string) => void;
     onFocus?: () => void;
     onBlur?: () => void;
-    onItemSelect?: (item: ItemType, text: string) => void;
+    onItemSelect?: (item: ItemType) => void;
     onSave?: (value: string) => void;
     getCompletions: () => Promise<ItemType[]>;
 };
