@@ -168,7 +168,6 @@ export function RuntimeServicePanel() {
         }
     };
 
-    // TODO: Support Data services
 
     const apiServices = () => {
         if (services?.api?.count > 0) {
@@ -264,8 +263,57 @@ export function RuntimeServicePanel() {
         }
     }
 
+    const dataServices = () => {
+        if (services?.dataServices?.count > 0) {
+            return (
+                <ServiceCard>
+                    <ServerHeader>
+                        <ServiceIcon>
+                            <Codicon name={'database'} />
+                        </ServiceIcon>
+                        <ServiceTitle>Deployed Data Services</ServiceTitle>
+                    </ServerHeader>
+                    <ProxyContentHeader>
+                        <HeaderTitle>
+                            Data Service Name
+                        </HeaderTitle>
+                        <HeaderTitle>
+                            WSDL 1.1
+                        </HeaderTitle>
+                        <HeaderTitle>
+                            WSDL 2.0
+                        </HeaderTitle>
+                    </ProxyContentHeader>
+                    <hr style={{
+                        borderColor: "var(--vscode-panel-border)", marginBottom: '15px'
+                    }} />
+                    {Object.entries(services.dataServices.list).map(([_, entry]) => (
+                        <>
+                            <ProxyContent>
+                                <Details style={{ fontWeight: 'bold' }}>
+                                    {entry.name}
+                                </Details>
+                                <Tooltip content={entry.wsdl1_1} position="bottom" containerSx={{ display: 'grid' }}>
+                                    <Details>
+                                        {entry.wsdl1_1}
+                                    </Details>
+                                </Tooltip>
+                                <Tooltip content={entry.wsdl2_0} position="bottom" containerSx={{ display: 'grid' }}>
+
+                                    <Details>
+                                        {entry.wsdl2_0}
+                                    </Details>
+                                </Tooltip>
+                            </ProxyContent>
+                        </>
+                    ))}
+                </ServiceCard>
+            )
+        }
+    }
+
     const renderRuntimeServices = () => {
-        if (services?.api?.count === 0 && services?.proxy?.count === 0) {
+        if (services?.api?.count === 0 && services?.proxy?.count === 0 && services?.dataServices?.count === 0) {
             return (
                 <div>No Runtime Services Available</div>
             )
@@ -274,6 +322,7 @@ export function RuntimeServicePanel() {
                 <>
                     {apiServices()}
                     {proxyServices()}
+                    {dataServices()}
                 </>
             )
         }
@@ -291,7 +340,7 @@ export function RuntimeServicePanel() {
             <>
                 {isSwaggerEnabled.isSwaggerTriggered && isSwaggerEnabled.swaggerData ?
                     <>
-                        <NavigationContainer id="nav-bar-main" style={{paddingLeft: '20px'}}>
+                        <NavigationContainer id="nav-bar-main" style={{ paddingLeft: '20px' }}>
                             <VSCodeButton appearance="icon" title="Go Back" onClick={handleBackButtonClick}>
                                 <Codicon name="arrow-left" />
                             </VSCodeButton>
