@@ -9,16 +9,12 @@ import {
 import { BLCTracer } from "./BLCTracer";
 import { initializeRequest } from "./messages"
 import { LSConnection } from "./LSConnection";
-import { GetSyntaxTreeParams, GetSyntaxTreeResponse } from "../interfaces/ballerina";
+import { SyntaxTreeParams, SyntaxTree } from "../interfaces/extended-lang-client";
 
 interface IBallerinaLangClient {
-
     didOpen: (Params: DidOpenTextDocumentParams) => void;
-
     didClose: (params: DidCloseTextDocumentParams) => void;
-
-    getSyntaxTree: (params: GetSyntaxTreeParams) => Thenable<GetSyntaxTreeResponse>;
-
+    getSyntaxTree: (params: SyntaxTreeParams) => Thenable<SyntaxTree>;
 }
 
 export class BallerinaLanguageClient implements IBallerinaLangClient {
@@ -79,7 +75,7 @@ export class BallerinaLanguageClient implements IBallerinaLangClient {
         this._clientConnection.sendNotification(DidCloseTextDocumentNotification.type, params);
     }
 
-    public getSyntaxTree(params: GetSyntaxTreeParams): Thenable<GetSyntaxTreeResponse> {
-        return this._clientConnection.sendRequest<GetSyntaxTreeResponse>("ballerinaDocument/syntaxTree", params);
+    public getSyntaxTree(params: SyntaxTreeParams): Thenable<SyntaxTree> {
+        return this._clientConnection.sendRequest<SyntaxTree>("ballerinaDocument/syntaxTree", params);
     }
 }

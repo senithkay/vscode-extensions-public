@@ -9,14 +9,9 @@
 */
 
 import { DocumentIdentifier, LinePosition, LineRange, Position, Range } from "./common";
-import { ClientCapabilities, DefinitionParams, InitializeParams, InitializeResult, Location, LocationLink } from "vscode-languageserver-protocol";
-import { CodeAction, Diagnostic, DocumentSymbol, SymbolInformation } from "vscode-languageserver-types";
-import { BallerinaTriggerRequest, BallerinaTriggerResponse, BallerinaTriggersResponse } from "../rpc-types/project-design-diagram/interfaces";
-import { ExecutorPositionsResponse, BallerinaProjectComponents } from "../rpc-types/lang-server/interfaces";
-import { JsonToRecordRequest, JsonToRecordResponse, XMLToRecordRequest, XMLToRecordResponse } from "../rpc-types/record-creator/interfaces";
+import { ClientCapabilities, Location } from "vscode-languageserver-protocol";
 import { DiagramDiagnostic, FunctionDefinitionInfo, NonPrimitiveBal } from "./config-spec";
-import { DidChangeRequest, DidCloseRequest, DidOpenRequest, STModifyParams } from "./lang-client";
-import { Participant } from "../rpc-types/sequence-diagram/interfaces";
+import { STModifyParams } from "./extended-lang-client";
 
 export enum DIAGNOSTIC_SEVERITY {
     INTERNAL = "INTERNAL",
@@ -124,7 +119,7 @@ export interface TypeField {
     resolvedUnionType?: TypeField | TypeField[];
 }
 
-export interface BallerinaConnectorInfo extends Connector {
+export interface BallerinaConnectorInfo extends BallerinaConnector {
     functions: FunctionDefinitionInfo[];
     documentation?: string;
 }
@@ -174,11 +169,6 @@ export interface Package {
     modules?: any[];
 }
 
-export interface PartialSTRequest {
-    codeSnippet: string;
-    stModification?: PartialSTModification;
-}
-
 export interface PartialSTModification {
     startLine: number;
     startColumn: number;
@@ -199,10 +189,10 @@ export interface BallerinaModule {
 }
 
 // tslint:disable-next-line: no-empty-interface
-export interface Connector extends BallerinaModule { }
+export interface BallerinaConnector extends BallerinaModule { }
 
 // tslint:disable-next-line: no-empty-interface
-export interface Trigger extends BallerinaModule { }
+export interface BallerinaTrigger extends BallerinaModule { }
 
 export interface Package {
     organization: string;
@@ -229,7 +219,7 @@ export interface Package {
     modules?: any[];
 }
 
-export interface BallerinaTriggerInfo extends Trigger {
+export interface BallerinaTriggerInfo extends BallerinaTrigger {
     serviceTypes: ServiceType[],
     listenerParams: Parameter[],
     documentation?: string,
@@ -434,42 +424,6 @@ export interface Package {
     createdDate?: number;
     visibility?: string;
     modules?: any[];
-}
-
-export interface IBallerinaLangClient extends DiagramEditorLangClientInterface {
-
-}
-
-export interface BaseLangClientInterface {
-    init?: (params: InitializeParams) => Promise<InitializeResult>;
-    didOpen: (Params: DidOpenRequest) => void;
-    didClose: (params: DidCloseRequest) => void;
-    didChange: (params: DidChangeRequest) => void;
-    definition: (params: DefinitionParams) => Promise<Location | Location[] | LocationLink[] | null>;
-    close?: () => void;
-}
-
-export interface DiagramEditorLangClientInterface extends BaseLangClientInterface {
-    getConnectors: (params: BallerinaConnectorsRequest) => Thenable<Connectors>;
-    getTriggers: (params: BallerinaTriggersRequest) => Thenable<BallerinaTriggersResponse>;
-    getTrigger: (params: BallerinaTriggerRequest) => Thenable<BallerinaTriggerResponse>;
-    getConnector: (params: BallerinaConnectorRequest) => Thenable<BallerinaConnectorResponse>;
-    getRecord: (params: BallerinaRecordRequest) => Thenable<BallerinaRecordResponse>;
-    stModify: (params: STModifyRequest) => Thenable<BallerinaSTModifyResponse>;
-    triggerModify: (params: TriggerModifyRequest) => Thenable<BallerinaSTModifyResponse>;
-    getSyntaxTree: (params: GetSyntaxTreeParams) => Thenable<GetSyntaxTreeResponse>;
-    getDocumentSymbol: (params: any) => Thenable<DocumentSymbol[] | SymbolInformation[] | null>;
-    getPerfEndpoints: (params: any) => Thenable<PerformanceAnalyzerResponse[]>;
-    resolveMissingDependencies: (params: GetSyntaxTreeParams) => Thenable<GetSyntaxTreeResponse>;
-    getExecutorPositions: (params: GetBallerinaProjectParams) => Thenable<ExecutorPositionsResponse>;
-    convert: (params: JsonToRecordRequest) => Thenable<JsonToRecordResponse>;
-    convertXml: (params: XMLToRecordRequest) => Thenable<XMLToRecordResponse>;
-    getSTForFunction: (params: BallerinaFunctionSTRequest) => Thenable<BallerinaSTModifyResponse>;
-    getDefinitionPosition: (params: any) => Thenable<BallerinaSTModifyResponse>;
-    getDiagnostics: (params: DiagnosticsParams) => Thenable<any[]>;
-    codeAction: (params: any) => Thenable<CodeAction[]>;
-    getBallerinaProjectComponents: (params: any) => Promise<BallerinaProjectComponents>;
-    getGraphqlModel: (params: GraphqlDesignServiceRequest) => Thenable<GraphqlDesignServiceResponse>;
 }
 
 export interface CurrentFile {

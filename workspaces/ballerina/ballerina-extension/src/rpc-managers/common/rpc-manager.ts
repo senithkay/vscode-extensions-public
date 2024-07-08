@@ -22,10 +22,10 @@ import {
     WorkspacesFileResponse
 } from "@wso2-enterprise/ballerina-core";
 import { Uri, workspace } from "vscode";
+import { URI } from "vscode-uri";
 import { StateMachine } from "../../stateMachine";
 import { goToSource } from "../../utils";
 import { getUpdatedSource } from "./utils";
-import { URI } from "vscode-uri";
 
 export class CommonRpcManager implements CommonRPCAPI {
     async getTypes(): Promise<TypeResponse> {

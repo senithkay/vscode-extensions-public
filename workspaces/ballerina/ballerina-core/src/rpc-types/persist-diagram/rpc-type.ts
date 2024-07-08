@@ -8,8 +8,8 @@
  * 
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
+import { PersistERModel } from "../../interfaces/extended-lang-client";
 import { RequestType, NotificationType } from "vscode-messenger-common";
-import { PersistERModel } from "../../interfaces/lang-client";
 
 const _preFix = "persist-diagram";
 export const getPersistERModel: RequestType<void, PersistERModel> = { method: `${_preFix}/getPersistERModel` };

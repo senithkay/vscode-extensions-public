@@ -14,7 +14,7 @@ import {
     VisualizerAPI,
     VisualizerLocation
 } from "@wso2-enterprise/ballerina-core";
-import { history, updateView, openView, undoRedoManager } from "../../stateMachine";
+import { history, openView, undoRedoManager, updateView } from "../../stateMachine";
 
 export class VisualizerRpcManager implements VisualizerAPI {
 

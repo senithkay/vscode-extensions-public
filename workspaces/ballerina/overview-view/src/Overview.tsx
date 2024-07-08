@@ -64,8 +64,8 @@ export function Overview(props: { visualizerLocation: VisualizerLocation }) {
     const handleFileChange = async (value: string) => {
         setSelectedFile(value);
         const componentResponse = (value === SELECT_ALL_FILES) ?
-            await rpcClient.getLangServerRpcClient().getBallerinaProjectComponents(undefined) :
-            await rpcClient.getLangServerRpcClient().getBallerinaProjectComponents({
+            await rpcClient.getLangClientRpcClient().getBallerinaProjectComponents(undefined) :
+            await rpcClient.getLangClientRpcClient().getBallerinaProjectComponents({
                 documentIdentifiers: [{ uri: URI.file(value).toString() }]
             });
         setComponents(componentResponse as Data);
@@ -75,7 +75,7 @@ export function Overview(props: { visualizerLocation: VisualizerLocation }) {
         try {
             const workspaceResponse = await rpcClient.getCommonRpcClient().getWorkspaceFiles({});
             setWorkspaceInfo(workspaceResponse);
-            const componentResponse = await rpcClient.getLangServerRpcClient().getBallerinaProjectComponents(undefined);
+            const componentResponse = await rpcClient.getLangClientRpcClient().getBallerinaProjectComponents(undefined);
             setComponents(componentResponse as Data);
         } catch (error) {
             console.error('Error fetching data:', error);

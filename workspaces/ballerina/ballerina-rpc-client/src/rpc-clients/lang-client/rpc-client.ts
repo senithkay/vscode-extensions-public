@@ -9,7 +9,9 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
+    BallerinaPackagesParams,
     BallerinaProjectComponents,
+    BallerinaSTParams,
     BallerinaVersionResponse,
     CodeActionRequest,
     CodeActionResponse,
@@ -21,24 +23,22 @@ import {
     DidChangeRequest,
     DidCloseRequest,
     DidOpenRequest,
+    ExecutorPositions,
     ExecutorPositionsRequest,
-    ExecutorPositionsResponse,
-    LangServerAPI,
-    PartialSTRequest,
-    PartialSTResponse,
-    ProjectComponentsRequest,
+    LangClientAPI,
+    PartialST,
+    PartialSTParams,
     RenameRequest,
     RenameResponse,
-    STByRangeRequest,
-    STModifyRequest,
-    STRequest,
-    SymbolInfoRequest,
-    SymbolInfoResponse,
-    SyntaxTreeResponse,
-    TypeFromExpressionRequest,
-    TypeFromSymbolRequest,
+    STModifyParams,
+    SymbolInfo,
+    SymbolInfoParams,
+    SyntaxTree,
+    SyntaxTreeParams,
+    TypeFromExpressionParams,
+    TypeFromSymbolParams,
     TypesFromExpressionResponse,
-    TypesFromFnDefinitionRequest,
+    TypesFromFnDefinitionParams,
     TypesFromSymbolResponse,
     UpdateFileContentRequest,
     UpdateFileContentResponse,
@@ -73,26 +73,26 @@ import {
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
 
-export class LangServerRpcClient implements LangServerAPI {
+export class LangClientRpcClient implements LangClientAPI {
     private _messenger: Messenger;
 
     constructor(messenger: Messenger) {
         this._messenger = messenger;
     }
 
-    getSyntaxTree(): Promise<SyntaxTreeResponse> {
+    getSyntaxTree(): Promise<SyntaxTree> {
         return this._messenger.sendRequest(getSyntaxTree, HOST_EXTENSION);
     }
 
-    getST(params: STRequest): Promise<SyntaxTreeResponse> {
+    getST(params: SyntaxTreeParams): Promise<SyntaxTree> {
         return this._messenger.sendRequest(getST, HOST_EXTENSION, params);
     }
 
-    getSTByRange(params: STByRangeRequest): Promise<SyntaxTreeResponse> {
+    getSTByRange(params: BallerinaSTParams): Promise<SyntaxTree> {
         return this._messenger.sendRequest(getSTByRange, HOST_EXTENSION, params);
     }
 
-    getBallerinaProjectComponents(params: ProjectComponentsRequest): Promise<BallerinaProjectComponents> {
+    getBallerinaProjectComponents(params: BallerinaPackagesParams): Promise<BallerinaProjectComponents> {
         return this._messenger.sendRequest(getBallerinaProjectComponents, HOST_EXTENSION, params);
     }
 
@@ -104,7 +104,7 @@ export class LangServerRpcClient implements LangServerAPI {
         return this._messenger.sendRequest(getCompletion, HOST_EXTENSION, params);
     }
 
-    getDiagnostics(params: STRequest): Promise<DiagnosticsResponse> {
+    getDiagnostics(params: SyntaxTreeParams): Promise<DiagnosticsResponse> {
         return this._messenger.sendRequest(getDiagnostics, HOST_EXTENSION, params);
     }
 
@@ -116,11 +116,11 @@ export class LangServerRpcClient implements LangServerAPI {
         return this._messenger.sendRequest(rename, HOST_EXTENSION, params);
     }
 
-    getDefinitionPosition(params: DefinitionPositionRequest): Promise<SyntaxTreeResponse> {
+    getDefinitionPosition(params: DefinitionPositionRequest): Promise<SyntaxTree> {
         return this._messenger.sendRequest(getDefinitionPosition, HOST_EXTENSION, params);
     }
 
-    stModify(params: STModifyRequest): Promise<SyntaxTreeResponse> {
+    stModify(params: STModifyParams): Promise<SyntaxTree> {
         return this._messenger.sendRequest(stModify, HOST_EXTENSION, params);
     }
 
@@ -128,15 +128,15 @@ export class LangServerRpcClient implements LangServerAPI {
         return this._messenger.sendRequest(updateFileContent, HOST_EXTENSION, params);
     }
 
-    getTypeFromExpression(params: TypeFromExpressionRequest): Promise<TypesFromExpressionResponse> {
+    getTypeFromExpression(params: TypeFromExpressionParams): Promise<TypesFromExpressionResponse> {
         return this._messenger.sendRequest(getTypeFromExpression, HOST_EXTENSION, params);
     }
 
-    getTypeFromSymbol(params: TypeFromSymbolRequest): Promise<TypesFromSymbolResponse> {
+    getTypeFromSymbol(params: TypeFromSymbolParams): Promise<TypesFromSymbolResponse> {
         return this._messenger.sendRequest(getTypeFromSymbol, HOST_EXTENSION, params);
     }
 
-    getTypesFromFnDefinition(params: TypesFromFnDefinitionRequest): Promise<TypesFromSymbolResponse> {
+    getTypesFromFnDefinition(params: TypesFromFnDefinitionParams): Promise<TypesFromSymbolResponse> {
         return this._messenger.sendRequest(getTypesFromFnDefinition, HOST_EXTENSION, params);
     }
 
@@ -144,35 +144,35 @@ export class LangServerRpcClient implements LangServerAPI {
         return this._messenger.sendRequest(definition, HOST_EXTENSION, params);
     }
 
-    getSTForFunction(params: STModifyRequest): Promise<SyntaxTreeResponse> {
+    getSTForFunction(params: STModifyParams): Promise<SyntaxTree> {
         return this._messenger.sendRequest(getSTForFunction, HOST_EXTENSION, params);
     }
 
-    getExecutorPositions(params: ExecutorPositionsRequest): Promise<ExecutorPositionsResponse> {
+    getExecutorPositions(params: ExecutorPositionsRequest): Promise<ExecutorPositions> {
         return this._messenger.sendRequest(getExecutorPositions, HOST_EXTENSION, params);
     }
 
-    getSTForExpression(params: PartialSTRequest): Promise<PartialSTResponse> {
+    getSTForExpression(params: PartialSTParams): Promise<PartialST> {
         return this._messenger.sendRequest(getSTForExpression, HOST_EXTENSION, params);
     }
 
-    getSTForSingleStatement(params: PartialSTRequest): Promise<PartialSTResponse> {
+    getSTForSingleStatement(params: PartialSTParams): Promise<PartialST> {
         return this._messenger.sendRequest(getSTForSingleStatement, HOST_EXTENSION, params);
     }
 
-    getSTForResource(params: PartialSTRequest): Promise<PartialSTResponse> {
+    getSTForResource(params: PartialSTParams): Promise<PartialST> {
         return this._messenger.sendRequest(getSTForResource, HOST_EXTENSION, params);
     }
 
-    getSTForModuleMembers(params: PartialSTRequest): Promise<PartialSTResponse> {
+    getSTForModuleMembers(params: PartialSTParams): Promise<PartialST> {
         return this._messenger.sendRequest(getSTForModuleMembers, HOST_EXTENSION, params);
     }
 
-    getSTForModulePart(params: PartialSTRequest): Promise<PartialSTResponse> {
+    getSTForModulePart(params: PartialSTParams): Promise<PartialST> {
         return this._messenger.sendRequest(getSTForModulePart, HOST_EXTENSION, params);
     }
 
-    getSymbolDocumentation(params: SymbolInfoRequest): Promise<SymbolInfoResponse> {
+    getSymbolDocumentation(params: SymbolInfoParams): Promise<SymbolInfo> {
         return this._messenger.sendRequest(getSymbolDocumentation, HOST_EXTENSION, params);
     }
 

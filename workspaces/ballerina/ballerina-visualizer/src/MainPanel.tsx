@@ -57,7 +57,7 @@ const MainPanel = () => {
     });
 
     const applyModifications = async (modifications: STModification[]) => {
-        const langServerRPCClient = rpcClient.getLangServerRpcClient();
+        const langServerRPCClient = rpcClient.getLangClientRpcClient();
         const filePath = (await rpcClient.getVisualizerLocation()).documentUri;
         const { parseSuccess, source: newSource } = await langServerRPCClient?.stModify({
             astModifications: modifications,

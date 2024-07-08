@@ -39,9 +39,9 @@ import {
     TriggersParams,
     Triggers,
     ConnectorParams,
-    BallerinaConnector,
+    Connector,
     TriggerParams,
-    BallerinaTrigger,
+    Trigger,
     RecordParams,
     BallerinaRecord,
     BallerinaSTParams,
@@ -291,16 +291,16 @@ export class ExtendedLangClient extends LanguageClient {
         return this.sendRequest<Triggers>(EXTENDED_APIS.TRIGGER_TRIGGERS, params);
     }
 
-    async getConnector(params: ConnectorParams): Promise<BallerinaConnector | NOT_SUPPORTED_TYPE> {
+    async getConnector(params: ConnectorParams): Promise<Connector | NOT_SUPPORTED_TYPE> {
         const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.CONNECTOR_CONNECTOR);
         if (!isSupported) {
             return Promise.resolve(NOT_SUPPORTED);
         }
-        return this.sendRequest<BallerinaConnector>(EXTENDED_APIS.CONNECTOR_CONNECTOR, params);
+        return this.sendRequest<Connector>(EXTENDED_APIS.CONNECTOR_CONNECTOR, params);
     }
 
-    async getTrigger(params: TriggerParams): Promise<BallerinaTrigger | NOT_SUPPORTED_TYPE> {
-        return this.sendRequest<BallerinaTrigger>(EXTENDED_APIS.TRIGGER_TRIGGER, params)
+    async getTrigger(params: TriggerParams): Promise<Trigger | NOT_SUPPORTED_TYPE> {
+        return this.sendRequest<Trigger>(EXTENDED_APIS.TRIGGER_TRIGGER, params)
     }
 
     async getRecord(params: RecordParams): Promise<BallerinaRecord | NOT_SUPPORTED_TYPE> {

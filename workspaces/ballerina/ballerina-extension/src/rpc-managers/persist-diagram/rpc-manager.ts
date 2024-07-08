@@ -12,8 +12,8 @@ import {
     GetPersistERModelResponse,
     PersistDiagramAPI,
 } from "@wso2-enterprise/ballerina-core";
-import { StateMachine } from "../../stateMachine";
 import { commands } from "vscode";
+import { StateMachine } from "../../stateMachine";
 
 export class PersistDiagramRpcManager implements PersistDiagramAPI {
 

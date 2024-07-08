@@ -9,22 +9,33 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
-    SequenceDiagramAPI,
-    SequenceModelDiagnostic,
-    SequenceModelResponse,
-    getSequenceModel
+    EggplantDiagramAPI,
+    EggplantModelResponse,
+    Flow,
+    UpdateNodeRequest,
+    getEggplantModel,
+    updateEggplantModel,
+    updateNode
 } from "@wso2-enterprise/ballerina-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
 
-export class SequenceDiagramRpcClient implements SequenceDiagramAPI {
+export class EggplantDiagramRpcClient implements EggplantDiagramAPI {
     private _messenger: Messenger;
 
     constructor(messenger: Messenger) {
         this._messenger = messenger;
     }
 
-    getSequenceModel(): Promise<SequenceModelResponse | SequenceModelDiagnostic> {
-        return this._messenger.sendRequest(getSequenceModel, HOST_EXTENSION);
+    getEggplantModel(): Promise<EggplantModelResponse> {
+        return this._messenger.sendRequest(getEggplantModel, HOST_EXTENSION);
+    }
+
+    updateEggplantModel(params: Flow): void {
+        return this._messenger.sendNotification(updateEggplantModel, HOST_EXTENSION, params);
+    }
+
+    updateNode(params: UpdateNodeRequest): void {
+        return this._messenger.sendNotification(updateNode, HOST_EXTENSION, params);
     }
 }

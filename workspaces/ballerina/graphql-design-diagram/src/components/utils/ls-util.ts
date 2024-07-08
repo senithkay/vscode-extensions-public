@@ -10,20 +10,20 @@
 import {
     DiagramEditorLangClientInterface,
     GraphqlDesignServiceRequest, GraphqlDesignServiceResponse,
-    IBallerinaLangClient
+    ExtendedLangClientInterface
 } from "@wso2-enterprise/ballerina-core";
 import { STNode } from "@wso2-enterprise/syntax-tree";
 import { URI } from "vscode-uri";
 
 export async function getModelForGraphqlService(
     graphqlDesignRequest: GraphqlDesignServiceRequest,
-    langClientPromise: Promise<IBallerinaLangClient>): Promise<GraphqlDesignServiceResponse> {
+    langClientPromise: Promise<ExtendedLangClientInterface>): Promise<GraphqlDesignServiceResponse> {
     const langClient: DiagramEditorLangClientInterface = await langClientPromise;
     const resp = await langClient.getGraphqlModel(graphqlDesignRequest);
     return resp;
 }
 
-export async function getSyntaxTree(filePath: string, langClientPromise: Promise<IBallerinaLangClient>): Promise<STNode> {
+export async function getSyntaxTree(filePath: string, langClientPromise: Promise<ExtendedLangClientInterface>): Promise<STNode> {
     const langClient: DiagramEditorLangClientInterface = await langClientPromise;
     const resp = await langClient.getSyntaxTree({
         documentIdentifier: {

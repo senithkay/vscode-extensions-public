@@ -10,7 +10,7 @@
 import React, { useEffect, useState } from "react";
 
 import {
-    GraphqlDesignServiceResponse, IBallerinaLangClient
+    GraphqlDesignServiceResponse, ExtendedLangClientInterface
 } from "@wso2-enterprise/ballerina-core";
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
@@ -26,7 +26,7 @@ import { GraphqlUnsupportedOverlay } from "./GraphqlUnsupportedOverlay";
 export interface GraphqlDesignDiagramProps {
     model?: STNode;
     targetPosition?: NodePosition;
-    langClientPromise?: Promise<IBallerinaLangClient>;
+    langClientPromise?: Promise<ExtendedLangClientInterface>;
     filePath: string;
     graphqlModelResponse: GraphqlDesignServiceResponse;
     currentFile?: {

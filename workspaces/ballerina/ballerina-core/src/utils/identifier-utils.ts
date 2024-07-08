@@ -8,6 +8,9 @@
  */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
+import { ComponentInfo } from "../interfaces/ballerina";
+import { BallerinaProjectComponents } from "../interfaces/extended-lang-client";
+
 function convertToCamelCase(variableName: string): string {
     return variableName
         .replace(/\s(.)/g, (a) => {

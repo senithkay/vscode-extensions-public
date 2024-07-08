@@ -8,11 +8,12 @@
 * You may not alter or remove any copyright or other notice from copies of this content.
 */
 
-import { Diagnostic, TextDocumentItem } from "vscode-languageserver-types";
+import { CodeAction, Diagnostic, DocumentSymbol, SymbolInformation, TextDocumentItem, WorkspaceEdit } from "vscode-languageserver-types";
 import { CMDiagnostics, ComponentModel } from "./component";
-import { DocumentIdentifier, LinePosition } from "./common";
-import { BallerinaConnectorInfo, BallerinaExampleCategory, BallerinaModuleResponse, BallerinaModulesRequest, BallerinaTriggerInfo, Connector, ExecutorPosition, ExpressionRange, JsonToRecordMapperDiagnostic, MainTriggerModifyRequest, NoteBookCellOutputValue, NotebookCellMetaInfo, OASpec, PackageSummary, PartialSTModification, ResolvedTypeForExpression, ResolvedTypeForSymbol, STModification, SequenceModel, SequenceModelDiagnostic, ServiceTriggerModifyRequest, SymbolDocumentation, Trigger, XMLToRecordConverterDiagnostic } from "./ballerina";
+import { DocumentIdentifier, LinePosition, NOT_SUPPORTED_TYPE } from "./common";
+import { BallerinaConnectorInfo, BallerinaExampleCategory, BallerinaModuleResponse, BallerinaModulesRequest, BallerinaTrigger, BallerinaTriggerInfo, BallerinaConnector, ExecutorPosition, ExpressionRange, JsonToRecordMapperDiagnostic, MainTriggerModifyRequest, NoteBookCellOutputValue, NotebookCellMetaInfo, OASpec, PackageSummary, PartialSTModification, ResolvedTypeForExpression, ResolvedTypeForSymbol, STModification, SequenceModel, SequenceModelDiagnostic, ServiceTriggerModifyRequest, SymbolDocumentation, XMLToRecordConverterDiagnostic } from "./ballerina";
 import { ModulePart, STNode } from "@wso2-enterprise/syntax-tree";
+import { CodeActionParams, DefinitionParams, DocumentSymbolParams, ExecuteCommandParams, InitializeParams, InitializeResult, LocationLink, RenameParams } from "vscode-languageserver-protocol";
 
 export interface DidOpenParams {
     textDocument: TextDocumentItem;
@@ -141,22 +142,21 @@ export interface ExpressionType {
 export interface ConnectorsParams extends BallerinaModulesRequest { }
 
 export interface Connectors {
-    central: Connector[];
-    local?: Connector[];
+    central: BallerinaConnector[];
+    local?: BallerinaConnector[];
     error?: string;
 }
 
 export interface TriggersParams extends BallerinaModulesRequest { }
 
 export interface Triggers extends BallerinaModuleResponse {
-    central: Trigger[];
+    central: BallerinaTrigger[];
     error?: string;
 }
 
+export interface ConnectorParams extends BallerinaConnector { }
 
-export interface ConnectorParams extends Connector { }
-
-export interface BallerinaConnector extends BallerinaConnectorInfo {
+export interface Connector extends BallerinaConnectorInfo {
     error?: string;
 }
 
@@ -164,7 +164,7 @@ export interface TriggerParams {
     id: string
 }
 
-export interface BallerinaTrigger extends BallerinaTriggerInfo {
+export interface Trigger extends BallerinaTriggerInfo {
     error?: string;
 }
 
@@ -410,4 +410,48 @@ export interface PerformanceAnalyzer {
     type: string;
     message: string;
     name: string;
+}
+
+// <------------ EXTENDED LANG CLIENT INTERFACE --------->
+
+export interface BaseLangClientInterface {
+    init?: (params: InitializeParams) => Promise<InitializeResult>;
+    didOpen: (Params: DidOpenParams) => void;
+    didClose: (params: DidCloseParams) => void;
+    didChange: (params: DidChangeParams) => void;
+    definition: (params: DefinitionParams) => Promise<Location | Location[] | LocationLink[] | null>;
+    close?: () => void;
+}
+
+export interface ExtendedLangClientInterface extends BaseLangClientInterface {
+    rename(params: RenameParams): Promise<WorkspaceEdit | NOT_SUPPORTED_TYPE>;
+    getDocumentSymbol(params: DocumentSymbolParams): Promise<DocumentSymbol[] | SymbolInformation[] | NOT_SUPPORTED_TYPE>;
+    codeAction(params: CodeActionParams): Promise<CodeAction[]>;
+    getCompletion(params: CompletionParams): Promise<Completion[]>;
+    executeCommand(params: ExecuteCommandParams): Promise<any>;
+    initBalServices(params: BallerinaInitializeParams): Promise<BallerinaInitializeResult>;
+    getPackageComponentModels(params: ComponentModelsParams): Promise<ComponentModels>;
+    getPersistERModel(params: PersistERModelParams): Promise<PersistERModel>;
+    getDiagnostics(params: DiagnosticsParams): Promise<Diagnostics[] | NOT_SUPPORTED_TYPE>;
+    getType(params: TypeParams): Promise<ExpressionType | NOT_SUPPORTED_TYPE>;
+    getConnectors(params: ConnectorsParams, reset?: boolean): Promise<Connectors | NOT_SUPPORTED_TYPE>;
+    getTriggers(params: TriggersParams): Promise<Triggers | NOT_SUPPORTED_TYPE>;
+    getConnector(params: ConnectorParams): Promise<Connector | NOT_SUPPORTED_TYPE>;
+    getTrigger(params: TriggerParams): Promise<Trigger | NOT_SUPPORTED_TYPE>;
+    getRecord(params: RecordParams): Promise<BallerinaRecord | NOT_SUPPORTED_TYPE>;
+    getSymbolDocumentation(params: SymbolInfoParams): Promise<SymbolInfo | NOT_SUPPORTED_TYPE>;
+    getTypeFromExpression(params: TypeFromExpressionParams): Promise<TypesFromExpression | NOT_SUPPORTED_TYPE>;
+    getTypeFromSymbol(params: TypeFromSymbolParams): Promise<TypesFromSymbol | NOT_SUPPORTED_TYPE>;
+    getTypesFromFnDefinition(params: TypesFromFnDefinitionParams): Promise<TypesFromSymbol | NOT_SUPPORTED_TYPE>;
+    getGraphqlModel(params: GraphqlDesignServiceParams): Promise<GraphqlDesignService | NOT_SUPPORTED_TYPE>;
+    getSyntaxTree(req: SyntaxTreeParams): Promise<SyntaxTree | NOT_SUPPORTED_TYPE>;
+    fetchExamples(args: BallerinaExampleListParams): Promise<BallerinaExampleList | NOT_SUPPORTED_TYPE>;
+    getBallerinaProject(params: BallerinaProjectParams): Promise<BallerinaProject | NOT_SUPPORTED_TYPE>;
+    getBallerinaProjectComponents(params: BallerinaPackagesParams): Promise<BallerinaProjectComponents | NOT_SUPPORTED_TYPE>;
+    getBallerinaProjectConfigSchema(params: BallerinaProjectParams): Promise<PackageConfigSchema | NOT_SUPPORTED_TYPE>;
+    getSyntaxTreeNode(params: SyntaxTreeNodeParams): Promise<SyntaxTreeNode | NOT_SUPPORTED_TYPE>;
+    getSequenceDiagramModel(params: SequenceDiagramModelParams): Promise<SequenceDiagramModel>;
+    pushLSClientTelemetries(): void;
+    updateStatusBar(): void;
+    getDidOpenParams(): DidOpenParams;
 }

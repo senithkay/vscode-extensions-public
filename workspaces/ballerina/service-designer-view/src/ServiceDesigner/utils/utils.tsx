@@ -79,7 +79,7 @@ export function getModification(code: string, targetPosition: NodePosition): STM
 
 export async function getServiceST(documentIdentifier: DocumentIdentifier,
     rpcClient: BallerinaRpcClient, position: NodePosition): Promise<ServiceDeclaration> {
-    const response = await rpcClient.getLangServerRpcClient().getSTByRange({
+    const response = await rpcClient.getLangClientRpcClient().getSTByRange({
         lineRange: {
             start: {
                 line: position.startLine,
