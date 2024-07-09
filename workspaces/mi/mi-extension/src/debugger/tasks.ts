@@ -28,7 +28,7 @@ export function getBuildTask(): vscode.Task {
 }
 
 export function getBuildCommand(): string {
-    return "mvn clean install";
+    return "mvn clean install -Dstyle.color=never";
 }
 
 export function getDockerTask(): vscode.Task {

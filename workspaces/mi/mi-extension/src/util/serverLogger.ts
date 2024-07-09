@@ -11,22 +11,14 @@ import * as vscode from 'vscode';
 
 export const outputServerChannel = vscode.window.createOutputChannel("Micro Integrator Server");
 
-function withNewLine(value: string) {
-    if (typeof value === 'string' && !value.endsWith('\n')) {
-        return value += '\n';
-    }
-    return value;
-}
-
 export function showServerOutputChannel() {
     outputServerChannel.show(true);
 }
 
 // This function will log the value to the MI server output channel
 export function serverLog(value: string): void {
-    const output = withNewLine(value);
-    console.log(output);
-    outputServerChannel.append(output);
+    console.log(value);
+    outputServerChannel.append(value);
 }
 
 export function getOutputChannel() {

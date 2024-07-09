@@ -26,7 +26,6 @@ import * as toml from 'toml';
 import { DebuggerConfig } from './config';
 import { ChildProcess } from 'child_process';
 import treeKill = require('tree-kill');
-import { Debugger } from './debugger';
 import { serverLog, showServerOutputChannel } from '../util/serverLogger';
 const child_process = require('child_process');
 
@@ -147,7 +146,7 @@ export async function executeBuildTask(serverPath: string, shouldCopyTarget: boo
             showServerOutputChannel();
 
             buildProcess.stdout.on('data', (data) => {
-                serverLog(data.toString());
+                serverLog(data.toString('utf8'));
             });
 
             if (shouldCopyTarget) {
