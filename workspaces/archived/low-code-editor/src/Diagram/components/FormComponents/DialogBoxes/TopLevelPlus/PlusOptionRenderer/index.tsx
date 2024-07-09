@@ -30,7 +30,6 @@ interface PlusOptionRendererProps {
 export function PlusOptionRenderer(props: PlusOptionRendererProps) {
     const { entries, onClose, goBack, onOptionSelect, showCategorized } = props;
 
-
     const simpleMenu = () => {
         const plusOptions: JSX.Element[] = entries.map(entry =>
             <PlusOption key={`plus-option-${entry.name.trim()}}`} entry={entry} onOptionSelect={onOptionSelect} />
