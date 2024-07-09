@@ -19,6 +19,7 @@ export function ConstructorPanel(props: ConstructorPanelProps) {
         flex-direction: row;
         align-items: center;
         justify-content: space-between;
+      
         padding: 16px;
         border-bottom: 1px solid var(--vscode-panel-border);
         font: inherit;
@@ -27,7 +28,23 @@ export function ConstructorPanel(props: ConstructorPanelProps) {
     `;
 
     const SidePanelBody = styled.div`
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
         padding: 16px;
+        gap: 8px;
+    `;
+
+    const ButtonWrapper = styled.div`
+        padding: 2px 16px;
+        border: 1px solid var(--vscode-panel-border);
+        cursor: pointer;
+        border-radius: 5px;
+        width: 100%;
+        &:hover {
+            background-color: var(--vscode-editor-hoverHighlightBackground);
+            border-color: var(--vscode-editor-hoverHighlightBorder);
+        }
     `;
 
     return (
@@ -41,13 +58,21 @@ export function ConstructorPanel(props: ConstructorPanelProps) {
                 <Button onClick={closePanel} appearance="icon"><Codicon name="close" /></Button>
             </SidePanelTitleContainer>
             <SidePanelBody>
-                <Typography variant="h4"> Entry points </Typography>
-                <Divider />
+                <ButtonWrapper>
+                    <Typography variant="h4"> Main </Typography>
+                </ButtonWrapper>
+                <ButtonWrapper>
+                    <Typography variant="h4"> Service </Typography>
+                </ButtonWrapper>
+                <ButtonWrapper>
+                    <Typography variant="h4"> Trigger </Typography>
+                </ButtonWrapper>
+                {/* <Divider />
                 <ActionButtons
                     primaryButton={{ text: "Save", onClick: () => console.log("Save Button Clicked"), tooltip: "Save Button" }}
                     secondaryButton={{ text: "Cancel", onClick: closePanel, tooltip: "Cancel Button" }}
                     sx={{ justifyContent: "flex-end" }}
-                />
+                /> */}
             </SidePanelBody>
         </SidePanel>
 
