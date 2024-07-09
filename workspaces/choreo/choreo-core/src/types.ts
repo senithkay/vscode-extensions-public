@@ -16,7 +16,6 @@ export interface TestWebviewProps {
     org: Organization;
     env: Environment;
     deploymentTrack: DeploymentTrack;
-    allDeploymentTracks: DeploymentTrack[];
     endpoints: ComponentEP[];
 }
 

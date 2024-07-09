@@ -71,7 +71,6 @@ export interface OpenTestViewReq{
    org: Organization;
    env: Environment;
    deploymentTrack: DeploymentTrack;
-   allDeploymentTracks: DeploymentTrack[];
    endpoints: ComponentEP[];
 }
 

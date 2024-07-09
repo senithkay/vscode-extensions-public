@@ -29,13 +29,23 @@ interface Props {
     project: Project;
     organization: Organization;
     deploymentTrack?: DeploymentTrack;
-    allDeploymentTracks?: DeploymentTrack[];
     envs: Environment[];
     loadingEnvs: boolean;
+    triggeredDeployment: { [key: string]: boolean };
+    onLoadDeploymentStatus: (env: Environment) => void;
 }
 
 export const DeploymentsSection: FC<Props> = (props) => {
-    const { envs, loadingEnvs, deploymentTrack, component, organization, project, allDeploymentTracks = [] } = props;
+    const {
+        envs,
+        loadingEnvs,
+        deploymentTrack,
+        component,
+        organization,
+        project,
+        triggeredDeployment = {},
+        onLoadDeploymentStatus,
+    } = props;
     const [hasInactiveEndpoints, setHasInactiveEndpoints] = useState(false);
 
     const { data: endpoints = [], refetch: refetchEndpoints } = useQuery({
@@ -82,6 +92,8 @@ export const DeploymentsSection: FC<Props> = (props) => {
                     organization={organization}
                     project={project}
                     deploymentTrack={deploymentTrack}
+                    triggeredDeployment={triggeredDeployment[`${deploymentTrack?.branch}-${item.name}`]}
+                    loadedDeploymentStatus={() => onLoadDeploymentStatus(item)}
                 />
             ))}
         </>
@@ -93,10 +105,11 @@ const EnvItem: FC<{
     project: Project;
     organization: Organization;
     deploymentTrack?: DeploymentTrack;
-    allDeploymentTracks?: DeploymentTrack[];
     env: Environment;
     endpoints: ComponentEP[];
     refetchEndpoint: () => void;
+    triggeredDeployment?: boolean;
+    loadedDeploymentStatus: () => void;
 }> = ({
     organization,
     project,
@@ -104,8 +117,9 @@ const EnvItem: FC<{
     component,
     env,
     endpoints,
-    allDeploymentTracks = [],
     refetchEndpoint,
+    triggeredDeployment,
+    loadedDeploymentStatus,
 }) => {
     const componentType = getTypeForDisplayType(component.spec.type);
     const [envDetailsRef] = useAutoAnimate();
@@ -136,7 +150,12 @@ const EnvItem: FC<{
                 envId: env.id,
             }),
         enabled: !!deploymentTrack?.id,
-        onSuccess: () => refetchEndpoint(),
+        onSuccess: () => {
+            refetchEndpoint();
+            if (triggeredDeployment) {
+                loadedDeploymentStatus();
+            }
+        },
     });
 
     let timeAgo = "";
@@ -189,6 +208,22 @@ const EnvItem: FC<{
 
     const activePublicEndpoints = endpoints?.filter((item) => item.visibility === "Public" && item.state === "Active");
 
+    const getStatusText = () => {
+        if (deploymentStatus) {
+            if (triggeredDeployment) {
+                if (["ERROR", "SUSPENDED", "ACTIVE"].includes(deploymentStatus?.deploymentStatusV2)) {
+                    return "Redeploying";
+                } else {
+                    return "In Progress";
+                }
+            }
+            return toTitleCase(statusStr);
+        } else if (triggeredDeployment) {
+            return "In Progress";
+        }
+        return "Not Deployed";
+    };
+
     return (
         <>
             <Divider />
@@ -233,10 +268,11 @@ const EnvItem: FC<{
                                             "text-vsc-charts-green font-medium":
                                                 deploymentStatus?.deploymentStatusV2 === "ACTIVE",
                                             "text-vsc-charts-orange animate-pulse":
-                                                deploymentStatus?.deploymentStatusV2 === "IN_PROGRESS",
+                                                deploymentStatus?.deploymentStatusV2 === "IN_PROGRESS" ||
+                                                triggeredDeployment,
                                         })}
                                     >
-                                        {toTitleCase(statusStr) || "Not Deployed"}
+                                        {getStatusText()}
                                     </span>
                                     {timeAgo && <span className="ml-2 opacity-70">{`(${timeAgo})`}</span>}
                                 </GridColumnItem>
@@ -311,7 +347,6 @@ const EnvItem: FC<{
                                                             org: organization,
                                                             env,
                                                             deploymentTrack,
-                                                            allDeploymentTracks,
                                                             endpoints: activePublicEndpoints,
                                                         })
                                                     }

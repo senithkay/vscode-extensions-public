@@ -32,6 +32,7 @@ interface Props {
     organization: Organization;
     deploymentTrack?: DeploymentTrack;
     envs: Environment[];
+    onTriggerDeployment: (env: Environment) => void;
 }
 
 export const BuildsSection: FC<Props> = (props) => {
@@ -118,7 +119,7 @@ export const BuildsSection: FC<Props> = (props) => {
         mutationFn: async () => {
             const latestCommit = commits?.find((item) => item.isLatest);
             const pickedItem = await ChoreoWebViewAPI.getInstance().showQuickPicks({
-                title: "Select Commit to Build",
+                title: `Select Commit from branch ${deploymentTrack.branch}, to Build`,
                 items: [
                     { kind: WebviewQuickPickItemKind.Separator, label: "Latest Commit" },
                     {
@@ -263,6 +264,7 @@ const BuiltItemRow: FC<Props & { item: BuildKind }> = ({
     organization,
     project,
     deploymentTrack,
+    onTriggerDeployment,
 }) => {
     const queryClient = useQueryClient();
 
@@ -347,6 +349,7 @@ const BuiltItemRow: FC<Props & { item: BuildKind }> = ({
                 req.cronTimezone = cronTz.label;
             }
             await ChoreoWebViewAPI.getInstance().getChoreoRpcClient().createDeployment(req);
+            onTriggerDeployment(params.env);
         },
         onSuccess: (_, params) => {
             queryClient.refetchQueries({

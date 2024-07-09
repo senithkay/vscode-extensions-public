@@ -2,6 +2,7 @@ import React, { FC, useEffect, useState } from "react";
 import {
     ComponentsDetailsWebviewProps,
     DeploymentTrack,
+    Environment,
     WebviewQuickPickItemKind,
 } from "@wso2-enterprise/choreo-core";
 import { EndpointsSection } from "./sections/EndpointsSection";
@@ -30,7 +31,9 @@ export const ComponentDetailsView: FC<ComponentsDetailsWebviewProps> = (props) =
             }),
     });
 
-    const [deploymentTrack, setDeploymentTrack] = useState<DeploymentTrack | undefined>(deploymentTracks?.find((item) => item.latest));
+    const [deploymentTrack, setDeploymentTrack] = useState<DeploymentTrack | undefined>(
+        deploymentTracks?.find((item) => item.latest)
+    );
 
     useEffect(() => {
         if (!deploymentTrack || !deploymentTracks?.find((item) => item.id === deploymentTrack.id)) {
@@ -67,6 +70,11 @@ export const ComponentDetailsView: FC<ComponentsDetailsWebviewProps> = (props) =
             }),
     });
 
+    const [triggeredDeployment, setTriggeredDeployment] = useState<{ [key: string]: boolean }>();
+    const onTriggerDeployment = (env: Environment, deploying: boolean) => {
+        setTriggeredDeployment({ ...triggeredDeployment, [`${deploymentTrack?.branch}-${env.name}`]: deploying });
+    };
+
     return (
         <div className="flex flex-row justify-center p-1 md:p-3 lg:p-4 xl:p-6">
             <div className="container">
@@ -80,13 +88,19 @@ export const ComponentDetailsView: FC<ComponentsDetailsWebviewProps> = (props) =
                     <div className="grid grid-cols-1 lg:grid-cols-4 gap-3 lg:gap-0">
                         <Divider className="mt-4 block lg:hidden" />
                         <div className="relative flex flex-col gap-6 col-span-1 lg:col-span-3 lg:p-4 pt-6 lg:border-r-1 border-vsc-editorIndentGuide-background">
-                            <BuildsSection {...props} deploymentTrack={deploymentTrack} envs={envs} />
+                            <BuildsSection
+                                {...props}
+                                deploymentTrack={deploymentTrack}
+                                envs={envs}
+                                onTriggerDeployment={(env) => onTriggerDeployment(env, true)}
+                            />
                             <DeploymentsSection
                                 {...props}
                                 deploymentTrack={deploymentTrack}
-                                allDeploymentTracks={deploymentTracks}
                                 envs={envs}
                                 loadingEnvs={loadingEnvs}
+                                triggeredDeployment={triggeredDeployment}
+                                onLoadDeploymentStatus={(env) => onTriggerDeployment(env, false)}
                             />
                         </div>
                         <div className="flex flex-col order-first lg:order-last lg:p-4 pt-6 gap-6">
