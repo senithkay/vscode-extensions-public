@@ -1516,7 +1516,6 @@ importers:
       simple-git: ^3.15.1
       sinon: ^15.0.1
       source-map-support: ^0.5.21
-      terser-webpack-plugin: ^1.1.0
       ts-loader: ^9.4.1
       typescript: ^4.9.4
       vscode-extension-tester: ^5.9.1
@@ -1585,7 +1584,6 @@ importers:
       nyc: 15.1.0
       sinon: 15.2.0
       source-map-support: 0.5.21
-      terser-webpack-plugin: 1.4.5_webpack@5.90.1
       ts-loader: 9.5.1_ahsu3n7nsuhdp6gozcsyrqnvra
       typescript: 4.9.5
       vscode-extension-tester: 5.10.0_4r5rv57huad4ctfiz6vn747ruu
@@ -18058,7 +18056,7 @@ packages:
       debug: 4.3.4
       globby: 11.1.0
       is-glob: 4.0.3
-      semver: 7.6.0
+      semver: 7.6.2
       tsutils: 3.21.0_typescript@4.9.5
       typescript: 4.9.5
     transitivePeerDependencies:
@@ -18122,7 +18120,7 @@ packages:
       globby: 11.1.0
       is-glob: 4.0.3
       minimatch: 9.0.3
-      semver: 7.6.0
+      semver: 7.6.2
       ts-api-utils: 1.2.1_typescript@4.9.5
       typescript: 4.9.5
     transitivePeerDependencies:
@@ -18144,7 +18142,7 @@ packages:
       globby: 11.1.0
       is-glob: 4.0.3
       minimatch: 9.0.3
-      semver: 7.6.0
+      semver: 7.6.2
       ts-api-utils: 1.2.1_typescript@5.3.3
       typescript: 5.3.3
     transitivePeerDependencies:
@@ -18165,7 +18163,7 @@ packages:
       eslint: 8.56.0
       eslint-scope: 5.1.1
       eslint-utils: 3.0.0_eslint@8.56.0
-      semver: 7.6.0
+      semver: 7.6.2
     transitivePeerDependencies:
       - supports-color
       - typescript
@@ -18184,7 +18182,7 @@ packages:
       '@typescript-eslint/typescript-estree': 5.48.2_typescript@4.9.5
       eslint-scope: 5.1.1
       eslint-utils: 3.0.0
-      semver: 7.6.0
+      semver: 7.6.2
     transitivePeerDependencies:
       - supports-color
       - typescript
@@ -18243,7 +18241,7 @@ packages:
       '@typescript-eslint/types': 6.21.0
       '@typescript-eslint/typescript-estree': 6.21.0_typescript@4.9.5
       eslint: 8.56.0
-      semver: 7.6.0
+      semver: 7.6.2
     transitivePeerDependencies:
       - supports-color
       - typescript
@@ -18262,7 +18260,7 @@ packages:
       '@typescript-eslint/types': 6.21.0
       '@typescript-eslint/typescript-estree': 6.21.0_typescript@5.3.3
       eslint: 8.56.0
-      semver: 7.6.0
+      semver: 7.6.2
     transitivePeerDependencies:
       - supports-color
       - typescript
@@ -34532,7 +34530,7 @@ packages:
       cosmiconfig: 7.1.0
       klona: 2.0.6
       postcss: 8.4.35
-      semver: 7.6.0
+      semver: 7.6.2
       webpack: 5.90.1_webpack-cli@5.1.4
     dev: true
 
@@ -40150,24 +40148,6 @@ packages:
       source-map: 0.6.1
       terser: 4.8.1
       webpack: 4.47.0_webpack-cli@4.10.0
-      webpack-sources: 1.4.3
-      worker-farm: 1.7.0
-    dev: true
-
-  /terser-webpack-plugin/1.4.5_webpack@5.90.1:
-    resolution: {integrity: sha512-04Rfe496lN8EYruwi6oPQkG0vo8C+HT49X687FZnpPF0qMAIHONI6HEXYPKDOE8e5HjXTyKfqRd/agHtH0kOtw==}
-    engines: {node: '>= 6.9.0'}
-    peerDependencies:
-      webpack: ^4.0.0
-    dependencies:
-      cacache: 12.0.4
-      find-cache-dir: 2.1.0
-      is-wsl: 1.1.0
-      schema-utils: 1.0.0
-      serialize-javascript: 4.0.0
-      source-map: 0.6.1
-      terser: 4.8.1
-      webpack: 5.90.1_webpack-cli@4.10.0
       webpack-sources: 1.4.3
       worker-farm: 1.7.0
     dev: true
