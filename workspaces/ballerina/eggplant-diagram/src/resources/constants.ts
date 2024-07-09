@@ -54,26 +54,21 @@ export enum VSCodeColors {
 export const Colors = {
     PRIMARY: VSCodeColors.PRIMARY || DefaultColors.PRIMARY,
     ON_PRIMARY: VSCodeColors.ON_PRIMARY || DefaultColors.ON_PRIMARY,
-    PRIMARY_CONTAINER:
-        VSCodeColors.PRIMARY_CONTAINER || DefaultColors.PRIMARY_CONTAINER,
+    PRIMARY_CONTAINER: VSCodeColors.PRIMARY_CONTAINER || DefaultColors.PRIMARY_CONTAINER,
 
     SECONDARY: VSCodeColors.SECONDARY || DefaultColors.SECONDARY,
     ON_SECONDARY: VSCodeColors.ON_SECONDARY || DefaultColors.ON_SECONDARY,
-    SECONDARY_CONTAINER:
-        VSCodeColors.SECONDARY_CONTAINER || DefaultColors.SECONDARY_CONTAINER,
+    SECONDARY_CONTAINER: VSCodeColors.SECONDARY_CONTAINER || DefaultColors.SECONDARY_CONTAINER,
 
     SURFACE_BRIGHT: VSCodeColors.SURFACE_BRIGHT || DefaultColors.SURFACE_BRIGHT,
     SURFACE: VSCodeColors.SURFACE || DefaultColors.SURFACE,
     SURFACE_DIM: VSCodeColors.SURFACE_DIM || DefaultColors.SURFACE_DIM,
     ON_SURFACE: VSCodeColors.ON_SURFACE || DefaultColors.ON_SURFACE,
-    ON_SURFACE_VARIANT:
-        VSCodeColors.ON_SURFACE_VARIANT || DefaultColors.ON_SURFACE_VARIANT,
-    SURFACE_CONTAINER:
-        VSCodeColors.SURFACE_CONTAINER || DefaultColors.SURFACE_CONTAINER,
+    ON_SURFACE_VARIANT: VSCodeColors.ON_SURFACE_VARIANT || DefaultColors.ON_SURFACE_VARIANT,
+    SURFACE_CONTAINER: VSCodeColors.SURFACE_CONTAINER || DefaultColors.SURFACE_CONTAINER,
 
     OUTLINE: VSCodeColors.OUTLINE || DefaultColors.OUTLINE,
-    OUTLINE_VARIANT:
-        VSCodeColors.OUTLINE_VARIANT || DefaultColors.OUTLINE_VARIANT,
+    OUTLINE_VARIANT: VSCodeColors.OUTLINE_VARIANT || DefaultColors.OUTLINE_VARIANT,
 
     ERROR: VSCodeColors.ERROR || DefaultColors.ERROR,
 };
@@ -81,6 +76,9 @@ export const Colors = {
 export enum NodeTypes {
     BASE_NODE = "base-node",
     EMPTY_NODE = "empty-node",
+    IF_NODE = "if-node",
+    START_NODE = "start-node",
+    API_CALL_NODE = "api-call-node",
 }
 
 export const NODE_LINK = "node-link";
@@ -91,6 +89,15 @@ export const LOADING_OVERLAY = "loading-overlay";
 export const NODE_WIDTH = 280;
 export const NODE_HEIGHT = 50;
 
+export const NODE_BORDER_WIDTH = 1.5;
+
+export const NODE_PADDING = 8;
+
 // position
-export const NODE_GAP_Y = 120;
-export const NODE_GAP_X = 100;
+export const NODE_GAP_Y = 60;
+export const NODE_GAP_X = 60;
+
+// custom nodes
+export const IF_NODE_WIDTH = 65;
+export const EMPTY_NODE_WIDTH = 16;
+export const EMPTY_NODE_CONTAINER_WIDTH = NODE_WIDTH / 2;

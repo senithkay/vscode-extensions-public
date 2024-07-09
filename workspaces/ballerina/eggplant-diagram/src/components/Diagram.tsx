@@ -27,6 +27,9 @@ import { OverlayLayerModel } from "./OverlayLayer";
 import { DiagramContextProvider, DiagramContextState } from "./DiagramContext";
 import { EmptyNodeModel } from "./nodes/EmptyNode";
 import { ComponentList, ComponentPanel } from "./ComponentPanel";
+import { SizingVisitor } from "../visitors/SizingVisitor";
+import { PositionVisitor } from "../visitors/PositionVisitor";
+import { InitVisitor } from "../visitors/InitVisitor";
 
 export interface DiagramProps {
     model: Flow;
@@ -42,29 +45,26 @@ export function Diagram(props: DiagramProps) {
 
     useEffect(() => {
         if (diagramEngine) {
+            console.log(">>> diagram data", { model });
             const { nodes, links } = getDiagramData();
+            console.log(">>> diagram data", { nodes, links });
             drawDiagram(nodes, links);
         }
     }, [model]);
 
     const getDiagramData = () => {
-        // run node visitor
+        const initVisitor = new InitVisitor(model);
+        traverseFlow(model, initVisitor);
+        const sizingVisitor = new SizingVisitor();
+        traverseFlow(model, sizingVisitor);
+        const positionVisitor = new PositionVisitor();
+        traverseFlow(model, positionVisitor);
+        // create diagram nodes and links
         const nodeVisitor = new NodeFactoryVisitor();
         traverseFlow(model, nodeVisitor);
 
         const nodes = nodeVisitor.getNodes();
         const links = nodeVisitor.getLinks();
-
-        // add plus link to last node
-        const lastNode = nodeVisitor.getLastNodeModel();
-        if (lastNode) {
-            const lastEmptyNode = new EmptyNodeModel("last-empty-node", false);
-            nodes.push(lastEmptyNode);
-            const link = createNodesLink(lastNode, lastEmptyNode, { showArrow: true });
-            if (link) {
-                links.push(link);
-            }
-        }
 
         return { nodes, links };
     };
@@ -80,8 +80,8 @@ export function Diagram(props: DiagramProps) {
         registerListeners(diagramEngine);
 
         setTimeout(() => {
-            const dagreEngine = genDagreEngine();
-            dagreEngine.redistribute(newDiagramModel);
+            // const dagreEngine = genDagreEngine();
+            // dagreEngine.redistribute(newDiagramModel);
             diagramEngine.setModel(newDiagramModel);
             // remove loader overlay layer
             const overlayLayer = diagramEngine
@@ -104,7 +104,7 @@ export function Diagram(props: DiagramProps) {
             diagramEngine.repaintCanvas();
             // update the diagram model state
             setDiagramModel(newDiagramModel);
-        }, 1000);
+        }, 500);
     };
 
     const handleCloseComponentPanel = () => {

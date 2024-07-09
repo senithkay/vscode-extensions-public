@@ -128,14 +128,14 @@ export function ComponentList(props: ComponentListProps) {
                 <S.Title>Endpoints</S.Title>
             </S.Row>
             <S.Grid>
-                {/* {flow?.clients.map((client, index) => (
+                {flow?.clients.map((client, index) => (
                     <S.Component key={index}>
                         <S.IconContainer>
                             <LogIcon />
                         </S.IconContainer>
                         <div>{client.value}</div>
                     </S.Component>
-                ))} */}
+                ))}
             </S.Grid>
         </S.Container>
     );

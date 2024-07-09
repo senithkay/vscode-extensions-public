@@ -16,8 +16,8 @@ export function ClientEditor(props: EditorProps) {
     const { expression, onChange, parentId, index } = props;
     const { flow } = useContext(DiagramContext);
 
-    const globalClients = flow.clients.filter((client: any) => client.scope === "GLOBAL");
-    const dropdownItems = globalClients.map((client: any) => {
+    const globalClients = flow.clients.filter((client) => client.scope === "GLOBAL");
+    const dropdownItems = globalClients.map((client) => {
         return {
             id: client.id,
             content: client.value,

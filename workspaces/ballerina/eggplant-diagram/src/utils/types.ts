@@ -7,22 +7,27 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
+import { ApiCallNodeModel } from "../components/nodes/ApiCallNode";
 import { BaseNodeModel } from "../components/nodes/BaseNode";
 import { EmptyNodeModel } from "../components/nodes/EmptyNode";
+import { IfNodeModel } from "../components/nodes/IfNode/IfNodeModel";
+import { StartNodeModel } from "../components/nodes/StartNode/StartNodeModel";
 
-export type NodeModel = BaseNodeModel | EmptyNodeModel;
+export type NodeModel = BaseNodeModel | EmptyNodeModel | IfNodeModel | StartNodeModel | ApiCallNodeModel;
 
-export type Flow = any;
-export type Client = any;
-export type ClientKind = any;
-export type ClientScope = any;
-export type Node = any;
-export type NodeKind = any;
-export type Branch = any;
-export type LineRange = any;
-export type Expression = any;
-export type TypeKind = any;
-export type NodeProperties = any;
-export type NodePropertyKey = any;
-export type ViewState = any;
-export type TargetMetadata = any;
+export type {
+    Flow,
+    Client,
+    ClientKind,
+    ClientScope,
+    Node,
+    NodeKind,
+    Branch,
+    LineRange,
+    Expression,
+    TypeKind,
+    NodeProperties,
+    NodePropertyKey,
+    ViewState,
+    TargetMetadata,
+} from "@wso2-enterprise/eggplant-core";

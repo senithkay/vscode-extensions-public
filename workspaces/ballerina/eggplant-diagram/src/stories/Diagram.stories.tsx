@@ -4,9 +4,11 @@ import { Diagram, DiagramProps } from "../components/Diagram";
 
 import basicModel from "./basic.json";
 import basic2Model from "./basic-2.json";
+import basic3Model from "./basic-3.json";
 import advancedModel from "./advanced.json";
 import advanced2Model from "./advanced-2.json";
 import advanced3Model from "./advanced-3.json";
+import advanced4Model from "./advanced-4.json";
 
 export default {
     title: "Example/Diagram",
@@ -30,6 +32,11 @@ Basic2.args = {
     model: basic2Model,
 };
 
+export const Basic3 = Template.bind({});
+Basic3.args = {
+    model: basic3Model,
+};
+
 export const Advanced = Template.bind({});
 Advanced.args = {
     model: advancedModel,
@@ -43,4 +50,9 @@ Advanced2.args = {
 export const Advanced3 = Template.bind({});
 Advanced3.args = {
     model: advanced3Model,
+};
+
+export const Advanced4 = Template.bind({});
+Advanced4.args = {
+    model: advanced4Model,
 };

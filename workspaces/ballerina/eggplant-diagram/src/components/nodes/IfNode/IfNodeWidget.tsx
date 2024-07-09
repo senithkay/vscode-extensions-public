@@ -10,8 +10,8 @@
 import React from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
-import { BaseNodeModel } from "./BaseNodeModel";
-import { Colors, NODE_BORDER_WIDTH, NODE_HEIGHT, NODE_PADDING, NODE_WIDTH } from "../../../resources/constants";
+import { IfNodeModel } from "./IfNodeModel";
+import { Colors, IF_NODE_WIDTH, NODE_BORDER_WIDTH, NODE_HEIGHT, NODE_WIDTH } from "../../../resources/constants";
 import { Button } from "@wso2-enterprise/ui-toolkit";
 import { CodeIcon, MoreVertIcon } from "../../../resources";
 import { Node } from "../../../utils/types";
@@ -27,14 +27,6 @@ export namespace NodeStyles {
         flex-direction: column;
         justify-content: space-between;
         align-items: center;
-        min-width: ${NODE_WIDTH}px;
-        min-height: ${NODE_HEIGHT}px;
-        padding: 0 ${NODE_PADDING}px;
-        border: ${NODE_BORDER_WIDTH}px solid
-            ${(props: NodeStyleProp) =>
-                props.selected ? Colors.PRIMARY : props.hovered ? Colors.PRIMARY : Colors.OUTLINE_VARIANT};
-        border-radius: 10px;
-        background-color: ${Colors.SURFACE_DIM};
         color: ${Colors.ON_SURFACE};
         /* cursor: pointer; */
     `;
@@ -98,20 +90,27 @@ export namespace NodeStyles {
         width: 100%;
     `;
 
+    export const Column = styled.div`
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        align-items: center;
+    `;
+
     export const Hr = styled.hr`
         width: 100%;
     `;
 }
 
-interface BaseNodeWidgetProps {
-    model: BaseNodeModel;
+interface IfNodeWidgetProps {
+    model: IfNodeModel;
     engine: DiagramEngine;
     onClick?: (node: Node) => void;
 }
 
-export interface NodeWidgetProps extends Omit<BaseNodeWidgetProps, "children"> {}
+export interface NodeWidgetProps extends Omit<IfNodeWidgetProps, "children"> {}
 
-export function BaseNodeWidget(props: BaseNodeWidgetProps) {
+export function IfNodeWidget(props: IfNodeWidgetProps) {
     const { model, engine, onClick } = props;
     const [isHovered, setIsHovered] = React.useState(false);
 
@@ -126,22 +125,40 @@ export function BaseNodeWidget(props: BaseNodeWidgetProps) {
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
         >
-            <NodeStyles.TopPortWidget port={model.getPort("in")!} engine={engine} />
             <NodeStyles.Row>
-                <NodeStyles.Icon>
-                    <NodeIcon type={model.node.kind} />
-                </NodeStyles.Icon>
+                <NodeStyles.Column>
+                    <NodeStyles.TopPortWidget port={model.getPort("in")!} engine={engine} />
+                    <svg width={IF_NODE_WIDTH} height={IF_NODE_WIDTH} viewBox="0 0 70 70">
+                        <rect
+                            x="12.5"
+                            y="4"
+                            width={NODE_HEIGHT}
+                            height={NODE_HEIGHT}
+                            rx="5"
+                            ry="5"
+                            fill={Colors.SURFACE_DIM}
+                            stroke={isHovered ? Colors.PRIMARY : Colors.OUTLINE_VARIANT}
+                            strokeWidth={NODE_BORDER_WIDTH}
+                            transform="rotate(45 28 28)"
+                        />
+                        <svg x="20" y="15" width="30" height="30" viewBox="0 0 24 24">
+                            <path
+                                fill={Colors.ON_SURFACE}
+                                transform="rotate(180)"
+                                transform-origin="50% 50%"
+                                d="m14.85 4.85l1.44 1.44l-2.88 2.88l1.42 1.42l2.88-2.88l1.44 1.44a.5.5 0 0 0 .85-.36V4.5c0-.28-.22-.5-.5-.5h-4.29a.5.5 0 0 0-.36.85M8.79 4H4.5c-.28 0-.5.22-.5.5v4.29c0 .45.54.67.85.35L6.29 7.7L11 12.4V19c0 .55.45 1 1 1s1-.45 1-1v-7c0-.26-.11-.52-.29-.71l-5-5.01l1.44-1.44c.31-.3.09-.84-.36-.84"
+                            />
+                        </svg>
+                    </svg>
+                    <NodeStyles.BottomPortWidget port={model.getPort("out")!} engine={engine} />
+                </NodeStyles.Column>
                 <NodeStyles.Header>
                     <NodeStyles.Title>{model.node.label || model.node.kind}</NodeStyles.Title>
                     <NodeStyles.Description>
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit
+                        {model.node.nodeProperties.condition.value}
                     </NodeStyles.Description>
                 </NodeStyles.Header>
-                <NodeStyles.StyledButton appearance="icon" onClick={handleOnClick}>
-                    <MoreVertIcon />
-                </NodeStyles.StyledButton>
             </NodeStyles.Row>
-            <NodeStyles.BottomPortWidget port={model.getPort("out")!} engine={engine} />
         </NodeStyles.Node>
     );
 }

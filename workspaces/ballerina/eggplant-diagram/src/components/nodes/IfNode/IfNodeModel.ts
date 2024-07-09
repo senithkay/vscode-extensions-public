@@ -13,7 +13,7 @@ import { getNodeIdFromModel } from "../../../utils/node";
 import { NodeTypes } from "../../../resources/constants";
 import { Node } from "../../../utils/types";
 
-export class BaseNodeModel extends NodeModel {
+export class IfNodeModel extends NodeModel {
     readonly node: Node;
     protected portIn: NodePortModel;
     protected portOut: NodePortModel;
@@ -21,7 +21,7 @@ export class BaseNodeModel extends NodeModel {
     constructor(node: Node) {
         super({
             id: getNodeIdFromModel(node),
-            type: NodeTypes.BASE_NODE,
+            type: NodeTypes.IF_NODE,
             locked: true,
         });
         this.node = node;

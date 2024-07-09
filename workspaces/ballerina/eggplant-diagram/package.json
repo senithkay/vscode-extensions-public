@@ -10,6 +10,7 @@
     "scripts": {
         "start": "tsc && node dist/index.js",
         "build": "tsc --pretty && npm run copy:assets && pnpm run postbuild",
+        "lint:fix": "eslint --ext .ts,.tsx src --fix",
         "storybook": "start-storybook -p 6006",
         "watch": "tsc --pretty --watch",
         "build-storybook": "build-storybook",

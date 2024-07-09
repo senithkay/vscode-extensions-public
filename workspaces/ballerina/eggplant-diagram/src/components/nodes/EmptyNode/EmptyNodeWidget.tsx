@@ -11,15 +11,15 @@ import React from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { EmptyNodeModel } from "./EmptyNodeModel";
-import { Colors } from "../../../resources/constants";
+import { Colors, EMPTY_NODE_WIDTH } from "../../../resources/constants";
 
 namespace S {
     export const Node = styled.div<{}>`
         display: flex;
         justify-content: center;
         align-items: center;
-        width: 180px;
-        height: 16px;
+        width: ${EMPTY_NODE_WIDTH}px;
+        height: ${EMPTY_NODE_WIDTH}px;
     `;
 
     export type CircleStyleProp = {
@@ -28,11 +28,12 @@ namespace S {
     export const Circle = styled.div<CircleStyleProp>`
         display: flex;
         flex-direction: column;
-        justify-content: space-between;
+        justify-content: center;
         align-items: center;
         width: ${(props: CircleStyleProp) => (props.show ? 8 : 0)}px;
         height: ${(props: CircleStyleProp) => (props.show ? 8 : 0)}px;
-        border: 2px solid ${(props: CircleStyleProp) => (props.show ? Colors.PRIMARY : "transparent")};
+        border: 2px solid ${(props: CircleStyleProp) => (props.show ? Colors.ON_SURFACE : "transparent")};
+        background-color: ${(props: CircleStyleProp) => (props.show ? Colors.OUTLINE_VARIANT : "transparent")};
         border-radius: 50%;
     `;
 

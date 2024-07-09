@@ -10,12 +10,9 @@
 import React from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
-import { BaseNodeModel } from "./BaseNodeModel";
+import { StartNodeModel } from "./StartNodeModel";
 import { Colors, NODE_BORDER_WIDTH, NODE_HEIGHT, NODE_PADDING, NODE_WIDTH } from "../../../resources/constants";
-import { Button } from "@wso2-enterprise/ui-toolkit";
-import { CodeIcon, MoreVertIcon } from "../../../resources";
 import { Node } from "../../../utils/types";
-import NodeIcon from "../../NodeIcon";
 
 export namespace NodeStyles {
     export type NodeStyleProp = {
@@ -27,31 +24,16 @@ export namespace NodeStyles {
         flex-direction: column;
         justify-content: space-between;
         align-items: center;
-        min-width: ${NODE_WIDTH}px;
-        min-height: ${NODE_HEIGHT}px;
+        min-width: ${NODE_WIDTH / 3}px;
+        min-height: ${NODE_HEIGHT / 1.5}px;
         padding: 0 ${NODE_PADDING}px;
         border: ${NODE_BORDER_WIDTH}px solid
             ${(props: NodeStyleProp) =>
                 props.selected ? Colors.PRIMARY : props.hovered ? Colors.PRIMARY : Colors.OUTLINE_VARIANT};
-        border-radius: 10px;
+        border-radius: 40px;
         background-color: ${Colors.SURFACE_DIM};
         color: ${Colors.ON_SURFACE};
         /* cursor: pointer; */
-    `;
-
-    export const Header = styled.div<{}>`
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: flex-start;
-        width: 100%;
-        padding: 8px;
-    `;
-
-    export const StyledButton = styled(Button)`
-        border-radius: 5px;
-        position: absolute;
-        right: 6px;
     `;
 
     export const TopPortWidget = styled(PortWidget)`
@@ -66,13 +48,6 @@ export namespace NodeStyles {
         font-size: 14px;
     `;
 
-    export const Icon = styled.div`
-        padding: 4px;
-        svg {
-            fill: ${Colors.ON_SURFACE};
-        }
-    `;
-
     export const Title = styled(StyledText)`
         max-width: ${NODE_WIDTH - 50}px;
         white-space: nowrap;
@@ -80,44 +55,19 @@ export namespace NodeStyles {
         text-overflow: ellipsis;
         font-family: "GilmerMedium";
     `;
-
-    export const Description = styled(StyledText)`
-        font-size: 12px;
-        max-width: ${NODE_WIDTH - 50}px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        font-family: monospace;
-    `;
-
-    export const Row = styled.div`
-        display: flex;
-        flex-direction: row;
-        justify-content: space-between;
-        align-items: center;
-        width: 100%;
-    `;
-
-    export const Hr = styled.hr`
-        width: 100%;
-    `;
 }
 
-interface BaseNodeWidgetProps {
-    model: BaseNodeModel;
+interface StartNodeWidgetProps {
+    model: StartNodeModel;
     engine: DiagramEngine;
     onClick?: (node: Node) => void;
 }
 
-export interface NodeWidgetProps extends Omit<BaseNodeWidgetProps, "children"> {}
+export interface NodeWidgetProps extends Omit<StartNodeWidgetProps, "children"> {}
 
-export function BaseNodeWidget(props: BaseNodeWidgetProps) {
+export function StartNodeWidget(props: StartNodeWidgetProps) {
     const { model, engine, onClick } = props;
     const [isHovered, setIsHovered] = React.useState(false);
-
-    const handleOnClick = () => {
-        onClick && onClick(model.node);
-    };
 
     return (
         <NodeStyles.Node
@@ -127,20 +77,7 @@ export function BaseNodeWidget(props: BaseNodeWidgetProps) {
             onMouseLeave={() => setIsHovered(false)}
         >
             <NodeStyles.TopPortWidget port={model.getPort("in")!} engine={engine} />
-            <NodeStyles.Row>
-                <NodeStyles.Icon>
-                    <NodeIcon type={model.node.kind} />
-                </NodeStyles.Icon>
-                <NodeStyles.Header>
-                    <NodeStyles.Title>{model.node.label || model.node.kind}</NodeStyles.Title>
-                    <NodeStyles.Description>
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit
-                    </NodeStyles.Description>
-                </NodeStyles.Header>
-                <NodeStyles.StyledButton appearance="icon" onClick={handleOnClick}>
-                    <MoreVertIcon />
-                </NodeStyles.StyledButton>
-            </NodeStyles.Row>
+            <NodeStyles.Title>Start</NodeStyles.Title>
             <NodeStyles.BottomPortWidget port={model.getPort("out")!} engine={engine} />
         </NodeStyles.Node>
     );

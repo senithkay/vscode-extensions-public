@@ -8,16 +8,66 @@
  */
 
 import { NODE_GAP_X, NODE_GAP_Y } from "../resources/constants";
-import { Node } from "../utils/types";
+import { Branch, Node } from "../utils/types";
 import { BaseVisitor } from "./BaseVisitor";
 
 export class PositionVisitor implements BaseVisitor {
     private skipChildrenVisit = false;
-    private lastY = 200; // last node y position
-    private branchParentY = 0; // branch parent node y position
+    private diagramCenterX = 500;
+    private lastNodeY = 200;
 
     constructor() {
         console.log("position visitor started");
+    }
+
+    beginVisitEventHttpApi(node: Node, parent?: Node): void {
+        // consider this as a start node
+        node.viewState.y = this.lastNodeY;
+        this.lastNodeY += node.viewState.h + NODE_GAP_Y;
+
+        node.viewState.x = this.diagramCenterX - node.viewState.w / 2;
+    }
+
+    beginVisitIf(node: Node, parent?: Node): void {
+        node.viewState.y = this.lastNodeY;
+        this.lastNodeY += node.viewState.h + NODE_GAP_Y;
+
+        const centerX = parent ? parent.viewState.x + parent.viewState.cw / 2 : this.diagramCenterX;
+        node.viewState.x = centerX - node.viewState.w / 2;
+
+        const thenBranch = node.branches.find((branch) => branch.label === "Then");
+        thenBranch.viewState.y = this.lastNodeY;
+
+        const elseBranch = node.branches.find((branch) => branch.label === "Else");
+        elseBranch.viewState.y = this.lastNodeY;
+
+        // center if branch
+        const thenWidth = thenBranch.viewState.cw;
+        const elseWidth = elseBranch.viewState.cw;
+        const gap = NODE_GAP_X;
+
+        thenBranch.viewState.x = centerX - (3 * thenWidth + elseWidth + 2 * gap) / 4;
+        elseBranch.viewState.x = centerX + (thenWidth - elseWidth + 2 * gap) / 4;
+    }
+
+    endVisitIf(node: Node, parent?: Node): void {
+        this.lastNodeY = node.viewState.y + node.viewState.ch + NODE_GAP_Y;
+    }
+
+    beginVisitBlock(node: Branch, parent?: Node): void {
+        this.lastNodeY = node.viewState.y;
+    }
+
+    beginVisitNode(node: Node, parent?: Node): void {
+        if (!node.viewState.y) {
+            node.viewState.y = this.lastNodeY;
+        }
+        this.lastNodeY += node.viewState.h + NODE_GAP_Y;
+
+        if (!node.viewState.x) {
+            const center = parent ? parent.viewState.x + parent.viewState.w / 2 : this.diagramCenterX;
+            node.viewState.x = center - node.viewState.w / 2;
+        }
     }
 
     skipChildren(): boolean {
@@ -27,5 +77,4 @@ export class PositionVisitor implements BaseVisitor {
     getNodePosition(node: Node, parent: Node) {
         return { x: node.viewState.x, y: node.viewState.y };
     }
-    
 }
