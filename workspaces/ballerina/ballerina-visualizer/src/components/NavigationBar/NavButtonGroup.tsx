@@ -35,9 +35,6 @@ export function NavButtonGroup(props: NavButtonGroupProps) {
     const handleHomeButtonClick = () => {
         rpcClient.getVisualizerRpcClient().goHome();
     }
-    const handleProjectDesignClick = () => {
-        rpcClient.getVisualizerRpcClient().openView({ view: "ArchitectureDiagram" });
-    }
 
     return (
         <>

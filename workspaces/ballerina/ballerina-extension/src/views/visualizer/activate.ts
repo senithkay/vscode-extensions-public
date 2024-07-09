@@ -20,11 +20,6 @@ export function activateSubscriptions() {
         })
     );
     context.subscriptions.push(
-        vscode.commands.registerCommand(PALETTE_COMMANDS.SHOW_ARCHITECTURE_VIEW, () => {
-            openView("OPEN_VIEW", { view: 'ArchitectureDiagram' });
-        })
-    );
-    context.subscriptions.push(
         vscode.commands.registerCommand(PALETTE_COMMANDS.SHOW_ENTITY_DIAGRAM, (path, selectedRecord = "") => {
             openView("OPEN_VIEW", { view: 'ERDiagram', documentUri: path?.fsPath || vscode.window.activeTextEditor.document.uri.fsPath, identifier: selectedRecord});
         })
