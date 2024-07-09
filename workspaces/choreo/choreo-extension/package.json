@@ -310,7 +310,8 @@
     "webpack": "^5.56.0",
     "webpack-cli": "^4.10.0",
     "webpack-permissions-plugin": "^1.0.9",
-    "yarn": "^1.22.19"
+    "yarn": "^1.22.19",
+    "terser-webpack-plugin": "^1.1.0"
   },
   "dependencies": {
     "@types/chai": "^4.2.18",

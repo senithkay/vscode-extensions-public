@@ -299,7 +299,7 @@ export class ExtendedLangClient extends LanguageClient {
     }
 
     async getTrigger(params: TriggerParams): Promise<Trigger | NOT_SUPPORTED_TYPE> {
-        return this.sendRequest<Trigger>(EXTENDED_APIS.TRIGGER_TRIGGER, params)
+        return this.sendRequest<Trigger>(EXTENDED_APIS.TRIGGER_TRIGGER, params);
     }
 
     async getRecord(params: RecordParams): Promise<BallerinaRecord | NOT_SUPPORTED_TYPE> {

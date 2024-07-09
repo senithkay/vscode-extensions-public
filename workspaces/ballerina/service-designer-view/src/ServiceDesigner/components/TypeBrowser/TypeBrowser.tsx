@@ -123,7 +123,7 @@ export const TypeBrowser: React.FC<TypeBrowserProps> = (props: TypeBrowserProps)
 
     const fetchTypes = async () => {
         const types = await commonRpcClient.getTypes();
-        setItems(types.data?.completions.map(type => type.insertText));
+        setItems(types.data.map(type => type.insertText));
     };
 
     useEffect(() => {

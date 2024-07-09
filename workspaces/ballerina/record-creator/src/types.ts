@@ -9,7 +9,7 @@
 
 import { BallerinaProjectComponents, STModification, SyntaxTreeResponse } from "@wso2-enterprise/ballerina-core";
 import {
-    LangServerRpcClient,
+    LangClientRpcClient,
     LibraryBrowserRpcClient,
     RecordCreatorRpcClient
 } from "@wso2-enterprise/ballerina-rpc-client";
@@ -56,7 +56,7 @@ export interface ExpressionInfo {
 
 interface IStatementEditorComponentProps {
     targetPosition: NodePosition;
-    langServerRpcClient: LangServerRpcClient;
+    langServerRpcClient: LangClientRpcClient;
     libraryBrowserRpcClient: LibraryBrowserRpcClient;
     currentFile?: {
         content: string;

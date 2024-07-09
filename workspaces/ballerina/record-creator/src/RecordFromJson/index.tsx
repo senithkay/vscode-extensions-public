@@ -9,7 +9,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useEffect, useReducer } from "react";
 
-import { DIAGNOSTIC_SEVERITY, JsonToRecordResponse } from "@wso2-enterprise/ballerina-core";
+import { DIAGNOSTIC_SEVERITY, JsonToRecord } from "@wso2-enterprise/ballerina-core";
 import { ModulePart, NodePosition, STKindChecker, STNode, TypeDefinition } from "@wso2-enterprise/syntax-tree";
 import debounce from "lodash.debounce";
 
@@ -151,7 +151,7 @@ export function RecordFromJson(recordFromJsonProps: RecordFromJsonProps) {
 
     // This fix is added due to incorrect record name generation from ballerina side.
     // This can be removed once that issue is fixed
-    const fixNewRecordResponse = (response: JsonToRecordResponse) => {
+    const fixNewRecordResponse = (response: JsonToRecord) => {
         const expected = `type ${formState.recordName}`;
         const notExpected = "type NewRecord";
         if (response.codeBlock && !response.codeBlock.includes(expected) && response.codeBlock.includes(notExpected)) {

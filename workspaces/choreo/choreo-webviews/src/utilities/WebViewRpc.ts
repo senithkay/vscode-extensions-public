@@ -100,7 +100,7 @@ import {
     GetBuildpack,
     CreateBalLocalComponentFromExistingSource,
 } from "@wso2-enterprise/choreo-core";
-import { ComponentModelResponse } from "@wso2-enterprise/ballerina-core";
+import { ComponentModel } from "@wso2-enterprise/ballerina-core";
 import { IChoreoProjectClient } from "@wso2-enterprise/choreo-client/lib/project/types";
 import { ChoreoProjectClientRPCWebView } from "@wso2-enterprise/choreo-client/lib/project/rpc";
 import { ChoreoGithubAppClientRPCWebView } from "@wso2-enterprise/choreo-client/lib/github/rpc/ghapp-client-rpc-webview";
@@ -282,7 +282,7 @@ export class ChoreoWebViewAPI {
         return this._messenger.sendRequest(OpenCellView, HOST_EXTENSION, undefined);
     }
 
-    public async getDiagramComponentModel(projId: string, orgId: number): Promise<ComponentModelResponse> {
+    public async getDiagramComponentModel(projId: string, orgId: number): Promise<ComponentModel> {
         return this._messenger.sendRequest(getDiagramComponentModel, HOST_EXTENSION, { projId, orgId } );
     }
 

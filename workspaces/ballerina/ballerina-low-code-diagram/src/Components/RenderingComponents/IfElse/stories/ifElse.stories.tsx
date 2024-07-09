@@ -45,7 +45,7 @@ const Template: Story<{ f1: string }> = (args: {f1: string }) => {
         const filePath = `${getComponentDataPath(componentName, samplefile1)}`;
 
         async function setSyntaxTree() {
-            const syntaxTree = await fetchSyntaxTree(filePath);
+            const syntaxTree = await fetchSyntaxTree(filePath) as ModulePart;
             setSt(syntaxTree);
         }
         setSyntaxTree();

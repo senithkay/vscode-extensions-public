@@ -31,7 +31,7 @@ const Template: Story<{ f1: string }> = (args: { f1: string }) => {
     useEffect(() => {
         const filePath = `${getSourceRoot() + "stories/data/" + fileName}`;
         async function setSyntaxTree() {
-            const syntaxTree = await fetchSyntaxTree(filePath);
+            const syntaxTree = await fetchSyntaxTree(filePath) as ModulePart;
             setSt(syntaxTree);
         }
         setSyntaxTree();

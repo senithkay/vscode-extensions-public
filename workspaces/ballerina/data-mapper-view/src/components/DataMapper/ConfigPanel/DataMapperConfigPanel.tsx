@@ -16,7 +16,7 @@ import {
     STModification,
     updateFunctionSignature,
 } from "@wso2-enterprise/ballerina-core";
-import { LangServerRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
+import { LangClientRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
 import { Button, Divider, Typography, Codicon, SidePanel, Confirm } from "@wso2-enterprise/ui-toolkit";
 import {
     ExpressionFunctionBody,
@@ -63,7 +63,7 @@ export interface DataMapperConfigPanelProps {
     onSave: (funcName: string, inputParams: DataMapperInputParam[], outputType: DataMapperOutputParam) => void;
     onClose: () => void;
     applyModifications: (modifications: STModification[]) => Promise<void>;
-    langServerRpcClient: LangServerRpcClient;
+    langServerRpcClient: LangClientRpcClient;
     recordPanel?: (props: { targetPosition: NodePosition, closeAddNewRecord: (createdNewRecord?: string) => void, onUpdate: (updated: boolean) => void }) => React.ReactElement;
 }
 

@@ -13,7 +13,7 @@ import {
     STModification,
     STSymbolInfo
 } from "@wso2-enterprise/ballerina-core";
-import { LangServerRpcClient } from '@wso2-enterprise/ballerina-rpc-client';
+import { LangClientRpcClient } from '@wso2-enterprise/ballerina-rpc-client';
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import { WorkspaceEdit } from "vscode-languageserver-protocol";
 
@@ -57,7 +57,7 @@ export interface FormEditorProps {
     syntaxTree?: STNode;
     fullST?: STNode;
     isEdit?: boolean;
-    langServerRpcClient: LangServerRpcClient;
+    langServerRpcClient: LangClientRpcClient;
     onChange: (code: string, partialST: STNode, moduleList?: Set<string>, currentModel?: CurrentModel,
                newValue?: string, completionKinds?: number[], offsetLineCount?: number,
                diagnosticOffSet?: NodePosition) => void;

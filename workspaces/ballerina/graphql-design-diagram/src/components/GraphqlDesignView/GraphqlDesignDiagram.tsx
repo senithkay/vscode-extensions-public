@@ -10,7 +10,7 @@
 import React, { useEffect, useState } from "react";
 
 import {
-    GraphqlDesignServiceResponse, ExtendedLangClientInterface
+    ExtendedLangClientInterface, GraphqlDesignService
 } from "@wso2-enterprise/ballerina-core";
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
@@ -28,7 +28,7 @@ export interface GraphqlDesignDiagramProps {
     targetPosition?: NodePosition;
     langClientPromise?: Promise<ExtendedLangClientInterface>;
     filePath: string;
-    graphqlModelResponse: GraphqlDesignServiceResponse;
+    graphqlModelResponse: GraphqlDesignService;
     currentFile?: {
         content: string,
         path: string,
