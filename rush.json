@@ -520,6 +520,11 @@
       "projectFolder": "workspaces/ballerina/sequence-diagram",
       "versionPolicyName": "ballerina-extension"
     },
+    {
+      "packageName": "@wso2-enterprise/ballerina-side-panel",
+      "projectFolder": "workspaces/ballerina/ballerina-side-panel",
+      "versionPolicyName": "ballerina-extension"
+    },
     // {
     //   "packageName": "@wso2-enterprise/ballerina-low-code-editor-distribution",
     //   "projectFolder": "workspaces/ballerina/low-code-distribution",
