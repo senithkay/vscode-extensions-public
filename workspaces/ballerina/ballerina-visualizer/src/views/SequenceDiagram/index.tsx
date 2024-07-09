@@ -42,6 +42,7 @@ export function SequenceDiagram() {
     const { rpcClient } = useVisualizerContext();
 
     const [st, setSt] = useState<STNode>();
+    const [showPanel, setShowPanel] = useState<boolean>(false);
 
     useEffect(() => {
         getSequenceModel();
@@ -90,9 +91,11 @@ export function SequenceDiagram() {
 
     return (
         <>
-            <Container>{!!st && <LowCodeDiagram syntaxTree={st} isReadOnly={false} />}</Container>
-            <ComponentPanel show={true} onClose={()=>{}}>
-                <ComponentList onAdd={(kind:string)=>{}} />
+            <Container>{!!st && 
+                <LowCodeDiagram syntaxTree={st} isReadOnly={false} onAddComponent={() => { setShowPanel(true) }} />
+            }</Container>
+            <ComponentPanel show={showPanel} onClose={() => { setShowPanel(false) }}>
+                <ComponentList onAdd={(kind: string) => { }} />
             </ComponentPanel>
         </>
     );

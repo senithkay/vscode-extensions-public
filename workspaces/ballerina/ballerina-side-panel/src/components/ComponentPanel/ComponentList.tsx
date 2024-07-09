@@ -86,9 +86,13 @@ export function ComponentList(props: ComponentListProps) {
 
     const flowControls: { kind: string; label: string }[] = [
         { kind: "IF", label: "If" },
-        { kind: "RETURN", label: "Return" },
-        { kind: "HTTP_API_GET_CALL", label: "HTTP GET" },
-        { kind: "HTTP_API_POST_CALL", label: "HTTP POST" },
+        { kind: "FOR_EACH", label: "Foreach" },
+        { kind: "WHILE", label: "While" },
+        { kind: "VARIABLE", label: "Variable" },
+        { kind: "ASSIGNMENT", label: "Assignment" },
+        { kind: "FUNCTION_CALL", label: "Function Call" },
+        { kind: "CONNECTOR", label: "Connector" },
+        { kind: "ACTION", label: "Action" },
     ];
 
     const handleOnSearch = (text: string) => {
@@ -106,7 +110,7 @@ export function ComponentList(props: ComponentListProps) {
                 <S.StyledSearchInput value={searchText} autoFocus={true} onChange={handleOnSearch} size={60} />
             </S.Row>
             <S.Row>
-                <S.Title>Flow Components</S.Title>
+                <S.Title>Add Component</S.Title>
             </S.Row>
             <S.Grid>
                 {flowControls.map((flowControl, index) => (
