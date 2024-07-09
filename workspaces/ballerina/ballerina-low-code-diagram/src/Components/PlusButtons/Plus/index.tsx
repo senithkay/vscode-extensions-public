@@ -83,6 +83,9 @@ export const PlusButton = (props: PlusProps) => {
 
     // On click for the plus button in plus collapse button.
     const handlePlusClick = () => {
+        // TODO: need to wire this with diagram
+        diagramContext.props.onAddComponent();
+        return;
         setStates({
             isPlusHolderShown: true
         });
