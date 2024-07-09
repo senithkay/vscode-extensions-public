@@ -137,6 +137,13 @@ const APIContentHeader = styled.div`
     overflow: hidden;
 `;
 
+const ViewWrapper = styled.div`
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: scroll;
+`;
+
 export interface SwaggerDetails {
     isSwaggerTriggered: boolean;
     swaggerData?: SwaggerData;
@@ -378,21 +385,22 @@ export function RuntimeServicePanel() {
                                 <div>Server Status: {serverRunStatus}</div>
                             </ServerStatus>
                         </ViewHeader>
-
-                        <ViewContent padding={true}>
-                            {services ?
-                                (
-                                    <Fragment>
-                                        {renderRuntimeServices()}
-                                    </Fragment>
-                                ) :
-                                (
-                                    <LoaderWrapper>
-                                        <ProgressRing />
-                                    </LoaderWrapper>
-                                )
-                            }
-                        </ViewContent>
+                        <ViewWrapper>
+                            <ViewContent padding={true}>
+                                {services ?
+                                    (
+                                        <Fragment>
+                                            {renderRuntimeServices()}
+                                        </Fragment>
+                                    ) :
+                                    (
+                                        <LoaderWrapper>
+                                            <ProgressRing />
+                                        </LoaderWrapper>
+                                    )
+                                }
+                            </ViewContent>
+                        </ViewWrapper>
                     </>
                 }
             </>
