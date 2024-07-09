@@ -38,6 +38,23 @@ const ServerStatus = styled.div`
     &:hover {
         background-color: var(--vscode-list-hoverBackground);
     };
+    display: flex;
+`;
+
+export type CircleStyleProp = {
+    isRunning: boolean;
+};
+const ServerStatusIcon = styled.div<CircleStyleProp>`
+    width: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-right: 10px;
+    width: 8px;
+    height: 8px;
+    border: 2px solid ${(props: CircleStyleProp) => (props.isRunning ? "green" : "red")};
+    background: ${(props: CircleStyleProp) => (props.isRunning ? "green" : "red")};
+    border-radius: 50%;
 `;
 
 const ApiContent = styled.div`
@@ -346,14 +363,20 @@ export function RuntimeServicePanel() {
                             </VSCodeButton>
                         </NavigationContainer>
                         <ViewHeader title={"Swagger View"} >
-                            <ServerStatus>Server Status: {serverRunStatus}</ServerStatus>
+                            <ServerStatus>
+                                <ServerStatusIcon isRunning={serverRunStatus === "Running" ? true : false} />
+                                <div>Server Status: {serverRunStatus}</div>
+                            </ServerStatus>
                         </ViewHeader>
                         <SwaggerPanel swaggerData={isSwaggerEnabled.swaggerData} />
                     </>
                     :
                     <>
                         <ViewHeader title={"Available Runtime Services"} codicon='server' >
-                            <ServerStatus>Server Status: {serverRunStatus}</ServerStatus>
+                            <ServerStatus>
+                                <ServerStatusIcon isRunning={serverRunStatus === "Running" ? true : false} />
+                                <div>Server Status: {serverRunStatus}</div>
+                            </ServerStatus>
                         </ViewHeader>
 
                         <ViewContent padding={true}>
