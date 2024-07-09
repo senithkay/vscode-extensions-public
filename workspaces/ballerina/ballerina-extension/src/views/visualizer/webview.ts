@@ -69,7 +69,7 @@ export class VisualizerWebview {
         const styles = `
             .container {
                 background-color: var(--vscode-editor-background);
-                padding: 15px;
+                padding: 8px;
                 height: 100vh;
                 overflow: auto;
                 width: 100%;

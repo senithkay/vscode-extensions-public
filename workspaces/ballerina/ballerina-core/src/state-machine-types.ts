@@ -11,7 +11,7 @@
 import { NotificationType, RequestType } from "vscode-messenger-common";
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
-export type MachineViews = "Overview" | "SequenceDiagram" | "ServiceDesigner" | "ArchitectureDiagram" | "ERDiagram" | "DataMapper" | "GraphQLDiagram" | "SequenceDiagram" | "TypeDiagram";
+export type MachineViews = "Overview" | "SequenceDiagram" | "ServiceDesigner" | "ERDiagram" | "DataMapper" | "GraphQLDiagram";
 
 export type MachineStateValue =
     | 'initialize'
