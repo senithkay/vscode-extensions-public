@@ -10,7 +10,7 @@
 // tslint:disable: no-empty jsx-no-multiline-js
 import React, { createContext } from "react";
 
-import { CurrentFile, IBallerinaLangClient } from "@wso2-enterprise/ballerina-core";
+import { CurrentFile, ExtendedLangClientInterface } from "@wso2-enterprise/ballerina-core";
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { NodeType } from "../NodeFilter";
@@ -25,7 +25,7 @@ interface GraphqlDiagramContextProps {
     fullST?: STNode;
     goToSource?: (filePath: string, position: NodePosition) => void
     recordEditor?: (recordModel: STNode, filePath?: string, completeST?: STNode) => void;
-    langClientPromise?: Promise<IBallerinaLangClient>;
+    langClientPromise?: Promise<ExtendedLangClientInterface>;
     currentFile?: CurrentFile;
     setSelectedNode?: (nodeId: string) => void;
     selectedDiagramNode?: string;

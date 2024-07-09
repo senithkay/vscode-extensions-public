@@ -13,7 +13,7 @@ import { CompletionItem, CompletionItemKind, Position, TextDocument, Uri } from 
 import { BallerinaExtension } from "../../core";
 import { findPropertyValues, getConfigValue, getCurrentBallerinaProjectFromContext } from "./configGenerator";
 import { ConfigProperty, Constants, Property } from "./model";
-import { BallerinaProject, PackageConfigSchemaResponse } from "@wso2-enterprise/ballerina-core";
+import { BallerinaProject, PackageConfigSchema } from "@wso2-enterprise/ballerina-core";
 
 
 export const typeOfComment = 'Type of';
@@ -62,7 +62,7 @@ export async function getConfigCompletions(ballerinaExtInstance: BallerinaExtens
             }
         });
 
-        const data = response as PackageConfigSchemaResponse;
+        const data = response as PackageConfigSchema;
         const configSchema = data.configSchema;
         const props: object = configSchema.properties;
         const firstKey = Object.keys(props)[0];

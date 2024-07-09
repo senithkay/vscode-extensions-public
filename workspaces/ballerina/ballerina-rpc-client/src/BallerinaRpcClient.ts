@@ -12,38 +12,34 @@
 import { Messenger } from "vscode-messenger-webview";
 import { VisualizerRpcClient } from "./rpc-clients/visualizer/rpc-client";
 import { MachineStateValue, VisualizerLocation, getVisualizerLocation, stateChanged, vscode, webviewReady } from "@wso2-enterprise/ballerina-core";
-import { LangServerRpcClient } from "./rpc-clients/lang-server/rpc-client";
+import { LangClientRpcClient } from "./rpc-clients/lang-client/rpc-client";
 import { LibraryBrowserRpcClient } from "./rpc-clients/library-browser/rpc-client";
 import { HOST_EXTENSION } from "vscode-messenger-common";
-import { CommonRpcClient, GraphqlDesignerRpcClient, PersistDiagramRpcClient, RecordCreatorRpcClient, ProjectDesignDiagramRpcClient, ServiceDesignerRpcClient, SequenceDiagramRpcClient } from "./rpc-clients";
+import { CommonRpcClient, GraphqlDesignerRpcClient, PersistDiagramRpcClient, RecordCreatorRpcClient, ServiceDesignerRpcClient } from "./rpc-clients";
 
 export class BallerinaRpcClient {
 
     private messenger: Messenger;
     private _visualizer: VisualizerRpcClient;
-    private _langServer: LangServerRpcClient;
+    private _langClient: LangClientRpcClient;
     private _libraryBrowser: LibraryBrowserRpcClient;
     private _serviceDesigner: ServiceDesignerRpcClient;
-    private _commn: CommonRpcClient;
+    private _common: CommonRpcClient;
     private _persistDiagram: PersistDiagramRpcClient;
     private _GraphqlDesigner: GraphqlDesignerRpcClient;
     private _RecordCreator: RecordCreatorRpcClient;
-    private _ProjectDesignDiagram: ProjectDesignDiagramRpcClient;
-    private _SequenceDiagram: SequenceDiagramRpcClient;
 
     constructor() {
         this.messenger = new Messenger(vscode);
         this.messenger.start();
         this._visualizer = new VisualizerRpcClient(this.messenger);
-        this._langServer = new LangServerRpcClient(this.messenger);
+        this._langClient = new LangClientRpcClient(this.messenger);
         this._libraryBrowser = new LibraryBrowserRpcClient(this.messenger);
         this._serviceDesigner = new ServiceDesignerRpcClient(this.messenger);
-        this._commn = new CommonRpcClient(this.messenger);
+        this._common = new CommonRpcClient(this.messenger);
         this._persistDiagram = new PersistDiagramRpcClient(this.messenger);
         this._GraphqlDesigner = new GraphqlDesignerRpcClient(this.messenger);
         this._RecordCreator = new RecordCreatorRpcClient(this.messenger);
-        this._ProjectDesignDiagram = new ProjectDesignDiagramRpcClient(this.messenger);
-        this._SequenceDiagram = new SequenceDiagramRpcClient(this.messenger);
     }
 
     getVisualizerRpcClient(): VisualizerRpcClient {
@@ -62,28 +58,20 @@ export class BallerinaRpcClient {
         return this._GraphqlDesigner;
     }
 
-    getLangServerRpcClient(): LangServerRpcClient {
-        return this._langServer;
+    getLangClientRpcClient(): LangClientRpcClient {
+        return this._langClient;
     }
 
     getLibraryBrowserRPCClient(): LibraryBrowserRpcClient {
         return this._libraryBrowser;
     }
-
-    getProjectDesignDiagramRpcClient(): ProjectDesignDiagramRpcClient {
-        return this._ProjectDesignDiagram;
-    }
     
     getCommonRpcClient(): CommonRpcClient {
-        return this._commn;
+        return this._common;
     }
 
     getRecordCreatorRpcClient(): RecordCreatorRpcClient {
         return this._RecordCreator;
-    }
-
-    getSequenceDiagramRpcClient(): SequenceDiagramRpcClient {
-        return this._SequenceDiagram;
     }
 
     getVisualizerLocation(): Promise<VisualizerLocation> {

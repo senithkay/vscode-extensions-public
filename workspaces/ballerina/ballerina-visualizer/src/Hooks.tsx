@@ -23,7 +23,7 @@ export const useSyntaxTreeFromRange = (
     const getST = async () => {
         if (location && filePath) {
             try {
-                const response = await rpcClient?.getLangServerRpcClient().getSTByRange({
+                const response = await rpcClient?.getLangClientRpcClient().getSTByRange({
                     lineRange: transformNodePosition(location),
                     documentIdentifier: {
                         uri: URI.file(filePath).toString()

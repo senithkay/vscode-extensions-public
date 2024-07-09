@@ -20,7 +20,7 @@ import {
 import { IDataMapperContext } from "../../../utils/DataMapperContext/DataMapperContext";
 import { isPositionsEquals } from "../../../utils/st-utils";
 import { FnDefPositions, TypeFindingVisitor } from "../visitors/TypeFindingVisitor";
-import { LangServerRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
+import { LangClientRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
 import { URI } from "vscode-uri";
 
 export enum TypeStoreStatus {
@@ -51,7 +51,7 @@ export class TypeDescriptorStore {
         stNode: FunctionDefinition,
         context: IDataMapperContext,
         isArraysSupported: boolean,
-        langServerRpcClient: LangServerRpcClient) {
+        langServerRpcClient: LangClientRpcClient) {
 
         if (this.stNode
                 && isPositionsEquals(this.stNode.position, stNode.position)
@@ -86,7 +86,7 @@ export class TypeDescriptorStore {
     async setTypesForExpressions(
         fileUri: string,
         expressionNodesRanges: ExpressionRange[],
-        langServerRpcClient: LangServerRpcClient) {
+        langServerRpcClient: LangClientRpcClient) {
 
         const typesFromExpression = await langServerRpcClient.getTypeFromExpression({
             documentIdentifier: {
@@ -103,7 +103,7 @@ export class TypeDescriptorStore {
     async setTypesForSymbol(
         fileUri: string,
         symbolNodesPositions: LinePosition[],
-        langServerRpcClient: LangServerRpcClient) {
+        langServerRpcClient: LangClientRpcClient) {
 
         const typesFromSymbol = await langServerRpcClient.getTypeFromSymbol({
             documentIdentifier: {
@@ -120,7 +120,7 @@ export class TypeDescriptorStore {
     async setTypesForFnParamsAndReturnType(
         fileUri: string,
         fnDefPositions: FnDefPositions,
-        langServerRpcClient: LangServerRpcClient) {
+        langServerRpcClient: LangClientRpcClient) {
 
         if (fnDefPositions.fnNamePosition === undefined || fnDefPositions.returnTypeDescPosition === undefined) {
             return;

@@ -8,7 +8,7 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { ComponentModel, GetPersistERModelResponse } from '@wso2-enterprise/ballerina-core';
+import { ComponentModel, PersistERModel } from '@wso2-enterprise/ballerina-core';
 import { DiagramEngine, DiagramModel } from '@projectstorm/react-diagrams';
 import { ProgressRing } from '@wso2-enterprise/ui-toolkit';
 import { CMEntity as Entity } from '@wso2-enterprise/ballerina-core';
@@ -21,7 +21,7 @@ import './resources/assets/font/fonts.css';
 import { NavigationWrapperCanvasWidget } from "./components/DiagramNavigationWrapper/NavigationWrapperCanvasWidget";
 
 interface PersistDiagramProps {
-    getPersistModel: () => Promise<GetPersistERModelResponse>;
+    getPersistModel: () => Promise<PersistERModel>;
     selectedRecordName: string;
     showProblemPanel: () => void;
 }

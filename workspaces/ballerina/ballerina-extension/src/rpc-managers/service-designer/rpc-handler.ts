@@ -9,8 +9,8 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
-    RecordSTRequest,
-    getRecordST
+    getRecordST,
+    RecordSTRequest
 } from "@wso2-enterprise/ballerina-core";
 import { Messenger } from "vscode-messenger";
 import { ServiceDesignerRpcManager } from "./rpc-manager";

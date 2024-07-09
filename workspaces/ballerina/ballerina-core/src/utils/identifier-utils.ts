@@ -7,7 +7,9 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { BallerinaProjectComponents, ComponentInfo } from "../rpc-types/lang-server/interfaces";
+
+import { ComponentInfo } from "../interfaces/ballerina";
+import { BallerinaProjectComponents } from "../interfaces/extended-lang-client";
 
 function convertToCamelCase(variableName: string): string {
     return variableName

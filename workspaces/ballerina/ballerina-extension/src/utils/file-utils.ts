@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { window, Uri, workspace, ProgressLocation, ConfigurationTarget, MessageItem, Progress, commands, StatusBarAlignment, languages, Range, TextEditorRevealType, Selection } from "vscode";
-import { GetSyntaxTreeResponse } from "@wso2-enterprise/ballerina-core";
+import { SyntaxTree } from "@wso2-enterprise/ballerina-core";
 import axios from "axios";
 import { createHash } from "crypto";
 import * as fs from 'fs';
@@ -398,7 +398,7 @@ async function resolveModules(langClient: ExtendedLangClient, pathValue) {
                     uri: uriString
                 }
             }, cancellationToken);
-            const response = dependenciesResponse as GetSyntaxTreeResponse;
+            const response = dependenciesResponse as SyntaxTree;
             if (response.parseSuccess) {
                 progress.report({ increment: 60 });
                 // Rebuild the file to update the LS.

@@ -7,6 +7,8 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
+import { LineRange } from "./common";
+
 export type Flow = {
     nodes: Node[];
     name: string;
@@ -55,12 +57,6 @@ export type Branch = {
     label: string;
     children: Node[];
     viewState?: ViewState;
-};
-
-export type LineRange = {
-    fileName: string;
-    startLine: number[];
-    endLine: number[];
 };
 
 export type Expression = {

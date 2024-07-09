@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { RequestType, NotificationType } from 'vscode-messenger-common';
-import { ComponentModelResponse } from '@wso2-enterprise/ballerina-core';
+import { ComponentModels } from '@wso2-enterprise/ballerina-core';
 import {
    Organization,
    ChoreoLoginStatus,
@@ -138,7 +138,7 @@ export const PushLocalComponentsToChoreo: RequestType<PushLocalComponentsToChore
 export const PushLocalComponentToChoreo: RequestType<{projectId: string; componentName: string }, void> = { method: 'pushLocalComponentToChoreo' };
 export const OpenCellView: RequestType<string, void> = { method: 'openCellView' };
 export const getEndpointsForVersion: RequestType<{componentId: string, versionId: string, orgId: number}, EndpointData | null> = { method: 'getEndpointsForVersion' };
-export const getDiagramComponentModel: RequestType<{ projId: string, orgId: number }, ComponentModelResponse> = { method: 'getDiagramComponentModel' };
+export const getDiagramComponentModel: RequestType<{ projId: string, orgId: number }, ComponentModels> = { method: 'getDiagramComponentModel' };
 export const ExecuteCommandRequest: RequestType<string[], unknown> = { method: 'executeCommand' };
 export const UpdateProjectOverview: RequestType<string, void> = { method: 'updateProjectOverview' };
 export const showOpenDialogRequest: RequestType<OpenDialogOptions, string[]> = { method: 'showOpenDialog' };

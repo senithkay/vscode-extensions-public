@@ -9,8 +9,8 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
-    JsonToRecordRequest,
-    XMLToRecordRequest,
+    JsonToRecordParams,
+    XMLToRecordParams,
     convertJsonToRecord,
     convertXMLToRecord
 } from "@wso2-enterprise/ballerina-core";
@@ -19,6 +19,6 @@ import { RecordCreatorRpcManager } from "./rpc-manager";
 
 export function registerRecordCreatorRpcHandlers(messenger: Messenger) {
     const rpcManger = new RecordCreatorRpcManager();
-    messenger.onRequest(convertJsonToRecord, (args: JsonToRecordRequest) => rpcManger.convertJsonToRecord(args));
-    messenger.onRequest(convertXMLToRecord, (args: XMLToRecordRequest) => rpcManger.convertXMLToRecord(args));
+    messenger.onRequest(convertJsonToRecord, (args: JsonToRecordParams) => rpcManger.convertJsonToRecord(args));
+    messenger.onRequest(convertXMLToRecord, (args: XMLToRecordParams) => rpcManger.convertXMLToRecord(args));
 }

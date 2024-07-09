@@ -8,9 +8,9 @@
  * 
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
-import { GetPersistERModelResponse } from "./interfaces";
+import { PersistERModel } from "../../interfaces/extended-lang-client";
 import { RequestType, NotificationType } from "vscode-messenger-common";
 
 const _preFix = "persist-diagram";
-export const getPersistERModel: RequestType<void, GetPersistERModelResponse> = { method: `${_preFix}/getPersistERModel` };
+export const getPersistERModel: RequestType<void, PersistERModel> = { method: `${_preFix}/getPersistERModel` };
 export const showProblemPanel: NotificationType<void> = { method: `${_preFix}/showProblemPanel` };

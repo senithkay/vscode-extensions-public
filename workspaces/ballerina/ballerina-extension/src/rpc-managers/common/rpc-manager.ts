@@ -15,17 +15,17 @@ import {
     Completion,
     CompletionParams,
     DiagnosticData,
-    GetSyntaxTreeResponse,
+    SyntaxTree,
     GoToSourceRequest,
     TypeResponse,
     WorkspaceFileRequest,
     WorkspacesFileResponse
 } from "@wso2-enterprise/ballerina-core";
 import { Uri, workspace } from "vscode";
+import { URI } from "vscode-uri";
 import { StateMachine } from "../../stateMachine";
 import { goToSource } from "../../utils";
 import { getUpdatedSource } from "./utils";
-import { URI } from "vscode-uri";
 
 export class CommonRpcManager implements CommonRPCAPI {
     async getTypes(): Promise<TypeResponse> {
@@ -46,7 +46,7 @@ export class CommonRpcManager implements CommonRPCAPI {
 
             const completions: Completion[] = await StateMachine.langClient().getCompletion(completionParams);
             const filteredCompletions: Completion[] = completions.filter(value => value.kind === 25 || value.kind === 23);
-            resolve({ data: { completions: filteredCompletions } });
+            resolve({ data: filteredCompletions });
         });
     }
 
@@ -75,7 +75,7 @@ export class CommonRpcManager implements CommonRPCAPI {
 
             const fullST = await StateMachine.langClient().getSyntaxTree({
                 documentIdentifier: { uri: documentUri }
-            }) as GetSyntaxTreeResponse;
+            }) as SyntaxTree;
 
             const currentSource = fullST.syntaxTree.source;
 
@@ -117,7 +117,7 @@ export class CommonRpcManager implements CommonRPCAPI {
 
                 const response = {
                     diagnostics: params.checkSeverity ?
-                        diagResp[0]?.diagnostics.filter(diag => diag.severity === params.checkSeverity) || []:
+                        diagResp[0]?.diagnostics.filter(diag => diag.severity === params.checkSeverity) || [] :
                         diagResp[0]?.diagnostics || []
                 } as BallerinaDiagnosticsResponse;
                 resolve(response);

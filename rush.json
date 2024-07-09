@@ -516,11 +516,6 @@
       "versionPolicyName": "ballerina-extension"
     },
     {
-      "packageName": "@wso2-enterprise/sequence-diagram",
-      "projectFolder": "workspaces/ballerina/sequence-diagram",
-      "versionPolicyName": "ballerina-extension"
-    },
-    {
       "packageName": "@wso2-enterprise/ballerina-side-panel",
       "projectFolder": "workspaces/ballerina/ballerina-side-panel",
       "versionPolicyName": "ballerina-extension"
@@ -589,11 +584,6 @@
       "packageName": "@wso2-enterprise/cell-diagram",
       "projectFolder": "workspaces/choreo/cell-diagram",
       "versionPolicyName": "choreo-extension"
-    },
-    {
-      "packageName": "@wso2-enterprise/project-design-diagrams",
-      "projectFolder": "workspaces/ballerina/project-design-diagrams",
-      "versionPolicyName": "ballerina-extension"
     },
     {
       "packageName": "@wso2-enterprise/persist-layer-diagram",

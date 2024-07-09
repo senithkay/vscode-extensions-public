@@ -13,15 +13,13 @@ import { StateMachine } from './stateMachine';
 import { stateChanged, getVisualizerLocation, VisualizerLocation } from '@wso2-enterprise/ballerina-core';
 import { VisualizerWebview } from './views/visualizer/webview';
 import { registerVisualizerRpcHandlers } from './rpc-managers/visualizer/rpc-handler';
-import { registerLangServerRpcHandlers } from './rpc-managers/lang-server/rpc-handler';
+import { registerLangClientRpcHandlers } from './rpc-managers/lang-client/rpc-handler';
 import { registerLibraryBrowserRpcHandlers } from './rpc-managers/library-browser/rpc-handler';
 import { registerServiceDesignerRpcHandlers } from './rpc-managers/service-designer/rpc-handler';
 import { registerCommonRpcHandlers } from './rpc-managers/common/rpc-handler';
 import { registerPersistDiagramRpcHandlers } from './rpc-managers/persist-diagram/rpc-handler';
 import { registerGraphqlDesignerRpcHandlers } from './rpc-managers/graphql-designer/rpc-handler';
-import { registerProjectDesignDiagramRpcHandlers } from './rpc-managers/project-design-diagram/rpc-handler';
 import { registerRecordCreatorRpcHandlers } from './rpc-managers/record-creator/rpc-handler';
-import { registerSequenceDiagramRpcHandlers} from './rpc-managers/sequence-diagram/rpc-handler';
 
 export class RPCLayer {
     static _messenger: Messenger;
@@ -42,15 +40,13 @@ export class RPCLayer {
 
         RPCLayer._messenger.onRequest(getVisualizerLocation, () => getContext());
         registerVisualizerRpcHandlers(RPCLayer._messenger);
-        registerLangServerRpcHandlers(RPCLayer._messenger);
+        registerLangClientRpcHandlers(RPCLayer._messenger);
         registerLibraryBrowserRpcHandlers(RPCLayer._messenger);
         registerServiceDesignerRpcHandlers(RPCLayer._messenger);
         registerCommonRpcHandlers(RPCLayer._messenger);
         registerPersistDiagramRpcHandlers(RPCLayer._messenger);
         registerGraphqlDesignerRpcHandlers(RPCLayer._messenger);
-        registerProjectDesignDiagramRpcHandlers(RPCLayer._messenger);
         registerRecordCreatorRpcHandlers(RPCLayer._messenger);
-        registerSequenceDiagramRpcHandlers(RPCLayer._messenger);
     }
 
     static create(webViewPanel: WebviewPanel | WebviewView) {

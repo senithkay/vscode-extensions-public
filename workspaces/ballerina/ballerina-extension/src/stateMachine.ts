@@ -2,7 +2,7 @@
 import { ExtendedLangClient, ballerinaExtInstance } from './core';
 import { createMachine, assign, interpret } from 'xstate';
 import { activateBallerina } from './extension';
-import { EventType, GetSyntaxTreeResponse, History, HistoryEntry, MachineStateValue, MachineViews, STByRangeRequest, SyntaxTreeResponse, UndoRedoManager, VisualizerLocation, webviewReady } from "@wso2-enterprise/ballerina-core";
+import { EventType, SyntaxTree, History, HistoryEntry, MachineStateValue, MachineViews, STByRangeRequest, SyntaxTreeResponse, UndoRedoManager, VisualizerLocation, webviewReady } from "@wso2-enterprise/ballerina-core";
 import { fetchAndCacheLibraryData } from './features/library-browser';
 import { VisualizerWebview } from './views/visualizer/webview';
 import { Uri } from 'vscode';
@@ -210,7 +210,7 @@ const stateMachine = createMachine<MachineContext>(
                     documentIdentifier: {
                         uri: Uri.file(documentUri).toString()
                     }
-                }) as GetSyntaxTreeResponse;
+                }) as SyntaxTree;
 
                 if (!selectedEntry?.location.view) {
                     return resolve({ view: "Overview", documentUri: context.documentUri });

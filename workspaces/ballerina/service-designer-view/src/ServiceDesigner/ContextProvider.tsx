@@ -8,7 +8,8 @@
  */
 
 import React, { createContext, ReactNode, useState } from "react";
-import { CommonRPCAPI, Diagnostic, NodePosition, STModification } from "@wso2-enterprise/ballerina-core";
+import { CommonRPCAPI, Diagnostic, STModification } from "@wso2-enterprise/ballerina-core";
+import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
 export interface ServiceDesignerContext {
   diagnostics: Diagnostic[];

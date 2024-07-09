@@ -9,11 +9,11 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
-    TriggerRequest,
-    TriggerResponse,
+    Trigger,
+    TriggerParams,
     TriggerWizardAPI,
-    TriggersRequest,
-    TriggersResponse,
+    Triggers,
+    TriggersParams,
     getTrigger,
     getTriggers
 } from "@wso2-enterprise/ballerina-core";
@@ -27,11 +27,11 @@ export class TriggerWizardRpcClient implements TriggerWizardAPI {
         this._messenger = messenger;
     }
 
-    getTriggers(params: TriggersRequest): Promise<TriggersResponse> {
+    getTriggers(params: TriggersParams): Promise<Triggers> {
         return this._messenger.sendRequest(getTriggers, HOST_EXTENSION, params);
     }
 
-    getTrigger(params: TriggerRequest): Promise<TriggerResponse> {
+    getTrigger(params: TriggerParams): Promise<Trigger> {
         return this._messenger.sendRequest(getTrigger, HOST_EXTENSION, params);
     }
 }

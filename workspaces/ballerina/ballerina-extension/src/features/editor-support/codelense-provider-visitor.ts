@@ -15,11 +15,11 @@ import {
     ObjectMethodDefinition,
     ResourceAccessorDefinition,
     STKindChecker,
-    TypeDefinition
+    TypeDefinition,
+    NodePosition
 } from "@wso2-enterprise/syntax-tree";
 import { PALETTE_COMMANDS } from "../project";
 import { CodeLens, Range, Uri } from "vscode";
-import { Position } from "../../views/forecaster/model";
 import { checkIsPersistModelFile } from "../../views/persist-layer-diagram/activator";
 
 export class CodeLensProviderVisitor implements Visitor {
@@ -123,7 +123,7 @@ export class CodeLensProviderVisitor implements Visitor {
             position.endLine,
             position.endColumn
         ));
-        const rangeData: Position = {
+        const rangeData: NodePosition = {
             startLine: range.startLine, startColumn: range.startColumn,
             endLine: range.endLine, endColumn: range.endColumn
         };

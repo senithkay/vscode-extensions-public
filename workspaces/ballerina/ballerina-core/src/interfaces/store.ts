@@ -10,7 +10,7 @@
 // tslint:disable-next-line: no-submodule-imports
 import { LocalVarDecl, NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import { Diagnostic } from "vscode-languageserver-protocol";
-import { BallerinaConnectorInfo, Connector } from "./ballerina";
+import { BallerinaConnectorInfo, BallerinaConnector } from "./ballerina";
 import { URI } from "vscode-uri";
 
 export interface DiagramCoordinates {
@@ -74,7 +74,7 @@ export interface DiagramState {
     error?: any;
     isMutationProgress?: boolean;
     isCodeEditorActive?: boolean;
-    connectors?: Connector[];
+    connectors?: BallerinaConnector[];
     isConfigFetchInProgress?: boolean;
     diagnostics?: Diagnostic[];
     stSymbolInfo?: STSymbolInfo;

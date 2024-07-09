@@ -9,7 +9,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useEffect, useReducer } from "react";
 
-import { DIAGNOSTIC_SEVERITY, XMLToRecordResponse } from "@wso2-enterprise/ballerina-core";
+import { DIAGNOSTIC_SEVERITY, XMLToRecord } from "@wso2-enterprise/ballerina-core";
 import { ModulePart, NodePosition, STKindChecker, STNode, TypeDefinition } from "@wso2-enterprise/syntax-tree";
 
 import { TextPreloaderVertical } from "../PreLoader/TextPerloaderVertical";
@@ -111,7 +111,7 @@ export function RecordFromXml(recordFromXmlProps: RecordFromXmlProps) {
 
     // This fix is added due to incorrect record name generation from ballerina side.
     // This can be removed once that issue is fixed
-    const fixNewRecordResponse = (response: XMLToRecordResponse) => {
+    const fixNewRecordResponse = (response: XMLToRecord) => {
         const expected = `type ${formState.recordName}`;
         const notExpected = "type NewRecord";
         if (response.codeBlock && !response.codeBlock.includes(expected) && response.codeBlock.includes(notExpected)) {

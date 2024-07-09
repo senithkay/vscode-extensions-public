@@ -14,7 +14,7 @@ import { commands, window, env } from "vscode";
 import { ballerinaExtInstance, DIAGNOSTIC_SEVERITY } from "../../../core";
 import { PALETTE_COMMANDS, MESSAGES } from "./cmd-runner";
 import { isSupportedSLVersion } from "../../../utils";
-import { XMLToRecordResponse } from "@wso2-enterprise/ballerina-core";
+import { XMLToRecord } from "@wso2-enterprise/ballerina-core";
 
 const MSG_NOT_SUPPORT = "Paste XML as a Ballerina record feature is not supported";
 
@@ -49,7 +49,7 @@ export function activatePasteXMLAsRecord() {
 
                 })
                     .then(lSResponse => {
-                        const response = lSResponse as XMLToRecordResponse;
+                        const response = lSResponse as XMLToRecord;
                         if (!response) {
                             window.showErrorMessage(MESSAGES.INVALID_XML_RESPONSE);
                             return;

@@ -25,7 +25,7 @@ import {
 } from "./local-var-mgt-utils";
 import { NewLetVarDeclPlusButton } from "./NewLetVarDeclPlusButton";
 import { useStyles } from "./style";
-import { LangServerRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
+import { LangClientRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
 import styled from "@emotion/styled";
 import { Button, Codicon, SidePanel } from "@wso2-enterprise/ui-toolkit";
 import { EmptyLocalVarPanel } from "./EmptyLocalVarPanel";
@@ -42,7 +42,7 @@ export interface LocalVarConfigPanelProps {
     enableStatementEditor: (expressionInfo: ExpressionInfo) => void;
     fnDef: STNode;
     applyModifications: (modifications: STModification[]) => Promise<void>;
-    langServerRpcClient: LangServerRpcClient,
+    langServerRpcClient: LangClientRpcClient,
     filePath: string;
 }
 

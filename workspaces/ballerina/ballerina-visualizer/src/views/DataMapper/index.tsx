@@ -23,7 +23,7 @@ interface DataMapperProps {
 export function DataMapper(props: DataMapperProps) {
     const { filePath, model, applyModifications } = props;
     const { rpcClient } = useVisualizerContext();
-    const langServerRpcClient = rpcClient.getLangServerRpcClient();
+    const langServerRpcClient = rpcClient.getLangClientRpcClient();
     const libraryBrowserRPCClient = rpcClient.getLibraryBrowserRPCClient();
     const recordCreatorRpcClient = rpcClient.getRecordCreatorRpcClient();
 
