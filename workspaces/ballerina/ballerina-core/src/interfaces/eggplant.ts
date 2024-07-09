@@ -43,6 +43,7 @@ export type Node = {
 };
 
 export type NodeKind =
+    | "EMPTY" // Placeholder nodes for diagram rendering
     | "EVENT_HTTP_API"
     | "BLOCK"
     | "IF"
@@ -55,6 +56,7 @@ export type Branch = {
     kind: string;
     label: string;
     children: Node[];
+    viewState?: ViewState;
 };
 
 export type Expression = {
@@ -74,10 +76,15 @@ export type NodePropertyKey = "method" | "path" | "condition" | "client" | "targ
 export type NodeProperties = { [P in NodePropertyKey]?: Expression; };
 
 export type ViewState = {
+    // element view state
     x: number;
     y: number;
     w: number;
     h: number;
+    // container view state
+    cw?: number;
+    ch?: number;
+    // flow start node
     startNodeId?: string;
 };
 

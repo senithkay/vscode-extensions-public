@@ -14,3 +14,6 @@ export * from "./state-machine-types";
 export * from "./rpc-types/visualizer";
 export * from "./rpc-types/visualizer/rpc-type";
 export * from "./rpc-types/visualizer/interfaces";
+
+// ------ Diagram interfaces --------
+export * from "./interfaces/eggplant";
