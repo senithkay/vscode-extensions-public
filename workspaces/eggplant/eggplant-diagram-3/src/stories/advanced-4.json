@@ -1,0 +1,456 @@
+{
+    "fileName": "/Users/gayanka/dev/wso2/test/eggplantproject-002/service.bal",
+    "nodes": [
+        {
+            "id": "39313",
+            "label": "HTTP API",
+            "lineRange": {
+                "fileName": "service.bal",
+                "startLine": {
+                    "line": 7,
+                    "offset": 4
+                },
+                "endLine": {
+                    "line": 23,
+                    "offset": 5
+                }
+            },
+            "kind": "EVENT_HTTP_API",
+            "returning": false,
+            "fixed": true,
+            "nodeProperties": {
+                "method": {
+                    "label": "Method",
+                    "value": "get",
+                    "typeKind": "IDENTIFIER",
+                    "optional": false,
+                    "editable": true,
+                    "documentation": "HTTP Method"
+                },
+                "path": {
+                    "label": "Path",
+                    "value": "search/doctors/[string area]",
+                    "typeKind": "URI_PATH",
+                    "optional": false,
+                    "editable": true,
+                    "documentation": "HTTP Path"
+                }
+            },
+            "flags": 2048
+        },
+        {
+            "id": "39943",
+            "label": "If",
+            "lineRange": {
+                "fileName": "service.bal",
+                "startLine": {
+                    "line": 8,
+                    "offset": 8
+                },
+                "endLine": {
+                    "line": 8,
+                    "offset": 15
+                }
+            },
+            "kind": "IF",
+            "returning": false,
+            "fixed": false,
+            "branches": [
+                {
+                    "label": "Then",
+                    "kind": "BLOCK",
+                    "children": [
+                        {
+                            "id": "42212",
+                            "label": "HTTP GET",
+                            "lineRange": {
+                                "fileName": "service.bal",
+                                "startLine": {
+                                    "line": 10,
+                                    "offset": 16
+                                },
+                                "endLine": {
+                                    "line": 10,
+                                    "offset": 52
+                                }
+                            },
+                            "kind": "HTTP_API_GET_CALL",
+                            "returning": false,
+                            "fixed": false,
+                            "nodeProperties": {
+                                "client": {
+                                    "label": "Client",
+                                    "type": "http:Client",
+                                    "value": "asiri",
+                                    "typeKind": "BTYPE",
+                                    "optional": false,
+                                    "editable": true,
+                                    "documentation": "HTTP Client Connection"
+                                },
+                                "path": {
+                                    "label": "Path",
+                                    "type": "string",
+                                    "value": "\"/doctors/colombo\"",
+                                    "typeKind": "BTYPE",
+                                    "optional": false,
+                                    "editable": true,
+                                    "documentation": "HTTP Path"
+                                },
+                                "headers": {
+                                    "label": "Headers",
+                                    "type": "map<string|string[]>?",
+                                    "typeKind": "BTYPE",
+                                    "optional": true,
+                                    "editable": true,
+                                    "documentation": "HTTP Headers"
+                                }
+                            },
+                            "flags": 1
+                        },
+                        {
+                            "id": "43165",
+                            "label": "If",
+                            "lineRange": {
+                                "fileName": "service.bal",
+                                "startLine": {
+                                    "line": 11,
+                                    "offset": 12
+                                },
+                                "endLine": {
+                                    "line": 15,
+                                    "offset": 13
+                                }
+                            },
+                            "kind": "IF",
+                            "returning": false,
+                            "fixed": false,
+                            "branches": [
+                                {
+                                    "label": "Then",
+                                    "kind": "BLOCK",
+                                    "children": [
+                                        {
+                                            "id": "44322",
+                                            "label": "HTTP GET",
+                                            "lineRange": {
+                                                "fileName": "service.bal",
+                                                "startLine": {
+                                                    "line": 12,
+                                                    "offset": 20
+                                                },
+                                                "endLine": {
+                                                    "line": 12,
+                                                    "offset": 54
+                                                }
+                                            },
+                                            "kind": "HTTP_API_GET_CALL",
+                                            "returning": false,
+                                            "fixed": false,
+                                            "nodeProperties": {
+                                                "client": {
+                                                    "label": "Client",
+                                                    "type": "http:Client",
+                                                    "value": "asiri",
+                                                    "typeKind": "BTYPE",
+                                                    "optional": false,
+                                                    "editable": true,
+                                                    "documentation": "HTTP Client Connection"
+                                                },
+                                                "path": {
+                                                    "label": "Path",
+                                                    "type": "string",
+                                                    "value": "\"/doctors/kandy\"",
+                                                    "typeKind": "BTYPE",
+                                                    "optional": false,
+                                                    "editable": true,
+                                                    "documentation": "HTTP Path"
+                                                },
+                                                "headers": {
+                                                    "label": "Headers",
+                                                    "type": "map<string|string[]>?",
+                                                    "typeKind": "BTYPE",
+                                                    "optional": true,
+                                                    "editable": true,
+                                                    "documentation": "HTTP Headers"
+                                                }
+                                            },
+                                            "flags": 1
+                                        }
+                                    ]
+                                },
+                                {
+                                    "label": "Else",
+                                    "kind": "BLOCK",
+                                    "children": [
+                                        {
+                                            "id": "46303",
+                                            "label": "HTTP GET",
+                                            "lineRange": {
+                                                "fileName": "service.bal",
+                                                "startLine": {
+                                                    "line": 14,
+                                                    "offset": 20
+                                                },
+                                                "endLine": {
+                                                    "line": 14,
+                                                    "offset": 51
+                                                }
+                                            },
+                                            "kind": "HTTP_API_GET_CALL",
+                                            "returning": false,
+                                            "fixed": false,
+                                            "nodeProperties": {
+                                                "client": {
+                                                    "label": "Client",
+                                                    "type": "http:Client",
+                                                    "value": "nawaloka",
+                                                    "typeKind": "BTYPE",
+                                                    "optional": false,
+                                                    "editable": true,
+                                                    "documentation": "HTTP Client Connection"
+                                                },
+                                                "path": {
+                                                    "label": "Path",
+                                                    "type": "string",
+                                                    "value": "\"/doctors\"",
+                                                    "typeKind": "BTYPE",
+                                                    "optional": false,
+                                                    "editable": true,
+                                                    "documentation": "HTTP Path"
+                                                },
+                                                "headers": {
+                                                    "label": "Headers",
+                                                    "type": "map<string|string[]>?",
+                                                    "typeKind": "BTYPE",
+                                                    "optional": true,
+                                                    "editable": true,
+                                                    "documentation": "HTTP Headers"
+                                                }
+                                            },
+                                            "flags": 1
+                                        }
+                                    ]
+                                }
+                            ],
+                            "nodeProperties": {
+                                "condition": {
+                                    "label": "Condition",
+                                    "type": "boolean",
+                                    "value": "area.includes(\"kandy\") ",
+                                    "typeKind": "BTYPE",
+                                    "optional": false,
+                                    "editable": true,
+                                    "documentation": "Boolean Condition"
+                                }
+                            },
+                            "flags": 0
+                        },
+                        {
+                            "id": "47900",
+                            "label": "Custom Expression",
+                            "lineRange": {
+                                "fileName": "service.bal",
+                                "startLine": {
+                                    "line": 16,
+                                    "offset": 8
+                                },
+                                "endLine": {
+                                    "line": 16,
+                                    "offset": 36
+                                }
+                            },
+                            "kind": "EXPRESSION",
+                            "returning": false,
+                            "fixed": false,
+                            "flags": 0
+                        }
+                    ]
+                },
+                {
+                    "label": "Else",
+                    "kind": "BLOCK",
+                    "children": [
+                        {
+                            "id": "50143",
+                            "label": "HTTP GET",
+                            "lineRange": {
+                                "fileName": "service.bal",
+                                "startLine": {
+                                    "line": 18,
+                                    "offset": 16
+                                },
+                                "endLine": {
+                                    "line": 18,
+                                    "offset": 47
+                                }
+                            },
+                            "kind": "HTTP_API_GET_CALL",
+                            "returning": false,
+                            "fixed": false,
+                            "nodeProperties": {
+                                "client": {
+                                    "label": "Client",
+                                    "type": "http:Client",
+                                    "value": "nawaloka",
+                                    "typeKind": "BTYPE",
+                                    "optional": false,
+                                    "editable": true,
+                                    "documentation": "HTTP Client Connection"
+                                },
+                                "path": {
+                                    "label": "Path",
+                                    "type": "string",
+                                    "value": "\"/doctors\"",
+                                    "typeKind": "BTYPE",
+                                    "optional": false,
+                                    "editable": true,
+                                    "documentation": "HTTP Path"
+                                },
+                                "headers": {
+                                    "label": "Headers",
+                                    "type": "map<string|string[]>?",
+                                    "typeKind": "BTYPE",
+                                    "optional": true,
+                                    "editable": true,
+                                    "documentation": "HTTP Headers"
+                                }
+                            },
+                            "flags": 1
+                        },
+                        {
+                            "id": "50985",
+                            "label": "Return",
+                            "lineRange": {
+                                "fileName": "service.bal",
+                                "startLine": {
+                                    "line": 19,
+                                    "offset": 12
+                                },
+                                "endLine": {
+                                    "line": 19,
+                                    "offset": 21
+                                }
+                            },
+                            "kind": "RETURN",
+                            "returning": true,
+                            "fixed": false,
+                            "nodeProperties": {
+                                "expression": {
+                                    "label": "Expression",
+                                    "type": "json",
+                                    "value": "j",
+                                    "typeKind": "BTYPE",
+                                    "optional": false,
+                                    "editable": true,
+                                    "documentation": "Return value"
+                                }
+                            },
+                            "flags": 0
+                        }
+                    ]
+                }
+            ],
+            "nodeProperties": {
+                "condition": {
+                    "label": "Condition",
+                    "type": "boolean",
+                    "value": "area == \"colombo\" ",
+                    "typeKind": "BTYPE",
+                    "optional": false,
+                    "editable": true,
+                    "documentation": "Boolean Condition"
+                }
+            },
+            "flags": 0
+        },
+        {
+            "id": "52860",
+            "label": "Custom Expression",
+            "lineRange": {
+                "fileName": "service.bal",
+                "startLine": {
+                    "line": 21,
+                    "offset": 8
+                },
+                "endLine": {
+                    "line": 21,
+                    "offset": 36
+                }
+            },
+            "kind": "EXPRESSION",
+            "returning": false,
+            "fixed": false,
+            "flags": 0
+        },
+        {
+            "id": "53833",
+            "label": "Return",
+            "lineRange": {
+                "fileName": "service.bal",
+                "startLine": {
+                    "line": 22,
+                    "offset": 8
+                },
+                "endLine": {
+                    "line": 22,
+                    "offset": 17
+                }
+            },
+            "kind": "RETURN",
+            "returning": true,
+            "fixed": false,
+            "nodeProperties": {
+                "expression": {
+                    "label": "Expression",
+                    "type": "json",
+                    "value": "j",
+                    "typeKind": "BTYPE",
+                    "optional": false,
+                    "editable": true,
+                    "documentation": "Return value"
+                }
+            },
+            "flags": 0
+        }
+    ],
+    "clients": [
+        {
+            "id": "35301",
+            "label": "Client",
+            "kind": "HTTP",
+            "lineRange": {
+                "fileName": "service.bal",
+                "startLine": {
+                    "line": 3,
+                    "offset": 18
+                },
+                "endLine": {
+                    "line": 3,
+                    "offset": 23
+                }
+            },
+            "scope": "GLOBAL",
+            "value": "asiri",
+            "flags": 0
+        },
+        {
+            "id": "36296",
+            "label": "Client",
+            "kind": "HTTP",
+            "lineRange": {
+                "fileName": "service.bal",
+                "startLine": {
+                    "line": 4,
+                    "offset": 18
+                },
+                "endLine": {
+                    "line": 4,
+                    "offset": 26
+                }
+            },
+            "scope": "GLOBAL",
+            "value": "nawaloka",
+            "flags": 0
+        }
+    ]
+}

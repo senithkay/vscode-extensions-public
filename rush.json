@@ -515,6 +515,11 @@
       "projectFolder": "workspaces/ballerina/ballerina-low-code-diagram",
       "versionPolicyName": "ballerina-extension"
     },
+    {
+      "packageName": "@wso2-enterprise/ballerina-side-panel",
+      "projectFolder": "workspaces/ballerina/ballerina-side-panel",
+      "versionPolicyName": "ballerina-extension"
+    },
     // {
     //   "packageName": "@wso2-enterprise/ballerina-low-code-editor-distribution",
     //   "projectFolder": "workspaces/ballerina/low-code-distribution",
@@ -638,6 +643,11 @@
     // {
     //   "packageName": "@wso2-enterprise/eggplant-diagram",
     //   "projectFolder": "workspaces/eggplant/eggplant-diagram",
+    //   "versionPolicyName": "eggplant-extension"
+    // },
+    // {
+    //   "packageName": "@wso2-enterprise/eggplant-diagram-2",
+    //   "projectFolder": "workspaces/eggplant/eggplant-diagram-2",
     //   "versionPolicyName": "eggplant-extension"
     // },
     {

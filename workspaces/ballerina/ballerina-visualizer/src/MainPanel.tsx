@@ -19,6 +19,7 @@ import { LoadingRing } from "./components/Loader";
 import { DataMapper } from './views/DataMapper';
 import { ERDiagram } from './views/ERDiagram';
 import { GraphQLDiagram } from './views/GraphQLDiagram';
+import { SequenceDiagram } from './views/SequenceDiagram';
 import { Overview } from './views/Overview';
 import { ServiceDesigner } from './views/ServiceDesigner';
 import { handleRedo, handleUndo } from './utils/utils';
@@ -101,6 +102,9 @@ const MainPanel = () => {
                         break;
                     case "GraphQLDiagram":
                         setViewComponent(<GraphQLDiagram />);
+                        break;
+                    case "SequenceDiagram":
+                        setViewComponent(<SequenceDiagram />)
                         break;
                     default:
                         setViewComponent(<LoadingRing />);
