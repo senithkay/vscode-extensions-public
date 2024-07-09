@@ -21,9 +21,9 @@ import { URI } from "vscode-uri";
 
 import { CompletionResponseWithModule } from "../../DataMapper/ConfigPanel/TypeBrowser";
 import { EXPR_SCHEME, FILE_SCHEME } from "../../DataMapper/ConfigPanel/utils";
-import { LangServerRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
+import { LangClientRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
 
-export async function getDiagnostics(docUri: string, langServerRpcClient: LangServerRpcClient): Promise<DiagnosticData[]> {
+export async function getDiagnostics(docUri: string, langServerRpcClient: LangClientRpcClient): Promise<DiagnosticData[]> {
     const diagnostics = await langServerRpcClient.getDiagnostics({
         documentIdentifier: {
             uri: docUri,
@@ -33,7 +33,7 @@ export async function getDiagnostics(docUri: string, langServerRpcClient: LangSe
     return diagnostics.diagnostics;
 }
 
-export const handleDiagnostics = async (fileURI: string, langServerRpcClient: LangServerRpcClient):
+export const handleDiagnostics = async (fileURI: string, langServerRpcClient: LangClientRpcClient):
     Promise<Diagnostic[]> => {
     const diagResp = await getDiagnostics(URI.file(fileURI).toString(), langServerRpcClient);
     const diag = diagResp[0]?.diagnostics ? diagResp[0].diagnostics : [];
@@ -60,7 +60,7 @@ export function isDiagInRange(nodePosition: NodePosition, diagPosition: NodePosi
 }
 
 
-export async function getCodeAction(filePath: string, diagnostic: Diagnostic, langServerRpcClient: LangServerRpcClient): Promise<CodeAction[]> {
+export async function getCodeAction(filePath: string, diagnostic: Diagnostic, langServerRpcClient: LangClientRpcClient): Promise<CodeAction[]> {
     const codeAction = await langServerRpcClient.codeAction({
         context: {
             diagnostics: [{
@@ -101,7 +101,7 @@ export async function getCodeAction(filePath: string, diagnostic: Diagnostic, la
 export async function getRenameEdits(fileURI: string,
     newName: string,
     position: NodePosition,
-    langServerRpcClient: LangServerRpcClient): Promise<WorkspaceEdit> {
+    langServerRpcClient: LangClientRpcClient): Promise<WorkspaceEdit> {
 
     const renameEdits = await langServerRpcClient.rename({
         textDocument: { uri: URI.file(fileURI).toString() },
@@ -116,7 +116,7 @@ export async function getRenameEdits(fileURI: string,
 
 export const handleCodeActions = async (fileURI: string,
     diagnostics: Diagnostic[],
-    langServerRpcClient: LangServerRpcClient): Promise<CodeAction[]> => {
+    langServerRpcClient: LangClientRpcClient): Promise<CodeAction[]> => {
     let codeActions: CodeAction[] = []
 
     for (const diagnostic of diagnostics) {
@@ -131,7 +131,7 @@ export async function getRecordCompletions(
     importStatements: string[],
     fnSTPosition: NodePosition,
     path: string,
-    langServerRpcClient: LangServerRpcClient): Promise<CompletionResponseWithModule[]> {
+    langServerRpcClient: LangClientRpcClient): Promise<CompletionResponseWithModule[]> {
 
     const typeLabelsToIgnore = ["StrandData"];
     const completionMap = new Map<string, CompletionResponseWithModule>();
@@ -196,7 +196,7 @@ export async function getRecordCompletions(
 
 export async function getTypesForExpressions(fileURI: string,
                                              expressionNodesRanges: ExpressionRange[],
-                                             langServerRpcClient: LangServerRpcClient)
+                                             langServerRpcClient: LangClientRpcClient)
     : Promise<ResolvedTypeForExpression[]> {
     const typesFromExpression = await langServerRpcClient.getTypeFromExpression({
         documentIdentifier: {
@@ -210,7 +210,7 @@ export async function getTypesForExpressions(fileURI: string,
 
 export async function getDefinitionPosition(fileURI: string,
     position: LinePosition,
-    langServerRpcClient: LangServerRpcClient): Promise<SyntaxTreeResponse> {
+    langServerRpcClient: LangClientRpcClient): Promise<SyntaxTreeResponse> {
 
     const definitionPosition = await langServerRpcClient.getDefinitionPosition(
         {

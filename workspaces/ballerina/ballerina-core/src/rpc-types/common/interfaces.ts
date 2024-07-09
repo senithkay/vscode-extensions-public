@@ -9,11 +9,11 @@
  */
 
 import { Diagnostic } from "vscode-languageserver-types";
-import { NodePosition } from "../../interfaces/ballerina";
-import { CompletionResponse } from "../lang-server/interfaces";
+import { Completion } from "../../interfaces/extended-lang-client";
+import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
 export interface TypeResponse {
-    data: CompletionResponse;
+    data: Completion[];
 }
 
 export interface GoToSourceRequest {

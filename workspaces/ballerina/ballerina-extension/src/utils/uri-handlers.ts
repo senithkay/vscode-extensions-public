@@ -9,7 +9,6 @@
 import { URLSearchParams } from "url";
 import { window, Uri, ProviderResult } from "vscode";
 import { BallerinaExtension } from "../core";
-import { getChoreoExtAPI } from "../features/choreo-features/activate";
 import { handleOpenFile, handleOpenRepo } from ".";
 import { CMP_OPEN_VSCODE_URL, TM_EVENT_OPEN_FILE_URL_START, TM_EVENT_OPEN_REPO_URL_START, sendTelemetryEvent } from "../features/telemetry";
 
@@ -18,23 +17,6 @@ export function activateUriHandlers(ballerinaExtInstance: BallerinaExtension) {
         handleUri(uri: Uri): ProviderResult<void> {
             const urlParams = new URLSearchParams(uri.query);
             switch (uri.path) {
-                case '/choreo-signin':
-                    const authCode = urlParams.get('code');
-                    if (authCode) {
-                        getChoreoExtAPI()
-                            .then((api) => {
-                                if (api) {
-                                    api.signIn(authCode);
-                                } else {
-                                    window.showErrorMessage(`Choreo Login Failed: Choreo Extension not found!`);
-                                }
-                            }).catch(() => {
-                                window.showErrorMessage(`Choreo Login Failed: Choreo Extension activation failed!`);
-                            });
-                    } else {
-                        window.showErrorMessage(`Choreo Login Failed: Authorization code not found!`);
-                    }
-                    break;
                 case '/open-file':
                     const gistId = urlParams.get('gist');
                     const fileName = urlParams.get('file');

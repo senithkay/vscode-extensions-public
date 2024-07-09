@@ -18,7 +18,7 @@ import {
     CMP_EXECUTOR_CODELENS, sendTelemetryEvent, TM_EVENT_SOURCE_DEBUG_CODELENS, TM_EVENT_TEST_DEBUG_CODELENS
 } from '../telemetry';
 import { constructDebugConfig } from '../debugger';
-import { ExecutorPosition, ExecutorPositionsResponse, GetSyntaxTreeResponse } from '@wso2-enterprise/ballerina-core';
+import { ExecutorPosition, ExecutorPositionsResponse, SyntaxTree } from '@wso2-enterprise/ballerina-core';
 import { traversNode } from '@wso2-enterprise/syntax-tree';
 import { CodeLensProviderVisitor } from './codelense-provider-visitor';
 
@@ -129,7 +129,7 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
                     uri: fileUri
                 }
             });
-            const response = syntaxTreeResponse as GetSyntaxTreeResponse;
+            const response = syntaxTreeResponse as SyntaxTree;
             if (response.parseSuccess && response.syntaxTree) {
                 const syntaxTree = response.syntaxTree;
 

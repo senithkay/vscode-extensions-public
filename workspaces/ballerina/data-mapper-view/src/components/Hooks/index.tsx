@@ -10,7 +10,7 @@ import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { URI } from "vscode-uri";
 import { BallerinaProjectComponents } from "@wso2-enterprise/ballerina-core";
-import { LangServerRpcClient } from '@wso2-enterprise/ballerina-rpc-client';
+import { LangClientRpcClient } from '@wso2-enterprise/ballerina-rpc-client';
 import {
 	DiagramModel,
     DiagramModelGenerics
@@ -35,7 +35,7 @@ import { ExpandedMappingHeaderNode } from '../Diagram/Node/ExpandedMappingHeader
 import { isDMSupported } from '../DataMapper/utils';
 import { FunctionDefinition, ModulePart } from '@wso2-enterprise/syntax-tree';
 
-export const useProjectComponents = (langServerRpcClient: LangServerRpcClient, fileName: string): {
+export const useProjectComponents = (langServerRpcClient: LangClientRpcClient, fileName: string): {
     projectComponents: BallerinaProjectComponents;
     isFetching: boolean;
     isError: boolean;
@@ -187,7 +187,7 @@ export const useRepositionedNodes = (nodes: DataMapperNodeModel[], zoomLevel: nu
     return nodesClone;
 }
 
-export const useDMMetaData = (langServerRpcClient: LangServerRpcClient): {
+export const useDMMetaData = (langServerRpcClient: LangClientRpcClient): {
     ballerinaVersion: string;
     dMSupported: boolean;
     dMUnsupportedMessage: string;
@@ -218,7 +218,7 @@ export const useDMMetaData = (langServerRpcClient: LangServerRpcClient): {
     return { ballerinaVersion, dMSupported, dMUnsupportedMessage, isFetching, isError, refetch };
 };
 
-export const useFileContent = (langServerRpcClient: LangServerRpcClient, filePath: string, fnST: FunctionDefinition): {
+export const useFileContent = (langServerRpcClient: LangClientRpcClient, filePath: string, fnST: FunctionDefinition): {
     content: [string, string[]];
     isFetching: boolean;
     isError: boolean;

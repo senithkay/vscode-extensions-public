@@ -14,7 +14,7 @@ import { BallerinaExtension } from "../../core";
 import { getCurrentBallerinaProject } from "../../utils/project-utils";
 import { generateExistingValues, parseTomlToConfig, typeOfComment } from "./utils";
 import { ConfigProperty, ConfigTypes, Constants, Property } from "./model";
-import { BallerinaProject, PackageConfigSchemaResponse } from "@wso2-enterprise/ballerina-core";
+import { BallerinaProject, PackageConfigSchema } from "@wso2-enterprise/ballerina-core";
 
 const DEBUG_RUN_COMMAND_ID = 'workbench.action.debug.run';
 
@@ -48,7 +48,7 @@ export async function configGenerator(ballerinaExtInstance: BallerinaExtension, 
                 }
             });
 
-            const data = response as PackageConfigSchemaResponse;
+            const data = response as PackageConfigSchema;
             if (data.configSchema === undefined || data.configSchema === null) {
                 window.showErrorMessage('Unable to generate the configurables: Error while retrieving the configurable schema.');
                 return Promise.reject();

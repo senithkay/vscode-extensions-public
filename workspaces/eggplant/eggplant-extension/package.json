@@ -49,7 +49,7 @@
     },
     "scripts": {
         "vscode:prepublish": "pnpm run compile",
-        "compile": "webpack --mode production",
+        "compile": "webpack --mode production --stats-error-details",
         "watch-eggplant": "webpack --mode none --watch",
         "pretest": "pnpm run compile && pnpm run lint",
         "lint": "eslint src --ext ts",

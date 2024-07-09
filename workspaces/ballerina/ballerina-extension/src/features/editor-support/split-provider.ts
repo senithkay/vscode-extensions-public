@@ -13,7 +13,7 @@ import { CMP_STRING_SPLIT, sendTelemetryEvent, TM_EVENT_STRING_SPLIT } from "../
 import { isWindows } from "../../utils";
 import { traversNode } from "@wso2-enterprise/syntax-tree";
 import { SplitProviderVisitor } from "./split-provider-visitor";
-import { GetSyntaxTreeResponse, SyntaxTreeNodeResponse } from "@wso2-enterprise/ballerina-core";
+import { SyntaxTree, SyntaxTreeNode } from "@wso2-enterprise/ballerina-core";
 
 export const newLine: string = isWindows() ? '\r\n' : '\n';
 const STRING_LITERAL: string = 'STRING_LITERAL';
@@ -62,7 +62,7 @@ export class StringSplitter {
             });
             const visitor = new SplitProviderVisitor(range);
 
-            traversNode((st as GetSyntaxTreeResponse).syntaxTree, visitor, undefined);
+            traversNode((st as SyntaxTree).syntaxTree, visitor, undefined);
 
             if (!visitor.isValidSplit()) {
                 return;
@@ -83,7 +83,7 @@ export class StringSplitter {
                     }
                 }
             }).then((stResponse) => {
-                const response = stResponse as SyntaxTreeNodeResponse;
+                const response = stResponse as SyntaxTreeNode;
                 if (!response.kind) {
                     return;
                 }

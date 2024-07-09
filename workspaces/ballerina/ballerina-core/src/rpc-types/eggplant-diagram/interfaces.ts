@@ -7,18 +7,15 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
+import { LinePosition } from "../../interfaces/common";
 import { Flow, Node } from "../../interfaces/eggplant";
+import { TextEdit } from "../../interfaces/extended-lang-client";
 
 export interface EggplantModelRequest {
     filePath: string;
     startLine: LinePosition;
     endLine: LinePosition;
 }
-
-export type LinePosition = {
-    line: number;
-    offset: number;
-};
 
 export type EggplantModelResponse = {
     flowDesignModel: Flow;
@@ -30,18 +27,4 @@ export interface UpdateNodeRequest {
 
 export interface UpdateNodeResponse {
     textEdits: TextEdit[];
-}
-
-export interface TextEdit {
-    newText: string,
-    range: {
-        end: {
-            character: number;
-            line: number;
-        },
-        start: {
-            character: number;
-            line: number;
-        }
-    }
 }

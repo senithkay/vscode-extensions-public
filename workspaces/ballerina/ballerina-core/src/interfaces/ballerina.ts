@@ -8,14 +8,11 @@
 * You may not alter or remove any copyright or other notice from copies of this content.
 */
 
-import { ModulePart, STNode } from "@wso2-enterprise/syntax-tree";
 import { DocumentIdentifier, LinePosition, LineRange, Position, Range } from "./common";
-import { ClientCapabilities, DefinitionParams, InitializeParams, InitializeResult, Location, LocationLink } from "vscode-languageserver-protocol";
-import { CodeAction, Diagnostic, DocumentSymbol, SymbolInformation } from "vscode-languageserver-types";
-import { BallerinaTriggerRequest, BallerinaTriggerResponse, BallerinaTriggersResponse } from "../rpc-types/project-design-diagram/interfaces";
-import { ExecutorPositionsResponse, BallerinaProjectComponents } from "../rpc-types/lang-server/interfaces";
-import { JsonToRecordRequest, JsonToRecordResponse, XMLToRecordRequest, XMLToRecordResponse } from "../rpc-types/record-creator/interfaces";
+import { ClientCapabilities, Location } from "vscode-languageserver-protocol";
 import { DiagramDiagnostic, FunctionDefinitionInfo, NonPrimitiveBal } from "./config-spec";
+import { STModifyParams } from "./extended-lang-client";
+import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
 export enum DIAGNOSTIC_SEVERITY {
     INTERNAL = "INTERNAL",
@@ -50,48 +47,6 @@ export interface BallerinaExampleCategory {
     samples: BallerinaExample[];
 }
 
-export interface BallerinaExampleListParams {
-    filter?: string;
-}
-
-export interface BallerinaExampleListResponse {
-    samples: BallerinaExampleCategory[];
-}
-
-export interface BallerinaProject {
-    kind?: string;
-    path?: string;
-    version?: string;
-    author?: string;
-    packageName?: string;
-}
-
-export interface GetBallerinaProjectParams {
-    documentIdentifier: {
-        uri: string;
-    };
-}
-
-export interface GetSyntaxTreeParams {
-    documentIdentifier: {
-        uri: string;
-    };
-}
-
-export interface GetSyntaxTreeResponse {
-    syntaxTree: any;
-    parseSuccess: boolean;
-}
-
-export interface BallerinaRecordResponse {
-    org: string;
-    module: string;
-    version: string;
-    name: string;
-    ast?: STNode;
-    error?: any;
-}
-
 export interface VisibleEndpoint {
     kind?: string;
     isCaller: boolean;
@@ -107,19 +62,6 @@ export interface VisibleEndpoint {
     viewState?: any;
     isParameter?: boolean;
     isClassField?: boolean;
-}
-export interface NodePosition {
-    startLine?: number;
-    startColumn?: number;
-    endLine?: number;
-    endColumn?: number;
-}
-
-export interface BallerinaRecordRequest {
-    org: string;
-    module: string;
-    version: string;
-    name: string;
 }
 
 export interface TypeField {
@@ -172,7 +114,7 @@ export interface TypeField {
     resolvedUnionType?: TypeField | TypeField[];
 }
 
-export interface BallerinaConnectorInfo extends Connector {
+export interface BallerinaConnectorInfo extends BallerinaConnector {
     functions: FunctionDefinitionInfo[];
     documentation?: string;
 }
@@ -193,15 +135,9 @@ export interface BallerinaConnectorsRequest {
     sort?: string;
     targetFile?: string;
 }
-export interface BallerinaConnectorsResponse {
-    central: Connector[];
-    local?: Connector[];
-    error?: string;
-}
+
 
 // tslint:disable-next-line: no-empty-interface
-export interface BallerinaConnectorRequest extends Connector {
-}
 
 
 export interface Package {
@@ -228,75 +164,6 @@ export interface Package {
     modules?: any[];
 }
 
-
-
-export interface BallerinaProjectParams {
-    documentIdentifier: {
-        uri: string;
-    };
-}
-
-export interface CompletionParams {
-    textDocument: {
-        uri: string;
-    };
-    position: {
-        character: number;
-        line: number;
-    };
-    context: {
-        triggerKind: number;
-    };
-}
-
-
-export interface Completion {
-    detail: string;
-    insertText: string;
-    insertTextFormat: number;
-    kind: number;
-    label: string;
-    additionalTextEdits?: TextEdit[];
-    documentation?: string;
-    sortText?: string;
-    filterText?: string;
-}
-
-export interface TextEdit {
-    newText: string,
-    range: {
-        end: {
-            character: number;
-            line: number;
-        },
-        start: {
-            character: number;
-            line: number;
-        }
-    }
-}
-
-export interface ExpressionTypeRequest {
-    documentIdentifier: { uri: string; };
-    // tslint:disable-next-line: align
-    position: LinePosition;
-}
-
-export interface ExpressionTypeResponse {
-    documentIdentifier: { uri: string; };
-    // tslint:disable-next-line: align
-    types: string[];
-}
-
-export interface PartialSTRequest {
-    codeSnippet: string;
-    stModification?: PartialSTModification;
-}
-
-export interface PartialSTResponse {
-    syntaxTree: STNode;
-}
-
 export interface PartialSTModification {
     startLine: number;
     startColumn: number;
@@ -317,10 +184,10 @@ export interface BallerinaModule {
 }
 
 // tslint:disable-next-line: no-empty-interface
-export interface Connector extends BallerinaModule { }
+export interface BallerinaConnector extends BallerinaModule { }
 
 // tslint:disable-next-line: no-empty-interface
-export interface Trigger extends BallerinaModule { }
+export interface BallerinaTrigger extends BallerinaModule { }
 
 export interface Package {
     organization: string;
@@ -347,19 +214,7 @@ export interface Package {
     modules?: any[];
 }
 
-export interface BallerinaRecord {
-    org: string;
-    module: string;
-    version: string;
-    name: string;
-}
-
-export interface BallerinaConnectorInfo extends Connector {
-    functions: FunctionDefinitionInfo[];
-    documentation?: string;
-}
-
-export interface BallerinaTriggerInfo extends Trigger {
+export interface BallerinaTriggerInfo extends BallerinaTrigger {
     serviceTypes: ServiceType[],
     listenerParams: Parameter[],
     documentation?: string,
@@ -443,22 +298,9 @@ export interface BallerinaModulesRequest {
     sort?: string;
     targetFile?: string;
 }
-
-// tslint:disable-next-line: no-empty-interface
-export interface BallerinaConnectorsRequest extends BallerinaModulesRequest { }
-
-// tslint:disable-next-line: no-empty-interface
-export interface BallerinaTriggersRequest extends BallerinaModulesRequest { }
-
 export interface BallerinaModuleResponse {
     central: BallerinaModule[];
     local?: BallerinaModule[];
-    error?: string;
-}
-
-export interface BallerinaConnectorsResponse extends BallerinaModuleResponse {
-    central: Connector[];
-    local?: Connector[];
     error?: string;
 }
 
@@ -472,14 +314,7 @@ export interface STModification {
     isImport?: boolean;
 }
 
-export interface BallerinaSTModifyResponse {
-    source: string;
-    defFilePath: string;
-    syntaxTree: ModulePart;
-    parseSuccess: boolean;
-}
-
-export interface MainTriggerModifyRequest extends STModifyRequest {
+export interface MainTriggerModifyRequest extends STModifyParams {
     type: "main";
     config?: MainConfig;
 }
@@ -498,30 +333,9 @@ export interface MainConfig {
     CURRENT_TRIGGER?: string;
 }
 
-export interface STModifyRequest {
-    documentIdentifier: { uri: string; };
-    astModifications: STModification[];
-}
-
-export interface ServiceTriggerModifyRequest extends STModifyRequest {
+export interface ServiceTriggerModifyRequest extends STModifyParams {
     type: "service";
     config: ServiceConfig;
-}
-
-export type TriggerModifyRequest = MainTriggerModifyRequest | ServiceTriggerModifyRequest;
-
-export interface PerformanceAnalyzerRequest {
-    documentIdentifier: DocumentIdentifier;
-    isWorkerSupported: boolean;
-}
-
-export interface PerformanceAnalyzerResponse {
-    resourcePos: Range;
-    endpoints: any;
-    actionInvocations: any;
-    type: string;
-    message: string;
-    name: string;
 }
 
 export interface ExecutorPosition {
@@ -529,16 +343,6 @@ export interface ExecutorPosition {
     range: LineRange;
     name: string;
     filePath: string;
-}
-
-export interface SymbolInfoRequest {
-    textDocumentIdentifier: {
-        uri: string;
-    },
-    position: {
-        line: number;
-        character: number;
-    }
 }
 
 export interface ParameterInfo {
@@ -558,11 +362,6 @@ export interface SymbolDocumentation {
     deprecatedParams?: ParameterInfo[]
 }
 
-export interface SymbolInfoResponse {
-    symbolKind: string,
-    documentation: SymbolDocumentation
-}
-
 export interface ExpressionRange {
     startLine: LinePosition;
     endLine: LinePosition;
@@ -575,28 +374,9 @@ export interface ResolvedTypeForExpression {
     requestedRange: ExpressionRange;
 }
 
-export interface GraphqlDesignServiceRequest {
-    filePath: string;
-    startLine: LinePosition;
-    endLine: LinePosition;
-}
-export interface GraphqlDesignServiceResponse {
-    graphqlDesignModel: any;
-    isIncompleteModel: boolean;
-    errorMsg: string;
-}
-
 export interface ResolvedTypeForSymbol {
     type: TypeField;
     requestedPosition: LinePosition;
-}
-
-export interface GetComponentModelRequest {
-    documentUris: string[];
-}
-
-export interface GetPersistERModelRequest {
-    documentUri: string;
 }
 
 export interface BallerinaConstructRequest {
@@ -641,77 +421,6 @@ export interface Package {
     modules?: any[];
 }
 
-export interface BallerinaConnectorResponse extends BallerinaConnectorInfo {
-    error?: string;
-}
-export interface BallerinaFunctionSTRequest {
-    lineRange: Range;
-    documentIdentifier: DocumentIdentifier;
-}
-
-export interface IBallerinaLangClient extends DiagramEditorLangClientInterface {
-
-}
-export interface DidOpenParams {
-    textDocument: {
-        uri: string;
-        languageId: string;
-        text: string;
-        version: number;
-    };
-}
-export interface DidCloseParams {
-    textDocument: {
-        uri: string;
-    };
-}
-export interface DidChangeParams {
-    textDocument: {
-        uri: string;
-        version: number;
-    };
-    contentChanges: [
-        {
-            text: string;
-        }
-    ];
-}
-export interface BaseLangClientInterface {
-    init?: (params: InitializeParams) => Promise<InitializeResult>;
-    didOpen: (Params: DidOpenParams) => void;
-    didClose: (params: DidCloseParams) => void;
-    didChange: (params: DidChangeParams) => void;
-    definition: (params: DefinitionParams) => Promise<Location | Location[] | LocationLink[] | null>;
-    close?: () => void;
-}
-
-export interface DiagramEditorLangClientInterface extends BaseLangClientInterface {
-    getConnectors: (params: BallerinaConnectorsRequest) => Thenable<BallerinaConnectorsResponse>;
-    getTriggers: (params: BallerinaTriggersRequest) => Thenable<BallerinaTriggersResponse>;
-    getTrigger: (params: BallerinaTriggerRequest) => Thenable<BallerinaTriggerResponse>;
-    getConnector: (params: BallerinaConnectorRequest) => Thenable<BallerinaConnectorResponse>;
-    getRecord: (params: BallerinaRecordRequest) => Thenable<BallerinaRecordResponse>;
-    stModify: (params: STModifyRequest) => Thenable<BallerinaSTModifyResponse>;
-    triggerModify: (params: TriggerModifyRequest) => Thenable<BallerinaSTModifyResponse>;
-    getSyntaxTree: (params: GetSyntaxTreeParams) => Thenable<GetSyntaxTreeResponse>;
-    getDocumentSymbol: (params: any) => Thenable<DocumentSymbol[] | SymbolInformation[] | null>;
-    getPerfEndpoints: (params: any) => Thenable<PerformanceAnalyzerResponse[]>;
-    resolveMissingDependencies: (params: GetSyntaxTreeParams) => Thenable<GetSyntaxTreeResponse>;
-    getExecutorPositions: (params: GetBallerinaProjectParams) => Thenable<ExecutorPositionsResponse>;
-    convert: (params: JsonToRecordRequest) => Thenable<JsonToRecordResponse>;
-    convertXml: (params: XMLToRecordRequest) => Thenable<XMLToRecordResponse>;
-    getSTForFunction: (params: BallerinaFunctionSTRequest) => Thenable<BallerinaSTModifyResponse>;
-    getDefinitionPosition: (params: any) => Thenable<BallerinaSTModifyResponse>;
-    getDiagnostics: (params: BallerinaProjectParams) => Thenable<any[]>;
-    codeAction: (params: any) => Thenable<CodeAction[]>;
-    getBallerinaProjectComponents: (params: any) => Promise<BallerinaProjectComponents>;
-    getGraphqlModel: (params: GraphqlDesignServiceRequest) => Thenable<GraphqlDesignServiceResponse>;
-}
-
-export interface PublishDiagnosticsParams {
-    uri: string;
-    diagnostics: Diagnostic[];
-}
 export interface CurrentFile {
     content: string;
     path: string;
@@ -746,32 +455,12 @@ export interface OASpec {
     diagnostics: OADiagnostic[];
 }
 
-export interface OpenAPIConverterResponse {
-    content: OASpec[];
-    error?: string;
-}
-export interface OpenAPIConverterRequest {
-    documentFilePath: string;
-}
-
 export interface PerformanceAnalyzerGraphRequest {
     documentIdentifier: DocumentIdentifier;
     range: Range;
     choreoAPI: string;
     choreoCookie: string;
     choreoToken: string;
-}
-
-export interface SyntaxTreeNodeResponse {
-    kind: string;
-}
-
-export interface NoteBookCellOutputResponse {
-    shellValue?: NoteBookCellOutputValue;
-    errors: string[];
-    diagnostics: string[];
-    metaInfo?: NotebookCellMetaInfo;
-    consoleOut: string;
 }
 
 export interface NoteBookCellOutputValue {
@@ -785,22 +474,78 @@ export interface NotebookCellMetaInfo {
     moduleDclns: string[];
 }
 
-export interface NotebookFileSourceResponse {
-    content: string;
-    filePath: string;
-}
-
-export interface NotebookVariable {
-    name: string;
-    type: string;
-    value: string;
-}
-
-export interface PackageConfigSchemaResponse {
-    configSchema: any;
-}
-
 export interface ExtendedClientCapabilities extends ClientCapabilities {
     experimental: { introspection: boolean, showTextDocument: boolean };
 }
 
+export interface PackageSummary {
+    name: string,
+    filePath: string,
+    modules: ModuleSummary[]
+}
+
+export interface ModuleSummary extends ComponentSummary {
+    name: string
+}
+
+export interface ComponentSummary {
+    functions: ComponentInfo[],
+    services: ComponentInfo[],
+    records: ComponentInfo[],
+    objects: ComponentInfo[],
+    classes: ComponentInfo[],
+    types: ComponentInfo[],
+    constants: ComponentInfo[],
+    enums: ComponentInfo[],
+    listeners: ComponentInfo[],
+    moduleVariables: ComponentInfo[],
+}
+
+export interface ComponentInfo {
+    name: string,
+    filePath: string,
+    startLine: number,
+    startColumn: number,
+    endLine: number,
+    endColumn: number,
+}
+
+export type SequenceModel = {
+    participants: Participant[];
+    location: Location;
+};
+
+export type SequenceModelDiagnostic = {
+    errorMsg: string;
+    isIncompleteModel: boolean;
+};
+
+export enum ParticipantType {
+    FUNCTION = "FUNCTION",
+    WORKER = "WORKER",
+    ENDPOINT = "ENDPOINT",
+}
+
+export type Participant = {
+    id: string;
+    name: string;
+    kind: ParticipantType;
+    moduleName: string;
+    nodes: Node[];
+    location: Location;
+};
+
+export interface JsonToRecordMapperDiagnostic {
+    message: string;
+    severity?: DIAGNOSTIC_SEVERITY;
+}
+
+export interface XMLToRecordConverterDiagnostic {
+    message: string;
+    severity?: DIAGNOSTIC_SEVERITY;
+}
+
+export interface CommandResponse {
+    error: boolean;
+    message: string;
+}

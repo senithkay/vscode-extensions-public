@@ -10,7 +10,7 @@
 import { ReactNode } from "react";
 import { IconType } from "react-icons";
 
-import { SymbolInfoResponse } from "@wso2-enterprise/ballerina-core";
+import { SymbolInfo } from "@wso2-enterprise/ballerina-core";
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import { CodeAction, Diagnostic } from "vscode-languageserver-types";
 
@@ -100,7 +100,7 @@ export interface EmptySymbolInfo {}
 
 export interface DocumentationInfo {
     modelPosition : NodePosition;
-    documentation : SymbolInfoResponse | EmptySymbolInfo
+    documentation : SymbolInfo | EmptySymbolInfo
 }
 
 export interface Suggestion {

@@ -38,12 +38,12 @@ export class VisualizerRpcClient implements VisualizerAPI {
         return this._messenger.sendNotification(openView, HOST_EXTENSION, params);
     }
 
-    getHistory(): Promise<HistoryEntry[]> {
+    async getHistory(): Promise<HistoryEntry[]> {
         return this._messenger.sendRequest(getHistory, HOST_EXTENSION);
     }
 
-    addToHistory(params: HistoryEntry): void {
-        return this._messenger.sendNotification(addToHistory, HOST_EXTENSION, params);
+    addToHistory(entry: HistoryEntry): void {
+        return this._messenger.sendNotification(addToHistory, HOST_EXTENSION, entry);
     }
 
     goBack(): void {

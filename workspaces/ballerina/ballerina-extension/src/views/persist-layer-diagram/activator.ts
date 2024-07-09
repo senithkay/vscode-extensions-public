@@ -8,13 +8,12 @@
  */
 
 import { TextEditor, Uri, ViewColumn, WebviewPanel, commands, window, workspace } from "vscode";
-import { GetPersistERModelResponse } from "@wso2-enterprise/ballerina-core";
 import { debounce } from "lodash";
 import { basename, dirname, join } from "path";
 import { existsSync } from "fs";
 import { PALETTE_COMMANDS } from "../../features/project/cmds/cmd-runner";
 import { BallerinaExtension, ExtendedLangClient } from "../../core";
-import { WebViewMethod, WebViewRPCHandler, getCommonWebViewOptions } from "../../utils";
+import { getCommonWebViewOptions } from "../../utils";
 import { render } from "./renderer";
 
 const COMPATIBILITY_MESSAGE = "An incompatible Ballerina version was detected. Update Ballerina to 2201.6.0 or higher to use the feature.";
@@ -83,7 +82,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
 //         }
 //     });
 
-//     const remoteMethods: WebViewMethod[] = [
+//     const remoteMethods:  = [
 //         {
 //             methodName: "getPersistERModel",
 //             handler: (): Promise<GetPersistERModelResponse> => {

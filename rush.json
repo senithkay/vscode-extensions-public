@@ -515,11 +515,6 @@
       "projectFolder": "workspaces/ballerina/ballerina-low-code-diagram",
       "versionPolicyName": "ballerina-extension"
     },
-    {
-      "packageName": "@wso2-enterprise/sequence-diagram",
-      "projectFolder": "workspaces/ballerina/sequence-diagram",
-      "versionPolicyName": "ballerina-extension"
-    },
     // {
     //   "packageName": "@wso2-enterprise/ballerina-low-code-editor-distribution",
     //   "projectFolder": "workspaces/ballerina/low-code-distribution",
@@ -584,11 +579,6 @@
       "packageName": "@wso2-enterprise/cell-diagram",
       "projectFolder": "workspaces/choreo/cell-diagram",
       "versionPolicyName": "choreo-extension"
-    },
-    {
-      "packageName": "@wso2-enterprise/project-design-diagrams",
-      "projectFolder": "workspaces/ballerina/project-design-diagrams",
-      "versionPolicyName": "ballerina-extension"
     },
     {
       "packageName": "@wso2-enterprise/persist-layer-diagram",

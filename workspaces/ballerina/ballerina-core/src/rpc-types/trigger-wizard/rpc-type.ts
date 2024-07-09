@@ -8,9 +8,9 @@
  * 
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
-import { TriggerRequest, TriggerResponse, TriggersRequest, TriggersResponse } from "./interfaces";
+import { TriggerParams, TriggersParams, Triggers, Trigger } from "../../interfaces/extended-lang-client";
 import { RequestType } from "vscode-messenger-common";
 
 const _preFix = "trigger-wizard";
-export const getTriggers: RequestType<TriggersRequest, TriggersResponse> = { method: `${_preFix}/getTriggers` };
-export const getTrigger: RequestType<TriggerRequest, TriggerResponse> = { method: `${_preFix}/getTrigger` };
+export const getTriggers: RequestType<TriggersParams, Triggers> = { method: `${_preFix}/getTriggers` };
+export const getTrigger: RequestType<TriggerParams, Trigger> = { method: `${_preFix}/getTrigger` };
