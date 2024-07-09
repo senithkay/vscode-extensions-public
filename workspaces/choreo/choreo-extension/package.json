@@ -321,7 +321,7 @@
     "@vscode/extension-telemetry": "~0.7.7",
     "@vscode/iconv-lite-umd": "^0.7.0",
     "@vscode/webview-ui-toolkit": "^1.2.0",
-    "@wso2-enterprise/ballerina-languageclient": "workspace:*",
+    "@wso2-enterprise/ballerina-core": "workspace:*",
     "@wso2-enterprise/choreo-client": "workspace:*",
     "@wso2-enterprise/choreo-core": "workspace:*",
     "@wso2-enterprise/choreo-vscode-webviews": "workspace:*",

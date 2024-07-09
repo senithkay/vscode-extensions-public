@@ -8,7 +8,7 @@
  */
 
 import React from 'react';
-import { CMRemoteFunction as RemoteFunction } from '@wso2-enterprise/ballerina-languageclient';
+import { CMRemoteFunction as RemoteFunction } from '@wso2-enterprise/ballerina-core';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { GraphQLMutationIcon, ServiceTypes } from '../../../../resources';
 import { ServiceNodeModel } from '../ServiceNodeModel';

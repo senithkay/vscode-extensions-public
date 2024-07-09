@@ -8,7 +8,7 @@
  */
 
 import React, { useContext, useState } from 'react';
-import { CMLocation as Location } from '@wso2-enterprise/ballerina-languageclient';
+import { CMLocation as Location } from '@wso2-enterprise/ballerina-core';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';

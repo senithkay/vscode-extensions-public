@@ -9,7 +9,7 @@
 
 import React, { useContext } from "react";
 import AddLinkIcon from "@mui/icons-material/AddLink";
-import { CMEntryPoint as EntryPoint, CMService as Service } from '@wso2-enterprise/ballerina-languageclient';
+import { CMEntryPoint as EntryPoint, CMService as Service } from '@wso2-enterprise/ballerina-core';
 import { DiagramContext } from "../../../DiagramContext/DiagramContext";
 import { MenuItem, ListItemIcon, ListItemText } from "@mui/material";
 import { useStyles } from "../styles/styles";

@@ -45,8 +45,8 @@ import {
 import { ExtensionContext, OpenDialogOptions, commands, window, workspace } from "vscode";
 import { extension } from "../../BalExtensionContext";
 import { ExtendedLangClient } from "../../core";
-import { PALETTE_COMMANDS } from "../../project";
-import { DIAGNOSTICS_WARNING, GLOBAL_STATE_FLAG, MULTI_ROOT_WORKSPACE_PROMPT } from "../../project-design-diagrams/resources";
+import { PALETTE_COMMANDS } from "../../features/project";
+import { DIAGNOSTICS_WARNING, GLOBAL_STATE_FLAG, MULTI_ROOT_WORKSPACE_PROMPT } from "../../views/project-design-diagrams/resources";
 import { StateMachine, openView } from "../../stateMachine";
 import { addConnector, getComponentModel, go2source, linkServices, pullConnector } from "./utils";
 import { deleteLink, editDisplayLabel } from "./utils/component-utils";
@@ -148,7 +148,7 @@ export class ProjectDesignDiagramRpcManager implements ProjectDesignDiagramAPI {
 
     async fetchTrigger(params: BallerinaTriggerRequest): Promise<BallerinaTriggerResponse> {
         return new Promise(async (resolve) => {
-            const trigger = await this._langClient.getTrigger({ id: params.triggerId }) as BallerinaTriggerResponse;
+            const trigger = await this._langClient.getTrigger({ id: params.id }) as BallerinaTriggerResponse;
             resolve(trigger);
         });
     }

@@ -14,7 +14,7 @@ import {
     CMLocation as Location,
     CMService as Service,
     ComponentModelDeprecated
-} from '@wso2-enterprise/ballerina-languageclient';
+} from '@wso2-enterprise/ballerina-core';
 import { DiagramModel } from '@projectstorm/react-diagrams';
 import CircularProgress from '@mui/material/CircularProgress';
 import styled from '@emotion/styled';

@@ -10,7 +10,7 @@
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda jsx-wrap-multiline  no-implicit-dependencies no-submodule-imports
 import React, { useEffect, useState } from "react";
 
-import { LabelEditIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { LabelEditIcon } from "@wso2-enterprise/ballerina-core";
 import { NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import { ContextMenu, Item } from "@wso2-enterprise/ui-toolkit";
 

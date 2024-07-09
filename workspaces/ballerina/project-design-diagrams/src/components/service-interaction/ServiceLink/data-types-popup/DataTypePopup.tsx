@@ -8,7 +8,7 @@
  */
 
 import React, { useContext, useState } from 'react';
-import { CMRemoteFunction as RemoteFunction, CMResourceFunction as ResourceFunction } from '@wso2-enterprise/ballerina-languageclient';
+import { CMRemoteFunction as RemoteFunction, CMResourceFunction as ResourceFunction } from '@wso2-enterprise/ballerina-core';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { DiagramContext } from '../../../common';
 import { ServiceLinkMenu } from '../LinkMenuPanel/LinkMenuPanel';

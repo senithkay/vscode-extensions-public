@@ -8,7 +8,7 @@
  */
 
 import React, { useContext } from 'react';
-import { WarningIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { WarningIcon } from "@wso2-enterprise/ballerina-core";
 import { Link, List, ListItem } from "@mui/material";
 import { DiagramContext } from '../DiagramContext/DiagramContext';
 import { Container, ResolutionTitle, WarningContainer, WarningMessage, WarningResolution, WarningTitle } from './styles';

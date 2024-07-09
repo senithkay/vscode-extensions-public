@@ -13,11 +13,10 @@ import { join, normalize } from "path";
 import toml from "toml";
 import _ from "lodash";
 import { Project } from "@wso2-enterprise/choreo-core";
-import { ComponentModel, CMLocation as Location, GetComponentModelResponse, CMService as Service } from "@wso2-enterprise/ballerina-languageclient";
-import { STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ComponentModel, CMLocation as Location, GetComponentModelResponse, CMService as Service, STModification } from "@wso2-enterprise/ballerina-core";
 import { ExtendedLangClient } from "../../../../core";
-import { ERROR_MESSAGE, TomlPackageData } from "../../../../project-design-diagrams/resources";
-import { getChoreoExtAPI } from "../../../../choreo-features/activate";
+import { ERROR_MESSAGE, TomlPackageData } from "../../../../views/project-design-diagrams/resources";
+import { getChoreoExtAPI } from "../../../../features/choreo-features/activate";
 import { deleteBallerinaPackage, deleteComponentOnly } from "../component-utils";
 import { BallerinaSTModifyResponse } from "@wso2-enterprise/ballerina-core";
 

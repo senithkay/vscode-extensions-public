@@ -8,7 +8,7 @@
  */
 
 import React, { useContext } from "react";
-import { CMLocation as Location } from "@wso2-enterprise/ballerina-languageclient";
+import { CMLocation as Location } from "@wso2-enterprise/ballerina-core";
 import { MenuItem, ListItemIcon, ListItemText } from "@mui/material";
 import CodeIcon from "@mui/icons-material/Code";
 import { DiagramContext } from "../../../DiagramContext/DiagramContext";

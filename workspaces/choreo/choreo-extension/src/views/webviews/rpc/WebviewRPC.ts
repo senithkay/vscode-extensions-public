@@ -98,7 +98,7 @@ import {
     GetBuildpack,
     CreateBalLocalComponentFromExistingSource,
 } from "@wso2-enterprise/choreo-core";
-import { ComponentModel, CMDiagnostics as ComponentModelDiagnostics, GetComponentModelResponse } from "@wso2-enterprise/ballerina-languageclient";
+import { ComponentModel, CMDiagnostics as ComponentModelDiagnostics, ComponentModelResponse } from "@wso2-enterprise/ballerina-core";
 import { registerChoreoProjectRPCHandlers, registerChoreoCellViewRPCHandlers } from "@wso2-enterprise/choreo-client";
 import { registerChoreoGithubRPCHandlers } from "@wso2-enterprise/choreo-client/lib/github/rpc";
 import { registerChoreoProjectManagerRPCHandlers, ChoreoProjectManager } from "@wso2-enterprise/choreo-client/lib/manager/";
@@ -364,7 +364,7 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
         commands.executeCommand("ballerina.view.cellView");
     });
 
-    messenger.onRequest(getDiagramComponentModel, async (params): Promise<GetComponentModelResponse> => {
+    messenger.onRequest(getDiagramComponentModel, async (params): Promise<ComponentModelResponse> => {
         let componentModels: { [key: string]: ComponentModel } = {};
         let diagnostics: ComponentModelDiagnostics[] = [];
         const org = ext.api.getOrgById(params.orgId);

@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { CMParameter as Parameter, CMRemoteFunction as RemoteFunction, CMResourceFunction as ResourceFunction } from '@wso2-enterprise/ballerina-languageclient';
+import { CMParameter as Parameter, CMRemoteFunction as RemoteFunction, CMResourceFunction as ResourceFunction } from '@wso2-enterprise/ballerina-core';
 import { PortModel } from '@projectstorm/react-diagrams';
 import { ServiceNodeModel } from '../ServiceNode/ServiceNodeModel';
 

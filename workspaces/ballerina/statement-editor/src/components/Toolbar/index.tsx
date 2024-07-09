@@ -9,8 +9,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useMemo } from "react";
 
-import { KeyboardNavigationManager } from "@wso2-enterprise/ballerina-core";
-import { genVariableName, getAllVariables } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { genVariableName, getAllVariables, KeyboardNavigationManager } from "@wso2-enterprise/ballerina-core";
 import { STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import { Button, Codicon, Divider, Icon } from "@wso2-enterprise/ui-toolkit";
 

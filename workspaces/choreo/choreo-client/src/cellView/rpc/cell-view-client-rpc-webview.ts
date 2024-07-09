@@ -10,7 +10,7 @@ import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
 import { GetProjectModelFromChoreoRequest, GetProjectModelFromFsRequest } from "./types";
 import { IChoreoCellViewClient } from "../types";
-import { Project } from "@wso2-enterprise/ballerina-languageclient";
+import { Project } from "@wso2-enterprise/ballerina-core";
 import { Organization } from "@wso2-enterprise/choreo-core";
 
 export class ChoreoCellViewRPCWebview implements IChoreoCellViewClient {

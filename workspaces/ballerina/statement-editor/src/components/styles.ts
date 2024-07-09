@@ -7,7 +7,6 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { css } from "@emotion/css";
-import { theme } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 
 const syntaxHighlightingRules = {
     '& .type-descriptor, &.type-descriptor': {
@@ -537,7 +536,7 @@ export const useStmtEditorHelperPanelStyles = () => ({
         flex: "inherit",
         whiteSpace: 'pre-wrap',
         marginLeft: '24px',
-        color: theme.palette.text.secondary,
+        color: "black",
         ...removePadding
     }),
     listItemMultiLine: css({
@@ -569,11 +568,11 @@ export const useStmtEditorHelperPanelStyles = () => ({
     listOptionalBtn: css({
         textTransform: 'none',
         minWidth: '32px',
-        color: theme.palette.primary.main
+        color: "black"
     }),
     listOptionalHeader: css({
         fontSize: '13px',
-        color: theme.palette.text.secondary,
+        color: "gray",
         fontWeight: 500,
         letterSpacing: '0',
         lineHeight: '14px',
@@ -695,14 +694,14 @@ export const useStatementEditorStyles = () => ({
     editorsBreadcrumb: css({
         width: '90%',
         '& > * + *': {
-            marginTop: theme.spacing(2),
+            marginTop: 16,
         },
     }),
     statementEditorHeader: css({
         minHeight: '5vh',
         display: 'flex',
         borderBottom: 'solid 1px #d8d8d8',
-        padding: theme.spacing(1.5),
+        padding: 12,
         ...stmtEditorPadding
     }),
     closeButton: css({

@@ -65,11 +65,6 @@ export function NavButtonGroup(props: NavButtonGroupProps) {
                     <Codicon name="home" />
                 </VSCodeButton>
             </LeftSection>
-            <RightSection>
-                <VSCodeButton appearance="icon" title="Architecture Diagram" onClick={handleProjectDesignClick}>
-                    <Codicon name="type-hierarchy-sub" />
-                </VSCodeButton>
-            </RightSection>
         </>
     );
 }

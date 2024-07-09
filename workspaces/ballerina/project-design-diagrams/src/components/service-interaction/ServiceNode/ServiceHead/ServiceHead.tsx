@@ -12,7 +12,7 @@ import { DiagramEngine, PortModel } from '@projectstorm/react-diagrams';
 import MiscellaneousServicesIcon from '@mui/icons-material/MiscellaneousServices';
 import PublicIcon from '@mui/icons-material/Public';
 import Tooltip from '@mui/material/Tooltip';
-import { WarningIcon } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
+import { WarningIcon } from '@wso2-enterprise/ballerina-core';
 import { ServicePortWidget } from '../../ServicePort/ServicePortWidget';
 import { ServiceNodeModel } from '../ServiceNodeModel';
 import { CtrlClickGo2Source, DiagramContext, NodeMenuWidget } from '../../../common';

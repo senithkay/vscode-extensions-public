@@ -10,7 +10,7 @@
 import React, { useContext } from "react";
 import {
     CMAnnotation as Annotation, CMLocation as Location, CMRemoteFunction as RemoteFunction, CMResourceFunction as ResourceFunction
-} from "@wso2-enterprise/ballerina-languageclient";
+} from "@wso2-enterprise/ballerina-core";
 import { Paper, MenuList, Divider } from "@mui/material";
 import { DiagramContext } from "../DiagramContext/DiagramContext";
 import { EntryNodeModel, ServiceNodeModel } from "../../service-interaction";

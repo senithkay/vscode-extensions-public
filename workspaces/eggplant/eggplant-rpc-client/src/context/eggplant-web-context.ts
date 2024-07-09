@@ -8,10 +8,10 @@
  */
 
 import { createContext, useContext } from "react";
-import { EggplantRpcClient } from "../EggplantRpcClient";
+// import { EggplantRpcClient } from "../EggplantRpcClient";
 
 export interface VisualizerContext {
-    rpcClient?: EggplantRpcClient
+    rpcClient?: null
 }
 
 /**

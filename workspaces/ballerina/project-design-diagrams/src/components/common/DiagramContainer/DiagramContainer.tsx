@@ -9,7 +9,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { DiagramModel } from '@projectstorm/react-diagrams';
-import { ComponentModel } from '@wso2-enterprise/ballerina-languageclient';
+import { ComponentModel } from '@wso2-enterprise/ballerina-core';
 import CircularProgress from '@mui/material/CircularProgress/CircularProgress';
 import { DiagramCanvasWidget } from '../DiagramCanvas/CanvasWidget';
 import { DagreLayout, ServiceModels, Views } from '../../../resources';

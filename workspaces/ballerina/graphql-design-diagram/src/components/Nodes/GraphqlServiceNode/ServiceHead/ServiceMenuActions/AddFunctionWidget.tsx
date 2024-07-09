@@ -10,7 +10,7 @@
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda jsx-wrap-multiline
 import React from "react";
 
-import { GraphqlMutationIcon, GraphqlQueryIcon, GraphqlSubscriptionIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { GraphqlMutationIcon, GraphqlQueryIcon, GraphqlSubscriptionIcon } from "@wso2-enterprise/ballerina-core";
 import { NodePosition, STKindChecker } from "@wso2-enterprise/syntax-tree";
 import { Item, MenuItem } from "@wso2-enterprise/ui-toolkit";
 

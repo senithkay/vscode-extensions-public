@@ -12,7 +12,7 @@ import { v4 as uuid } from 'uuid';
 import {
     ComponentModel, CMDependency as Dependency, CMLocation as Location, CMInteraction as Interaction,
     CMRemoteFunction as RemoteFunction, CMResourceFunction as ResourceFunction, CMService as Service, CMDependency
-} from '@wso2-enterprise/ballerina-languageclient';
+} from '@wso2-enterprise/ballerina-core';
 import { Level, ServiceModels, ServiceTypes } from '../../resources';
 import { EntryNodeModel, ExtServiceNodeModel, ServiceLinkModel, ServiceNodeModel, ServicePortModel } from '../../components/service-interaction';
 import { extractGateways } from "../utils";

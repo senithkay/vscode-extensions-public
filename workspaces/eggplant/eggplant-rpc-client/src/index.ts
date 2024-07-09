@@ -8,5 +8,5 @@
  */
 
 
-export { EggplantRpcClient } from "./EggplantRpcClient";
+// export { EggplantRpcClient } from "./EggplantRpcClient";
 export * from "./context/eggplant-web-context";

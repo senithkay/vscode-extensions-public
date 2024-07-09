@@ -17,6 +17,15 @@ export * from "./vscode";
 export * from "./interfaces/ballerina";
 export * from "./interfaces/common";
 export * from "./interfaces/component";
+export * from "./interfaces/constants";
+export * from "./interfaces/config-spec";
+export * from "./interfaces/event";
+export * from "./interfaces/store";
+export * from "./interfaces/performance";
+
+// ------ LS Utils -------->
+export * from "./ls-utils/WSConnection";
+export * from "./ls-utils/BallerinaLanguageClient";
 
 // ------ RPC interfaces -------->
 export * from "./rpc-types/connector-wizard";
@@ -72,5 +81,9 @@ export * from "./utils/diagnostics-utils";
 export * from "./utils/visitors/records-finder-visitor";
 export * from "./utils/keyboard-navigation-manager";
 export * from "./utils/identifier-utils"
+
+// ------ Util Components -------->
+export * from "./components"
+export * from "./icons"
 
 export { Diagnostic } from "vscode-languageserver-types";

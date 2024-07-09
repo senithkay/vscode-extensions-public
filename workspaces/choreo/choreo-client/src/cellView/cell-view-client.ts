@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { IChoreoCellViewClient } from "./types";
-import { CMService, ComponentType } from "@wso2-enterprise/ballerina-languageclient";
+import { CMService, ComponentType } from "@wso2-enterprise/ballerina-core";
 import { workspace } from "vscode";
 import { existsSync, readFileSync } from "fs";
 import {

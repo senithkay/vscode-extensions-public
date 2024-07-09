@@ -9,28 +9,29 @@
 
 import { ExtensionContext, commands, window, Location, Uri, TextEditor } from 'vscode';
 import { ballerinaExtInstance, BallerinaExtension } from './core';
-import { activate as activateDiagram } from './diagram';
-import { activate as activateBBE } from './bbe';
+import { activate as activateDiagram } from './views/diagram';
+import { activate as activateBBE } from './views/bbe';
 import {
     activate as activateTelemetryListener, CMP_EXTENSION_CORE, sendTelemetryEvent,
     TM_EVENT_EXTENSION_ACTIVATE
-} from './telemetry';
-import { activateDebugConfigProvider } from './debugger';
-import { activate as activateProjectFeatures } from './project';
-import { activate as activateEditorSupport } from './editor-support';
-import { activate as activateTesting } from './testing/activator';
+} from './features/telemetry';
+import { activateDebugConfigProvider } from './features/debugger';
+import { activate as activateProjectFeatures } from './features/project';
+import { activate as activateEditorSupport } from './features/editor-support';
+import { activate as activateTesting } from './features/testing/activator';
 import { StaticFeature, DocumentSelector, ServerCapabilities, InitializeParams, FeatureState } from 'vscode-languageclient';
-import { ExtendedClientCapabilities, ExtendedLangClient } from './core/extended-language-client';
-import { activate as activatePerformanceForecaster } from './forecaster';
-import { activate as activateTryIt } from './tryIt/tryit';
-import { activate as activateNotebook } from './notebook';
-import { activate as activateLibraryBrowser } from './library-browser';
-import { activate as activateERDiagram } from './persist-layer-diagram';
+import { ExtendedLangClient } from './core/extended-language-client';
+import { activate as activatePerformanceForecaster } from './views/forecaster';
+import { activate as activateTryIt } from './views/tryIt/tryit';
+import { activate as activateNotebook } from './views/notebook';
+import { activate as activateLibraryBrowser } from './features/library-browser';
+import { activate as activateERDiagram } from './views/persist-layer-diagram';
 import { debug, handleResolveMissingDependencies, log } from './utils';
-import { activateUriHandlers } from './uri-handlers';
+import { activateUriHandlers } from './utils/uri-handlers';
 import { StateMachine } from './stateMachine';
-import { activateSubscriptions } from './visualizer/activate';
+import { activateSubscriptions } from './views/visualizer/activate';
 import { extension } from './BalExtensionContext';
+import { ExtendedClientCapabilities } from '@wso2-enterprise/ballerina-core';
 
 let langClient: ExtendedLangClient;
 export let isPluginStartup = true;

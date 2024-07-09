@@ -15,7 +15,7 @@ import {
     CMService as Service,
     ComponentModel,
     ComponentModelDeprecated
-} from '@wso2-enterprise/ballerina-languageclient';
+} from '@wso2-enterprise/ballerina-core';
 import { EntityFactory, EntityLinkFactory, EntityPortFactory } from '../components/entity-relationship';
 import {
     EntryNodeFactory,

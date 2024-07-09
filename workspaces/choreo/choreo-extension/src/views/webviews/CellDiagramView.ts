@@ -15,7 +15,7 @@ import { WebViewPanelRpc } from "./rpc/WebviewRPC";
 import { getUri } from './utils';
 import { Organization } from "@wso2-enterprise/choreo-core";
 import { ext } from "../../extensionVariables";
-import { Project } from "@wso2-enterprise/ballerina-languageclient";
+import { Project } from "@wso2-enterprise/ballerina-core";
 
 export class CellDiagramView {
     private static currentPanel: CellDiagramView | undefined;

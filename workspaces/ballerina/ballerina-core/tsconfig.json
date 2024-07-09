@@ -2,8 +2,8 @@
     "compilerOptions": {
       "target": "ES6",
       "useDefineForClassFields": true,
-      "lib": ["ESNext", "DOM", "DOM.Iterable"],
-      "module": "ESNext",
+      "lib": ["ES6", "DOM", "DOM.Iterable"],
+      "module": "CommonJS",
       "skipLibCheck": true,
       "outDir": "./lib",
       "rootDir": "./src",
