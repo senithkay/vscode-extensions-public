@@ -19,49 +19,60 @@ interface NavButtonGroupProps {
     historyStack?: HistoryEntry[];
 }
 
-const LeftSection = styled.div``;
+const NavBar = styled.div`
+    padding: 6px 8px;
+`;
+const LeftSection = styled.div`
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 4px;
+`;
 const RightSection = styled.div``;
+interface NavButtonProps {
+    inactive: boolean;
+}
+const NavButton = styled(VSCodeButton)<NavButtonProps>`
+    padding-right: 2px;
+    color: ${(props: NavButtonProps) =>
+        props.inactive ? "var(--vscode-activityBar-inactiveForeground)" : "var(--vscode-editor-foreground)"};
+`;
 
 export function NavButtonGroup(props: NavButtonGroupProps) {
-
-    const { historyStack } = props;
+    const { historyStack } = props; 
     const { rpcClient } = useVisualizerContext();
     const isHistoryAvailable = historyStack && historyStack.length > 0;
 
     const handleBackButtonClick = () => {
         rpcClient.getVisualizerRpcClient().goBack();
-    }
+    };
 
     const handleHomeButtonClick = () => {
         rpcClient.getVisualizerRpcClient().goHome();
-    }
+    };
 
     return (
         <>
-            <LeftSection>
-                <VSCodeButton
-                appearance="icon"
-                title="Go Back"
-                onClick={isHistoryAvailable ? handleBackButtonClick : undefined}
-                style={{color: isHistoryAvailable
-                    ? "var(--vscode-activityBar-foreground)"
-                    : "var(--vscode-activityBar-inactiveForeground)"
-                }}
-            >
-                    <Codicon name="arrow-left" />
-                </VSCodeButton>
-                <VSCodeButton
-                appearance="icon"
-                title="Home"
-                onClick={isHistoryAvailable ? handleHomeButtonClick : undefined}
-                style={{color: isHistoryAvailable
-                    ? "var(--vscode-activityBar-foreground)"
-                    : "var(--vscode-activityBar-inactiveForeground)"
-                }}
-            >
-                    <Codicon name="home" />
-                </VSCodeButton>
-            </LeftSection>
+            <NavBar>
+                <LeftSection>
+                    <NavButton
+                        appearance="icon"
+                        title="Go Back"
+                        onClick={isHistoryAvailable ? handleBackButtonClick : undefined}
+                        inactive={!isHistoryAvailable}
+                    >
+                        <Codicon name="arrow-left" />
+                    </NavButton>
+                    <NavButton
+                        appearance="icon"
+                        title="Home"
+                        onClick={isHistoryAvailable ? handleHomeButtonClick : undefined}
+                        inactive={!isHistoryAvailable}
+                    >
+                        <Codicon name="home" />
+                    </NavButton>
+                </LeftSection>
+            </NavBar>
         </>
     );
 }
