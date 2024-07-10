@@ -11,7 +11,7 @@ import { EVENT_TYPE, MACHINE_VIEW } from '@wso2-enterprise/mi-core';
 import { Alert, Codicon, ContextMenu } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
-import { Fragment } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 
 interface ArtifactType {
     title: string;
@@ -133,6 +133,21 @@ const artifactTypeMap: Record<string, ArtifactType> = {
 const ProjectStructureView = (props: { projectStructure: any, workspaceDir: string }) => {
     const { projectStructure } = props;
     const { rpcClient } = useVisualizerContext();
+    const [connectorData, setConnectorData] = useState<any[]>([]);
+
+    const fetchConnectors = async () => {
+        const connectorDataResponse = await rpcClient.getMiDiagramRpcClient().getStoreConnectorJSON();
+        setConnectorData(connectorDataResponse.data);
+    };
+
+    useEffect(() => {
+        fetchConnectors();
+    }, []);
+
+    function getConnectorIconUrl(connectorName: string): string | undefined {
+        const connector = connectorData.find(c => c.name === connectorName);
+        return connector?.icon_url;
+    }
 
     const goToView = async (documentUri: string, view: MACHINE_VIEW) => {
         const type = view === MACHINE_VIEW.EndPointForm ? 'endpoint' : 'template';
@@ -234,21 +249,21 @@ const ProjectStructureView = (props: { projectStructure: any, workspaceDir: stri
                                                                 connectionEntry.type === "localEntry" && (
                                                                     <Entry
                                                                         key={connectionEntry.name}
-                                                                        icon={artifactTypeMap[key].icon}
+                                                                        icon={getConnectorIconUrl(connectionEntry.connectorName)}
                                                                         name={connectionEntry.name}
                                                                         description={artifactTypeMap[key].description(connectionEntry)}
-                                                                        onClick={() => 
+                                                                        onClick={() =>
                                                                             goToView(artifactTypeMap[key].path(connectionEntry),
-                                                                            artifactTypeMap[key].view)
+                                                                                artifactTypeMap[key].view)
                                                                         }
-                                                                        goToView={() => 
+                                                                        goToView={() =>
                                                                             goToView(artifactTypeMap[key].path(connectionEntry),
-                                                                            artifactTypeMap[key].view)
+                                                                                artifactTypeMap[key].view)
                                                                         }
-                                                                        goToSource={() => 
+                                                                        goToSource={() =>
                                                                             goToSource(artifactTypeMap[key].path(connectionEntry))
                                                                         }
-                                                                        deleteArtifact={() => 
+                                                                        deleteArtifact={() =>
                                                                             deleteArtifact(artifactTypeMap[key].path(connectionEntry))
                                                                         }
                                                                     />
@@ -304,9 +319,19 @@ const EntryContainer = styled.div`
 const Entry: React.FC<EntryProps> = ({ icon, name, description, onClick, goToView, goToSource, deleteArtifact }) => {
     return (
         <EntryContainer onClick={onClick}>
-            <div style={{ width: 'auto', display: 'flex', justifyContent: 'center', alignItems: 'center', marginRight: '10px' }}>
-                <Codicon name={icon} />
-            </div>
+            {description === "Connection" ? (
+                <div style={{ width: '20px', display: 'flex', justifyContent: 'center', alignItems: 'center', marginRight: '10px' }}>
+                    <img src={icon} alt="Icon" onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.src = 'https://mi-connectors.wso2.com/icons/wordpress.gif'
+                    }}
+                    />
+                </div>
+            ) : (
+                <div style={{ width: 'auto', display: 'flex', justifyContent: 'center', alignItems: 'center', marginRight: '10px' }}>
+                    <Codicon name={icon} />
+                </div>
+            )}
             <div style={{ flex: 2, fontWeight: 'bold' }}>
                 {name}
             </div>
