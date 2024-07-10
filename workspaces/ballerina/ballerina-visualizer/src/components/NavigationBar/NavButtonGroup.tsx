@@ -29,17 +29,17 @@ const LeftSection = styled.div`
     gap: 4px;
 `;
 const RightSection = styled.div``;
-
 interface NavButtonProps {
-    inactive?: boolean;
+    inactive: boolean;
 }
-const NavButton = styled(VSCodeButton) <NavButtonProps>`
+const NavButton = styled(VSCodeButton)<NavButtonProps>`
     padding-right: 2px;
-    color: ${(props: NavButtonProps) => (props.inactive ? "var(--vscode-editor-inactiveForeground)" : "var(--vscode-editor-foreground)")};
+    color: ${(props: NavButtonProps) =>
+        props.inactive ? "var(--vscode-activityBar-inactiveForeground)" : "var(--vscode-editor-foreground)"};
 `;
 
 export function NavButtonGroup(props: NavButtonGroupProps) {
-    const { historyStack } = props;
+    const { historyStack } = props; 
     const { rpcClient } = useVisualizerContext();
     const isHistoryAvailable = historyStack && historyStack.length > 0;
 
