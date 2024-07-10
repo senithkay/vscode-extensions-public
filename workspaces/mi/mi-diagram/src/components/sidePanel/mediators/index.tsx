@@ -69,21 +69,18 @@ export function HomePage(props: MediatorPageProps) {
         setConnectors(false);
         setEndpoints(false);
         setAllMediators(true);
-        clearSearch();
     }
 
     const handleConnectorsClicked = () => {
         setAllMediators(false);
         setEndpoints(false);
         setConnectors(true);
-        clearSearch();
     }
 
     const handleEndpointsClicked = () => {
         setAllMediators(false);
         setConnectors(false);
         setEndpoints(true);
-        clearSearch();
     }
 
     return (

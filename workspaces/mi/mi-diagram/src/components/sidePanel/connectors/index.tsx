@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { TextField, Button, Codicon, Icon, ComponentCard, IconLabel, AutoComplete } from "@wso2-enterprise/ui-toolkit";
+import { Codicon, ComponentCard, IconLabel } from "@wso2-enterprise/ui-toolkit";
 import React, { useContext, useEffect, useRef, useState } from "react";
 import styled from "@emotion/styled";
 import SidePanelContext from "../SidePanelContexProvider";
@@ -199,7 +199,7 @@ export function ConnectorPage(props: ConnectorPageProps) {
 
         setFilteredLocalConnectors(localConnectorsFiltered);
         setFilteredStoreConnectors(storeConnectorsFiltered);
-    }, [debouncedValue]);
+    }, [debouncedValue, localConnectors, sidePanelContext.connectors]);
 
     const waitForEvent = () => {
         return new Promise((resolve, reject) => {
@@ -540,12 +540,12 @@ export function ConnectorPage(props: ConnectorPageProps) {
                             )}
                         </div>
                         <div>
-                            {!displayedStoreConnectors ? (
+                            {!sidePanelContext.connectors ? (
                                 <LoaderWrapper>
                                     <ProgressRing />
                                     Fetching connectors...
                                 </LoaderWrapper>
-                            ) :
+                            ) : displayedStoreConnectors && (
                                 <ButtonGrid>
                                     {(displayedStoreConnectors.sort((a: any, b: any) => a.rank - b.rank).map((connector: any) => (
                                         <div style={{
@@ -687,7 +687,7 @@ export function ConnectorPage(props: ConnectorPageProps) {
                                     ))
                                     )}
                                 </ButtonGrid>
-                            }
+                            )}
                         </div>
                     </>
                 )}
