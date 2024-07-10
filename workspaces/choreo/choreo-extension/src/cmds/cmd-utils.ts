@@ -275,9 +275,9 @@ export const resolveQuickPick = async <T>(
     }
 };
 
-async function quickPickWithLoader<T>(params: {
-    cacheQuickPicks?: (QuickPickItem & { item: T })[];
-    loadQuickPicks: () => Promise<(QuickPickItem & { item: T })[]>;
+export async function quickPickWithLoader<T>(params: {
+    cacheQuickPicks?: (QuickPickItem & { item?: T })[];
+    loadQuickPicks: () => Promise<(QuickPickItem & { item?: T })[]>;
     loadingTitle?: string;
     selectTitle?: string;
     placeholder?: string;
@@ -309,7 +309,7 @@ async function quickPickWithLoader<T>(params: {
         quickPick.onDidHide(() => resolve(null));
     });
     quickPick.dispose();
-    const selectedT = (selectedQuickPick as QuickPickItem & { item: T })?.item;
+    const selectedT = (selectedQuickPick as QuickPickItem & { item?: T })?.item;
 
     return selectedT;
 }

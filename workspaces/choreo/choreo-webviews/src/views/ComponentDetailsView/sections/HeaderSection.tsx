@@ -15,7 +15,7 @@ export const HeaderSection: FC<
     }
 > = ({ allDeploymentTracks, onChangeDeploymentTrack, deploymentTrack, component, organization, project }) => {
     const openInConsole = () =>
-        ChoreoWebViewAPI.getInstance().triggerCmd(CommandIds.OpenComponentInConsole, {
+        ChoreoWebViewAPI.getInstance().triggerCmd(CommandIds.OpenInConsole, {
             component,
             project,
             organization,

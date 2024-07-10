@@ -14,11 +14,10 @@ import { deleteComponentCommand } from './delete-component-cmd';
 import { signInCommand } from './sign-in-cmd';
 import { signInWithAuthCodeCommand } from './sign-in-with-code-cmd';
 import { signOutCommand } from './sign-out-cmd';
-import { openComponentInConsoleCommand } from './open-component-in-console-cmd';
+import { openInConsoleCommand } from './open-in-console-cmd';
 import { viewComponentCommand } from './view-component-cmd';
 import { cloneRepoCommand } from './clone-project-cmd';
 import { createProjectWorkspaceCommand } from './create-project-workspace-cmd';
-import { openProjectInConsoleCommand } from './open-project-in-console-cmd';
 import { createDirectoryContextCommand } from './create-directory-context-cmd';
 
 export function activateCmds(context: ExtensionContext) {
@@ -28,11 +27,10 @@ export function activateCmds(context: ExtensionContext) {
     signInCommand(context);
     signInWithAuthCodeCommand(context);
     signOutCommand(context);
-    openComponentInConsoleCommand(context);
+    openInConsoleCommand(context);
     viewComponentCommand(context);
     cloneRepoCommand(context);
     createProjectWorkspaceCommand(context);
     manageProjectContextCommand(context);
-    openProjectInConsoleCommand(context);
     createDirectoryContextCommand(context);
 }
