@@ -317,7 +317,8 @@ const MainPanel = () => {
                         <AddConnection 
                             connectionName={machineView.customProps.connectionName}
                             allowedConnectionTypes={machineView.customProps.allowedConnectionTypes}
-                            connector={machineView.customProps} />);
+                            connector={machineView.customProps}
+                            path={machineView.documentUri} />);
                     break;
                 case MACHINE_VIEW.TestSuite:
                     setViewComponent(<TestSuiteForm filePath={machineView.documentUri} stNode={machineView.stNode as UnitTest} />);

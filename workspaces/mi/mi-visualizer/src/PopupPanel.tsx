@@ -88,6 +88,7 @@ const PopupPanel = (props: { formState: PopupMachineStateValue }) => {
                             allowedConnectionTypes={machineSate.customProps.allowedConnectionTypes}
                             connector={machineSate.customProps.connector}
                             fromSidePanel={machineSate.customProps.fromSidePanel}
+                            path={machineSate.documentUri}
                             isPopup={true} />);
                     break;
                 default:

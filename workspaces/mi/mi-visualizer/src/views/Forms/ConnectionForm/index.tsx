@@ -394,7 +394,8 @@ export function ConnectorStore(props: ConnectionStoreProps) {
                     allowedConnectionTypes={Object.keys(selectedConnector.connectionUiSchema)}
                     connector={selectedConnector}
                     isPopup={props.isPopup}
-                    changeConnector={changeConnector} />
+                    changeConnector={changeConnector}
+                    path={props.path} />
             ) : (
                 <FormView title={`Add New Connection`} onClose={handleOnClose} hideClose={props.isPopup}>
                     <span>Please select a connector to create a connection.</span>

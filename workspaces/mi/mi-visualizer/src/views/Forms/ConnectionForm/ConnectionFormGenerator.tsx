@@ -8,7 +8,7 @@
  */
 
 import { useEffect, useState } from 'react';
-import { AutoComplete, Button, ComponentCard, FormActions, FormView, RequiredFormInput, TextField } from '@wso2-enterprise/ui-toolkit';
+import { AutoComplete, Button, ComponentCard, ErrorBanner, FormActions, FormView, RequiredFormInput, TextField } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { create } from 'xmlbuilder2';
@@ -37,7 +37,12 @@ const Field = styled.div`
     margin-bottom: 20px;
 `;
 
+const ParamManagerContainer = styled.div`
+    width: ; 100%;
+`;
+
 export interface AddConnectionProps {
+    path: string;
     allowedConnectionTypes?: string[];
     connector?: any;
     connectionName?: string;
@@ -72,11 +77,28 @@ export function AddConnection(props: AddConnectionProps) {
     const [formData, setFormData] = useState({} as any);
     const [expressionEditorField, setExpressionEditorField] = useState<string | null>(null);
     const [currentExpressionValue, setCurrentExpressionValue] = useState<ExpressionValueWithSetter | null>(null);
+    const [connections, setConnections] = useState([]);
+    const [connectionNameError, setConnectionNameError] = useState("");
 
     const formValidators: { [key: string]: (e?: any) => string | undefined } = {};
     const { control, handleSubmit, watch, getValues, setValue, reset } = useForm();
 
     useEffect(() => {
+        const fetchConnections = async () => {
+            const connectionData: any = await rpcClient.getMiDiagramRpcClient().getConnectorConnections({
+                documentUri: props.path,
+                connectorName: null
+            });
+
+            let connectionNames: any[] = [];
+            Object.keys(connectionData).forEach(key => {
+                const connections = connectionData[key].connections.map((connection: any) => connection.name);
+                connectionNames = connectionNames.concat(connections);
+            });
+
+            setConnections(connectionNames);
+        }
+
         const fetchFormData = async () => {
             if (connectionType) {
 
@@ -88,6 +110,7 @@ export function AddConnection(props: AddConnectionProps) {
             }
         };
 
+        fetchConnections();
         fetchFormData();
     }, [connectionType]);
 
@@ -217,7 +240,7 @@ export function AddConnection(props: AddConnectionProps) {
                     isPopup: true
                 });
             } else {
-            // Open Overview
+                // Open Overview
                 rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Overview } });
             }
         }
@@ -230,7 +253,6 @@ export function AddConnection(props: AddConnectionProps) {
         const root = template.ele(`${formData.connectorName ?? props.connector.name}.init`);
 
         root.ele('name').txt(name);
-        root.ele('connectionType').txt('INIT')
         params.paramValues.forEach(param => {
             root.ele(param.key).txt(param.value);
         })
@@ -306,6 +328,9 @@ export function AddConnection(props: AddConnectionProps) {
     const renderFormElement = (element: Element) => {
         switch (element.inputType) {
             case 'string':
+                if (element.name === 'connectionName') {
+                    return null;
+                }
                 return (
                     <Field>
                         <Controller
@@ -469,6 +494,16 @@ export function AddConnection(props: AddConnectionProps) {
         }
     }
 
+    const verifyName = (event: any) => {
+        const connectionName = event.target.value;
+
+        if (connections.includes(connectionName)) {
+            setConnectionNameError('A connection with this name already exists.');
+        } else {
+            setConnectionNameError('');
+        }
+    };
+
     return (
         <FormView title={`Add New Connection`} onClose={handleOnClose} hideClose={props.isPopup}>
             {!props.fromSidePanel && <TypeChip
@@ -491,10 +526,12 @@ export function AddConnection(props: AddConnectionProps) {
                         }}
                         required={false}
                     />
-                    <ParamManager
-                        paramConfigs={params}
-                        readonly={false}
-                        onChange={handleOnChange} />
+                    <ParamManagerContainer>
+                        <ParamManager
+                            paramConfigs={params}
+                            readonly={false}
+                            onChange={handleOnChange} />
+                    </ParamManagerContainer>
                     <div style={{ display: "flex", textAlign: "right", justifyContent: "flex-end", marginTop: "10px" }}>
                         <Button
                             appearance="primary"
@@ -506,6 +543,23 @@ export function AddConnection(props: AddConnectionProps) {
                 </>
             ) : (
                 <>
+                    <Controller
+                        name={"connectionName"}
+                        control={control}
+                        defaultValue={""}
+                        render={({ field }) => (
+                            <TextField {...field}
+                                label={"Connection Name"}
+                                size={50}
+                                placeholder={"The name for the file connection"}
+                                required={true}
+                                onChange={(event) => {
+                                    field.onChange(event);
+                                    verifyName(event);
+                                }} />
+                        )}
+                    />
+                    {connectionNameError && <ErrorBanner errorMsg={connectionNameError} />}
                     <Controller
                         name={"connectionType"}
                         control={control}
