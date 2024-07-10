@@ -15,6 +15,7 @@ import { ParamConfig } from '../../../Form';
 export interface AddMediatorProps {
     nodePosition: Range;
     documentUri: string;
+    endpoint?: string;
 }
 
 export function filterFormValues(formValues: { [key: string]: any }, keysToInclude: string[], keysToExclude: string[]): { [key: string]: any } {

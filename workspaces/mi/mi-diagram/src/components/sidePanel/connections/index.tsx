@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { Codicon, ComponentCard, IconLabel, AutoComplete, LinkButton } from "@wso2-enterprise/ui-toolkit";
+import { Codicon, ComponentCard, IconLabel, AutoComplete, LinkButton, Icon } from "@wso2-enterprise/ui-toolkit";
 import React, { useContext, useEffect, useRef, useState } from "react";
 import styled from "@emotion/styled";
 import SidePanelContext from "../SidePanelContexProvider";
@@ -16,6 +16,7 @@ import { sidepanelAddPage } from "..";
 import { FirstCharToUpperCase } from "../../../utils/commons";
 import AddConnector from "../Pages/AddConnector";
 import { MACHINE_VIEW, POPUP_EVENT_TYPE, ParentPopupData } from "@wso2-enterprise/mi-core";
+import CallForm from "../Pages/mediators/core/call";
 
 const VersionTag = styled.div`
     color: #808080;
@@ -93,6 +94,12 @@ const OperationGrid = styled.div`
     padding-top: 10px;
 `;
 
+const ExternalsContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+`;
+
 interface Connection {
     name: string;
     connectionType: string;
@@ -115,9 +122,12 @@ export function ConnectionPage(props: ConnectorPageProps) {
     const { rpcClient } = useVisualizerContext();
     const [expandedConnections, setExpandedConnections] = useState<any[]>([]);
     const [connections, setConnections] = useState<ConnectionsData>(undefined);
+    const [endpoints, setEndpoints] = useState<any[]>(undefined);
     const [filteredConnections, setFilteredConnections] = useState<ConnectionsData>(undefined);
     const [filteredOperations, setFilteredOperations] = useState<any[][]>([]);
+    const [filteredEndpoints, setFilteredEndpoints] = useState<any[]>([]);
     const [isOldProject, setIsOldProject] = useState(false);
+    const [debouncedValue, setDebouncedValue] = useState(props.searchValue);
 
     const fetchConnections = async () => {
         const connectionData: any = await rpcClient.getMiDiagramRpcClient().getConnectorConnections({
@@ -142,9 +152,34 @@ export function ConnectionPage(props: ConnectorPageProps) {
             ));
 
             setConnections(newConnectionInfo);
-            return(newConnectionInfo);
+            return (newConnectionInfo);
         }
     };
+
+    const fetchEndpoints = async () => {
+        const result = await rpcClient.getMiDiagramRpcClient().getAvailableResources({
+            documentIdentifier: props.documentUri,
+            resourceType: "endpoint"
+        });
+
+        setEndpoints(result.resources);
+    }
+
+    useEffect(() => {
+        checkOldProject();
+        fetchConnections();
+        fetchEndpoints();
+    }, []);
+
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            setDebouncedValue(props.searchValue);
+        }, 400);
+    
+        return () => {
+            clearTimeout(handler);
+        };
+    }, [props.searchValue]);
 
     const checkOldProject = async () => {
         const oldProjectResponse = await rpcClient.getMiDiagramRpcClient().checkOldProject();
@@ -158,12 +193,12 @@ export function ConnectionPage(props: ConnectorPageProps) {
             Object.keys(connections).forEach((key) => {
                 const matchingConnections = connections[key].connections?.filter((connection) => {
                     // Connection Name match
-                    const nameMatch = connection.name.toLowerCase().includes(props.searchValue.toLowerCase());
+                    const nameMatch = connection.name.toLowerCase().includes(debouncedValue.toLowerCase());
 
                     // Operation matches
                     const operations = connections[key].connectorData?.actions || [];
                     const operationMatch = operations.some((operation: any) => {
-                        const operationNameMatch = operation.name.toLowerCase().includes(props.searchValue.toLowerCase());
+                        const operationNameMatch = operation.name.toLowerCase().includes(debouncedValue.toLowerCase());
                         if (operationNameMatch) {
                             const allowedTypes = operation.allowedConnectionTypes;
                             return allowedTypes?.includes(connection.connectionType);
@@ -195,13 +230,13 @@ export function ConnectionPage(props: ConnectorPageProps) {
 
             Object.keys(connections).forEach((key) => {
                 connections[key].connections?.forEach((connection) => {
-                    const nameMatch = connection.name.toLowerCase().includes(props.searchValue.toLowerCase());
+                    const nameMatch = connection.name.toLowerCase().includes(debouncedValue.toLowerCase());
 
                     if (!nameMatch) {
                         const matchingActions: any[] = [];
                         const operations = connections[key].connectorData?.actions || [];
                         operations.forEach((operation: any) => {
-                            const operationNameMatch = operation.name.toLowerCase().includes(props.searchValue.toLowerCase());
+                            const operationNameMatch = operation.name.toLowerCase().includes(debouncedValue.toLowerCase());
                             if (operationNameMatch) {
                                 matchingActions.push(operation);
                             }
@@ -218,20 +253,28 @@ export function ConnectionPage(props: ConnectorPageProps) {
         }
     }
 
-    useEffect(() => {
-        checkOldProject();
-        fetchConnections();
-    }, []);
+    const searchEndpoints = () => {
+        if (endpoints) {
+            const searchResults = endpoints.filter((endpoint) => {
+                return endpoint.name.toLowerCase().includes(debouncedValue.toLowerCase());
+            });
+    
+            return searchResults;
+        }
+    
+        return [];
+    };
 
     useEffect(() => {
         let connectionsFiltered = connections;
+        let endpointsFiltered = endpoints;
         let operationsFiltered = [];
 
-        setExpandedConnections([]);
-
-        if (props.searchValue) {
+        if (debouncedValue) {
+            setExpandedConnections([]);
             connectionsFiltered = searchConnections();
             operationsFiltered = searchOperations();
+            endpointsFiltered = searchEndpoints();
 
             setFilteredOperations(operationsFiltered);
         } else {
@@ -239,11 +282,8 @@ export function ConnectionPage(props: ConnectorPageProps) {
         }
 
         setFilteredConnections(connectionsFiltered);
-    }, [props.searchValue]);
-
-    useEffect(() => {
-        setFilteredConnections(connections);
-    }, [connections]);
+        setFilteredEndpoints(endpointsFiltered);
+    }, [debouncedValue, connections, endpoints]);
 
     const reloadConnectionList = async () => {
         fetchConnections();
@@ -276,6 +316,22 @@ export function ConnectionPage(props: ConnectorPageProps) {
         });
     }
 
+    const addNewEndpoint = async () => {
+        rpcClient.getMiVisualizerRpcClient().openView({
+            type: POPUP_EVENT_TYPE.OPEN_VIEW,
+            location: {
+                view: MACHINE_VIEW.EndPointForm
+            },
+            isPopup: true
+        });
+
+        rpcClient.onParentPopupSubmitted((data: ParentPopupData) => {
+            if (data.recentIdentifier) {
+                fetchEndpoints();
+            }
+        });
+    }
+
     function getConnectionByName(connectionName: string, connections: ConnectionsData): Connection | undefined {
         for (const key in connections) {
             const foundConnection = (connections[key].connections).find(connection => connection.name === connectionName);
@@ -283,7 +339,7 @@ export function ConnectionPage(props: ConnectorPageProps) {
                 return foundConnection;
             }
         }
-        return undefined; 
+        return undefined;
     }
 
     const generateForm = async (connection: Connection, operation: string, connectorData: any) => {
@@ -302,6 +358,17 @@ export function ConnectionPage(props: ConnectorPageProps) {
             connectionType={connection.connectionType} />;
 
         sidepanelAddPage(sidePanelContext, connecterForm, `${sidePanelContext.isEditing ? "Edit" : "Add"} ${operation}`);
+    }
+
+    const clickEndpoint = async (endpoint: any) => {
+        const callForm = <CallForm nodePosition={sidePanelContext.nodeRange}
+            documentUri={props.documentUri} endpoint={endpoint.name} />;
+
+        sidepanelAddPage(sidePanelContext, callForm, `Add Call Operation`);
+    }
+
+    const getConnectionLabel = (connectorName: string, connectionType: string) => {
+        return `${FirstCharToUpperCase(connectorName)} ${connectionType ? `- ${connectionType} Connection` : ''}`;
     }
 
     const ConnectionList = () => {
@@ -389,7 +456,7 @@ export function ConnectionPage(props: ConnectorPageProps) {
                                                                             {connection.name}
                                                                         </IconLabel>
                                                                         <VersionTag>
-                                                                            {connection.connectionType}
+                                                                            {getConnectionLabel(key, connection.connectionType)}
                                                                         </VersionTag>
                                                                     </div>
                                                                     <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
@@ -455,10 +522,11 @@ export function ConnectionPage(props: ConnectorPageProps) {
                                                                                         />
                                                                                     </SmallIconContainer>
                                                                                     <div style={{
-                                                                                            width: '120px',
-                                                                                            overflow: 'hidden',
-                                                                                            textOverflow: 'ellipsis',
-                                                                                            whiteSpace: 'nowrap' }}>
+                                                                                        width: '120px',
+                                                                                        overflow: 'hidden',
+                                                                                        textOverflow: 'ellipsis',
+                                                                                        whiteSpace: 'nowrap'
+                                                                                    }}>
                                                                                         <IconLabel>{FirstCharToUpperCase(operation.name)}</IconLabel>
                                                                                     </div>
                                                                                 </ComponentCard>
@@ -481,9 +549,98 @@ export function ConnectionPage(props: ConnectorPageProps) {
         )
     }
 
+
+    const EndpointList = () => {
+
+        return (
+            <>
+
+                {endpoints && (
+                    <SectionContainer>
+                        <SectionTitleWrapper>
+                            <h4>Available Endpoints</h4>
+                            {endpoints.length > 0 && (
+                                <LinkButton onClick={() => addNewEndpoint()}>
+                                    + Add new endpoint
+                                </LinkButton>
+                            )}
+                        </SectionTitleWrapper>
+                        {endpoints.length === 0 ? (
+                            <>
+                                <MessageWrapper>
+                                    No Endpoints available. Please create a new endpoint.
+                                </MessageWrapper>
+                                <LinkButton onClick={() => addNewEndpoint()}>
+                                    + Add new endpoint
+                                </LinkButton>
+                            </>
+                        ) : filteredEndpoints && filteredEndpoints.length > 0 && (
+                            <ConnectionWrapper>
+                                {filteredEndpoints.map((endpoint, index) => (
+                                    endpoint && (
+                                        <div key={index} style={{
+                                            backgroundColor: 'var(--vscode-editorWidget-background)',
+                                            border: '0px',
+                                            borderRadius: 2,
+                                            cursor: 'pointer',
+                                            display: 'flex',
+                                            justifyContent: 'left',
+                                            transition: '0.3s',
+                                            flexDirection: 'column',
+                                            marginBottom: '15px'
+                                        }}>
+                                            <ComponentCard
+                                                key={endpoint.name}
+                                                onClick={() => clickEndpoint(endpoint)}
+                                                sx={{
+                                                    border: '0px',
+                                                    borderRadius: 2,
+                                                    padding: '6px 10px',
+                                                    width: 'auto',
+                                                    height: '32px'
+                                                }}
+                                            >
+                                                <CardContent>
+                                                    <CardLabel>
+                                                        <IconContainer>
+                                                            <Icon name="HTTPEndpoint" sx={{ 
+                                                                height: 25, width: 25, fontSize: 25, color: "#3e97d3" }} />
+                                                        </IconContainer>
+                                                        <div style={{
+                                                            width: '100%',
+                                                            overflow: 'hidden',
+                                                            textOverflow: 'ellipsis',
+                                                            whiteSpace: 'nowrap',
+                                                            textAlign: 'left',
+                                                            display: 'flex',
+                                                            flexDirection: 'column',
+                                                            justifyContent: 'center'
+                                                        }}>
+                                                            <IconLabel>
+                                                                {endpoint.name}
+                                                            </IconLabel>
+                                                            <VersionTag>
+                                                                {endpoint.type}
+                                                            </VersionTag>
+                                                        </div>
+                                                    </CardLabel>
+                                                </CardContent>
+                                            </ComponentCard>
+                                        </div>
+                                    )
+                                ))}
+                            </ConnectionWrapper>
+                        )}
+                    </SectionContainer>
+                )}
+            </>
+        )
+    }
+
     return (
-        <div>
+        <ExternalsContainer>
             <ConnectionList />
-        </div>
+            <EndpointList />
+        </ExternalsContainer>
     );
 }
