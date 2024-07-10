@@ -1607,3 +1607,18 @@ export interface AddDependencyToPomRequest {
     version: string;
     file: string
 }
+
+export interface TestDbConnectionRequest {
+    dbType: string;
+    version: string;
+    username: string;
+    password: string;
+    host: string;
+    port: string;
+    dbName: string;
+    dbDriverFolder: string;
+}
+
+export interface TestDbConnectionResponse {
+    success: boolean;
+}

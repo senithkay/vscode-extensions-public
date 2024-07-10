@@ -176,6 +176,8 @@ import {
     GetAllMockServicesResponse,
     AddDependencyToPomRequest,
     SwaggerFromAPIResponse,
+    TestDbConnectionRequest,
+    TestDbConnectionResponse,
 } from "./types";
 
 export interface MiDiagramAPI {
@@ -291,4 +293,5 @@ export interface MiDiagramAPI {
     getAllTestSuites: () => Promise<GetAllTestSuitsResponse>;
     getAllMockServices: () => Promise<GetAllMockServicesResponse>;
     addDependencyToPom: (params: AddDependencyToPomRequest) => Promise<void>;
+    testDbConnection: (params: TestDbConnectionRequest) => Promise<TestDbConnectionResponse>;
 }
