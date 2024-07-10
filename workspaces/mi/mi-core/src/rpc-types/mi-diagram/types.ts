@@ -681,6 +681,7 @@ export interface UpdateAddressEndpointRequest {
     requireTemplateParameters: boolean;
     templateParameters: any;
     getContentOnly: boolean;
+    isPopup: boolean;
 }
 
 export interface UpdateAddressEndpointResponse {
@@ -1416,6 +1417,11 @@ export interface GetConnectionFormRequest {
 export interface GetConnectionFormResponse {
     formJSON: string;
 }
+
+export interface StoreConnectorJsonResponse {
+    data: any[];
+}
+
 export interface CreateDataSourceResponse {
     path: string;
 }

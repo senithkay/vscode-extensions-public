@@ -290,7 +290,9 @@ import {
     updateTestCase,
     updateTestSuite,
     updateWsdlEndpoint,
-    writeContentToFile
+    writeContentToFile,
+    StoreConnectorJsonResponse,
+    getStoreConnectorJSON
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -672,6 +674,10 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     getConnectorConnections(params: GetConnectorConnectionsRequest): Promise<GetConnectorConnectionsResponse> {
         return this._messenger.sendRequest(getConnectorConnections, HOST_EXTENSION, params);
+    }
+
+    getStoreConnectorJSON(): Promise<StoreConnectorJsonResponse> {
+        return this._messenger.sendRequest(getStoreConnectorJSON, HOST_EXTENSION);
     }
 
     logoutFromMIAccount(): void {

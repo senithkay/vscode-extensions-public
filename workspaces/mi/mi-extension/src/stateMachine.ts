@@ -31,6 +31,7 @@ import { deriveConfigName } from './util/dataMapper';
 import { fileURLToPath } from 'url';
 import path = require('path');
 import { activateTestExplorer } from './test-explorer/activator';
+import fetch from 'node-fetch';
 
 interface MachineContext extends VisualizerLocation {
     langClient: ExtendedLanguageClient | null;
@@ -53,7 +54,7 @@ const stateMachine = createMachine<MachineContext>({
                 src: checkIfMiProject,
                 onDone: [
                     {
-                        target: 'projectDetected',
+                        target: 'connectorInit',
                         cond: (context, event) =>
                             // Assuming true means project detected
                             event.data.isProject === true && event.data.emptyProject === true,
@@ -65,7 +66,7 @@ const stateMachine = createMachine<MachineContext>({
                         })
                     },
                     {
-                        target: 'projectDetected',
+                        target: 'connectorInit',
                         cond: (context, event) =>
                             // Assuming true means project detected
                             event.data.isProject === true && event.data.emptyProject === false,
@@ -115,6 +116,19 @@ const stateMachine = createMachine<MachineContext>({
                         errors: (context, event) => event.data
                     })
                 }
+            }
+        },
+        connectorInit: {
+            invoke: {
+                src: 'waitForConnectorData',
+                onDone: [
+                    {
+                        target: 'projectDetected',
+                        actions: assign({
+                            connectorData: (context, event) => event.data
+                        })
+                    }
+                ]
             }
         },
         projectDetected: {
@@ -334,6 +348,17 @@ const stateMachine = createMachine<MachineContext>({
                     StateMachinePopup.initialize();
 
                     resolve(ls);
+                } catch (error) {
+                    reject(error);
+                }
+            });
+        },
+        waitForConnectorData: (context, event) => {
+            return new Promise(async (resolve, reject) => {
+                try {
+                    const response = await fetch('https://mi-connectors.wso2.com/icons/mi-connectors-info.json');
+                    const data = await response.json();
+                    resolve(data.data);
                 } catch (error) {
                     reject(error);
                 }

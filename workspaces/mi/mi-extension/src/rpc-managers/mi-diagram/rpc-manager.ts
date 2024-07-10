@@ -190,7 +190,8 @@ import {
     onSwaggerSpecReceived,
     SwaggerData,
     getSTRequest,
-    getSTResponse
+    getSTResponse,
+    StoreConnectorJsonResponse
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
 import { error } from "console";
@@ -210,7 +211,7 @@ import { extension } from '../../MIExtensionContext';
 import { StateMachineAI } from '../../ai-panel/aiMachine';
 import { COMMANDS, DEFAULT_PROJECT_VERSION, MI_COPILOT_BACKEND_URL } from "../../constants";
 import { StateMachine, navigate, openView } from "../../stateMachine";
-import { openPopupView } from "../../stateMachinePopup";
+import { StateMachinePopup, openPopupView } from "../../stateMachinePopup";
 import { testFileMatchPattern } from "../../test-explorer/discover";
 import { mockSerivesFilesMatchPattern } from "../../test-explorer/mock-services/activator";
 import { UndoRedoManager } from "../../undoRedoManager";
@@ -558,7 +559,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             }
 
             const filePath = path.join(directory, `${name}.xml`);
-            await replaceFullContentToFile(filePath, xmlData);
+            await replaceFullContentToFile(filePath, xmlData,);
             commands.executeCommand(COMMANDS.REFRESH_COMMAND);
             resolve({ path: filePath });
         });
@@ -579,7 +580,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     filePath = path.join(directory, `${templateParams.name}.xml`);
                 }
 
-                await replaceFullContentToFile(filePath, sanitizedXmlData);
+                await replaceFullContentToFile(filePath, sanitizedXmlData, StateMachinePopup.isActive());
                 await this.rangeFormat({
                     uri: filePath,
                     range: {
@@ -653,7 +654,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     filePath = path.join(directory, `${templateParams.name}.xml`);
                 }
 
-                await replaceFullContentToFile(filePath, sanitizedXmlData);
+                await replaceFullContentToFile(filePath, sanitizedXmlData, StateMachinePopup.isActive());
                 await this.rangeFormat({
                     uri: filePath,
                     range: {
@@ -717,7 +718,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     filePath = path.join(directory, `${templateParams.name}.xml`);
                 }
 
-                await replaceFullContentToFile(filePath, sanitizedXmlData);
+                await replaceFullContentToFile(filePath, sanitizedXmlData, StateMachinePopup.isActive());
                 await this.rangeFormat({
                     uri: filePath,
                     range: {
@@ -779,7 +780,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     filePath = path.join(directory, `${templateParams.name}.xml`);
                 }
 
-                await replaceFullContentToFile(filePath, sanitizedXmlData);
+                await replaceFullContentToFile(filePath, sanitizedXmlData, StateMachinePopup.isActive());
                 await this.rangeFormat({
                     uri: filePath,
                     range: {
@@ -1596,7 +1597,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 } else {
                     filePath = path.join(directory, `${fileName}.xml`);
                 }
-                await replaceFullContentToFile(filePath, sanitizedXmlData);
+                await replaceFullContentToFile(filePath, sanitizedXmlData, StateMachinePopup.isActive());
                 await this.rangeFormat({
                     uri: filePath,
                     range: {
@@ -1774,7 +1775,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     filePath = path.join(directory, `${fileName}.xml`);
                 }
 
-                await replaceFullContentToFile(filePath, sanitizedXmlData);
+                await replaceFullContentToFile(filePath, sanitizedXmlData, StateMachinePopup.isActive());
                 await this.rangeFormat({
                     uri: filePath,
                     range: {
@@ -1884,7 +1885,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     filePath = path.join(directory, `${fileName}.xml`);
                 }
 
-                await replaceFullContentToFile(filePath, sanitizedXmlData);
+                await replaceFullContentToFile(filePath, sanitizedXmlData, StateMachinePopup.isActive());
                 await this.rangeFormat({
                     uri: filePath,
                     range: {
@@ -1996,7 +1997,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     filePath = path.join(directory, `${fileName}.xml`);
                 }
 
-                await replaceFullContentToFile(filePath, sanitizedXmlData);
+                await replaceFullContentToFile(filePath, sanitizedXmlData, StateMachinePopup.isActive());
                 await this.rangeFormat({
                     uri: filePath,
                     range: {
@@ -3344,6 +3345,16 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
             resolve(res);
         })
+    }
+
+    async getStoreConnectorJSON(): Promise<StoreConnectorJsonResponse> {
+        return new Promise(async (resolve) => {
+            const connectorDataState = StateMachine.context().connectorData;
+            if (connectorDataState !== undefined) {
+                resolve({data: connectorDataState});
+            }
+        });
+
     }
 
     async createDataSource(params: DataSourceTemplate): Promise<CreateDataSourceResponse> {

@@ -155,6 +155,7 @@ export interface VisualizerLocation {
     customProps?: any;
     dataMapperProps?: DataMapperProps;
     type?: string;
+    connectorData?: any[];
 }
 
 export interface PopupVisualizerLocation extends VisualizerLocation {
