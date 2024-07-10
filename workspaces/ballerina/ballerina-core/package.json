@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Contains types related to the Ballerina extension",
   "main": "lib/index.js",
+  "types": "lib/index.d.ts",
   "bin": {
     "start-ws-lang-server": "command/index.js"
   },
