@@ -82,7 +82,7 @@ function checkServerLiveness(): Promise<boolean> {
 
 export function checkServerReadiness(): Promise<void> {
     const startTime = Date.now();
-    const maxTimeout = 10000;
+    const maxTimeout = 15000;
     const retryInterval = 2000;
 
     return new Promise((resolve, reject) => {
@@ -103,6 +103,7 @@ export function checkServerReadiness(): Promise<void> {
                         if (elapsedTime < maxTimeout) {
                             setTimeout(checkReadiness, retryInterval);
                         } else {
+                            logDebug('Timeout reached while checking server readiness', ERROR_LOG);
                             reject('CApp has encountered deployment issues. Please refer to the terminal for error logs.');
                         }
                     }
@@ -112,6 +113,7 @@ export function checkServerReadiness(): Promise<void> {
                     if (elapsedTime < maxTimeout) {
                         setTimeout(checkReadiness, retryInterval);
                     } else {
+                        logDebug(`Error while checking for Server readiness: ${error}`, ERROR_LOG);
                         reject(`CApp has encountered deployment issues. Please refer to the terminal for error logs.`);
                     }
                 });
@@ -294,7 +296,7 @@ export async function stopServer(serverPath: string, isWindows?: boolean): Promi
 }
 
 export async function executeTasks(serverPath: string, isDebug: boolean): Promise<void> {
-    const maxTimeout = 10000;
+    const maxTimeout = 15000;
     return new Promise<void>(async (resolve, reject) => {
         executeBuildTask(serverPath).then(async () => {
             const isServerRunning = await checkServerLiveness();
