@@ -24,7 +24,8 @@
       {
         "id": "SynapseXml",
         "extensions": [
-          ".xml"
+          ".xml",
+          ".dbs"
         ]
       }
     ],

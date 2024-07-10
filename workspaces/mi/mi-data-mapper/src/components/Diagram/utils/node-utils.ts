@@ -16,9 +16,11 @@ import {
     ReturnStatement
 } from 'ts-morph';
 import { BaseModel } from '@projectstorm/react-canvas-core';
+import { DefaultPortModel } from '@projectstorm/react-diagrams';
 import { DMType, TypeKind } from '@wso2-enterprise/mi-core';
 
 import {
+    ArrayFilterNode,
     ArrayOutputNode,
     FocusedInputNode,
     InputDataImportNodeModel,
@@ -33,6 +35,7 @@ import { DataMapperContext } from '../../../utils/DataMapperContext/DataMapperCo
 import { getTypeName } from './common-utils';
 import { InputOutputPortModel } from '../Port';
 import { SourceNodeType } from '../../../components/DataMapper/Views/DataMapperView';
+import { ARRAY_FILTER_NODE_PREFIX } from './constants';
 
 type SubMappingOutputNode = ArrayOutputNode | ObjectOutputNode | PrimitiveOutputNode;
 
@@ -120,6 +123,16 @@ export function getOutputNode(
 
 export function getSubMappingNode(context: DataMapperContext) {
     return new SubMappingNode(context);
+}
+
+export function getArrayFilterNode(focusedInputNode: FocusedInputNode) {
+    const focusedInputPort = new DefaultPortModel(true, `${ARRAY_FILTER_NODE_PREFIX}`);
+    focusedInputNode.addPort(focusedInputPort);
+
+    const arrayFilterNode = new ArrayFilterNode(focusedInputNode);
+    arrayFilterNode.setLocked(true)
+    arrayFilterNode.targetPort = focusedInputPort;
+    return arrayFilterNode;
 }
 
 export function getSourceNodeType(sourcePort: InputOutputPortModel) {

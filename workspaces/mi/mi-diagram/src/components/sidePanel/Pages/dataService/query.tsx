@@ -12,15 +12,16 @@ import { AutoComplete, Button, ComponentCard, ProgressIndicator, TextField, Text
 import { VSCodeCheckbox } from '@vscode/webview-ui-toolkit/react';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../SidePanelContexProvider';
-import { AddMediatorProps } from '../mediators/common';
+import { AddMediatorProps, openPopup } from '../mediators/common';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../utils/template-engine/mustach-templates/templateUtils';
 import { Controller, useForm } from 'react-hook-form';
 import { Keylookup } from '../../../Form';
 import { sidepanelGoBack } from '../..';
 import { DATA_SERVICE } from "../../../../resources/constants";
+import { EVENT_TYPE, MACHINE_VIEW } from '@wso2-enterprise/mi-core';
 
-const cardStyle = { 
+const cardStyle = {
     display: "block",
     margin: "15px 0",
     padding: "0 15px 15px 15px",
@@ -40,9 +41,9 @@ const Field = styled.div`
 const QueryForm = (props: AddMediatorProps) => {
     const { rpcClient } = useVisualizerContext();
     const sidePanelContext = React.useContext(SidePanelContext);
-    const [ isLoading, setIsLoading ] = React.useState(true);
+    const [isLoading, setIsLoading] = React.useState(true);
     const handleOnCancelExprEditorRef = useRef(() => { });
-    const initialQueryName = sidePanelContext?.formValues?.queryObject.queryName ?? "";
+    const initialQueryName = sidePanelContext?.formValues?.queryObject?.queryName || "";
 
     const { control, formState: { errors }, handleSubmit, watch, reset } = useForm();
 
@@ -52,7 +53,7 @@ const QueryForm = (props: AddMediatorProps) => {
             datasource: sidePanelContext?.formValues?.datasource || "",
             sqlQuery: sidePanelContext?.formValues?.sqlQuery || "",
             queryTimeout: sidePanelContext?.formValues?.queryTimeout || "",
-            fetchDirection: sidePanelContext?.formValues?.fetchDirection || "Forward",
+            fetchDirection: sidePanelContext?.formValues?.fetchDirection || "forward",
             fetchSize: sidePanelContext?.formValues?.fetchSize || "",
             maxFieldSize: sidePanelContext?.formValues?.maxFieldSize || "",
             maxRows: sidePanelContext?.formValues?.maxRows || "",
@@ -63,7 +64,7 @@ const QueryForm = (props: AddMediatorProps) => {
             forceJdbcBatchRequests: sidePanelContext?.formValues?.forceJdbcBatchRequests || false,
         });
         setIsLoading(false);
-    }, [sidePanelContext.formValues]);
+    }, []);
 
     useEffect(() => {
         handleOnCancelExprEditorRef.current = () => {
@@ -93,15 +94,31 @@ const QueryForm = (props: AddMediatorProps) => {
         updatedQuery.keyColumns = values.keyColumns;
         updatedQuery.hashasQueryProperties = queryProperties.length > 0;
 
-        let xml = getXML(DATA_SERVICE.EDIT_QUERY, updatedQuery).replace(/^\s*[\r\n]/gm, '');
+        let queryType = "";
+        const existingDataService = await rpcClient.getMiDiagramRpcClient().getDataService({ path: props.documentUri });
+        existingDataService.datasources.forEach((ds) => {
+            if (ds.dataSourceName === values.datasource) {
+                const propertyKeys: string[]  = [];
+                ds.datasourceProperties.forEach((attr:any) => {
+                    propertyKeys.push(attr.key);
+                });
+                if (propertyKeys.includes("mongoDB_servers")) {
+                    queryType = "expression";
+                } else {
+                    queryType = "sql";
+                }
+            }
+        });
+
+        let xml = getXML(DATA_SERVICE.EDIT_QUERY, {...updatedQuery, queryType}).replace(/^\s*[\r\n]/gm, '');
         const range = sidePanelContext?.formValues?.queryObject.range;
         await rpcClient.getMiDiagramRpcClient().applyEdit({
             text: xml, documentUri: props.documentUri,
-            range: {start: range.startTagRange.start, end: range.endTagRange.end}
+            range: { start: range.startTagRange.start, end: range.endTagRange.end }
         });
 
         let isInResource = false;
-        const st = await rpcClient.getMiDiagramRpcClient().getSyntaxTree({documentUri: props.documentUri});
+        const st = await rpcClient.getMiDiagramRpcClient().getSyntaxTree({ documentUri: props.documentUri });
         let resourceData: any = {};
         st.syntaxTree.data.resources.forEach((resource: any) => {
             if (resource.callQuery.href === initialQueryName) {
@@ -123,11 +140,11 @@ const QueryForm = (props: AddMediatorProps) => {
             if (resourceData.selfClosed) {
                 xml = getXML(DATA_SERVICE.EDIT_SELF_CLOSE_RESOURCE, { query: values.queryId });
             } else {
-                xml = getXML(DATA_SERVICE.EDIT_RESOURCE, { query: values.queryId});
+                xml = getXML(DATA_SERVICE.EDIT_RESOURCE, { query: values.queryId });
             }
             await rpcClient.getMiDiagramRpcClient().applyEdit({
                 text: xml, documentUri: props.documentUri,
-                range: {start: resourceData.resourceRange.startTagRange.start, end: resourceData.resourceRange.startTagRange.end}
+                range: { start: resourceData.resourceRange.startTagRange.start, end: resourceData.resourceRange.startTagRange.end }
             });
         }
 
@@ -139,10 +156,19 @@ const QueryForm = (props: AddMediatorProps) => {
             nodeRange: undefined,
             operationName: undefined
         });
+
+        rpcClient.getMiVisualizerRpcClient().openView({
+            location: {
+                view: MACHINE_VIEW.DataServiceView,
+                documentUri: props.documentUri,
+                identifier: values.queryId
+            },
+            type: EVENT_TYPE.REPLACE_VIEW
+        });
     };
 
     if (isLoading) {
-        return <ProgressIndicator/>;
+        return <ProgressIndicator />;
     }
     return (
         <>
@@ -170,6 +196,9 @@ const QueryForm = (props: AddMediatorProps) => {
                                 filterType='dssDataSource'
                                 label="Datasource"
                                 allowItemCreate={false}
+                                onCreateButtonClick={(fetchItems: any, handleValueChange: any) => {
+                                    openPopup(rpcClient, "datasource", fetchItems, handleValueChange, props.documentUri);
+                                }}
                                 onValueChange={field.onChange}
                             />
                         )}
@@ -182,7 +211,7 @@ const QueryForm = (props: AddMediatorProps) => {
                         name="sqlQuery"
                         control={control}
                         render={({ field }) => (
-                            <TextArea {...field} label="SQL Query" placeholder="" />
+                            <TextArea {...field} label="Query / Expression" placeholder="" />
                         )}
                     />
                     {errors.sqlQuery && <Error>{errors.sqlQuery.message.toString()}</Error>}
@@ -253,7 +282,7 @@ const QueryForm = (props: AddMediatorProps) => {
                             name="returnGeneratedKeys"
                             control={control}
                             render={({ field }) => (
-                                <VSCodeCheckbox {...field} type="checkbox" checked={field.value} onChange={(e: any) => {field.onChange(e.target.checked)}}>Return Generated Keys</VSCodeCheckbox>
+                                <VSCodeCheckbox {...field} type="checkbox" checked={field.value} onChange={(e: any) => { field.onChange(e.target.checked) }}>Return Generated Keys</VSCodeCheckbox>
                             )}
                         />
                         {errors.returnGeneratedKeys && <Error>{errors.returnGeneratedKeys.message.toString()}</Error>}
@@ -264,8 +293,8 @@ const QueryForm = (props: AddMediatorProps) => {
                             <Controller
                                 name="keyColumns"
                                 control={control}
-                                render={({field}) => (
-                                    <TextField {...field} label="Key Columns" size={50} placeholder=""/>
+                                render={({ field }) => (
+                                    <TextField {...field} label="Key Columns" size={50} placeholder="" />
                                 )}
                             />
                             {errors.keyColumns && <Error>{errors.keyColumns.message.toString()}</Error>}
@@ -277,7 +306,7 @@ const QueryForm = (props: AddMediatorProps) => {
                             name="returnUpdatedRowCount"
                             control={control}
                             render={({ field }) => (
-                                <VSCodeCheckbox {...field} type="checkbox" checked={field.value} onChange={(e: any) => {field.onChange(e.target.checked)}}>Return Updated Row Count</VSCodeCheckbox>
+                                <VSCodeCheckbox {...field} type="checkbox" checked={field.value} onChange={(e: any) => { field.onChange(e.target.checked) }}>Return Updated Row Count</VSCodeCheckbox>
                             )}
                         />
                         {errors.returnUpdatedRowCount && <Error>{errors.returnUpdatedRowCount.message.toString()}</Error>}
@@ -288,7 +317,7 @@ const QueryForm = (props: AddMediatorProps) => {
                             name="forceStoredProc"
                             control={control}
                             render={({ field }) => (
-                                <VSCodeCheckbox {...field} type="checkbox" checked={field.value} onChange={(e: any) => {field.onChange(e.target.checked)}}>Force Stored Procedure</VSCodeCheckbox>
+                                <VSCodeCheckbox {...field} type="checkbox" checked={field.value} onChange={(e: any) => { field.onChange(e.target.checked) }}>Force Stored Procedure</VSCodeCheckbox>
                             )}
                         />
                         {errors.forceStoredProc && <Error>{errors.forceStoredProc.message.toString()}</Error>}
@@ -299,7 +328,7 @@ const QueryForm = (props: AddMediatorProps) => {
                             name="forceJdbcBatchRequests"
                             control={control}
                             render={({ field }) => (
-                                <VSCodeCheckbox {...field} type="checkbox" checked={field.value} onChange={(e: any) => {field.onChange(e.target.checked)}}>Force JDBC Batch Requests</VSCodeCheckbox>
+                                <VSCodeCheckbox {...field} type="checkbox" checked={field.value} onChange={(e: any) => { field.onChange(e.target.checked) }}>Force JDBC Batch Requests</VSCodeCheckbox>
                             )}
                         />
                         {errors.forceJdbcBatchRequests && <Error>{errors.forceJdbcBatchRequests.message.toString()}</Error>}
@@ -313,7 +342,7 @@ const QueryForm = (props: AddMediatorProps) => {
                         appearance="primary"
                         onClick={handleSubmit(onClick)}
                     >
-                    Submit
+                        Submit
                     </Button>
                 </div>
 

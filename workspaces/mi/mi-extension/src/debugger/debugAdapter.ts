@@ -376,6 +376,7 @@ export class MiDebugAdapter extends LoggingDebugSession {
 
     protected stepInRequest(response: DebugProtocol.StepInResponse, args: DebugProtocol.StepInArguments, request?: DebugProtocol.Request | undefined): void {
         this.debuggerHandler?.sendResumeCommand().then((res) => {
+            vscode.window.showInformationMessage('The "Step-In" debugging feature is currently not supported.');
             response.success = true;
             this.sendResponse(response);
         });
@@ -383,6 +384,7 @@ export class MiDebugAdapter extends LoggingDebugSession {
 
     protected stepOutRequest(response: DebugProtocol.StepOutResponse, args: DebugProtocol.StepOutArguments, request?: DebugProtocol.Request | undefined): void {
         this.debuggerHandler?.sendResumeCommand().then((res) => {
+            vscode.window.showInformationMessage('The "Step-Out" debugging feature is currently not supported.');
             response.success = true;
             this.sendResponse(response);
         });

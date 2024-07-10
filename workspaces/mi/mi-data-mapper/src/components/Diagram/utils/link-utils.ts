@@ -46,7 +46,7 @@ export function generateArrayToArrayMappingWithFn(srcExpr: string, targetType: D
         returnExpr = `return ${getDefaultValue(targetType.kind)}`;
     }
 
-    return `${srcExpr.trim()}.map((${refinedVarName}) => {${returnExpr}})`;
+    return `${srcExpr.trim()}\n.map((${refinedVarName}) => {${returnExpr}})`;
 }
 
 function fillWithDefaults(type: DMType): string {

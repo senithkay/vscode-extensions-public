@@ -50,6 +50,7 @@ export enum MACHINE_VIEW {
     WsdlEndpointForm = "Wsdl Endpoint Form",
     DefaultEndpointForm = "Default Endpoint Form",
     DataServiceForm = "Data Service Form",
+    DssDataSourceForm = "DSS Data Source Form",
     DSSServiceDesigner = "DSS Service Designer",
     ProjectCreationForm = "Project Creation Form",
     ImportProjectForm = "Import Project Form",
@@ -99,6 +100,7 @@ export enum AI_EVENT_TYPE {
 
 export enum EVENT_TYPE {
     OPEN_VIEW = "OPEN_VIEW",
+    REPLACE_VIEW = "REPLACE_VIEW",
     CLEAR_PROMPT = "CLEAR_PROMPT",
     FILE_EDIT = "FILE_EDIT",
     EDIT_DONE = "EDIT_DONE",
@@ -150,6 +152,7 @@ export interface VisualizerLocation {
     displayOverview?: boolean;
     customProps?: any;
     dataMapperProps?: DataMapperProps;
+    type?: string;
 }
 
 export interface PopupVisualizerLocation extends VisualizerLocation {

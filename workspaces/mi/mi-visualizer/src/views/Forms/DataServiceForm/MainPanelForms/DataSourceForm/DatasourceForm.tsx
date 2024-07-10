@@ -16,6 +16,8 @@ import { DataSourceRDBMSForm } from "./DatasourceRDBMSForm";
 import { DataSourceMongoDBForm } from "./DatasourceMongoDBForm";
 import { DataSourceCSVForm } from "./DatasourceCSVForm";
 import { DataSourceCassandraForm } from "./DatasourceCassandraForm";
+import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
+import { EVENT_TYPE, MACHINE_VIEW, Datasource, Property } from "@wso2-enterprise/mi-core";
 
 export interface DataServiceDataSourceWizardProps {
     datasource?: any;
@@ -23,6 +25,7 @@ export interface DataServiceDataSourceWizardProps {
     path?: string;
     datasources?: any;
     setValue?: any;
+    isPopup?: boolean;
 }
 
 interface OptionProps {
@@ -210,7 +213,7 @@ export const newDataSource: DataSourceFields = {
     },
     csv: {
         type: "",
-        csv_hasheader: "",
+        csv_hasheader: "false",
         csv_datasource: "",
         csv_columnseperator: "",
         csv_startingrow: "",
@@ -346,6 +349,144 @@ const schema = yup.object({
     dsConfigurations: yup.array().notRequired()
 });
 
+export function restructureDatasource(initialDatasource: any) {
+    const updatedDatasource: DataSourceFields = {
+        dataSourceName: initialDatasource.dataSourceName,
+        dataSourceType: "",
+        enableOData: initialDatasource.enableOData,
+        dynamicUserAuthClass: initialDatasource.dynamicUserAuthClass,
+        rdbms: {
+            databaseEngine: "MySQL",
+            driverClassName: "",
+            url: "",
+            username: "",
+            password: ""
+        },
+        mongodb: {
+            mongoDB_servers: "",
+            mongoDB_database: "",
+            username: "",
+            password: "",
+            mongoDB_auth_source: "",
+            mongoDB_authentication_type: "",
+            mongoDB_write_concern: "",
+            mongoDB_read_preference: "",
+            mongoDB_ssl_enabled: "",
+            mongoDB_connectTimeout: "",
+            mongoDB_maxWaitTime: "",
+            mongoDB_socketTimeout: "",
+            mongoDB_connectionsPerHost: "",
+            mongoDB_threadsAllowedToBlockForConnectionMultiplier: ""
+        },
+        cassandra: {
+            cassandraServers: "",
+            keyspace: "",
+            port: "",
+            clusterName: "",
+            compression: "",
+            username: "",
+            password: "",
+            loadBalancingPolicy: "",
+            dataCenter: "",
+            allowRemoteDCsForLocalConsistencyLevel: "",
+            enableJMXReporting: "",
+            enableMetrics: "",
+            localCoreConnectionsPerHost: "",
+            remoteCoreConnectionsPerHost: "",
+            localMaxConnectionsPerHost: "",
+            remoteMaxConnectionsPerHost: "",
+            localNewConnectionThreshold: "",
+            remoteNewConnectionThreshold: "",
+            localMaxRequestsPerConnection: "",
+            remoteMaxRequestsPerConnection: "",
+            protocolVersion: "",
+            consistencyLevel: "",
+            fetchSize: "",
+            serialConsistencyLevel: "",
+            reconnectionPolicy: "",
+            constantReconnectionPolicyDelay: "",
+            exponentialReconnectionPolicyBaseDelay: "",
+            exponentialReconnectionPolicyMaxDelay: "",
+            retryPolicy: "",
+            connectionTimeoutMillis: "",
+            keepAlive: "",
+            readTimeoutMillis: "",
+            receiverBufferSize: "",
+            sendBufferSize: "",
+            reuseAddress: "",
+            soLinger: "",
+            tcpNoDelay: "",
+            enableSSL: ""
+        },
+        csv: {
+            csv_hasheader: "false",
+            csv_datasource: "",
+            csv_columnseperator: "",
+            csv_startingrow: "",
+            csv_maxrowcount: "",
+            csv_headerrow: ""
+        },
+        carbonDatasource: {
+            carbon_datasource_name: ""
+        },
+        dsConfigurations: initialDatasource.datasourceConfigurations
+    };
+    const propertyKeys: string[]  = [];
+    initialDatasource.datasourceProperties.forEach((attr:any) => {
+        propertyKeys.push(attr.key);
+    });
+    if (propertyKeys.includes("driverClassName")) {
+        updatedDatasource.dataSourceType = "RDBMS";
+        initialDatasource.datasourceProperties.forEach((attr:any) => {
+            updatedDatasource.rdbms[attr.key] = attr.value;
+        });
+        if (updatedDatasource.rdbms.driverClassName.includes("mysql")) {
+            updatedDatasource.rdbms.databaseEngine = "MySQL";
+        } else if (updatedDatasource.rdbms.driverClassName.includes("derby")) {
+            updatedDatasource.rdbms.databaseEngine = "Apache Derby";
+        } else if (updatedDatasource.rdbms.driverClassName.includes("microsoft")) {
+            updatedDatasource.rdbms.databaseEngine = "Microsoft SQL Server";
+        } else if (updatedDatasource.rdbms.driverClassName.includes("oracle")) {
+            updatedDatasource.rdbms.databaseEngine = "Oracle";
+        } else if (updatedDatasource.rdbms.driverClassName.includes("ibm")) {
+            updatedDatasource.rdbms.databaseEngine = "IBM DB2";
+        } else if (updatedDatasource.rdbms.driverClassName.includes("hsql")) {
+            updatedDatasource.rdbms.databaseEngine = "HSQLDB";
+        } else if (updatedDatasource.rdbms.driverClassName.includes("informix")) {
+            updatedDatasource.rdbms.databaseEngine = "Informix";
+        } else if (updatedDatasource.rdbms.driverClassName.includes("postgre")) {
+            updatedDatasource.rdbms.databaseEngine = "PostgreSQL";
+        } else if (updatedDatasource.rdbms.driverClassName.includes("sybase")) {
+            updatedDatasource.rdbms.databaseEngine = "Sybase ASE";
+        } else if (updatedDatasource.rdbms.driverClassName.includes("h2")) {
+            updatedDatasource.rdbms.databaseEngine = "H2";
+        } else {
+            updatedDatasource.rdbms.databaseEngine = "Generic";
+        }
+    } else if (propertyKeys.includes("csv_datasource")) {
+        updatedDatasource.dataSourceType = "CSV";
+        initialDatasource.datasourceProperties.forEach((attr:any) => {
+            updatedDatasource.csv[attr.key] = attr.value;
+        });
+    } else if (propertyKeys.includes("cassandraServers")) {
+        updatedDatasource.dataSourceType = "Cassandra";
+        initialDatasource.datasourceProperties.forEach((attr:any) => {
+            updatedDatasource.cassandra[attr.key] = attr.value;
+        });
+    } else if (propertyKeys.includes("mongoDB_servers")) {
+        updatedDatasource.dataSourceType = "MongoDB";
+        initialDatasource.datasourceProperties.forEach((attr:any) => {
+            updatedDatasource.mongodb[attr.key] = attr.value;
+        });
+    } else {
+        initialDatasource.datasourceProperties.forEach((attr:any) => {
+            updatedDatasource.dataSourceType = "Carbon Datasource";
+            updatedDatasource.carbonDatasource[attr.key] = attr.value;
+        });
+    }
+    return updatedDatasource;
+}
+
 export function DataServiceDataSourceWizard(props: DataServiceDataSourceWizardProps) {
 
     const formMethods = useForm({
@@ -364,9 +505,11 @@ export function DataServiceDataSourceWizard(props: DataServiceDataSourceWizardPr
         setValue,
     } = formMethods;
 
+    const { rpcClient } = useVisualizerContext();
     const [ datasourceConfigurations, setDatasourceConfigurations ] = useState(props.datasource ? props.datasource.dsConfigurations : []);
     const [ isEditDatasource, setIsEditDatasource ] = useState(false);
-    const [isInitialLoading, setIsInitialLoading] = useState(true);
+    const [ isInitialLoading, setIsInitialLoading ] = useState(true);
+    const [ isCreate, setIsCreate ] = useState(true);
 
     const datasourceTypes: OptionProps[] = [
         { value: "RDBMS"},
@@ -377,12 +520,32 @@ export function DataServiceDataSourceWizard(props: DataServiceDataSourceWizardPr
     ];
 
     useEffect(() => {
-        if (props.datasource !== undefined) {
-            reset(props.datasource);
-            setDatasourceConfigurations(props.datasource.dsConfigurations);
-            setIsEditDatasource(true);
-        }
-    }, [props.datasource]);
+        (async () => {
+            if (props.path !== undefined) {
+                if (props.datasource !== undefined && typeof props.datasource === 'string' && props.datasource === "") {
+                    setIsCreate(true);
+                    reset(newDataSource);
+                    setDatasourceConfigurations([]);
+                } else if (props.datasource !== undefined && typeof props.datasource === 'string' && props.datasource !== "") {
+                    setIsCreate(false);
+                    const existingDataService = await rpcClient.getMiDiagramRpcClient().getDataService({ path: props.path });
+                    const existingDataSource = existingDataService.datasources.find(
+                        (datasource: any) => datasource.dataSourceName === props.datasource
+                    );
+                    const currentDatasource = restructureDatasource(existingDataSource);
+                    reset(currentDatasource);
+                    setDatasourceConfigurations(currentDatasource.dsConfigurations);
+                    setIsEditDatasource(true);
+                }
+            } else {
+                if (props.datasource !== undefined) {
+                    reset(props.datasource);
+                    setDatasourceConfigurations(props.datasource.dsConfigurations);
+                    setIsEditDatasource(true);
+                }
+            }
+        })();
+    }, [props.path, props.datasource]);
 
     useEffect(() => {
         if (isInitialLoading) {
@@ -400,21 +563,47 @@ export function DataServiceDataSourceWizard(props: DataServiceDataSourceWizardPr
         setValue('cassandra.type', watch('dataSourceType'));
     }, [watch('dataSourceType')]);
 
+    const configToProperties = <T extends Record<string, any>>(config: T): Property[] => {
+        return Object.keys(config)
+            .filter(key => key !== "databaseEngine" && key !== "type" && config[key as keyof T] !== "")
+            .map(key => ({
+                key,
+                value: String(config[key as keyof T])
+            }));
+    };
+
     const handleDatasourceSubmit = async (values: any) => {
 
         values.dsConfigurations = datasourceConfigurations;
-        const currentDatasource = values;
-        const datasourceIndex = props.datasources.findIndex(
-            (datasource: any) => datasource.dataSourceName === currentDatasource.dataSourceName
-        );
-
-        if (datasourceIndex !== -1) {
-            props.datasources[datasourceIndex] = currentDatasource;
+        if (props.isPopup) {
+            const data: Datasource = {
+                dataSourceName: values.dataSourceName,
+                enableOData: values.enableOData,
+                dynamicUserAuthClass: values.dynamicUserAuthClass,
+                datasourceConfigurations: values.dsConfigurations,
+                datasourceProperties: values.dataSourceType === "RDBMS" ? configToProperties(values.rdbms) :
+                    values.dataSourceType === "MongoDB" ? configToProperties(values.mongodb) :
+                        values.dataSourceType === "Cassandra" ? configToProperties(values.cassandra) :
+                            values.dataSourceType === "CSV" ? configToProperties(values.csv) :
+                                configToProperties(values.carbonDatasource)
+            };
+            await rpcClient.getMiDiagramRpcClient().createDssDataSource({
+                directory: props.path, ...data, type: isCreate ? 'create' : 'edit'});
+            handleCancel();
         } else {
-            props.datasources.push(currentDatasource);
+            const currentDatasource = values;
+            const datasourceIndex = props.datasources.findIndex(
+                (datasource: any) => datasource.dataSourceName === currentDatasource.dataSourceName
+            );
+
+            if (datasourceIndex !== -1) {
+                props.datasources[datasourceIndex] = currentDatasource;
+            } else {
+                props.datasources.push(currentDatasource);
+            }
+            props.setShowComponent(false);
+            props.setValue('ds', props.datasources, { shouldDirty: true });
         }
-        props.setShowComponent(false);
-        props.setValue('ds', props.datasources, { shouldDirty: true });
     };
 
     const renderProps = (fieldName: keyof DataSourceFields) => {
@@ -436,11 +625,19 @@ export function DataServiceDataSourceWizard(props: DataServiceDataSourceWizardPr
     };
 
     const handleCancel = () => {
-        props.setShowComponent(false)
+        if (props.isPopup) {
+            rpcClient.getMiVisualizerRpcClient().openView({
+                type: EVENT_TYPE.OPEN_VIEW,
+                location: {view: MACHINE_VIEW.Overview},
+                isPopup: props.isPopup
+            });
+        } else {
+            props.setShowComponent(false);
+        }
     };
 
     return (
-        <FormView title='Create Datasource' onClose={handleCancel}>
+        <FormView title='Create Datasource' onClose={handleCancel} hideClose={props.isPopup}>
             <FormProvider {...formMethods}>
             <TextField
                 label="Datasource Identifier"

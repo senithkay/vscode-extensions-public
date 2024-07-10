@@ -56,6 +56,8 @@ import {
     CreateTaskResponse,
     CreateTemplateRequest,
     CreateTemplateResponse,
+    CreateDssDataSourceRequest,
+    CreateDssDataSourceResponse,
     DataSourceTemplate,
     Datasource,
     DeleteArtifactRequest,
@@ -212,7 +214,7 @@ import { openPopupView } from "../../stateMachinePopup";
 import { testFileMatchPattern } from "../../test-explorer/discover";
 import { mockSerivesFilesMatchPattern } from "../../test-explorer/mock-services/activator";
 import { UndoRedoManager } from "../../undoRedoManager";
-import { copyDockerResources, createFolderStructure, getAPIResourceXmlWrapper, getAddressEndpointXmlWrapper, getDataServiceXmlWrapper, getDefaultEndpointXmlWrapper, getFailoverXmlWrapper, getHttpEndpointXmlWrapper, getInboundEndpointXmlWrapper, getLoadBalanceXmlWrapper, getMessageProcessorXmlWrapper, getMessageStoreXmlWrapper, getProxyServiceXmlWrapper, getRegistryResourceContent, getTaskXmlWrapper, getTemplateEndpointXmlWrapper, getTemplateXmlWrapper, getWsdlEndpointXmlWrapper } from "../../util";
+import { copyDockerResources, createFolderStructure, getAPIResourceXmlWrapper, getAddressEndpointXmlWrapper, getDataServiceXmlWrapper, getDefaultEndpointXmlWrapper, getFailoverXmlWrapper, getHttpEndpointXmlWrapper, getInboundEndpointXmlWrapper, getLoadBalanceXmlWrapper, getMessageProcessorXmlWrapper, getMessageStoreXmlWrapper, getProxyServiceXmlWrapper, getRegistryResourceContent, getTaskXmlWrapper, getTemplateEndpointXmlWrapper, getTemplateXmlWrapper, getWsdlEndpointXmlWrapper, getDssDataSourceXmlWrapper } from "../../util";
 import { addNewEntryToArtifactXML, addSynapseDependency, changeRootPomPackaging, createMetadataFilesForRegistryCollection, deleteRegistryResource, detectMediaType, getAvailableRegistryResources, getMediatypeAndFileExtension, getRegistryResourceMetadata, updateRegistryResourceMetadata } from "../../util/fileOperations";
 import { log } from "../../util/logger";
 import { importProject } from "../../util/migrationUtils";
@@ -2151,7 +2153,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
     async updateDataService(params: CreateDataServiceRequest): Promise<CreateDataServiceResponse> {
         return new Promise(async (resolve) => {
             const {
-                directory, dataServiceName, dataServiceNamespace, serviceGroup, selectedTransports, publishSwagger, jndiName,
+                dataServiceName, dataServiceNamespace, serviceGroup, selectedTransports, publishSwagger, jndiName,
                 enableBoxcarring, enableBatchRequests, serviceStatus, disableLegacyBoxcarringMode, enableStreaming,
                 description, datasources, authProviderClass, authProperties, queries, operations, resources
             } = params;
@@ -2183,6 +2185,58 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         });
     }
 
+    async createDssDataSource(params: CreateDssDataSourceRequest): Promise<CreateDssDataSourceResponse> {
+        return new Promise(async (resolve) => {
+            const {
+                directory, type, dataSourceName, enableOData, dynamicUserAuthClass, datasourceProperties,
+                datasourceConfigurations, dynamicUserAuthMapping
+            } = params;
+
+            const getDssDataSourceParams = {
+                dataSourceName, enableOData, dynamicUserAuthClass, datasourceProperties,
+                datasourceConfigurations, dynamicUserAuthMapping
+            };
+
+            const dataServiceSyntaxTree = await this.getSyntaxTree({ documentUri: params.directory });
+            const dataServiceParams = dataServiceSyntaxTree.syntaxTree.data;
+
+            let startRange, endRange;
+
+            if (type === 'create') {
+                startRange = dataServiceParams.range.endTagRange.start;
+                endRange = dataServiceParams.range.endTagRange.start;
+            } else {
+                let datasource;
+                dataServiceParams.configs.forEach((element) => {
+                    if (element.id === dataSourceName) {
+                        datasource = element;
+                    }
+                });
+                startRange = datasource.range.startTagRange.start;
+                endRange = datasource.range.endTagRange.end;
+            }
+
+            let filePath = directory;
+            if (filePath.includes('dataServices')) {
+                filePath = filePath.replace('dataServices', 'data-services');
+            }
+
+            const xmlData = getDssDataSourceXmlWrapper(getDssDataSourceParams);
+            const sanitizedXmlData = xmlData.replace(/^\s*[\r\n]/gm, '');
+
+            await this.applyEdit({
+                documentUri: filePath,
+                range: {
+                    start: startRange,
+                    end: endRange
+                },
+                text: sanitizedXmlData
+            });
+            openPopupView(POPUP_EVENT_TYPE.CLOSE_VIEW, { view: null, recentIdentifier: getDssDataSourceParams.dataSourceName });
+            resolve({ path: filePath });
+        });
+    }
+
     async getDataService(params: RetrieveDataServiceRequest): Promise<RetrieveDataServiceResponse> {
 
         const dataServiceSyntaxTree = await this.getSyntaxTree({ documentUri: params.path });
@@ -2207,10 +2261,10 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     description: dataServiceParams.description != undefined ? dataServiceParams.description.textNode : '',
                     datasources: [] as Datasource[],
                     authProviderClass: dataServiceParams.authorizationProvider != undefined ? dataServiceParams.authorizationProvider.clazz : '',
-                    http: dataServiceParams.transports.split(' ').includes('http'),
-                    https: dataServiceParams.transports.split(' ').includes('https'),
-                    jms: dataServiceParams.transports.split(' ').includes('jms'),
-                    local: dataServiceParams.transports.split(' ').includes('local'),
+                    http: dataServiceParams.transports != undefined ? dataServiceParams.transports.split(' ').includes('http') : false,
+                    https: dataServiceParams.transports != undefined ? dataServiceParams.transports.split(' ').includes('https') : false,
+                    jms: dataServiceParams.transports != undefined ? dataServiceParams.transports.split(' ').includes('jms') : false,
+                    local: dataServiceParams.transports != undefined ? dataServiceParams.transports.split(' ').includes('local') : false,
                     authProperties: [] as Property[],
                 };
 
@@ -2615,9 +2669,8 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                                     'sequences': '',
                                     'tasks': '',
                                     'templates': '',
-                                    //TODO: will add again once the feature is implemented
-                                    // 'data-services': '',
-                                    // 'data-sources': '',
+                                    'data-services': '',
+                                    'data-sources': '',
                                 },
                                 'resources': {
                                     'connectors': '',
@@ -2628,8 +2681,11 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                                     },
                                 },
                             },
-                            'test': ''
                         },
+                        'test': {
+                            'wso2mi': {
+                            },
+                        }
                     },
                     'deployment': {
                         'docker': {
