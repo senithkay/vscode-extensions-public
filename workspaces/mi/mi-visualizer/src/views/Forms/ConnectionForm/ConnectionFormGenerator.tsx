@@ -110,8 +110,11 @@ export function AddConnection(props: AddConnectionProps) {
             }
         };
 
-        fetchConnections();
-        fetchFormData();
+        (async () => {
+            await fetchConnections();
+            await fetchFormData();
+            reset();
+        })();
     }, [connectionType]);
 
     const paramConfigs: ParamConfig = {
@@ -151,6 +154,10 @@ export function AddConnection(props: AddConnectionProps) {
 
 
     const validateField = (id: string, e: any, isRequired: boolean, validation?: "e-mail" | "nameWithoutSpecialCharactors" | "custom", regex?: string): string => {
+        if (id === "connectionName") {
+            return;
+        }
+
         let value = e ?? getValues(id);
         if (typeof value === 'object') {
             value = value.value;
@@ -184,6 +191,8 @@ export function AddConnection(props: AddConnectionProps) {
 
             const template = create();
             const root = template.ele(`${formData.connectorName ?? props.connector.name}.init`);
+            root.ele('connectionType').txt(connectionType);
+            root.ele('name').txt(connectionName);
 
             if (errors && Object.keys(errors).length > 0) {
                 console.error("Errors in saving connection form", errors);
@@ -191,7 +200,7 @@ export function AddConnection(props: AddConnectionProps) {
 
             // Fill the values
             Object.keys(values).forEach((key: string) => {
-                if (key !== 'configRef' && values[key]) {
+                if ((key !== 'configRef' && key !== 'connectionType' && key !== 'connectionName') && values[key]) {
                     if (typeof values[key] === 'object' && values[key] !== null) {
                         // Handle expression input type
                         const namespaces = values[key].namespaces;
@@ -215,7 +224,7 @@ export function AddConnection(props: AddConnectionProps) {
                             }
                         }
                     } else {
-                        root.ele((key === 'connectionName') ? 'name' : key).txt(values[key]);
+                        root.ele(key).txt(values[key]);
                     }
                 }
             });
@@ -228,7 +237,7 @@ export function AddConnection(props: AddConnectionProps) {
             const localEntryPath = [projectUri, 'src', 'main', 'wso2mi', 'artifacts', 'local-entries'].join(sep);
 
             await rpcClient.getMiDiagramRpcClient().createConnection({
-                connectionName: values['connectionName'],
+                connectionName: connectionName,
                 keyValuesXML: modifiedXml,
                 directory: localEntryPath
             });
@@ -236,7 +245,7 @@ export function AddConnection(props: AddConnectionProps) {
             if (props.isPopup) {
                 rpcClient.getMiVisualizerRpcClient().openView({
                     type: POPUP_EVENT_TYPE.CLOSE_VIEW,
-                    location: { view: null, recentIdentifier: values['connectionName'] },
+                    location: { view: null, recentIdentifier: connectionName },
                     isPopup: true
                 });
             } else {
@@ -543,46 +552,34 @@ export function AddConnection(props: AddConnectionProps) {
                 </>
             ) : (
                 <>
-                    <Controller
-                        name={"connectionName"}
-                        control={control}
+                    <TextField
+                        label='Connection Name'
+                        size={50}
+                        placeholder={"The name for the file connection"}
                         defaultValue={""}
-                        render={({ field }) => (
-                            <TextField {...field}
-                                label={"Connection Name"}
-                                size={50}
-                                placeholder={"The name for the file connection"}
-                                required={true}
-                                onChange={(event) => {
-                                    field.onChange(event);
-                                    verifyName(event);
-                                }} />
-                        )}
+                        value={connectionName}
+                        onTextChange={(e: any) => {
+                            setConnectionName(e);
+                            verifyName(event);
+                        }}
+                        required={true}
                     />
                     {connectionNameError && <ErrorBanner errorMsg={connectionNameError} />}
-                    <Controller
-                        name={"connectionType"}
-                        control={control}
-                        defaultValue={connectionType || ""}
-                        render={({ field }) => (
-                            <Field>
-                                <label>{"Connection Type"}</label> <RequiredFormInput />
-                                <AutoComplete
-                                    identifier={"connectionType"}
-                                    items={
-                                        allowedConnectionTypes?.map((type: any) => (
-                                            type
-                                        ))
-                                    }
-                                    value={connectionType}
-                                    onValueChange={(e: any) => {
-                                        field.onChange(e);
-                                        setConnectionType(e);
-                                    }}
-                                    required={true} />
-                            </Field>
-                        )}
-                    />
+                    <Field>
+                        <label>{"Connection Type"}</label> <RequiredFormInput />
+                        <AutoComplete
+                            identifier={"connectionType"}
+                            items={
+                                allowedConnectionTypes?.map((type: any) => (
+                                    type
+                                ))
+                            }
+                            value={connectionType}
+                            onValueChange={(e: any) => {
+                                setConnectionType(e);
+                            }}
+                            required={true} />
+                    </Field>
                     {formData && formData.elements && formData.elements.length > 0 && (
                         <>
                             {renderForm(formData.elements)}
