@@ -19,8 +19,7 @@ export function ConstructorPanel(props: ConstructorPanelProps) {
         flex-direction: row;
         align-items: center;
         justify-content: space-between;
-      
-        padding: 16px;
+        padding: 4px 16px;
         border-bottom: 1px solid var(--vscode-panel-border);
         font: inherit;
         font-weight: bold;
@@ -32,18 +31,16 @@ export function ConstructorPanel(props: ConstructorPanelProps) {
         flex-direction: column;
         justify-content: flex-start;
         padding: 16px;
-        gap: 8px;
     `;
 
     const ButtonWrapper = styled.div`
-        padding: 2px 16px;
-        border: 1px solid var(--vscode-panel-border);
+        padding: 0 16px;
+        border: 1px solid var(--vscode-editor-background);
         cursor: pointer;
-        border-radius: 5px;
         width: 100%;
         &:hover {
             background-color: var(--vscode-editor-hoverHighlightBackground);
-            border-color: var(--vscode-editor-hoverHighlightBorder);
+            border-color: var(--vscode-focusBorder);
         }
     `;
 
