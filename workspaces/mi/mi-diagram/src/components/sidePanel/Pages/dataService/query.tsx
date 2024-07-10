@@ -120,14 +120,16 @@ const QueryForm = (props: AddMediatorProps) => {
         let isInResource = false;
         const st = await rpcClient.getMiDiagramRpcClient().getSyntaxTree({ documentUri: props.documentUri });
         let resourceData: any = {};
-        st.syntaxTree.data.resources.forEach((resource: any) => {
-            if (resource.callQuery.href === initialQueryName) {
-                resourceData.resourceRange = resource.callQuery.range;
-                resourceData.selfClosed = resource.callQuery.selfClosed;
-                isInResource = true;
-            }
-        });
-        if (!isInResource) {
+        if (st.syntaxTree.data.resources) {
+            st.syntaxTree.data.resources.forEach((resource: any) => {
+                if (resource.callQuery.href === initialQueryName) {
+                    resourceData.resourceRange = resource.callQuery.range;
+                    resourceData.selfClosed = resource.callQuery.selfClosed;
+                    isInResource = true;
+                }
+            });
+        }
+        if (!isInResource && st.syntaxTree.data.operations) {
             st.syntaxTree.data.operations.forEach((operation: any) => {
                 if (operation.callQuery.href === initialQueryName) {
                     resourceData.resourceRange = operation.callQuery.range;

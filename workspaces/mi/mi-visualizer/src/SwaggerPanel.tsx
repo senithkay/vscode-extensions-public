@@ -14,10 +14,18 @@ import { View } from "./components/View";
 import '@wso2-enterprise/ui-toolkit/src/styles/swagger/main.scss';
 import { SwaggerData, Request, Response } from "@wso2-enterprise/mi-core";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
+import styled from "@emotion/styled";
 
 interface SwaggerPanelProps {
     swaggerData?: SwaggerData
 }
+
+const ViewWrapper = styled.div({
+    display: 'flex',
+    flexDirection: 'column',
+    height: '100vh',
+    overflow: 'scroll',
+});
 
 export function SwaggerPanel(props: SwaggerPanelProps) {
     const { rpcClient } = useVisualizerContext();
@@ -64,13 +72,12 @@ export function SwaggerPanel(props: SwaggerPanelProps) {
         return res;
     }
 
-    // TODO: Support SwaggerUI for darkThemes
     return (
-        <View>
-            <div style={{ overflow: 'scroll', padding:'20px', height: '100%' }}>
+        <ViewWrapper>
+            <div style={{ padding:'20px', height: '100%' }}>
                 <SwaggerUI requestInterceptor={requestInterceptor}
                     responseInterceptor={responseInterceptor} spec={openapiSpec} showMutatedRequest={false} />
             </div>
-        </View>
+        </ViewWrapper>
     );
 }
