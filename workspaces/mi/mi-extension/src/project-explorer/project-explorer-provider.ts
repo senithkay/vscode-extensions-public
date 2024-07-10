@@ -642,7 +642,7 @@ function genRegistryProjectStructureEntry(data: RegistryResourcesFolder): Projec
 							name: entry.name,
 							type: 'resource',
 							path: `${entry.path}`
-						}, 'folder');
+						}, 'folder', true);
 					explorerEntry.children = genRegistryProjectStructureEntry(entry);
 					result.push(explorerEntry);
 					const lastIndex = entry.path.indexOf(regPathPrefix) !== -1 ? entry.path.indexOf(regPathPrefix) + regPathPrefix.length : 0;
