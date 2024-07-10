@@ -674,7 +674,7 @@ function findViewIcon(view) {
             break;
         case MACHINE_VIEW.RegistryResourceForm:
         case MACHINE_VIEW.RegistryMetadataForm:
-            icon = 'type-hierarchy';
+            icon = 'registry';
             break;
         default:
             break;
