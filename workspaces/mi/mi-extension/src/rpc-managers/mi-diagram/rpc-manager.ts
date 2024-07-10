@@ -2251,7 +2251,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     dataServiceNamespace: dataServiceParams.serviceNamespace,
                     serviceGroup: dataServiceParams.serviceGroup,
                     selectedTransports: dataServiceParams.transports,
-                    publishSwagger: dataServiceParams.publishSwagger != undefined ? dataServiceParams.publishSwagger : false,
+                    publishSwagger: dataServiceParams.publishSwagger != undefined ? dataServiceParams.publishSwagger : '',
                     jndiName: dataServiceParams.txManagerJNDIName != undefined ? dataServiceParams.txManagerJNDIName : '',
                     enableBoxcarring: dataServiceParams.enableBoxcarring != undefined ? dataServiceParams.enableBoxcarring : false,
                     enableBatchRequests: dataServiceParams.enableBatchRequests != undefined ? dataServiceParams.enableBatchRequests : false,
