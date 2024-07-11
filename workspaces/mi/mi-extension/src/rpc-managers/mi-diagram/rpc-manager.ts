@@ -561,7 +561,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             }
 
             const filePath = path.join(directory, `${name}.xml`);
-            await replaceFullContentToFile(filePath, xmlData,);
+            await replaceFullContentToFile(filePath, xmlData);
             commands.executeCommand(COMMANDS.REFRESH_COMMAND);
             resolve({ path: filePath });
         });
