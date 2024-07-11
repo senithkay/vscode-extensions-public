@@ -177,6 +177,8 @@ import {
     GetAllMockServicesResponse,
     AddDependencyToPomRequest,
     SwaggerFromAPIResponse,
+    TestDbConnectionRequest,
+    TestDbConnectionResponse,
 } from "./types";
 import { RequestType, NotificationType } from "vscode-messenger-common";
 
@@ -293,3 +295,4 @@ export const updateMockService: RequestType<UpdateMockServiceRequest, UpdateMock
 export const getAllTestSuites: RequestType<void, GetAllTestSuitsResponse> = { method: `${_preFix}/getAllTestSuites` };
 export const getAllMockServices: RequestType<void, GetAllMockServicesResponse> = { method: `${_preFix}/getAllMockServices` };
 export const addDependencyToPom: NotificationType<AddDependencyToPomRequest> = { method: `${_preFix}/addDependencyToPom` };
+export const testDbConnection: RequestType<TestDbConnectionRequest, TestDbConnectionResponse> = { method: `${_preFix}/testDBConnection` };
