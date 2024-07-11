@@ -6,18 +6,19 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
 */
+// AUTO-GENERATED FILE. DO NOT MODIFY.
 
 import React, { useEffect, useRef } from 'react';
 import { AutoComplete, Button, ComponentCard, ProgressIndicator, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
 import { VSCodeCheckbox } from '@vscode/webview-ui-toolkit/react';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
-import { AddMediatorProps, getParamManagerValues, getParamManagerFromValues } from '../common';
+import { AddMediatorProps, openPopup, getParamManagerValues, getParamManagerFromValues } from '../common';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
 import { MEDIATORS } from '../../../../../resources/constants';
 import { Controller, useForm } from 'react-hook-form';
-import { ExpressionFieldValue } from '../../../../Form/ExpressionField/ExpressionInput';
+import { ExpressionFieldValue, FlexLabelContainer, Label, Link } from '../../../../Form/ExpressionField/ExpressionInput';
 import { ParamManager, ParamConfig, ParamValue } from '../../../../Form/ParamManager/ParamManager';
 import { handleOpenExprEditor, sidepanelGoBack } from '../../..';
 
@@ -67,7 +68,7 @@ const DBReportForm = (props: AddMediatorProps) => {
             connectionPassword: sidePanelContext?.formValues?.connectionPassword || "",
             registryBasedPassConfigKey: sidePanelContext?.formValues?.registryBasedPassConfigKey || "",
             sqlStatements: {
-                paramValues: sidePanelContext?.formValues?.sqlStatements ? getParamManagerFromValues(sidePanelContext?.formValues?.sqlStatements) : [],
+                paramValues: sidePanelContext?.formValues?.sqlStatements ? getParamManagerFromValues(sidePanelContext?.formValues?.sqlStatements, -1, 0) : [],
                 paramFields: [
                     {
                         "type": "TextField",
@@ -82,7 +83,7 @@ const DBReportForm = (props: AddMediatorProps) => {
                         "isRequired": false, 
                         "paramManager": {
                             paramConfigs: {
-                                paramValues: sidePanelContext?.formValues?.parameters ? getParamManagerFromValues(sidePanelContext?.formValues?.parameters) : [],
+                                paramValues: sidePanelContext?.formValues?.parameters ? getParamManagerFromValues(sidePanelContext?.formValues?.parameters, -1, -1) : [],
                                 paramFields: [
                                     {
                                         "type": "Dropdown",
@@ -150,6 +151,33 @@ const DBReportForm = (props: AddMediatorProps) => {
                             addParamText: "New Parameters"
                         },
                     },
+                    {
+                        "type": "ParamManager",
+                        "label": "Results",
+                        "defaultValue": "",
+                        "isRequired": false, 
+                        "paramManager": {
+                            paramConfigs: {
+                                paramValues: sidePanelContext?.formValues?.results ? getParamManagerFromValues(sidePanelContext?.formValues?.results, -1, -1) : [],
+                                paramFields: [
+                                    {
+                                        "type": "TextField",
+                                        "label": "Property Name",
+                                        "defaultValue": "",
+                                        "isRequired": false
+                                    },
+                                    {
+                                        "type": "TextField",
+                                        "label": "Column ID",
+                                        "defaultValue": "",
+                                        "isRequired": false
+                                    },
+                                ]
+                            },
+                            openInDrawer: true,
+                            addParamText: "New Results"
+                        },
+                    },
                 ]
             },
             propertyAutocommit: sidePanelContext?.formValues?.propertyAutocommit || "DEFAULT",
@@ -190,7 +218,6 @@ const DBReportForm = (props: AddMediatorProps) => {
                 documentUri: props.documentUri, range: props.nodePosition, text: xml
             });
         }
-        rpcClient.getMiDiagramRpcClient().addDependencyToPom({ groupId: "org.postgresql", artifactId: "postgresql", version: "42.7.3", file: props.documentUri });
         sidePanelContext.setSidePanelState({
             ...sidePanelContext,
             isOpen: false,
@@ -244,9 +271,22 @@ const DBReportForm = (props: AddMediatorProps) => {
                             name="connectionDBType"
                             control={control}
                             render={({ field }) => (
-                                <AutoComplete label="Connection DB Type" name="connectionDbType" items={["OTHER", "MYSQL", "ORACLE", "MSSQL", "POSTGRESQL"]} value={field.value} onValueChange={(e: any) => {
-                                    field.onChange(e);
-                                }} />
+                                <>
+                                    <FlexLabelContainer>
+                                        <Label>Connection DB Type</Label>
+                                        <Link onClick={() => {
+                                            openPopup(rpcClient, "addDriver", undefined, undefined, props.documentUri, { identifier: watch("connectionDBType") });
+
+                                        }}>
+                                            <Typography variant="body3" sx={{
+                                                color: "var(--vscode-textLink-activeForeground)",
+                                            }}>Manage Drivers</Typography>
+                                        </Link>
+                                    </FlexLabelContainer>
+                                    <AutoComplete name="connectionDbType" items={["OTHER", "MYSQL", "ORACLE", "MSSQL", "POSTGRESQL"]} value={field.value} onValueChange={(e: any) => {
+                                        field.onChange(e);
+                                    }} />
+                                </>
                             )}
                         />
                         {errors.connectionDBType && <Error>{errors.connectionDBType.message.toString()}</Error>}
@@ -477,6 +517,15 @@ const DBReportForm = (props: AddMediatorProps) => {
                                                 const property: ParamValue[] = param.paramValues;
                                                 param.key = property[0].value;
                                                 param.value = property[2].value;
+                                                param.icon = 'query';
+                                                return param;
+                                            });
+            
+
+                                            (property[2].value as ParamConfig).paramValues = (property[2].value as ParamConfig).paramValues.map((param: any, index: number) => {
+                                                const property: ParamValue[] = param.paramValues;
+                                                param.key = property[0].value;
+                                                param.value = property[1].value;
                                                 param.icon = 'query';
                                                 return param;
                                             });

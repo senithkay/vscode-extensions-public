@@ -341,10 +341,27 @@ const generateForm = (jsonData: any): string => {
                 } else if (inputType === 'comboOrExpression' || inputType === 'combo') {
 
                     const comboValues = element.value.comboValues.map((value: string) => `"${value}"`).toString().replaceAll(",", ", ");
-                    const comboStr = `
-                        <AutoComplete label="${displayName}" name="${toCamelCase(displayName)}" items={[${comboValues}]} value={field.value} onValueChange={(e: any) => {
+                    const name = toCamelCase(displayName);
+                    const comboStr = !element.value.showManageDeps ? `
+                        <AutoComplete label="${displayName}" name="${name}" items={[${comboValues}]} value={field.value} onValueChange={(e: any) => {
                             field.onChange(e);
-                        }} />`;
+                        }} />` : `
+                        <>
+                            <FlexLabelContainer>
+                                <Label>${displayName}</Label>
+                                <Link onClick={() => {
+                                    openPopup(rpcClient, "addDriver", undefined, undefined, props.documentUri, { identifier: watch("${inputName}") });
+
+                                }}>
+                                    <Typography variant="body3" sx={{
+                                        color: "var(--vscode-textLink-activeForeground)",
+                                    }}>Manage Drivers</Typography>
+                                </Link>
+                            </FlexLabelContainer>
+                            <AutoComplete name="${name}" items={[${comboValues}]} value={field.value} onValueChange={(e: any) => {
+                                field.onChange(e);
+                            }} />
+                        </>`;
                     fields +=
                         fixIndentation(comboStr, indentation);
                 } else if (inputType === 'checkbox') {
@@ -479,7 +496,7 @@ const generateForm = (jsonData: any): string => {
         fixIndentation(
             `${LICENSE_HEADER}
 import React, { useEffect, useState, useRef } from 'react';
-import { AutoComplete, Button, Codicon, ComponentCard, FormGroup, FlexLabelContainer, Label, Link, ProgressIndicator, colors, RequiredFormInput, TextField, TextArea, Tooltip, Typography } from '@wso2-enterprise/ui-toolkit';
+import { AutoComplete, Button, Codicon, ComponentCard, FormGroup, ProgressIndicator, colors, RequiredFormInput, TextField, TextArea, Tooltip, Typography } from '@wso2-enterprise/ui-toolkit';
 import { VSCodeCheckbox, VSCodeDropdown, VSCodeOption, VSCodeDataGrid, VSCodeDataGridRow, VSCodeDataGridCell } from '@vscode/webview-ui-toolkit/react';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
@@ -489,7 +506,7 @@ import { getXML } from '../../../../../utils/template-engine/mustach-templates/t
 import { MEDIATORS } from '../../../../../resources/constants';
 import { Controller, useForm } from 'react-hook-form';
 import { Keylookup } from '../../../../Form';
-import { ExpressionField, ExpressionFieldValue } from '../../../../Form/ExpressionField/ExpressionInput';
+import { ExpressionField, ExpressionFieldValue, FlexLabelContainer, Label, Link } from '../../../../Form/ExpressionField/ExpressionInput';
 import { ParamManager, ParamConfig, ParamValue } from '../../../../Form/ParamManager/ParamManager';
 import { generateSpaceSeperatedStringFromParamValues } from '../../../../../utils/commons';
 import { handleOpenExprEditor, sidepanelAddPage, sidepanelGoBack } from '../../..';

@@ -22,6 +22,7 @@ import { RecipientWizard } from './views/Forms/RecipientEndpointForm';
 import { TemplateEndpointWizard } from './views/Forms/TemplateEndpointForm';
 import { DataServiceDataSourceWizard } from "./views/Forms/DataServiceForm/MainPanelForms/DataSourceForm/DatasourceForm";
 import path from 'path';
+import { AddDriver } from './views/Popup/AddDriver';
 
 const ViewContainer = styled.div`
     
@@ -75,6 +76,9 @@ const PopupPanel = (props: { formState: PopupMachineStateValue }) => {
                     break;
                 case MACHINE_VIEW.DssDataSourceForm:
                     setViewComponent(<DataServiceDataSourceWizard isPopup={true} path={machineSate.documentUri} datasource={machineSate.customProps.datasource} />);
+                    break;
+                case MACHINE_VIEW.AddDriverPopup:
+                    setViewComponent(<AddDriver isPopup={true} path={machineSate.documentUri} identifier={machineSate.customProps.identifier} />);
                     break;
                 default:
                     setViewComponent(null);

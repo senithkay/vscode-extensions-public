@@ -35,18 +35,19 @@ export function filterFormValues(formValues: { [key: string]: any }, keysToInclu
     return formValues;
 }
 
-export const openPopup = (rpcClient: RpcClient, view: string, fetchItems: any, setValue: any, documentUri?: string) => {
-    let form;
+export const openPopup = (rpcClient: RpcClient, view: string, fetchItems: any, setValue: any, documentUri?: string, customProps?: any) => {
     switch (view) {
         case "endpoint":
-            form = MACHINE_VIEW.EndPointForm;
+            rpcClient.getMiVisualizerRpcClient().openView({ type: POPUP_EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.EndPointForm }, isPopup: true });
             break;
-    }
-
-    if (view === "datasource") {
-        rpcClient.getMiVisualizerRpcClient().openView({ type: POPUP_EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.DssDataSourceForm, documentUri: documentUri }, isPopup: true });
-    } else {
-        rpcClient.getMiVisualizerRpcClient().openView({ type: POPUP_EVENT_TYPE.OPEN_VIEW, location: { view: form }, isPopup: true });
+        case "datasource":
+            rpcClient.getMiVisualizerRpcClient().openView({ type: POPUP_EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.DssDataSourceForm, documentUri: documentUri }, isPopup: true });
+            break;
+        case "addDriver":
+            rpcClient.getMiVisualizerRpcClient().openView({ type: POPUP_EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.AddDriverPopup, documentUri: documentUri, customProps }, isPopup: true });
+            break;
+        default:
+            return;
     }
 
     rpcClient.onParentPopupSubmitted((data: ParentPopupData) => {
