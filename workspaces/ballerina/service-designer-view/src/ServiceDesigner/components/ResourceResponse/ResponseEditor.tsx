@@ -8,13 +8,12 @@
  */
 // tslint:disable: jsx-no-multiline-js
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
-import { ActionButtons, AutoComplete, TextField } from '@wso2-enterprise/ui-toolkit';
-import { EditorContainer, EditorContent } from '../../styles';
+import { ActionButtons, AutoComplete, TextField, Codicon } from '@wso2-enterprise/ui-toolkit';
+import { EditorContainer, EditorContent, ParamContainer, ParamDescription } from '../../styles';
 import { CommonRPCAPI, STModification, responseCodes } from '@wso2-enterprise/ballerina-core';
-import { getSourceFromResponseCode, getTitleFromResponseCode } from '../../utils/utils';
-import { VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
+import { getTitleFromResponseCode } from '../../utils/utils';
 import { ResponseConfig } from '@wso2-enterprise/service-designer';
 import { TypeBrowser } from '../TypeBrowser/TypeBrowser';
 import { NodePosition } from '@wso2-enterprise/syntax-tree';
@@ -36,31 +35,36 @@ export function ResponseEditor(props: ParamProps) {
     const { response, isBallerniaExt, isEdit, onSave, onChange, onCancel, typeCompletions, serviceEndPosition, commonRpcClient, applyModifications } = props;
 
     console.log("response", typeCompletions);
+    const subTypeText = "Name record for the return response type";
 
-    const [isNameRecord, setIsNameRecord] = useState(false);
+    const [showRecordEdit, setShowRecordEdit] = useState(false);
     const [definedRecordName, setDefinedRecordName] = useState("");
+    const [subType, setSubType] = useState<boolean>(false);
 
     const handleReqFieldChange = () => {
-        setIsNameRecord(!isNameRecord);
-        if (!isNameRecord) {
-            const recordName = `${getSourceFromResponseCode(response.code).replace("http:", "")}${response.type ? `${response.type}` : ""}`;
-            setDefinedRecordName(recordName);
-        } else {
-            setDefinedRecordName("");
-        }
+        setShowRecordEdit(!showRecordEdit);
     };
+
+    useEffect(() => {
+        if (response.namedRecord) {
+            setSubType(true);
+            setDefinedRecordName(response.namedRecord)
+        }
+    }, []);
 
     const handleCodeChange = (value: string) => {
         const code = responseCodes.find(code => code.title === value).code;
+        handleDefinedName(Number(code), response.type);
         onChange({ ...response, code: Number(code), source: "" });
     };
 
     const handleTypeChange = (value: string) => {
-        if (isNameRecord) {
-            const recordName = `${getSourceFromResponseCode(response.code).replace("http:", "")}${response.type ? `${response.type}` : ""}`;
-            setDefinedRecordName(recordName);
-        }
+        handleDefinedName(Number(response.code), value);
         onChange({ ...response, type: value, source: "" });
+    };
+
+    const handleNamedTypeChange = (value: string) => {
+        setDefinedRecordName(value.replace(/\[\]/g, ""));
     };
 
     const handleOnCancel = () => {
@@ -72,10 +76,33 @@ export function ResponseEditor(props: ParamProps) {
             id: response.id,
             type: response.type,
             code: response.code,
-            source: response.source
+            source: response.source,
+            namedRecord: response.namedRecord,
         };
         onSave(newParam, definedRecordName);
     };
+
+
+    // Check whether the response code selected and default method response code is same
+    const methodResponseMatched = (code: number) => {
+        const responseCode = responseCodes.find(item => item.code === code);
+        return responseCode.code === Number(response.defaultCode);
+    }
+
+    // Generate defined name based on the selected type
+    const handleDefinedName = (code: number, type?: string) => {
+        if (!methodResponseMatched(code) && type) {
+            const responseCode = responseCodes.find(item => item.code === code);
+            const responseName = responseCode.source.split(":")[1];
+            const currentType = type || response.type;
+            const nameValue = currentType?.includes(responseName) ? `${currentType}` : `${currentType}${responseName}`;
+            setDefinedRecordName(nameValue.replace(/\[\]/g, ""));
+            setSubType(true);
+        } else {
+            setSubType(false);
+            setDefinedRecordName("");
+        }
+    }
 
     return (
         <EditorContainer>
@@ -100,17 +127,27 @@ export function ResponseEditor(props: ParamProps) {
                     applyModifications={applyModifications}
                 />
             </EditorContent>
-            <VSCodeCheckbox checked={isNameRecord} onChange={handleReqFieldChange} id="is-name-rec-checkbox">
-                Define a name record for the return type
-            </VSCodeCheckbox>
-            {isNameRecord && (
-                <TextField
-                    size={33}
-                    placeholder='Enter type'
-                    value={definedRecordName}
-                    onTextChange={handleTypeChange}
-                />
-            )}
+            {subType &&
+                (
+                    <ParamContainer>
+                        {subTypeText} -
+                        {!showRecordEdit && (
+                            <ParamDescription onClick={handleReqFieldChange}>
+                                {definedRecordName} <Codicon name='edit' iconSx={{ paddingLeft: "5px", font: "normal normal normal 12px/1 codicon" }} />
+                            </ParamDescription>
+                        )}
+                        {showRecordEdit && (
+                            <TextField
+                                sx={{ marginLeft: "12px", paddingBottom: "10px" }}
+                                size={33}
+                                placeholder='Enter type'
+                                value={definedRecordName}
+                                onTextChange={handleNamedTypeChange}
+                            />
+                        )}
+                    </ParamContainer>
+                )
+            }
             <ActionButtons
                 primaryButton={{ text: isEdit ? "Save" : "Add", onClick: handleOnSave }}
                 secondaryButton={{ text: "Cancel", onClick: handleOnCancel }}

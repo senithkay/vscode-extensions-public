@@ -16,6 +16,8 @@ export interface ResponseConfig {
     type?: string;
     source?: string;
     isNew?: boolean;
+    defaultCode?: number;
+    namedRecord?: string;
 }
 
 export enum PARAM_TYPES {
