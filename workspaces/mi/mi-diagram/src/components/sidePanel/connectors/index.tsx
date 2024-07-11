@@ -18,6 +18,7 @@ import { ConnectorStatus } from "@wso2-enterprise/mi-core";
 import { Mediators } from "../mediators/List";
 import { sidepanelAddPage } from "..";
 import { FirstCharToUpperCase } from "../../../utils/commons";
+import { APIS } from "../../../resources/constants";
 
 const LoaderWrapper = styled.div`
     display: flex;
@@ -123,7 +124,7 @@ export function ConnectorPage(props: ConnectorPageProps) {
 
     const fetchConnectors = async () => {
         try {
-            const response = await fetch('https://mi-connectors.wso2.com/icons/mi-connectors-info.json');
+            const response = await fetch(APIS.CONNECTOR);
             const data = await response.json();
             sidePanelContext.setSidePanelState({
                 ...sidePanelContext,

@@ -18,7 +18,7 @@ import { ExtendedLanguageClient } from './lang-client/ExtendedLanguageClient';
 import { VisualizerWebview } from './visualizer/webview';
 import { RPCLayer } from './RPCLayer';
 import { history } from './history/activator';
-import { COMMANDS } from './constants';
+import { APIS, COMMANDS } from './constants';
 import { openAIWebview } from './ai-panel/aiMachine';
 import { AiPanelWebview } from './ai-panel/webview';
 import { activateProjectExplorer } from './project-explorer/activate';
@@ -356,7 +356,7 @@ const stateMachine = createMachine<MachineContext>({
         waitForConnectorData: (context, event) => {
             return new Promise(async (resolve, reject) => {
                 try {
-                    const response = await fetch('https://mi-connectors.wso2.com/icons/mi-connectors-info.json');
+                    const response = await fetch(APIS.CONNECTOR);
                     const data = await response.json();
                     resolve(data.data);
                 } catch (error) {
