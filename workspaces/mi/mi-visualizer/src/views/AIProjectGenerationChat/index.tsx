@@ -959,13 +959,12 @@ const CodeSegment: React.FC<CodeSegmentProps> = ({ segmentText, loading, handleA
     const [isOpen, setIsOpen] = useState(false);
 
     const language = identifyLanguage(segmentText);
-    console.log("Identified language is ", language)
     let name = "";
 
     switch (language) {
         case "xml":
             const xmlMatch = segmentText.match(/(name|key)="([^"]+)"/);
-            name = xmlMatch ? xmlMatch[2] : "Unknown XML File";
+            name = xmlMatch ? xmlMatch[2] : "XML File";
             break;
         case "toml":
             name = "deployment.toml"; // Default name
