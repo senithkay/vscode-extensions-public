@@ -191,7 +191,9 @@ import {
     SwaggerData,
     getSTRequest,
     getSTResponse,
-    StoreConnectorJsonResponse
+    StoreConnectorJsonResponse,
+    TestDbConnectionRequest,
+    TestDbConnectionResponse
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
 import { error } from "console";
@@ -4231,6 +4233,15 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         RPCLayer._messenger.sendNotification(onSwaggerSpecReceived, { type: 'webview', webviewType: 'micro-integrator.runtime-services-panel' }, { generatedSwagger: generatedSwagger, port: port });
 
         return { generatedSwagger: generatedSwagger }; // TODO: refactor rpc function with void
+    }
+
+    async testDbConnection(req: TestDbConnectionRequest): Promise<TestDbConnectionResponse> {
+
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient;
+            const response = await langClient?.testDbConnection(req);
+            resolve({ success: response ? response.success : false });
+        });
     }
 }
 

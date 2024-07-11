@@ -165,7 +165,7 @@ export interface Foreach extends STNode {
 }
 
 export interface PayloadFactoryFormat extends STNode {
-    content: any[];
+    content: string;
     key: string;
 }
 
