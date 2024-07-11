@@ -12,8 +12,9 @@ import * as fs from "fs";
 import { openView } from "../stateMachine";
 import { EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
 import { COMMANDS } from "../constants";
+import { StateMachinePopup } from "../stateMachinePopup";
 
-export async function replaceFullContentToFile(documentUri: string, content: string, skipOpenView: boolean = false) {
+export async function replaceFullContentToFile(documentUri: string, content: string) {
     // Create the file if not present
     let isNewFile = false;
     if (!fs.existsSync(documentUri)) {
@@ -30,7 +31,7 @@ export async function replaceFullContentToFile(documentUri: string, content: str
 
     edit.replace(Uri.file(documentUri), fullRange, content);
     await workspace.applyEdit(edit);
-    if (isNewFile && !skipOpenView) {
+    if (isNewFile && !StateMachinePopup.isActive()) {
         openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.Overview, documentUri });
         commands.executeCommand(COMMANDS.REFRESH_COMMAND);
     }

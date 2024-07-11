@@ -582,7 +582,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     filePath = path.join(directory, `${templateParams.name}.xml`);
                 }
 
-                await replaceFullContentToFile(filePath, sanitizedXmlData, StateMachinePopup.isActive());
+                await replaceFullContentToFile(filePath, sanitizedXmlData);
                 await this.rangeFormat({
                     uri: filePath,
                     range: {
@@ -656,7 +656,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     filePath = path.join(directory, `${templateParams.name}.xml`);
                 }
 
-                await replaceFullContentToFile(filePath, sanitizedXmlData, StateMachinePopup.isActive());
+                await replaceFullContentToFile(filePath, sanitizedXmlData);
                 await this.rangeFormat({
                     uri: filePath,
                     range: {
@@ -720,7 +720,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     filePath = path.join(directory, `${templateParams.name}.xml`);
                 }
 
-                await replaceFullContentToFile(filePath, sanitizedXmlData, StateMachinePopup.isActive());
+                await replaceFullContentToFile(filePath, sanitizedXmlData);
                 await this.rangeFormat({
                     uri: filePath,
                     range: {
@@ -782,7 +782,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     filePath = path.join(directory, `${templateParams.name}.xml`);
                 }
 
-                await replaceFullContentToFile(filePath, sanitizedXmlData, StateMachinePopup.isActive());
+                await replaceFullContentToFile(filePath, sanitizedXmlData);
                 await this.rangeFormat({
                     uri: filePath,
                     range: {
@@ -1599,7 +1599,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 } else {
                     filePath = path.join(directory, `${fileName}.xml`);
                 }
-                await replaceFullContentToFile(filePath, sanitizedXmlData, StateMachinePopup.isActive());
+                await replaceFullContentToFile(filePath, sanitizedXmlData);
                 await this.rangeFormat({
                     uri: filePath,
                     range: {
@@ -1777,7 +1777,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     filePath = path.join(directory, `${fileName}.xml`);
                 }
 
-                await replaceFullContentToFile(filePath, sanitizedXmlData, StateMachinePopup.isActive());
+                await replaceFullContentToFile(filePath, sanitizedXmlData);
                 await this.rangeFormat({
                     uri: filePath,
                     range: {
@@ -1887,7 +1887,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     filePath = path.join(directory, `${fileName}.xml`);
                 }
 
-                await replaceFullContentToFile(filePath, sanitizedXmlData, StateMachinePopup.isActive());
+                await replaceFullContentToFile(filePath, sanitizedXmlData);
                 await this.rangeFormat({
                     uri: filePath,
                     range: {
@@ -1999,7 +1999,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     filePath = path.join(directory, `${fileName}.xml`);
                 }
 
-                await replaceFullContentToFile(filePath, sanitizedXmlData, StateMachinePopup.isActive());
+                await replaceFullContentToFile(filePath, sanitizedXmlData);
                 await this.rangeFormat({
                     uri: filePath,
                     range: {
@@ -3505,7 +3505,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 fs.mkdirSync(localEntryPath);
             }
 
-            await replaceFullContentToFile(filePath, xmlData, true);
+            await replaceFullContentToFile(filePath, xmlData);
             resolve({ name: connectionName });
         });
     }
