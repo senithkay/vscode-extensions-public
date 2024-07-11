@@ -7,55 +7,37 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React from "react";
+import React, { useState } from "react";
 import {
     Button,
     SidePanel,
     SidePanelTitleContainer,
     SidePanelBody,
-    Codicon,
-    AutoComplete,
-    ComponentCard
+    Codicon
 } from "@wso2-enterprise/ui-toolkit";
-import styled from "@emotion/styled";
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
+
 import { useDMIOConfigPanelStore } from "../../../store/store";
-
-const SidePanelBodyWrapper = styled.div`
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-`;
-
-const cardStyle = { 
-    display: "block",
-    margin: "15px 0",
-    padding: "0 15px 15px 15px",
-    width: "auto",
-    cursor: "auto"
- };
-
- const Field = styled.div`
-   margin-bottom: 12px;
-`;
+import { ImportDataButtons } from "./ImportDataButtons";
+import { ImportDataPanel } from "./ImportDataPanel";
 
 export type ImportDataWizardProps = {
     configName: string;
     documentUri: string;
 };
 
-
 export function ImportDataForm(props: ImportDataWizardProps) {
     const { configName, documentUri } = props;
     const { rpcClient } = useVisualizerContext();
 
-    const {isOpen, ioType, overwriteSchema, setSidePanelOpen } = useDMIOConfigPanelStore(state => ({
+    const [selectedImportType, setSelectedImportType] = useState<string>(undefined);
+
+    const { isOpen, ioType, overwriteSchema, setSidePanelOpen } = useDMIOConfigPanelStore(state => ({
         isOpen: state.isIOConfigPanelOpen,
         ioType: state.ioConfigPanelType,
         overwriteSchema: state.isSchemaOverridden,
         setSidePanelOpen: state.setIsIOConfigPanelOpen
     }));
-    const [selectedResourceType, setSelectedResourceType] = React.useState<string>("JSON");
 
     const loadSchema = async () => {
         const request = {
@@ -64,7 +46,7 @@ export function ImportDataForm(props: ImportDataWizardProps) {
             resourceName: configName + '_' + ioType.toLowerCase() + 'Schema',
             sourcePath: documentUri,
             ioType: ioType.toUpperCase(),
-            schemaType: selectedResourceType.toLowerCase(),
+            schemaType: selectedImportType.toLowerCase(),
             configName: configName,
         }
         await rpcClient.getMiDataMapperRpcClient().browseSchema(request).then(response => {
@@ -80,33 +62,46 @@ export function ImportDataForm(props: ImportDataWizardProps) {
     };
 
     const onClose = () => {
+        setSelectedImportType(undefined);
         setSidePanelOpen(false);
+    };
+
+    const handleImportTypeChange = (importType: string) => {
+        setSelectedImportType(importType);
     };
 
     return (
         <SidePanel
-                isOpen={isOpen}
-                alignment="right"
-                width={312}
-                overlay={false}
-            >
-                <SidePanelTitleContainer>
-                    <Button sx={{ marginLeft: "auto" }} onClick={onClose} appearance="icon">
-                        <Codicon name="close" />
-                    </Button>
-                </SidePanelTitleContainer>
-                <SidePanelBody>
-                    <SidePanelBodyWrapper>
-                        <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                            <h3>Import {ioType} Schema</h3>
-                            <Field>
-                                <AutoComplete label="Resource Type" items={["JSON", "JSONSCHEMA", "XML", "CSV"]} 
-                                    borderBox onValueChange={(e: any) => setSelectedResourceType(e)}/>
-                            </Field>
-                            <Button appearance="primary" onClick={loadSchema}>Import</Button>
-                        </ComponentCard>
-                    </SidePanelBodyWrapper>
-                </SidePanelBody>
+            isOpen={isOpen}
+            alignment="right"
+            width={312}
+            overlay={false}
+        >
+            <SidePanelTitleContainer>
+                {selectedImportType && (
+                    <Codicon name="arrow-left"
+                        sx={{ width: "20px"}}
+                        onClick={() => setSelectedImportType(undefined)}
+                    />
+                )}
+                <span>Import {ioType} Schema</span>
+                <Button
+                    sx={{ marginLeft: "auto" }}
+                    onClick={onClose}
+                    appearance="icon"
+                >
+                    <Codicon name="close" />
+                </Button>
+            </SidePanelTitleContainer>
+            <SidePanelBody>
+                {!selectedImportType && <ImportDataButtons onImportTypeChange={handleImportTypeChange} />}
+                {selectedImportType && (
+                    <ImportDataPanel
+                        importType={selectedImportType}
+                        rowRange={{ start: 5, offset: 10 }}
+                    />
+                )}
+            </SidePanelBody>
         </SidePanel>
     );
 }
