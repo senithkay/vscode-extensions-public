@@ -11,7 +11,7 @@
 import {
     AIUserInput,
     AI_EVENT_TYPE,
-    AddDependencyToPomRequest,
+    UpdateDependencyInPomRequest,
     ApiDirectoryResponse,
     ApplyEditRequest,
     ApplyEditResponse,
@@ -34,6 +34,8 @@ import {
     CreateDataServiceRequest,
     CreateDataServiceResponse,
     CreateDataSourceResponse,
+    CreateDssDataSourceRequest,
+    CreateDssDataSourceResponse,
     CreateEndpointRequest,
     CreateEndpointResponse,
     CreateInboundEndpointRequest,
@@ -56,11 +58,10 @@ import {
     CreateTaskResponse,
     CreateTemplateRequest,
     CreateTemplateResponse,
-    CreateDssDataSourceRequest,
-    CreateDssDataSourceResponse,
     DataSourceTemplate,
     Datasource,
     DeleteArtifactRequest,
+    Dependency,
     DownloadConnectorRequest,
     DownloadConnectorResponse,
     ESBConfigsResponse,
@@ -75,6 +76,7 @@ import {
     GenerateAPIResponse,
     GetAllArtifactsRequest,
     GetAllArtifactsResponse,
+    GetAllDependenciesResponse,
     GetAllMockServicesResponse,
     GetAllRegistryPathsRequest,
     GetAllRegistryPathsResponse,
@@ -132,6 +134,7 @@ import {
     MiDiagramAPI,
     MigrateProjectRequest,
     MigrateProjectResponse,
+    OpenDependencyPomRequest,
     OpenDiagramRequest,
     POPUP_EVENT_TYPE,
     ProjectDirResponse,
@@ -155,6 +158,7 @@ import {
     RetrieveWsdlEndpointResponse,
     SequenceDirectoryResponse,
     ShowErrorMessageRequest,
+    SwaggerData,
     SwaggerFromAPIResponse,
     SwaggerTypeRequest,
     TemplatesResponse,
@@ -187,10 +191,10 @@ import {
     UpdateWsdlEndpointResponse,
     WriteContentToFileRequest,
     WriteContentToFileResponse,
-    onSwaggerSpecReceived,
-    SwaggerData,
+    getAllDependenciesRequest,
     getSTRequest,
-    getSTResponse
+    getSTResponse,
+    onSwaggerSpecReceived
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
 import { error } from "console";
@@ -199,6 +203,7 @@ import { copy } from 'fs-extra';
 import { isEqual } from "lodash";
 import fetch from 'node-fetch';
 import * as os from 'os';
+import { getPortPromise } from "portfinder";
 import { Transform } from 'stream';
 import * as tmp from 'tmp';
 import { v4 as uuidv4 } from 'uuid';
@@ -207,14 +212,16 @@ import { Position, Range, Selection, TextEdit, Uri, ViewColumn, WorkspaceEdit, c
 import { parse, stringify } from "yaml";
 import { UnitTest } from "../../../../syntax-tree/lib/src";
 import { extension } from '../../MIExtensionContext';
+import { RPCLayer } from "../../RPCLayer";
 import { StateMachineAI } from '../../ai-panel/aiMachine';
 import { COMMANDS, DEFAULT_PROJECT_VERSION, MI_COPILOT_BACKEND_URL } from "../../constants";
 import { StateMachine, navigate, openView } from "../../stateMachine";
 import { openPopupView } from "../../stateMachinePopup";
+import { openSwaggerWebview } from "../../swagger/activate";
 import { testFileMatchPattern } from "../../test-explorer/discover";
 import { mockSerivesFilesMatchPattern } from "../../test-explorer/mock-services/activator";
 import { UndoRedoManager } from "../../undoRedoManager";
-import { copyDockerResources, createFolderStructure, getAPIResourceXmlWrapper, getAddressEndpointXmlWrapper, getDataServiceXmlWrapper, getDefaultEndpointXmlWrapper, getFailoverXmlWrapper, getHttpEndpointXmlWrapper, getInboundEndpointXmlWrapper, getLoadBalanceXmlWrapper, getMessageProcessorXmlWrapper, getMessageStoreXmlWrapper, getProxyServiceXmlWrapper, getRegistryResourceContent, getTaskXmlWrapper, getTemplateEndpointXmlWrapper, getTemplateXmlWrapper, getWsdlEndpointXmlWrapper, getDssDataSourceXmlWrapper } from "../../util";
+import { copyDockerResources, createFolderStructure, getAPIResourceXmlWrapper, getAddressEndpointXmlWrapper, getDataServiceXmlWrapper, getDefaultEndpointXmlWrapper, getDssDataSourceXmlWrapper, getFailoverXmlWrapper, getHttpEndpointXmlWrapper, getInboundEndpointXmlWrapper, getLoadBalanceXmlWrapper, getMessageProcessorXmlWrapper, getMessageStoreXmlWrapper, getProxyServiceXmlWrapper, getRegistryResourceContent, getTaskXmlWrapper, getTemplateEndpointXmlWrapper, getTemplateXmlWrapper, getWsdlEndpointXmlWrapper } from "../../util";
 import { addNewEntryToArtifactXML, addSynapseDependency, changeRootPomPackaging, createMetadataFilesForRegistryCollection, deleteRegistryResource, detectMediaType, getAvailableRegistryResources, getMediatypeAndFileExtension, getRegistryResourceMetadata, updateRegistryResourceMetadata } from "../../util/fileOperations";
 import { log } from "../../util/logger";
 import { importProject } from "../../util/migrationUtils";
@@ -227,9 +234,6 @@ import { dockerfileContent, rootPomXmlContent } from "../../util/templates";
 import { replaceFullContentToFile } from "../../util/workspace";
 import { VisualizerWebview } from "../../visualizer/webview";
 import path = require("path");
-import { openSwaggerWebview } from "../../swagger/activate";
-import { RPCLayer } from "../../RPCLayer";
-import { getPortPromise } from "portfinder";
 
 const { XMLParser, XMLBuilder } = require("fast-xml-parser");
 
@@ -3283,7 +3287,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                         continue;
                     }
                     const stats = await fs.promises.stat(filePath);
-    
+
                     if (stats.isFile()) {
                         const content = await fs.promises.readFile(filePath, 'utf-8');
                         fileContents.push(content);
@@ -4107,13 +4111,13 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         });
     }
 
-    async addDependencyToPom(params: AddDependencyToPomRequest): Promise<void> {
+    async updateDependencyInPom(params: UpdateDependencyInPomRequest): Promise<void> {
         const showErrorMessage = () => {
             window.showErrorMessage('Failed to add the dependency to the POM file');
         }
 
         return new Promise(async (resolve) => {
-            const { groupId, artifactId, version, file } = params;
+            const { groupId, artifactId, version, file, range } = params;
             const workspaceFolder = workspace.getWorkspaceFolder(Uri.file(file));
 
             if (!workspaceFolder) {
@@ -4135,7 +4139,42 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 throw new Error('Failed to parse POM XML');
             }
 
-            let dependencies = Array.isArray(pom.project?.dependencies?.dependency) ? pom.project.dependencies.dependency : [pom.project?.dependencies?.dependency].filter(Boolean);
+            if (range) {
+                const workspaceEdit = new WorkspaceEdit();
+                const document = await workspace.openTextDocument(pomPath);
+                if (groupId || artifactId || version) {
+                    const originalText = document.getText(new Range(range.start.line, range.start.character, range.end.line, range.end.character));
+                    let updatedText = originalText;
+
+                    if (groupId) {
+                        updatedText = updatedText.replace(/<groupId>.*<\/groupId>/, `<groupId>${groupId}</groupId>`);
+                    }
+                    if (artifactId) {
+                        updatedText = updatedText.replace(/<artifactId>.*<\/artifactId>/, `<artifactId>${artifactId}</artifactId>`);
+                    }
+                    if (version) {
+                        updatedText = updatedText.replace(/<version>.*<\/version>/, `<version>${version}</version>`);
+                    }
+
+
+                    workspaceEdit.replace(Uri.file(pomPath), new Range(range.start.line, range.start.character, range.end.line, range.end.character), updatedText);
+                    await workspace.applyEdit(workspaceEdit);
+                } else {
+                    workspaceEdit.delete(Uri.file(pomPath), new Range(range.start.line, range.start.character, range.end.line, range.end.character));
+                    await workspace.applyEdit(workspaceEdit);
+
+                    const lineText = document.lineAt(range.start.line).text;
+                    if (lineText.trim() === '') {
+                        const deleteEmptyLine = new WorkspaceEdit();
+                        deleteEmptyLine.delete(Uri.file(pomPath), new Range(range.start.line, 0, range.start.line + 1, 0));
+                        await workspace.applyEdit(deleteEmptyLine);
+                    }
+                }
+                resolve();
+                return;
+            }
+
+            let dependencies: any = (await this.getAllDependencies({ file: file }))?.dependencies;
             let dependencyExists = dependencies.some(dep =>
                 dep.groupId === groupId &&
                 dep.artifactId === artifactId &&
@@ -4220,6 +4259,100 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         RPCLayer._messenger.sendNotification(onSwaggerSpecReceived, { type: 'webview', webviewType: 'micro-integrator.runtime-services-panel' }, { generatedSwagger: generatedSwagger, port: port });
 
         return { generatedSwagger: generatedSwagger }; // TODO: refactor rpc function with void
+    }
+
+    async openDependencyPom(params: OpenDependencyPomRequest): Promise<void> {
+        return new Promise(async (resolve) => {
+            const { name, file } = params;
+            const workspaceFolder = workspace.getWorkspaceFolder(Uri.file(file));
+            if (!workspaceFolder) {
+                window.showErrorMessage('Cannot find workspace folder');
+                throw new Error('Cannot find workspace folder');
+            }
+
+            const pomPath = path.join(workspaceFolder.uri.fsPath, 'pom.xml');
+            const pomContent = fs.readFileSync(pomPath, 'utf-8');
+
+            const dependencies = (await this.getAllDependencies({ file: file }))?.dependencies;
+            let dependencyExists = dependencies.some(dep =>
+                dep.groupId.toLowerCase().includes(name.toLowerCase())
+            );
+
+            const openPomAtPosition = async (position: number) => {
+                const editor = await window.showTextDocument(Uri.file(pomPath));
+                const newPosition = new Position(position, 0);
+                const newSelection = new Selection(newPosition, newPosition);
+                editor.selection = newSelection;
+                editor.revealRange(newSelection, vscode.TextEditorRevealType.AtTop);
+            };
+
+            if (dependencyExists) {
+                const dependencyIndex = dependencies.findIndex(dep => dep.groupId.includes(name));
+                const dependencyPosition = pomContent.split('\n').findIndex(line => line.includes(dependencies[dependencyIndex].groupId));
+                await openPomAtPosition(dependencyPosition);
+            } else {
+                const dependenciesPosition = pomContent.split('\n').findIndex(line => line.includes('<dependencies>'));
+                await openPomAtPosition(dependenciesPosition);
+            }
+
+            resolve();
+        });
+    }
+
+    async getAllDependencies(params: getAllDependenciesRequest): Promise<GetAllDependenciesResponse> {
+        const { file } = params;
+        const workspaceFolder = workspace.getWorkspaceFolder(Uri.file(file));
+
+        if (!workspaceFolder) {
+            window.showErrorMessage('Cannot find workspace folder');
+            throw new Error('Cannot find workspace folder');
+        }
+
+        const pomPath = path.join(workspaceFolder.uri.fsPath, 'pom.xml');
+        const pomContent = fs.readFileSync(pomPath, 'utf-8');
+        const options = {
+            ignoreAttributes: false,
+            attributeNamePrefix: "@_"
+        };
+        const parser = new XMLParser(options);
+        const pom = parser.parse(pomContent);
+
+        if (!pom) {
+            window.showErrorMessage('Failed to parse POM XML');
+            throw new Error('Failed to parse POM XML');
+        }
+
+        const dependencyRegex = /<dependency>([\s\S]*?)<\/dependency>/g;
+        const groupIdRegex = /<groupId>(.*?)<\/groupId>/;
+        const artifactIdRegex = /<artifactId>(.*?)<\/artifactId>/;
+        const versionRegex = /<version>(.*?)<\/version>/;
+
+        let dependencies: Dependency[] = [];
+        let match;
+        while ((match = dependencyRegex.exec(pomContent)) !== null) {
+            const dependencyContent = match[1];
+            const groupIdMatch = groupIdRegex.exec(dependencyContent);
+            const artifactIdMatch = artifactIdRegex.exec(dependencyContent);
+            const versionMatch = versionRegex.exec(dependencyContent);
+
+            const groupId = groupIdMatch ? groupIdMatch[1] : "";
+            const artifactId = artifactIdMatch ? artifactIdMatch[1] : "";
+            const version = versionMatch ? versionMatch[1] : "";
+
+            const startLine = pomContent.substring(0, match.index).split('\n').length;
+            const endLine = pomContent.substring(0, match.index + match[0].length).split('\n').length;
+            const startColumn = match.index - pomContent.lastIndexOf('\n', match.index - 1) - 1;
+            const endColumn = (match.index + match[0].length) - pomContent.lastIndexOf('\n', match.index + match[0].length - 1) - 1;
+
+            dependencies.push({
+                groupId,
+                artifactId,
+                version,
+                range: { start: { line: startLine - 1, character: startColumn }, end: { line: endLine - 1, character: endColumn } }
+            });
+        }
+
+        return { dependencies };
     }
 }
 

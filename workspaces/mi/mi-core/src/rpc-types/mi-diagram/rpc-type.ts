@@ -175,8 +175,11 @@ import {
     UpdateMockServiceRequest,
     UpdateMockServiceResponse,
     GetAllMockServicesResponse,
-    AddDependencyToPomRequest,
+    UpdateDependencyInPomRequest,
     SwaggerFromAPIResponse,
+    OpenDependencyPomRequest,
+    getAllDependenciesRequest,
+    GetAllDependenciesResponse,
 } from "./types";
 import { RequestType, NotificationType } from "vscode-messenger-common";
 
@@ -292,4 +295,6 @@ export const updateTestCase: RequestType<UpdateTestCaseRequest, UpdateTestCaseRe
 export const updateMockService: RequestType<UpdateMockServiceRequest, UpdateMockServiceResponse> = { method: `${_preFix}/updateMockService` };
 export const getAllTestSuites: RequestType<void, GetAllTestSuitsResponse> = { method: `${_preFix}/getAllTestSuites` };
 export const getAllMockServices: RequestType<void, GetAllMockServicesResponse> = { method: `${_preFix}/getAllMockServices` };
-export const addDependencyToPom: NotificationType<AddDependencyToPomRequest> = { method: `${_preFix}/addDependencyToPom` };
+export const updateDependencyInPom: NotificationType<UpdateDependencyInPomRequest> = { method: `${_preFix}/updateDependencyInPom` };
+export const openDependencyPom: NotificationType<OpenDependencyPomRequest> = { method: `${_preFix}/openDependencyPom` };
+export const getAllDependencies: RequestType<getAllDependenciesRequest, GetAllDependenciesResponse> = { method: `${_preFix}/getAllDependencies` };

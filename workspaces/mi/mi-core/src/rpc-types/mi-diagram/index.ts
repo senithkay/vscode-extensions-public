@@ -174,8 +174,11 @@ import {
     UpdateMockServiceRequest,
     UpdateMockServiceResponse,
     GetAllMockServicesResponse,
-    AddDependencyToPomRequest,
+    UpdateDependencyInPomRequest,
     SwaggerFromAPIResponse,
+    OpenDependencyPomRequest,
+    getAllDependenciesRequest,
+    GetAllDependenciesResponse,
 } from "./types";
 
 export interface MiDiagramAPI {
@@ -290,5 +293,7 @@ export interface MiDiagramAPI {
     updateMockService: (params: UpdateMockServiceRequest) => Promise<UpdateMockServiceResponse>;
     getAllTestSuites: () => Promise<GetAllTestSuitsResponse>;
     getAllMockServices: () => Promise<GetAllMockServicesResponse>;
-    addDependencyToPom: (params: AddDependencyToPomRequest) => Promise<void>;
+    updateDependencyInPom: (params: UpdateDependencyInPomRequest) => Promise<void>;
+    openDependencyPom: (params: OpenDependencyPomRequest) => Promise<void>;
+    getAllDependencies: (params: getAllDependenciesRequest) => Promise<GetAllDependenciesResponse>;
 }

@@ -1601,9 +1601,26 @@ export interface GetAllMockServicesResponse {
     }[];
 }
 
-export interface AddDependencyToPomRequest {
+export interface Dependency {
     groupId: string;
     artifactId: string;
     version: string;
+    range?: Range;
+}
+
+export interface UpdateDependencyInPomRequest extends Dependency {
     file: string
+}
+
+export interface OpenDependencyPomRequest {
+    name: string;
+    file: string
+}
+
+export interface getAllDependenciesRequest {
+    file: string;
+}
+
+export interface GetAllDependenciesResponse {
+    dependencies: Dependency[];
 }
