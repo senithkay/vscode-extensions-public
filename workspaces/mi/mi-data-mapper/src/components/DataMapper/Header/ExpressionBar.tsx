@@ -16,7 +16,7 @@ import { useDMExpressionBarStore } from '../../../store/store';
 import { createSourceForUserInput } from '../../../components/Diagram/utils/modification-utils';
 import { DataMapperNodeModel } from '../../../components/Diagram/Node/commons/DataMapperNode';
 import { getDefaultValue } from '../../../components/Diagram/utils/common-utils';
-import { enrichExpression, extractExpression, filterOperators } from './utils';
+import { filterOperators } from './utils';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 
 const useStyles = () => ({
@@ -51,12 +51,16 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
         focusedPort: state.focusedPort,
         focusedFilter: state.focusedFilter,
         inputPort: state.inputPort,
-        resetInputPort: state.resetInputPort,
+        resetInputPort: state.resetInputPort
     }));
 
     const getCompletions = async (): Promise<ItemType[]> => {
+        if (!focusedPort) {
+            return [];
+        }
+
         const focusedNode = ((focusedPort.typeWithValue.value ||
-            (focusedPort.getNode() as DataMapperNodeModel).context.functionST) as Node);
+            (focusedPort.getNode() as DataMapperNodeModel)?.context.functionST) as Node);
         if (focusedNode && !focusedNode.wasForgotten()) {
             const fileContent = focusedNode.getSourceFile().getText();
             const cursorPosition = focusedNode.getEnd();
@@ -82,6 +86,8 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
             
             return filteredOperators;
         }
+
+        return [];
     }
 
     useEffect(() => {
@@ -113,7 +119,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
         let disabled = true;
     
         if (focusedPort) {
-            setPlaceholder('Prefix "=" to use functions.');
+            setPlaceholder('Insert a value for the selected port.');
             const focusedNode = focusedPort.typeWithValue.value;
             if (focusedNode && !focusedNode.wasForgotten()) {
                 if (Node.isPropertyAssignment(focusedNode)) {
@@ -141,7 +147,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
             textFieldRef.current.blur();
         }
     
-        setTextFieldValue(enrichExpression(value));
+        setTextFieldValue(value);
         return disabled;
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [textFieldRef.current, focusedPort, focusedFilter]);
@@ -149,14 +155,18 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
     const onChangeTextField = async (text: string) => {
         setTextFieldValue(text);
         const focusedFieldValue = focusedPort?.typeWithValue.value;
-        if (focusedFieldValue && !focusedFieldValue.wasForgotten()) {
+        if (focusedFieldValue) {
+            if (focusedFieldValue.wasForgotten()) {
+                return;
+            }
+            
             if (Node.isPropertyAssignment(focusedFieldValue)) {
                 const parent = focusedFieldValue.getParent();
                 const propName = focusedFieldValue.getName();
                 focusedFieldValue.remove();
                 const propertyAssignment = parent.addPropertyAssignment({
                     name: propName,
-                    initializer: extractExpression(text)
+                    initializer: text
                 });
                 focusedPort.typeWithValue.setValue(propertyAssignment);
             }
@@ -173,20 +183,20 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
                 objLitExpr = returnExpr;
             }
 
-            await createSourceForUserInput(
-                focusedPort?.typeWithValue, objLitExpr, extractExpression(text), fnBody
+            const propertyAssignment = await createSourceForUserInput(
+                focusedPort?.typeWithValue, objLitExpr, text, fnBody
             );
+            focusedPort.typeWithValue.setValue(propertyAssignment);
         }
     };
 
     const handleExpressionSave = async (value: string) => {
         setTextFieldValue(value);
-        await applyChanges(extractExpression(value));
+        await applyChanges(value);
     }
 
     const onItemSelect = async () => {
-        // TODO: Figure out how to apply changes when an item is selected
-        // await applyChanges();
+        await applyChanges();
     }
 
     const applyChanges = async (value?: string) => {
@@ -205,8 +215,11 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
 
         const focusedFieldValue = focusedPort?.typeWithValue.value;
         if (focusedFieldValue) {
-            let targetExpr: Node;
+            if (focusedFieldValue.wasForgotten()) {
+                return;
+            }
 
+            let targetExpr: Node;
             if (Node.isPropertyAssignment(focusedFieldValue)) {
                 targetExpr = focusedFieldValue.getInitializer();
 
@@ -252,7 +265,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
     };
 
     const applyChangesOnFocusedFilter = async (value: string) => {
-        focusedFilter.replaceWithText(extractExpression(value));
+        focusedFilter.replaceWithText(value);
         await applyModifications();
     };
 

@@ -146,23 +146,23 @@ const SelectedArg = styled(Typography)`
 
 const ANIMATION = {
     enter: css({
-        transition: 'all 0.3s ease-in'
+        transition: 'all 0.3s ease-in',
     }),
     enterFrom: css({
-        opacity: 0
+        opacity: 0,
     }),
     enterTo: css({
-        opacity: 1
+        opacity: 1,
     }),
     leave: css({
-        transition: 'all 0.15s ease-out'
+        transition: 'all 0.15s ease-out',
     }),
     leaveFrom: css({
-        opacity: 1
+        opacity: 1,
     }),
     leaveTo: css({
-        opacity: 0
-    })
+        opacity: 0,
+    }),
 };
 
 const DropdownItem = (props: DropdownItemProps) => {
@@ -188,11 +188,9 @@ const DropdownItem = (props: DropdownItemProps) => {
             <Typography variant="body3" sx={{ fontWeight: 600 }}>
                 {item.label}
             </Typography>
-            {item.description && (
-                <Typography id="description" variant="body3">
-                    {item.description}
-                </Typography>
-            )}
+            <Typography id="description" variant="body3">
+                {item.description}
+            </Typography>
         </DropdownItemContainer>
     );
 };
@@ -214,7 +212,7 @@ const Dropdown = forwardRef<HTMLDivElement, DropdownProps>((props, ref) => {
                     margin: '-4px',
                     borderRadius: '50%',
                     backgroundColor: 'var(--vscode-activityBar-background)',
-                    zIndex: '5'
+                    zIndex: '5',
                 }}
                 iconSx={{ color: 'var(--vscode-activityBar-foreground)' }}
                 name="close"
@@ -241,7 +239,7 @@ const Dropdown = forwardRef<HTMLDivElement, DropdownProps>((props, ref) => {
                             sx={{ display: 'flex', height: '12px', width: '12px' }}
                             iconSx={{
                                 fontSize: '12px',
-                                fontWeight: '600'
+                                fontWeight: '600',
                             }}
                         />
                     </KeyContainer>
@@ -252,7 +250,7 @@ const Dropdown = forwardRef<HTMLDivElement, DropdownProps>((props, ref) => {
                             sx={{ display: 'flex', height: '12px', width: '12px' }}
                             iconSx={{
                                 fontSize: '12px',
-                                fontWeight: '600'
+                                fontWeight: '600',
                             }}
                         />
                     </KeyContainer>
@@ -292,7 +290,7 @@ const SyntaxEl = (props: SyntaxElProps) => {
                             margin: '-4px',
                             borderRadius: '50%',
                             backgroundColor: 'var(--vscode-activityBar-background)',
-                            zIndex: '5'
+                            zIndex: '5',
                         }}
                         iconSx={{ color: 'var(--vscode-activityBar-foreground)' }}
                         name="close"
@@ -337,8 +335,15 @@ export const ExpressionEditor = forwardRef<HTMLInputElement, ExpressionBarProps>
     const [syntax, setSyntax] = useState<SyntaxProps | undefined>();
     const SUGGESTION_REGEX = {
         prefix: /(\w*)$/,
-        suffix: /^(\w*)/
+        suffix: /^(\w*)/,
     };
+
+    const getSuggestions = debounce(async () => {
+        if (inputRef.current) {
+            const completionItems = await getCompletions();
+            setFilteredItems(completionItems);
+        }
+    }, 200);
 
     useImperativeHandle(ref, () => inputRef.current);
 
@@ -347,7 +352,7 @@ export const ExpressionEditor = forwardRef<HTMLInputElement, ExpressionBarProps>
             const rect = elementRef.current.getBoundingClientRect();
             setDropdownPosition({
                 top: rect.top + rect.height,
-                left: rect.left
+                left: rect.left,
             });
         }
     }, 200);
@@ -360,13 +365,6 @@ export const ExpressionEditor = forwardRef<HTMLInputElement, ExpressionBarProps>
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [elementRef]);
-
-    const getSuggestions = debounce(async () => {
-        if (inputRef.current) {
-            const completionItems = await getCompletions();
-            setFilteredItems(completionItems);
-        }
-    });
 
     const updateSyntax = (currentFnContent: string, newSelectedItem?: ItemType) => {
         if (newSelectedItem) {
@@ -390,16 +388,12 @@ export const ExpressionEditor = forwardRef<HTMLInputElement, ExpressionBarProps>
 
     const handleChange = async (text: string, cursorPosition?: number, selectedItem?: ItemType) => {
         onChange(text);
-        if (text.trim().startsWith('=')) {
-            // Check whether the cursor is inside a function
-            const { isCursorInFunction, currentFnContent } = getExpressionInfo(text, cursorPosition);
-            if (isCursorInFunction) {
-                updateSyntax(currentFnContent, selectedItem);
-            }
-            await getSuggestions();
-        } else {
-            setFilteredItems([]);
+        // Check whether the cursor is inside a function
+        const { isCursorInFunction, currentFnContent } = getExpressionInfo(text, cursorPosition);
+        if (isCursorInFunction) {
+            updateSyntax(currentFnContent, selectedItem);
         }
+        await getSuggestions();
     };
 
     const handleItemSelect = (item: ItemType) => {
@@ -417,21 +411,19 @@ export const ExpressionEditor = forwardRef<HTMLInputElement, ExpressionBarProps>
             if (suffix.startsWith('(')) {
                 suffix = suffix.substring(1);
             }
-            newCursorPosition = prefix.length + item.label.length + 1;
-            newTextValue = prefix + item.label + '(' + suffix;
+            newCursorPosition = prefix.length + item.value.length + 1;
+            newTextValue = prefix + item.value + '(' + suffix;
         } else if (isParameter(item.kind)) {
             // If the item is a parameter
             if (suffix.startsWith('.')) {
                 suffix = suffix.substring(1);
             }
-            newCursorPosition = prefix.length + item.label.length + 1;
-            newTextValue = prefix + item.label + '.' + suffix;
+            newCursorPosition = prefix.length + item.value.length + 1;
+            newTextValue = prefix + item.value + '.' + suffix;
         } else {
             newCursorPosition = prefix.length + item.value.length;
             newTextValue = prefix + item.value + suffix;
         }
-
-
 
         handleChange(newTextValue, newCursorPosition, item);
         setCursor(inputRef, newCursorPosition);
@@ -445,27 +437,6 @@ export const ExpressionEditor = forwardRef<HTMLInputElement, ExpressionBarProps>
     const handleFunctionSyntaxClose = () => {
         setSyntax(undefined);
     };
-
-    useEffect(() => {
-        const handleFocus = async () => {
-            if (value.trim().startsWith('=')) {
-                await getSuggestions();
-            }
-        };
-
-        if (inputRef) {
-            inputRef.current.addEventListener('focus', handleFocus);
-        }
-
-        const currentRef = inputRef.current;
-        return () => {
-            if (inputRef) {
-                currentRef.removeEventListener('focus', handleFocus);
-            }
-        };
-
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [inputRef]);
 
     const handleInputKeyDown = (e: React.KeyboardEvent) => {
         if (listBoxRef.current) {

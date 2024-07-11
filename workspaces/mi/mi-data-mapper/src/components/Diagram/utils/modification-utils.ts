@@ -220,7 +220,7 @@ export async function createSourceForUserInput(
 	newValue: string,
 	fnBody: Block,
 	applyModifications?: () => Promise<void>
-) {
+): Promise<PropertyAssignment> {
 
 	let source: string;
 	let targetObjectLitExpr = objectLitExpr;
@@ -241,9 +241,9 @@ export async function createSourceForUserInput(
 
 			if (!parentFieldInitializer.getText()) {
 				const valueExprSource = constructValueExprSource(fieldName, newValue, parentFields.reverse(), 0);
-				parentField.setInitializer(valueExprSource);
+				const propertyAssignment = parentField.setInitializer(valueExprSource);
 				applyModifications && (await applyModifications());
-				return valueExprSource;
+				return propertyAssignment;
 			}
 
 			if (Node.isObjectLiteralExpression(parentFieldInitializer)) {
@@ -251,9 +251,9 @@ export async function createSourceForUserInput(
 	
 				if (propAssignment && !propAssignment.getInitializer().getText()) {
 					const valExprSource = constructValueExprSource(fieldName, newValue, parentFields, 1);
-					propAssignment.setInitializer(valExprSource);
+					const propertyAssignment = propAssignment.setInitializer(valExprSource);
 					applyModifications && (await applyModifications());
-					return valExprSource;
+					return propertyAssignment;
 				}
 				source = createSpecificField(parentFields.reverse());
 				targetObjectLitExpr = parentFieldInitializer;
@@ -267,9 +267,9 @@ export async function createSourceForUserInput(
 
 						if (propAssignment && !propAssignment.getInitializer().getText()) {
 							const valExprSource = constructValueExprSource(fieldName, newValue, parentFields, 1);
-							propAssignment.setInitializer(valExprSource);
+							const propertyAssignment = propAssignment.setInitializer(valExprSource);
 							applyModifications && (await applyModifications());
-							return valExprSource;
+							return propertyAssignment;
 						}
 						source = createSpecificField(parentFields.reverse());
 						targetObjectLitExpr = expr;
@@ -287,9 +287,9 @@ export async function createSourceForUserInput(
 			&& getPropertyAssignment(targetObjectLitExpr, field.type.fieldName);
 		if (propAssignment && !propAssignment.getInitializer().getText()) {
 			const valueExprSource = constructValueExprSource(field.originalType.fieldName, newValue, parentFields, 1);
-			propAssignment.setInitializer(valueExprSource);
+			const propertyAssignment = propAssignment.setInitializer(valueExprSource);
 			applyModifications && (await applyModifications());
-			return valueExprSource;
+			return propertyAssignment;
 		}
 		source = createSpecificField(parentFields.reverse());
 	}
@@ -310,7 +310,7 @@ export async function createSourceForUserInput(
 	}
 
 	applyModifications && (await applyModifications());
-	return source;
+	return targetObjectLitExpr.getProperties()[targetObjectLitExpr.getProperties().length - 1] as PropertyAssignment;
 
 	function createSpecificField(missingFields: string[]): string {
 		return missingFields.length > 1

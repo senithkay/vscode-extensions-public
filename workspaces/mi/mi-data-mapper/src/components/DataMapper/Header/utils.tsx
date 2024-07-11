@@ -46,25 +46,6 @@ export function getInputOutputSearchTerms(searchTerm: string): [SearchTerm, Sear
     ];
 }
 
-export function extractExpression(text: string) {
-    const expressionRegex = /=\s*(.*)$/;
-    const expressionMatches = text.match(expressionRegex);
-    if (expressionMatches) {
-        return expressionMatches[1].trim();
-    }
-    return text;
-}
-
-export function enrichExpression(text: string) {
-    const functionRegex = /\w+\(.*/;
-    const isFunction = text.match(functionRegex);
-    if (isFunction) {
-        return "= " + text;
-    }
-    return text;
-}
-
-
 export function isFocusedOnMapFunction(views: View[]): boolean {
     const noOfViews = views.length;
     const focusedView = views[noOfViews - 1];
@@ -91,15 +72,13 @@ export function getFilterExpression(callExpr: CallExpression): Node | undefined 
 }
 
 export function filterOperators(entry: ts.CompletionEntry, details: ts.CompletionEntryDetails): ItemType {
-    let formattedItems: ItemType;
-
     if (
         details.kind === ts.ScriptElementKind.parameterElement ||
         details.kind === ts.ScriptElementKind.memberVariableElement
     ) {
-        formattedItems = {
+        return {
             label: entry.name,
-            description: details.documentation?.[0]?.text,
+            description: details.displayParts?.reduce((acc, part) => acc + part.text, ''),
             value: entry.name,
             kind: details.kind as ItemTypeKind,
         }
@@ -123,7 +102,7 @@ export function filterOperators(entry: ts.CompletionEntry, details: ts.Completio
             const action = details.codeActions?.[0].changes[0].textChanges[0].newText;
             const itemTag = action.substring(0, action.length - 1);
 
-            formattedItems = {
+            return {
                 tag: itemTag,
                 label: entry.name,
                 description: details.documentation?.[0]?.text,
@@ -134,6 +113,6 @@ export function filterOperators(entry: ts.CompletionEntry, details: ts.Completio
         }
     }
 
-    return formattedItems;
+    return undefined;
 }
 

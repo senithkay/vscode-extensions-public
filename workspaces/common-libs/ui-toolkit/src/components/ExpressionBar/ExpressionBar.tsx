@@ -88,4 +88,3 @@ export const ExpressionBar = forwardRef<HTMLInputElement, ExpressionBarProps>((p
     );
 });
 ExpressionBar.displayName = 'ExpressionBar';
-
