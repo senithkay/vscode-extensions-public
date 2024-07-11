@@ -179,6 +179,8 @@ import {
     OpenDependencyPomRequest,
     getAllDependenciesRequest,
     GetAllDependenciesResponse,
+    TestDbConnectionRequest,
+    TestDbConnectionResponse,
 } from "./types";
 
 export interface MiDiagramAPI {
@@ -296,4 +298,5 @@ export interface MiDiagramAPI {
     updateDependencyInPom: (params: UpdateDependencyInPomRequest) => Promise<void>;
     openDependencyPom: (params: OpenDependencyPomRequest) => Promise<void>;
     getAllDependencies: (params: getAllDependenciesRequest) => Promise<GetAllDependenciesResponse>;
+    testDbConnection: (params: TestDbConnectionRequest) => Promise<TestDbConnectionResponse>;
 }

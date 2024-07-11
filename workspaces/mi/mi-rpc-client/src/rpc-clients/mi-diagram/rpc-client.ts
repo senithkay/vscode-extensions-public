@@ -295,7 +295,10 @@ import {
     updateTestCase,
     updateTestSuite,
     updateWsdlEndpoint,
-    writeContentToFile
+    writeContentToFile,
+    TestDbConnectionRequest,
+    TestDbConnectionResponse,
+    testDbConnection
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -761,5 +764,9 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     getAllDependencies(params: getAllDependenciesRequest): Promise<GetAllDependenciesResponse> {
         return this._messenger.sendRequest(getAllDependencies, HOST_EXTENSION, params);
+    }
+
+    testDbConnection(params: TestDbConnectionRequest): Promise<TestDbConnectionResponse> {
+        return this._messenger.sendRequest(testDbConnection, HOST_EXTENSION, params);
     }
 }

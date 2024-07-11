@@ -194,7 +194,9 @@ import {
     getAllDependenciesRequest,
     getSTRequest,
     getSTResponse,
-    onSwaggerSpecReceived
+    onSwaggerSpecReceived,
+    TestDbConnectionRequest,
+    TestDbConnectionResponse
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
 import { error } from "console";
@@ -4353,6 +4355,14 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         }
 
         return { dependencies };
+    }
+    async testDbConnection(req: TestDbConnectionRequest): Promise<TestDbConnectionResponse> {
+
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient;
+            const response = await langClient?.testDbConnection(req);
+            resolve({ success: response ? response.success : false });
+        });
     }
 }
 

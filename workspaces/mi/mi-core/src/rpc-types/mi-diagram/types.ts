@@ -1624,3 +1624,18 @@ export interface getAllDependenciesRequest {
 export interface GetAllDependenciesResponse {
     dependencies: Dependency[];
 }
+
+export interface TestDbConnectionRequest {
+    dbType: string;
+    version: string;
+    username: string;
+    password: string;
+    host: string;
+    port: string;
+    dbName: string;
+    dbDriverFolder: string;
+}
+
+export interface TestDbConnectionResponse {
+    success: boolean;
+}
