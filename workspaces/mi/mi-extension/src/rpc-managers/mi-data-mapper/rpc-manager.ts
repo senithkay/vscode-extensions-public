@@ -227,7 +227,7 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
                         fs.writeFileSync(tsFilePath, dmContent);
                     }
 
-                    const operatorsSrcFilePath = path.join(extension.context.extensionUri.fsPath, "resources", "data-mapper-utils", "dm-utils.ts");
+                    const operatorsSrcFilePath = path.join(extension.context.extensionUri.fsPath, "resources", "data-mapper-utils", "dm-utils.ts.lib");
                     const operatorsDstFilePath = path.join(dataMapperConfigFolder, "dm-utils.ts");
                     fs.copyFileSync(operatorsSrcFilePath, operatorsDstFilePath, fs.constants.COPYFILE_FICLONE);
 

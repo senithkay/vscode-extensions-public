@@ -637,7 +637,7 @@
     "e2e-test": "pnpm run compile-tests && pnpm exec playwright test",
     "copyFonts": "copyfiles -f ./node_modules/@wso2-enterprise/font-wso2-vscode/dist/* ./resources/font-wso2-vscode/dist/",
     "copyLSLibs": "copyfiles -f language-server/org.eclipse.lemminx/target/*.jar ls",
-    "copyDMUtils": "copyfiles -f ./node_modules/@wso2-enterprise/mi-data-mapper-utils/src/* ./resources/data-mapper-utils/",
+    "copyDMUtils": "node -e \"try { require('fs').copyFileSync('./node_modules/@wso2-enterprise/mi-data-mapper-utils/src/dm-utils.ts', './resources/data-mapper-utils/dm-utils.ts.lib'); console.log('DMUtils successfully copied!'); } catch (err) { console.log(err); }\"",
     "copyVSIX": "copyfiles *.vsix ./vsix",
     "copyVSIXToRoot": "copyfiles -f ./vsix/* ../../..",
     "postbuild": "pnpm run copyVSIX"
