@@ -263,9 +263,17 @@ export async function stopServer(serverPath: string, isWindows?: boolean): Promi
                 const stopProcess = child_process.spawn(`${stopCommand}`, [], { shell: true });
                 showServerOutputChannel();
 
+                let killTimeout = setTimeout(() => {
+                    if (serverProcess) {
+                        treeKill(serverProcess.pid!, 'SIGKILL');
+                        serverLog('Server did not exit gracefully in time, therefore the process was forcefully killed.');
+                    }
+                }, 8000); // 8 seconds timeout to see if the server stops gracefully
+
                 serverProcess.on('exit', (code) => {
-                    treeKill(serverProcess.pid!, 'SIGKILL');
-                    if (code !== 0) {
+                    clearTimeout(killTimeout); // Clear the timeout if the process exits in time
+
+                    if (code !== 0 && code !== null) {
                         reject(`Server process exited with code ${code}`);
                     } else {
                         resolve();
@@ -274,6 +282,9 @@ export async function stopServer(serverPath: string, isWindows?: boolean): Promi
 
                 stopProcess.on('error', (error) => {
                     serverLog(error.message);
+                    if (serverProcess) {
+                        treeKill(serverProcess.pid!, 'SIGKILL');
+                    }
                     reject(error);
                 });
 
@@ -286,6 +297,9 @@ export async function stopServer(serverPath: string, isWindows?: boolean): Promi
                 if (stopProcess.stderr) {
                     stopProcess.stderr.on('data', (data) => {
                         serverLog(data.toString());
+                        if (serverProcess) {
+                            treeKill(serverProcess.pid!, 'SIGKILL');
+                        }
                     });
                 }
             }

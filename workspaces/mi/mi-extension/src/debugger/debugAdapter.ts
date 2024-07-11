@@ -354,7 +354,7 @@ export class MiDebugAdapter extends LoggingDebugSession {
                 this.sendResponse(response);
             }
         } catch (error) {
-            const completeError = `Error while stopping the server: ${INCORRECT_SERVER_PATH_MSG}`;
+            const completeError = `Error while stopping the server: ${error}`;
             this.showErrorAndExecuteChangeServerPath(completeError);
             this.sendError(response, 3, completeError);
         }
