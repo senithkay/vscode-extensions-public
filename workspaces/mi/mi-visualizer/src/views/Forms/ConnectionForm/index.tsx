@@ -263,18 +263,18 @@ export function ConnectorStore(props: ConnectionStoreProps) {
 
         return (
             <div>
-                {(displayedLocalConnectors === undefined || displayedStoreConnectors === undefined) ? (
+                {(displayedLocalConnectors === undefined && displayedStoreConnectors === undefined) ? (
                     <LoaderWrapper>
                         <ProgressRing />
                         Loading connectors...
                     </LoaderWrapper>
-                ) : storeConnectors.length === 0 ? (
+                ) : storeConnectors && storeConnectors.length === 0 ? (
                     <LoaderWrapper>
                         Error loading connectors. Please retry...
                     </LoaderWrapper>
                 ) : (
                     <SampleGrid>
-                        {displayedLocalConnectors.map((connector: any) => (
+                        {displayedLocalConnectors && displayedLocalConnectors.map((connector: any) => (
                             <ComponentCard
                                 key={connector.name}
                                 onClick={() => selectConnector(connector)}
@@ -324,63 +324,64 @@ export function ConnectorStore(props: ConnectionStoreProps) {
                                 </CardContent>
                             </ComponentCard>
                         ))}
-                        {displayedStoreConnectors.sort((a: any, b: any) => a.rank - b.rank).map((connector: any) => (
-                            displayedLocalConnectors.some(c => (c.name === connector.name) &&
-                                (c.version === connector.version)) ? null : (
-                                <ComponentCard
-                                    key={connector.name}
-                                    onClick={() => selectStoreConnector(connector)}
-                                    sx={{
-                                        border: '1px solid var(--vscode-dropdown-border)',
-                                        backgroundColor: 'var(--vscode-dropdown-background)',
-                                        padding: '10px',
-                                        cursor: 'pointer',
-                                        display: 'flex',
-                                        flexDirection: 'column',
-                                        alignItems: 'center',
-                                        justifyContent: 'left',
-                                        borderRadius: 1,
-                                        transition: '0.3s',
-                                        width: '176px',
-                                        height: '40px',
-                                        '&:hover': {
-                                            backgroundColor: 'var(--vscode-button-background)'
-                                        },
-                                        fontSize: '15px'
-                                    }}
-                                >
-                                    <CardContent>
-                                        <IconContainer>
-                                            <img
-                                                src={connector.icon_url}
-                                                alt="Icon"
-                                                onError={(e) => {
-                                                    const target = e.target as HTMLImageElement;
-                                                    target.src = 'https://mi-connectors.wso2.com/icons/wordpress.gif'
-                                                }}
-                                            />
-                                        </IconContainer>
-                                        <CardLabel>
-                                            <div style={{
-                                                width: '140px',
-                                                overflow: 'hidden',
-                                                textOverflow: 'ellipsis',
-                                                whiteSpace: 'nowrap',
-                                                textAlign: 'center',
-                                                paddingBottom: '10px'
-                                            }}>
-                                                <NameLabel>
-                                                    {capitalizeFirstChar(connector.name)}
-                                                </NameLabel>
-                                                <VersionTag>
-                                                    {connector.version}
-                                                </VersionTag>
-                                            </div>
-                                        </CardLabel>
-                                    </CardContent>
-                                </ComponentCard>
-                            )
-                        ))}
+                        {displayedStoreConnectors &&
+                            displayedStoreConnectors.sort((a: any, b: any) => a.rank - b.rank).map((connector: any) => (
+                                displayedLocalConnectors.some(c => (c.name === connector.name) &&
+                                    (c.version === connector.version)) ? null : (
+                                    <ComponentCard
+                                        key={connector.name}
+                                        onClick={() => selectStoreConnector(connector)}
+                                        sx={{
+                                            border: '1px solid var(--vscode-dropdown-border)',
+                                            backgroundColor: 'var(--vscode-dropdown-background)',
+                                            padding: '10px',
+                                            cursor: 'pointer',
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            alignItems: 'center',
+                                            justifyContent: 'left',
+                                            borderRadius: 1,
+                                            transition: '0.3s',
+                                            width: '176px',
+                                            height: '40px',
+                                            '&:hover': {
+                                                backgroundColor: 'var(--vscode-button-background)'
+                                            },
+                                            fontSize: '15px'
+                                        }}
+                                    >
+                                        <CardContent>
+                                            <IconContainer>
+                                                <img
+                                                    src={connector.icon_url}
+                                                    alt="Icon"
+                                                    onError={(e) => {
+                                                        const target = e.target as HTMLImageElement;
+                                                        target.src = 'https://mi-connectors.wso2.com/icons/wordpress.gif'
+                                                    }}
+                                                />
+                                            </IconContainer>
+                                            <CardLabel>
+                                                <div style={{
+                                                    width: '140px',
+                                                    overflow: 'hidden',
+                                                    textOverflow: 'ellipsis',
+                                                    whiteSpace: 'nowrap',
+                                                    textAlign: 'center',
+                                                    paddingBottom: '10px'
+                                                }}>
+                                                    <NameLabel>
+                                                        {capitalizeFirstChar(connector.name)}
+                                                    </NameLabel>
+                                                    <VersionTag>
+                                                        {connector.version}
+                                                    </VersionTag>
+                                                </div>
+                                            </CardLabel>
+                                        </CardContent>
+                                    </ComponentCard>
+                                )
+                            ))}
                     </SampleGrid>
                 )}
             </div>

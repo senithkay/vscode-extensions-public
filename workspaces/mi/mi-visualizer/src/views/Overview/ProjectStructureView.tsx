@@ -8,7 +8,7 @@
  */
 
 import { EVENT_TYPE, MACHINE_VIEW } from '@wso2-enterprise/mi-core';
-import { Alert, Codicon, ContextMenu } from '@wso2-enterprise/ui-toolkit';
+import { Alert, Codicon, ContextMenu, Icon } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { Fragment, useEffect, useState } from 'react';
@@ -122,7 +122,7 @@ const artifactTypeMap: Record<string, ArtifactType> = {
     connections: {
         title: "Connections",
         command: "MI.project-explorer.add-connection",
-        view: MACHINE_VIEW.LocalEntryForm,
+        view: MACHINE_VIEW.ConnectionForm,
         icon: "link",
         description: (entry: any) => "Connection",
         path: (entry: any) => entry.path,
@@ -156,6 +156,14 @@ const ProjectStructureView = (props: { projectStructure: any, workspaceDir: stri
         }
         rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view, documentUri, customProps: { type: type } } });
     };
+
+    const goToConnectionView = async (documentUri: string, view: MACHINE_VIEW, connectionName: string) => {
+        rpcClient.getMiVisualizerRpcClient().openView({
+            type: EVENT_TYPE.OPEN_VIEW,
+            location: { view, documentUri, customProps: { connectionName: connectionName } }
+        });
+    };
+
 
     const goToSource = (filePath: string) => {
         rpcClient.getMiVisualizerRpcClient().goToSource({ filePath });
@@ -253,12 +261,16 @@ const ProjectStructureView = (props: { projectStructure: any, workspaceDir: stri
                                                                         name={connectionEntry.name}
                                                                         description={artifactTypeMap[key].description(connectionEntry)}
                                                                         onClick={() =>
-                                                                            goToView(artifactTypeMap[key].path(connectionEntry),
-                                                                                artifactTypeMap[key].view)
+                                                                            goToConnectionView(
+                                                                                artifactTypeMap[key].path(connectionEntry),
+                                                                                artifactTypeMap[key].view,
+                                                                                connectionEntry.name)
                                                                         }
                                                                         goToView={() =>
-                                                                            goToView(artifactTypeMap[key].path(connectionEntry),
-                                                                                artifactTypeMap[key].view)
+                                                                            goToConnectionView(
+                                                                                artifactTypeMap[key].path(connectionEntry),
+                                                                                artifactTypeMap[key].view,
+                                                                                connectionEntry.name)
                                                                         }
                                                                         goToSource={() =>
                                                                             goToSource(artifactTypeMap[key].path(connectionEntry))
@@ -321,11 +333,19 @@ const Entry: React.FC<EntryProps> = ({ icon, name, description, onClick, goToVie
         <EntryContainer onClick={onClick}>
             {description === "Connection" ? (
                 <div style={{ width: '20px', display: 'flex', justifyContent: 'center', alignItems: 'center', marginRight: '10px' }}>
-                    <img src={icon} alt="Icon" onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        target.src = 'https://mi-connectors.wso2.com/icons/wordpress.gif'
-                    }}
-                    />
+                    {navigator.onLine ? (
+                        <img
+                            src={icon}
+                            alt="Icon"
+                            onError={(e) => {
+                                const target = e.target as HTMLImageElement;
+                                target.src = 'https://mi-connectors.wso2.com/icons/wordpress.gif';
+                            }}
+                        />
+                    ) : (
+                        // Fallback icon on offline mode
+                        <Icon name="connector" sx={{ color: "#D32F2F" }} />
+                    )}
                 </div>
             ) : (
                 <div style={{ width: 'auto', display: 'flex', justifyContent: 'center', alignItems: 'center', marginRight: '10px' }}>
