@@ -53,7 +53,6 @@ namespace S {
         border-radius: 5px;
         height: 25px;
         cursor: pointer;
-        font-family: "GilmerRegular";
         font-size: 14px;
         &:hover {
             background-color: ${Colors.PRIMARY_CONTAINER};
@@ -76,7 +75,7 @@ namespace S {
 }
 
 interface ComponentListProps {
-    onAdd:(kind: string) => void;
+    onAdd: (kind: string) => void;
 }
 
 export function ComponentList(props: ComponentListProps) {
@@ -93,6 +92,7 @@ export function ComponentList(props: ComponentListProps) {
         { kind: "FUNCTION_CALL", label: "Function Call" },
         { kind: "CONNECTOR", label: "Connector" },
         { kind: "ACTION", label: "Action" },
+        { kind: "RETURN", label: "Return" }
     ];
 
     const handleOnSearch = (text: string) => {
