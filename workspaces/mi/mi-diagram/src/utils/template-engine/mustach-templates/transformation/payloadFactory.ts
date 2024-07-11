@@ -14,7 +14,8 @@ import { transformNamespaces } from "../../../commons";
 export function getPayloadMustacheTemplate() {
     return `<payloadFactory {{#description}}description="{{description}}"{{/description}} media-type="{{mediaType}}" template-type="{{templateType}}">
     {{#isInlined}}
-    <format>{{{payload}}}</format>
+    {{#isFreemarker}}<format><![CDATA[{{{payload}}}]]></format>{{/isFreemarker}}
+    {{^isFreemarker}}<format>{{{payload}}}</format>{{/isFreemarker}}
     {{/isInlined}}
     {{^isInlined}}
     {{#payloadKey}}<format key="{{payloadKey}}"/>{{/payloadKey}}
@@ -30,6 +31,7 @@ export function getPayloadMustacheTemplate() {
 export function getPayloadXml(data: { [key: string]: any }) {
 
     data.isInlined = data?.payloadFormat == "Inline" ? true : false;
+    data.isFreemarker = data?.templateType == "Freemarker" ? true : false;
     const args = data.args.map((property: any[]) => {
         if (!property[0].isExpression) {
             return {
@@ -68,7 +70,14 @@ export function getPayloadFormDataFromSTNode(data: { [key: string]: any }, node:
         data.args = node.args;
     }
     if (node.format?.content) {
-        data.payload = node.format.content;
+        if (data.templateType == "Freemarker") {
+            const match = node.format?.content?.match(/<!\[CDATA\[(.*?)]]>/ms);
+            let content = match ? match[1] : node.format?.content;
+            data.payload = content;
+        }
+        else {
+            data.payload = node.format?.content;
+        }
         data.payloadFormat = "Inline";
     } else {
         data.payloadFormat = "Registry Reference";
