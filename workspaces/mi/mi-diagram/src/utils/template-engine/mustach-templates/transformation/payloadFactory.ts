@@ -18,7 +18,7 @@ export function getPayloadMustacheTemplate() {
     {{^isFreemarker}}<format>{{{payload}}}</format>{{/isFreemarker}}
     {{/isInlined}}
     {{^isInlined}}
-    {{#payloadKey}}<format key="{{payloadKey}}"/>{{/payloadKey}}
+    <format key="{{payloadKey}}"/>
     {{/isInlined}}
     <args>
         {{#args}}
@@ -81,6 +81,7 @@ export function getPayloadFormDataFromSTNode(data: { [key: string]: any }, node:
         data.payloadFormat = "Inline";
     } else {
         data.payloadFormat = "Registry Reference";
+        data.payloadKey = node.format?.key;
     }
     if (node.args && node.args.arg) {
         data.args = node.args.arg.map((arg) => {
