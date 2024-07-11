@@ -10,7 +10,7 @@
  */
 import {
     AIUserInput,
-    AddDependencyToPomRequest,
+    UpdateDependencyInPomRequest,
     ApiDirectoryResponse,
     ApplyEditRequest,
     ApplyEditResponse,
@@ -31,6 +31,8 @@ import {
     CreateDataServiceRequest,
     CreateDataServiceResponse,
     CreateDataSourceResponse,
+    CreateDssDataSourceRequest,
+    CreateDssDataSourceResponse,
     CreateEndpointRequest,
     CreateEndpointResponse,
     CreateInboundEndpointRequest,
@@ -57,8 +59,6 @@ import {
     DeleteArtifactRequest,
     DownloadConnectorRequest,
     DownloadConnectorResponse,
-    CreateDssDataSourceRequest,
-    CreateDssDataSourceResponse,
     ESBConfigsResponse,
     EditAPIRequest,
     EditAPIResponse,
@@ -68,6 +68,7 @@ import {
     FileDirResponse,
     GetAllArtifactsRequest,
     GetAllArtifactsResponse,
+    GetAllDependenciesResponse,
     GetAllMockServicesResponse,
     GetAllRegistryPathsRequest,
     GetAllRegistryPathsResponse,
@@ -124,6 +125,7 @@ import {
     MiDiagramAPI,
     MigrateProjectRequest,
     MigrateProjectResponse,
+    OpenDependencyPomRequest,
     OpenDiagramRequest,
     ProjectDirResponse,
     ProjectRootResponse,
@@ -145,8 +147,8 @@ import {
     RetrieveWsdlEndpointResponse,
     SequenceDirectoryResponse,
     ShowErrorMessageRequest,
-    SwaggerTypeRequest,
     SwaggerFromAPIResponse,
+    SwaggerTypeRequest,
     TemplatesResponse,
     UndoRedoParams,
     UpdateAPIFromSwaggerRequest,
@@ -177,7 +179,7 @@ import {
     UpdateWsdlEndpointResponse,
     WriteContentToFileRequest,
     WriteContentToFileResponse,
-    addDependencyToPom,
+    updateDependencyInPom,
     applyEdit,
     askFileDirPath,
     askProjectDirPath,
@@ -193,6 +195,7 @@ import {
     createConnection,
     createDataService,
     createDataSource,
+    createDssDataSource,
     createEndpoint,
     createInboundEndpoint,
     createLocalEntry,
@@ -204,7 +207,6 @@ import {
     createSequence,
     createTask,
     createTemplate,
-    createDssDataSource,
     deleteArtifact,
     downloadConnector,
     editAPI,
@@ -215,6 +217,8 @@ import {
     getAPIDirectory,
     getAddressEndpoint,
     getAllArtifacts,
+    getAllDependencies,
+    getAllDependenciesRequest,
     getAllMockServices,
     getAllRegistryPaths,
     getAllTestSuites,
@@ -268,6 +272,7 @@ import {
     initUndoRedoManager,
     logoutFromMIAccount,
     migrateProject,
+    openDependencyPom,
     openDiagram,
     openFile,
     rangeFormat,
@@ -755,8 +760,16 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
         return this._messenger.sendRequest(getAllMockServices, HOST_EXTENSION);
     }
 
-    addDependencyToPom(params: AddDependencyToPomRequest): Promise<void> {
-        return this._messenger.sendRequest(addDependencyToPom, HOST_EXTENSION, params);
+    updateDependencyInPom(params: UpdateDependencyInPomRequest): Promise<void> {
+        return this._messenger.sendRequest(updateDependencyInPom, HOST_EXTENSION, params);
+    }
+
+    openDependencyPom(params: OpenDependencyPomRequest): Promise<void> {
+        return this._messenger.sendRequest(openDependencyPom, HOST_EXTENSION, params);
+    }
+
+    getAllDependencies(params: getAllDependenciesRequest): Promise<GetAllDependenciesResponse> {
+        return this._messenger.sendRequest(getAllDependencies, HOST_EXTENSION, params);
     }
 
     testDbConnection(params: TestDbConnectionRequest): Promise<TestDbConnectionResponse> {

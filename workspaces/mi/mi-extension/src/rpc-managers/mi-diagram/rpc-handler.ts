@@ -10,7 +10,7 @@
  */
 import {
     AIUserInput,
-    AddDependencyToPomRequest,
+    UpdateDependencyInPomRequest,
     ApplyEditRequest,
     BrowseFileRequest,
     CommandsRequest,
@@ -19,12 +19,12 @@ import {
     CreateClassMediatorRequest,
     CreateConnectionRequest,
     CreateDataServiceRequest,
+    CreateDssDataSourceRequest,
     CreateEndpointRequest,
     CreateInboundEndpointRequest,
     CreateLocalEntryRequest,
     CreateMessageProcessorRequest,
     CreateMessageStoreRequest,
-    CreateDssDataSourceRequest,
     CreateProjectRequest,
     CreateProxyServiceRequest,
     CreateRegistryResourceRequest,
@@ -63,6 +63,7 @@ import {
     ImportProjectRequest,
     ListRegistryArtifactsRequest,
     MigrateProjectRequest,
+    OpenDependencyPomRequest,
     OpenDiagramRequest,
     RangeFormatRequest,
     RetrieveAddressEndpointRequest,
@@ -90,7 +91,7 @@ import {
     UpdateTestSuiteRequest,
     UpdateWsdlEndpointRequest,
     WriteContentToFileRequest,
-    addDependencyToPom,
+    updateDependencyInPom,
     applyEdit,
     askFileDirPath,
     askProjectDirPath,
@@ -106,11 +107,11 @@ import {
     createConnection,
     createDataService,
     createDataSource,
+    createDssDataSource,
     createEndpoint,
     createInboundEndpoint,
     createLocalEntry,
     createMessageProcessor,
-    createDssDataSource,
     createMessageStore,
     createProject,
     createProxyService,
@@ -128,6 +129,8 @@ import {
     getAPIDirectory,
     getAddressEndpoint,
     getAllArtifacts,
+    getAllDependencies,
+    getAllDependenciesRequest,
     getAllMockServices,
     getAllRegistryPaths,
     getAllTestSuites,
@@ -180,6 +183,7 @@ import {
     initUndoRedoManager,
     logoutFromMIAccount,
     migrateProject,
+    openDependencyPom,
     openDiagram,
     openFile,
     rangeFormat,
@@ -324,6 +328,8 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(updateMockService, (args: UpdateMockServiceRequest) => rpcManger.updateMockService(args));
     messenger.onRequest(getAllTestSuites, () => rpcManger.getAllTestSuites());
     messenger.onRequest(getAllMockServices, () => rpcManger.getAllMockServices());
-    messenger.onNotification(addDependencyToPom, (args: AddDependencyToPomRequest) => rpcManger.addDependencyToPom(args));
+    messenger.onNotification(updateDependencyInPom, (args: UpdateDependencyInPomRequest) => rpcManger.updateDependencyInPom(args));
+    messenger.onNotification(openDependencyPom, (args: OpenDependencyPomRequest) => rpcManger.openDependencyPom(args));
+    messenger.onRequest(getAllDependencies, (args: getAllDependenciesRequest) => rpcManger.getAllDependencies(args));
     messenger.onRequest(testDbConnection, (args: TestDbConnectionRequest) => rpcManger.testDbConnection(args));
 }

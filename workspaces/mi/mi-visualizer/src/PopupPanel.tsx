@@ -24,6 +24,7 @@ import { DataServiceDataSourceWizard } from "./views/Forms/DataServiceForm/MainP
 import path from 'path';
 import { ConnectorStore } from './views/Forms/ConnectionForm';
 import AddConnection from './views/Forms/ConnectionForm/ConnectionFormGenerator';
+import { AddDriver } from './views/Popup/AddDriver';
 
 const ViewContainer = styled.div`
     
@@ -90,6 +91,9 @@ const PopupPanel = (props: { formState: PopupMachineStateValue }) => {
                             fromSidePanel={machineSate.customProps.fromSidePanel}
                             path={machineSate.documentUri}
                             isPopup={true} />);
+                    break;
+                case MACHINE_VIEW.AddDriverPopup:
+                    setViewComponent(<AddDriver isPopup={true} path={machineSate.documentUri} identifier={machineSate.customProps.identifier} />);
                     break;
                 default:
                     setViewComponent(null);

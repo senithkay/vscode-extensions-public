@@ -30,18 +30,18 @@ const ExButtonWrapper = styled.div<{ isActive: boolean }>`
     }
 `;
 
-const Label = styled.label`
+export const Label = styled.label`
     font-size: var(--type-ramp-base-font-size);
     color: var(--vscode-editor-foreground);
 `;
 
-const FlexLabelContainer = styled.div`
+export const FlexLabelContainer = styled.div`
     display: flex;
     flex-direction: row;
     margin-bottom: 4px;
 `;
 
-const Link = styled.a`
+export const Link = styled.a`
     cursor: pointer;
     font-size: 12px;
     margin-left: auto;

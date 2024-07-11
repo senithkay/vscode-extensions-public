@@ -330,7 +330,7 @@ const AddConnector = (props: AddConnectorProps) => {
             });
 
             if (connectorName === 'redis') {
-                rpcClient.getMiDiagramRpcClient().addDependencyToPom({
+                rpcClient.getMiDiagramRpcClient().updateDependencyInPom({
                     groupId: "redis.clients",
                     artifactId: "jedis",
                     version: "3.6.0",
