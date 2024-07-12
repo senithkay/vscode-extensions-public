@@ -167,6 +167,8 @@ export const defaultParameters: { [key: string]: { [key: string]: string | numbe
         'rabbitmq.queue.name': 'queue_name',
         'rabbitmq.exchange.name': 'excahnge_name',
         'transport.jms.CacheLevel': "3",
+        "rabbitmq.exchange.autodeclare": true,
+        "rabbitmq.queue.autodeclare": true
     },
     ws: {
         'ws.client.side.broadcast.level': "0",
@@ -1794,7 +1796,7 @@ export const inboundEndpointParams: ParamPool = {
             'rabbitmq.queue.autodeclare': {
                 name: 'Auto Declare',
                 type: 'checkbox',
-                value: false,
+                value: true,
             },
         },
         exchange: {
@@ -1816,7 +1818,7 @@ export const inboundEndpointParams: ParamPool = {
             'rabbitmq.exchange.autodeclare': {
                 name: 'Auto Declare',
                 type: 'checkbox',
-                value: false,
+                value: true,
             },
         },
         'SSL': {
