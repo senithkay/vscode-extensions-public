@@ -3057,6 +3057,8 @@ importers:
       '@wso2-enterprise/mi-core': workspace:*
       '@wso2-enterprise/mi-rpc-client': workspace:*
       '@wso2-enterprise/ui-toolkit': workspace:*
+      ajv: ~8.16.0
+      ajv-formats: ~3.0.1
       blueimp-md5: ^2.19.0
       classnames: ^2.2.6
       copyfiles: ^2.4.1
@@ -3096,6 +3098,8 @@ importers:
       '@wso2-enterprise/mi-core': link:../mi-core
       '@wso2-enterprise/mi-rpc-client': link:../mi-rpc-client
       '@wso2-enterprise/ui-toolkit': link:../../common-libs/ui-toolkit
+      ajv: 8.16.0
+      ajv-formats: 3.0.1_ajv@8.16.0
       blueimp-md5: 2.19.0
       classnames: 2.5.1
       lodash: 4.17.21
@@ -3577,13 +3581,13 @@ packages:
       '@jridgewell/gen-mapping': 0.3.5
       '@jridgewell/trace-mapping': 0.3.25
 
-  /@apideck/better-ajv-errors/0.3.6_ajv@8.12.0:
+  /@apideck/better-ajv-errors/0.3.6_ajv@8.16.0:
     resolution: {integrity: sha512-P+ZygBLZtkp0qqOAJJVX4oX/sFo5JR3eBWwwuqHHhK0GIgQOKWrAfiAaWX0aArHkRWHMuggFEgAZNxVPwPZYaA==}
     engines: {node: '>=10'}
     peerDependencies:
       ajv: '>=8'
     dependencies:
-      ajv: 8.12.0
+      ajv: 8.16.0
       json-schema: 0.4.0
       jsonpointer: 5.0.1
       leven: 3.1.0
@@ -23920,7 +23924,18 @@ packages:
       ajv:
         optional: true
     dependencies:
-      ajv: 8.12.0
+      ajv: 8.16.0
+
+  /ajv-formats/3.0.1_ajv@8.16.0:
+    resolution: {integrity: sha512-8iUql50EUR+uUcdRQ3HDqa6EVyo3docL8g5WJ3FNcWmu62IbkGUue/pEyLBW8VGKKucTPgqeks4fIU1DA4yowQ==}
+    peerDependencies:
+      ajv: ^8.0.0
+    peerDependenciesMeta:
+      ajv:
+        optional: true
+    dependencies:
+      ajv: 8.16.0
+    dev: false
 
   /ajv-keywords/2.1.1_ajv@5.5.2:
     resolution: {integrity: sha512-ZFztHzVRdGLAzJmpUT9LNFLe1YiVOEylcaNpEutM26PVTCtOD919IMfD01CgbRouB42Dd9atjx1HseC15DgOZA==}
@@ -23936,12 +23951,12 @@ packages:
     dependencies:
       ajv: 6.12.6
 
-  /ajv-keywords/5.1.0_ajv@8.12.0:
+  /ajv-keywords/5.1.0_ajv@8.16.0:
     resolution: {integrity: sha512-YCS/JNFAUyr5vAuhk1DWm1CBxRHW9LbJ2ozWeemrIqpbsqKjHVxYPyi5GC0rjZIT5JxJ3virVTS8wk4i/Z+krw==}
     peerDependencies:
       ajv: ^8.8.2
     dependencies:
-      ajv: 8.12.0
+      ajv: 8.16.0
       fast-deep-equal: 3.1.3
 
   /ajv/5.5.2:
@@ -23960,8 +23975,8 @@ packages:
       json-schema-traverse: 0.4.1
       uri-js: 4.4.1
 
-  /ajv/8.12.0:
-    resolution: {integrity: sha512-sRu1kpcO9yLtYxBKvqfTeh9KzZEwO3STyX1HT+4CaDzC6HpTGYhIhPIzj9XuKU7KYDwnaeh5hcOwjy1QuJzBPA==}
+  /ajv/8.16.0:
+    resolution: {integrity: sha512-F0twR8U1ZU67JIEtekUcLkXkoO5mMMmgGD8sK/xUFzJ805jxHQl92hImFAqqXMyMYjSPOyUPAwHYhB72g5sTXw==}
     dependencies:
       fast-deep-equal: 3.1.3
       json-schema-traverse: 1.0.0
@@ -44663,9 +44678,9 @@ packages:
     engines: {node: '>= 12.13.0'}
     dependencies:
       '@types/json-schema': 7.0.15
-      ajv: 8.12.0
+      ajv: 8.16.0
       ajv-formats: 2.1.1
-      ajv-keywords: 5.1.0_ajv@8.12.0
+      ajv-keywords: 5.1.0_ajv@8.16.0
 
   /scss-tokenizer/0.2.3:
     resolution: {integrity: sha512-dYE8LhncfBUar6POCxMTm0Ln+erjeczqEvCJib5/7XNkdw1FkUGgwMPY360FY0FgPWQxHWCx29Jl3oejyGLM9Q==}
@@ -46497,7 +46512,7 @@ packages:
     resolution: {integrity: sha512-Y4X9zqrCftUhMeH2EptSSERdVKt/nEdijTOacGD/97EKjhQ/Qs8RTlEGABSJNNN8lac9kheH+af7yAkEWlgneA==}
     engines: {node: '>=10.0.0'}
     dependencies:
-      ajv: 8.12.0
+      ajv: 8.16.0
       lodash.truncate: 4.4.2
       slice-ansi: 4.0.0
       string-width: 4.2.3
@@ -50385,7 +50400,7 @@ packages:
     resolution: {integrity: sha512-Tjf+gBwOTuGyZwMz2Nk/B13Fuyeo0Q84W++bebbVsfr9iLkDSo6j6PST8tET9HYA58mlRXwlMGpyWO8ETJiXdQ==}
     engines: {node: '>=10.0.0'}
     dependencies:
-      '@apideck/better-ajv-errors': 0.3.6_ajv@8.12.0
+      '@apideck/better-ajv-errors': 0.3.6_ajv@8.16.0
       '@babel/core': 7.24.4
       '@babel/preset-env': 7.23.9_@babel+core@7.24.4
       '@babel/runtime': 7.23.9
@@ -50393,7 +50408,7 @@ packages:
       '@rollup/plugin-node-resolve': 11.2.1_rollup@2.79.1
       '@rollup/plugin-replace': 2.4.2_rollup@2.79.1
       '@surma/rollup-plugin-off-main-thread': 2.2.3
-      ajv: 8.12.0
+      ajv: 8.16.0
       common-tags: 1.8.2
       fast-json-stable-stringify: 2.1.0
       fs-extra: 9.1.0

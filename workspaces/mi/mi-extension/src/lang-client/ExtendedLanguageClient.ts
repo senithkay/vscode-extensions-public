@@ -33,7 +33,8 @@ import {
     GenerateAPIResponse,
     SwaggerFromAPIRequest,
     TestDbConnectionRequest,
-    TestDbConnectionResponse
+    TestDbConnectionResponse,
+    SchemaGenFromContentRequest
 } from "@wso2-enterprise/mi-core";
 import { readFileSync } from "fs";
 import { CancellationToken, FormattingOptions, Position, Uri, workspace } from "vscode";
@@ -226,6 +227,10 @@ export class ExtendedLanguageClient extends LanguageClient {
 
     async generateSchema(req: SchemaGenRequest): Promise<SchemaGenResponse> {
         return this.sendRequest("synapse/generateSchema", req);
+    }
+
+    async generateSchemaFromContent(req: SchemaGenFromContentRequest): Promise<SchemaGenResponse> {
+        return this.sendRequest("synapse/generateSchemaFromContent", req);
     }
     
     async generateAPI(req: GenerateAPIRequest): Promise<GenerateAPIResponse> {

@@ -11,6 +11,8 @@ import React from "react";
 import { Button, Icon } from "@wso2-enterprise/ui-toolkit";
 import { css } from "@emotion/css";
 
+import { ImportType } from "./ImportDataForm";
+
 const useStyles = () => ({
     importButton: css({
         "& > vscode-button": {
@@ -21,28 +23,30 @@ const useStyles = () => ({
     }),
 });
 
-interface ImportDataButtonsProps {
-    onImportTypeChange: (importType: string) => void;
-}
-const importTypes = [
+const importTypes: ImportType[] = [
     { type: "JSON", label: "JSON" },
     { type: "JSON_SCHEMA", label: "JSON Schema" },
     { type: "XML", label: "XML" },
     { type: "CSV", label: "CSV" }
 ];
 
+interface ImportDataButtonsProps {
+    onImportTypeChange: (importType: ImportType) => void;
+}
+
 export function ImportDataButtons(props: ImportDataButtonsProps) {
     const { onImportTypeChange } = props;
     const classes = useStyles();
 
-    const handleImportTypeChange = (importType: string) => {
+    const handleImportTypeChange = (importType: ImportType) => {
         onImportTypeChange(importType);
     };
 
-    const createImportButton = (type: string, label: string) => (
+    const createImportButton = (importType: ImportType) => (
         <Button
+            key={importType.type}
             appearance="primary"
-            onClick={() => handleImportTypeChange(type)}
+            onClick={() => handleImportTypeChange(importType)}
             disabled={false}
             className={classes.importButton}
             sx={{ width: "100%" }}
@@ -52,15 +56,13 @@ export function ImportDataButtons(props: ImportDataButtonsProps) {
                 iconSx={{ fontSize: "18px" }}
                 name="import"
             />
-            Import from {label}
+            Import from {importType.label}
         </Button>
     );
 
     return (
         <>
-            {importTypes.map(({ type, label }) => (
-                createImportButton(type, label)
-            ))}
+            {importTypes.map(importType => createImportButton(importType))}
         </>
     );
 }

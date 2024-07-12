@@ -10,7 +10,17 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 
 import { Button, Icon, LinkButton, TextArea } from "@wso2-enterprise/ui-toolkit";
 import { css } from "@emotion/css";
+import styled from "@emotion/styled";
 import { Controller, useForm } from 'react-hook-form';
+import Ajv from "ajv";
+import addFormats from "ajv-formats";
+
+import { FileExtension, ImportType } from "./ImportDataForm";
+
+const ErrorMessage = styled.span`
+   color: var(--vscode-errorForeground);
+   font-size: 12px;
+`;
 
 const useStyles = () => ({
     fileUploadText: css({
@@ -24,17 +34,22 @@ interface RowRange {
 }
 
 interface ImportDataPanelProps {
-    importType: string;
+    importType: ImportType;
+    extension: FileExtension;
     rowRange?: RowRange;
+    onSave: (text: string) => void;
 }
 
 export function ImportDataPanel(props: ImportDataPanelProps) {
-    const { importType, rowRange } = props;
+    const { importType, extension, rowRange, onSave } = props;
     const classes = useStyles();
-    const { control } = useForm();
+    const { clearErrors, control, formState: { errors }, setError, watch } = useForm();
 
     const [rows, setRows] = useState(rowRange.start || 1);
+    const [fileContent, setFileContent] = useState("");
+
     const textAreaRef = useRef<HTMLTextAreaElement>(null);
+    const hiddenFileInput = useRef(null);
 
     useEffect(() => {
         if (textAreaRef.current) {
@@ -54,6 +69,59 @@ export function ImportDataPanel(props: ImportDataPanelProps) {
         }
     }, [textAreaRef]);
 
+    useEffect(() => {
+        if (!fileContent) return;
+        try {
+            switch (importType.type) {
+                case 'JSON':
+                    JSON.parse(fileContent);
+                    clearErrors("payload");
+                    break;
+                case 'CSV':
+                    const rows = fileContent.trim().split("\n");
+                  
+                    const columnCount = rows[0].split(',').length;
+                  
+                    for (let i = 1; i < rows.length; i++) {
+                      const columns = rows[i].split(',');
+                      if (columns.length !== columnCount) {
+                        // Row has different number of columns
+                        throw new Error();
+                      }
+                    }
+                    clearErrors("payload");
+                    break;
+                case 'XML':
+                    const parser = new DOMParser();
+                    const parsedDocument = parser.parseFromString(fileContent, "application/xml");
+                    const parserError = parsedDocument.getElementsByTagName("parsererror");
+                    if (parserError.length > 0) {
+                        throw new Error();
+                    }
+                    clearErrors("payload");
+                    break;
+                case 'JSON_SCHEMA':
+                    const ajv = new Ajv();
+                    addFormats(ajv);
+                    try {
+                        const schema = JSON.parse(fileContent);
+                        const valid = ajv.validateSchema(schema);
+                        if (!valid) {
+                            throw new Error();
+                        }
+                    } catch (error) {
+                        throw new Error();
+                    }
+                    clearErrors("payload");
+                    break;
+                default:
+                    break;
+            }
+        } catch (error) {
+            setError("payload", { message: `Invalid ${importType.type} format.` });
+        }
+    }, [fileContent, importType]);
+
     const growTextArea = (text: string) => {
         const { start, offset } = rowRange;
         const lineCount = text.split("\n").length;
@@ -65,11 +133,32 @@ export function ImportDataPanel(props: ImportDataPanelProps) {
         if (rowRange) {
             growTextArea(e.target.value);
         }
-        // onChange && onChange(e);
+        setFileContent(e.target.value);
+    };
+
+    const handleClick = (event?: React.MouseEvent<HTMLButtonElement>) => {
+        hiddenFileInput.current.click();
+    };
+
+    const showFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+        e.preventDefault();
+        const reader = new FileReader();
+        const ext = e.target.files[0].name.split(".").pop().toLowerCase();
+        reader.readAsText(e.target.files[0]);
+        reader.onload = async (loadEvent: any) => {
+            if (`.${ext}` === extension) {
+                const text = loadEvent.target.result as string;
+                setFileContent(text);
+            }
+        };
+    };
+
+    const handleSave = () => {
+        onSave(fileContent);
     };
 
     const generatePlaceholder = useMemo(() => {
-        switch (importType) {
+        switch (importType.type) {
             case 'JSON':
                 return '{"key":"value"}';
             case 'CSV':
@@ -83,17 +172,20 @@ export function ImportDataPanel(props: ImportDataPanelProps) {
         }
     }, [importType]);
 
+    const fileUploadText = useMemo(() => `Upload ${importType.label} file`, [importType]);
+
     return (
         <>
+            <input hidden={true} accept={extension} type="file" onChange={showFile} ref={hiddenFileInput} />
             <LinkButton
-                onClick={undefined}
+                onClick={handleClick}
                 sx={{ padding: "5px", gap: "2px"}}
             >
                 <Icon
                     iconSx={{ fontSize: "12px" }}
                     name="file-upload"
                 />
-                    <p className={classes.fileUploadText}>{`Upload ${importType} file`}</p>
+                    <p className={classes.fileUploadText}>{fileUploadText}</p>
             </LinkButton>
             <Controller
                 name="payload"
@@ -105,13 +197,15 @@ export function ImportDataPanel(props: ImportDataPanelProps) {
                         rows={rows}
                         resize="vertical"
                         placeholder={generatePlaceholder}
+                        value={fileContent}
                     />
                 )}
             />
+            {errors.payload && <ErrorMessage>{errors.payload.message.toString()}</ErrorMessage>}
             <div style={{ textAlign: "right", marginTop: "10px", float: "right" }}>
                 <Button
                     appearance="primary"
-                    onClick={undefined}
+                    onClick={handleSave}
                     disabled={false}
                 >
                     Save

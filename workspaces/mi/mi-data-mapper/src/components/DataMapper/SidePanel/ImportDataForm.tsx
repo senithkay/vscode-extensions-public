@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import {
     Button,
     SidePanel,
@@ -21,6 +21,17 @@ import { useDMIOConfigPanelStore } from "../../../store/store";
 import { ImportDataButtons } from "./ImportDataButtons";
 import { ImportDataPanel } from "./ImportDataPanel";
 
+export interface ImportType {
+    type: string;
+    label: string;
+}
+
+export enum FileExtension {
+    JSON = ".json",
+    XML = ".xml",
+    CSV = ".csv"
+}
+
 export type ImportDataWizardProps = {
     configName: string;
     documentUri: string;
@@ -30,7 +41,7 @@ export function ImportDataForm(props: ImportDataWizardProps) {
     const { configName, documentUri } = props;
     const { rpcClient } = useVisualizerContext();
 
-    const [selectedImportType, setSelectedImportType] = useState<string>(undefined);
+    const [selectedImportType, setSelectedImportType] = useState<ImportType>(undefined);
 
     const { isOpen, ioType, overwriteSchema, setSidePanelOpen } = useDMIOConfigPanelStore(state => ({
         isOpen: state.isIOConfigPanelOpen,
@@ -39,14 +50,30 @@ export function ImportDataForm(props: ImportDataWizardProps) {
         setSidePanelOpen: state.setIsIOConfigPanelOpen
     }));
 
-    const loadSchema = async () => {
+    const fileExtension = useMemo(() => {
+        if (!selectedImportType) return undefined;
+
+        switch (selectedImportType.type) {
+            case 'JSON':
+                return FileExtension.JSON;
+            case 'CSV':
+                return FileExtension.CSV;
+            case 'XML':
+                return FileExtension.XML;
+            case 'JSON_SCHEMA':
+                return FileExtension.JSON;
+        }
+    }, [selectedImportType]);
+
+
+    const loadSchema = async (content: string) => {
         const request = {
             documentUri: documentUri,
             overwriteSchema: overwriteSchema,
             resourceName: configName + '_' + ioType.toLowerCase() + 'Schema',
-            sourcePath: documentUri,
+            content: content,
             ioType: ioType.toUpperCase(),
-            schemaType: selectedImportType.toLowerCase(),
+            schemaType: selectedImportType.type.toLowerCase(),
             configName: configName,
         }
         await rpcClient.getMiDataMapperRpcClient().browseSchema(request).then(response => {
@@ -61,12 +88,16 @@ export function ImportDataForm(props: ImportDataWizardProps) {
         });
     };
 
+    const handleFileUpload = (text: string) => {
+        loadSchema(text);
+    };
+
     const onClose = () => {
         setSelectedImportType(undefined);
         setSidePanelOpen(false);
     };
 
-    const handleImportTypeChange = (importType: string) => {
+    const handleImportTypeChange = (importType: ImportType) => {
         setSelectedImportType(importType);
     };
 
@@ -98,7 +129,9 @@ export function ImportDataForm(props: ImportDataWizardProps) {
                 {selectedImportType && (
                     <ImportDataPanel
                         importType={selectedImportType}
+                        extension={fileExtension}
                         rowRange={{ start: 5, offset: 10 }}
+                        onSave={handleFileUpload}
                     />
                 )}
             </SidePanelBody>
