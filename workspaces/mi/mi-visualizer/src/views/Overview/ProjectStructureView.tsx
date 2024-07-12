@@ -329,19 +329,14 @@ const EntryContainer = styled.div`
 `;
 
 const Entry: React.FC<EntryProps> = ({ icon, name, description, onClick, goToView, goToSource, deleteArtifact }) => {
+    const [showFallbackIcon, setShowFallbackIcon] = useState(false);
+
     return (
         <EntryContainer onClick={onClick}>
             {description === "Connection" ? (
                 <div style={{ width: '20px', display: 'flex', justifyContent: 'center', alignItems: 'center', marginRight: '10px' }}>
-                    {navigator.onLine ? (
-                        <img
-                            src={icon}
-                            alt="Icon"
-                            onError={(e) => {
-                                const target = e.target as HTMLImageElement;
-                                target.src = 'https://mi-connectors.wso2.com/icons/wordpress.gif';
-                            }}
-                        />
+                    {showFallbackIcon ? (
+                        <img src={icon} alt="Icon" onError={() => setShowFallbackIcon(true)} />
                     ) : (
                         // Fallback icon on offline mode
                         <Icon name="connector" sx={{ color: "#D32F2F" }} />
