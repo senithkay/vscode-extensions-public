@@ -443,7 +443,12 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             const sanitizedHandlersXmlData = handlersXmlData.replace(/^\s*[\r\n]/gm, '');
 
             await this.applyEdit({ text: sanitizedXmlData, documentUri, range: apiRange });
-            await this.applyEdit({ text: sanitizedHandlersXmlData, documentUri, range: handlersRange });
+            await this.rangeFormat({ uri: documentUri, range: apiRange });
+
+            if (sanitizedHandlersXmlData) {
+                await this.applyEdit({ text: sanitizedHandlersXmlData, documentUri, range: handlersRange });
+                await this.rangeFormat({ uri: documentUri, range: handlersRange });
+            }
 
             commands.executeCommand(COMMANDS.REFRESH_COMMAND);
             resolve({ path: documentUri });
