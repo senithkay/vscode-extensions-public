@@ -48,6 +48,7 @@ const searchIcon = (<Codicon name="search" sx={{ cursor: "auto" }} />);
 
 export interface MediatorPageProps {
     nodePosition: any;
+    trailingSpace: string;
     documentUri: string;
 }
 export function HomePage(props: MediatorPageProps) {
@@ -104,7 +105,7 @@ export function HomePage(props: MediatorPageProps) {
             {isAllMediators && (
                 <ComponentList>
                     {/* Mediator List */}
-                    <Mediators nodePosition={props.nodePosition} documentUri={props.documentUri} searchValue={searchValue} />
+                    <Mediators nodePosition={props.nodePosition} documentUri={props.documentUri} trailingSpace={props.trailingSpace} searchValue={searchValue} />
                 </ComponentList>
             )}
             {isConnectors && (

@@ -95,6 +95,7 @@ export function Diagram(props: DiagramProps) {
         isEditing: false,
         formValues: {},
         nodeRange: undefined,
+        trailingSpace: undefined,
         isFormOpen: false,
         pageStack: [],
         currentPageIndex: 0
@@ -309,7 +310,7 @@ export function Diagram(props: DiagramProps) {
                         overlay
                         onClose={() => setSidePanelState({ ...sidePanelState, isOpen: false, isEditing: false, formValues: {} })}
                     >
-                        <SidePanelList nodePosition={sidePanelState.nodeRange} documentUri={props.documentUri} />
+                        <SidePanelList nodePosition={sidePanelState.nodeRange} trailingSpace={sidePanelState.trailingSpace} documentUri={props.documentUri} />
                     </SidePanel>
                 </SidePanelProvider>
             </S.Container >
