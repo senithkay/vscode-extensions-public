@@ -75,7 +75,7 @@ interface ExpressionValueWithSetter {
     setValue: (value: ExpressionFieldValue) => void;
 };
 
-const expressionFieldTypes = ['stringOrExpression', 'integerOrExpression', 'textAreaOrExpression'];
+const expressionFieldTypes = ['stringOrExpression', 'integerOrExpression', 'textAreaOrExpression', 'textOrExpression'];
 
 export function AddConnection(props: AddConnectionProps) {
     const { allowedConnectionTypes } = props;
@@ -206,7 +206,7 @@ export function AddConnection(props: AddConnectionProps) {
 
                         // Remove connection name from param manager fields
                         const filteredParameters = parameters.filter(param => param.name !== 'name');
-                        
+
                         const modifiedParams = {
                             ...params, paramValues: generateParams(filteredParameters)
                         };
@@ -503,6 +503,10 @@ export function AddConnection(props: AddConnectionProps) {
                     <ExpressionFieldComponent element={element} />
                 );
             case 'stringOrExpresion':
+                return (
+                    <ExpressionFieldComponent element={element} />
+                );
+            case 'textOrExpression':
                 return (
                     <ExpressionFieldComponent element={element} />
                 );
