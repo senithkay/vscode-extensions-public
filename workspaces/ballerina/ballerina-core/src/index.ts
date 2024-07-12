@@ -32,7 +32,6 @@ export * from "./ls-utils/BallerinaLanguageClient";
 // ------ RPC interfaces -------->
 export * from "./rpc-types/eggplant-diagram";
 export * from "./rpc-types/eggplant-diagram/rpc-type";
-export * from "./rpc-types/eggplant-diagram/interfaces";
 export * from "./rpc-types/connector-wizard";
 export * from "./rpc-types/connector-wizard/rpc-type";
 export * from "./rpc-types/connector-wizard/interfaces";

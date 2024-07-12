@@ -623,6 +623,7 @@ importers:
       '@wso2-enterprise/ballerina-rpc-client': workspace:*
       '@wso2-enterprise/ballerina-side-panel': workspace:*
       '@wso2-enterprise/data-mapper-view': workspace:*
+      '@wso2-enterprise/eggplant-diagram': workspace:*
       '@wso2-enterprise/overview-view': workspace:*
       '@wso2-enterprise/persist-layer-diagram': workspace:*
       '@wso2-enterprise/record-creator': workspace:*
@@ -658,6 +659,7 @@ importers:
       '@wso2-enterprise/ballerina-rpc-client': link:../ballerina-rpc-client
       '@wso2-enterprise/ballerina-side-panel': link:../ballerina-side-panel
       '@wso2-enterprise/data-mapper-view': link:../data-mapper-view
+      '@wso2-enterprise/eggplant-diagram': link:../eggplant-diagram
       '@wso2-enterprise/overview-view': link:../overview-view
       '@wso2-enterprise/persist-layer-diagram': link:../persist-layer-diagram
       '@wso2-enterprise/record-creator': link:../record-creator

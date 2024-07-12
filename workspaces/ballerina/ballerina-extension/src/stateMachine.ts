@@ -5,13 +5,16 @@ import { activateBallerina } from './extension';
 import { EventType, SyntaxTree, History, HistoryEntry, MachineStateValue, MachineViews, STByRangeRequest, SyntaxTreeResponse, UndoRedoManager, VisualizerLocation, webviewReady } from "@wso2-enterprise/ballerina-core";
 import { fetchAndCacheLibraryData } from './features/library-browser';
 import { VisualizerWebview } from './views/visualizer/webview';
-import { Uri } from 'vscode';
+import { Uri, workspace } from 'vscode';
 import { RPCLayer } from './RPCLayer';
 import { generateUid, getComponentIdentifier, getNodeByIndex, getNodeByName, getNodeByUid, getView } from './utils/state-machine-utils';
+import * as fs from 'fs';
+import * as path from 'path';
 
 interface MachineContext extends VisualizerLocation {
     langClient: ExtendedLangClient | null;
     errorCode: string | null;
+    isEggplant?: boolean;
 }
 
 export let history: History;
@@ -33,13 +36,27 @@ const stateMachine = createMachine<MachineContext>(
                 invoke: {
                     src: 'activateLanguageServer',
                     onDone: {
-                        target: "lsReady",
+                        target: "checkEggplant",
                         actions: assign({
                             langClient: (context, event) => event.data
                         })
                     },
                     onError: {
                         target: "lsError"
+                    }
+                }
+            },
+            checkEggplant: {
+                invoke: {
+                    src: checkIfEggplantProject,
+                    onDone: {
+                        target: "lsReady",
+                        actions: assign({
+                            isEggplant: (context, event) => event.data
+                        })
+                    },
+                    onError: {
+                        target: "lsReady"
                     }
                 }
             },
@@ -198,8 +215,8 @@ const stateMachine = createMachine<MachineContext>(
                     });
                     return resolve();
                 }
-                });
-            },
+            });
+        },
         showView(context, event): Promise<VisualizerLocation> {
             return new Promise(async (resolve, reject) => {
                 const historyStack = history.get();
@@ -327,4 +344,28 @@ export function updateView() {
     const historyStack = history.get();
     const lastView = historyStack[historyStack.length - 1];
     stateService.send({ type: "VIEW_UPDATE", viewLocation: lastView ? lastView.location : { view: "Overview" } });
+}
+
+async function checkIfEggplantProject(): Promise<boolean> {
+    let isEggplant = false;
+    try {
+        const workspaceFolders = workspace.workspaceFolders;
+        if (!workspaceFolders || workspaceFolders.length === 0) {
+            throw new Error("No workspace folders found");
+        }
+        // Assume we are only interested in the root workspace folder
+        const rootFolder = workspaceFolders[0].uri.fsPath;
+        const ballerinaTomlPath = path.join(rootFolder, 'Ballerina.toml');
+
+        if (fs.existsSync(ballerinaTomlPath)) {
+            const data = await fs.promises.readFile(ballerinaTomlPath, 'utf8');
+            isEggplant = data.includes('eggplant = true');
+        }
+    } catch (err) {
+        console.error(err);
+    }
+    if (!isEggplant) {
+        throw new Error("Eggplant project not found");
+    }
+    return isEggplant;
 }

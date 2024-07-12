@@ -11,7 +11,7 @@ import { LanguageClient, LanguageClientOptions, ServerOptions } from "vscode-lan
 import { CodeAction, CodeActionParams, DocumentSymbol, DocumentSymbolParams, ExecuteCommandParams, RenameParams, SymbolInformation, WorkspaceEdit } from "monaco-languageclient";
 import {
     Connectors,
-    STModifyParams, 
+    STModifyParams,
     SyntaxTree,
     DiagnosticsParams,
     CompletionParams,
@@ -78,7 +78,11 @@ import {
     PerformanceAnalyzer,
     GraphqlDesignService,
     PartialST,
-    BallerinaServerCapability
+    BallerinaServerCapability,
+    ExtendedLangClientInterface,
+    EggplantModelRequest,
+    UpdateNodeRequest,
+    UpdateNodeResponse
 } from "@wso2-enterprise/ballerina-core";
 import { BallerinaExtension } from "./index";
 import { debug } from "../utils";
@@ -134,6 +138,8 @@ enum EXTENDED_APIS {
     PERSIST_MODEL_ENDPOINT = 'persistERGeneratorService/getPersistERModels',
     DOCUMENT_ST_BY_RANGE = 'ballerinaDocument/syntaxTreeByRange',
     SEQUENCE_DIAGRAM_MODEL = 'sequenceModelGeneratorService/getSequenceDiagramModel',
+    EGGPLANT_MODEL = 'flowDesignService/getFlowDesignModel',
+    UPDATE_NODE = 'flowDesignService/getSourceCode'
 }
 
 enum EXTENDED_APIS_ORG {
@@ -174,7 +180,7 @@ enum VSCODE_APIS {
     PUBLISH_DIAGNOSTICS = 'textDocument/publishDiagnostics'
 }
 
-export class ExtendedLangClient extends LanguageClient {
+export class ExtendedLangClient extends LanguageClient implements ExtendedLangClientInterface {
     private ballerinaExtendedServices: Set<String> | undefined;
     private isDynamicRegistrationSupported: boolean;
     isInitialized: boolean = true;
@@ -514,6 +520,17 @@ export class ExtendedLangClient extends LanguageClient {
     }
 
     // <------------ EXTENDED APIS END --------------->
+
+    // <------------ EGGPLANT APIS START --------------->
+
+    getEggplantModel = async (params: EggplantModelRequest) => {
+        return this.sendRequest<any>(EXTENDED_APIS.EGGPLANT_MODEL, params);
+    }
+
+    getUpdatedNodeModifications = async (params: UpdateNodeRequest) => {
+        return this.sendRequest<UpdateNodeResponse>(EXTENDED_APIS.UPDATE_NODE, params);
+    }
+    // <------------ EGGPLANT APIS END --------------->
 
 
     // <------------ OTHER UTILS START --------------->
