@@ -362,7 +362,7 @@ export function ConnectionPage(props: ConnectorPageProps) {
 
     const clickEndpoint = async (endpoint: any) => {
         const callForm = <CallForm nodePosition={sidePanelContext.nodeRange}
-            documentUri={props.documentUri} endpoint={endpoint.name} />;
+            documentUri={props.documentUri} endpoint={endpoint.name} trailingSpace={sidePanelContext.trailingSpace}/>;
 
         sidepanelAddPage(sidePanelContext, callForm, `Add Call Operation`);
     }
