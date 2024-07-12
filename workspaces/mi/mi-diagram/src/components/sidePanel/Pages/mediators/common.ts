@@ -16,6 +16,7 @@ export interface AddMediatorProps {
     nodePosition: Range;
     trailingSpace: string;
     documentUri: string;
+    endpoint?: string;
 }
 
 export function filterFormValues(formValues: { [key: string]: any }, keysToInclude: string[], keysToExclude: string[]): { [key: string]: any } {

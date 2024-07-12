@@ -68,6 +68,10 @@ const CallForm = (props: AddMediatorProps) => {
     }, [sidePanelContext.formValues]);
 
     useEffect(() => {
+        props.endpoint && reset({ endopint: props.endpoint });
+    }, [props.endpoint]);
+
+    useEffect(() => {
         handleOnCancelExprEditorRef.current = () => {
             sidepanelGoBack(sidePanelContext);
         };

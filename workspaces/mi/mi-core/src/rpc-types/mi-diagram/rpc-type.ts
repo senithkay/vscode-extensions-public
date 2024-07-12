@@ -177,6 +177,7 @@ import {
     GetAllMockServicesResponse,
     UpdateDependencyInPomRequest,
     SwaggerFromAPIResponse,
+    StoreConnectorJsonResponse,
     OpenDependencyPomRequest,
     getAllDependenciesRequest,
     GetAllDependenciesResponse,
@@ -273,6 +274,7 @@ export const getAvailableConnectors: RequestType<GetAvailableConnectorRequest, G
 export const updateConnectors: NotificationType<UpdateConnectorRequest> = { method: `${_preFix}/updateConnectors` };
 export const getConnectorForm: RequestType<GetConnectorFormRequest, GetConnectorFormResponse> = { method: `${_preFix}/getConnectorForm` };
 export const getConnectionForm: RequestType<GetConnectionFormRequest, GetConnectionFormResponse> = { method: `${_preFix}/getConnectionForm` };
+export const getStoreConnectorJSON: RequestType<void, StoreConnectorJsonResponse> = { method: `${_preFix}/getStoreConnectorJSON` };
 export const createDataSource: RequestType<DataSourceTemplate, CreateDataSourceResponse> = { method: `${_preFix}/createDataSource` };
 export const getDataSource: RequestType<GetDataSourceRequest, DataSourceTemplate> = { method: `${_preFix}/getDataSource` };
 export const getIconPathUri: RequestType<GetIconPathUriRequest, GetIconPathUriResponse> = { method: `${_preFix}/getIconPathUri` };

@@ -194,6 +194,7 @@ import {
     getAllDependenciesRequest,
     getSTRequest,
     getSTResponse,
+    StoreConnectorJsonResponse,
     onSwaggerSpecReceived,
     TestDbConnectionRequest,
     TestDbConnectionResponse
@@ -3338,6 +3339,16 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
 
             resolve(res);
         })
+    }
+
+    async getStoreConnectorJSON(): Promise<StoreConnectorJsonResponse> {
+        return new Promise(async (resolve) => {
+            const connectorDataState = StateMachine.context().connectorData;
+            if (connectorDataState !== undefined) {
+                resolve({data: connectorDataState});
+            }
+        });
+
     }
 
     async createDataSource(params: DataSourceTemplate): Promise<CreateDataSourceResponse> {

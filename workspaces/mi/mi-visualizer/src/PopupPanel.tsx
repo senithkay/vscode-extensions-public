@@ -22,6 +22,8 @@ import { RecipientWizard } from './views/Forms/RecipientEndpointForm';
 import { TemplateEndpointWizard } from './views/Forms/TemplateEndpointForm';
 import { DataServiceDataSourceWizard } from "./views/Forms/DataServiceForm/MainPanelForms/DataSourceForm/DatasourceForm";
 import path from 'path';
+import { ConnectorStore } from './views/Forms/ConnectionForm';
+import AddConnection from './views/Forms/ConnectionForm/ConnectionFormGenerator';
 import { AddDriver } from './views/Popup/AddDriver';
 
 const ViewContainer = styled.div`
@@ -74,8 +76,21 @@ const PopupPanel = (props: { formState: PopupMachineStateValue }) => {
                 case MACHINE_VIEW.TemplateEndPointForm:
                     setViewComponent(<TemplateEndpointWizard isPopup={true} path={`${machineSate.documentUri}${endpointPath}`} />);
                     break;
+                case MACHINE_VIEW.ConnectorStore:
+                    setViewComponent(<ConnectorStore isPopup={true} path={machineSate.documentUri} />);
+                    break;
                 case MACHINE_VIEW.DssDataSourceForm:
                     setViewComponent(<DataServiceDataSourceWizard isPopup={true} path={machineSate.documentUri} datasource={machineSate.customProps.datasource} />);
+                    break;
+                case MACHINE_VIEW.ConnectionForm:
+                    setViewComponent(
+                        <AddConnection 
+                            connectionName={machineSate.customProps.connectionName}
+                            allowedConnectionTypes={machineSate.customProps.allowedConnectionTypes}
+                            connector={machineSate.customProps.connector}
+                            fromSidePanel={machineSate.customProps.fromSidePanel}
+                            path={machineSate.documentUri}
+                            isPopup={true} />);
                     break;
                 case MACHINE_VIEW.AddDriverPopup:
                     setViewComponent(<AddDriver isPopup={true} path={machineSate.documentUri} identifier={machineSate.customProps.identifier} />);

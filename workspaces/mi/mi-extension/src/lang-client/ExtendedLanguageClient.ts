@@ -111,7 +111,6 @@ export class ExtendedLanguageClient extends LanguageClient {
         super(id, name, serverOptions, clientOptions);
         
         this.onNotification("synapse/addConnectorStatus", (connectorStatus: any) => {
-            console.log("Connector status: " + connectorStatus);
             // Notify the visualizer
             RPCLayer._messenger.sendNotification(onConnectorStatusUpdate, { type: 'webview', webviewType: VisualizerWebview.viewType }, connectorStatus);
         });

@@ -151,6 +151,10 @@ export const StateMachinePopup = {
     state: () => { return popupStateService.getSnapshot().value as PopupMachineStateValue; },
     sendEvent: (eventType: POPUP_EVENT_TYPE) => { popupStateService.send({ type: eventType }); },
     resetState: () => { popupStateService.send({ type: "RESET_STATE" }); },
+    isActive: () => { 
+        const state = StateMachinePopup.state();
+        return typeof state === 'object' && 'open' in state && state.open === 'active'; 
+    }
 };
 
 export function openPopupView(type: POPUP_EVENT_TYPE, viewLocation?: PopupVisualizerLocation) {

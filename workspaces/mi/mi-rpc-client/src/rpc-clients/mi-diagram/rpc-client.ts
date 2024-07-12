@@ -296,6 +296,8 @@ import {
     updateTestSuite,
     updateWsdlEndpoint,
     writeContentToFile,
+    StoreConnectorJsonResponse,
+    getStoreConnectorJSON,
     TestDbConnectionRequest,
     TestDbConnectionResponse,
     testDbConnection
@@ -680,6 +682,10 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     getConnectorConnections(params: GetConnectorConnectionsRequest): Promise<GetConnectorConnectionsResponse> {
         return this._messenger.sendRequest(getConnectorConnections, HOST_EXTENSION, params);
+    }
+
+    getStoreConnectorJSON(): Promise<StoreConnectorJsonResponse> {
+        return this._messenger.sendRequest(getStoreConnectorJSON, HOST_EXTENSION);
     }
 
     logoutFromMIAccount(): void {

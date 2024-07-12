@@ -268,7 +268,7 @@ function generateTreeDataOfArtifacts(project: vscode.WorkspaceFolder, data: Proj
 
 			const parentEntry = new ProjectExplorerEntry(
 				label,
-				isCollapsibleState(artifacts[key].length > 0),
+				isCollapsibleState(artifacts[key].length > 0 || key === "localEntries"),
 				artifacts[key],
 				icon
 			);

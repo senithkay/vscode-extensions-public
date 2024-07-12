@@ -176,6 +176,7 @@ import {
     GetAllMockServicesResponse,
     UpdateDependencyInPomRequest,
     SwaggerFromAPIResponse,
+    StoreConnectorJsonResponse,
     OpenDependencyPomRequest,
     getAllDependenciesRequest,
     GetAllDependenciesResponse,
@@ -271,6 +272,7 @@ export interface MiDiagramAPI {
     updateConnectors: (params: UpdateConnectorRequest) => void;
     getConnectorForm: (params: GetConnectorFormRequest) => Promise<GetConnectorFormResponse>;
     getConnectionForm: (params: GetConnectionFormRequest) => Promise<GetConnectionFormResponse>;
+    getStoreConnectorJSON: () => Promise<StoreConnectorJsonResponse>;
     createDataSource: (params: DataSourceTemplate) => Promise<CreateDataSourceResponse>;
     getDataSource: (params: GetDataSourceRequest) => Promise<DataSourceTemplate>;
     getIconPathUri: (params: GetIconPathUriRequest) => Promise<GetIconPathUriResponse>;
