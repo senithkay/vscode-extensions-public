@@ -15,7 +15,7 @@ export function getFilterMustacheTemplate() {
 
     return `
     {{#isNewMediator}}
-    <filter {{#description}}description="{{description}}" {{/description}}{{#regularExpression}}regex="{{{regularExpression}}}" {{/regularExpression}}{{#source}}source="{{{source}}}" {{/source}}{{#xPath}}xpath="{{{xPath}}}"{{/xPath}}{{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}}>
+    <filter {{#description}}description="{{description}}" {{/description}}{{#regularExpression}}regex="{{{regularExpression}}}" {{/regularExpression}}{{#source}}source="{{{source}}}" {{/source}}{{#xPath}}xpath="{{{xPath}}}"{{/xPath}}{{#namespaces}} xmlns:{{{prefix}}}="{{{uri}}}"{{/namespaces}}>
         <then>
         </then>
         <else>
@@ -24,10 +24,10 @@ export function getFilterMustacheTemplate() {
     {{/isNewMediator}}
     {{^isNewMediator}}
     {{#selfClosed}}
-    <filter {{#description}}description="{{description}}" {{/description}}{{#regularExpression}}regex="{{{regularExpression}}}" {{/regularExpression}}{{#source}}source="{{{source}}}" {{/source}}{{#xPath}}xpath="{{{xPath}}}"{{/xPath}}{{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}}/>
+    <filter {{#description}}description="{{description}}" {{/description}}{{#regularExpression}}regex="{{{regularExpression}}}" {{/regularExpression}}{{#source}}source="{{{source}}}" {{/source}}{{#xPath}}xpath="{{{xPath}}}"{{/xPath}}{{#namespaces}} xmlns:{{{prefix}}}="{{{uri}}}"{{/namespaces}}/>
     {{/selfClosed}}
     {{^selfClosed}}
-    <filter {{#description}}description="{{description}}" {{/description}}{{#regularExpression}}regex="{{{regularExpression}}}" {{/regularExpression}}{{#source}}source="{{{source}}}" {{/source}}{{#xPath}}xpath="{{{xPath}}}"{{/xPath}}{{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}}>
+    <filter {{#description}}description="{{description}}" {{/description}}{{#regularExpression}}regex="{{{regularExpression}}}" {{/regularExpression}}{{#source}}source="{{{source}}}" {{/source}}{{#xPath}}xpath="{{{xPath}}}"{{/xPath}}{{#namespaces}} xmlns:{{{prefix}}}="{{{uri}}}"{{/namespaces}}>
     {{/selfClosed}}
     {{/isNewMediator}}         
     `;

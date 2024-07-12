@@ -15,7 +15,7 @@ import { transformNamespaces } from "../../../commons";
 export function getCallTemplateMustacheTemplate() {
   return `<call-template {{#targetTemplate}}target="{{{targetTemplate}}}" {{/targetTemplate}}{{#onError}}onError="{{{onError}}}" {{/onError}}{{#description}}description="{{description}}" {{/description}}>
 {{#parameterName}}
-  <with-param {{#parameterName}}name="{{parameterName}}" {{/parameterName}}{{#parameterValue}}value="{{parameterValue}}" {{/parameterValue}}{{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}} />
+  <with-param {{#parameterName}}name="{{parameterName}}" {{/parameterName}}{{#parameterValue}}value="{{parameterValue}}" {{/parameterValue}}{{#namespaces}} xmlns:{{{prefix}}}="{{{uri}}}"{{/namespaces}} />
 {{/parameterName}}
 </call-template>`;
 }
