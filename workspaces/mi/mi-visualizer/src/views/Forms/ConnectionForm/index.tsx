@@ -324,7 +324,7 @@ export function ConnectorStore(props: ConnectionStoreProps) {
                                 </CardContent>
                             </ComponentCard>
                         ))}
-                        {displayedStoreConnectors &&
+                        {displayedStoreConnectors && displayedLocalConnectors &&
                             displayedStoreConnectors.sort((a: any, b: any) => a.rank - b.rank).map((connector: any) => (
                                 displayedLocalConnectors.some(c => (c.name === connector.name) &&
                                     (c.version === connector.version)) ? null : (
