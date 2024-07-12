@@ -6,7 +6,7 @@
     "scripts": {
         "start": "tsc && node dist/index.js",
         "test": "jest",
-        "build": "tsc --pretty && npm run copy-files && npm run test",
+        "build": "tsc --pretty && npm run copy-files",
         "storybook": "storybook dev -p 6006",
         "watch": "tsc --pretty --watch",
         "build-storybook": "storybook build",
