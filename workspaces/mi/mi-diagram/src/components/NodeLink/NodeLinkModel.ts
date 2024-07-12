@@ -23,6 +23,7 @@ export interface NodeLinkModelOptions {
     showArrow?: boolean; // default true
     brokenLine?: boolean; // default false
     stRange?: Range | Position;
+    trailingSpace?: string;
     onAddClick?: () => void;
     parentNode?: string;
     previousNode?: string;
@@ -40,6 +41,7 @@ export class NodeLinkModel extends DefaultLinkModel {
     brokenLine = false;
     linkBottomOffset = LINK_BOTTOM_OFFSET;
     stRange: Range | Position;
+    trailingSpace: string;
     parentNode: string;
     previousNode: string;
     nextNode: string;
@@ -61,35 +63,39 @@ export class NodeLinkModel extends DefaultLinkModel {
                 this.label = options;
                 this.linkBottomOffset = LINK_BOTTOM_OFFSET + 80;
             } else {
-                if ((options as NodeLinkModelOptions).label) {
-                    this.label = (options as NodeLinkModelOptions).label;
+                const nodeOptions = options as NodeLinkModelOptions;
+                if (nodeOptions.label) {
+                    this.label = nodeOptions.label;
                     this.linkBottomOffset = LINK_BOTTOM_OFFSET + 80;
-                } else if ((options as NodeLinkModelOptions).label === "") {
+                } else if (nodeOptions.label === "") {
                     this.linkBottomOffset = LINK_BOTTOM_OFFSET + 32;
                 }
-                if ((options as NodeLinkModelOptions).showAddButton === false) {
-                    this.showAddButton = (options as NodeLinkModelOptions).showAddButton;
+                if (nodeOptions.showAddButton === false) {
+                    this.showAddButton = nodeOptions.showAddButton;
                 }
-                if ((options as NodeLinkModelOptions).showArrow === false) {
-                    this.showArrow = (options as NodeLinkModelOptions).showArrow;
+                if (nodeOptions.showArrow === false) {
+                    this.showArrow = nodeOptions.showArrow;
                 }
-                if ((options as NodeLinkModelOptions).brokenLine === true) {
-                    this.brokenLine = (options as NodeLinkModelOptions).brokenLine;
+                if (nodeOptions.brokenLine === true) {
+                    this.brokenLine = nodeOptions.brokenLine;
                 }
-                if ((options as NodeLinkModelOptions).stRange) {
-                    this.stRange = (options as NodeLinkModelOptions).stRange;
+                if (nodeOptions.stRange) {
+                    this.stRange = nodeOptions.stRange;
                 }
-                if ((options as NodeLinkModelOptions).parentNode) {
-                    this.parentNode = (options as NodeLinkModelOptions).parentNode;
+                if (nodeOptions.parentNode) {
+                    this.parentNode = nodeOptions.parentNode;
                 }
-                if ((options as NodeLinkModelOptions).previousNode) {
-                    this.previousNode = (options as NodeLinkModelOptions).previousNode;
+                if (nodeOptions.previousNode) {
+                    this.previousNode = nodeOptions.previousNode;
                 }
-                if ((options as NodeLinkModelOptions).nextNode) {
-                    this.nextNode = (options as NodeLinkModelOptions).nextNode;
+                if (nodeOptions.nextNode) {
+                    this.nextNode = nodeOptions.nextNode;
                 }
-                if ((options as NodeLinkModelOptions).diagnostics) {
-                    this.diagnostics = (options as NodeLinkModelOptions).diagnostics;
+                if (nodeOptions.diagnostics) {
+                    this.diagnostics = nodeOptions.diagnostics;
+                }
+                if (nodeOptions.trailingSpace !== undefined) {
+                    this.trailingSpace = nodeOptions.trailingSpace;
                 }
             }
             if ((options as NodeLinkModelOptions).onAddClick) {

@@ -2322,35 +2322,23 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
     async applyEdit(params: ApplyEditRequest): Promise<ApplyEditResponse> {
         return new Promise(async (resolve) => {
             const edit = new WorkspaceEdit();
-            let document = workspace.textDocuments.find(doc => doc.uri.fsPath === params.documentUri);
+            const uri = params.documentUri;
+            let text = params.text;
+            let document = workspace.textDocuments.find(doc => doc.uri.fsPath === uri);
 
             if (!document) {
-                document = await workspace.openTextDocument(Uri.file(params.documentUri));
+                document = await workspace.openTextDocument(Uri.file(uri));
             }
 
             const range = new Range(new Position(params.range.start.line, params.range.start.character),
                 new Position(params.range.end.line, params.range.end.character));
-            const startLine = document.lineAt(range.start.line).text;
-            const startLineIndentation = startLine.match(/^\s*/);
-            const endLine = document.lineAt(range.end.line).text;
-            const endLineIndentation = endLine.match(/^\s*/);
 
-            const sIndentation = startLineIndentation ? startLineIndentation[0] : "";
-            const eIndentation = endLineIndentation ? endLineIndentation[0] : "";
-            const textEmpty = params.text.trim().length === 0;
-            const textBefore = startLine.substring(0, range.start.character).trim();
-            const textAfter = endLine.substring(range.end.character).trim();
-            let text = params.text;
-            if (!textEmpty) {
-                text = `${textBefore.length > 0 ? "\n" + sIndentation : ""}${params.text.replace(/\n/g, "\n" + sIndentation)}${textAfter.length > 0 ? "\n" + eIndentation : ""}`;
-            }
-
-            edit.replace(Uri.file(params.documentUri), range, text);
+            edit.replace(Uri.file(uri), range, text);
             await workspace.applyEdit(edit);
 
             if (!params.disableFormatting) {
                 const formatRange = this.getFormatRange(range, text);
-                await this.rangeFormat({ uri: params.documentUri, range: formatRange });
+                await this.rangeFormat({ uri: uri, range: formatRange });
             }
             const content = document.getText();
             undoRedo.addModification(content);
@@ -2363,7 +2351,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         const editSplit = text.split('\n');
         const addedLine = editSplit.length;
         const lastLineLength = editSplit[editSplit.length - 1].length;
-        const formatStart = range.start;
+        const formatStart = new Position(range.start.line, 0);
         const formatend = new Position(range.start.line + addedLine - 1, lastLineLength);
         const formatRange = new Range(formatStart, formatend);
         return formatRange;
