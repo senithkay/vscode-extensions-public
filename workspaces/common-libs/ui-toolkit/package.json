@@ -10,6 +10,7 @@
   "types": "lib/index.d.ts",
   "typings": "lib/index",
   "scripts": {
+    "watch": "tsc --pretty --watch",
     "prebuild": "pnpm run lint",
     "copy-font": "copyfiles -u 1 node_modules/@wso2-enterprise/font-wso2-vscode/dist/* .storybook/fonts/ && copyfiles -u 1 node_modules/@vscode/codicons/dist/* .storybook/fonts/",
     "build": "tsc --pretty",

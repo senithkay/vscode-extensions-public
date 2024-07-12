@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { HistoryEntry, SyntaxTreeResponse } from "@wso2-enterprise/ballerina-core";
+import { EggplantModelRequest, HistoryEntry, SyntaxTreeResponse } from "@wso2-enterprise/ballerina-core";
 import { NodePosition, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 import { StateMachine } from "../stateMachine";
 import { Uri } from "vscode";
@@ -61,6 +61,23 @@ export async function getView(documentUri: string, position: NodePosition): Prom
             STKindChecker.isFunctionDefinition(node.syntaxTree)
             || STKindChecker.isResourceAccessorDefinition(node.syntaxTree)
         ) {
+            if (StateMachine.context().isEggplant) {
+                try {
+                    const model = await StateMachine.langClient().getEggplantModel(getEggplantReq(documentUri, position));
+                    console.log("===BackEndModel", model);
+                    return {
+                        location: {
+                            view: "EggplantDiagram",
+                            documentUri: documentUri,
+                            position: position,
+                            syntaxTree: model.flowDesignModel
+                        },
+                        dataMapperDepth: 0
+                    };
+                } catch (error) {
+                    console.log(error);
+                }
+            }
             return {
                 location: {
                     view: "SequenceDiagram",
@@ -69,10 +86,11 @@ export async function getView(documentUri: string, position: NodePosition): Prom
                 },
                 dataMapperDepth: 0
             };
+
         }
     }
 
-    return {location: { view: "Overview", documentUri: documentUri }};
+    return { location: { view: "Overview", documentUri: documentUri } };
 }
 
 export function getComponentIdentifier(node: STNode): string {
@@ -120,6 +138,20 @@ function getSTByRangeReq(documentUri: string, position: NodePosition) {
                 line: position.endLine,
                 character: position.endColumn
             }
+        }
+    };
+}
+
+function getEggplantReq(documentUri: string, position: NodePosition): EggplantModelRequest {
+    return {
+        filePath: Uri.parse(documentUri!).fsPath,
+        startLine: {
+            line: position.startLine ?? 0,
+            offset: position.startColumn ?? 0
+        },
+        endLine: {
+            line: position.endLine ?? 0,
+            offset: position.endColumn ?? 0
         }
     };
 }

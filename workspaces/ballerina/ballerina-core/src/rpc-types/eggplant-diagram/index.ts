@@ -12,7 +12,7 @@
  */
 
 import { Flow } from "../../interfaces/eggplant";
-import { EggplantModelResponse, UpdateNodeRequest } from "./interfaces";
+import { EggplantModelResponse, UpdateNodeRequest } from "../../interfaces/extended-lang-client";
 
 export interface EggplantDiagramAPI {
     getEggplantModel: () => Promise<EggplantModelResponse>;

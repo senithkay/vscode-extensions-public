@@ -101,7 +101,7 @@ export const disabledHeaderLabel = cx(css`
 export const HeaderLabel = styled.div<{ haveErrors?: boolean }>`
     display: flex;
     background: var(--vscode-editor-background);
-    border: 1px solid ${(props: { haveErrors: boolean; }) => props.haveErrors ? "red": "var(--vscode-dropdown-border)"};
+    border: 1px solid ${(props: { haveErrors: boolean; }) => props.haveErrors ? "red" : "var(--vscode-dropdown-border)"};
     margin-top: 8px;
     display: flex;
     width: 100%;
@@ -115,4 +115,14 @@ export const ActionIconWrapper = styled.div`
     cursor: pointer;
     height: 14px;
     width: 14px;
+`;
+
+export const ParamContainer = styled.div`
+    display: flex;
+    align-items: center;
+`;
+
+export const ParamDescription = styled.div`
+    display: flex;
+    padding: 10px;
 `;

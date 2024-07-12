@@ -110,14 +110,16 @@ export function ResourceResponse(props: ResourceParamProps) {
             };
         }
         if (defineRecordName && paramConfig.type) {
-            const recordCode = getResponseRecordDefCode(defineRecordName, paramConfig.code, paramConfig.type);
             modifiedParamConfig = {
                 ...modifiedParamConfig,
                 code: paramConfig.code,
-                type: defineRecordName,
+                type: paramConfig.type,
                 source: defineRecordName
             };
-            addNameRecord(recordCode);
+            if (defineRecordName !== paramConfig.namedRecord) {
+                const recordCode = getResponseRecordDefCode(defineRecordName, paramConfig.code, paramConfig.type);
+                addNameRecord(recordCode);
+            }
         }
         const index = updatedParameters.findIndex(param => param.id === paramConfig.id);
         if (index !== -1) {
@@ -146,7 +148,9 @@ export function ResourceResponse(props: ResourceParamProps) {
                             id: index,
                             type: param.type,
                             code: param.code,
-                            source: param.source
+                            source: param.source,
+                            namedRecord: param.namedRecord,
+                            defaultCode: getDefaultResponse(method)
                         }}
                         serviceEndPosition={serviceEndPosition}
                         commonRpcClient={commonRpcClient}

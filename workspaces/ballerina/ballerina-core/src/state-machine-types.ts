@@ -10,8 +10,9 @@
 
 import { NotificationType, RequestType } from "vscode-messenger-common";
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
+import { Flow } from "./interfaces/eggplant";
 
-export type MachineViews = "Overview" | "SequenceDiagram" | "ServiceDesigner" | "ERDiagram" | "DataMapper" | "GraphQLDiagram";
+export type MachineViews = "Overview" | "SequenceDiagram" | "ServiceDesigner" | "ERDiagram" | "DataMapper" | "GraphQLDiagram" | "EggplantDiagram";
 
 export type MachineStateValue =
     | 'initialize'
@@ -41,7 +42,7 @@ export interface VisualizerLocation {
     documentUri?: string;
     identifier?: string;
     position?: NodePosition;
-    syntaxTree?: STNode;
+    syntaxTree?: STNode | Flow;
 }
 
 export const stateChanged: NotificationType<MachineStateValue> = { method: 'stateChanged' };

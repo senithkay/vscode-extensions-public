@@ -11,7 +11,7 @@ import { DIAGNOSTIC_SEVERITY, DiagramDiagnostic, responseCodes, STModification }
 import { DocumentIdentifier } from '@wso2-enterprise/ballerina-core';
 import { BallerinaRpcClient } from '@wso2-enterprise/ballerina-rpc-client';
 import * as Handlebars from 'handlebars';
-import { Annotation, NodePosition, OptionalTypeDesc, ResourceAccessorDefinition, ServiceDeclaration, STKindChecker } from "@wso2-enterprise/syntax-tree";
+import { Annotation, NodePosition, OptionalTypeDesc, RecordTypeDesc, ResourceAccessorDefinition, ServiceDeclaration, SimpleNameReference, STKindChecker } from "@wso2-enterprise/syntax-tree";
 import { URI } from 'vscode-uri';
 import { PARAM_TYPES, ParameterConfig, PathConfig, Resource, ResponseConfig, Service, ServiceData } from '@wso2-enterprise/service-designer';
 
@@ -186,6 +186,20 @@ export const getRecordSource = async (recordName: string, rpcClient: any): Promi
     return response?.recordST.source;
 };
 
+export const getNameRecordType = async (recordName: string, rpcClient: any): Promise<string> => {
+    let namedRecordType = "";
+    const response = await rpcClient?.getRecordST({ recordName: recordName });
+    if (STKindChecker.isRecordTypeDesc(response.recordST?.typeDescriptor)) {
+        const record = response.recordST.typeDescriptor as RecordTypeDesc;
+        record.fields.forEach(field => {
+            if (STKindChecker.isRecordField(field) && field.fieldName.value === "body") {
+                namedRecordType = (field.typeName as SimpleNameReference).name.value;
+            }
+        })
+    }
+    return namedRecordType;
+};
+
 export const getServiceData = async (service: ServiceDeclaration): Promise<ServiceData> => {
     let serviceData: ServiceData;
     if (service && STKindChecker.isExplicitNewExpression(service?.expressions[0])) {
@@ -268,12 +282,14 @@ async function findResponseType(typeSymbol: any, resource: any, index: any, rpcC
         return getInlineRecordConfig(resource, index, typeSymbol);
     } else if (typeSymbol.typeKind === "typeReference" && !typeSymbol.signature?.includes("ballerina")) {
         const recordST: string = await getRecordSource(typeSymbol.name, rpcClient);
+        const bodyType: string = await getNameRecordType(typeSymbol.name, rpcClient);
         type = (members && members[index + 1]?.typeKind === "nil") ? typeSymbol.name + "?" : typeSymbol.name;
         return {
             id: index,
             code: findResponseCodeByRecordSource(recordST),
-            type: type,
-            source: type
+            type: bodyType || type,
+            source: type,
+            namedRecord: bodyType ? type : null
         };
     } else if (typeSymbol.typeKind === "typeReference" && typeSymbol.signature?.includes("ballerina")) {
         const name = typeSymbol.moduleID?.moduleName === "http" ? `http:${typeSymbol.name}` : typeSymbol.name;

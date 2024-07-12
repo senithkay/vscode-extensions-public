@@ -14,6 +14,7 @@ import { DocumentIdentifier, LinePosition, NOT_SUPPORTED_TYPE, Range } from "./c
 import { BallerinaConnectorInfo, BallerinaExampleCategory, BallerinaModuleResponse, BallerinaModulesRequest, BallerinaTrigger, BallerinaTriggerInfo, BallerinaConnector, ExecutorPosition, ExpressionRange, JsonToRecordMapperDiagnostic, MainTriggerModifyRequest, NoteBookCellOutputValue, NotebookCellMetaInfo, OASpec, PackageSummary, PartialSTModification, ResolvedTypeForExpression, ResolvedTypeForSymbol, STModification, SequenceModel, SequenceModelDiagnostic, ServiceTriggerModifyRequest, SymbolDocumentation, XMLToRecordConverterDiagnostic } from "./ballerina";
 import { ModulePart, STNode } from "@wso2-enterprise/syntax-tree";
 import { CodeActionParams, DefinitionParams, DocumentSymbolParams, ExecuteCommandParams, InitializeParams, InitializeResult, LocationLink, RenameParams } from "vscode-languageserver-protocol";
+import { Flow } from "./eggplant";
 
 export interface DidOpenParams {
     textDocument: TextDocumentItem;
@@ -415,6 +416,30 @@ export interface BallerinaServerCapability {
 
 // <------------ EXTENDED LANG CLIENT INTERFACE --------->
 
+
+
+// <------------ EGGPLANT INTERFACES --------->
+
+export interface EggplantModelRequest {
+    filePath: string;
+    startLine: LinePosition;
+    endLine: LinePosition;
+}
+
+export type EggplantModelResponse = {
+    flowDesignModel: Flow;
+};
+
+export interface UpdateNodeRequest {
+    diagramNode: Node;
+}
+
+export interface UpdateNodeResponse {
+    textEdits: TextEdit[];
+}
+
+// <------------ EGGPLANT INTERFACES --------->
+
 export interface BaseLangClientInterface {
     init?: (params: InitializeParams) => Promise<InitializeResult>;
     didOpen: (Params: DidOpenParams) => void;
@@ -424,7 +449,13 @@ export interface BaseLangClientInterface {
     close?: () => void;
 }
 
-export interface ExtendedLangClientInterface extends BaseLangClientInterface {
+export interface EggplantInterface extends BaseLangClientInterface {
+    getSTByRange: (params: BallerinaSTParams) => Promise<SyntaxTree | NOT_SUPPORTED_TYPE>;
+    getEggplantModel: (params: EggplantModelRequest) => Promise<EggplantModelResponse>;
+    getUpdatedNodeModifications: (params: UpdateNodeRequest) => Promise<UpdateNodeResponse>;
+}
+
+export interface ExtendedLangClientInterface extends EggplantInterface {
     rename(params: RenameParams): Promise<WorkspaceEdit | NOT_SUPPORTED_TYPE>;
     getDocumentSymbol(params: DocumentSymbolParams): Promise<DocumentSymbol[] | SymbolInformation[] | NOT_SUPPORTED_TYPE>;
     codeAction(params: CodeActionParams): Promise<CodeAction[]>;
