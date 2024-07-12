@@ -130,7 +130,12 @@ export function HomePage(props: MediatorPageProps) {
             )}
             {isEndpoints && (
                 <ComponentList>
-                    <ConnectionPage nodePosition={props.nodePosition} documentUri={props.documentUri} searchValue={searchValue} clearSearch={clearSearch} />
+                    <ConnectionPage
+                        nodePosition={props.nodePosition}
+                        documentUri={props.documentUri}
+                        searchValue={searchValue}
+                        clearSearch={clearSearch}
+                        trailingSpace={props.trailingSpace} />
                 </ComponentList>
             )}
         </Wrapper>

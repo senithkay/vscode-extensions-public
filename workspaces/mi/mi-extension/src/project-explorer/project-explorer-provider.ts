@@ -562,7 +562,7 @@ function generateConnectionEntry(connectionsData: any): ProjectExplorerEntry {
 					connectionEntry.command = {
 						"title": "Show Connection",
 						"command": COMMANDS.SHOW_CONNECTION,
-						"arguments": [vscode.Uri.file(connection.path), undefined, false]
+						"arguments": [vscode.Uri.file(connection.path), connection.name, false]
 					};
 
 					connectionTypeEntry.children = connectionTypeEntry.children ?? [];

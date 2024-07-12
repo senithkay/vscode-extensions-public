@@ -41,6 +41,14 @@ const ParamManagerContainer = styled.div`
     width: ; 100%;
 `;
 
+interface Connection {
+    name: string;
+    connectionType: string;
+    path: string;
+    connectorName: string;
+    parameters: any[];
+}
+
 export interface AddConnectionProps {
     path: string;
     allowedConnectionTypes?: string[];
@@ -67,14 +75,17 @@ interface ExpressionValueWithSetter {
     setValue: (value: ExpressionFieldValue) => void;
 };
 
+const expressionFieldTypes = ['stringOrExpression', 'integerOrExpression', 'textAreaOrExpression'];
+
 export function AddConnection(props: AddConnectionProps) {
     const { allowedConnectionTypes } = props;
     const { rpcClient } = useVisualizerContext();
 
     const [errors, setErrors] = useState({} as any);
-    const [connectionType, setConnectionType] = useState(allowedConnectionTypes[0]);
-    const [connectionName, setConnectionName] = useState("");
-    const [formData, setFormData] = useState({} as any);
+    const [connectionType, setConnectionType] = useState(allowedConnectionTypes ? allowedConnectionTypes[0] : "");
+    const [connectionName, setConnectionName] = useState(props.connectionName ?? "");
+    const [connectorName, setConnectorName] = useState(props.connector ? props.connector.name : "");
+    const [formData, setFormData] = useState(undefined);
     const [expressionEditorField, setExpressionEditorField] = useState<string | null>(null);
     const [currentExpressionValue, setCurrentExpressionValue] = useState<ExpressionValueWithSetter | null>(null);
     const [connections, setConnections] = useState([]);
@@ -100,9 +111,10 @@ export function AddConnection(props: AddConnectionProps) {
         }
 
         const fetchFormData = async () => {
+            // Fetch form on creation
             if (connectionType) {
 
-                const connectionUiSchema = props.connector.connectionUiSchema[connectionType as any];
+                const connectionUiSchema = props.connector.connectionUiSchema[connectionType];
 
                 const connectionFormJSON = await rpcClient.getMiDiagramRpcClient().getConnectionForm({ uiSchemaPath: connectionUiSchema });
 
@@ -111,11 +123,102 @@ export function AddConnection(props: AddConnectionProps) {
         };
 
         (async () => {
-            await fetchConnections();
-            await fetchFormData();
-            reset();
+            // Fetch connections and form data for connection creation
+            if (!props.connectionName) {
+                await fetchConnections();
+                await fetchFormData();
+                reset();
+            }
         })();
     }, [connectionType]);
+
+    useEffect(() => {
+        const fetchFormData = async () => {
+            // If connectionName is provided, it is an update operation
+            if (props.connectionName) {
+                setConnectionName(props.connectionName);
+
+                const connectionData: any = await rpcClient.getMiDiagramRpcClient().getConnectorConnections({
+                    documentUri: props.path,
+                    connectorName: null
+                });
+
+                let connectionFound: Connection;
+                // Get Connection data
+                for (const key of Object.keys(connectionData)) {
+                    const connections = connectionData[key].connections;
+                    const connection = connections.find((connection: any) => connection.name === props.connectionName);
+                    if (connection) {
+                        connectionFound = connection
+                        break;
+                    }
+                }
+
+                if (connectionFound) {
+                    // Set Form Data
+                    setConnectionType(connectionFound.connectionType);
+                    const connector = await rpcClient.getMiDiagramRpcClient().getAvailableConnectors({
+                        documentUri: props.path, connectorName: connectionFound.connectorName
+                    });
+
+                    setConnectorName(connector.name);
+
+                    const connectionUiSchema = connector.connectionUiSchema[connectionFound.connectionType];
+
+                    const connectionFormJSON = await rpcClient.getMiDiagramRpcClient().getConnectionForm({ uiSchemaPath: connectionUiSchema });
+
+                    setFormData(connectionFormJSON.formJSON);
+                    reset();
+
+                    const parameters = connectionFound.parameters
+
+                    // Populate form with existing values
+                    if (connectionFormJSON.formJSON !== "") {
+                        if (parameters) {
+                            parameters.forEach((param: any) => {
+                                const inputType = getInputType(connectionFormJSON.formJSON, param.name);
+                                if (param.name !== "name") {
+                                    if (expressionFieldTypes.includes(inputType)) {
+                                        if (param.isExpression) {
+                                            let namespacesArray: any[] = [];
+                                            if (param.namespaces) {
+                                                namespacesArray = Object.entries(param.namespaces).map(([prefix, uri]) => ({
+                                                    prefix: prefix.split(':')[1], uri: uri
+                                                }));
+                                            }
+                                            setValue(param.name, {
+                                                isExpression: true,
+                                                value: param.value.replace(/[{}]/g, ''),
+                                                namespaces: namespacesArray
+                                            });
+                                        } else {
+                                            param.namespaces = [];
+                                            setValue(param.name, param);
+                                        }
+                                    } else {
+                                        setValue(param.name, param.value);
+                                    }
+                                }
+                            });
+                        }
+                    } else {
+                        // Handle connections without uischema
+
+                        // Remove connection name from param manager fields
+                        const filteredParameters = parameters.filter(param => param.name !== 'name');
+                        
+                        const modifiedParams = {
+                            ...params, paramValues: generateParams(filteredParameters)
+                        };
+                        setParams(modifiedParams);
+                    }
+                }
+            }
+        }
+        (async () => {
+            await fetchFormData();
+        })();
+    }, [props.connectionName]);
 
     const paramConfigs: ParamConfig = {
         paramValues: [],
@@ -152,6 +255,26 @@ export function AddConnection(props: AddConnectionProps) {
         setParams(modifiedParams);
     };
 
+    function getInputType(formData: any, paramName: string): string {
+        let inputType = null;
+
+        function traverseElements(elements: any) {
+            for (let element of elements) {
+                if (element.type === 'attribute' && element.value.name === paramName) {
+                    inputType = element.value.inputType;
+                    return;
+                }
+
+                if (element.type === 'attributeGroup') {
+                    traverseElements(element.value.elements);
+                }
+            }
+        }
+
+        traverseElements(formData.elements);
+
+        return inputType;
+    }
 
     const validateField = (id: string, e: any, isRequired: boolean, validation?: "e-mail" | "nameWithoutSpecialCharactors" | "custom", regex?: string): string => {
         if (id === "connectionName") {
@@ -259,7 +382,7 @@ export function AddConnection(props: AddConnectionProps) {
 
         const name = connectionName ?? 'CONNECTION_1';
         const template = create();
-        const root = template.ele(`${formData.connectorName ?? props.connector.name}.init`);
+        const root = template.ele(`${connectorName}.init`);
 
         root.ele('name').txt(name);
         params.paramValues.forEach(param => {
@@ -290,6 +413,25 @@ export function AddConnection(props: AddConnectionProps) {
             rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Overview } });
         }
     };
+
+    function generateParams(parameters: any[]) {
+        return parameters.map((param: any, id) => {
+            return {
+                id: id,
+                key: param.name,
+                value: param.value,
+                icon: "query",
+                paramValues: [
+                    {
+                        value: param.name,
+                    },
+                    {
+                        value: param.value,
+                    },
+                ]
+            }
+        });
+    }
 
     const ExpressionFieldComponent = ({ element }: { element: Element }) => (
         <Field>
@@ -498,8 +640,10 @@ export function AddConnection(props: AddConnectionProps) {
     const handleOnClose = () => {
         if (props.fromSidePanel) {
             rpcClient.getMiVisualizerRpcClient().goBack();
-        } else {
+        } else if (props.changeConnector) {
             props.changeConnector();
+        } else {
+            rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Overview } });
         }
     }
 
@@ -522,7 +666,60 @@ export function AddConnection(props: AddConnectionProps) {
                 title='Change connector'
                 id='Connector:'
             />}
-            {allowedConnectionTypes && allowedConnectionTypes.length === 0 ? (
+            {formData ? (
+                <>
+                    <TextField
+                        label='Connection Name'
+                        size={50}
+                        placeholder={"The name for the file connection"}
+                        defaultValue={""}
+                        value={connectionName}
+                        onTextChange={(e: any) => {
+                            setConnectionName(e);
+                            verifyName(event);
+                        }}
+                        required={true}
+                    />
+                    {connectionNameError && <ErrorBanner errorMsg={connectionNameError} />}
+                    {allowedConnectionTypes && (
+                        <Field>
+                            <label>{"Connection Type"}</label> <RequiredFormInput />
+                            <AutoComplete
+                                identifier={"connectionType"}
+                                items={
+                                    allowedConnectionTypes?.map((type: any) => (
+                                        type
+                                    ))
+                                }
+                                value={connectionType}
+                                onValueChange={(e: any) => {
+                                    setConnectionType(e);
+                                }}
+                                required={true} />
+                        </Field>
+                    )}
+                    {formData && formData.elements && formData.elements.length > 0 && (
+                        <>
+                            {renderForm(formData.elements)}
+                            <FormActions>
+                                <Button
+                                    appearance="primary"
+                                    onClick={handleSubmit(onAddConnection)}
+                                >
+                                    {props.connectionName ? "Update" : "Add"}
+                                </Button>
+                                <Button
+                                    appearance="secondary"
+                                    onClick={handleOnClose}
+                                >
+                                    Cancel
+                                </Button>
+                            </FormActions>
+                        </>
+                    )}
+                </>
+            ) : (
+                // If no uiSchema is available, show param manager
                 <>
                     <TextField
                         label='Connection Name'
@@ -541,64 +738,20 @@ export function AddConnection(props: AddConnectionProps) {
                             readonly={false}
                             onChange={handleOnChange} />
                     </ParamManagerContainer>
-                    <div style={{ display: "flex", textAlign: "right", justifyContent: "flex-end", marginTop: "10px" }}>
+                    <FormActions>
                         <Button
                             appearance="primary"
                             onClick={onAddInitConnection}
                         >
-                            Submit
+                            {props.connectionName ? "Update" : "Add"}
                         </Button>
-                    </div>
-                </>
-            ) : (
-                <>
-                    <TextField
-                        label='Connection Name'
-                        size={50}
-                        placeholder={"The name for the file connection"}
-                        defaultValue={""}
-                        value={connectionName}
-                        onTextChange={(e: any) => {
-                            setConnectionName(e);
-                            verifyName(event);
-                        }}
-                        required={true}
-                    />
-                    {connectionNameError && <ErrorBanner errorMsg={connectionNameError} />}
-                    <Field>
-                        <label>{"Connection Type"}</label> <RequiredFormInput />
-                        <AutoComplete
-                            identifier={"connectionType"}
-                            items={
-                                allowedConnectionTypes?.map((type: any) => (
-                                    type
-                                ))
-                            }
-                            value={connectionType}
-                            onValueChange={(e: any) => {
-                                setConnectionType(e);
-                            }}
-                            required={true} />
-                    </Field>
-                    {formData && formData.elements && formData.elements.length > 0 && (
-                        <>
-                            {renderForm(formData.elements)}
-                            <FormActions>
-                                <Button
-                                    appearance="primary"
-                                    onClick={handleSubmit(onAddConnection)}
-                                >
-                                    Add
-                                </Button>
-                                <Button
-                                    appearance="secondary"
-                                    onClick={handleOnClose}
-                                >
-                                    Cancel
-                                </Button>
-                            </FormActions>
-                        </>
-                    )}
+                        <Button
+                            appearance="secondary"
+                            onClick={handleOnClose}
+                        >
+                            Cancel
+                        </Button>
+                    </FormActions>
                 </>
             )}
 
