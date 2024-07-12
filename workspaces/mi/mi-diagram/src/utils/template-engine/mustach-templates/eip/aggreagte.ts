@@ -166,7 +166,7 @@ export function getAggregateFormDataFromSTNode(data: { [key: string]: any }, nod
         const match = min.match(regex);
         data.completionMinMessages = { isExpression: true, value: match.length > 1 ? match[1] : min, namespaces: messageCountNamespaces };
     } else if (min) {
-        data.completionMinMessagesValue = { isExpression: false, value: min };
+        data.completionMinMessages = { isExpression: false, value: min };
     }
     data.aggregateElementType = node.correlateOnOrCompleteConditionOrOnComplete?.onComplete?.aggregateElementType?.toUpperCase();
     data.enclosingElementProperty = node.correlateOnOrCompleteConditionOrOnComplete?.onComplete?.enclosingElementProperty;
