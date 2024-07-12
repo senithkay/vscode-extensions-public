@@ -115,6 +115,7 @@ export interface ConnectorPageProps {
     searchValue?: string;
     clearSearch?: () => void;
     nodePosition: any;
+    trailingSpace: string;
 }
 
 export function ConnectionPage(props: ConnectorPageProps) {
@@ -175,7 +176,7 @@ export function ConnectionPage(props: ConnectorPageProps) {
         const handler = setTimeout(() => {
             setDebouncedValue(props.searchValue);
         }, 400);
-    
+
         return () => {
             clearTimeout(handler);
         };
@@ -258,10 +259,10 @@ export function ConnectionPage(props: ConnectorPageProps) {
             const searchResults = endpoints.filter((endpoint) => {
                 return endpoint.name.toLowerCase().includes(debouncedValue.toLowerCase());
             });
-    
+
             return searchResults;
         }
-    
+
         return [];
     };
 
@@ -361,8 +362,11 @@ export function ConnectionPage(props: ConnectorPageProps) {
     }
 
     const clickEndpoint = async (endpoint: any) => {
-        const callForm = <CallForm nodePosition={sidePanelContext.nodeRange}
-            documentUri={props.documentUri} endpoint={endpoint.name} />;
+        const callForm = <CallForm
+            nodePosition={sidePanelContext.nodeRange}
+            documentUri={props.documentUri}
+            endpoint={endpoint.name}
+            trailingSpace={props.trailingSpace} />;
 
         sidepanelAddPage(sidePanelContext, callForm, `Add Call Operation`);
     }
@@ -603,8 +607,10 @@ export function ConnectionPage(props: ConnectorPageProps) {
                                                 <CardContent>
                                                     <CardLabel>
                                                         <IconContainer>
-                                                            <Icon name="HTTPEndpoint" sx={{ 
-                                                                height: 25, width: 25, fontSize: 25, color: "#3e97d3" }} />
+                                                            <Icon
+                                                                name="HTTPEndpoint"
+                                                                sx={{ height: 25, width: 25, fontSize: 25, color: "#3e97d3" }}
+                                                            />
                                                         </IconContainer>
                                                         <div style={{
                                                             width: '100%',
