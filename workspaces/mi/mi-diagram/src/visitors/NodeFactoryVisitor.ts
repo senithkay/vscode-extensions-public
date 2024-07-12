@@ -102,6 +102,11 @@ interface createNodeAndLinks {
     data?: any;
 }
 
+interface NodeAddPosition {
+    position: Position;
+    trailingSpace: string;
+}
+
 enum DiagramType {
     DIAGRAM,
     SEQUENCE
@@ -116,7 +121,7 @@ export class NodeFactoryVisitor implements Visitor {
     private skipChildrenVisit = false;
     private previousSTNodes: STNode[] = [];
     private currentBranchData: BranchData;
-    private currentAddPosition: Position;
+    private currentAddPosition: NodeAddPosition;
     private documentUri: string;
     private diagramType: DiagramType;
     private resource: DiagramService;
@@ -210,9 +215,15 @@ export class NodeFactoryVisitor implements Visitor {
                     && RESTRICTED_NODE_TYPES.indexOf(previousNodeType) < 0
                     && previousNode.getStNode().viewState?.canAddAfter;
 
-                const addPosition = this.currentAddPosition != undefined ? this.currentAddPosition :
-                    (type === NodeTypes.CONDITION_NODE_END && previousNode instanceof EmptyNodeModel) ? previousStNode.range.endTagRange.start :
-                        previousStNode.range.endTagRange?.end ? previousStNode.range.endTagRange.end : previousStNode.range.startTagRange.end;
+                let addPosition: NodeAddPosition;
+                if (this.currentAddPosition != undefined) {
+                    addPosition = this.currentAddPosition;
+                } else if (type === NodeTypes.CONDITION_NODE_END && previousNode instanceof EmptyNodeModel) {
+                    addPosition = { position: previousStNode.range.endTagRange.start, trailingSpace: previousStNode.spaces.endingTagSpace.trailingSpace.space };
+                } else {
+                    const space = previousStNode?.spaces?.endingTagSpace?.trailingSpace?.range?.end ? previousStNode.spaces.endingTagSpace.trailingSpace : previousStNode.spaces.startingTagSpace.trailingSpace;
+                    addPosition = { position: space.range.end, trailingSpace: space.space };
+                }
 
                 const isBrokenLine = previousStNode.viewState.isBrokenLines ?? node.viewState.isBrokenLines;
 
@@ -221,7 +232,8 @@ export class NodeFactoryVisitor implements Visitor {
                     diagramNode as TargetNodeModel,
                     {
                         label: this.currentBranchData?.name,
-                        stRange: addPosition,
+                        stRange: addPosition.position,
+                        trailingSpace: addPosition.trailingSpace ?? "",
                         brokenLine: isBrokenLine ?? (type === NodeTypes.EMPTY_NODE || isSequnceConnect || isEmptyNodeConnect),
                         previousNode: previousStNode.tag,
                         nextNode: type !== NodeTypes.END_NODE ? node.tag : undefined,
@@ -247,7 +259,8 @@ export class NodeFactoryVisitor implements Visitor {
         for (let i = 0; i < sequenceKeys.length; i++) {
             const sequence = subSequences[sequenceKeys[i]];
             if (sequence) {
-                this.currentAddPosition = sequence.range.startTagRange.end;
+                const space = sequence.spaces.startingTagSpace.trailingSpace;
+                this.currentAddPosition = { position: space.range.end, trailingSpace: space.space };
 
                 // add the start node for each sub flow in group node
                 const startNode = structuredClone(sequence);
@@ -360,11 +373,8 @@ export class NodeFactoryVisitor implements Visitor {
     beginVisitHeader = (node: Header): void => this.createNodeAndLinks({ node, name: MEDIATORS.HEADER });
 
     beginVisitInSequence(node: Sequence): void {
-        const addPosition = {
-            line: node.range.startTagRange.start.line,
-            character: node.range.startTagRange.end.character
-        }
-        this.currentAddPosition = addPosition;
+        const space = node.spaces.startingTagSpace.trailingSpace;
+        this.currentAddPosition = { position: space.range.end, trailingSpace: space.space };
         this.resource.viewState = node.viewState;
         this.createNodeAndLinks({ node: this.resource, type: NodeTypes.START_NODE, data: StartNodeType.IN_SEQUENCE });
         this.parents.push(node);
@@ -378,14 +388,11 @@ export class NodeFactoryVisitor implements Visitor {
     }
 
     beginVisitOutSequence(node: Sequence): void {
-        const addPosition = {
-            line: node.range.startTagRange.start.line,
-            character: node.range.startTagRange.end.character
-        }
-        this.currentAddPosition = addPosition;
+        const space = node.spaces.startingTagSpace.trailingSpace;
+        this.currentAddPosition = { position: space.range.end, trailingSpace: space.space };
         this.resource.viewState = node.viewState;
         this.createNodeAndLinks({ node, type: NodeTypes.START_NODE, data: StartNodeType.OUT_SEQUENCE });
-        this.currentAddPosition = addPosition;
+        this.currentAddPosition = { position: space.range.end, trailingSpace: space.space };
         this.parents.push(node);
     }
     endVisitOutSequence(node: Sequence): void {
@@ -397,11 +404,8 @@ export class NodeFactoryVisitor implements Visitor {
     }
 
     beginVisitFaultSequence(node: Sequence): void {
-        const addPosition = {
-            line: node.range.startTagRange.end.line,
-            character: node.range.startTagRange.end.character
-        }
-        this.currentAddPosition = addPosition;
+        const space = node.spaces.startingTagSpace.trailingSpace;
+        this.currentAddPosition = { position: space.range.end, trailingSpace: space.space };
         this.createNodeAndLinks({ node, type: NodeTypes.START_NODE, data: StartNodeType.FAULT_SEQUENCE });
         this.parents.push(node);
     }
@@ -532,11 +536,8 @@ export class NodeFactoryVisitor implements Visitor {
             this.createNodeAndLinks({ node, name: MEDIATORS.SEQUENCE, type: NodeTypes.REFERENCE_NODE, data: { referenceName: (node as any).key ?? node.tag, openViewName: OPEN_SEQUENCE_VIEW } });
             this.skipChildrenVisit = true;
         } else {
-            const addPosition = {
-                line: node.range.startTagRange.start.line,
-                character: node.range.startTagRange.end.character
-            }
-            this.currentAddPosition = addPosition;
+            const space = node.spaces.startingTagSpace.trailingSpace;
+            this.currentAddPosition = { position: space.range.end, trailingSpace: space.space };
             this.createNodeAndLinks({ node, type: NodeTypes.START_NODE, data: StartNodeType.IN_SEQUENCE });
             this.diagramType = DiagramType.SEQUENCE;
         }

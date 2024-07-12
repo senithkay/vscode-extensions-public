@@ -475,6 +475,7 @@
         <xs:sequence>
             <xs:element name="enableSec" minOccurs="0" maxOccurs="1">
                 <xs:complexType>
+                    <xs:attribute name="policy" type="xs:string" use="optional" />
                     <xs:attribute name="inboundPolicy" type="xs:string" use="optional" />
                     <xs:attribute name="outboundPolicy" type="xs:string" use="optional" />
                 </xs:complexType>

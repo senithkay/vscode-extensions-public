@@ -284,3 +284,7 @@ export const DATA_SERVICE = {
     EDIT_RESOURCE: "edit-resource",
     EDIT_SELF_CLOSE_RESOURCE: "edit-self-close-resource",
 }
+
+export const APIS = {
+    CONNECTOR: "https://mi-connectors.wso2.com/icons/mi-connectors-info.json"
+}

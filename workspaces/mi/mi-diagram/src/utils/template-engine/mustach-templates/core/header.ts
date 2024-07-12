@@ -12,7 +12,7 @@ import Mustache from "mustache";
 import { transformNamespaces } from "../../../commons";
 
 export function getHeaderMustacheTemplate() {
-    return `<header {{#headerName}}name="{{{value}}}" {{#namespaces}}xmlns:{{prefix}}="{{{uri}}}" {{/namespaces}}{{/headerName}}{{#headerAction}}action="{{headerAction}}" {{/headerAction}}{{#scope}}scope="{{scope}}" {{/scope}}{{#valueExpression}}expression="{{{value}}}" {{#namespaces}}xmlns:{{prefix}}="{{uri}}" {{/namespaces}}{{/valueExpression}}{{#valueLiteral}}value="{{valueLiteral}}" {{/valueLiteral}}{{#description}}description="{{description}}" {{/description}}{{^valueInline}}/{{/valueInline}}>
+    return `<header {{#headerName}}name="{{{value}}}" {{#namespaces}}xmlns:{{{prefix}}}="{{{uri}}}" {{/namespaces}}{{/headerName}}{{#headerAction}}action="{{headerAction}}" {{/headerAction}}{{#scope}}scope="{{scope}}" {{/scope}}{{#valueExpression}}expression="{{{value}}}" {{#namespaces}}xmlns:{{prefix}}="{{uri}}" {{/namespaces}}{{/valueExpression}}{{#valueLiteral}}value="{{valueLiteral}}" {{/valueLiteral}}{{#description}}description="{{description}}" {{/description}}{{^valueInline}}/{{/valueInline}}>
     {{#valueInline}}
     {{{valueInline}}}
 </header>{{/valueInline}}`;

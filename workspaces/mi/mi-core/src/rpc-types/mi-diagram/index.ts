@@ -174,8 +174,14 @@ import {
     UpdateMockServiceRequest,
     UpdateMockServiceResponse,
     GetAllMockServicesResponse,
-    AddDependencyToPomRequest,
+    UpdateDependencyInPomRequest,
     SwaggerFromAPIResponse,
+    StoreConnectorJsonResponse,
+    OpenDependencyPomRequest,
+    getAllDependenciesRequest,
+    GetAllDependenciesResponse,
+    TestDbConnectionRequest,
+    TestDbConnectionResponse,
 } from "./types";
 
 export interface MiDiagramAPI {
@@ -266,6 +272,7 @@ export interface MiDiagramAPI {
     updateConnectors: (params: UpdateConnectorRequest) => void;
     getConnectorForm: (params: GetConnectorFormRequest) => Promise<GetConnectorFormResponse>;
     getConnectionForm: (params: GetConnectionFormRequest) => Promise<GetConnectionFormResponse>;
+    getStoreConnectorJSON: () => Promise<StoreConnectorJsonResponse>;
     createDataSource: (params: DataSourceTemplate) => Promise<CreateDataSourceResponse>;
     getDataSource: (params: GetDataSourceRequest) => Promise<DataSourceTemplate>;
     getIconPathUri: (params: GetIconPathUriRequest) => Promise<GetIconPathUriResponse>;
@@ -290,5 +297,8 @@ export interface MiDiagramAPI {
     updateMockService: (params: UpdateMockServiceRequest) => Promise<UpdateMockServiceResponse>;
     getAllTestSuites: () => Promise<GetAllTestSuitsResponse>;
     getAllMockServices: () => Promise<GetAllMockServicesResponse>;
-    addDependencyToPom: (params: AddDependencyToPomRequest) => Promise<void>;
+    updateDependencyInPom: (params: UpdateDependencyInPomRequest) => Promise<void>;
+    openDependencyPom: (params: OpenDependencyPomRequest) => Promise<void>;
+    getAllDependencies: (params: getAllDependenciesRequest) => Promise<GetAllDependenciesResponse>;
+    testDbConnection: (params: TestDbConnectionRequest) => Promise<TestDbConnectionResponse>;
 }

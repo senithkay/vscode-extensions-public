@@ -39,6 +39,7 @@ import { ErrorBoundary, FormView } from '@wso2-enterprise/ui-toolkit';
 import PopupPanel from './PopupPanel';
 import { AddArtifactView } from './views/AddArtifact';
 import { SequenceTemplateView } from './views/Diagram/SequenceTemplate';
+import { ConnectorStore } from './views/Forms/ConnectionForm';
 import { TestSuiteForm } from './views/Forms/Tests/TestSuiteForm';
 import { TestCaseForm } from './views/Forms/Tests/TestCaseForm';
 import { MockServiceForm } from './views/Forms/Tests/MockServices/MockServiceForm';
@@ -46,6 +47,7 @@ import { DataServiceWizard } from './views/Forms/DataServiceForm/MainPanelForms'
 import { DataServiceView } from './views/Diagram/DataService';
 import { SignInToCopilotMessage } from './views/LoggedOutWindow';
 import { DataServiceDataSourceWizard } from "./views/Forms/DataServiceForm/MainPanelForms/DataSourceForm/DatasourceForm";
+import AddConnection from './views/Forms/ConnectionForm/ConnectionFormGenerator';
 
 const MainContainer = styled.div`
     display: flex;
@@ -305,6 +307,18 @@ const MainPanel = () => {
                     break;
                 case MACHINE_VIEW.DataSourceForm:
                     setViewComponent(<DataSourceWizard path={machineView.documentUri} />);
+                    break;
+                case MACHINE_VIEW.ConnectorStore:
+                    setViewComponent(
+                        <ConnectorStore path={machineView.documentUri} />);
+                    break;
+                case MACHINE_VIEW.ConnectionForm:
+                    setViewComponent(
+                        <AddConnection 
+                            connectionName={machineView.customProps.connectionName}
+                            allowedConnectionTypes={machineView.customProps.allowedConnectionTypes}
+                            connector={machineView.customProps}
+                            path={machineView.documentUri} />);
                     break;
                 case MACHINE_VIEW.TestSuite:
                     setViewComponent(<TestSuiteForm filePath={machineView.documentUri} stNode={machineView.stNode as UnitTest} />);

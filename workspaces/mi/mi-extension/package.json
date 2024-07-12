@@ -293,6 +293,13 @@
         "category": "MI"
       },
       {
+        "command": "MI.project-explorer.add-connection",
+        "title": "Add Connection",
+        "icon": "$(add)",
+        "group": "navigation",
+        "category": "MI"
+      },
+      {
         "command": "MI.project-explorer.add-registry-resource",
         "title": "Add Registry Resource",
         "icon": "$(add)",
@@ -519,6 +526,11 @@
         {
           "command": "MI.project-explorer.add-local-entry",
           "when": "view == MI.project-explorer && viewItem == localEntries",
+          "group": "inline"
+        },
+        {
+          "command": "MI.project-explorer.add-connection",
+          "when": "view == MI.project-explorer && viewItem == connections",
           "group": "inline"
         },
         {

@@ -13,7 +13,7 @@ import { MiDebugAdapter } from './debugAdapter';
 import { COMMANDS } from '../constants';
 import { extension } from '../MIExtensionContext';
 import { executeBuildTask, getServerPath } from './debugHelper';
-import { getBuildTask, getDockerTask } from './tasks';
+import { getDockerTask } from './tasks';
 import { navigate } from '../stateMachine';
 import { SELECTED_SERVER_PATH } from './constants';
 
@@ -40,10 +40,8 @@ export function activateDebugger(context: vscode.ExtensionContext) {
                 vscode.window.showErrorMessage("Server path not found");
                 return;
             }
-            const buildTask = getBuildTask();
-            await executeBuildTask(buildTask, serverPath, shouldCopyTarget);
+            await executeBuildTask(serverPath, shouldCopyTarget);
         });
-
     });
 
     vscode.commands.registerCommand(COMMANDS.CREATE_DOCKER_IMAGE, async () => {

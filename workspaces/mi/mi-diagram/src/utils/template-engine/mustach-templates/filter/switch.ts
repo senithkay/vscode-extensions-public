@@ -15,7 +15,7 @@ export function getSwitchMustacheTemplate() {
 
   return `
     {{#isNewMediator}}
-    <switch {{#description}}description="{{description}}"{{/description}} {{#sourceXPath}}source="{{{value}}}"{{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}}{{/sourceXPath}} >
+    <switch {{#description}}description="{{description}}"{{/description}} {{#sourceXPath}}source="{{{value}}}"{{#namespaces}} xmlns:{{{prefix}}}="{{{uri}}}"{{/namespaces}}{{/sourceXPath}} >
         {{#caseBranches}}
         <case regex="{{{caseRegex}}}"></case>
         {{/caseBranches}}
@@ -25,10 +25,10 @@ export function getSwitchMustacheTemplate() {
     {{^isNewMediator}}
     {{#editSwitch}}
     {{#switchSelfClosed}}
-    <switch {{#description}}description="{{description}}"{{/description}} {{#sourceXPath}}source="{{{value}}}"{{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}}{{/sourceXPath}} />
+    <switch {{#description}}description="{{description}}"{{/description}} {{#sourceXPath}}source="{{{value}}}"{{#namespaces}} xmlns:{{{prefix}}}="{{{uri}}}"{{/namespaces}}{{/sourceXPath}} />
     {{/switchSelfClosed}}
     {{^switchSelfClosed}}
-    <switch {{#description}}description="{{description}}"{{/description}} {{#sourceXPath}}source="{{{value}}}"{{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}}{{/sourceXPath}}>
+    <switch {{#description}}description="{{description}}"{{/description}} {{#sourceXPath}}source="{{{value}}}"{{#namespaces}} xmlns:{{{prefix}}}="{{{uri}}}"{{/namespaces}}{{/sourceXPath}}>
     {{/switchSelfClosed}}
     {{/editSwitch}}
     {{#newCase}}

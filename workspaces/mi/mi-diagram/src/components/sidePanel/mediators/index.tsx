@@ -11,6 +11,7 @@ import { TextField, Button, Codicon, Icon } from "@wso2-enterprise/ui-toolkit";
 import React, { useState } from "react";
 import { Mediators } from "./List";
 import styled from "@emotion/styled";
+import { ConnectionPage } from "../connections";
 import { ConnectorPage } from "../connectors";
 
 const Wrapper = styled.div`
@@ -48,12 +49,14 @@ const searchIcon = (<Codicon name="search" sx={{ cursor: "auto" }} />);
 
 export interface MediatorPageProps {
     nodePosition: any;
+    trailingSpace: string;
     documentUri: string;
 }
 export function HomePage(props: MediatorPageProps) {
     const [searchValue, setSearchValue] = useState<string>('');
     const [isAllMediators, setAllMediators] = useState<boolean>(true);
     const [isConnectors, setConnectors] = useState<boolean>(false);
+    const [isEndpoints, setEndpoints] = useState<boolean>(false);
 
     const handleSearch = (e: string) => {
         setSearchValue(e);
@@ -65,12 +68,20 @@ export function HomePage(props: MediatorPageProps) {
 
     const handleAllMediatorsClicked = () => {
         setConnectors(false);
+        setEndpoints(false);
         setAllMediators(true);
     }
 
     const handleConnectorsClicked = () => {
         setAllMediators(false);
+        setEndpoints(false);
         setConnectors(true);
+    }
+
+    const handleEndpointsClicked = () => {
+        setAllMediators(false);
+        setConnectors(false);
+        setEndpoints(true);
     }
 
     return (
@@ -89,14 +100,19 @@ export function HomePage(props: MediatorPageProps) {
                     autoFocus={true}
                 />
                 {/*  Categories */}
-                <ButtonContainer style={{ marginBottom: "10px", width: "calc(100% - 15px)" }}>
-                    <Button onClick={handleAllMediatorsClicked} appearance={isAllMediators ? 'primary' : 'secondary'} >
+                <ButtonContainer style={{ marginBottom: "10px", width: "calc(100% - 15px)", justifyContent: "space-evenly" }}>
+                    <Button buttonSx={{width: '128px'}} onClick={handleAllMediatorsClicked} appearance={isAllMediators ? 'primary' : 'secondary'} >
                         <Icon sx={{marginTop: 2, marginRight: 5}} name="module-icon"/>
-                        All Mediators
+                        Mediators
                     </Button>
 
-                    <Button onClick={handleConnectorsClicked} appearance={isConnectors ? 'primary' : 'secondary'}>
+                    <Button buttonSx={{width: '128px'}} onClick={handleEndpointsClicked} appearance={isEndpoints ? 'primary' : 'secondary'}>
                         <Icon sx={{marginTop: 2, marginRight: 5}} name="caller"/>
+                        Externals
+                    </Button>
+
+                    <Button buttonSx={{width: '128px'}} onClick={handleConnectorsClicked} appearance={isConnectors ? 'primary' : 'secondary'}>
+                        <Icon sx={{marginTop: 2, marginRight: 5}} name="connector"/>
                         Connectors
                     </Button>
                 </ButtonContainer>
@@ -104,12 +120,22 @@ export function HomePage(props: MediatorPageProps) {
             {isAllMediators && (
                 <ComponentList>
                     {/* Mediator List */}
-                    <Mediators nodePosition={props.nodePosition} documentUri={props.documentUri} searchValue={searchValue} />
+                    <Mediators nodePosition={props.nodePosition} documentUri={props.documentUri} trailingSpace={props.trailingSpace} searchValue={searchValue} />
                 </ComponentList>
             )}
             {isConnectors && (
                 <ComponentList>
                     <ConnectorPage nodePosition={props.nodePosition} documentUri={props.documentUri} searchValue={searchValue} clearSearch={clearSearch} />
+                </ComponentList>
+            )}
+            {isEndpoints && (
+                <ComponentList>
+                    <ConnectionPage
+                        nodePosition={props.nodePosition}
+                        documentUri={props.documentUri}
+                        searchValue={searchValue}
+                        clearSearch={clearSearch}
+                        trailingSpace={props.trailingSpace} />
                 </ComponentList>
             )}
         </Wrapper>
