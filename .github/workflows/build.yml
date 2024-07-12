@@ -77,6 +77,8 @@ jobs:
           testArray=""
           echo "hasBalDiff=false" >> $GITHUB_OUTPUT
           echo "hasChoreoDiff=false" >> $GITHUB_OUTPUT
+          echo "hasMIDiff=false" >> $GITHUB_OUTPUT
+
           # Get list of all changed files in the PR
           if [[ ${{ inputs.isReleaseBuild }} = 'true' ]]; then
             git fetch origin main
@@ -85,7 +87,7 @@ jobs:
             CHANGED_DIRS=$(git diff --name-only HEAD^..HEAD | grep -E "^/*" || true)
           fi
 
-          echo $CHANGED_DIRS
+          echo $CHANGED_DIRS[@]
 
           # Ballerina ext
           if [[ "${CHANGED_DIRS[@]}" =~ "workspaces/ballerina" ]]; then
@@ -113,7 +115,8 @@ jobs:
           fi
 
           # Common
-          if  [[ "${CHANGED_DIRS[@]}" =~ "workspaces/common-libs" || "${CHANGED_DIRS[@]}" =~ "common" || "${CHANGED_DIRS[@]}" =~ "^/*.yaml" || "${CHANGED_DIRS[@]}" =~ "^/*.json" ]]; then
+          if  [[ "${CHANGED_DIRS[@]}" =~ "workspaces/common-libs" || "${CHANGED_DIRS[@]}" =~ "common" || "${CHANGED_DIRS[@]}" =~ "^.github" || "${CHANGED_DIRS[@]}" =~ "^/*.json" ]]; then
+            echo "Have changes in common libs"
             echo "hasBalDiff=true" >> $GITHUB_OUTPUT
             echo "hasChoreoDiff=true" >> $GITHUB_OUTPUT
             echo "hasAPIChatDiff=true" >> $GITHUB_OUTPUT
