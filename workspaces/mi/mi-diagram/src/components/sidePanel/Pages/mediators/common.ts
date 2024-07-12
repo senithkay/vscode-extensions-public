@@ -14,6 +14,7 @@ import { ParamConfig } from '../../../Form';
 
 export interface AddMediatorProps {
     nodePosition: Range;
+    trailingSpace: string;
     documentUri: string;
 }
 
