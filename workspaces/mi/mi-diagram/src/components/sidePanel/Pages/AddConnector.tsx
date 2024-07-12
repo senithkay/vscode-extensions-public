@@ -59,7 +59,7 @@ interface Element {
     allowedConnectionTypes?: string[];
 }
 
-const expressionFieldTypes = ['stringOrExpression', 'integerOrExpression', 'textAreaOrExpression'];
+const expressionFieldTypes = ['stringOrExpression', 'integerOrExpression', 'textAreaOrExpression', 'textOrExpression'];
 
 const AddConnector = (props: AddConnectorProps) => {
     const { formData, nodePosition, documentUri } = props;
@@ -110,20 +110,20 @@ const AddConnector = (props: AddConnectorProps) => {
 
     const fetchConnections = async () => {
         const allowedTypes = findAllowedConnectionTypes(props.formData.elements);
-    
+
         const connectorData = await rpcClient.getMiDiagramRpcClient().getConnectorConnections({
             documentUri: props.documentUri,
             connectorName: props.formData?.connectorName ?? props.connectorName.toLowerCase().replace(/\s/g, '')
         });
-    
+
         const filteredConnections = connectorData.connections.filter(
             connection => allowedTypes?.includes(connection.connectionType));
         const connectionNames = filteredConnections.map(connection => connection.name);
-    
+
         setConnections(connectionNames);
         setIsLoading(false);
     };
-    
+
 
     useEffect(() => {
         handleOnCancelExprEditorRef.current = () => {
@@ -406,6 +406,25 @@ const AddConnector = (props: AddConnectorProps) => {
                         />
                     </Field>
                 );
+            case 'textOrExpression':
+                return (
+                    <Field>
+                        <Controller
+                            name={getNameForController(element.name)}
+                            control={control}
+                            defaultValue={{ "isExpression": false, "value": element.defaultValue, "namespaces": [] }}
+                            render={({ field }) => (
+                                <ExpressionField
+                                    {...field} label={element.displayName}
+                                    placeholder={element.helpTip}
+                                    canChange={true}
+                                    required={element.required === 'true'}
+                                    openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
+                                />
+                            )}
+                        />
+                    </Field>
+                );
             case 'booleanOrExpression':
                 return (
                     <Field>
@@ -593,7 +612,7 @@ const AddConnector = (props: AddConnectorProps) => {
                             </Button>
                         </div>
                     </>
-                )   :
+                ) :
                     <>
                         {renderForm(props.formData.elements)}
                         <div style={{ display: "flex", textAlign: "right", justifyContent: "flex-end", marginTop: "10px" }}>
