@@ -115,7 +115,7 @@ jobs:
           fi
 
           # Common
-          if  [[ "${CHANGED_DIRS[@]}" =~ "workspaces/common-libs" || "${CHANGED_DIRS[@]}" =~ "common" || "${CHANGED_DIRS[@]}" =~ "^.github" || "${CHANGED_DIRS[@]}" =~ "^/*.json" ]]; then
+          if  [[ "${CHANGED_DIRS[@]}" =~ "workspaces/common-libs" || "${CHANGED_DIRS[@]}" =~ "common" || "${CHANGED_DIRS[@]}" =~ ".github" || "${CHANGED_DIRS[@]}" =~ "^/*.json" ]]; then
             echo "Have changes in common libs"
             echo "hasBalDiff=true" >> $GITHUB_OUTPUT
             echo "hasChoreoDiff=true" >> $GITHUB_OUTPUT
