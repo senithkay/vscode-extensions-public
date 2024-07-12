@@ -99,7 +99,7 @@ jobs:
 
           # MI ext
           if [[ "${CHANGED_DIRS[@]}" =~ "workspaces/mi" ]]; then
-              echo "runMIExtTests=true" >> $GITHUB_OUTPUT
+              echo "hasMIDiff=true" >> $GITHUB_OUTPUT
           fi
           
           # APK ext
@@ -119,6 +119,7 @@ jobs:
             echo "hasAPIChatDiff=true" >> $GITHUB_OUTPUT
             echo "hasAPKDiff=true" >> $GITHUB_OUTPUT
             echo "hasEggplantDiff=true" >> $GITHUB_OUTPUT
+            echo "hasMIDiff=true" >> $GITHUB_OUTPUT
           fi
 
       - name: Set test matrix
@@ -126,12 +127,14 @@ jobs:
         id: testMatrix
         run: |
           echo "Ballerina Tests: ${{ steps.diff.outputs.hasBalDiff }}"
-          echo "Choreo Tests: ${{ steps.diff.outputs.hasChoreoDiff }}"
           echo "runBalExtTests=${{ steps.diff.outputs.hasBalDiff }}" >> $GITHUB_OUTPUT
+          echo "Choreo Tests: ${{ steps.diff.outputs.hasChoreoDiff }}"
           echo "runChoreoExtTests=${{ steps.diff.outputs.hasChoreoDiff }}" >> $GITHUB_OUTPUT
           echo "runAPIChatExtTests=${{ steps.diff.outputs.hasAPIChatDiff }}" >> $GITHUB_OUTPUT
           echo "runAPKExtTests=${{ steps.diff.outputs.hasAPKDiff }}" >> $GITHUB_OUTPUT
           echo "runEggplantExtTests=${{ steps.diff.outputs.hasEggplantDiff }}" >> $GITHUB_OUTPUT
+          echo "MI Tests: ${{ steps.diff.outputs.hasMIDiff }}"
+          echo "runMIExtTests=${{ steps.diff.outputs.hasMIDiff }}" >> $GITHUB_OUTPUT
 
       - name: Build
         uses: ./.github/actions/build
