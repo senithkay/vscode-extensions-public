@@ -91,8 +91,6 @@ function getCompletions(filePath: string, fileContent: string, cursorPosition: n
     project.getSourceFileOrThrow(filePath).replaceWithText(fileContent);
 
     const completionOptions = {
-        includeExternalModuleExports: true,
-        includeInsertTextCompletions: true,
         includeCompletionsForModuleExports: true,
         includeCompletionsWithInsertText: true,
         includeAutomaticOptionalChainCompletions: true

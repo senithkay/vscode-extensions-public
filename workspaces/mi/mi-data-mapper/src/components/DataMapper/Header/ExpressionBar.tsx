@@ -18,6 +18,7 @@ import { DataMapperNodeModel } from '../../../components/Diagram/Node/commons/Da
 import { getDefaultValue } from '../../../components/Diagram/utils/common-utils';
 import { filterOperators } from './utils';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
+import { READONLY_MAPPING_FUNCTION_NAME } from './constants';
 
 const useStyles = () => ({
     exprBarContainer: css({
@@ -75,10 +76,26 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
             }
 
             const operators = response.operators as { entry: ts.CompletionEntry, details: ts.CompletionEntryDetails }[];
-            
+
+            let currentFunction: string;
+            let parent: Node = focusedNode.getParent();
+            while (parent) {
+                if (Node.isFunctionDeclaration(parent)) {
+                    currentFunction = parent.getName();
+                    break;
+                }
+                parent = parent.getParent();
+            } 
+
+            const localFunctionNames = focusedNode
+                .getSourceFile()
+                .getFunctions()
+                .map(fn => fn.getName())
+                .filter(name => name !== READONLY_MAPPING_FUNCTION_NAME && name !== currentFunction);
+
             const filteredOperators: ItemType[] = [];
             for (const operator of operators) {
-                const details = filterOperators(operator.entry, operator.details);
+                const details = filterOperators(operator.entry, operator.details, localFunctionNames);
                 if (details) {
                     filteredOperators.push(details);
                 }
@@ -228,10 +245,11 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
                     const propName = focusedFieldValue.getName();
 
                     focusedFieldValue.remove();
-                    parent.addPropertyAssignment({
+                    const propertyAssignment = parent.addPropertyAssignment({
                         name: propName,
                         initializer: value
                     });
+                    focusedPort.typeWithValue.setValue(propertyAssignment);
                 } else {
                     focusedFieldValue.remove();
                 }
@@ -258,9 +276,10 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
                 objLitExpr = returnExpr;
             }
 
-            await createSourceForUserInput(
-                focusedPort?.typeWithValue, objLitExpr, value, fnBody, applyModifications
+            const propertyAssignment = await createSourceForUserInput(
+                focusedPort?.typeWithValue, objLitExpr, value, fnBody
             );
+            focusedPort.typeWithValue.setValue(propertyAssignment);
         }
     };
 
@@ -281,7 +300,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
                 onItemSelect={onItemSelect}
                 onSave={handleExpressionSave}
                 getCompletions={getCompletions}
-                sx={{ display: 'flex', alignItems: 'center', fontFamily: 'monospace', fontSize: '12px' }}
+                sx={{ display: 'flex', alignItems: 'center' }}
             />
         </div>
     );

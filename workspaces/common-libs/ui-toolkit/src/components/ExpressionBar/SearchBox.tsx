@@ -17,7 +17,8 @@ import { Codicon } from '../Codicon/Codicon';
 import { ExpressionBarProps, ItemType } from './ExpressionBar';
 import { debounce } from 'lodash';
 import { createPortal } from 'react-dom';
-import { addClosingBracketIfNeeded, getExpressionInfo, isFunction, isParameter, setCursor } from './utils';
+import { addClosingBracketIfNeeded, getExpressionInfo, getIcon, isFunction, isParameter, setCursor } from './utils';
+import { VSCodeTag } from '@vscode/webview-ui-toolkit/react';
 
 // Types
 type StyleBase = {
@@ -27,7 +28,6 @@ type StyleBase = {
 type DropdownProps = StyleBase & {
     items: ItemType[];
     onItemSelect: (item: ItemType) => void;
-    onClose: () => void;
 };
 
 type DropdownItemProps = {
@@ -41,16 +41,26 @@ type SyntaxProps = {
     currentArgIndex: number;
 };
 
-type SyntaxElProps = StyleBase &
-    SyntaxProps & {
-        onClose: () => void;
-    };
+type SyntaxElProps = StyleBase & SyntaxProps;
 
 // Styles
 const Container = styled.div`
     width: 100%;
     position: relative;
     display: flex;
+`;
+
+const StyledTextField = styled(TextField)`
+    ::part(control) {
+        font-family: monospace;
+        font-size: 12px;
+    }
+`;
+
+const StyledTag = styled(VSCodeTag)`
+    ::part(control) {
+        text-transform: none;
+    }
 `;
 
 const DropdownContainer = styled.div<StyleBase>`
@@ -78,6 +88,7 @@ const DropdownItemContainer = styled.div`
     flex-direction: column;
     gap: 4px;
     padding: 4px 8px;
+    font-family: monospace;
     cursor: pointer;
 
     & > #description {
@@ -91,7 +102,14 @@ const DropdownItemContainer = styled.div`
 
     &.hovered > #description {
         display: block;
+        color: var(--vscode-list-deemphasizedForeground);
     }
+`;
+
+const TitleContainer = styled.div`
+    display: flex;
+    align-items: center;
+    gap: 8px;
 `;
 
 const Divider = styled.div`
@@ -185,10 +203,14 @@ const DropdownItem = (props: DropdownItemProps) => {
             onMouseEnter={handleMouseEnter}
             onClick={onClick}
         >
-            <Typography variant="body3" sx={{ fontWeight: 600 }}>
-                {item.label}
-            </Typography>
-            <Typography id="description" variant="body3">
+            <TitleContainer>
+                {getIcon(item.kind)}
+                {item.tag && <StyledTag>{item.tag}</StyledTag>}
+                <Typography variant="body3" sx={{ fontWeight: 600 }}>
+                    {item.label}
+                </Typography>
+            </TitleContainer>
+            <Typography id="description" variant="caption">
                 {item.description}
             </Typography>
         </DropdownItemContainer>
@@ -196,28 +218,13 @@ const DropdownItem = (props: DropdownItemProps) => {
 };
 
 const Dropdown = forwardRef<HTMLDivElement, DropdownProps>((props, ref) => {
-    const { items, onItemSelect, onClose, sx } = props;
+    const { items, onItemSelect, sx } = props;
     const listBoxRef = useRef<HTMLDivElement>(null);
 
     useImperativeHandle(ref, () => listBoxRef.current);
 
     return (
         <DropdownBody sx={sx}>
-            <Codicon
-                sx={{
-                    position: 'absolute',
-                    top: '0',
-                    right: '0',
-                    width: '16px',
-                    margin: '-4px',
-                    borderRadius: '50%',
-                    backgroundColor: 'var(--vscode-activityBar-background)',
-                    zIndex: '5',
-                }}
-                iconSx={{ color: 'var(--vscode-activityBar-foreground)' }}
-                name="close"
-                onClick={onClose}
-            />
             <DropdownItemBody ref={listBoxRef}>
                 {items.map((item, index) => {
                     return (
@@ -275,27 +282,12 @@ const Dropdown = forwardRef<HTMLDivElement, DropdownProps>((props, ref) => {
 Dropdown.displayName = 'Dropdown';
 
 const SyntaxEl = (props: SyntaxElProps) => {
-    const { item, currentArgIndex, onClose, sx } = props;
+    const { item, currentArgIndex, sx } = props;
 
     return (
         <>
             {item && (
                 <DropdownBody sx={sx}>
-                    <Codicon
-                        sx={{
-                            position: 'absolute',
-                            top: '0',
-                            right: '0',
-                            width: '16px',
-                            margin: '-4px',
-                            borderRadius: '50%',
-                            backgroundColor: 'var(--vscode-activityBar-background)',
-                            zIndex: '5',
-                        }}
-                        iconSx={{ color: 'var(--vscode-activityBar-foreground)' }}
-                        name="close"
-                        onClick={onClose}
-                    />
                     <SyntaxBody>
                         <Typography variant="body3" sx={{ fontWeight: 600 }}>
                             {`${item.label}(`}
@@ -430,11 +422,9 @@ export const ExpressionEditor = forwardRef<HTMLInputElement, ExpressionBarProps>
         onItemSelect && onItemSelect(item);
     };
 
-    const handleDropdownClose = () => {
+    const handleClose = () => {
+        getSuggestions.cancel();
         setFilteredItems([]);
-    };
-
-    const handleFunctionSyntaxClose = () => {
         setSyntax(undefined);
     };
 
@@ -444,7 +434,7 @@ export const ExpressionEditor = forwardRef<HTMLInputElement, ExpressionBarProps>
             switch (e.key) {
                 case 'Escape':
                     e.preventDefault();
-                    handleDropdownClose();
+                    handleClose();
                     break;
                 case 'ArrowDown':
                     e.preventDefault();
@@ -496,7 +486,7 @@ export const ExpressionEditor = forwardRef<HTMLInputElement, ExpressionBarProps>
                     e.preventDefault();
                     if (hoveredEl) {
                         const item = filteredItems.find(
-                            (item: ItemType) => item.label === hoveredEl.firstChild.textContent
+                            (item: ItemType) => `${item.tag ?? ""}${item.label}` === hoveredEl.firstChild.textContent
                         );
                         if (item) {
                             handleItemSelect(item);
@@ -511,14 +501,13 @@ export const ExpressionEditor = forwardRef<HTMLInputElement, ExpressionBarProps>
             const { updatedText: valueWithClosingBracket, cursorPosition } = addClosingBracketIfNeeded(inputRef, value);
             handleChange(valueWithClosingBracket, cursorPosition);
             onSave && onSave(valueWithClosingBracket);
-            setFilteredItems([]);
-            setSyntax(undefined);
+            handleClose()
         }
     };
 
     return (
         <Container ref={elementRef}>
-            <TextField
+            <StyledTextField
                 ref={inputRef}
                 value={value}
                 onTextChange={handleChange}
@@ -529,19 +518,30 @@ export const ExpressionEditor = forwardRef<HTMLInputElement, ExpressionBarProps>
             {inputRef &&
                 createPortal(
                     <DropdownContainer sx={{ ...dropdownPosition }}>
-                        <Transition show={filteredItems.length > 0} {...ANIMATION}>
+                        <Transition show={filteredItems.length > 0 || !!syntax?.item} {...ANIMATION}>
+                            <Codicon
+                                sx={{
+                                    position: 'absolute',
+                                    top: '0',
+                                    right: '0',
+                                    width: '16px',
+                                    margin: '-4px',
+                                    borderRadius: '50%',
+                                    backgroundColor: 'var(--vscode-activityBar-background)',
+                                    zIndex: '5',
+                                }}
+                                iconSx={{ color: 'var(--vscode-activityBar-foreground)' }}
+                                name="close"
+                                onClick={handleClose}
+                            />
                             <Dropdown
                                 ref={listBoxRef}
                                 items={filteredItems}
                                 onItemSelect={handleItemSelect}
-                                onClose={handleDropdownClose}
                             />
-                        </Transition>
-                        <Transition show={!!syntax?.item} {...ANIMATION}>
                             <SyntaxEl
                                 item={syntax?.item}
                                 currentArgIndex={syntax?.currentArgIndex ?? 0}
-                                onClose={handleFunctionSyntaxClose}
                             />
                         </Transition>
                     </DropdownContainer>,

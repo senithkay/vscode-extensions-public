@@ -7,8 +7,9 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { RefObject } from 'react';
+import React, { RefObject } from 'react';
 import { ITEM_TYPE_KIND, ItemTypeKind } from './ExpressionBar';
+import { Codicon } from '../Codicon/Codicon';
 
 export const getExpressionInfo = (text: string, cursorPosition: number) => {
     const openBrackets = text.substring(0, cursorPosition).match(/\(/g);
@@ -53,4 +54,17 @@ export const setCursor = (inputRef: RefObject<HTMLInputElement>, position: numbe
 export const isFunction = (kind: ItemTypeKind) => kind === ITEM_TYPE_KIND.Function || kind === ITEM_TYPE_KIND.Method;
 
 export const isParameter = (kind: ItemTypeKind) => kind === ITEM_TYPE_KIND.Parameter;
+
+export const getIcon = (kind: ItemTypeKind) => {
+    switch (kind) {
+        case ITEM_TYPE_KIND.Function:
+            return <Codicon name="symbol-constructor" />;
+        case ITEM_TYPE_KIND.Method:
+            return <Codicon name="symbol-constructor" />;
+        case ITEM_TYPE_KIND.Parameter:
+            return <Codicon name="symbol-variable" />;
+        case ITEM_TYPE_KIND.Property:
+            return <Codicon name="symbol-field" />;
+    }
+};
 
