@@ -516,7 +516,7 @@ export function ConnectorPage(props: ConnectorPageProps) {
                                                                                 marginBottom: 10,
                                                                                 padding: 10,
                                                                                 transition: '0.3s',
-                                                                                width: 'auto'
+                                                                                width: '160px'
                                                                             }}
                                                                         >
                                                                             <SmallIconContainer>
@@ -525,7 +525,13 @@ export function ConnectorPage(props: ConnectorPageProps) {
                                                                                     alt="Icon"
                                                                                 />
                                                                             </SmallIconContainer>
-                                                                            <div >
+                                                                            <div style={{
+                                                                                width: '100%',
+                                                                                overflow: 'hidden',
+                                                                                textOverflow: 'ellipsis',
+                                                                                whiteSpace: 'nowrap',
+                                                                                textAlign: 'left'
+                                                                            }}>
                                                                                 <IconLabel>{FirstCharToUpperCase(operation.name)}</IconLabel>
                                                                             </div>
                                                                         </ComponentCard>

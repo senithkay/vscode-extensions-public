@@ -236,13 +236,10 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 		revealWebviewPanel(beside);
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.LocalEntryForm, documentUri: documentUri?.fsPath });
 	});
-	commands.registerCommand(COMMANDS.SHOW_CONNECTION, async (documentUri: Uri, beside: boolean = true) => {
+	commands.registerCommand(COMMANDS.SHOW_CONNECTION, async (documentUri: Uri, connectionName: string, beside: boolean = true) => {
 		revealWebviewPanel(beside);
-		if (documentUri) {
-			let doc = await workspace.openTextDocument(documentUri);
-			let viewColumn = window.activeTextEditor ? ViewColumn.Beside : ViewColumn.Active;
-			await window.showTextDocument(doc, { viewColumn: viewColumn });
-		}
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.ConnectionForm, documentUri: documentUri?.fsPath, 
+			customProps: { connectionName: connectionName } });
 	});
 	commands.registerCommand(COMMANDS.SHOW_DATA_SOURCE, (documentUri: Uri, resourceIndex: string, beside: boolean = true) => {
 		revealWebviewPanel(beside);
