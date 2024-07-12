@@ -38,6 +38,7 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 			{ label: 'Task', description: 'Add new task' },
 			{ label: 'Proxy Service', description: 'Add new proxy service' },
 			{ label: 'Template', description: 'Add new template' },
+			{ label: 'Connection', description: 'Add new connection'}
 			// TODO: Will introduce back when both datasource and dataservice functionalities are completely supported
 			// { label: 'Data Service', description: 'Add new data service' },
 			// { label: 'Data Source', description: 'Add new data source' }
@@ -66,6 +67,8 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 				commands.executeCommand(COMMANDS.ADD_LOCAL_ENTRY_COMMAND);
 			} else if (selection?.label === 'Message Store') {
 				commands.executeCommand(COMMANDS.ADD_MESSAGE_STORE_COMMAND);
+			} else if (selection?.label === 'Connection') {
+				commands.executeCommand(COMMANDS.ADD_CONNECTION_COMMAND);
 			}
 			// TODO: Will introduce back when both datasource and dataservice functionalities are completely supported
 			// else if (selection?.label === 'Data Service') {
@@ -164,6 +167,11 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 	commands.registerCommand(COMMANDS.ADD_LOCAL_ENTRY_COMMAND, (entry: ProjectExplorerEntry) => {
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.LocalEntryForm, documentUri: entry.info?.path });
 		console.log('Add Local Entry');
+	});
+
+	commands.registerCommand(COMMANDS.ADD_CONNECTION_COMMAND, (entry: ProjectExplorerEntry) => {
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.ConnectorStore, documentUri: entry.info?.path });
+		console.log('Add Connection');
 	});
 
 	commands.registerCommand(COMMANDS.ADD_DATA_SOURCE_COMMAND, (entry: ProjectExplorerEntry) => {

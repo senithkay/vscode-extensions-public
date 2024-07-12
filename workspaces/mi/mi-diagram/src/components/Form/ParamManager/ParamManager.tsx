@@ -76,6 +76,7 @@ export interface ParamManagerProps {
     onChange?: (parameters: ParamConfig) => void,
     readonly?: boolean;
     addParamText?: string;
+    allowAddItem?: boolean;
 }
 
 const AddButtonWrapper = styled.div`
@@ -310,7 +311,7 @@ const getAddParamTextFromParamId = (paramFields: ParamField[], paramId: number) 
 }
 
 export function ParamManager(props: ParamManagerProps) {
-    const { paramConfigs, readonly, openInDrawer, addParamText = "Add Parameter", onChange } = props;
+    const { paramConfigs, readonly, openInDrawer, addParamText = "Add Parameter", onChange, allowAddItem = true } = props;
 
     const [editingSegmentId, setEditingSegmentId] = useState<number>(-1);
     const [isNew, setIsNew] = useState(false);
@@ -465,7 +466,7 @@ export function ParamManager(props: ParamManagerProps) {
     return (
         <div>
             {paramComponents}
-            {(editingSegmentId === -1) && (
+            {(editingSegmentId === -1 && allowAddItem) && (
                 <AddButtonWrapper>
                     <LinkButton sx={readonly && { color: "var(--vscode-badge-background)" }} onClick={!readonly && onAddClick} >
                         <Codicon name="add" />

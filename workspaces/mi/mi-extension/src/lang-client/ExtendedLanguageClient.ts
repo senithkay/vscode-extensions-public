@@ -31,7 +31,9 @@ import {
     onConnectorStatusUpdate,
     GenerateAPIRequest,
     GenerateAPIResponse,
-    SwaggerFromAPIRequest
+    SwaggerFromAPIRequest,
+    TestDbConnectionRequest,
+    TestDbConnectionResponse
 } from "@wso2-enterprise/mi-core";
 import { readFileSync } from "fs";
 import { CancellationToken, FormattingOptions, Position, Uri, workspace } from "vscode";
@@ -109,7 +111,6 @@ export class ExtendedLanguageClient extends LanguageClient {
         super(id, name, serverOptions, clientOptions);
         
         this.onNotification("synapse/addConnectorStatus", (connectorStatus: any) => {
-            console.log("Connector status: " + connectorStatus);
             // Notify the visualizer
             RPCLayer._messenger.sendNotification(onConnectorStatusUpdate, { type: 'webview', webviewType: VisualizerWebview.viewType }, connectorStatus);
         });
@@ -232,5 +233,9 @@ export class ExtendedLanguageClient extends LanguageClient {
 
     async swaggerFromAPI(req: SwaggerFromAPIRequest): Promise<any> {
         return this.sendRequest("synapse/swaggerFromAPI", req);
+    }
+
+    async testDbConnection(req: TestDbConnectionRequest): Promise<TestDbConnectionResponse> {
+        return this.sendRequest("synapse/testDBConnection", req);
     }
 }

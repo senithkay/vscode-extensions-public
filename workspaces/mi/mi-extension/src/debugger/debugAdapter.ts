@@ -10,12 +10,11 @@
 import { Breakpoint, BreakpointEvent, Handles, InitializedEvent, LoggingDebugSession, Scope, StoppedEvent, TerminatedEvent, Thread } from 'vscode-debugadapter';
 import { DebugProtocol } from 'vscode-debugprotocol';
 import * as vscode from 'vscode';
-import { checkServerReadiness, executeBuildTask, executeTasks, getServerPath, isADiagramView, readPortOffset, removeTempDebugBatchFile } from './debugHelper';
+import { checkServerReadiness, executeBuildTask, executeTasks, getServerPath, isADiagramView, readPortOffset, removeTempDebugBatchFile, stopServer } from './debugHelper';
 import { Subject } from 'await-notify';
 import { Debugger } from './debugger';
 import { StateMachine, navigate, openView } from '../stateMachine';
 import { VisualizerWebview } from '../visualizer/webview';
-import { getBuildTask, getStopTask } from './tasks';
 import { ViewColumn } from 'vscode';
 import { COMMANDS } from '../constants';
 import { INCORRECT_SERVER_PATH_MSG } from './constants';
@@ -313,7 +312,6 @@ export class MiDebugAdapter extends LoggingDebugSession {
 
     protected async restartRequest(response: DebugProtocol.RestartResponse, args: DebugProtocol.RestartArguments, request?: DebugProtocol.Request | undefined): Promise<void> {
         const lauchArgs: DebugProtocol.LaunchRequestArguments = args.arguments as DebugProtocol.LaunchRequestArguments;
-        const buildTask = getBuildTask();
         const isDebugAllowed = !lauchArgs?.noDebug ?? true;
 
         if (isDebugAllowed) {
@@ -327,7 +325,7 @@ export class MiDebugAdapter extends LoggingDebugSession {
                 this.sendResponse(response);
             });
         } else {
-            executeBuildTask(buildTask, this.currentServerPath).then(async () => {
+            executeBuildTask(this.currentServerPath).then(async () => {
                 response.success = true;
                 this.sendResponse(response);
             }).catch(error => {
@@ -343,32 +341,26 @@ export class MiDebugAdapter extends LoggingDebugSession {
     }
 
     protected async disconnectRequest(response: DebugProtocol.DisconnectResponse, args?: DebugProtocol.DisconnectArguments, request?: DebugProtocol.Request): Promise<void> {
-        const taskExecution = vscode.tasks.taskExecutions.find(execution => execution.task.name === 'run');
-        if (taskExecution) {
-            this.debuggerHandler?.closeDebugger();
+        this.debuggerHandler?.closeDebugger();
+        try {
             if (process.platform === 'win32') {
-                taskExecution.terminate();
+                await stopServer(this.currentServerPath, true);
                 removeTempDebugBatchFile();
+                response.success = true;
+                this.sendResponse(response);
             } else {
-                const stopTask = getStopTask(this.currentServerPath);
-                if (stopTask) {
-                    stopTask.presentationOptions.close = true;
-                    stopTask.presentationOptions.showReuseMessage = false;
-                    vscode.tasks.executeTask(stopTask);
-                    response.success = true;
-                    this.sendResponse(response);
-                } else {
-                    const completeError = `Error while stopping the server: ${INCORRECT_SERVER_PATH_MSG}`;
-                    this.showErrorAndExecuteChangeServerPath(completeError);
-                    this.sendError(response, 3, completeError);
-                }
+                await stopServer(this.currentServerPath);
+                response.success = true;
+                this.sendResponse(response);
             }
-            vscode.commands.executeCommand('setContext', 'MI.isRunning', 'false');
-            RPCLayer._messenger.sendNotification(miServerRunStateChanged, { type: 'webview', webviewType: 'micro-integrator.runtime-services-panel' }, 'Stopped');
-
-        } else {
-            this.sendError(response, 3, `Error while disconnecting: Task Run was not found`);
+        } catch (error) {
+            const completeError = `Error while stopping the server: ${error}`;
+            this.showErrorAndExecuteChangeServerPath(completeError);
+            this.sendError(response, 3, completeError);
         }
+
+        vscode.commands.executeCommand('setContext', 'MI.isRunning', 'false');
+        RPCLayer._messenger.sendNotification(miServerRunStateChanged, { type: 'webview', webviewType: 'micro-integrator.runtime-services-panel' }, 'Stopped');
     }
 
     protected async attachRequest(response: DebugProtocol.AttachResponse, args: DebugProtocol.LaunchRequestArguments) {

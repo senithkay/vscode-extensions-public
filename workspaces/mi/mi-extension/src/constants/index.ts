@@ -56,6 +56,7 @@ export const COMMANDS = {
     ADD_PROXY_SERVICE_COMMAND: 'MI.project-explorer.add-proxy-service',
     ADD_TASK_COMMAND: 'MI.project-explorer.add-task',
     ADD_LOCAL_ENTRY_COMMAND: 'MI.project-explorer.add-local-entry',
+    ADD_CONNECTION_COMMAND: 'MI.project-explorer.add-connection',
     ADD_MESSAGE_PROCESSOR_COMMAND: 'MI.project-explorer.add-message-processor',
     ADD_MESSAGE_STORE_COMMAND: 'MI.project-explorer.add-message-store',
     ADD_TEMPLATE_COMMAND: 'MI.project-explorer.add-template',
@@ -96,4 +97,8 @@ export const DEFAULT_PROJECT_VERSION = "1.0.0";
 export const REFRESH_ENABLED_DOCUMENTS = ["SynapseXml", "typescript"];
 
 export * from "./swagger";
+
+export const APIS = {
+    CONNECTOR: "https://mi-connectors.wso2.com/icons/mi-connectors-info.json"
+}
 

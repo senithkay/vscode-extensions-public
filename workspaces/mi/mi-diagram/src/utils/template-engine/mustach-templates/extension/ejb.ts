@@ -4,7 +4,7 @@ import { transformNamespaces } from "../../../commons";
 
 export function getEjbMustacheTemplate() {
     return `{{#argsAvailable}}
-    <ejb {{#beanstalk}}beanstalk="{{beanstalk}}" {{/beanstalk}}{{#class}}class="{{class}}" {{/class}}{{#description}}description="{{description}}" {{/description}}{{#sessionIdExpression}}id="{{sessionIdExpression}}" {{/sessionIdExpression}}{{#sessionIdLiteral}}id="{{{sessionIdLiteral}}}" {{/sessionIdLiteral}}{{#jndiName}}jndiName="{{jndiName}}" {{/jndiName}}{{#method}}method="{{method}}" {{/method}}{{#remove}}remove="{{remove}}" {{/remove}}stateful="true" {{#target}}target="{{{target}}}"{{/target}}{{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}}>
+    <ejb {{#beanstalk}}beanstalk="{{beanstalk}}" {{/beanstalk}}{{#class}}class="{{class}}" {{/class}}{{#description}}description="{{description}}" {{/description}}{{#sessionIdExpression}}id="{{sessionIdExpression}}" {{/sessionIdExpression}}{{#sessionIdLiteral}}id="{{{sessionIdLiteral}}}" {{/sessionIdLiteral}}{{#jndiName}}jndiName="{{jndiName}}" {{/jndiName}}{{#method}}method="{{method}}" {{/method}}{{#remove}}remove="{{remove}}" {{/remove}}stateful="true" {{#target}}target="{{{target}}}"{{/target}}{{#namespaces}} xmlns:{{{prefix}}}="{{{uri}}}"{{/namespaces}}>
         <args>
             {{#methodArguments}}
             <arg {{#value}}value="{{{value}}}"{{/value}}/>
@@ -13,7 +13,7 @@ export function getEjbMustacheTemplate() {
     </ejb>
     {{/argsAvailable}}
     {{^argsAvailable}}
-    <ejb {{#beanstalk}}beanstalk="{{beanstalk}}" {{/beanstalk}}{{#class}}class="{{class}}" {{/class}}{{#description}}description="{{description}}" {{/description}}{{#sessionIdExpression}}id="{{sessionIdExpression}}" {{/sessionIdExpression}}{{#sessionIdLiteral}}id="{{{sessionIdLiteral}}}" {{/sessionIdLiteral}}{{#jndiName}}jndiName="{{jndiName}}" {{/jndiName}}{{#method}}method="{{method}}" {{/method}}{{#remove}}remove="{{remove}}" {{/remove}}stateful="true" {{#target}}target="{{{target}}}"{{/target}}{{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}}/>
+    <ejb {{#beanstalk}}beanstalk="{{beanstalk}}" {{/beanstalk}}{{#class}}class="{{class}}" {{/class}}{{#description}}description="{{description}}" {{/description}}{{#sessionIdExpression}}id="{{sessionIdExpression}}" {{/sessionIdExpression}}{{#sessionIdLiteral}}id="{{{sessionIdLiteral}}}" {{/sessionIdLiteral}}{{#jndiName}}jndiName="{{jndiName}}" {{/jndiName}}{{#method}}method="{{method}}" {{/method}}{{#remove}}remove="{{remove}}" {{/remove}}stateful="true" {{#target}}target="{{{target}}}"{{/target}}{{#namespaces}} xmlns:{{{prefix}}}="{{{uri}}}"{{/namespaces}}/>
     {{/argsAvailable}}`;
 }
 

@@ -27,6 +27,10 @@ export function getBuildTask(): vscode.Task {
     return buildTask;
 }
 
+export function getBuildCommand(): string {
+    return "mvn clean install -Dstyle.color=never";
+}
+
 export function getDockerTask(): vscode.Task {
     const commandToExecute = "mvn clean install -P docker";
 
@@ -80,6 +84,38 @@ export async function getRunTask(serverPath: string, isDebug: boolean): Promise<
     return runTask;
 }
 
+export async function getRunCommand(serverPath: string, isDebug: boolean): Promise<string | undefined> {
+    let command;
+    let binFile;
+
+    if (process.platform === 'win32') {
+        binFile = 'micro-integrator.bat';
+    } else {
+        binFile = 'micro-integrator.sh';
+    }
+
+    const binPath = path.join(serverPath, 'bin', binFile);
+
+    if (isDebug) {
+        // HACK to get the server to run as the debugger since MI 4.2.0 version's .bat file is not supported to run java variables
+        if(process.platform === 'win32'){
+                const binDirectoryPath = path.join(serverPath, 'bin');
+                try {
+                    const copiedBatchFile = await createTempDebugBatchFile(binPath, binDirectoryPath);
+                    command = copiedBatchFile;
+                } catch (error) {
+                    vscode.window.showErrorMessage(`Error while creating temporary debug batch file: ${error}`);
+                    return undefined;
+                }
+        } else {
+            command = `"${binPath}" -Desb.debug=true`;
+        }
+    } else {
+        command = `"${binPath}"`;
+    }
+    return command;
+}
+
 export function getStopTask(serverPath: string): vscode.Task | undefined {
     const binPath = path.join(serverPath, 'bin', 'micro-integrator.sh');
     const command = `${binPath} stop`;
@@ -97,4 +133,23 @@ export function getStopTask(serverPath: string): vscode.Task | undefined {
         new vscode.ShellExecution(command)
     );
     return stopTask;
+}
+
+export function getStopCommand(serverPath: string): string | undefined {
+    let scriptFile;
+
+    if (process.platform === 'win32') {
+        scriptFile = 'micro-integrator.bat';
+    } else {
+        scriptFile = 'micro-integrator.sh';
+    }
+    const binPath = path.join(serverPath, 'bin', scriptFile);
+    const command = `"${binPath}" stop`;
+
+    if (!fs.existsSync(binPath)) {
+        logDebug(`${binPath} does not exist`, ERROR_LOG);
+        return;
+    }
+
+    return command;
 }

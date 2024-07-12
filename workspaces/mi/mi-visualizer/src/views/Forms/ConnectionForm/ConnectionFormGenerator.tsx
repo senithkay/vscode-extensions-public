@@ -1,0 +1,610 @@
+/**
+ * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
+
+import { useEffect, useState } from 'react';
+import { AutoComplete, Button, ComponentCard, ErrorBanner, FormActions, FormView, RequiredFormInput, TextField } from '@wso2-enterprise/ui-toolkit';
+import styled from '@emotion/styled';
+import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
+import { create } from 'xmlbuilder2';
+import { useForm, Controller } from 'react-hook-form';
+import { ExpressionField } from '@wso2-enterprise/mi-diagram/lib/components/Form/ExpressionField/ExpressionInput';
+import { ExpressionFieldValue } from '@wso2-enterprise/mi-diagram/lib/components/Form/ExpressionField/ExpressionInput';
+import { EVENT_TYPE, MACHINE_VIEW, POPUP_EVENT_TYPE } from '@wso2-enterprise/mi-core';
+import { ExpressionEditor } from '@wso2-enterprise/mi-diagram/lib/components/sidePanel/expressionEditor/ExpressionEditor';
+import { TypeChip } from '../Commons';
+import { ParamConfig, ParamManager } from '@wso2-enterprise/mi-diagram';
+
+const cardStyle = {
+    display: "block",
+    margin: "5px 0",
+    padding: "10px 15px 15px 15px",
+    width: "auto",
+    cursor: "auto"
+};
+
+const Error = styled.span`
+    color: var(--vscode-errorForeground);
+    font-size: 12px;
+`;
+
+const Field = styled.div`
+    margin-bottom: 20px;
+`;
+
+const ParamManagerContainer = styled.div`
+    width: ; 100%;
+`;
+
+export interface AddConnectionProps {
+    path: string;
+    allowedConnectionTypes?: string[];
+    connector?: any;
+    connectionName?: string;
+    changeConnector?: () => void;
+    fromSidePanel?: boolean;
+    isPopup?: boolean;
+}
+
+interface Element {
+    inputType: any;
+    name: string | number;
+    displayName: any;
+    required: string;
+    helpTip: any;
+    comboValues?: any[];
+    defaultValue?: any;
+    allowedConnectionTypes?: string[];
+}
+
+interface ExpressionValueWithSetter {
+    value: ExpressionFieldValue;
+    setValue: (value: ExpressionFieldValue) => void;
+};
+
+export function AddConnection(props: AddConnectionProps) {
+    const { allowedConnectionTypes } = props;
+    const { rpcClient } = useVisualizerContext();
+
+    const [errors, setErrors] = useState({} as any);
+    const [connectionType, setConnectionType] = useState(allowedConnectionTypes[0]);
+    const [connectionName, setConnectionName] = useState("");
+    const [formData, setFormData] = useState({} as any);
+    const [expressionEditorField, setExpressionEditorField] = useState<string | null>(null);
+    const [currentExpressionValue, setCurrentExpressionValue] = useState<ExpressionValueWithSetter | null>(null);
+    const [connections, setConnections] = useState([]);
+    const [connectionNameError, setConnectionNameError] = useState("");
+
+    const formValidators: { [key: string]: (e?: any) => string | undefined } = {};
+    const { control, handleSubmit, watch, getValues, setValue, reset } = useForm();
+
+    useEffect(() => {
+        const fetchConnections = async () => {
+            const connectionData: any = await rpcClient.getMiDiagramRpcClient().getConnectorConnections({
+                documentUri: props.path,
+                connectorName: null
+            });
+
+            let connectionNames: any[] = [];
+            Object.keys(connectionData).forEach(key => {
+                const connections = connectionData[key].connections.map((connection: any) => connection.name);
+                connectionNames = connectionNames.concat(connections);
+            });
+
+            setConnections(connectionNames);
+        }
+
+        const fetchFormData = async () => {
+            if (connectionType) {
+
+                const connectionUiSchema = props.connector.connectionUiSchema[connectionType as any];
+
+                const connectionFormJSON = await rpcClient.getMiDiagramRpcClient().getConnectionForm({ uiSchemaPath: connectionUiSchema });
+
+                setFormData(connectionFormJSON.formJSON);
+            }
+        };
+
+        (async () => {
+            await fetchConnections();
+            await fetchFormData();
+            reset();
+        })();
+    }, [connectionType]);
+
+    const paramConfigs: ParamConfig = {
+        paramValues: [],
+        paramFields: [
+            {
+                id: 0,
+                type: "TextField",
+                label: "Key",
+                defaultValue: "",
+                isRequired: true
+            },
+            {
+                id: 1,
+                type: "TextField",
+                label: "Value",
+                defaultValue: "",
+                isRequired: true
+            }]
+    };
+
+    const [params, setParams] = useState(paramConfigs);
+
+    const handleOnChange = (params: any) => {
+        const modifiedParams = {
+            ...params, paramValues: params.paramValues.map((param: any) => {
+                return {
+                    ...param,
+                    key: param.paramValues[0].value,
+                    value: param.paramValues[1].value,
+                    icon: "query"
+                }
+            })
+        };
+        setParams(modifiedParams);
+    };
+
+
+    const validateField = (id: string, e: any, isRequired: boolean, validation?: "e-mail" | "nameWithoutSpecialCharactors" | "custom", regex?: string): string => {
+        if (id === "connectionName") {
+            return;
+        }
+
+        let value = e ?? getValues(id);
+        if (typeof value === 'object') {
+            value = value.value;
+        }
+
+        const newErrors = { ...errors };
+        let error;
+        if (isRequired && !value) {
+            error = "This field is required";
+        } else {
+            delete newErrors[id];
+            setErrors(newErrors);
+        }
+        setErrors({ ...errors, [id]: error });
+        return error;
+    };
+
+    const onAddConnection = async (values: any) => {
+
+        const newErrors = {} as any;
+        Object.keys(formValidators).forEach((key) => {
+            const error = formValidators[key]();
+            if (error) {
+                newErrors[key] = (error);
+            }
+        });
+
+        if (Object.keys(newErrors).length > 0) {
+            setErrors(newErrors);
+        } else {
+
+            const template = create();
+            const root = template.ele(`${formData.connectorName ?? props.connector.name}.init`);
+            root.ele('connectionType').txt(connectionType);
+            root.ele('name').txt(connectionName);
+
+            if (errors && Object.keys(errors).length > 0) {
+                console.error("Errors in saving connection form", errors);
+            }
+
+            // Fill the values
+            Object.keys(values).forEach((key: string) => {
+                if ((key !== 'configRef' && key !== 'connectionType' && key !== 'connectionName') && values[key]) {
+                    if (typeof values[key] === 'object' && values[key] !== null) {
+                        // Handle expression input type
+                        const namespaces = values[key].namespaces;
+                        const value = values[key].value;
+                        const isExpression = values[key].isExpression;
+
+                        if (value) {
+                            if (isExpression) {
+                                if (namespaces && namespaces.length > 0) {
+                                    // Generate XML with namespaces
+                                    const element = root.ele(key);
+                                    namespaces.forEach((namespace: any) => {
+                                        element.att(`xmlns:${namespace.prefix}`, namespace.uri);
+                                    });
+                                    element.txt(`{${value}}`);
+                                } else {
+                                    root.ele(key).txt(`{${value}}`);
+                                }
+                            } else {
+                                root.ele(key).txt(value);
+                            }
+                        }
+                    } else {
+                        root.ele(key).txt(values[key]);
+                    }
+                }
+            });
+
+            const modifiedXml = template.end({ prettyPrint: true, headless: true });
+
+            const visualizerState = await rpcClient.getVisualizerState();
+            const projectUri = visualizerState.projectUri;
+            const sep = visualizerState.pathSeparator;
+            const localEntryPath = [projectUri, 'src', 'main', 'wso2mi', 'artifacts', 'local-entries'].join(sep);
+
+            await rpcClient.getMiDiagramRpcClient().createConnection({
+                connectionName: connectionName,
+                keyValuesXML: modifiedXml,
+                directory: localEntryPath
+            });
+
+            if (props.isPopup) {
+                rpcClient.getMiVisualizerRpcClient().openView({
+                    type: POPUP_EVENT_TYPE.CLOSE_VIEW,
+                    location: { view: null, recentIdentifier: connectionName },
+                    isPopup: true
+                });
+            } else {
+                // Open Overview
+                rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Overview } });
+            }
+        }
+    };
+
+    const onAddInitConnection = async (values: any) => {
+
+        const name = connectionName ?? 'CONNECTION_1';
+        const template = create();
+        const root = template.ele(`${formData.connectorName ?? props.connector.name}.init`);
+
+        root.ele('name').txt(name);
+        params.paramValues.forEach(param => {
+            root.ele(param.key).txt(param.value);
+        })
+
+        const modifiedXml = template.end({ prettyPrint: true, headless: true });
+
+        const visualizerState = await rpcClient.getVisualizerState();
+        const projectUri = visualizerState.projectUri;
+        const sep = visualizerState.pathSeparator;
+        const localEntryPath = [projectUri, 'src', 'main', 'wso2mi', 'artifacts', 'local-entries'].join(sep);
+
+        await rpcClient.getMiDiagramRpcClient().createConnection({
+            connectionName: name,
+            keyValuesXML: modifiedXml,
+            directory: localEntryPath
+        });
+
+        if (props.isPopup) {
+            rpcClient.getMiVisualizerRpcClient().openView({
+                type: POPUP_EVENT_TYPE.CLOSE_VIEW,
+                location: { view: null, recentIdentifier: name },
+                isPopup: true
+            });
+        } else {
+            // Open Overview
+            rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Overview } });
+        }
+    };
+
+    const ExpressionFieldComponent = ({ element }: { element: Element }) => (
+        <Field>
+            <Controller
+                name={element.name as string}
+                control={control}
+                defaultValue={{ "isExpression": false, "value": element.defaultValue, "namespaces": [] }}
+                render={({ field }) => (
+                    expressionEditorField !== element.name ? (
+                        <ExpressionField
+                            {...field} label={element.displayName}
+                            placeholder={element.helpTip}
+                            canChange={true}
+                            required={element.required === 'true'}
+                            openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => {
+                                setCurrentExpressionValue({ value, setValue });
+                                setExpressionEditorField(String(element.name));
+                            }}
+                        />
+                    ) : (
+                        <>
+                            <div style={{ display: "flex", alignItems: "center", gap: '10px' }}>
+                                <label>{element.displayName}</label>
+                                {element.required === "true" && <RequiredFormInput />}
+                            </div>
+                            <ExpressionEditor
+                                value={currentExpressionValue.value || { isExpression: false, value: '', namespaces: [] }}
+                                handleOnSave={(newValue) => {
+                                    if (currentExpressionValue) {
+                                        currentExpressionValue.setValue(newValue);
+                                    }
+                                    setExpressionEditorField(null);
+                                }}
+                                handleOnCancel={() => {
+                                    setExpressionEditorField(null);
+                                }}
+                            />
+                        </>
+                    )
+                )}
+            />
+        </Field>
+    );
+
+    const renderFormElement = (element: Element) => {
+        switch (element.inputType) {
+            case 'string':
+                if (element.name === 'connectionName') {
+                    return null;
+                }
+                return (
+                    <Field>
+                        <Controller
+                            name={element.name as string}
+                            control={control}
+                            defaultValue={element.defaultValue}
+                            render={({ field }) => (
+                                <TextField {...field}
+                                    label={element.displayName}
+                                    size={50}
+                                    placeholder={element.helpTip}
+                                    required={element.required === 'true'} />
+                            )}
+                        />
+                    </Field>
+                );
+            case 'stringOrExpression':
+                return (
+                    <ExpressionFieldComponent element={element} />
+                );
+            case 'stringOrExpresion':
+                return (
+                    <ExpressionFieldComponent element={element} />
+                );
+            case 'booleanOrExpression':
+                return (
+                    <Field>
+                        <Controller
+                            name={element.name as string}
+                            control={control}
+                            defaultValue={element.defaultValue}
+                            render={({ field }) => (
+                                <>
+                                    <div style={{ display: "flex", alignItems: "center", gap: '10px' }}>
+                                        <label>{element.displayName}</label>
+                                        {element.required && <RequiredFormInput />}
+                                    </div>
+                                    <AutoComplete
+                                        name={element.name as string}
+                                        items={["true", "false"]}
+                                        value={field.value}
+                                        onValueChange={(e: any) => {
+                                            field.onChange(e);
+                                        }}
+                                        required={element.required === 'true'}
+                                    />
+                                </>
+                            )}
+                        />
+                    </Field>
+                );
+            case 'comboOrExpression':
+                return (
+                    <Field>
+                        <Controller
+                            name={element.name as string}
+                            control={control}
+                            defaultValue={element.defaultValue}
+                            render={({ field }) => (
+                                <>
+                                    <div style={{ display: "flex", alignItems: "center", gap: '10px' }}>
+                                        <label>{element.displayName}</label>
+                                        {element.required && <RequiredFormInput />}
+                                    </div>
+                                    <AutoComplete
+                                        name={element.name as string}
+                                        items={element.comboValues}
+                                        value={field.value}
+                                        onValueChange={(e: any) => {
+                                            field.onChange(e);
+                                        }}
+                                        allowItemCreate={true}
+                                        required={element.required === 'true'}
+                                    />
+                                </>
+                            )}
+                        />
+                    </Field>
+                );
+            case 'textAreaOrExpression':
+                return (
+                    <ExpressionFieldComponent element={element} />
+                );
+            case 'integerOrExpression':
+                return (
+                    <Controller
+                        name={element.name as string}
+                        control={control}
+                        defaultValue={{ "isExpression": false, "value": element.defaultValue, "namespaces": [] }}
+                        render={({ field }) => (
+                            expressionEditorField !== element.name ? (
+                                <ExpressionField
+                                    {...field} label={element.displayName}
+                                    placeholder={element.helpTip}
+                                    canChange={true}
+                                    required={element.required === 'true'}
+                                    openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => {
+                                        setCurrentExpressionValue({ value, setValue });
+                                        setExpressionEditorField(String(element.name));
+                                    }}
+                                />
+                            ) : (
+                                <>
+                                    <div style={{ display: "flex", alignItems: "center", gap: '10px' }}>
+                                        <label>{element.displayName}</label>
+                                        {element.required && <RequiredFormInput />}
+                                    </div>
+                                    <ExpressionEditor
+                                        value={currentExpressionValue.value || { isExpression: false, value: '', namespaces: [] }}
+                                        handleOnSave={(newValue) => {
+                                            if (currentExpressionValue) {
+                                                currentExpressionValue.setValue(newValue);
+                                            }
+                                            setExpressionEditorField(null);
+                                        }}
+                                        handleOnCancel={() => {
+                                            setExpressionEditorField(null);
+                                        }}
+                                    />
+                                </>
+                            )
+                        )}
+                    />
+                );
+            default:
+                return null;
+        }
+    };
+
+    const renderForm: any = (elements: any[]) => {
+        return elements.map((element: { type: string; value: any; }) => {
+            if (element.type === 'attribute') {
+                formValidators[element.value.name] = (e?: any) => validateField(element.value.name, e, element.value.required === 'true', element.value.validation, element.value.regex);
+                return <>
+                    {renderFormElement(element.value)}
+                    {errors[element.value.name] && <Error>{errors[element.value.name]}</Error>}
+                </>;
+            } else if (element.type === 'attributeGroup') {
+                return (
+                    <>
+                        {element.value.groupName === "General" ? renderForm(element.value.elements) :
+                            <>
+                                <ComponentCard sx={cardStyle} disbaleHoverEffect>
+                                    <h3 style={{ margin: '0 0 15px 0' }}>{element.value.groupName}</h3>
+                                    {renderForm(element.value.elements)}
+                                </ComponentCard>
+                            </>
+                        }
+                    </>
+                );
+            }
+            return null;
+        });
+    };
+
+    const handleOnClose = () => {
+        if (props.fromSidePanel) {
+            rpcClient.getMiVisualizerRpcClient().goBack();
+        } else {
+            props.changeConnector();
+        }
+    }
+
+    const verifyName = (event: any) => {
+        const connectionName = event.target.value;
+
+        if (connections.includes(connectionName)) {
+            setConnectionNameError('A connection with this name already exists.');
+        } else {
+            setConnectionNameError('');
+        }
+    };
+
+    return (
+        <FormView title={`Add New Connection`} onClose={handleOnClose} hideClose={props.isPopup}>
+            {!props.fromSidePanel && <TypeChip
+                type={props.connector.name}
+                onClick={props.changeConnector}
+                showButton={!props.connectionName}
+                title='Change connector'
+                id='Connector:'
+            />}
+            {allowedConnectionTypes && allowedConnectionTypes.length === 0 ? (
+                <>
+                    <TextField
+                        label='Connection Name'
+                        size={50}
+                        placeholder=""
+                        defaultValue={"CONNECTION_1"}
+                        value={connectionName}
+                        onTextChange={(e: any) => {
+                            setConnectionName(e);
+                        }}
+                        required={false}
+                    />
+                    <ParamManagerContainer>
+                        <ParamManager
+                            paramConfigs={params}
+                            readonly={false}
+                            onChange={handleOnChange} />
+                    </ParamManagerContainer>
+                    <div style={{ display: "flex", textAlign: "right", justifyContent: "flex-end", marginTop: "10px" }}>
+                        <Button
+                            appearance="primary"
+                            onClick={onAddInitConnection}
+                        >
+                            Submit
+                        </Button>
+                    </div>
+                </>
+            ) : (
+                <>
+                    <TextField
+                        label='Connection Name'
+                        size={50}
+                        placeholder={"The name for the file connection"}
+                        defaultValue={""}
+                        value={connectionName}
+                        onTextChange={(e: any) => {
+                            setConnectionName(e);
+                            verifyName(event);
+                        }}
+                        required={true}
+                    />
+                    {connectionNameError && <ErrorBanner errorMsg={connectionNameError} />}
+                    <Field>
+                        <label>{"Connection Type"}</label> <RequiredFormInput />
+                        <AutoComplete
+                            identifier={"connectionType"}
+                            items={
+                                allowedConnectionTypes?.map((type: any) => (
+                                    type
+                                ))
+                            }
+                            value={connectionType}
+                            onValueChange={(e: any) => {
+                                setConnectionType(e);
+                            }}
+                            required={true} />
+                    </Field>
+                    {formData && formData.elements && formData.elements.length > 0 && (
+                        <>
+                            {renderForm(formData.elements)}
+                            <FormActions>
+                                <Button
+                                    appearance="primary"
+                                    onClick={handleSubmit(onAddConnection)}
+                                >
+                                    Add
+                                </Button>
+                                <Button
+                                    appearance="secondary"
+                                    onClick={handleOnClose}
+                                >
+                                    Cancel
+                                </Button>
+                            </FormActions>
+                        </>
+                    )}
+                </>
+            )}
+
+
+        </FormView>
+    );
+};
+
+export default AddConnection;

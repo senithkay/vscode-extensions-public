@@ -3478,6 +3478,7 @@ importers:
       webpack-cli: ~5.1.4
       webpack-dev-server: ~4.15.1
       yaml: ~2.4.3
+      xmlbuilder2: ~3.1.1
       yup: ~1.4.0
     dependencies:
       '@codemirror/lang-xml': 6.0.2
@@ -3517,6 +3518,7 @@ importers:
       react-syntax-highlighter: 15.5.0_react@18.2.0
       swagger-ui-react: 5.17.4_jczjbtsmbzi7zofs22bstoer6y
       uuid: 9.0.1
+      xmlbuilder2: 3.1.1
       yup: 1.4.0
     devDependencies:
       '@babel/plugin-syntax-flow': 7.22.5
