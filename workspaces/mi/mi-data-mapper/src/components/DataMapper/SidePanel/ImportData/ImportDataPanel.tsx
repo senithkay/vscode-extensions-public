@@ -12,10 +12,9 @@ import { Button, Icon, LinkButton, TextArea } from "@wso2-enterprise/ui-toolkit"
 import { css } from "@emotion/css";
 import styled from "@emotion/styled";
 import { Controller, useForm } from 'react-hook-form';
-import Ajv from "ajv";
-import addFormats from "ajv-formats";
 
 import { FileExtension, ImportType } from "./ImportDataForm";
+import { validateCSV, validateJSON, validateJSONSchema, validateXML } from "./ImportDataUtils";
 
 const ErrorMessage = styled.span`
    color: var(--vscode-errorForeground);
@@ -74,51 +73,23 @@ export function ImportDataPanel(props: ImportDataPanelProps) {
         try {
             switch (importType.type) {
                 case 'JSON':
-                    JSON.parse(fileContent);
-                    clearErrors("payload");
+                    validateJSON(fileContent);
                     break;
                 case 'CSV':
-                    const rows = fileContent.trim().split("\n");
-                  
-                    const columnCount = rows[0].split(',').length;
-                  
-                    for (let i = 1; i < rows.length; i++) {
-                      const columns = rows[i].split(',');
-                      if (columns.length !== columnCount) {
-                        // Row has different number of columns
-                        throw new Error();
-                      }
-                    }
-                    clearErrors("payload");
+                    validateCSV(fileContent);
                     break;
                 case 'XML':
-                    const parser = new DOMParser();
-                    const parsedDocument = parser.parseFromString(fileContent, "application/xml");
-                    const parserError = parsedDocument.getElementsByTagName("parsererror");
-                    if (parserError.length > 0) {
-                        throw new Error();
-                    }
-                    clearErrors("payload");
+                    validateXML(fileContent);
                     break;
                 case 'JSON_SCHEMA':
-                    const ajv = new Ajv();
-                    addFormats(ajv);
-                    try {
-                        const schema = JSON.parse(fileContent);
-                        const valid = ajv.validateSchema(schema);
-                        if (!valid) {
-                            throw new Error();
-                        }
-                    } catch (error) {
-                        throw new Error();
-                    }
-                    clearErrors("payload");
+                    validateJSONSchema(fileContent);
                     break;
                 default:
                     break;
             }
+            clearErrors("payload");
         } catch (error) {
-            setError("payload", { message: `Invalid ${importType.type} format.` });
+            setError("payload", { message: `Invalid ${importType.label} format.` });
         }
     }, [fileContent, importType]);
 
@@ -198,10 +169,11 @@ export function ImportDataPanel(props: ImportDataPanelProps) {
                         resize="vertical"
                         placeholder={generatePlaceholder}
                         value={fileContent}
+                        sx={{border: "#00ff00"}}
+                        errorMsg={errors && errors.payload?.message.toString()}
                     />
                 )}
             />
-            {errors.payload && <ErrorMessage>{errors.payload.message.toString()}</ErrorMessage>}
             <div style={{ textAlign: "right", marginTop: "10px", float: "right" }}>
                 <Button
                     appearance="primary"

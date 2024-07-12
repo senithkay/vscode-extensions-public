@@ -17,7 +17,7 @@ import {
 } from "@wso2-enterprise/ui-toolkit";
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 
-import { useDMIOConfigPanelStore } from "../../../store/store";
+import { useDMIOConfigPanelStore } from "../../../../store/store";
 import { ImportDataButtons } from "./ImportDataButtons";
 import { ImportDataPanel } from "./ImportDataPanel";
 
@@ -115,7 +115,7 @@ export function ImportDataForm(props: ImportDataWizardProps) {
                         onClick={() => setSelectedImportType(undefined)}
                     />
                 )}
-                <span>Import {ioType} Schema</span>
+                <span>{`${overwriteSchema ? "Change" : "Import"} ${ioType} Schema`}</span>
                 <Button
                     sx={{ marginLeft: "auto" }}
                     onClick={onClose}
