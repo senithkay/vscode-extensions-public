@@ -18,6 +18,7 @@ interface ArtifactType {
     command: string;
     view: MACHINE_VIEW;
     icon: string;
+    iconSx?: any;
     isCodicon?: boolean;
     description: (entry: any) => string;
     path: (entry: any) => string;
@@ -29,6 +30,7 @@ const artifactTypeMap: Record<string, ArtifactType> = {
         command: "MI.project-explorer.add-api",
         view: MACHINE_VIEW.ServiceDesigner,
         icon: "APIResource",
+        iconSx: { color: "#EB8A44" },
         description: (entry: any) => `API Context: ${entry.context}`,
         path: (entry: any) => entry.path,
     },
@@ -37,6 +39,7 @@ const artifactTypeMap: Record<string, ArtifactType> = {
         command: "MI.project-explorer.add-endpoint",
         view: MACHINE_VIEW.EndPointForm,
         icon: "endpoint",
+        iconSx: { color: "#F9DC24" },
         description: (entry: any) => `Type: ${entry.subType}`,
         path: (entry: any) => entry.path,
     },
@@ -45,6 +48,7 @@ const artifactTypeMap: Record<string, ArtifactType> = {
         command: "MI.project-explorer.add-sequence",
         view: MACHINE_VIEW.SequenceView,
         icon: "Sequence",
+        iconSx: { color: "#4B7447" },
         description: (entry: any) => `Reusable sequence`,
         path: (entry: any) => entry.path,
     },
@@ -53,7 +57,8 @@ const artifactTypeMap: Record<string, ArtifactType> = {
         command: "MI.project-explorer.add-proxy-service",
         view: MACHINE_VIEW.ProxyView,
         isCodicon: true,
-        icon: "server",
+        icon: "arrow-swap",
+        iconSx: { color: "#8EBA43" },
         description: (entry: any) => "Proxy Service",
         path: (entry: any) => entry.path,
     },
@@ -62,6 +67,7 @@ const artifactTypeMap: Record<string, ArtifactType> = {
         command: "MI.project-explorer.add-inbound-endpoint",
         view: MACHINE_VIEW.InboundEPForm,
         icon: "inbound-endpoint",
+        iconSx: { color: "#FFBEBD" },
         description: (entry: any) => "Inbound Endpoint",
         path: (entry: any) => entry.path,
     },
@@ -70,6 +76,7 @@ const artifactTypeMap: Record<string, ArtifactType> = {
         command: "MI.project-explorer.add-message-store",
         view: MACHINE_VIEW.MessageStoreForm,
         icon: "message-store",
+        iconSx: { color: "#337BAE" },
         description: (entry: any) => "Message Store",
         path: (entry: any) => entry.path,
     },
@@ -78,6 +85,7 @@ const artifactTypeMap: Record<string, ArtifactType> = {
         command: "MI.project-explorer.add-message-processor",
         view: MACHINE_VIEW.MessageProcessorForm,
         icon: "message-processor",
+        iconSx: { color: "#8313a8" },
         description: (entry: any) => "Message Processor",
         path: (entry: any) => entry.path,
     },
@@ -86,6 +94,7 @@ const artifactTypeMap: Record<string, ArtifactType> = {
         command: "MI.project-explorer.add-task",
         view: MACHINE_VIEW.TaskForm,
         icon: "task",
+        iconSx: { color: "#D35C37" },
         description: (entry: any) => "Task",
         path: (entry: any) => entry.path,
     },
@@ -94,6 +103,7 @@ const artifactTypeMap: Record<string, ArtifactType> = {
         command: "MI.project-explorer.add-local-entry",
         view: MACHINE_VIEW.LocalEntryForm,
         icon: "local-entry",
+        iconSx: { color: "#BF9A77" },
         description: (entry: any) => "Local Entry",
         path: (entry: any) => entry.path,
     },
@@ -102,6 +112,7 @@ const artifactTypeMap: Record<string, ArtifactType> = {
         command: "MI.project-explorer.add-template",
         view: MACHINE_VIEW.TemplateForm,
         icon: "template",
+        iconSx: { color: "#D6C6B9" },
         description: (entry: any) => `Type: ${entry.subType}`,
         path: (entry: any) => entry.path,
     },
@@ -109,8 +120,8 @@ const artifactTypeMap: Record<string, ArtifactType> = {
         title: "Data Services",
         command: "MI.project-explorer.open-dss-service-designer",
         view: MACHINE_VIEW.DSSServiceDesigner,
-        isCodicon: true,
-        icon: "file-code",
+        icon: "data-service",
+        iconSx: { color: "#97B8C2" },
         description: (entry: any) => "Data Service",
         path: (entry: any) => entry.path,
     },
@@ -118,8 +129,8 @@ const artifactTypeMap: Record<string, ArtifactType> = {
         title: "Data Sources",
         command: "MI.project-explorer.add-data-source",
         view: MACHINE_VIEW.DataSourceForm,
-        isCodicon: true,
-        icon: "file-code",
+        icon: "data-source",
+        iconSx: { color: "#97B8C2" },
         description: (entry: any) => "Data Source",
         path: (entry: any) => entry.path,
     }
@@ -202,6 +213,7 @@ const ProjectStructureView = (props: { projectStructure: any, workspaceDir: stri
                                                 key={entry.name}
                                                 isCodicon={artifactTypeMap[key].isCodicon}
                                                 icon={artifactTypeMap[key].icon}
+                                                iconSx={artifactTypeMap[key].iconSx}
                                                 name={entry.name}
                                                 description={artifactTypeMap[key].description(entry)}
                                                 onClick={() => goToView(artifactTypeMap[key].path(entry), artifactTypeMap[key].view)}
@@ -231,6 +243,7 @@ const ProjectStructureView = (props: { projectStructure: any, workspaceDir: stri
 
 interface EntryProps {
     icon: string; // Changed to string to use codicon names
+    iconSx?: any;
     isCodicon?: boolean;
     name: string;
     description: string;
@@ -253,11 +266,11 @@ const EntryContainer = styled.div`
     }
 `;
 
-const Entry: React.FC<EntryProps> = ({ icon, name, description, onClick, goToView, goToSource, deleteArtifact, isCodicon }) => {
+const Entry: React.FC<EntryProps> = ({ icon, iconSx, name, description, onClick, goToView, goToSource, deleteArtifact, isCodicon }) => {
     return (
         <EntryContainer onClick={onClick}>
             <div style={{ width: 'auto', display: 'flex', justifyContent: 'center', alignItems: 'center', marginRight: '10px' }}>
-                <Icon isCodicon={isCodicon}  name={icon} />
+                <Icon isCodicon={isCodicon} name={icon} iconSx={iconSx} />
             </div>
             <div style={{ flex: 2, fontWeight: 'bold' }}>
                 {name}

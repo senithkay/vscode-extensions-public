@@ -215,62 +215,75 @@ function generateTreeDataOfArtifacts(project: vscode.WorkspaceFolder, data: Proj
 			let icon = 'folder';
 			let label = key;
 			let connectionEntry;
+			let iconColor;
 
 			switch (key) {
 				case 'apis':
 					icon = 'APIResource';
 					label = 'APIs';
+					iconColor = '#EB8A44';
 					break;
 				case 'endpoints':
 					icon = 'endpoint';
 					label = 'Endpoints';
+					iconColor = '#F9DC24';
 					break;
 				case 'inboundEndpoints':
 					icon = 'inbound-endpoint';
 					label = 'Inbound Endpoints';
+					iconColor = '#FFBEBD';
 					break;
 				case 'localEntries':
 					icon = 'local-entry';
 					label = 'Local Entries';
 					connectionEntry = generateConnectionEntry(artifacts[key]);
 					connectionEntry.info = artifacts[key];
-					// isCodicon = true;
+					iconColor = '#BF9A77';
 					break;
 				case 'messageStores':
 					icon = 'message-store';
 					label = 'Message Stores';
+					iconColor = '#D6C6B9';
 					break;
 				case 'messageProcessors':
 					icon = 'message-processor';
 					label = 'Message Processors';
+					iconColor = '#8313a8';
 					break;
 				case 'proxyServices':
 					icon = 'arrow-swap';
 					label = 'Proxy Services';
+					iconColor = '#8EBA43';
 					break;
 				case 'sequences':
 					icon = 'Sequence';
 					label = 'Sequences';
+					iconColor = '#4B7447';
 					break;
 				case 'tasks':
 					icon = 'task';
 					label = 'Tasks';
+					iconColor = '#D35C37';
 					break;
 				case 'templates':
 					icon = 'template';
 					label = 'Templates';
+					iconColor = '#D6C6B9';
 					break;
 				case 'resources':
 					icon = 'APIResource';
 					label = 'Resources';
+					iconColor = '#EB8A44';
 					break;
 				case 'dataServices':
 					icon = 'data-service';
 					label = 'Data Services';
+					iconColor = '#97B8C2';
 					break;
 				case 'dataSources':
 					icon = 'data-source';
 					label = 'Data Sources';
+					iconColor = "#FFBEBD";
 					break;
 				default:
 			}
@@ -280,7 +293,7 @@ function generateTreeDataOfArtifacts(project: vscode.WorkspaceFolder, data: Proj
 				isCollapsibleState(artifacts[key].length > 0),
 				artifacts[key],
 				icon,
-				isCodicon
+				isCodicon,
 			);
 			const children = genProjectStructureEntry(artifacts[key]);
 

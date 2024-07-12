@@ -13,6 +13,7 @@ export interface CardProps {
     id?: string;
 	sx?: any;
     icon: string;
+    iconSx?: any;
     title: string;
     isCodicon?: boolean;
     description?: string;
@@ -51,7 +52,7 @@ const CardDescription = styled.div<CardState>`
 `;
 
 export const Card: React.FC<CardProps> = ( props: CardProps ) => {
-    const { icon, title, description, onClick, id, sx, isCodicon } = props;
+    const { icon, title, description, onClick, id, sx, isCodicon, iconSx } = props;
 
     const [hovered, setHovered] = React.useState(false);
 
@@ -62,7 +63,7 @@ export const Card: React.FC<CardProps> = ( props: CardProps ) => {
                     <Icon
                         isCodicon={isCodicon}
                         name={icon}
-                        iconSx={{ fontSize: '1.5em', color: hovered ? 'var(--vscode-button-foreground)' : 'inherit' }}
+                        iconSx={{ fontSize: '1.5em', color: hovered ? 'var(--vscode-button-foreground)' : 'inherit', ...iconSx }}
                         sx={{ marginRight: '10px' }}
                     />
                     <CardTitle isHovered={hovered}>{title}</CardTitle>
