@@ -73,7 +73,7 @@ const initialAPI: APIData = {
     versionType: "none",
     apiCreateOption: "create-api",
     swaggerDefPath: "",
-    saveSwaggerDef: false,
+    saveSwaggerDef: true,
     wsdlType: "file",
     wsdlDefPath: "",
     wsdlEndpointName: "",
@@ -192,7 +192,7 @@ export function APIWizard({ apiData, path }: APIWizardProps) {
         if (apiData) {
             const versionType = identifyVersionType(apiData.version);
 
-            reset(apiData);
+            reset({ ...initialAPI, ...apiData });
             setValue("versionType", versionType);
             setValue("handlers", apiData.handlers ?? []);
         } else {
@@ -229,13 +229,13 @@ export function APIWizard({ apiData, path }: APIWizardProps) {
 
     const addNewHandler = () => {
         if (handlers.length === 0) {
-            setValue("handlers", [{ name: "", properties: [] }]);
+            setValue("handlers", [{ name: "", properties: [] }], { shouldValidate: true, shouldDirty: true });
             return;
         }
 
         const lastHandler = handlers[handlers.length - 1];
         if (lastHandler.name === "" || lastHandler.properties.length === 0) return;
-        setValue("handlers", [...handlers, { name: "", properties: [] }]);
+        setValue("handlers", [...handlers, { name: "", properties: [] }], { shouldValidate: true, shouldDirty: true });
     }
 
     const handleCreateAPI = async (values: any) => {
@@ -425,18 +425,20 @@ export function APIWizard({ apiData, path }: APIWizardProps) {
                 placeholder="Context"
                 {...renderProps("apiContext")}
             />
-            {apiData && <>
-                <TextField
-                    label="Host Name"
-                    placeholder="Host Name"
-                    {...renderProps("hostName")}
-                />
-                <TextField
-                    label="Port"
-                    placeholder="Port"
-                    {...renderProps("port")}
-                />
-            </>}
+            {apiData && (
+                <>
+                    <TextField
+                        label="Host Name"
+                        placeholder="Host Name"
+                        {...renderProps("hostName")}
+                    />
+                    <TextField
+                        label="Port"
+                        placeholder="Port"
+                        {...renderProps("port")}
+                    />
+                </>
+            )}
             <FieldGroup>
                 <Dropdown
                     id="version-type"
@@ -452,50 +454,55 @@ export function APIWizard({ apiData, path }: APIWizardProps) {
                     />
                 )}
             </FieldGroup>
-            {apiData && <>
-                <FormCheckBox
-                    name="trace"
-                    label="Trace Enabled"
-                    control={control}
-                />
-                <FormCheckBox
-                    name="statistics"
-                    label="Statistics Enabled"
-                    control={control}
-                />
-                <FieldGroup>
-                    <TitleBar>
-                        <span>Handlers</span>
-                        <Button
-                            appearance="primary"
-                            onClick={addNewHandler}
-                        >
-                            Add Handler
-                        </Button>
-                    </TitleBar>
-                    {handlers?.map((handler, index) => (
-                        <FormHandler
-                            key={index}
-                            handlerId={index}
-                            last={handlers.length - 1}
-                            handler={handler}
-                            name="handlers"
-                            control={control}
-                        />
-                    ))}
-                </FieldGroup>
-            </>}
-            {apiData ? (
-                <FieldGroup>
-                    <span>Swagger File</span>
-                    {!!swaggerDefPath && <LocationText>{swaggerDefPath}</LocationText>}
-                    {!swaggerDefPath && <span>Please choose an Open API Definition.</span>}
-                    <FormKeylookup
+            {apiData && (
+                <>
+                    <FormCheckBox
+                        name="trace"
+                        label="Trace Enabled"
                         control={control}
-                        name="swaggerDefPath"
-                        filterType="swagger"
                     />
-                </FieldGroup>
+                    <FormCheckBox
+                        name="statistics"
+                        label="Statistics Enabled"
+                        control={control}
+                    />
+                    <FieldGroup>
+                        <TitleBar>
+                            <span>Handlers</span>
+                            <Button
+                                appearance="primary"
+                                onClick={addNewHandler}
+                            >
+                                Add Handler
+                            </Button>
+                        </TitleBar>
+                        {handlers?.map((handler, index) => (
+                            <FormHandler
+                                key={index}
+                                handlerId={index}
+                                last={handlers.length - 1}
+                                handler={handler}
+                                name="handlers"
+                                control={control}
+                            />
+                        ))}
+                    </FieldGroup>
+                </>
+            )}
+            {apiData ? (
+                <>
+                    {/* TODO: Temporarily disabled until Service Catelog implementation is figured out */}
+                    {/* <FieldGroup>
+                        <span>Swagger File</span>
+                        {!!swaggerDefPath && <LocationText>{swaggerDefPath}</LocationText>}
+                        {!swaggerDefPath && <span>Please choose an Open API Definition.</span>}
+                        <FormKeylookup
+                            control={control}
+                            name="swaggerDefPath"
+                            filterType="swagger"
+                        />
+                    </FieldGroup> */}
+                </>
             ) : (
                 <>
                     <RadioButtonGroup
