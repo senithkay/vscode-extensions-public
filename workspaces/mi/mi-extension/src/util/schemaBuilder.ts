@@ -34,6 +34,18 @@ export async function generateSchema(ioType: string, fileType: string, title: st
   return schema;
 }
 
+export async function generateSchemaFromContent(content: string, fileType: string, title: string): Promise<JSONSchema3or4> {
+  const langClient = StateMachine.context().langClient!;
+  const response = await langClient.generateSchemaFromContent({
+    fileContent: content,
+    delimiter: "",
+    type: fileType.toUpperCase(),
+    title: title
+  });
+  let schema = JSON.parse(response.schema);
+  return schema;
+}
+
 export function convertTypeScriptToJavascript(fileContent: string): string {
     try {
         const ast = parse(fileContent, {
