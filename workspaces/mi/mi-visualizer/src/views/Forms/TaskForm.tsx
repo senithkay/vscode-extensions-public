@@ -67,7 +67,7 @@ export function TaskForm(props: TaskFormProps) {
     const [isNewTask, setIsNewTask] = useState(true);
     const [savedTaskName, setSavedTaskName] = useState<string>("");
     const formTitle = isNewTask
-        ? "Create new Scheduled Task"
+        ? "Create New Scheduled Task"
         : "Edit Scheduled Task : " + props.path.replace(/^.*[\\/]/, '').split(".")[0];
     const [artifactNames, setArtifactNames] = useState([]);
     const [workspaceFileNames, setWorkspaceFileNames] = useState([]);
@@ -246,94 +246,6 @@ export function TaskForm(props: TaskFormProps) {
                 errorMsg={errors.name?.message}
                 {...register("name")}
             />
-            <TextField
-                id="pinnedServers"
-                label="Pinned Servers"
-                placeholder="Servers"
-                errorMsg={errors.pinnedServers?.message}
-                {...register("pinnedServers")}
-            />
-            <Dropdown
-                id="format"
-                label="Format"
-                items={[{ value: "soap12" }, { value: "soap11" }, { value: "pox" }, { value: "get" }]}
-                {...register('format')}
-            />
-            <Typography variant="body3">Message</Typography>
-            <CheckBox
-                label="message format is XML"
-                value="xml"
-                checked={messageIsXML}
-                onChange={(isChecked: boolean) => setMessageIsXML(isChecked)}
-            />
-            {message && <span style={{ color: message.isError ? "#f48771" : "" }}>{message.text}</span>}
-            <CodeMirror
-                value={getValues("message")}
-                theme={oneDark}
-                extensions={[xml()]}
-                height="200px"
-                autoFocus
-                editable={true}
-                indentWithTab={true}
-                onChange={handleXMLInputChange}
-                options={{
-                    lineNumbers: true,
-                    lint: true,
-                    mode: "xml",
-                    columns: 100,
-                    columnNumbers: true,
-                    lineWrapping: true,
-                }}
-            />
-            <TextField
-                id="soapAction"
-                description="This is the SOAP action to use when sending the message to the endpoint."
-                label="SOAP Action"
-                errorMsg={errors.soapAction?.message}
-                {...register("soapAction")}
-            />
-            <Dropdown
-                id="injectTo"
-                label="Message inject destination"
-                items={[{ value: "sequence" }, { value: "proxy" }]}
-                {...register("injectTo")}
-            />
-            {watch("injectTo") === 'proxy' && (<>
-                <FormKeylookup
-                    id="proxyName"
-                    control={control}
-                    label="Proxy service name"
-                    name="proxyName"
-                    filterType="proxyService"
-                    path={props.path}
-                    errorMsg={errors.proxyName?.message}
-                    {...register("proxyName")}
-                />
-            </>)}
-            {watch("injectTo") === 'sequence' && (<>
-                <FormKeylookup
-                    filter={(value: string) => !value.endsWith(".xml")}
-                    id="sequenceName"
-                    control={control}
-                    label="Sequence name"
-                    name="proxyName"
-                    filterType="sequence"
-                    path={props.path}
-                    errorMsg={errors.sequenceName?.message}
-                    {...register("sequenceName")}
-                />
-            </>)}
-            <FormCheckBox
-                control={control}
-                label="Invoke handlers when calling sequence"
-                {...register("invokeHandlers")}
-            />
-            <TextField
-                id="registryKey"
-                label="Registry path for message to inject"
-                errorMsg={errors.registryKey?.message}
-                {...register("registryKey")}
-            />
             <FormGroup title="Trigger Information of the Task" isCollapsed={false}>
                 <RadioButtonGroup
                     id="triggerType"
@@ -369,7 +281,107 @@ export function TaskForm(props: TaskFormProps) {
                     </>
                 )}
             </FormGroup>
+            <FormGroup title="Task Implementation" isCollapsed={false}>
+                <Dropdown
+                    id="injectTo"
+                    label="Message inject destination"
+                    items={[{ value: "main" }, { value: "sequence" }, { value: "proxy" }]}
+                    {...register("injectTo")}
+                />
+                {watch("injectTo") === 'main' && (<>
+                    {/* <TextField
+                        id="to"
+                        description="Endpoint address if the message should be sent to a specific endpoint."
+                        label="To"
+                        errorMsg={errors.to?.message}
+                        {...register("to")}
+                    /> */}
+                    <Dropdown
+                        id="format"
+                        label="Format"
+                        items={[{ value: "soap12" }, { value: "soap11" }, { value: "pox" }, { value: "get" }]}
+                        {...register('format')}
+                    />
+                    <TextField
+                        id="soapAction"
+                        description="This is the SOAP action to use when sending the message to the endpoint."
+                        label="SOAP Action"
+                        errorMsg={errors.soapAction?.message}
+                        {...register("soapAction")}
+                    />
+                </>)}
+                {watch("injectTo") === 'proxy' && (<>
+                    <FormKeylookup
+                        id="proxyName"
+                        control={control}
+                        label="Proxy service name"
+                        name="proxyName"
+                        filterType="proxyService"
+                        path={props.path}
+                        errorMsg={errors.proxyName?.message}
+                        {...register("proxyName")}
+                    />
+                </>)}
+                {watch("injectTo") === 'sequence' && (<>
+                    <FormKeylookup
+                        filter={(value: string) => !value.endsWith(".xml")}
+                        id="sequenceName"
+                        control={control}
+                        label="Sequence name"
+                        name="proxyName"
+                        filterType="sequence"
+                        path={props.path}
+                        errorMsg={errors.sequenceName?.message}
+                        {...register("sequenceName")}
+                    />
+                    <FormCheckBox
+                        control={control}
+                        label="Invoke handlers when calling sequence"
+                        {...register("invokeHandlers")}
+                    />
+                </>)}
+            </FormGroup>
+            <FormGroup title="Message" isCollapsed={false}>
+                <CheckBox
+                    label="message format is XML"
+                    value="xml"
+                    checked={messageIsXML}
+                    onChange={(isChecked: boolean) => setMessageIsXML(isChecked)}
+                />
+                {message && <span style={{ color: message.isError ? "#f48771" : "" }}>{message.text}</span>}
+                <CodeMirror
+                    value={getValues("message")}
+                    theme={oneDark}
+                    extensions={[xml()]}
+                    height="200px"
+                    autoFocus
+                    editable={true}
+                    indentWithTab={true}
+                    onChange={handleXMLInputChange}
+                    options={{
+                        lineNumbers: true,
+                        lint: true,
+                        mode: "xml",
+                        columns: 100,
+                        columnNumbers: true,
+                        lineWrapping: true,
+                    }}
+                />
+                <TextField
+                    id="registryKey"
+                    label="Registry path for message to inject"
+                    errorMsg={errors.registryKey?.message}
+                    {...register("registryKey")}
+                />
+            </FormGroup>
             <FormGroup title="Advanced">
+                <TextField
+                    id="pinnedServers"
+                    label="Pinned Servers"
+                    placeholder="Servers"
+                    errorMsg={errors.pinnedServers?.message}
+                    {...register("pinnedServers")}
+                />
                 <TextField
                     id="group"
                     required
