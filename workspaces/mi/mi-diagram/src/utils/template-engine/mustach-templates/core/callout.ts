@@ -17,7 +17,7 @@ export function getCalloutMustacheTemplate() {
   <configuration axis2xml="{{pathToAxis2xml}}" repository="{{pathToAxis2Repository}}"/>
   {{/configurationEnabled}}
   {{#xpathPayload}}
-  <source {{#payloadMessageXPath}}xpath="{{{value}}}"{{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}}{{/payloadMessageXPath}}/>
+  <source {{#payloadMessageXPath}}xpath="{{{value}}}"{{#namespaces}} xmlns:{{{prefix}}}="{{{uri}}}"{{/namespaces}}{{/payloadMessageXPath}}/>
   {{/xpathPayload}}
   {{#propertyPayload}}
   <source key="{{payloadProperty}}"/>
@@ -26,7 +26,7 @@ export function getCalloutMustacheTemplate() {
   <source type="envelope"/>
   {{/envelopePayload}}
   {{#xpathTarget}}
-  <target {{#targetMessageXPath}}xpath="{{{value}}}"{{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}}{{/targetMessageXPath}}/>
+  <target {{#targetMessageXPath}}xpath="{{{value}}}"{{#namespaces}} xmlns:{{{prefix}}}="{{{uri}}}"{{/namespaces}}{{/targetMessageXPath}}/>
   {{/xpathTarget}}
   {{#propertyTarget}}
   <target key="{{targetProperty}}"/>

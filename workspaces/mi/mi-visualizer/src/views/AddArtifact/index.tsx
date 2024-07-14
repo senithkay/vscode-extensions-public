@@ -144,6 +144,10 @@ export function AddArtifactView() {
             await rpcClient
                 .getMiDiagramRpcClient()
                 .executeCommand({ commands: ["MI.project-explorer.add-local-entry", entry] });
+        } else if (key === "connections") {
+            await rpcClient
+                .getMiDiagramRpcClient()
+                .executeCommand({ commands: ["MI.project-explorer.add-connection", entry] });
         }
     };
 
@@ -283,6 +287,12 @@ export function AddArtifactView() {
                                         title="Local Entry"
                                         description="Define local resource entries for reuse."
                                         onClick={() => handleClick("localEntries")}
+                                    />
+                                    <Card
+                                        icon="vm-connect"
+                                        title="Connections"
+                                        description="Create resuable connections."
+                                        onClick={() => handleClick("connections")}
                                     />
                                 </HorizontalCardContainer>
                             </PanelViewMore>

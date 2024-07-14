@@ -8,3 +8,4 @@
  */
 
 export { Diagram } from './Diagram';
+export { ExpressionEditor } from './sidePanel/expressionEditor/ExpressionEditor';

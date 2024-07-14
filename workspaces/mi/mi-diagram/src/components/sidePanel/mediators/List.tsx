@@ -32,6 +32,7 @@ const IconContainer = styled.div`
 
 interface MediatorProps {
     nodePosition: any;
+    trailingSpace: string;
     documentUri: string;
     searchValue?: string;
 }
@@ -39,6 +40,7 @@ export function Mediators(props: MediatorProps) {
     const sidePanelContext = React.useContext(SidePanelContext);
     const allMediators = getAllMediators({
         nodePosition: props.nodePosition,
+        trailingSpace: props.trailingSpace,
         documentUri: props.documentUri,
         previousNode: sidePanelContext.previousNode,
         nextNode: sidePanelContext.nextNode,

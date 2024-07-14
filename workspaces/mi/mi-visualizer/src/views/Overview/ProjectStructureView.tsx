@@ -11,7 +11,7 @@ import { EVENT_TYPE, MACHINE_VIEW } from '@wso2-enterprise/mi-core';
 import { Alert, Codicon, ContextMenu, Icon } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
-import { Fragment } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import { ICON_COLORS } from '../../constants';
 
 interface ArtifactType {
@@ -134,6 +134,14 @@ const artifactTypeMap: Record<string, ArtifactType> = {
         iconSx: { color: ICON_COLORS.DATA_SOURCE },
         description: (entry: any) => "Data Source",
         path: (entry: any) => entry.path,
+    },
+    connections: {
+        title: "Connections",
+        command: "MI.project-explorer.add-connection",
+        view: MACHINE_VIEW.ConnectionForm,
+        icon: "link",
+        description: (entry: any) => "Connection",
+        path: (entry: any) => entry.path,
     }
     // Add more artifact types as needed
 };
@@ -141,6 +149,21 @@ const artifactTypeMap: Record<string, ArtifactType> = {
 const ProjectStructureView = (props: { projectStructure: any, workspaceDir: string }) => {
     const { projectStructure } = props;
     const { rpcClient } = useVisualizerContext();
+    const [connectorData, setConnectorData] = useState<any[]>([]);
+
+    const fetchConnectors = async () => {
+        const connectorDataResponse = await rpcClient.getMiDiagramRpcClient().getStoreConnectorJSON();
+        setConnectorData(connectorDataResponse.data);
+    };
+
+    useEffect(() => {
+        fetchConnectors();
+    }, []);
+
+    function getConnectorIconUrl(connectorName: string): string | undefined {
+        const connector = connectorData.find(c => c.name === connectorName);
+        return connector?.icon_url;
+    }
 
     const goToView = async (documentUri: string, view: MACHINE_VIEW) => {
         const type = view === MACHINE_VIEW.EndPointForm ? 'endpoint' : 'template';
@@ -149,6 +172,14 @@ const ProjectStructureView = (props: { projectStructure: any, workspaceDir: stri
         }
         rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view, documentUri, customProps: { type: type } } });
     };
+
+    const goToConnectionView = async (documentUri: string, view: MACHINE_VIEW, connectionName: string) => {
+        rpcClient.getMiVisualizerRpcClient().openView({
+            type: EVENT_TYPE.OPEN_VIEW,
+            location: { view, documentUri, customProps: { connectionName: connectionName } }
+        });
+    };
+
 
     const goToSource = (filePath: string) => {
         rpcClient.getMiVisualizerRpcClient().goToSource({ filePath });
@@ -196,6 +227,17 @@ const ProjectStructureView = (props: { projectStructure: any, workspaceDir: stri
         return view;
     }
 
+    function checkHasConnections(value: any) {
+        return value.some((entry: any) => {
+            for (let key in entry) {
+                if (Array.isArray(entry[key])) {
+                    return entry[key].some((innerItem: any) => innerItem.connectorName !== undefined);
+                }
+            }
+            return false;
+        });
+    }
+
     return (
         <Fragment>
             {/* If has entries render content*/}
@@ -205,11 +247,12 @@ const ProjectStructureView = (props: { projectStructure: any, workspaceDir: stri
                         .filter(([key, value]) => artifactTypeMap.hasOwnProperty(key) && Array.isArray(value) && value.length > 0)
                         .map(([key, value]) => {
                             const hasOnlyUndefinedItems = Object.values(value).every(entry => entry.path === undefined);
-                            return !hasOnlyUndefinedItems && (
+                            const hasConnections = hasOnlyUndefinedItems ? checkHasConnections(value) : false;
+                            return (!hasOnlyUndefinedItems || hasConnections) && (
                                 <div>
                                     <h3>{artifactTypeMap[key].title}</h3>
                                     {Object.entries(value).map(([_, entry]) => (
-                                        entry.path && (
+                                        entry.path ? (
                                             <Entry
                                                 key={entry.name}
                                                 isCodicon={artifactTypeMap[key].isCodicon}
@@ -222,6 +265,44 @@ const ProjectStructureView = (props: { projectStructure: any, workspaceDir: stri
                                                 goToSource={() => goToSource(artifactTypeMap[key].path(entry))}
                                                 deleteArtifact={() => deleteArtifact(artifactTypeMap[key].path(entry))}
                                             />
+                                        ) : (
+                                            (key === "localEntries") && Object.entries(entry).map(([key, value]) => {
+                                                if (Array.isArray(value)) {
+                                                    key = "connections"
+                                                    return (
+                                                        <div>
+                                                            {value.map(connectionEntry => (
+                                                                connectionEntry.type === "localEntry" && (
+                                                                    <Entry
+                                                                        key={connectionEntry.name}
+                                                                        icon={getConnectorIconUrl(connectionEntry.connectorName)}
+                                                                        name={connectionEntry.name}
+                                                                        description={artifactTypeMap[key].description(connectionEntry)}
+                                                                        onClick={() =>
+                                                                            goToConnectionView(
+                                                                                artifactTypeMap[key].path(connectionEntry),
+                                                                                artifactTypeMap[key].view,
+                                                                                connectionEntry.name)
+                                                                        }
+                                                                        goToView={() =>
+                                                                            goToConnectionView(
+                                                                                artifactTypeMap[key].path(connectionEntry),
+                                                                                artifactTypeMap[key].view,
+                                                                                connectionEntry.name)
+                                                                        }
+                                                                        goToSource={() =>
+                                                                            goToSource(artifactTypeMap[key].path(connectionEntry))
+                                                                        }
+                                                                        deleteArtifact={() =>
+                                                                            deleteArtifact(artifactTypeMap[key].path(connectionEntry))
+                                                                        }
+                                                                    />
+                                                                )
+                                                            ))}
+                                                        </div>
+                                                    )
+                                                }
+                                            })
                                         )
                                     ))}
                                 </div>
@@ -267,12 +348,25 @@ const EntryContainer = styled.div`
     }
 `;
 
-const Entry: React.FC<EntryProps> = ({ icon, iconSx, name, description, onClick, goToView, goToSource, deleteArtifact, isCodicon }) => {
+const Entry: React.FC<EntryProps> = ({ icon, name, description, onClick, goToView, goToSource, deleteArtifact, iconSx, isCodicon }) => {
+    const [showFallbackIcon, setShowFallbackIcon] = useState(false);
+
     return (
         <EntryContainer onClick={onClick}>
-            <div style={{ width: 'auto', display: 'flex', justifyContent: 'center', alignItems: 'center', marginRight: '10px' }}>
-                <Icon isCodicon={isCodicon} name={icon} iconSx={iconSx} />
-            </div>
+            {description === "Connection" ? (
+                <div style={{ width: '20px', display: 'flex', justifyContent: 'center', alignItems: 'center', marginRight: '10px' }}>
+                    {!showFallbackIcon ? (
+                        <img src={icon} alt="Icon" onError={() => setShowFallbackIcon(true)} />
+                    ) : (
+                        // Fallback icon on offline mode
+                        <Icon name="connector" sx={{ color: "#D32F2F" }} />
+                    )}
+                </div>
+            ) : (
+                <div style={{ width: 'auto', display: 'flex', justifyContent: 'center', alignItems: 'center', marginRight: '10px' }}>
+                    <Codicon name={icon} />
+                </div>
+            )}
             <div style={{ flex: 2, fontWeight: 'bold' }}>
                 {name}
             </div>

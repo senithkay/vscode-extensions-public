@@ -86,13 +86,11 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
     openView(params: OpenViewRequest): void {
         if (params.isPopup) {
             const view = params.location.view;
-            const isFormView = view && view.includes("Form");
-            const isCloseEvent = params.type === POPUP_EVENT_TYPE.CLOSE_VIEW;
-            if (isFormView || isCloseEvent) {
-                openPopupView(params.type as POPUP_EVENT_TYPE, params.location as PopupVisualizerLocation);
-            }
+
             if (view && view === MACHINE_VIEW.Overview) {
                 openPopupView(POPUP_EVENT_TYPE.CLOSE_VIEW, params.location as PopupVisualizerLocation);
+            } else {
+                openPopupView(params.type as POPUP_EVENT_TYPE, params.location as PopupVisualizerLocation);
             }
         } else {
             openView(params.type as EVENT_TYPE, params.location as VisualizerLocation);
@@ -343,7 +341,7 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
                 const swaggerServer: SwaggerServer = new SwaggerServer();
                 await swaggerServer.sendRequest(params.request as any, false).then((response) => {
                     if (typeof response === 'boolean') {
-                        resolve({ isResponse: true, response: undefined});
+                        resolve({ isResponse: true, response: undefined });
                     } else {
                         const responseData: SwaggerProxyResponse = {
                             isResponse: true,

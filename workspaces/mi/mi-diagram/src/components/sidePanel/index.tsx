@@ -49,6 +49,7 @@ const IconContainer = styled.div`
 
 export interface SidePanelListProps {
     nodePosition: Range;
+    trailingSpace: string;
     documentUri: string;
 }
 
@@ -59,11 +60,11 @@ export const sidepanelAddPage = (sidePanelContext: SidePanelContext, content: an
     });
 }
 
-export const sidepanelGoBack = (sidePanelContext: SidePanelContext) => {
-    if (sidePanelContext.pageStack.length > 0) {
+export const sidepanelGoBack = (sidePanelContext: SidePanelContext, count: number = 1) => {
+    if (sidePanelContext.pageStack.length > 0 && sidePanelContext.pageStack.length > count) {
         const pageStack = sidePanelContext.pageStack;
-        pageStack[pageStack.length - 1] = {
-            ...pageStack[pageStack.length - 1],
+        pageStack[pageStack.length - count] = {
+            ...pageStack[pageStack.length - count],
             isOpen: false,
             title: undefined,
             icon: undefined,
@@ -121,6 +122,7 @@ const SidePanelList = (props: SidePanelListProps) => {
             } else if (Object.values(DATA_SERVICE_NODES).includes(sidePanelContext.operationName)) {
                 const allForms = getAllDataServiceForms({
                     nodePosition: props.nodePosition,
+                    trailingSpace: props.trailingSpace,
                     documentUri: props.documentUri,
                 });
 
@@ -132,6 +134,7 @@ const SidePanelList = (props: SidePanelListProps) => {
 
                 const allMediators = getAllMediators({
                     nodePosition: props.nodePosition,
+                    trailingSpace: props.trailingSpace,
                     documentUri: props.documentUri,
                     previousNode: sidePanelContext.previousNode,
                     parentNode: sidePanelContext.operationName?.toLowerCase() != sidePanelContext.parentNode?.toLowerCase() ? sidePanelContext.parentNode : undefined,
@@ -152,7 +155,7 @@ const SidePanelList = (props: SidePanelListProps) => {
                 }
             }
         } else {
-            mediatorsPage = { content: <HomePage nodePosition={props.nodePosition} documentUri={props.documentUri} /> };
+            mediatorsPage = { content: <HomePage nodePosition={props.nodePosition} trailingSpace={props.trailingSpace} documentUri={props.documentUri} /> };
         }
 
         sidePanelContext.setSidePanelState({

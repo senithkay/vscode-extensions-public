@@ -138,15 +138,16 @@ const DataServiceCallForm = (props: AddMediatorProps) => {
         
         values["operations"] = getParamManagerValues(values.operations);
         const xml = getXML(MEDIATORS.DATASERVICECALL, values, dirtyFields, sidePanelContext.formValues);
+        const trailingSpaces = props.trailingSpace;
         if (Array.isArray(xml)) {
             for (let i = 0; i < xml.length; i++) {
                 await rpcClient.getMiDiagramRpcClient().applyEdit({
-                    documentUri: props.documentUri, range: xml[i].range, text: xml[i].text
+                    documentUri: props.documentUri, range: xml[i].range, text: `${xml[i]}${trailingSpaces}`
                 });
             }
         } else {
             rpcClient.getMiDiagramRpcClient().applyEdit({
-                documentUri: props.documentUri, range: props.nodePosition, text: xml
+                documentUri: props.documentUri, range: props.nodePosition, text: `${xml}${trailingSpaces}`
             });
         }
         sidePanelContext.setSidePanelState({

@@ -166,8 +166,8 @@ jobs:
           unzip build.zip
           rm build.zip
 
-      - name: Setup
-        uses: gigara/rush-cache@v1
+      - name: Setup Rush
+        uses: gigara/setup-rush@v1
         with:
           pnpm: 7.26.3
           node: 16.x
@@ -211,8 +211,8 @@ jobs:
           unzip build.zip
           rm build.zip
 
-      - name: Setup
-        uses: gigara/rush-cache@v1
+      - name: Setup Rush
+        uses: gigara/setup-rush@v1
         with:
           pnpm: 7.26.3
           node: 16.x
@@ -278,8 +278,8 @@ jobs:
           unzip build.zip
           rm build.zip
 
-      - name: Setup
-        uses: gigara/rush-cache@v1
+      - name: Setup Rush
+        uses: gigara/setup-rush@v1
         with:
           pnpm: 7.26.3
           node: 16.x
@@ -365,8 +365,8 @@ jobs:
           unzip build.zip
           rm build.zip
 
-      - name: Setup
-        uses: gigara/rush-cache@v1
+      - name: Setup Rush
+        uses: gigara/setup-rush@v1
         with:
           pnpm: 7.26.3
           node: 16.x
