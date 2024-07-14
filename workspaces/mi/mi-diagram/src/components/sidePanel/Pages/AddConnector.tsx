@@ -46,6 +46,7 @@ interface AddConnectorProps {
     connectionName?: string;
     connectionType?: string;
     fromConnectorStore?: boolean;
+    parameters?: string[];
 }
 
 interface Element {
@@ -71,6 +72,7 @@ const AddConnector = (props: AddConnectorProps) => {
     const handleOnCancelExprEditorRef = useRef(() => { });
     const [errors, setErrors] = useState({} as any);
     const formValidators: { [key: string]: (e?: any) => string | undefined } = {};
+    const [parameters, setParameters] = useState<string[]>(props.parameters);
     const { control, handleSubmit, setValue, getValues } = useForm();
 
     const paramConfigs: ParamConfig = {
@@ -109,21 +111,44 @@ const AddConnector = (props: AddConnectorProps) => {
     };
 
     const fetchConnections = async () => {
-        const allowedTypes = findAllowedConnectionTypes(props.formData.elements);
+        if (props.formData && props.formData !== "") {
+            const allowedTypes = findAllowedConnectionTypes(props.formData.elements);
 
-        const connectorData = await rpcClient.getMiDiagramRpcClient().getConnectorConnections({
-            documentUri: props.documentUri,
-            connectorName: props.formData?.connectorName ?? props.connectorName.toLowerCase().replace(/\s/g, '')
-        });
+            const connectorData = await rpcClient.getMiDiagramRpcClient().getConnectorConnections({
+                documentUri: props.documentUri,
+                connectorName: props.formData?.connectorName ?? props.connectorName.replace(/\s/g, '')
+            });
 
-        const filteredConnections = connectorData.connections.filter(
-            connection => allowedTypes?.includes(connection.connectionType));
-        const connectionNames = filteredConnections.map(connection => connection.name);
+            const filteredConnections = connectorData.connections.filter(
+                connection => allowedTypes?.includes(connection.connectionType));
+            const connectionNames = filteredConnections.map(connection => connection.name);
 
-        setConnections(connectionNames);
+            setConnections(connectionNames);
+        } else {
+            // Fetch connections for old connectors (No ConnectionType)
+            const connectionsData = await rpcClient.getMiDiagramRpcClient().getConnectorConnections({
+                documentUri: props.documentUri,
+                connectorName: props.connectorName.replace(/\s/g, '')
+            });
+
+            const connectionsNames = connectionsData.connections.map(connection => connection.name);
+            setConnections(connectionsNames);
+        }
+
         setIsLoading(false);
     };
 
+    const fetchParameters = async (operation: string) => {
+        const connectorData = await rpcClient.getMiDiagramRpcClient().getAvailableConnectors({
+            documentUri: props.documentUri,
+            connectorName: props.connectorName.toLowerCase().replace(/\s/g, '')
+        });
+
+        const parameters = connectorData.actions.find(action => action.name === operation)?.parameters || null;
+
+        setParameters(parameters);
+
+    };
 
     useEffect(() => {
         handleOnCancelExprEditorRef.current = () => {
@@ -132,11 +157,7 @@ const AddConnector = (props: AddConnectorProps) => {
     }, [sidePanelContext.pageStack]);
 
     useEffect(() => {
-        if (props.formData && props.formData !== "") {
-            fetchConnections();
-        } else {
-            setIsLoading(false);
-        }
+        fetchConnections();
     }, [props.formData]);
 
     useEffect(() => {
@@ -162,6 +183,22 @@ const AddConnector = (props: AddConnectorProps) => {
                 });
             } else {
                 //Handle connectors without uischema
+                fetchParameters(sidePanelContext.formValues.operationName);
+
+                sidePanelContext.formValues?.parameters.forEach((param: any) => {
+                    param.name = getNameForController(param.name);
+                    if (param.isExpression) {
+                        let namespacesArray: any[] = [];
+                        if (param.namespaces) {
+                            namespacesArray = Object.entries(param.namespaces).map(([prefix, uri]) => ({ prefix: prefix.split(':')[1], uri: uri }));
+                        }
+                        setValue(param.name, { isExpression: true, value: param.value.replace(/[{}]/g, ''), namespaces: namespacesArray });
+                    } else {
+                        param.namespaces = [];
+                        setValue(param.name, param);
+                    }
+                });
+
                 const modifiedParams = {
                     ...params, paramValues: generateParams(sidePanelContext.formValues.parameters)
                 };
@@ -242,7 +279,7 @@ const AddConnector = (props: AddConnectorProps) => {
                 documentUri: props.documentUri,
                 view: MACHINE_VIEW.ConnectionForm,
                 customProps: {
-                    allowedConnectionTypes: findAllowedConnectionTypes(props.formData.elements),
+                    allowedConnectionTypes: findAllowedConnectionTypes(props.formData.elements ?? ""),
                     connector: connectorData,
                     fromSidePanel: true
                 }
@@ -598,20 +635,81 @@ const AddConnector = (props: AddConnectorProps) => {
             {isLoading ?
                 <ProgressIndicator /> :
                 !formData ? (
-                    <>
-                        <ParamManager
-                            paramConfigs={params}
-                            readonly={false}
-                            onChange={handleOnChange} />
-                        <div style={{ display: "flex", textAlign: "right", justifyContent: "flex-end", marginTop: "10px" }}>
-                            <Button
-                                appearance="primary"
-                                onClick={onClick}
-                            >
-                                Submit
-                            </Button>
-                        </div>
-                    </>
+                // When no UISchema present
+                    (parameters ? (parameters.length > 0 && (
+                    // Render parameters when template is present for operation
+                        <>
+                            <Field>
+                                <Controller
+                                    name="configKey"
+                                    control={control}
+                                    defaultValue={connections[0]}
+                                    render={({ field }) => (
+                                        <>
+                                            <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", width: '100%', gap: '10px' }}>
+                                                <div style={{ display: "flex", alignItems: "center", gap: '10px' }}>
+                                                    <label>{"Connection"}</label>
+                                                </div>
+                                                <LinkButton onClick={() => addNewConnection()}>
+                                                    Add new connection
+                                                </LinkButton>
+                                            </div>
+                                            <AutoComplete
+                                                name="configKey"
+                                                items={connections}
+                                                value={field.value}
+                                                onValueChange={(e: any) => {
+                                                    field.onChange(e);
+                                                }}
+                                            />
+                                        </>
+                                    )}
+                                />
+                            </Field>
+                            {parameters.map((element) => (
+                                <Field>
+                                    <Controller
+                                        name={element}
+                                        control={control}
+                                        defaultValue={{ "isExpression": false, "value": "", "namespaces": [] }}
+                                        render={({ field }) => (
+                                            <ExpressionField
+                                                {...field} label={element}
+                                                placeholder={element}
+                                                canChange={true}
+                                                required={false}
+                                                openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
+                                            />
+                                        )}
+                                    />
+                                </Field>
+                            ))}
+                            <div style={{ display: "flex", textAlign: "right", justifyContent: "flex-end", marginTop: "10px" }}>
+                                <Button
+                                    appearance="primary"
+                                    onClick={handleSubmit(onClick)}
+                                >
+                                    Submit
+                                </Button>
+                            </div>
+                        </>
+                    )) : (
+                        // Render param manager when no template is present
+                        <>
+                            <ParamManager
+                                paramConfigs={params}
+                                readonly={false}
+                                onChange={handleOnChange} />
+                            <div style={{ display: "flex", textAlign: "right", justifyContent: "flex-end", marginTop: "10px" }}>
+                                <Button
+                                    appearance="primary"
+                                    onClick={onClick}
+                                >
+                                    Submit
+                                </Button>
+                            </div>
+                        </>
+                    ))
                 ) :
                     <>
                         {renderForm(props.formData.elements)}
