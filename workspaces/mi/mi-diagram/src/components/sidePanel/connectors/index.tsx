@@ -347,13 +347,15 @@ export function ConnectorPage(props: ConnectorPageProps) {
             // Retrieve form
             const formJSON = await rpcClient.getMiDiagramRpcClient().getConnectorForm({ uiSchemaPath: connectorData.uiSchemaPath, operation: operation });
             const iconPathUri = await rpcClient.getMiDiagramRpcClient().getIconPathUri({ path: connectorData.iconPath, name: "icon-small" });
+            const parameters = connectorData.actions.find(action => action.name === operation)?.parameters || null;
 
             const connecterForm = <AddConnector formData={(formJSON as any).formJSON}
                 nodePosition={sidePanelContext.nodeRange}
                 documentUri={props.documentUri}
                 connectorName={connector.name}
                 operationName={operation}
-                fromConnectorStore={true} />;
+                fromConnectorStore={true}
+                parameters={parameters} />;
 
             sidepanelAddPage(sidePanelContext, connecterForm, `${sidePanelContext.isEditing ? "Edit" : "Add"} ${operation}`, iconPathUri.uri);
         } else {
@@ -413,7 +415,7 @@ export function ConnectorPage(props: ConnectorPageProps) {
                             ) : (
                                 <ButtonGrid>
                                     {displayeLocalConnectors.map((connector: any) => (
-                                        <div style={{
+                                        <div key={`${connector.name}-${connector.version}`} style={{
                                             '&:hover, &.active': {
                                                 ...(expandedConnectors.includes(connector) && {
                                                     '.icon svg g': {
@@ -433,7 +435,7 @@ export function ConnectorPage(props: ConnectorPageProps) {
                                             marginBottom: '10px'
                                         }}>
                                             <ComponentCard
-                                                key={connector.name}
+                                                key={`${connector.name}-${connector.version}`}
                                                 onClick={() => selectConnector(connector)}
                                                 sx={{
                                                     border: '0px',
@@ -495,7 +497,7 @@ export function ConnectorPage(props: ConnectorPageProps) {
 
                                                                     return (
                                                                         <ComponentCard
-                                                                            key={operation}
+                                                                            key={operation.name}
                                                                             onClick={() => selectOperation(connector, operation.name)}
                                                                             sx={{
                                                                                 '&:hover, &.active': {
@@ -554,7 +556,7 @@ export function ConnectorPage(props: ConnectorPageProps) {
                             ) : displayedStoreConnectors && (
                                 <ButtonGrid>
                                     {(displayedStoreConnectors.sort((a: any, b: any) => a.rank - b.rank).map((connector: any) => (
-                                        <div style={{
+                                        <div key={`${connector.name}-${connector.version}`} style={{
                                             '&:hover, &.active': {
                                                 ...(expandedConnectors.includes(connector) && {
                                                     '.icon svg g': {
@@ -574,7 +576,7 @@ export function ConnectorPage(props: ConnectorPageProps) {
                                             marginBottom: '10px'
                                         }}>
                                             <ComponentCard
-                                                key={connector.name}
+                                                key={`${connector.name}-${connector.version}`}
                                                 onClick={() => selectConnector(connector)}
                                                 sx={{
                                                     border: '0px',
