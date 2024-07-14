@@ -320,8 +320,8 @@ const AddConnector = (props: AddConnectorProps) => {
             const operationName = props.formData?.operationName ?? props.operationName ??
                 sidePanelContext.formValues.operationName;
 
-            if (!sidePanelContext.formValues.form) {
-                // Get values set through param manager
+            if (!sidePanelContext.formValues.form && !sidePanelContext.formValues.parameters) {
+                // Get values set through param manager when no UISchema/template is present
                 values = getValues();
             }
 
