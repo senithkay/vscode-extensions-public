@@ -187,8 +187,7 @@ function generateTreeDataOfDataMappings(project: vscode.WorkspaceFolder, data: P
 						configName,
 						isCollapsibleState(false),
 						{ name: configName, path: file.path, type: 'dataMapper' },
-						'file-code',
-						true
+						'dataMapper-file-code'
 					);
 					dataMapperEntry.contextValue = 'data-mapper';
 					dataMapperEntry.command = {
@@ -335,8 +334,7 @@ function generateTreeDataOfRegistry(project: vscode.WorkspaceFolder, data: Proje
 				'gov',
 				isCollapsibleState(isCollapsibleGov),
 				{ name: 'gov', path: path.join(regPath, 'gov'), type: 'gov' },
-				'root-folder',
-				true
+				'registry-root-folder'
 			);
 			govEntry.id = 'gov';
 			govEntry.contextValue = 'gov';
@@ -349,8 +347,7 @@ function generateTreeDataOfRegistry(project: vscode.WorkspaceFolder, data: Proje
 				'conf',
 				isCollapsibleState(isCollapsibleConf),
 				{ name: 'conf', path: path.join(regPath, 'conf'), type: 'conf' },
-				'root-folder-opened',
-				true
+				'registry-root-folder-opened'
 			);
 			confEntry.id = 'conf';
 			confEntry.contextValue = 'conf';
@@ -386,7 +383,7 @@ function generateTreeDataOfClassMediator(project: vscode.WorkspaceFolder, data: 
 				name: fileName,
 				type: 'resource',
 				path: filePath
-			}, 'notebook-execute', true);
+			}, 'class-play');
 			resourceEntry.command = {
 				"title": "Edit Class Mediator",
 				"command": COMMANDS.EDIT_CLASS_MEDIATOR_COMMAND,
@@ -409,9 +406,12 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 		let explorerEntry;
 
 		if (entry.type === 'API' && entry.resources) {
-			const apiEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(true), entry, 'code');
+			const apiEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(true), entry, 'APIResource-code');
 			apiEntry.contextValue = 'api';
-			apiEntry.iconPath = new vscode.ThemeIcon('notebook-open-as-text');
+			apiEntry.iconPath = {
+				light: path.join(extensionContext.extensionPath, 'assets', `light-APIResource-file-code.svg`),
+				dark: path.join(extensionContext.extensionPath, 'assets', `dark-APIResource-file-code.svg`)
+			};
 			apiEntry.children = [];
 
 			// Generate resource structure
@@ -421,7 +421,7 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 					name: (resource.uriTemplate || resource.urlMapping),
 					type: 'resource',
 					path: `${entry.path}/${i}`
-				}, 'code', true);
+				}, 'APIResource-code');
 				resourceEntry.command = {
 					"title": "Show Diagram",
 					"command": COMMANDS.SHOW_RESOURCE_VIEW,
@@ -433,8 +433,8 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 			explorerEntry = apiEntry;
 
 		} else if (entry.type === "ENDPOINT") {
-			const icon = entry.isRegistryResource ? 'file-code' : 'code';
-			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, icon, true);
+			const icon = entry.isRegistryResource ? 'endpoint-file-code' : 'endpoint-code';
+			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, icon);
 			explorerEntry.contextValue = 'endpoint';
 			explorerEntry.command = {
 				"title": "Show Endpoint",
@@ -443,11 +443,11 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 			};
 
 		} else if (entry.type === "SEQUENCE") {
-			let icon = 'code';
+			let icon = 'Sequence-code';
 			if (entry.isRegistryResource) {
-				icon = 'file-code';
+				icon = 'Sequence-file-code';
 			}
-			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, icon, true);
+			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, icon);
 			explorerEntry.contextValue = 'sequence';
 			explorerEntry.command = {
 				"title": "Show Diagram",
@@ -456,7 +456,7 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 			};
 
 		} else if (entry.type === "MESSAGE_PROCESSOR") {
-			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, 'code', true);
+			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, 'message-processor-code');
 			explorerEntry.contextValue = 'message-processor';
 			explorerEntry.command = {
 				"title": "Show Message Processor",
@@ -465,7 +465,7 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 			};
 
 		} else if (entry.type === "PROXY_SERVICE") {
-			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, 'code', true);
+			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, 'proxy-code');
 			explorerEntry.contextValue = 'proxy-service';
 			explorerEntry.command = {
 				"title": "Show Diagram",
@@ -474,8 +474,8 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 			};
 
 		} else if (entry.type === "TEMPLATE") {
-			const icon = entry.isRegistryResource ? 'file-code' : 'code';
-			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, icon, true);
+			const icon = entry.isRegistryResource ? 'template-file-code' : 'template-code';
+			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, icon);
 			explorerEntry.contextValue = 'template';
 			explorerEntry.command = {
 				"title": "Show Template",
@@ -484,7 +484,7 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 			};
 
 		} else if (entry.type === "TASK") {
-			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, 'code', true);
+			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, 'task-code');
 			explorerEntry.contextValue = 'task';
 			explorerEntry.command = {
 				"title": "Show Task",
@@ -492,7 +492,7 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 				"arguments": [vscode.Uri.file(entry.path), undefined, false]
 			};
 		} else if (entry.type === "INBOUND_ENDPOINT") {
-			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, 'code', true);
+			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, 'inbound-endpoint-code');
 			explorerEntry.contextValue = 'inboundEndpoint';
 			explorerEntry.command = {
 				"title": "Show Inbound Endpoint",
@@ -501,7 +501,7 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 			};
 		}
 		else if (entry.type === "MESSAGE_STORE") {
-			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, 'code', true);
+			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, 'message-store-code');
 			explorerEntry.contextValue = 'messageStore';
 			explorerEntry.command = {
 				"title": "Show Message Store",
@@ -510,11 +510,11 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 			};
 
 		} else if (entry.type === "LOCAL_ENTRY") {
-			let icon = 'code';
+			let icon = 'local-entry-code';
 			if (entry.isRegistryResource) {
-				icon = 'file-code';
+				icon = 'local-entry-file-code';
 			}
-			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, icon, true);
+			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, icon);
 			explorerEntry.contextValue = 'localEntry';
 			explorerEntry.command = {
 				"title": "Show Local Entry",
@@ -524,7 +524,7 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 		}
 		// TODO: Will introduce back when both datasource and dataservice functionalities are completely supported
 		else if (entry.type === "DATA_SOURCE") {
-			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, 'code', true);
+			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, 'data-source-code');
 			explorerEntry.contextValue = 'dataSource';
 			explorerEntry.command = {
 				"title": "Show Data Source",
@@ -532,7 +532,7 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 				"arguments": [vscode.Uri.file(entry.path), undefined, false]
 			};
 		} else if (entry.type === "DATA_SERVICE") {
-			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, 'code', true);
+			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, 'data-service-code');
 			explorerEntry.contextValue = 'data-service';
 			explorerEntry.command = {
 				"title": "Show Data Service",
@@ -557,8 +557,7 @@ function generateConnectionEntry(connectionsData: any): ProjectExplorerEntry {
 		"Connections",
 		isCollapsibleState(true),
 		connectionsData,
-		'vm-connect',
-		true
+		'registry-vm-connect-code'
 	);
 	connectionsEntry.contextValue = 'connections';
 	connectionsEntry.id = 'connections';
@@ -636,7 +635,7 @@ function genRegistryProjectStructureEntry(data: RegistryResourcesFolder): Projec
 					name: entry.name,
 					type: 'resource',
 					path: `${entry.path}`
-				}, 'code', true);
+				}, 'registry-code');
 				explorerEntry.id = entry.path;
 				explorerEntry.command = {
 					"title": "Edit Registry Resource",
@@ -662,7 +661,7 @@ function genRegistryProjectStructureEntry(data: RegistryResourcesFolder): Projec
 							name: entry.name,
 							type: 'resource',
 							path: `${entry.path}`
-						}, 'folder', true);
+						}, 'registry-folder');
 					explorerEntry.children = genRegistryProjectStructureEntry(entry);
 					result.push(explorerEntry);
 					const lastIndex = entry.path.indexOf(regPathPrefix) !== -1 ? entry.path.indexOf(regPathPrefix) + regPathPrefix.length : 0;
