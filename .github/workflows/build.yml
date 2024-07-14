@@ -356,7 +356,7 @@ jobs:
   ExtTest_MI:
     name: Run MI extension tests
     needs: Build_Stage
-    if: ${{ (inputs.mi == 'true' && needs.Build_Stage.outputs.runMIExtTests) || github.base_ref == 'release-mi' }}
+    if: ${{ (needs.Build_Stage.outputs.runMIExtTests) || github.base_ref == 'release-mi' }}
     timeout-minutes: 30
     runs-on: ubuntu-latest
     steps:
