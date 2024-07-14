@@ -95,5 +95,26 @@ export const DEFAULT_PROJECT_VERSION = "1.0.0";
 
 export const REFRESH_ENABLED_DOCUMENTS = ["SynapseXml", "typescript"];
 
+export const ICON_COLORS = {
+    API_RESOURCE: "#EB8A44",
+    PROXY: "#8EBA43",
+    CLASS: "#C7DB00",
+    DATA_SERVICE: "#97B8C2",
+    DATA_SOURCE: "#FFBEBD",
+    DATA_MAPPER: "#F78B2D",
+    ENDPOINT: "#F9DC24",
+    FILE: "#000",
+    FOLD_DOWN: "#000",
+    INBOUND_ENDPOINT: "#FFBEBD",
+    LOCAL_ENTRY: "#BF9A77",
+    MESSAGE_PROCESSOR: "#8313a8",
+    MESSAGE_STORE: "#337BAE",
+    PROJECT: "#336B87",
+    REGISTRY: "#E4B600",
+    SEQUENCE: "#4B7447",
+    TASK: "#D35C37",
+    TEMPLATE: "#D6C6B9",
+};
+
 export * from "./swagger";
 

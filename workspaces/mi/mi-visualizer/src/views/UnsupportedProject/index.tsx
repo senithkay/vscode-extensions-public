@@ -14,6 +14,7 @@ import { Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import { View, ViewContent, ViewHeader } from '../../components/View';
 import { VSCodeCheckbox } from '@vscode/webview-ui-toolkit/react';
+import { ICON_COLORS } from '../../constants';
 
 const Container = styled.div`
   display: flex;
@@ -248,7 +249,7 @@ export function UnsupportedProject(props: UnsupportedProjectProps) {
 
   return (
     <View>
-      <ViewHeader title={'Project: ' + activeWorkspaces?.name} icon='project' iconSx={{ color: "#336B87", fontSize: "15px" }} />
+      <ViewHeader title={'Project: ' + activeWorkspaces?.name} icon='project' iconSx={{ color: ICON_COLORS.PROJECT, fontSize: "15px" }} />
       <ViewContent padding>
         <Container>
           <Block>

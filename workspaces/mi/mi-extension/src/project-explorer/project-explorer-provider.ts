@@ -10,7 +10,7 @@
 import * as vscode from 'vscode';
 import { MILanguageClient } from '../lang-client/activator';
 import { ProjectStructureResponse, ProjectStructureEntry, RegistryResourcesFolder, RegistryArtifact, ListRegistryArtifactsResponse } from '@wso2-enterprise/mi-core';
-import { COMMANDS } from '../constants';
+import { COMMANDS, ICON_COLORS } from '../constants';
 import { window } from 'vscode';
 import path = require('path');
 import { findJavaFiles, getAvailableRegistryResources } from '../util/fileOperations';
@@ -221,69 +221,69 @@ function generateTreeDataOfArtifacts(project: vscode.WorkspaceFolder, data: Proj
 				case 'apis':
 					icon = 'APIResource';
 					label = 'APIs';
-					iconColor = '#EB8A44';
+					iconColor = ICON_COLORS.API_RESOURCE;
 					break;
 				case 'endpoints':
 					icon = 'endpoint';
 					label = 'Endpoints';
-					iconColor = '#F9DC24';
+					iconColor = ICON_COLORS.ENDPOINT;
 					break;
 				case 'inboundEndpoints':
 					icon = 'inbound-endpoint';
 					label = 'Inbound Endpoints';
-					iconColor = '#FFBEBD';
+					iconColor = ICON_COLORS.ENDPOINT;
 					break;
 				case 'localEntries':
 					icon = 'local-entry';
 					label = 'Local Entries';
 					connectionEntry = generateConnectionEntry(artifacts[key]);
 					connectionEntry.info = artifacts[key];
-					iconColor = '#BF9A77';
+					iconColor = ICON_COLORS.LOCAL_ENTRY;
 					break;
 				case 'messageStores':
 					icon = 'message-store';
 					label = 'Message Stores';
-					iconColor = '#D6C6B9';
+					iconColor = ICON_COLORS.MESSAGE_STORE;
 					break;
 				case 'messageProcessors':
 					icon = 'message-processor';
 					label = 'Message Processors';
-					iconColor = '#8313a8';
+					iconColor = ICON_COLORS.MESSAGE_PROCESSOR;
 					break;
 				case 'proxyServices':
 					icon = 'arrow-swap';
 					label = 'Proxy Services';
-					iconColor = '#8EBA43';
+					iconColor = ICON_COLORS.PROXY;
 					break;
 				case 'sequences':
 					icon = 'Sequence';
 					label = 'Sequences';
-					iconColor = '#4B7447';
+					iconColor = ICON_COLORS.SEQUENCE;
 					break;
 				case 'tasks':
 					icon = 'task';
 					label = 'Tasks';
-					iconColor = '#D35C37';
+					iconColor = ICON_COLORS.TASK;
 					break;
 				case 'templates':
 					icon = 'template';
 					label = 'Templates';
-					iconColor = '#D6C6B9';
+					iconColor = ICON_COLORS.TEMPLATE;
 					break;
 				case 'resources':
 					icon = 'APIResource';
 					label = 'Resources';
-					iconColor = '#EB8A44';
+					iconColor = ICON_COLORS.API_RESOURCE;
 					break;
 				case 'dataServices':
 					icon = 'data-service';
 					label = 'Data Services';
-					iconColor = '#97B8C2';
+					iconColor = ICON_COLORS.DATA_SERVICE;
 					break;
 				case 'dataSources':
 					icon = 'data-source';
 					label = 'Data Sources';
-					iconColor = "#FFBEBD";
+					iconColor = ICON_COLORS.DATA_SOURCE;
 					break;
 				default:
 			}
