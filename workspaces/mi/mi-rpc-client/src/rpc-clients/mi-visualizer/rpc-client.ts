@@ -18,6 +18,8 @@ import {
     MIVisualizerAPI,
     NotificationRequest,
     NotificationResponse,
+    OpenExternalRequest,
+    OpenExternalResponse,
     OpenViewRequest,
     ProjectStructureRequest,
     ProjectStructureResponse,
@@ -42,6 +44,7 @@ import {
     goHome,
     goSelected,
     log,
+    openExternal,
     openView,
     reloadWindow,
     focusOutput,
@@ -144,5 +147,9 @@ export class MiVisualizerRpcClient implements MIVisualizerAPI {
 
     sendSwaggerProxyRequest(params: SwaggerProxyRequest): Promise<SwaggerProxyResponse> {
         return this._messenger.sendRequest(sendSwaggerProxyRequest, HOST_EXTENSION, params);
+    }
+
+    openExternal(params: OpenExternalRequest): Promise<OpenExternalResponse> {
+        return this._messenger.sendRequest(openExternal, HOST_EXTENSION, params);
     }
 }
