@@ -7,10 +7,10 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
-import { Button, Codicon, ProgressRing } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, Icon, ProgressRing } from "@wso2-enterprise/ui-toolkit";
 import { TypeKind } from "@wso2-enterprise/mi-core";
 import { Block, Node } from "ts-morph";
 import classnames from "classnames";
@@ -26,6 +26,8 @@ import { useDMCollapsedFieldsStore, useDMExpressionBarStore } from '../../../../
 import { getDefaultValue, getEditorLineAndColumn, getTypeName, isConnectedViaLink } from "../../utils/common-utils";
 import { createSourceForUserInput } from "../../utils/modification-utils";
 import { ArrayOutputFieldWidget } from "../ArrayOutput/ArrayOuptutFieldWidget";
+import { getDiagnostics } from "../../utils/diagnostics-utils";
+import { DiagnosticTooltip } from "../../Diagnostic/DiagnosticTooltip";
 
 export interface ObjectOutputFieldWidgetProps {
     parentId: string;
@@ -95,6 +97,14 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
 
     const fields = isInterface && field.childrenTypes;
     const isWithinArray = fieldIndex !== undefined;
+    const diagnostic = propertyAssignment && getDiagnostics(propertyAssignment)[0];
+
+    const connectedViaLink = useMemo(() => {
+        if (hasValue) {
+            return isConnectedViaLink(initializer);
+        }
+        return false;
+    }, [field]);
 
     const handleAddValue = async () => {
         setIsLoading(true);
@@ -188,6 +198,38 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
                     )}
                 >
                     {typeName || ''}
+                </span>
+            )}
+            {(hasValue || hasDefaultValue) && !connectedViaLink && (
+                <span className={classes.outputNodeValueBase}>
+                    {diagnostic ? (
+                        <DiagnosticTooltip
+                            diagnostic={diagnostic}
+                            value={initializer.getText()}
+                            onClick={handleEditValue}
+                        >
+                            <Button
+                                appearance="icon"
+                                onClick={handleEditValue}
+                                data-testid={`object-output-field-${portIn?.getName()}`}
+                            >
+                                {initializer.getText()}
+                                <Icon
+                                    name="error-icon"
+                                    sx={{ height: "14px", width: "14px", marginLeft: "4px" }}
+                                    iconSx={{ fontSize: "14px", color: "var(--vscode-errorForeground)" }}
+                                />
+                            </Button>
+                        </DiagnosticTooltip>
+                    ) : (
+                        <span
+                            className={classes.outputNodeValue}
+                            onClick={handleEditValue}
+                            data-testid={`object-output-field-${portIn?.getName()}`}
+                        >
+                            {initializer.getText()}
+                        </span>
+                    )}
                 </span>
             )}
         </span>

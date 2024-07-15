@@ -81,6 +81,7 @@ export function DiagnosticTooltip(props: Partial<Props>) {
             id={DiagnosticTooltipID}
             content={tooltipTitleComponent}
             position="bottom"
+            className={classes.tooltip}
         >
             {children}
         </Tooltip>

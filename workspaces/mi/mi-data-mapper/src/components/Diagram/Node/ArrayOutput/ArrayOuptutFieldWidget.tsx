@@ -158,8 +158,8 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
                     {typeName}
                 </span>
             )}
-            {!arrayLitExpr && !connectedViaLink && hasValue && (
-                <>
+            {!arrayLitExpr && !connectedViaLink && (hasValue || hasDefaultValue) && (
+                <span className={classes.outputNodeValueBase}>
                     {diagnostic ? (
                         <DiagnosticTooltip
                             placement="right"
@@ -174,7 +174,7 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
                                 {valExpr.getText()}
                                 <Icon
                                     name="error-icon"
-                                    sx={{ height: "14px", width: "14px" }}
+                                    sx={{ height: "14px", width: "14px", marginLeft: "4px" }}
                                     iconSx={{ fontSize: "14px", color: "var(--vscode-errorForeground)" }}
                                 />
                             </Button>
@@ -188,7 +188,7 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
                             {valExpr.getText()}
                         </span>
                     )}
-                </>
+                </span>
             )}
         </span>
     );

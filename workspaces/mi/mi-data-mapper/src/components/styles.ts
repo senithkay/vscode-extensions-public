@@ -151,9 +151,11 @@ export const useIONodesStyles = () => ({
         order: 1,
         flexGrow: 0
     }),
-    outputNodeValue: css({
+    outputNodeValueBase: css({
         verticalAlign: "middle",
-        padding: "5px",
+        padding: "5px"
+    }),
+    outputNodeValue: css({
         backgroundColor: "var(--vscode-input-background)",
         borderRadius: "5px",
         cursor: 'pointer',
