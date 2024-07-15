@@ -353,7 +353,7 @@ const stateMachine = createMachine<MachineContext>({
                 }
             });
         },
-        waitForConnectorData: async (context, event) => {
+        waitForConnectorData: (context, event) => {
             return new Promise(async (resolve, reject) => {
                 fetchConnectorData().then(data => {
                     if (data) {
