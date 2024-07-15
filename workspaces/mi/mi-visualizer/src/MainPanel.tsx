@@ -48,6 +48,8 @@ import { DataServiceView } from './views/Diagram/DataService';
 import { SignInToCopilotMessage } from './views/LoggedOutWindow';
 import { DataServiceDataSourceWizard } from "./views/Forms/DataServiceForm/MainPanelForms/DataSourceForm/DatasourceForm";
 import AddConnection from './views/Forms/ConnectionForm/ConnectionFormGenerator';
+import { WelcomePanel } from './WelcomePanel';
+import { SamplesView } from './views/SamplesView';
 
 const MainContainer = styled.div`
     display: flex;
@@ -340,6 +342,12 @@ const MainPanel = () => {
                     break;
                 case MACHINE_VIEW.DSSServiceDesigner:
                     setViewComponent(<DSSServiceDesignerView syntaxTree={machineView.stNode} documentUri={machineView.documentUri} />);
+                    break;
+                case MACHINE_VIEW.Welcome:
+                    setViewComponent(<WelcomePanel />);
+                    break;
+                case MACHINE_VIEW.Samples:
+                    setViewComponent(<SamplesView />);
                     break;
                 default:
                     setViewComponent(null);
