@@ -12,7 +12,36 @@ import { Alert, Codicon, ContextMenu, Icon } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { Fragment, useEffect, useState } from 'react';
-import { ICON_COLORS } from '../../constants';
+import { EndpointTypes, TemplateTypes } from '../../constants';
+
+const getIcon = (type: string, subType: string, defaultIcon: string) => {
+    switch (type) {
+        case "ENDPOINT": {
+            switch (subType) {
+                case EndpointTypes.ADDRESS_ENDPOINT: return "address-endpoint";
+                case EndpointTypes.DEFAULT_ENDPOINT: return "default-endpoint";
+                case EndpointTypes.HTTP_ENDPOINT: return "http-endpoint";
+                case EndpointTypes.LOAD_BALANCE_ENDPOINT: return "load-balance-endpoint";
+                case EndpointTypes.WSDL_ENDPOINT: return "wsdl-endpoint";
+                case EndpointTypes.FAILOVER_ENDPOINT: return "failover-endpoint";
+                case EndpointTypes.RECIPIENT_ENDPOINT: return "recipient-list-endpoint";
+                case EndpointTypes.TEMPLATE_ENDPOINT: return "template-endpoint";
+                default: return defaultIcon;
+            }
+        }
+        case "TEMPLATE": {
+            switch (subType) {
+                case TemplateTypes.SEQUENCE_ENDPOINT: return "sequence-template";
+                case TemplateTypes.WSDL_ENDPOINT: return "wsdl-endpoint-template";
+                case TemplateTypes.HTTP_ENDPOINT: return "http-endpoint-template";
+                case TemplateTypes.ADDRESS_ENDPOINT: return "address-endpoint-template";
+                case TemplateTypes.DEFAULT_ENDPOINT: return "default-endpoint-template";
+                default: return defaultIcon;
+            }
+        }
+        default: return defaultIcon;
+    }
+}
 
 interface ArtifactType {
     title: string;
@@ -31,7 +60,6 @@ const artifactTypeMap: Record<string, ArtifactType> = {
         command: "MI.project-explorer.add-api",
         view: MACHINE_VIEW.ServiceDesigner,
         icon: "APIResource",
-        iconSx: { color: ICON_COLORS.API_RESOURCE },
         description: (entry: any) => `API Context: ${entry.context}`,
         path: (entry: any) => entry.path,
     },
@@ -40,7 +68,6 @@ const artifactTypeMap: Record<string, ArtifactType> = {
         command: "MI.project-explorer.add-endpoint",
         view: MACHINE_VIEW.EndPointForm,
         icon: "endpoint",
-        iconSx: { color: ICON_COLORS.ENDPOINT },
         description: (entry: any) => `Type: ${entry.subType}`,
         path: (entry: any) => entry.path,
     },
@@ -49,7 +76,6 @@ const artifactTypeMap: Record<string, ArtifactType> = {
         command: "MI.project-explorer.add-sequence",
         view: MACHINE_VIEW.SequenceView,
         icon: "Sequence",
-        iconSx: { color: ICON_COLORS.SEQUENCE },
         description: (entry: any) => `Reusable sequence`,
         path: (entry: any) => entry.path,
     },
@@ -59,7 +85,6 @@ const artifactTypeMap: Record<string, ArtifactType> = {
         view: MACHINE_VIEW.ProxyView,
         isCodicon: true,
         icon: "arrow-swap",
-        iconSx: { color: ICON_COLORS.PROXY },
         description: (entry: any) => "Proxy Service",
         path: (entry: any) => entry.path,
     },
@@ -68,7 +93,6 @@ const artifactTypeMap: Record<string, ArtifactType> = {
         command: "MI.project-explorer.add-inbound-endpoint",
         view: MACHINE_VIEW.InboundEPForm,
         icon: "inbound-endpoint",
-        iconSx: { color: ICON_COLORS.INBOUND_ENDPOINT },
         description: (entry: any) => "Inbound Endpoint",
         path: (entry: any) => entry.path,
     },
@@ -77,7 +101,6 @@ const artifactTypeMap: Record<string, ArtifactType> = {
         command: "MI.project-explorer.add-message-store",
         view: MACHINE_VIEW.MessageStoreForm,
         icon: "message-store",
-        iconSx: { color: ICON_COLORS.MESSAGE_STORE },
         description: (entry: any) => "Message Store",
         path: (entry: any) => entry.path,
     },
@@ -86,7 +109,6 @@ const artifactTypeMap: Record<string, ArtifactType> = {
         command: "MI.project-explorer.add-message-processor",
         view: MACHINE_VIEW.MessageProcessorForm,
         icon: "message-processor",
-        iconSx: { color: ICON_COLORS.MESSAGE_PROCESSOR },
         description: (entry: any) => "Message Processor",
         path: (entry: any) => entry.path,
     },
@@ -95,7 +117,6 @@ const artifactTypeMap: Record<string, ArtifactType> = {
         command: "MI.project-explorer.add-task",
         view: MACHINE_VIEW.TaskForm,
         icon: "task",
-        iconSx: { color: ICON_COLORS.TASK },
         description: (entry: any) => "Task",
         path: (entry: any) => entry.path,
     },
@@ -104,7 +125,6 @@ const artifactTypeMap: Record<string, ArtifactType> = {
         command: "MI.project-explorer.add-local-entry",
         view: MACHINE_VIEW.LocalEntryForm,
         icon: "local-entry",
-        iconSx: { color: ICON_COLORS.LOCAL_ENTRY },
         description: (entry: any) => "Local Entry",
         path: (entry: any) => entry.path,
     },
@@ -113,7 +133,6 @@ const artifactTypeMap: Record<string, ArtifactType> = {
         command: "MI.project-explorer.add-template",
         view: MACHINE_VIEW.TemplateForm,
         icon: "template",
-        iconSx: { color: ICON_COLORS.TEMPLATE },
         description: (entry: any) => `Type: ${entry.subType}`,
         path: (entry: any) => entry.path,
     },
@@ -122,7 +141,6 @@ const artifactTypeMap: Record<string, ArtifactType> = {
         command: "MI.project-explorer.open-dss-service-designer",
         view: MACHINE_VIEW.DSSServiceDesigner,
         icon: "data-service",
-        iconSx: { color: ICON_COLORS.DATA_SERVICE },
         description: (entry: any) => "Data Service",
         path: (entry: any) => entry.path,
     },
@@ -131,7 +149,6 @@ const artifactTypeMap: Record<string, ArtifactType> = {
         command: "MI.project-explorer.add-data-source",
         view: MACHINE_VIEW.DataSourceForm,
         icon: "data-source",
-        iconSx: { color: ICON_COLORS.DATA_SOURCE },
         description: (entry: any) => "Data Source",
         path: (entry: any) => entry.path,
     },
@@ -256,7 +273,7 @@ const ProjectStructureView = (props: { projectStructure: any, workspaceDir: stri
                                             <Entry
                                                 key={entry.name}
                                                 isCodicon={artifactTypeMap[key].isCodicon}
-                                                icon={artifactTypeMap[key].icon}
+                                                icon={getIcon(entry.type, entry.subType, artifactTypeMap[key].icon)}
                                                 iconSx={artifactTypeMap[key].iconSx}
                                                 name={entry.name}
                                                 description={artifactTypeMap[key].description(entry)}
@@ -364,7 +381,7 @@ const Entry: React.FC<EntryProps> = ({ icon, name, description, onClick, goToVie
                 </div>
             ) : (
                 <div style={{ width: 'auto', display: 'flex', justifyContent: 'center', alignItems: 'center', marginRight: '10px' }}>
-                    <Codicon name={icon} />
+                    <Icon name={icon} iconSx={iconSx} isCodicon={isCodicon} />
                 </div>
             )}
             <div style={{ flex: 2, fontWeight: 'bold' }}>

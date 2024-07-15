@@ -10,7 +10,7 @@
 import * as vscode from 'vscode';
 import { MILanguageClient } from '../lang-client/activator';
 import { ProjectStructureResponse, ProjectStructureEntry, RegistryResourcesFolder, RegistryArtifact, ListRegistryArtifactsResponse } from '@wso2-enterprise/mi-core';
-import { COMMANDS, ICON_COLORS } from '../constants';
+import { COMMANDS, EndpointTypes, TemplateTypes } from '../constants';
 import { window } from 'vscode';
 import path = require('path');
 import { findJavaFiles, getAvailableRegistryResources } from '../util/fileOperations';
@@ -379,6 +379,57 @@ function isCollapsibleState(state: boolean): vscode.TreeItemCollapsibleState {
 	return state ? vscode.TreeItemCollapsibleState.Collapsed : vscode.TreeItemCollapsibleState.None;
 }
 
+function getEndpointIcon(endpointType: EndpointTypes): string {
+	let icon = 'endpoint';
+	// Replace above with switch case when more endpoint types are added
+	switch (endpointType) {
+		case EndpointTypes.HTTP_ENDPOINT:
+			icon = 'http-endpoint';
+			break;
+		case EndpointTypes.ADDRESS_ENDPOINT:
+			icon = 'address-endpoint';
+			break;
+		case EndpointTypes.WSDL_ENDPOINT:
+			icon = 'wsdl-endpoint';
+			break;
+		case EndpointTypes.DEFAULT_ENDPOINT:
+			icon = 'default-endpoint';
+			break;
+		case EndpointTypes.LOAD_BALANCE_ENDPOINT:
+			icon = 'load-balance-endpoint';
+			break;
+		case EndpointTypes.FAILOVER_ENDPOINT:
+			icon = 'failover-endpoint';
+			break;
+		case EndpointTypes.RECIPIENT_ENDPOINT:
+			icon = 'recipient-endpoint';
+			break;
+	}
+	return icon;
+}
+
+function getTemplateIcon(templateType: string): string {
+	let icon = 'template-endpoint';
+	switch (templateType) {
+		case TemplateTypes.ADDRESS_ENDPOINT:
+			icon = 'address-endpoint-template';
+			break;
+		case TemplateTypes.DEFAULT_ENDPOINT:
+			icon = 'default-endpoint-template';
+			break;
+		case TemplateTypes.HTTP_ENDPOINT:
+			icon = 'http-endpoint-template';
+			break;
+		case TemplateTypes.WSDL_ENDPOINT:
+			icon = 'wsdl-endpoint-template';
+			break;
+		case TemplateTypes.SEQUENCE_ENDPOINT:
+			icon = 'sequence-template';
+			break;
+	}
+	return icon;
+}
+
 function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplorerEntry[] {
 	const result: ProjectExplorerEntry[] = [];
 
@@ -414,7 +465,7 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 
 		} else if (entry.type === "ENDPOINT") {
 			const icon = entry.isRegistryResource ? 'file-code' : 'code';
-			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, icon, true);
+			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, getEndpointIcon(entry.subType as EndpointTypes));
 			explorerEntry.contextValue = 'endpoint';
 			explorerEntry.command = {
 				"title": "Show Endpoint",
@@ -423,11 +474,13 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 			};
 
 		} else if (entry.type === "SEQUENCE") {
-			let icon = 'code';
+			let icon = 'Sequence';
+			let isCodicon = false;
 			if (entry.isRegistryResource) {
 				icon = 'file-code';
+				isCodicon = true;
 			}
-			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, icon, true);
+			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, icon, isCodicon);
 			explorerEntry.contextValue = 'sequence';
 			explorerEntry.command = {
 				"title": "Show Diagram",
@@ -436,7 +489,7 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 			};
 
 		} else if (entry.type === "MESSAGE_PROCESSOR") {
-			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, 'code', true);
+			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, 'message-processor');
 			explorerEntry.contextValue = 'message-processor';
 			explorerEntry.command = {
 				"title": "Show Message Processor",
@@ -454,8 +507,9 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 			};
 
 		} else if (entry.type === "TEMPLATE") {
-			const icon = entry.isRegistryResource ? 'file-code' : 'code';
-			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, icon, true);
+			const icon = entry.isRegistryResource ? 'file-code' : getTemplateIcon(entry.subType as TemplateTypes);
+			const isCodicon = entry.isRegistryResource ? true : false;
+			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, icon, isCodicon);
 			explorerEntry.contextValue = 'template';
 			explorerEntry.command = {
 				"title": "Show Template",
@@ -472,7 +526,7 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 				"arguments": [vscode.Uri.file(entry.path), undefined, false]
 			};
 		} else if (entry.type === "INBOUND_ENDPOINT") {
-			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, 'code', true);
+			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, 'inbound-endpoint');
 			explorerEntry.contextValue = 'inboundEndpoint';
 			explorerEntry.command = {
 				"title": "Show Inbound Endpoint",
@@ -481,7 +535,7 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 			};
 		}
 		else if (entry.type === "MESSAGE_STORE") {
-			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, 'code', true);
+			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, 'message-store');
 			explorerEntry.contextValue = 'messageStore';
 			explorerEntry.command = {
 				"title": "Show Message Store",

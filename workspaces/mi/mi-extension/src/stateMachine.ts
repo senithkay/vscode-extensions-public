@@ -665,14 +665,28 @@ function findViewIcon(view) {
             icon = 'Sequence';
             break;
         case MACHINE_VIEW.EndPointForm:
-        case MACHINE_VIEW.HttpEndpointForm:
-        case MACHINE_VIEW.WsdlEndpointForm:
-        case MACHINE_VIEW.AddressEndpointForm:
-        case MACHINE_VIEW.DefaultEndpointForm:
-        case MACHINE_VIEW.FailoverEndPointForm:
-        case MACHINE_VIEW.RecipientEndPointForm:
-        case MACHINE_VIEW.LoadBalanceEndPointForm:
             icon = 'endpoint';
+            break;
+        case MACHINE_VIEW.HttpEndpointForm:
+            icon = 'http-endpoint';
+            break;
+        case MACHINE_VIEW.WsdlEndpointForm:
+            icon = 'wsdl-endpoint';
+            break;
+        case MACHINE_VIEW.AddressEndpointForm:
+            icon = 'address-endpoint';
+            break;
+        case MACHINE_VIEW.DefaultEndpointForm:
+            icon = 'default-endpoint';
+            break;
+        case MACHINE_VIEW.FailoverEndPointForm:
+            icon = 'failover-endpoint';
+            break;
+        case MACHINE_VIEW.RecipientEndPointForm:
+            icon = 'recipient-endpoint';
+            break;
+        case MACHINE_VIEW.LoadBalanceEndPointForm:
+            icon = 'load-balance-endpoint';
             break;
         case MACHINE_VIEW.InboundEPForm:
             icon = 'inbound-endpoint';
@@ -688,7 +702,7 @@ function findViewIcon(view) {
             icon = 'arrow-swap';
             break;
         case MACHINE_VIEW.TaskForm:
-            icon = 'tasklist';
+            icon = 'task';
             break;
         case MACHINE_VIEW.LocalEntryForm:
             icon = 'local-entry';
@@ -697,9 +711,25 @@ function findViewIcon(view) {
         case MACHINE_VIEW.TemplateForm:
             icon = 'template';
             break;
+        case MACHINE_VIEW.TemplateEndPointForm:
+            icon = 'template-endpoint';
+            break;
+        case MACHINE_VIEW.SequenceTemplateView:
+            icon = 'sequence-template';
+            break;
+        case MACHINE_VIEW.DataSourceForm:
+            icon = 'data-source';
+            break;
+        case MACHINE_VIEW.DataServiceForm:
+        case MACHINE_VIEW.DataServiceView:
+            icon = 'data-service';
+            break;
         case MACHINE_VIEW.RegistryResourceForm:
         case MACHINE_VIEW.RegistryMetadataForm:
             icon = 'registry';
+            break;
+        case MACHINE_VIEW.DataMapperView:
+            icon = 'dataMapper';
             break;
         default:
             break;

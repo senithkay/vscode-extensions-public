@@ -16,7 +16,6 @@ import { css } from "@emotion/css";
 import styled from "@emotion/styled";
 import { View, ViewContent, ViewHeader } from "../../components/View";
 import path from "path";
-import { ICON_COLORS } from "../../constants";
 
 const Container = styled.div({
     display: "flex",
@@ -172,7 +171,7 @@ export function AddArtifactView() {
 
     return (
         <View>
-            <ViewHeader title={"Project: " + activeWorkspaces?.name} icon="project" iconSx={{ color: ICON_COLORS.PROJECT, fontSize: "15px" }}></ViewHeader>
+            <ViewHeader title={"Project: " + activeWorkspaces?.name} icon="project" iconSx={{ fontSize: "15px" }}></ViewHeader>
             <ViewContent padding>
                 <Container>
                     <AddPanel>
@@ -201,14 +200,12 @@ export function AddArtifactView() {
                         <HorizontalCardContainer>
                             <Card
                                 icon="APIResource"
-                                iconSx={{ color: ICON_COLORS.API_RESOURCE}}
                                 title="API"
                                 description="Create an HTTP API with a defined interface."
                                 onClick={() => handleClick("apis")}
                             />
                             <Card
                                 icon="arrow-swap"
-                                iconSx={{ color: ICON_COLORS.PROXY }}
                                 isCodicon
                                 title="Proxy"
                                 description="Create a proxy service to process and route messages."
@@ -216,14 +213,12 @@ export function AddArtifactView() {
                             />
                             <Card
                                 icon="task"
-                                iconSx={{ color: ICON_COLORS.TASK }}
                                 title="Task"
                                 description="Create a task that can be run periodically."
                                 onClick={() => handleClick("tasks")}
                             />
                             <Card
                                 icon="inbound-endpoint"
-                                iconSx={{ color: ICON_COLORS.INBOUND_ENDPOINT }}
                                 title="Inbound Endpoint"
                                 description="Mediate messages sent via events."
                                 onClick={() => handleClick("inboundEndpoints")}
@@ -241,49 +236,42 @@ export function AddArtifactView() {
                                 <HorizontalCardContainer>
                                     <Card
                                         icon="endpoint"
-                                        iconSx={{ color: ICON_COLORS.ENDPOINT }}
                                         title="Endpoint"
                                         description="Define communication endpoint configurations."
                                         onClick={() => handleClick("endpoints")}
                                     />
                                     <Card
                                         icon="Sequence"
-                                        iconSx={{ color: ICON_COLORS.SEQUENCE }}
                                         title="Sequence"
                                         description="Configure reusable mediation sequences."
                                         onClick={() => handleClick("sequences")}
                                     />
                                     <Card
                                         icon="registry"
-                                        iconSx={{ color: ICON_COLORS.REGISTRY }}
                                         title="Registry"
                                         description="Manage shared resources and configurations."
                                         onClick={() => handleClick("registry")}
                                     />
                                     <Card
                                         icon="message-processor"
-                                        iconSx={{ color: ICON_COLORS.MESSAGE_PROCESSOR }}
                                         title="Message Processor"
                                         description="Define processing logic for messages."
                                         onClick={() => handleClick("messageProcessors")}
                                     />
                                     <Card
                                         icon="template"
-                                        iconSx={{ color: ICON_COLORS.TEMPLATE }}
                                         title="Template"
                                         description="Create reusable message transformation templates."
                                         onClick={() => handleClick("templates")}
                                     />
                                     <Card
                                         icon="message-store"
-                                        iconSx={{ color: ICON_COLORS.MESSAGE_STORE }}
                                         title="Message Store"
                                         description="Store and manage messages locally."
                                         onClick={() => handleClick("messageStores")}
                                     />
                                     <Card
                                         icon="local-entry"
-                                        iconSx={{ color: ICON_COLORS.LOCAL_ENTRY }}
                                         title="Local Entry"
                                         description="Define local resource entries for reuse."
                                         onClick={() => handleClick("localEntries")}
