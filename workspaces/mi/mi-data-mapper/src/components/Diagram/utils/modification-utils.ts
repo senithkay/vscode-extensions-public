@@ -295,9 +295,11 @@ export async function createSourceForUserInput(
 	}
 
 	if (Node.isObjectLiteralExpression(targetObjectLitExpr)) {
-		targetObjectLitExpr.addProperty(writer => {
+		const propertyAssignment = targetObjectLitExpr.addProperty(writer => {
 			writer.writeLine(source);
-		});
+		}) as PropertyAssignment;
+		applyModifications && (await applyModifications());
+		return propertyAssignment;
 	} else {
 		if (!targetObjectLitExpr) {
 			// When the return statement is not available in the function body
@@ -306,11 +308,13 @@ export async function createSourceForUserInput(
 				.find(statement => Node.isReturnStatement(statement)) as ReturnStatement;
 			targetObjectLitExpr = returnStatement.getExpression() as ObjectLiteralExpression;
 		}
-		targetObjectLitExpr.replaceWithText(`{${source}}`);
+		const modifiedTargetObjectLitExpr = targetObjectLitExpr
+			.replaceWithText(`{${source}}`) as ObjectLiteralExpression;
+		applyModifications && (await applyModifications());
+		return modifiedTargetObjectLitExpr
+			.getProperties()[modifiedTargetObjectLitExpr.getProperties().length - 1] as PropertyAssignment;
 	}
 
-	applyModifications && (await applyModifications());
-	return targetObjectLitExpr.getProperties()[targetObjectLitExpr.getProperties().length - 1] as PropertyAssignment;
 
 	function createSpecificField(missingFields: string[]): string {
 		return missingFields.length > 1

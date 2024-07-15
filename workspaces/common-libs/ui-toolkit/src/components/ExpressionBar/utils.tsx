@@ -26,7 +26,7 @@ export const getExpressionInfo = (text: string, cursorPosition: number) => {
 
 export const addClosingBracketIfNeeded = (inputRef: RefObject<HTMLInputElement>, text: string) => {
     let updatedText = text;
-    let cursorPosition = (inputRef.current!.shadowRoot.getElementById('control') as HTMLInputElement).selectionStart;
+    let cursorPosition = inputRef.current!.shadowRoot.querySelector('input').selectionStart;
 
     const closingBracket = updatedText.includes('(') && !updatedText.includes(')');
 
@@ -48,7 +48,7 @@ export const addClosingBracketIfNeeded = (inputRef: RefObject<HTMLInputElement>,
 
 export const setCursor = (inputRef: RefObject<HTMLInputElement>, position: number) => {
     inputRef.current.focus();
-    (inputRef.current.shadowRoot.getElementById('control') as HTMLInputElement).setSelectionRange(position, position);
+    inputRef.current.shadowRoot.querySelector('input').setSelectionRange(position, position);
 };
 
 export const isFunction = (kind: ItemTypeKind) => kind === ITEM_TYPE_KIND.Function || kind === ITEM_TYPE_KIND.Method;

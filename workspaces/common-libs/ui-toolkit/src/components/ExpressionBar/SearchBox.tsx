@@ -15,7 +15,7 @@ import { css } from '@emotion/css';
 import { Typography } from '../Typography/Typography';
 import { Codicon } from '../Codicon/Codicon';
 import { ExpressionBarProps, ItemType } from './ExpressionBar';
-import { debounce } from 'lodash';
+import { debounce, throttle } from 'lodash';
 import { createPortal } from 'react-dom';
 import { addClosingBracketIfNeeded, getExpressionInfo, getIcon, isFunction, isParameter, setCursor } from './utils';
 import { VSCodeTag } from '@vscode/webview-ui-toolkit/react';
@@ -27,7 +27,7 @@ type StyleBase = {
 
 type DropdownProps = StyleBase & {
     items: ItemType[];
-    onItemSelect: (item: ItemType) => void;
+    onItemSelect: (item: ItemType) => Promise<void>;
 };
 
 type DropdownItemProps = {
@@ -232,7 +232,7 @@ const Dropdown = forwardRef<HTMLDivElement, DropdownProps>((props, ref) => {
                             key={`dropdown-item-${index}`}
                             {...(index === 0 && { firstItem: true })}
                             item={item}
-                            onClick={() => onItemSelect(item)}
+                            onClick={async () => await onItemSelect(item)}
                         />
                     );
                 })}
@@ -339,7 +339,7 @@ export const ExpressionEditor = forwardRef<HTMLInputElement, ExpressionBarProps>
 
     useImperativeHandle(ref, () => inputRef.current);
 
-    const handleResize = debounce(() => {
+    const handleResize = throttle(() => {
         if (elementRef.current) {
             const rect = elementRef.current.getBoundingClientRect();
             setDropdownPosition({
@@ -379,7 +379,7 @@ export const ExpressionEditor = forwardRef<HTMLInputElement, ExpressionBarProps>
     };
 
     const handleChange = async (text: string, cursorPosition?: number, selectedItem?: ItemType) => {
-        onChange(text);
+        await onChange(text);
         // Check whether the cursor is inside a function
         const { isCursorInFunction, currentFnContent } = getExpressionInfo(text, cursorPosition);
         if (isCursorInFunction) {
@@ -388,9 +388,8 @@ export const ExpressionEditor = forwardRef<HTMLInputElement, ExpressionBarProps>
         await getSuggestions();
     };
 
-    const handleItemSelect = (item: ItemType) => {
-        const cursorPosition = (inputRef.current.shadowRoot.getElementById('control') as HTMLInputElement)
-            .selectionStart;
+    const handleItemSelect = async (item: ItemType) => {
+        const cursorPosition = inputRef.current.shadowRoot.querySelector('input').selectionStart;
         const prefixMatches = value.substring(0, cursorPosition).match(SUGGESTION_REGEX.prefix);
         const suffixMatches = value.substring(cursorPosition).match(SUGGESTION_REGEX.suffix);
         const prefix = value.substring(0, cursorPosition - prefixMatches[1].length);
@@ -417,9 +416,9 @@ export const ExpressionEditor = forwardRef<HTMLInputElement, ExpressionBarProps>
             newTextValue = prefix + item.value + suffix;
         }
 
-        handleChange(newTextValue, newCursorPosition, item);
+        await handleChange(newTextValue, newCursorPosition, item);
         setCursor(inputRef, newCursorPosition);
-        onItemSelect && onItemSelect(item);
+        await onItemSelect(newTextValue);
     };
 
     const handleClose = () => {
@@ -428,7 +427,53 @@ export const ExpressionEditor = forwardRef<HTMLInputElement, ExpressionBarProps>
         setSyntax(undefined);
     };
 
-    const handleInputKeyDown = (e: React.KeyboardEvent) => {
+    const navigateUp = throttle((hoveredEl: Element) => {
+        if (hoveredEl) {
+            hoveredEl.classList.remove('hovered');
+            const prevEl = hoveredEl.previousElementSibling as HTMLElement;
+            if (prevEl) {
+                prevEl.classList.add('hovered');
+                prevEl.scrollIntoView({ behavior: 'auto', block: 'nearest' });
+            } else {
+                const lastEl = listBoxRef.current.lastElementChild as HTMLElement;
+                if (lastEl) {
+                    lastEl.classList.add('hovered');
+                    lastEl.scrollIntoView({ behavior: 'auto', block: 'nearest' });
+                }
+            }
+        } else {
+            const lastEl = listBoxRef.current.lastElementChild as HTMLElement;
+            if (lastEl) {
+                lastEl.classList.add('hovered');
+                lastEl.scrollIntoView({ behavior: 'auto', block: 'nearest' });
+            }
+        }
+    }, 100);
+
+    const navigateDown = throttle((hoveredEl: Element) => {
+        if (hoveredEl) {
+            hoveredEl.classList.remove('hovered');
+            const nextEl = hoveredEl.nextElementSibling as HTMLElement;
+            if (nextEl) {
+                nextEl.classList.add('hovered');
+                nextEl.scrollIntoView({ behavior: 'auto', block: 'nearest' });
+            } else {
+                const firstEl = listBoxRef.current.firstElementChild as HTMLElement;
+                if (firstEl) {
+                    firstEl.classList.add('hovered');
+                    firstEl.scrollIntoView({ behavior: 'auto', block: 'nearest' });
+                }
+            }
+        } else {
+            const firstEl = listBoxRef.current.firstElementChild as HTMLElement;
+            if (firstEl) {
+                firstEl.classList.add('hovered');
+                firstEl.scrollIntoView({ behavior: 'auto', block: 'nearest' });
+            }
+        }
+    }, 100);
+
+    const handleInputKeyDown = async (e: React.KeyboardEvent) => {
         if (listBoxRef.current) {
             const hoveredEl = listBoxRef.current.querySelector('.hovered');
             switch (e.key) {
@@ -436,60 +481,24 @@ export const ExpressionEditor = forwardRef<HTMLInputElement, ExpressionBarProps>
                     e.preventDefault();
                     handleClose();
                     break;
-                case 'ArrowDown':
+                case 'ArrowDown': {
                     e.preventDefault();
-                    if (hoveredEl) {
-                        hoveredEl.classList.remove('hovered');
-                        const nextEl = hoveredEl.nextElementSibling as HTMLElement;
-                        if (nextEl) {
-                            nextEl.classList.add('hovered');
-                            nextEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                        } else {
-                            const firstEl = listBoxRef.current.firstElementChild as HTMLElement;
-                            if (firstEl) {
-                                firstEl.classList.add('hovered');
-                                firstEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                            }
-                        }
-                    } else {
-                        const firstEl = listBoxRef.current.firstElementChild as HTMLElement;
-                        if (firstEl) {
-                            firstEl.classList.add('hovered');
-                            firstEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                        }
-                    }
+                    navigateDown(hoveredEl);
                     break;
-                case 'ArrowUp':
+                }
+                case 'ArrowUp': {
                     e.preventDefault();
-                    if (hoveredEl) {
-                        hoveredEl.classList.remove('hovered');
-                        const prevEl = hoveredEl.previousElementSibling as HTMLElement;
-                        if (prevEl) {
-                            prevEl.classList.add('hovered');
-                            prevEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                        } else {
-                            const lastEl = listBoxRef.current.lastElementChild as HTMLElement;
-                            if (lastEl) {
-                                lastEl.classList.add('hovered');
-                                lastEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                            }
-                        }
-                    } else {
-                        const lastEl = listBoxRef.current.lastElementChild as HTMLElement;
-                        if (lastEl) {
-                            lastEl.classList.add('hovered');
-                            lastEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                        }
-                    }
+                    navigateUp(hoveredEl);
                     break;
+                }
                 case 'Tab':
                     e.preventDefault();
                     if (hoveredEl) {
                         const item = filteredItems.find(
-                            (item: ItemType) => `${item.tag ?? ""}${item.label}` === hoveredEl.firstChild.textContent
+                            (item: ItemType) => `${item.tag ?? ''}${item.label}` === hoveredEl.firstChild.textContent
                         );
                         if (item) {
-                            handleItemSelect(item);
+                            await handleItemSelect(item);
                         }
                     }
                     break;
@@ -499,9 +508,9 @@ export const ExpressionEditor = forwardRef<HTMLInputElement, ExpressionBarProps>
         if (e.key === 'Enter') {
             e.preventDefault();
             const { updatedText: valueWithClosingBracket, cursorPosition } = addClosingBracketIfNeeded(inputRef, value);
-            handleChange(valueWithClosingBracket, cursorPosition);
-            onSave && onSave(valueWithClosingBracket);
-            handleClose()
+            await handleChange(valueWithClosingBracket, cursorPosition);
+            await onSave(valueWithClosingBracket);
+            handleClose();
         }
     };
 
@@ -534,15 +543,8 @@ export const ExpressionEditor = forwardRef<HTMLInputElement, ExpressionBarProps>
                                 name="close"
                                 onClick={handleClose}
                             />
-                            <Dropdown
-                                ref={listBoxRef}
-                                items={filteredItems}
-                                onItemSelect={handleItemSelect}
-                            />
-                            <SyntaxEl
-                                item={syntax?.item}
-                                currentArgIndex={syntax?.currentArgIndex ?? 0}
-                            />
+                            <Dropdown ref={listBoxRef} items={filteredItems} onItemSelect={handleItemSelect} />
+                            <SyntaxEl item={syntax?.item} currentArgIndex={syntax?.currentArgIndex ?? 0} />
                         </Transition>
                     </DropdownContainer>,
                     document.body

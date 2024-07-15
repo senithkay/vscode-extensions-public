@@ -14,7 +14,7 @@ import { ExpressionBar, ExpressionBarProps } from './ExpressionBar';
 const Template: ComponentStory<typeof ExpressionBar> = (args: ExpressionBarProps) => {
     const [value, setValue] = useState('=');
 
-    return <ExpressionBar {...args} value={value} onChange={(text: string) => setValue(text)} />;
+    return <ExpressionBar {...args} value={value} onChange={async (text: string) => setValue(text)} />;
 };
 
 export const Default = Template.bind();

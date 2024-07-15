@@ -37,11 +37,11 @@ export type ExpressionBarBaseProps = {
     value: string;
     placeholder?: string;
     sx?: React.CSSProperties;
-    onChange: (value: string) => void;
+    onChange: (value: string) => Promise<void>;
     onFocus?: () => void;
     onBlur?: () => void;
-    onItemSelect?: (item: ItemType) => void;
-    onSave?: (value: string) => void;
+    onItemSelect: (value: string) => Promise<void>;
+    onSave: (value: string) => Promise<void>;
     getCompletions: () => Promise<ItemType[]>;
 };
 
