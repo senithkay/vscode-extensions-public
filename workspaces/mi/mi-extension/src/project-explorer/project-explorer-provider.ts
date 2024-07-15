@@ -261,10 +261,14 @@ function generateTreeDataOfArtifacts(project: vscode.WorkspaceFolder, data: Proj
 					break;
 				default:
 			}
+			// TODO: Will introduce back when both data services and data sources are supported
+			// if (key === 'dataServices' || key === 'dataSources') {
+			// 	continue;
+			// }
 
 			const parentEntry = new ProjectExplorerEntry(
 				label,
-				isCollapsibleState(artifacts[key].length > 0),
+				isCollapsibleState(artifacts[key].length > 0 || key === "localEntries"),
 				artifacts[key],
 				icon
 			);
@@ -488,7 +492,9 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 				"command": COMMANDS.SHOW_LOCAL_ENTRY,
 				"arguments": [vscode.Uri.file(entry.path), undefined, false]
 			};
-		} else if (entry.type === "DATA_SOURCE") {
+		}
+		// TODO: Will introduce back when both datasource and dataservice functionalities are completely supported
+		else if (entry.type === "DATA_SOURCE") {
 			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, 'code');
 			explorerEntry.contextValue = 'dataSource';
 			explorerEntry.command = {
@@ -504,7 +510,8 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 				"command": COMMANDS.SHOW_DATA_SERVICE,
 				"arguments": [vscode.Uri.parse(entry.path), undefined, false]
 			};
-		} else {
+		}
+		else {
 			if (entry.name) {
 				explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, 'code');
 			}
@@ -555,7 +562,7 @@ function generateConnectionEntry(connectionsData: any): ProjectExplorerEntry {
 					connectionEntry.command = {
 						"title": "Show Connection",
 						"command": COMMANDS.SHOW_CONNECTION,
-						"arguments": [vscode.Uri.file(connection.path), undefined, false]
+						"arguments": [vscode.Uri.file(connection.path), connection.name, false]
 					};
 
 					connectionTypeEntry.children = connectionTypeEntry.children ?? [];

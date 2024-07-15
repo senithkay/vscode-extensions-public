@@ -242,6 +242,12 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
         for (const prop in params) {
             parameters[prop.split(s).join(j)] = params[prop];
         }
+        if ("rabbitmq-server-host-name" in parameters && !("rabbitmq-exchange-autodeclare" in parameters)) {
+            parameters["rabbitmq-exchange-autodeclare"] = true;
+        }
+        if ("rabbitmq-server-host-name" in parameters && !("rabbitmq-queue-autodeclare" in parameters)) {
+            parameters["rabbitmq-queue-autodeclare"] = true;
+        }
         return parameters;
     }
 
@@ -283,22 +289,34 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
                     } else if (param.validate?.type === 'number') {
                         if (param.validate?.min !== undefined && param.validate?.max !== undefined) {
                             schemaItem = yup.number()
-                                .typeError("Invalid number")
+                                .transform((value, originalValue) => {
+                                    return originalValue === '' ? null : value;
+                                })
+                                .nullable().typeError("Invalid number")
                                 .min(param.validate?.min, `Minimum value is ${param.validate?.min}`)
                                 .max(param.validate?.max, `Maximum value is ${param.validate?.max}`);
                         }
                         else if (param.validate?.min !== undefined) {
                             schemaItem = yup.number()
-                                .typeError("Invalid number")
+                                .transform((value, originalValue) => {
+                                    return originalValue === '' ? null : value;
+                                })
+                                .nullable().typeError("Invalid number")
                                 .min(param.validate?.min, `Minimum value is ${param.validate?.min}`);
                         }
                         else if (param.validate?.max !== undefined) {
                             schemaItem = yup.number()
-                                .typeError("Invalid number")
+                                .transform((value, originalValue) => {
+                                    return originalValue === '' ? null : value;
+                                })
+                                .nullable().typeError("Invalid number")
                                 .max(param.validate?.max, `Maximum value is ${param.validate?.max}`);
                         } else {
                             schemaItem = yup.number()
-                                .typeError("Invalid number");
+                                .transform((value, originalValue) => {
+                                    return originalValue === '' ? null : value;
+                                })
+                                .nullable().typeError("Invalid number");
                         }
                     } else {
                         schemaItem = yup.string().notRequired();

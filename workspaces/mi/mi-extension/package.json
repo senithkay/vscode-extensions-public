@@ -146,7 +146,7 @@
       },
       {
         "view": "MI.project-explorer",
-        "contents": "Welcome to Micro Integrator. You can open a folder containing a MI project or create a new project.\n[Open MI Project](command:MI.openProject)\n[Create New Project](command:MI.project-explorer.create-project)\nTo learn more about how to use Micro Integrator in VS Code, [read our docs](https://ei.docs.wso2.com).",
+        "contents": "Welcome to Micro Integrator. You can open a folder containing a MI project or create a new project.\n[Open MI Project](command:MI.openProject)\n[Create New Project](command:MI.project-explorer.create-project)\nTo learn more about how to use Micro Integrator in VS Code, [read our docs](https://mi.docs.wso2.com/en/4.3.0/develop/mi-for-vscode/mi-for-vscode-overview/).",
         "when": "MI.status == 'unknownProject'"
       },
       {
@@ -293,6 +293,13 @@
         "category": "MI"
       },
       {
+        "command": "MI.project-explorer.add-connection",
+        "title": "Add Connection",
+        "icon": "$(add)",
+        "group": "navigation",
+        "category": "MI"
+      },
+      {
         "command": "MI.project-explorer.add-registry-resource",
         "title": "Add Registry Resource",
         "icon": "$(add)",
@@ -385,8 +392,8 @@
         "category": "MI"
       },
       {
-        "command": "MI.test.update.suite",
-        "title": "Update test suite",
+        "command": "MI.test.edit.suite",
+        "title": "Edit test suite",
         "icon": "$(distro-design-view)",
         "category": "MI"
       },
@@ -397,8 +404,8 @@
         "category": "MI"
       },
       {
-        "command": "MI.test.update.case",
-        "title": "Update test case",
+        "command": "MI.test.edit.case",
+        "title": "Edit test case",
         "icon": "$(distro-design-view)",
         "category": "MI"
       },
@@ -406,6 +413,12 @@
         "command": "MI.test.add.mock-service",
         "title": "Add mock service",
         "icon": "$(add)",
+        "category": "MI"
+      },
+      {
+        "command": "MI.test.edit.mock-service",
+        "title": "Edit mock service",
+        "icon": "$(distro-design-view)",
         "category": "MI"
       },
       {
@@ -522,6 +535,11 @@
           "group": "inline"
         },
         {
+          "command": "MI.project-explorer.add-connection",
+          "when": "view == MI.project-explorer && viewItem == connections",
+          "group": "inline"
+        },
+        {
           "command": "MI.project-explorer.add-registry-resource",
           "when": "view == MI.project-explorer && viewItem == registry",
           "group": "inline"
@@ -580,6 +598,11 @@
           "command": "MI.project-explorer.delete",
           "when": "view == MI.project-explorer && viewItem == api || viewItem == resource || viewItem == endpoint || viewItem == sequence || viewItem == proxy-service || viewItem == inboundEndpoint || viewItem == messageStore || viewItem == message-processor || viewItem == task || viewItem == localEntry || viewItem == template  || viewItem == dataSource || viewItem == dataService || viewItem == data-mapper || viewItem == registry-with-metadata || viewItem == registry-without-metadata",
           "key": "delete"
+        },
+        {
+          "command": "MI.test.edit.mock-service",
+          "group": "inline",
+          "when": "view == MI.mock-services"
         }
       ],
       "testing/item/context": [
@@ -589,7 +612,7 @@
           "when": "testId in test.dirs"
         },
         {
-          "command": "MI.test.update.suite",
+          "command": "MI.test.edit.suite",
           "group": "inline",
           "when": "testId in test.suites"
         },
@@ -599,7 +622,7 @@
           "when": "testId in test.suites"
         },
         {
-          "command": "MI.test.update.case",
+          "command": "MI.test.edit.case",
           "group": "inline",
           "when": "testId in test.cases"
         }

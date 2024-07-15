@@ -21,6 +21,8 @@ import {
     MIVisualizerAPI,
     NotificationRequest,
     NotificationResponse,
+    OpenExternalRequest,
+    OpenExternalResponse,
     OpenViewRequest,
     ProjectStructureRequest,
     ProjectStructureResponse,
@@ -41,7 +43,7 @@ import {
     MACHINE_VIEW,
 } from "@wso2-enterprise/mi-core";
 import fetch from 'node-fetch';
-import { workspace, window, commands } from "vscode";
+import { workspace, window, commands, env, Uri } from "vscode";
 import { history } from "../../history";
 import { StateMachine, navigate, openView } from "../../stateMachine";
 import { goToSource, handleOpenFile } from "../../util/fileOperations";
@@ -86,13 +88,11 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
     openView(params: OpenViewRequest): void {
         if (params.isPopup) {
             const view = params.location.view;
-            const isFormView = view && view.includes("Form");
-            const isCloseEvent = params.type === POPUP_EVENT_TYPE.CLOSE_VIEW;
-            if (isFormView || isCloseEvent) {
-                openPopupView(params.type as POPUP_EVENT_TYPE, params.location as PopupVisualizerLocation);
-            }
+
             if (view && view === MACHINE_VIEW.Overview) {
                 openPopupView(POPUP_EVENT_TYPE.CLOSE_VIEW, params.location as PopupVisualizerLocation);
+            } else {
+                openPopupView(params.type as POPUP_EVENT_TYPE, params.location as PopupVisualizerLocation);
             }
         } else {
             openView(params.type as EVENT_TYPE, params.location as VisualizerLocation);
@@ -343,7 +343,7 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
                 const swaggerServer: SwaggerServer = new SwaggerServer();
                 await swaggerServer.sendRequest(params.request as any, false).then((response) => {
                     if (typeof response === 'boolean') {
-                        resolve({ isResponse: true, response: undefined});
+                        resolve({ isResponse: true, response: undefined });
                     } else {
                         const responseData: SwaggerProxyResponse = {
                             isResponse: true,
@@ -353,6 +353,14 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
                     }
                 });
             }
+        });
+    }
+
+    async openExternal(params: OpenExternalRequest): Promise<OpenExternalResponse> {
+        return new Promise(async (resolve, reject) => {
+            const { uri } = params;
+            const isSuccess = await env.openExternal(Uri.parse(uri));
+            resolve({ success: isSuccess });
         });
     }
 }
