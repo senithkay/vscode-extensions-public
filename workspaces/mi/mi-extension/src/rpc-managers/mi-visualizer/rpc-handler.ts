@@ -13,6 +13,7 @@ import {
     HistoryEntry,
     LogRequest,
     NotificationRequest,
+    OpenExternalRequest,
     OpenViewRequest,
     ProjectStructureRequest,
     RetrieveContextRequest,
@@ -35,6 +36,7 @@ import {
     ToggleDisplayOverviewRequest,
     goToSource,
     log,
+    openExternal,
     focusOutput,
     updateContext,
     retrieveContext,
@@ -68,4 +70,5 @@ export function registerMiVisualizerRpcHandlers(messenger: Messenger) {
     messenger.onRequest(showNotification, (args: NotificationRequest) => rpcManger.showNotification(args));
     messenger.onRequest(getAvailableRuntimeServices, () => rpcManger.getAvailableRuntimeServices());
     messenger.onRequest(sendSwaggerProxyRequest, (args: SwaggerProxyRequest) => rpcManger.sendSwaggerProxyRequest(args));
+    messenger.onRequest(openExternal, (args: OpenExternalRequest) => rpcManger.openExternal(args));
 }

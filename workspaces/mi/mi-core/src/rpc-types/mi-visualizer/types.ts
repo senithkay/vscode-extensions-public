@@ -222,3 +222,11 @@ export interface RuntimeServicesResponse {
 export interface NotificationResponse {
     selection: string | undefined;
 }
+
+export interface OpenExternalRequest {
+    uri: string;
+}
+
+export interface OpenExternalResponse {
+    success: boolean;
+}
