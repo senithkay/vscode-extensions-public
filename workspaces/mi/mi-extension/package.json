@@ -392,8 +392,8 @@
         "category": "MI"
       },
       {
-        "command": "MI.test.update.suite",
-        "title": "Update test suite",
+        "command": "MI.test.edit.suite",
+        "title": "Edit test suite",
         "icon": "$(distro-design-view)",
         "category": "MI"
       },
@@ -404,8 +404,8 @@
         "category": "MI"
       },
       {
-        "command": "MI.test.update.case",
-        "title": "Update test case",
+        "command": "MI.test.edit.case",
+        "title": "Edit test case",
         "icon": "$(distro-design-view)",
         "category": "MI"
       },
@@ -601,7 +601,7 @@
           "when": "testId in test.dirs"
         },
         {
-          "command": "MI.test.update.suite",
+          "command": "MI.test.edit.suite",
           "group": "inline",
           "when": "testId in test.suites"
         },
@@ -611,7 +611,7 @@
           "when": "testId in test.suites"
         },
         {
-          "command": "MI.test.update.case",
+          "command": "MI.test.edit.case",
           "group": "inline",
           "when": "testId in test.cases"
         }
