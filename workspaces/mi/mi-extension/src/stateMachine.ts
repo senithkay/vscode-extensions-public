@@ -354,20 +354,15 @@ const stateMachine = createMachine<MachineContext>({
             });
         },
         waitForConnectorData: async (context, event) => {
-            const isOnline = await checkInternet();
-            if (isOnline) {
-                return new Promise(async (resolve, reject) => {
-                    try {
-                        const response = await fetch(APIS.CONNECTOR);
-                        const data = await response.json();
-                        resolve(data.data);
-                    } catch (error) {
-                        reject(error);
+            return new Promise(async (resolve, reject) => {
+                fetchConnectorData().then(data => {
+                    if (data) {
+                        resolve(data);
+                    } else {
+                        resolve([]);
                     }
                 });
-            } else {
-                return ([]);
-            }
+            });
         },
         openWebPanel: (context, event) => {
             // Get context values from the project storage so that we can restore the earlier state when user reopens vscode
@@ -584,21 +579,24 @@ function updateProjectExplorer(location: VisualizerLocation | undefined) {
     }
 }
 
-async function checkInternet() {
+async function fetchConnectorData() {
     try {
-        const response = await fetch('https://1.1.1.1', {
-            method: 'HEAD',
+        const response = await fetch(APIS.CONNECTOR, {
+            method: 'GET',
             cache: "no-cache"
         });
         if (response.ok) {
-            return true; // Internet is connected
+            const data = await response.json();
+            return data.data;
         } else {
-            return false; // Internet is connected but the request was not successful
+            console.log("Failed to fetch data, but user is connected.");
+            return null;
         }
     } catch (error) {
-        return false; // No internet connection
+        console.log("User is offline.", error);
+        return null;
     }
-};
+}
 
 async function checkIfMiProject() {
     let isProject = false, isOldProject = false, displayOverview = true, emptyProject = false;
