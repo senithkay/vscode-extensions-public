@@ -336,7 +336,7 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
         setIsHovered(false);
     };
 
-    const valConfigMenuItems: ValueConfigMenuItem[] = hasValue
+    const valConfigMenuItems: ValueConfigMenuItem[] = hasValue || hasDefaultValue
         ? [
             { title: ValueConfigOption.EditValue, onClick: handleEditValue },
             { title: ValueConfigOption.DeleteArray, onClick: handleArrayDeletion },

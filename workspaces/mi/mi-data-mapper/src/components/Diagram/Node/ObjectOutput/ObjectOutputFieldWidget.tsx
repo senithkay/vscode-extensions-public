@@ -91,6 +91,7 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
         && !!initializer.getText()
         && initializer.getText() !== getDefaultValue(field.type.kind)
         && initializer.getText() !== "null";
+    const hasDefaultValue = initializer && initializer.getText() === getDefaultValue(field.type.kind);
 
     const fields = isInterface && field.childrenTypes;
     const isWithinArray = fieldIndex !== undefined;
@@ -192,7 +193,7 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
         </span>
     );
 
-    const addOrEditValueMenuItem: ValueConfigMenuItem = hasValue
+    const addOrEditValueMenuItem: ValueConfigMenuItem = hasValue || hasDefaultValue
         ? { title: ValueConfigOption.EditValue, onClick: handleEditValue }
         : { title: ValueConfigOption.InitializeWithValue, onClick: handleAddValue };
 
@@ -203,7 +204,7 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
 
     const valConfigMenuItems = [
         !isWithinArray && addOrEditValueMenuItem,
-        (hasValue || isWithinArray) && deleteValueMenuItem,
+        (hasValue || hasDefaultValue || isWithinArray) && deleteValueMenuItem,
     ];
 
     return (
