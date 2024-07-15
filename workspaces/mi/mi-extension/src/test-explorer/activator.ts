@@ -47,7 +47,7 @@ export async function activateTestExplorer(extensionContext: ExtensionContext, l
         console.log('Add Test suite');
     });
 
-    commands.registerCommand(COMMANDS.UPDATE_TEST_SUITE, (entry: TestItem) => {
+    commands.registerCommand(COMMANDS.EDIT_TEST_SUITE, (entry: TestItem) => {
         if (!langClient || !entry?.id) {
             return;
         }
@@ -77,7 +77,7 @@ export async function activateTestExplorer(extensionContext: ExtensionContext, l
         console.log('Add Test Case');
     });
 
-    commands.registerCommand(COMMANDS.UPDATE_TEST_CASE, async (entry: TestItem) => {
+    commands.registerCommand(COMMANDS.EDIT_TEST_CASE, async (entry: TestItem) => {
         if (!langClient) {
             window.showErrorMessage('Language client is not initialized');
             return;
