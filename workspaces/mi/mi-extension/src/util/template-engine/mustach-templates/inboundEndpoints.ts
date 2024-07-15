@@ -63,7 +63,7 @@ export function getInboundEndpointdXml(data: GetInboundTemplatesArgs) {
 
         ['rabbitmq.queue.autodeclare', 'rabbitmq.exchange.autodeclare'].map((key) => {
             const parameter = params.find((param) => param.key === key);
-            if (parameter?.value === true) {
+            if (parameter?.value === 'true') {
                 params = params.filter((param) => param.key !== key);
             }
             else {

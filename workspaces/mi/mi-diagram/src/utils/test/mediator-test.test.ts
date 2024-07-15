@@ -313,6 +313,9 @@ describe('Test MI Mediators', () => {
                         uri
                     }
                 });
+                if (!syntaxTree) {
+                    throw new Error("Syntax tree is undefined");
+                }
                 const res = await isValidMediatorDescription(type, syntaxTree, expectedDefaultDescription);
                 expect(res).toBeTruthy();
                 done();
@@ -330,6 +333,9 @@ describe('Test MI Mediators', () => {
                             uri
                         }
                     });
+                    if (!syntaxTree) {
+                        throw new Error("Syntax tree is undefined");
+                    }
                     const res = await isValidMediatorDescription(type, syntaxTree, expectedDescription);
                     expect(res).toBeTruthy();
                     done();

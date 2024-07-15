@@ -21,11 +21,11 @@ import { VSCodeCheckbox } from '@vscode/webview-ui-toolkit/react';
 import { TypeKind } from "@wso2-enterprise/mi-core";
 import { Controller, useForm } from 'react-hook-form';
 
-import { useDMSubMappingConfigPanelStore } from "../../../store/store";
+import { useDMSubMappingConfigPanelStore } from "../../../../store/store";
 import { Block, FunctionDeclaration, VariableStatement } from "ts-morph";
-import { SourceNodeType, View } from "../Views/DataMapperView";
-import { getDefaultValue } from "../../../components/Diagram/utils/common-utils";
-import { DataMapperNodeModel } from "../../../components/Diagram/Node/commons/DataMapperNode";
+import { SourceNodeType, View } from "../../Views/DataMapperView";
+import { getDefaultValue } from "../../../Diagram/utils/common-utils";
+import { DataMapperNodeModel } from "../../../Diagram/Node/commons/DataMapperNode";
 
 const Field = styled.div`
    margin-bottom: 12px;

@@ -73,6 +73,9 @@ export function getAggregateXml(data: { [key: string]: any }, dirtyFields?: any,
     if (data.enclosingElementProperty == "") {
         delete data.enclosingElementProperty;
     }
+    if (data.correlationExpression?.value == "" || data.correlationExpression?.value == undefined) {
+        delete data.correlationExpression;
+    }
     if (defaultValues == undefined || Object.keys(defaultValues).length == 0) {
         data.isNewMediator = true;
         const output = Mustache.render(getAggregateMustacheTemplate(), data)?.trim();
@@ -128,7 +131,7 @@ function getEdit(key: string, data: { [key: string]: any }, defaultValues: any, 
     if (range) {
         editRange = {
             start: range.startTagRange.start,
-            end: editStartTagOnly ? range.startTagRange.end : (range.endTagRange.end ? range.endTagRange.end : range.startTagRange.end)
+            end: editStartTagOnly ? range.startTagRange.end : (range.endTagRange?.end ? range.endTagRange.end : range.startTagRange.end)
         }
     } else {
         let aggregateRange = defaultValues.ranges.aggregate;

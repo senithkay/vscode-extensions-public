@@ -217,7 +217,7 @@ import { UnitTest } from "../../../../syntax-tree/lib/src";
 import { extension } from '../../MIExtensionContext';
 import { RPCLayer } from "../../RPCLayer";
 import { StateMachineAI } from '../../ai-panel/aiMachine';
-import { COMMANDS, DEFAULT_PROJECT_VERSION, MI_COPILOT_BACKEND_URL } from "../../constants";
+import { COMMANDS, DEFAULT_PROJECT_VERSION, MI_COPILOT_BACKEND_URL, SWAGGER_REL_DIR } from "../../constants";
 import { StateMachine, navigate, openView } from "../../stateMachine";
 import { openPopupView } from "../../stateMachinePopup";
 import { openSwaggerWebview } from "../../swagger/activate";
@@ -421,12 +421,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 const workspacePath = workspace.workspaceFolders![0].uri.fsPath;
                 const swaggerRegPath = path.join(
                     workspacePath,
-                    'src',
-                    'main',
-                    'wso2mi',
-                    'artifacts',
-                    'apis',
-                    'api-definitions',
+                    SWAGGER_REL_DIR,
                     getSwaggerName(swaggerDefPath)
                 );
                 if (!fs.existsSync(path.dirname(swaggerRegPath))) {
@@ -448,7 +443,12 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             const sanitizedHandlersXmlData = handlersXmlData.replace(/^\s*[\r\n]/gm, '');
 
             await this.applyEdit({ text: sanitizedXmlData, documentUri, range: apiRange });
-            await this.applyEdit({ text: sanitizedHandlersXmlData, documentUri, range: handlersRange });
+            await this.rangeFormat({ uri: documentUri, range: apiRange });
+
+            if (sanitizedHandlersXmlData) {
+                await this.applyEdit({ text: sanitizedHandlersXmlData, documentUri, range: handlersRange });
+                await this.rangeFormat({ uri: documentUri, range: handlersRange });
+            }
 
             commands.executeCommand(COMMANDS.REFRESH_COMMAND);
             resolve({ path: documentUri });
@@ -3728,11 +3728,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             const workspacePath = workspace.workspaceFolders![0].uri.fsPath;
             const openAPISpecPath = path.join(
                 workspacePath,
-                'src',
-                'main',
-                'wso2mi',
-                'resources',
-                'api-definitions',
+                SWAGGER_REL_DIR,
                 `${apiName}.yaml`
             );
 
@@ -3786,11 +3782,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             const workspacePath = workspace.workspaceFolders![0].uri.fsPath;
             const swaggerPath = path.join(
                 workspacePath,
-                'src',
-                'main',
-                'wso2mi',
-                'resources',
-                'api-definitions',
+                SWAGGER_REL_DIR,
                 `${apiName}.yaml`
             );
 
@@ -3820,11 +3812,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             const workspacePath = workspace.workspaceFolders![0].uri.fsPath;
             const swaggerPath = path.join(
                 workspacePath,
-                'src',
-                'main',
-                'wso2mi',
-                'resources',
-                'api-definitions',
+                SWAGGER_REL_DIR,
                 `${apiName}.yaml`
             );
 
@@ -3852,11 +3840,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             const workspacePath = workspace.workspaceFolders![0].uri.fsPath;
             const swaggerPath = path.join(
                 workspacePath,
-                'src',
-                'main',
-                'wso2mi',
-                'resources',
-                'api-definitions',
+                SWAGGER_REL_DIR,
                 `${apiName}.yaml`
             );
 

@@ -117,7 +117,9 @@ const SidePanelList = (props: SidePanelListProps) => {
                 const form = <AddConnector
                     formData={sidePanelContext.formValues.form}
                     nodePosition={sidePanelContext.nodeRange}
-                    documentUri={props.documentUri} />;
+                    documentUri={props.documentUri}
+                    connectorName={sidePanelContext.formValues.connectorName}
+                    operationName={sidePanelContext.formValues.operationName} />;
                 mediatorsPage = { content: form, title: `Edit ${FirstCharToUpperCase(sidePanelContext.formValues.title)}` };
             } else if (Object.values(DATA_SERVICE_NODES).includes(sidePanelContext.operationName)) {
                 const allForms = getAllDataServiceForms({

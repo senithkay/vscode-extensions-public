@@ -24,13 +24,11 @@ export function getEditAPITemplate() {
 }
 
 export function getHandlersTemplate() {
-    return `    {{#show}}<handlers>
-        {{#handlers}}<handler class="{{name}}">
-            {{#properties}}
-            <property name="{{name}}" value="{{value}}"/>
-            {{/properties}}
-        </handler>{{/handlers}}
-    </handlers>{{/show}}`;
+    return `{{#show}}<handlers>
+    {{#handlers}}<handler class="{{name}}">{{#properties}}
+        <property name="{{name}}" value="{{value}}"/>{{/properties}}
+    </handler>{{/handlers}}
+</handlers>{{/show}}`;
 };
 
 export function getAddAPIResourceTemplate() {

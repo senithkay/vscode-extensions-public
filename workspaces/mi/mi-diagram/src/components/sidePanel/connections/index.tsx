@@ -349,6 +349,7 @@ export function ConnectionPage(props: ConnectorPageProps) {
 
         // Retrieve form
         const formJSON = await rpcClient.getMiDiagramRpcClient().getConnectorForm({ uiSchemaPath: uiSchemaPath, operation: operation });
+        const parameters = connectorData.actions.find((action: any) => action.name === operation)?.parameters || null;
 
         const connecterForm = <AddConnector formData={(formJSON as any).formJSON}
             nodePosition={sidePanelContext.nodeRange}
@@ -356,7 +357,8 @@ export function ConnectionPage(props: ConnectorPageProps) {
             connectorName={connectorData.name}
             connectionName={connection.name}
             operationName={operation}
-            connectionType={connection.connectionType} />;
+            connectionType={connection.connectionType}
+            parameters={parameters} />;
 
         sidepanelAddPage(sidePanelContext, connecterForm, `${sidePanelContext.isEditing ? "Edit" : "Add"} ${operation}`);
     }
