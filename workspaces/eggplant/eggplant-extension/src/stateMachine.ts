@@ -6,8 +6,6 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-
-import { MachineStateValue, VisualizerLocation, EventType, MachineViews } from '@wso2-enterprise/ballerina-core';
 import { createMachine, interpret } from 'xstate';
 import * as vscode from 'vscode';
 import * as fs from 'fs';
@@ -15,11 +13,11 @@ import * as path from 'path';
 import { activateProjectExplorer } from './project-explorer/activate';
 import { extension } from './eggplantExtentionContext';
 
-interface Context extends VisualizerLocation {
+interface MachineContext {
     errorCode: string | null;
 }
 
-const stateMachine = createMachine<Context>({
+const stateMachine = createMachine<MachineContext>({
     /** @xstate-layout N4IgpgJg5mDOIC5RilADgGwIYDsAuAdAJY5F5FYZEBeYAxBAPY5jE4BujA1qwMYAWYXlwAKAJ0YArIXgDaABgC6iUGkawyRZipAAPRACZ5ANgLyArABZjADgDMNmwYDsBp3YA0IAJ6IAjBYEAJwhQTZ+xs7GbpE2AL5xXijo2PhsmpQ09GBiEmIEmFh4AGaMYgC2BAJCohLSvHJKOmoa5NpIeoZB8gTGls5+lpaDfnZDds5evggG5s4EdvKjfn4h5qsmlglJqIVpaHUyACJgeDKQdArKHS2a7aD6COYGU4gD893RQQHOzmFW23Au1ShAAMgBlACSpDwDGYrBInB4BGSezBUJhCERjF4RS0OCuV2a6juOB0jzsdiCBBs3QGFgm5lpg1eCGMEQI-WMTMWziWQQMxkBqJBBAh0LIdByeQK2BKZUqItw6IleCxHBxeOYhKaNxJbTJHQpVJpdIC5kZzMsrL51MsBiCAzsfSCdis5mFwOVBDEYCwEG8BHYRDAAHcAEp+gN0ADyIgAogA5AD6ADVIfGAOpEvWtfHkxA2cx2ynOZ3mKwRe2s8x9AiDB1+WnyWkDLaJIEpb2+-2B4NhgCqaAgRXoTBYbCRrCVaR7AaDIdDQ5HZ3VnFxBp111U+vzRsLBj8BGcTICDtdxnk1p8iH6dgIbnkjMsdgMlMsV4SHZwjAgcB0M54MSeb3J0CAALR+PMizrMYQSWI6fLOI4rKQSsD7yM4L4vrMfizPIBiel2aQkBkVC0MBpIFggYymqMtK0valLwayER2jY8jwXMlaCtyRFogUhwNCcZwNJAlEGtRiy9PB9gWARDqHi8N4QW+x6YS+rjyJh2m2B6HaAWKGJkBJe4PP4-RmEWQRwRWd4WsYrJwfeH7RMhxhuieQT6TsxGEHO0w7iBhrmWyZYPosl6eX4cycayDjmMeHEOBMdijJYjj8aKAULmGka9qZoGPK4R5viYT5zDFto1n8D42Oy7KrK43xZd2UZ9ouy6joVIVgeadrctpzrGB5ArKdMFY9JYzz2OYnFNnBzitWkEBELAWAAEYYOJuZUfuTzfMe3lFtNtYEUE8UGJYGGRNYHkce6X5xEAA */
     id: 'eggplant',
     initial: 'initialize',
@@ -61,16 +59,9 @@ export const stateService = interpret(stateMachine);
 
 // Define your API as functions
 export const StateMachine = {
-    initialize: () => stateService.start(),
-    service: () => { return stateService; },
-    context: () => { return stateService.getSnapshot().context; },
-    state: () => { return stateService.getSnapshot().value as MachineStateValue; },
-    sendEvent: (eventType: EventType) => { stateService.send({ type: eventType }); },
+    initialize: () => stateService.start()
 };
 
-export function openView(type: "OPEN_VIEW" | "FILE_EDIT" | "EDIT_DONE", viewLocation: VisualizerLocation) {
-    stateService.send({ type: type, viewLocation: viewLocation });
-}
 
 async function checkIfEggplantProject(): Promise<boolean> {
     let isEggplant = false;
