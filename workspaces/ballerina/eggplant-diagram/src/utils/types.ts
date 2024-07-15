@@ -30,4 +30,4 @@ export type {
     NodePropertyKey,
     ViewState,
     TargetMetadata,
-} from "@wso2-enterprise/eggplant-core";
+} from "@wso2-enterprise/ballerina-core";

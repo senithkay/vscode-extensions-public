@@ -16,6 +16,7 @@ import { LangClientRpcClient } from "./rpc-clients/lang-client/rpc-client";
 import { LibraryBrowserRpcClient } from "./rpc-clients/library-browser/rpc-client";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { CommonRpcClient, GraphqlDesignerRpcClient, PersistDiagramRpcClient, RecordCreatorRpcClient, ServiceDesignerRpcClient } from "./rpc-clients";
+import { EggplantDiagramRpcClient } from "./rpc-clients/eggplant-diagram/rpc-client";
 
 export class BallerinaRpcClient {
 
@@ -28,6 +29,7 @@ export class BallerinaRpcClient {
     private _persistDiagram: PersistDiagramRpcClient;
     private _GraphqlDesigner: GraphqlDesignerRpcClient;
     private _RecordCreator: RecordCreatorRpcClient;
+    private _eggplantDiagram: EggplantDiagramRpcClient;
 
     constructor() {
         this.messenger = new Messenger(vscode);
@@ -40,6 +42,7 @@ export class BallerinaRpcClient {
         this._persistDiagram = new PersistDiagramRpcClient(this.messenger);
         this._GraphqlDesigner = new GraphqlDesignerRpcClient(this.messenger);
         this._RecordCreator = new RecordCreatorRpcClient(this.messenger);
+        this._eggplantDiagram = new EggplantDiagramRpcClient(this.messenger);
     }
 
     getVisualizerRpcClient(): VisualizerRpcClient {
@@ -48,6 +51,10 @@ export class BallerinaRpcClient {
 
     getServiceDesignerRpcClient(): ServiceDesignerRpcClient {
         return this._serviceDesigner;
+    }
+
+    getEggplantDiagramRpcClient(): EggplantDiagramRpcClient {
+        return this._eggplantDiagram;
     }
 
     getPersistDiagramRpcClient(): PersistDiagramRpcClient {

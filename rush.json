@@ -635,11 +635,6 @@
       "projectFolder": "workspaces/eggplant/eggplant-extension",
       "versionPolicyName": "eggplant-extension"
     },
-    {
-      "packageName": "@wso2-enterprise/eggplant-visualizer",
-      "projectFolder": "workspaces/eggplant/eggplant-visualizer",
-      "versionPolicyName": "eggplant-extension"
-    },
     // {
     //   "packageName": "@wso2-enterprise/eggplant-diagram",
     //   "projectFolder": "workspaces/eggplant/eggplant-diagram",
@@ -660,16 +655,6 @@
     //   "projectFolder": "workspaces/eggplant/eggplant-overview",
     //   "versionPolicyName": "eggplant-extension"
     // },
-    {
-      "packageName": "@wso2-enterprise/eggplant-core",
-      "projectFolder": "workspaces/eggplant/eggplant-core",
-      "versionPolicyName": "eggplant-extension"
-    },
-    {
-      "packageName": "@wso2-enterprise/eggplant-rpc-client",
-      "projectFolder": "workspaces/eggplant/eggplant-rpc-client",
-      "versionPolicyName": "eggplant-extension"
-    },
     {
       "packageName": "@wso2-enterprise/record-creator",
       "projectFolder": "workspaces/ballerina/record-creator",

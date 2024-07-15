@@ -20,6 +20,7 @@ import { DataMapper } from './views/DataMapper';
 import { ERDiagram } from './views/ERDiagram';
 import { GraphQLDiagram } from './views/GraphQLDiagram';
 import { SequenceDiagram } from './views/SequenceDiagram';
+import { EggplantDiagram } from './views/EggplantDiagram';
 import { Overview } from './views/Overview';
 import { ServiceDesigner } from './views/ServiceDesigner';
 import { handleRedo, handleUndo } from './utils/utils';
@@ -90,11 +91,7 @@ const MainPanel = () => {
                         );
                         break;
                     case "EggplantDiagram":
-                        setViewComponent(
-                            <Diagram
-                                model={value?.syntaxTree as any}
-                            />
-                        );
+                        setViewComponent(<EggplantDiagram />);
                         break;
                     case "ERDiagram":
                         setViewComponent(<ERDiagram />);

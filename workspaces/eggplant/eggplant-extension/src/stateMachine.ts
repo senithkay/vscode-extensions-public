@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { MachineStateValue, VisualizerLocation, EventType, MachineViews } from '@wso2-enterprise/eggplant-core';
+import { MachineStateValue, VisualizerLocation, EventType, MachineViews } from '@wso2-enterprise/ballerina-core';
 import { createMachine, interpret } from 'xstate';
 import * as vscode from 'vscode';
 import * as fs from 'fs';
