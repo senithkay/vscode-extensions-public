@@ -36,7 +36,7 @@ const stateMachine = createMachine<MachineContext>(
                 invoke: {
                     src: 'activateLanguageServer',
                     onDone: {
-                        target: "checkEggplant",
+                        target: "lsReady",
                         actions: assign({
                             langClient: (context, event) => event.data
                         })
@@ -46,17 +46,17 @@ const stateMachine = createMachine<MachineContext>(
                     }
                 }
             },
-            checkEggplant: {
+            lsReady: {
                 invoke: {
                     src: checkIfEggplantProject,
                     onDone: {
-                        target: "lsReady",
+                        target: "extensionReady",
                         actions: assign({
                             isEggplant: (context, event) => event.data
                         })
                     },
                     onError: {
-                        target: "lsReady"
+                        target: "extensionReady"
                     }
                 }
             },
@@ -65,7 +65,7 @@ const stateMachine = createMachine<MachineContext>(
                     RETRY: "initialize"
                 }
             },
-            lsReady: {
+            extensionReady: {
                 on: {
                     OPEN_VIEW: {
                         target: "viewActive",
@@ -319,7 +319,7 @@ const stateService = interpret(stateMachine);
 function startMachine(): Promise<void> {
     return new Promise<void>(async (resolve, reject) => {
         stateService.start().onTransition((state) => {
-            if (state.value === "lsReady") {
+            if (state.value === "extensionReady") {
                 resolve();
             }
         });

@@ -16,6 +16,7 @@
         "workspaceContains:**/Ballerina.toml"
     ],
     "main": "./out/extension",
+    "extensionDependencies": [ "ballerina" ],
     "contributes": {
         "viewsContainers": {
             "activitybar": [
