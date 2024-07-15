@@ -353,16 +353,21 @@ const stateMachine = createMachine<MachineContext>({
                 }
             });
         },
-        waitForConnectorData: (context, event) => {
-            return new Promise(async (resolve, reject) => {
-                try {
-                    const response = await fetch(APIS.CONNECTOR);
-                    const data = await response.json();
-                    resolve(data.data);
-                } catch (error) {
-                    reject(error);
-                }
-            });
+        waitForConnectorData: async (context, event) => {
+            const isOnline = await checkInternet();
+            if (isOnline) {
+                return new Promise(async (resolve, reject) => {
+                    try {
+                        const response = await fetch(APIS.CONNECTOR);
+                        const data = await response.json();
+                        resolve(data.data);
+                    } catch (error) {
+                        reject(error);
+                    }
+                });
+            } else {
+                return ([]);
+            }
         },
         openWebPanel: (context, event) => {
             // Get context values from the project storage so that we can restore the earlier state when user reopens vscode
@@ -578,6 +583,22 @@ function updateProjectExplorer(location: VisualizerLocation | undefined) {
         }
     }
 }
+
+async function checkInternet() {
+    try {
+        const response = await fetch('https://1.1.1.1', {
+            method: 'HEAD',
+            cache: "no-cache"
+        });
+        if (response.ok) {
+            return true; // Internet is connected
+        } else {
+            return false; // Internet is connected but the request was not successful
+        }
+    } catch (error) {
+        return false; // No internet connection
+    }
+};
 
 async function checkIfMiProject() {
     let isProject = false, isOldProject = false, displayOverview = true, emptyProject = false;
