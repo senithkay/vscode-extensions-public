@@ -235,8 +235,6 @@ importers:
       '@wso2-enterprise/ballerina-core': workspace:*
       '@wso2-enterprise/ballerina-languageclient': workspace:*
       '@wso2-enterprise/ballerina-low-code-edtior-commons': workspace:*
-      '@wso2-enterprise/choreo-client': workspace:*
-      '@wso2-enterprise/choreo-core': workspace:*
       '@wso2-enterprise/font-wso2-vscode': workspace:*
       '@wso2-enterprise/syntax-tree': workspace:*
       axios: ^1.6.0
@@ -295,8 +293,6 @@ importers:
       '@wso2-enterprise/ballerina-core': link:../ballerina-core
       '@wso2-enterprise/ballerina-languageclient': link:../ballerina-languageclient
       '@wso2-enterprise/ballerina-low-code-edtior-commons': link:../low-code-editor-commons
-      '@wso2-enterprise/choreo-client': link:../../choreo/choreo-client
-      '@wso2-enterprise/choreo-core': link:../../choreo/choreo-core
       '@wso2-enterprise/font-wso2-vscode': link:../../common-libs/font-wso2-vscode
       '@wso2-enterprise/syntax-tree': link:../syntax-tree
       cors-anywhere: 0.4.4
@@ -1462,7 +1458,6 @@ importers:
       '@wso2-enterprise/ballerina-languageclient': workspace:*
       '@wso2-enterprise/ballerina-low-code-edtior-commons': workspace:*
       '@wso2-enterprise/ballerina-rpc-client': workspace:*
-      '@wso2-enterprise/choreo-core': workspace:*
       '@wso2-enterprise/syntax-tree': workspace:*
       '@wso2-enterprise/ui-toolkit': workspace:*
       babel-loader: ^8.2.5
@@ -1544,7 +1539,6 @@ importers:
       '@types/uuid': 8.3.4
       '@wso2-enterprise/ballerina-languageclient': link:../ballerina-languageclient
       '@wso2-enterprise/ballerina-low-code-edtior-commons': link:../low-code-editor-commons
-      '@wso2-enterprise/choreo-core': link:../../choreo/choreo-core
       babel-loader: 8.3.0_nbyk5unbhi5brwpch5tjfpnbyq
       copyfiles: 2.4.1
       css-loader: 6.10.0_webpack@5.90.1
@@ -1898,84 +1892,17 @@ importers:
       tslint: 6.1.3_typescript@4.9.5
       typescript: 4.9.5
 
-  ../../workspaces/choreo/choreo-client:
-    specifiers:
-      '@babel/core': ^7.20.12
-      '@babel/preset-env': ^7.20.2
-      '@babel/preset-typescript': ^7.18.6
-      '@types/axios-curlirize': ~1.3.2
-      '@types/jest': ^29.2.5
-      '@types/js-yaml': ^4.0.5
-      '@types/node': ^18.18.2
-      '@typescript-eslint/eslint-plugin': ~5.48.2
-      '@typescript-eslint/parser': ~5.48.2
-      '@wso2-enterprise/ballerina-languageclient': workspace:*
-      '@wso2-enterprise/choreo-core': workspace:*
-      axios: ^1.2.2
-      axios-curlirize: ~2.0.0
-      babel-jest: ^29.3.1
-      eslint: ^8.32.0
-      form-data: ^4.0.0
-      graphql-request: ~5.1.0
-      handlebars: ~4.7.7
-      jest: ^29.4.2
-      jose: ~4.14.4
-      js-yaml: ^4.1.0
-      keytar: ^7.6.0
-      node-fetch: ~3.3.1
-      pkce-challenge: ^3.0.0
-      typescript: ^4.9.4
-      vscode-messenger: ^0.4.4
-      vscode-messenger-common: ^0.4.3
-      vscode-messenger-webview: ^0.4.3
-    dependencies:
-      '@types/node': 18.19.14
-      '@wso2-enterprise/ballerina-languageclient': link:../../ballerina/ballerina-languageclient
-      '@wso2-enterprise/choreo-core': link:../choreo-core
-      axios: 1.6.7
-      axios-curlirize: 2.0.0
-      form-data: 4.0.0
-      graphql-request: 5.1.0
-      handlebars: 4.7.8
-      jose: 4.14.6
-      keytar: 7.9.0
-      node-fetch: 3.3.2
-      pkce-challenge: 3.1.0
-      vscode-messenger: 0.4.5
-      vscode-messenger-common: 0.4.5
-      vscode-messenger-webview: 0.4.5
-    devDependencies:
-      '@babel/core': 7.23.9
-      '@babel/preset-env': 7.23.9_@babel+core@7.23.9
-      '@babel/preset-typescript': 7.23.3_@babel+core@7.23.9
-      '@types/axios-curlirize': 1.3.5
-      '@types/jest': 29.5.12
-      '@types/js-yaml': 4.0.9
-      '@typescript-eslint/eslint-plugin': 5.48.2_272e7o3s2e3z2ffyedar6ii3ra
-      '@typescript-eslint/parser': 5.48.2_7sjm5uif3lrlodkmlzqsvrpzla
-      babel-jest: 29.7.0_@babel+core@7.23.9
-      eslint: 8.56.0
-      jest: 29.7.0_@types+node@18.19.14
-      js-yaml: 4.1.0
-      typescript: 4.9.5
-
   ../../workspaces/choreo/choreo-core:
     specifiers:
-      '@typescript-eslint/eslint-plugin': ~5.48.2
-      '@typescript-eslint/parser': ~5.48.2
-      '@wso2-enterprise/ballerina-languageclient': workspace:*
-      eslint: ^8.32.0
+      '@biomejs/biome': ^1.8.3
       typescript: ^4.9.4
       vscode-messenger-common: ^0.4.3
       vscode-messenger-webview: ^0.4.3
     dependencies:
-      '@wso2-enterprise/ballerina-languageclient': link:../../ballerina/ballerina-languageclient
       vscode-messenger-common: 0.4.5
       vscode-messenger-webview: 0.4.5
     devDependencies:
-      '@typescript-eslint/eslint-plugin': 5.48.2_272e7o3s2e3z2ffyedar6ii3ra
-      '@typescript-eslint/parser': 5.48.2_7sjm5uif3lrlodkmlzqsvrpzla
-      eslint: 8.56.0
+      '@biomejs/biome': 1.8.3
       typescript: 4.9.5
 
   ../../workspaces/choreo/choreo-extension:
@@ -2088,7 +2015,6 @@ importers:
       '@types/swagger-ui-react': ^4.18.3
       '@types/vscode-webview': ^1.57.1
       '@vscode/webview-ui-toolkit': ^1.2.0
-      '@wso2-enterprise/choreo-client': workspace:*
       '@wso2-enterprise/choreo-core': workspace:*
       '@wso2-enterprise/ui-toolkit': workspace:*
       autoprefixer: ^10.4.19
@@ -2128,7 +2054,6 @@ importers:
       '@tanstack/react-query': 4.28.0_biqbaboplfbrettd7655fr4n2y
       '@tanstack/react-query-persist-client': 4.28.0_qfusmmwykmcbgdy37sd3cqxiry
       '@vscode/webview-ui-toolkit': 1.4.0_react@18.2.0
-      '@wso2-enterprise/choreo-client': link:../choreo-client
       '@wso2-enterprise/choreo-core': link:../choreo-core
       '@wso2-enterprise/ui-toolkit': link:../../common-libs/ui-toolkit
       classnames: 2.3.3
@@ -5491,6 +5416,94 @@ packages:
   /@bcoe/v8-coverage/0.2.3:
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
 
+  /@biomejs/biome/1.8.3:
+    resolution: {integrity: sha512-/uUV3MV+vyAczO+vKrPdOW0Iaet7UnJMU4bNMinggGJTAnBPjCoLEYcyYtYHNnUNYlv4xZMH6hVIQCAozq8d5w==}
+    engines: {node: '>=14.21.3'}
+    hasBin: true
+    requiresBuild: true
+    optionalDependencies:
+      '@biomejs/cli-darwin-arm64': 1.8.3
+      '@biomejs/cli-darwin-x64': 1.8.3
+      '@biomejs/cli-linux-arm64': 1.8.3
+      '@biomejs/cli-linux-arm64-musl': 1.8.3
+      '@biomejs/cli-linux-x64': 1.8.3
+      '@biomejs/cli-linux-x64-musl': 1.8.3
+      '@biomejs/cli-win32-arm64': 1.8.3
+      '@biomejs/cli-win32-x64': 1.8.3
+    dev: true
+
+  /@biomejs/cli-darwin-arm64/1.8.3:
+    resolution: {integrity: sha512-9DYOjclFpKrH/m1Oz75SSExR8VKvNSSsLnVIqdnKexj6NwmiMlKk94Wa1kZEdv6MCOHGHgyyoV57Cw8WzL5n3A==}
+    engines: {node: '>=14.21.3'}
+    cpu: [arm64]
+    os: [darwin]
+    requiresBuild: true
+    dev: true
+    optional: true
+
+  /@biomejs/cli-darwin-x64/1.8.3:
+    resolution: {integrity: sha512-UeW44L/AtbmOF7KXLCoM+9PSgPo0IDcyEUfIoOXYeANaNXXf9mLUwV1GeF2OWjyic5zj6CnAJ9uzk2LT3v/wAw==}
+    engines: {node: '>=14.21.3'}
+    cpu: [x64]
+    os: [darwin]
+    requiresBuild: true
+    dev: true
+    optional: true
+
+  /@biomejs/cli-linux-arm64-musl/1.8.3:
+    resolution: {integrity: sha512-9yjUfOFN7wrYsXt/T/gEWfvVxKlnh3yBpnScw98IF+oOeCYb5/b/+K7YNqKROV2i1DlMjg9g/EcN9wvj+NkMuQ==}
+    engines: {node: '>=14.21.3'}
+    cpu: [arm64]
+    os: [linux]
+    requiresBuild: true
+    dev: true
+    optional: true
+
+  /@biomejs/cli-linux-arm64/1.8.3:
+    resolution: {integrity: sha512-fed2ji8s+I/m8upWpTJGanqiJ0rnlHOK3DdxsyVLZQ8ClY6qLuPc9uehCREBifRJLl/iJyQpHIRufLDeotsPtw==}
+    engines: {node: '>=14.21.3'}
+    cpu: [arm64]
+    os: [linux]
+    requiresBuild: true
+    dev: true
+    optional: true
+
+  /@biomejs/cli-linux-x64-musl/1.8.3:
+    resolution: {integrity: sha512-UHrGJX7PrKMKzPGoEsooKC9jXJMa28TUSMjcIlbDnIO4EAavCoVmNQaIuUSH0Ls2mpGMwUIf+aZJv657zfWWjA==}
+    engines: {node: '>=14.21.3'}
+    cpu: [x64]
+    os: [linux]
+    requiresBuild: true
+    dev: true
+    optional: true
+
+  /@biomejs/cli-linux-x64/1.8.3:
+    resolution: {integrity: sha512-I8G2QmuE1teISyT8ie1HXsjFRz9L1m5n83U1O6m30Kw+kPMPSKjag6QGUn+sXT8V+XWIZxFFBoTDEDZW2KPDDw==}
+    engines: {node: '>=14.21.3'}
+    cpu: [x64]
+    os: [linux]
+    requiresBuild: true
+    dev: true
+    optional: true
+
+  /@biomejs/cli-win32-arm64/1.8.3:
+    resolution: {integrity: sha512-J+Hu9WvrBevfy06eU1Na0lpc7uR9tibm9maHynLIoAjLZpQU3IW+OKHUtyL8p6/3pT2Ju5t5emReeIS2SAxhkQ==}
+    engines: {node: '>=14.21.3'}
+    cpu: [arm64]
+    os: [win32]
+    requiresBuild: true
+    dev: true
+    optional: true
+
+  /@biomejs/cli-win32-x64/1.8.3:
+    resolution: {integrity: sha512-/PJ59vA1pnQeKahemaQf4Nyj7IKUvGQSc3Ze1uIGi+Wvr1xF7rGobSrAAG01T/gUDG21vkDsZYM03NAmPiVkqg==}
+    engines: {node: '>=14.21.3'}
+    cpu: [x64]
+    os: [win32]
+    requiresBuild: true
+    dev: true
+    optional: true
+
   /@braintree/sanitize-url/7.0.1:
     resolution: {integrity: sha512-URg8UM6lfC9ZYqFipItRSxYJdgpU5d2Z4KnjsJ+rj6tgAmGme7E+PQNCiud8g0HDaZKMovu2qjfa0f5Ge0Vlsg==}
     dev: false
@@ -7008,12 +7021,6 @@ packages:
   /@gar/promisify/1.1.3:
     resolution: {integrity: sha512-k2Ty1JcVojjJFwrg/ThKi2ujJ7XNLYaFGNB/bWT9wGR+oSMJHMa5w+CUq6p/pVrKeNNgA7pCqEcjSnHVoqJQFw==}
     dev: true
-
-  /@graphql-typed-document-node/core/3.2.0:
-    resolution: {integrity: sha512-mB9oAsNCm9aM3/SOv4YtBMqZbYj10R7dkq8byBqxGY/ncFwhf2oQzMV+LCRlWoDSEBJ3COiR1yeDvMtsoOsuFQ==}
-    peerDependencies:
-      graphql: ^0.8.0 || ^0.9.0 || ^0.10.0 || ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0 || ^16.0.0 || ^17.0.0
-    dev: false
 
   /@hapi/hoek/9.3.0:
     resolution: {integrity: sha512-/c6rf4UJlmHlC9b5BaNvzAcFv7HZ2QHaV0D4/HNlBdvFnvQq8RI4kYdhyPCl7Xj+oWvTWQ8ujhqS53LIgAe6KQ==}
@@ -18010,14 +18017,6 @@ packages:
     resolution: {integrity: sha512-rfT93uj5s0PRL7EzccGMs3brplhcrghnDoV26NqKhCAS1hVo+WdNsPvE/yb6ilfr5hi2MEk6d5EWJTKdxg8jVw==}
     dev: true
 
-  /@types/axios-curlirize/1.3.5:
-    resolution: {integrity: sha512-8+iP68EMQwmGsO53u6cTgVq7jHKfDvcR+48ImZ4UoSxgy69shY21A5yPQCuG3lNbNL5oLxPzBELZD10Y94ydGg==}
-    dependencies:
-      axios: 1.6.7
-    transitivePeerDependencies:
-      - debug
-    dev: true
-
   /@types/babel__core/7.20.5:
     resolution: {integrity: sha512-qoQprZvz5wQFJwMDqeseRXWv3rqMvhgpbXFfVyWhbx9X47POIA6i/+dXefEmZKoAgOaTdaIgNSMqMIU61yRyzA==}
     dependencies:
@@ -20950,10 +20949,6 @@ packages:
     engines: {node: '>=4'}
     dev: true
 
-  /axios-curlirize/2.0.0:
-    resolution: {integrity: sha512-TrQBa8MfIwaYsrCoYhfCr7NDRXLuGm+Rqh/PtAuO64b8PCCOJWn37BWQvpN4/mzzig3uHb4qXzvpxJmALHaiwA==}
-    dev: false
-
   /axios/1.6.7:
     resolution: {integrity: sha512-/hDJGff6/c7u0hDkvkGxR/oy6CbCs8ziCsC7SqmhjfozqiJGc8Z11wrv9z9lYfY4K8l+H9TpjcMDX0xOZmx+RA==}
     dependencies:
@@ -23884,6 +23879,7 @@ packages:
 
   /crypto-js/4.2.0:
     resolution: {integrity: sha512-KALDyEYgpY+Rlob/iriUtjV6d5Eq+Y191A5g4UqLAi8CyGP9N1+FdVbkc1SxKc2r4YAYqG8JzO2KGL+AizD70Q==}
+    dev: true
 
   /crypto-random-string/1.0.0:
     resolution: {integrity: sha512-GsVpkFPlycH7/fRR7Dhcmnoii54gV1nz7y4CWyeFS14N+JVBBhY+r8amRHE4BwSYal7BPTDp8isvAlCxyFt3Hg==}
@@ -24440,11 +24436,6 @@ packages:
     engines: {node: '>=0.10'}
     dependencies:
       assert-plus: 1.0.0
-
-  /data-uri-to-buffer/4.0.1:
-    resolution: {integrity: sha512-0R9ikRb668HB7QDxT1vkpuUBtqc53YyAwMwGeUFKRojY/NWKvdZ+9UYtRfGmhqNbRkTSVpMbmyhXipFFv2cb/A==}
-    engines: {node: '>= 12'}
-    dev: false
 
   /data-urls/1.1.0:
     resolution: {integrity: sha512-YTWYI9se1P55u58gL5GkQHW4P6VJBJ5iBT+B5a7i2Tjadhv52paJG0qHX4A0OR6/t52odI64KP2YvFpkDOi3eQ==}
@@ -26499,11 +26490,6 @@ packages:
       snapdragon: 0.8.2
       to-regex: 3.0.2
 
-  /extract-files/9.0.0:
-    resolution: {integrity: sha512-CvdFfHkC95B4bBBk36hcEmvdR2awOdhhVUYH6S/zrVj3477zven/fJMYg7121h4T1xHZC+tetUpubpAhxwI7hQ==}
-    engines: {node: ^10.17.0 || ^12.0.0 || >= 13.7.0}
-    dev: false
-
   /extract-text-webpack-plugin/3.0.2_webpack@3.8.1:
     resolution: {integrity: sha512-bt/LZ4m5Rqt/Crl2HiKuAl/oqg0psx1tsTLkvWbJen1CtD+fftkZhMaQ9HOtY2gWsl2Wq+sABmMVi9z3DhKWQQ==}
     engines: {node: '>= 4.8 < 5.0.0 || >= 5.10'}
@@ -26669,14 +26655,6 @@ packages:
 
   /fecha/4.2.3:
     resolution: {integrity: sha512-OP2IUU6HeYKJi3i0z4A19kHMQoLVs4Hc+DPqqxI2h/DPZHTm/vjsfC6P0b4jCMy14XizLBqvndQ+UilD7707Jw==}
-    dev: false
-
-  /fetch-blob/3.2.0:
-    resolution: {integrity: sha512-7yAQpD2UMJzLi1Dqv7qFYnPbaPx7ZfFK6PiIxQ4PfkGPyNyl2Ugx+a/umUonmKqjhM4DnfbMvdX6otXq83soQQ==}
-    engines: {node: ^12.20 || >= 14.13}
-    dependencies:
-      node-domexception: 1.0.0
-      web-streams-polyfill: 3.3.2
     dev: false
 
   /fetch-retry/5.0.6:
@@ -27402,13 +27380,6 @@ packages:
     engines: {node: '>=0.4.x'}
     dev: false
 
-  /formdata-polyfill/4.0.10:
-    resolution: {integrity: sha512-buewHzMvYL29jdeQTVILecSaZKnt/RJWjoZCF5OW60Z67/GmSLBkOFM7qh1PI3zFNtJbaZL5eQu1vLfazOwj4g==}
-    engines: {node: '>=12.20.0'}
-    dependencies:
-      fetch-blob: 3.2.0
-    dev: false
-
   /forwarded/0.2.0:
     resolution: {integrity: sha512-buRG0fpBtRHSTCOASe6hD258tEubFoRLb4ZNA6NxMVHNw2gOcwHo9wyablzMzOA5z9xA9L1KNjk/Nt6MT9aYow==}
     engines: {node: '>= 0.6'}
@@ -28115,19 +28086,6 @@ packages:
     resolution: {integrity: sha512-jcLLfkpoVGmH7/InMC/1hIvOPSUh38oJtGhvrOFGzioE1DZ+0YW16RgmOJhHiuWTvGiJQ9Z1Ik43JvkRPRvE+A==}
     dependencies:
       lodash: 4.17.21
-
-  /graphql-request/5.1.0:
-    resolution: {integrity: sha512-0OeRVYigVwIiXhNmqnPDt+JhMzsjinxHE7TVy3Lm6jUzav0guVcL0lfSbi6jVTRAxcbwgyr6yrZioSHxf9gHzw==}
-    peerDependencies:
-      graphql: 14 - 16
-    dependencies:
-      '@graphql-typed-document-node/core': 3.2.0
-      cross-fetch: 3.1.8
-      extract-files: 9.0.0
-      form-data: 3.0.1
-    transitivePeerDependencies:
-      - encoding
-    dev: false
 
   /graphql/14.7.0:
     resolution: {integrity: sha512-l0xWZpoPKpppFzMfvVyFmp9vLN7w/ZZJPefUicMCepfJeQ8sMcztloGYY9DfjVPo6tIUDzU5Hw3MUbIjj9AVVA==}
@@ -31767,10 +31725,6 @@ packages:
       '@sideway/pinpoint': 2.0.0
     dev: false
 
-  /jose/4.14.6:
-    resolution: {integrity: sha512-EqJPEUlZD0/CSUMubKtMaYUOtWe91tZXTWMJZoKSbLk+KtdhNdcvppH8lA9XwVu2V4Ailvsj0GBZJ2ZwDjfesQ==}
-    dev: false
-
   /js-base64/2.6.4:
     resolution: {integrity: sha512-pZe//GGmwJndub7ZghVHz7vjb2LgC1m8B07Au3eYqeqv9emhESByMXxaEgkUkEqJe87oBbSniGYoQNIBklc7IQ==}
 
@@ -33769,15 +33723,6 @@ packages:
     dependencies:
       whatwg-url: 5.0.0
 
-  /node-fetch/3.3.2:
-    resolution: {integrity: sha512-dRB78srN/l6gqWulah9SrxeYnxeddIG30+GOqK/9OlLVyLg3HPnr6SqOWTWOXKRwC2eGYCkZ59NNuSgvSrpgOA==}
-    engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
-    dependencies:
-      data-uri-to-buffer: 4.0.1
-      fetch-blob: 3.2.0
-      formdata-polyfill: 4.0.10
-    dev: false
-
   /node-forge/0.10.0:
     resolution: {integrity: sha512-PPmu8eEeG9saEUvI97fm4OYxXVB6bFvyNTyiUOBichBpFG8A1Ljw3bY62+5oOjDEMHRnd0Y7HQ+x7uzxOzC6JA==}
     engines: {node: '>= 6.0.0'}
@@ -34907,6 +34852,7 @@ packages:
     resolution: {integrity: sha512-bQ/0XPZZ7eX+cdAkd61uYWpfMhakH3NeteUF1R8GNa+LMqX8QFAkbCLqq+AYAns1/ueACBu/BMWhrlKGrdvGZg==}
     dependencies:
       crypto-js: 4.2.0
+    dev: true
 
   /pkg-dir/2.0.0:
     resolution: {integrity: sha512-ojakdnUgL5pzJYWw2AIDEupaQCX5OPbM688ZevubICjdIX01PRSYKqm33fJoCOJBRseYCTUlQRnBNX+Pchaejw==}

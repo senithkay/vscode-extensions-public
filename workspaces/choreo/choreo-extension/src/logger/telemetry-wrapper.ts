@@ -9,7 +9,6 @@
 
 import { IChildLogger } from "@vscode-logging/logger";
 import TelemetryReporter from "@vscode/extension-telemetry";
-import { ERROR_OCCURRED_EVENT } from "@wso2-enterprise/choreo-core";
 
 // This is the telemetry wrapper class that is used to send telemetry data to the App Insights backend.
 // It will implment the IChildLogger interface by wrapping a provided logger instance.
@@ -25,14 +24,14 @@ export class TelemetryWrapper implements IChildLogger {
     }
     public fatal(msg: string, ...args: any[]): void {
         this.logger.fatal(msg, args);
-        this.reporter.sendTelemetryErrorEvent(ERROR_OCCURRED_EVENT, {
+        this.reporter.sendTelemetryErrorEvent('vscode-error-occurred', {
             message: msg
         });
     }
 
     public error(message: string, error?: Error): void {
         this.logger.error(message, error);
-        this.reporter.sendDangerousTelemetryErrorEvent(ERROR_OCCURRED_EVENT, {
+        this.reporter.sendDangerousTelemetryErrorEvent('vscode-error-occurred', {
             message: message,
             error: error ? error.toString() : ""
         });

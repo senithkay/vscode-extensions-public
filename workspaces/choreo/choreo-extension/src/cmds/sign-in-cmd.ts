@@ -8,13 +8,9 @@
  */
 import { ProgressLocation, ExtensionContext, commands, window } from "vscode";
 import { ext } from "../extensionVariables";
-import { authStore } from "../stores/auth-store";
 import { getLogger } from "../logger/logger";
-import { sendTelemetryEvent } from "../telemetry/utils";
 import {
     CommandIds,
-    SIGN_IN_FAILURE_EVENT,
-    SIGN_IN_START_EVENT,
 } from "@wso2-enterprise/choreo-core";
 import * as vscode from "vscode";
 
@@ -23,7 +19,6 @@ export function signInCommand(context: ExtensionContext) {
         commands.registerCommand(CommandIds.SignIn, async () => {
             try {
                 getLogger().debug("Signing in to Choreo");
-                sendTelemetryEvent(SIGN_IN_START_EVENT);
                 const callbackUrl = await vscode.env.asExternalUri(
                     vscode.Uri.parse(`${vscode.env.uriScheme}://wso2.choreo/signin`)
                 );
@@ -40,7 +35,6 @@ export function signInCommand(context: ExtensionContext) {
                     window.showErrorMessage("Unable to open external link for authentication.");
                 }
             } catch (error: any) {
-                sendTelemetryEvent(SIGN_IN_FAILURE_EVENT, { cause: error?.message });
                 getLogger().error(
                     "Error while signing in to Choreo. " +
                         error?.message +

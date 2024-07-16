@@ -9,20 +9,16 @@
 import {  ExtensionContext, commands, window } from "vscode";
 import { authStore } from "../stores/auth-store";
 import { getLogger } from "../logger/logger";
-import { sendTelemetryEvent } from '../telemetry/utils';
-import { CommandIds, SIGN_OUT_START_EVENT, SIGN_OUT_SUCCESS_EVENT, SIGN_OUT_FAILURE_EVENT} from '@wso2-enterprise/choreo-core';
+import { CommandIds } from '@wso2-enterprise/choreo-core';
 
 export function signOutCommand(context: ExtensionContext) {
     context.subscriptions.push(
         commands.registerCommand(CommandIds.SignOut, async () => {
             try {
                 getLogger().debug("Signing out from Choreo");
-                sendTelemetryEvent(SIGN_OUT_START_EVENT);
                 authStore.getState().logout();
-                sendTelemetryEvent(SIGN_OUT_SUCCESS_EVENT);
                 window.showInformationMessage('Successfully signed out from Choreo!');
             } catch (error: any) {
-                sendTelemetryEvent(SIGN_OUT_FAILURE_EVENT, { cause: error?.message });
                 getLogger().error("Error while signing out from Choreo. " + error?.message + (error?.cause ? "\nCause: " + error.cause.message : ""));
                 if (error instanceof Error) {
                     window.showErrorMessage(error.message);

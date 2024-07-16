@@ -28,7 +28,7 @@ import {
     ClearWebviewCache,
     GoToSource,
     AuthStoreChangedNotification,
-    NotificationsMethodList,
+    WebviewNotificationsMethodList,
     GetAuthState,
     OpenSubDialogRequest,
     GetGitRemotes,
@@ -74,7 +74,6 @@ import { getChoreoEnv, getChoreoExecPath } from "../../../choreo-rpc/cli-install
 import { getSubPath, goTosource, makeURLSafe, readEndpoints } from "../../../utils";
 import { submitCreateComponentHandler } from "../../../cmds/create-component-cmd";
 import { showComponentTestView } from "../ComponentTestView";
-import { showComponentDetailsView } from "../ComponentDetailsView";
 
 
 // Register handlers
@@ -257,9 +256,7 @@ export class WebViewPanelRpc {
     public registerPanel(view: WebviewPanel) {
         if (!this._panel) {
             this._messenger.registerWebviewPanel(view, {
-                broadcastMethods: [
-                    ...NotificationsMethodList
-                ],
+                broadcastMethods: [ ...WebviewNotificationsMethodList],
             });
             this._panel = view;
         } else {
@@ -295,9 +292,7 @@ export class WebViewViewRPC {
     public registerView(view: WebviewView) {
         if (!this._view) {
             this._messenger.registerWebviewView(view, {
-                broadcastMethods: [
-                    ...NotificationsMethodList
-                ],
+                broadcastMethods: [...WebviewNotificationsMethodList],
             });
             this._view = view;
         } else {

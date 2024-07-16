@@ -1,11 +1,15 @@
-import { Project, ComponentYamlContent } from "@wso2-enterprise/choreo-core";
 import path from "path";
 import { extensions, window, Uri } from "vscode";
 import { ext } from "./extensionVariables";
 import * as fs from 'fs'
+import { ComponentYamlContent } from "@wso2-enterprise/choreo-core";
 
 // COMPONENT_YAML_SCHEMA = "choreo";
 // COMPONENT_YAML_SCHEMA_DIR = "schema/component-schema.json";
+
+
+
+
 
 interface ComponentYamlSchema {
     $schema?: string;

@@ -6,10 +6,11 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-export * from "./types";
-export * from "./webview-types";
-export * from "./rpc";
-export * from "./events";
-export * from "./notifications";
+export * from "./types/store.types";
+export * from "./types/webview-prop.types";
+export * from "./types/common.types";
+export * from "./types/config-file.types";
+export * from "./types/messenger-rpc.types";
+export * from "./types/cli-rpc.types";
 export * from "./constants";
-export * from "./cli-rpc";
+export * from "./enums";
