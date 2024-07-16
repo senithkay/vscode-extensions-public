@@ -16,6 +16,7 @@ type ViewHeaderProps = {
     children?: React.ReactNode;
     codicon?: string;
     icon?: string;
+    iconSx?: any;
     onEdit?: () => void;
 };
 
@@ -53,13 +54,13 @@ const Actions = styled.div({
     gap: '5px'
 });
 
-const ViewHeader: React.FC<ViewHeaderProps> = ({ title, children, codicon, icon, onEdit }) => {
+const ViewHeader: React.FC<ViewHeaderProps> = ({ title, children, codicon, icon, iconSx, onEdit }) => {
     return (
         <Header>
             <HeaderContentWrapper>
                 <TitleContainer>
                     {codicon && <Codicon name={codicon} />}
-                    {icon && <Icon name={icon} />}
+                    {icon && <Icon iconSx={iconSx} name={icon} />}
                     {typeof title === 'string' ? <Title>{title}</Title> : title}
                     {onEdit && (
                         <Button

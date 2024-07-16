@@ -23,72 +23,72 @@ const CARD_WRAPPER_DATA = {
         cards: [
             {
                 title: 'HTTP',
-                icon: 'code',
+                icon: 'http',
                 description: 'HTTP protocol',
             },
             {
                 title: 'HTTPS',
-                icon: 'code',
+                icon: 'https',
                 description: 'Secure HTTP protocol',
             },
             {
                 title: 'File',
-                icon: 'code',
+                icon: 'file',
                 description: 'File system',
             },
             {
                 title: 'JMS',
-                icon: 'code',
+                icon: 'jms',
                 description: 'Java Messaging Service',
             },
             {
                 title: 'KAFKA',
-                icon: 'code',
+                icon: 'kafka',
                 description: 'Kafka messaging',
             },
             {
-                title: 'RABBITMQ',
-                icon: 'code',
+                title: 'rabbit-mq',
+                icon: 'rabbit-mq',
                 description: 'RabbitMQ messaging',
             },
             {
                 title: 'HL7',
-                icon: 'code',
+                icon: 'hl7',
                 description: 'Healthcare messaging',
             },
             {
                 title: 'MQTT',
-                icon: 'code',
+                icon: 'mqtt',
                 description: 'MQTT messaging',
             },
             {
                 title: 'WS',
-                icon: 'code',
+                icon: 'ws',
                 description: 'Web Services',
             },
             {
                 title: 'WSO2_MB',
-                icon: 'code',
+                icon: 'wso2-mb',
                 description: 'WSO2 Message Broker',
             },
             {
                 title: 'WSS',
-                icon: 'code',
+                icon: 'wss',
                 description: 'Secure Web Services',
             },
             {
                 title: 'CXF_WS_RM',
-                icon: 'code',
+                icon: 'cxf-ws-rm',
                 description: 'CXF with WS-RM',
             },
             {
                 title: 'Feed',
-                icon: 'code',
+                icon: 'feed',
                 description: 'RSS/Atom feed',
             },
             {
                 title: 'Custom',
-                icon: 'code',
+                icon: 'user-defined-endpoint',
                 description: 'User-defined endpoint',
             },
         ]
@@ -97,22 +97,22 @@ const CARD_WRAPPER_DATA = {
         cards: [
             {
                 title: 'Message Sampling Processor',
-                icon: 'code',
+                icon: 'message-sampling-processor',
                 description: 'Sample messages for processing',
             },
             {
                 title: 'Scheduled Message Forwarding Processor',
-                icon: 'code',
+                icon: 'scheduled-message-forwarding-processor',
                 description: 'Forwards messages on a schedule',
             },
             {
                 title: 'Scheduled Failover Message Forwarding Processor',
-                icon: 'code',
+                icon: 'scheduled-failover-message-forwarding-processor',
                 description: 'Handle failover scenarios',
             },
             {
                 title: 'Custom Message Processor',
-                icon: 'code',
+                icon: 'custom-message-processor',
                 description: 'Configure a custom message processor',
             }
         ]
@@ -121,42 +121,42 @@ const CARD_WRAPPER_DATA = {
         cards: [
             {
                 title: 'Address Endpoint',
-                icon: 'code',
+                icon: 'address-endpoint',
                 description: 'Direct address connection',
             },
             {
                 title: 'Default Endpoint',
-                icon: 'code',
+                icon: 'default-endpoint',
                 description: 'Fallback endpoint',
             },
             {
                 title: 'Failover Endpoint',
-                icon: 'code',
+                icon: 'failover-endpoint',
                 description: 'Backup endpoint on failure',
             },
             {
                 title: 'HTTP Endpoint',
-                icon: 'code',
+                icon: 'http-endpoint',
                 description: 'HTTP connection endpoint',
             },
             {
                 title: 'Load Balance Endpoint',
-                icon: 'code',
+                icon: 'load-balance-endpoint',
                 description: 'Distributes load among multiple endpoints',
             },
             {
                 title: 'Recipient List Endpoint',
-                icon: 'code',
+                icon: 'recipient-list-endpoint',
                 description: 'Routes messages to multiple destinations',
             },
             {
                 title: 'Template Endpoint',
-                icon: 'code',
+                icon: 'template-endpoint',
                 description: 'Reusable endpoint template',
             },
             {
                 title: 'WSDL Endpoint',
-                icon: 'code',
+                icon: 'wsdl-endpoint',
                 description: 'Endpoint defined in a WSDL file',
             }
         ]
@@ -165,27 +165,27 @@ const CARD_WRAPPER_DATA = {
         cards: [
             {
                 title: 'Address Endpoint Template',
-                icon: 'code',
+                icon: 'address-endpoint-template',
                 description: 'Specifies a communication URL',
             },
             {
                 title: 'Default Endpoint Template',
-                icon: 'code',
+                icon: 'default-endpoint-template',
                 description: 'Adds QoS to the To address',
             },
             {
                 title: 'HTTP Endpoint Template',
-                icon: 'code',
+                icon: 'http-endpoint-template',
                 description: 'Defines REST endpoints',
             },
             {
                 title: 'WSDL Endpoint Template',
-                icon: 'code',
+                icon: 'wsdl-endpoint-template',
                 description: 'Connects to WSDL definitions',
             },
             {
                 title: 'Sequence Template',
-                icon: 'code',
+                icon: 'sequence-template',
                 description: 'Sequential processing specification',
             },
         ]
@@ -194,17 +194,17 @@ const CARD_WRAPPER_DATA = {
         cards: [
             {
                 title: 'In-Line Text Entry',
-                icon: 'code',
+                icon: 'in-line-text-entry',
                 description: 'Stores text content',
             },
             {
                 title: 'In-Line XML Entry',
-                icon: 'code',
+                icon: 'in-line-xml-entry',
                 description: 'Stores XML content',
             },
             {
                 title: 'Source URL Entry',
-                icon: 'code',
+                icon: 'source-url-entry',
                 description: 'Stores a URL reference',
             }
         ]
@@ -213,37 +213,37 @@ const CARD_WRAPPER_DATA = {
         cards: [
             {
                 title: 'In Memory Message Store',
-                icon: 'code',
+                icon: 'in-memory-message-store',
                 description: 'Temporarily holds messages in memory',
             },
             {
                 title: 'RabbitMQ Message Store',
-                icon: 'code',
+                icon: 'rabbitMQ-message-store',
                 description: 'Utilizes RabbitMQ for message storage',
             },
             {
                 title: 'JMS Message Store',
-                icon: 'code',
+                icon: 'jms-message-store',
                 description: 'Stores messages for Java Message Service (JMS) communication.',
             },
             {
                 title: 'JDBC Message Store',
-                icon: 'code',
+                icon: 'jdbc-message-store',
                 description: 'Persists messages using a JDBC database',
             },
             {
                 title: 'Custom Message Store',
-                icon: 'code',
+                icon: 'custom-message-store',
                 description: 'Allows custom implementations for specific requirements',
             },
             {
                 title: 'Resequence Message Store',
-                icon: 'code',
+                icon: 'resequence-message-store',
                 description: 'Reorders messages based on specified criteria',
             },
             {
                 title: 'WSO2 MB Message Store',
-                icon: 'code',
+                icon: 'wso2-mb-message-store',
                 description: 'Integrates with WSO2 Message Broker',
             }
         ]
