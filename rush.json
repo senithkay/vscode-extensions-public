@@ -435,11 +435,6 @@
       "projectFolder": "workspaces/common-libs/service-designer",
       "versionPolicyName": "service-designer"
     },
-    // {
-    //   "packageName": "@wso2-enterprise/choreo-client",
-    //   "projectFolder": "workspaces/choreo/choreo-client",
-    //   "versionPolicyName": "choreo-extension"
-    // },
     {
       "packageName": "@wso2-enterprise/choreo-core",
       "projectFolder": "workspaces/choreo/choreo-core",

@@ -5,7 +5,6 @@
         "init-submodules": "git submodule update --init --recursive && git submodule foreach git pull origin master",
         "build:langClient": "rush build -o @wso2-enterprise/ballerina-languageclient",
         "build:bbe": "rush build -o @ballerina/ballerina-by-examples",
-        "build:choreoClient": "rush build -o @wso2-enterprise/choreo-client",
         "build:choreoWebviews": "rush build -o @wso2-enterprise/choreo-vscode-webviews",
         "build:cellDiagram": "rush build -o @wso2-enterprise/cell-diagram",
         "build:configEditor": "rush build -o @wso2-enterprise/ballerina-configurable-editor",
