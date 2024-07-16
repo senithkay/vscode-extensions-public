@@ -635,9 +635,9 @@ const AddConnector = (props: AddConnectorProps) => {
             {isLoading ?
                 <ProgressIndicator /> :
                 !formData ? (
-                // When no UISchema present
+                    // When no UISchema present
                     ((parameters && parameters.length > 0) ? (
-                    // Render parameters when template is present for operation
+                        // Render parameters when template is present for operation
                         <>
                             <Field>
                                 <Controller
@@ -694,16 +694,39 @@ const AddConnector = (props: AddConnectorProps) => {
                             </div>
                         </>
                     ) : (
-                        // Render param manager when no template is present
+                        // Render connection selection field when no template is present
                         <>
-                            <ParamManager
-                                paramConfigs={params}
-                                readonly={false}
-                                onChange={handleOnChange} />
+                            <Field>
+                                <Controller
+                                    name="configKey"
+                                    control={control}
+                                    defaultValue={connections[0]}
+                                    render={({ field }) => (
+                                        <>
+                                            <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", width: '100%', gap: '10px' }}>
+                                                <div style={{ display: "flex", alignItems: "center", gap: '10px' }}>
+                                                    <label>{"Connection"}</label>
+                                                </div>
+                                                <LinkButton onClick={() => addNewConnection()}>
+                                                    Add new connection
+                                                </LinkButton>
+                                            </div>
+                                            <AutoComplete
+                                                name="configKey"
+                                                items={connections}
+                                                value={field.value}
+                                                onValueChange={(e: any) => {
+                                                    field.onChange(e);
+                                                }}
+                                            />
+                                        </>
+                                    )}
+                                />
+                            </Field>
                             <div style={{ display: "flex", textAlign: "right", justifyContent: "flex-end", marginTop: "10px" }}>
                                 <Button
                                     appearance="primary"
-                                    onClick={onClick}
+                                    onClick={handleSubmit(onClick)}
                                 >
                                     Submit
                                 </Button>
