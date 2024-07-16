@@ -72,7 +72,7 @@ export function Overview(props: OverviewProps) {
             <ViewHeader
                 title={"Project: " + activeWorkspaces?.name}
                 icon="project"
-                iconSx={{ color: "#336B87", fontSize: "15px"}}
+                iconSx={{ fontSize: "15px"}}
             >
                 <Button
                     appearance="primary"
