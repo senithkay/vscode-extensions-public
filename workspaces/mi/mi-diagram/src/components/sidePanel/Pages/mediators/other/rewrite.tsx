@@ -49,7 +49,7 @@ const RewriteForm = (props: AddMediatorProps) => {
     useEffect(() => {
         reset({
             urlRewriteRules: {
-                paramValues: sidePanelContext?.formValues?.urlRewriteRules ? getParamManagerFromValues(sidePanelContext?.formValues?.urlRewriteRules, -1, -1) : [],
+                paramValues: sidePanelContext?.formValues?.urlRewriteRules ? getParamManagerFromValues(sidePanelContext?.formValues?.urlRewriteRules, -1, 1) : [],
                 paramFields: [
                     {
                         "type": "ParamManager",
@@ -58,7 +58,7 @@ const RewriteForm = (props: AddMediatorProps) => {
                         "isRequired": false, 
                         "paramManager": {
                             paramConfigs: {
-                                paramValues: sidePanelContext?.formValues?.rewriteRuleAction ? getParamManagerFromValues(sidePanelContext?.formValues?.rewriteRuleAction, 0, 1) : [],
+                                paramValues: sidePanelContext?.formValues?.rewriteRuleAction ? getParamManagerFromValues(sidePanelContext?.formValues?.rewriteRuleAction, 0, -1) : [],
                                 paramFields: [
                                     {
                                         "type": "Dropdown",
@@ -207,7 +207,7 @@ const RewriteForm = (props: AddMediatorProps) => {
                                     values.paramValues = values.paramValues.map((param: any, index: number) => {
                                         const property: ParamValue[] = param.paramValues;
                                         param.key = index + 1;
-                                        param.value = index + 1;
+                                        param.value = property[1].value;
                                         param.icon = 'query';
 
                                         (property[0].value as ParamConfig).paramValues = (property[0].value as ParamConfig).paramValues.map((param: any, index: number) => {
