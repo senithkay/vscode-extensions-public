@@ -2,7 +2,7 @@
 import { ExtendedLangClient, ballerinaExtInstance } from './core';
 import { createMachine, assign, interpret } from 'xstate';
 import { activateBallerina } from './extension';
-import { EventType, SyntaxTree, History, HistoryEntry, MachineStateValue, MachineViews, STByRangeRequest, SyntaxTreeResponse, UndoRedoManager, VisualizerLocation, webviewReady } from "@wso2-enterprise/ballerina-core";
+import { EVENT_TYPE, SyntaxTree, History, HistoryEntry, MachineStateValue, STByRangeRequest, SyntaxTreeResponse, UndoRedoManager, VisualizerLocation, webviewReady, MACHINE_VIEW } from "@wso2-enterprise/ballerina-core";
 import { fetchAndCacheLibraryData } from './features/library-browser';
 import { VisualizerWebview } from './views/visualizer/webview';
 import { Uri, workspace } from 'vscode';
@@ -29,7 +29,7 @@ const stateMachine = createMachine<MachineContext>(
         context: {
             langClient: null,
             errorCode: null,
-            view: "Overview"
+            view: MACHINE_VIEW.Overview
         },
         states: {
             initialize: {
@@ -190,7 +190,7 @@ const stateMachine = createMachine<MachineContext>(
                 if (ballerinaExtInstance.getPersistDiagramStatus()) {
                     history.push({
                         location: {
-                            view: "ERDiagram",
+                            view: MACHINE_VIEW.ERDiagram,
                             identifier: context.identifier
                         }
                     });
@@ -198,7 +198,7 @@ const stateMachine = createMachine<MachineContext>(
                 }
                 if (!context.view) {
                     if (!context.position || ("groupId" in context.position)) {
-                        history.push({ location: { view: "Overview", documentUri: context.documentUri } });
+                        history.push({ location: { view: MACHINE_VIEW.Overview, documentUri: context.documentUri } });
                         return resolve();
                     }
                     const view = await getView(context.documentUri, context.position);
@@ -230,7 +230,7 @@ const stateMachine = createMachine<MachineContext>(
                 }) as SyntaxTree;
 
                 if (!selectedEntry?.location.view) {
-                    return resolve({ view: "Overview", documentUri: context.documentUri });
+                    return resolve({ view: MACHINE_VIEW.Overview, documentUri: context.documentUri });
                 } else if (selectedEntry.location.view === "Overview") {
                     return resolve({ ...selectedEntry.location, syntaxTree: node.syntaxTree });
                 }
@@ -333,7 +333,7 @@ export const StateMachine = {
     context: () => { return stateService.getSnapshot().context; },
     langClient: () => { return stateService.getSnapshot().context.langClient; },
     state: () => { return stateService.getSnapshot().value as MachineStateValue; },
-    sendEvent: (eventType: EventType) => { stateService.send({ type: eventType }); },
+    sendEvent: (eventType: EVENT_TYPE) => { stateService.send({ type: eventType }); },
 };
 
 export function openView(type: "OPEN_VIEW" | "FILE_EDIT" | "EDIT_DONE", viewLocation: VisualizerLocation) {

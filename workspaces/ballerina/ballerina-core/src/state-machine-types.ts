@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
@@ -11,8 +10,6 @@
 import { NotificationType, RequestType } from "vscode-messenger-common";
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
-export type MachineViews = "Overview" | "SequenceDiagram" | "ServiceDesigner" | "ERDiagram" | "DataMapper" | "GraphQLDiagram" | "EggplantDiagram";
-
 export type MachineStateValue =
     | 'initialize'
     | 'lsError'
@@ -21,12 +18,28 @@ export type MachineStateValue =
     | 'disabled'
     | { viewActive: 'viewInit' } | { viewActive: 'webViewLoaded' } | { viewActive: 'viewReady' } | { viewActive: 'viewEditing' };
 
-export type EventType = "OPEN_VIEW" | "GET_STARTED" | "CANCEL_CREATION";
+export enum EVENT_TYPE {
+    OPEN_VIEW = "OPEN_VIEW",
+    GET_STARTED = "GET_STARTED",
+    CANCEL_CREATION = "CANCEL_CREATION",
+    FILE_EDIT = "FILE_EDIT",
+    EDIT_DONE = "EDIT_DONE",
+}
 
 export type VoidCommands = "OPEN_LOW_CODE" | "OPEN_PROJECT" | "CREATE_PROJECT";
 
+export enum MACHINE_VIEW {
+    Overview = "Overview",
+    SequenceDiagram = "Sequence Diagram",
+    ServiceDesigner = "Service Designer",
+    ERDiagram = "ER Diagram",
+    DataMapper = "Data Mapper",
+    GraphQLDiagram = "GraphQL Diagram",
+    EggplantDiagram = "Eggplant Diagram"
+}
+
 export interface MachineEvent {
-    type: EventType;
+    type: EVENT_TYPE;
 }
 
 export interface CommandProps {
@@ -37,7 +50,7 @@ export interface CommandProps {
 
 // State Machine context values
 export interface VisualizerLocation {
-    view?: MachineViews | null;
+    view?: MACHINE_VIEW | null;
     documentUri?: string;
     identifier?: string;
     position?: NodePosition;
