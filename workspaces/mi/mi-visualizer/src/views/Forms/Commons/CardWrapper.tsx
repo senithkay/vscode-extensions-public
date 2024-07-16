@@ -228,7 +228,7 @@ const CARD_WRAPPER_DATA = {
             },
             {
                 title: 'JDBC Message Store',
-                icon: 'jms-message-store', // TODO: Change the icon
+                icon: 'jdbc-message-store',
                 description: 'Persists messages using a JDBC database',
             },
             {
