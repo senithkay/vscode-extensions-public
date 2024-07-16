@@ -248,7 +248,7 @@ export function UnsupportedProject(props: UnsupportedProjectProps) {
 
   return (
     <View>
-      <ViewHeader title={'Project: ' + activeWorkspaces?.name} codicon='project' />
+      <ViewHeader title={'Project: ' + activeWorkspaces?.name} icon='project' iconSx={{ fontSize: "15px" }} />
       <ViewContent padding>
         <Container>
           <Block>
