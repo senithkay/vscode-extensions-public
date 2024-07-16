@@ -12,23 +12,33 @@ import React, { useMemo } from 'react';
 import { Breadcrumbs, Codicon } from '@wso2-enterprise/ui-toolkit';
 import { css } from '@emotion/css';
 import { View } from "../Views/DataMapperView";
+import { extractLastPartFromLabel } from './utils';
 
-const useStyles = () => ({
-    active: css({
-        cursor: "default",
-        lineHeight: "unset",
-        color: "inherit"
-    }),
-    link: css({
-        cursor: "pointer",
-        color: "inherit",
+const useStyles = () => {
+    const baseStyle = {
+        whiteSpace: 'nowrap',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis'
+    };
 
-        "&:hover": {
-            color: "inherit"
-        },
-    })
-});
-
+    return {
+        baseStyle,
+        active: css({
+            ...baseStyle,
+            cursor: "default",
+            lineHeight: "unset",
+            color: "inherit",
+        }),
+        link: css({
+            ...baseStyle,
+            cursor: "pointer",
+            color: "inherit",
+            "&:hover": {
+                color: "inherit"
+            },
+        })
+    };
+};
 
 export interface HeaderBreadcrumbProps {
     views: View[];
@@ -46,7 +56,7 @@ export default function HeaderBreadcrumb(props: HeaderBreadcrumbProps) {
                 && focusedView.subMappingInfo.focusedOnSubMappingRoot;
             const otherViews = views.slice(0, -1);
             let isFnDef = views.length === 1;
-            let label = focusedView.label;
+            let label = extractLastPartFromLabel(focusedView.label);
 
             const selectedLink = (
                 <div className={classes.active}>
@@ -88,6 +98,7 @@ export default function HeaderBreadcrumb(props: HeaderBreadcrumbProps) {
         <Breadcrumbs
             maxItems={3}
             separator={<Codicon name="chevron-right" />}
+            sx={{ width: '82%' }}
         >
             {links}
             {activeLink}
