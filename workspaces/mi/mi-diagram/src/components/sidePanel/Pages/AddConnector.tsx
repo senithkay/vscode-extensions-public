@@ -473,7 +473,7 @@ const AddConnector = (props: AddConnectorProps) => {
                                 <>
                                     <div style={{ display: "flex", alignItems: "center", gap: '10px' }}>
                                         <label>{element.displayName}</label>
-                                        {element.required && <RequiredFormInput />}
+                                        {element.required === 'true' && <RequiredFormInput />}
                                     </div>
                                     <AutoComplete
                                         name={getNameForController(element.name)}
@@ -500,7 +500,7 @@ const AddConnector = (props: AddConnectorProps) => {
                                 <>
                                     <div style={{ display: "flex", alignItems: "center", gap: '10px' }}>
                                         <label>{element.displayName}</label>
-                                        {element.required && <RequiredFormInput />}
+                                        {element.required === 'true' && <RequiredFormInput />}
                                     </div>
                                     <AutoComplete
                                         name={getNameForController(element.name)}
@@ -571,7 +571,7 @@ const AddConnector = (props: AddConnectorProps) => {
                                         <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", width: '100%', gap: '10px' }}>
                                             <div style={{ display: "flex", alignItems: "center", gap: '10px' }}>
                                                 <label>{element.displayName}</label>
-                                                {element.required && <RequiredFormInput />}
+                                                {element.required === 'true' && <RequiredFormInput />}
                                             </div>
                                             <LinkButton onClick={() => addNewConnection()}>
                                                 Add new connection
@@ -636,7 +636,7 @@ const AddConnector = (props: AddConnectorProps) => {
                 <ProgressIndicator /> :
                 !formData ? (
                 // When no UISchema present
-                    (parameters ? (parameters.length > 0 && (
+                    ((parameters && parameters.length > 0) ? (
                     // Render parameters when template is present for operation
                         <>
                             <Field>
@@ -693,7 +693,7 @@ const AddConnector = (props: AddConnectorProps) => {
                                 </Button>
                             </div>
                         </>
-                    )) : (
+                    ) : (
                         // Render param manager when no template is present
                         <>
                             <ParamManager
