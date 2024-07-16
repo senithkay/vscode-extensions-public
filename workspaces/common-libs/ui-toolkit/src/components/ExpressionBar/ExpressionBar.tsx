@@ -8,7 +8,7 @@
  */
 
 import styled from '@emotion/styled';
-import React, { forwardRef, useImperativeHandle, useRef } from 'react';
+import React, { forwardRef } from 'react';
 import { Icon } from '../Icon/Icon';
 import { ExpressionEditor } from './SearchBox';
 
@@ -74,15 +74,12 @@ namespace Ex {
 
 export const ExpressionBar = forwardRef<HTMLInputElement, ExpressionBarProps>((props, ref) => {
     const { id, ...rest } = props;
-    const inputRef = useRef<HTMLInputElement>(null);
-
-    useImperativeHandle(ref, () => inputRef.current);
 
     return (
         <Ex.Container id={id}>
             <Icon name="function-icon" />
             <Ex.ExpressionBox>
-                <ExpressionEditor ref={inputRef} {...rest} />
+                <ExpressionEditor ref={ref} {...rest} />
             </Ex.ExpressionBox>
         </Ex.Container>
     );
