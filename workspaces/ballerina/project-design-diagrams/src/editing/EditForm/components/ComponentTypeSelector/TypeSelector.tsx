@@ -10,10 +10,10 @@
 import React from 'react';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
-import { BallerinaComponentTypes, TriggerDetails } from '@wso2-enterprise/choreo-core';
 import { TriggerSelector } from './TriggerSelector';
 import { InputComponent, SelectLabel } from '../../resources/styles';
 import { DefaultSelectBoxStyles, DefaultTextProps } from '../../resources/constants';
+import { BallerinaComponentTypes, TriggerDetails } from '../AdvancedSettings/AdvancedSettingsWidget';
 
 interface TypeSelectorProps {
     type: BallerinaComponentTypes;

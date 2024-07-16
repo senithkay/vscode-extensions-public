@@ -8,7 +8,6 @@
  */
 
 import React, { useContext, useEffect, useState } from 'react';
-import { BallerinaComponentCreationParams } from '@wso2-enterprise/choreo-core';
 import { TextInputWidget } from '../InputWidget/TextInput';
 import { DirectoryPicker } from './DirectoryPicker';
 import { VisibilityButton } from '../Controls/VisibilityButton';
@@ -17,6 +16,31 @@ import {
 } from '../../resources/constants';
 import { AdvancedSettings, AdvancedControlsHeader, TitleText } from '../../resources/styles';
 import { DiagramContext } from '../../../../components/common';
+
+
+export interface TriggerDetails {
+    id: string;
+    services?: string[];
+}
+
+export interface BallerinaComponentCreationParams {
+    name: string;
+    version: string;
+    org: string;
+    package: string;
+    directory: string;
+    type: BallerinaComponentTypes;
+    trigger?: TriggerDetails;
+}
+
+export enum BallerinaComponentTypes {
+    REST_API = 'restAPI',
+    GRAPHQL = 'graphql',
+    MAIN = 'main',
+    WEBHOOK = 'webhook',
+    GRPC_API = 'grpcAPI',
+    WEBSOCKET_API = 'websocketAPI'
+}
 
 interface AdvancedSettingsProps {
     component: BallerinaComponentCreationParams;

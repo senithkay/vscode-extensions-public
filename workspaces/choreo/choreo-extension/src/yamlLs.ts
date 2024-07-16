@@ -1,10 +1,39 @@
-import { Project, ComponentYamlContent, ComponentYamlSchema } from "@wso2-enterprise/choreo-core";
+import { Project, ComponentYamlContent } from "@wso2-enterprise/choreo-core";
 import path from "path";
 import { extensions, window, Uri } from "vscode";
-import { COMPONENT_YAML_SCHEMA, COMPONENT_YAML_SCHEMA_DIR } from "./constants";
 import { ext } from "./extensionVariables";
 import * as fs from 'fs'
 
+// COMPONENT_YAML_SCHEMA = "choreo";
+// COMPONENT_YAML_SCHEMA_DIR = "schema/component-schema.json";
+
+interface ComponentYamlSchema {
+    $schema?: string;
+    $id?: string;
+    title?: string;
+    description?: string;
+    type: string;
+    properties?: {
+        [key: string]: ComponentYamlSchema;
+    };
+    definitions?: {
+        [key: string]: ComponentYamlSchema;
+    };
+    allOf?: [
+        {
+            [key: string]: ComponentYamlSchema;
+        }
+    ];
+    default?: string;
+    const?: string;
+    enum?: string[];
+    pattern?: string;
+    format?: string;
+    minLength?: number;
+    items?: ComponentYamlSchema;
+    required?: string[];
+    $ref?: string;
+}
 
 // async function getComponentYamlMetadata():
 //     Promise<{ project: Project; component: string, isLocalComponent: boolean } | undefined> {

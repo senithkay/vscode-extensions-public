@@ -7,10 +7,6 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import {
-    IProjectManager, Project, Component, BallerinaComponentCreationParams, BallerinaComponentTypes,
-    IsRepoClonedRequestParams, ChoreoComponentCreationParams
-} from "@wso2-enterprise/choreo-core";
 import { BallerinaTriggerResponse, BallerinaTriggersResponse } from "@wso2-enterprise/ballerina-languageclient";
 import { ProgressLocation, window, workspace } from "vscode";
 import { randomUUID } from "crypto";
@@ -20,11 +16,74 @@ import {
     addDisplayAnnotation, buildWebhookTemplate, createBallerinaPackage, processTomlFiles, runCommand, writeWebhookTemplate
 } from "../component-utils";
 
+export interface Project {
+    createdData: string;
+    handler: string;
+    id: string;
+    name: string;
+    orgId: string;
+    region: string;
+    version: string;
+    description: string;
+    repository?: string;
+    credentialId?: string;
+    branch?: string;
+    gitOrganization?: string;
+    gitProvider?: string;
+}
+
+interface IProjectManager {
+    createLocalComponent(componentDetails: any | BallerinaComponentCreationParams): Promise<string|boolean>;
+    createLocalBalComponentFromExistingSource(componentDetails: any): Promise<string|boolean>;
+    getProjectDetails(): Promise<Project>;
+    getProjectRoot(): Promise<string | undefined>;
+    getLocalComponents(workspaceFilePath: string): any[];
+    isRepoCloned(params: IsRepoClonedRequestParams): Promise<boolean>;
+    getRepoPath(repository: string): Promise<string>;
+    isComponentNameAvailable(componentName: string): Promise<boolean>;
+    cloneRepo(params: RepoCloneRequestParams): Promise<boolean>;
+    getBalVersion(): Promise<string>;
+}
+
+interface IsRepoClonedRequestParams {
+    repository: string;
+    branch: string;
+    workspaceFilePath: string;
+    gitProvider?: string;
+}
+
+export type RepoCloneRequestParams = IsRepoClonedRequestParams;
+
+
+export interface BallerinaComponentCreationParams {
+    name: string;
+    version: string;
+    org: string;
+    package: string;
+    directory: string;
+    type: BallerinaComponentTypes;
+    trigger?: TriggerDetails;
+}
+
+export enum BallerinaComponentTypes {
+    REST_API = 'restAPI',
+    GRAPHQL = 'graphql',
+    MAIN = 'main',
+    WEBHOOK = 'webhook',
+    GRPC_API = 'grpcAPI',
+    WEBSOCKET_API = 'websocketAPI'
+}
+
+export interface TriggerDetails {
+    id: string;
+    services?: string[];
+}
+
 export class BallerinaProjectManager implements IProjectManager {
     isComponentNameAvailable(componentName: string): Promise<boolean> {
         throw new Error("Method not implemented.");
     }
-    createLocalBalComponentFromExistingSource(componentDetails: ChoreoComponentCreationParams): Promise<string | boolean> {
+    createLocalBalComponentFromExistingSource(componentDetails: any): Promise<string | boolean> {
         throw new Error("Method not implemented.");
     }
     getRepoPath(repository: string): Promise<string> {
@@ -117,7 +176,7 @@ export class BallerinaProjectManager implements IProjectManager {
         return undefined;
     }
 
-    getLocalComponents(workspaceFilePath: string): Component[] {
+    getLocalComponents(workspaceFilePath: string): any[] {
         return [];
     }
 

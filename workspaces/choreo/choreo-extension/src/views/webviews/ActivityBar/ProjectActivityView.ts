@@ -49,15 +49,6 @@ export class ProjectActivityView implements vscode.WebviewViewProvider {
 		}));
 	}
 
-	// private async updateProjectInfo() {
-	// to update the panel title
-	// 	await ext.api.waitForLogin();
-	// 	const currentProject = await ext.api.getChoreoProject();
-	// 	if (currentProject && this._view) {
-	// 		this._view.description = currentProject.name;
-	// 	}
-	// }
-
 	private _getWebviewContent(webview: vscode.Webview) {
 		// The JS file from the React build output
 		const scriptUri = getUri(webview, ext.context.extensionUri, [
@@ -99,3 +90,5 @@ export class ProjectActivityView implements vscode.WebviewViewProvider {
 			`;
 	  }
 }
+
+// TODO: move common html content to different file!

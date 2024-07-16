@@ -35,7 +35,6 @@ import {
     GetTestKeyResp,
     GetSwaggerSpecReq,
 } from "@wso2-enterprise/choreo-core";
-import { workspace } from "vscode";
 import { handlerError } from "../error-utils";
 
 export class RPCClient {
@@ -50,7 +49,6 @@ export class RPCClient {
         this._conn = stdioConnection.getProtocolConnection();
         this._conn.trace(Trace.Verbose, new ChoreoTracer());
         this._conn.listen();
-        // todo: send proper version
 
         try {
             const resp = await this._conn.sendRequest<{}>("initialize", {

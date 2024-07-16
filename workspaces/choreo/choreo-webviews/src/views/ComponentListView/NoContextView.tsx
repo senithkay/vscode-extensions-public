@@ -23,7 +23,7 @@ export const NoContextView: FC<Props> = ({ loading }) => {
                 >
                     Create Component
                 </Button>
-                <p>Link a directory with an existing project</p>
+                <p>Link a directory with an existing project.</p>
                 <Button
                     className="w-full max-w-80 self-center sm:self-start"
                     onClick={() => ChoreoWebViewAPI.getInstance().triggerCmd(CommandIds.ManageDirectoryContext)}

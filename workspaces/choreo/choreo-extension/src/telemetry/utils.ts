@@ -8,8 +8,6 @@
  */
 
 import { authStore } from "../stores/auth-store";
-import { ext } from "../extensionVariables";
-import { getLogger } from "../logger/logger";
 import { getTelemetryReporter } from "./telemetry";
 
 // export async function sendProjectTelemetryEvent(eventName: string, properties?: { [key: string]: string; }, measurements?: { [key: string]: number; }) {
@@ -41,7 +39,7 @@ export function sendTelemetryException(
     measurements?: { [key: string]: number; }
 ) {
     const reporter = getTelemetryReporter();
-    reporter.sendTelemetryException(error, { ...properties, ...getCommonProperties()}, measurements);
+    reporter.sendTelemetryErrorEvent("error:"+error.message, { ...properties, ...getCommonProperties()}, measurements);
 }
 
 // Create common properties for all events

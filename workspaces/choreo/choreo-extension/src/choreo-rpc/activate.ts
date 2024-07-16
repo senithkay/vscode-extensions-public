@@ -1,6 +1,4 @@
-import { getLogger } from "../logger/logger";
 import { RPCClient } from "./client";
-import { exec, spawn } from "child_process";
 import * as fs from "fs";
 import { getCliVersion, downloadCLI, getChoreoExecPath } from "./cli-install";
 

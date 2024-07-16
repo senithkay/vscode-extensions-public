@@ -73,7 +73,6 @@
     "@types/vscode-webview": "^1.57.1",
     "@wso2-enterprise/ballerina-languageclient": "workspace:*",
     "@wso2-enterprise/ballerina-low-code-edtior-commons": "workspace:*",
-    "@wso2-enterprise/choreo-core": "workspace:*",
     "babel-loader": "^8.2.5",
     "copyfiles": "^2.4.1",
     "css-loader": "^6.7.1",

@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 import { execSync } from "child_process";
 import * as os from "os";
 import * as fs from "fs";
@@ -6,8 +5,6 @@ import * as path from "path";
 import axios from "axios";
 import { ext } from "../extensionVariables";
 import { ProgressLocation, window, workspace } from "vscode";
-import { GitProvider } from "@wso2-enterprise/choreo-core";
-import { initGit } from "src/git/main";
 
 export const getCliVersion = (): string => {
     const packageJson = JSON.parse(fs.readFileSync(path.join(ext.context.extensionPath, "package.json"), "utf8"));

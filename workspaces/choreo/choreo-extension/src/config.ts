@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { GHAppConfig } from "@wso2-enterprise/choreo-client/lib/github";
+import { GHAppConfig } from "@wso2-enterprise/choreo-core";
 import { workspace } from "vscode";
 
 export enum ChoreoSessionConfig {
@@ -273,3 +273,5 @@ switch (choreoEnv) {
 }
 
 export const choreoEnvConfig: ChoreoEnvConfig = new ChoreoEnvConfig(pickedEnvConfig);
+
+// TODO: clean this up!

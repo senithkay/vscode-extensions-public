@@ -13,7 +13,6 @@ import Drawer from '@mui/material/Drawer';
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
 import CircularProgress from '@mui/material/CircularProgress';
-import { BallerinaComponentCreationParams, BallerinaComponentTypes, TriggerDetails } from '@wso2-enterprise/choreo-core';
 import { DiagramContext } from '../../components/common';
 import { Colors } from '../../resources';
 import { AdvancedSettingsWidget, CreateButton, TextInputWidget, TypeSelector } from './components';
@@ -26,6 +25,31 @@ interface EditFormProps {
     defaultOrg: string;
     updateVisibility: (status: boolean) => void;
 }
+
+export interface TriggerDetails {
+    id: string;
+    services?: string[];
+}
+
+export interface BallerinaComponentCreationParams {
+    name: string;
+    version: string;
+    org: string;
+    package: string;
+    directory: string;
+    type: BallerinaComponentTypes;
+    trigger?: TriggerDetails;
+}
+
+export enum BallerinaComponentTypes {
+    REST_API = 'restAPI',
+    GRAPHQL = 'graphql',
+    MAIN = 'main',
+    WEBHOOK = 'webhook',
+    GRPC_API = 'grpcAPI',
+    WEBSOCKET_API = 'websocketAPI'
+}
+
 
 export function EditForm(props: EditFormProps) {
     const { visibility, defaultOrg, updateVisibility } = props;

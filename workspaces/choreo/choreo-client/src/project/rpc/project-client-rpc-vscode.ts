@@ -6,10 +6,17 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { serializeError } from "@wso2-enterprise/choreo-core";
 import { Messenger } from "vscode-messenger";
 import { IChoreoProjectClient } from "../types";
 import { CreateBuildpackComponentRequest, CreateByocComponentRequest, CreateComponentRequest, CreateMiComponentRequest, CreateProjectRequest, DeleteComponentRequest, GetComponentsRequest, GetProjectsRequest, GetRepoMetaDataRequest, LinkRepoRequest } from "./types";
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function serializeError(err: any) {
+   return {
+      message: err.message,
+      cause: err.cause ? err.cause.message : ""
+   };
+}
 
 export function registerChoreoProjectRPCHandlers(messenger: Messenger, projectClient: IChoreoProjectClient) {
    messenger.onRequest(GetProjectsRequest, (params) => projectClient.getProjects(params).catch(serializeError));

@@ -7,7 +7,6 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import {  ExtensionContext, commands, window } from "vscode";
-import { ext } from "../extensionVariables";
 import { authStore } from "../stores/auth-store";
 import { getLogger } from "../logger/logger";
 import { sendTelemetryEvent } from '../telemetry/utils';

@@ -9,7 +9,6 @@
 import { EventEmitter } from "vscode";
 
 import { Project } from "@wso2-enterprise/choreo-core";
-import { ComponentModel } from "@wso2-enterprise/ballerina-languageclient";
 
 export interface IChoreoExtensionAPI {
     /** Deprecated function. Exists due to backward compatibility with Ballerina extension */
@@ -19,9 +18,9 @@ export interface IChoreoExtensionAPI {
     /** Deprecated function. Exists due to backward compatibility with Ballerina extension */
     isChoreoProject(): Promise<boolean>;
     /** Deprecated function. Exists due to backward compatibility with Ballerina extension */
-    enrichChoreoMetadata(model: Map<string, ComponentModel>): Promise<Map<string, ComponentModel> | undefined>;
+    enrichChoreoMetadata(model: Map<string, any>): Promise<Map<string, any> | undefined>;
     /** Deprecated function. Exists due to backward compatibility with Ballerina extension */
-    getNonBalComponentModels(): Promise<{ [key: string]: ComponentModel }>;
+    getNonBalComponentModels(): Promise<{ [key: string]: any }>;
     /** Deprecated function. Exists due to backward compatibility with Ballerina extension */
     deleteComponent(projectId: string, path: string): Promise<void>;
 }

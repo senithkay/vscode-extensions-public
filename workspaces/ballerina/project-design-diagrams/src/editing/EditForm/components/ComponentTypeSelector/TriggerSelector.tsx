@@ -17,12 +17,12 @@ import Checkbox from '@mui/material/Checkbox';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
 import { ServiceType, Trigger } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
-import { TriggerDetails } from '@wso2-enterprise/choreo-core';
 import { InputComponent, SelectLabel } from '../../resources/styles';
 import { DefaultSelectBoxStyles, DefaultTextProps } from '../../resources/constants';
 import { DiagramContext } from '../../../../components/common';
 import { Colors } from '../../../../resources';
 import './styles.css';
+import { TriggerDetails } from '../AdvancedSettings/AdvancedSettingsWidget';
 
 interface TriggerSelectorProps {
     trigger: TriggerDetails;

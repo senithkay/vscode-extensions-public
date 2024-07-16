@@ -15,3 +15,4 @@ export function activateActivityWebViews(context: vscode.ExtensionContext) {
 	context.subscriptions.push(
 		vscode.window.registerWebviewViewProvider(ProjectActivityView.viewType, projectActivityViewProvider));
 }
+// TODO: move this elsewhere

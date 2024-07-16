@@ -8,7 +8,6 @@
  */
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { DiagramEngine, PortModel } from '@projectstorm/react-diagrams';
-import { ChoreoComponentType } from '@wso2-enterprise/choreo-core';
 import { EntryNodeModel } from './EntryNodeModel';
 import { Container, DisplayName } from './styles';
 import { Colors, DefaultEntryPointIcon, Level, ManualTriggerIcon, ScheduledTriggerIcon, Views } from '../../../resources';
@@ -18,6 +17,17 @@ import { CtrlClickGo2Source, DiagramContext, NodeMenuWidget } from '../../common
 interface EntryNodeProps {
     engine: DiagramEngine;
     node: EntryNodeModel;
+}
+
+enum ChoreoComponentType {
+    Service = 'service',
+    ScheduledTask = 'scheduleTask',
+    ManualTrigger = 'manualTask',
+    Webhook = 'webhook',
+    WebApplication = 'webApp',
+    EventHandler = 'eventHandler',
+    TestRunner = 'testRunner',
+    ApiProxy = 'proxy'
 }
 
 export function EntryNodeWidget(props: EntryNodeProps) {

@@ -7,57 +7,16 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-export type WebviewTypes = "NewComponentForm" | "ComponentsListActivityView" | "ComponentDetailsView" | "TestView" | "ChoreoCellView"
 
-export interface TestWebviewProps {
-    type: "TestView";
-    component: ComponentKind;
-    project: Project;
-    org: Organization;
-    env: Environment;
-    deploymentTrack: DeploymentTrack;
-    endpoints: ComponentEP[];
-}
-
-export interface NewComponentWebviewProps {
-    type: "NewComponentForm";
-    directoryPath: string;
-    directoryFsPath: string;
-    directoryName: string;
-    organization: Organization;
-    project: Project;
-    existingComponents: ComponentKind[];
-    initialValues?: { type?: string; buildPackLang?: string; subPath?: string; };
-}
-export interface ComponentsDetailsWebviewProps {
-    type: "ComponentDetailsView";
-    organization: Organization;
-    project: Project;
-    component: ComponentKind;
-    directoryPath?: string;
-}
-
-export interface ComponentsListActivityViewProps {
-    type: "ComponentsListActivityView";
-    directoryPath?: string;
-}
-
-export type WebviewProps = ComponentsDetailsWebviewProps | NewComponentWebviewProps | ComponentsListActivityViewProps | TestWebviewProps
-
-export interface Owner {
-    id: string;
-    idpId: string;
-    createdAt: Date;
-}
 export interface Organization {
     id: number;
     uuid: string;
     handle: string;
     name: string;
-    owner: Owner;
+    owner: { id: string; idpId: string; createdAt: Date; };
 }
 
-
+// move to extension
 export interface DataCacheState {
     orgs?: {
         [orgHandle: string]: {
@@ -420,6 +379,13 @@ export interface ICreateComponentParams {
     initialValues?: IComponentCreateInitValues
 }
 
+export interface GHAppConfig {
+    appUrl: string;
+    installUrl: string;
+    authUrl: string;
+    clientId: string;
+    redirectUrl: string;
+}
 
 /////////////////////////////////////
 /////////////////////////////////////
@@ -618,39 +584,9 @@ export interface BuildpackBuildConfig {
     };
 }
 
-export interface Metadata {
-    choreoEnv: string;
-}
 
-export interface Release {
-    id: string;
-    metadata: Metadata;
-    environmentId: string;
-    environment?: unknown;
-    gitHash?: unknown;
-    gitOpsHash?: unknown;
-}
 
-export interface AppEnvVersion {
-    environmentId: string;
-    releaseId: string;
-    release: Release;
-}
 
-export interface ApiVersionDetailed extends ApiVersion {
-    appEnvVersions: AppEnvVersion[];
-}
-
-export interface ComponentDetailed extends Component {
-    ownerName: string;
-    orgId: number;
-    labels: unknown[];
-    updatedAt: Date;
-    apiId?: unknown;
-    httpBased: boolean;
-    isMigrationCompleted: boolean;
-    apiVersions: ApiVersionDetailed[];
-}
 
 export interface WorkspaceItem {
     name: string;
@@ -966,33 +902,6 @@ export interface ServiceReference {
     env?: ServiceReferenceEnv[];
 }
 
-export interface ComponentYamlSchema {
-    $schema?: string;
-    $id?: string;
-    title?: string;
-    description?: string;
-    type: string;
-    properties?: {
-        [key: string]: ComponentYamlSchema;
-    };
-    definitions?: {
-        [key: string]: ComponentYamlSchema;
-    };
-    allOf?: [
-        {
-            [key: string]: ComponentYamlSchema;
-        }
-    ];
-    default?: string;
-    const?: string;
-    enum?: string[];
-    pattern?: string;
-    format?: string;
-    minLength?: number;
-    items?: ComponentYamlSchema;
-    required?: string[];
-    $ref?: string;
-}
 
 export interface ComponentYamlContent {
     apiVersion: "core.choreo.dev/v1alpha1";
@@ -1016,61 +925,4 @@ export interface ComponentYamlContent {
             }[];
         };
     };
-}
-
-// TODO: remove?
-export enum CellComponentType {
-    SERVICE = 'service',
-    WEB_APP = 'web-app',
-    SCHEDULED_TASK = 'scheduled-task',
-    MANUAL_TASK = 'manual-task',
-    API_PROXY = 'api-proxy',
-    WEB_HOOK = 'web-hook',
-    EVENT_HANDLER = 'event-handler',
-    TEST = 'test',
-}
-
-// TODO: remove?
-export function getGeneralizedCellComponentType(
-    type: ComponentDisplayType
-): CellComponentType {
-    switch (type) {
-        case ComponentDisplayType.RestApi:
-        case ComponentDisplayType.Service:
-        case ComponentDisplayType.ByocService:
-        case ComponentDisplayType.GraphQL:
-        case ComponentDisplayType.MiApiService:
-        case ComponentDisplayType.MiRestApi:
-        case ComponentDisplayType.BuildpackService:
-        // case ComponentDisplayType.BuildpackRestApi:
-        // case ComponentDisplayType.Websocket:
-            return CellComponentType.SERVICE;
-        case ComponentDisplayType.ManualTrigger:
-        case ComponentDisplayType.ByocJob:
-        case ComponentDisplayType.BuildpackJob:
-        case ComponentDisplayType.MiJob:
-            return CellComponentType.MANUAL_TASK;
-        case ComponentDisplayType.ScheduledTask:
-        case ComponentDisplayType.ByocCronjob:
-        case ComponentDisplayType.BuildpackCronJob:
-        case ComponentDisplayType.MiCronjob:
-            return CellComponentType.SCHEDULED_TASK;
-        case ComponentDisplayType.Webhook:
-        case ComponentDisplayType.ByocWebhook:
-        case ComponentDisplayType.BuildpackWebhook:
-            return CellComponentType.WEB_HOOK;
-        case ComponentDisplayType.Proxy:
-            return CellComponentType.API_PROXY;
-        case ComponentDisplayType.ByocWebApp:
-        case ComponentDisplayType.ByocWebAppDockerLess:
-        case ComponentDisplayType.BuildpackWebApp:
-            return CellComponentType.WEB_APP;
-        case ComponentDisplayType.MiEventHandler:
-        case ComponentDisplayType.BallerinaEventHandler:
-            return CellComponentType.EVENT_HANDLER;
-        case ComponentDisplayType.BuildpackTestRunner:
-            return CellComponentType.TEST;
-        default:
-            return CellComponentType.SERVICE;
-    }
 }

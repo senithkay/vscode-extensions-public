@@ -7,8 +7,8 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 export * from "./types";
+export * from "./webview-types";
 export * from "./rpc";
-export * from "./manager";
 export * from "./events";
 export * from "./notifications";
 export * from "./constants";
