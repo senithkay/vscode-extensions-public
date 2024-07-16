@@ -1646,8 +1646,3 @@ export interface TestDbConnectionRequest {
 export interface TestDbConnectionResponse {
     success: boolean;
 }
-
-export interface MarkAsDefaultSequenceRequest {
-    path: string;
-    remove?: boolean;
-}

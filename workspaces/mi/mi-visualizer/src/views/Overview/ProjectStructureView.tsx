@@ -52,7 +52,6 @@ interface ArtifactType {
     isCodicon?: boolean;
     description: (entry: any) => string;
     path: (entry: any) => string;
-    isMainSequence?: boolean;
 }
 
 const artifactTypeMap: Record<string, ArtifactType> = {
@@ -207,10 +206,6 @@ const ProjectStructureView = (props: { projectStructure: any, workspaceDir: stri
         rpcClient.getMiDiagramRpcClient().deleteArtifact({ path, enableUndo: true });
     }
 
-    const markAsDefaultSequence = (path: string, remove: boolean) => {
-        rpcClient.getMiDiagramRpcClient().markAsDefaultSequence({ path, remove });
-    }
-
     const ifHasEntries = () => {
         const artifacts = projectStructure.directoryMap.src.main.wso2mi.artifacts;
         if (artifacts) {
@@ -286,8 +281,6 @@ const ProjectStructureView = (props: { projectStructure: any, workspaceDir: stri
                                                 goToView={() => goToView(artifactTypeMap[key].path(entry), artifactTypeMap[key].view)}
                                                 goToSource={() => goToSource(artifactTypeMap[key].path(entry))}
                                                 deleteArtifact={() => deleteArtifact(artifactTypeMap[key].path(entry))}
-                                                isMainSequence={entry.isMainSequence}
-                                                markAsDefaultSequence={artifactTypeMap[key].title == "Sequences" ? () => markAsDefaultSequence(artifactTypeMap[key].path(entry), entry.isMainSequence) : undefined}
                                             />
                                         ) : (
                                             (key === "localEntries") && Object.entries(entry).map(([key, value]) => {
@@ -358,8 +351,6 @@ interface EntryProps {
     goToView: () => void;
     goToSource: () => void;
     deleteArtifact: () => void;
-    isMainSequence?: boolean;
-    markAsDefaultSequence?: () => void;
 }
 
 const EntryContainer = styled.div`
@@ -374,8 +365,7 @@ const EntryContainer = styled.div`
     }
 `;
 
-const Entry: React.FC<EntryProps> = ({
-    icon, name, description, onClick, goToView, goToSource, deleteArtifact, isMainSequence, markAsDefaultSequence, iconSx, isCodicon }) => {
+const Entry: React.FC<EntryProps> = ({ icon, name, description, onClick, goToView, goToSource, deleteArtifact, iconSx, isCodicon }) => {
     const [showFallbackIcon, setShowFallbackIcon] = useState(false);
 
     return (
@@ -397,17 +387,8 @@ const Entry: React.FC<EntryProps> = ({
             <div style={{ flex: 2, fontWeight: 'bold' }}>
                 {name}
             </div>
-            <div style={{ flex: 9, display: 'flex' }}>
-                <div style={{ flex: 6 }}>{description}</div>
-                {isMainSequence && <div style={{ flex: 2 }}>
-                    <div style={{
-                        backgroundColor: 'var(--button-secondary-background)',
-                        color: 'white',
-                        padding: 'var(--button-padding-vertical) var(--button-padding-horizontal)',
-                        width: 'fit-content',
-                        borderRadius: '10px'
-                    }}>Main Sequence</div>
-                </div>}
+            <div style={{ flex: 9 }}>
+                {description}
             </div>
             <div style={{ marginLeft: 'auto' }}>
                 <ContextMenu
@@ -423,11 +404,6 @@ const Entry: React.FC<EntryProps> = ({
                             label: "Go to Source",
                             onClick: goToSource,
                         },
-                        ...(markAsDefaultSequence ? [{
-                            id: "markAsAutomationModeDefaultSequence",
-                            label: `${isMainSequence ? "Remove" : "Set"} as main sequence`,
-                            onClick: markAsDefaultSequence,
-                        }] : []),
                         {
                             id: "deleteArtifact",
                             label: "Delete",
